@@ -7,7 +7,6 @@ import com.chua.datasource.support.engine.MemoryWhereParser;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.mvstore.MVStoreModule;
 import org.dizitart.no2.NitriteBuilder;
-import org.dizitart.no2.document.Document;
 import org.dizitart.no2.repository.ObjectRepository;
 
 import java.util.ArrayList;
@@ -25,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("nitrite")
 public class NitriteEngine extends AbstractEngine {
 
+    /** 数据源未找到错误前缀 */
+    private static final String ERROR_DATASOURCE_NOT_FOUND = "Nitrite 数据源未找到: ";
+    /** 数据库实例映射表 */
     private final ConcurrentHashMap<String, Nitrite> databases = new ConcurrentHashMap<>();
 
     /**
@@ -81,7 +83,7 @@ public class NitriteEngine extends AbstractEngine {
     public <T> ObjectRepository<T> getRepository(String name, Class<T> entityClass) {
         Nitrite nitrite = databases.get(name);
         if (nitrite == null) {
-            throw new IllegalArgumentException("Nitrite 数据源未找到: " + name);
+            throw new IllegalArgumentException(ERROR_DATASOURCE_NOT_FOUND + name);
         }
         return nitrite.getRepository(entityClass);
     }
