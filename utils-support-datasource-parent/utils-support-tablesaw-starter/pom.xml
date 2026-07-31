@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-datasource-parent</artifactId>
+        <version>4.0.0.42</version>
+    </parent>
+    <artifactId>utils-support-tablesaw-starter</artifactId>
+    <name>Utils Support Tablesaw Starter - Tablesaw 数据引擎</name>
+    <description>
+        Tablesaw 数据引擎模块，基于 Tablesaw 数据处理引擎提供文件数据源的 ORM 查询能力。
+        支持 CSV 文件加载，通过 LambdaQueryWrapper / LambdaUpdateWrapper 提供标准的 Engine ORM 接口。
+    </description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>tech.tablesaw</groupId>
+            <artifactId>tablesaw-core</artifactId>
+            <version>0.43.1</version>
+        </dependency>
+    </dependencies>
+</project>

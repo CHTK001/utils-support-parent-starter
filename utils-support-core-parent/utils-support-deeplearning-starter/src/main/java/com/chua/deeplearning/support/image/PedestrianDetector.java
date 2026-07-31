@@ -1,0 +1,168 @@
+package com.chua.deeplearning.support.image;
+
+import com.chua.deeplearning.support.config.ModelSetting;
+import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.IdentificationEngine;
+import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.translator.ITranslator;
+
+import java.util.List;
+
+/**
+ * 行人检测器。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public interface PedestrianDetector {
+
+    /**
+     * 创建行人检测器。
+     *
+     * @param name 模型名称
+     * @return 检测器
+     */
+    static PedestrianDetector create(String name) {
+        return new DefaultPedestrianDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+    }
+
+    /**
+     * 创建行人检测器。
+     *
+     * @param name    模型名称
+     * @param setting 模型配置
+     * @return 检测器
+     */
+    static PedestrianDetector create(String name, ModelSetting setting) {
+        return new DefaultPedestrianDetector(AbstractIdentificationEngine.getInstance(), name, setting);
+    }
+
+    /**
+     * 设置置信度阈值。
+     *
+     * @param threshold 阈值
+     * @return this
+     */
+    default PedestrianDetector threshold(float threshold) {
+        return this;
+    }
+
+    /**
+     * 设置模型路径。
+     *
+     * @param path 路径
+     * @return this
+     */
+    default PedestrianDetector modelPath(String path) {
+        return this;
+    }
+
+    /**
+     * 设置运行设备。
+     *
+     * @param device 设备
+     * @return this
+     */
+    default PedestrianDetector device(String device) {
+        return this;
+    }
+
+    /**
+     * 检测行人。
+     *
+     * @param imageData 图像字节数组
+     * @return 检测结果
+     */
+    List<DetectionInfo> detect(byte[] imageData);
+
+    /**
+     * 行人数量。
+     *
+     * @param imageData 图像字节数组
+     * @return 数量
+     */
+    default int count(byte[] imageData) {
+        return detect(imageData).size();
+    }
+}
+
+/**
+ * 默认行人检测器实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+class DefaultPedestrianDetector implements PedestrianDetector {
+
+    /**
+     * 识别引擎。
+     */
+    private final IdentificationEngine engine;
+
+    /**
+     * 模型名称。
+     */
+    private final String modelName;
+
+    /**
+     * 模型配置。
+     */
+    @SuppressWarnings("unused")
+    private final ModelSetting setting;
+
+    /**
+     * 置信度阈值。
+     */
+    private float threshold = 0.5f;
+
+    /**
+     * 模型路径。
+     */
+    private String modelPath;
+
+    /**
+     * 运行设备。
+     */
+    private String device = "cpu";
+
+    DefaultPedestrianDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
+        this.engine = engine;
+        this.modelName = modelName;
+        this.setting = setting;
+        if (setting.getModelPath() != null) {
+            this.modelPath = setting.getModelPath();
+        }
+        if (setting.getDevice() != null) {
+            this.device = setting.getDevice();
+        }
+    }
+
+    @Override
+    public PedestrianDetector threshold(float threshold) {
+        this.threshold = threshold;
+        return this;
+    }
+
+    @Override
+    public PedestrianDetector modelPath(String path) {
+        this.modelPath = path;
+        return this;
+    }
+
+    @Override
+    public PedestrianDetector device(String device) {
+        this.device = device;
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<DetectionInfo> detect(byte[] imageData) {
+        ITranslator<byte[], List<DetectionInfo>> t =
+                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);
+        if (t == null) {
+            throw new IllegalStateException("模型未注册: " + modelName);
+        }
+        return t.translate(imageData);
+    }
+}

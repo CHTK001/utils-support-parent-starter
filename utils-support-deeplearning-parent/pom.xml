@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-parent-starter</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-deeplearning-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Utils Support Deep Learning Parent</name>
+    <description>深度学习模块：ONNX / PyTorch / Paddle / TensorFlow / AgentScope / LangChain4j / Llama.cpp</description>
+    <properties>
+        <langchain4j.version>1.12.2</langchain4j.version>
+    </properties>
+    <modules>
+        <module>utils-support-deeplearning-onnx-starter</module>
+        <module>utils-support-deeplearning-pytorch-starter</module>
+        <module>utils-support-deeplearning-paddle-starter</module>
+        <module>utils-support-deeplearning-tensorflow-starter</module>
+        <module>utils-support-deeplearning-mxnet-starter</module>
+        <module>utils-support-deeplearning-agentscope-starter</module>
+        <module>utils-support-deeplearning-langchain4j-starter</module>
+        <module>utils-support-deeplearning-opencv-starter</module>
+        <module>utils-support-deeplearning-safetensors-starter</module>
+        <module>utils-support-deeplearning-3d-starter</module>
+        <module>utils-support-deeplearning-llama-starter</module>
+        <module>utils-support-deeplearning-arcsoft-starter</module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

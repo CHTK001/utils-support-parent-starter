@@ -1,0 +1,85 @@
+package com.chua.common.support.objects.lifecycle.impl;
+
+import com.chua.common.support.objects.definition.BeanDefinition;
+import com.chua.common.support.objects.lifecycle.BeanDefinitionLifecycle;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.utils.ClassUtils;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
+/**
+ * JSR 标准生命周期处理器，通过反射处理 @PostConstruct 和 @PreDestroy 注解。
+ *
+ * <p>支持的 JSR 标准：
+ * <ul>
+ *   <li>JSR-250：@PostConstruct（javax.annotation.PostConstruct / jakarta.annotation.PostConstruct）</li>
+ *   <li>JSR-250：@PreDestroy（javax.annotation.PreDestroy / jakarta.annotation.PreDestroy）</li>
+ * </ul></p>
+ *
+ * <p>所有注解均通过反射按类名检测，不依赖编译时注解 API。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Slf4j
+@Spi("jsr")
+@SpiDescribe("JSR 标准生命周期处理器（@PostConstruct、@PreDestroy）")
+public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
+
+    private static final String POST_CONSTRUCT_JAVAX = "javax.annotation.PostConstruct";
+    private static final String POST_CONSTRUCT_JAKARTA = "jakarta.annotation.PostConstruct";
+    private static final String PRE_DESTROY_JAVAX = "javax.annotation.PreDestroy";
+    private static final String PRE_DESTROY_JAKARTA = "jakarta.annotation.PreDestroy";
+
+    @Override
+    public boolean isSupport(BeanDefinition beanDefinition) {
+        return true;
+    }
+
+    @Override
+    public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
+        if (bean == null) {
+            return;
+        }
+        invokeAnnotatedMethods(bean, POST_CONSTRUCT_JAVAX, POST_CONSTRUCT_JAKARTA);
+    }
+
+    @Override
+    public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
+        if (bean == null) {
+            return;
+        }
+        invokeAnnotatedMethods(bean, PRE_DESTROY_JAVAX, PRE_DESTROY_JAKARTA);
+    }
+
+    private void invokeAnnotatedMethods(Object bean, String... annotationNames) {
+        for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
+            if (method.getParameterCount() > 0) {
+                continue;
+            }
+            if (hasAnyAnnotation(method, annotationNames)) {
+                try {
+                    ClassUtils.setAccessible(method);
+                    method.invoke(bean);
+                } catch (Exception e) {
+                    log.warn("调用 JSR 生命周期方法失败: {}", method.getName(), e);
+                }
+            }
+        }
+    }
+
+    private boolean hasAnyAnnotation(Method method, String... annotationNames) {
+        for (Annotation ann : method.getAnnotations()) {
+            String name = ann.annotationType().getName();
+            for (String target : annotationNames) {
+                if (target.equals(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}

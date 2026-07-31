@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-parent-starter</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-cloud-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Utils Support Cloud Parent</name>
+    <description>云服务集成父模块：阿里云、腾讯云、华为云、AWS、AI 大模型等</description>
+    <modules>
+        <module>utils-support-amazon-starter</module>
+        <module>utils-support-baidu-starter</module>
+        <module>utils-support-claude-starter</module>
+        <module>utils-support-dingding-starter</module>
+        <module>utils-support-feishu-starter</module>
+        <module>utils-support-qq-starter</module>
+        <module>utils-support-doubao-starter</module>
+        <module>utils-support-google-starter</module>
+        <module>utils-support-huawei-starter</module>
+        <module>utils-support-microsoft-starter</module>
+        <module>utils-support-qiniu-starter</module>
+        <module>utils-support-hunyuan-starter</module>
+        <module>utils-support-tencent-starter</module>
+        <module>utils-support-xunfei-starter</module>
+        <module>utils-support-zai-starter</module>
+        <module>utils-support-zhipu-starter</module>
+        <module>utils-support-alibaba-starter</module>
+        <module>utils-support-openai-starter</module>
+    </modules>
+</project>
+

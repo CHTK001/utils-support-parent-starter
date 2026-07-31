@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.chua</groupId>
+    <artifactId>utils-support-extra-parent</artifactId>
+    <version>4.0.0.42</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+    <artifactId>utils-support-oshi-starter</artifactId>
+    <name>Utils Support OSHI Starter</name>
+    <description>OSHI 系统硬件信息工具模块：CPU、内存、磁盘、网络等本机指标采集</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

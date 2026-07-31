@@ -1,0 +1,1 @@
+osgi=com.chua.osgi.support.register.impl.OsgiBeanDefinitionRegister

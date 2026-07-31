@@ -1,0 +1,2 @@
+default=com.chua.common.support.objects.inject.impl.DefaultBeanDefinitionMethodInjector
+jsr=com.chua.common.support.objects.inject.impl.JsrBeanDefinitionMethodInjector

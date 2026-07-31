@@ -1,0 +1,189 @@
+package com.chua.deeplearning.support.image;
+
+import com.chua.deeplearning.support.config.ModelSetting;
+import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.IdentificationEngine;
+import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.translator.ITranslator;
+
+import java.util.List;
+
+/**
+ * 图像分类器，对图像进行单标签或多标签分类。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public interface ImageClassifier {
+
+    /**
+     * 创建图像分类器。
+     *
+     * @param name 模型名称
+     * @return 分类器
+     */
+    static ImageClassifier create(String name) {
+        return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+    }
+
+    /**
+     * 创建图像分类器。
+     *
+     * @param name    模型名称
+     * @param setting 模型配置
+     * @return 分类器
+     */
+    static ImageClassifier create(String name, ModelSetting setting) {
+        return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, setting);
+    }
+
+    /**
+     * 设置 Top-K 分类数。
+     *
+     * @param k 返回的分类数
+     * @return this
+     */
+    ImageClassifier topK(int k);
+
+    /**
+     * 设置模型路径。
+     *
+     * @param path 路径
+     * @return this
+     */
+    ImageClassifier modelPath(String path);
+
+    /**
+     * 设置运行设备。
+     *
+     * @param device 设备
+     * @return this
+     */
+    ImageClassifier device(String device);
+
+    /**
+     * 分类图像，返回最可能的类别。
+     *
+     * @param imageData 图像数据
+     * @return 类别名称
+     */
+    String classify(byte[] imageData);
+
+    /**
+     * 分类图像，返回 Top-K 类别。
+     *
+     * @param imageData 图像数据
+     * @param k         返回的类别数
+     * @return 分类信息列表
+     */
+    List<DetectionInfo> classifyTopK(byte[] imageData, int k);
+}
+
+/**
+ * 默认图像分类器实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+class DefaultImageClassifier implements ImageClassifier {
+
+    /**
+     * 默认 Top-K 值。
+     */
+    private static final int DEFAULT_TOP_K = 5;
+
+    /**
+     * 默认运行设备（CPU）。
+     */
+    private static final String DEFAULT_DEVICE = "cpu";
+
+    /**
+     * 识别引擎。
+     */
+    private final IdentificationEngine engine;
+
+    /**
+     * 模型名称。
+     */
+    private final String modelName;
+
+    /**
+     * 模型配置。
+     */
+    @SuppressWarnings("unused")
+    private final ModelSetting setting;
+
+    /**
+     * Top-K 分类数。
+     */
+    private int topK = DEFAULT_TOP_K;
+
+    /**
+     * 模型路径。
+     */
+    private String modelPath;
+
+    /**
+     * 运行设备。
+     */
+    private String device = DEFAULT_DEVICE;
+
+    /**
+     * 构造默认图像分类器。
+     *
+     * @param engine    识别引擎
+     * @param modelName 模型名称
+     * @param setting   模型配置
+     */
+    DefaultImageClassifier(IdentificationEngine engine, String modelName, ModelSetting setting) {
+        this.engine = engine;
+        this.modelName = modelName;
+        this.setting = setting;
+        if (setting.getModelPath() != null) {
+            this.modelPath = setting.getModelPath();
+        }
+        if (setting.getDevice() != null) {
+            this.device = setting.getDevice();
+        }
+    }
+
+    @Override
+    public ImageClassifier topK(int k) {
+        this.topK = k;
+        return this;
+    }
+
+    @Override
+    public ImageClassifier modelPath(String path) {
+        this.modelPath = path;
+        return this;
+    }
+
+    @Override
+    public ImageClassifier device(String device) {
+        this.device = device;
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public String classify(byte[] imageData) {
+        ITranslator<byte[], String> t =
+                (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
+        if (t == null) {
+            throw new IllegalStateException("模型未注册: " + modelName);
+        }
+        return t.translate(imageData);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
+        ITranslator<byte[], List<DetectionInfo>> t =
+                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);
+        if (t == null) {
+            throw new IllegalStateException("模型未注册: " + modelName);
+        }
+        return t.translate(imageData);
+    }
+}

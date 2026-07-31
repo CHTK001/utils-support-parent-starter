@@ -1,0 +1,13 @@
+com.chua.common.support.datasearch.software.spi.impl.PackageManagerSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.NpmSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.PipSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.CargoSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.GemSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.ComposerSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.NuGetSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.GoSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.CondaSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.HelmSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.VcpkgSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.ConanSoftwareProvider
+com.chua.common.support.datasearch.software.spi.impl.PacmanSoftwareProvider

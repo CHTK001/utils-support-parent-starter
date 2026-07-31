@@ -1,0 +1,3 @@
+com.chua.common.support.media.codec.JavaCvFfmpegVideoEncoder
+com.chua.common.support.media.codec.JpegVideoEncoder
+com.chua.common.support.media.codec.H265VideoEncoder

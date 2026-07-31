@@ -1,0 +1,17 @@
+com.chua.common.support.datasearch.usage.spi.impl.OpencodeUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.CcswitchUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.ZocdeUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.CodexPlusPlusUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.CursorByokUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.VscodeUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.ClaudeCodeUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.WindsurfUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.ClineUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.RooCodeUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.TraeUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.AugmentUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.ContinueUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.GeminiCliUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.CodyUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.CodeBuddyUsageProvider
+com.chua.common.support.datasearch.usage.spi.impl.TraeCnUsageProvider

@@ -1,0 +1,883 @@
+package com.chua.solr.support.engine;
+
+import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
+import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
+import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.datasource.support.engine.AbstractEngine;
+import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
+import com.chua.solr.support.meta.SolrMetaData;
+import com.chua.solr.support.meta.SolrSearchEngine;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest;
+import org.apache.solr.client.solrj.request.json.JsonFacetMap;
+import org.apache.solr.client.solrj.request.json.JsonQueryRequest;
+import org.apache.solr.client.solrj.request.json.TermsFacetMap;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.json.BucketBasedJsonFacet;
+import org.apache.solr.client.solrj.response.json.BucketJsonFacet;
+import org.apache.solr.client.solrj.response.json.NestableJsonFacet;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * @author CH
+ */
+@Slf4j
+@Spi("solr")
+public class SolrEngine extends AbstractEngine {
+
+    private SolrClient client;
+    private String defaultDataSourceName;
+
+    @Override
+    public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
+        Object src = dataSource.getSource();
+        if (src instanceof SolrClient sc) {
+            this.client = sc;
+        } else if (src instanceof String url) {
+            this.client = new HttpSolrClient.Builder(url).build();
+        }
+        dataSources.put(name, (EngineDataSource<Object>) dataSource);
+        if (defaultDataSourceName == null) {
+            defaultDataSourceName = name;
+        }
+        return this;
+    }
+
+    @Override
+    public Engine setDefaultDataSourceName(String name) {
+        this.defaultDataSourceName = name;
+        return this;
+    }
+
+    @Override
+    public <T> Engine store(String name, List<T> data) {
+        SolrClient sc = getClient();
+        if (sc == null) {
+            log.warn("Solr 客户端未初始化，跳过 store: {}", name);
+            return this;
+        }
+        try {
+            for (T item : data) {
+                SolrInputDocument doc = new SolrInputDocument();
+                boolean hasId = false;
+                for (var method : item.getClass().getMethods()) {
+                    if (method.getParameterCount() == 0 && method.getName().startsWith("get")
+                            && !method.getName().equals("getClass")) {
+                        String prop = method.getName().substring(3);
+                        String field = Character.toLowerCase(prop.charAt(0)) + prop.substring(1);
+                        Object value = method.invoke(item);
+                        if (value != null) {
+                            doc.addField(field, value);
+                            if (SolrFields.ID.equals(field)) {
+                                hasId = true;
+                            }
+                        }
+                    }
+                }
+                if (!hasId) {
+                    doc.addField(SolrFields.ID, UUID.randomUUID().toString());
+                }
+                sc.add(name, doc);
+            }
+            sc.commit(name);
+        } catch (Exception e) {
+            log.warn("Solr store失败: " + e.getMessage(), e);
+        }
+        return this;
+    }
+
+    @Override
+    public SqlExecutor getExecutor(String dataSourceName) {
+        return null;
+    }
+
+    @Override
+    public SqlExecutor getExecutor() {
+        return null;
+    }
+
+    @Override
+    public Dialect getDialect(String dataSourceName) {
+        return null;
+    }
+
+    @Override
+    public String getDefaultDataSourceName() {
+        return defaultDataSourceName;
+    }
+
+    @Override
+    public MetaData meta() {
+        return new SolrMetaData(this);
+    }
+
+    @Override
+    public void close() {
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Exception e) {
+                log.warn("关闭 SolrClient 失败", e);
+            }
+        }
+        super.close();
+    }
+
+    @Override
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+        SolrClient sc = getClient();
+        if (sc == null) {
+            log.warn("[SOLR_DEBUG] getClient() returned null");
+            return Collections.emptyList();
+        }
+        try {
+            String collectionName = entityClass.getSimpleName().toLowerCase();
+            org.apache.solr.client.solrj.SolrQuery query = new org.apache.solr.client.solrj.SolrQuery();
+            if (where == null || where.isEmpty()) {
+                query.setQuery("*:*");
+            } else {
+                query.setQuery(where);
+            }
+            if (params != null && params.length > 0) {
+                for (Object param : params) {
+                    query.addFilterQuery(String.valueOf(param));
+                }
+            }
+            query.setRows(1000);
+            log.warn("[SOLR_DEBUG] query collection={}, query={}, params={}", collectionName, query.getQuery(), java.util.Arrays.toString(params));
+            QueryResponse response = sc.query(collectionName, query);
+            SolrDocumentList docs = response.getResults();
+            log.warn("[SOLR_DEBUG] numFound={}", docs.getNumFound());
+            List<T> result = new ArrayList<>();
+            for (SolrDocument doc : docs) {
+                T instance = entityClass.getDeclaredConstructor().newInstance();
+                for (String field : doc.getFieldNames()) {
+                    Object value = doc.getFieldValue(field);
+                    if (value instanceof List<?> list && !list.isEmpty()) {
+                        value = list.get(0);
+                    }
+                    String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
+                    for (var method : entityClass.getMethods()) {
+                        if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                            method.invoke(instance, convertValue(value, method.getParameterTypes()[0]));
+                            break;
+                        }
+                    }
+                }
+                result.add(instance);
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("[SOLR_DEBUG] exception: {}", e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public <T> int executeUpdate(com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql<T> sql) {
+        return 0;
+    }
+
+    @Override
+    public <T> int executeDelete(com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql<T> sql) {
+        return 0;
+    }
+
+    // ==================== ORM：Condition -> Solr 查询 ====================
+
+    @Override
+    public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
+        return new LambdaQueryWrapper<T>(entityClass) {
+
+            @Override
+            protected String resolveColumn(SFunction<T, ?> col) {
+                return LambdaUtils.resolveObject(col);
+            }
+
+            @Override
+            protected LambdaQueryWrapper<T> newInstance() {
+                return new LambdaQueryWrapper<T>(entityClass) {
+                    @Override
+                    protected String resolveColumn(SFunction<T, ?> col) {
+                        return LambdaUtils.resolveObject(col);
+                    }
+                };
+            }
+
+            @Override
+            public List<T> list() {
+                return search(entityClass, getConditions());
+            }
+
+            @Override
+            public T one() {
+                List<T> results = search(entityClass, getConditions());
+                if (results.isEmpty()) {
+                    return null;
+                }
+                return results.get(0);
+            }
+
+            @Override
+            public Page<T> page(int pn, int ps) {
+                int from = (pn - 1) * ps;
+                SearchResult<T> sr = search(entityClass, getConditions(), from, ps);
+                return new Page<>(pn, ps, sr.total(), sr.list());
+            }
+        };
+    }
+
+    /**
+     * Solr 分组查询入口。
+     * <p>将 GROUP BY 字段翻译为 Solr JSON Facet，返回每组 group_key 与 count。</p>
+     *
+     * @param entityClass 实体类
+     * @param groupByCols 分组字段列表（至少一个）
+     * @return 分组查询包装器
+     */
+    @SafeVarargs
+    public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
+        return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
+    }
+
+    // ==================== GROUP BY wrapper ====================
+
+    public static final class GroupByQueryWrapper<T> {
+
+        private final SolrEngine engine;
+        private final Class<T> entityClass;
+        private final List<String> groupByCols = new ArrayList<>();
+        private final List<String> where = new ArrayList<>();
+        private final List<Object> params = new ArrayList<>();
+        private final List<String> selectCols = new ArrayList<>();
+        private int offset = 0;
+        private int limit = 1000;
+        private String sortCol;
+        private boolean sortAsc = true;
+
+        GroupByQueryWrapper(SolrEngine engine, Class<T> entityClass, String... groupByCols) {
+            this.engine = engine;
+            this.entityClass = entityClass;
+            if (groupByCols != null) {
+                for (String c : groupByCols) {
+                    if (c != null && !c.isEmpty()) {
+                        this.groupByCols.add(c);
+                    }
+                }
+            }
+        }
+
+        public GroupByQueryWrapper<T> select(String... cols) {
+            selectCols.addAll(List.of(cols));
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> eq(String col, Object val) {
+            where.add(escape(col) + ":" + escapeValue(val));
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> ne(String col, Object val) {
+            where.add("-" + escape(col) + ":" + escapeValue(val));
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> gt(String col, Object val) {
+            where.add(escape(col) + ":{" + escapeValue(val) + " TO *}");
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> ge(String col, Object val) {
+            where.add(escape(col) + ":[" + escapeValue(val) + " TO *]");
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> lt(String col, Object val) {
+            where.add(escape(col) + ":{* TO " + escapeValue(val) + "}");
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> le(String col, Object val) {
+            where.add(escape(col) + ":[* TO " + escapeValue(val) + "]");
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> like(String col, String pattern) {
+            String p = pattern;
+            if (p.contains("%")) {
+                p = p.replace("%", "*");
+            }
+            if (!p.startsWith("*")) {
+                p = "*" + p;
+            }
+            if (!p.endsWith("*")) {
+                p = p + "*";
+            }
+            where.add(escape(col) + ":" + escapeValue(p));
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(escape(col)).append(":(");
+            Iterator<?> it = vals.iterator();
+            while (it.hasNext()) {
+                sb.append(escapeValue(it.next()));
+                if (it.hasNext()) {
+                    sb.append(" ");
+                }
+            }
+            sb.append(")");
+            where.add(sb.toString());
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
+            this.sortCol = col;
+            this.sortAsc = asc;
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> limit(int limit) {
+            this.limit = Math.max(1, limit);
+            return this;
+        }
+
+        public GroupByQueryWrapper<T> offset(int offset) {
+            this.offset = Math.max(0, offset);
+            return this;
+        }
+
+        public List<Map<String, Object>> list() {
+            return executeGroupBy();
+        }
+
+        public Page<Map<String, Object>> page(int pn, int ps) {
+            List<Map<String, Object>> all = executeGroupBy();
+            int from = (pn - 1) * ps;
+            int to = Math.min(from + ps, all.size());
+            if (from >= all.size()) {
+                return new Page<>(pn, ps, all.size(), Collections.emptyList());
+            }
+            return new Page<>(pn, ps, all.size(), all.subList(from, to));
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        private List<Map<String, Object>> executeGroupBy() {
+            SolrClient sc = engine.getClient();
+            if (sc == null || groupByCols.isEmpty()) {
+                return Collections.emptyList();
+            }
+            try {
+                String collectionName = entityClass.getSimpleName().toLowerCase();
+                String query = "*:*";
+                if (!where.isEmpty()) {
+                    query = String.join(" AND ", where);
+                }
+                String jsonFacet = buildJsonFacet(groupByCols, 0);
+                org.apache.solr.client.solrj.SolrQuery sq = new org.apache.solr.client.solrj.SolrQuery();
+                sq.setQuery(query);
+                sq.setParam("json.facet", jsonFacet);
+                sq.setStart(offset);
+                sq.setRows(limit);
+                if (sortCol != null && !sortCol.isEmpty()) {
+                    sq.setSort(sortCol, sortAsc
+                            ? org.apache.solr.client.solrj.SolrQuery.ORDER.asc
+                            : org.apache.solr.client.solrj.SolrQuery.ORDER.desc);
+                }
+                org.apache.solr.client.solrj.response.QueryResponse response = sc.query(collectionName, sq);
+                Object facetsObj = response.getResponse().get("facets");
+                List<Map<String, Object>> result = parseFacetResponse(facetsObj, groupByCols, 0);
+                return result != null ? result : Collections.emptyList();
+            } catch (Exception e) {
+                log.warn("Solr GROUP BY 失败: " + e.getMessage(), e);
+                return Collections.emptyList();
+            }
+        }
+    }
+
+    // ==================== GROUP BY helpers ====================
+
+    @SuppressWarnings("unchecked")
+    private static String buildJsonFacet(List<String> cols, int idx) {
+        if (idx >= cols.size()) {
+            return "{\"count\":\"*\"}";
+        }
+        String col = cols.get(idx);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"").append(col).append("\":{");
+        sb.append("\"type\":\"terms\",");
+        sb.append("\"field\":\"").append(col).append("\",");
+        sb.append("\"limit\":-1,");
+        sb.append("\"mincount\":1");
+        if (idx < cols.size() - 1) {
+            sb.append(",\"facet\":{").append(buildJsonFacet(cols, idx + 1)).append("}");
+        }
+        sb.append("}}");
+        return sb.toString();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static List<Map<String, Object>> parseFacetResponse(
+            Object facets, List<String> groupByCols, int depth) {
+        if (facets == null || groupByCols == null || depth >= groupByCols.size()) {
+            return Collections.emptyList();
+        }
+        NestableJsonFacet nestable;
+        String col = groupByCols.get(depth);
+        if (depth == 0 && facets instanceof NestableJsonFacet nf0) {
+            nestable = nf0;
+        } else if (facets instanceof NestableJsonFacet nf) {
+            nestable = nf;
+        } else {
+            return Collections.emptyList();
+        }
+        BucketBasedJsonFacet bucketBased = nestable.getBucketBasedFacets(col);
+        if (bucketBased == null) {
+            return Collections.emptyList();
+        }
+        List<BucketJsonFacet> buckets = bucketBased.getBuckets();
+        if (buckets == null || buckets.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Map<String, Object>> result = new ArrayList<>(buckets.size());
+        boolean isLeaf = depth == groupByCols.size() - 1;
+        for (BucketJsonFacet bucket : buckets) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put(col, bucket.getVal());
+            if (isLeaf) {
+                row.put("count", bucket.getCount());
+            } else {
+                List<Map<String, Object>> children = parseFacetResponse(bucket, groupByCols, depth + 1);
+                if (children != null && !children.isEmpty()) {
+                    row.put("children", children);
+                }
+            }
+            result.add(row);
+        }
+        return result;
+    }
+
+    @Override
+    public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
+        return new LambdaUpdateWrapper<T>(entityClass) {
+
+            @Override
+            protected String resolveColumn(SFunction<T, ?> col) {
+                return LambdaUtils.resolveObject(col);
+            }
+
+            @Override
+            protected LambdaUpdateWrapper<T> newInstance() {
+                return new LambdaUpdateWrapper<T>(entityClass) {
+                    @Override
+                    protected String resolveColumn(SFunction<T, ?> col) {
+                        return LambdaUtils.resolveObject(col);
+                    }
+                };
+            }
+
+            @Override
+            public int update() {
+                SolrClient sc = getClient();
+                if (sc == null) {
+                    return 0;
+                }
+                String collectionName = entityClass.getSimpleName().toLowerCase();
+                String query = buildSolrQuery(getConditions());
+                try {
+                    org.apache.solr.client.solrj.SolrQuery q = new org.apache.solr.client.solrj.SolrQuery();
+                    q.setQuery(query);
+                    q.setRows(1000);
+                    QueryResponse response = sc.query(collectionName, q);
+                    SolrDocumentList docs = response.getResults();
+                    if (docs.isEmpty()) {
+                        return 0;
+                    }
+
+                    Map<String, Object> setValues = getSetValues();
+                    int updated = 0;
+                    for (SolrDocument doc : docs) {
+                        Object id = doc.getFieldValue(SolrFields.ID);
+                        if (id == null) {
+                            continue;
+                        }
+                        SolrInputDocument newDoc = new SolrInputDocument();
+                        newDoc.addField(SolrFields.ID, id);
+                        for (String field : doc.getFieldNames()) {
+                            if (SolrFields.ID.equals(field) || SolrFields.VERSION.equals(field)) {
+                                continue;
+                            }
+                            if (setValues.containsKey(field)) {
+                                newDoc.addField(field, setValues.get(field));
+                            } else {
+                                Object value = doc.getFieldValue(field);
+                                if (value != null) {
+                                    newDoc.addField(field, value);
+                                }
+                            }
+                        }
+                        for (Map.Entry<String, Object> entry : setValues.entrySet()) {
+                            String field = entry.getKey();
+                            if (!doc.containsKey(field) && !SolrFields.ID.equals(field)) {
+                                newDoc.addField(field, entry.getValue());
+                            }
+                        }
+                        sc.add(collectionName, newDoc);
+                        updated++;
+                    }
+                    sc.commit(collectionName);
+                    return updated;
+                } catch (Exception e) {
+                    log.warn("Solr 更新失败: " + e.getMessage(), e);
+                    return 0;
+                }
+            }
+        };
+    }
+
+    @Override
+    public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
+        return new LambdaDeleteWrapper<T>(entityClass) {
+
+            @Override
+            protected String resolveColumn(SFunction<T, ?> col) {
+                return LambdaUtils.resolveObject(col);
+            }
+
+            @Override
+            protected LambdaDeleteWrapper<T> newInstance() {
+                return new LambdaDeleteWrapper<T>(entityClass) {
+                    @Override
+                    protected String resolveColumn(SFunction<T, ?> col) {
+                        return LambdaUtils.resolveObject(col);
+                    }
+                };
+            }
+
+            @Override
+            public int remove() {
+                SolrClient sc = getClient();
+                if (sc == null) {
+                    return 0;
+                }
+                String collectionName = entityClass.getSimpleName().toLowerCase();
+                String query = buildSolrQuery(getConditions());
+                try {
+                    sc.deleteByQuery(collectionName, query);
+                    sc.commit(collectionName);
+                    return 0;
+                } catch (Exception e) {
+                    log.warn("Solr 删除失败: " + e.getMessage(), e);
+                    return 0;
+                }
+            }
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> List<T> search(Class<T> entityClass, List<Condition> conditions) {
+        return search(entityClass, conditions, 0, 1000).list();
+    }
+
+    private record SearchResult<T>(List<T> list, long total) {
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> SearchResult<T> search(Class<T> entityClass, List<Condition> conditions, int start, int rows) {
+        SolrClient sc = getClient();
+        if (sc == null) {
+            return new SearchResult<>(Collections.emptyList(), 0);
+        }
+        try {
+            String collectionName = entityClass.getSimpleName().toLowerCase();
+            String query = buildSolrQuery(conditions);
+            log.warn("[SOLR_SEARCH] collection={}, query={}, start={}, rows={}", collectionName, query, start, rows);
+            org.apache.solr.client.solrj.SolrQuery solrQuery = new org.apache.solr.client.solrj.SolrQuery();
+            solrQuery.setQuery(query);
+            solrQuery.setStart(start);
+            solrQuery.setRows(rows);
+            QueryResponse response = sc.query(collectionName, solrQuery);
+            SolrDocumentList docs = response.getResults();
+            long total = docs.getNumFound();
+            log.warn("[SOLR_SEARCH] numFound={}, docs={}", total, docs.size());
+            List<T> result = new ArrayList<>();
+            for (SolrDocument doc : docs) {
+                log.warn("[SOLR_SEARCH] doc={}", doc);
+                T instance = entityClass.getDeclaredConstructor().newInstance();
+                for (String field : doc.getFieldNames()) {
+                    Object value = doc.getFieldValue(field);
+                    if (value instanceof List<?> list && !list.isEmpty()) {
+                        value = list.get(0);
+                    }
+                    String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
+                    for (var method : entityClass.getMethods()) {
+                        if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                            method.invoke(instance, convertValue(value, method.getParameterTypes()[0]));
+                            break;
+                        }
+                    }
+                }
+                result.add(instance);
+            }
+            return new SearchResult<>(result, total);
+        } catch (Exception e) {
+            log.warn("[SOLR_SEARCH] exception: {}", e.getMessage());
+            e.printStackTrace();
+            return new SearchResult<>(Collections.emptyList(), 0);
+        }
+    }
+
+    static String buildSolrQuery(List<Condition> conditions) {
+        if (conditions == null || conditions.isEmpty()) {
+            return "*:*";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < conditions.size(); i++) {
+            if (i > 0) {
+                sb.append(" AND ");
+            }
+            sb.append(buildConditionQuery(conditions.get(i)));
+        }
+        return sb.toString();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    static String buildConditionQuery(Condition c) {
+        if (c.isNested()) {
+            List<Condition> nested = c.getNested();
+            if (nested == null || nested.isEmpty()) {
+                return "*:*";
+            }
+            StringBuilder sb = new StringBuilder("(");
+            for (int i = 0; i < nested.size(); i++) {
+                if (i > 0) {
+                    sb.append(" ").append(c.getNestedOperator()).append(" ");
+                }
+                sb.append(buildConditionQuery(nested.get(i)));
+            }
+            sb.append(")");
+            return sb.toString();
+        }
+
+        String col = c.getColumnName();
+        String op = c.getOperator();
+        Object val = c.getValue();
+
+        if (col == null) {
+            return "*:*";
+        }
+
+        switch (op) {
+            case "=":
+                return escape(col) + ":" + escapeValue(val);
+            case "!=":
+                return "-" + escape(col) + ":" + escapeValue(val);
+            case ">":
+                return escape(col) + ":{" + escapeValue(val) + " TO *}";
+            case ">=":
+                return escape(col) + ":[" + escapeValue(val) + " TO *]";
+            case "<":
+                return escape(col) + ":{* TO " + escapeValue(val) + "}";
+            case "<=":
+                return escape(col) + ":[* TO " + escapeValue(val) + "]";
+            case "LIKE": {
+                String pattern = val == null ? "*" : val.toString();
+                if (pattern.contains("%")) {
+                    pattern = pattern.replace("%", "*");
+                }
+                if (!pattern.startsWith("*")) {
+                    pattern = "*" + pattern;
+                }
+                if (!pattern.endsWith("*")) {
+                    pattern = pattern + "*";
+                }
+                return escape(col) + ":" + escapeValue(pattern);
+            }
+            case "NOT LIKE": {
+                String pattern = val == null ? "*" : val.toString();
+                if (pattern.contains("%")) {
+                    pattern = pattern.replace("%", "*");
+                }
+                if (!pattern.startsWith("*")) {
+                    pattern = "*" + pattern;
+                }
+                if (!pattern.endsWith("*")) {
+                    pattern = pattern + "*";
+                }
+                return "-" + escape(col) + ":" + escapeValue(pattern);
+            }
+            case "IN": {
+                Collection<?> values = (Collection<?>) val;
+                if (values == null || values.isEmpty()) {
+                    return "*:*";
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append(escape(col)).append(":(");
+                Iterator<?> it = values.iterator();
+                while (it.hasNext()) {
+                    sb.append(escapeValue(it.next()));
+                    if (it.hasNext()) {
+                        sb.append(" ");
+                    }
+                }
+                sb.append(")");
+                return sb.toString();
+            }
+            case "NOT IN": {
+                Collection<?> values = (Collection<?>) val;
+                if (values == null || values.isEmpty()) {
+                    return "*:*";
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append("-").append(escape(col)).append(":(");
+                Iterator<?> it = values.iterator();
+                while (it.hasNext()) {
+                    sb.append(escapeValue(it.next()));
+                    if (it.hasNext()) {
+                        sb.append(" ");
+                    }
+                }
+                sb.append(")");
+                return sb.toString();
+            }
+            case "IS NULL":
+                return "-" + escape(col) + ":[* TO *]";
+            case "IS NOT NULL":
+                return "+" + escape(col) + ":[* TO *]";
+            case "BETWEEN": {
+                Object[] range = (Object[]) val;
+                return escape(col) + ":[" + escapeValue(range[0]) + " TO " + escapeValue(range[1]) + "]";
+            }
+            default:
+                return "*:*";
+        }
+    }
+
+    private static String escape(String value) {
+        if (value == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (char c : value.toCharArray()) {
+            switch (c) {
+                case '\\':
+                case '+':
+                case '-':
+                case '!':
+                case '(':
+                case ')':
+                case ':':
+                case '^':
+                case '[':
+                case ']':
+                case '\"':
+                case '{':
+                case '}':
+                case '~':
+                case '*':
+                case '?':
+                case '|':
+                case '&':
+                    sb.append('\\');
+                    // fall through
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String escapeValue(Object value) {
+        if (value == null) {
+            return "\\*";
+        }
+        String str = value.toString();
+        if (str.contains(" ")) {
+            return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        }
+        return escape(str);
+    }
+
+    public SolrClient getClient() {
+        if (client != null) {
+            return client;
+        }
+        if (defaultDataSourceName == null) {
+            return null;
+        }
+        EngineDataSource<?> eds = getDataSource(defaultDataSourceName);
+        if (eds != null) {
+            Object src = eds.getSource();
+            if (src instanceof SolrClient sc) {
+                return sc;
+            }
+            if (src instanceof String url) {
+                client = new HttpSolrClient.Builder(url).build();
+                return client;
+            }
+        }
+        return null;
+    }
+
+    private Object convertValue(Object value, Class<?> targetType) {
+        if (value == null) {
+            return null;
+        }
+        if (targetType.isInstance(value)) {
+            return value;
+        }
+        if (targetType == String.class) {
+            return String.valueOf(value);
+        }
+        if (value instanceof Number num) {
+            if (targetType == Integer.class || targetType == int.class) {
+                return num.intValue();
+            }
+            if (targetType == Long.class || targetType == long.class) {
+                return num.longValue();
+            }
+            if (targetType == Double.class || targetType == double.class) {
+                return num.doubleValue();
+            }
+            if (targetType == Float.class || targetType == float.class) {
+                return num.floatValue();
+            }
+        }
+        if (value instanceof String str) {
+            try {
+                if (targetType == Integer.class || targetType == int.class) {
+                    return Integer.parseInt(str);
+                }
+                if (targetType == Long.class || targetType == long.class) {
+                    return Long.parseLong(str);
+                }
+                if (targetType == Double.class || targetType == double.class) {
+                    return Double.parseDouble(str);
+                }
+                if (targetType == Float.class || targetType == float.class) {
+                    return Float.parseFloat(str);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return value;
+    }
+}

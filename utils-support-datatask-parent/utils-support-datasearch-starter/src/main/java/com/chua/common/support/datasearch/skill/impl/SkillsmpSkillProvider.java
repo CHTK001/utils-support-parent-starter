@@ -1,0 +1,53 @@
+package com.chua.common.support.datasearch.skill.impl;
+
+import com.chua.common.support.ai.skill.SkillDefinition;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.datasearch.skill.spi.SkillProvider;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * SkillsMP 技能市场 Skill 提供器。
+ *
+ * <p>通过 SkillsMP 公开 API 搜索技能市场，以 Skill 形式暴露给 AI 技能系统。
+ *
+ * @author CH
+ * @since 2026/07/27
+ */
+@Spi("skillsmp")
+public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillProvider {
+
+    @Override
+    public String name() {
+        return NAME;
+    }
+
+    @Override
+    public List<SkillDefinition> getSkills() {
+        return List.of(searchSkill());
+    }
+
+    @Override
+    public boolean install(String clientId, String skillId) {
+        return super.install(clientId, skillId);
+    }
+
+    @Override
+    public boolean uninstall(String clientId, String skillId) {
+        return super.uninstall(clientId, skillId);
+    }
+
+    public Map<String, Boolean> listInstalled() {
+        Map<String, Boolean> result = new HashMap<>();
+        result.put("skillsmp", true);
+        return result;
+    }
+
+    @Override
+    public List<String> listAvailable() {
+        return List.of(NAME);
+    }
+}

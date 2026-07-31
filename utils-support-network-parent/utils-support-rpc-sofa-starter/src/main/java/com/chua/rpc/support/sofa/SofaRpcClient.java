@@ -1,0 +1,83 @@
+package com.chua.rpc.support.sofa;
+
+import com.alipay.sofa.rpc.config.ApplicationConfig;
+import com.alipay.sofa.rpc.config.ConsumerConfig;
+import com.alipay.sofa.rpc.config.RegistryConfig;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.network.rpc.RpcClient;
+import com.chua.common.support.network.rpc.RpcConsumerConfig;
+import com.chua.common.support.network.rpc.RpcRegistryConfig;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * SOFA-RPC 客户端实现。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
+@Spi("sofa")
+@Slf4j
+public class SofaRpcClient implements RpcClient {
+
+    private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    private final RpcConsumerConfig rpcConsumerConfig;
+    private final ApplicationConfig applicationConfig = new ApplicationConfig();
+    private final Map<Class<?>, ConsumerConfig<?>> consumerCache = new ConcurrentHashMap<>();
+
+    public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
+        this.rpcConsumerConfig = consumerConfig;
+        applicationConfig.setAppName(name);
+        for (RpcRegistryConfig config : rpcRegistryConfigs) {
+            RegistryConfig item = new RegistryConfig();
+            item.setProtocol(config.getProtocol());
+            item.setAddress(config.getAddress());
+            item.setTimeout(config.getTimeout());
+            registryConfigs.add(item);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T get(Class<T> targetType) {
+        ConsumerConfig<T> config = (ConsumerConfig<T>) consumerCache.computeIfAbsent(targetType, type -> {
+            ConsumerConfig<T> c = new ConsumerConfig<>();
+            c.setApplication(applicationConfig);
+            c.setInterfaceId(type.getName());
+            c.setRegistry(registryConfigs);
+            if (rpcConsumerConfig != null) {
+                if (rpcConsumerConfig.getCheck() != null)       { c.setCheck(rpcConsumerConfig.getCheck()); }
+                if (rpcConsumerConfig.getTimeout() != null)      { c.setTimeout(rpcConsumerConfig.getTimeout()); }
+                if (rpcConsumerConfig.getRetries() != null)      { c.setRetries(rpcConsumerConfig.getRetries()); }
+                if (rpcConsumerConfig.getLoadBalance() != null)  { c.setLoadBalancer(rpcConsumerConfig.getLoadBalance()); }
+                if (rpcConsumerConfig.getConnections() != null)  { c.setConnectionNum(rpcConsumerConfig.getConnections()); }
+                if (rpcConsumerConfig.getSerialization() != null){ c.setSerialization(rpcConsumerConfig.getSerialization()); }
+                if (rpcConsumerConfig.getCluster() != null)      { c.setCluster(rpcConsumerConfig.getCluster()); }
+                if (rpcConsumerConfig.getAsync() != null)        { c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync()) ? "future" : "sync"); }
+                if (rpcConsumerConfig.getVersion() != null)      { c.setVersion(rpcConsumerConfig.getVersion()); }
+                if (rpcConsumerConfig.getGroup() != null)        { c.setUniqueId(rpcConsumerConfig.getGroup()); }
+                if (rpcConsumerConfig.getConnectTimeout() != null){ c.setConnectTimeout(rpcConsumerConfig.getConnectTimeout()); }
+                if (Boolean.TRUE.equals(rpcConsumerConfig.getSticky())) { c.setSticky(true); }
+            }
+            return c;
+        });
+        return config.refer();
+    }
+
+    @Override
+    public void close() throws Exception {
+        for (ConsumerConfig<?> config : consumerCache.values()) {
+            try {
+                config.unRefer();
+            } catch (Exception e) {
+                log.warn("Failed to unRefer ConsumerConfig: {}", e.getMessage());
+            }
+        }
+        consumerCache.clear();
+        log.info("SofaRpcClient closed");
+    }
+}

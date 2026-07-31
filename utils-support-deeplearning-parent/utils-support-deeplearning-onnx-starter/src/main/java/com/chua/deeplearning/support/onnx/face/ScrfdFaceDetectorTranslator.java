@@ -1,0 +1,147 @@
+package com.chua.deeplearning.support.onnx.face;
+
+import ai.djl.modality.cv.Image;
+import ai.djl.modality.cv.output.BoundingBox;
+import ai.djl.modality.cv.output.DetectedObjects;
+import ai.djl.modality.cv.output.Rectangle;
+import ai.djl.modality.cv.util.NDImageUtils;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.types.DataType;
+import ai.djl.translate.Batchifier;
+import ai.djl.translate.Translator;
+import ai.djl.translate.TranslatorContext;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * SCRFD 2.5G BNKPS              Translator   
+ *
+ * <p>                            stride   8/16/32       score + bbox + kps   
+ *           SCRFD        distance2bbox                          score/bbox                           </p>
+ *
+ * @author CH
+ * @since 2026-04-23
+ */
+public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
+
+    private static final int INPUT_SIZE = 640;
+    private static final int[] STRIDES = {8, 16, 32};
+    private static final int NUM_ANCHORS = 2;
+    private static final float SCORE_THRESHOLD = 0.45f;
+    private static final double NMS_THRESHOLD = 0.40d;
+
+    @Override
+    public NDList processInput(TranslatorContext ctx, Image input) {
+        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
+        if (!DataType.FLOAT32.equals(array.getDataType())) {
+            array = array.toType(DataType.FLOAT32, false);
+        }
+
+        // SCRFD                   (rgb - 127.5) / 128   CHW   
+        array = array.sub(127.5f).div(128f).transpose(2, 0, 1).expandDims(0);
+        return new NDList(array);
+    }
+
+    @Override
+    public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
+        if (list == null || list.size() < 6) {
+            return empty();
+        }
+
+        List<Candidate> candidates = new ArrayList<>();
+        for (int i = 0; i < STRIDES.length; i++) {
+            NDArray scoreArray = squeezeBatch(list.get(i));
+            NDArray bboxArray = squeezeBatch(list.get(i + STRIDES.length));
+            decodeStride(candidates, scoreArray, bboxArray, STRIDES[i]);
+        }
+
+        candidates.sort((left, right) -> Double.compare(right.score(), left.score()));
+        List<String> names = new ArrayList<>();
+        List<Double> probabilities = new ArrayList<>();
+        List<BoundingBox> boxes = new ArrayList<>();
+        for (Candidate candidate : candidates) {
+            boolean keep = true;
+            for (BoundingBox existing : boxes) {
+                if (existing.getIoU(candidate.rectangle()) > NMS_THRESHOLD) {
+                    keep = false;
+                    break;
+                }
+            }
+            if (!keep) {
+                continue;
+            }
+            names.add("face");
+            probabilities.add(candidate.score());
+            boxes.add(candidate.rectangle());
+        }
+        return new DetectedObjects(names, probabilities, boxes);
+    }
+
+    private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, int stride) {
+        float[] scores = scoreArray.toFloatArray();
+        float[] boxes = bboxArray.toFloatArray();
+        int featureSize = INPUT_SIZE / stride;
+        int totalAnchors = featureSize * featureSize * NUM_ANCHORS;
+        int scoreLength = Math.min(totalAnchors, scores.length);
+        int boxLength = Math.min(totalAnchors, boxes.length / 4);
+        int limit = Math.min(scoreLength, boxLength);
+
+        for (int idx = 0; idx < limit; idx++) {
+            float score = scores[idx];
+            if (score < SCORE_THRESHOLD) {
+                continue;
+            }
+            int location = idx / NUM_ANCHORS;
+            int y = location / featureSize;
+            int x = location % featureSize;
+
+            float left = boxes[idx * 4] * stride;
+            float top = boxes[idx * 4 + 1] * stride;
+            float right = boxes[idx * 4 + 2] * stride;
+            float bottom = boxes[idx * 4 + 3] * stride;
+
+            float centerX = x * stride + stride * 0.5f;
+            float centerY = y * stride + stride * 0.5f;
+            float x1 = clamp(centerX - left, 0f, INPUT_SIZE - 1f);
+            float y1 = clamp(centerY - top, 0f, INPUT_SIZE - 1f);
+            float x2 = clamp(centerX + right, 0f, INPUT_SIZE - 1f);
+            float y2 = clamp(centerY + bottom, 0f, INPUT_SIZE - 1f);
+            if (x2 <= x1 || y2 <= y1) {
+                continue;
+            }
+
+            Rectangle rectangle = new Rectangle(
+                    x1 / INPUT_SIZE,
+                    y1 / INPUT_SIZE,
+                    (x2 - x1) / INPUT_SIZE,
+                    (y2 - y1) / INPUT_SIZE);
+            candidates.add(new Candidate(rectangle, score));
+        }
+    }
+
+    private NDArray squeezeBatch(NDArray array) {
+        if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
+            return array.squeeze(0);
+        }
+        return array;
+    }
+
+    private float clamp(float value, float min, float max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private DetectedObjects empty() {
+        return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    @Override
+    public Batchifier getBatchifier() {
+        return null;
+    }
+
+    private record Candidate(Rectangle rectangle, double score) {
+    }
+}

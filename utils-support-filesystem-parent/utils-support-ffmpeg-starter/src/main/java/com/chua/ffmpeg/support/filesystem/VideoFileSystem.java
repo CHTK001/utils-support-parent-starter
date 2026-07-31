@@ -1,0 +1,55 @@
+package com.chua.ffmpeg.support.filesystem;
+
+import com.chua.common.support.file.FileSystem;
+import com.chua.common.support.file.builder.ReadBuilder;
+import com.chua.common.support.file.builder.WriteBuilder;
+import com.chua.common.support.media.ffmpeg.FFmpegOptions;
+import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
+
+import java.io.File;
+
+/**
+ * 视频文件系统 SPI 实现。
+ *
+ * <p>基于 FFmpeg 实现视频文件的元数据读取与格式转换。
+ * 底层通过 {@link FFmpegProcessor} SPI 进行实际的 FFmpeg 操作。</p>
+ *
+ * @author CH
+ * @since 1.0.0
+ */
+@Spi("video")
+public class VideoFileSystem implements FileSystem {
+
+    private final FFmpegProcessor processor;
+
+    public VideoFileSystem() {
+        FFmpegProcessor p = null;
+        try {
+            p = ServiceProvider.of(FFmpegProcessor.class).getExtension("jaffree");
+        } catch (Exception e) {
+            // 无可用 FFmpeg 实现
+        }
+        this.processor = p;
+    }
+
+    @Override
+    public String getType() {
+        return "video";
+    }
+
+    @Override
+    public ReadBuilder read(File file) {
+        return new VideoReadBuilder(file, processor);
+    }
+
+    @Override
+    public WriteBuilder write(File file) {
+        return new VideoWriteBuilder(file, processor);
+    }
+
+    public FFmpegProcessor getProcessor() {
+        return processor;
+    }
+}

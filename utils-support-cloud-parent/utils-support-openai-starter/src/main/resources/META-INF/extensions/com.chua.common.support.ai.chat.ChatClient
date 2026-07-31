@@ -1,0 +1,5 @@
+openai=com.chua.openai.support.OpenAiChatClient
+siliconflow=com.chua.openai.support.OpenAiChatClient
+sensetime=com.chua.openai.support.OpenAiChatClient
+github=com.chua.openai.support.OpenAiChatClient
+gitee=com.chua.openai.support.OpenAiChatClient

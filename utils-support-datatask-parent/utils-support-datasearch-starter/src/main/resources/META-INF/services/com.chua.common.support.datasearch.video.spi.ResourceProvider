@@ -1,0 +1,8 @@
+com.chua.common.support.datasearch.video.spi.impl.BilibiliResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.CldiResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.DoubanResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.TmdbResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.WanouResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.WuJiResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.XiaoJiResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.PanSouResourceProvider

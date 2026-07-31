@@ -1,0 +1,5 @@
+# SPI配置文件 - 跨模块实现
+# 接口: com.chua.common.support.image.filter.ImageFilter
+# 通过Java SPI机制加载
+
+com.chua.image.support.filter.AbstractImageFilter

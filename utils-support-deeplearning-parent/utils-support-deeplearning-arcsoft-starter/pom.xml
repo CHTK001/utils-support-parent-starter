@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-deeplearning-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-deeplearning-arcsoft-starter</artifactId>
+    <name>Utils Support Deep Learning ArcSoft Starter</name>
+    <description>基于虹软 ArcSoft SDK 的人脸特征相似度比较模块，用于 VecStorage 1:N 识别</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.arcsoft.face</groupId>
+            <artifactId>arcsoft-sdk-face</artifactId>
+            <version>3.0.0.0</version>
+        </dependency>
+
+    </dependencies>
+</project>

@@ -1,0 +1,59 @@
+package com.chua.redis.support.rate;
+
+import com.chua.common.support.concurrent.rate.RateLimiterProvider;
+import com.chua.common.support.spi.annotations.Spi;
+import org.redisson.Redisson;
+import org.redisson.api.RRateLimiter;
+import org.redisson.api.RateIntervalUnit;
+import org.redisson.api.RateType;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 基于 Redisson 分布式限流器的实现。
+ *
+ * <p>使用 Redisson {@link RRateLimiter} 实现分布式限流，支持 OVERALL 和 PER_CLIENT 两种模式。</p>
+ *
+ * @author CH
+ * @since 2026/07/24
+ */
+@Spi("redis")
+public class RedisRateLimiterProvider implements RateLimiterProvider {
+
+    private final String name;
+    private final RedissonClient redissonClient;
+    private final RRateLimiter rateLimiter;
+
+    public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {
+        this.name = name;
+        Config config = new Config();
+        config.useSingleServer().setAddress(redisUri);
+        this.redissonClient = Redisson.create(config);
+        this.rateLimiter = redissonClient.getRateLimiter(name);
+        this.rateLimiter.trySetRate(RateType.OVERALL, (long) permitsPerSecond, 1, RateIntervalUnit.SECONDS);
+    }
+
+    public RedisRateLimiterProvider(String name, RedissonClient redissonClient, double permitsPerSecond) {
+        this.name = name;
+        this.redissonClient = redissonClient;
+        this.rateLimiter = redissonClient.getRateLimiter(name);
+        this.rateLimiter.trySetRate(RateType.OVERALL, (long) permitsPerSecond, 1, RateIntervalUnit.SECONDS);
+    }
+
+    @Override
+    public boolean tryAcquire() {
+        return rateLimiter.tryAcquire();
+    }
+
+    @Override
+    public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
+        return rateLimiter.tryAcquire(timeout, timeUnit);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+}

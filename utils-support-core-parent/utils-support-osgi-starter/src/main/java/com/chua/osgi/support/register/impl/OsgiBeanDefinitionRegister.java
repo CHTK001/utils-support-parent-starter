@@ -1,0 +1,172 @@
+package com.chua.osgi.support.register.impl;
+
+import com.chua.common.support.objects.definition.BeanDefinition;
+import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
+import com.chua.common.support.objects.register.BeanDefinitionRegister;
+import com.chua.common.support.objects.register.BeanSingletonRegistry;
+import com.chua.common.support.osgi.OsgiLauncher;
+import com.chua.common.support.osgi.OsgiLauncherHolder;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.annotation.Annotation;
+import java.util.*;
+
+/**
+ * OSGi Bean 定义注册器（只读）。
+ *
+ * <p>委托 {@link OsgiLauncherHolder} 获取 OSGi 框架，所有查询直接委派
+ * OSGi 服务注册表。Bean 实例由 Felix OSGi 容器管理，本注册器仅做桥接。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
+ */
+@Slf4j
+@Spi("osgi")
+@SpiDescribe("OSGi Bean 定义注册器（只读，委托 Felix OSGi 框架）")
+public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
+
+    private volatile boolean closed;
+
+    @Override
+    public String getName() {
+        return "osgi";
+    }
+
+    @Override
+    public int getPriority() {
+        return 100;
+    }
+
+    @Override
+    public boolean isSupport(BeanDefinition beanDefinition) {
+        return false;
+    }
+
+    @Override
+    public boolean isWritable() {
+        return false;
+    }
+
+    @Override
+    public boolean register(BeanDefinition beanDefinition) {
+        throw new UnsupportedOperationException("OSGi Bean 定义注册器不支持手动注册");
+    }
+
+    @Override
+    public boolean unregister(BeanDefinition beanDefinition) {
+        throw new UnsupportedOperationException("OSGi Bean 定义注册器不支持手动注销");
+    }
+
+    @Override
+    public boolean unregister(String beanName) {
+        throw new UnsupportedOperationException("OSGi Bean 定义注册器不支持手动注销");
+    }
+
+    @Override
+    public void initialize() {
+        closed = false;
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        if (beanName == null || closed) {
+            return null;
+        }
+        OsgiLauncher launcher = OsgiLauncherHolder.getInstance();
+        if (launcher == null || !launcher.isActive()) {
+            return null;
+        }
+        try {
+            String[] parts = beanName.split(":", 2);
+            if (parts.length < 2) {
+                return null;
+            }
+            Class<?> type = Class.forName(parts[1]);
+            Object instance = launcher.getService(type);
+            if (instance == null) {
+                return null;
+            }
+            return new FrameworkBeanDefinition(beanName, type, instance);
+        } catch (ClassNotFoundException e) {
+            log.debug("OSGi 服务类型不存在: {}", beanName, e);
+            return null;
+        }
+    }
+
+    @Override
+    public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
+        if (typeName == null || closed) {
+            return Collections.emptyList();
+        }
+        OsgiLauncher launcher = OsgiLauncherHolder.getInstance();
+        if (launcher == null || !launcher.isActive()) {
+            return Collections.emptyList();
+        }
+        try {
+            Class<?> type = Class.forName(typeName);
+            List<?> services = launcher.getServices(type);
+            if (services == null || services.isEmpty()) {
+                return Collections.emptyList();
+            }
+            List<BeanDefinition> result = new ArrayList<>(services.size());
+            for (Object svc : services) {
+                String name = typeName + ":" + System.identityHashCode(svc);
+                result.add(new FrameworkBeanDefinition(name, type, svc));
+            }
+            return result;
+        } catch (ClassNotFoundException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
+        if (typeName == null || closed) {
+            return Collections.emptyList();
+        }
+        if (name != null) {
+            BeanDefinition def = getBeanDefinition(name);
+            if (def != null && typeName.equals(def.getType())) {
+                return List.of(def);
+            }
+            return Collections.emptyList();
+        }
+        return getBeanDefinitionOfType(typeName);
+    }
+
+    @Override
+    public boolean containsBean(String beanName) {
+        if (beanName == null || closed) {
+            return false;
+        }
+        return getBeanDefinition(beanName) != null;
+    }
+
+    @Override
+    public Collection<String> getBeanDefinitionNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public void close() {
+        closed = true;
+        destroySingletons();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return closed;
+    }
+}

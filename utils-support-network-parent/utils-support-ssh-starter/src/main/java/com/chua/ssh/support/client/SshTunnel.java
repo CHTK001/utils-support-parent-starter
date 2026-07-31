@@ -1,0 +1,136 @@
+package com.chua.ssh.support.client;
+
+import com.chua.common.support.network.tunnel.Tunnel;
+import com.chua.common.support.network.tunnel.TunnelInfo;
+import com.chua.common.support.network.tunnel.TunnelStatus;
+import com.chua.common.support.network.tunnel.TunnelType;
+import com.chua.common.support.network.tunnel.TunnelException;
+
+import java.util.function.Consumer;
+
+/**
+ * SSH 隧道实现，支持正反向隧道和动态 SOCKS5 隧道。
+ *
+ * @author CH
+ * @since 2026/07/31
+ */
+public class SshTunnel implements Tunnel {
+
+    private final SshClient sshClient;
+    private final SshClient.TunnelDefinition definition;
+    private final String bindAddress;
+
+    private AutoCloseable tracker;
+    private volatile boolean open;
+    private Consumer<TunnelInfo> callback;
+    private int actualPort = -1;
+
+    public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {
+        this.sshClient = sshClient;
+        this.definition = definition;
+        this.bindAddress = bindAddress != null ? bindAddress : "127.0.0.1";
+    }
+
+    @Override
+    public int open() {
+        if (open) {
+            return actualPort;
+        }
+
+        try {
+            SshClient.ForwardOperation forward = sshClient.forward();
+            forward.bindAddress(bindAddress);
+
+            switch (definition.getType()) {
+                case LOCAL -> forward.local(definition.getLocalPort(), definition.getRemoteHost(), definition.getRemotePort());
+                case REMOTE -> forward.remote(definition.getRemotePort(), definition.getRemoteHost(), definition.getLocalPort());
+                case DYNAMIC -> forward.dynamic(definition.getLocalPort());
+            }
+
+            tracker = forward.start();
+            this.actualPort = forward.getActualPort();
+            this.open = true;
+
+            TunnelInfo info = TunnelInfo.of(
+                    actualPort,
+                    TunnelStatus.OPEN,
+                    toTunnelType(definition.getType()),
+                    bindAddress,
+                    definition.getRemoteHost(),
+                    definition.getRemotePort()
+            );
+            if (callback != null) {
+                callback.accept(info);
+            }
+
+            return actualPort;
+        } catch (Exception e) {
+            TunnelInfo info = TunnelInfo.error(TunnelStatus.ERROR, e.getMessage());
+            if (callback != null) {
+                callback.accept(info);
+            }
+            throw new TunnelException("SSH 隧道开启失败: " + definition.getType(), e);
+        }
+    }
+
+    @Override
+    public void close() {
+        if (!open) {
+            return;
+        }
+
+        try {
+            if (tracker != null) {
+                tracker.close();
+            }
+            this.open = false;
+
+            TunnelInfo info = TunnelInfo.of(
+                    actualPort,
+                    TunnelStatus.CLOSED,
+                    toTunnelType(definition.getType()),
+                    bindAddress,
+                    definition.getRemoteHost(),
+                    definition.getRemotePort()
+            );
+            if (callback != null) {
+                callback.accept(info);
+            }
+        } catch (Exception e) {
+            throw new TunnelException("SSH 隧道关闭失败", e);
+        }
+    }
+
+    @Override
+    public TunnelInfo getInfo() {
+        return TunnelInfo.of(
+                actualPort,
+                open ? TunnelStatus.OPEN : TunnelStatus.CLOSED,
+                toTunnelType(definition.getType()),
+                bindAddress,
+                definition.getRemoteHost(),
+                definition.getRemotePort()
+        );
+    }
+
+    @Override
+    public void onInfo(Consumer<TunnelInfo> callback) {
+        this.callback = callback;
+    }
+
+    @Override
+    public boolean isOpen() {
+        return open;
+    }
+
+    private static TunnelType toTunnelType(SshClient.TunnelDefinition.Type type) {
+        if (type == null) {
+            return null;
+        }
+        return switch (type) {
+            case LOCAL -> TunnelType.LOCAL;
+            case REMOTE -> TunnelType.REMOTE;
+            case DYNAMIC -> TunnelType.DYNAMIC;
+        };
+    }
+}

@@ -1,0 +1,1 @@
+﻿hibernate=com.chua.hibernate.support.ddl.HibernateDdlManager

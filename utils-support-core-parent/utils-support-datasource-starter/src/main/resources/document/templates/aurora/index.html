@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#title# - #databaseName#</title>
+<style>
+  :root {
+    --bg-base: #f5f7fa;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --glass-border: #e5e7eb;
+    --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    --accent-1: #2563eb;
+    --accent-2: #06b6d4;
+    --accent-3: #a855f7;
+    --accent-4: #10b981;
+    --aurora-1: #eef2ff;
+    --aurora-2: #e0f2fe;
+    --aurora-3: #f5f3ff;
+    --aurora-4: #ecfdf5;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --sidebar-w: 320px;
+    --sidebar-collapsed-w: 0px;
+    --font: 'Inter','SF Pro','Segoe UI',system-ui,-apple-system,sans-serif;
+    --mono: 'JetBrains Mono','Fira Code','Cascadia Code','SF Mono',Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:15px;scroll-behavior:smooth}
+  body{font-family:var(--font);background:#f5f7fa;color:var(--text-primary);min-height:100vh;overflow-x:hidden;display:flex}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:#9ca3af}
+
+  .aurora-bg{display:none}
+  .aurora-bg .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.6;animation:auroraFloat 20s ease-in-out infinite}
+  .aurora-bg .orb:nth-child(1){width:600px;height:600px;background:var(--aurora-1);top:-10%;left:-5%;animation-delay:0s}
+  .aurora-bg .orb:nth-child(2){width:500px;height:500px;background:var(--aurora-2);bottom:-8%;right:-3%;animation-delay:-7s}
+  .aurora-bg .orb:nth-child(3){width:400px;height:400px;background:var(--aurora-3);top:40%;left:50%;animation-delay:-14s}
+  .aurora-bg .orb:nth-child(4){width:350px;height:350px;background:var(--aurora-4);top:60%;right:20%;animation-delay:-5s}
+  @keyframes auroraFloat{
+    0%,100%{transform:translate(0,0) scale(1)}
+    25%{transform:translate(60px,-40px) scale(1.15)}
+    50%{transform:translate(-30px,60px) scale(.95)}
+    75%{transform:translate(40px,30px) scale(1.05)}
+  }
+
+  .noise-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat}
+
+  .app-layout{position:relative;z-index:2;display:flex;width:100%;min-height:100vh}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;border-right:1px solid var(--glass-border);background:var(--bg-surface);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:width .3s;overflow:hidden}
+.sidebar-header{padding:28px 24px 20px;border-bottom:1px solid var(--glass-border);flex-shrink:0; position:relative}
+.sidebar-header h1{font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--text-primary)}
+.sidebar-header .sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+  .sidebar-search{padding:16px 20px 8px;flex-shrink:0}
+  .sidebar-search .search-box{position:relative}
+  .sidebar-search .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted);pointer-events:none}
+  .sidebar-search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--glass-border);border-radius:var(--radius-sm);background:#f3f4f6;color:var(--text-primary);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s}
+  .sidebar-search input::placeholder{color:var(--text-muted)}
+  .sidebar-search input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+  .sidebar-search .kbd-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);background:#e5e7eb;padding:2px 6px;border-radius:4px;font-family:var(--mono)}
+  .sidebar-nav{flex:1;overflow-y:auto;padding:8px 12px 20px}
+  .nav-group{margin-bottom:6px}
+  .nav-group-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);padding:12px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-secondary);font-size:13px;transition:all .2s;position:relative;text-decoration:none}
+.nav-item:hover{background:rgba(99,102,241,0.06);color:var(--text-primary)}
+.nav-item.active{background:rgba(99,102,241,0.1);color:var(--accent-1)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--accent-1);border-radius:0 3px 3px 0}
+.nav-item .nav-idx{font-size:10px;font-family:var(--mono);min-width:20px;text-align:center;flex-shrink:0;padding:1px 6px;border-radius:4px;font-weight:600;background:#e8f5e9;color:#2e7d32}
+.nav-item .nav-body{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.nav-item .label{color:var(--text-primary);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item .badge{font-size:10px;color:var(--text-muted);background:#f3f4f6;padding:1px 6px;border-radius:4px;font-family:var(--mono);align-self:flex-start}
+.nav-item .icon{display:none}
+  .nav-item.hidden{display:none}
+  .nav-item.active .label{color:var(--accent-1)}
+  .nav-schema{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-primary);font-size:13px;font-weight:600;transition:all .2s}
+  .nav-schema:hover{background:rgba(99,102,241,0.06);color:var(--accent-1)}
+  .nav-schema .schema-arrow{display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;font-size:10px;color:var(--text-muted);transition:transform .2s}
+  .nav-schema .schema-arrow.open{transform:rotate(90deg);color:var(--accent-1)}
+  .nav-schema .schema-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nav-schema .badge{font-size:11px;color:var(--text-muted);background:#f3f4f6;padding:1px 8px;border-radius:10px;font-family:var(--mono)}
+  .nav-schema-body{display:block;overflow:hidden;transition:max-height .25s ease-out,opacity .25s ease-out}
+  .nav-schema-body.hidden{display:none}
+  .nav-item{margin-left:14px}
+  .nav-count{font-size:11px;color:var(--text-muted);padding:8px 12px 4px}
+  .nav-count strong{color:var(--text-secondary)}
+
+  .main-content{flex:1;min-width:0;padding:40px 48px 60px;min-height:100vh;background:var(--bg-base)}
+  .hero{margin-bottom:48px;animation:fadeUp .6s ease-out}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-.5px;line-height:1.2}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+  .hero .meta-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:#f3f4f6;border:1px solid var(--glass-border);font-size:12px;color:var(--text-secondary);backdrop-filter:blur(8px)}
+  .hero .meta-tag .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+  .hero .meta-tag .dot.db{background:var(--accent-2)}
+  .hero .meta-tag .dot.ver{background:var(--accent-3)}
+  .hero .meta-tag .dot.prod{background:var(--accent-4)}
+  .hero .desc{margin-top:16px;font-size:14px;color:var(--text-secondary);line-height:1.6;max-width:720px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  .section-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--glass-border),transparent)}
+  .tables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));grid-auto-rows:min-content;align-items:start;gap:20px;margin-bottom:48px}
+  .table-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px var(--glass-shadow);overflow:hidden;transition:all .3s;opacity:0;transform:translateY(16px);animation:cardIn .5s ease-out forwards}
+  .table-card:hover{border-color:rgba(99,102,241,0.2);box-shadow:0 12px 48px rgba(99,102,241,0.08);transform:translateY(-2px)}
+  .table-card:nth-child(1){animation-delay:0s}
+  .table-card:nth-child(2){animation-delay:.05s}
+  .table-card:nth-child(3){animation-delay:.1s}
+  .table-card:nth-child(4){animation-delay:.15s}
+  .table-card:nth-child(5){animation-delay:.2s}
+  .table-card:nth-child(6){animation-delay:.25s}
+  .table-card:nth-child(n+7){animation-delay:.3s}
+  @keyframes cardIn{to{opacity:1;transform:translateY(0)}}
+  .table-card.hidden{display:none}
+  .table-card-header{padding:20px 24px 16px;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;user-select:none}
+  .table-card-header .info{flex:1;min-width:0}
+  .table-card-header .name{font-size:16px;font-weight:700;letter-spacing:-.2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .table-card-header .name .remark{color:var(--text-secondary);font-weight:400;font-size:14px}
+  .table-card-header .name .remark::before{content:'· ';color:var(--text-muted)}
+  .table-card-header .schema-label{font-size:11px;padding:2px 10px;border-radius:10px;background:rgba(99,102,241,0.1);color:var(--accent-1);border:1px solid rgba(99,102,241,0.15)}
+  .table-card-header .stats{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+  .table-card-header .stats span{font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px}
+  .table-card-header .stats span strong{color:var(--text-secondary);font-weight:500}
+  .table-card-header .expand-btn{flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--glass-border);background:#f3f4f6;cursor:pointer;color:var(--text-muted);transition:all .2s;font-size:14px;margin-top:2px}
+  .table-card-header .expand-btn:hover{background:#e5e7eb;color:var(--text-primary)}
+  .table-card-header .expand-btn.expanded{transform:rotate(180deg);color:var(--accent-1);border-color:rgba(99,102,241,0.3)}
+  .schema-tag{font-size:11px;padding:2px 10px;border-radius:10px;background:rgba(99,102,241,0.1);color:var(--accent-1);border:1px solid rgba(99,102,241,0.15);margin-right:8px;white-space:nowrap}
+  .table-card-body{padding:0 24px 20px;display:none}
+  .table-card-body.open{display:block;animation:slideDown .25s ease-out}
+  @keyframes slideDown{from{opacity:0;max-height:0}to{opacity:1;max-height:2000px}}
+  .fields-table{width:100%;border-collapse:collapse;font-size:13px}
+  .fields-table thead th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);border-bottom:1px solid var(--glass-border)}
+  .fields-table tbody tr{border-bottom:1px solid #e5e7eb;transition:background .15s}
+  .fields-table tbody tr:hover{background:#f3f4f6}
+  .fields-table tbody tr:last-child{border-bottom:none}
+  .fields-table tbody td{padding:10px 12px;vertical-align:top;line-height:1.4}
+  .fields-table .col-name{font-family:var(--mono);font-size:12px;color:var(--accent-2);font-weight:500}
+  .fields-table .col-type{font-family:var(--mono);font-size:12px;color:var(--accent-3)}
+  .fields-table .col-key{display:inline-flex;gap:3px}
+  .fields-table .col-key .key-badge{font-size:9px;padding:1px 7px;border-radius:4px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+  .fields-table .col-key .key-badge.pk{background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)}
+  .fields-table .col-key .key-badge.uk{background:rgba(168,85,247,0.12);color:var(--accent-3);border:1px solid rgba(168,85,247,0.2)}
+  .fields-table .col-key .key-badge.idx{background:rgba(6,182,212,0.12);color:var(--accent-2);border:1px solid rgba(6,182,212,0.2)}
+  .fields-table .col-nullable{font-size:11px}
+  .fields-table .col-nullable.yes{color:#ef4444}
+  .fields-table .col-nullable.no{color:#22c55e}
+  .fields-table .col-remark{font-size:12px;color:var(--text-secondary)}
+  .fields-table .col-remark.empty{color:var(--text-muted);font-style:italic}
+
+  .no-results{text-align:center;padding:80px 20px;color:var(--text-muted)}
+  .no-results .icon{font-size:48px;margin-bottom:12px;opacity:.3}
+  .no-results h3{font-size:16px;color:var(--text-secondary);margin-bottom:4px}
+  .no-results p{font-size:13px}
+
+  .glow-accent{position:fixed;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,0.06),transparent 70%);pointer-events:none;z-index:0}
+  .glow-accent-2{position:fixed;bottom:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(6,182,212,0.05),transparent 70%);pointer-events:none;z-index:0}
+
+  .footer{display:none}
+
+  @media(max-width:900px){
+    .sidebar{width:var(--sidebar-collapsed-w);overflow:hidden;border-right:none}
+    .sidebar-header,.sidebar-search,.sidebar-nav{display:none}
+    .main-content{padding:24px 20px 40px}
+    .tables-grid{grid-template-columns:1fr}
+    .hero h1{font-size:24px}
+  }
+
+.sidebar-toggle{position:fixed;top:16px;right:16px;z-index:100;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--glass-border);background:var(--bg-surface);cursor:pointer;color:var(--text-secondary);transition:all .2s;font-size:16px;box-shadow:0 2px 8px rgba(15,23,42,0.08)}
+  .sidebar-toggle:hover{background:var(--accent-1);color:#fff;border-color:var(--accent-1)}
+  .app-layout.sidebar-hidden .sidebar{width:0 !important;border-right:none;overflow:hidden}
+  .app-layout.sidebar-hidden .sidebar .sidebar-header,.app-layout.sidebar-hidden .sidebar .sidebar-search,.app-layout.sidebar-hidden .sidebar .sidebar-nav{display:none}
+  .app-layout.sidebar-hidden .sidebar .sidebar-resize-handle{display:none}
+  .sidebar-resize-handle{position:absolute;top:0;right:-4px;width:8px;height:100%;cursor:col-resize;z-index:20;opacity:0;transition:opacity .2s}
+  .sidebar-resize-handle:hover,.sidebar-resize-handle.active{opacity:1;background:rgba(99,102,241,0.15)}
+  .sidebar:hover .sidebar-resize-handle{opacity:.4}
+</style>
+</head>
+<body>
+<div class="aurora-bg">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+<div class="noise-overlay" style="display:none"></div>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>#title#</h1>
+      <div class="sub">#databaseName# · #productName# #productVersion#</div>
+    </div>
+    <div class="sidebar-search">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="sidebarSearch" placeholder="搜索表名 / 备注 / 字段..." autocomplete="off">
+        <span class="kbd-hint">/</span>
+      </div>
+    </div>
+<nav class="sidebar-nav" id="sidebarNav"><!-- nav injected --></nav>
+ <div class="sidebar-resize-handle" id="sidebarResizeHandle" title="拖拽调整侧边栏宽度"></div>
+</aside>
+
+<main class="main-content">
+
+    <section class="hero">
+      <h1>#title#</h1>
+      <div class="meta">
+        <span class="meta-tag"><span class="dot db"></span>#databaseName#</span>
+        <span class="meta-tag"><span class="dot ver"></span>v#version#</span>
+        <span class="meta-tag"><span class="dot prod"></span>#productName# #productVersion#</span>
+        <span class="meta-tag" style="margin-left:auto;opacity:.7">导出时间：#exportTime#</span>
+      </div>
+      <div class="desc">#description#</div>
+    </section>
+
+    <div class="section-title">数据表 <span id="tableCount"></span></div>
+    <div class="tables-grid" id="tablesGrid"><!-- cards injected --></div>
+    <div class="no-results" id="noResults" style="display:none">
+      <div class="icon">🔍</div>
+      <h3>未找到匹配的表</h3>
+      <p>尝试修改搜索条件</p>
+    </div>
+
+</main>
+</div>
+
+<script>
+(function(){
+    var data = #dataJson#;
+    var tables = data && data.tables ? data.tables : [];
+    var grid = document.getElementById('tablesGrid');
+    var nav = document.getElementById('sidebarNav');
+    var searchInput = document.getElementById('sidebarSearch');
+    var noResults = document.getElementById('noResults');
+    var countEl = document.getElementById('tableCount');
+    var appLayout = document.querySelector('.app-layout');
+    var sidebar = document.querySelector('.sidebar');
+
+    // 读取侧边栏初始状态：URL参数 > localStorage > 默认隐藏
+    function getInitialSidebarState(){
+        var params = new URLSearchParams(window.location.search);
+        var sidebarParam = params.get('sidebar');
+        if(sidebarParam !== null){
+          return sidebarParam !== 'false' && sidebarParam !== '0';
+        }
+        try{
+          var saved = localStorage.getItem('doc-sidebar-hidden');
+          return saved !== 'true';
+        }catch(e){
+          return true;
+        }
+    }
+
+    function setSidebarHidden(hidden){
+      if(hidden){
+        appLayout.classList.add('sidebar-hidden');
+        localStorage.setItem('doc-sidebar-hidden', 'true');
+      }else{
+        appLayout.classList.remove('sidebar-hidden');
+        localStorage.setItem('doc-sidebar-hidden', 'false');
+      }
+    }
+
+    var showSidebar = getInitialSidebarState();
+    setSidebarHidden(!showSidebar);
+
+    // === 侧边栏拖拽调整宽度 ===
+    var resizeHandle = document.getElementById('sidebarResizeHandle');
+    if(resizeHandle){
+      var isResizing = false;
+      var startX = 0, startWidth = 0;
+      resizeHandle.addEventListener('mousedown', function(e){
+        isResizing = true;
+        startX = e.clientX;
+        startWidth = parseInt(getComputedStyle(sidebar).width, 10);
+        document.body.style.cursor = 'col-resize';
+        resizeHandle.classList.add('active');
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e){
+        if(!isResizing) return;
+        var delta = e.clientX - startX;
+        var newWidth = startWidth + delta;
+        if(newWidth < 200) newWidth = 200;
+        if(newWidth > 600) newWidth = 600;
+        sidebar.style.setProperty('--sidebar-w', newWidth + 'px');
+      });
+      document.addEventListener('mouseup', function(){
+        if(isResizing){
+          isResizing = false;
+          document.body.style.cursor = '';
+          resizeHandle.classList.remove('active');
+        }
+      });
+    }
+
+  var groups = {};
+  tables.forEach(function(t, i){
+    var key = t.schemaName || t.tableSchema || 'default';
+    if(!groups[key]) groups[key] = [];
+    groups[key].push({t: t, i: i});
+  });
+
+   function renderSidebar(){
+     var html = '<div class="nav-count">共 <strong>' + tables.length + '</strong> 张表</div>';
+     var schemaKeys = Object.keys(groups);
+     var singleSchema = schemaKeys.length === 1;
+     
+      if(singleSchema){
+        // 单库情况：直接列出所有表，不显示schema分组
+        var list = groups[schemaKeys[0]];
+        list.forEach(function(item, idx){
+          var t = item.t;
+          var display = t.remark && t.remark.trim() ? t.remark.trim() : t.tableName;
+          html += '<a class="nav-item" data-table="' + escAttr(t.tableName) + '" data-schema="' + escAttr(t.schemaName || t.tableSchema || '') + '" href="#' + escAttr(t.tableName) + '">';
+          html += '<span class="nav-idx">' + (idx + 1) + '</span>';
+          html += '<span class="nav-body">';
+          html += '<span class="label">' + escHtml(display) + '</span>';
+          html += '<span class="badge">' + escHtml(t.tableName) + '</span>';
+          html += '</span></a>';
+        });
+      } else {
+        // 多库情况：按schema分组显示，默认折叠（不生成body DOM，减少内存）
+        schemaKeys.sort().forEach(function(schema){
+          var list = groups[schema];
+          html += '<div class="nav-group">';
+          html += '<div class="nav-schema" onclick="toggleSchema(this)">';
+          html += '<span class="schema-arrow">▸</span>';
+          html += '<span class="schema-name">' + escHtml(schema) + '</span>';
+          html += '<span class="badge">' + list.length + '</span>';
+          html += '</div>';
+          html += '</div>';
+        });
+      }
+     nav.innerHTML = html;
+    nav.querySelectorAll('.nav-item').forEach(function(el){
+      el.addEventListener('click',function(e){
+        e.preventDefault();
+        var target = document.getElementById('card-' + el.getAttribute('data-schema') + '-' + el.getAttribute('data-table'));
+        if(target){
+          nav.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+          el.classList.add('active');
+          target.scrollIntoView({behavior:'smooth',block:'center'});
+          setTimeout(function(){
+            var body = target.querySelector('.table-card-body');
+            if(body && !body.classList.contains('open')){
+              var btn = target.querySelector('.expand-btn');
+              if(btn) btn.click();
+            }
+          },300);
+        }
+      });
+    });
+  }
+
+  function renderCards(){
+    var html = '';
+    tables.forEach(function(t,i){
+      var rows = t.columns || [];
+      var rowCount = t.tableRows != null ? (typeof t.tableRows === 'number' ? t.tableRows.toLocaleString() : t.tableRows) : '-';
+      var remark = t.remark || '';
+      var computedRemark = (remark || t.tableComment || '').trim();
+      var storage = '';
+      if(t.dataLength != null){
+        var dl = parseInt(t.dataLength);
+        if(dl > 1073741824) storage = (dl/1073741824).toFixed(1) + ' GB';
+        else if(dl > 1048576) storage = (dl/1048576).toFixed(1) + ' MB';
+        else if(dl > 1024) storage = (dl/1024).toFixed(1) + ' KB';
+        else storage = dl + ' B';
+      }
+
+      html += '<div class="table-card" id="card-' + escAttr(t.schemaName || t.tableSchema || '') + '-' + escAttr(t.tableName) + '" data-name="' + escAttr(t.tableName) + '" data-schema="' + escAttr(t.schemaName || t.tableSchema || '') + '" data-remark="' + escAttr(computedRemark) + '">';
+      html += '<div class="table-card-header">';
+      html += '<div class="info">';
+      html += '<div class="name">';
+      html += '<span class="schema-label">' + escHtml(t.schemaName || t.tableSchema || '') + '</span>';
+      html += '<span>' + escHtml(t.tableName) + '</span>';
+      if(computedRemark && computedRemark !== t.tableName){
+        html += '<span class="remark">' + escHtml(computedRemark) + '</span>';
+      }
+      html += '</div>';
+      html += '<div class="stats">';
+      html += '<span>行数 <strong>' + rowCount + '</strong></span>';
+      if(storage) html += '<span>大小 <strong>' + storage + '</strong></span>';
+      if(t.engine) html += '<span>引擎 <strong>' + escHtml(t.engine) + '</strong></span>';
+      if(t.tableCollation) html += '<span>排序 <strong>' + escHtml(t.tableCollation) + '</strong></span>';
+      if(t.createTime) html += '<span>创建 <strong>' + t.createTime + '</strong></span>';
+      html += '</div>';
+      html += '</div>';
+      html += '<span class="schema-tag">' + escHtml(t.schemaName || t.tableSchema || '') + '</span>';
+      html += '<button class="expand-btn" onclick="toggleCard(this)" aria-label="展开字段">▾</button>';
+      html += '</div>';
+
+      html += '<div class="table-card-body">';
+      html += '<table class="fields-table">';
+      html += '<thead><tr>';
+      html += '<th style="width:30px">#</th>';
+      html += '<th style="width:22%">字段名</th>';
+      html += '<th style="width:18%">类型</th>';
+      html += '<th style="width:10%">键</th>';
+      html += '<th style="width:8%">可空</th>';
+      html += '<th style="width:8%">默认值</th>';
+      html += '<th style="width:34%">备注</th>';
+      html += '</tr></thead><tbody>';
+      rows.forEach(function(col, i){
+        var nullable = col.isNullable != null ? (col.isNullable === 'YES' || col.isNullable === true ? '是' : '否') : '-';
+        var keyStr = '';
+        if(col.columnKey){
+          var keys = col.columnKey.split(',').map(function(k){return k.trim()});
+          keys.forEach(function(k){
+            if(k === 'PRI') keyStr += '<span class="key-badge pk">PK</span>';
+            else if(k === 'UNI') keyStr += '<span class="key-badge uk">UK</span>';
+            else if(k === 'MUL') keyStr += '<span class="key-badge idx">IDX</span>';
+            else keyStr += '<span class="key-badge idx">' + escHtml(k) + '</span>';
+          });
+        }
+        var remarkText = (col.remark || col.columnComment || '').trim();
+        html += '<tr>';
+        html += '<td style="color:var(--text-muted);text-align:center">' + (i + 1) + '</td>';
+        html += '<td><span class="col-name">' + escHtml(col.columnName) + '</span></td>';
+        html += '<td><span class="col-type">' + escHtml(col.columnType || col.dataType || '') + '</span></td>';
+        html += '<td class="col-key">' + (keyStr || '<span style="color:var(--text-muted)">-</span>') + '</td>';
+        html += '<td><span class="col-nullable ' + (nullable==='是'?'yes':'no') + '">' + nullable + '</span></td>';
+        html += '<td style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">' + escHtml(col.columnDefault != null ? col.columnDefault : '-') + '</td>';
+        html += '<td class="col-remark ' + (remarkText?'':'empty') + '">' + (remarkText || '—') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+
+      var imported = t.importedKeys || [];
+      var exported = t.exportedKeys || [];
+      if(imported.length > 0 || exported.length > 0){
+        html += '<div class="rels">';
+        if(imported.length > 0){
+          html += '<div class="rels-group"><span class="rels-label">引用</span>';
+          imported.forEach(function(r){
+            html += '<span class="rel-tag"><span class="rel-arrow">→</span><span class="rel-target">' + escHtml(r.pkTableName) + '.</span><span class="rel-col">' + escHtml(r.pkColumnName) + '</span><span class="rel-via">via ' + escHtml(r.fkColumnName) + '</span></span>';
+          });
+          html += '</div>';
+        }
+        if(exported.length > 0){
+          html += '<div class="rels-group"><span class="rels-label">被引用</span>';
+          exported.forEach(function(r){
+            html += '<span class="rel-tag"><span class="rel-arrow">←</span><span class="rel-target">' + escHtml(r.fkTableName) + '.</span><span class="rel-col">' + escHtml(r.fkColumnName) + '</span></span>';
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      html += '</div></div>';
+    });
+    grid.innerHTML = html;
+  }
+
+  function toggleCard(btn){
+    var body = btn.parentElement.nextElementSibling;
+    var open = body.classList.toggle('open');
+    btn.classList.toggle('expanded',open);
+  }
+
+  function toggleSchema(el){
+    var arrow = el.querySelector('.schema-arrow');
+    var next = el.nextElementSibling;
+    var schemaName = el.querySelector('.schema-name').textContent;
+    if(next && next.classList.contains('nav-schema-body')){
+      next.remove();
+      arrow.classList.remove('open');
+    } else {
+      var list = groups[schemaName] || [];
+      var html = '';
+      list.forEach(function(item, idx){
+        var t = item.t;
+        var display = t.remark && t.remark.trim() ? t.remark.trim() : t.tableName;
+        html += '<a class="nav-item" data-table="' + escAttr(t.tableName) + '" data-schema="' + escAttr(t.schemaName || t.tableSchema || '') + '" href="#' + escAttr(t.tableName) + '">';
+        html += '<span class="nav-idx">' + (idx + 1) + '</span>';
+        html += '<span class="nav-body">';
+        html += '<span class="label">' + escHtml(display) + '</span>';
+        html += '<span class="badge">' + escHtml(t.tableName) + '</span>';
+        html += '</span></a>';
+      });
+      el.insertAdjacentHTML('afterend', '<div class="nav-schema-body">' + html + '</div>');
+      arrow.classList.add('open');
+    }
+  }
+  window.toggleSchema = toggleSchema;
+
+  function escHtml(s){
+    if(!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s){
+    if(!s) return '';
+    return String(s).replace(/"/g,'&quot;').replace(/&/g,'&amp;');
+  }
+
+  function filterTables(val){
+    var q = val.trim().toLowerCase();
+    var cards = grid.querySelectorAll('.table-card');
+    var visible = 0;
+    var navItems = nav.querySelectorAll('.nav-item');
+    cards.forEach(function(c){
+      var name = (c.getAttribute('data-name') || '').toLowerCase();
+      var remark = (c.getAttribute('data-remark') || '').toLowerCase();
+      var match = !q || name.indexOf(q) !== -1 || remark.indexOf(q) !== -1;
+      c.classList.toggle('hidden',!match);
+      if(match) visible++;
+    });
+    navItems.forEach(function(n){
+      var tName = n.getAttribute('data-table') || '';
+      var match = !q || tName.toLowerCase().indexOf(q) !== -1;
+      n.classList.toggle('hidden',!match);
+    });
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+    if(countEl) countEl.textContent = '· ' + visible + ' / ' + tables.length;
+  }
+
+  searchInput.addEventListener('input',function(){filterTables(this.value)});
+  document.addEventListener('keydown',function(e){
+    if(e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA'){
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if(e.key === 'Escape' && document.activeElement === searchInput){
+      searchInput.value = '';
+      filterTables('');
+      searchInput.blur();
+    }
+  });
+
+  window.toggleCard = toggleCard;
+  renderSidebar();
+  renderCards();
+  filterTables('');
+})();
+</script>
+</body>
+</html>

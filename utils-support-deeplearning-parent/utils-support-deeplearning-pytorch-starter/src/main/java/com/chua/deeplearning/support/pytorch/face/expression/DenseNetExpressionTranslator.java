@@ -1,0 +1,87 @@
+package com.chua.deeplearning.support.pytorch.face.expression;
+
+import ai.djl.modality.Classifications;
+import ai.djl.modality.cv.Image;
+import ai.djl.modality.cv.util.NDImageUtils;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
+import ai.djl.translate.Batchifier;
+import ai.djl.translate.Translator;
+import ai.djl.translate.TranslatorContext;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * DenseNet 表情识别 Translator。
+ * <p>7 类：angry / disgust / fear / happy / sad / surprise / neutral。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
+
+    private static final List<String> LABELS = List.of(
+            "angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"
+    );
+
+    private final int imageSize;
+
+    public DenseNetExpressionTranslator() {
+        this(224);
+    }
+
+    public DenseNetExpressionTranslator(int imageSize) {
+        this.imageSize = imageSize;
+    }
+
+    @Override
+    public NDList processInput(TranslatorContext ctx, Image input) {
+        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        Shape shape = array.getShape();
+        long height = shape.get(0);
+        long width = shape.get(1);
+        if (height != imageSize || width != imageSize) {
+            array = NDImageUtils.resize(array, imageSize, imageSize);
+        }
+        array = array.transpose(2, 0, 1);
+        if (!DataType.FLOAT32.equals(array.getDataType())) {
+            array = array.toType(DataType.FLOAT32, false);
+        }
+        array = array.div(255.0f);
+        return new NDList(array);
+    }
+
+    @Override
+    public Classifications processOutput(TranslatorContext ctx, NDList list) {
+        NDArray output = list.singletonOrThrow();
+        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
+            output = output.squeeze(0);
+        }
+        NDArray probs = output.softmax(-1);
+        float[] scores = probs.toFloatArray();
+        List<Double> probabilities = new ArrayList<>(scores.length);
+        for (float score : scores) {
+            probabilities.add((double) score);
+        }
+        List<String> labels = scores.length == LABELS.size()
+                ? LABELS
+                : defaultLabels(scores.length);
+        return new Classifications(labels, probabilities);
+    }
+
+    @Override
+    public Batchifier getBatchifier() {
+        return Batchifier.STACK;
+    }
+
+    private static List<String> defaultLabels(int size) {
+        List<String> labels = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            labels.add("class_" + i);
+        }
+        return labels;
+    }
+}

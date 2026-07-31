@@ -1,0 +1,5 @@
+com.chua.datasource.support.table.CsvModifiableTableFactory
+com.chua.datasource.support.table.JsonModifiableTableFactory
+com.chua.datasource.support.table.MemModifiableTableFactory
+com.chua.datasource.support.table.TsvModifiableTableFactory
+com.chua.datasource.support.table.XmlModifiableTableFactory

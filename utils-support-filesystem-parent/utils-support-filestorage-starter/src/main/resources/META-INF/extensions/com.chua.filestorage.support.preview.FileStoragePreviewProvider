@@ -1,0 +1,12 @@
+com.chua.filestorage.support.preview.provider.MarkdownPreviewProvider
+com.chua.filestorage.support.preview.provider.CsvPreviewProvider
+com.chua.filestorage.support.preview.provider.CodePreviewProvider
+com.chua.filestorage.support.preview.provider.PdfViewerPreviewProvider
+com.chua.filestorage.support.preview.provider.TextPreviewProvider
+com.chua.filestorage.support.preview.provider.UniverPreviewProvider
+com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider
+com.chua.filestorage.support.preview.provider.ArchivePreviewProvider
+com.chua.filestorage.support.preview.provider.VisioPreviewProvider
+com.chua.filestorage.support.preview.provider.OpenDocumentPreviewProvider
+com.chua.filestorage.support.preview.provider.HtmlPreviewProvider
+com.chua.filestorage.support.preview.provider.SvgPreviewProvider

@@ -1,0 +1,9 @@
+com.chua.ast.support.processor.DefaultValueAstProcessor
+com.chua.ast.support.processor.CleanNullAstProcessor
+com.chua.ast.support.processor.PadTruncateAstProcessor
+com.chua.ast.support.processor.RetryAstProcessor
+com.chua.ast.support.processor.TrimAstProcessor
+com.chua.ast.support.processor.AutoCloseAstProcessor
+com.chua.ast.support.processor.VirtualAstProcessor
+com.chua.ast.support.processor.TimedAstProcessor
+com.chua.ast.support.processor.TraceAstProcessor

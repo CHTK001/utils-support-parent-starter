@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 父项目配置 -->
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-network-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>utils-support-webview-starter</artifactId>
+    <name>Utils Support WebView Starter</name>
+    <description>WebView 原生窗口封装 (WebView2 / WKWebView / WebKitGTK)</description>
+
+    <properties>
+        <!-- Java 编译器源码版本设置 -->
+        <maven.compiler.source>25</maven.compiler.source>
+        <!-- Java 编译器目标版本设置 -->
+        <maven.compiler.target>25</maven.compiler.target>
+        <!-- 项目构建时的源文件编码格式 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- webview_java 依赖库的版本号 -->
+        <webview_java.version>1.3.0</webview_java.version>
+    </properties>
+
+    <dependencies>
+        <!-- webview_java: 系统原生 WebView 封装 (支持 WebView2, WKWebView, WebKitGTK) -->
+        <dependency>
+            <groupId>com.github.webview</groupId>
+            <artifactId>webview_java</artifactId>
+            <version>${webview_java.version}</version>
+        </dependency>
+
+        <!-- network-starter: ProtocolServer 接口与 SPI 支持模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <!-- JitPack 仓库，用于获取 GitHub 上的依赖包 -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+</project>

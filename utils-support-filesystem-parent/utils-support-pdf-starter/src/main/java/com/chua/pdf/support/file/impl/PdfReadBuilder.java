@@ -1,0 +1,134 @@
+package com.chua.pdf.support.file.impl;
+
+import com.chua.common.support.file.builder.ReadBuilder;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * PDF 文件读取构建器。
+ *
+ * <p>基于 PDFBox 实现 PDF 文档的文本提取。</p>
+ *
+ * @author CH
+ * @since 1.0.0
+ */
+public class PdfReadBuilder extends ReadBuilder {
+
+    private int startPage = 1;
+    private int endPage = Integer.MAX_VALUE;
+
+    public PdfReadBuilder(File file) {
+        super(file);
+    }
+
+    /**
+     * 起始页（从 1 开始）
+     */
+    public PdfReadBuilder startPage(int page) { this.startPage = page; return this; }
+
+    /**
+     * 结束页
+     */
+    public PdfReadBuilder endPage(int page) { this.endPage = page; return this; }
+
+    @Override
+    public PdfReadBuilder withCharset(String charset) {
+        super.withCharset(charset);
+        return this;
+    }
+
+    /**
+     * 提取 PDF 文档的全部文本内容
+     */
+    public String text() {
+        try (PDDocument doc = Loader.loadPDF(file)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            stripper.setStartPage(startPage);
+            stripper.setEndPage(Math.min(endPage, doc.getNumberOfPages()));
+            String result = stripper.getText(doc);
+            if (callback != null) {
+                callback.onBody(result);
+                callback.onComplete(1);
+            }
+            return result;
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
+    /**
+     * 按页读取文本
+     */
+    public List<String> pages() {
+        List<String> result = new ArrayList<>();
+        try (PDDocument doc = Loader.loadPDF(file)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            int total = doc.getNumberOfPages();
+            int from = Math.max(1, startPage);
+            int to = Math.min(endPage, total);
+            for (int i = from; i <= to; i++) {
+                stripper.setStartPage(i);
+                stripper.setEndPage(i);
+                String pageText = stripper.getText(doc);
+                result.add(pageText);
+                if (callback != null) {
+                    callback.onBody(pageText);
+                }
+            }
+        } catch (IOException ignored) {}
+        if (callback != null) {
+            callback.onComplete(result.size());
+        }
+        return result;
+    }
+
+    @Override
+    public Object read() {
+        return text();
+    }
+
+    /**
+     * 元数据
+     */
+    public PDDocumentInformation metadata() {
+        try (PDDocument doc = Loader.loadPDF(file)) {
+            return doc.getDocumentInformation();
+        } catch (IOException e) { return null; }
+    }
+
+    /**
+     * 标题
+     */
+    public String title() {
+        var info = metadata();
+        return info != null ? info.getTitle() : null;
+    }
+
+    /**
+     * 页数
+     */
+    public int pageCount() {
+        try (PDDocument doc = Loader.loadPDF(file)) {
+            return doc.getNumberOfPages();
+        } catch (IOException e) { return 0; }
+    }
+
+    @Override
+    public List<String> asLines() {
+         return List.of(text().split("\\n")); 
+    }
+
+    @Override
+    public String asString() {
+         return text(); 
+    }
+}
+
