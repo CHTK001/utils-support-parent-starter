@@ -15,6 +15,7 @@ import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -41,48 +42,53 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     private final ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("chronicle-dispatcher-%d").setDaemon(true).build());
     private volatile boolean closed = false;
+    private volatile boolean chronicleAvailable = true;
+    private final Map<String, ConcurrentLinkedQueue<Object>> fallbackQueueMap = new ConcurrentHashMap<>();
 
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     private ChronicleQueue getOrCreateQueue(String topic) {
-        return queueMap.computeIfAbsent(topic, t -> {
-            var path = config.getDataPath() != null
-                    ? config.getDataPath() + "/" + t
-                    : System.getProperty("java.io.tmpdir") + "/chronicle/" + t;
-            return SingleChronicleQueueBuilder.single(path).build();
-        });
+        if (!chronicleAvailable) {
+            return null;
+        }
+        try {
+            return queueMap.computeIfAbsent(topic, t -> {
+                var path = config.getDataPath() != null
+                        ? config.getDataPath() + "/" + t
+                        : System.getProperty("java.io.tmpdir") + "/chronicle/" + t;
+                return SingleChronicleQueueBuilder.single(path).build();
+            });
+        } catch (Throwable e) {
+            log.warn("Chronicle Queue 初始化失败，降级为内存队列。缺少 JVM 参数，请添加 --add-opens 相关参数。错误：{}", e.getMessage());
+            chronicleAvailable = false;
+            return null;
+        }
     }
 
     @Override
     public void publish(String topic, Object body) {
+        var queue = getOrCreateQueue(topic);
+        if (queue == null) {
+            fallbackQueueMap.computeIfAbsent(topic, t -> new ConcurrentLinkedQueue<>()).add(body);
+            log.debug("内存队列已发布消息到主题：{}", topic);
+            return;
+        }
         try {
-            System.out.println("[CHRONICLE-PUBLISH-ENTER] topic=" + topic + " body class=" + (body == null ? "null" : body.getClass().getName()));
-            var queue = getOrCreateQueue(topic);
-            System.out.println("[CHRONICLE-PUBLISH-Q] queue=" + queue);
-            var appender = queue.createAppender();
-            System.out.println("[CHRONICLE-PUBLISH-APP] appender=" + appender);
             String value;
             try {
                 value = body == null ? "" : MAPPER.writeValueAsString(body);
-                System.out.println("[CHRONICLE-PUBLISH-VAL] len=" + value.length());
             } catch (Exception e) {
-                System.out.println("[CHRONICLE-PUBLISH-FAIL] serialize error: " + e);
                 log.error("Chronicle 序列化消息失败，主题：{}", topic, e);
                 return;
             }
-            try (var dc = appender.writingDocument()) {
+            try (var dc = queue.createAppender().writingDocument()) {
                 dc.wire().write("msg").text(value);
-            } catch (Exception e) {
-                System.out.println("[CHRONICLE-PUBLISH-FAIL] write error: " + e);
-                throw e;
             }
             log.debug("Chronicle 已发布消息到主题：{}", topic);
-            System.out.println("[CHRONICLE-PUBLISH] topic=" + topic + " body=" + value);
         } catch (Throwable t) {
-            System.out.println("[CHRONICLE-PUBLISH-UNCAUGHT] " + t);
-            t.printStackTrace();
+            log.error("Chronicle 发布异常，主题：{}", topic, t);
         }
     }
 
@@ -98,6 +104,34 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     private void startConsumer(String topic) {
+        if (!chronicleAvailable) {
+            executor.submit(() -> {
+                var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new ConcurrentLinkedQueue<>());
+                while (!closed) {
+                    var body = fallbackQueue.poll();
+                    if (body != null) {
+                        var definitions = definitionMap.get(topic);
+                        if (definitions != null) {
+                            for (var def : definitions) {
+                                try {
+                                    def.dispatch(body);
+                                } catch (Exception e) {
+                                    log.warn("订阅方法执行异常，主题：{}", topic, e);
+                                }
+                            }
+                        }
+                    } else {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                }
+            });
+            return;
+        }
         executor.submit(() -> {
             var queue = getOrCreateQueue(topic);
             ExcerptTailer tailer = queue.createTailer();
@@ -208,5 +242,6 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         queueMap.values().forEach(ChronicleQueue::close);
         queueMap.clear();
         definitionMap.clear();
+        fallbackQueueMap.clear();
     }
 }

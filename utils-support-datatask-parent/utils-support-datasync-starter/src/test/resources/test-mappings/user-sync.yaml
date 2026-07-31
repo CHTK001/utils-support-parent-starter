@@ -1,0 +1,20 @@
+mappingId: core-user-sync
+inputId: user-input
+sourceId: user-source
+outputId: user-output
+sinkId: user-sink
+batch: 5
+cronType: fixed
+cron: "0/2 * * * * ?"
+params:
+  region: CN
+mappings:
+  - sourceField: id
+    targetField: user_id
+    converter: toString
+  - sourceField: name
+    targetField: user_name
+    converter: toString
+  - sourceField: age
+    targetField: age
+    converter: toInteger
