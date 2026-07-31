@@ -1,0 +1,12 @@
+[
+  {
+    "id": "baichuan4",
+    "name": "Baichuan 4",
+    "provider": "baichuan",
+    "description": "百川旗舰模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.00015,
+    "outputUnitPrice": 0.00045,
+    "currency": "CNY"
+  }
+]

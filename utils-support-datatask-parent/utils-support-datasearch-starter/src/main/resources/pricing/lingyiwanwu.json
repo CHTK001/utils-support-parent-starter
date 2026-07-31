@@ -1,0 +1,12 @@
+[
+  {
+    "id": "yi-lightning",
+    "name": "Yi Lightning",
+    "provider": "lingyiwanwu",
+    "description": "零一万物旗舰模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0003,
+    "currency": "CNY"
+  }
+]

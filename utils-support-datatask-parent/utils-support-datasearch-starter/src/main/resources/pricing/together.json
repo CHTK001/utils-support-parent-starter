@@ -1,0 +1,22 @@
+[
+  {
+    "id": "meta-llama/Llama-3.3-70B-Instruct",
+    "name": "Llama 3.3 70B",
+    "provider": "together",
+    "description": "Together AI Llama 3.3 70B",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0003,
+    "outputUnitPrice": 0.0006,
+    "currency": "USD"
+  },
+  {
+    "id": "mistralai/Mixtral-8x22B-Instruct",
+    "name": "Mixtral 8x22B",
+    "provider": "together",
+    "description": "Together AI Mixtral 8x22B",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0006,
+    "outputUnitPrice": 0.0018,
+    "currency": "USD"
+  }
+]

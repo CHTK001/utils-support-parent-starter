@@ -1,0 +1,12 @@
+[
+  {
+    "id": "step-2",
+    "name": "Step 2",
+    "provider": "stepfun",
+    "description": "阶跃星辰旗舰模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0003,
+    "currency": "CNY"
+  }
+]
