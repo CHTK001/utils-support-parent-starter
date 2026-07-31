@@ -129,6 +129,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private volatile ImmutableGraphIndex graph;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
+        private final Map<String, Integer> idToOrd = new ConcurrentHashMap<>();
         private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
         private final AtomicInteger nextOrd = new AtomicInteger(0);
 
@@ -139,7 +140,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
-            int ord = nextOrd.getAndIncrement();
+            if (idToOrd.containsKey(id)) return false;
+            var ord = nextOrd.getAndIncrement();
+            idToOrd.put(id, ord);
             ordToId.put(ord, id);
             rawVectors.add(vector);
             vectors.add(VTS.createFloatVector(vector));
@@ -180,7 +183,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
-            ordToId.clear();
+            idToOrd.clear(); ordToId.clear();
             nextOrd.set(0);
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
