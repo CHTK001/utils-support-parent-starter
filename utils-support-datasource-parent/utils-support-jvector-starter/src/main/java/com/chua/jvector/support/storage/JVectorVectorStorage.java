@@ -75,7 +75,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     private StorageStrategy createStrategy() {
         return switch (properties.getMode()) {
-            case MEMORY -> new EagerMemoryStrategy(dimension(), similarity);
+            case MEMORY -> new EagerMemoryStrategy(dimension(), similarity, properties);
             case ON_DISK -> new DiskStrategy(dimension(), similarity, properties);
             case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties);
         };
@@ -244,7 +244,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) return false;
-            rawVectors.set(ord, vector);
+            rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -408,7 +408,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) return false;
-            rawVectors.set(ord, vector);
+            rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             diskGraph = null;
             return true;
@@ -577,7 +577,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) return false;
-            rawVectors.set(ord, vector);
+            rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             graph = null;
             pqVectors = null;

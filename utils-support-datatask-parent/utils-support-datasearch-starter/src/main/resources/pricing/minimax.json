@@ -1,0 +1,12 @@
+[
+  {
+    "id": "minimax/MiniMax-M1-80k",
+    "name": "MiniMax-M1-80k",
+    "provider": "minimax",
+    "description": "MiniMax 旗舰模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0003,
+    "currency": "CNY"
+  }
+]
