@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat;
 
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -45,6 +46,19 @@ public record ModelDefinition(
         /**
          * 压缩包内目标文件名（compress=true 时生效）
          */
-        String downloadFileName
+        String downloadFileName,
+        /**
+         * 输入单价（每 Token）
+         */
+        BigDecimal inputUnitPrice,
+        /**
+         * 输出单价（每 Token）
+         */
+        BigDecimal outputUnitPrice,
+        /**
+         * 货币单位
+         */
+        @Builder.Default
+        String currency = "USD"
 ) {
 }

@@ -396,6 +396,18 @@ public interface ChatClient extends AutoCloseable {
     }
 
     /**
+     * 获取模型定价信息。
+     *
+     * <p>返回包含单价信息的模型定义列表，可用于费用估算和成本对比。
+     * 默认返回空列表，实现类可按需覆写。
+     *
+     * @return 模型定价列表
+     */
+    default List<ModelDefinition> modelPricing() {
+        return List.of();
+    }
+
+    /**
      * 执行 AI 中转站真伪探测。
      *
      * <p>基于多维度交叉验证策略，探测 OpenAI 兼容 API 中转站背后真实使用的模型。
