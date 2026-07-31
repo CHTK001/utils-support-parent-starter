@@ -9,13 +9,10 @@ import io.github.jbellis.jvector.graph.GraphIndexBuilder;
 import io.github.jbellis.jvector.graph.GraphSearcher;
 import io.github.jbellis.jvector.graph.ImmutableGraphIndex;
 import io.github.jbellis.jvector.graph.ListRandomAccessVectorValues;
-import io.github.jbellis.jvector.graph.OnHeapGraphIndex;
-import io.github.jbellis.jvector.graph.RandomAccessVectorValues;
 import io.github.jbellis.jvector.graph.disk.OnDiskGraphIndex;
 import io.github.jbellis.jvector.graph.similarity.BuildScoreProvider;
 import io.github.jbellis.jvector.graph.similarity.DefaultSearchScoreProvider;
 import io.github.jbellis.jvector.graph.similarity.SearchScoreProvider;
-import io.github.jbellis.jvector.graph.similarity.ScoreFunction;
 import io.github.jbellis.jvector.quantization.CompressedVectors;
 import io.github.jbellis.jvector.quantization.PQVectors;
 import io.github.jbellis.jvector.quantization.ProductQuantization;
@@ -46,6 +43,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   <li>LARGER_THAN_MEMORY: PQ 压缩向量 + 磁盘存储，支持超大规模数据集</li>
  * </ul>
  *
+ * <p>注意：jvector 图构建与搜索必须使用同一度量，因此这里只依据算法{@code name()}映射到
+ * jvector 的 {@link VectorSimilarityFunction}（COSINE → COSINE、DOT → DOT_PRODUCT、其余 → EUCLIDEAN），
+ * 自定义 {@link VectorCompareAlgorithm#compare(float[], float[])} 实现不参与打分。</p>
+ *
  * @author CH
  */
 public class JVectorVectorStorage extends AbstractVectorStorage {
@@ -72,9 +73,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     private StorageStrategy createStrategy() {
         return switch (properties.getMode()) {
-            case MEMORY -> new EagerMemoryStrategy(dimension(), getAlgorithm(), similarity);
-            case ON_DISK -> new DiskStrategy(dimension(), getAlgorithm(), similarity, properties);
-            case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), getAlgorithm(), similarity, properties);
+            case MEMORY -> new EagerMemoryStrategy(dimension(), similarity);
+            case ON_DISK -> new DiskStrategy(dimension(), similarity, properties);
+            case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties);
         };
     }
 
@@ -124,26 +125,21 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     private static class EagerMemoryStrategy implements StorageStrategy {
         private final int dimension;
-        private final VectorCompareAlgorithm algorithm;
         private final VectorSimilarityFunction similarity;
         private volatile ImmutableGraphIndex graph;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
-        private final Map<String, Integer> idToOrd = new ConcurrentHashMap<>();
         private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
         private final AtomicInteger nextOrd = new AtomicInteger(0);
 
-        EagerMemoryStrategy(int dimension, VectorCompareAlgorithm algorithm,
-                            VectorSimilarityFunction similarity) {
+        EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity) {
             this.dimension = dimension;
-            this.algorithm = algorithm;
             this.similarity = similarity;
         }
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = nextOrd.getAndIncrement();
-            idToOrd.put(id, ord);
             ordToId.put(ord, id);
             rawVectors.add(vector);
             vectors.add(VTS.createFloatVector(vector));
@@ -158,8 +154,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) return List.of();
             if (graph == null) buildGraph();
-            CustomScore score = new CustomScore(query);
-            SearchScoreProvider ssp = new DefaultSearchScoreProvider(score, score);
+            // 必须使用 jvector 内置精确分数（与建图时的 VectorSimilarityFunction 一致）；
+            // 自定义负分数会导致 rc.9 的 search 返回 0 结果。
+            var queryVec = VTS.createFloatVector(query);
+            var rav = new ListRandomAccessVectorValues(vectors, dimension);
+            SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
             try (var searcher = new GraphSearcher(graph)) {
                 var result = searcher.search(ssp, topK, Bits.ALL);
                 var list = new ArrayList<Vector>();
@@ -181,7 +180,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
-            idToOrd.clear(); ordToId.clear();
+            ordToId.clear();
             nextOrd.set(0);
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -200,23 +199,14 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private void buildGraph() {
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(rav, similarity, 16, 200, 1.0f, 1.2f, false)) {
-                for (int i = 0; i < vectors.size(); i++) builder.addGraphNode(i, vectors.get(i));
+                // 注意：jvector 4.0.0-rc.9 的 build() 内部会遍历全部节点调用 addGraphNode，
+                // 此处不能再手动添加，否则会抛 "Node xxx already exists"。
                 graph = builder.build(rav);
-            } catch (Exception ignored) {}
-        }
-
-        private class CustomScore implements ScoreFunction, ScoreFunction.ExactScoreFunction {
-            private final float[] query;
-            CustomScore(float[] query) { this.query = query; }
-            @Override public boolean isExact() { return true; }
-            @Override
-            public float similarityTo(int nodeOrd) {
-                if (algorithm != null && nodeOrd < rawVectors.size()) {
-                    return -(float) algorithm.compare(query, rawVectors.get(nodeOrd));
-                }
-                return Float.NEGATIVE_INFINITY;
+            } catch (Exception e) {
+                throw new RuntimeException("构建内存图失败", e);
             }
         }
+
     }
 
 
@@ -228,7 +218,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      */
     private static class DiskStrategy implements StorageStrategy {
         private final int dimension;
-        private final VectorCompareAlgorithm algorithm;
         private final VectorSimilarityFunction similarity;
         private final JVectorStorageProperties properties;
         private final Path indexPath;
@@ -240,10 +229,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
         private final AtomicInteger nextOrd = new AtomicInteger(0);
 
-        DiskStrategy(int dimension, VectorCompareAlgorithm algorithm,
-                     VectorSimilarityFunction similarity, JVectorStorageProperties properties) {
+        DiskStrategy(int dimension, VectorSimilarityFunction similarity,
+                     JVectorStorageProperties properties) {
             this.dimension = dimension;
-            this.algorithm = algorithm;
             this.similarity = similarity;
             this.properties = properties;
             this.indexPath = Paths.get(properties.getIndexPath());
@@ -278,8 +266,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             ensureGraphBuilt();
             if (diskGraph == null) return List.of();
 
-            CustomScore score = new CustomScore(query);
-            SearchScoreProvider ssp = new DefaultSearchScoreProvider(score, score);
+            // 使用 jvector 内置精确分数（与建图时的 VectorSimilarityFunction 一致）
+            var queryVec = VTS.createFloatVector(query);
+            var rav = new ListRandomAccessVectorValues(vectors, dimension);
+            SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
 
             try (var searcher = new GraphSearcher(diskGraph)) {
                 int ef = Math.max(topK, (int) (topK * properties.getSearchOverquery()));
@@ -329,9 +319,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     properties.getGraphM(),
                     properties.getGraphEfConstruction(),
                     1.0f, 1.2f, false)) {
-                for (int i = 0; i < vectors.size(); i++) {
-                    builder.addGraphNode(i, vectors.get(i));
-                }
+                // build() 内部会遍历全部节点添加，无需手动 addGraphNode（否则重复添加报错）
                 var memGraph = builder.build(rav);
                 // 持久化到磁盘
                 Files.createDirectories(indexPath.getParent());
@@ -344,18 +332,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        private class CustomScore implements ScoreFunction, ScoreFunction.ExactScoreFunction {
-            private final float[] query;
-            CustomScore(float[] query) { this.query = query; }
-            @Override public boolean isExact() { return true; }
-            @Override
-            public float similarityTo(int nodeOrd) {
-                if (algorithm != null && nodeOrd < rawVectors.size()) {
-                    return -(float) algorithm.compare(query, rawVectors.get(nodeOrd));
-                }
-                return Float.NEGATIVE_INFINITY;
-            }
-        }
     }
 
     /**
@@ -366,7 +342,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      */
     private static class LargerThanMemoryStrategy implements StorageStrategy {
         private final int dimension;
-        private final VectorCompareAlgorithm algorithm;
         private final VectorSimilarityFunction similarity;
         private final JVectorStorageProperties properties;
         private final Path indexPath;
@@ -379,10 +354,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
         private final AtomicInteger nextOrd = new AtomicInteger(0);
 
-        LargerThanMemoryStrategy(int dimension, VectorCompareAlgorithm algorithm,
-                                 VectorSimilarityFunction similarity, JVectorStorageProperties properties) {
+        LargerThanMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
+                                 JVectorStorageProperties properties) {
             this.dimension = dimension;
-            this.algorithm = algorithm;
             this.similarity = similarity;
             this.properties = properties;
             this.indexPath = Paths.get(properties.getIndexPath() + ".pq");
@@ -409,12 +383,14 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph == null || pqVectors == null) return List.of();
 
             var queryVec = VTS.createFloatVector(query);
+            var rav = new ListRandomAccessVectorValues(vectors, dimension);
             // 第一阶段：使用 PQ 压缩向量粗排
             var pqScore = pqVectors.precomputedScoreFunctionFor(queryVec, similarity);
             SearchScoreProvider roughProvider = new DefaultSearchScoreProvider(pqScore);
 
-            // 第二阶段：使用原始向量精排
-            CustomScore exactScore = new CustomScore(query);
+            // 第二阶段：使用 jvector 内置精确分数精排（与建图度量一致，分数为正）
+            var exactProvider = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
+            var exactScore = exactProvider.exactScoreFunction();
 
             try (var searcher = new GraphSearcher(graph)) {
                 int ef = Math.max(topK, (int) (topK * properties.getSearchOverquery()));
@@ -468,11 +444,18 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null && pqVectors != null) return;
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try {
+                // 防御性钳制：jvector 要求子空间数 ≤ 维度、每个子空间码本数 ≤ 向量条数，
+                // 小数据集（示例仅 10~100 条）下默认值 64/256 会导致 KMeans 抛
+                // "Number of clusters N cannot exceed number of points M"。
+                int numVectors = vectors.size();
+                int subspaces = Math.max(1, Math.min(properties.getPqSubspaces(), dimension));
+                int centroids = Math.max(1, Math.min(properties.getPqCentroidsPerSubspace(), numVectors));
+
                 // 1. 训练 PQ 量化器
                 var pq = ProductQuantization.compute(
                         rav,
-                        properties.getPqSubspaces(),
-                        properties.getPqCentroidsPerSubspace(),
+                        subspaces,
+                        centroids,
                         false);
                 CompressedVectors compressed = pq.encodeAll(rav, ForkJoinPool.commonPool());
                 if (!(compressed instanceof PQVectors)) {
@@ -488,9 +471,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                         properties.getGraphM(),
                         properties.getGraphEfConstruction(),
                         1.0f, 1.2f, false)) {
-                    for (int i = 0; i < vectors.size(); i++) {
-                        builder.addGraphNode(i, vectors.get(i));
-                    }
+                    // build() 内部会遍历全部节点添加，无需手动 addGraphNode（否则重复添加报错）
                     graph = builder.build(rav);
                 }
             } catch (Exception e) {
@@ -498,17 +479,5 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        private class CustomScore implements ScoreFunction, ScoreFunction.ExactScoreFunction {
-            private final float[] query;
-            CustomScore(float[] query) { this.query = query; }
-            @Override public boolean isExact() { return true; }
-            @Override
-            public float similarityTo(int nodeOrd) {
-                if (algorithm != null && nodeOrd < rawVectors.size()) {
-                    return -(float) algorithm.compare(query, rawVectors.get(nodeOrd));
-                }
-                return Float.NEGATIVE_INFINITY;
-            }
-        }
     }
 }
