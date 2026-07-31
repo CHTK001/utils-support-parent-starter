@@ -19,28 +19,7 @@ import java.util.List;
 public class XunfeiPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("spark-pro")
-                        .name("Spark Pro")
-                        .provider("xunfei")
-                        .description("讯飞星火旗舰模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.0001"))
-                        .outputUnitPrice(new BigDecimal("0.0002"))
-                        .currency("CNY")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("spark-lite")
-                        .name("Spark Lite")
-                        .provider("xunfei")
-                        .description("讯飞星火轻量模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.00005"))
-                        .outputUnitPrice(new BigDecimal("0.0001"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

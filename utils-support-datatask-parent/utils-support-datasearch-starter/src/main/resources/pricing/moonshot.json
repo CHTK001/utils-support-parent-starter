@@ -1,0 +1,22 @@
+[
+  {
+    "id": "moonshot-v1",
+    "name": "Moonshot v1",
+    "provider": "moonshot",
+    "description": "月之暗面旗舰模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0003,
+    "currency": "CNY"
+  },
+  {
+    "id": "moonshot-v1-8k",
+    "name": "Moonshot v1 8K",
+    "provider": "moonshot",
+    "description": "月之暗面轻量模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.00005,
+    "outputUnitPrice": 0.00015,
+    "currency": "CNY"
+  }
+]

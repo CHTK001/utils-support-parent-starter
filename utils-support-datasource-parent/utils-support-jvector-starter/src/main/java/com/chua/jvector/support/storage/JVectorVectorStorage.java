@@ -58,7 +58,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     private final JVectorStorageProperties properties;
     private final VectorSimilarityFunction similarity;
-    private volatile StorageStrategy delegate;
+    private StorageStrategy delegate;
 
     public JVectorVectorStorage(int dimension, VectorCompareAlgorithm algorithm) {
         this(dimension, algorithm, null);
@@ -107,6 +107,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    public synchronized void rebuild() {
+        delegate.rebuild();
+    }
+
+    @Override
     public synchronized boolean remove(String id) {
         checkNotClosed();
         return delegate.doRemove(id);
@@ -141,25 +146,42 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         void close();
         boolean doRemove(String id);
         boolean doUpdate(String id, float[] vector);
+        void rebuild();
     }
 
     private static class EagerMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
+        /** 向量维度 */
         private final int dimension;
+        /** 相似度度量函数 */
         private final VectorSimilarityFunction similarity;
-        private volatile ImmutableGraphIndex graph;
+        /** 存储配置属性（含图参数） */
+        private final JVectorStorageProperties properties;
+        /** 内存图索引；构建前为 null */
+        private ImmutableGraphIndex graph;
+        /** 原始向量深拷贝（防御调用者后续修改） */
         private final List<float[]> rawVectors = new ArrayList<>();
+        /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
 
-        EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity) {
+        EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity, JVectorStorageProperties properties) {
             this.dimension = dimension;
             this.similarity = similarity;
+            this.properties = properties;
+        }
+
+        @Override
+        public synchronized void rebuild() {
+            if (graph != null) {
+                try { graph.close(); } catch (Exception ignored) {}
+                graph = null;
+            }
         }
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) return false;
-            rawVectors.add(vector);
+            rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -254,9 +276,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         private void buildGraph() {
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
-            try (var builder = new GraphIndexBuilder(rav, similarity, 16, 200, 1.0f, 1.2f, false)) {
-                // 注意：jvector 4.0.0-rc.9 的 build() 内部会遍历全部节点调用 addGraphNode，
-                // 此处不能再手动添加，否则会抛 "Node xxx already exists"。
+            try (var builder = new GraphIndexBuilder(
+                    rav, similarity,
+                    properties.getGraphM(),
+                    properties.getGraphEfConstruction(),
+                    1.0f, 1.2f, false)) {
                 graph = builder.build(rav);
             } catch (Exception e) {
                 throw new RuntimeException("构建内存图失败", e);
@@ -273,13 +297,19 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      * @author CH
      */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
+        /** 向量维度 */
         private final int dimension;
+        /** 相似度度量函数 */
         private final VectorSimilarityFunction similarity;
+        /** 存储配置属性（含图参数） */
         private final JVectorStorageProperties properties;
+        /** 磁盘索引文件路径 */
         private final Path indexPath;
-
-        private volatile OnDiskGraphIndex diskGraph;
+        /** 磁盘图索引；构建前为 null */
+        private OnDiskGraphIndex diskGraph;
+        /** 原始向量深拷贝（防御调用者后续修改） */
         private final List<float[]> rawVectors = new ArrayList<>();
+        /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
 
         DiskStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -292,19 +322,32 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         private void tryLoadExistingIndex() {
-            if (!Files.exists(indexPath)) return;
+            if (!Files.exists(indexPath)) {
+                return;
+            }
             try {
                 diskGraph = OnDiskGraphIndex.load(new SimpleMappedReader.Supplier(indexPath));
             } catch (Exception e) {
-                // 加载失败，稍后重新构建
+                System.err.printf("[WARN] JVector 磁盘索引加载失败，将在下次搜索时重建: path=%s, err=%s%n",
+                        indexPath, e.getMessage());
+                diskGraph = null;
             }
+        }
+
+        @Override
+        public synchronized void rebuild() {
+            if (diskGraph != null) {
+                try { diskGraph.close(); } catch (Exception ignored) {}
+                diskGraph = null;
+            }
+            ensureGraphBuilt();
         }
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) return false;
-            rawVectors.add(vector);
+            rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建图
             diskGraph = null;
@@ -382,7 +425,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 try { diskGraph.close(); } catch (Exception ignored) {}
                 diskGraph = null;
             }
-            try { Files.deleteIfExists(indexPath); } catch (IOException ignored) {}
         }
 
         @Override
@@ -423,14 +465,21 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      * @author CH
      */
     private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
+        /** 向量维度 */
         private final int dimension;
+        /** 相似度度量函数 */
         private final VectorSimilarityFunction similarity;
+        /** 存储配置属性（含图参数） */
         private final JVectorStorageProperties properties;
+        /** PQ 索引持久化路径 */
         private final Path indexPath;
-
-        private volatile ImmutableGraphIndex graph;
-        private volatile PQVectors pqVectors;
+        /** 内存图索引；构建前为 null */
+        private ImmutableGraphIndex graph;
+        /** PQ 压缩向量；训练前为 null */
+        private PQVectors pqVectors;
+        /** 原始向量深拷贝（防御调用者后续修改） */
         private final List<float[]> rawVectors = new ArrayList<>();
+        /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
 
         LargerThanMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -442,10 +491,19 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        public synchronized void rebuild() {
+            if (graph != null) {
+                try { graph.close(); } catch (Exception ignored) {}
+                graph = null;
+            }
+            pqVectors = null;
+        }
+
+        @Override
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) return false;
-            rawVectors.add(vector);
+            rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建
             graph = null;

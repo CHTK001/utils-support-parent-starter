@@ -7,16 +7,18 @@ import com.chua.common.support.spi.annotations.Spi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * 定价提供者抽象基类。
  *
- * <p>提供本地缓存读写能力，子类只需实现 {@link #getBuiltinPricing()} 返回内置定价。</p>
+ * <p>{@link #getPricing()} 只读本地文件，没有就返回空列表。本地文件需要通过 {@link #syncFromOnline()} 同步填入。</p>
+ * <p>{@link #syncFromOnline()} 调用子类 {@link #fetchOnlinePricing()} 获取数据并写入本地文件。</p>
+ *
+ * <p>兜底机制：若子类需要，可通过 {@link #readClasspathPricing()} 读取 classpath 内置 JSON 作为兜底。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,22 +35,14 @@ public abstract class AbstractPricingProvider implements PricingProvider {
      */
     protected static final String PRICING_KEY_SUFFIX = ".json";
 
+    /**
+     * classpath 资源根路径
+     */
+    private static final String CLASSPATH_ROOT = "pricing/";
+
     private static final Logger log = LoggerFactory.getLogger(AbstractPricingProvider.class);
 
-    /**
-     * 配置加载器
-     */
     private ConfigSaveOrLoader configSaveOrLoader;
-
-    /**
-     * 是否已从本地加载过
-     */
-    private boolean localLoaded;
-
-    /**
-     * 本地缓存数据
-     */
-    private List<ModelDefinition> localCache;
 
     protected AbstractPricingProvider() {
     }
@@ -69,56 +63,67 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     @Override
     public List<ModelDefinition> getPricing() {
         if (configSaveOrLoader == null) {
-            return getBuiltinPricing();
+            return Collections.emptyList();
         }
-        if (!localLoaded) {
-            localLoaded = true;
-            String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
-            try {
-                java.util.Optional<byte[]> opt = configSaveOrLoader.loadBytes(key);
-                if (opt.isPresent()) {
-                    String json = new String(opt.get(), StandardCharsets.UTF_8);
-                    List<ModelDefinition> parsed = Json.fromJson(json,
-                            new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
-                            });
-                    if (parsed != null && !parsed.isEmpty()) {
-                        localCache = parsed;
-                        return localCache;
-                    }
+        String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
+        try {
+            java.util.Optional<byte[]> opt = configSaveOrLoader.loadBytes(key);
+            if (opt.isPresent()) {
+                String json = new String(opt.get(), StandardCharsets.UTF_8);
+                List<ModelDefinition> parsed = Json.fromJson(json,
+                        new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
+                        });
+                if (parsed != null && !parsed.isEmpty()) {
+                    return parsed;
                 }
-            } catch (Exception e) {
-                log.debug("[{}] 读取本地定价缓存失败: {}", name(), e.getMessage());
             }
-            localCache = getBuiltinPricing();
+        } catch (Exception e) {
+            log.debug("[{}] 读取本地定价缓存失败: {}", name(), e.getMessage());
         }
-        return localCache != null ? localCache : Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @Override
-    public void syncToLocal() {
-        if (configSaveOrLoader == null) {
-            log.warn("[{}] ConfigSaveOrLoader 为空，无法同步到本地", name());
-            return;
-        }
-        List<ModelDefinition> pricing = getBuiltinPricing();
+    public void syncFromOnline() {
+        List<ModelDefinition> pricing = fetchOnlinePricing();
         if (pricing == null || pricing.isEmpty()) {
             return;
         }
-        String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
-        String json = Json.toJson(pricing);
-        configSaveOrLoader.saveBytes(key, json.getBytes(StandardCharsets.UTF_8));
-        localCache = new ArrayList<>(pricing);
-        localLoaded = true;
+        if (configSaveOrLoader != null) {
+            String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
+            String json = Json.toJson(pricing);
+            configSaveOrLoader.saveBytes(key, json.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     /**
-     * 返回内置定价数据。
+     * 从线上 API 拉取定价数据。
      *
-     * <p>子类实现此方法提供硬编码的官方定价。</p>
+     * <p>子类实现此方法。若厂商暂无公开定价 API，可返回 {@link #readClasspathPricing()}。</p>
      *
      * @return 模型定价列表
      */
-    protected abstract List<ModelDefinition> getBuiltinPricing();
+    protected abstract List<ModelDefinition> fetchOnlinePricing();
+
+    /**
+     * 从 classpath 内置 JSON 文件读取定价列表（兜底）。
+     *
+     * @return classpath 中的定价列表
+     */
+    protected List<ModelDefinition> readClasspathPricing() {
+        String path = CLASSPATH_ROOT + name() + PRICING_KEY_SUFFIX;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
+            if (is == null) {
+                return Collections.emptyList();
+            }
+            String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return Json.fromJson(json,
+                    new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
+                    });
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 
     /**
      * 设置配置加载器。

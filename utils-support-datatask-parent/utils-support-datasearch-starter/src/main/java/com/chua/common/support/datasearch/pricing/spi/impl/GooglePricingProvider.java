@@ -19,28 +19,7 @@ import java.util.List;
 public class GooglePricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("gemini-2.5-pro")
-                        .name("Gemini 2.5 Pro")
-                        .provider("google")
-                        .description("Google 最强推理模型")
-                        .capabilities(List.of("chat", "reasoning", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.00125"))
-                        .outputUnitPrice(new BigDecimal("0.005"))
-                        .currency("USD")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("gemini-2.5-flash")
-                        .name("Gemini 2.5 Flash")
-                        .provider("google")
-                        .description("Google 快速多模态模型")
-                        .capabilities(List.of("chat", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.000075"))
-                        .outputUnitPrice(new BigDecimal("0.0003"))
-                        .currency("USD")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

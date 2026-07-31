@@ -1,0 +1,22 @@
+[
+  {
+    "id": "anthropic.claude-3-5-sonnet",
+    "name": "Claude 3.5 Sonnet (Bedrock)",
+    "provider": "amazon",
+    "description": "Amazon Bedrock Anthropic Claude 模型",
+    "capabilities": ["chat", "vision", "tools"],
+    "inputUnitPrice": 0.003,
+    "outputUnitPrice": 0.015,
+    "currency": "USD"
+  },
+  {
+    "id": "meta.llama3-70b-instruct",
+    "name": "Llama 3 70B (Bedrock)",
+    "provider": "amazon",
+    "description": "Amazon Bedrock Meta Llama 3 模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0007,
+    "outputUnitPrice": 0.0011,
+    "currency": "USD"
+  }
+]

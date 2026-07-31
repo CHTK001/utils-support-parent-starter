@@ -19,28 +19,7 @@ import java.util.List;
 public class AmazonPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("anthropic.claude-3-5-sonnet")
-                        .name("Claude 3.5 Sonnet (Bedrock)")
-                        .provider("amazon")
-                        .description("Amazon Bedrock Anthropic Claude 模型")
-                        .capabilities(List.of("chat", "vision", "tools"))
-                        .inputUnitPrice(new BigDecimal("0.003"))
-                        .outputUnitPrice(new BigDecimal("0.015"))
-                        .currency("USD")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("meta.llama3-70b-instruct")
-                        .name("Llama 3 70B (Bedrock)")
-                        .provider("amazon")
-                        .description("Amazon Bedrock Meta Llama 3 模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.0007"))
-                        .outputUnitPrice(new BigDecimal("0.0011"))
-                        .currency("USD")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

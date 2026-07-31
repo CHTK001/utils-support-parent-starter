@@ -1,0 +1,12 @@
+[
+  {
+    "id": "qwen-max",
+    "name": "七牛云 Qwen Max",
+    "provider": "qiniu",
+    "description": "七牛云中转通义千问旗舰模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0024,
+    "outputUnitPrice": 0.0096,
+    "currency": "CNY"
+  }
+]

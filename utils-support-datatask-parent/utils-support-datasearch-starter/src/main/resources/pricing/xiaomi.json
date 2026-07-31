@@ -1,0 +1,12 @@
+[
+  {
+    "id": "milmo-8b",
+    "name": "MiLM-8B",
+    "provider": "xiaomi",
+    "description": "小米轻量语言模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.00005,
+    "outputUnitPrice": 0.00015,
+    "currency": "CNY"
+  }
+]

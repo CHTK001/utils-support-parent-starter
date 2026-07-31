@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * AI 模型定价数据提供者接口。
  *
- * <p>各厂商通过此接口提供模型定价信息，支持本地缓存和在线同步。</p>
+ * <p>各厂商通过此接口提供模型定价信息，支持在线同步和本地文件缓存。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,15 +24,14 @@ public interface PricingProvider {
     /**
      * 获取模型定价列表。
      *
-     * <p>优先从本地缓存加载，本地无数据时返回内置定价。</p>
+     * <p>优先从本地文件缓存加载，本地无文件时返回空列表。</p>
      *
      * @return 模型定价列表
      */
     List<ModelDefinition> getPricing();
 
     /**
-     * 将内置定价数据同步到本地缓存。
+     * 从线上 API 同步定价数据并持久化到本地文件。
      */
-    default void syncToLocal() {
-    }
+    void syncFromOnline();
 }

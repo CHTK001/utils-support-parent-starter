@@ -19,18 +19,7 @@ import java.util.List;
 public class QiniuPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("qwen-max")
-                        .name("七牛云 Qwen Max")
-                        .provider("qiniu")
-                        .description("七牛云中转通义千问旗舰模型")
-                        .capabilities(List.of("chat", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.0024"))
-                        .outputUnitPrice(new BigDecimal("0.0096"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

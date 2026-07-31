@@ -19,28 +19,7 @@ import java.util.List;
 public class ClaudePricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("claude-sonnet-4-20250514")
-                        .name("Claude Sonnet 4")
-                        .provider("claude")
-                        .description("Anthropic 高性能模型")
-                        .capabilities(List.of("chat", "vision", "tools"))
-                        .inputUnitPrice(new BigDecimal("0.003"))
-                        .outputUnitPrice(new BigDecimal("0.015"))
-                        .currency("USD")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("claude-3-5-haiku-20241022")
-                        .name("Claude 3.5 Haiku")
-                        .provider("claude")
-                        .description("Anthropic 轻量模型")
-                        .capabilities(List.of("chat", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.0008"))
-                        .outputUnitPrice(new BigDecimal("0.004"))
-                        .currency("USD")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

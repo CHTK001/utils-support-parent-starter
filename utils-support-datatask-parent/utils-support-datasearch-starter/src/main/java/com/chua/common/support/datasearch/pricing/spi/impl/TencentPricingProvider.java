@@ -19,28 +19,7 @@ import java.util.List;
 public class TencentPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("hunyuan-pro")
-                        .name("混元 Pro")
-                        .provider("tencent")
-                        .description("腾讯旗舰大模型")
-                        .capabilities(List.of("chat", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.0006"))
-                        .outputUnitPrice(new BigDecimal("0.0024"))
-                        .currency("CNY")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("hunyuan-lite")
-                        .name("混元 Lite")
-                        .provider("tencent")
-                        .description("腾讯轻量模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.0001"))
-                        .outputUnitPrice(new BigDecimal("0.0003"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

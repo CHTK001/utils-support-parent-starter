@@ -31,7 +31,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     /**
      * 映射管理器
      */
-    private final DataSyncMappingManager mappingManager;
+    private DataSyncMappingManager mappingManager;
 
     /**
      * 调度器管理器

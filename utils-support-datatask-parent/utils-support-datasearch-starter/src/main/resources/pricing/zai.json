@@ -1,0 +1,12 @@
+[
+  {
+    "id": "zai-glm-4",
+    "name": "Z.AI GLM-4",
+    "provider": "zai",
+    "description": "Z.AI 平台 GLM-4 模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0003,
+    "currency": "CNY"
+  }
+]
