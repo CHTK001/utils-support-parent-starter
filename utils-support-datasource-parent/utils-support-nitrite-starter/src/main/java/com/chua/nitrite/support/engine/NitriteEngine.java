@@ -231,11 +231,9 @@ import java.util.concurrent.ConcurrentHashMap;
         if (existing == null) {
             org.dizitart.no2.filters.Filter filter =
                     org.dizitart.no2.filters.FluentFilter.where("id").eq(String.valueOf(id));
-            try (org.dizitart.no2.collection.DocumentCursor cursor = nitriteCollection.find(filter)) {
-                for (Document doc : cursor) {
-                    existing = doc;
-                    break;
-                }
+            for (Document doc : nitriteCollection.find(filter)) {
+                existing = doc;
+                break;
             }
         }
         if (existing == null) {
