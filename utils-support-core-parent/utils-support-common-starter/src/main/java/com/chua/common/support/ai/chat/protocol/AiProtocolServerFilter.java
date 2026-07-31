@@ -210,7 +210,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         try {
             chatClient.models().forEach(md ->
                     data.add(Map.of(
-                            "id", md.name() != null ? md.name() : "unknown",
+                            "id", md.getName() != null ? md.getName() : "unknown",
                             "object", "model",
                             "created", (int) (System.currentTimeMillis() / 1000),
                             "owned_by", "system"

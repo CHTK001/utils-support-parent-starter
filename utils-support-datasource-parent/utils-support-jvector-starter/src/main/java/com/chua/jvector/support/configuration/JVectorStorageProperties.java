@@ -48,6 +48,11 @@ public class JVectorStorageProperties {
      */
     private boolean prepareOnStartup = true;
 
+    /**
+     * PQ 编码并行度；0 表示使用 {@link ForkJoinPool#commonPool()}。
+     */
+    private int pqParallelism = 0;
+
     public Mode getMode() {
         return mode;
     }
