@@ -23,6 +23,10 @@ import io.github.jbellis.jvector.vector.VectorizationProvider;
 import io.github.jbellis.jvector.vector.types.VectorFloat;
 import io.github.jbellis.jvector.vector.types.VectorTypeSupport;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -518,6 +522,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             saveVectors();
             ensureGraphBuilt();
         }
+
+        private void ensureGraphBuilt() {
             if (diskGraph != null) return;
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
