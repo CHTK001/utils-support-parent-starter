@@ -2295,16 +2295,16 @@
                         <includeTests>false</includeTests>
                         <targetJdk>19</targetJdk>
                             <rulesets>
-                                <ruleset>rulesets/java/ali-comment.xml</ruleset>
-                                <ruleset>rulesets/java/ali-concurrent.xml</ruleset>
-                                <ruleset>rulesets/java/ali-constant.xml</ruleset>
-                                <ruleset>rulesets/java/ali-exception.xml</ruleset>
-                                <ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
-                                <ruleset>rulesets/java/ali-naming.xml</ruleset>
-                                <ruleset>rulesets/java/ali-oop.xml</ruleset>
-                                <ruleset>rulesets/java/ali-orm.xml</ruleset>
-                                <ruleset>rulesets/java/ali-other.xml</ruleset>
-                                <ruleset>rulesets/java/ali-set.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-comment.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-concurrent.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-constant.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-exception.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-flowcontrol.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-naming.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-oop.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-orm.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-other.xml</ruleset>
+                                <ruleset language="java">rulesets/java/ali-set.xml</ruleset>
                             </rulesets>
                     </configuration>
                 </plugin>
