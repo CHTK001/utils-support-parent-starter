@@ -62,6 +62,11 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
     private String requestCodecKey;
 
     /**
+     * AES 编解码器（与前端 wasm 加密协议对齐）
+     */
+    private final ApiAesCodec aesCodec = new ApiAesCodec();
+
+    /**
      * 构造函数
      *
      * @param decodeConfig 解码配置
@@ -131,12 +136,39 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
     }
 
     /**
-     * 获取密钥头
+     * 获取密钥头（前端随机 key 的 header 名，脱敏处理）
      *
      * @return 密钥头名称
      */
     public String getKeyHeader() {
-        return "access-control-origin-key";
+        return "x-ck";
+    }
+
+    /**
+     * 获取加密标记头
+     *
+     * @return 加密标记头名称
+     */
+    public String getEncryptHeader() {
+        return "x-ec";
+    }
+
+    /**
+     * 加密标记的开启值
+     *
+     * @return 加密标记开启值
+     */
+    public String getEncryptHeaderValue() {
+        return "1";
+    }
+
+    /**
+     * 解密失败时是否拒绝请求
+     *
+     * @return true 解密失败时拒绝，false 解密失败时跳过解密
+     */
+    public boolean isRejectOnDecodeFailure() {
+        return decodeConfig != null && decodeConfig.isRejectOnDecodeFailure();
     }
 
     /**
@@ -150,18 +182,15 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
     }
 
     /**
-     * 解密请求
+     * 解密请求（AES/CBC，key 由 x-ck 头携带）
      *
-     * @param data 加密数据
+     * @param data     加密数据（二进制密文）
+     * @param base64Key base64 编码的随机 AES key（x-ck 头值）
      * @return 解密后的字节数组
      */
-    public byte[] decodeRequest(String data) {
+    public byte[] decodeRequest(byte[] data, String base64Key) {
         try {
-            if (requestCodec == null) {
-                throw new RuntimeException("解密器未初始化");
-            }
-            String decoded = requestCodec.decodeHex(data);
-            return decoded.getBytes(StandardCharsets.UTF_8);
+            return aesCodec.decrypt(data, base64Key);
         } catch (Exception e) {
             throw new RuntimeException("请求解析失败: " + e.getMessage());
         }

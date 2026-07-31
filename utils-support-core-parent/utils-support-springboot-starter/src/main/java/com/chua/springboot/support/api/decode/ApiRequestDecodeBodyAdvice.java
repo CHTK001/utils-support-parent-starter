@@ -1,6 +1,4 @@
 package com.chua.springboot.support.api.decode;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.chua.starter.common.support.network.UserAgent;
 import com.chua.starter.common.support.utils.NonceUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +38,6 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
     private static final Logger log = LoggerFactory.getLogger(ApiRequestDecodeBodyAdvice.class);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final String ENCRYPTED_REQUEST_FIELD = "data";
-
     private final ApiRequestDecodeRegister decodeRegister;
 
     public ApiRequestDecodeBodyAdvice(ApiRequestDecodeRegister decodeRegister) {
@@ -94,6 +88,11 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
             }
         }
 
+        // 加密标记判断：x-ec != "1" 或未携带 x-ck 时直接放行
+        String encryptHeader = request.getHeader(decodeRegister.getEncryptHeader());
+        if (!decodeRegister.getEncryptHeaderValue().equals(encryptHeader)) {
+            return inputMessage;
+        }
         if (!StringUtils.hasText(request.getHeader(decodeRegister.getKeyHeader()))) {
             return inputMessage;
         }
@@ -128,18 +127,22 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
     private HttpInputMessage decodeRequestBody(HttpInputMessage inputMessage, HttpServletRequest request) throws IOException {
         byte[] bodyBytes = StreamUtils.copyToByteArray(inputMessage.getBody());
         if (bodyBytes.length == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 请求体为空");
+            if (decodeRegister.isRejectOnDecodeFailure()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 请求体为空");
+            }
+            log.debug("[RequestCodec] 请求体为空，跳过解密 uri={}", request.getRequestURI());
+            return inputMessage;
         }
 
-        String encryptedPayload = extractEncryptedPayload(bodyBytes);
-        if (!StringUtils.hasText(encryptedPayload)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 未找到加密数据");
-        }
-
+        String base64Key = request.getHeader(decodeRegister.getKeyHeader());
         try {
-            byte[] decodedBytes = decodeRegister.decodeRequest(encryptedPayload);
+            byte[] decodedBytes = decodeRegister.decodeRequest(bodyBytes, base64Key);
             if (decodedBytes == null || decodedBytes.length == 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 解密结果为空");
+                if (decodeRegister.isRejectOnDecodeFailure()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 解密结果为空");
+                }
+                log.debug("[RequestCodec] 解密结果为空，跳过解密 uri={}", request.getRequestURI());
+                return inputMessage;
             }
 
             log.debug("[RequestCodec] 请求解密成功 uri={}, size={} -> {}", request.getRequestURI(), bodyBytes.length, decodedBytes.length);
@@ -148,40 +151,12 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
             throw ex;
         } catch (Exception ex) {
             log.error("[RequestCodec] 请求解密失败 uri={}", request.getRequestURI(), ex);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败");
-        }
-    }
-
-    private String extractEncryptedPayload(byte[] bodyBytes) throws IOException {
-        String rawBody = new String(bodyBytes, StandardCharsets.UTF_8).trim();
-        if (!StringUtils.hasText(rawBody)) {
-            return null;
-        }
-
-        if (!rawBody.startsWith("{") && !rawBody.startsWith("[")) {
-            return rawBody;
-        }
-
-        JsonNode root = OBJECT_MAPPER.readTree(rawBody);
-        if (root.isObject()) {
-            JsonNode dataNode = root.get(ENCRYPTED_REQUEST_FIELD);
-            if (dataNode != null && dataNode.isTextual()) {
-                return dataNode.asText();
+            if (decodeRegister.isRejectOnDecodeFailure()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败");
             }
-            return null;
+            log.debug("[RequestCodec] 解密失败，按配置跳过解密，返回原始请求体 uri={}", request.getRequestURI());
+            return inputMessage;
         }
-
-        if (root.isArray() && root.size() > 0) {
-            JsonNode first = root.get(0);
-            if (first != null && first.isObject()) {
-                JsonNode dataNode = first.get(ENCRYPTED_REQUEST_FIELD);
-                if (dataNode != null && dataNode.isTextual()) {
-                    return dataNode.asText();
-                }
-            }
-        }
-
-        return null;
     }
 
     static class DecodedHttpInputMessage implements HttpInputMessage {
