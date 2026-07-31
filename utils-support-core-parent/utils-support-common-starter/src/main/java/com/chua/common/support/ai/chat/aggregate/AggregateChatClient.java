@@ -462,6 +462,27 @@ public class AggregateChatClient implements ChatClient {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取所有已配置客户端的模型定价列表（去重）。
+     *
+     * @return 模型定价列表
+     */
+    @Override
+    public List<ModelDefinition> modelPricing() {
+        checkClosed();
+        return allClients.stream()
+                .flatMap(wc -> {
+                    try {
+                        return wc.client().modelPricing().stream();
+                    } catch (Exception e) {
+                        log.debug("modelPricing() from {} failed: {}", wc.provider(), e.getMessage());
+                        return Stream.empty();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     // ======================== 异步持久化控制 ========================
 
     /**
