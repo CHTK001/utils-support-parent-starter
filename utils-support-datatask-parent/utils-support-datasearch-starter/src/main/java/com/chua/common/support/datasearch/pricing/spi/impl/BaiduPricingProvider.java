@@ -1,11 +1,7 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
-import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.AbstractPricingProvider;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * 百度文心一言系列模型定价提供者。
@@ -17,9 +13,4 @@ import java.util.List;
  */
 @Spi("baidu")
 public class BaiduPricingProvider extends AbstractPricingProvider {
-
-    @Override
-    protected List<ModelDefinition> fetchOnlinePricing() {
-        return readClasspathPricing();
-    }
 }

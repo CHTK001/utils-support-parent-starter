@@ -162,3 +162,6 @@ utils-support-extra-parent/utils-support-example-starter/hs_err_pid*.log
 **/spotbugs-exclude.xml
 **/spotbugs-include.xml
 
+
+dependency-reduced-pom.xml
+*.err

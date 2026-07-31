@@ -101,6 +101,16 @@ public interface VectorStorage extends AutoCloseable {
     void clear();
 
     /**
+     * 重建索引（将内存中的图/量化状态持久化到磁盘）。
+     * <p>
+     * 默认实现为空；具体存储实现可选择支持。
+     * </p>
+     */
+    default void rebuild() {
+        // 默认无操作
+    }
+
+    /**
      * 关闭存储，释放资源。
      */
     @Override
