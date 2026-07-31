@@ -1,0 +1,2 @@
+com.chua.ffmpeg.rust.support.codec.RustH264VideoEncoder
+com.chua.ffmpeg.rust.support.codec.RustH265VideoEncoder

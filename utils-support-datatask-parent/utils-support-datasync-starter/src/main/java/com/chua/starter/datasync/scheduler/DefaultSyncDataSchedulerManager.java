@@ -263,14 +263,19 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         Map<String, Object> readParams = buildReadParams(mapping, source);
 
         Flux.just(source)
+                .doOnSubscribe(s -> System.out.println("[SCHED] upstream subscribed"))
                 .flatMap(s -> s.read(readParams))
                 .buffer(mapping.batch() > 0 ? mapping.batch() : DEFAULT_BATCH_SIZE)
                 .flatMap(batchData -> {
+                    System.out.println("[SCHED] batchSize=" + batchData.size());
                     List<Map<String, Object>> transformedBatch = applyFieldMappings(batchData, fieldMappings);
+                    System.out.println("[SCHED] transformedBatch size=" + transformedBatch.size());
                     try {
                         executor.publish(outputId, transformedBatch);
+                        System.out.println("[SCHED] publish OK topic=out:" + outputId);
                         log.trace("已发布批次: mappingId={}, outputId={}, batchSize={}", mapping.mappingId(), outputId, transformedBatch.size());
                     } catch (Exception publishEx) {
+                        System.out.println("[SCHED] publish FAIL: " + publishEx);
                         log.error("发布批次异常: mappingId={}, outputId={}, batchSize={}, error={}",
                                 mapping.mappingId(), outputId, transformedBatch.size(), publishEx.getMessage(), publishEx);
                     }

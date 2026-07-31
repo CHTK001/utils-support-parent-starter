@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -203,11 +204,118 @@ public class TuiDashboard {
         return running.get();
     }
 
+    // ==================== 运行时组件管理 ====================
+
+    /**
+     * 显示指定组件。
+     *
+     * @param id 组件标识
+     */
+    public void showWidget(String id) {
+        findWidget(id).ifPresent(w -> w.setVisible(true));
+    }
+
+    /**
+     * 隐藏指定组件。
+     *
+     * @param id 组件标识
+     */
+    public void hideWidget(String id) {
+        findWidget(id).ifPresent(w -> w.setVisible(false));
+    }
+
+    /**
+     * 切换指定组件显示状态。
+     *
+     * @param id 组件标识
+     */
+    public void toggleWidget(String id) {
+        findWidget(id).ifPresent(w -> w.setVisible(!w.isVisible()));
+    }
+
+    /**
+     * 动态添加组件。
+     *
+     * @param widget 组件
+     */
+    public void addWidget(TuiWidget widget) {
+        if (widget != null) {
+            widgets.add(widget);
+        }
+    }
+
+    /**
+     * 移除指定组件。
+     *
+     * @param id 组件标识
+     */
+    public void removeWidget(String id) {
+        widgets.removeIf(w -> id.equals(w.getId()));
+    }
+
+    /**
+     * 获取所有组件（含隐藏）。
+     *
+     * @return 组件列表
+     */
+    public List<TuiWidget> getAllWidgets() {
+        return new ArrayList<>(widgets);
+    }
+
+    /**
+     * 获取当前可见组件。
+     *
+     * @return 可见组件列表
+     */
+    public List<TuiWidget> getVisibleWidgets() {
+        List<TuiWidget> result = new ArrayList<>();
+        for (TuiWidget widget : widgets) {
+            if (widget.isVisible()) {
+                result.add(widget);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 查找组件。
+     *
+     * @param id 组件标识
+     * @return Optional 组件
+     */
+    private Optional<TuiWidget> findWidget(String id) {
+        return widgets.stream()
+                .filter(w -> id.equals(w.getId()))
+                .findFirst();
+    }
+
+    // ==================== 渲染逻辑 ====================
+
+    /**
+     * 获取终端可用宽度。
+     * <p>
+     * 从环境变量 COLUMNS 读取，回退到 80 列。
+     * </p>
+     *
+     * @return 终端宽度（字符数）
+     */
+    private int getTerminalWidth() {
+        String columns = System.getenv("COLUMNS");
+        if (columns != null && !columns.isEmpty()) {
+            try {
+                return Math.max(40, Integer.parseInt(columns.trim()));
+            } catch (NumberFormatException ignored) {
+                // 环境变量不是合法整数，回退到默认值
+            }
+        }
+        return 80;
+    }
+
     /**
      * 渲染全部组件。
      * <p>
      * 遍历所有组件，从处理器获取数据后设置到组件，然后渲染。
-     * 使用 Mordant {@link Terminal#clearScreen()} 清除屏幕实现原地刷新。
+     * 使用 ANSI 清屏实现原地刷新。仅渲染可见组件。
      * </p>
      */
     private void renderAll() {
@@ -230,27 +338,18 @@ public class TuiDashboard {
             sb.append(MordantHelper.dim(
                     " ─" + "─".repeat(Math.max(0, 50 - title.length())))).append("\n\n");
 
-            // 按网格布局排列组件
-            int cols = layout.getCols();
-            List<List<TuiWidget>> rows = new ArrayList<>();
-            List<TuiWidget> currentRow = new ArrayList<>();
-            for (int i = 0; i < widgets.size(); i++) {
-                currentRow.add(widgets.get(i));
-                if (currentRow.size() == cols) {
-                    rows.add(currentRow);
-                    currentRow = new ArrayList<>();
+            // 过滤可见组件
+            List<TuiWidget> visibleWidgets = new ArrayList<>();
+            for (TuiWidget widget : widgets) {
+                if (widget.isVisible()) {
+                    visibleWidgets.add(widget);
                 }
-            }
-            if (!currentRow.isEmpty()) {
-                rows.add(currentRow);
             }
 
-            // 渲染每一行
-            for (List<TuiWidget> row : rows) {
-                for (TuiWidget widget : row) {
-                    sb.append(widget.render(widget.getRawData()));
-                }
-                sb.append("\n");
+            if (layout.isFreeGrid()) {
+                renderFreeGrid(sb, visibleWidgets);
+            } else {
+                renderFixedGrid(sb, visibleWidgets, layout.getCols());
             }
 
             // 底部操作提示
@@ -259,12 +358,110 @@ public class TuiDashboard {
                     .append(MordantHelper.dim(
                             "刷新间隔: " + refreshInterval + "ms  "))
                     .append(MordantHelper.dim(
-                            "布局: " + layout.getCols() + "x" + layout.getRows()));
+                            "布局: " + layout.name()));
 
             // 输出到终端
             MordantHelper.println(terminal, sb.toString());
         } catch (Exception e) {
             log.error("渲染仪表盘异常", e);
+        }
+    }
+
+    /**
+     * 渲染固定网格布局。
+     * <p>
+     * 每行最多 cols 个组件，等宽拼接。
+     * </p>
+     *
+     * @param sb            输出缓冲区
+     * @param visibleWidgets 可见组件列表
+     * @param cols          列数
+     */
+    private void renderFixedGrid(StringBuilder sb, List<TuiWidget> visibleWidgets, int cols) {
+        int terminalWidth = getTerminalWidth();
+        int widgetWidth = Math.max(20, terminalWidth / cols);
+
+        List<List<TuiWidget>> rows = new ArrayList<>();
+        List<TuiWidget> currentRow = new ArrayList<>();
+        for (TuiWidget widget : visibleWidgets) {
+            currentRow.add(widget);
+            if (currentRow.size() == cols) {
+                rows.add(currentRow);
+                currentRow = new ArrayList<>();
+            }
+        }
+        if (!currentRow.isEmpty()) {
+            rows.add(currentRow);
+        }
+
+        for (List<TuiWidget> row : rows) {
+            for (TuiWidget widget : row) {
+                sb.append(widget.render(widget.getRawData(), widgetWidth));
+            }
+            sb.append("\n");
+        }
+    }
+
+    /**
+     * 渲染自由网格布局。
+     * <p>
+     * 按组件的 colspan 累加，满 totalCols 自动换行。
+     * 如果单个组件 colspan > totalCols，则独占一行。
+     * </p>
+     *
+     * @param sb            输出缓冲区
+     * @param visibleWidgets 可见组件列表
+     */
+    private void renderFreeGrid(StringBuilder sb, List<TuiWidget> visibleWidgets) {
+        int terminalWidth = getTerminalWidth();
+        int totalCols = Math.max(1, layout.getCols());
+        if (totalCols == 0) {
+            totalCols = 2;
+        }
+
+        List<List<TuiWidget>> rows = new ArrayList<>();
+        List<TuiWidget> currentRow = new ArrayList<>();
+        int currentColspan = 0;
+
+        for (TuiWidget widget : visibleWidgets) {
+            int widgetColspan = Math.max(1, widget.getColspan());
+
+            if (widgetColspan > totalCols) {
+                if (!currentRow.isEmpty()) {
+                    rows.add(currentRow);
+                    currentRow = new ArrayList<>();
+                    currentColspan = 0;
+                }
+                rows.add(new ArrayList<>(List.of(widget)));
+                continue;
+            }
+
+            if (currentColspan + widgetColspan > totalCols && !currentRow.isEmpty()) {
+                rows.add(currentRow);
+                currentRow = new ArrayList<>();
+                currentColspan = 0;
+            }
+
+            currentRow.add(widget);
+            currentColspan += widgetColspan;
+        }
+        if (!currentRow.isEmpty()) {
+            rows.add(currentRow);
+        }
+
+        for (List<TuiWidget> row : rows) {
+            int rowColspanSum = 0;
+            for (TuiWidget widget : row) {
+                rowColspanSum += Math.max(1, widget.getColspan());
+            }
+            int effectiveCols = Math.max(rowColspanSum, row.size());
+            int widgetWidth = Math.max(20, terminalWidth / effectiveCols);
+
+            for (TuiWidget widget : row) {
+                int widgetWidthAdjusted = widgetWidth * Math.max(1, widget.getColspan());
+                sb.append(widget.render(widget.getRawData(), widgetWidthAdjusted));
+            }
+            sb.append("\n");
         }
     }
 

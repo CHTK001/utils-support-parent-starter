@@ -1,5 +1,6 @@
 package com.chua.jvector.support.storage;
 
+import com.chua.common.support.vector.AbstractIdOrdinalStorage;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
@@ -29,9 +30,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * JVector 向量存储门面，根据 {@link JVectorStorageProperties} 的 mode 选择底层策略。
@@ -46,6 +45,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>注意：jvector 图构建与搜索必须使用同一度量，因此这里只依据算法{@code name()}映射到
  * jvector 的 {@link VectorSimilarityFunction}（COSINE → COSINE、DOT → DOT_PRODUCT、其余 → EUCLIDEAN），
  * 自定义 {@link VectorCompareAlgorithm#compare(float[], float[])} 实现不参与打分。</p>
+ *
+ * <p>三种策略均继承 {@link AbstractIdOrdinalStorage}，统一复用 id→序数去重守卫、双向映射与
+ * swap-remove 逻辑，避免各策略重复实现 {@code idToOrd.containsKey} 守卫。</p>
  *
  * @author CH
  */
@@ -104,6 +106,22 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         delegate.close();
     }
 
+    @Override
+    public synchronized boolean remove(String id) {
+        checkNotClosed();
+        return delegate.doRemove(id);
+    }
+
+    @Override
+    public synchronized boolean update(String id, float[] vector) {
+        checkNotClosed();
+        if (vector.length != dimension()) {
+            throw new IllegalArgumentException(
+                    "维度不匹配: 期望 " + dimension() + ", 实际 " + vector.length);
+        }
+        return delegate.doUpdate(id, vector);
+    }
+
     private static VectorSimilarityFunction toJVectorSim(VectorCompareAlgorithm algo) {
         if (algo == null) {
             return VectorSimilarityFunction.EUCLIDEAN;
@@ -121,17 +139,16 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         int size();
         void clear();
         void close();
+        boolean doRemove(String id);
+        boolean doUpdate(String id, float[] vector);
     }
 
-    private static class EagerMemoryStrategy implements StorageStrategy {
+    private static class EagerMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         private final int dimension;
         private final VectorSimilarityFunction similarity;
         private volatile ImmutableGraphIndex graph;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
-        private final Map<String, Integer> idToOrd = new ConcurrentHashMap<>();
-        private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
-        private final AtomicInteger nextOrd = new AtomicInteger(0);
 
         EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity) {
             this.dimension = dimension;
@@ -140,10 +157,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
-            if (idToOrd.containsKey(id)) return false;
-            var ord = nextOrd.getAndIncrement();
-            idToOrd.put(id, ord);
-            ordToId.put(ord, id);
+            int ord = vectors.size();
+            if (!tryRegister(id, ord)) return false;
             rawVectors.add(vector);
             vectors.add(VTS.createFloatVector(vector));
             if (graph != null) {
@@ -166,7 +181,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var result = searcher.search(ssp, topK, Bits.ALL);
                 var list = new ArrayList<Vector>();
                 for (var n : result.getNodes()) {
-                    var id = ordToId.get(n.node);
+                    var id = idOf(n.node);
                     if (id == null) continue;
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
@@ -178,13 +193,51 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        public synchronized boolean doRemove(String id) {
+            Integer ord = ordinalOf(id);
+            if (ord == null) return false;
+            int last = vectors.size() - 1;
+            if (ord != last) {
+                // 把末尾元素移动到被删位置，保持序数紧凑
+                String movedId = idOf(last);
+                rawVectors.set(ord, rawVectors.get(last));
+                vectors.set(ord, vectors.get(last));
+                moveOrdinal(movedId, last, ord);
+                rawVectors.remove(last);
+                vectors.remove(last);
+                idToOrd.remove(id);
+            } else {
+                rawVectors.remove(last);
+                vectors.remove(last);
+                unregister(id, ord);
+            }
+            if (graph != null) {
+                try { graph.close(); } catch (Exception ignored) {}
+                graph = null;
+            }
+            return true;
+        }
+
+        @Override
+        public synchronized boolean doUpdate(String id, float[] vector) {
+            Integer ord = ordinalOf(id);
+            if (ord == null) return false;
+            rawVectors.set(ord, vector);
+            vectors.set(ord, VTS.createFloatVector(vector));
+            if (graph != null) {
+                try { graph.close(); } catch (Exception ignored) {}
+                graph = null;
+            }
+            return true;
+        }
+
+        @Override
         public synchronized int size() { return vectors.size(); }
 
         @Override
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
-            idToOrd.clear(); ordToId.clear();
-            nextOrd.set(0);
+            resetOrdinals();
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
                 graph = null;
@@ -219,7 +272,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      *
      * @author CH
      */
-    private static class DiskStrategy implements StorageStrategy {
+    private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         private final int dimension;
         private final VectorSimilarityFunction similarity;
         private final JVectorStorageProperties properties;
@@ -228,9 +281,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private volatile OnDiskGraphIndex diskGraph;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
-        private final Map<String, Integer> idToOrd = new ConcurrentHashMap<>();
-        private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
-        private final AtomicInteger nextOrd = new AtomicInteger(0);
 
         DiskStrategy(int dimension, VectorSimilarityFunction similarity,
                      JVectorStorageProperties properties) {
@@ -252,10 +302,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
-            if (idToOrd.containsKey(id)) return false;
-            var ord = nextOrd.getAndIncrement();
-            idToOrd.put(id, ord);
-            ordToId.put(ord, id);
+            int ord = vectors.size();
+            if (!tryRegister(id, ord)) return false;
             rawVectors.add(vector);
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建图
@@ -279,7 +327,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var result = searcher.search(ssp, ef, Bits.ALL);
                 var list = new ArrayList<Vector>();
                 for (var n : result.getNodes()) {
-                    var id = ordToId.get(n.node);
+                    var id = idOf(n.node);
                     if (id == null) continue;
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
@@ -292,13 +340,44 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        public synchronized boolean doRemove(String id) {
+            Integer ord = ordinalOf(id);
+            if (ord == null) return false;
+            int last = vectors.size() - 1;
+            if (ord != last) {
+                String movedId = idOf(last);
+                rawVectors.set(ord, rawVectors.get(last));
+                vectors.set(ord, vectors.get(last));
+                moveOrdinal(movedId, last, ord);
+                rawVectors.remove(last);
+                vectors.remove(last);
+                idToOrd.remove(id);
+            } else {
+                rawVectors.remove(last);
+                vectors.remove(last);
+                unregister(id, ord);
+            }
+            diskGraph = null;
+            return true;
+        }
+
+        @Override
+        public synchronized boolean doUpdate(String id, float[] vector) {
+            Integer ord = ordinalOf(id);
+            if (ord == null) return false;
+            rawVectors.set(ord, vector);
+            vectors.set(ord, VTS.createFloatVector(vector));
+            diskGraph = null;
+            return true;
+        }
+
+        @Override
         public synchronized int size() { return vectors.size(); }
 
         @Override
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
-            idToOrd.clear(); ordToId.clear();
-            nextOrd.set(0);
+            resetOrdinals();
             if (diskGraph != null) {
                 try { diskGraph.close(); } catch (Exception ignored) {}
                 diskGraph = null;
@@ -343,7 +422,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      *
      * @author CH
      */
-    private static class LargerThanMemoryStrategy implements StorageStrategy {
+    private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         private final int dimension;
         private final VectorSimilarityFunction similarity;
         private final JVectorStorageProperties properties;
@@ -353,9 +432,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private volatile PQVectors pqVectors;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
-        private final Map<String, Integer> idToOrd = new ConcurrentHashMap<>();
-        private final Map<Integer, String> ordToId = new ConcurrentHashMap<>();
-        private final AtomicInteger nextOrd = new AtomicInteger(0);
 
         LargerThanMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
                                  JVectorStorageProperties properties) {
@@ -367,10 +443,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
-            if (idToOrd.containsKey(id)) return false;
-            var ord = nextOrd.getAndIncrement();
-            idToOrd.put(id, ord);
-            ordToId.put(ord, id);
+            int ord = vectors.size();
+            if (!tryRegister(id, ord)) return false;
             rawVectors.add(vector);
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建
@@ -402,7 +476,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 // 精排 rerank
                 var list = new ArrayList<Vector>();
                 for (var n : roughResult.getNodes()) {
-                    var id = ordToId.get(n.node);
+                    var id = idOf(n.node);
                     if (id == null) continue;
                     float exactSimilarity = exactScore.similarityTo(n.node);
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
@@ -419,13 +493,46 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        public synchronized boolean doRemove(String id) {
+            Integer ord = ordinalOf(id);
+            if (ord == null) return false;
+            int last = vectors.size() - 1;
+            if (ord != last) {
+                String movedId = idOf(last);
+                rawVectors.set(ord, rawVectors.get(last));
+                vectors.set(ord, vectors.get(last));
+                moveOrdinal(movedId, last, ord);
+                rawVectors.remove(last);
+                vectors.remove(last);
+                idToOrd.remove(id);
+            } else {
+                rawVectors.remove(last);
+                vectors.remove(last);
+                unregister(id, ord);
+            }
+            graph = null;
+            pqVectors = null;
+            return true;
+        }
+
+        @Override
+        public synchronized boolean doUpdate(String id, float[] vector) {
+            Integer ord = ordinalOf(id);
+            if (ord == null) return false;
+            rawVectors.set(ord, vector);
+            vectors.set(ord, VTS.createFloatVector(vector));
+            graph = null;
+            pqVectors = null;
+            return true;
+        }
+
+        @Override
         public synchronized int size() { return vectors.size(); }
 
         @Override
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
-            idToOrd.clear(); ordToId.clear();
-            nextOrd.set(0);
+            resetOrdinals();
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
                 graph = null;

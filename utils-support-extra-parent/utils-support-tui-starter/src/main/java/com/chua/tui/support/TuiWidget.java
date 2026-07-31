@@ -29,6 +29,15 @@ public abstract class TuiWidget {
     /** 上一次渲染的原始数据 */
     private String rawData;
 
+    /** 组件是否可见 */
+    private boolean visible = true;
+
+    /** 跨列数，默认为 1 */
+    private int colspan = 1;
+
+    /** 跨行数，默认为 1 */
+    private int rowspan = 1;
+
     /**
      * 构造组件。
      *
@@ -53,6 +62,68 @@ public abstract class TuiWidget {
     }
 
     /**
+     * 组件是否可见。
+     *
+     * @return true 表示可见
+     */
+    public boolean isVisible() {
+        return visible;
+    }
+
+    /**
+     * 设置组件是否可见。
+     *
+     * @param visible 是否可见
+     */
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    /**
+     * 获取跨列数。
+     *
+     * @return colspan
+     */
+    public int getColspan() {
+        return colspan;
+    }
+
+    /**
+     * 设置跨列数，最小值为 1。
+     *
+     * @param colspan 跨列数
+     */
+    public void setColspan(int colspan) {
+        if (colspan < 1) {
+            this.colspan = 1;
+        } else {
+            this.colspan = colspan;
+        }
+    }
+
+    /**
+     * 获取跨行数。
+     *
+     * @return rowspan
+     */
+    public int getRowspan() {
+        return rowspan;
+    }
+
+    /**
+     * 设置跨行数，最小值为 1。
+     *
+     * @param rowspan 跨行数
+     */
+    public void setRowspan(int rowspan) {
+        if (rowspan < 1) {
+            this.rowspan = 1;
+        } else {
+            this.rowspan = rowspan;
+        }
+    }
+
+    /**
      * 刷新组件数据。
      * <p>
      * 子类可覆盖此方法进行数据预处理。
@@ -73,6 +144,21 @@ public abstract class TuiWidget {
      * @return 渲染后的终端文本（含 ANSI 转义码）
      */
     public abstract String render(String data);
+
+    /**
+     * 渲染组件内容（带宽度约束）。
+     * <p>
+     * 默认实现委托给 {@link #render(String)}，忽略宽度参数。
+     * 子类可覆盖此方法，根据可用宽度调整输出格式。
+     * </p>
+     *
+     * @param data  来自处理器的原始数据
+     * @param width 可用宽度（字符数）
+     * @return 渲染后的终端文本（含 ANSI 转义码）
+     */
+    public String render(String data, int width) {
+        return render(data);
+    }
 
     /**
      * 获取默认数据。

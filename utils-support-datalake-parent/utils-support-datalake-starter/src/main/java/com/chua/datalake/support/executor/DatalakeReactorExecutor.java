@@ -70,7 +70,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
             log.warn("DatalakeReactorExecutor.subscribe 跳过: chronicleProvider 未初始化");
             return;
         }
-        String topic = "server:" + getAgentId();
+        String topic = "server-" + getAgentId();
         ConsumerDispatcherDefinition<List<Map<String, Object>>> definition =
                 new ConsumerDispatcherDefinition<>(
                         data -> {

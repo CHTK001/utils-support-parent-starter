@@ -4,6 +4,8 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.sync.SyncClient;
+import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.IOException;
@@ -22,7 +24,23 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2026-07-25
  */
 @Spi("http")
-public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
+public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+
+    @Override
+    public String getProtocol() {
+        return "http";
+    }
+
+    @Override
+    public SyncServer createServer(ServerSetting setting) {
+        return new HttpSyncServer(setting);
+    }
+
+    @Override
+    public SyncClient createClient(Object setting) {
+        String url = setting instanceof String ? (String) setting : "http://127.0.0.1:19380";
+        return new HttpSyncClient(url);
+    }
 
     /**
      * 客户端注册表（clientId -> metadata）
@@ -217,9 +235,38 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-     * 提取表单参数
+     * 提取参数（支持 form-urlencoded 和 JSON 格式）
      */
     private String extractParam(String body, String key) {
+        if (body == null || key == null) {
+            return null;
+        }
+
+        String encodedKey = key;
+        try {
+            encodedKey = java.net.URLEncoder.encode(key, "UTF-8");
+        } catch (Exception ignored) {
+        }
+
+        if (body.contains("=")) {
+            String[] pairs = body.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf('=');
+                if (idx > 0) {
+                    String k = pair.substring(0, idx);
+                    String v = pair.substring(idx + 1);
+                    try {
+                        k = java.net.URLDecoder.decode(k, "UTF-8");
+                        v = java.net.URLDecoder.decode(v, "UTF-8");
+                    } catch (Exception ignored) {
+                    }
+                    if (key.equals(k) || encodedKey.equals(k)) {
+                        return v;
+                    }
+                }
+            }
+        }
+
         String pattern = "\"" + key + "\"";
         int idx = body.indexOf(pattern);
         if (idx < 0) {

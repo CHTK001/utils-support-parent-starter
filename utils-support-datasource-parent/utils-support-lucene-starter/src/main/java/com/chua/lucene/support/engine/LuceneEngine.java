@@ -3,6 +3,7 @@ package com.chua.lucene.support.engine;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.parser.SqlExpressionParser;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.search.FulltextSearch;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -68,7 +69,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see IndexSearcher
  */
  @Spi("lucene")
- public class LuceneEngine extends AbstractEngine {
+  public class LuceneEngine extends AbstractEngine implements FulltextSearch {
 
      private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LuceneEngine.class);
 
@@ -305,8 +306,81 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
+    // ==================== FulltextSearch 接口实现 ==================
+
     /**
-     * 执行分页结构化搜索。
+     * 为指定实体类确保全文索引目录存在。
+     * <p>Lucene 的全文索引在调用 {@link #index(Class, List)} 写入文档时自动构建，
+     * 此方法仅用于提前初始化索引目录，避免首次搜索时才创建。</p>
+     *
+     * @param entityClass 实体类类型
+     * @param fieldNames 需要建立全文索引的字段名称（Lucene 引擎暂按实体全字段索引，此参数保留以兼容接口）
+     * @param <T> 实体类型
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
+        getOrCreateDirectory(getTableName(entityClass));
+    }
+
+    /**
+     * 执行全文检索（符合 {@link FulltextSearch} 接口约定）。
+     * <p>委托给 {@link #search(Class, String)} 执行。</p>
+     *
+     * @param query 搜索关键词
+     * @param entityClass 实体类类型
+     * @param <T> 实体类型
+     * @return 匹配的实体列表
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> List<T> search(String query, Class<T> entityClass) {
+        return search(entityClass, query);
+    }
+
+    /**
+     * 执行全文检索（带结果数量限制）。
+     * <p>委托给 {@link #search(Class, String)} 执行，并按 limit 截断结果。</p>
+     *
+     * @param query 搜索关键词
+     * @param entityClass 实体类类型
+     * @param limit 最大返回条数
+     * @param <T> 实体类型
+     * @return 匹配的实体列表
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> List<T> search(String query, Class<T> entityClass, int limit) {
+        List<T> results = search(entityClass, query);
+        if (results.size() > limit) {
+            return results.subList(0, limit);
+        }
+        return results;
+    }
+
+    /**
+     * 删除指定实体类的全文索引。
+     * <p>关闭并移除对应的索引目录。</p>
+     *
+     * @param entityClass 实体类类型
+     * @param fieldNames 需要删除索引的字段名称（Lucene 引擎按表级删除，此参数保留以兼容接口）
+     * @param <T> 实体类型
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
+        String tableName = getTableName(entityClass);
+        Directory directory = indexDirectories.remove(tableName);
+        if (directory != null) {
+            try {
+                directory.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    // ==================== 分页结构化搜索 ====================
      *
      * @param tableName  表名
      * @param luceneQuery  Lucene Query
