@@ -87,7 +87,7 @@ public class AgentLauncher {
         CompositeAgent(AgentProperties props) {
             super(props);
             ssh = createService("com.chua.remote.support.agent.ssh.SshAgentService", this);
-            desktop = createService("com.chua.remote.support.agent.desktop.DesktopAgentService", this);
+            desktop = createService("com.chua.remote.support.agent.desktop.DesktopAgentServiceImpl", this);
             socks5 = createService("com.chua.remote.support.agent.socks5.NettySocks5AgentService", this);
             Object rustdeskCtx = createRustDeskContext(this);
             rustdesk = createService("com.chua.remote.support.agent.rustdesk.RustDeskAgentService", rustdeskCtx != null ? rustdeskCtx : this);
