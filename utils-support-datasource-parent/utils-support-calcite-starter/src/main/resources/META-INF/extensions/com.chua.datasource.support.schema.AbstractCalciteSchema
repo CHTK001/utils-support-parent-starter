@@ -1,0 +1,4 @@
+com.chua.datasource.support.schema.FileSchema
+com.chua.datasource.support.schema.JsonSchema
+com.chua.datasource.support.schema.MemSchema
+com.chua.datasource.support.schema.XmlSchema

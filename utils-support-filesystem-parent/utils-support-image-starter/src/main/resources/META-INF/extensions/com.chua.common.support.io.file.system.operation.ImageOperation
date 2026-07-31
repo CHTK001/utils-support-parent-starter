@@ -1,0 +1,7 @@
+# SPI配置文件 - 跨模块实现
+# 接口: com.chua.common.support.io.file.system.operation.ImageOperation
+# 通过Java SPI机制加载
+# Rust 实现优先级更高（通过 @Spi("rust") 指定）
+
+com.chua.image.support.operation.RustImageOperation
+com.chua.image.support.operation.JdkImageOperation

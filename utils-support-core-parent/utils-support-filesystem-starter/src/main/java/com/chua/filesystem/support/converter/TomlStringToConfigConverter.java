@@ -1,0 +1,36 @@
+package com.chua.filesystem.support.converter;
+
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.base.converter.StringToConfigConverter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.toml.TomlFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+
+
+/**
+ * TOML字符串转配置
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2025/11/27
+ */
+@SuppressWarnings("ALL")
+@Spi({"toml"})
+@Slf4j
+public class TomlStringToConfigConverter implements StringToConfigConverter {
+
+    @Override
+    public Map<String, Object> convert(String value) {
+        try {
+            // 使用 Jackson 的 TomlFactory 解析 TOML
+            ObjectMapper mapper = new ObjectMapper(new TomlFactory());
+            return mapper.readValue(value, Map.class);
+        } catch (Exception e) {
+            log.error("TOML 配置文件解析失败", e);
+            throw new RuntimeException("TOML 配置文件解析失败: " + e.getMessage(), e);
+        }
+    }
+}
+

@@ -1,0 +1,4 @@
+# JDK 默认实现
+com.chua.filestorage.support.spi.JdkFileStorageFilterSetting
+# Native 实现（需要 utils-support-native-filestorage 模块）
+# com.chua.filestorage.support.spi.NativeFileStorageFilterSetting

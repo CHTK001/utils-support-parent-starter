@@ -1,0 +1,2 @@
+markdown=com.chua.common.support.lang.document.MarkdownRenderer
+html=com.chua.common.support.lang.document.HtmlRenderer

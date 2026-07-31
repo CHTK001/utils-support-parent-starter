@@ -1,0 +1,4 @@
+yaml=com.chua.filesystem.support.file.impl.YamlFileSystem
+yml=com.chua.filesystem.support.file.impl.YamlFileSystem
+zip4j=com.chua.filesystem.support.file.impl.Zip4jFileSystem
+7z=com.chua.filesystem.support.file.impl.SevenZFileSystem

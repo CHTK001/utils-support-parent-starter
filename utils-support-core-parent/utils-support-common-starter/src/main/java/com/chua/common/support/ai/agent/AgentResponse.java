@@ -1,0 +1,54 @@
+package com.chua.common.support.ai.agent;
+
+import com.chua.common.support.ai.AiUsage;
+import lombok.Builder;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Agent 执行响应
+ *
+ * <p>封装智能体执行完成后的输出结果、执行元数据和用量统计。
+ *
+ * @author CH
+ * @since 2026/07/15
+ */
+@Data
+@Builder
+public class AgentResponse implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /** Agent 输出文本 */
+    /**
+     * 输出路径
+     */
+    private String output;
+
+    /** 执行模式 */
+    private String mode;
+
+    /** 选中的 Agent 标识 */
+    private String selectedAgent;
+
+    /** 执行事件列表 */
+    @Builder.Default
+    private List<AgentEvent> events = new ArrayList<>();
+
+    /** 扩展元数据 */
+    @Builder.Default
+    private Map<String, Object> metadata = new LinkedHashMap<>();
+
+    /**
+     * 用量信息
+     *
+     * <p>包含本次 Agent 执行的 Token 用量、费用和性能指标。
+     * 若 Agent 内部调用了多次 LLM，此处为所有调用的汇总数据。
+     */
+    private AiUsage usage;
+}

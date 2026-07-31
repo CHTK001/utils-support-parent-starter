@@ -1,0 +1,1 @@
+semaphore=com.chua.common.support.concurrent.lock.provider.SemaphoreLockProvider

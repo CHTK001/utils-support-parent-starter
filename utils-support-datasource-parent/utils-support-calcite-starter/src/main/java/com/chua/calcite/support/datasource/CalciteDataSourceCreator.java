@@ -1,0 +1,295 @@
+package com.chua.calcite.support.datasource;
+
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDefault;
+import com.chua.datasource.support.datasource.DataScheme;
+import com.chua.datasource.support.datasource.DataSourceCreator;
+import com.chua.datasource.support.datasource.DataTable;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.calcite.adapter.jdbc.JdbcSchema;
+import org.apache.calcite.jdbc.CalciteConnection;
+import org.apache.calcite.schema.SchemaPlus;
+import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
+
+import javax.sql.DataSource;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
+
+/**
+ * Calcite 数据源创建器，使用 Calcite 将多个数据源聚合为一个统一的 {@link DataSource}。
+ * <p>
+ * 支持聚合以下类型的数据源：
+ * <ul>
+ *   <li><b>JDBC 数据源</b> — 通过 {@link #addDataSource(String, DataSource)} 注册，内部转换为 {@link JdbcSchema}</li>
+ *   <li><b>DataScheme 虚拟库</b> — 通过 {@link #addScheme(DataScheme)} 注册，包含多个 {@link DataTable}</li>
+ *   <li><b>DataTable 虚拟表</b> — 通过 {@link #addTable(String, DataTable)} 注册，自动归入指定 Scheme</li>
+ * </ul>
+ * </p>
+ * <p>
+ * 使用示例：
+ * <pre>{@code
+ * // 创建聚合数据源
+ * DataSource unified = new CalciteDataSourceCreator()
+ *     .addDataSource("mydb", myDataSource)
+ *     .addScheme(new CalciteDataScheme("sales")
+ *         .addTable(new CalciteDataTable("orders", ...).addRow(...)))
+ *     .create();
+ *
+ * // 通过 SQL 跨源查询
+ * try (Connection conn = unified.getConnection()) {
+ *     try (ResultSet rs = conn.createStatement()
+ *             .executeQuery("SELECT * FROM sales.orders")) {
+ *         ...
+ *     }
+ * }
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ */
+@SpiDefault
+@Spi("calcite")
+@Slf4j
+public class CalciteDataSourceCreator implements DataSourceCreator {
+
+    /**
+     * 已注册的 JDBC 数据源（名称 -> DataSource）
+     */
+    private final Map<String, DataSource> dataSources = new LinkedHashMap<>();
+
+    /**
+     * 已注册的 DataScheme 虚拟库列表
+     */
+    private final List<DataScheme> schemes = new ArrayList<>();
+
+    /**
+     * Calcite 连接属性
+     */
+    private final Properties calciteProps = new Properties();
+
+    {
+        calciteProps.put("lex", "MYSQL");
+        calciteProps.put("fun", "mysql");
+    }
+
+    // ---------------------------------------------------------------
+    // 构造 & 工厂方法
+    // ---------------------------------------------------------------
+
+    /**
+     * 创建一个新的 {@code CalciteDataSourceCreator} 实例。
+     *
+     * @return 新的创建器实例
+     */
+    public static CalciteDataSourceCreator newCreator() {
+        return new CalciteDataSourceCreator();
+    }
+
+    // ---------------------------------------------------------------
+    // 注册方法
+    // ---------------------------------------------------------------
+
+    @Override
+    public CalciteDataSourceCreator addDataSource(String name, DataSource dataSource) {
+        Objects.requireNonNull(name, "dataSource name must not be null");
+        Objects.requireNonNull(dataSource, "dataSource must not be null");
+        this.dataSources.put(name, dataSource);
+        return this;
+    }
+
+    @Override
+    public CalciteDataSourceCreator addScheme(DataScheme scheme) {
+        Objects.requireNonNull(scheme, "scheme must not be null");
+        this.schemes.add(scheme);
+        return this;
+    }
+
+    @Override
+    public CalciteDataSourceCreator addTable(String schemaName, DataTable table) {
+        Objects.requireNonNull(schemaName, "schemaName must not be null");
+        Objects.requireNonNull(table, "table must not be null");
+
+        // 查找是否已有同名 Scheme
+        DataScheme existing = null;
+        for (DataScheme s : schemes) {
+            if (schemaName.equals(s.getName())) {
+                existing = s;
+                break;
+            }
+        }
+
+        if (existing instanceof CalciteDataScheme) {
+            ((CalciteDataScheme) existing).addTable(table);
+        } else if (existing != null) {
+            // 非 CalciteDataScheme 的情况，创建一个新的包装
+            CalciteDataScheme wrapper = new CalciteDataScheme(schemaName);
+            for (String tName : existing.getTableNames()) {
+                DataTable t = existing.getTable(tName);
+                if (t != null) {
+                    wrapper.addTable(t);
+                }
+            }
+            wrapper.addTable(table);
+            schemes.remove(existing);
+            schemes.add(wrapper);
+        } else {
+            schemes.add(new CalciteDataScheme(schemaName).addTable(table));
+        }
+        return this;
+    }
+
+    // ---------------------------------------------------------------
+    // 创建 DataSource
+    // ---------------------------------------------------------------
+
+    public DataSource create() {
+        return new UnifiedCalciteDataSource(
+                new LinkedHashMap<>(this.dataSources),
+                new ArrayList<>(this.schemes),
+                this.calciteProps
+        );
+    }
+
+    // ---------------------------------------------------------------
+    // 内部类：统一 Calcite 数据源
+    // ---------------------------------------------------------------
+
+    /**
+     * 统一的 Calcite 数据源，内部封装了 JDBC 数据源和虚拟表的聚合逻辑。
+     */
+    private static class UnifiedCalciteDataSource implements DataSource {
+
+        private final Map<String, DataSource> dataSources;
+        private final List<DataScheme> schemes;
+        private final Properties calciteProps;
+
+        UnifiedCalciteDataSource(Map<String, DataSource> dataSources,
+                                 List<DataScheme> schemes,
+                                 Properties calciteProps) {
+            this.dataSources = dataSources;
+            this.schemes = schemes;
+            this.calciteProps = calciteProps;
+        }
+
+        @Override
+        public Connection getConnection() throws SQLException {
+            Connection connection = DriverManager.getConnection("jdbc:calcite:", calciteProps);
+            CalciteConnection calciteConn = connection.unwrap(CalciteConnection.class);
+            SchemaPlus rootSchema = calciteConn.getRootSchema();
+
+            // 1. 注册 JDBC 数据源
+            for (Map.Entry<String, DataSource> entry : dataSources.entrySet()) {
+                String schemaName = entry.getKey();
+                DataSource ds = entry.getValue();
+                try {
+                    JdbcSchema jdbcSchema = JdbcSchema.create(rootSchema, schemaName, ds, null, null);
+                    rootSchema.add(schemaName, jdbcSchema);
+                    log.debug("注册 JDBC Schema: {}", schemaName);
+                } catch (Exception e) {
+                    log.warn("注册 JDBC Schema [{}] 失败: {}", schemaName, e.getMessage());
+                }
+            }
+
+            // 2. 注册 DataScheme 虚拟库
+            for (DataScheme scheme : schemes) {
+                String schemaName = scheme.getName();
+                if (schemaName == null || schemaName.isEmpty()) {
+                    schemaName = "scheme_" + System.identityHashCode(scheme);
+                }
+
+                List<DataTable> tables = new ArrayList<>();
+                for (String tName : scheme.getTableNames()) {
+                    DataTable t = scheme.getTable(tName);
+                    if (t != null) {
+                        tables.add(t);
+                    }
+                }
+                if (tables.isEmpty()) {
+                    log.debug("跳过空的 DataScheme: {}", schemaName);
+                    continue;
+                }
+
+                Map<String, Table> calciteTableMap = new LinkedHashMap<>();
+                for (DataTable table : tables) {
+                    String tableName = table.getName();
+                    if (tableName == null || tableName.isEmpty()) {
+                        tableName = "t_" + calciteTableMap.size();
+                    }
+                    calciteTableMap.put(tableName, CalciteDataTableAdapter.of(table));
+                    log.debug("注册虚拟表: {}.{}", schemaName, tableName);
+                }
+
+                rootSchema.add(schemaName, new DataSchemeSchema(calciteTableMap));
+                log.info("注册 DataScheme: {} ({} 表)", schemaName, calciteTableMap.size());
+            }
+
+            log.info("Calcite 统一数据源初始化完成: {} JDBC 源 + {} DataScheme",
+                    dataSources.size(), schemes.size());
+            return connection;
+        }
+
+        @Override
+        public Connection getConnection(String username, String password) throws SQLException {
+            return getConnection();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T unwrap(Class<T> iface) throws SQLException {
+            if (iface.isInstance(this)) {
+                return (T) this;
+            }
+            return null;
+        }
+
+        @Override
+        public boolean isWrapperFor(Class<?> iface) {
+            return iface.isInstance(this);
+        }
+
+        @Override
+        public PrintWriter getLogWriter() {
+            return null;
+        }
+
+        @Override
+        public void setLogWriter(PrintWriter out) {
+        }
+
+        @Override
+        public void setLoginTimeout(int seconds) {
+        }
+
+        @Override
+        public int getLoginTimeout() {
+            return 0;
+        }
+
+        @Override
+        public Logger getParentLogger() {
+            return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        }
+    }
+
+    /**
+     * 将 DataScheme 映射为 Calcite Schema，为每个 DataTable 提供 ScannableTable。
+     */
+    private static class DataSchemeSchema extends AbstractSchema {
+
+        private final Map<String, Table> tableMap;
+
+        DataSchemeSchema(Map<String, Table> tableMap) {
+            this.tableMap = tableMap;
+        }
+
+        @Override
+        protected Map<String, Table> getTableMap() {
+            return tableMap;
+        }
+    }
+}

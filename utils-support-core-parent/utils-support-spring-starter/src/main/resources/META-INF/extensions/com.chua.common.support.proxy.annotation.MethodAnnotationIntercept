@@ -1,0 +1,2 @@
+com.chua.common.support.concurrent.lock.annotation.DistributedLock=com.chua.spring.support.proxy.intercept.DistributedLockIntercept
+com.chua.common.support.concurrent.rate.annotation.RateLimiter=com.chua.spring.support.proxy.intercept.RateLimiterIntercept

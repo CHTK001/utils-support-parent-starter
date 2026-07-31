@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-parent-starter</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-datalake-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Utils Support Datalake Parent</name>
+    <description>数据中台父模块，提供数据采集、订阅、分析、查询等数据湖/数据中台相关功能</description>
+    <modules>
+        <module>utils-support-datalake-starter</module>
+        <module>utils-support-datalake-subscribe-starter</module>
+        <module>utils-support-datalake-sink-starter</module>
+        <module>utils-support-datalake-query-starter</module>
+    </modules>
+</project>
+

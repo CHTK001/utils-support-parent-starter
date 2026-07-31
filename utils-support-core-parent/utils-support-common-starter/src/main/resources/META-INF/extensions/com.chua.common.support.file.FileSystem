@@ -1,0 +1,7 @@
+csv=com.chua.common.support.file.impl.CsvFileSystem
+json=com.chua.common.support.file.impl.JsonFileSystem
+xml=com.chua.common.support.file.impl.XmlFileSystem
+txt=com.chua.common.support.file.impl.TxtFileSystem
+zip=com.chua.common.support.file.impl.ZipFileSystem
+archive=com.chua.common.support.file.impl.ZipFileSystem
+tar=com.chua.common.support.file.impl.TarFileSystem

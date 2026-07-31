@@ -1,0 +1,53 @@
+package com.chua.common.support.lang.qr;
+
+import lombok.Data;
+
+/**
+ * 二维码定位点配置类。
+ *
+ * @author CH
+ */
+@Data
+public class CodeEyeSetting {
+    /**
+     * 定位点样式配置。
+     */
+    private CodeEyeStyle codeEye;
+
+    /**
+     * 定位点颜色（支持十六进制或名称）。
+     */
+    private String codeEyeColor;
+
+    /**
+     * 通用定位点图片路径。
+     */
+    private String codeEyeImage;
+
+    /**
+     * 左上角定位点图片路径。
+     */
+    private String ltCodeEyeImage;
+
+    /**
+     * 左下角定位点图片路径。
+     */
+    private String lbCodeEyeImage;
+
+    /**
+     * 右上角定位点图片路径。
+     */
+    private String rtCodeEyeImage;
+
+    public String getLTCodeEyeImage() {
+        return ltCodeEyeImage;
+    }
+
+    public String getLBCodeEyeImage() {
+        return lbCodeEyeImage;
+    }
+
+    public String getRTCodeEyeImage() {
+        return rtCodeEyeImage;
+    }
+}

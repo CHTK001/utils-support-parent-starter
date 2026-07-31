@@ -1,0 +1,19 @@
+package com.chua.common.support.datasearch.usage.spi.impl;
+
+import com.chua.common.support.ai.AiUsage;
+import com.chua.common.support.datasearch.usage.spi.UsageProvider;
+import com.chua.common.support.spi.annotations.Spi;
+
+import java.util.List;
+
+/**
+ * Augment Code 用量提供者
+ *
+ * @author CH
+ * @since 1.0.0
+ */
+@Spi("augment")
+public class AugmentUsageProvider implements UsageProvider {
+    @Override
+    public List<AiUsage> getUsage() { return List.of(); }
+}

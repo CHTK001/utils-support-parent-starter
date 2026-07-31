@@ -1,0 +1,3 @@
+javax=com.chua.common.support.network.server.parser.listener.JavaxListenerParser
+custom=com.chua.common.support.network.server.parser.listener.CustomListenerParser
+objectcontext=com.chua.common.support.network.server.parser.listener.ObjectContextListenerParser

@@ -1,0 +1,21 @@
+[package]
+name = "data_recovery_ffi"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+jni = "0.21"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+walkdir = "2.5"
+log = "0.4"
+env_logger = "0.10"
+rand = "0.8"
+chrono = "0.4"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["memoryapi", "winnt", "basetsd", "minwindef", "fileapi", "ioapiset", "winioctl", "handleapi", "errhandlingapi"] }

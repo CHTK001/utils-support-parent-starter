@@ -1,0 +1,3 @@
+com.chua.common.support.datasearch.agent.AgentEditorMcpProvider
+com.chua.common.support.datasearch.skill.impl.SkillsmpMcpProvider
+com.chua.common.support.datasearch.software.spi.impl.PackageManagerMcpProvider

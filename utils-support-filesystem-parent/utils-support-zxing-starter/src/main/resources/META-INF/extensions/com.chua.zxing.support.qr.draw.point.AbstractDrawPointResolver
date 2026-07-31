@@ -1,0 +1,6 @@
+com.chua.zxing.support.qr.draw.point.CircleDrawPointResolver
+com.chua.zxing.support.qr.draw.point.ImageDrawPointResolver
+com.chua.zxing.support.qr.draw.point.MiniRectDrawPointResolver
+com.chua.zxing.support.qr.draw.point.RectDrawPointResolver
+com.chua.zxing.support.qr.draw.point.RoundedCircleDrawPointResolver
+com.chua.zxing.support.qr.draw.point.TxtDrawPointResolver

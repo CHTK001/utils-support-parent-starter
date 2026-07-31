@@ -1,0 +1,8 @@
+com.chua.image.support.network.protocol.storage.image.RustRotateImageSettingProcessor
+com.chua.image.support.network.protocol.storage.image.RustThumbnailImageSettingProcessor
+com.chua.image.support.network.protocol.storage.image.RustGrayImageSettingProcessor
+com.chua.image.support.network.protocol.storage.image.RustBlurImageSettingProcessor
+com.chua.image.support.network.protocol.storage.image.RustBrightImageSettingProcessor
+com.chua.image.support.network.protocol.storage.image.RustQualityImageSettingProcessor
+com.chua.image.support.network.protocol.storage.image.RustShapeImageSettingProcessor
+

@@ -1,0 +1,174 @@
+package com.chua.baidu.support.sms;
+
+import com.chua.common.support.lang.json.JsonObject;
+import com.chua.common.support.network.client.ClientRequest;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClient;
+import com.chua.common.support.network.client.HttpClientFactory;
+import com.chua.common.support.network.http.HttpMethod;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.task.message.MessageEnvironment;
+import com.chua.common.support.task.message.MessagePush;
+import com.chua.common.support.task.message.MessageRequest;
+import com.chua.common.support.task.message.MessageResponse;
+import com.chua.common.support.task.message.TemplateInfo;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * 百度云短信推送实现
+ *
+ * <p>基于百度云 SMS HTTP API 的短信发送实现。
+ *
+ * <h3>环境配置</h3>
+ * <pre>
+ *   sms.accessKey   百度云 AccessKey（必填）
+ *   sms.secretKey   百度云 SecretKey（必填）
+ *   sms.signName    短信签名
+ * </pre>
+ *
+ * @author CH
+ * @since 2026/07/17
+ */
+@Spi("baidu-sms")
+@Slf4j
+public class BaiduSmsPush implements MessagePush {
+
+    /**
+     * 百度云 SMS API 地址
+     */
+    private static final String SMS_API_URL = "https://sms.bce.baidu.com/api/v2/sms";
+
+    private final MessageEnvironment environment;
+    private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
+
+    public BaiduSmsPush() {
+        this(new MessageEnvironment());
+    }
+
+    public BaiduSmsPush(MessageEnvironment environment) {
+        this.environment = environment;
+    }
+
+    @Override
+    public String getProvider() {
+        return "baidu-sms";
+    }
+
+    @Override
+    public MessageResponse send(MessageRequest request) throws Exception {
+        long start = System.currentTimeMillis();
+
+        String accessKey = environment.get("sms.accessKey");
+        String secretKey = environment.get("sms.secretKey");
+
+        if (accessKey == null || accessKey.isBlank()) {
+            throw new IllegalArgumentException("sms.accessKey 配置项必填");
+        }
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalArgumentException("sms.secretKey 配置项必填");
+        }
+
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
+        String content = request.getContent() != null ? request.getContent() : "";
+        String templateId = request.getTemplateId() != null ? request.getTemplateId() : "";
+
+        JsonObject jsonBody = new JsonObject();
+        jsonBody.fluentPut("phoneNumbers", request.getTo());
+        jsonBody.fluentPut("content", content);
+        jsonBody.fluentPut("templateId", templateId);
+
+        String authorization = generateAuthorization(accessKey, secretKey, timestamp);
+
+        HttpClient httpClient = HttpClientFactory.getClient();
+        ClientRequest httpRequest = ClientRequest.of(SMS_API_URL, HttpMethod.POST)
+                .header("Content-Type", "application/json")
+                .header("Authorization", authorization)
+                .header("X-Bce-Date", timestamp);
+        httpRequest.setBody(jsonBody.toJSONString());
+
+        ClientResponse response = httpClient.execute(httpRequest);
+
+        long duration = System.currentTimeMillis() - start;
+
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBodyString();
+
+        if (statusCode == 200 && responseBody.contains("\"code\":0")) {
+            return MessageResponse.builder()
+                    .success(true)
+                    .messageId(UUID.randomUUID().toString())
+                    .durationMillis(duration)
+                    .build();
+        } else {
+            return MessageResponse.builder()
+                    .success(false)
+                    .errorMessage("百度云 SMS 返回: HTTP " + statusCode + " - " + responseBody)
+                    .durationMillis(duration)
+                    .build();
+        }
+    }
+
+    @Override
+    public List<TemplateInfo> listTemplates() {
+        return new ArrayList<>(templates.values());
+    }
+
+    @Override
+    public TemplateInfo getTemplate(String templateId) {
+        return templates.get(templateId);
+    }
+
+    public void registerTemplate(TemplateInfo template) {
+        templates.put(template.id(), template);
+    }
+
+    @Override
+    public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
+        MessageRequest request = MessageRequest.builder()
+                .to(to)
+                .templateId(templateId)
+                .templateParams(params)
+                .build();
+        return send(request);
+    }
+
+    /**
+     * 生成百度云 AK/SK 认证头
+     *
+     * @param accessKey 百度云 AccessKey
+     * @param secretKey 百度云 SecretKey
+     * @param timestamp 时间戳
+     * @return Authorization 头值
+     */
+    private String generateAuthorization(String accessKey, String secretKey, String timestamp) throws Exception {
+        String method = "POST";
+        String path = "/api/v2/sms";
+        String query = "";
+
+        String canonicalRequest = method + "\n" + path + "\n" + query + "\n"
+                + "host:sms.bce.baidu.com\n"
+                + "x-bce-date:" + timestamp + "\n"
+                + "\n"
+                + "host;x-bce-date\n";
+
+        String stringToSign = "HMAC-SHA256\n" + timestamp + "\n" + canonicalRequest;
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        byte[] hash = mac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
+        String signature = Base64.getEncoder().encodeToString(hash);
+
+        return "bce-auth-v1/" + accessKey + "/" + timestamp + "/1800/host;x-bce-date/" + signature;
+    }
+}

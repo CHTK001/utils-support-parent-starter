@@ -1,0 +1,2 @@
+request-method=com.chua.common.support.network.server.parser.RequestMethodServerHandlerParser
+ipc-method=com.chua.common.support.network.ipc.parser.IpcMethodServerHandlerParser

@@ -1,0 +1,25 @@
+# ==================== 日志/监控 ====================
+logging=com.chua.common.support.network.server.filter.AccessLogFilter
+tracing=com.chua.common.support.network.server.filter.TracingFilter
+metrics=com.chua.common.support.network.server.filter.BuiltinEndpointFilter
+
+# ==================== 安全/认证 ====================
+auth=com.chua.common.support.network.server.filter.IpFilter
+rate-limit=com.chua.common.support.network.server.filter.RateLimitFilter
+
+# ==================== 请求处理 ====================
+routing=com.chua.common.support.network.server.filter.UrlMappingServerFilter
+request-id=com.chua.common.support.network.server.filter.RequestIdFilter
+request-timeout=com.chua.common.support.network.server.filter.RequestTimeoutFilter
+ipc=com.chua.common.support.network.server.filter.IpcServerFilter
+
+# ==================== 响应处理 ====================
+response-rewrite=com.chua.common.support.network.server.filter.ResponseRewriteFilter
+gzip=com.chua.common.support.network.server.filter.GzipFilter
+cors=com.chua.common.support.network.server.filter.CorsFilter
+
+# ==================== 代理/发现 ====================
+service-discovery=com.chua.common.support.network.server.filter.ServiceDiscoveryServerFilter
+reverse-proxy=com.chua.common.support.network.server.filter.ReverseProxyServerFilter
+tcp-proxy=com.chua.common.support.network.server.filter.TcpProxyServerFilter
+udp-proxy=com.chua.common.support.network.server.filter.UdpProxyServerFilter

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-network-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-acme-starter</artifactId>
+    <name>ACME Support Starter</name>
+    <description>
+        ACME 协议支持模块，提供 SSL/TLS 证书自动化管理功能。
+        主要功能：
+        - SSL 证书申请：支持 Let's Encrypt 等 ACME 服务
+        - 证书自动续期：自动检测和续期即将过期的证书
+        - 证书管理：证书的创建、验证、吊销操作
+        - 域名验证：支持 HTTP-01 和 DNS-01 验证方式
+        - 证书存储：证书和私钥的安全存储管理
+        基于 ACME4J 库实现，符合 RFC 8555 ACME 协议标准。
+    </description>
+    <properties>
+        <acme4j.version>3.5.1</acme4j.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.shredzone.acme4j</groupId>
+            <artifactId>acme4j-client</artifactId>
+            <version>${acme4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

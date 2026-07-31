@@ -1,0 +1,4 @@
+com.chua.datalake.support.sink.LogSink
+com.chua.datalake.support.sink.StatisticSink
+com.chua.datalake.support.sink.RealTimeSink
+com.chua.datalake.support.sink.JdbcSink

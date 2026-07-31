@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>接入网关架构图 — G6 交互查看器</title>
+<script src="https://unpkg.com/@antv/g6@4.8.24/dist/g6.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f1419; --surface: #1a2332; --surface2: #243044;
+  --border: #2d3f50; --text: #e1e8ed; --text2: #8899a6;
+  --accent: #1da1f2; --accent2: #17bf63; --accent3: #ffad1f; --danger: #e74c3c;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.35);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.45);
+  --glass-bg: rgba(26,35,50,.75);
+  --glass-border: rgba(45,63,80,.5);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'Noto Sans CJK SC', sans-serif;
+  background: var(--bg); color: var(--text);
+  display: flex; height: 100vh; overflow: hidden;
+}
+:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.sidebar {
+  width: 220px; min-width: 220px;
+  background: linear-gradient(180deg, #1a2332 0%, #1e293b 100%);
+  border-right: 1px solid var(--glass-border);
+  display: flex; flex-direction: column; height: 100vh;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+.sidebar-header {
+  padding: 20px 16px 14px;
+  background: linear-gradient(135deg, rgba(29,161,242,.08), transparent);
+  border-bottom: 1px solid var(--glass-border);
+  position: relative;
+}
+.sidebar-header::after {
+  content: ''; position: absolute; bottom: -1px; left: 16px; right: 16px;
+  height: 1px; background: linear-gradient(90deg, var(--accent), transparent 60%);
+}
+.sidebar-header h1 { font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: .3px; }
+.sidebar-header .sub { font-size: 10.5px; color: var(--text2); margin-top: 3px; opacity: .7; }
+.sidebar nav {
+  flex: 1; overflow-y: auto; overflow-x: hidden; padding: 6px 0 12px;
+  scrollbar-width: thin; scrollbar-color: #2d3f50 transparent;
+}
+.sidebar nav::-webkit-scrollbar { width: 4px; }
+.sidebar nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar nav::-webkit-scrollbar-thumb { background: #2d3f50; border-radius: 4px; }
+.sidebar nav::-webkit-scrollbar-thumb:hover { background: #4a5b6c; }
+.sidebar nav a {
+  display: flex; align-items: center; gap: 8px; padding: 7px 16px 7px 14px;
+  color: var(--text2); text-decoration: none; font-size: 12.5px;
+  transition: all .18s var(--ease); border-left: 3px solid transparent;
+  cursor: pointer; position: relative;
+}
+.sidebar nav a:hover {
+  color: var(--text); background: rgba(29,161,242,.07);
+  border-left-color: rgba(29,161,242,.3);
+}
+.sidebar nav a:active { transform: scale(.98); }
+.sidebar nav a.active {
+  border-left-color: var(--accent); color: var(--accent);
+  background: linear-gradient(90deg, rgba(29,161,242,.12), rgba(29,161,242,.03));
+  font-weight: 600;
+}
+.sidebar nav a.active::before {
+  content: ''; position: absolute; top: 50%; left: -1px;
+  width: 6px; height: 60%; transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(29,161,242,.4), transparent);
+  border-radius: 0 3px 3px 0;
+  pointer-events: none;
+}
+.sidebar nav a .num {
+  color: var(--text2); font-size: 10px; min-width: 18px;
+  opacity: .4; font-variant-numeric: tabular-nums;
+  transition: opacity .18s var(--ease);
+}
+.sidebar nav a:hover .num { opacity: .7; }
+.sidebar nav a.active .num { opacity: 1; color: var(--accent); }
+.main { flex: 1; display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+.topbar {
+  display: flex; align-items: center; gap: 12px; padding: 10px 24px;
+  background: linear-gradient(180deg, #1e293b 0%, #1a2332 100%);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,.2); z-index: 5;
+}
+.topbar .title-area { flex: 1; min-width: 0; }
+.topbar .title-area h2 {
+  font-size: 16px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: linear-gradient(90deg, var(--text) 60%, var(--text2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.topbar .title-area .desc { font-size: 11.5px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .8; }
+.topbar .counter {
+  font-size: 11px; color: var(--text2); padding: 2px 10px;
+  background: rgba(45,63,80,.4); border-radius: 10px;
+  border: 1px solid var(--glass-border); flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.toolbar {
+  display: flex; align-items: center; gap: 3px; padding: 5px 20px;
+  background: linear-gradient(0deg, #1a2332 0%, #1e293b 100%);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  z-index: 5; min-height: 34px;
+}
+.toolbar .spacer { flex: 1; }
+.toolbar .hint {
+  font-size: 10px; color: var(--text2); margin-right: 6px;
+  opacity: .6; white-space: nowrap; flex-shrink: 0;
+}
+.toolbar .sep {
+  width: 1px; height: 18px;
+  background: linear-gradient(180deg, transparent, #2d3f50, transparent);
+  margin: 0 4px; flex-shrink: 0;
+}
+.toolbar button {
+  border: 1px solid transparent; background: transparent; border-radius: var(--radius-sm);
+  padding: 4px 10px; font-size: 11.5px; cursor: pointer; color: var(--text2);
+  transition: all .15s var(--ease); white-space: nowrap; flex-shrink: 0;
+}
+.toolbar button:hover {
+  color: var(--text); background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.toolbar button:active { transform: scale(.95); }
+.toolbar button.primary {
+  background: linear-gradient(135deg, rgba(29,161,242,.15), rgba(29,161,242,.08));
+  border-color: rgba(29,161,242,.2); color: var(--accent); font-weight: 600;
+}
+.toolbar button.primary:hover {
+  background: linear-gradient(135deg, rgba(29,161,242,.25), rgba(29,161,242,.12));
+  border-color: rgba(29,161,242,.4);
+  box-shadow: 0 1px 8px rgba(29,161,242,.15);
+}
+.toolbar button.export {
+  background: linear-gradient(135deg, rgba(23,191,99,.12), rgba(23,191,99,.06));
+  border-color: rgba(23,191,99,.15); color: var(--accent2);
+}
+.toolbar button.export:hover {
+  background: linear-gradient(135deg, rgba(23,191,99,.22), rgba(23,191,99,.1));
+  border-color: rgba(23,191,99,.3);
+  box-shadow: 0 1px 8px rgba(23,191,99,.12);
+}
+.speed-control {
+  display: flex; align-items: center; gap: 3px; margin-right: 4px;
+  padding: 2px 6px; border-radius: var(--radius-sm);
+  transition: background .15s var(--ease); flex-shrink: 0;
+}
+.speed-control:hover { background: rgba(255,255,255,.03); }
+.speed-control label { font-size: 12px; cursor: pointer; line-height: 1; }
+.speed-control input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 56px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, #2d3f50, #4a5b6c);
+  outline: none; cursor: pointer;
+  transition: height .15s var(--ease);
+}
+.speed-control input[type=range]:hover { height: 3px; }
+.speed-control input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #4db8ff, var(--accent));
+  border: 2px solid #0f1419; cursor: pointer;
+  transition: transform .15s var(--ease-bounce), box-shadow .15s var(--ease);
+  box-shadow: 0 0 0 2px rgba(29,161,242,.2);
+}
+.speed-control input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 4px rgba(29,161,242,.15);
+}
+.speed-control input[type=range]::-moz-range-thumb {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #4db8ff, var(--accent));
+  border: 2px solid #0f1419; cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(29,161,242,.2);
+}
+.speed-val {
+  font-size: 10px; color: var(--text2); min-width: 28px;
+  text-align: center; font-variant-numeric: tabular-nums;
+  opacity: .7; transition: opacity .15s var(--ease), color .15s var(--ease);
+}
+.speed-control:hover .speed-val { opacity: 1; }
+.canvas-wrap { flex: 1; position: relative; overflow: hidden; }
+#g6-container { width: 100%; height: 100%; }
+.g6-tooltip {
+  background: linear-gradient(135deg, #1e293b, #1a2332) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--text) !important; font-size: 12px !important;
+  padding: 10px 14px !important;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(29,161,242,.05) !important;
+  max-width: 280px; line-height: 1.5;
+}
+.g6-minimap {
+  position: absolute !important; bottom: 16px !important; right: 16px !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: #0f1419 !important; overflow: hidden;
+  transition: transform .18s var(--ease), box-shadow .18s var(--ease);
+}
+.g6-minimap:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5) !important;
+}
+.g6-minimap canvas { border-radius: 6px; }
+body.fullscreen .sidebar, body.fullscreen .topbar, body.fullscreen .toolbar { display: none !important; }
+body.fullscreen .canvas-wrap {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1000; background: #0f1419;
+}
+#fullscreenExitBtn {
+  position: fixed; top: 16px; right: 16px; z-index: 1100;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(135deg, rgba(26,35,50,.88), rgba(30,41,59,.88));
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-md); padding: 8px 14px;
+  font-size: 12px; cursor: pointer; color: var(--text2); display: none;
+  align-items: center; gap: 6px;
+  box-shadow: var(--shadow-md);
+  transition: all .15s var(--ease);
+}
+body.fullscreen #fullscreenExitBtn { display: flex; }
+#fullscreenExitBtn:hover {
+  color: var(--text); background: linear-gradient(135deg, rgba(26,35,50,.95), rgba(30,41,59,.95));
+  border-color: rgba(255,255,255,.15);
+  box-shadow: var(--shadow-lg);
+}
+#fullscreenExitBtn:active { transform: scale(.96); }
+#fullscreenExitBtn .hint { font-size: 10px; color: var(--text2); opacity: .5; }
+@media (max-width: 768px) {
+  .sidebar { width: 160px; min-width: 160px; }
+  .sidebar-header { padding: 14px 12px 10px; }
+  .sidebar-header h1 { font-size: 12px; }
+  .sidebar nav a { font-size: 11px; padding: 6px 10px 6px 8px; }
+  .topbar { padding: 8px 12px; gap: 8px; }
+  .topbar .title-area h2 { font-size: 13px; }
+  .topbar .title-area .desc { font-size: 10px; }
+  .toolbar { padding: 4px 10px; gap: 2px; flex-wrap: wrap; }
+  .toolbar button { font-size: 10px; padding: 3px 7px; }
+  .toolbar .hint { display: none; }
+  .speed-control input[type=range] { width: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h1>接入网关架构图</h1>
+    <div class="sub">G6 · 共 11 张图</div>
+  </div>
+  <nav id="sidebarNav"></nav>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="title-area">
+      <h2 id="diagramTitle">整体架构总览</h2>
+      <div class="desc" id="diagramDesc">控制端 → 网关 → Agent / 持久化层的全局架构关系</div>
+    </div>
+    <div class="counter" id="diagramCounter">1 / 11</div>
+  </div>
+  <div class="toolbar">
+    <span class="hint">点击节点高亮关联 · 滚轮缩放 · 拖拽平移</span>
+    <button onclick="prevDiagram()" class="primary" title="上一张 (←)">◀ 上一张</button>
+    <button onclick="nextDiagram()" class="primary" title="下一张 (→)">下一张 ▶</button>
+    <span class="sep"></span>
+    <div class="spacer"></div>
+    <div class="speed-control">
+      <label for="speedSlider" title="数据流动画速度">🎬</label>
+      <input type="range" id="speedSlider" min="0" max="2" step="0.05" value="0.4"
+        oninput="setAnimSpeed(this.value)">
+      <span id="speedLabel" class="speed-val">0.4×</span>
+    </div>
+    <button onclick="zoomIn()">+ 放大</button>
+    <button onclick="zoomOut()">- 缩小</button>
+    <button onclick="resetZoom()">⟲ 重置</button>
+    <button onclick="fitView()">⊞ 自适应</button>
+    <button onclick="exportPng()" class="export" title="导出为 PNG">⬇ 导出</button>
+    <button onclick="toggleFullscreen()" id="fullscreenBtn">⛶ 全屏</button>
+  </div>
+  <div class="canvas-wrap">
+    <div id="g6-container"></div>
+  </div>
+</div>
+
+<button id="fullscreenExitBtn" onclick="toggleFullscreen()">⛶ 退出全屏 <span class="hint">Esc</span></button>
+
+<script>
+const C = {
+  blue: { fill: '#1da1f2', stroke: '#1688d4', text: '#fff' },
+  green: { fill: '#17bf63', stroke: '#14a855', text: '#fff' },
+  orange: { fill: '#ffad1f', stroke: '#e89a1a', text: '#1a2332' },
+  purple: { fill: '#794bc4', stroke: '#6a3db5', text: '#fff' },
+  red: { fill: '#e74c3c', stroke: '#c0392b', text: '#fff' },
+  teal: { fill: '#1abc9c', stroke: '#16a085', text: '#fff' },
+  amber: { fill: '#f39c12', stroke: '#d68910', text: '#1a2332' },
+  gray: { fill: '#5a6b7c', stroke: '#4a5b6c', text: '#fff' },
+  indigo: { fill: '#5c6bc0', stroke: '#3f51b5', text: '#fff' },
+};
+
+function node(id, label, color, extra) {
+  const c = C[color] || C.gray;
+  return Object.assign({
+    id, label, desc: (extra && extra.desc) || '',
+    type: (color === 'orange' ? 'port' : color === 'blue' ? 'comp' : color === 'green' ? 'agent' : color === 'teal' ? 'sys' : color === 'red' ? 'auth' : color === 'purple' ? 'stor' : color === 'amber' ? 'dec' : color === 'indigo' ? 'indigo' : 'gray') + '-node',
+    style: { fill: c.fill, stroke: c.stroke },
+    labelCfg: { style: { fill: c.text, fontSize: 12, fontWeight: 500 } },
+  }, extra || {});
+}
+function portNode(id, label, e) { return node(id, label, 'orange', Object.assign({size:[100,32]}, e||{})); }
+function compNode(id, label, e) { return node(id, label, 'blue', Object.assign({size:[150,38]}, e||{})); }
+function agentNode(id, label, e) { return node(id, label, 'green', Object.assign({size:[140,34]}, e||{})); }
+function sysNode(id, label, e) { return node(id, label, 'teal', Object.assign({size:[150,36]}, e||{})); }
+function authNode(id, label, e) { return node(id, label, 'red', Object.assign({size:[130,34]}, e||{})); }
+function storNode(id, label, e) { return node(id, label, 'purple', Object.assign({size:[130,32]}, e||{})); }
+function decNode(id, label, e) {
+  return node(id, label, 'amber', Object.assign({
+    type: 'dec-node', size:[70,50],
+    labelCfg: { style: { fill: '#1a2332', fontSize: 11, fontWeight: 500 } },
+  }, e||{}));
+}
+
+const NODE_STYLE_MAP = {
+  'port':   { fill:'#ffad1f', stroke:'#e89a1a', text:'#1a2332', radius: 6 },
+  'comp':   { fill:'#1da1f2', stroke:'#1688d4', text:'#fff',    radius: 6 },
+  'agent':  { fill:'#17bf63', stroke:'#14a855', text:'#fff',    radius: 6 },
+  'sys':    { fill:'#1abc9c', stroke:'#16a085', text:'#fff',    radius: 6 },
+  'auth':   { fill:'#e74c3c', stroke:'#c0392b', text:'#fff',    radius: 6 },
+  'stor':   { fill:'#794bc4', stroke:'#6a3db5', text:'#fff',    radius: 6 },
+  'dec':    { fill:'#f39c12', stroke:'#d68910', text:'#1a2332', radius: 0 },
+  'gray':   { fill:'#5a6b7c', stroke:'#4a5b6c', text:'#fff',    radius: 6 },
+  'indigo': { fill:'#5c6bc0', stroke:'#3f51b5', text:'#fff',    radius: 6 },
+};
+
+Object.keys(NODE_STYLE_MAP).forEach(k => {
+  const s = NODE_STYLE_MAP[k];
+  const isDiamond = k === 'dec';
+  G6.registerNode(k + '-node', {
+    draw(cfg, group) {
+      const size = cfg.size || [150, 36];
+      const w = size[0], h = size[1];
+      const shapeType = isDiamond ? 'diamond' : 'rect';
+      const key = group.addShape(shapeType, {
+        attrs: {
+          width: w, height: h, x: -w/2, y: -h/2,
+          fill: s.fill, stroke: s.stroke, lineWidth: 1.5,
+          radius: s.radius, cursor: 'pointer',
+        },
+        name: 'body',
+      });
+      group.addShape('text', {
+        attrs: {
+          text: cfg.label || '', x: 0, y: 0,
+          fill: s.text, fontSize: 12, fontWeight: 500,
+          textAlign: 'center', textBaseline: 'middle',
+        },
+        name: 'label',
+      });
+      return key;
+    },
+    getAnchorPoints(cfg) {
+      const lp = (cfg.linkPoints || {});
+      const anchors = [];
+      if (lp.top !== false)    anchors.push([0.5, 0]);
+      if (lp.bottom !== false) anchors.push([0.5, 1]);
+      if (lp.left !== false)   anchors.push([0, 0.5]);
+      if (lp.right !== false)  anchors.push([1, 0.5]);
+      if (anchors.length === 0) anchors.push([0.5, 0.5]);
+      return anchors;
+    },
+  }, isDiamond ? 'single-shape' : 'single-shape');
+});
+
+function edge(id, src, tgt, label, style) {
+  return {
+    id, source: src, target: tgt, label: label || '', animated: false,
+    radius: 4, offset: 12,
+    style: Object.assign({
+      stroke: '#4a5b6c', lineWidth: 1.2,
+      endArrow: { path: G6.Arrow.vee(6, 6), fill: '#4a5b6c' },
+    }, style || {}),
+    labelCfg: {
+      style: { fill: '#8899a6', fontSize: 10, background: { fill: '#0f1419', padding: [2, 4] } },
+    },
+  };
+}
+function flowEdge(id, src, tgt, label) {
+  const e = edge(id, src, tgt, label, { stroke: '#17bf63' });
+  e.animated = true;
+  e.style.lineDash = [10, 5];
+  if (e.style.endArrow) e.style.endArrow.fill = '#17bf63';
+  return e;
+}
+function combo(id, label, pid, style) {
+  return {
+    id, label, parentId: pid || undefined,
+    style: Object.assign({ fill: 'rgba(26,35,50,.6)', stroke: '#2d3f50', lineWidth: 1, opacity: .9 }, style || {}),
+    labelCfg: { style: { fill: '#e1e8ed', fontSize: 12, fontWeight: 700 } },
+    padding: [20, 16, 20, 16],
+  };
+}
+
+const DIAGRAMS = [
+  { id:'arch-overview', title:'整体架构总览', desc:'控制端 → 网关 → Agent / 持久化层',
+    layout:{type:'dagre',rankdir:'TB',nodesep:40,ranksep:60},
+    combos:[combo('c-ctrl','控制端'),combo('c-gw','网关'),combo('c-core','核心组件','c-gw'),combo('c-spi','SPI扩展','c-gw'),combo('c-ag','Agent'),combo('c-st','持久化')],
+    nodes:[
+      node('browser','浏览器 Web UI','indigo',{comboId:'c-ctrl',size:[130,34]}),node('cli','CLI 客户端','indigo',{comboId:'c-ctrl',size:[110,32]}),node('app','移动端 App','indigo',{comboId:'c-ctrl',size:[110,32]}),
+      portNode('p9000','9000 TCP-CTRL',{comboId:'c-gw'}),portNode('p8082','8082 DWS',{comboId:'c-gw'}),portNode('p3000','3000 HTTP-MGMT',{comboId:'c-gw'}),portNode('p8083','8083 HTTP-API',{comboId:'c-gw'}),portNode('p8081','8081 WS-API',{comboId:'c-gw'}),portNode('p1080','1080 SOCKS5',{comboId:'c-gw'}),portNode('p9001','9001 TCP-AGENT',{comboId:'c-gw'}),
+      compNode('ar','AgentRegistry',{comboId:'c-core'}),compNode('tr','TargetRegistry',{comboId:'c-core'}),compNode('sm','SessionManager',{comboId:'c-core'}),compNode('cr','ControllerRegistry',{comboId:'c-core'}),compNode('fw','GatewayFirewall',{comboId:'c-core',size:[140,38]}),compNode('rl','RateLimiter',{comboId:'c-core',size:[130,34]}),compNode('ah','AuthHandler',{comboId:'c-core'}),compNode('am','AclManager',{comboId:'c-core'}),
+      sysNode('gcs','ConfigStore',{comboId:'c-spi'}),sysNode('gtv','TokenVerifier',{comboId:'c-spi',size:[140,34]}),sysNode('gfp','FirewallSPI',{comboId:'c-spi',size:[140,34]}),sysNode('rtp','TransportSPI',{comboId:'c-spi',size:[140,34]}),
+      agentNode('ssh-ag','SSH Agent',{comboId:'c-ag',size:[120,32]}),agentNode('desk-ag','Desktop',{comboId:'c-ag',size:[130,32]}),agentNode('s5-ag','SOCKS5',{comboId:'c-ag',size:[130,32]}),agentNode('http-ag','HTTP Agent',{comboId:'c-ag',size:[140,34]}),
+      storNode('json-st','JSON',{comboId:'c-st'}),storNode('sql-st','SQLite',{comboId:'c-st'}),storNode('db-st','Database',{comboId:'c-st'}),
+    ],
+    edges:[
+      flowEdge('e1','browser','p8082','WS'),flowEdge('e2','cli','p9000','TCP'),flowEdge('e3','app','p8082','WS'),flowEdge('e4','browser','p3000','HTTP'),
+      flowEdge('e5','p9000','ah'),flowEdge('e6','p8082','ah'),flowEdge('e7','p3000','ah'),flowEdge('e8','ah','am','认证'),flowEdge('e9','am','sm','鉴权'),flowEdge('e10','sm','tr','路由'),edge('e11','sm','cr'),flowEdge('e12','tr','ar'),flowEdge('e13','fw','rl'),
+      flowEdge('e14','p8081','ssh-ag','WS'),flowEdge('e15','p1080','s5-ag','SOCKS5'),flowEdge('e16','s5-ag','p9001','TCP'),flowEdge('e17','ssh-ag','p9001','TCP'),flowEdge('e18','desk-ag','p9001','TCP'),flowEdge('e19','http-ag','p9001','TCP'),flowEdge('e20','p9001','ar','注册'),flowEdge('e21','ar','tr','同步'),
+      flowEdge('e22','gcs','json-st','持久化'),flowEdge('e23','gtv','db-st','验证'),
+      flowEdge('e24','p8083','ah'),flowEdge('e25','fw','gfp','SPI'),edge('e26','rl','rtp','限流后传输',{stroke:'#794bc4'}),
+    ],
+  },
+  { id:'ports', title:'端口架构', desc:'7 个端口及协议映射',
+    layout:{type:'dagre',rankdir:'LR',nodesep:40,ranksep:60},
+    combos:[combo('c-ports','端口'),combo('c-proto','协议')],
+    nodes:[
+      portNode('p9000','9000 TCP-CTRL',{comboId:'c-ports',size:[160,38]}),portNode('p9001','9001 TCP-AGENT',{comboId:'c-ports',size:[160,38]}),portNode('p1080','1080 SOCKS5-GW',{comboId:'c-ports',size:[160,38]}),portNode('p3000','3000 HTTP-MGMT',{comboId:'c-ports',size:[160,38]}),portNode('p8083','8083 HTTP-API',{comboId:'c-ports',size:[160,38]}),portNode('p8081','8081 WS-API',{comboId:'c-ports',size:[160,38]}),portNode('p8082','8082 DWS-REMOTE',{comboId:'c-ports',size:[160,38]}),
+      sysNode('tcp','TCP SSH/VNC/RDP',{comboId:'c-proto'}),sysNode('http','HTTP/HTTPS',{comboId:'c-proto'}),sysNode('ws','WebSocket',{comboId:'c-proto'}),sysNode('socks','SOCKS5',{comboId:'c-proto'}),
+    ],
+    edges:[flowEdge('ep1','p9000','tcp','嗅探'),flowEdge('ep2','p9000','http','HTTP'),flowEdge('ep3','p9001','tcp','帧解码'),flowEdge('ep4','p1080','socks','SOCKS5'),flowEdge('ep5','p3000','http','管理'),flowEdge('ep6','p8083','http','REST'),flowEdge('ep7','p8081','ws','WS'),flowEdge('ep8','p8082','ws','路由')],
+  },
+  { id:'data-flow', title:'控制端 → Agent 数据流', desc:'Agent 注册到控制端连接、会话建立、双向中继',
+    layout:{type:'dagre',rankdir:'TB',nodesep:25,ranksep:42},
+    nodes:[
+      authNode('c','控制端',{size:[160,36]}),compNode('gw','网关 Gateway',{size:[160,36]}),agentNode('a','Agent',{size:[160,36]}),
+      sysNode('s1','① Agent 启动',{size:[150,28]}),sysNode('s2','② TCP 连接 :9001',{size:[150,28]}),sysNode('s3','③ Challenge 验证',{size:[150,28]}),sysNode('s4','④ Register',{size:[160,32]}),sysNode('s5','⑤ 注册 AgentInfo',{size:[150,28]}),sysNode('s6','⑥ 定时心跳',{size:[150,28]}),sysNode('s7','⑦ 控制端 WS',{size:[150,28]}),sysNode('s8','⑧ connect',{size:[150,28]}),sysNode('s9','⑨ Auth+ACL',{size:[160,30]}),sysNode('s10','⑩ connect Agent',{size:[150,28]}),sysNode('s11','⑪ 建立连接',{size:[170,34]}),sysNode('s12','⑫ 双向中继',{size:[150,28]}),
+    ],
+    edges:[flowEdge('df1','a','s1'),flowEdge('df2','s1','s2'),flowEdge('df3','s2','gw'),flowEdge('df4','gw','s3'),flowEdge('df5','s3','s4'),flowEdge('df6','s4','s5'),flowEdge('df7','s5','s6'),flowEdge('df8','s6','s7'),flowEdge('df9','c','s7','WS'),flowEdge('df10','s7','s8'),flowEdge('df11','s8','s9'),flowEdge('df12','s9','s10'),flowEdge('df13','s10','s11'),flowEdge('df14','s11','s12')],
+  },
+  { id:'register-seq', title:'Agent 注册序列', desc:'Agent TCP 9001 注册流程',
+    layout:{type:'dagre',rankdir:'TB',nodesep:22,ranksep:38},
+    nodes:[
+      agentNode('rag','Agent',{size:[120,32]}),compNode('dec','FrameDecoder',{size:[170,36]}),compNode('reg','RegisterHandler',{size:[180,36]}),sysNode('reg-ar','AgentRegistry',{size:[160,34]}),sysNode('reg-tr','TargetRegistry',{size:[160,34]}),
+      sysNode('r1','① TCP 连接',{size:[170,28]}),sysNode('r2','② 帧解码',{size:[160,30]}),sysNode('r3','③ Challenge',{size:[170,28]}),sysNode('r4','④ Register',{size:[190,34]}),sysNode('r5','⑤ handleRegister',{size:[180,34]}),sysNode('r6','⑥ 创建 TargetEntry',{size:[170,28]}),sysNode('r7','⑦ Register OK',{size:[170,28]}),
+    ],
+    edges:[flowEdge('ra1','rag','r1'),flowEdge('ra2','r1','dec'),flowEdge('ra3','dec','r2'),flowEdge('ra4','r2','r3'),flowEdge('ra5','r3','rag'),flowEdge('ra6','rag','r4'),flowEdge('ra7','r4','reg'),flowEdge('ra8','reg','r5'),flowEdge('ra9','r5','reg-ar'),flowEdge('ra10','reg-ar','reg-tr'),flowEdge('ra11','reg-tr','r6'),flowEdge('ra12','r6','r7')],
+  },
+  { id:'protocol-detect', title:'协议嗅探流程', desc:'端口 9000 自动识别 SSH/RDP/VNC/HTTP/MySQL/Redis',
+    layout:{type:'dagre',rankdir:'LR',nodesep:30,ranksep:45},
+    nodes:[
+      portNode('pd-conn','TCP :9000'),compNode('pd-sniff','ProtocolDetector',{size:[160,36]}),
+      decNode('pd-ssh','SSH?'),decNode('pd-rdp','RDP?'),decNode('pd-vnc','VNC?'),decNode('pd-http','HTTP?'),decNode('pd-tls','TLS?'),decNode('pd-sql','MySQL?'),decNode('pd-redis','Redis?'),
+      sysNode('pd-ssh-ok','SSH',{size:[140,34]}),sysNode('pd-rdp-ok','RDP',{size:[140,34]}),sysNode('pd-vnc-ok','VNC',{size:[140,34]}),sysNode('pd-http-ok','HTTP',{size:[140,34]}),sysNode('pd-tls-ok','HTTPS',{size:[140,34]}),sysNode('pd-sql-ok','MYSQL',{size:[150,34]}),sysNode('pd-redis-ok','REDIS',{size:[150,34]}),sysNode('pd-unk','UNKNOWN',{size:[130,34]}),
+      authNode('pd-auth','AuthHandler',{size:[140,34]}),compNode('pd-acl','AclManager',{size:[140,34]}),compNode('pd-rl','RateLimiter',{size:[140,34]}),compNode('pd-target','resolveTargetId',{size:[160,34]}),compNode('pd-sess','SessionManager',{size:[160,34]}),compNode('pd-relay','TcpRelayHandler',{size:[160,34]}),
+    ],
+    edges:[
+      flowEdge('p1','pd-conn','pd-sniff','嗅探'),flowEdge('p2','pd-sniff','pd-ssh'),
+      edge('p3','pd-ssh','pd-ssh-ok','SSH-',{stroke:'#17bf63'}),edge('p4','pd-ssh','pd-rdp','否'),
+      edge('p5','pd-rdp','pd-rdp-ok','0x03',{stroke:'#17bf63'}),edge('p6','pd-rdp','pd-vnc','否'),
+      edge('p7','pd-vnc','pd-vnc-ok','RFB',{stroke:'#17bf63'}),edge('p8','pd-vnc','pd-http','否'),
+      edge('p9','pd-http','pd-http-ok','GET',{stroke:'#ffad1f'}),edge('p10','pd-http','pd-tls','否'),
+      edge('p11','pd-tls','pd-tls-ok','0x16',{stroke:'#ffad1f'}),edge('p12','pd-tls','pd-sql','否'),
+      edge('p13','pd-sql','pd-sql-ok','0x10',{stroke:'#ffad1f'}),edge('p14','pd-sql','pd-redis','否'),
+      edge('p15','pd-redis','pd-redis-ok','* / :',{stroke:'#ffad1f'}),edge('p16','pd-redis','pd-unk','否'),
+      flowEdge('p17','pd-ssh-ok','pd-auth'),flowEdge('p18','pd-rdp-ok','pd-auth'),flowEdge('p19','pd-vnc-ok','pd-auth'),
+      flowEdge('p20','pd-auth','pd-acl','认证'),flowEdge('p21','pd-acl','pd-rl','鉴权'),flowEdge('p22','pd-rl','pd-target','限流'),flowEdge('p23','pd-target','pd-sess','查找'),flowEdge('p24','pd-sess','pd-relay','建立'),
+    ],
+  },
+  { id:'nettyserver-class', title:'GatewayNettyServer 类图', desc:'7 端口生命周期管理器',
+    layout:{type:'dagre',rankdir:'TB',nodesep:22,ranksep:30},
+    combos:[combo('cls-fields','字段'),combo('cls-methods','方法')],
+    nodes:[
+      sysNode('cls-server','GatewayNettyServer',{size:[200,42]}),
+      node('f1','properties','gray',{comboId:'cls-fields',size:[230,24]}),node('f2','authHandler','gray',{comboId:'cls-fields',size:[230,24]}),node('f3','targetRegistry','gray',{comboId:'cls-fields',size:[230,24]}),node('f4','sessionManager','gray',{comboId:'cls-fields',size:[230,24]}),node('f5','agentRegistry','gray',{comboId:'cls-fields',size:[230,24]}),node('f6','rateLimiter','gray',{comboId:'cls-fields',size:[230,24]}),node('f7','firewall','gray',{comboId:'cls-fields',size:[230,24]}),node('f8','serverChannels','gray',{comboId:'cls-fields',size:[230,24]}),node('f9','bossGroup','gray',{comboId:'cls-fields',size:[230,24]}),node('f10','workerGroup','gray',{comboId:'cls-fields',size:[230,24]}),
+      node('m1','+ start()','blue',{comboId:'cls-methods',size:[200,24]}),node('m2','+ stop()','blue',{comboId:'cls-methods',size:[200,24]}),node('m3','- startTcp()','blue',{comboId:'cls-methods',size:[200,24]}),node('m4','- startAgentTcp()','blue',{comboId:'cls-methods',size:[200,24]}),node('m5','- startSocks5()','blue',{comboId:'cls-methods',size:[200,24]}),node('m6','- startHttp()','blue',{comboId:'cls-methods',size:[200,24]}),node('m7','- startHttpApi()','blue',{comboId:'cls-methods',size:[200,24]}),node('m8','- startWs()','blue',{comboId:'cls-methods',size:[200,24]}),
+    ],
+    edges:[edge('cl1','cls-server','f1'),edge('cl2','cls-server','f2'),edge('cl3','cls-server','f3'),edge('cl4','cls-server','f4'),edge('cl5','cls-server','f5'),edge('cl6','cls-server','f6'),edge('cl7','cls-server','f7'),edge('cl8','cls-server','f8'),edge('cl9','cls-server','f9'),edge('cl10','cls-server','f10'),edge('cm1','cls-server','m1'),edge('cm2','cls-server','m2'),edge('cm3','cls-server','m3'),edge('cm4','cls-server','m4'),edge('cm5','cls-server','m5'),edge('cm6','cls-server','m6'),edge('cm7','cls-server','m7'),edge('cm8','cls-server','m8')],
+  },
+  { id:'agentregistry-class', title:'AgentRegistry 类图', desc:'Agent 注册表',
+    layout:{type:'dagre',rankdir:'TB',nodesep:22,ranksep:30},
+    combos:[combo('ar-fields','字段'),combo('ar-methods','方法')],
+    nodes:[
+      sysNode('ar-cls','AgentRegistry',{size:[200,42]}),
+      node('af1','agents: Map<>','gray',{comboId:'ar-fields',size:[240,24]}),node('af2','temporarySshAgents','gray',{comboId:'ar-fields',size:[240,24]}),node('af3','disabledAgents','gray',{comboId:'ar-fields',size:[240,24]}),node('af4','properties','gray',{comboId:'ar-fields',size:[240,24]}),
+      node('am1','+ handleRegister()','blue',{comboId:'ar-methods',size:[240,24]}),node('am2','+ handleHeartbeat()','blue',{comboId:'ar-methods',size:[240,24]}),node('am3','+ findByVerifyCode()','blue',{comboId:'ar-methods',size:[240,24]}),node('am4','+ checkAndEvict()','blue',{comboId:'ar-methods',size:[240,24]}),
+    ],
+    edges:[edge('ae1','ar-cls','af1'),edge('ae2','ar-cls','af2'),edge('ae3','ar-cls','af3'),edge('ae4','ar-cls','af4'),edge('ae-m1','ar-cls','am1'),edge('ae-m2','ar-cls','am2'),edge('ae-m3','ar-cls','am3'),edge('ae-m4','ar-cls','am4')],
+  },
+  { id:'session-state', title:'SessionManager 状态机', desc:'ACTIVE → RECONNECTING → CLOSED',
+    layout:{type:'dagre',rankdir:'LR',nodesep:30,ranksep:45},
+    nodes:[
+      sysNode('ss-start','[*] 初始',{size:[100,32]}),compNode('ss-active','ACTIVE 活动中',{size:[140,38]}),
+      node('ss-recon','RECONNECTING','amber',{size:[150,38]}),node('ss-closed','CLOSED','red',{size:[140,36]}),
+      sysNode('ss-note','bytesSent/bytesReceived\\nAtomicLongFieldUpdater',{size:[180,60]}),
+    ],
+    edges:[flowEdge('se1','ss-start','ss-active','createSession()'),edge('se2','ss-active','ss-closed','closeSession()',{stroke:'#e74c3c'}),edge('se3','ss-active','ss-recon','断线',{stroke:'#ffad1f'}),flowEdge('se4','ss-recon','ss-active','重连'),edge('se5','ss-recon','ss-closed','超时',{stroke:'#e74c3c'}),edge('se6','ss-closed','ss-start','',{stroke:'#5a6b7c'}),edge('se7','ss-active','ss-note','统计',{stroke:'#5a6b7c',style:{lineDash:[4,2]}})],
+  },
+  { id:'spi-ext', title:'SPI 扩展机制', desc:'配置/令牌/防火墙/传输 可插拔架构',
+    layout:{type:'dagre',rankdir:'TB',nodesep:30,ranksep:40},
+    combos:[combo('spi-if','SPI 接口'),combo('spi-impl','实现')],
+    nodes:[
+      sysNode('gcs-spi','ConfigStore SPI',{comboId:'spi-if',size:[170,38]}),sysNode('gtv-spi','TokenVerifier',{comboId:'spi-if',size:[170,38]}),sysNode('gfp-spi','FirewallProvider',{comboId:'spi-if',size:[170,38]}),sysNode('rtp-spi','TransportProvider',{comboId:'spi-if',size:[170,38]}),
+      storNode('json-impl','JSON 文件',{comboId:'spi-impl'}),storNode('sql-impl','SQLite',{comboId:'spi-impl'}),compNode('def-impl','默认实现',{comboId:'spi-impl'}),agentNode('udp-impl','UDP',{comboId:'spi-impl',size:[120,30]}),agentNode('quic-impl','QUIC',{comboId:'spi-impl',size:[120,30]}),node('db-impl','Database','purple',{comboId:'spi-impl',size:[130,30]}),
+    ],
+    edges:[flowEdge('si1','gcs-spi','json-impl','JSON'),flowEdge('si2','gcs-spi','sql-impl','SQLite'),flowEdge('si3','gfp-spi','def-impl','默认'),flowEdge('si4','gtv-spi','sql-impl','SQLite'),flowEdge('si5','gtv-spi','db-impl','DB'),flowEdge('si6','rtp-spi','udp-impl','UDP'),flowEdge('si7','rtp-spi','quic-impl','QUIC')],
+  },
+  { id:'agent-lifecycle', title:'Agent 生命周期', desc:'INIT → CONNECTING → REGISTERED → ACTIVE → STOPPED',
+    layout:{type:'dagre',rankdir:'LR',nodesep:25,ranksep:35},
+    nodes:[
+      sysNode('al-start','[*]',{size:[100,32]}),node('al-init','INIT','teal',{size:[100,34]}),node('al-conn','CONNECTING','orange',{size:[120,34]}),node('al-reg','REGISTERING','orange',{size:[120,34]}),node('al-regd','REGISTERED','blue',{size:[120,34]}),node('al-act','ACTIVE','green',{size:[110,34]}),node('al-recon','RECONNECTING','amber',{size:[140,34]}),node('al-stop','STOPPED','red',{size:[110,34]}),sysNode('al-note','指数退避: 1s→2s→4s→8s→16s→30s',{size:[200,50]}),
+    ],
+    edges:[flowEdge('al1','al-start','al-init','new()'),flowEdge('al2','al-init','al-conn','start()'),flowEdge('al3','al-conn','al-reg','TCP'),flowEdge('al4','al-reg','al-regd','OK'),edge('al5','al-reg','al-conn','失败',{stroke:'#e74c3c'}),flowEdge('al6','al-regd','al-act','onReg'),edge('al7','al-act','al-recon','断开',{stroke:'#ffad1f'}),flowEdge('al8','al-recon','al-conn','重连'),edge('al9','al-recon','al-stop','最大重试',{stroke:'#e74c3c'}),edge('al10','al-act','al-stop','stop()',{stroke:'#e74c3c'}),edge('al11','al-recon','al-stop','stop()',{stroke:'#e74c3c'}),edge('al12','al-recon','al-note','策略',{stroke:'#5a6b7c',style:{lineDash:[4,2]}})],
+  },
+  { id:'session-lifecycle', title:'会话生命周期', desc:'发起→认证→限流→查找→通道→中继→关闭',
+    layout:{type:'dagre',rankdir:'LR',nodesep:25,ranksep:36},
+    nodes:[
+      sysNode('sl-start','[*]',{size:[60,30]}),node('sl-creating','CREATING','teal',{size:[130,34]}),node('sl-auth','AUTH','red',{size:[110,32]}),node('sl-acl','ACL_CHECK','orange',{size:[130,34]}),node('sl-ratelimit','RATE_LIMIT','amber',{size:[130,34]}),node('sl-target','TARGET_LOOKUP','orange',{size:[140,34]}),node('sl-create-sess','CREATE_SESSION','blue',{size:[140,34]}),node('sl-connect','CONNECT_AGENT','blue',{size:[140,34]}),node('sl-estab','ESTABLISHED','green',{size:[140,34]}),node('sl-data','DATA_TRANSFER','green',{size:[140,34]}),node('sl-closing','CLOSING','red',{size:[130,34]}),node('sl-cleanup','CLEANUP','red',{size:[130,34]}),node('sl-done','[*]','gray',{size:[80,30]}),
+    ],
+    edges:[flowEdge('sle1','sl-start','sl-creating','发起'),flowEdge('sle2','sl-creating','sl-auth','嗅探'),flowEdge('sle3','sl-auth','sl-acl','通过'),flowEdge('sle4','sl-acl','sl-ratelimit','通过'),flowEdge('sle5','sl-ratelimit','sl-target','通过'),flowEdge('sle6','sl-target','sl-create-sess','找到'),flowEdge('sle7','sl-create-sess','sl-connect','Session'),flowEdge('sle8','sl-connect','sl-estab','通道'),flowEdge('sle9','sl-estab','sl-data','中继'),edge('sle10','sl-data','sl-closing','断开',{stroke:'#e74c3c'}),edge('sle11','sl-closing','sl-cleanup','close',{stroke:'#e74c3c'}),edge('sle12','sl-cleanup','sl-done','',{stroke:'#5a6b7c'}),edge('slf1','sl-creating','sl-closing','失败',{stroke:'#e74c3c',style:{lineDash:[3,2]}}),edge('slf2','sl-acl','sl-closing','不足',{stroke:'#e74c3c',style:{lineDash:[3,2]}}),edge('slf3','sl-ratelimit','sl-closing','限流',{stroke:'#e74c3c',style:{lineDash:[3,2]}}),edge('slf4','sl-target','sl-closing','离线',{stroke:'#e74c3c',style:{lineDash:[3,2]}})],
+  },
+];
+
+const NODE_META = {
+  'browser': { icon:'🌐', type:'客户端', detail:'通过 WebSocket/HTTP 连接网关的管理控制台' },
+  'cli':     { icon:'💻', type:'客户端', detail:'通过 TCP :9000 发送控制命令的命令行工具' },
+  'app':     { icon:'📱', type:'客户端', detail:'移动端 App，通过 DWS 协议连接网关' },
+  'p9000': { icon:'🔌', type:'端口', detail:'TCP 控制端口', meta:{'协议':'TCP','默认端口':'9000','用途':'客户端/CLI 控制连接','帧格式':'LengthField + Payload'} },
+  'p9001': { icon:'🔌', type:'端口', detail:'TCP Agent 注册端口', meta:{'协议':'TCP','默认端口':'9001','用途':'Agent 注册与心跳','验证':'Challenge-Response'} },
+  'p1080': { icon:'🔌', type:'端口', detail:'SOCKS5 代理网关端口', meta:{'协议':'SOCKS5','默认端口':'1080','用途':'SOCKS5 代理入口','支持':'CONNECT / UDP Associate'} },
+  'p3000': { icon:'🔌', type:'端口', detail:'HTTP 管理端口', meta:{'协议':'HTTP','默认端口':'3000','用途':'网关管理 REST API','认证':'Basic Auth / Token'} },
+  'p8083': { icon:'🔌', type:'端口', detail:'HTTP API 端口', meta:{'协议':'HTTP','默认端口':'8083','用途':'对外 HTTP API 服务','格式':'JSON / RESTful'} },
+  'p8081': { icon:'🔌', type:'端口', detail:'WebSocket API 端口', meta:{'协议':'WebSocket','默认端口':'8081','用途':'Agent WS 通信通道','支持':'全双工消息'} },
+  'p8082': { icon:'🔌', type:'端口', detail:'DWS (Device WebSocket) 端口', meta:{'协议':'DWS/WS','默认端口':'8082','用途':'控制端 DWS 连接','特性':'路由 + 事件推送'} },
+  'ar':  { icon:'⚙️', type:'核心组件', detail:'Agent 注册中心，管理所有在线 Agent 的元信息', meta:{'职责':'注册、心跳、剔除','数据':'agentId → AgentInfo','同步':'推送至 TargetRegistry'} },
+  'tr':  { icon:'⚙️', type:'核心组件', detail:'目标路由表，管理 Agent 可访问的资源映射', meta:{'职责':'路由查找、服务发现','映射':'targetId → AgentId','缓存':'内存 Map'} },
+  'sm':  { icon:'⚙️', type:'核心组件', detail:'会话管理器，维护客户端到 Agent 的会话状态机', meta:{'状态':'ACTIVE / RECONNECTING / CLOSED','统计':'bytesSent / bytesReceived'} },
+  'cr':  { icon:'⚙️', type:'核心组件', detail:'控制器注册表，管理通道控制器' },
+  'fw':  { icon:'🛡️', type:'核心组件', detail:'网关防火墙，IP 黑白名单 + 访问频率限制', meta:{'过滤':'IP 黑白名单','限流':'令牌桶算法','日志':'访问日志记录'} },
+  'rl':  { icon:'⏱️', type:'核心组件', detail:'速率限制器，基于令牌桶的请求控制', meta:{'算法':'令牌桶 (Token Bucket)','维度':'IP + User','容量':'可配置'} },
+  'ah':  { icon:'🔐', type:'核心组件', detail:'认证处理器，验证客户端身份和凭证', meta:{'认证':'Challenge-Response / Token','协议':'SSH / HTTP / SOCKS5','集成':'TokenVerifier SPI'} },
+  'am':  { icon:'📋', type:'核心组件', detail:'访问控制管理器，权限检查与策略执行', meta:{'ACL':'基于角色的访问控制','策略':'允许/拒绝列表','缓存':'策略缓存'} },
+  'gcs':  { icon:'📦', type:'SPI', detail:'配置存储 SPI 接口，支持 JSON/SQLite/Database 实现', meta:{'接口':'ConfigStore','方法':'save / load / list','实现':'JSON / SQLite / DB'} },
+  'gtv':  { icon:'🔑', type:'SPI', detail:'令牌验证器 SPI 接口，支持 SQLite/Database 实现', meta:{'接口':'TokenVerifier','验证':'JWT / OAuth2 / 自定义','实现':'SQLite / DB'} },
+  'gfp':  { icon:'🛡️', type:'SPI', detail:'防火墙 SPI 接口，可插拔防火墙策略', meta:{'接口':'FirewallProvider','检查':'IP / 请求','默认':'内置 IP 过滤+限流'} },
+  'rtp':  { icon:'🔄', type:'SPI', detail:'传输层 SPI 接口，支持 UDP/QUIC/TCP 等协议', meta:{'接口':'TransportProvider','传输':'UDP / QUIC / TCP','中继':'点对点数据转发'} },
+  'ssh-ag':  { icon:'🖥️', type:'Agent', detail:'SSH 协议代理，支持 SSH Shell / SFTP / 端口转发', meta:{'协议':'SSH','端口':'22','功能':'Shell / SFTP / 隧道'} },
+  'desk-ag': { icon:'🖥️', type:'Agent', detail:'桌面远程代理，支持 VNC / RDP 协议', meta:{'协议':'VNC / RDP','端口':'5900 / 3389','功能':'远程桌面控制'} },
+  's5-ag':   { icon:'🖥️', type:'Agent', detail:'SOCKS5 代理，支持 TCP/UDP 代理流量转发', meta:{'协议':'SOCKS5','端口':'1080','功能':'TCP/UDP 代理'} },
+  'http-ag': { icon:'🖥️', type:'Agent', detail:'HTTP 代理，支持 HTTP/HTTPS 流量转发', meta:{'协议':'HTTP/HTTPS','端口':'80/443','功能':'Web 代理/反向代理'} },
+  'json-st': { icon:'💾', type:'存储', detail:'JSON 文件持久化，ConfigStore 的默认实现', meta:{'格式':'JSON','位置':'本地文件系统','用途':'配置持久化'} },
+  'sql-st':  { icon:'💾', type:'存储', detail:'SQLite 数据库持久化，轻量级嵌入式数据库', meta:{'类型':'SQLite','引擎':'嵌入式','用途':'配置/令牌存储'} },
+  'db-st':   { icon:'🗄️', type:'存储', detail:'关系型数据库持久化，支持 MySQL/PostgreSQL', meta:{'类型':'关系型数据库','示例':'MySQL / PostgreSQL','用途':'生产环境持久化'} },
+  'tcp':   { icon:'📡', type:'协议', detail:'TCP 传输协议族：SSH(22) / VNC(5900) / RDP(3389)', meta:{'协议':'TCP','子协议':'SSH / VNC / RDP','嗅探':'端口特征 + 协议头'} },
+  'http':  { icon:'📡', type:'协议', detail:'HTTP/HTTPS 协议，端口 80/443', meta:{'协议':'HTTP/HTTPS','默认端口':'80/443','嗅探':'GET/POST 请求行'} },
+  'ws':    { icon:'📡', type:'协议', detail:'WebSocket 协议，全双工通信', meta:{'协议':'WebSocket','端口':'8081/8082','特性':'全双工 + 低延迟'} },
+  'socks': { icon:'📡', type:'协议', detail:'SOCKS5 代理协议', meta:{'协议':'SOCKS5','默认端口':'1080','验证':'用户名/密码'} },
+  'c':    { icon:'🎮', type:'控制端', detail:'管理控制端，发起会话连接请求', meta:{'角色':'发起者','连接':'WebSocket :8082'} },
+  'gw':   { icon:'⚡', type:'网关', detail:'接入网关实例，中转所有流量', meta:{'角色':'中继','管理':'7 端口服务','能力':'认证/路由/限流'} },
+  'a':    { icon:'🤖', type:'Agent', detail:'远程代理实例', meta:{'角色':'被控端','连接':'TCP :9001','状态':'心跳维持'} },
+  'rag':    { icon:'🤖', type:'Agent', detail:'远程代理实例 (同 a)' },
+  'dec':    { icon:'⚙️', type:'核心组件', detail:'帧解码器，将 TCP 流解码为消息帧', meta:{'解码':'LengthField 帧','格式':'帧头(4B) + Payload'} },
+  'reg':    { icon:'⚙️', type:'核心组件', detail:'注册处理器，处理 Agent 注册请求', meta:{'方法':'handleRegister()','验证':'Challenge-Response','存储':'AgentRegistry'} },
+  'reg-ar': { icon:'⚙️', type:'注册表', detail:'AgentRegistry 实例' },
+  'reg-tr': { icon:'⚙️', type:'注册表', detail:'TargetRegistry 实例' },
+  'pd-conn':    { icon:'🔌', type:'端口', detail:'TCP :9000 嗅探入口', meta:{'端口':'9000','用途':'协议自动识别入口'} },
+  'pd-sniff':   { icon:'🔍', type:'核心组件', detail:'协议探测器，通过特征字节识别协议', meta:{'方法':'字节序列匹配','算法':'多级决策树'} },
+  'pd-ssh-ok':  { icon:'✅', type:'识别结果', detail:'检测为 SSH 协议' },
+  'pd-rdp-ok':  { icon:'✅', type:'识别结果', detail:'检测为 RDP 协议' },
+  'pd-vnc-ok':  { icon:'✅', type:'识别结果', detail:'检测为 VNC 协议' },
+  'pd-http-ok': { icon:'✅', type:'识别结果', detail:'检测为 HTTP 协议' },
+  'pd-tls-ok':  { icon:'✅', type:'识别结果', detail:'检测为 HTTPS/TLS 协议' },
+  'pd-sql-ok':  { icon:'✅', type:'识别结果', detail:'检测为 MySQL 协议' },
+  'pd-redis-ok':{ icon:'✅', type:'识别结果', detail:'检测为 Redis 协议' },
+  'pd-unk':     { icon:'❓', type:'识别结果', detail:'无法识别的协议' },
+  'pd-ssh':  { icon:'🔀', type:'决策', detail:'SSH? 特征: SSH-2.0-' },
+  'pd-rdp':  { icon:'🔀', type:'决策', detail:'RDP? 特征: 0x03 Cookie' },
+  'pd-vnc':  { icon:'🔀', type:'决策', detail:'VNC? 特征: RFB 003.' },
+  'pd-http': { icon:'🔀', type:'决策', detail:'HTTP? 特征: GET/POST' },
+  'pd-tls':  { icon:'🔀', type:'决策', detail:'TLS? 特征: 0x16 ClientHello' },
+  'pd-sql':  { icon:'🔀', type:'决策', detail:'MySQL? 特征: 0x10 握手' },
+  'pd-redis':{ icon:'🔀', type:'决策', detail:'Redis? 特征: */: 命令' },
+  'pd-auth':   { icon:'🔐', type:'核心组件', detail:'认证处理器', meta:{'认证':'通过识别结果选择认证方式'} },
+  'pd-acl':    { icon:'📋', type:'核心组件', detail:'ACL 管理器', meta:{'鉴权':'检查用户权限'} },
+  'pd-rl':     { icon:'⏱️', type:'核心组件', detail:'限流器', meta:{'限流':'令牌桶检查'} },
+  'pd-target': { icon:'🎯', type:'核心组件', detail:'目标查找器', meta:{'查找':'根据协议+用户定位目标Agent'} },
+  'pd-sess':   { icon:'🔗', type:'核心组件', detail:'Session 管理器', meta:{'建立':'创建新的会话记录'} },
+  'pd-relay':  { icon:'🔄', type:'核心组件', detail:'TCP 中继处理器', meta:{'中继':'建立双向数据通道'} },
+  'ss-start':  { icon:'⏹️', type:'状态', detail:'初始状态，尚未创建会话' },
+  'ss-active': { icon:'▶️', type:'状态', detail:'会话活动中，数据传输中', meta:{'状态':'ACTIVE','统计':'bytesSent / bytesReceived'} },
+  'ss-recon':  { icon:'🔄', type:'状态', detail:'会话断线重连中', meta:{'状态':'RECONNECTING','超时':'可配置'} },
+  'ss-closed': { icon:'⏹️', type:'状态', detail:'会话已关闭', meta:{'状态':'CLOSED','原因':'正常关闭/超时/错误'} },
+  'ss-note':   { icon:'📊', type:'统计', detail:'使用 AtomicLongFieldUpdater 实现无锁统计' },
+  'gcs-spi': { icon:'📦', type:'SPI 接口', detail:'配置存储 SPI', meta:{'接口':'ConfigStore SPI','方法':'save / load / list'} },
+  'gtv-spi': { icon:'🔑', type:'SPI 接口', detail:'令牌验证 SPI', meta:{'接口':'TokenVerifier SPI','方法':'verify(token)'} },
+  'gfp-spi': { icon:'🛡️', type:'SPI 接口', detail:'防火墙 SPI', meta:{'接口':'FirewallProvider SPI','方法':'check(request)'} },
+  'rtp-spi': { icon:'🔄', type:'SPI 接口', detail:'传输 SPI', meta:{'接口':'TransportProvider SPI','抽象':'中继传输协议'} },
+  'json-impl': { icon:'💾', type:'实现', detail:'ConfigStore 的 JSON 文件实现' },
+  'sql-impl':  { icon:'💾', type:'实现', detail:'ConfigStore/TokenVerifier 的 SQLite 实现' },
+  'def-impl':  { icon:'⚙️', type:'实现', detail:'FirewallProvider 的默认 IP 过滤+限流实现' },
+  'udp-impl':  { icon:'📡', type:'实现', detail:'TransportProvider 的 UDP 传输实现' },
+  'quic-impl': { icon:'📡', type:'实现', detail:'TransportProvider 的 QUIC 传输实现' },
+  'db-impl':   { icon:'🗄️', type:'实现', detail:'TokenVerifier 的数据库实现' },
+  'al-start': { icon:'⏹️', type:'状态', detail:'起始状态' },
+  'al-init':  { icon:'⚪', type:'状态', detail:'Agent 初始化完成，等待启动', meta:{'状态':'INIT'} },
+  'al-conn':  { icon:'🔄', type:'状态', detail:'正在建立 TCP 连接', meta:{'状态':'CONNECTING'} },
+  'al-reg':   { icon:'📝', type:'状态', detail:'正在发送注册请求', meta:{'状态':'REGISTERING'} },
+  'al-regd':  { icon:'✅', type:'状态', detail:'注册成功，等待激活', meta:{'状态':'REGISTERED'} },
+  'al-act':   { icon:'▶️', type:'状态', detail:'Agent 运行中，正常服务', meta:{'状态':'ACTIVE'} },
+  'al-recon': { icon:'🔄', type:'状态', detail:'断线重连中，指数退避', meta:{'状态':'RECONNECTING','退避':'1s→2s→4s→8s→16s→30s'} },
+  'al-stop':  { icon:'⏹️', type:'状态', detail:'Agent 已停止', meta:{'状态':'STOPPED','原因':'手动停止/最大重试'} },
+  'al-note':  { icon:'📊', type:'注释', detail:'指数退避策略: 1s → 2s → 4s → 8s → 16s → 30s (上限)' },
+  'sl-start':      { icon:'⏹️', type:'状态', detail:'会话创建起点' },
+  'sl-creating':   { icon:'🆕', type:'状态', detail:'正在创建新会话', meta:{'状态':'CREATING'} },
+  'sl-auth':       { icon:'🔐', type:'状态', detail:'正在认证客户端身份', meta:{'状态':'AUTH'} },
+  'sl-acl':        { icon:'📋', type:'状态', detail:'正在检查 ACL 权限', meta:{'状态':'ACL_CHECK'} },
+  'sl-ratelimit':  { icon:'⏱️', type:'状态', detail:'正在进行速率限制检查', meta:{'状态':'RATE_LIMIT'} },
+  'sl-target':     { icon:'🎯', type:'状态', detail:'正在查找目标 Agent', meta:{'状态':'TARGET_LOOKUP'} },
+  'sl-create-sess':{ icon:'🔗', type:'状态', detail:'正在创建会话记录', meta:{'状态':'CREATE_SESSION'} },
+  'sl-connect':    { icon:'🔗', type:'状态', detail:'正在连接目标 Agent', meta:{'状态':'CONNECT_AGENT'} },
+  'sl-estab':      { icon:'✅', type:'状态', detail:'会话已建立', meta:{'状态':'ESTABLISHED'} },
+  'sl-data':       { icon:'🔄', type:'状态', detail:'数据传输中（中继模式）', meta:{'状态':'DATA_TRANSFER','方向':'双向'} },
+  'sl-closing':    { icon:'⏹️', type:'状态', detail:'正在关闭会话', meta:{'状态':'CLOSING'} },
+  'sl-cleanup':    { icon:'🧹', type:'状态', detail:'正在清理资源', meta:{'状态':'CLEANUP'} },
+  'sl-done':       { icon:'⏹️', type:'状态', detail:'会话已结束' },
+  'cls-server': { icon:'🏗️', type:'类', detail:'GatewayNettyServer 主类，管理 7 个 Netty 端口的生命周期', meta:{'字段':'10','方法':'8','模式':'单例'} },
+  'ar-cls':     { icon:'🏗️', type:'类', detail:'AgentRegistry 类，维护 Agent 注册表', meta:{'字段':'4','方法':'4'} },
+};
+
+function getNodeMeta(m) {
+  const id = m.id;
+  if (NODE_META[id]) return NODE_META[id];
+  for (const key of Object.keys(NODE_META)) {
+    if (id.startsWith(key + '-') || id.startsWith(key + '_')) return NODE_META[key];
+  }
+  if (id.startsWith('s') && /^s\\d+$/.test(id)) return { icon:'📌', type:'步骤', detail:'流程步骤节点: ' + (m.label || '') };
+  if (id.startsWith('f') && /^f\\d+$/.test(id)) return { icon:'📦', type:'字段', detail:(m.label || '') };
+  if (id.startsWith('m') && /^m\\d+$/.test(id)) return { icon:'🔧', type:'方法', detail:(m.label || '') };
+  if (id.startsWith('af') && /^af\\d+$/.test(id)) return { icon:'📦', type:'字段', detail:(m.label || '') };
+  if (id.startsWith('am') && /^am\\d+$/.test(id)) return { icon:'🔧', type:'方法', detail:(m.label || '') };
+  return null;
+}
+
+// ==================== G6 管理 ====================
+let graph = null;
+let currentIndex = 0;
+let animFrameId = null;
+let _resizeTimer = null;
+let _zoomTimer = null;
+const animConfig = { speed: 0.4, paused: false };
+
+function startEdgeAnimation() {
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  function anim() {
+    if (!graph || graph.get('destroyed')) { animFrameId = null; return; }
+    if (animConfig.paused) {
+      animFrameId = requestAnimationFrame(anim);
+      return;
+    }
+    try {
+      const edges = graph.getEdges();
+      for (let i = 0, len = edges.length; i < len; i++) {
+        const e = edges[i];
+        if (e.getModel && e.getModel().animated) {
+          const ks = e.get('keyShape');
+          if (ks && ks.attr) {
+            ks.attr('lineDashOffset', (ks.attr('lineDashOffset')||0) - animConfig.speed);
+          }
+        }
+      }
+      // 用 canvas.draw() 替代 graph.paint() —— 只绘制脏形状，不重置 canvas transform
+      // 避免与 G6 zoom transform 冲突产生重影
+      const canvas = graph.get('canvas');
+      if (canvas && canvas.draw) canvas.draw();
+    } catch(_) {}
+    animFrameId = requestAnimationFrame(anim);
+  }
+  animFrameId = requestAnimationFrame(anim);
+}
+function stopEdgeAnimation() { if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; } }
+
+function pauseAnimTemporarily() {
+  animConfig.paused = true;
+  clearTimeout(_zoomTimer);
+  _zoomTimer = setTimeout(function() { animConfig.paused = false; }, 500);
+}
+
+function createGraph(idx) {
+  var d = DIAGRAMS[idx];
+  var container = document.getElementById('g6-container');
+  var rect = container.getBoundingClientRect();
+  var ww = Math.max(rect.width, 800), hh = Math.max(rect.height, 500);
+
+  stopEdgeAnimation();
+  if (graph) { graph.destroy(); graph = null; }
+
+  var minimap = new G6.Minimap({
+    size: [180, 130],
+    className: 'g6-minimap',
+    type: 'delegate',
+    delegateStyle: { fill: 'rgba(29,161,242,.15)', stroke: '#1da1f2', lineWidth: 1.5 },
+    refresh: true,
+  });
+
+  var tooltip = new G6.Tooltip({
+    offsetX: 12, offsetY: -10, itemTypes: ['node'],
+    getContent: function(e) {
+      var m = e.item.getModel();
+      var meta = getNodeMeta(m);
+      var label = (m.label || '').replace(/\\n/g,'<br>');
+      var typeColor = { '端口':'#ffad1f','核心组件':'#1da1f2','SPI':'#794bc4','SPI 接口':'#794bc4','Agent':'#17bf63','存储':'#794bc4','协议':'#1abc9c','客户端':'#5c6bc0','控制端':'#5c6bc0','网关':'#1da1f2','状态':'#ffad1f','决策':'#f39c12','识别结果':'#17bf63','字段':'#5a6b7c','方法':'#1da1f2','类':'#1abc9c','实现':'#17bf63','统计':'#8899a6','注释':'#8899a6' };
+      var html = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+      html += '<span>' + (meta ? meta.icon : '📄') + '</span>';
+      html += '<span style="font-weight:700;font-size:13px;color:#e1e8ed">' + label + '</span>';
+      if (meta && meta.type) html += '<span style="font-size:10px;padding:1px 6px;border-radius:3px;background:' + (typeColor[meta.type]||'#5a6b7c') + '22;color:' + (typeColor[meta.type]||'#8899a6') + ';border:1px solid ' + (typeColor[meta.type]||'#5a6b7c') + '44">' + meta.type + '</span>';
+      html += '</div>';
+      if (meta && meta.detail) html += '<div style="font-size:11px;color:#8899a6;margin-bottom:6px;line-height:1.4">' + meta.detail + '</div>';
+      else if (m.desc) html += '<div style="font-size:11px;color:#8899a6;margin-bottom:4px">' + m.desc + '</div>';
+      if (meta && meta.meta) {
+        html += '<div style="border-top:1px solid #2d3f50;margin-top:4px;padding-top:4px">';
+        for (var key in meta.meta) {
+          html += '<div style="display:flex;font-size:11px;line-height:1.7"><span style="color:#5a6b7c;min-width:52px;flex-shrink:0">' + key + '</span><span style="color:#e1e8ed">' + meta.meta[key] + '</span></div>';
+        }
+        html += '</div>';
+      }
+      return html;
+    },
+  });
+
+  graph = new G6.Graph({
+    container: 'g6-container',
+    width: ww, height: hh,
+    backgroundColor: '#0f1419',
+    fitView: true, fitViewPadding: [20, 20],
+    animate: false,
+    modes: {
+      default: ['drag-canvas', 'zoom-canvas', 'drag-node',
+        { type: 'activate-relations', trigger: 'click', activeState: 'active', inactiveState: 'inactive' },
+      ],
+    },
+    plugins: [minimap, tooltip],
+    defaultNode: {
+      type: 'comp-node', size: [150, 36],
+      style: { fill: '#1da1f2', stroke: '#1688d4', radius: 6, lineWidth: 1.5 },
+      labelCfg: { style: { fill: '#fff', fontSize: 11.5, fontWeight: 500 }, offset: [0, 0] },
+    },
+    defaultEdge: {
+      type: 'polyline', radius: 4, offset: 12,
+      style: { stroke: '#4a5b6c', lineWidth: 1.2, endArrow: { path: G6.Arrow.vee(6, 6), fill: '#4a5b6c' } },
+      labelCfg: { style: { fill: '#8899a6', fontSize: 10, background: { fill: '#0f1419', padding: [2, 4] } } },
+    },
+    defaultCombo: {
+      type: 'rect',
+      style: { fill: 'rgba(26,35,50,.6)', stroke: '#2d3f50', lineWidth: 1.2, opacity: .9 },
+      labelCfg: { style: { fill: '#e1e8ed', fontSize: 12, fontWeight: 700 } },
+      padding: [16, 12, 16, 12],
+    },
+    nodeStateStyles: {
+      active: { lineWidth: 3, strokeOpacity: 1 },
+      inactive: { opacity: 0.35 },
+    },
+    edgeStateStyles: {
+      active: { stroke: '#17bf63', lineWidth: 2 },
+      inactive: { opacity: 0.25 },
+    },
+    layout: d.layout,
+  });
+
+  // 用 G6 内置事件检测交互，暂停动画
+  graph.on('canvas:mousewheel', pauseAnimTemporarily);
+  graph.on('canvas:dragstart', function() { animConfig.paused = true; });
+  graph.on('canvas:dragend', function() {
+    clearTimeout(_zoomTimer);
+    _zoomTimer = setTimeout(function() { animConfig.paused = false; }, 500);
+  });
+  graph.on('canvas:touchstart', function() { animConfig.paused = true; });
+  graph.on('canvas:touchend', function() {
+    clearTimeout(_zoomTimer);
+    _zoomTimer = setTimeout(function() { animConfig.paused = false; }, 500);
+  });
+
+  graph.data({ nodes: d.nodes || [], edges: d.edges || [], combos: d.combos || [] });
+  graph.render();
+
+  setTimeout(function() {
+    if (graph && !graph.get('destroyed')) { try { graph.fitView([20, 20]); } catch(_) {} startEdgeAnimation(); }
+  }, 300);
+
+  document.getElementById('diagramTitle').textContent = (idx + 1) + '. ' + d.title;
+  document.getElementById('diagramDesc').textContent = d.desc;
+  document.getElementById('diagramCounter').textContent = (idx + 1) + ' / ' + DIAGRAMS.length;
+  document.querySelectorAll('#sidebarNav a').forEach(function(a) { a.classList.toggle('active', parseInt(a.dataset.idx) === idx); });
+  currentIndex = idx;
+}
+
+function setAnimSpeed(val) {
+  animConfig.speed = parseFloat(val);
+  document.getElementById('speedLabel').textContent = val + '×';
+}
+
+function switchDiagram(idx) { if (idx >= 0 && idx < DIAGRAMS.length) createGraph(idx); }
+function prevDiagram() { switchDiagram(currentIndex - 1); }
+function nextDiagram() { switchDiagram(currentIndex + 1); }
+
+function zoomIn()  { if (graph) { pauseAnimTemporarily(); graph.zoomTo(graph.getZoom()*1.3, {x:innerWidth/2,y:300}); } }
+function zoomOut() { if (graph) { pauseAnimTemporarily(); graph.zoomTo(graph.getZoom()/1.3, {x:innerWidth/2,y:300}); } }
+function resetZoom() { if (graph) { pauseAnimTemporarily(); graph.zoomTo(1); graph.moveTo(0,0); } }
+function fitView()  { if (graph) { pauseAnimTemporarily(); graph.fitView([20,20]); } }
+function exportPng() {
+  if (!graph) return;
+  var url = graph.toDataURL();
+  var a = document.createElement('a');
+  a.href = url; a.download = 'gateway-' + DIAGRAMS[currentIndex].id + '.png'; a.click();
+}
+
+function toggleFullscreen() {
+  document.body.classList.toggle('fullscreen');
+  document.getElementById('fullscreenBtn').textContent = document.body.classList.contains('fullscreen') ? '⛶ 退出全屏' : '⛶ 全屏';
+  setTimeout(function() { if (graph) { var c = document.getElementById('g6-container').getBoundingClientRect(); graph.changeSize(Math.max(c.width,600), Math.max(c.height,400)); graph.fitView([20,20]); } }, 150);
+}
+
+(function() {
+  var nav = document.getElementById('sidebarNav');
+  DIAGRAMS.forEach(function(d, i) {
+    var a = document.createElement('a');
+    a.dataset.idx = i; a.className = i === 0 ? 'active' : '';
+    a.innerHTML = '<span class="num">' + String(i+1).padStart(2,'0') + '</span> ' + d.title;
+    a.addEventListener('click', function() { switchDiagram(i); });
+    nav.appendChild(a);
+  });
+})();
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft') { prevDiagram(); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { nextDiagram(); e.preventDefault(); }
+  if (e.key === 'f' && !e.shiftKey) { fitView(); e.preventDefault(); }
+  if (e.key === 'F' && e.shiftKey) { toggleFullscreen(); e.preventDefault(); }
+  if (e.key === 'Escape' && document.body.classList.contains('fullscreen')) { toggleFullscreen(); e.preventDefault(); }
+});
+
+window.addEventListener('resize', function() {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(function() {
+    if (graph && !graph.get('destroyed')) {
+      var c = document.getElementById('g6-container').getBoundingClientRect();
+      graph.changeSize(Math.max(c.width,600), Math.max(c.height,400));
+      graph.fitView([20,20]);
+    }
+  }, 200);
+});
+
+createGraph(0);
+</script>
+</body>
+</html>

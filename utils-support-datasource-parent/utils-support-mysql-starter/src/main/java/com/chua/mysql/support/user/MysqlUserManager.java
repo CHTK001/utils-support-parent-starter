@@ -1,0 +1,71 @@
+package com.chua.mysql.support.user;
+
+import com.chua.datasource.support.user.DataSourceAware;
+import com.chua.datasource.support.user.UserInfo;
+import com.chua.datasource.support.user.UserManager;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+/**
+ * @author CH
+ */
+
+public class MysqlUserManager implements UserManager, DataSourceAware {
+
+    private DataSource dataSource;
+
+    @Override
+    public String type() {
+        return "mysql";
+    }
+
+    @Override
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public List<UserInfo> listUsers() {
+        List<UserInfo> list = new ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+             Statement s = c.createStatement();
+             ResultSet rs = s.executeQuery("SELECT user, host, authentication_string FROM mysql.user")) {
+            while (rs.next()) {
+                UserInfo ui = new UserInfo();
+                ui.setUser(rs.getString("user"));
+                ui.setHost(rs.getString("host"));
+                try { ui.setPassword(rs.getString("authentication_string")); } catch (Exception ignored) {}
+                list.add(ui);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
+    @Override
+    public CreateUserStep createUser(String username) {
+        return new MysqlCreateUserStep(dataSource, username);
+    }
+
+    @Override
+    public DropUserStep dropUser(String username) {
+        return () -> {
+            try (Connection c = dataSource.getConnection();
+                 Statement s = c.createStatement()) {
+                s.execute("DROP USER IF EXISTS '" + username + "'@'%'");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    @Override
+    public AlterUserStep alterUser(String username) {
+        return new MysqlAlterUserStep(dataSource, username);
+    }
+}

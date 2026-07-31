@@ -1,0 +1,122 @@
+package com.chua.filesystem.support.stream;
+
+import com.chua.common.support.io.file.stream.ArchiveEntry;
+import com.chua.common.support.io.file.stream.ArchiveInputStream;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+
+import java.io.IOException;
+import javax.annotation.Nullable;
+
+/**
+ * 7Z归档输入流适配器
+ * <p>
+ * 将commons-compress的SevenZFile适配为项目接口
+ * </p>
+ *
+ * @author CH
+ */
+class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
+
+    /**
+     * 原始SevenZFile
+     */
+    private final SevenZFile sevenZFile;
+
+    /**
+     * 当前条目
+     */
+    private SevenZArchiveEntry currentEntry;
+
+    /**
+     * 构造7Z归档输入流适配器
+     *
+     * @param sevenZFile commons-compress的SevenZFile
+     */
+    SevenZArchiveInputStreamAdapter(SevenZFile sevenZFile) {
+        this.sevenZFile = sevenZFile;
+    }
+
+    @Override
+    @Nullable
+    public ArchiveEntry getNextEntry() throws IOException {
+        currentEntry = sevenZFile.getNextEntry();
+        if (currentEntry == null) {
+            return null;
+        }
+        return new ArchiveEntryAdapter(currentEntry);
+    }
+
+    @Override
+    public int read() throws IOException {
+        if (currentEntry == null) {
+            return -1;
+        }
+        return sevenZFile.read();
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+        if (currentEntry == null) {
+            return -1;
+        }
+        return sevenZFile.read(b);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        if (currentEntry == null) {
+            return -1;
+        }
+        return sevenZFile.read(b, off, len);
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        if (currentEntry == null) {
+            return 0;
+        }
+        if (n <= 0) {
+            return 0;
+        }
+        long remaining = n;
+        var buffer = new byte[(int) Math.min(8192, n)];
+        while (remaining > 0) {
+            int read = sevenZFile.read(buffer, 0, (int) Math.min(buffer.length, remaining));
+            if (read <= 0) {
+                break;
+            }
+            remaining -= read;
+        }
+        return n - remaining;
+    }
+
+    @Override
+    public int available() throws IOException {
+        if (currentEntry == null) {
+            return 0;
+        }
+        long remaining = currentEntry.getSize();
+        return (int) Math.min(remaining, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void mark(int readlimit) {
+        // 7Z格式不支持标记
+    }
+
+    @Override
+    public void reset() throws IOException {
+        throw new IOException("7Z格式不支持重置操作");
+    }
+
+    @Override
+    public boolean markSupported() {
+        return false;
+    }
+
+    @Override
+    public void close() throws IOException {
+        sevenZFile.close();
+    }
+}

@@ -1,0 +1,68 @@
+package com.chua.deeplearning.support.paddle.classification;
+
+import ai.djl.Model;
+import ai.djl.modality.Classifications;
+import ai.djl.modality.cv.Image;
+import ai.djl.modality.cv.util.NDImageUtils;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
+import ai.djl.translate.Batchifier;
+import ai.djl.translate.Translator;
+import ai.djl.translate.TranslatorContext;
+import ai.djl.util.Utils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+/**
+ * Paddle 菜品分类 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public class DishesTranslator implements Translator<Image, Classifications> {
+
+    /**
+     * 类别列表。
+     */
+    private List<String> classes;
+
+    @Override
+    public void prepare(TranslatorContext ctx) throws IOException {
+        Model model = ctx.getModel();
+        try (InputStream is = model.getArtifact("label_list.txt").openStream()) {
+            classes = Utils.readLines(is, true);
+        }
+    }
+
+    @Override
+    public Classifications processOutput(TranslatorContext ctx, NDList list) {
+        return new Classifications(this.classes, list.singletonOrThrow());
+    }
+
+    @Override
+    public NDList processInput(TranslatorContext ctx, Image input) {
+        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        float percent = 256f / Math.min(input.getWidth(), input.getHeight());
+        int resizedWidth = Math.round(input.getWidth() * percent);
+        int resizedHeight = Math.round(input.getHeight() * percent);
+        array = NDImageUtils.resize(array, resizedWidth, resizedHeight);
+        array = NDImageUtils.centerCrop(array, 224, 224);
+        if (!array.getDataType().equals(DataType.FLOAT32)) {
+            array = array.toType(DataType.FLOAT32, false);
+        }
+        array = array.transpose(2, 0, 1).div(255f);
+        NDArray mean = ctx.getNDManager().create(new float[]{0.485f, 0.456f, 0.406f}, new Shape(3, 1, 1));
+        NDArray std = ctx.getNDManager().create(new float[]{0.229f, 0.224f, 0.225f}, new Shape(3, 1, 1));
+        array = array.sub(mean).div(std).expandDims(0);
+        return new NDList(array);
+    }
+
+    @Override
+    public Batchifier getBatchifier() {
+        return null;
+    }
+}

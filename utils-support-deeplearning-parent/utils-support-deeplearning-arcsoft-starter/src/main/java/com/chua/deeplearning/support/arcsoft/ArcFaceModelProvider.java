@@ -1,0 +1,78 @@
+package com.chua.deeplearning.support.arcsoft;
+
+import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.deeplearning.support.arcsoft.translator.ArcFaceCropperTranslator;
+import com.chua.deeplearning.support.arcsoft.translator.ArcFaceDetectorTranslator;
+import com.chua.deeplearning.support.arcsoft.translator.ArcFaceFeatureTranslator;
+import com.chua.deeplearning.support.engine.BulkModelProvider;
+import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
+import com.arcsoft.face.FaceEngine;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * ArcSoft 模型提供者
+ * <p>
+ * 实现 BulkModelProvider 接口，提供 ArcSoft 翻译器定义。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Slf4j
+public class ArcFaceModelProvider implements BulkModelProvider {
+
+    private final FaceEngine faceEngine;
+
+    public ArcFaceModelProvider() {
+        try {
+            this.faceEngine = ArcFaceEngineFactory.create();
+        } catch (Exception e) {
+            log.warn("[ArcFace] 引擎初始化失败: {}", e.getMessage());
+            this.faceEngine = null;
+        }
+    }
+
+    @Override
+    public List<TranslatorModelDefinition> getAll() {
+        List<TranslatorModelDefinition> definitions = new ArrayList<>();
+
+        // 人脸检测
+        definitions.add(TranslatorModelDefinition.builder()
+            .modelDefinition(ModelDefinition.builder()
+                .id("arcface-detector")
+                .name("arcface-detector")
+                .provider("arcsoft")
+                .description("ArcSoft 人脸检测")
+                .build())
+            .translator(new ArcFaceDetectorTranslator(faceEngine))
+            .build());
+
+        // 特征提取
+        definitions.add(TranslatorModelDefinition.builder()
+            .modelDefinition(ModelDefinition.builder()
+                .id("arcface-feature")
+                .name("arcface-feature")
+                .provider("arcsoft")
+                .description("ArcSoft 人脸特征提取")
+                .build())
+            .translator(new ArcFaceFeatureTranslator(faceEngine))
+            .build());
+
+        // 人脸裁剪
+        definitions.add(TranslatorModelDefinition.builder()
+            .modelDefinition(ModelDefinition.builder()
+                .id("arcface-cropper")
+                .name("arcface-cropper")
+                .provider("arcsoft")
+                .description("ArcSoft 人脸裁剪")
+                .build())
+            .translator(new ArcFaceCropperTranslator(faceEngine))
+            .build());
+
+        log.info("[ArcFace] 注册 {} 个模型", definitions.size());
+        return definitions;
+    }
+}

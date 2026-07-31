@@ -1,0 +1,180 @@
+package com.chua.deeplearning.support.feature;
+
+import com.chua.deeplearning.support.config.ModelSetting;
+import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.IdentificationEngine;
+import com.chua.deeplearning.support.translator.ITranslator;
+
+/**
+ * 特征提取器，从图像或文本中提取特征向量。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public interface FeatureExtractor {
+
+    /**
+     * 创建特征提取器。
+     *
+     * @param name 模型名称
+     * @return 提取器
+     */
+    static FeatureExtractor create(String name) {
+        return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+    }
+
+    /**
+     * 创建特征提取器。
+     *
+     * @param name    模型名称
+     * @param setting 模型配置
+     * @return 提取器
+     */
+    static FeatureExtractor create(String name, ModelSetting setting) {
+        return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, setting);
+    }
+
+    /**
+     * 设置模型路径。
+     *
+     * @param path 路径
+     * @return this
+     */
+    FeatureExtractor modelPath(String path);
+
+    /**
+     * 设置运行设备。
+     *
+     * @param device 设备
+     * @return this
+     */
+    FeatureExtractor device(String device);
+
+    /**
+     * 设置是否归一化特征。
+     *
+     * @param normalize 是否归一化
+     * @return this
+     */
+    FeatureExtractor normalize(boolean normalize);
+
+    /**
+     * 从图像中提取特征。
+     *
+     * @param imageData 图像数据
+     * @return 特征向量
+     */
+    float[] extract(byte[] imageData);
+
+    /**
+     * 从文本中提取特征。
+     *
+     * @param text 文本
+     * @return 特征向量
+     */
+    float[] extract(String text);
+}
+
+/**
+ * 默认特征提取器实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+class DefaultFeatureExtractor implements FeatureExtractor {
+
+    /**
+     * 默认运行设备（CPU）。
+     */
+    private static final String DEFAULT_DEVICE = "cpu";
+
+    /**
+     * 识别引擎。
+     */
+    private final IdentificationEngine engine;
+
+    /**
+     * 模型名称。
+     */
+    private final String modelName;
+
+    /**
+     * 模型配置。
+     */
+    @SuppressWarnings("unused")
+    private final ModelSetting setting;
+
+    /**
+     * 模型路径。
+     */
+    private String modelPath;
+
+    /**
+     * 运行设备。
+     */
+    private String device = DEFAULT_DEVICE;
+
+    /**
+     * 是否归一化。
+     */
+    private boolean normalize = true;
+
+    /**
+     * 构造默认特征提取器。
+     *
+     * @param engine    识别引擎
+     * @param modelName 模型名称
+     * @param setting   模型配置
+     */
+    DefaultFeatureExtractor(IdentificationEngine engine, String modelName, ModelSetting setting) {
+        this.engine = engine;
+        this.modelName = modelName;
+        this.setting = setting;
+        if (setting.getModelPath() != null) {
+            this.modelPath = setting.getModelPath();
+        }
+        if (setting.getDevice() != null) {
+            this.device = setting.getDevice();
+        }
+    }
+
+    @Override
+    public FeatureExtractor modelPath(String path) {
+        this.modelPath = path;
+        return this;
+    }
+
+    @Override
+    public FeatureExtractor device(String device) {
+        this.device = device;
+        return this;
+    }
+
+    @Override
+    public FeatureExtractor normalize(boolean normalize) {
+        this.normalize = normalize;
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public float[] extract(byte[] imageData) {
+        ITranslator<byte[], float[]> t =
+                (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
+        if (t == null) {
+            throw new IllegalStateException("模型未注册: " + modelName);
+        }
+        return t.translate(imageData);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public float[] extract(String text) {
+        ITranslator<String, float[]> t =
+                (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);
+        if (t == null) {
+            throw new IllegalStateException("模型未注册: " + modelName);
+        }
+        return t.translate(text);
+    }
+}

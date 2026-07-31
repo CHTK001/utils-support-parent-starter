@@ -1,0 +1,1 @@
+kafka=com.chua.kafka.support.dispatcher.KafkaDispatcherProvider

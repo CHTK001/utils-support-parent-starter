@@ -1,0 +1,72 @@
+{
+  "groups": [
+    {
+      "name": "metrics",
+      "type": "com.chua.metrics.support.MetricsProperties",
+      "sourceType": "com.chua.metrics.support.MetricsProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "metrics.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用 metrics 模块"
+    },
+    {
+      "name": "metrics.interval-ms",
+      "type": "java.lang.Long",
+      "defaultValue": 1000,
+      "description": "native 内部采样间隔（毫秒）"
+    },
+    {
+      "name": "metrics.enable-cpu",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用 CPU 指标采集"
+    },
+    {
+      "name": "metrics.enable-memory",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用内存指标采集"
+    },
+    {
+      "name": "metrics.enable-disk",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用磁盘指标采集"
+    },
+    {
+      "name": "metrics.enable-network",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用网络指标采集"
+    },
+    {
+      "name": "metrics.enable-process",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "是否启用进程指标采集"
+    },
+    {
+      "name": "metrics.enable-gpu",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用 GPU 指标采集"
+    },
+    {
+      "name": "metrics.enable-battery",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用电池指标采集"
+    },
+    {
+      "name": "metrics.enable-load",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用系统负载采集"
+    }
+  ],
+  "hints": []
+}

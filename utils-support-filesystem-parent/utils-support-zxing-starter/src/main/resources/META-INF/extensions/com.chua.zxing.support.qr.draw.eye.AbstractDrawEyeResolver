@@ -1,0 +1,6 @@
+com.chua.zxing.support.qr.draw.eye.AirBubbleDrawEyeResolver
+com.chua.zxing.support.qr.draw.eye.EyeShapeRectangleDrawEyeResolver
+com.chua.zxing.support.qr.draw.eye.RectDrawEyeResolver
+com.chua.zxing.support.qr.draw.eye.RoundRectangleDrawEyeResolver
+com.chua.zxing.support.qr.draw.eye.RoundRectDotDrawEyeResolver
+com.chua.zxing.support.qr.draw.eye.SingleSidedFilletRectangleDrawEyeResolver

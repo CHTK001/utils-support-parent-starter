@@ -1,0 +1,3 @@
+com.chua.springboot.support.autoconfigure.UtilsSpringBootAutoConfiguration
+com.chua.springboot.support.autoconfigure.LockAutoConfiguration
+com.chua.springboot.support.context.ObjectContextAutoConfiguration

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-parent-starter</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-datasource-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Utils Support Datasource Parent</name>
+    <description>数据源模块父模块：JDBC、连接池、多数据源等</description>
+    <modules>
+        <module>utils-support-sqlite-starter</module>
+        <module>utils-support-calcite-starter</module>
+        <module>utils-support-shardingv5-starter</module>
+        <module>utils-support-hibernate-starter</module>
+        <module>utils-support-neo4j-starter</module>
+        <module>utils-support-lucene-starter</module>
+        <module>utils-support-parquet-starter</module>
+        <module>utils-support-oracle-starter</module>
+        <module>utils-support-milvus-starter</module>
+        <module>utils-support-jvector-starter</module>
+        <module>utils-support-influxdb-starter</module>
+        <module>utils-support-hbase-starter</module>
+        <module>utils-support-elasticsearch-starter</module>
+        <module>utils-support-duckdb-starter</module>
+        <module>utils-support-mysql-starter</module>
+        <module>utils-support-tablesaw-starter</module>
+        <module>utils-support-solr-starter</module>
+        <module>utils-support-debezium-starter</module>
+    </modules>
+</project>

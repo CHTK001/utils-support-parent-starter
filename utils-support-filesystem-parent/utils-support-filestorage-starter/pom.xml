@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-filesystem-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>com.chua</groupId>
+    <artifactId>utils-support-filestorage-starter</artifactId>
+    <version>4.0.0.42</version>
+    <packaging>jar</packaging>
+    <name>Utils Support FileStorage Starter</name>
+    <description>文件存储基础模块，提供文件存储服务器过滤器、配置及 SPI 扩展</description>
+     <dependencies>
+         <dependency>
+             <groupId>org.projectlombok</groupId>
+             <artifactId>lombok</artifactId>
+             <version>${lombok.version}</version>
+             <scope>provided</scope>
+         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-image-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons.compress.version}</version>
+        </dependency>
+         <!-- optional: Rust native 实现（更高性能） -->
+         <dependency>
+             <groupId>com.chua</groupId>
+             <artifactId>utils-support-native-filestorage</artifactId>
+             <version>${project.version}</version>
+             <optional>true</optional>
+         </dependency>
+     </dependencies>
+</project>
