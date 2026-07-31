@@ -8,6 +8,8 @@ import com.chua.common.support.spi.annotations.Spi;
  *
  * <p>包含 GPT-4o、GPT-4o-mini、o1、o3 等模型定价。</p>
  *
+ * <p>默认读取 classpath 内置 JSON 文件。若有公开定价 API，可覆写 {@link #fetchOnlinePricing()}。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */

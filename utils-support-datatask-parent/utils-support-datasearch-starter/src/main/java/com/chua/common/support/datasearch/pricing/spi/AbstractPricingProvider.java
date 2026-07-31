@@ -3,7 +3,10 @@ package com.chua.common.support.datasearch.pricing.spi;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,6 +129,46 @@ public abstract class AbstractPricingProvider implements PricingProvider {
         } catch (Exception e) {
             return Collections.emptyList();
         }
+    }
+
+    // ======================== HTTP 工具方法 ========================
+
+    /**
+     * 获取 HTTP 页面内容。
+     *
+     * @param url 页面地址
+     * @return HTML 字符串，请求失败返回 null
+     */
+    protected String fetchUrl(String url) {
+        try {
+            return HttpClientFactory.of(url).get().getBodyString();
+        } catch (Exception e) {
+            log.debug("[{}] 请求页面失败: url={}, msg={}", name(), url, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 将 JSON 字符串解析为 ModelDefinition 列表。
+     *
+     * @param json JSON 数组字符串
+     * @return 模型定价列表
+     */
+    protected List<ModelDefinition> parseJsonPricing(String json) {
+        if (json == null || json.isEmpty()) {
+            return Collections.emptyList();
+        }
+        try {
+            List<ModelDefinition> parsed = Json.fromJson(json,
+                    new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
+                    });
+            if (parsed != null && !parsed.isEmpty()) {
+                return parsed;
+            }
+        } catch (Exception e) {
+            log.debug("[{}] 解析 JSON 定价失败: {}", name(), e.getMessage());
+        }
+        return Collections.emptyList();
     }
 
     /**

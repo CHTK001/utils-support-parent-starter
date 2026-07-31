@@ -182,8 +182,6 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
             this.recorder.setFormat(FORMAT_H265);
             this.recorder.setVideoCodec(avcodec.AV_CODEC_ID_H265);
             this.recorder.setFrameRate(this.fps);
-            this.recorder.setVideoOption(KEY_PRESET, VAL_PRESET);
-            this.recorder.setVideoOption(KEY_TUNE, VAL_TUNE);
             this.recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
             this.recorder.setVideoQuality(0);
             this.recorder.setInterleaved(true);
