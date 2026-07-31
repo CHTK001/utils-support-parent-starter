@@ -108,6 +108,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     @Override
     public synchronized void rebuild() {
+        checkNotClosed();
         delegate.rebuild();
     }
 
@@ -596,7 +597,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 graph = null;
             }
             pqVectors = null;
-            try { Files.deleteIfExists(indexPath); } catch (IOException ignored) {}
         }
 
         @Override
@@ -625,7 +625,17 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                         subspaces,
                         centroids,
                         false);
-                CompressedVectors compressed = pq.encodeAll(rav, ForkJoinPool.commonPool());
+                CompressedVectors compressed;
+                if (properties.getPqParallelism() > 0) {
+                    ForkJoinPool pool = new ForkJoinPool(properties.getPqParallelism());
+                    try {
+                        compressed = pq.encodeAll(rav, pool);
+                    } finally {
+                        pool.shutdown();
+                    }
+                } else {
+                    compressed = pq.encodeAll(rav, ForkJoinPool.commonPool());
+                }
                 if (!(compressed instanceof PQVectors)) {
                     throw new RuntimeException("PQ 编码失败：返回类型不匹配");
                 }

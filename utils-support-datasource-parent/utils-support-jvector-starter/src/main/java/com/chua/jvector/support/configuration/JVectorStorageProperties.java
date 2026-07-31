@@ -1,5 +1,7 @@
 package com.chua.jvector.support.configuration;
 
+import java.util.concurrent.ForkJoinPool;
+
 /**
  * JVector 向量存储配置属性。
  *
@@ -115,6 +117,24 @@ public class JVectorStorageProperties {
 
     public void setPrepareOnStartup(boolean prepareOnStartup) {
         this.prepareOnStartup = prepareOnStartup;
+    }
+
+    /**
+     * 获取 PQ 编码并行度；0 表示使用 commonPool。
+     *
+     * @return 并行度
+     */
+    public int getPqParallelism() {
+        return pqParallelism;
+    }
+
+    /**
+     * 设置 PQ 编码并行度；0 表示使用 {@link ForkJoinPool#commonPool()}。
+     *
+     * @param pqParallelism 并行度
+     */
+    public void setPqParallelism(int pqParallelism) {
+        this.pqParallelism = pqParallelism;
     }
 
     /**
