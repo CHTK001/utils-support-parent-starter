@@ -105,35 +105,16 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     private void startConsumer(String topic) {
         if (!chronicleAvailable) {
-            executor.submit(() -> {
-                var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new ConcurrentLinkedQueue<>());
-                while (!closed) {
-                    var body = fallbackQueue.poll();
-                    if (body != null) {
-                        var definitions = definitionMap.get(topic);
-                        if (definitions != null) {
-                            for (var def : definitions) {
-                                try {
-                                    def.dispatch(body);
-                                } catch (Exception e) {
-                                    log.warn("订阅方法执行异常，主题：{}", topic, e);
-                                }
-                            }
-                        }
-                    } else {
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            break;
-                        }
-                    }
-                }
-            });
+            startFallbackConsumer(topic);
+            return;
+        }
+        ChronicleQueue queue = getOrCreateQueue(topic);
+        if (queue == null) {
+            chronicleAvailable = false;
+            startFallbackConsumer(topic);
             return;
         }
         executor.submit(() -> {
-            var queue = getOrCreateQueue(topic);
             ExcerptTailer tailer = queue.createTailer();
             while (!closed) {
                 try (var dc = tailer.readingDocument()) {
@@ -161,6 +142,35 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                 } catch (Throwable e) {
                     if (!closed) {
                         log.error("Chronicle 严重错误，主题：{}", topic, e);
+                    }
+                }
+            }
+        });
+    }
+
+    private void startFallbackConsumer(String topic) {
+        executor.submit(() -> {
+            var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new ConcurrentLinkedQueue<>());
+            while (!closed) {
+                var body = fallbackQueue.poll();
+                if (body != null) {
+                    var definitions = definitionMap.get(topic);
+                    if (definitions != null) {
+                        for (var def : definitions) {
+                            try {
+                                System.out.println("[FALLBACK-CONSUME] topic=" + topic + " body=" + body);
+                                def.dispatch(body);
+                            } catch (Exception e) {
+                                log.warn("订阅方法执行异常，主题：{}", topic, e);
+                            }
+                        }
+                    }
+                } else {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
                     }
                 }
             }
