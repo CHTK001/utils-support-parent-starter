@@ -99,11 +99,15 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /**
      * 从线上 API 拉取定价数据。
      *
-     * <p>子类实现此方法。若厂商暂无公开定价 API，可返回 {@link #readClasspathPricing()}。</p>
+     * <p>默认行为：读取 classpath 内置 JSON 文件作为兜底数据。
+     * 若厂商有公开定价 API，子类可覆写此方法直接调用线上接口。</p>
      *
      * @return 模型定价列表
      */
-    protected abstract List<ModelDefinition> fetchOnlinePricing();
+    @Override
+    public List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
+    }
 
     /**
      * 从 classpath 内置 JSON 文件读取定价列表（兜底）。
