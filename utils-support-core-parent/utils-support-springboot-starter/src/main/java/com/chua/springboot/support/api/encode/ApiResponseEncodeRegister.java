@@ -1,6 +1,4 @@
 package com.chua.springboot.support.api.encode;
-import com.chua.common.support.lang.algorithm.cipher.Sm2Cipher;
-import com.chua.starter.common.support.algorithm.crypto.Codec;
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.matcher.PathMatcher;
 import com.chua.springboot.support.api.properties.ApiProperties;
@@ -8,7 +6,8 @@ import com.chua.starter.common.support.application.GlobalSettingFactory;
 import lombok.Getter;
 import org.springframework.context.ApplicationListener;
 
-import java.security.KeyPair;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +23,17 @@ import java.util.List;
  */
 public class ApiResponseEncodeRegister implements Upgrade<ApiResponseEncodeConfiguration>, ApplicationListener<ApiResponseEncodeConfiguration>  {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ApiResponseEncodeRegister.class);
+
+    /**
+     * 安全随机数
+     */
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    /**
+     * AES 编解码器（与前端 wasm 协议一致）
+     */
+    private static final ApiEncodeAesCodec AES_CODEC = new ApiEncodeAesCodec();
+
     private final List<String> whiteList;
     private final String codecType;
     private ApiResponseEncodeConfiguration apiResponseEncodeConfiguration;
@@ -66,44 +76,57 @@ public class ApiResponseEncodeRegister implements Upgrade<ApiResponseEncodeConfi
     }
 
     /**
-     * 编码数据
+     * 编码数据（AES-128-CBC，随机 key，密文前后插入噪声，x-ot 标识冗余等级）
      *
      * @param data 数据
      * @return 编码结果
      */
     public CodecResult encode(String data) {
         try {
-            if ("sm2".equalsIgnoreCase(codecType)) {
-                return sm2Encode(data);
-            }
-            String encryptedData = Codec.build("sm4", codecType).encodeHex(data);
-            return new CodecResult(codecType, encryptedData, String.valueOf(codecType.length()));
+            // 随机生成 16 字节 AES key
+            byte[] key = new byte[16];
+            SECURE_RANDOM.nextBytes(key);
+            byte[] encrypted = aesCbc(data.getBytes(java.nio.charset.StandardCharsets.UTF_8), key);
+            // 随机选择冗余等级（1~3），等级越高噪声越多
+            int noiseLevel = SECURE_RANDOM.nextInt(3) + 1;
+            byte[] noisy = addNoise(encrypted, noiseLevel);
+            return new CodecResult(Base64.getEncoder().encodeToString(key), noisy, noiseLevel);
         } catch (Exception e) {
             log.error("[CodecFactory] 数据加密失败", e);
-            return new CodecResult("", data, String.valueOf(0));
+            return new CodecResult("", data.getBytes(java.nio.charset.StandardCharsets.UTF_8), 0);
         }
     }
 
-    private CodecResult sm2Encode(String data) {
-        try {
-            Sm2Cipher sm2Cipher = Sm2Cipher.create("bc");
-            KeyPair keyPair = sm2Cipher.generateKeyPair();
-            byte[] encrypted = sm2Cipher.encrypt(keyPair.getPublic().getEncoded(), data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            String encryptedData = bytesToHex(encrypted);
-            String privateKeyHex = bytesToHex(keyPair.getPrivate().getEncoded());
-            return new CodecResult(privateKeyHex, encryptedData, String.valueOf(privateKeyHex.length()));
-        } catch (Exception e) {
-            log.error("[CodecFactory] SM2 数据加密失败", e);
-            return new CodecResult("", data, String.valueOf(0));
-        }
+    /**
+     * AES-128-CBC 加密（PKCS5Padding，iv 为 16 字节全零，与前端 wasm 协议一致）
+     *
+     * @param data 明文
+     * @param key  16 字节密钥
+     * @return 密文
+     */
+    private byte[] aesCbc(byte[] data, byte[] key) throws Exception {
+        return AES_CODEC.encrypt(data, key);
     }
 
-    private static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
+    /**
+     * 密文前后插入噪声字节
+     *
+     * @param encrypted   密文
+     * @param noiseLevel  冗余等级（1~3）
+     * @return 含噪声的字节数组
+     */
+    private byte[] addNoise(byte[] encrypted, int noiseLevel) {
+        int prefixLen = noiseLevel;
+        int suffixLen = noiseLevel;
+        byte[] noisePrefix = new byte[prefixLen];
+        byte[] noiseSuffix = new byte[suffixLen];
+        SECURE_RANDOM.nextBytes(noisePrefix);
+        SECURE_RANDOM.nextBytes(noiseSuffix);
+        byte[] result = new byte[prefixLen + encrypted.length + suffixLen];
+        System.arraycopy(noisePrefix, 0, result, 0, prefixLen);
+        System.arraycopy(encrypted, 0, result, prefixLen, encrypted.length);
+        System.arraycopy(noiseSuffix, 0, result, prefixLen + encrypted.length, suffixLen);
+        return result;
     }
 
     /**
@@ -158,41 +181,41 @@ public class ApiResponseEncodeRegister implements Upgrade<ApiResponseEncodeConfi
      */
     public static class CodecResult {
         /**
-         * 传输密钥
+         * 传输密钥（base64）
          */
         private final String key;
         /**
-         * 加密后的数据
+         * 加密后的数据（含前后噪声）
          */
-        private final String data;
+        private final byte[] data;
         /**
-         * 额外字段
+         * 冗余等级（1~3，0 表示无噪声）
          */
-        private final String timestamp;
+        private final int noiseLevel;
 
         /**
          * 构造函数
          *
-         * @param key       传输密钥
-         * @param data      加密后的数据
-         * @param timestamp 额外字段
+         * @param key        传输密钥（base64）
+         * @param data       加密后的数据（含前后噪声）
+         * @param noiseLevel 冗余等级
          */
-        public CodecResult(String key, String data, String timestamp) {
+        public CodecResult(String key, byte[] data, int noiseLevel) {
             this.key = key;
             this.data = data;
-            this.timestamp = timestamp;
+            this.noiseLevel = noiseLevel;
         }
 
         public String getKey() {
             return key;
         }
 
-        public String getData() {
+        public byte[] getData() {
             return data;
         }
 
-        public String getTimestamp() {
-            return timestamp;
+        public int getNoiseLevel() {
+            return noiseLevel;
         }
     }
 }

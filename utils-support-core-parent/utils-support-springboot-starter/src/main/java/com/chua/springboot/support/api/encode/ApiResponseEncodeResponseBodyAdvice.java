@@ -1,9 +1,11 @@
 package com.chua.springboot.support.api.encode;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.springboot.support.api.annotations.ApiReturnFormatIgnore;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +62,11 @@ public class ApiResponseEncodeResponseBodyAdvice implements ResponseBodyAdvice<O
         }
 
         HttpServletRequest servletRequest = servletServerHttpRequest.getServletRequest();
+        // @ApiReturnFormatIgnore 标注的接口跳过加密（方法级或类级）
+        if (isIgnoreEncrypt(methodParameter, aClass)) {
+            return o;
+        }
+
         if (apiResponseEncodeRegister.isPass()) {
             return o;
         }
@@ -79,12 +82,13 @@ public class ApiResponseEncodeResponseBodyAdvice implements ResponseBodyAdvice<O
 
         HttpHeaders headers = serverHttpResponse.getHeaders();
 
-        // 使用主密钥加密（去除OTK）
+        // 随机 key AES 加密，密文前后插入噪声，冗余等级用 x-ot 标识
         ApiResponseEncodeRegister.CodecResult codecResult = apiResponseEncodeRegister.encode(Json.toJson(o));
 
-        // 设置响应头
-        headers.set("access-control-timestamp-user", codecResult.getTimestamp());
-        headers.set("access-control-no-data", String.valueOf(true));
+        // 设置响应头：加密标记、随机 key、冗余等级
+        headers.set("x-ec", "1");
+        headers.set("x-ck", codecResult.getKey());
+        headers.set("x-ot", String.valueOf(codecResult.getNoiseLevel()));
 
         // 设置Content-Type为application/octet-stream
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -92,41 +96,31 @@ public class ApiResponseEncodeResponseBodyAdvice implements ResponseBodyAdvice<O
         // 添加X-Content-Type-Options: nosniff响应头
         headers.set("X-Content-Type-Options", "nosniff");
 
-        // 构建响应数据（key直接拼接在02后面）
-        String responseData = "02" + codecResult.getKey() + "200" + codecResult.getData() + "ffff";
-
-        // 将响应数据转换为字节数组（使用更真实的二进制转换方法）
-        byte[] responseBytes = convertToBinary(responseData);
-
-        // 设置Content-Length头，值为加密后数据的实际长度
+        // 返回二进制密文
+        byte[] responseBytes = codecResult.getData();
         headers.setContentLength(responseBytes.length);
 
-        // 返回二进制数据而不是JSON
-        log.debug("[CodecResponse] 响应加密完成，数据长度: {}", responseBytes.length);
+        log.debug("[CodecResponse] 响应加密完成，数据长度: {}, 冗余等级: {}",
+                responseBytes.length, codecResult.getNoiseLevel());
         return ResponseEntity.<byte[]>ok()
                 .headers(headers)
                 .body(responseBytes);
     }
 
-
     /**
-     * 将字符串转换为字节数组（使用更真实的二进制转换方法）
-     * @param str 字符串
-     * @return 字节数组
+     * 判断接口是否标注忽略加密
+     *
+     * @param methodParameter 方法参数
+     * @param converterType   HTTP 消息转换器类型
+     * @return true 表示忽略加密
      */
-    private byte[] convertToBinary(String str) {
-        if (str == null || str.isEmpty()) {
-            return new byte[0];
+    private boolean isIgnoreEncrypt(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
+        if (methodParameter.hasMethodAnnotation(ApiReturnFormatIgnore.class)) {
+            return true;
         }
-        
-        // 使用CharsetEncoder将字符串转换为字节缓冲区
-        CharBuffer charBuffer = CharBuffer.wrap(str);
-        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-        
-        // 创建结果数组并复制数据
-        byte[] result = new byte[byteBuffer.remaining()];
-        byteBuffer.get(result);
-        
-        return result;
+        if (AnnotationUtils.findAnnotation(methodParameter.getContainingClass(), ApiReturnFormatIgnore.class) != null) {
+            return true;
+        }
+        return false;
     }
 }
