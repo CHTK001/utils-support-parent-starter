@@ -78,6 +78,16 @@ public class DefaultDataSyncServer implements DataSyncServer {
         this.executorManager = executorManager;
     }
 
+    /**
+     * 替换映射管理器（测试或外部共享时使用）。
+     * 必须在 {@link #start()} 之前调用。
+     *
+     * @param mappingManager 映射管理器
+     */
+    public void setMappingManager(DataSyncMappingManager mappingManager) {
+        this.mappingManager = mappingManager;
+    }
+
     @Override
     public DataSyncMappingManager mappingManager() {
         return mappingManager;
