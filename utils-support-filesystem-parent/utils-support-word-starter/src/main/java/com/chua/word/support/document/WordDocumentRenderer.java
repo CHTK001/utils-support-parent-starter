@@ -148,7 +148,7 @@ public class WordDocumentRenderer implements DocumentProvider {
             CTTcPr tcPr = ctTc.isSetTcPr() ? ctTc.getTcPr() : ctTc.addNewTcPr();
             CTShd shd = tcPr.isSetShd() ? tcPr.getShd() : tcPr.addNewShd();
             shd.setFill("1F4E79");
-            shd.setVal(STShdPattern.CLEAR);
+            shd.setVal(STShd.Enum.forString("clear"));
         }
     }
 
