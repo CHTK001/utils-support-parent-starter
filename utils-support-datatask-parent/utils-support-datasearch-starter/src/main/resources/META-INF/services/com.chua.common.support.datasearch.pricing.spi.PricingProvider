@@ -1,0 +1,15 @@
+com.chua.common.support.datasearch.pricing.spi.impl.OpenAiPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.ZhipuPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.ClaudePricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.DeepSeekPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.GooglePricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.AlibabaPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.BaiduPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.TencentPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.HuaweiPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.XunfeiPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.DoubaoPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.QiniuPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.MicrosoftPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.AmazonPricingProvider
+com.chua.common.support.datasearch.pricing.spi.impl.ZaiPricingProvider
