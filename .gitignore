@@ -150,6 +150,8 @@ utils-support-extra-parent/utils-support-example-starter/out3/
 utils-support-extra-parent/utils-support-example-starter/out_dedup2/
 utils-support-extra-parent/utils-support-example-starter/out_verify1/
 utils-support-extra-parent/utils-support-example-starter/out_verify2/
+utils-support-extra-parent/utils-support-example-starter/out_verify*/
+utils-support-extra-parent/utils-support-example-starter/out_verify*/
 utils-support-extra-parent/utils-support-example-starter/probe_dedup/
 utils-support-extra-parent/utils-support-example-starter/.agentscope/
 utils-support-extra-parent/utils-support-example-starter/assembly/
