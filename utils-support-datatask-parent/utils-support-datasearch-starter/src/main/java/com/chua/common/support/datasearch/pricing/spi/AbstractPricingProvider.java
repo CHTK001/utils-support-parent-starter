@@ -104,7 +104,6 @@ public abstract class AbstractPricingProvider implements PricingProvider {
      *
      * @return 模型定价列表
      */
-    @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         return readClasspathPricing();
     }
