@@ -32,11 +32,18 @@ public class MordantHelper {
 
     /**
      * 创建默认 Terminal（适配 Mordant 3.x Kotlin 默认参数构造）。
+     * <p>
+     * 若找不到平台原生 TerminalInterface，则返回 null。
+     * </p>
      *
-     * @return Terminal 实例
+     * @return Terminal 实例，失败时返回 null
      */
     public static Terminal createTerminal() {
-        return new Terminal(null, Theme.Companion.getDefault(), null, null, null, null, null, 8, null, TERMINAL_INTERFACE);
+        try {
+            return new Terminal(null, Theme.Companion.getDefault(), null, null, null, null, null, 8, null, TERMINAL_INTERFACE);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -56,7 +63,7 @@ public class MordantHelper {
                     "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaLinux");
             return (TerminalInterface) cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            throw new IllegalStateException("未找到可用的 TerminalInterface 实现", e);
+            return null;
         }
     }
 
@@ -76,7 +83,7 @@ public class MordantHelper {
      * @param text     文本
      */
     public static void println(Terminal terminal, String text) {
-        terminal.println(text, null, null, null, null, false);
+        terminal.println(text, Whitespace.NORMAL, TextAlign.NONE, OverflowWrap.NORMAL, null, false);
     }
 
     // ======================== 颜色渲染 ========================
@@ -151,7 +158,7 @@ public class MordantHelper {
      */
     public static String panel(String content, String title, String borderStyle) {
         BorderType borderType = resolveBorderType(borderStyle);
-        Panel panel = new Panel(content, title, null, true, null, borderType, null, null, null, null);
+        Panel panel = new Panel(content, title, null, true, new Padding(0), borderType, TextAlign.NONE, TextAlign.NONE, null, null);
         return TERMINAL.render(panel);
     }
 

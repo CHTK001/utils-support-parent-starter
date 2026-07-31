@@ -381,6 +381,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     // ==================== 分页结构化搜索 ====================
+
+    /**
+     * 执行分页结构化搜索。
      *
      * @param tableName  表名
      * @param luceneQuery  Lucene Query
