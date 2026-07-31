@@ -75,6 +75,27 @@ public interface VectorStorage extends AutoCloseable {
     int size();
 
     /**
+     * 删除指定 id 的向量。
+     *
+     * @param id 向量标识
+     * @return 是否删除成功（id 不存在时返回 false）
+     */
+    default boolean remove(String id) {
+        throw new UnsupportedOperationException("当前实现不支持 remove");
+    }
+
+    /**
+     * 更新指定 id 的向量数据。
+     *
+     * @param id     向量标识
+     * @param vector 新的向量数据
+     * @return 是否更新成功（id 不存在时返回 false）
+     */
+    default boolean update(String id, float[] vector) {
+        throw new UnsupportedOperationException("当前实现不支持 update");
+    }
+
+    /**
      * 清空所有向量。
      */
     void clear();

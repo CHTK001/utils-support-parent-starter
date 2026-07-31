@@ -4,6 +4,8 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.sync.SyncClient;
+import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.*;
@@ -19,7 +21,23 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2026-07-25
  */
 @Spi("rsocket")
-public class RSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
+public class RSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+
+    @Override
+    public String getProtocol() {
+        return "rsocket";
+    }
+
+    @Override
+    public SyncServer createServer(ServerSetting setting) {
+        return new RSocketSyncServer(setting);
+    }
+
+    @Override
+    public SyncClient createClient(Object setting) {
+        String url = "rsocket://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
+        return new RSocketSyncClient(url);
+    }
 
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     private final List<SyncServerListener> listeners = new ArrayList<>();

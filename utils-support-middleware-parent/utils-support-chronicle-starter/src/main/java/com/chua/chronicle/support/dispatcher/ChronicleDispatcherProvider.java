@@ -57,17 +57,25 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     @Override
     public void publish(String topic, Object body) {
+        System.out.println("[CHRONICLE-PUBLISH-ENTER] topic=" + topic + " body class=" + (body == null ? "null" : body.getClass().getName()));
         var queue = getOrCreateQueue(topic);
+        System.out.println("[CHRONICLE-PUBLISH-Q] queue=" + queue);
         var appender = queue.createAppender();
+        System.out.println("[CHRONICLE-PUBLISH-APP] appender=" + appender);
         String value;
         try {
             value = body == null ? "" : MAPPER.writeValueAsString(body);
+            System.out.println("[CHRONICLE-PUBLISH-VAL] len=" + value.length());
         } catch (Exception e) {
+            System.out.println("[CHRONICLE-PUBLISH-FAIL] serialize error: " + e);
             log.error("Chronicle 序列化消息失败，主题：{}", topic, e);
             return;
         }
         try (var dc = appender.writingDocument()) {
             dc.wire().write("msg").text(value);
+        } catch (Exception e) {
+            System.out.println("[CHRONICLE-PUBLISH-FAIL] write error: " + e);
+            throw e;
         }
         log.debug("Chronicle 已发布消息到主题：{}", topic);
         System.out.println("[CHRONICLE-PUBLISH] topic=" + topic + " body=" + value);

@@ -120,6 +120,11 @@ public class HttpSyncClient implements SyncClient {
         reconnectCount.set(0);
         startPull();
         startHeartbeat();
+        try {
+            registerClient();
+        } catch (Exception e) {
+            notifyListeners(l -> l.onError("register", e));
+        }
         notifyListeners(SyncFlowListener::onStart);
     }
 

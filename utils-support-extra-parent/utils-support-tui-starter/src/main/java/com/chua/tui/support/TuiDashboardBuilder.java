@@ -56,6 +56,12 @@ public class TuiDashboardBuilder {
     /** 刷新间隔（毫秒），默认 3 秒 */
     private long refreshInterval = 3000L;
 
+    /** 创建时默认显示的组件 id 列表（为空时全部显示） */
+    private final List<String> visibleWidgetIds = new ArrayList<>();
+
+    /** 创建时默认隐藏的组件 id 列表 */
+    private final List<String> hiddenWidgetIds = new ArrayList<>();
+
     /** 私有构造方法，通过 {@link #create()} 创建 */
     private TuiDashboardBuilder() {
     }
@@ -93,11 +99,6 @@ public class TuiDashboardBuilder {
 
     /**
      * 注册包含 {@code @IpcMethod} 注解的数据处理器。
-     * <p>
-     * 处理器中的 {@code @IpcMethod("path")} 注解方法会被自动发现并注册。
-     * 组件通过其 id 匹配对应的 path 来获取数据。
-     * 例如：组件 id="cpu" 匹配 {@code @IpcMethod("/cpu")}。
-     * </p>
      *
      * @param handler 处理器对象（包含 @IpcMethod 注解方法）
      * @return this
@@ -119,10 +120,6 @@ public class TuiDashboardBuilder {
 
     /**
      * 添加仪表盘组件。
-     * <p>
-     * 组件的 id 应与 {@code @IpcMethod} 中定义的 path 对应（不含斜杠）。
-     * 添加顺序决定网格中的位置：从左到右，从上到下填充。
-     * </p>
      *
      * @param widget 仪表盘组件
      * @return this
@@ -146,23 +143,61 @@ public class TuiDashboardBuilder {
     }
 
     /**
+     * 指定创建时默认显示的组件 id。
+     *
+     * @param ids 组件 id 列表
+     * @return this
+     */
+    public TuiDashboardBuilder showOnStart(String... ids) {
+        for (String id : ids) {
+            if (id != null && !id.isEmpty()) {
+                this.visibleWidgetIds.add(id);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 指定创建时默认隐藏的组件 id。
+     *
+     * @param ids 组件 id 列表
+     * @return this
+     */
+    public TuiDashboardBuilder hideOnStart(String... ids) {
+        for (String id : ids) {
+            if (id != null && !id.isEmpty()) {
+                this.hiddenWidgetIds.add(id);
+            }
+        }
+        return this;
+    }
+
+    /**
      * 构建仪表盘实例。
-     * <p>
-     * 自动构建内部数据处理器注册表，并创建 TuiDashboard。
-     * 组件数量不能超过布局容量（如 2x2 最多 4 个组件）。
-     * </p>
      *
      * @return TuiDashboard 实例
      * @throws IllegalStateException 组件数量超出布局容量时抛出
      */
     public TuiDashboard build() {
         int capacity = layout.getCapacity();
-        if (widgets.size() > capacity) {
+        if (capacity > 0 && widgets.size() > capacity) {
             throw new IllegalStateException(
                     "组件数量(" + widgets.size() + ") 超出布局容量(" + capacity + ")");
         }
 
-        return new TuiDashboard(layout, title, widgets,
-                handlerMethods, handlerTargets, refreshInterval);
+        TuiDashboard dashboard = new TuiDashboard(
+                layout, title, widgets, handlerMethods, handlerTargets, refreshInterval);
+
+        if (!visibleWidgetIds.isEmpty()) {
+            for (TuiWidget widget : widgets) {
+                widget.setVisible(visibleWidgetIds.contains(widget.getId()));
+            }
+        } else if (!hiddenWidgetIds.isEmpty()) {
+            for (TuiWidget widget : widgets) {
+                widget.setVisible(!hiddenWidgetIds.contains(widget.getId()));
+            }
+        }
+
+        return dashboard;
     }
 }

@@ -59,8 +59,8 @@ public class ReactorDataSyncExecutor {
 
     private String buildTopic(String sinkId) {
         if (serverMode) {
-            return "server:" + agentId;
+            return "server-" + agentId;
         }
-        return "consumer:" + agentId + ":" + sinkId;
+        return "consumer-" + agentId + "-" + sinkId;
     }
 }

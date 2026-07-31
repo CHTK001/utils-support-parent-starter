@@ -23,11 +23,12 @@
         <module>utils-support-jdk15on-starter</module>
         <module>utils-support-multipart-starter</module>
         <module>utils-support-oshi-starter</module>
-        <module>utils-support-example-starter</module>
+        
         <module>utils-support-metrics-starter</module>
         <module>utils-support-serialize-starter</module>
         <module>utils-support-tika-starter</module>
         <module>utils-support-tui-starter</module>
         <module>utils-support-video-processor-starter</module>
+        <module>utils-support-example-starter</module>
     </modules>
 </project>

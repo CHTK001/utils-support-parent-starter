@@ -36,12 +36,38 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
             throw new IllegalArgumentException(
                     "维度不匹配: 期望 " + dimension() + ", 实际 " + vector.data().length);
         }
+        if (store.containsKey(vector.id())) {
+            return false;
+        }
         store.put(vector.id(), vector);
         return true;
     }
 
     @Override
     protected boolean doAdd(String id, float[] vector) {
+        if (store.containsKey(id)) {
+            return false;
+        }
+        store.put(id, new Vector(id, vector));
+        return true;
+    }
+
+    @Override
+    public boolean remove(String id) {
+        checkNotClosed();
+        return store.remove(id) != null;
+    }
+
+    @Override
+    public boolean update(String id, float[] vector) {
+        checkNotClosed();
+        if (!store.containsKey(id)) {
+            return false;
+        }
+        if (vector.length != dimension()) {
+            throw new IllegalArgumentException(
+                    "维度不匹配: 期望 " + dimension() + ", 实际 " + vector.length);
+        }
         store.put(id, new Vector(id, vector));
         return true;
     }
