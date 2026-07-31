@@ -259,10 +259,11 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
             return "";
         }
         for (TableData table : data.getTables()) {
-            sb.append("## ").append(nullToEmpty(table.getTableName())).append("\n\n");
+            String title = nullToEmpty(table.getTableName());
             if (table.getRemark() != null && !table.getRemark().isEmpty()) {
-                sb.append("> ").append(table.getRemark()).append("\n\n");
+                title += "（" + table.getRemark() + "）";
             }
+            sb.append("## ").append(title).append("\n\n");
             sb.append("| 序号 | 列名 | 类型 | 大小 | 小数位 | 可空 | 主键 | 默认值 | 备注 |\n");
             sb.append("|------|------|------|------|--------|------|------|--------|------|\n");
             if (table.getColumns() != null) {
