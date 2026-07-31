@@ -61,12 +61,13 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     @Override
     public boolean update(String id, float[] vector) {
         checkNotClosed();
-        if (!store.containsKey(id)) {
-            return false;
-        }
+        // 与 JVector/Milvus 及基类 add/search 惯例一致：先校验维度（编程错误 fail-fast），再查 id 存在性
         if (vector.length != dimension()) {
             throw new IllegalArgumentException(
                     "维度不匹配: 期望 " + dimension() + ", 实际 " + vector.length);
+        }
+        if (!store.containsKey(id)) {
+            return false;
         }
         store.put(id, new Vector(id, vector));
         return true;

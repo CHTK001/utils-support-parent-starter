@@ -12,9 +12,14 @@ import io.milvus.v2.service.collection.request.LoadCollectionReq;
 import io.milvus.v2.service.collection.request.GetCollectionStatsReq;
 import io.milvus.v2.service.collection.request.DropCollectionReq;
 import io.milvus.v2.service.utility.request.FlushReq;
+import io.milvus.v2.service.vector.request.DeleteReq;
 import io.milvus.v2.service.vector.request.InsertReq;
+import io.milvus.v2.service.vector.request.QueryReq;
 import io.milvus.v2.service.vector.request.SearchReq;
+import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.request.data.FloatVec;
+import io.milvus.v2.service.vector.response.DeleteResp;
+import io.milvus.v2.service.vector.response.QueryResp;
 import io.milvus.v2.service.vector.response.SearchResp;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
@@ -125,6 +130,64 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                 .data(List.of(entity))
                 .build();
         client.insert(req);
+        released = false;
+        return true;
+    }
+
+    /**
+     * 删除指定 id 的向量。
+     *
+     * <p>通过 Milvus {@code delete} 接口按主键 id 删除，删除后置空已刷新标记，
+     * 下次搜索前自动重新 flush。</p>
+     *
+     * @param id 向量标识
+     * @return 是否删除成功（id 不存在时返回 false）
+     */
+    @Override
+    public synchronized boolean remove(String id) {
+        checkNotClosed();
+        DeleteResp resp = client.delete(DeleteReq.builder()
+                .collectionName(collectionName)
+                .ids(List.of(id))
+                .build());
+        long deleted = resp != null ? resp.getDeleteCnt() : 0L;
+        if (deleted > 0) {
+            released = false;
+        }
+        return deleted > 0;
+    }
+
+    /**
+     * 更新指定 id 的向量数据。
+     *
+     * <p>先查询确认 id 存在，再通过 Milvus {@code upsert} 覆盖写入（主键相同即更新）。
+     * 维度不匹配时抛出 {@link IllegalArgumentException}，id 不存在时返回 false。</p>
+     *
+     * @param id     向量标识
+     * @param vector 新的向量数据
+     * @return 是否更新成功（id 不存在时返回 false）
+     */
+    @Override
+    public synchronized boolean update(String id, float[] vector) {
+        checkNotClosed();
+        if (vector.length != dimension()) {
+            throw new IllegalArgumentException(
+                    "维度不匹配: 期望 " + dimension() + ", 实际 " + vector.length);
+        }
+        QueryResp query = client.query(QueryReq.builder()
+                .collectionName(collectionName)
+                .ids(List.of(id))
+                .build());
+        if (query == null || query.getQueryResults() == null || query.getQueryResults().isEmpty()) {
+            return false;
+        }
+        com.google.gson.JsonObject entity = new com.google.gson.JsonObject();
+        entity.addProperty("id", id);
+        entity.add("vector", gsonFloatArray(vector));
+        client.upsert(UpsertReq.builder()
+                .collectionName(collectionName)
+                .data(List.of(entity))
+                .build());
         released = false;
         return true;
     }
