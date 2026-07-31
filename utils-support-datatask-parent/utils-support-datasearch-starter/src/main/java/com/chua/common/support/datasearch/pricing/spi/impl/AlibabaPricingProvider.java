@@ -19,28 +19,7 @@ import java.util.List;
 public class AlibabaPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("qwen-max")
-                        .name("Qwen Max")
-                        .provider("alibaba")
-                        .description("阿里通义千问旗舰模型")
-                        .capabilities(List.of("chat", "tools"))
-                        .inputUnitPrice(new BigDecimal("0.0024"))
-                        .outputUnitPrice(new BigDecimal("0.0096"))
-                        .currency("CNY")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("qwen-turbo")
-                        .name("Qwen Turbo")
-                        .provider("alibaba")
-                        .description("阿里通义千问轻量模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.0003"))
-                        .outputUnitPrice(new BigDecimal("0.0006"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

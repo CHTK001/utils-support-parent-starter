@@ -1,0 +1,22 @@
+[
+  {
+    "id": "claude-sonnet-4-20250514",
+    "name": "Claude Sonnet 4",
+    "provider": "claude",
+    "description": "Anthropic 高性能模型",
+    "capabilities": ["chat", "vision", "tools"],
+    "inputUnitPrice": 0.003,
+    "outputUnitPrice": 0.015,
+    "currency": "USD"
+  },
+  {
+    "id": "claude-3-5-haiku-20241022",
+    "name": "Claude 3.5 Haiku",
+    "provider": "claude",
+    "description": "Anthropic 轻量模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0008,
+    "outputUnitPrice": 0.004,
+    "currency": "USD"
+  }
+]

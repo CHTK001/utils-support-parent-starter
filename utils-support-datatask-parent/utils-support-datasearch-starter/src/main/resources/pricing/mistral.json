@@ -1,0 +1,22 @@
+[
+  {
+    "id": "mistral-large",
+    "name": "Mistral Large",
+    "provider": "mistral",
+    "description": "Mistral 旗舰模型",
+    "capabilities": ["chat", "tools"],
+    "inputUnitPrice": 0.002,
+    "outputUnitPrice": 0.006,
+    "currency": "USD"
+  },
+  {
+    "id": "mistral-small",
+    "name": "Mistral Small",
+    "provider": "mistral",
+    "description": "Mistral 轻量模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0002,
+    "outputUnitPrice": 0.0006,
+    "currency": "USD"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "gpt-4o",
+    "name": "Azure GPT-4o",
+    "provider": "microsoft",
+    "description": "Microsoft Azure OpenAI 多模态模型",
+    "capabilities": ["chat", "vision", "tools"],
+    "inputUnitPrice": 0.0025,
+    "outputUnitPrice": 0.01,
+    "currency": "USD"
+  },
+  {
+    "id": "gpt-4o-mini",
+    "name": "Azure GPT-4o Mini",
+    "provider": "microsoft",
+    "description": "Microsoft Azure OpenAI 轻量模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.00015,
+    "outputUnitPrice": 0.0006,
+    "currency": "USD"
+  }
+]

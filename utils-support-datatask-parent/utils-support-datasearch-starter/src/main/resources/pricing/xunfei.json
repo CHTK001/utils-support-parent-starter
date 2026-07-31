@@ -1,0 +1,22 @@
+[
+  {
+    "id": "spark-pro",
+    "name": "Spark Pro",
+    "provider": "xunfei",
+    "description": "讯飞星火旗舰模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0002,
+    "currency": "CNY"
+  },
+  {
+    "id": "spark-lite",
+    "name": "Spark Lite",
+    "provider": "xunfei",
+    "description": "讯飞星火轻量模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.00005,
+    "outputUnitPrice": 0.0001,
+    "currency": "CNY"
+  }
+]

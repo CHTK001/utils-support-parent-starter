@@ -1,0 +1,12 @@
+[
+  {
+    "id": "pangu-nlp",
+    "name": "盘古 NLP",
+    "provider": "huawei",
+    "description": "华为盘古自然语言模型",
+    "capabilities": ["chat", "tools"],
+    "inputUnitPrice": 0.0004,
+    "outputUnitPrice": 0.0012,
+    "currency": "CNY"
+  }
+]

@@ -19,18 +19,7 @@ import java.util.List;
 public class ZaiPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("zai-glm-4")
-                        .name("Z.AI GLM-4")
-                        .provider("zai")
-                        .description("Z.AI 平台 GLM-4 模型")
-                        .capabilities(List.of("chat", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.0001"))
-                        .outputUnitPrice(new BigDecimal("0.0003"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

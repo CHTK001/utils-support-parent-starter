@@ -1,0 +1,22 @@
+[
+  {
+    "id": "deepseek-chat",
+    "name": "DeepSeek V3",
+    "provider": "deepseek",
+    "description": "DeepSeek 通用对话模型",
+    "capabilities": ["chat", "tools"],
+    "inputUnitPrice": 0.00001,
+    "outputUnitPrice": 0.00002,
+    "currency": "CNY"
+  },
+  {
+    "id": "deepseek-reasoner",
+    "name": "DeepSeek R1",
+    "provider": "deepseek",
+    "description": "DeepSeek 推理模型",
+    "capabilities": ["chat", "reasoning"],
+    "inputUnitPrice": 0.00004,
+    "outputUnitPrice": 0.00016,
+    "currency": "CNY"
+  }
+]

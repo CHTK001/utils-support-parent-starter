@@ -178,6 +178,7 @@ if (dataSyncServer instanceof DefaultDataSyncServer) {
             ServerSetting setting = ServerSetting.defaults();
             setting.setPort(8700);
             apiServer = new JdkHttpServer(setting);
+            apiServer.setObjectContext(com.chua.common.support.objects.DefaultObjectContext.create());
         }
 
         return new DatalakeServer(

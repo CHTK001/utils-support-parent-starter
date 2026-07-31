@@ -19,28 +19,7 @@ import java.util.List;
 public class DoubaoPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("doubao-pro")
-                        .name("豆包 Pro")
-                        .provider("doubao")
-                        .description("字节跳动旗舰对话模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.0005"))
-                        .outputUnitPrice(new BigDecimal("0.0015"))
-                        .currency("CNY")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("doubao-lite")
-                        .name("豆包 Lite")
-                        .provider("doubao")
-                        .description("字节跳动轻量模型")
-                        .capabilities(List.of("chat"))
-                        .inputUnitPrice(new BigDecimal("0.0001"))
-                        .outputUnitPrice(new BigDecimal("0.0003"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

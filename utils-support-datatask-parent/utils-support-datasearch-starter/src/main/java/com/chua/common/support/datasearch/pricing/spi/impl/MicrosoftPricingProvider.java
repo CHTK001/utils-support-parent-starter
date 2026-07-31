@@ -19,28 +19,7 @@ import java.util.List;
 public class MicrosoftPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("gpt-4o")
-                        .name("Azure GPT-4o")
-                        .provider("microsoft")
-                        .description("Microsoft Azure OpenAI 多模态模型")
-                        .capabilities(List.of("chat", "vision", "tools"))
-                        .inputUnitPrice(new BigDecimal("0.0025"))
-                        .outputUnitPrice(new BigDecimal("0.01"))
-                        .currency("USD")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("gpt-4o-mini")
-                        .name("Azure GPT-4o Mini")
-                        .provider("microsoft")
-                        .description("Microsoft Azure OpenAI 轻量模型")
-                        .capabilities(List.of("chat", "vision"))
-                        .inputUnitPrice(new BigDecimal("0.00015"))
-                        .outputUnitPrice(new BigDecimal("0.0006"))
-                        .currency("USD")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

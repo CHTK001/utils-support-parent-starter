@@ -1,0 +1,22 @@
+[
+  {
+    "id": "hunyuan-pro",
+    "name": "混元 Pro",
+    "provider": "tencent",
+    "description": "腾讯旗舰大模型",
+    "capabilities": ["chat", "vision"],
+    "inputUnitPrice": 0.0006,
+    "outputUnitPrice": 0.0024,
+    "currency": "CNY"
+  },
+  {
+    "id": "hunyuan-lite",
+    "name": "混元 Lite",
+    "provider": "tencent",
+    "description": "腾讯轻量模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0001,
+    "outputUnitPrice": 0.0003,
+    "currency": "CNY"
+  }
+]

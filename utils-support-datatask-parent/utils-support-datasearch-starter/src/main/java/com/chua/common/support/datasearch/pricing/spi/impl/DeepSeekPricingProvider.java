@@ -19,28 +19,7 @@ import java.util.List;
 public class DeepSeekPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("deepseek-chat")
-                        .name("DeepSeek V3")
-                        .provider("deepseek")
-                        .description("DeepSeek 通用对话模型")
-                        .capabilities(List.of("chat", "tools"))
-                        .inputUnitPrice(new BigDecimal("0.00001"))
-                        .outputUnitPrice(new BigDecimal("0.00002"))
-                        .currency("CNY")
-                        .build(),
-                ModelDefinition.builder()
-                        .id("deepseek-reasoner")
-                        .name("DeepSeek R1")
-                        .provider("deepseek")
-                        .description("DeepSeek 推理模型")
-                        .capabilities(List.of("chat", "reasoning"))
-                        .inputUnitPrice(new BigDecimal("0.00004"))
-                        .outputUnitPrice(new BigDecimal("0.00016"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }

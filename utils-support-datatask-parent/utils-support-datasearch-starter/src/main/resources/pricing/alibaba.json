@@ -1,0 +1,22 @@
+[
+  {
+    "id": "qwen-max",
+    "name": "Qwen Max",
+    "provider": "alibaba",
+    "description": "阿里通义千问旗舰模型",
+    "capabilities": ["chat", "tools"],
+    "inputUnitPrice": 0.0024,
+    "outputUnitPrice": 0.0096,
+    "currency": "CNY"
+  },
+  {
+    "id": "qwen-turbo",
+    "name": "Qwen Turbo",
+    "provider": "alibaba",
+    "description": "阿里通义千问轻量模型",
+    "capabilities": ["chat"],
+    "inputUnitPrice": 0.0003,
+    "outputUnitPrice": 0.0006,
+    "currency": "CNY"
+  }
+]

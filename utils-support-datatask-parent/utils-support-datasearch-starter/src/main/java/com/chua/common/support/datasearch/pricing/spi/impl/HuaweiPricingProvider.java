@@ -19,18 +19,7 @@ import java.util.List;
 public class HuaweiPricingProvider extends AbstractPricingProvider {
 
     @Override
-    protected List<ModelDefinition> getBuiltinPricing() {
-        return List.of(
-                ModelDefinition.builder()
-                        .id("pangu-nlp")
-                        .name("盘古 NLP")
-                        .provider("huawei")
-                        .description("华为盘古自然语言模型")
-                        .capabilities(List.of("chat", "tools"))
-                        .inputUnitPrice(new BigDecimal("0.0004"))
-                        .outputUnitPrice(new BigDecimal("0.0012"))
-                        .currency("CNY")
-                        .build()
-        );
+    protected List<ModelDefinition> fetchOnlinePricing() {
+        return readClasspathPricing();
     }
 }
