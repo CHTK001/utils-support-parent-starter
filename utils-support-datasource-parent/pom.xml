@@ -29,8 +29,9 @@
         <module>utils-support-elasticsearch-starter</module>
         <module>utils-support-duckdb-starter</module>
         <module>utils-support-mysql-starter</module>
-        <module>utils-support-tablesaw-starter</module>
-        <module>utils-support-solr-starter</module>
-        <module>utils-support-debezium-starter</module>
+    <module>utils-support-tablesaw-starter</module>
+    <module>utils-support-solr-starter</module>
+    <module>utils-support-debezium-starter</module>
+    <module>utils-support-nitrite-starter</module>
     </modules>
 </project>
