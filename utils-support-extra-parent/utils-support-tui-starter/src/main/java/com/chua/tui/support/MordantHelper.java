@@ -1,11 +1,15 @@
 package com.chua.tui.support;
 
 import com.github.ajalt.mordant.rendering.BorderType;
+import com.github.ajalt.mordant.rendering.OverflowWrap;
+import com.github.ajalt.mordant.rendering.TextAlign;
 import com.github.ajalt.mordant.rendering.TextColors;
 import com.github.ajalt.mordant.rendering.TextStyles;
 import com.github.ajalt.mordant.rendering.Theme;
+import com.github.ajalt.mordant.rendering.Whitespace;
 import com.github.ajalt.mordant.terminal.Terminal;
 import com.github.ajalt.mordant.terminal.TerminalInterface;
+import com.github.ajalt.mordant.widgets.Padding;
 import com.github.ajalt.mordant.widgets.Panel;
 
 /**
@@ -73,7 +77,9 @@ public class MordantHelper {
      * @param terminal 终端实例
      */
     public static void clearScreen(Terminal terminal) {
-        terminal.rawPrint("\u001b[H\u001b[2J", false);
+        if (terminal != null) {
+            terminal.rawPrint("\u001b[H\u001b[2J", false);
+        }
     }
 
     /**
@@ -83,7 +89,9 @@ public class MordantHelper {
      * @param text     文本
      */
     public static void println(Terminal terminal, String text) {
-        terminal.println(text, Whitespace.NORMAL, TextAlign.NONE, OverflowWrap.NORMAL, null, false);
+        if (terminal != null) {
+            terminal.println(text, Whitespace.NORMAL, TextAlign.NONE, OverflowWrap.NORMAL, null, false);
+        }
     }
 
     // ======================== 颜色渲染 ========================
@@ -159,6 +167,9 @@ public class MordantHelper {
     public static String panel(String content, String title, String borderStyle) {
         BorderType borderType = resolveBorderType(borderStyle);
         Panel panel = new Panel(content, title, null, true, new Padding(0), borderType, TextAlign.NONE, TextAlign.NONE, null, null);
+        if (TERMINAL == null) {
+            return content;
+        }
         return TERMINAL.render(panel);
     }
 
