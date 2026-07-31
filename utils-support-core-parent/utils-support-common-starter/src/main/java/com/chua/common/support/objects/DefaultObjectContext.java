@@ -396,7 +396,7 @@ public class DefaultObjectContext implements ObjectContext {
 
     @Override
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
-        if (annotationType == null || closed) {
+        if (annotationType == null || closed || registry == null) {
             return Collections.emptyMap();
         }
         Map<String, Object> result = new LinkedHashMap<>();
