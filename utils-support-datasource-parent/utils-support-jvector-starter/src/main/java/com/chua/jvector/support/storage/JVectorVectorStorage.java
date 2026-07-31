@@ -312,6 +312,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final List<float[]> rawVectors = new ArrayList<>();
         /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
+        /** 向量持久化文件路径 */
+        private final Path vectorDataPath;
+        /** 向量是否被修改且未持久化 */
+        private boolean vectorsDirty;
 
         DiskStrategy(int dimension, VectorSimilarityFunction similarity,
                      JVectorStorageProperties properties) {
@@ -319,6 +323,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             this.similarity = similarity;
             this.properties = properties;
             this.indexPath = Paths.get(properties.getIndexPath());
+            this.vectorDataPath = Paths.get(properties.getIndexPath() + ".vec");
+            this.vectorsDirty = false;
             tryLoadExistingIndex();
         }
 
@@ -326,12 +332,68 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (!Files.exists(indexPath)) {
                 return;
             }
+            loadVectors();
             try {
                 diskGraph = OnDiskGraphIndex.load(new SimpleMappedReader.Supplier(indexPath));
             } catch (Exception e) {
                 System.err.printf("[WARN] JVector 磁盘索引加载失败，将在下次搜索时重建: path=%s, err=%s%n",
                         indexPath, e.getMessage());
                 diskGraph = null;
+            }
+        }
+
+        private void loadVectors() {
+            if (!Files.exists(vectorDataPath)) {
+                return;
+            }
+            try (DataInputStream dis = new DataInputStream(
+                    new BufferedInputStream(Files.newInputStream(vectorDataPath)))) {
+                int count = dis.readInt();
+                rawVectors.clear();
+                vectors.clear();
+                resetOrdinals();
+                for (int i = 0; i < count; i++) {
+                    String id = dis.readUTF();
+                    int len = dis.readInt();
+                    float[] v = new float[len];
+                    for (int j = 0; j < len; j++) {
+                        v[j] = dis.readFloat();
+                    }
+                    rawVectors.add(v);
+                    vectors.add(VTS.createFloatVector(v));
+                    idToOrd.put(id, i);
+                    ordToId.put(i, id);
+                }
+                vectorsDirty = false;
+            } catch (Exception e) {
+                System.err.printf("[WARN] JVector 磁盘向量数据加载失败: path=%s, err=%s%n",
+                        vectorDataPath, e.getMessage());
+            }
+        }
+
+        private void saveVectors() {
+            try {
+                Files.createDirectories(vectorDataPath.getParent());
+                try (DataOutputStream dos = new DataOutputStream(
+                        new BufferedOutputStream(Files.newOutputStream(vectorDataPath)))) {
+                    dos.writeInt(rawVectors.size());
+                    for (int i = 0; i < rawVectors.size(); i++) {
+                        String id = ordToId.get(i);
+                        if (id == null) {
+                            id = "";
+                        }
+                        dos.writeUTF(id);
+                        float[] v = rawVectors.get(i);
+                        dos.writeInt(v.length);
+                        for (float f : v) {
+                            dos.writeFloat(f);
+                        }
+                    }
+                }
+                vectorsDirty = false;
+            } catch (Exception e) {
+                System.err.printf("[WARN] JVector 磁盘向量数据保存失败: path=%s, err=%s%n",
+                        vectorDataPath, e.getMessage());
             }
         }
 
@@ -352,11 +414,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建图
             diskGraph = null;
+            vectorsDirty = true;
             return true;
         }
 
         @Override
         public synchronized List<Vector> doSearch(float[] query, int topK) {
+            if (diskGraph != null && vectors.isEmpty()) {
+                loadVectors();
+            }
             if (vectors.isEmpty()) return List.of();
             ensureGraphBuilt();
             if (diskGraph == null) return List.of();
@@ -402,6 +468,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 unregister(id, ord);
             }
             diskGraph = null;
+            vectorsDirty = true;
             return true;
         }
 
@@ -412,6 +479,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             diskGraph = null;
+            vectorsDirty = true;
             return true;
         }
 
@@ -422,10 +490,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
             resetOrdinals();
+            vectorsDirty = false;
             if (diskGraph != null) {
                 try { diskGraph.close(); } catch (Exception ignored) {}
                 diskGraph = null;
             }
+            try { Files.deleteIfExists(vectorDataPath); } catch (IOException ignored) {}
         }
 
         @Override
@@ -434,9 +504,20 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 try { diskGraph.close(); } catch (Exception ignored) {}
                 diskGraph = null;
             }
+            if (vectorsDirty) {
+                saveVectors();
+            }
         }
 
-        private void ensureGraphBuilt() {
+        @Override
+        public synchronized void rebuild() {
+            if (diskGraph != null) {
+                try { diskGraph.close(); } catch (Exception ignored) {}
+                diskGraph = null;
+            }
+            saveVectors();
+            ensureGraphBuilt();
+        }
             if (diskGraph != null) return;
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
