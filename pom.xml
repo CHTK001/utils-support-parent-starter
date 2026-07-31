@@ -130,7 +130,7 @@
         <leveldb.version>0.12</leveldb.version>
         <ucanaccess.version>5.0.1</ucanaccess.version>
         <milvus.sdk.java.version>2.6.12</milvus.sdk.java.version>
-        <jvector.version>3.0.6</jvector.version>
+        <jvector.version>4.0.0-rc.9</jvector.version>
         <influxdb.v1.version>2.25</influxdb.v1.version>
         <influxdb.v2.version>7.5.0</influxdb.v2.version>
         <influxdb.v3.version>1.7.0</influxdb.v3.version>
@@ -889,7 +889,7 @@
             <dependency>
                 <groupId>io.github.jbellis</groupId>
                 <artifactId>jvector</artifactId>
-                <version>4.0.0-beta.6</version>
+                <version>4.0.0-rc.9</version>
             </dependency>
             <dependency>
                 <groupId>org.influxdb</groupId>
