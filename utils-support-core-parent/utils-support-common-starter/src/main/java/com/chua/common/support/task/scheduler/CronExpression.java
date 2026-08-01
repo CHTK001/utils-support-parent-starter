@@ -242,6 +242,11 @@ public class CronExpression {
             rangeMin = Integer.parseInt(part);
             rangeMax = Integer.parseInt(part);
         }
+        // 步进场景（如 0/5、5/15）：若未显式指定范围上限，则将上限扩展到字段最大值
+        // 否则 0/5 只会匹配 0 一个值，而非 0,5,10,...,55
+        if (slash != -1 && rangeMax == rangeMin) {
+            rangeMax = max;
+        }
         for (int i = rangeMin; i <= rangeMax; i += step) {
             bits.set(i);
         }
