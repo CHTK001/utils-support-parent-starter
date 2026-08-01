@@ -1,7 +1,10 @@
 package com.chua.common.support.ai.chat.usage;
 
 import com.chua.common.support.ai.AiUsage;
+import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.ai.chat.pricing.ModelPricingProvider;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.Data;
 
@@ -147,9 +150,42 @@ public class AiUsageRecord {
         record.durationMillis = usage.getDurationMillis();
         record.firstTokenLatencyMillis = usage.getFirstTokenLatencyMillis();
         record.finishReason = usage.getFinishReason();
-        // 优先使用 API 调用开始时间，回退到当前时间
         record.createdAt = usage.getStartTime() != null ? usage.getStartTime() : System.currentTimeMillis();
+
+        // 如果缺失单价，尝试从 PricingProvider 补齐
+        if (record.provider != null && record.model != null) {
+            enrichPricing(record);
+        }
+
         return record;
+    }
+
+    private static void enrichPricing(AiUsageRecord record) {
+        try {
+            ModelPricingProvider provider = ServiceProvider.of(ModelPricingProvider.class)
+                    .getExtension(record.provider);
+            if (provider == null) return;
+            ModelDefinition pricing = provider.getModelPricing(record.provider, record.model);
+            if (pricing == null) return;
+            if (record.inputCost == null && pricing.getInputUnitPrice() != null && record.inputTokens != null) {
+                record.inputCost = pricing.getInputUnitPrice()
+                        .multiply(BigDecimal.valueOf(record.inputTokens))
+                        .divide(BigDecimal.valueOf(1_000_000), 10, BigDecimal.ROUND_HALF_UP);
+            }
+            if (record.outputCost == null && pricing.getOutputUnitPrice() != null && record.outputTokens != null) {
+                record.outputCost = pricing.getOutputUnitPrice()
+                        .multiply(BigDecimal.valueOf(record.outputTokens))
+                        .divide(BigDecimal.valueOf(1_000_000), 10, BigDecimal.ROUND_HALF_UP);
+            }
+            if (record.currency == null && pricing.getCurrency() != null) {
+                record.currency = pricing.getCurrency();
+            }
+            if (record.totalCost == null && record.inputCost != null && record.outputCost != null) {
+                record.totalCost = record.inputCost.add(record.outputCost);
+            }
+        } catch (Exception e) {
+            // 忽略，不影响主流程
+        }
     }
 
     /** 转换为 {@link AiUsage} */
