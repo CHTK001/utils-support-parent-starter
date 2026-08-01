@@ -294,7 +294,7 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             ByteBuffer dst = (ByteBuffer) frame.image[0];
             dst.clear();
             dst.put(bgrData);
-            dst.flip();
+            dst.rewind();
             frame.imageWidth = width;
             frame.imageHeight = height;
             frame.imageStride = width * 3;
