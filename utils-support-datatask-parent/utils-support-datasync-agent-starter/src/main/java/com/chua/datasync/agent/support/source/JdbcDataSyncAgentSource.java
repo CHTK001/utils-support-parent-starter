@@ -70,44 +70,42 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
 
     @Override
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
-        return Flux.defer(() -> {
-            Object offsetObj = null;
-            if (params != null) {
-                offsetObj = params.get("offset");
-            }
-            String sqlWithOffset = buildSqlWithOffset(offsetObj);
+        Object offsetObj = null;
+        if (params != null) {
+            offsetObj = params.get("offset");
+        }
+        String sqlWithOffset = buildSqlWithOffset(offsetObj);
 
-            log.info("[JdbcDataSyncAgentSource] 开始读取数据, sourceId={}, sql={}", sourceId, sqlWithOffset);
+        log.info("[JdbcDataSyncAgentSource] 开始读取数据, sourceId={}, sql={}", sourceId, sqlWithOffset);
 
+        // Connection/PreparedStatement 需在订阅时创建，避免 Flux 惰性执行时语句已被关闭
+        return Flux.create(sink -> {
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sqlWithOffset,
                          ResultSet.TYPE_FORWARD_ONLY,
                          ResultSet.CONCUR_READ_ONLY)) {
                 ps.setFetchSize(500);
                 ps.setFetchDirection(ResultSet.FETCH_FORWARD);
-
-                return Flux.<Map<String, Object>>create(sink -> {
-                    try (ResultSet rs = ps.executeQuery()) {
-                        int count = 0;
-                        int colCount = columnNames.length;
-                        while (rs.next()) {
-                            Map<String, Object> row = new HashMap<>();
-                            for (int i = 0; i < colCount; i++) {
-                                row.put(columnNames[i], rs.getObject(columnNames[i]));
-                            }
-                            sink.next(row);
-                            count++;
+                try (ResultSet rs = ps.executeQuery()) {
+                    int count = 0;
+                    int colCount = columnNames.length;
+                    while (rs.next()) {
+                        Map<String, Object> row = new HashMap<>();
+                        for (int i = 0; i < colCount; i++) {
+                            row.put(columnNames[i], rs.getObject(columnNames[i]));
                         }
-                        sink.complete();
-                        log.info("[JdbcDataSyncAgentSource] 读取完成, sourceId={}, count={}", sourceId, count);
-                    } catch (Exception e) {
-                        sink.error(e);
-                        log.error("[JdbcDataSyncAgentSource] 读取异常, sourceId={}", sourceId, e);
+                        sink.next(row);
+                        count++;
                     }
-                });
+                    sink.complete();
+                    log.info("[JdbcDataSyncAgentSource] 读取完成, sourceId={}, count={}", sourceId, count);
+                } catch (Exception e) {
+                    sink.error(e);
+                    log.error("[JdbcDataSyncAgentSource] 读取异常, sourceId={}", sourceId, e);
+                }
             } catch (SQLException e) {
+                sink.error(e);
                 log.error("[JdbcDataSyncAgentSource] 连接数据库失败, sourceId={}", sourceId, e);
-                return Flux.error(e);
             }
         });
     }
