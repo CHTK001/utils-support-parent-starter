@@ -42,6 +42,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     private final MilvusClientV2 client;
     private final String collectionName;
     private final IndexParam.MetricType algorithmName;
+    private final String token;
     private boolean released;
 
     /**
@@ -51,18 +52,22 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
      *
      * @param dimension  向量维度
      * @param algorithm  比较算法
-     * @param host       Milvus 服务地址
-     * @param port       Milvus 服务端口
+     * @param host       Milvus 服务地址（支持完整 URI，如 https://...）
+     * @param port       Milvus 服务端口（仅当 host 不含协议时使用）
      * @param collection 集合名称
+     * @param token      认证令牌（可选）
      */
     public MilvusVectorStorage(int dimension, VectorCompareAlgorithm algorithm,
-                               String host, int port, String collection) {
+                               String host, int port, String collection, String token) {
         super(dimension, algorithm);
         this.collectionName = collection != null ? collection : "vector_store";
         this.algorithmName = toMilvusMetricType(algorithm);
+        this.token = token;
 
+        String uri = host.contains("://") ? host : "http://" + host + ":" + port;
         ConnectConfig config = ConnectConfig.builder()
-                .uri("http://" + host + ":" + port)
+                .uri(uri)
+                .token(token)
                 .build();
         this.client = new MilvusClientV2(config);
 
