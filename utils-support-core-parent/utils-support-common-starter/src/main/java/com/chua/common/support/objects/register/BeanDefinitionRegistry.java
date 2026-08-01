@@ -349,6 +349,160 @@ public class BeanDefinitionRegistry {
     }
 
     /**
+     * 按名称与类型从所有注册器中查找 Bean。
+     * <p>遍历所有 register 找到指定名称的 BeanDefinition，并校验其类型是否可赋值给目标类型，
+     * 兼容 Spring {@code getBean(name, requiredType)} 的语义。</p>
+     *
+     * @param name Bean 名称
+     * @param type 目标类型
+     * @param <T>  泛型类型
+     * @return 找到的 Bean 实例，未找到则返回 null
+     */
+    public <T> T getBean(String name, Class<T> type) {
+        if (name == null || type == null) {
+            return null;
+        }
+        BeanDefinition definition = getBeanDefinition(name);
+        if (definition == null) {
+            return null;
+        }
+        try {
+            Object bean = definition.getBean();
+            if (bean == null) {
+                return null;
+            }
+            if (type.isInstance(bean)) {
+                return type.cast(bean);
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * 按类型查找首个可用的 Bean。
+     *
+     * @param type 目标类型
+     * @param <T>  泛型类型
+     * @return 首个匹配的 Bean 实例，未找到则返回 null
+     */
+    public <T> T getBeanOfType(Class<T> type) {
+        if (type == null) {
+            return null;
+        }
+        for (BeanDefinition def : getBeanDefinitionOfType(type)) {
+            if (def == null) {
+                continue;
+            }
+            try {
+                Object bean = def.getBean();
+                if (bean != null && type.isInstance(bean)) {
+                    return type.cast(bean);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 按类型查找所有 Bean，返回 name -> bean 映射。
+     *
+     * @param type 目标类型
+     * @param <T>  泛型类型
+     * @return name 到 bean 的映射
+     */
+    public <T> Map<String, T> getBeansOfType(Class<T> type) {
+        if (type == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, T> result = new LinkedHashMap<>();
+        for (BeanDefinition def : getBeanDefinitionOfType(type)) {
+            if (def == null) {
+                continue;
+            }
+            try {
+                Object bean = def.getBean();
+                if (bean != null && type.isInstance(bean)) {
+                    result.put(def.getName(), type.cast(bean));
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 判断指定名称的 Bean 是否为单例作用域。
+     * <p>本注册中心默认视所有 Bean 为单例，返回 {@link #containsBean(String)} 的结果。</p>
+     *
+     * @param name Bean 名称
+     * @return 是否存在且为单例
+     */
+    public boolean isSingleton(String name) {
+        return containsBean(name);
+    }
+
+    /**
+     * 判断注册中心中是否包含指定类型的 Bean。
+     *
+     * @param type 目标类型
+     * @param <T>  泛型类型
+     * @return 是否存在至少一个匹配的 Bean
+     */
+    public <T> boolean hasBeanOfType(Class<T> type) {
+        if (type == null) {
+            return false;
+        }
+        for (BeanDefinition def : getBeanDefinitionOfType(type)) {
+            if (def != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取所有匹配类型的 Bean 名称集合。
+     *
+     * @param type 目标类型
+     * @return Bean 名称集合
+     */
+    public Collection<String> getBeanNames(Class<?> type) {
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        Set<String> names = new LinkedHashSet<>();
+        for (BeanDefinition def : getBeanDefinitionOfType(type)) {
+            if (def != null && def.getName() != null) {
+                names.add(def.getName());
+            }
+        }
+        return names;
+    }
+
+    /**
+     * 获取所有方法上标注了指定注解的 Bean 映射（聚合所有 register）。
+     *
+     * @param annotationType 注解类型
+     * @return Bean 名称到 BeanDefinition 的映射
+     */
+    public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
+        Map<String, BeanDefinition> result = new LinkedHashMap<>();
+        for (BeanDefinitionRegister reg : registers) {
+            try {
+                Map<String, BeanDefinition> sub = reg.getBeansWithMethodAnnotation(annotationType);
+                if (sub != null) {
+                    result.putAll(sub);
+                }
+            } catch (Exception e) {
+                log.trace("按方法注解获取 Bean 失败: {}", reg.getName(), e);
+            }
+        }
+        return result;
+    }
+
+    /**
      * 获取所有标注了指定注解的 Bean（通过注解类名）。
      *
      * @param annotationTypeName 注解的完整类名

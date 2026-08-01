@@ -14,6 +14,12 @@ import java.util.Iterator;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+/**
+ * PNG IDAT chunk（图像数据块）写入流，写入时同步执行 zlib deflate 压缩。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 final class PNGIDATOutputStream extends PNGImageOutputStream {
 
     private static final byte[] chunkType = {

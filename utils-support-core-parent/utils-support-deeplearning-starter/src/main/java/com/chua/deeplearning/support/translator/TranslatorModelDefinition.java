@@ -45,7 +45,7 @@ public class TranslatorModelDefinition {
      * @return 名称
      */
     public String getName() {
-        return modelDefinition != null ? modelDefinition.name() : null;
+        return modelDefinition != null ? modelDefinition.getName() : null;
     }
 
     /**
@@ -54,7 +54,7 @@ public class TranslatorModelDefinition {
      * @return 提供方
      */
     public String getProvider() {
-        return modelDefinition != null ? modelDefinition.provider() : null;
+        return modelDefinition != null ? modelDefinition.getProvider() : null;
     }
 
     /**

@@ -9,19 +9,47 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 
+/**
+ * NeuTts-2E 文本转语音翻译器，基于 llama.cpp 绑定。
+ * <p>
+ * 输入：字符串；输出：文本表示的字节（占位实现，待原生 TTS 解码接入）。模型首次调用时按需加载并缓存。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Slf4j
 public class NeuTts2eTranslator implements ITranslator<String, byte[]>, AutoCloseable {
 
+    /**
+     * 默认模型 id
+     */
     private static final String DEFAULT_MODEL_ID = "neutts-2e";
 
+    /**
+     * llama.cpp 模型实例，首次 translate 时懒加载
+     */
     private volatile LlamaModel model;
+
+    /**
+     * 模型是否已初始化
+     */
     private volatile boolean initialized;
 
+    /**
+     * @return 模型名称 {@code neutts-2e}
+     */
     @Override
     public String name() {
         return "neutts-2e";
     }
 
+    /**
+     * TTS 生成文本的 UTF-8 字节（占位实现，待原生 TTS 解码接入）。
+     *
+     * @param input 输入文本
+     * @return 字节表示
+     */
     @Override
     public byte[] translate(String input) {
         if (!initialized) {
@@ -50,6 +78,9 @@ public class NeuTts2eTranslator implements ITranslator<String, byte[]>, AutoClos
         }
     }
 
+    /**
+     * 关闭模型并重置初始化标志。
+     */
     @Override
     public void close() {
         if (model != null) {

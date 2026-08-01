@@ -10,6 +10,7 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -278,6 +279,24 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             return encodeInternal(frame);
         } catch (Throwable e) {
             log.warn("[H264VideoEncoder] encode(Frame) 失败: {}", e.getMessage());
+            return new byte[0];
+        }
+    }
+
+    @Override
+    public synchronized byte[] encode(ByteBuffer bgrData, int width, int height) {
+        if (!started || bgrData == null || recorder == null) {
+            ensureInitialized(width, height, 30);
+        }
+        if (!started || recorder == null) {
+            return new byte[0];
+        }
+        try {
+            // 零拷贝：ByteBuffer → Frame（不复制数据）
+            Frame frame = new Frame(width, height, Frame.DEPTH_UBYTE, 3, bgrData);
+            return encodeInternal(frame);
+        } catch (Throwable e) {
+            log.warn("[H264VideoEncoder] encode(ByteBuffer) 失败: {}", e.getMessage());
             return new byte[0];
         }
     }

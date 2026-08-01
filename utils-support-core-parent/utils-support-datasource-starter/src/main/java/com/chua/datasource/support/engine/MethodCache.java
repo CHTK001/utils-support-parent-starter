@@ -6,6 +6,16 @@ import java.lang.invoke.MethodType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * MethodHandle 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
+ * <p>
+ * 键为 {@code (Class<?>)} + 字段名，值为 {@link MethodHandle}。
+ * {@link #getValue(Object, String)} 与 {@link #setValue(Object, String, Object)} 在方法缺失或调用异常时静默返回 {@code null}，不会抛出。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 final class MethodCache {
 
     private static final Map<Class<?>, Map<String, MethodHandle>> GETTERS = new ConcurrentHashMap<>();

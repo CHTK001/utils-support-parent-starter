@@ -1,10 +1,10 @@
 package com.chua.webview.jcef.support;
 
-import com.chua.common.support.core.spi.condition.ConditionalOnClass;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.webview.support.webview.WebViewWindow;
-import com.chua.network.support.network.protocol.ProtocolType;
-import com.chua.network.support.network.protocol.server.ProtocolServer;
+import com.chua.webview.jcef.support.internal.IpcProtocolServer;
+import com.chua.webview.jcef.support.internal.ProtocolServer;
+import com.chua.webview.jcef.support.internal.ProtocolType;
 import me.friwi.jcefmaven.CefAppBuilder;
 import org.cef.CefApp;
 import org.cef.CefClient;
@@ -45,7 +45,7 @@ import java.util.Map;
  * @author CH
  * @since 2025
  */
-@ConditionalOnClass("org.cef.CefApp")
+@SuppressWarnings("unused")
 public class JcefWebviewWindow implements WebViewWindow {
 
     private static final Logger log = LoggerFactory.getLogger(JcefWebviewWindow.class);

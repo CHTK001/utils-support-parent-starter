@@ -20,6 +20,7 @@ import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -179,7 +180,7 @@ public class SpringBootObjectContext implements ObjectContext {
 
         // 5. SPI 作为最后兜底
         try {
-            return ServiceProvider.of(type).getService();
+            return ServiceProvider.of(type).getDefault();
         } catch (Exception ignored) {
         }
 
@@ -213,7 +214,7 @@ public class SpringBootObjectContext implements ObjectContext {
 
         // 4. SPI
         try {
-            return ServiceProvider.of(type).getService();
+            return ServiceProvider.of(type).getDefault();
         } catch (Exception ignored) {
         }
 
@@ -536,7 +537,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             // 检查 classpath 是否有 OSGI 实现
             Class.forName("com.chua.osgi.support.FelixOsgiLauncher");
-            OsgiLauncher launcher = ServiceProvider.of(OsgiLauncher.class).getService();
+            OsgiLauncher launcher = ServiceProvider.of(OsgiLauncher.class).getDefault();
             if (launcher != null) {
                 Map<String, String> config = new HashMap<>();
                 config.put("org.osgi.framework.storage", ".workbuddy/osgi-cache");
@@ -691,18 +692,44 @@ public class SpringBootObjectContext implements ObjectContext {
         }
 
         @Override
+        public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+            T value = springEnv.getProperty(key, targetType);
+            return value != null ? value : defaultValue;
+        }
+
+        @Override
+        public void setProperty(String key, Object value) {
+            // Spring Environment 不支持直接 setProperty，留空
+        }
+
+        @Override
         public boolean containsProperty(String key) {
             return springEnv.containsProperty(key);
         }
 
         @Override
-        public String[] getActiveProfiles() {
-            return springEnv.getActiveProfiles();
+        public void addChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
+            // Spring Environment 适配器暂不实现监听器
         }
 
         @Override
-        public String[] getDefaultProfiles() {
-            return springEnv.getDefaultProfiles();
+        public void removeChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
+            // Spring Environment 适配器暂不实现监听器
+        }
+
+        @Override
+        public void addConfigSource(com.chua.common.support.config.source.PropertySource propertySource) {
+            // Spring Environment 适配器暂不实现 ConfigSource 动态添加
+        }
+
+        @Override
+        public void removeConfigSource(com.chua.common.support.config.source.PropertySource propertySource) {
+            // Spring Environment 适配器暂不实现 ConfigSource 动态移除
+        }
+
+        @Override
+        public void refresh() {
+            // Spring Environment 不需要主动刷新配置源
         }
     }
 }

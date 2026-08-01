@@ -15,6 +15,14 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
+ * 通用加解密序列化器，配合 Jackson 与 Crypto 注解使用。
+ * <p>
+ * 序列化时若 origin 非空且 codec 与 key 均已配置，则将原文按 SM4 加密为 HEX 字符串输出；
+ * 否则按原文输出，不做任何处理。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class CryptoSerializer extends JsonSerializer<String> implements ContextualSerializer {
 

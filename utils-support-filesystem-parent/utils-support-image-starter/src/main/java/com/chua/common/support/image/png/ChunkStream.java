@@ -14,6 +14,13 @@ import java.util.Iterator;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+/**
+ * PNG Chunk 写入流：在写入数据时同步累积 CRC，结束时回写 length 与 CRC 字段。
+ * <p>仅作为 ImageOutputStream 的装饰使用，读操作被禁用。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 final class ChunkStream extends ImageOutputStreamImpl {
 
     private final ImageOutputStream stream;

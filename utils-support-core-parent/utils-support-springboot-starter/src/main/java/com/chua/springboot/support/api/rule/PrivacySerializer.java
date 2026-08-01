@@ -13,7 +13,15 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * 隐私序列化器
+ * 隐私字段序列化器，配合 Jackson 与 ApiFieldPrivacyEncrypt 注解使用。
+ * <p>
+ * 根据 {@link PrivacyTypeEnum} 选择对应的脱敏策略（姓名、身份证、手机号、邮箱、地址、银行卡、车牌等）；
+ * CUSTOMER 类型支持自定义前后保留位数与打码字符。
+ * 原文为空或未配置脱敏类型时按原文输出。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class PrivacySerializer extends JsonSerializer<String> implements ContextualSerializer {
 

@@ -3,9 +3,9 @@ package com.chua.common.support.lang.date.enums;
 import lombok.Getter;
 
 /**
- * 时区短ID枚举，例如: "Asia/Shanghai", "亚洲/上海"
+ * 时区短ID枚举，例如: "Asia/Shanghai", "亚洲/上海"。
  *
- * @author xkzhangsan
+ * @author CH
  * @see java.time.ZoneId#SHORT_IDS
  */
 @Getter

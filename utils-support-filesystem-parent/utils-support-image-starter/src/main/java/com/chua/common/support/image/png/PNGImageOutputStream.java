@@ -14,6 +14,13 @@ import java.util.Iterator;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+/**
+ * PNG 图像数据流写入抽象基类，使用 {@link Deflater} 实时压缩并在 chunk 边界收尾。
+ * <p>子类需实现 {@link #startChunk()}，决定写入哪种 chunk 类型（IDAT / fdAT）。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
     protected ImageOutputStream stream;

@@ -9,9 +9,10 @@
     <artifactId>utils-support-syslog-starter</artifactId>
     <name>Utils Support Syslog Starter - 系统日志模块</name>
     <description>
-        系统日志模块，提供跨平台（Windows/Linux/macOS）系统日志检索功能。
+        系统日志模块，提供跨平台（Windows/Linux/macOS）系统日志检索与实时监听功能。
         主要功能：
         - 通配符搜索：支持 glob 模式匹配系统日志条目
+        - 实时监听：PolledDirectory 轮询实时推送新增日志（替代 tail -f）
         - Windows：通过 Java 25 FFM API 直调 advapi32 Event Log API
         - Linux：通过 FFM 调用 libsystemd journald API，回退 /var/log 文件读取
         - macOS：通过 ProcessBuilder 调用 log show 命令，回退 /var/log 文件读取

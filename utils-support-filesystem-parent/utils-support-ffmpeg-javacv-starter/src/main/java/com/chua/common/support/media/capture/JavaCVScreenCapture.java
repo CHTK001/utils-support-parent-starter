@@ -3,12 +3,10 @@ package com.chua.common.support.media.capture;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.media.codec.ScreenCature;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 /**
@@ -141,50 +139,32 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
-    public java.awt.image.BufferedImage grabFrame() {
+    public ByteBuffer grabFrame() {
         if (!initialized || grabber == null) {
             return null;
         }
         try {
             Frame frame = grabber.grabImage();
-            if (frame == null || frame.image == null) {
+            if (frame == null || frame.image == null || frame.image.length == 0) {
                 return null;
             }
-            return frameToBufferedImage(frame);
+            // 零拷贝：frame.image[0] 已经是 DirectByteBuffer（BGR24 格式）
+            if (frame.image[0] instanceof ByteBuffer buf) {
+                return buf;
+            }
+            // 回退：BufferedImage → ByteBuffer
+            if (frame.image[0] instanceof java.awt.image.BufferedImage bi) {
+                java.awt.image.DataBufferByte db = (java.awt.image.DataBufferByte) bi.getRaster().getDataBuffer();
+                ByteBuffer buf = ByteBuffer.allocateDirect(db.getSize());
+                buf.put(db.getData());
+                buf.flip();
+                return buf;
+            }
+            return null;
         } catch (Exception e) {
             log.warn("[JavaCVScreenCapture] 采集失败: {}", e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * 将 FFmpeg 帧转换为 BufferedImage。
-     *
-     * @param frame FFmpeg 帧
-     * @return BufferedImage 实例，转换失败返回 null
-     */
-    private static java.awt.image.BufferedImage frameToBufferedImage(Frame frame) {
-        if (frame.image == null || frame.image.length == 0) {
-            return null;
-        }
-        Object image = frame.image[0];
-        if (image instanceof java.awt.image.BufferedImage bi) {
-            return bi;
-        }
-        if (image instanceof ByteBuffer buffer) {
-            int w = frame.imageWidth;
-            int h = frame.imageHeight;
-            if (w <= 0 || h <= 0) {
-                return null;
-            }
-            BufferedImage bgr = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
-            buffer.rewind();
-            byte[] pixels = new byte[buffer.remaining()];
-            buffer.get(pixels);
-            bgr.getRaster().setDataElements(0, 0, w, h, pixels);
-            return bgr;
-        }
-        return null;
     }
 
     @Override

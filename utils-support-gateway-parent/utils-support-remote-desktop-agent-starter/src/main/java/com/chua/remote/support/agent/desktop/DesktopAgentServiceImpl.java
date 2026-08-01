@@ -6,7 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.remote.support.agent.BaseRemoteAgent;
 import lombok.extern.slf4j.Slf4j;
 
-import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -198,20 +198,22 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                 continue;
             }
             try {
-                BufferedImage frame = capture.grabFrame();
-                if (frame == null) {
+                ByteBuffer buf = capture.grabFrame();
+                if (buf == null) {
                     Thread.sleep(1);
                     continue;
                 }
+                int w = capture.getWidth();
+                int h = capture.getHeight();
                 for (DesktopSession session : sessions.values()) {
                     if (session.isRunning()) {
-                        session.feedFrame(frame);
+                        buf.rewind();
+                        session.feedFrame(buf, w, h);
                     }
                 }
             } catch (Exception e) {
                 log.warn("[DesktopAgent] 采集异常: {}", e.getMessage());
             }
-            // 限制帧率
             try { Thread.sleep(33); } catch (InterruptedException e) { break; }
         }
     }

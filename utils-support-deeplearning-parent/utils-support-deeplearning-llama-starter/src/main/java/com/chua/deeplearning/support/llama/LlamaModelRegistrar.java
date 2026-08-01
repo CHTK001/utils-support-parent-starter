@@ -13,6 +13,9 @@ import com.chua.deeplearning.support.llama.translator.OtzariaEmbeddingTranslator
 /**
  * Llama 模型集中注册器。
  * <p>通过 SPI 被主框架加载；注册模型元数据（路径/输入输出类型）供 ModelRegistry 路径解析使用。</p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class LlamaModelRegistrar implements ModelRegistrar {
 
@@ -20,11 +23,17 @@ public class LlamaModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
+    /**
+     * 注册全部内置 Llama 模型元数据到 {@link ModelRegistry}，已注册则跳过。
+     */
     private static void registerAll() {
         // minicpm5: text generation
         reg("minicpm5", MiniCpm5Translator.class.getName(),
@@ -52,6 +61,16 @@ public class LlamaModelRegistrar implements ModelRegistrar {
                 "../llama/bitnet-embeddings-0.6b-bf16-i2_s.gguf");
     }
 
+    /**
+     * 注册单条模型元数据，已存在则跳过。
+     *
+     * @param modelId            模型 id
+     * @param translatorClassName 翻译器类名
+     * @param inputType          输入类型
+     * @param outputType         输出类型
+     * @param capability         能力类型（ITranslator / FeatureExtractor / Object）
+     * @param relativePath       GGUF 模型相对路径
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {

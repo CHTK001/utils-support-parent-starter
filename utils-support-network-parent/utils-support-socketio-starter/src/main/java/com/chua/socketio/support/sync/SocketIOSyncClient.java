@@ -13,20 +13,63 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Socket.IO 协议下的 SyncClient 实现，基于 socket.io-client-java。
+ * <p>支持自动重连（间隔 3 秒）与按 topic 的事件订阅。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 public class SocketIOSyncClient implements SyncClient {
 
+    /**
+     * 客户端唯一标识
+     */
     private final String clientId = UUID.randomUUID().toString();
+
+    /**
+     * 服务端 URL
+     */
     private final String serverUrl;
+
+    /**
+     * 是否已连接
+     */
     private volatile boolean connected;
+
+    /**
+     * topic -> 消息处理器映射
+     */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
+
+    /**
+     * 生命周期监听器列表
+     */
     private final java.util.List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
+    /**
+     * Socket.IO socket 实例
+     */
     private Socket socket;
 
+    /**
+     * 重连计数器
+     */
     private final AtomicInteger reconnectCount = new AtomicInteger(0);
+
+    /**
+     * 最大重连次数，0 表示无限重连
+     */
     private static final int MAX_RECONNECT = 0;
+
+    /**
+     * 重连间隔（毫秒）
+     */
     private static final long RECONNECT_INTERVAL = 3000;
 
+    /**
+     * @param serverUrl 服务端 URL
+     */
     public SocketIOSyncClient(String serverUrl) {
         this.serverUrl = serverUrl;
     }

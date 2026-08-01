@@ -22,14 +22,32 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * 压缩包 / 压缩文档预览提供器，支持 zip、rar、tar、gz、bz2、xz、7z、zst 等格式。
+ * <p>SPI 类型：{@code preview-archive}。输出 HTML 表格，列出条目名、大小、修改时间。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Spi("preview-archive")
 public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
+    /**
+     * 支持的压缩包扩展名（小写）
+     */
     private static final Set<String> SUPPORTED = Set.of(
             "zip", "rar", "tar", "gz", "tgz", "bz2", "tbz2", "xz", "txz", "7z", "zst", "tzst");
 
+    /**
+     * 纯压缩流扩展名（不视为容器，无条目概念）
+     */
     private static final Set<String> COMPRESSOR_ONLY = Set.of("gz", "bz2", "xz", "zst");
 
+    /**
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持预览
+     */
     @Override
     public boolean supports(String ext, String mime) {
         if (ext == null) return false;

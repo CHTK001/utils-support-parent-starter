@@ -4,6 +4,7 @@ import com.chua.common.support.media.codec.VideoEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -160,6 +161,28 @@ public class DefaultDesktopSession implements DesktopSession {
             }
         } catch (Throwable e) {
             log.error("[Desktop] feedFrame FAILED: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void feedFrame(ByteBuffer bgrData, int width, int height) {
+        if (!running) {
+            return;
+        }
+        try {
+            // 直接传给编码器，跳过 BufferedImage
+            int count = frameCount.getAndIncrement();
+            boolean keyFrame = count % 150 == 0;
+            if (keyFrame) {
+                encoder.forceKeyFrame();
+            }
+            byte[] encoded = encoder.encode(bgrData, width, height);
+            if (encoded != null && encoded.length > 0 && frameCallback != null) {
+                fpsCounter.incrementAndGet();
+                frameCallback.accept(sessionId, new EncodedScreen(targetWidth, targetHeight, keyFrame, encoded));
+            }
+        } catch (Throwable e) {
+            log.error("[Desktop] feedFrame(ByteBuffer) FAILED: {}", e.getMessage(), e);
         }
     }
 
