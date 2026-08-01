@@ -1,7 +1,7 @@
 package com.chua.filesearch.support.bridge;
 
-import com.chua.filesearch.support.model.FileInfo;
-import com.chua.filesearch.support.model.FileSearchCriteria;
+import com.chua.filesystem.support.filesearch.model.FileInfo;
+import com.chua.filesystem.support.filesearch.model.FileSearchCriteria;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

@@ -36,7 +36,7 @@ public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
             MethodDescribe methodDescribe = typeDescribe.getMethodDescribe("afterPropertiesSet");
             if (methodDescribe != null) {
                 try {
-                    methodDescribe.invoke(object);
+                    methodDescribe.invoke();
                 } catch (Exception ignored) {
                 }
             }

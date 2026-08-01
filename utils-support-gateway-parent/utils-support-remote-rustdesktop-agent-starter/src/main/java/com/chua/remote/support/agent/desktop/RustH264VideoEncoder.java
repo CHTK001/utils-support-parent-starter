@@ -103,7 +103,6 @@ public class RustH264VideoEncoder implements VideoEncoder {
         }
     }
 
-    @Override
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = width;

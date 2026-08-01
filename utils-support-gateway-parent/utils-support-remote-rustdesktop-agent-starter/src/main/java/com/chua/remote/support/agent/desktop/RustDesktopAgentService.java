@@ -6,6 +6,8 @@ import com.chua.common.support.media.codec.VideoEncoder;
 import com.chua.remote.support.agent.BaseRemoteAgent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.ByteBuffer;
+
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -192,7 +194,6 @@ public class RustDesktopAgentService implements DesktopAgentService {
         }
     }
 
-    @Override
     public synchronized void startCapture() {
         if (capturing || captureProvider == null) {
             return;
@@ -211,7 +212,6 @@ public class RustDesktopAgentService implements DesktopAgentService {
         log.info("[RustDesktopAgent] 全局采集已启动 {}x{} {}fps", captureW, captureH, captureFps);
     }
 
-    @Override
     public synchronized void stopCapture() {
         capturing = false;
         if (captureExecutor != null) {
@@ -270,7 +270,7 @@ public class RustDesktopAgentService implements DesktopAgentService {
 
             long start = System.nanoTime();
             try {
-                BufferedImage image = captureProvider.grabFrame();
+                ByteBuffer image = captureProvider.grabFrame();
                 if (image == null) {
                     nullFrameCount++;
                     if (nullFrameCount == 1 || nullFrameCount % NULL_FRAME_LOG_INTERVAL == 0) {
@@ -291,13 +291,13 @@ public class RustDesktopAgentService implements DesktopAgentService {
 
                 for (DesktopSession session : desktopSessions.values()) {
                     if (session.isRunning()) {
-                        session.feedFrame(image);
+                        session.feedFrame(image, captureProvider.getWidth(), captureProvider.getHeight());
                     }
                 }
 
                 if (count % STATS_LOG_INTERVAL == 0 || count == 1) {
                     log.info("[RustDesktopAgent] 已采集 {} 帧 (total {})(last frame {}x{})",
-                            frameCount, count, image.getWidth(), image.getHeight());
+                            frameCount, count, captureProvider.getWidth(), captureProvider.getHeight());
                 }
             } catch (Exception e) {
                 log.warn("[RustDesktopAgent] 采集/编码异常: {}", e.getMessage());

@@ -285,15 +285,19 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
 
     @Override
     public synchronized byte[] encode(ByteBuffer bgrData, int width, int height) {
-        if (!started || bgrData == null || recorder == null) {
-            ensureInitialized(width, height, 30);
-        }
+        ensureInitialized(width, height, 30);
         if (!started || recorder == null) {
             return new byte[0];
         }
         try {
-            // 零拷贝：ByteBuffer → Frame（不复制数据）
-            Frame frame = new Frame(width, height, Frame.DEPTH_UBYTE, 3, bgrData);
+            Frame frame = new Frame(width, height, Frame.DEPTH_UBYTE, 3);
+            ByteBuffer dst = (ByteBuffer) frame.image[0];
+            dst.clear();
+            dst.put(bgrData);
+            dst.flip();
+            frame.imageWidth = width;
+            frame.imageHeight = height;
+            frame.imageStride = width * 3;
             return encodeInternal(frame);
         } catch (Throwable e) {
             log.warn("[H264VideoEncoder] encode(ByteBuffer) 失败: {}", e.getMessage());
