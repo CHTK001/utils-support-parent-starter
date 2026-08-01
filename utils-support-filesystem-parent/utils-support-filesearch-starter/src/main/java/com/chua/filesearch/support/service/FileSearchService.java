@@ -1,8 +1,8 @@
 package com.chua.filesearch.support.service;
 
-import com.chua.filesearch.support.model.FileInfo;
-import com.chua.filesearch.support.model.FileSearchCriteria;
-import com.chua.filesearch.support.spi.FileSearchProvider;
+import com.chua.filesystem.support.filesearch.model.FileInfo;
+import com.chua.filesystem.support.filesearch.model.FileSearchCriteria;
+import com.chua.filesystem.support.filesearch.spi.FileSearchProvider;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.filesearch.support.spi.impl.NativeFileSearchProvider;
 import lombok.extern.slf4j.Slf4j;

@@ -13,17 +13,31 @@ import java.lang.reflect.Method;
  */
 public class MethodDescribe {
 
+    private final Object target;
+    private final Method method;
     private final String name;
     private final Class<?> returnType;
     private final Class<?>[] parameterTypes;
     private final String[] parameterNames;
 
     /**
-     * 构造方法描述。
+     * 构造方法描述（仅方法元数据）。
      *
      * @param method Java 反射方法对象
      */
     public MethodDescribe(Method method) {
+        this(null, method);
+    }
+
+    /**
+     * 构造方法描述（含目标对象）。
+     *
+     * @param target 目标对象实例
+     * @param method Java 反射方法对象
+     */
+    public MethodDescribe(Object target, Method method) {
+        this.target = target;
+        this.method = method;
         this.name = method.getName();
         this.returnType = method.getReturnType();
         this.parameterTypes = method.getParameterTypes();
@@ -57,5 +71,31 @@ public class MethodDescribe {
      */
     public String[] getParameterNames() {
         return parameterNames;
+    }
+
+    /**
+     * 调用方法（使用构造时提供的目标对象）。
+     *
+     * @param args 调用参数
+     * @return 方法返回值
+     * @throws Exception 反射调用异常
+     */
+    public Object invoke(Object... args) throws Exception {
+        if (target == null) {
+            throw new IllegalStateException("No target object provided");
+        }
+        return method.invoke(target, args);
+    }
+
+    /**
+     * 调用方法（显式指定目标对象）。
+     *
+     * @param target 目标对象实例
+     * @param args   调用参数
+     * @return 方法返回值
+     * @throws Exception 反射调用异常
+     */
+    public Object invoke(Object target, Object... args) throws Exception {
+        return method.invoke(target, args);
     }
 }

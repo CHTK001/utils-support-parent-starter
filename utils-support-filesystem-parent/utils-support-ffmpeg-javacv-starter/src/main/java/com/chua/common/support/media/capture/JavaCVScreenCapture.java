@@ -152,14 +152,6 @@ public class JavaCVScreenCapture implements ScreenCature {
             if (frame.image[0] instanceof ByteBuffer buf) {
                 return buf;
             }
-            // 回退：BufferedImage → ByteBuffer
-            if (frame.image[0] instanceof java.awt.image.BufferedImage bi) {
-                java.awt.image.DataBufferByte db = (java.awt.image.DataBufferByte) bi.getRaster().getDataBuffer();
-                ByteBuffer buf = ByteBuffer.allocateDirect(db.getSize());
-                buf.put(db.getData());
-                buf.flip();
-                return buf;
-            }
             return null;
         } catch (Exception e) {
             log.warn("[JavaCVScreenCapture] 采集失败: {}", e.getMessage());
