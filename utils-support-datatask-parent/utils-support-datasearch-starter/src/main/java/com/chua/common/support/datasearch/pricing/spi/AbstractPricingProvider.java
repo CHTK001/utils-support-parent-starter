@@ -43,7 +43,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
      */
     private static final String CLASSPATH_ROOT = "pricing/";
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractPricingProvider.class);
+    protected static final Logger log = LoggerFactory.getLogger(AbstractPricingProvider.class);
 
     private ConfigSaveOrLoader configSaveOrLoader;
 

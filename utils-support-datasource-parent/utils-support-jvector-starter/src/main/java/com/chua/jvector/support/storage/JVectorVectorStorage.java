@@ -327,7 +327,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             this.similarity = similarity;
             this.properties = properties;
             this.indexPath = Paths.get(properties.getIndexPath());
-            this.vectorDataPath = Paths.get(properties.getIndexPath() + ".vec");
+            this.vectorDataPath = Paths.get(properties.getIndexPath() + ".vectors");
             this.vectorsDirty = false;
             tryLoadExistingIndex();
         }
@@ -401,14 +401,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        @Override
-        public synchronized void rebuild() {
-            if (diskGraph != null) {
-                try { diskGraph.close(); } catch (Exception ignored) {}
-                diskGraph = null;
-            }
-            ensureGraphBuilt();
-        }
 
         @Override
         public synchronized boolean doAdd(String id, float[] vector) {
