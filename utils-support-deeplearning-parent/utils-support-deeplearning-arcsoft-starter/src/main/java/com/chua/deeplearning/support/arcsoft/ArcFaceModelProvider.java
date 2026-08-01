@@ -27,12 +27,13 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     private final FaceEngine faceEngine;
 
     public ArcFaceModelProvider() {
+        FaceEngine engine = null;
         try {
-            this.faceEngine = ArcFaceEngineFactory.create();
+            engine = ArcFaceEngineFactory.create();
         } catch (Exception e) {
             log.warn("[ArcFace] 引擎初始化失败: {}", e.getMessage());
-            this.faceEngine = null;
         }
+        this.faceEngine = engine;
     }
 
     @Override
@@ -74,5 +75,11 @@ public class ArcFaceModelProvider implements BulkModelProvider {
 
         log.info("[ArcFace] 注册 {} 个模型", definitions.size());
         return definitions;
+    }
+
+    @Override
+    public TranslatorModelDefinition getDefinition() {
+        List<TranslatorModelDefinition> all = getAll();
+        return all != null && !all.isEmpty() ? all.get(0) : null;
     }
 }

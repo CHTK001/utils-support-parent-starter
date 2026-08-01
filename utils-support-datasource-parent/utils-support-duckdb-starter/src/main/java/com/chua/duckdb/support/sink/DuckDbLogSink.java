@@ -13,10 +13,22 @@ import java.sql.Statement;
 import java.util.Map;
 
 
+/**
+ * DuckDB 日志数据落地实现，将日志消息按 key/value 形式写入本地 DuckDB 表。
+ * <p>
+ * SPI 类型 {@code "duckdb-log"}，启动时自动建表 {@code datalake_log}。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Slf4j
 @Spi("duckdb-log")
 public class DuckDbLogSink implements DataSink {
 
+    /**
+     * datalake_log 表 DDL：trace_id / pipeline_id / topic / log_key / log_value / log_timestamp / created_at
+     */
     private static final String TABLE_DDL = """
             CREATE TABLE IF NOT EXISTS datalake_log (
                 id BIGSERIAL,
@@ -30,17 +42,35 @@ public class DuckDbLogSink implements DataSink {
             )
             """;
 
+    /**
+     * 插入日志行的 SQL
+     */
     private static final String INSERT_SQL = """
             INSERT INTO datalake_log (trace_id, pipeline_id, topic, log_key, log_value, log_timestamp)
             VALUES (?, ?, ?, ?, ?, ?)
             """;
 
+    /**
+     * JDBC 连接串（默认内嵌 duckdb）
+     */
     private String jdbcUrl = "jdbc:duckdb:";
+
+    /**
+     * 当前数据库连接
+     */
     private Connection connection;
 
+    /**
+     * 默认构造函数（SPI 框架使用）
+     */
     public DuckDbLogSink() {
     }
 
+    /**
+     * 设置 JDBC 连接串。
+     *
+     * @param jdbcUrl jdbc:duckdb:... 或 jdbc:duckdb:/path/to/file.db
+     */
     public void setJdbcUrl(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }

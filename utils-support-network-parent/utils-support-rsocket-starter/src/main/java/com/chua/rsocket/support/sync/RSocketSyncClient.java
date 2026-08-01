@@ -18,25 +18,75 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * RSocket 协议下的 SyncClient 实现，基于 fireAndForget + requestStream 模型。
+ * <p>支持断开后重连（默认无限次）与按 topic 的流订阅。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 public class RSocketSyncClient implements SyncClient {
 
+    /**
+     * 客户端唯一标识
+     */
     private final String clientId = UUID.randomUUID().toString();
+
+    /**
+     * 服务端 URL（如 {@code tcp://host:port}）
+     */
     private final String serverUrl;
+
+    /**
+     * 是否已连接
+     */
     private volatile boolean connected;
+
+    /**
+     * topic -> 消息处理器映射
+     */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
+
+    /**
+     * 生命周期监听器列表
+     */
     private final java.util.List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
+
+    /**
+     * topic -> 流订阅句柄映射（断开时统一释放）
+     */
     private final Map<String, Disposable> streamDisposables = new ConcurrentHashMap<>();
 
+    /**
+     * 当前 RSocket 连接
+     */
     private RSocket socket;
 
+    /**
+     * 重连计数器
+     */
     private final AtomicInteger reconnectCount = new AtomicInteger(0);
+
+    /**
+     * 最大重连次数，0 表示无限重连
+     */
     private static final int MAX_RECONNECT = 0;
+
+    /**
+     * 重连间隔（毫秒）
+     */
     private static final long RECONNECT_INTERVAL = 3000;
 
+    /**
+     * @param serverUrl 服务端 URL
+     */
     public RSocketSyncClient(String serverUrl) {
         this.serverUrl = serverUrl;
     }
 
+    /**
+     * 连接到 RSocket 服务端并启动所有已订阅 topic。
+     */
     @Override
     public void connect() {
         if (connected) {
@@ -52,6 +102,9 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
+    /**
+     * 断开连接：释放所有流订阅、关闭 socket。
+     */
     @Override
     public void disconnect() {
         if (!connected) {
@@ -70,16 +123,28 @@ public class RSocketSyncClient implements SyncClient {
         notifyListeners(SyncFlowListener::onStop);
     }
 
+    /**
+     * @return 连接状态
+     */
     @Override
     public boolean isConnected() {
         return connected && socket != null && !socket.isDisposed();
     }
 
+    /**
+     * @return 当前客户端标识
+     */
     @Override
     public String getClientId() {
         return clientId;
     }
 
+    /**
+     * 通过 fireAndForget 发送消息，载荷格式为 {@code topic:message}。
+     *
+     * @param topic   主题
+     * @param message 消息内容（调用 toString）
+     */
     @Override
     public void send(String topic, Object message) {
         if (!connected || socket == null) {
@@ -94,6 +159,12 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
+    /**
+     * 订阅 topic：若已连接立即启动流，未连接则在 {@link #doConnect()} 末尾统一启动。
+     *
+     * @param topic   主题
+     * @param handler 消息处理器
+     */
     @Override
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
@@ -102,6 +173,11 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
+    /**
+     * 取消订阅并释放对应流。
+     *
+     * @param topic 主题
+     */
     @Override
     public void unsubscribe(String topic) {
         SyncMessageHandler removed = subscriptions.remove(topic);
@@ -128,11 +204,17 @@ public class RSocketSyncClient implements SyncClient {
         return Map.of("clientId", clientId, "protocol", "rsocket");
     }
 
+    /**
+     * 关闭客户端（等价 disconnect）。
+     */
     @Override
     public void close() {
         disconnect();
     }
 
+    /**
+     * 实际执行 RSocketConnector 建立连接，连接成功后会为每个已订阅 topic 启动流。
+     */
     private void doConnect() {
         URI uri = URI.create(serverUrl);
         String host = uri.getHost();

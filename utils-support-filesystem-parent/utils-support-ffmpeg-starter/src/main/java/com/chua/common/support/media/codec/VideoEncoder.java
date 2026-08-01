@@ -1,6 +1,7 @@
 package com.chua.common.support.media.codec;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 /**
  * 视频编码器接口。
@@ -37,12 +38,28 @@ public interface VideoEncoder {
     void forceKeyFrame();
 
     /**
-     * 编码单帧图像。
+     * 编码单帧 BufferedImage。
      *
      * @param image BufferedImage 格式的输入帧
      * @return 编码后的字节数组
      */
     byte[] encode(BufferedImage image);
+
+    /**
+     * 编码单帧 BGR ByteBuffer（零拷贝路径）。
+     *
+     * @param bgrData BGR 格式的 DirectByteBuffer
+     * @param width 帧宽度
+     * @param height 帧高度
+     * @return 编码后的字节数组
+     */
+    default byte[] encode(ByteBuffer bgrData, int width, int height) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        byte[] pixels = new byte[bgrData.remaining()];
+        bgrData.get(pixels);
+        image.getRaster().setDataElements(0, 0, width, height, pixels);
+        return encode(image);
+    }
 
     /**
      * 释放编码器资源。

@@ -66,7 +66,6 @@ final class SpringObjectContextBridge {
             RootBeanDefinition bd = new RootBeanDefinition(bean.getClass());
             bd.setScope(org.springframework.beans.factory.config.BeanDefinition.SCOPE_SINGLETON);
             bd.setAutowireCandidate(true);
-            bd.setAllowInit(false);
             factory.registerBeanDefinition(beanName, bd);
             log.debug("[SpringObjectContextBridge] 已同步注册到 Spring: {}", beanName);
         } catch (Exception e) {

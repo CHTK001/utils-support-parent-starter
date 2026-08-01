@@ -11,17 +11,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Llama GGUF 模型批量提供器，统一注册 minicpm5、embeddinggemma、otzaria-embedding、neutts-2e、gemma-4-e2b、bitnet-embedding 等模型。
+ * <p>
+ * 用于 {@link BulkModelProvider} SPI 加载场景，每个模型绑定独立的 {@link ITranslator}。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Slf4j
 public class LlamaModelProvider implements BulkModelProvider {
 
+    /**
+     * provider 标识 {@code llama}
+     */
     private static final String PROVIDER = "llama";
 
+    /**
+     * @return 首个模型定义
+     */
     @Override
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
         return all.isEmpty() ? null : all.get(0);
     }
 
+    /**
+     * @return 内置的全部 Llama 模型定义列表
+     */
     @Override
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> list = new ArrayList<>();
@@ -60,6 +78,16 @@ public class LlamaModelProvider implements BulkModelProvider {
         return list;
     }
 
+    /**
+     * 构造 TranslatorModelDefinition 的辅助方法。
+     *
+     * @param id         模型 id
+     * @param desc       模型描述
+     * @param path       本地模型路径（相对 classpath）
+     * @param url        远程下载 URL
+     * @param translator 绑定的翻译器（ITranslator 或 AutoCloseable）
+     * @return TranslatorModelDefinition 实例
+     */
     private TranslatorModelDefinition model(String id, String desc, String path, String url, AutoCloseable translator) {
         return TranslatorModelDefinition.builder()
                 .modelDefinition(ModelDefinition.builder()

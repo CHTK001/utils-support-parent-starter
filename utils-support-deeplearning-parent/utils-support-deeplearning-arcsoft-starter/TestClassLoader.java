@@ -1,3 +1,9 @@
+/**
+ * 简易 classloader 自检工具，用于排查 native 库加载路径问题。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 public class TestClassLoader {
     public static void main(String[] args) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();

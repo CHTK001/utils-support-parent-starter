@@ -8,6 +8,8 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.nio.ByteBuffer;
 
 /**
  * 基于 java.awt.Robot 的纯 Java 屏幕采集实现。
@@ -45,7 +47,7 @@ public class RobotScreenCapture implements ScreenCature {
     }
 
     @Override
-    public BufferedImage grabFrame() {
+    public ByteBuffer grabFrame() {
         if (!initialized || robot == null) {
             log.warn("[RobotScreenCapture] 未初始化，无法采集");
             return null;
@@ -55,7 +57,11 @@ public class RobotScreenCapture implements ScreenCature {
                     new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
             BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
             scaled.getGraphics().drawImage(fullScreen, 0, 0, width, height, null);
-            return scaled;
+            byte[] pixels = ((DataBufferByte) scaled.getRaster().getDataBuffer()).getData();
+            ByteBuffer buf = ByteBuffer.allocateDirect(pixels.length);
+            buf.put(pixels);
+            buf.flip();
+            return buf;
         } catch (Exception e) {
             log.warn("[RobotScreenCapture] 采集帧失败: {}", e.getMessage());
             return null;

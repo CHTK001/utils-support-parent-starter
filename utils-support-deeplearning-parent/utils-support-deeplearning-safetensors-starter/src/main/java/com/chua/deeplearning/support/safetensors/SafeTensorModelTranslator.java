@@ -7,13 +7,41 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+/**
+ * SafeTensor 通用翻译器，按 modelType 派发到对应的输入构建/输出解析逻辑。
+ * <p>
+ * 支持的 modelType：document_ocr / text_embedding / face_detection / detection / image_recognition /
+ * llm / vlm / asr / tts / ocr / image_gen / image_enhance / matting / face_swap / tryon / music_gen。
+ * 推理走 {@link SafeTensorServiceClient} HTTP 调用远端推理服务。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Slf4j
 public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
 
+    /**
+     * HTTP 客户端
+     */
     private final SafeTensorServiceClient client;
+
+    /**
+     * 模型名称
+     */
     private final String modelName;
+
+    /**
+     * 模型类型（如 face_detection / text_embedding / ocr）
+     */
     private final String modelType;
 
+    /**
+     * @param host      SafeTensorService 主机
+     * @param port      SafeTensorService 端口
+     * @param modelName 模型名称
+     * @param modelType 模型类型
+     */
     public SafeTensorModelTranslator(String host, int port, String modelName, String modelType) {
         this.client = new SafeTensorServiceClient(host, port);
         this.modelName = modelName;
@@ -25,6 +53,12 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return modelName;
     }
 
+    /**
+     * 构造请求并调用 SafeTensorService，按 modelType 解析响应。
+     *
+     * @param input 输入（String / byte[] / Long / Map / 其他）
+     * @return 解析后的对象；失败返回 null
+     */
     @Override
     public Object translate(Object input) {
         try {

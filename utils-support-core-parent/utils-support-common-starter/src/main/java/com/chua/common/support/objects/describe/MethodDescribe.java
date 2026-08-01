@@ -1,53 +1,61 @@
 package com.chua.common.support.objects.describe;
 
-import com.chua.common.support.utils.ClassUtils;
-import lombok.Getter;
-
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 方法描述，封装对方法的反射调用。
+ * 方法描述元数据。
+ *
+ * <p>封装 Java {@link Method} 的基本信息（方法名、参数类型、返回类型等），
+ * 供路由映射等场景使用。</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
-@Getter
 public class MethodDescribe {
 
-    /**
-     * 目标
-     */
-    private final Object target;
-    /**
-     * 方法名
-     */
-    private final Method method;
+    private final String name;
+    private final Class<?> returnType;
+    private final Class<?>[] parameterTypes;
+    private final String[] parameterNames;
 
-    public MethodDescribe(Object target, Method method) {
-        this.target = target;
-        this.method = method;
+    /**
+     * 构造方法描述。
+     *
+     * @param method Java 反射方法对象
+     */
+    public MethodDescribe(Method method) {
+        this.name = method.getName();
+        this.returnType = method.getReturnType();
+        this.parameterTypes = method.getParameterTypes();
+        // 不解析参数名（需要 -parameters 编译参数）
+        this.parameterNames = new String[0];
     }
 
-    /** 调用方法 */
-    public Object invoke(Object... args) throws InvocationTargetException, IllegalAccessException {
-        if (method == null) { return null; }
-        ClassUtils.setAccessible(method);
-        return method.invoke(target, args);
-    }
-
-    /** 方法名 */
+    /**
+     * @return 方法名
+     */
     public String getName() {
-        return method != null ? method.getName() : null;
+        return name;
     }
 
-    /** 参数数量 */
-    public int getParameterCount() {
-        return method != null ? method.getParameterCount() : 0;
-    }
-
-    /** 返回类型 */
+    /**
+     * @return 返回类型
+     */
     public Class<?> getReturnType() {
-        return method != null ? method.getReturnType() : null;
+        return returnType;
+    }
+
+    /**
+     * @return 参数类型数组
+     */
+    public Class<?>[] getParameterTypes() {
+        return parameterTypes;
+    }
+
+    /**
+     * @return 参数名数组
+     */
+    public String[] getParameterNames() {
+        return parameterNames;
     }
 }

@@ -496,6 +496,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         @Override
         public synchronized void close() {
+            if (vectorsDirty || diskGraph == null) {
+                ensureGraphBuilt();
+            }
             if (diskGraph != null) {
                 try { diskGraph.close(); } catch (Exception ignored) {}
                 diskGraph = null;

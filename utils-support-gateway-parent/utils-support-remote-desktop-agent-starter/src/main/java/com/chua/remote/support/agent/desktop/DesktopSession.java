@@ -3,6 +3,7 @@ package com.chua.remote.support.agent.desktop;
 import com.chua.common.support.media.codec.VideoEncoder;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.function.BiConsumer;
 
 /**
@@ -57,11 +58,20 @@ public interface DesktopSession {
     void stop();
 
     /**
-     * 送入原始帧进行编码。
+     * 送入原始 BufferedImage 帧进行编码。
      *
      * @param image 原始 BufferedImage 帧
      */
     void feedFrame(BufferedImage image);
+
+    /**
+     * 送入 ByteBuffer BGR 数据直接编码（零拷贝路径）。
+     *
+     * @param bgrData BGR 格式的 DirectByteBuffer
+     * @param width 帧宽度
+     * @param height 帧高度
+     */
+    void feedFrame(ByteBuffer bgrData, int width, int height);
 
     /**
      * 设置目标尺寸。

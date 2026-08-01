@@ -8,16 +8,26 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
- * OpenDocument 格式预览提供者
- * 支持 odt (文本), ods (表格), odp (演示文稿)
+ * OpenDocument 格式预览提供者支持 odt (文本), ods (表格), odp (演示文稿)
  *
  * <p>实现思路：将 OpenDocument 文件转换为 PDF 后使用浏览器 PDF 预览能力展示</p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Spi("preview-opendocument")
 public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
 
+    /**
+     * 支持的 OpenDocument 扩展名（小写）
+     */
     private static final Set<String> SUPPORTED_EXTS = Set.of("odt", "ods", "odp");
 
+    /**
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持预览
+     */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());

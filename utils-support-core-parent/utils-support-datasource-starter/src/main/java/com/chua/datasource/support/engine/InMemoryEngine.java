@@ -21,6 +21,16 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+/**
+ * 内存引擎实现，基于 ConcurrentHashMap 提供表级别的轻量数据存储与查询。
+ * <p>
+ * 支持二级索引加速等值查询（{@code =} 条件走索引，否则回退全表扫描）。
+ * 通过 SPI 注册为 {@code "memory"}，可作为单元测试或无持久化场景下的默认 Engine。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Spi("memory")
 public class InMemoryEngine extends AbstractEngine {
 

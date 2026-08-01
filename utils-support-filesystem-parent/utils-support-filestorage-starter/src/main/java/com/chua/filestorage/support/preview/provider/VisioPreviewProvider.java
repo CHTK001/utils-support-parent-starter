@@ -8,11 +8,26 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Visio 文件预览提供器，跳转至 draw.io 在线查看/编辑 vsdx / vsd / vdx / vssx / vstx 文件。
+ * <p>SPI 类型：{@code preview-visio}。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Spi("preview-visio")
 public class VisioPreviewProvider implements FileStoragePreviewProvider {
 
+    /**
+     * 支持的 Visio 扩展名（小写）
+     */
     private static final Set<String> SUPPORTED = Set.of("vsdx", "vsd", "vdx", "vssx", "vstx");
 
+    /**
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持预览
+     */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED.contains(ext.toLowerCase(Locale.ENGLISH));

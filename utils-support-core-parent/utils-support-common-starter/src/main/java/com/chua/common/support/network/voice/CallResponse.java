@@ -3,6 +3,8 @@ package com.chua.common.support.network.voice;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 语音呼叫响应结果。
  *
@@ -32,6 +34,21 @@ public class CallResponse {
      * 附加消息（错误描述等）
      */
     private String message;
+
+    /**
+     * 错误消息（与 {@link #message} 同义，部分调用方使用此命名）
+     */
+    private String errorMessage;
+
+    /**
+     * 调用耗时（毫秒）
+     */
+    private long duration;
+
+    /**
+     * 附加数据（提供商返回的原始负载）
+     */
+    private Map<String, Object> data;
 
     /**
      * 快速构建成功响应。

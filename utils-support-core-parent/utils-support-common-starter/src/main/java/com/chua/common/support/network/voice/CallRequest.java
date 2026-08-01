@@ -33,8 +33,13 @@ public class CallRequest {
      */
     private String locale;
 
-    /**
-     * 自定义参数（提供商特定配置）
+/**
+ * 自定义参数（提供商特定配置）
      */
     private String custom;
+
+    /**
+     * 呼叫超时时间（毫秒，可选）
+     */
+    private Long timeout;
 }

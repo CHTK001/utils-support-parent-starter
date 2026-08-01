@@ -14,6 +14,16 @@ import java.util.Iterator;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+/**
+ * PNG 图像写入器（支持静态 PNG 与 APNG 多帧序列），使用 JDK javax.imageio ImageWriter SPI 注册。
+ * <p>
+ * 默认压缩级别 {@value #DEFAULT_COMPRESSION_LEVEL}（中等）。
+ * 内部通过 {@link RowFilter} 实时行过滤，通过 {@link ChunkStream} 同步累积 CRC。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 public final class PNGImageWriter extends ImageWriter {
     /**
      * DefaultHotpGenerator compression level = 4 ie medium compression

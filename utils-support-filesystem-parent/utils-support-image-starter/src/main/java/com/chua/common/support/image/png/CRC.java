@@ -14,6 +14,12 @@ import java.util.Iterator;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+/**
+ * CRC-32 计算器，使用 PNG 规范定义的多项式（0xedb88320），表驱动实现。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 final class CRC {
 
     private static final int[] crcTable = new int[256];

@@ -17,14 +17,44 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 系统指标推送 Agent，按固定间隔读取 MetricsService 快照并写入已注册的 sink。
+ * <p>
+ * 内部通过 MetricsAgentSource 将 CPU / 内存 / Swap / 磁盘 / 网络 / Load 各项指标转换为统一行结构。
+ * 使用单线程守护线程调度（{@code metrics-push-{agentId}}）。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Slf4j
 public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
 
+    /**
+     * 系统指标服务
+     */
     private final MetricsService metricsService;
+
+    /**
+     * 推送间隔（毫秒）
+     */
     private final long intervalMs;
+
+    /**
+     * 调度执行器（单线程守护）
+     */
     private ScheduledExecutorService scheduler;
+
+    /**
+     * 运行状态标志（CAS 控制 start/stop 幂等）
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
+    /**
+     * @param agentId       Agent 标识
+     * @param metricsService 系统指标服务
+     * @param intervalMs    推送间隔（小于等于 0 视为 1000）
+     */
     public MetricsDataSyncAgent(String agentId, MetricsService metricsService, long intervalMs) {
         super(agentId);
         this.metricsService = metricsService;
@@ -34,6 +64,9 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         addSource(source);
     }
 
+    /**
+     * 启动 Agent：创建守护线程并按 intervalMs 周期推送。
+     */
     @Override
     public void start() {
         if (!running.compareAndSet(false, true)) {
@@ -53,6 +86,9 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         log.info("Metrics 推送 Agent 已启动: agentId={}, interval={}ms", agentId(), intervalMs);
     }
 
+    /**
+     * 停止 Agent：关闭调度器，等待 in-flight 任务最多 2 秒。
+     */
     @Override
     public void stop() {
         if (!running.compareAndSet(true, false)) {
@@ -75,6 +111,9 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         log.info("Metrics 推送 Agent 已停止: agentId={}", agentId());
     }
 
+    /**
+     * 周期任务：将 source 数据写入所有 sink，异常时 warn 而不抛出。
+     */
     private void pushMetrics() {
         if (!running.get()) {
             return;
@@ -100,11 +139,19 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
     }
 
+    /**
+     * @return true 表示 Agent 正在运行
+     */
     @Override
     public boolean isRunning() {
         return running.get();
     }
 
+    /**
+     * 注册 sink。
+     *
+     * @param sink 待注册的 sink
+     */
     public void addSink(DataSyncAgentSink sink) {
         super.addSink(sink);
     }
@@ -114,10 +161,25 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
      */
     public static class MetricsAgentSource implements DataSyncAgentSource, Directional {
 
+        /**
+         * source 标识
+         */
         private final String sourceId;
+
+        /**
+         * 关联的指标服务
+         */
         private final MetricsService metricsService;
+
+        /**
+         * Source 是否已关闭
+         */
         private volatile boolean closed;
 
+        /**
+         * @param sourceId       source 标识
+         * @param metricsService 系统指标服务
+         */
         public MetricsAgentSource(String sourceId, MetricsService metricsService) {
             this.sourceId = sourceId;
             this.metricsService = metricsService;
@@ -150,6 +212,12 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
             });
         }
 
+        /**
+         * 将快照中的 CPU / 内存 / Swap / 磁盘 / 网络 / Load 转换为统一行结构。
+         *
+         * @param snapshot 指标快照
+         * @return 行数据列表
+         */
         private List<Map<String, Object>> buildRows(MetricsSnapshot snapshot) {
             List<Map<String, Object>> rows = new ArrayList<>();
             long ts = snapshot.getTimestamp();

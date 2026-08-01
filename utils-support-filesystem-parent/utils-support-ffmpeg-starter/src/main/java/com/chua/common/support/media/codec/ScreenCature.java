@@ -1,12 +1,12 @@
 package com.chua.common.support.media.codec;
 
-import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 /**
  * 屏幕采集接口 — 提供帧采集能力。
  *
  * <p>实现类应通过 {@code @Spi("name")} 注解注册，由 ServiceProvider 发现。</p>
- * <p>返回 {@code BufferedImage} 以保证广泛兼容性。子接口或特定实现可在需要时暴露零拷贝 AVPicture 访问。</p>
+ * <p>返回 {@link ByteBuffer}（DirectByteBuffer），BGR 格式，可直接传递给编码器实现零拷贝。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,11 +24,11 @@ public interface ScreenCature extends AutoCloseable {
     boolean init(int width, int height, int fps);
 
     /**
-     * 采集一帧图像，格式为 BufferedImage.TYPE_3BYTE_BGR。
+     * 采集一帧图像，格式为 BGR（TYPE_3BYTE_BGR），DirectByteBuffer。
      *
-     * @return BGR 字节序的 BufferedImage，失败返回 null
+     * @return BGR 字节序的 ByteBuffer，失败返回 null
      */
-    java.awt.image.BufferedImage grabFrame();
+    ByteBuffer grabFrame();
 
     /**
      * 获取采集宽度。

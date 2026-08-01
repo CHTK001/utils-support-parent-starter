@@ -22,6 +22,14 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * API 字段级加密序列化器，配合 Jackson 与 ApiFieldCrypto 注解使用。
+ * <p>
+ * SM2 类型会使用注解上配置的公钥加密并同步写入 xxxKeyId 字段；
+ * 否则根据对象上 ApiFieldCryptoKey 注解指定的密钥走 SM4 加密。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class ApiCryptoSerializer extends JsonSerializer<String> implements ContextualSerializer {
 

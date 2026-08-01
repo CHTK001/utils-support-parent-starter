@@ -7,11 +7,26 @@ import com.chua.filestorage.support.preview.PreviewResult;
 import java.util.Base64;
 import java.util.Set;
 
+/**
+ * Univer Office 预览提供器，支持 xlsx / xls / docx / doc / pptx / ppt 六种格式的在线预览。
+ * <p>SPI 类型：{@code preview-univer}。表格走 LuckyExcel，文档走 Univer importDOCXToSnapshotAsync。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 @Spi("preview-univer")
 public class UniverPreviewProvider implements FileStoragePreviewProvider {
 
+    /**
+     * 支持的 Office 扩展名（小写）
+     */
     private static final Set<String> SUPPORTED_EXTS = Set.of("xlsx", "xls", "docx", "doc", "pptx", "ppt");
 
+    /**
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持预览
+     */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());

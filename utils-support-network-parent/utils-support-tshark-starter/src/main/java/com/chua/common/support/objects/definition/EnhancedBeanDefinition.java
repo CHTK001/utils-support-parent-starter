@@ -7,6 +7,12 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Bean 定义增强接口，扩展标准 BeanDefinition 的接口、注解、生命周期与映射定义查询。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 public interface EnhancedBeanDefinition {
     Collection<Class<?>> getInterfaces();
     Class<?> getBeanType();
