@@ -41,7 +41,7 @@ import java.util.*;
  * @since 4.0.0
  */
 @Slf4j
-public final class SystemLogService {
+public class SystemLogService {
 
     private static volatile SystemLogService INSTANCE;
 
@@ -49,7 +49,7 @@ public final class SystemLogService {
 
     private volatile boolean initialized;
 
-    private SystemLogService() {
+    SystemLogService() {
         SystemLogProvider p = null;
 
         // 1. 尝试通过 ServiceLoader 发现
