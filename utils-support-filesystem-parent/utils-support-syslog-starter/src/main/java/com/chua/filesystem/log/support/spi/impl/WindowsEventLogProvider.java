@@ -157,7 +157,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
                     break;
                 }
 
-                int parsed = parseEventLogRecords(buffer, read, regex, minLevel, maxResults - results.size(), results);
+                int parsed = parseEventLogRecords(buffer, read, source, regex, minLevel, maxResults - results.size(), results);
                 offset += read;
                 if (parsed == 0 && offset > 0) {
                     break;
@@ -181,6 +181,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
 
     private int parseEventLogRecords(
             MemorySegment buffer, int bytesRead,
+            String source,
             Pattern regex, LogLevel minLevel,
             int remaining, List<LogEntry> results
     ) {
@@ -220,7 +221,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
             );
 
             results.add(new LogEntry(
-                    timestamp, level, "System", message, "windows", null
+                    timestamp, level, source, message, "windows", null
             ));
 
             offset += length;
