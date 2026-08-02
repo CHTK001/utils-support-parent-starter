@@ -88,7 +88,8 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                     .metricType(algorithmName.name())
                     .primaryFieldName("id")
                     .vectorFieldName("vector")
-                    .idType(io.milvus.v2.common.DataType.Int64)
+                    .idType(io.milvus.v2.common.DataType.VarChar)
+                    .maxLength(64)
                     .autoID(false)
                     .enableDynamicField(true)
                     .build();
@@ -249,7 +250,11 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                 io.milvus.v2.service.collection.request.GetCollectionStatsReq.builder()
                         .collectionName(collectionName)
                         .build());
-        return resp != null ? 1 : 0;
+        if (resp == null) {
+            return 0;
+        }
+        Long num = resp.getNumOfEntities();
+        return num != null ? num.intValue() : 0;
     }
 
     @Override
