@@ -1,0 +1,1 @@
+milvus=com.chua.milvus.support.spi.MilvusVectorStorageProvider
