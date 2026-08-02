@@ -46,12 +46,9 @@
             <artifactId>utils-support-deeplearning-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- MiniMind 内置 ONNX 模型资源（model.onnx + tokenizer.json） -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-minimind-onnx</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!-- MiniMind 内置 ONNX 模型资源（model.onnx + tokenizer.json）已随 utils-support-minimind-onnx
+             模块下线；模型资源改为从 classpath 中 models/minimind/ 目录动态加载，
+             未打包模型资源时仅输出 debug 日志，不影响编译。 -->
         <dependency>
             <groupId>com.microsoft.onnxruntime</groupId>
             <artifactId>onnxruntime</artifactId>

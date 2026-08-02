@@ -212,7 +212,7 @@
         <r2dbc-spi.version>1.0.0.RELEASE</r2dbc-spi.version>
         <hanlp.version>portable-1.8.6</hanlp.version>
         <native.ffmpeg.version>4.0.0.41</native.ffmpeg.version>
-        <nitrite.version>4.4.3</nitrite.version>
+        <nitrite.version>4.3.0</nitrite.version>
     </properties>
     <dependencies>
         <dependency>

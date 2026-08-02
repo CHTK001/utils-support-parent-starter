@@ -47,11 +47,6 @@
                 <artifactId>grpc-util</artifactId>
                 <version>1.73.0</version>
             </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-protobuf-lite</artifactId>
-                <version>1.73.0</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -113,11 +108,6 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-util</artifactId>
-            <version>1.73.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf-lite</artifactId>
             <version>1.73.0</version>
         </dependency>
         <dependency>

@@ -12,6 +12,37 @@
     <artifactId>utils-support-symmetric-starter</artifactId>
     <name>Utils Support SymmetricDS Starter</name>
     <description>SymmetricDS 数据库同步集成</description>
+    <dependencyManagement>
+        <dependencies>
+            <!-- 覆盖 symmetric-core 传递依赖的 log4j 版本为本地可用版本 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.25.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.25.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j2-impl</artifactId>
+                <version>2.25.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-web</artifactId>
+                <version>2.25.3</version>
+            </dependency>
+            <!-- 覆盖 mssql-jdbc 为本地可用版本 -->
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>13.2.1.jre11</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -26,12 +57,12 @@
         <dependency>
             <groupId>org.jumpmind.symmetric</groupId>
             <artifactId>symmetric-core</artifactId>
-            <version>3.15.9</version>
+            <version>3.17.6</version>
         </dependency>
         <dependency>
             <groupId>org.jumpmind.symmetric</groupId>
             <artifactId>symmetric-client</artifactId>
-            <version>3.15.9</version>
+            <version>3.17.6</version>
         </dependency>
     </dependencies>
 
