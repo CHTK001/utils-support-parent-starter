@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -88,6 +89,15 @@ class SyslogPolledDirectoryTest {
         };
     }
 
+    private static PolledListener listener(BiConsumer<WatcherEvent, EventObserver> onModify) {
+        return new PolledListener() {
+            @Override
+            public void onModify(WatcherEvent event, EventObserver observer) {
+                onModify.accept(event, observer);
+            }
+        };
+    }
+
     private static LogEntry entry(String ts, LogLevel lvl, String src, String msg) {
         return new LogEntry(ts, lvl, src, msg, "test", null);
     }
@@ -110,7 +120,7 @@ class SyslogPolledDirectoryTest {
                 .service(serviceWith(provider))
                 .build();
         List<LogEntry> received = new CopyOnWriteArrayList<>();
-        watcher.addListener((event, observer) -> received.add((LogEntry) observer.getSource()));
+        watcher.addListener(listener((e, o) -> received.add((LogEntry) o.getSource())));
 
         watcher.upgrade();
 
@@ -136,9 +146,9 @@ class SyslogPolledDirectoryTest {
                 .service(serviceWith(provider))
                 .build();
         List<EventObserver> observers = new CopyOnWriteArrayList<>();
-        watcher.addListener((event, observer) -> observers.add(observer));
+        watcher.addListener(listener((e, o) -> observers.add(o)));
 
-        watcher.upgrade(); // first poll: cursor set, no events
+        watcher.upgrade();
         assertTrue(observers.isEmpty());
 
         provider.setSnapshot(List.of(
@@ -146,7 +156,7 @@ class SyslogPolledDirectoryTest {
                 entry("2026-08-03T00:00:04.000", LogLevel.ERROR, "System", "new-2")
         ));
 
-        watcher.upgrade(); // second poll
+        watcher.upgrade();
 
         assertEquals(2, observers.size(), "应分发 2 条新条目");
         EventObserver first = observers.get(0);
@@ -162,8 +172,9 @@ class SyslogPolledDirectoryTest {
         assertEquals("System", payload0.source(), "LogEntry.source 应为真实打开的 channel，而非硬编码");
         assertEquals("new-1", payload0.message());
 
-        LogEntry payload1 = (LogEntry) observers.get(1).getSource();
-        assertEquals("System-ERROR", observers.get(1).getTriggerFile());
+        EventObserver second = observers.get(1);
+        LogEntry payload1 = (LogEntry) second.getSource();
+        assertEquals("System-ERROR", second.getTriggerFile());
         assertEquals("new-2", payload1.message());
         assertEquals("2026-08-03T00:00:04.000", watcher.getLastTimestamp(), "游标应推进到最后一条");
     }
@@ -182,10 +193,10 @@ class SyslogPolledDirectoryTest {
                 .service(serviceWith(provider))
                 .build();
         AtomicInteger count = new AtomicInteger();
-        watcher.addListener((event, observer) -> count.incrementAndGet());
+        watcher.addListener(listener((e, o) -> count.incrementAndGet()));
 
-        watcher.upgrade(); // cursor
-        watcher.upgrade(); // same snapshot, timestamp equals cursor -> skip
+        watcher.upgrade();
+        watcher.upgrade();
         watcher.upgrade();
 
         assertEquals(0, count.get(), "时间戳等于游标的条目不应再次分发");
@@ -209,9 +220,9 @@ class SyslogPolledDirectoryTest {
                 .service(serviceWith(provider))
                 .build();
         List<LogEntry> out = new CopyOnWriteArrayList<>();
-        watcher.addListener((event, observer) -> out.add((LogEntry) observer.getSource()));
+        watcher.addListener(listener((e, o) -> out.add((LogEntry) o.getSource())));
 
-        watcher.upgrade(); // first
+        watcher.upgrade();
         provider.setSnapshot(List.of(
                 entry("2026-08-03T00:00:03.000", LogLevel.INFO, "System", "i2"),
                 entry("2026-08-03T00:00:04.000", LogLevel.ERROR, "System", "e1")
@@ -275,11 +286,11 @@ class SyslogPolledDirectoryTest {
         AtomicInteger a = new AtomicInteger();
         AtomicInteger b = new AtomicInteger();
         AtomicInteger c = new AtomicInteger();
-        watcher.addListener((event, observer) -> a.incrementAndGet());
-        watcher.addListener((event, observer) -> b.incrementAndGet());
-        watcher.addListener((event, observer) -> c.incrementAndGet());
+        watcher.addListener(listener((e, o) -> a.incrementAndGet()));
+        watcher.addListener(listener((e, o) -> b.incrementAndGet()));
+        watcher.addListener(listener((e, o) -> c.incrementAndGet()));
 
-        watcher.upgrade(); // first
+        watcher.upgrade();
         provider.setSnapshot(List.of(
                 entry("2026-08-03T00:00:02.000", LogLevel.INFO, "System", "new")
         ));
@@ -304,12 +315,12 @@ class SyslogPolledDirectoryTest {
                 .service(serviceWith(provider))
                 .build();
         AtomicInteger okCount = new AtomicInteger();
-        watcher.addListener((event, observer) -> {
+        watcher.addListener(listener((e, o) -> {
             throw new RuntimeException("boom");
-        });
-        watcher.addListener((event, observer) -> okCount.incrementAndGet());
+        }));
+        watcher.addListener(listener((e, o) -> okCount.incrementAndGet()));
 
-        watcher.upgrade(); // first
+        watcher.upgrade();
         provider.setSnapshot(List.of(
                 entry("2026-08-03T00:00:02.000", LogLevel.INFO, "System", "new")
         ));
@@ -332,14 +343,14 @@ class SyslogPolledDirectoryTest {
                 .service(serviceWith(provider))
                 .build();
         AtomicInteger count = new AtomicInteger();
-        watcher.addListener((event, observer) -> count.incrementAndGet());
+        watcher.addListener(listener((e, o) -> count.incrementAndGet()));
 
-        watcher.upgrade(); // first
+        watcher.upgrade();
         watcher.close();
         provider.setSnapshot(List.of(
                 entry("2026-08-03T00:00:02.000", LogLevel.INFO, "System", "new")
         ));
-        watcher.upgrade(); // should be no-op
+        watcher.upgrade();
 
         assertEquals(0, count.get(), "close 后 upgrade 不应再触发监听器");
         assertNull(watcher.getLastTimestamp(), "close 应清空游标");

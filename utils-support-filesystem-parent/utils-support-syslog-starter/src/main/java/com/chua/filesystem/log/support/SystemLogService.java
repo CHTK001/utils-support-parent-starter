@@ -49,7 +49,7 @@ public class SystemLogService {
 
     private volatile boolean initialized;
 
-    SystemLogService() {
+    public SystemLogService() {
         SystemLogProvider p = null;
 
         // 1. 尝试通过 ServiceLoader 发现
