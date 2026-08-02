@@ -1,6 +1,8 @@
 package com.chua.email.support;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -36,6 +38,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2026/07/17
  */
 @Spi("email")
+@SpiDescribe(
+        value = "邮件推送",
+        type = "EMAIL",
+        desc = "基于 SMTP 协议发送纯文本或 HTML 邮件，支持多收件人、抄送与阅读追踪",
+        optional = {
+                @SpiParam(value = "smtp.host", desc = "SMTP 服务器地址", type = "String"),
+                @SpiParam(value = "smtp.port", defaultValue = "587", desc = "SMTP 端口", type = "int"),
+                @SpiParam(value = "smtp.username", desc = "SMTP 用户名", type = "String"),
+                @SpiParam(value = "smtp.password", desc = "SMTP 授权码", type = "String"),
+                @SpiParam(value = "smtp.from", desc = "发件人地址", type = "String")
+        }
+)
 public class EmailPush implements MessagePush {
 
     private final MessageEnvironment environment;

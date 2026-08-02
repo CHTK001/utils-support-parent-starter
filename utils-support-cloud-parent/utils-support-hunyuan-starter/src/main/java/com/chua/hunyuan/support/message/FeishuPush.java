@@ -7,6 +7,8 @@ import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -36,6 +38,16 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026/07/17
  */
 @Spi("feishu")
+@SpiDescribe(
+        value = "飞书消息",
+        type = "FEISHU",
+        desc = "基于飞书机器人 Webhook 发送文本与富文本消息",
+        optional = {
+                @SpiParam(value = "feishu.webhookUrl", desc = "机器人 Webhook 地址", type = "String"),
+                @SpiParam(value = "feishu.appId", desc = "飞书应用 ID", type = "String"),
+                @SpiParam(value = "feishu.appSecret", desc = "飞书应用密钥", type = "String")
+        }
+)
 @Slf4j
 public class FeishuPush implements MessagePush {
 

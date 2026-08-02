@@ -7,6 +7,8 @@ import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -41,6 +43,16 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026/07/17
  */
 @Spi("baidu-sms")
+@SpiDescribe(
+        value = "百度云短信",
+        type = "SMS",
+        desc = "基于百度云 SMS HTTP API 发送短信验证码与通知",
+        optional = {
+                @SpiParam(value = "sms.accessKey", desc = "百度云 AccessKey", type = "String"),
+                @SpiParam(value = "sms.secretKey", desc = "百度云 SecretKey", type = "String"),
+                @SpiParam(value = "sms.signName", desc = "短信签名", type = "String")
+        }
+)
 @Slf4j
 public class BaiduSmsPush implements MessagePush {
 

@@ -5,6 +5,8 @@ import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -39,6 +41,15 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Spi("dingding")
+@SpiDescribe(
+        value = "钉钉机器人",
+        type = "DINGDING",
+        desc = "基于钉钉机器人 Webhook 发送文本与 Markdown 消息",
+        optional = {
+                @SpiParam(value = "dingding.webhookUrl", desc = "机器人 Webhook 地址", type = "String"),
+                @SpiParam(value = "dingding.secret", desc = "加签密钥", type = "String")
+        }
+)
 public class DingdingPush implements MessagePush {
 
     private final MessageEnvironment environment;
