@@ -32,6 +32,8 @@
         <module>utils-support-zhipu-starter</module>
         <module>utils-support-alibaba-starter</module>
         <module>utils-support-openai-starter</module>
+        <module>utils-support-wechat-starter</module>
+        <module>utils-support-webhook-starter</module>
     </modules>
 </project>
 

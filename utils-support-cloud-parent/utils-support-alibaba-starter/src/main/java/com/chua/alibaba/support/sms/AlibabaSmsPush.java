@@ -2,6 +2,8 @@ package com.chua.alibaba.support.sms;
 
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -35,6 +37,17 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026/07/17
  */
 @Spi("alibaba-sms")
+@SpiDescribe(
+        value = "阿里云短信",
+        type = "SMS",
+        desc = "基于阿里云 Dysmsapi SDK 发送短信验证码与通知",
+        optional = {
+                @SpiParam(value = "sms.accessKey", desc = "阿里云 AccessKey", type = "String"),
+                @SpiParam(value = "sms.secretKey", desc = "阿里云 SecretKey", type = "String"),
+                @SpiParam(value = "sms.signName", desc = "短信签名", type = "String"),
+                @SpiParam(value = "sms.templateCode", desc = "短信模板编码", type = "String")
+        }
+)
 @Slf4j
 public class AlibabaSmsPush implements MessagePush {
 

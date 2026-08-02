@@ -1,6 +1,8 @@
 package com.chua.desktop.support;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -38,6 +40,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2026/07/17
  */
 @Spi("desktop")
+@SpiDescribe(
+        value = "桌面通知",
+        type = "DESKTOP",
+        desc = "调用操作系统原生能力发送桌面通知（Windows/macOS/Linux）",
+        optional = {
+                @SpiParam(value = "desktop.title", defaultValue = "通知", desc = "通知标题", type = "String"),
+                @SpiParam(value = "desktop.icon", desc = "通知图标路径", type = "String")
+        }
+)
 public class DesktopPush implements MessagePush {
 
     private final MessageEnvironment environment;

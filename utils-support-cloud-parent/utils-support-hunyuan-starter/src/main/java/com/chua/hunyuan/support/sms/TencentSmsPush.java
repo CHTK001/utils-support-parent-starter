@@ -1,6 +1,8 @@
 package com.chua.hunyuan.support.sms;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiParam;
 import com.chua.common.support.task.message.MessageEnvironment;
 import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
@@ -37,6 +39,17 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026/07/17
  */
 @Spi("tencent-sms")
+@SpiDescribe(
+        value = "腾讯云短信",
+        type = "SMS",
+        desc = "基于腾讯云 SMS SDK 发送短信验证码与通知",
+        optional = {
+                @SpiParam(value = "sms.secretId", desc = "腾讯云 SecretId", type = "String"),
+                @SpiParam(value = "sms.secretKey", desc = "腾讯云 SecretKey", type = "String"),
+                @SpiParam(value = "sms.appId", desc = "短信应用 ID", type = "String"),
+                @SpiParam(value = "sms.signName", desc = "短信签名", type = "String")
+        }
+)
 @Slf4j
 public class TencentSmsPush implements MessagePush {
 
