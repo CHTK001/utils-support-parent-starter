@@ -39,6 +39,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
 
     private static final int EVENTLOG_SEQUENTIAL_READ = 0x0001;
     private static final int EVENTLOG_FORWARDS_READ    = 0x0004;
+    private static final int EVENTLOG_SEEK_READ        = 0x0002;
 
     private static final int BUFFER_SIZE = 65536;
 
@@ -106,7 +107,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
             bindFunctions();
 
             MemorySegment serverName = MemorySegment.NULL;
-            MemorySegment sourceName = arena.allocateFrom(source);
+            MemorySegment sourceName = arena.allocateFrom(source, java.nio.charset.StandardCharsets.UTF_16LE);
             Object handleObj = openEventLog.invoke(serverName, sourceName);
             hEventLog = coerceToMemorySegment(handleObj);
 
@@ -129,14 +130,16 @@ public class WindowsEventLogProvider implements SystemLogProvider {
             Pattern regex = compilePattern(pattern);
 
             int offset = 0;
-            while (results.size() < maxResults && offset < total * 512) {
+            int readIterations = 0;
+            while (results.size() < maxResults && readIterations < 200) {
+                readIterations++;
                 bytesRead.set(ValueLayout.JAVA_INT, 0, 0);
                 minBytesNeeded.set(ValueLayout.JAVA_INT, 0, 0);
 
                 int readResult = (int) readEventLog.invoke(
                         hEventLog,
                         EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ,
-                        offset,
+                        0,
                         buffer,
                         BUFFER_SIZE,
                         bytesRead,
@@ -144,11 +147,6 @@ public class WindowsEventLogProvider implements SystemLogProvider {
                 );
 
                 if (readResult == 0) {
-                    int error = getLastError();
-                    if (error == 122 /* ERROR_INSUFFICIENT_BUFFER */) {
-                        offset += bytesRead.get(ValueLayout.JAVA_INT, 0);
-                        continue;
-                    }
                     break;
                 }
 
@@ -159,7 +157,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
 
                 int parsed = parseEventLogRecords(buffer, read, source, regex, minLevel, maxResults - results.size(), results);
                 offset += read;
-                if (parsed == 0 && offset > 0) {
+                if (parsed == 0) {
                     break;
                 }
             }
@@ -195,7 +193,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
             }
 
             int timeGenerated = buffer.get(ValueLayout.JAVA_INT_UNALIGNED, offset + 12);
-            short eventType = buffer.get(ValueLayout.JAVA_SHORT_UNALIGNED, offset + 20);
+            short eventType = buffer.get(ValueLayout.JAVA_SHORT_UNALIGNED, offset + 24);
 
             LogLevel level = mapEventTypeToLevel(eventType);
             if (!level.meetsMinimum(minLevel)) {
@@ -238,12 +236,12 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         }
         StringBuilder sb = new StringBuilder();
         long size = buffer.byteSize();
-        for (long i = stringsStart; i < size; i++) {
-            byte b = buffer.get(ValueLayout.JAVA_BYTE, i);
-            if (b == 0) {
+        for (long i = stringsStart; i + 1 < size; i += 2) {
+            char c = (char) (buffer.get(ValueLayout.JAVA_SHORT_UNALIGNED, i) & 0xFFFF);
+            if (c == 0) {
                 break;
             }
-            sb.append((char) (b & 0xFF));
+            sb.append(c);
         }
         return sb.toString().trim();
     }
