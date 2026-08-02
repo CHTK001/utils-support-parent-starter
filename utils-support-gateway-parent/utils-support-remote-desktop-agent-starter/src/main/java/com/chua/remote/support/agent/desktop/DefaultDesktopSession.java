@@ -51,6 +51,11 @@ public class DefaultDesktopSession implements DesktopSession {
     private volatile boolean running;
 
     /**
+     * 采集器名称
+     */
+    private final String captureName;
+
+    /**
      * 目标宽度
      */
     private int targetWidth;
@@ -92,13 +97,14 @@ public class DefaultDesktopSession implements DesktopSession {
      * @param textCallback 文本消息回调
      */
     public DefaultDesktopSession(String sessionId, int captureW, int captureH, int fps,
-                                VideoEncoder encoder,
+                                VideoEncoder encoder, String captureName,
                                 BiConsumer<String, EncodedScreen> frameCallback,
                                 BiConsumer<String, String> textCallback) {
         this.sessionId = sessionId;
         this.targetWidth = captureW;
         this.targetHeight = captureH;
         this.encoder = encoder;
+        this.captureName = captureName;
         this.frameCallback = frameCallback;
         this.textCallback = textCallback;
     }
@@ -246,9 +252,10 @@ public class DefaultDesktopSession implements DesktopSession {
             long memTotal = rt.totalMemory();
             long memUsed = memTotal - rt.freeMemory();
             int currentFps = fpsCounter.getAndSet(0);
+            String codecName = encoder != null ? encoder.getCodecName() : "unknown";
             String json = String.format(
-                    "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d}",
-                    sessionId, currentFps, memUsed, memTotal);
+                    "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d,\"capture\":\"%s\",\"decoder\":\"%s\"}",
+                    sessionId, currentFps, memUsed, memTotal, captureName, codecName);
             textCallback.accept(sessionId, json);
         } catch (Exception e) {
             log.debug("[DefaultDesktopSession] pushMetrics error: {}", e.getMessage());
