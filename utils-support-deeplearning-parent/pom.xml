@@ -28,7 +28,8 @@
         <module>utils-support-deeplearning-safetensors-starter</module>
         <module>utils-support-deeplearning-3d-starter</module>
         <module>utils-support-deeplearning-llama-starter</module>
-        <module>utils-support-deeplearning-arcsoft-starter</module>
+        <!-- utils-support-deeplearning-arcsoft-starter 依赖商业闭源 SDK (com.arcsoft.face:arcsoft-sdk-face)，
+             离线仓库不可用，暂从聚合移除；如需使用请手动安装 SDK 后恢复此模块。 -->
     </modules>
     <dependencies>
         <dependency>
