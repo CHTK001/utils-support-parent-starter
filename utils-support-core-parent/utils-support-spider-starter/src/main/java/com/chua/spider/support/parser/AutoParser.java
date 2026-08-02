@@ -8,6 +8,7 @@ import com.chua.spider.support.model.SpiderResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -41,12 +42,20 @@ public class AutoParser implements SpiderParser {
 
     /**
      * 默认构造器，从 SPI 收集所有可用的 Parser 实现。
+     *
+     * <p>注意：不能使用 {@code collectNew()} 收集，因为 SPI 注册表中包含
+     * AutoParser 自身，{@code collectNew()} 会递归实例化 AutoParser，
+     * 导致无限递归（StackOverflowError）。因此这里直接遍历服务定义，
+     * 显式排除自身后再实例化。</p>
      */
     public AutoParser() {
         ServiceProvider<SpiderParser> provider = ServiceProvider.of(SpiderParser.class);
-        // 过滤掉自身，避免递归死循环
-        this.parsers = provider.collectNew().stream()
-                .filter(p -> !(p instanceof AutoParser))
+        // 遍历所有服务定义，排除 AutoParser 自身，再实例化，避免递归死循环
+        this.parsers = provider.getDefinitions(null).stream()
+                .filter(definition -> null != definition.getImplClass()
+                        && !AutoParser.class.isAssignableFrom(definition.getImplClass()))
+                .map(definition -> (SpiderParser) definition.<SpiderParser>newInstance(provider.getServiceAutowire()))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         log.info("AutoParser 加载了 {} 个 Parser 实现", parsers.size());
     }
