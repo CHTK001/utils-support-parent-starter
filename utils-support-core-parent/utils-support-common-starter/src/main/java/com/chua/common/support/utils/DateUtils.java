@@ -2889,4 +2889,75 @@ public class DateUtils {
             return false;
         }
     }
+
+    /**
+     * 时间格式化器（ISO："HH:mm:ss"）
+     */
+    private static final DateTimeFormatter PARSE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+    /**
+     * 日期格式化器（ISO："yyyy-MM-dd"）
+     */
+    private static final DateTimeFormatter PARSE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    /**
+     * 宽松解析时间字符串为 {@link LocalTime}，解析失败返回 {@code null}。
+     * <p>支持 ISO 格式（"10:15:30"）以及中文习惯格式（"10时15分30秒"、"10点15分"等）。</p>
+     *
+     * @param time 时间字符串
+     * @return 本地时间，解析失败或参数为 null 时返回 {@code null}
+     */
+    public static LocalTime parseLocalTimeSafe(String time) {
+        if (time == null) {
+            return null;
+        }
+        String trimmed = time.trim();
+        try {
+            return LocalTime.parse(trimmed, DateTimeFormatter.ISO_LOCAL_TIME);
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalTime.parse(trimmed, PARSE_TIME_FORMATTER);
+            } catch (DateTimeParseException ex) {
+                String normalized = trimmed.replace("时", ":")
+                        .replace("点", ":")
+                        .replace("分", ":")
+                        .replace("秒", "");
+                try {
+                    return LocalTime.parse(normalized, PARSE_TIME_FORMATTER);
+                } catch (DateTimeParseException px) {
+                    return null;
+                }
+            }
+        }
+    }
+
+    /**
+     * 宽松解析日期字符串为 {@link LocalDate}，解析失败返回 {@code null}。
+     * <p>支持 ISO 格式（"2025-07-25"）以及中文习惯格式（"2025年07月25日"）。</p>
+     *
+     * @param date 日期字符串
+     * @return 本地日期，解析失败或参数为 null 时返回 {@code null}
+     */
+    public static LocalDate parseLocalDateSafe(String date) {
+        if (date == null) {
+            return null;
+        }
+        String trimmed = date.trim();
+        try {
+            return LocalDate.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalDate.parse(trimmed, PARSE_DATE_FORMATTER);
+            } catch (DateTimeParseException ex) {
+                String normalized = trimmed.replace("年", "-")
+                        .replace("月", "-")
+                        .replace("日", "");
+                try {
+                    return LocalDate.parse(normalized, PARSE_DATE_FORMATTER);
+                } catch (DateTimeParseException px) {
+                    return null;
+                }
+            }
+        }
+    }
 }
