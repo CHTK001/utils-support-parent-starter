@@ -109,11 +109,24 @@ public class SyslogPolledDirectory implements PolledDirectory {
      * @param pollIntervalSeconds 轮询间隔（秒）
      */
     private SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds) {
+        this(source, pattern, minLevel, pollIntervalSeconds, SystemLogService.getInstance());
+    }
+
+    /**
+     * 构造系统日志轮询监听器（注入日志服务，便于测试）。
+     *
+     * @param source              日志来源
+     * @param pattern             消息匹配模式
+     * @param minLevel            最低日志级别
+     * @param pollIntervalSeconds 轮询间隔（秒）
+     * @param logService          系统日志服务实例
+     */
+    SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds, SystemLogService logService) {
         this.source = source;
         this.pattern = pattern;
         this.minLevel = minLevel;
         this.pollIntervalSeconds = pollIntervalSeconds;
-        this.logService = SystemLogService.getInstance();
+        this.logService = logService;
     }
 
     /**
@@ -312,6 +325,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
         private String pattern;
         private LogLevel minLevel;
         private int pollIntervalSeconds = 5;
+        private SystemLogService logService;
 
         /**
          * 指定日志来源（如 Windows 的 System/Application/Security，journald 的 unit 名）
@@ -346,9 +360,20 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
+         * 注入自定义 SystemLogService（测试用）
+         */
+        public Builder service(SystemLogService service) {
+            this.logService = service;
+            return this;
+        }
+
+        /**
          * 构建系统日志轮询监听器
          */
         public SyslogPolledDirectory build() {
+            if (logService != null) {
+                return new SyslogPolledDirectory(source, pattern, minLevel, pollIntervalSeconds, logService);
+            }
             return new SyslogPolledDirectory(source, pattern, minLevel, pollIntervalSeconds);
         }
     }

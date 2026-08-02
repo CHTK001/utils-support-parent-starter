@@ -84,7 +84,8 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             return;
         }
 
-        DefaultDesktopSession session = new DefaultDesktopSession(sessionId, encW, encH, 30, encoder,
+        String captureName = capture.getClass().getSimpleName();
+        DefaultDesktopSession session = new DefaultDesktopSession(sessionId, encW, encH, 30, encoder, captureName,
                 (sid, frame) -> agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), frame.keyFrame(), frame.data()),
                 (sid, json) -> agent.sendToGateway(json));
         session.setTargetSize(clientW, clientH);
