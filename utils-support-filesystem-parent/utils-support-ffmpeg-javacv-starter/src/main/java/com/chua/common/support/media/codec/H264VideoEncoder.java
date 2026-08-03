@@ -16,9 +16,9 @@ import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 基于 JavaCV FFmpeg 的 H.264/AVC 编码器。
+ * 基于 JavaCV FFmpeg 的 H.264/AVC 编码器，支持软件（libx264）和硬件（NVENC）编码。
  *
- * <p>支持零拷贝 Frame 路径和 BufferedImage 降级路径。</p>
+ * <p>硬件编码使用 h264_nvenc + AV_PIX_FMT_NV12，软件编码使用 libx264 + AV_PIX_FMT_YUV420P。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,124 +27,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi(value = {"h264", "javacv-ffmpeg"}, order = 50)
 public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
 
-    /**
-     * 实例唯一标识（纳秒时间戳）
-     */
     private final long instanceId = System.nanoTime();
-
-    /**
-     * FFmpeg 帧录制器
-     */
     private FFmpegFrameRecorder recorder;
-
-    /**
-     * 内存输出流
-     */
     private ByteArrayOutputStream memoryStream;
-
-    /**
-     * 视频宽度
-     */
     private int width;
-
-    /**
-     * 视频高度
-     */
     private int height;
-
-    /**
-     * 帧率
-     */
     private int fps;
-
-    /**
-     * 是否请求关键帧
-     */
     private boolean keyFrameRequested;
-
-    /**
-     * 时间戳计数器
-     */
     private long pts;
-
-    /**
-     * 编码器是否已启动
-     */
     private boolean started;
-
-    /**
-     * 已编码帧索引
-     */
     private long frameIndex;
-
-/**
-     * Java2DFrameConverter 转换器
-     */
     private Java2DFrameConverter bufferedImageConverter;
-
-    /**
-     * 缓存 Frame 对象，避免反复分配
-     */
     private Frame cachedFrame;
-
-    /**
-     * CRF 值（18-35，越低质量越高）
-     */
     private int crf = 23;
+    private boolean useHardware = false;
+    private boolean nvencActive;
 
-    /**
-     * 是否使用硬件编码
-     */
-    private boolean useHardware = true;
-
-    /**
-     * H.264 编码格式名称
-     */
     private static final String CODEC_NAME_H264 = "h264";
-
-    /**
-     * H.264 编码格式标识
-     */
     private static final String FORMAT_H264 = "h264";
-
-    /**
-     * 内存输出流初始容量（字节）
-     */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
-
-    /**
-     * GOP 大小（关键帧间隔）
-     */
     private static final int GOP_SIZE = 150;
-
-    /**
-     * H.264 编码 preset 选项的 key（"preset"）
-     */
     private static final String KEY_PRESET = "preset";
-
-    /**
-     * H.264 编码 tune 选项的 key（"tune"）
-     */
     private static final String KEY_TUNE = "tune";
-
-    /**
-     * H.264 编码 profile 选项的 key（"profile"）
-     */
     private static final String KEY_PROFILE = "profile";
-
-    /**
-     * H.264 编码 preset 值（"ultrafast"）
-     */
     private static final String VAL_PRESET = "ultrafast";
-
-    /**
-     * H.264 编码 tune 值（"zerolatency"）
-     */
     private static final String VAL_TUNE = "zerolatency";
-
-    /**
-     * H.264 编码 profile 值（"main"）
-     */
     private static final String VAL_PROFILE = "baseline";
 
     /**
@@ -199,24 +106,61 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
         this.height = ensureEven(height);
         this.fps = Math.max(1, fps);
         this.memoryStream = new ByteArrayOutputStream(MEMORY_STREAM_INITIAL_CAPACITY);
-        try {
-            this.recorder = new FFmpegFrameRecorder(new MemoryOutputStream(memoryStream), this.width, this.height);
-            this.recorder.setFormat(FORMAT_H264);
-            this.recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-            this.recorder.setFrameRate(this.fps);
-            this.recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
-            this.recorder.setOption("crf", String.valueOf(crf));
-            this.recorder.setInterleaved(true);
-            this.recorder.setGopSize(GOP_SIZE);
-            this.recorder.setOption(KEY_PRESET, VAL_PRESET);
-            this.recorder.setOption(KEY_TUNE, VAL_TUNE);
-            this.recorder.setOption(KEY_PROFILE, VAL_PROFILE);
-            this.recorder.start();
-            this.started = true;
+        this.nvencActive = false;
+        if (useHardware) {
+            tryInitNvenc();
+        }
+        if (!started) {
+            tryInitSoftware();
+        }
+        if (started) {
             this.bufferedImageConverter = new Java2DFrameConverter();
-            log.info("[H264VideoEncoder] 已启动: {}x{} {}fps (H264 内存编码)", this.width, this.height, this.fps);
+            log.info("[H264VideoEncoder] 已启动: {}x{} {}fps {}",
+                    this.width, this.height, this.fps, nvencActive ? "NVENC硬件编码" : "H264软件编码");
+        }
+    }
+
+    private void tryInitNvenc() {
+        try {
+            FFmpegFrameRecorder r = new FFmpegFrameRecorder(new MemoryOutputStream(memoryStream), this.width, this.height);
+            r.setFormat(FORMAT_H264);
+            r.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            r.setVideoCodecName("h264_nvenc");
+            r.setFrameRate(this.fps);
+            r.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+            r.setOption("preset", "p1");
+            r.setOption("tune", "ll");
+            r.setInterleaved(true);
+            r.setGopSize(GOP_SIZE);
+            r.start();
+            this.recorder = r;
+            this.started = true;
+            this.nvencActive = true;
+            log.info("[H264VideoEncoder] NVENC 初始化成功: {}x{} {}fps", this.width, this.height, this.fps);
         } catch (Throwable e) {
-            log.error("[H264VideoEncoder] 初始化失败: {} (cause={})",
+            log.warn("[H264VideoEncoder] NVENC 初始化失败，回退到软件编码: {} (cause={})",
+                    e.getMessage(), e.getCause() == null ? "none" : e.getCause().getMessage());
+        }
+    }
+
+    private void tryInitSoftware() {
+        try {
+            FFmpegFrameRecorder r = new FFmpegFrameRecorder(new MemoryOutputStream(memoryStream), this.width, this.height);
+            r.setFormat(FORMAT_H264);
+            r.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            r.setFrameRate(this.fps);
+            r.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+            r.setOption("crf", String.valueOf(crf));
+            r.setInterleaved(true);
+            r.setGopSize(GOP_SIZE);
+            r.setOption(KEY_PRESET, VAL_PRESET);
+            r.setOption(KEY_TUNE, VAL_TUNE);
+            r.setOption(KEY_PROFILE, VAL_PROFILE);
+            r.start();
+            this.recorder = r;
+            this.started = true;
+        } catch (Throwable e) {
+            log.error("[H264VideoEncoder] 软件编码初始化失败: {} (cause={})",
                     e.getMessage(), e.getCause() == null ? "none" : e.getCause().getMessage(), e);
             this.recorder = null;
             this.started = false;
@@ -247,7 +191,7 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
 
     @Override
     public String getCodecName() {
-        return CODEC_NAME_H264;
+        return nvencActive ? "h264_nvenc" : CODEC_NAME_H264;
     }
 
     @Override
@@ -257,7 +201,7 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
 
     @Override
     public boolean isHardwareAccelerated() {
-        return false;
+        return nvencActive;
     }
 
     @Override
@@ -332,7 +276,7 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             }
             return encodeInternal(frame);
         } catch (Throwable e) {
-            log.warn("[H264VideoEncoder] encode(ByteBuffer) 失败: {}", e.getMessage());
+            log.warn("[H264VideoEncoder] encode(ByteBuffer) 失败", e);
             return new byte[0];
         }
     }
@@ -351,6 +295,11 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             keyFrameRequested = false;
         }
         frame.timestamp = pts++;
+        if (log.isDebugEnabled()) {
+            log.debug("encode frame: {}x{} depth={} channels={} imageLen={}",
+                    frame.imageWidth, frame.imageHeight, frame.imageDepth, frame.imageChannels,
+                    frame.image == null ? 0 : frame.image.length);
+        }
         recorder.record(frame);
         byte[] all = memoryStream.toByteArray();
         byte[] frameBytes = new byte[all.length - (int) captureSize];
