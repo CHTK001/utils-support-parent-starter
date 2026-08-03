@@ -313,6 +313,7 @@ public class DefaultDesktopSession implements DesktopSession {
 
     private void pushMetrics() {
         if (textCallback == null) {
+            log.warn("[DefaultDesktopSession] pushMetrics: textCallback is null");
             return;
         }
         try {
@@ -324,9 +325,10 @@ public class DefaultDesktopSession implements DesktopSession {
             String json = String.format(
                     "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d,\"capture\":\"%s\",\"decoder\":\"%s\"}",
                     sessionId, currentFps, memUsed, memTotal, captureName, codecName);
+            log.info("[DefaultDesktopSession] pushMetrics: fps={}, decoder={}", currentFps, codecName);
             textCallback.accept(sessionId, json);
         } catch (Exception e) {
-            log.debug("[DefaultDesktopSession] pushMetrics error: {}", e.getMessage());
+            log.warn("[DefaultDesktopSession] pushMetrics error: {}", e.getMessage(), e);
         }
     }
 }
