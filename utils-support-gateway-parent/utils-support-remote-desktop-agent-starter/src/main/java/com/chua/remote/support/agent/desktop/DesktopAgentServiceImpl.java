@@ -6,6 +6,9 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.remote.support.agent.BaseRemoteAgent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.awt.Robot;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +31,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
     private final Map<String, DesktopSession> sessions = new ConcurrentHashMap<>();
     private ExecutorService captureExecutor;
     private volatile boolean capturing;
+    private Robot robot;
 
     /**
      * 构造器。
@@ -148,7 +152,128 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
 
     @Override
     public void handleInput(String sessionId, String type, Map<String, Object> payload) {
-        handleControl(sessionId, type, payload);
+        if (!sessions.containsKey(sessionId)) return;
+        try {
+            if (robot == null) robot = new Robot();
+            switch (type) {
+                case "mouse" -> handleMouse(payload);
+                case "key" -> handleKey(payload);
+                default -> handleControl(sessionId, type, payload);
+            }
+        } catch (Exception e) {
+            log.warn("[DesktopAgent] 输入处理异常: {}", e.getMessage());
+        }
+    }
+
+    private void handleMouse(Map<String, Object> p) {
+        int x = p.containsKey("x") ? ((Number) p.get("x")).intValue() : -1;
+        int y = p.containsKey("y") ? ((Number) p.get("y")).intValue() : -1;
+        String action = (String) p.get("action");
+        if (x >= 0 && y >= 0) robot.mouseMove(x, y);
+        if (action == null) return;
+        int btn = p.containsKey("button") ? ((Number) p.get("button")).intValue() : 1;
+        int mask = switch (btn) {
+            case 2 -> InputEvent.BUTTON2_DOWN_MASK;
+            case 3 -> InputEvent.BUTTON3_DOWN_MASK;
+            default -> InputEvent.BUTTON1_DOWN_MASK;
+        };
+        switch (action) {
+            case "down" -> robot.mousePress(mask);
+            case "up" -> robot.mouseRelease(mask);
+            case "wheel" -> {
+                int wheel = p.containsKey("wheel") ? ((Number) p.get("wheel")).intValue() : 0;
+                robot.mouseWheel(wheel);
+            }
+        }
+    }
+
+    private void handleKey(Map<String, Object> p) {
+        int keyCode = p.containsKey("keyCode") ? ((Number) p.get("keyCode")).intValue() : 0;
+        String action = (String) p.get("action");
+        if (keyCode <= 0 || action == null) return;
+        int awtCode = toAwtKeyCode(keyCode);
+        if (awtCode <= 0) return;
+        if ("down".equals(action)) {
+            robot.keyPress(awtCode);
+        } else if ("up".equals(action)) {
+            robot.keyRelease(awtCode);
+        }
+    }
+
+    private static int toAwtKeyCode(int jsCode) {
+        if (jsCode >= 32 && jsCode <= 126) return jsCode;
+        return switch (jsCode) {
+            case 8 -> KeyEvent.VK_BACK_SPACE;
+            case 9 -> KeyEvent.VK_TAB;
+            case 10 -> KeyEvent.VK_ENTER;
+            case 16 -> KeyEvent.VK_SHIFT;
+            case 17 -> KeyEvent.VK_CONTROL;
+            case 18 -> KeyEvent.VK_ALT;
+            case 27 -> KeyEvent.VK_ESCAPE;
+            case 32 -> KeyEvent.VK_SPACE;
+            case 33 -> KeyEvent.VK_PAGE_UP;
+            case 34 -> KeyEvent.VK_PAGE_DOWN;
+            case 35 -> KeyEvent.VK_END;
+            case 36 -> KeyEvent.VK_HOME;
+            case 37 -> KeyEvent.VK_LEFT;
+            case 38 -> KeyEvent.VK_UP;
+            case 39 -> KeyEvent.VK_RIGHT;
+            case 40 -> KeyEvent.VK_DOWN;
+            case 46 -> KeyEvent.VK_DELETE;
+            case 48 -> KeyEvent.VK_0;
+            case 49 -> KeyEvent.VK_1;
+            case 50 -> KeyEvent.VK_2;
+            case 51 -> KeyEvent.VK_3;
+            case 52 -> KeyEvent.VK_4;
+            case 53 -> KeyEvent.VK_5;
+            case 54 -> KeyEvent.VK_6;
+            case 55 -> KeyEvent.VK_7;
+            case 56 -> KeyEvent.VK_8;
+            case 57 -> KeyEvent.VK_9;
+            case 65 -> KeyEvent.VK_A;
+            case 66 -> KeyEvent.VK_B;
+            case 67 -> KeyEvent.VK_C;
+            case 68 -> KeyEvent.VK_D;
+            case 69 -> KeyEvent.VK_E;
+            case 70 -> KeyEvent.VK_F;
+            case 71 -> KeyEvent.VK_G;
+            case 72 -> KeyEvent.VK_H;
+            case 73 -> KeyEvent.VK_I;
+            case 74 -> KeyEvent.VK_J;
+            case 75 -> KeyEvent.VK_K;
+            case 76 -> KeyEvent.VK_L;
+            case 77 -> KeyEvent.VK_M;
+            case 78 -> KeyEvent.VK_N;
+            case 79 -> KeyEvent.VK_O;
+            case 80 -> KeyEvent.VK_P;
+            case 81 -> KeyEvent.VK_Q;
+            case 82 -> KeyEvent.VK_R;
+            case 83 -> KeyEvent.VK_S;
+            case 84 -> KeyEvent.VK_T;
+            case 85 -> KeyEvent.VK_U;
+            case 86 -> KeyEvent.VK_V;
+            case 87 -> KeyEvent.VK_W;
+            case 88 -> KeyEvent.VK_X;
+            case 89 -> KeyEvent.VK_Y;
+            case 90 -> KeyEvent.VK_Z;
+            case 112 -> KeyEvent.VK_F1;
+            case 113 -> KeyEvent.VK_F2;
+            case 114 -> KeyEvent.VK_F3;
+            case 115 -> KeyEvent.VK_F4;
+            case 116 -> KeyEvent.VK_F5;
+            case 117 -> KeyEvent.VK_F6;
+            case 118 -> KeyEvent.VK_F7;
+            case 119 -> KeyEvent.VK_F8;
+            case 120 -> KeyEvent.VK_F9;
+            case 121 -> KeyEvent.VK_F10;
+            case 122 -> KeyEvent.VK_F11;
+            case 123 -> KeyEvent.VK_F12;
+            case 155 -> KeyEvent.VK_INSERT;
+            case 144 -> KeyEvent.VK_NUM_LOCK;
+            case 145 -> KeyEvent.VK_SCROLL_LOCK;
+            case 127 -> KeyEvent.VK_DELETE;
+            default -> 0;
+        };
     }
 
     @Override
