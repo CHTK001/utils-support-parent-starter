@@ -62,6 +62,14 @@ public interface VideoEncoder {
     }
 
     /**
+     * 动态调整编码质量（CRF 或等效），默认不处理。
+     *
+     * @param crf CRF 值（18-35，越低质量越高）
+     */
+    default void setCrf(int crf) {
+    }
+
+    /**
      * 释放编码器资源。
      */
     void close();
