@@ -327,9 +327,8 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         if (capture != null) capture.close();
     }
 
-    /**
-     * 采集循环：采集 → 分发到所有会话 → 编码 → 发送。
-     */
+    private int metricsFrameCounter;
+
     private void captureLoop() {
         while (capturing) {
             if (sessions.isEmpty()) {
@@ -351,15 +350,35 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                         session.feedFrame(buf, w, h);
                     }
                 }
+                if (++metricsFrameCounter % 60 == 0) {
+                    pushMetrics();
+                }
             } catch (Exception e) {
                 log.warn("[DesktopAgent] 采集异常: {}", e.getMessage());
             }
-            // 根据质量模式调整帧率，默认 60fps
             long elapsed = System.nanoTime() - frameStart;
             int targetFps = sessions.values().stream()
                     .findFirst().map(s -> getTargetFps(s)).orElse(60);
             long sleepMs = Math.max(0, (1000 / targetFps) - elapsed / 1_000_000);
             try { Thread.sleep(sleepMs); } catch (InterruptedException e) { break; }
+        }
+    }
+
+    private void pushMetrics() {
+        try {
+            Runtime rt = Runtime.getRuntime();
+            long memTotal = rt.totalMemory();
+            long memUsed = memTotal - rt.freeMemory();
+            for (DesktopSession s : sessions.values()) {
+                if (s.isRunning()) {
+                    String json = String.format(
+                            "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d,\"capture\":\"%s\",\"decoder\":\"%s\"}",
+                            s.getSessionId(), s.getFps(), memUsed, memTotal, capture.getClass().getSimpleName(), s.getEncoder().getCodecName());
+                    agent.sendToGateway(json);
+                }
+            }
+        } catch (Exception e) {
+            log.debug("[DesktopAgent] pushMetrics error: {}", e.getMessage());
         }
     }
 
