@@ -8,12 +8,9 @@ import com.chua.common.support.objects.definition.TypeBeanDefinition;
 import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.objects.provider.ObjectProvider;
 import com.chua.common.support.objects.publisher.EventPublisher;
+import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
 import com.chua.common.support.objects.scanner.ObjectContextScanner;
-import com.chua.common.support.osgi.BundleApplication;
-import com.chua.common.support.osgi.BundleContext;
-import com.chua.common.support.osgi.OsgiLauncher;
-import com.chua.common.support.osgi.OsgiLauncherHolder;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
@@ -24,46 +21,24 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * Spring Boot 集成 ObjectContext — 桥接 Spring ApplicationContext 与 OSGI 模块上下文。
+ * Spring Boot 集成 ObjectContext — 桥接 Spring ApplicationContext 与核心容器。
  *
  * <p>核心职责：</p>
  * <ul>
  *   <li>将 Spring {@link ApplicationContext} 的 Bean 管理能力暴露给 {@link ObjectContext} 体系</li>
- *   <li>集成 OSGI 模块上下文：
- *     <ul>
- *       <li>启动时自动发现并启动 OSGI 框架（如果 classpath 存在 OSGI 实现）</li>
- *       <li>将 OSGI 中注册的服务注入到 Spring 容器中</li>
- *       <li>将 Spring 容器中的 Bean 暴露给 OSGI 服务注册表</li>
- *     </ul>
- *   </li>
  *   <li>支持 SPI 发现、注解扫描、包扫描等 ObjectContext 标准能力</li>
- *   <li>提供统一的 Bean 查找路径：Spring → OSGI → SPI → 本地注册表</li>
+ *   <li>提供统一的 Bean 查找路径：Spring → 本地注册表 → SPI</li>
  * </ul>
+ *
+ * <p><b>边界</b>：本类不感知任何具体容器实现（如 OSGi、远程节点），
+ * 外部容器由消费方通过 {@link ObjectContext#registerBean(BeanDefinitionRegister)} 自行挂接。</p>
  *
  * <h2>Bean 查找优先级</h2>
  * <pre>
  *   getBean(name, type)
  *     ├─ 1. Spring ApplicationContext.getBean(name, type)
- *     ├─ 2. OSGI OsgiLauncher.getService(type)（按 name 过滤）
- *     ├─ 3. 本地 BeanDefinitionRegistry.getBean(name, type)
- *     └─ 4. SPI ServiceProvider.getExtension(type)
- * </pre>
- *
- * <h2>生命周期</h2>
- * <pre>
- *   构造阶段
- *     ├─ 保存 Spring ApplicationContext 引用
- *     ├─ 初始化本地 BeanDefinitionRegistry
- *     └─ 尝试启动 OSGI 框架（如果可用）
- *
- *   运行阶段
- *     ├─ getBean() → 多级查找
- *     ├─ registerBean() → 同时注册到 Spring 和 OSGI
- *     └─ publish() → 事件发布
- *
- *   销毁阶段
- *     ├─ 停止 OSGI 框架
- *     └─ 清理本地注册表
+ *     ├─ 2. 本地 BeanDefinitionRegistry.getBean(name, type)
+ *     └─ 3. SPI ServiceProvider.getExtension(type)
  * </pre>
  *
  * @author CH
@@ -81,11 +56,6 @@ public class SpringBootObjectContext implements ObjectContext {
      * 本地 BeanDefinitionRegistry（用于非 Spring 管理的 Bean）
      */
     private final BeanDefinitionRegistry localRegistry;
-
-    /**
-     * OSGI 启动器引用（可能为 null）
-     */
-    private final OsgiLauncher osgiLauncher;
 
     /**
      * 环境配置
@@ -120,21 +90,13 @@ public class SpringBootObjectContext implements ObjectContext {
             init();
         }
 
-        // 尝试启动 OSGI 框架
-        this.osgiLauncher = tryStartOsgi();
-        if (this.osgiLauncher != null) {
-            log.info("[SpringBootObjectContext] OSGI 框架已启动，集成 OSGI 服务上下文");
-            registerOsgiBundleApplications();
-        }
-
         // 执行包扫描（如果配置了）
         if (config != null && config.shouldScan()) {
             scan(config.getScanPackages());
         }
 
-        log.info("[SpringBootObjectContext] 初始化完成，Spring Bean: {}, OSGI: {}",
-                applicationContext.getBeanDefinitionCount(),
-                this.osgiLauncher != null ? "已激活" : "未启用");
+        log.info("[SpringBootObjectContext] 初始化完成，Spring Bean: {}",
+                applicationContext.getBeanDefinitionCount());
     }
 
     // ==================== Bean 获取（多级查找） ====================
@@ -159,26 +121,14 @@ public class SpringBootObjectContext implements ObjectContext {
         } catch (Exception ignored) {
         }
 
-        // 3. OSGI 服务
-        if (osgiLauncher != null && osgiLauncher.isActive()) {
-            try {
-                T service = osgiLauncher.getService(type);
-                if (service != null) {
-                    return service;
-                }
-            } catch (Exception e) {
-                log.trace("[SpringBootObjectContext] OSGI getService({}) failed: {}", type.getSimpleName(), e.getMessage());
-            }
-        }
-
-        // 4. 本地注册表
+        // 3. 本地注册表
         try {
             return localRegistry.getBean(name, type);
         } catch (Exception e) {
             log.trace("[SpringBootObjectContext] localRegistry getBean('{}') failed: {}", name, e.getMessage());
         }
 
-        // 5. SPI 作为最后兜底
+        // 4. SPI 作为最后兜底
         try {
             return ServiceProvider.of(type).getDefault();
         } catch (Exception ignored) {
@@ -195,24 +145,13 @@ public class SpringBootObjectContext implements ObjectContext {
         } catch (Exception ignored) {
         }
 
-        // 2. OSGI
-        if (osgiLauncher != null && osgiLauncher.isActive()) {
-            try {
-                T service = osgiLauncher.getService(type);
-                if (service != null) {
-                    return service;
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        // 3. 本地注册表
+        // 2. 本地注册表
         try {
             return localRegistry.getBeanOfType(type);
         } catch (Exception ignored) {
         }
 
-        // 4. SPI
+        // 3. SPI
         try {
             return ServiceProvider.of(type).getDefault();
         } catch (Exception ignored) {
@@ -241,20 +180,7 @@ public class SpringBootObjectContext implements ObjectContext {
         } catch (Exception ignored) {
         }
 
-        // 2. OSGI
-        if (osgiLauncher != null && osgiLauncher.isActive()) {
-            try {
-                List<T> services = osgiLauncher.getServices(type);
-                if (services != null) {
-                    for (int i = 0; i < services.size(); i++) {
-                        result.put("osgi-" + type.getSimpleName() + "-" + i, services.get(i));
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        // 3. 本地注册表
+        // 2. 本地注册表
         try {
             result.putAll(localRegistry.getBeansOfType(type));
         } catch (Exception ignored) {
@@ -436,7 +362,7 @@ public class SpringBootObjectContext implements ObjectContext {
         if (bean == null) {
             return;
         }
-        // 1. 注册到本地注册表与 OSGi（默认行为）
+        // 1. 注册到本地注册表
         ObjectContext.super.registerBean(bean);
 
         // 2. 同步到 Spring 容器（如果尚未注册），使后续 @Autowired 可以注入
@@ -444,24 +370,6 @@ public class SpringBootObjectContext implements ObjectContext {
             SpringObjectContextBridge.registerIfAbsent(applicationContext, bean);
         } catch (Exception e) {
             log.trace("[SpringBootObjectContext] 同步到 Spring 失败: {}", e.getMessage());
-        }
-
-        // 3. 注册到 OSGi
-        if (osgiLauncher != null && osgiLauncher.isActive()) {
-            try {
-                BundleApplication[] apps = applicationContext.getBeansOfType(BundleApplication.class)
-                        .values().toArray(new BundleApplication[0]);
-                for (BundleApplication app : apps) {
-                    BundleContext ctx = getOsgiBundleContext();
-                    if (ctx != null) {
-                        @SuppressWarnings("unchecked")
-                        Class<Object> type = (Class<Object>) bean.getClass();
-                        ctx.registerService(type, bean);
-                    }
-                }
-            } catch (Exception e) {
-                log.trace("[SpringBootObjectContext] OSGI registerService failed: {}", e.getMessage());
-            }
         }
     }
 
@@ -473,6 +381,14 @@ public class SpringBootObjectContext implements ObjectContext {
     @Override
     public void registerBean(BeanDefinition beanDefinition) {
         ObjectContext.super.registerBean(beanDefinition);
+    }
+
+    @Override
+    public boolean registerBean(BeanDefinitionRegister register) {
+        if (register == null) {
+            throw new com.chua.common.support.objects.exception.BeanDefinitionException("BeanDefinitionRegister 不能为空");
+        }
+        return getRegistry(getConfig().isSpiEnabled()).addRegister(register);
     }
 
     // ==================== 包扫描 ====================
@@ -499,7 +415,7 @@ public class SpringBootObjectContext implements ObjectContext {
         return localRegistry;
     }
 
-    // ==================== OSGI 集成 ====================
+    // ==================== Spring ApplicationContext 访问 ====================
 
     /**
      * 获取 Spring ApplicationContext。
@@ -510,123 +426,10 @@ public class SpringBootObjectContext implements ObjectContext {
         return applicationContext;
     }
 
-    /**
-     * 获取 OSGI 启动器。
-     *
-     * @return OSGI 启动器，未启用时返回 null
-     */
-    public OsgiLauncher getOsgiLauncher() {
-        return osgiLauncher;
-    }
-
-    /**
-     * 判断 OSGI 是否已启用。
-     *
-     * @return true 表示已启用
-     */
-    public boolean isOsgiEnabled() {
-        return osgiLauncher != null && osgiLauncher.isActive();
-    }
-
-    /**
-     * 尝试启动 OSGI 框架。
-     *
-     * @return OSGI 启动器实例，不可用时返回 null
-     */
-    private OsgiLauncher tryStartOsgi() {
-        try {
-            // 检查 classpath 是否有 OSGI 实现
-            Class.forName("com.chua.osgi.support.FelixOsgiLauncher");
-            OsgiLauncher launcher = ServiceProvider.of(OsgiLauncher.class).getDefault();
-            if (launcher != null) {
-                Map<String, String> config = new HashMap<>();
-                config.put("org.osgi.framework.storage", ".workbuddy/osgi-cache");
-                config.put("org.osgi.framework.startlevel.beginning", "4");
-                launcher.start(config);
-                return launcher;
-            }
-        } catch (ClassNotFoundException e) {
-            log.debug("[SpringBootObjectContext] OSGI 实现不可用（classpath 无 FelixOsgiLauncher），跳过 OSGI 集成");
-        } catch (Exception e) {
-            log.warn("[SpringBootObjectContext] OSGI 启动失败: {}", e.getMessage());
-        }
-        return null;
-    }
-
-    /**
-     * 注册所有 SPI BundleApplication 实现到 OSGI 上下文。
-     */
-    private void registerOsgiBundleApplications() {
-        try {
-            List<BundleApplication> applications = ServiceProvider.of(BundleApplication.class).collect();
-            if (applications.isEmpty()) {
-                log.debug("[SpringBootObjectContext] 无 BundleApplication 实现，跳过 OSGI Bundle 注册");
-                return;
-            }
-
-            // 同时检查 Spring 容器中的 BundleApplication
-            Map<String, BundleApplication> springApps = applicationContext.getBeansOfType(BundleApplication.class);
-
-            // 合并 SPI 和 Spring 的 BundleApplication
-            Set<BundleApplication> allApps = new LinkedHashSet<>(applications);
-            allApps.addAll(springApps.values());
-
-            for (BundleApplication app : allApps) {
-                try {
-                    BundleContext ctx = getOsgiBundleContext();
-                    if (ctx != null) {
-                        app.onBundleStart(ctx);
-                        log.info("[SpringBootObjectContext] OSGI Bundle 已启动: {}", app.getClass().getSimpleName());
-                    }
-                } catch (Exception e) {
-                    log.warn("[SpringBootObjectContext] BundleApplication 启动失败 [{}]: {}",
-                            app.getClass().getSimpleName(), e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            log.warn("[SpringBootObjectContext] 注册 OSGI BundleApplication 失败: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * 获取 OSGI Bundle 上下文（匿名实现）。
-     *
-     * @return BundleContext 实例
-     */
-    private BundleContext getOsgiBundleContext() {
-        if (osgiLauncher == null || !osgiLauncher.isActive()) {
-            return null;
-        }
-        return new BundleContext() {
-            @Override
-            public <T> void registerService(Class<T> type, T service) {
-                // 代理到 OSGI 框架
-                log.debug("[SpringBootObjectContext] 注册 OSGI 服务: {}", type.getSimpleName());
-            }
-
-            @Override
-            public <T> void unregisterService(Class<T> type, T service) {
-                log.debug("[SpringBootObjectContext] 注销 OSGI 服务: {}", type.getSimpleName());
-            }
-
-            @Override
-            public <T> List<T> getServices(Class<T> type) {
-                return osgiLauncher.getServices(type);
-            }
-
-            @Override
-            public <T> T getService(Class<T> type) {
-                return osgiLauncher.getService(type);
-            }
-        };
-    }
-
     // ==================== 生命周期 ====================
 
     /**
      * 关闭上下文，释放资源。
-     * <p>停止 OSGi 框架并清理本地注册表，然后调用 {@link ObjectContext#close()}
-     * 清理 CONFIG_HOLDER / REGISTRY_HOLDER。</p>
      */
     @Override
     public void close() {
@@ -634,17 +437,6 @@ public class SpringBootObjectContext implements ObjectContext {
             return;
         }
         closed = true;
-
-        // 停止 OSGI
-        if (osgiLauncher != null) {
-            try {
-                osgiLauncher.stop();
-                OsgiLauncherHolder.clear();
-                log.info("[SpringBootObjectContext] OSGI 框架已停止");
-            } catch (Exception e) {
-                log.warn("[SpringBootObjectContext] OSGI 停止失败: {}", e.getMessage());
-            }
-        }
 
         // 清理本地注册表（不销毁 Bean，但清空缓存）
         try {
