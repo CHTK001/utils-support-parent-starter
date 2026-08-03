@@ -5,9 +5,8 @@ import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.objects.register.BeanSingletonRegistry;
 import com.chua.common.support.osgi.OsgiLauncher;
-import com.chua.common.support.osgi.OsgiLauncherHolder;
-import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiIgnore;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
@@ -16,18 +15,30 @@ import java.util.*;
 /**
  * OSGi Bean 定义注册器（只读）。
  *
- * <p>委托 {@link OsgiLauncherHolder} 获取 OSGi 框架，所有查询直接委派
+ * <p>委托注入的 {@link OsgiLauncher} 获取 OSGi 框架，所有查询直接委派
  * OSGi 服务注册表。Bean 实例由 Felix OSGi 容器管理，本注册器仅做桥接。</p>
+ *
+ * <p>标记为 {@link SpiIgnore}，不参与 SPI 自动注册。</p>
  *
  * @author CH
  * @since 2024/12/20
  */
 @Slf4j
-@Spi("osgi")
+@SpiIgnore
 @SpiDescribe("OSGi Bean 定义注册器（只读，委托 Felix OSGi 框架）")
 public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
     private volatile boolean closed;
+    private volatile OsgiLauncher osgiLauncher;
+
+    /**
+     * 设置 OSGi 启动器（由 Spring 注入，替代静态持有）。
+     *
+     * @param osgiLauncher OSGi 启动器
+     */
+    public void setOsgiLauncher(OsgiLauncher osgiLauncher) {
+        this.osgiLauncher = osgiLauncher;
+    }
 
     @Override
     public String getName() {
@@ -74,7 +85,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
         if (beanName == null || closed) {
             return null;
         }
-        OsgiLauncher launcher = OsgiLauncherHolder.getInstance();
+        OsgiLauncher launcher = this.osgiLauncher;
         if (launcher == null || !launcher.isActive()) {
             return null;
         }
@@ -100,7 +111,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
         if (typeName == null || closed) {
             return Collections.emptyList();
         }
-        OsgiLauncher launcher = OsgiLauncherHolder.getInstance();
+        OsgiLauncher launcher = this.osgiLauncher;
         if (launcher == null || !launcher.isActive()) {
             return Collections.emptyList();
         }

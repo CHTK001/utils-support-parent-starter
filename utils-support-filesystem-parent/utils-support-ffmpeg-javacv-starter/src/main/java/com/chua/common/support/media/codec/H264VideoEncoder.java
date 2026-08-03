@@ -208,15 +208,9 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             this.recorder.setOption("crf", String.valueOf(crf));
             this.recorder.setInterleaved(true);
             this.recorder.setGopSize(GOP_SIZE);
-            if (useHardware) {
-                this.recorder.setOption("vcodec", "h264_nvenc");
-                this.recorder.setOption("preset", "p4");
-                this.recorder.setOption("tune", "ull");
-            } else {
-                this.recorder.setOption(KEY_PRESET, VAL_PRESET);
-                this.recorder.setOption(KEY_TUNE, VAL_TUNE);
-                this.recorder.setOption(KEY_PROFILE, VAL_PROFILE);
-            }
+            this.recorder.setOption(KEY_PRESET, VAL_PRESET);
+            this.recorder.setOption(KEY_TUNE, VAL_TUNE);
+            this.recorder.setOption(KEY_PROFILE, VAL_PROFILE);
             this.recorder.start();
             this.started = true;
             this.bufferedImageConverter = new Java2DFrameConverter();
@@ -319,19 +313,23 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
-    @Override
+@Override
     public synchronized byte[] encode(ByteBuffer bgrData, int width, int height) {
         ensureInitialized(width, height, 30);
         if (!started || recorder == null) {
             return new byte[0];
         }
         try {
-            Frame frame = new Frame();
+            Frame frame = new Frame(width, height, Frame.DEPTH_UBYTE, 3);
             frame.imageWidth = width;
             frame.imageHeight = height;
             frame.imageStride = width * 3;
-            frame.imageDepth = Frame.DEPTH_UBYTE;
-            frame.image[0] = bgrData;
+            java.nio.Buffer[] img = frame.image;
+            if (img != null && img[0] instanceof ByteBuffer buf) {
+                buf.clear();
+                buf.put(bgrData);
+                buf.rewind();
+            }
             return encodeInternal(frame);
         } catch (Throwable e) {
             log.warn("[H264VideoEncoder] encode(ByteBuffer) 失败: {}", e.getMessage());

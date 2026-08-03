@@ -286,6 +286,9 @@ public class DefaultDesktopSession implements DesktopSession {
     @Override
     public void setQuality(int quality) {
         this.quality = Math.max(10, Math.min(100, quality));
+        int crf = 35 - (this.quality - 10) * 20 / 90;
+        encoder.setCrf(crf);
+        log.info("[DefaultDesktopSession] quality={}, crf={}", this.quality, crf);
     }
 
     @Override
