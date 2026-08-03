@@ -242,9 +242,7 @@ public class DefaultDesktopSession implements DesktopSession {
             case ORIGINAL -> { quality = 100; crf = 17; }
             default -> { quality = 80; crf = 28; }
         }
-        if (encoder instanceof com.chua.common.support.media.codec.H264VideoEncoder h264) {
-            h264.setCrf(crf);
-        }
+        encoder.setCrf(crf);
         log.info("[DefaultDesktopSession] quality mode={}, quality={}, crf={}", mode, quality, crf);
     }
 
