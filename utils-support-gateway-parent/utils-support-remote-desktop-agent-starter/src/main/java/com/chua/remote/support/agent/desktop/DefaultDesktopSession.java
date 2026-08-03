@@ -5,9 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
@@ -34,16 +31,6 @@ public class DefaultDesktopSession implements DesktopSession {
      * 帧回调
      */
     private final BiConsumer<String, EncodedScreen> frameCallback;
-
-    /**
-     * 文本回调
-     */
-    private final BiConsumer<String, String> textCallback;
-
-    /**
-     * 指标推送执行器
-     */
-    private ScheduledExecutorService metricsScheduler;
 
     /**
      * 会话是否运行中
@@ -98,15 +85,13 @@ public class DefaultDesktopSession implements DesktopSession {
      */
     public DefaultDesktopSession(String sessionId, int captureW, int captureH, int fps,
                                 VideoEncoder encoder, String captureName,
-                                BiConsumer<String, EncodedScreen> frameCallback,
-                                BiConsumer<String, String> textCallback) {
+                                BiConsumer<String, EncodedScreen> frameCallback) {
         this.sessionId = sessionId;
         this.targetWidth = captureW;
         this.targetHeight = captureH;
         this.encoder = encoder;
         this.captureName = captureName;
         this.frameCallback = frameCallback;
-        this.textCallback = textCallback;
     }
 
     @Override
@@ -115,14 +100,6 @@ public class DefaultDesktopSession implements DesktopSession {
             return;
         }
         running = true;
-        if (metricsScheduler == null) {
-            metricsScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "desktop-metrics-" + sessionId);
-                t.setDaemon(true);
-                return t;
-            });
-            metricsScheduler.scheduleAtFixedRate(this::pushMetrics, 1, 1, TimeUnit.SECONDS);
-        }
         log.info("桌面会话启动: sessionId={} target={}x{} mode={} encoder={}",
                 sessionId, targetWidth, targetHeight, qualityMode, encoder.getCodecName());
     }
@@ -130,10 +107,6 @@ public class DefaultDesktopSession implements DesktopSession {
     @Override
     public void stop() {
         running = false;
-        if (metricsScheduler != null) {
-            metricsScheduler.shutdownNow();
-            metricsScheduler = null;
-        }
         encoder.close();
         log.info("桌面会话已停止: sessionId={}", sessionId);
     }
@@ -321,24 +294,4 @@ public class DefaultDesktopSession implements DesktopSession {
         return fpsCounter.getAndSet(0);
     }
 
-    private void pushMetrics() {
-        if (textCallback == null) {
-            log.warn("[DefaultDesktopSession] pushMetrics: textCallback is null");
-            return;
-        }
-        try {
-            Runtime rt = Runtime.getRuntime();
-            long memTotal = rt.totalMemory();
-            long memUsed = memTotal - rt.freeMemory();
-            int currentFps = fpsCounter.getAndSet(0);
-            String codecName = encoder != null ? encoder.getCodecName() : "unknown";
-            String json = String.format(
-                    "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d,\"capture\":\"%s\",\"decoder\":\"%s\"}",
-                    sessionId, currentFps, memUsed, memTotal, captureName, codecName);
-            log.info("[DefaultDesktopSession] pushMetrics: fps={}, decoder={}", currentFps, codecName);
-            textCallback.accept(sessionId, json);
-        } catch (Exception e) {
-            log.warn("[DefaultDesktopSession] pushMetrics error: {}", e.getMessage(), e);
-        }
     }
-}

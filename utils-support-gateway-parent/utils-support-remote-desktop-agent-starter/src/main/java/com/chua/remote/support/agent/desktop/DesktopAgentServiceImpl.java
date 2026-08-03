@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 默认桌面代理服务实现。
@@ -90,8 +92,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
 
         String captureName = capture.getClass().getSimpleName();
         DefaultDesktopSession session = new DefaultDesktopSession(sessionId, encW, encH, 30, encoder, captureName,
-                (sid, frame) -> agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), frame.keyFrame(), frame.data()),
-                (sid, json) -> agent.sendToGateway(json));
+                (sid, frame) -> agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), frame.keyFrame(), frame.data()));
         session.setTargetSize(clientW, clientH);
         sessions.put(sessionId, session);
         session.start();
@@ -312,6 +313,13 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         capturing = true;
         captureExecutor = Executors.newSingleThreadExecutor(r -> new Thread(r, "desktop-capture"));
         captureExecutor.submit(this::captureLoop);
+        ScheduledExecutorService metricsScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "desktop-metrics");
+            t.setDaemon(true);
+            return t;
+        });
+        pushMetrics();
+        metricsScheduler.scheduleAtFixedRate(this::pushMetrics, 1, 1, TimeUnit.SECONDS);
         log.info("[DesktopAgent] 采集已启动");
     }
 
@@ -326,8 +334,6 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         }
         if (capture != null) capture.close();
     }
-
-    private int metricsFrameCounter;
 
     private void captureLoop() {
         while (capturing) {
@@ -350,10 +356,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                         session.feedFrame(buf, w, h);
                     }
                 }
-                if (++metricsFrameCounter % 60 == 0) {
-                    pushMetrics();
-                }
-            } catch (Exception e) {
+                } catch (Exception e) {
                 log.warn("[DesktopAgent] 采集异常: {}", e.getMessage());
             }
             long elapsed = System.nanoTime() - frameStart;
@@ -371,14 +374,17 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             long memUsed = memTotal - rt.freeMemory();
             for (DesktopSession s : sessions.values()) {
                 if (s.isRunning()) {
+                    int fps = s.getFps();
+                    String decoder = s.getEncoder().getCodecName();
+                    log.info("[DesktopAgent] pushMetrics: fps={}, decoder={}", fps, decoder);
                     String json = String.format(
                             "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d,\"capture\":\"%s\",\"decoder\":\"%s\"}",
-                            s.getSessionId(), s.getFps(), memUsed, memTotal, capture.getClass().getSimpleName(), s.getEncoder().getCodecName());
+                            s.getSessionId(), fps, memUsed, memTotal, capture.getClass().getSimpleName(), decoder);
                     agent.sendToGateway(json);
                 }
             }
         } catch (Exception e) {
-            log.debug("[DesktopAgent] pushMetrics error: {}", e.getMessage());
+            log.warn("[DesktopAgent] pushMetrics error: {}", e.getMessage(), e);
         }
     }
 
