@@ -3,8 +3,16 @@ package com.chua.common.support.media.codec;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.ffmpeg.support.codec.EncodesFrame;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.ffmpeg.avcodec.AVCodecContext;
+import org.bytedeco.ffmpeg.avcodec.AVPacket;
+import org.bytedeco.ffmpeg.avutil.AVDictionary;
+import org.bytedeco.ffmpeg.avutil.AVFrame;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
+import org.bytedeco.ffmpeg.swscale.SwsContext;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.IntPointer;
+import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -14,6 +22,8 @@ import java.nio.ByteBuffer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.bytedeco.ffmpeg.global.swscale.*;
 
 /**
  * 基于 JavaCV FFmpeg 的 H.264/AVC 编码器，支持软件（libx264）和硬件（NVENC）编码。
@@ -40,8 +50,14 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
     private Java2DFrameConverter bufferedImageConverter;
     private Frame cachedFrame;
     private int crf = 23;
-    private boolean useHardware = false;
+    private boolean useHardware = true;
     private boolean nvencActive;
+
+    private AVCodecContext nvencCodecCtx;
+    private AVFrame nvencFrame;
+    private AVPacket nvencPacket;
+    private SwsContext nvencSwsCtx;
+    private BytePointer nvencFrameBuf;
 
     private static final String CODEC_NAME_H264 = "h264";
     private static final String FORMAT_H264 = "h264";
@@ -122,27 +138,68 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
 
     private void tryInitNvenc() {
         try {
-            FFmpegFrameRecorder r = new FFmpegFrameRecorder(new MemoryOutputStream(memoryStream), this.width, this.height);
-            r.setFormat(FORMAT_H264);
-            r.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-            r.setVideoCodecName("h264_nvenc");
-            r.setFrameRate(this.fps);
-            r.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
-            r.setOption("preset", "p1");
-            r.setOption("tune", "ll");
-            r.setOption("forced_idr", "1");
-            r.setOption("strict_gop", "1");
-            r.setInterleaved(true);
-            r.setGopSize(GOP_SIZE);
-            r.start();
-            this.recorder = r;
+            // 使用 avcodec 底层 API 直接初始化 NVENC 编码器，以支持设置 pict_type 强制 IDR 帧
+            var codec = avcodec.avcodec_find_encoder_by_name("h264_nvenc");
+            if (codec == null) {
+                log.warn("[H264VideoEncoder] h264_nvenc 编码器未找到");
+                return;
+            }
+            AVCodecContext ctx = avcodec.avcodec_alloc_context3(codec);
+            if (ctx == null) {
+                log.warn("[H264VideoEncoder] 无法分配编码器上下文");
+                return;
+            }
+            ctx.width(width);
+            ctx.height(height);
+            ctx.time_base(avutil.av_d2q(1.0 / fps, 1001000));
+            ctx.pix_fmt(avutil.AV_PIX_FMT_YUV420P);
+            ctx.gop_size(GOP_SIZE);
+            ctx.max_b_frames(0);
+            ctx.thread_count(0);
+            ctx.bit_rate(2000000);
+
+            AVDictionary opts = new AVDictionary(null);
+            avutil.av_dict_set(opts, "preset", "p1", 0);
+            avutil.av_dict_set(opts, "tune", "ll", 0);
+            int ret = avcodec.avcodec_open2(ctx, codec, opts);
+            avutil.av_dict_free(opts);
+            if (ret < 0) {
+                log.warn("[H264VideoEncoder] avcodec_open2 失败: ret={}", ret);
+                avcodec.avcodec_free_context(ctx);
+                return;
+            }
+
+            AVFrame frame = avutil.av_frame_alloc();
+            int size = avutil.av_image_get_buffer_size(ctx.pix_fmt(), width, height, 1);
+            BytePointer frameBuf = new BytePointer(avutil.av_malloc(size));
+            avutil.av_image_fill_arrays(new PointerPointer(frame), frame.linesize(), frameBuf, ctx.pix_fmt(), width, height, 1);
+            frame.format(ctx.pix_fmt());
+            frame.width(width);
+            frame.height(height);
+
+            AVPacket pkt = avcodec.av_packet_alloc();
+
+            this.nvencCodecCtx = ctx;
+            this.nvencFrame = frame;
+            this.nvencPacket = pkt;
+            this.nvencFrameBuf = frameBuf;
+            this.nvencSwsCtx = null;
             this.started = true;
             this.nvencActive = true;
-            log.info("[H264VideoEncoder] NVENC 初始化成功: {}x{} {}fps", this.width, this.height, this.fps);
+            log.info("[H264VideoEncoder] NVENC 底层 API 初始化成功: {}x{} {}fps", width, height, fps);
         } catch (Throwable e) {
             log.warn("[H264VideoEncoder] NVENC 初始化失败，回退到软件编码: {} (cause={})",
                     e.getMessage(), e.getCause() == null ? "none" : e.getCause().getMessage());
+            cleanupNvenc();
         }
+    }
+
+    private void cleanupNvenc() {
+        if (nvencPacket != null) { avcodec.av_packet_free(nvencPacket); nvencPacket = null; }
+        if (nvencFrame != null) { avutil.av_frame_free(nvencFrame); nvencFrame = null; }
+        if (nvencCodecCtx != null) { avcodec.avcodec_free_context(nvencCodecCtx); nvencCodecCtx = null; }
+        if (nvencFrameBuf != null) { avutil.av_free(nvencFrameBuf); nvencFrameBuf = null; }
+        if (nvencSwsCtx != null) { sws_freeContext(nvencSwsCtx); nvencSwsCtx = null; }
     }
 
     private void tryInitSoftware() {
@@ -291,17 +348,15 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
      * @throws Exception 编码异常
      */
     private byte[] encodeInternal(Frame frame) throws Exception {
+        if (nvencActive) {
+            return encodeNvencDirect(frame);
+        }
         long captureSize = memoryStream.size();
         if (keyFrameRequested) {
             frame.keyFrame = true;
             keyFrameRequested = false;
         }
         frame.timestamp = pts++;
-        if (log.isDebugEnabled()) {
-            log.debug("encode frame: {}x{} depth={} channels={} imageLen={}",
-                    frame.imageWidth, frame.imageHeight, frame.imageDepth, frame.imageChannels,
-                    frame.image == null ? 0 : frame.image.length);
-        }
         recorder.record(frame);
         byte[] all = memoryStream.toByteArray();
         byte[] frameBytes = new byte[all.length - (int) captureSize];
@@ -310,6 +365,68 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
         }
         frameIndex++;
         return frameBytes;
+    }
+
+    private byte[] encodeNvencDirect(Frame frame) throws Exception {
+        boolean isKeyFrame = keyFrameRequested;
+        keyFrameRequested = false;
+
+        int w = frame.imageWidth;
+        int h = frame.imageHeight;
+        int pixelFormat = avutil.AV_PIX_FMT_BGR24;
+
+        BytePointer data;
+        if (frame.image[0] instanceof ByteBuffer buf) {
+            data = new BytePointer(buf).position(0);
+        } else {
+            data = new BytePointer(new org.bytedeco.javacpp.Pointer(frame.image[0]).position(0));
+        }
+
+        // BGR → YUV420P 色彩空间转换
+        SwsContext sws = sws_getCachedContext(nvencSwsCtx, w, h, pixelFormat,
+                width, height, avutil.AV_PIX_FMT_YUV420P, SWS_BILINEAR, null, null, (IntPointer)null);
+        this.nvencSwsCtx = sws;
+
+        avutil.av_image_fill_arrays(new PointerPointer(nvencFrame), nvencFrame.linesize(), nvencFrameBuf,
+                avutil.AV_PIX_FMT_YUV420P, width, height, 1);
+        nvencFrame.linesize(0, width);
+
+        var srcSlice = new PointerPointer(data);
+        var dstSlice = new PointerPointer(nvencFrame);
+        sws_scale(sws, srcSlice, new int[]{w * 3}, 0, h, dstSlice, nvencFrame.linesize());
+
+        // 关键帧：设置 pict_type 强制 IDR 帧
+        if (isKeyFrame) {
+            nvencFrame.pict_type(avutil.AV_PICTURE_TYPE_I);
+            avutil.av_opt_set(nvencCodecCtx, "forced_idr", "1", avutil.AV_OPT_SEARCH_CHILDREN);
+        } else {
+            nvencFrame.pict_type(avutil.AV_PICTURE_TYPE_NONE);
+        }
+        nvencFrame.pts(pts++);
+
+        memoryStream.reset();
+        int ret = avcodec.avcodec_send_frame(nvencCodecCtx, nvencFrame);
+        if (ret < 0) {
+            log.warn("[H264VideoEncoder] avcodec_send_frame 失败: ret={}", ret);
+            return new byte[0];
+        }
+        while (ret >= 0) {
+            ret = avcodec.avcodec_receive_packet(nvencCodecCtx, nvencPacket);
+            if (ret == avutil.AVERROR_EAGAIN() || ret == avutil.AVERROR_EOF()) {
+                avcodec.av_packet_unref(nvencPacket);
+                break;
+            } else if (ret < 0) {
+                avcodec.av_packet_unref(nvencPacket);
+                log.warn("[H264VideoEncoder] avcodec_receive_packet 失败: ret={}", ret);
+                return new byte[0];
+            }
+            byte[] encoded = new byte[nvencPacket.size()];
+            nvencPacket.data().get(encoded, 0, encoded.length);
+            avcodec.av_packet_unref(nvencPacket);
+            frameIndex++;
+            return encoded;
+        }
+        return new byte[0];
     }
 
     /**
@@ -332,6 +449,10 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
     @Override
     public synchronized void close() {
         started = false;
+        if (nvencActive) {
+            cleanupNvenc();
+            nvencActive = false;
+        }
         if (recorder != null) {
             try {
                 recorder.flush();
