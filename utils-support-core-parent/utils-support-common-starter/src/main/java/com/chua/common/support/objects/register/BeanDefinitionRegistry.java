@@ -100,6 +100,39 @@ public class BeanDefinitionRegistry {
     }
 
     /**
+     * 编程式添加一个 BeanDefinitionRegister（绕过 SPI）。
+     *
+     * <p>用于外部容器（如 Spring）将受管之外的注册器（例如 OSGi、远程节点）
+     * 直接挂接到本注册中心。该方法线程安全，重复添加同名注册器将被忽略。</p>
+     *
+     * @param register 待注册的 BeanDefinitionRegister
+     * @return true 表示新增成功；false 表示入参为空或同名注册器已存在
+     */
+    public boolean addRegister(BeanDefinitionRegister register) {
+        if (register == null) {
+            return false;
+        }
+        String name = register.getName();
+        if (name == null || name.isBlank()) {
+            return false;
+        }
+        synchronized (this) {
+            if (registerMap.containsKey(name)) {
+                return false;
+            }
+            try {
+                register.initialize();
+            } catch (Exception e) {
+                log.error("初始化注册器失败: {}", name, e);
+                return false;
+            }
+            registers.add(register);
+            registerMap.put(name, register);
+            return true;
+        }
+    }
+
+    /**
      * 获取指定 BeanName 对应的 BeanDefinition。
      * 优先从缓存中获取，若未命中则遍历所有注册器查找。
      *

@@ -7,6 +7,7 @@ import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
 import com.chua.common.support.objects.provider.ObjectProvider;
 import com.chua.common.support.objects.publisher.EventPublisher;
+import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
 import com.chua.common.support.objects.scanner.ObjectContextScanner;
 import com.chua.common.support.spi.ServiceProvider;
@@ -436,6 +437,24 @@ public interface ObjectContext {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException(
                     "没有找到匹配的 BeanDefinitionGenerator: type=" + bean.getClass().getName());
         }
+    }
+
+    /**
+     * 注册一个 BeanDefinitionRegister（编程式挂接，绕过 SPI）。
+     *
+     * <p>用于将外部容器（如 OSGi 框架、远程节点、第三方插件）提供的
+     * BeanDefinitionRegister 接入当前上下文，使其参与 Bean 查找与解析。
+     * 该方法线程安全，重复注册同名 Register 将被忽略。</p>
+     *
+     * @param register 待注册的 BeanDefinitionRegister
+     * @return true 表示新增成功
+     * @throws com.chua.common.support.objects.exception.BeanDefinitionException 入参为空或挂接失败
+     */
+    default boolean registerBean(BeanDefinitionRegister register) {
+        if (register == null) {
+            throw new com.chua.common.support.objects.exception.BeanDefinitionException("BeanDefinitionRegister 不能为空");
+        }
+        return getRegistry(getConfig().isSpiEnabled()).addRegister(register);
     }
 
     /**
