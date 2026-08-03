@@ -40,7 +40,7 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
     private Java2DFrameConverter bufferedImageConverter;
     private Frame cachedFrame;
     private int crf = 23;
-    private boolean useHardware = false;
+    private boolean useHardware = true;
     private boolean nvencActive;
 
     private static final String CODEC_NAME_H264 = "h264";

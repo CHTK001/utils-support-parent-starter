@@ -311,6 +311,16 @@ public class DefaultDesktopSession implements DesktopSession {
         return encoder;
     }
 
+    @Override
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    @Override
+    public int getFps() {
+        return fpsCounter.getAndSet(0);
+    }
+
     private void pushMetrics() {
         if (textCallback == null) {
             log.warn("[DefaultDesktopSession] pushMetrics: textCallback is null");

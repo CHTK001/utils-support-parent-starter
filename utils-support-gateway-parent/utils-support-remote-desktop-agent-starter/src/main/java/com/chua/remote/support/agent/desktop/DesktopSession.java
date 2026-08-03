@@ -129,4 +129,18 @@ public interface DesktopSession {
      * @return VideoEncoder 实例
      */
     VideoEncoder getEncoder();
+
+    /**
+     * 获取会话ID。
+     *
+     * @return 会话ID
+     */
+    String getSessionId();
+
+    /**
+     * 获取当前FPS并重置计数器。
+     *
+     * @return FPS 值
+     */
+    int getFps();
 }
