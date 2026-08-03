@@ -176,13 +176,16 @@ public class DefaultDesktopSession implements DesktopSession {
             return;
         }
         try {
-            // 直接传给编码器，跳过 BufferedImage
             int count = frameCount.getAndIncrement();
             boolean keyFrame = count % 150 == 0;
             if (keyFrame) {
                 encoder.forceKeyFrame();
             }
-            byte[] encoded = encoder.encode(bgrData, width, height);
+            ByteBuffer data = bgrData;
+            if (qualityMode == QualityMode.SPEED) {
+                data = toGrayscale(bgrData, width, height);
+            }
+            byte[] encoded = encoder.encode(data, width, height);
             if (encoded != null && encoded.length > 0 && frameCallback != null) {
                 fpsCounter.incrementAndGet();
                 frameCallback.accept(sessionId, new EncodedScreen(targetWidth, targetHeight, keyFrame, encoded));
@@ -190,6 +193,23 @@ public class DefaultDesktopSession implements DesktopSession {
         } catch (Throwable e) {
             log.error("[Desktop] feedFrame(ByteBuffer) FAILED: {}", e.getMessage(), e);
         }
+    }
+
+    private static ByteBuffer toGrayscale(ByteBuffer src, int w, int h) {
+        int len = w * h * 3;
+        ByteBuffer dst = ByteBuffer.allocateDirect(len);
+        src.rewind();
+        for (int i = 0; i < w * h; i++) {
+            int b = src.get() & 0xFF;
+            int g = src.get() & 0xFF;
+            int r = src.get() & 0xFF;
+            int gray = (r * 77 + g * 150 + b * 29) >> 8;
+            dst.put((byte) gray);
+            dst.put((byte) gray);
+            dst.put((byte) gray);
+        }
+        dst.rewind();
+        return dst;
     }
 
     private static BufferedImage scale(BufferedImage src, int w, int h) {
@@ -214,13 +234,18 @@ public class DefaultDesktopSession implements DesktopSession {
     @Override
     public void setQualityMode(QualityMode mode) {
         this.qualityMode = mode;
+        int crf;
         switch (mode) {
-            case SPEED -> { quality = 30; }
-            case BALANCED -> { quality = 80; }
-            case QUALITY -> { quality = 90; }
-            case ORIGINAL -> { quality = 100; }
+            case SPEED -> { quality = 30; crf = 35; }
+            case BALANCED -> { quality = 80; crf = 28; }
+            case QUALITY -> { quality = 90; crf = 20; }
+            case ORIGINAL -> { quality = 100; crf = 17; }
+            default -> { quality = 80; crf = 28; }
         }
-        log.info("[DefaultDesktopSession] quality mode={}, quality={}", mode, quality);
+        if (encoder instanceof com.chua.common.support.media.codec.H264VideoEncoder h264) {
+            h264.setCrf(crf);
+        }
+        log.info("[DefaultDesktopSession] quality mode={}, quality={}, crf={}", mode, quality, crf);
     }
 
     @Override
