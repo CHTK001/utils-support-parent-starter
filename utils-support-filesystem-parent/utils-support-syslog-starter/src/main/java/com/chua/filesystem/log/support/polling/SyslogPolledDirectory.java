@@ -96,6 +96,11 @@ public class SyslogPolledDirectory implements PolledDirectory {
     private volatile boolean running = false;
 
     /**
+     * 关闭标志，close() 后不可再 upgrade
+     */
+    private volatile boolean closed = false;
+
+    /**
      * 系统日志服务实例
      */
     private final SystemLogService logService;
@@ -150,6 +155,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
      */
     @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
+        closed = false;
         running = true;
         log.info("系统日志轮询启动: source={}, pattern={}, minLevel={}, interval={}s, os={}",
                 source, pattern, minLevel, pollIntervalSeconds, PlatformSystems.getOsName());
@@ -178,7 +184,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
      */
     @Override
     public void upgrade() {
-        if (!running || !logService.isAvailable()) {
+        if (closed || !logService.isAvailable()) {
             return;
         }
 
@@ -259,6 +265,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     @Override
     public void close() {
         running = false;
+        closed = true;
         listeners.clear();
         lastTimestamp = null;
         log.info("系统日志轮询已停止");

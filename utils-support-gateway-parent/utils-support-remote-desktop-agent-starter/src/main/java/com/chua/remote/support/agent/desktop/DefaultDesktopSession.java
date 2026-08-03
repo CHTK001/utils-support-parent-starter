@@ -207,6 +207,11 @@ public class DefaultDesktopSession implements DesktopSession {
     }
 
     @Override
+    public QualityMode getQualityMode() {
+        return qualityMode;
+    }
+
+    @Override
     public void setQualityMode(QualityMode mode) {
         this.qualityMode = mode;
         switch (mode) {

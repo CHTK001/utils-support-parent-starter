@@ -77,10 +77,15 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
      */
     private long frameIndex;
 
-    /**
-     * BufferedImage 转换器
+/**
+     * Java2DFrameConverter 转换器
      */
     private Java2DFrameConverter bufferedImageConverter;
+
+    /**
+     * 缓存 Frame 对象，避免反复分配
+     */
+    private Frame cachedFrame;
 
     /**
      * H.264 编码格式名称
@@ -190,9 +195,12 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             this.recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
             this.recorder.setFrameRate(this.fps);
             this.recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
-            this.recorder.setVideoQuality(0);
+            this.recorder.setOption("crf", "28");
             this.recorder.setInterleaved(true);
             this.recorder.setGopSize(GOP_SIZE);
+            this.recorder.setOption(KEY_PRESET, VAL_PRESET);
+            this.recorder.setOption(KEY_TUNE, VAL_TUNE);
+            this.recorder.setOption(KEY_PROFILE, VAL_PROFILE);
             this.recorder.start();
             this.started = true;
             this.bufferedImageConverter = new Java2DFrameConverter();
@@ -290,14 +298,12 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             return new byte[0];
         }
         try {
-            Frame frame = new Frame(width, height, Frame.DEPTH_UBYTE, 3);
-            ByteBuffer dst = (ByteBuffer) frame.image[0];
-            dst.clear();
-            dst.put(bgrData);
-            dst.rewind();
+            Frame frame = new Frame();
             frame.imageWidth = width;
             frame.imageHeight = height;
             frame.imageStride = width * 3;
+            frame.imageDepth = Frame.DEPTH_UBYTE;
+            frame.image[0] = bgrData;
             return encodeInternal(frame);
         } catch (Throwable e) {
             log.warn("[H264VideoEncoder] encode(ByteBuffer) 失败: {}", e.getMessage());
