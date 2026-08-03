@@ -181,11 +181,18 @@ public class DefaultDesktopSession implements DesktopSession {
             if (keyFrame) {
                 encoder.forceKeyFrame();
             }
+            int encW = width;
+            int encH = height;
             ByteBuffer data = bgrData;
-            if (qualityMode == QualityMode.SPEED) {
-                data = toGrayscale(bgrData, width, height);
+            if (width != targetWidth || height != targetHeight) {
+                data = scaleBgr(bgrData, width, height, targetWidth, targetHeight);
+                encW = targetWidth;
+                encH = targetHeight;
             }
-            byte[] encoded = encoder.encode(data, width, height);
+            if (qualityMode == QualityMode.SPEED) {
+                data = toGrayscale(data, encW, encH);
+            }
+            byte[] encoded = encoder.encode(data, encW, encH);
             if (encoded != null && encoded.length > 0 && frameCallback != null) {
                 fpsCounter.incrementAndGet();
                 frameCallback.accept(sessionId, new EncodedScreen(targetWidth, targetHeight, keyFrame, encoded));
@@ -193,6 +200,36 @@ public class DefaultDesktopSession implements DesktopSession {
         } catch (Throwable e) {
             log.error("[Desktop] feedFrame(ByteBuffer) FAILED: {}", e.getMessage(), e);
         }
+    }
+
+    private static ByteBuffer scaleBgr(ByteBuffer src, int sw, int sh, int dw, int dh) {
+        ByteBuffer dst = ByteBuffer.allocateDirect(dw * dh * 3);
+        float xRatio = (float) sw / dw;
+        float yRatio = (float) sh / dh;
+        src.rewind();
+        for (int dy = 0; dy < dh; dy++) {
+            float srcY = dy * yRatio;
+            int sy0 = Math.min((int) srcY, sh - 1);
+            int sy1 = Math.min(sy0 + 1, sh - 1);
+            float yFrac = srcY - sy0;
+            for (int dx = 0; dx < dw; dx++) {
+                float srcX = dx * xRatio;
+                int sx0 = Math.min((int) srcX, sw - 1);
+                int sx1 = Math.min(sx0 + 1, sw - 1);
+                float xFrac = srcX - sx0;
+                for (int c = 0; c < 3; c++) {
+                    int p00 = src.get(sy0 * sw * 3 + sx0 * 3 + c) & 0xFF;
+                    int p10 = src.get(sy0 * sw * 3 + sx1 * 3 + c) & 0xFF;
+                    int p01 = src.get(sy1 * sw * 3 + sx0 * 3 + c) & 0xFF;
+                    int p11 = src.get(sy1 * sw * 3 + sx1 * 3 + c) & 0xFF;
+                    float top = p00 + (p10 - p00) * xFrac;
+                    float bot = p01 + (p11 - p01) * xFrac;
+                    dst.put((byte) (top + (bot - top) * yFrac));
+                }
+            }
+        }
+        dst.rewind();
+        return dst;
     }
 
     private static ByteBuffer toGrayscale(ByteBuffer src, int w, int h) {
