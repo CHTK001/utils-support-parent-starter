@@ -40,7 +40,7 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
     private Java2DFrameConverter bufferedImageConverter;
     private Frame cachedFrame;
     private int crf = 23;
-    private boolean useHardware = true;
+    private boolean useHardware = false;
     private boolean nvencActive;
 
     private static final String CODEC_NAME_H264 = "h264";
@@ -130,6 +130,8 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             r.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
             r.setOption("preset", "p1");
             r.setOption("tune", "ll");
+            r.setOption("forced_idr", "1");
+            r.setOption("strict_gop", "1");
             r.setInterleaved(true);
             r.setGopSize(GOP_SIZE);
             r.start();
