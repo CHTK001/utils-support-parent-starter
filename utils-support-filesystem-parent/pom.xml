@@ -68,6 +68,13 @@
                             <artifactId>lombok</artifactId>
                             <version></version>
                         </path>
+
+                            <path>
+                                <groupId>com.uber.nullaway</groupId>
+                                <artifactId>nullaway</artifactId>
+                                <version>${nullaway.version}</version>
+                            </path>
+
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>

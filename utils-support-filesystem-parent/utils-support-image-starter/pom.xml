@@ -67,7 +67,15 @@
                         <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-proc:full</arg>
                     </compilerArgs>
-                </configuration>
+                
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>com.uber.nullaway</groupId>
+                                <artifactId>nullaway</artifactId>
+                                <version>${nullaway.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+</configuration>
             </plugin>
         </plugins>
     </build>

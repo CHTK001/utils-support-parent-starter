@@ -82,6 +82,14 @@
         
         <hanlp.version>portable-1.8.6</hanlp.version>
         <nitrite.version>4.3.0</nitrite.version>
+
+        <!-- 空安全注解与编译期检查版本(Java 25 兼容矩阵) -->
+        <jspecify.version>1.0.1</jspecify.version>
+        <error.prone.version>2.50.0</error.prone.version>
+        <dataflow.errorprone.version>3.49.5-eisop1</dataflow.errorprone.version>
+        <nullaway.version>0.13.8</nullaway.version>
+        <!-- 统一控制 NullAway 等级:WARN / ERROR / OFF;可在 profile 中切换 -->
+        <nullaway.mode>WARN</nullaway.mode>
     </properties>
     <dependencies>
         <dependency>
@@ -100,6 +108,13 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JSpecify 空安全注解 (NullAway 推荐配套) -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -2173,6 +2188,23 @@
             </activation>
             <properties>
                 <skipTests>true</skipTests>
+                <nullaway.mode>WARN</nullaway.mode>
+            </properties>
+        </profile>
+        <!-- 严格模式:NullAway 编译期升级到 ERROR,任何 NPE 违规直接阻断构建。
+             用法: mvn clean install -Pnullaway-strict -->
+        <profile>
+            <id>nullaway-strict</id>
+            <properties>
+                <nullaway.mode>ERROR</nullaway.mode>
+            </properties>
+        </profile>
+        <!-- 关闭空安全检查,适合离线或 CI 跳过:
+             用法: mvn clean install -Pnullaway-off -->
+        <profile>
+            <id>nullaway-off</id>
+            <properties>
+                <nullaway.mode>OFF</nullaway.mode>
             </properties>
         </profile>
     </profiles>
