@@ -82,9 +82,9 @@ public class JavaCVScreenCapture implements ScreenCature {
     private static final String FORMAT_MACOS = "avfoundation";
 
     /**
-     * 探测大小（42M）
+     * 探测大小
      */
-    private static final String PROBESIZE = "42M";
+    private static final String PROBESIZE = "1M";
 
     /**
      * 分析时长（0 表示最小分析）
@@ -121,6 +121,7 @@ public class JavaCVScreenCapture implements ScreenCature {
             grabber.setPixelFormat(avutil.AV_PIX_FMT_BGR24);
             grabber.setOption("probesize", PROBESIZE);
             grabber.setOption("analyzeduration", ANALYZE_DURATION);
+            grabber.setOption("framerate", String.valueOf(Math.min(60, Math.max(1, fps))));
             grabber.start();
 
             this.width = grabber.getImageWidth();
