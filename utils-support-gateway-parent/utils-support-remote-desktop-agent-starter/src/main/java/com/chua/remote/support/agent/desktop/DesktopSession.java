@@ -96,6 +96,13 @@ public interface DesktopSession {
     void setQuality(int quality);
 
     /**
+     * 获取当前画质模式。
+     *
+     * @return 画质模式
+     */
+    QualityMode getQualityMode();
+
+    /**
      * 会话是否正在运行。
      *
      * @return true 表示正在运行

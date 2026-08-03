@@ -124,6 +124,19 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             String action = (String) payload.get("action");
             if ("start".equals(action)) s.start();
             else if ("stop".equals(action)) s.stop();
+            else if ("quality_mode".equals(action)) {
+                String mode = (String) payload.get("value");
+                try {
+                    s.setQualityMode(DesktopSession.QualityMode.valueOf(mode));
+                } catch (Exception e) {
+                    log.warn("[DesktopAgent] 未知画质模式: {}", mode);
+                }
+            } else if ("quality".equals(action)) {
+                Object val = payload.get("value");
+                if (val instanceof Number) {
+                    s.setQuality(((Number) val).intValue());
+                }
+            }
         }
     }
 
@@ -198,6 +211,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                 try { Thread.sleep(50); } catch (InterruptedException e) { break; }
                 continue;
             }
+            long frameStart = System.nanoTime();
             try {
                 ByteBuffer buf = capture.grabFrame();
                 if (buf == null) {
@@ -215,7 +229,20 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             } catch (Exception e) {
                 log.warn("[DesktopAgent] 采集异常: {}", e.getMessage());
             }
-            try { Thread.sleep(33); } catch (InterruptedException e) { break; }
+            // 根据质量模式调整帧率，默认 60fps
+            long elapsed = System.nanoTime() - frameStart;
+            int targetFps = sessions.values().stream()
+                    .findFirst().map(s -> getTargetFps(s)).orElse(60);
+            long sleepMs = Math.max(0, (1000 / targetFps) - elapsed / 1_000_000);
+            try { Thread.sleep(sleepMs); } catch (InterruptedException e) { break; }
         }
+    }
+
+    private int getTargetFps(DesktopSession s) {
+        return switch (s.getQualityMode()) {
+            case SPEED, BALANCED -> 60;
+            case QUALITY -> 30;
+            case ORIGINAL -> 25;
+        };
     }
 }
