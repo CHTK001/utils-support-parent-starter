@@ -88,6 +88,16 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
     private Frame cachedFrame;
 
     /**
+     * CRF 值（18-35，越低质量越高）
+     */
+    private int crf = 23;
+
+    /**
+     * 是否使用硬件编码
+     */
+    private boolean useHardware = true;
+
+    /**
      * H.264 编码格式名称
      */
     private static final String CODEC_NAME_H264 = "h264";
@@ -195,12 +205,18 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
             this.recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
             this.recorder.setFrameRate(this.fps);
             this.recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
-            this.recorder.setOption("crf", "28");
+            this.recorder.setOption("crf", String.valueOf(crf));
             this.recorder.setInterleaved(true);
             this.recorder.setGopSize(GOP_SIZE);
-            this.recorder.setOption(KEY_PRESET, VAL_PRESET);
-            this.recorder.setOption(KEY_TUNE, VAL_TUNE);
-            this.recorder.setOption(KEY_PROFILE, VAL_PROFILE);
+            if (useHardware) {
+                this.recorder.setOption("vcodec", "h264_nvenc");
+                this.recorder.setOption("preset", "p4");
+                this.recorder.setOption("tune", "ull");
+            } else {
+                this.recorder.setOption(KEY_PRESET, VAL_PRESET);
+                this.recorder.setOption(KEY_TUNE, VAL_TUNE);
+                this.recorder.setOption(KEY_PROFILE, VAL_PROFILE);
+            }
             this.recorder.start();
             this.started = true;
             this.bufferedImageConverter = new Java2DFrameConverter();
@@ -210,6 +226,18 @@ public class H264VideoEncoder implements VideoEncoder, EncodesFrame {
                     e.getMessage(), e.getCause() == null ? "none" : e.getCause().getMessage(), e);
             this.recorder = null;
             this.started = false;
+        }
+    }
+
+    /**
+     * 动态调整编码质量（CRF），会重新创建编码器。
+     *
+     * @param crf CRF 值（18-35，越低质量越高）
+     */
+    public synchronized void setCrf(int crf) {
+        this.crf = Math.max(18, Math.min(35, crf));
+        if (started) {
+            init(width, height, fps);
         }
     }
 

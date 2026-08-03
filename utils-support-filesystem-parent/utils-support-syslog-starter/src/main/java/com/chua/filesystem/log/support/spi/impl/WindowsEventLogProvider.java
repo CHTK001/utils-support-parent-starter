@@ -177,7 +177,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return results;
     }
 
-    private int parseEventLogRecords(
+    public static int parseEventLogRecords(
             MemorySegment buffer, int bytesRead,
             String source,
             Pattern regex, LogLevel minLevel,
@@ -229,7 +229,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return parsed;
     }
 
-    private String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
+    static String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
         int stringsStart = recordOffset + stringOffset;
         if (stringsStart <= 0 || stringsStart >= (int) buffer.byteSize()) {
             return null;
@@ -246,7 +246,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return sb.toString().trim();
     }
 
-    private LogLevel mapEventTypeToLevel(short eventType) {
+    static LogLevel mapEventTypeToLevel(short eventType) {
         return switch (eventType) {
             case 1  -> LogLevel.ERROR;
             case 2  -> LogLevel.WARNING;
