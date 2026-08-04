@@ -1,15 +1,13 @@
 package com.chua.flow.support.node;
 
-import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.task.flow.FlowInstance;
-import com.chua.common.support.task.flow.FlowNode;
-import com.chua.common.support.task.flow.FlowNodeExecutor;
+import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowProps;
+import com.chua.common.support.task.flow.TransformNode;
 
 /**
- * 数据转换节点执行器。
+ * 数据转换节点。
  *
- * <p>从实例上下文或当前数据中取值并写入当前数据，
+ * <p>从流程上下文或当前数据中取值并写入当前数据，
  * 实现节点间数据形态的简单转换。</p>
  *
  * <p>节点属性说明：</p>
@@ -25,9 +23,7 @@ import com.chua.common.support.task.flow.FlowProps;
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("transform")
-@FlowNode(value = "transform", describe = "数据转换")
-public class TransformFlowNode implements FlowNodeExecutor {
+public class TransformFlowNode implements TransformNode {
 
     /**
      * 当前数据取值标识
@@ -44,30 +40,30 @@ public class TransformFlowNode implements FlowNodeExecutor {
      *
      * <p>按 source 属性解析取值来源，将结果写入当前数据。</p>
      *
-     * @param instance 当前流程实例
+     * @param context 当前流程上下文
      */
     @Override
-    public void execute(FlowInstance instance) {
-        FlowProps props = instance.currentNodeProps();
+    public void execute(FlowContext context) {
+        FlowProps props = context.currentNodeProps();
         String source = props.getString("source");
-        Object value = resolveSource(source, instance);
-        instance.setCurrentData(value);
+        Object value = resolveSource(source, context);
+        context.setData(value);
     }
 
     /**
      * 解析取值来源并返回对应值。
      *
-     * @param source   取值来源标识
-     * @param instance 当前流程实例
+     * @param source  取值来源标识
+     * @param context 当前流程上下文
      * @return 解析后的值
      */
-    private Object resolveSource(String source, FlowInstance instance) {
+    private Object resolveSource(String source, FlowContext context) {
         if (source == null || SOURCE_CURRENT.equals(source)) {
-            return instance.getCurrentData();
+            return context.getData();
         }
         if (source.startsWith(SOURCE_ATTRIBUTE_PREFIX)) {
-            return instance.getAttribute(source.substring(SOURCE_ATTRIBUTE_PREFIX.length()));
+            return context.getAttribute(source.substring(SOURCE_ATTRIBUTE_PREFIX.length()));
         }
-        return instance.getAttribute(source);
+        return context.getAttribute(source);
     }
 }

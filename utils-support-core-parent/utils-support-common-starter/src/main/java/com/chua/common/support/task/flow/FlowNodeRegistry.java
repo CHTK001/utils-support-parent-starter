@@ -1,27 +1,37 @@
 package com.chua.common.support.task.flow;
 
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.spi.definition.ServiceDefinition;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 流程节点类型注册表。
  *
- * <p>通过 SPI 机制发现全部 {@link FlowNodeExecutor} 实现，
- * 汇总节点类型清单并负责按类型实例化节点执行器。
- * 各领域模块（如爬虫）只需实现接口并注册 SPI，即可被流程编排引擎发现，
- * 核心模块无需任何改动，实现"节点插件式扩展"。</p>
+ * <p>程序式节点注册表，通过 {@link #register(String, FlowNode, String)} 登记节点
+ * 类型的原型实例与描述信息，供以下场景使用：</p>
+ * <ul>
+ *   <li>节点类型清单查询：{@link #listMetadata()}，供前端属性面板渲染节点类型</li>
+ *   <li>JSON 图定义导入：{@link #createNode(String)} 按类型创建节点副本，
+ *       保证流程间节点状态隔离</li>
+ * </ul>
+ *
+ * <p>与旧版 SPI 注册机制不同，新架构中节点实例由用户直接 {@code new}
+ * 并通过 {@link Flow#addNode(String, FlowNode)} 加入流程，
+ * 本注册表仅作为"类型 → 原型"的目录，不再承担节点发现职责。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public final class FlowNodeRegistry {
+
+    /**
+     * 节点类型标识到注册项的映射
+     */
+    private static final Map<String, Registration> REGISTRY = new ConcurrentHashMap<>();
 
     /**
      * 私有构造方法，禁止实例化工具类。
@@ -30,36 +40,26 @@ public final class FlowNodeRegistry {
     }
 
     /**
-     * 获取全部节点类型元信息。
+     * 注册节点类型。
      *
-     * <p>遍历 SPI 注册的节点执行器，读取 {@link FlowNode} 注解与 SPI 描述
-     * 汇总为元信息列表，供前端属性面板渲染节点类型。</p>
+     * <p>登记的节点原型仅用于类型清单展示与 JSON 导入时创建副本，
+     * 不参与流程构建，节点实例仍由调用方直接提供。</p>
      *
-     * @return 节点类型元信息列表
+     * @param type     节点类型标识
+     * @param prototype 节点原型实例
+     * @param describe  节点类型功能描述
      */
-    public static List<FlowNodeMetadata> listMetadata() {
-        List<FlowNodeMetadata> result = new ArrayList<>();
-        Set<String> extensions = ServiceProvider.of(FlowNodeExecutor.class).getExtensions();
-        for (String extension : extensions) {
-            FlowNodeExecutor executor = ServiceProvider.of(FlowNodeExecutor.class).getExtension(extension);
-            if (executor == null) {
-                continue;
-            }
-            result.add(buildMetadata(executor, extension));
-        }
-        return result;
+    public static void register(String type, FlowNode prototype, String describe) {
+        REGISTRY.put(type, new Registration(type, type, describe, prototype));
     }
 
     /**
-     * 按类型标识获取节点执行器实例。
-     *
-     * <p>每次调用返回新实例，避免节点状态在多流程实例间共享。</p>
+     * 注销节点类型。
      *
      * @param type 节点类型标识
-     * @return 节点执行器实例，未注册时返回 null
      */
-    public static FlowNodeExecutor getExecutor(String type) {
-        return ServiceProvider.of(FlowNodeExecutor.class).getNewExtension(type);
+    public static void unregister(String type) {
+        REGISTRY.remove(type);
     }
 
     /**
@@ -69,7 +69,37 @@ public final class FlowNodeRegistry {
      * @return 已注册返回 true，否则返回 false
      */
     public static boolean exists(String type) {
-        return ServiceProvider.of(FlowNodeExecutor.class).getExtension(type) != null;
+        return REGISTRY.containsKey(type);
+    }
+
+    /**
+     * 按类型创建节点副本。
+     *
+     * <p>通过克隆原型实例创建独立节点，避免多流程实例共享可变节点状态。
+     * 原型不可克隆时返回原型本身。</p>
+     *
+     * @param type 节点类型标识
+     * @return 节点副本，未注册时返回 null
+     */
+    public static FlowNode createNode(String type) {
+        Registration registration = REGISTRY.get(type);
+        if (registration == null) {
+            return null;
+        }
+        return registration.prototype().cloneNode();
+    }
+
+    /**
+     * 获取全部节点类型元信息。
+     *
+     * @return 节点类型元信息列表
+     */
+    public static List<FlowNodeMetadata> listMetadata() {
+        List<FlowNodeMetadata> result = new ArrayList<>();
+        for (Registration registration : REGISTRY.values()) {
+            result.add(registration.toMetadata());
+        }
+        return result;
     }
 
     /**
@@ -78,41 +108,7 @@ public final class FlowNodeRegistry {
      * @return 节点类型标识集合
      */
     public static Set<String> listTypes() {
-        return ServiceProvider.of(FlowNodeExecutor.class).getExtensions();
-    }
-
-    /**
-     * 构建单个节点的类型元信息。
-     *
-     * <p>优先读取 {@link FlowNode} 注解声明的类型标识与描述，
-     * 无注解时回退使用 SPI 扩展名与 SPI 描述。</p>
-     *
-     * @param executor  节点执行器实例
-     * @param extension SPI 扩展名
-     * @return 节点类型元信息
-     */
-    private static FlowNodeMetadata buildMetadata(FlowNodeExecutor executor, String extension) {
-        FlowNode annotation = executor.getClass().getAnnotation(FlowNode.class);
-        if (annotation == null) {
-            ServiceDefinition definition = findDefinition(extension);
-            String describe = definition != null ? definition.getDescribe() : "";
-            return new FlowNodeMetadata(extension, extension, describe);
-        }
-        return new FlowNodeMetadata(annotation.value(), annotation.value(), annotation.describe());
-    }
-
-    /**
-     * 按扩展名查找 SPI 定义信息。
-     *
-     * @param extension 扩展名
-     * @return SPI 定义，不存在时返回 null
-     */
-    private static ServiceDefinition findDefinition(String extension) {
-        var definitions = ServiceProvider.of(FlowNodeExecutor.class).getDefinitions(extension);
-        if (definitions == null || definitions.isEmpty()) {
-            return null;
-        }
-        return definitions.get(0);
+        return Collections.unmodifiableSet(REGISTRY.keySet());
     }
 
     /**
@@ -122,9 +118,38 @@ public final class FlowNodeRegistry {
      */
     public static Map<String, String> describeMap() {
         Map<String, String> result = new LinkedHashMap<>();
-        for (FlowNodeMetadata metadata : listMetadata()) {
-            result.put(metadata.type(), metadata.describe());
+        for (Registration registration : REGISTRY.values()) {
+            result.put(registration.type(), registration.describe());
         }
         return Collections.unmodifiableMap(result);
+    }
+
+    /**
+     * 节点类型注册项。
+     *
+     * <p>保存类型标识、名称、描述与原型实例，用于清单展示与副本创建。</p>
+     *
+     * @param type      节点类型标识
+     * @param name      节点类型名称
+     * @param describe  节点类型功能描述
+     * @param prototype 节点原型实例
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public record Registration(
+            String type,
+            String name,
+            String describe,
+            FlowNode prototype
+    ) {
+
+        /**
+         * 转换为节点类型元信息。
+         *
+         * @return 节点类型元信息
+         */
+        public FlowNodeMetadata toMetadata() {
+            return new FlowNodeMetadata(type, name, describe);
+        }
     }
 }

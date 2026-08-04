@@ -1,14 +1,12 @@
 package com.chua.flow.support.node;
 
-import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.task.flow.FlowInstance;
-import com.chua.common.support.task.flow.FlowNode;
-import com.chua.common.support.task.flow.FlowNodeExecutor;
+import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowProps;
+import com.chua.common.support.task.flow.LogNode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 日志输出节点执行器。
+ * 日志输出节点。
  *
  * <p>将指定消息输出到 SLF4J 日志，用于流程调试与执行痕迹记录。</p>
  *
@@ -22,9 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi("log")
-@FlowNode(value = "log", describe = "日志输出")
-public class LogFlowNode implements FlowNodeExecutor {
+public class LogFlowNode implements LogNode {
 
     /**
      * 默认日志级别
@@ -36,11 +32,11 @@ public class LogFlowNode implements FlowNodeExecutor {
      *
      * <p>读取 message 与 level 属性，按指定级别输出日志。</p>
      *
-     * @param instance 当前流程实例
+     * @param context 当前流程上下文
      */
     @Override
-    public void execute(FlowInstance instance) {
-        FlowProps props = instance.currentNodeProps();
+    public void execute(FlowContext context) {
+        FlowProps props = context.currentNodeProps();
         String message = props.getString("message");
         if (message == null || message.isEmpty()) {
             return;
