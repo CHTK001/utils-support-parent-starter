@@ -46,6 +46,20 @@ public interface Pipeline {
     <T> PipelineContext<T> execute(T input);
 
     /**
+     * 使用已有上下文执行流水线。
+     *
+     * <p>复用传入的上下文实例而不重建，满足"运行必定同一个上下文"的编排约束。
+     * 默认实现不支持时抛出异常，由支持该能力的实现类覆写。</p>
+     *
+     * @param existingContext 已存在的上下文实例
+     * @param <T>             数据类型
+     * @return 执行完成后的上下文
+     */
+    default <T> PipelineContext<T> execute(PipelineContext<T> existingContext) {
+        throw new UnsupportedOperationException("当前流水线实现不支持复用上下文执行");
+    }
+
+    /**
      * 恢复执行被 WAIT 挂起的流水线。
      *
      * @param context 之前执行返回的上下文
