@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.cmd;
 
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令执行的异步回调接口。
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 public interface CmdCallback {
 
     /**

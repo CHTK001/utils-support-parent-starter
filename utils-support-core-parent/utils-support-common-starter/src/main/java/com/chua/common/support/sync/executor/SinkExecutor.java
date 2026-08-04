@@ -1,5 +1,7 @@
 package com.chua.common.support.sync.executor;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 数据中心执行器
  * <p>由同步流（SyncFlow）注入到 Sink 中，Sink 可通过它反向驱动消费流程。</p>
@@ -10,6 +12,7 @@ package com.chua.common.support.sync.executor;
  * @author CH
  * @since 2026/07/28
  */
+@NullUnmarked
 public interface SinkExecutor {
 
     /**

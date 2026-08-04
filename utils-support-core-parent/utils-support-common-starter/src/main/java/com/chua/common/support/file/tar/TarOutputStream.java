@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 用于写入 TAR 格式归档文件的输出流。
@@ -17,6 +18,8 @@ import java.io.RandomAccessFile;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class TarOutputStream extends OutputStream {
 
     /**

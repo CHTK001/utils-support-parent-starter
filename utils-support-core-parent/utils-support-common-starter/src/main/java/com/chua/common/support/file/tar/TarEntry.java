@@ -4,12 +4,15 @@ import lombok.Getter;
 
 import java.io.File;
 import java.util.Date;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tar 归档条目表示，封装文件/目录及其对应的 TarHeader。
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Getter
 public class TarEntry {
 

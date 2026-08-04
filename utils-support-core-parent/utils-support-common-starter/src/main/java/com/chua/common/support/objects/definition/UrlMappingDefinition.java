@@ -3,6 +3,7 @@ package com.chua.common.support.objects.definition;
 import com.chua.common.support.objects.describe.MethodDescribe;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * URL 映射定义——MappingDefinition 的具体实现。
@@ -10,6 +11,7 @@ import lombok.Data;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 public class UrlMappingDefinition implements MappingDefinition {

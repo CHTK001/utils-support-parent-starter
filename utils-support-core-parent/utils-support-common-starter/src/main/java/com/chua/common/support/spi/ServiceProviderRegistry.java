@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
 import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATOR;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务提供者注册表
@@ -22,6 +23,7 @@ import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATO
  * @author CH
  * @since 2024-12-05
  */
+@NullUnmarked
 class ServiceProviderRegistry {
     
     /**

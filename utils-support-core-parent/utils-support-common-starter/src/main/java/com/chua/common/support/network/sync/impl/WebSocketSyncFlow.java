@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WebSocket 同步流程管理器。
@@ -18,6 +19,7 @@ import java.util.*;
  * @author CH
  * @since 2026-07-25
  */
+@NullUnmarked
 public class WebSocketSyncFlow implements SyncFlow {
 
     /**

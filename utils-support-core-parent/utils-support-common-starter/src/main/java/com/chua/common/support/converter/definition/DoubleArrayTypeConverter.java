@@ -2,6 +2,7 @@ package com.chua.common.support.converter.definition;
 
 
 import static com.chua.common.support.constant.CommonConstant.*;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,6 +17,7 @@ import static com.chua.common.support.constant.CommonConstant.*;
  * @version 1.0.0
  * @since 2020/11/5
  */
+@NullUnmarked
 public class DoubleArrayTypeConverter implements TypeConverter<Double[]> {
 
 

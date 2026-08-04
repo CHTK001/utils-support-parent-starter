@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.SpiDefault;
 
 import java.io.*;
 import java.io.Serializable;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Java原生序列化实现，基于ObjectInputStream/ObjectOutputStream。
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 @Spi("java")
 @SpiDefault
 public class JavaSerializer<T extends Serializable> implements Serializer<T> {

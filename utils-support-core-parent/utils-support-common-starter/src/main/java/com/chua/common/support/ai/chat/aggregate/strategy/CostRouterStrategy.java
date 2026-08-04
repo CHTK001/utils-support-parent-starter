@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat.aggregate.strategy;
 
 import java.util.Comparator;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 成本路由策略 — 根据输入复杂度选择最经济的模型。
@@ -19,6 +20,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class CostRouterStrategy implements RouterStrategy {
 
     private static final int SHORT_THRESHOLD = 100;

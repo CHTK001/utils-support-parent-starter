@@ -1,5 +1,7 @@
 package com.chua.common.support.objects.definition;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 单例 Bean 定义。
  *
@@ -17,6 +19,7 @@ package com.chua.common.support.objects.definition;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public class SingletonBeanDefinition extends AbstractBeanDefinition {
 
     /** 单例实例，volatile 保证多线程可见性 */

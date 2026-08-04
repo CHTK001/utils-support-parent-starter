@@ -1,5 +1,7 @@
 package com.chua.common.support.wal;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * WAL 链式写入接口。
  *
@@ -9,6 +11,7 @@ package com.chua.common.support.wal;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface WalChain {
 
     /**

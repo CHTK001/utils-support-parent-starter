@@ -1,6 +1,7 @@
 package com.chua.common.support.scattergather;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TCP 节点查询请求。
@@ -8,6 +9,7 @@ import java.util.Map;
  *
  * @author CH
  */
+@NullUnmarked
 public class ScatterGatherNodeRequest {
 
     /**

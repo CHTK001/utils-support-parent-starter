@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * URL 脚本源码监听器。
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 4.0.0.42
  * @see Listener
  */
+@NullUnmarked
 public class UrlScriptListener implements Listener {
 
     /**

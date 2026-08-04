@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.CRC32;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 单文件 WAL 实现，不分片。
@@ -44,6 +45,7 @@ import java.util.zip.CRC32;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class SimpleWalLog implements WalLog {
 
     /**

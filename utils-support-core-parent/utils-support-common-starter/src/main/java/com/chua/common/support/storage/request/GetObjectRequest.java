@@ -3,6 +3,7 @@ package com.chua.common.support.storage.request;
 import com.chua.common.support.utils.StringUtils;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 获取/下载文件请求对象。
@@ -12,6 +13,7 @@ import lombok.Data;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Data
 @Builder
 public class GetObjectRequest {

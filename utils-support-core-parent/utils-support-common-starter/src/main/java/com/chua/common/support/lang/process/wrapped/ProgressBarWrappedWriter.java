@@ -5,6 +5,7 @@ import com.chua.common.support.lang.process.ProgressBar;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 一个由进度条跟踪进度的 Writer。
@@ -16,6 +17,7 @@ import java.io.Writer;
  * @since 0.9.3
  * @author CH
  */
+@NullUnmarked
 public class ProgressBarWrappedWriter extends FilterWriter {
 
     /**

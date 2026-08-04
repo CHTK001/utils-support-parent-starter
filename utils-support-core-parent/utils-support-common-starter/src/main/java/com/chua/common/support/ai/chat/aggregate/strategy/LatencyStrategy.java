@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 低延迟策略 — 并行发起所有请求，取最先成功返回的。

@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量存储提供者 SPI。
@@ -28,6 +29,7 @@ import java.util.List;
  *
  * @author CH
  */
+@NullUnmarked
 public interface VectorStorageProvider {
 
     /**

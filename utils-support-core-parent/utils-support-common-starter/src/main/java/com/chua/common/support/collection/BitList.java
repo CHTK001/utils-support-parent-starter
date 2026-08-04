@@ -1,6 +1,7 @@
 package com.chua.common.support.collection;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link BitSet} 的位列表，提供 {@link List}{@code <Boolean>} 语义与直接位操作。
@@ -25,6 +26,7 @@ import java.util.*;
  * @version 1.0.0
  * @see BitSet
  */
+@NullUnmarked
 public class BitList extends AbstractList<Boolean> implements RandomAccess {
 
     /**

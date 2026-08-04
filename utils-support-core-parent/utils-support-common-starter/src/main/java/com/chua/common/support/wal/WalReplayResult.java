@@ -1,5 +1,7 @@
 package com.chua.common.support.wal;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * WAL 回放结果。
  *
@@ -11,6 +13,7 @@ package com.chua.common.support.wal;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public record WalReplayResult(
     CheckpointMeta checkpoint,
     java.util.List<WalRecord> records

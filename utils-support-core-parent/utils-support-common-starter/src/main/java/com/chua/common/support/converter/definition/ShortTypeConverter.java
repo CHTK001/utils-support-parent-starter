@@ -3,6 +3,7 @@ package com.chua.common.support.converter.definition;
 import java.math.BigDecimal;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -13,6 +14,8 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/10/30
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ShortTypeConverter implements TypeConverter<Short> {
 
     /**

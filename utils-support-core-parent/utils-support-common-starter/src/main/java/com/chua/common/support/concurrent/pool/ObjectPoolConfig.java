@@ -2,6 +2,7 @@ package com.chua.common.support.concurrent.pool;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象池配置
@@ -11,6 +12,7 @@ import lombok.Data;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @Data
 @Builder
 public class ObjectPoolConfig {

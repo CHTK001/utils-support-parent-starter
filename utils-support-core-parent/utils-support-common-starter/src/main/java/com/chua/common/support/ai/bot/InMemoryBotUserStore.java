@@ -3,6 +3,7 @@ package com.chua.common.support.ai.bot;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存版 Bot 用户存储
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 public class InMemoryBotUserStore implements BotUserStore {
 
     /** 用户数据存储 */

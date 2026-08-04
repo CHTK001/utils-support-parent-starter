@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 系统属性占位符解析器。
  * <p>
@@ -9,6 +11,8 @@ package com.chua.common.support.lang.placeholder;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class SystemPropertyPlaceholderResolver implements PlaceholderResolver {
 
     /**

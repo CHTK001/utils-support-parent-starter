@@ -1,5 +1,7 @@
 package com.chua.common.support.network.rpc;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * RPC 协议配置（Java 14+ Record）。
  *
@@ -33,6 +35,7 @@ package com.chua.common.support.network.rpc;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public record RpcProtocolConfig(String name, String host, Integer port, Integer payload,
                                 Integer buffer, Integer threads, Integer accepts,
                                 Integer ioThreads, Integer alive, Integer queues,

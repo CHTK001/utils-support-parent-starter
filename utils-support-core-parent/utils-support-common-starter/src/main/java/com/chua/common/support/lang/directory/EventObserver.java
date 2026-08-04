@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 目录事件观察者，承载单个文件变更事件的上下文信息。
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Data
 @Builder
 public class EventObserver {

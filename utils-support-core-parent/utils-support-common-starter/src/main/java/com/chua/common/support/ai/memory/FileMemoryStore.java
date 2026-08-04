@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于工作间文件的记忆存储实现
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @Slf4j
 public class FileMemoryStore implements MemoryStore {
 

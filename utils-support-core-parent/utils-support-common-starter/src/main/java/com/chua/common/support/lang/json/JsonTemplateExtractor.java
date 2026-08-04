@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSON 模板提取器：用一份“模板 JSON”从另一份输入 JSON 中抽取变量。
@@ -54,6 +55,8 @@ import java.util.regex.Pattern;
  * @see TemplateExtractResult
  * @see TemplateVar
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("json")
 @SpiDefault
 public class JsonTemplateExtractor implements TemplateExtractor {

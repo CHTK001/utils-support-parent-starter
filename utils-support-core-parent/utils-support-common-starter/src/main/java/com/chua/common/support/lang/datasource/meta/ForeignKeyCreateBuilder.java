@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.meta.model.ForeignKeyDef;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 添加外键链式构建器。
@@ -8,6 +9,7 @@ import com.chua.common.support.lang.datasource.meta.model.ForeignKeyDef;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface ForeignKeyCreateBuilder {
 
     /**

@@ -1,11 +1,14 @@
 package com.chua.common.support.scattergather;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Scatter-Gather 远程客户端。
  * <p>负责向远程节点发送查询请求并获取响应。</p>
  *
  * @author CH
  */
+@NullUnmarked
 public interface ScatterGatherRemoteClient<T> {
 
     /**

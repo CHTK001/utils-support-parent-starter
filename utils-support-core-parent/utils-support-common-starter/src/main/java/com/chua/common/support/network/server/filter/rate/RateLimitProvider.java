@@ -1,6 +1,7 @@
 package com.chua.common.support.network.server.filter.rate;
 
 import com.chua.common.support.network.server.request.ServerRequest;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 限流提供者 SPI 接口。
@@ -30,6 +31,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 public interface RateLimitProvider {
 
     /**

@@ -1,11 +1,14 @@
 package com.chua.common.support.objects.exception;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Bean 未找到异常。
  *
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public class BeanNotFoundException extends RuntimeException {
 
     public BeanNotFoundException(String message) {

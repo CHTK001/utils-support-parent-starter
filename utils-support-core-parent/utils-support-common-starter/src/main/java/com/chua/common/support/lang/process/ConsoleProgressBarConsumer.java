@@ -3,6 +3,7 @@ package com.chua.common.support.lang.process;
 import java.io.PrintStream;
 
 import static com.chua.common.support.lang.process.TerminalUtils.CARRIAGE_RETURN;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 控制台进度条消费者，将进度输出到控制台。
@@ -13,6 +14,7 @@ import static com.chua.common.support.lang.process.TerminalUtils.CARRIAGE_RETURN
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
 public class ConsoleProgressBarConsumer implements ProgressBarConsumer {
 
     /**

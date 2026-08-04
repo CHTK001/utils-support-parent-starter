@@ -4,6 +4,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.concurrent.CompletionStage;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 响应式过滤器链，按顺序异步执行所有匹配的过滤器，最终调用目标处理器。
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletionStage;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public interface ReactiveFilterChain {
 
     /**

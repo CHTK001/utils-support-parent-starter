@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 支持链式、任务ID、MD5校验、固定目录的原生库加载器。
@@ -54,6 +55,7 @@ import java.util.jar.JarFile;
  *
  * @author CH
  */
+@NullUnmarked
 public class NativeLoader {
 
     private static final Map<String, Boolean> LOADED = new ConcurrentHashMap<>();

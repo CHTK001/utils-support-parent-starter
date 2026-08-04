@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.directory.executor;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 目录轮询执行器接口，抽象轮询任务的启停生命周期。
  * <p>
@@ -14,6 +16,7 @@ package com.chua.common.support.lang.directory.executor;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public interface DirectoryPollerExecutor extends AutoCloseable {
 
     /**

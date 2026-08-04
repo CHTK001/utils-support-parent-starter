@@ -1,5 +1,7 @@
 package com.chua.common.support.task.retry;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 重试异常
  *
@@ -9,6 +11,7 @@ package com.chua.common.support.task.retry;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class RetryException extends Exception {
 
     /**

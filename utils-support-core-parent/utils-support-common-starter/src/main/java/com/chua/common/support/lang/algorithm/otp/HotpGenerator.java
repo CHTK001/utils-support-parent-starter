@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.algorithm.otp;
 
+import org.jspecify.annotations.NullUnmarked;
+
 
 /**
  * HOTP (HMAC-based One-Time Password) 生成器接口。
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.algorithm.otp;
  * @author CH
  * @since 2024/12/3
  */
+@NullUnmarked
 public interface HotpGenerator extends OtpGenerator {
 
     /**

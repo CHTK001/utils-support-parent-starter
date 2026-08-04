@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认用量记录器 — 基于 {@link AiUsage} 的内存实现。
@@ -15,6 +16,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Slf4j
 public class DefaultUsageRecorder implements UsageRecorder {
 

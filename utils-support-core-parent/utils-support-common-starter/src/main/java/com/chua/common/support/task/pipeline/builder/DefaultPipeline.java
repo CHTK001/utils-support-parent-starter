@@ -12,6 +12,7 @@ import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认流水线实现。
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  */
+@NullUnmarked
 public class DefaultPipeline implements Pipeline {
 
     /**

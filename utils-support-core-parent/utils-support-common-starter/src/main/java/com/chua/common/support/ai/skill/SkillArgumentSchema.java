@@ -3,6 +3,7 @@ package com.chua.common.support.ai.skill;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 技能参数 schema
@@ -12,6 +13,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 public class SkillArgumentSchema {
 
     /** 参数名称 */

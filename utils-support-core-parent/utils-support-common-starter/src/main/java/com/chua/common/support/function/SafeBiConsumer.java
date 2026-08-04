@@ -1,6 +1,7 @@
 package com.chua.common.support.function;
 
 import java.util.function.BiConsumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 安全的 BiConsumer，捕获并忽略执行过程中的异常
@@ -8,6 +9,7 @@ import java.util.function.BiConsumer;
  * @author CH
  * @version 1.0.0
  */
+@NullUnmarked
 public interface SafeBiConsumer<T, U> extends BiConsumer<T, U> {
     /**
      * 消费给定的参数，内部捕获所有异常

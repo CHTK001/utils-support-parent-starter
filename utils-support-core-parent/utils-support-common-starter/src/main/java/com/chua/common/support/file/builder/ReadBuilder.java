@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件读取构建器抽象基类。
@@ -19,6 +20,8 @@ import java.util.stream.Stream;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public abstract class ReadBuilder {
 
     /** 待读取的文件 */

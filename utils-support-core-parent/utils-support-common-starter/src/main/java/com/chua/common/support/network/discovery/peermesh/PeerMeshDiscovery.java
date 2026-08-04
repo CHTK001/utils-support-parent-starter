@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * PeerMesh 服务发现实现。
@@ -41,6 +42,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 @Spi("peerMesh")
 @SpiOrder(Integer.MAX_VALUE)

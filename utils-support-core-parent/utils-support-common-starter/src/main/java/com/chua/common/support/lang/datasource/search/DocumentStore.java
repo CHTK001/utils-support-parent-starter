@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.search;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档存储接口，提供类 MongoDB 的文档级 CRUD 能力。
@@ -12,6 +13,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface DocumentStore {
 
     /**

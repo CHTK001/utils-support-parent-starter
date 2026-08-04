@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.chat.aggregate.strategy;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 故障转移策略 — 始终选择列表中的第一个客户端。
@@ -11,6 +12,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class FailoverStrategy implements RouterStrategy {
 
     @Override

@@ -3,6 +3,7 @@ package com.chua.common.support.lang.ast.parser;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.annotations.Spi;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认表达式解析器
@@ -24,6 +25,8 @@ import com.chua.common.support.spi.annotations.Spi;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("expr")
 public class DefaultExpressionParser implements ExpressionParser {
 

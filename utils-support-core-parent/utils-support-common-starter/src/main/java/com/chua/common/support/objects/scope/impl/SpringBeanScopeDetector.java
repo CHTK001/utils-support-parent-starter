@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.SpiDescribe;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Spring 作用域检测器。
@@ -22,6 +23,7 @@ import java.lang.reflect.Method;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Spi("spring")
 @SpiDescribe("Spring 作用域检测器")
 public class SpringBeanScopeDetector implements BeanScopeDetector {

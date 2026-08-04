@@ -5,6 +5,7 @@ import com.chua.common.support.utils.ThreadUtils;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于虚拟线程的 ShutdownOnSuccess 结构化并发实现。
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class ShutdownOnSuccessStructuredConcurrencyProvider implements StructuredConcurrencyProvider {
 
     private final ExecutorService executor;

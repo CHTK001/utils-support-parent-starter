@@ -1,6 +1,7 @@
 package com.chua.common.support.file.converter;
 
 import lombok.Getter;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件转换参数设置，控制转换过程中的可选行为。
@@ -20,6 +21,8 @@ import lombok.Getter;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Getter
 public class ConvertSetting {
 

@@ -4,6 +4,7 @@ import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 代理工具类，提供创建 JDK 动态代理实例的便捷静态方法。
@@ -37,6 +38,7 @@ import java.lang.reflect.Proxy;
  * @see DelegateMethodIntercept
  * @see InvocationHandler
  */
+@NullUnmarked
 public class ProxyUtils {
 
     /**

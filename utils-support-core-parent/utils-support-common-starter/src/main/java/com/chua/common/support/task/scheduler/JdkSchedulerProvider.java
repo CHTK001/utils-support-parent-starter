@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK 默认调度器提供者实现
@@ -38,6 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class JdkSchedulerProvider extends AbstractSchedulerProvider {
 
     /**

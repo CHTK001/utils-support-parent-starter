@@ -7,6 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 数据库方言 SPI 接口，定义不同数据库的 SQL 语法差异。

@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.util.*;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。

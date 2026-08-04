@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.UUID;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 请求 ID 过滤器，为每个请求生成唯一标识。
@@ -18,6 +19,8 @@ import java.util.UUID;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class RequestIdFilter implements ServerFilter {
 
     @Override

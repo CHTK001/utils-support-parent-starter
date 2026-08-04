@@ -90,6 +90,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         try {
             ScreenCature cap = ServiceProvider.of(ScreenCature.class).getNewExtension("javacv");
             if (cap == null) {
+                log.warn("[DesktopAgent] JavaCVScreenCapture not available, falling back to RobotScreenCapture");
                 cap = ServiceProvider.of(ScreenCature.class).getNewExtension("robot");
             }
             if (cap != null) {
@@ -346,11 +347,11 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
     private VideoEncoder createEncoder(int w, int h, int fps) {
         try {
             VideoEncoder encoder = ServiceProvider.of(VideoEncoder.class)
-                    .getNewExtension("nvenc", w, h, fps);
+                    .getNewExtension("nvenc");
             if (encoder == null) {
                 log.warn("[DesktopAgent] NVENC 编码器不可用，回退到软件编码");
                 encoder = ServiceProvider.of(VideoEncoder.class)
-                        .getNewExtension("software", w, h, fps);
+                        .getNewExtension("software");
             }
             if (encoder == null) {
                 log.warn("[DesktopAgent] 所有编码器创建失败");
@@ -370,7 +371,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             return;
         }
         if (!capture.init(1920, 1080, 30)) {
-            log.error("[DesktopAgent] 采集器初始化失败");
+            log.error("[DesktopAgent] 采集器初始化失败: {} ({})", capture.getClass().getSimpleName(), capture == null ? "null" : "init returned false");
             return;
         }
         capturing = true;

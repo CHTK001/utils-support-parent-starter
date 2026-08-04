@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.kv;
 
 import java.time.Duration;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * KV 链式操作模板，包裹任意 {@link KvOperations} 实现，提供流畅（Fluent）API。
@@ -26,6 +27,7 @@ import java.time.Duration;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class KvTemplate {
 
     /**

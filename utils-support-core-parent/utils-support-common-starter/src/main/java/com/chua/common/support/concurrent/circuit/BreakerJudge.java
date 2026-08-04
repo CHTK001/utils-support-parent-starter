@@ -3,6 +3,7 @@ package com.chua.common.support.concurrent.circuit;
 import com.chua.common.support.lang.ast.BTreeNode;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 断路器判断器
@@ -44,6 +45,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/28
  */
+@NullUnmarked
 @FunctionalInterface
 public interface BreakerJudge {
 

@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话配置头实体 — 通过 Engine ORM 属性字段持久化。

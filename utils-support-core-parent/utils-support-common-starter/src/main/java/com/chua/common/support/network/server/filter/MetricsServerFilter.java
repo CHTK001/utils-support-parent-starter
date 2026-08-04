@@ -14,6 +14,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 指标收集过滤器。
@@ -32,6 +33,8 @@ import java.util.concurrent.atomic.LongAdder;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class MetricsServerFilter implements ServerFilter {
 
     /**

@@ -3,12 +3,14 @@ package com.chua.common.support.file.tar;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tar 文件工具类，用于计算 TAR 归档的大小。
  *
  * @author CH
  */
+@NullUnmarked
 public class TarUtils {
 
 	/**

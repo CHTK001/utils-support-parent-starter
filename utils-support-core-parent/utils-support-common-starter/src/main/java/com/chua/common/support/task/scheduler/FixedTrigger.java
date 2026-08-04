@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 固定时间间隔触发器
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class FixedTrigger implements Trigger {
 
     /**

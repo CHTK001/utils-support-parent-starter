@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -24,6 +25,8 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2021/5/24
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class PathTypeConverter implements TypeConverter<Path> {
 
     /**

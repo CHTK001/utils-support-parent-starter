@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 加解密算法顶级接口
  *
@@ -29,5 +31,6 @@ package com.chua.common.support.lang.algorithm.cipher;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public interface Cipher {
 }

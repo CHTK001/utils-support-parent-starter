@@ -18,6 +18,7 @@ import java.util.Objects;
 import static com.chua.common.support.constant.CharConstant.*;
 import static com.chua.common.support.constant.CharsetConstant.UTF_8;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * URL 工具类，提供 URL 与 URI 之间的相互转换、application/x-www-form-urlencoded 格式的编解码、
@@ -41,6 +42,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
  * @see SimpleUrlEncoder
  * @see URLDecoder
  */
+@NullUnmarked
 public class UrlUtils {
     private UrlUtils() {
     }

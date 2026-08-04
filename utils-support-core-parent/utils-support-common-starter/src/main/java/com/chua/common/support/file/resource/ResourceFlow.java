@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_ALL_PREFIX;
 import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 资源查找统一入口。
@@ -45,6 +46,8 @@ import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class ResourceFlow {
 

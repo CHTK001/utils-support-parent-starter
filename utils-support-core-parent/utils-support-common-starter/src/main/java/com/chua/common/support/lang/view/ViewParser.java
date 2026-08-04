@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.view;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 视图解析器 SPI，将结构化数据渲染为终端可读的文本视图。
  * <p>用于 SSH 等 CLI 环境下的数据展示，支持表格、键值对、列表等布局。</p>
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.view;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface ViewParser {
 
     /**

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * IPC 地址解析器，扫描对象上标注了 {@code @IpcMethod} 的方法，生成 path -> Method 映射。
@@ -12,6 +13,7 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class IpcAddressParser {
 
     /**

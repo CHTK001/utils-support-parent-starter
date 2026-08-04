@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static com.chua.common.support.constant.CharsetConstant.UTF_8;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 摘要算法工具类，提供各类哈希算法的计算功能。
@@ -24,6 +25,7 @@ import static com.chua.common.support.constant.CharsetConstant.UTF_8;
  *
  * @author CH
  */
+@NullUnmarked
 public class DigestUtils {
 
     // ==================== 摘要输出长度常量 ====================

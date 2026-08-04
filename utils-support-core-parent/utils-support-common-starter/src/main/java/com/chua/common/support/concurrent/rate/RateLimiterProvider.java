@@ -1,5 +1,7 @@
 package com.chua.common.support.concurrent.rate;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 限流器提供者 SPI 接口。
  *
@@ -9,6 +11,7 @@ package com.chua.common.support.concurrent.rate;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
 public interface RateLimiterProvider {
 
     /**

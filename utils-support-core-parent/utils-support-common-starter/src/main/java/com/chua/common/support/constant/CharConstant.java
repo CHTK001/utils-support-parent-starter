@@ -1,5 +1,7 @@
 package com.chua.common.support.constant;
 
+import org.jspecify.annotations.NullUnmarked;
+
 
 /**
  * 字符常量接口
@@ -17,6 +19,7 @@ package com.chua.common.support.constant;
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
 public interface CharConstant {
     /**
      * 空格 {@code ' '}

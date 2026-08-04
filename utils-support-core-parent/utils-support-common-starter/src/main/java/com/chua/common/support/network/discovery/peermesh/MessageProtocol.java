@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TCP 消息编解码工具类。
@@ -15,6 +16,8 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class MessageProtocol {
 
     private static final Logger log = LoggerFactory.getLogger(MessageProtocol.class);

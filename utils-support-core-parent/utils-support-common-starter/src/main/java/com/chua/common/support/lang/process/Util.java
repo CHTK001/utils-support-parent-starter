@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 工具类，提供进度条相关的静态工具方法。
@@ -16,6 +17,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
 class Util {
 
     /**

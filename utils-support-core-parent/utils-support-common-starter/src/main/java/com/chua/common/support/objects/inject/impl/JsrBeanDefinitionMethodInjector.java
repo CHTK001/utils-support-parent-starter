@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSR 标准方法注入器，通过反射处理 {@code @Resource} / {@code @Inject} 注解的 setter 方法。
@@ -18,6 +19,7 @@ import java.util.function.Function;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 @Spi("jsr")
 public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {

@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务提供者接口，提供 SPI（Service Provider Interface）机制的核心功能。
@@ -60,6 +61,7 @@ import java.util.function.Function;
  * @see DefaultServiceProvider
  * @see ServiceDefinition
  */
+@NullUnmarked
 @SuppressWarnings({"ALL", "unchecked"})
 public interface ServiceProvider<T> {
 

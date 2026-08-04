@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.meta.model.ViewDef;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 改视图链式构建器。
@@ -8,6 +9,7 @@ import com.chua.common.support.lang.datasource.meta.model.ViewDef;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface ViewAlterBuilder {
 
     /**

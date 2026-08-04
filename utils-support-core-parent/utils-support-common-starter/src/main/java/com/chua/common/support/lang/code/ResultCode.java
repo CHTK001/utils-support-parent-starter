@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.code;
 
 import static com.chua.common.support.lang.code.ReturnCode.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 结果状态码接口
@@ -10,6 +11,7 @@ import static com.chua.common.support.lang.code.ReturnCode.*;
  *
  * @author CH
  */
+@NullUnmarked
 public interface ResultCode {
 
     // ==================== HTTP 常量 ====================

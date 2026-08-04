@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.document;
 
 import lombok.Builder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 表关系（外键）数据。
@@ -10,6 +11,7 @@ import lombok.Builder;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Builder
 public record RelationshipData(
     /** 外键名（约束名） */

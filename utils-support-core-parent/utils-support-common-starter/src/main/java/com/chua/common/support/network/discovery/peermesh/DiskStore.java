@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 磁盘持久化存储：读写 known_peers.json，写时加锁。
@@ -16,6 +17,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class DiskStore {
 
     private static final Logger log = LoggerFactory.getLogger(DiskStore.class);

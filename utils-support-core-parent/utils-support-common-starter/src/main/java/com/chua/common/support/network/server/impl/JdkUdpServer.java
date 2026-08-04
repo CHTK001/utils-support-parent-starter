@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK DatagramSocket 的 UDP 服务器实现。
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/26
  */
+@NullUnmarked
 @Slf4j
 @Spi({"jdk-udp"})
 public class JdkUdpServer extends AbstractServer {

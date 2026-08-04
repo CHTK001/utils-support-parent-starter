@@ -1,6 +1,7 @@
 package com.chua.common.support.vector;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量数据模型，包含向量 ID、浮点数组、元数据和原文内容。

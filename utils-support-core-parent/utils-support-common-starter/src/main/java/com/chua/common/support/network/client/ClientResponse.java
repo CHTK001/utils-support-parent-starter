@@ -3,6 +3,7 @@ package com.chua.common.support.network.client;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpStatus;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 客户端响应封装，包含状态码、响应头和响应体。
@@ -36,6 +37,8 @@ import java.nio.charset.StandardCharsets;
  * @see HttpClientBuilder
  * @see com.chua.common.support.network.client.spi.HttpClientExecutor
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ClientResponse {
 
     /**

@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.cmd;
 
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令执行结果，封装命令执行后的输出、退出码和耗时等信息。
@@ -21,6 +22,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class CmdResult {
 
     /** 退出码：超时标记 */

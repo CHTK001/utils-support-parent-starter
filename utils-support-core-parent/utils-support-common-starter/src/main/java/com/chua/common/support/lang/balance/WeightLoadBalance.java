@@ -7,10 +7,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("weight")
 public class WeightLoadBalance implements LoadBalance {
 

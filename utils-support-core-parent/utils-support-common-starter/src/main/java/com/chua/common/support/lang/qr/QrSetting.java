@@ -1,11 +1,13 @@
 package com.chua.common.support.lang.qr;
 
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码配置类
  * @author CH
  */
+@NullUnmarked
 @Data
 public class QrSetting {
     /**

@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 统一返回结果
@@ -28,6 +29,7 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 @Accessors(chain = true)
+@NullUnmarked
 @SuppressWarnings({"ALL", "unchecked"})
 public class ReturnResult<T> implements Serializable {
 

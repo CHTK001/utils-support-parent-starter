@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.bot;
 
 import lombok.Builder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 用户实体（数据库持久化用）。
@@ -8,6 +9,7 @@ import lombok.Builder;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 @Builder
 public record BotUserEntity(
         /** 用户 ID */

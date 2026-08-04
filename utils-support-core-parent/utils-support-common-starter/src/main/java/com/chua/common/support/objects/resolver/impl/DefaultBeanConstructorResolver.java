@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认构造器参数解析器。
@@ -16,6 +17,7 @@ import java.util.function.Function;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Spi(value = "default", order = -1000)
 public class DefaultBeanConstructorResolver implements BeanConstructorResolver {
 

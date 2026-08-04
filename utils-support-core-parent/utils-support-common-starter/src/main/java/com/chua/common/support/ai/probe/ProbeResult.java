@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.probe;
 
 import lombok.Builder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 单个探测维度结果。
@@ -13,6 +14,7 @@ import lombok.Builder;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Builder
 public record ProbeResult(
     ProbeDimension dimension,

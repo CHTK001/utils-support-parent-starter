@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.chua.common.support.network.server.request.FormFile;
 import com.chua.common.support.network.server.request.MultipartParser;
 import com.chua.common.support.spi.ServiceProvider;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK {@link HttpExchange} 的 {@link ServerRequest} 实现。
@@ -28,6 +29,8 @@ import com.chua.common.support.spi.ServiceProvider;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class HttpServerRequest implements ServerRequest {
 
     private final HttpExchange exchange;

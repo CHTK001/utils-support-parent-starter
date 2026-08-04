@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link File} 的文件系统资源实现。
@@ -16,6 +17,7 @@ import java.net.URL;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class FileSystemResource implements Resource {
 
     /**

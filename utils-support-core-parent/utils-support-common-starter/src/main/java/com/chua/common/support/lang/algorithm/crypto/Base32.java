@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.algorithm.crypto;
 
 import java.util.Arrays;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -9,6 +10,7 @@ import java.util.Arrays;
  * @author CH
  * @since 2024/12/3
  */
+@NullUnmarked
 public class Base32 {
     /**
      * 默认使用的 Base32 字母表 (RFC 4648)

@@ -2,6 +2,7 @@ package com.chua.common.support.lang.placeholder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 编辑占位符解析器接口。
@@ -11,6 +12,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  */
+@NullUnmarked
 public interface EditPlaceholderResolver extends PlaceholderResolver {
 
     /**

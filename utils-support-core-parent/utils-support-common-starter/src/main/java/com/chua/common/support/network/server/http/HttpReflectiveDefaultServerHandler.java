@@ -8,6 +8,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于反射实现的 HTTP 服务器处理器。
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author CH
  */
+@NullUnmarked
 public class HttpReflectiveDefaultServerHandler extends DefaultHttpServerHandler implements ReflectiveHttpDefaultServerHandler {
 
 

@@ -3,6 +3,7 @@ package com.chua.common.support.lang.process.wrapped;
 import com.chua.common.support.lang.process.ProgressBar;
 
 import java.util.Iterator;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 任何由进度条跟踪迭代过程的迭代器。
@@ -14,6 +15,7 @@ import java.util.Iterator;
  * @author CH
  * @since 0.6.0
  */
+@NullUnmarked
 public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable {
 
     /**

@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat.aggregate.strategy;
 
 import java.util.List;
 import java.util.Random;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 权重策略 — 按权重比例随机选择客户端。
@@ -12,6 +13,7 @@ import java.util.Random;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class WeightedStrategy implements RouterStrategy {
 
     private final Random random = new Random();

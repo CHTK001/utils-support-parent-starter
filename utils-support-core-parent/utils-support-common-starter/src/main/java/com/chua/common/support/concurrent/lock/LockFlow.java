@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 锁流门面，支持链式调用、降级回调和受保护执行。

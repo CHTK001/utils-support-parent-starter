@@ -1,6 +1,7 @@
 package com.chua.common.support.network.protocol;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 协议还原接口（SPI）
@@ -26,6 +27,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/17
  */
+@NullUnmarked
 public interface ProtocolRestorer {
 
     /**

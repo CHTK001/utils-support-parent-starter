@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import static com.chua.common.support.constant.NameConstant.DEFAULT;
 import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
 import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATOR;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -63,6 +64,7 @@ import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATO
  * @see ServiceProvider
  * @see ServiceDefinition
  */
+@NullUnmarked
 @SuppressWarnings({"ALL", "unchecked"})
 public class DefaultServiceProvider<T> implements ServiceProvider<T>, InitializingAware {
     /**

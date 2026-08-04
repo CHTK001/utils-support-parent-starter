@@ -3,6 +3,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.security.KeyPair;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SM2 非对称加解密接口
@@ -50,6 +51,8 @@ import java.security.KeyPair;
  * @see Cipher
  * @see com.chua.common.support.spi.ServiceProvider
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface Sm2Cipher extends Cipher {
 
     /**

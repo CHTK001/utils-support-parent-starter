@@ -1,10 +1,13 @@
 package com.chua.common.support.network.discovery;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 服务发现监听器接口。
  * 用于监听服务注册、注销或状态变更等事件。
  * @author CH
  */
+@NullUnmarked
 public interface ServiceDiscoveryListener {
 
     /**

@@ -2,6 +2,7 @@ package com.chua.common.support.network.sse;
 
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.spi.ServiceProvider;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SSE（Server-Sent Events）客户端接口
@@ -42,6 +43,7 @@ import com.chua.common.support.spi.ServiceProvider;
  * @see SseListener
  * @see SseConnection
  */
+@NullUnmarked
 public interface SseClient {
 
     /**

@@ -4,6 +4,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.concurrent.CompletionStage;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 响应式请求处理器接口。
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletionStage;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @FunctionalInterface
 public interface ReactiveServerHandler {
 

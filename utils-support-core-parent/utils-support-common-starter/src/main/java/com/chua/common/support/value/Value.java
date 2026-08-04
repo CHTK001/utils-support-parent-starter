@@ -7,6 +7,7 @@ import com.chua.common.support.utils.ObjectUtils;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Optional;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 值包装接口，提供统一的值访问和类型转换能力。
@@ -24,6 +25,7 @@ import java.util.Optional;
  * @author CH
  * @since 2020/12/19
  */
+@NullUnmarked
 public interface Value<T> extends Serializable {
 
     /**

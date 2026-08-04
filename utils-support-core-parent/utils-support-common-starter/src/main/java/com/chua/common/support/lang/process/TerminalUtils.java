@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -17,6 +18,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 0.9.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class TerminalUtils {
 
     static final char CARRIAGE_RETURN = '\r';

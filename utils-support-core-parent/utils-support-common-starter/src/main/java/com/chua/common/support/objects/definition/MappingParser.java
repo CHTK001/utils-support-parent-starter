@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.definition;
 
 import java.lang.reflect.Method;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 映射解析器接口。
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface MappingParser {
 
     /**

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 搜索引擎索引定义，描述 Elasticsearch / Solr / RedisSearch 等搜索引擎的索引结构。
@@ -14,6 +15,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

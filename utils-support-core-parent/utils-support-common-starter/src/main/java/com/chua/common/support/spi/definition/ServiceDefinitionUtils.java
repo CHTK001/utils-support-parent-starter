@@ -8,6 +8,7 @@ import java.util.*;
 
 import static com.chua.common.support.constant.ContextConstant.COMPONENT;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,6 +19,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  *
  * @author CH
  */
+@NullUnmarked
 public class ServiceDefinitionUtils {
 
     /**

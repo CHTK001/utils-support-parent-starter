@@ -2,20 +2,14 @@ package com.chua.common.support.media.codec;
 
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.ffmpeg.global.avutil;
-import org.bytedeco.ffmpeg.swscale.SwsContext;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.IntPointer;
-import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 
 import java.awt.AWTException;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.nio.ByteBuffer;
 
 import static org.bytedeco.ffmpeg.global.swscale.sws_getCachedContext;
 import static org.bytedeco.ffmpeg.global.swscale.sws_scale;
@@ -38,8 +32,8 @@ public class RobotScreenCapture implements ScreenCature {
     private int height;
     private int fps;
     private boolean initialized;
-    private SwsContext swsCtx;
-    private ByteBuffer yuvBuf;
+    private Java2DFrameConverter frameConverter;
+    private java.awt.image.BufferedImage captureBuf;
 
     @Override
     public boolean init(int width, int height, int fps) {
@@ -48,9 +42,9 @@ public class RobotScreenCapture implements ScreenCature {
             this.width = width;
             this.height = height;
             this.fps = fps;
-            int ySize = width * height;
-            int uvSize = (width / 2) * (height / 2);
-            this.yuvBuf = ByteBuffer.allocateDirect(ySize + uvSize * 2);
+            this.frameConverter = new Java2DFrameConverter();
+            java.awt.Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            this.captureBuf = new BufferedImage((int) screenSize.getWidth(), (int) screenSize.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
             this.initialized = true;
             log.info("[RobotScreenCapture] 已初始化: {}x{} {}fps YUV420P", width, height, fps);
             return true;
@@ -72,55 +66,7 @@ public class RobotScreenCapture implements ScreenCature {
                     new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
             BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
             scaled.getGraphics().drawImage(fullScreen, 0, 0, width, height, null);
-            byte[] pixels = ((DataBufferByte) scaled.getRaster().getDataBuffer()).getData();
-
-            BytePointer srcData = new BytePointer(pixels);
-            int[] srcStride = new int[]{width * 3};
-
-            org.bytedeco.ffmpeg.avutil.AVFrame tmpFrame = org.bytedeco.ffmpeg.global.avutil.av_frame_alloc();
-            int size = org.bytedeco.ffmpeg.global.avutil.av_image_get_buffer_size(
-                    avutil.AV_PIX_FMT_YUV420P, width, height, 1);
-            BytePointer tmpBuf = new BytePointer(org.bytedeco.ffmpeg.global.avutil.av_malloc(size));
-            org.bytedeco.ffmpeg.global.avutil.av_image_fill_arrays(
-                    new PointerPointer(tmpFrame), tmpFrame.linesize(), tmpBuf,
-                    avutil.AV_PIX_FMT_YUV420P, width, height, 1);
-            tmpFrame.format(avutil.AV_PIX_FMT_YUV420P);
-            tmpFrame.width(width);
-            tmpFrame.height(height);
-
-            SwsContext sws = sws_getCachedContext(swsCtx, width, height, avutil.AV_PIX_FMT_BGR24,
-                    width, height, avutil.AV_PIX_FMT_YUV420P, SWS_BILINEAR, null, null, (double[]) null);
-            this.swsCtx = sws;
-
-            sws_scale(sws, new PointerPointer(srcData), new IntPointer(srcStride),
-                    0, height, new PointerPointer(tmpFrame), tmpFrame.linesize());
-
-            int ySize = width * height;
-            int uvSize = (width / 2) * (height / 2);
-            yuvBuf.clear();
-            byte[] plane = new byte[Math.max(ySize, uvSize)];
-            new BytePointer(tmpFrame.data(0)).get(plane, 0, ySize);
-            yuvBuf.put(plane, 0, ySize);
-            new BytePointer(tmpFrame.data(1)).get(plane, 0, uvSize);
-            yuvBuf.put(plane, 0, uvSize);
-            new BytePointer(tmpFrame.data(2)).get(plane, 0, uvSize);
-            yuvBuf.put(plane, 0, uvSize);
-            yuvBuf.flip();
-
-            org.bytedeco.ffmpeg.global.avutil.av_frame_free(tmpFrame);
-            org.bytedeco.ffmpeg.global.avutil.av_free(tmpBuf);
-
-            Frame result = new Frame(width, height, Frame.DEPTH_UBYTE, 3);
-            result.imageWidth = width;
-            result.imageHeight = height;
-            result.imageStride = width;
-            yuvBuf.position(0).limit(ySize);
-            result.image[0] = yuvBuf.slice();
-            yuvBuf.position(ySize).limit(ySize + uvSize);
-            result.image[1] = yuvBuf.slice();
-            yuvBuf.position(ySize + uvSize).limit(ySize + uvSize * 2);
-            result.image[2] = yuvBuf.slice();
-            return result;
+            return frameConverter.convert(scaled);
         } catch (Exception e) {
             log.warn("[RobotScreenCapture] 采集帧失败: {}", e.getMessage());
             return null;

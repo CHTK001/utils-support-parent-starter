@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 协议 ServerFilter — 在 ProtocolServer 中直接处理 OpenAI / Claude / CCS RESTful 请求。

@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.meta;
 import com.chua.common.support.lang.datasource.meta.model.ProcedureDef;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 存储过程元数据操作接口。
@@ -36,6 +37,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface MetaProcedure {
 
     /**

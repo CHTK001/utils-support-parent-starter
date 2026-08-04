@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 表格视图解析器，将结构化数据渲染为终端 ASCII 表格。
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Spi("table")
 public class TableViewParser implements ViewParser {
 

@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步流
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author CH
  * @since 2026/07/28
  */
+@NullUnmarked
 @Slf4j
 public class SyncFlow implements AutoCloseable {
 

@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.mcp;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * MCP 工具描述符

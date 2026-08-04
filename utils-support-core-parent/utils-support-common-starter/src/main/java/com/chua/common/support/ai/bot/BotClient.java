@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.bot;
 
 import com.chua.common.support.spi.ServiceProvider;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 客户端统一接口
@@ -22,6 +23,7 @@ import com.chua.common.support.spi.ServiceProvider;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 public interface BotClient {
 
     // ── SPI Auto-load ────────────────────────────────────────────

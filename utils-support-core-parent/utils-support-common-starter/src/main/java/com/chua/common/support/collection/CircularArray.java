@@ -3,6 +3,7 @@ package com.chua.common.support.collection;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 环状数组接口，继承 {@link List}。
@@ -25,6 +26,7 @@ import java.util.NoSuchElementException;
  * @version 1.0.0
  * @see CircularArrayList
  */
+@NullUnmarked
 public interface CircularArray<E> extends List<E> {
 
     /**

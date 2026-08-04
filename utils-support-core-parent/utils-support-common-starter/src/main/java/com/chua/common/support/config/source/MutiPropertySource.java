@@ -1,5 +1,7 @@
 package com.chua.common.support.config.source;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 多属性源接口定义。
  * <p>
@@ -9,5 +11,6 @@ package com.chua.common.support.config.source;
  *
  * @author CH
  */
+@NullUnmarked
 public interface MutiPropertySource extends PropertySource {
 }

@@ -5,6 +5,7 @@ import com.chua.common.support.utils.ArrayUtils;
 import java.util.*;
 
 import static com.chua.common.support.constant.CommonConstant.*;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -21,7 +22,8 @@ import static com.chua.common.support.constant.CommonConstant.*;
  * @author CH
  * @version 1.0.0
  */
-@SuppressWarnings("ALL")
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ListTypeConverter implements TypeConverter<List> {
 
 

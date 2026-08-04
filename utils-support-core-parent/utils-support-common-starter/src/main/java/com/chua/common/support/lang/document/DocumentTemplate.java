@@ -2,6 +2,7 @@ package com.chua.common.support.lang.document;
 
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档模板 SPI。
@@ -12,6 +13,8 @@ import com.chua.common.support.spi.annotations.Spi;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi
 public interface DocumentTemplate {
 

@@ -2,6 +2,7 @@ package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 过滤器链，按顺序执行所有匹配的过滤器，最终调用目标处理器。
@@ -13,6 +14,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @FunctionalInterface
 public interface ServerFilterChain {
 

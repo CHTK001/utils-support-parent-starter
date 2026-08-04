@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 请求去重器。
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 public class ScatterGatherDeduplicator {
 

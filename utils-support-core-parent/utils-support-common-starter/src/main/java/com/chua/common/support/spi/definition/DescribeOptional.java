@@ -1,6 +1,7 @@
 package com.chua.common.support.spi.definition;
 
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SPI 可选参数描述对象，用于承载扩展点参数的名称、默认值、说明及类型信息。
@@ -9,6 +10,7 @@ import lombok.Data;
  *
  * @author CH
  */
+@NullUnmarked
 @Data
 public class DescribeOptional {
 

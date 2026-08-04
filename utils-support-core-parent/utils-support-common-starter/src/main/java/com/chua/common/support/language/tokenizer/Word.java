@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分词结果中的一个词单元，包含词语文本和词性信息。
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
  * @author CH
  * @version 1.0.0
  */
+@NullUnmarked
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor

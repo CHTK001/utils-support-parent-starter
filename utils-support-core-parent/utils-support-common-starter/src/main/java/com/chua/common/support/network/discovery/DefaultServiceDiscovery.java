@@ -1,6 +1,7 @@
 package com.chua.common.support.network.discovery;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认的服务发现实现类。
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
 

@@ -3,6 +3,7 @@ package com.chua.common.support.vector;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量存储抽象基类，封装了维度校验、资源关闭等通用逻辑。
@@ -13,6 +14,7 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public abstract class AbstractVectorStorage implements VectorStorage {
 
     /**

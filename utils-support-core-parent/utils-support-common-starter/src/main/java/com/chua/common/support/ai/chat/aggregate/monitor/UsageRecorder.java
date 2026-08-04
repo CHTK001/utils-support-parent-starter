@@ -3,6 +3,7 @@ package com.chua.common.support.ai.chat.aggregate.monitor;
 import com.chua.common.support.ai.AiUsage;
 
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 用量记录器 — 收集 AI 调用 {@link AiUsage} 数据。
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface UsageRecorder extends Consumer<AiUsage> {
 
     /**

@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -26,6 +27,8 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2021/1/26
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class LocalDateTimeTypeConverter implements TypeConverter<LocalDateTime> {
 
     /**

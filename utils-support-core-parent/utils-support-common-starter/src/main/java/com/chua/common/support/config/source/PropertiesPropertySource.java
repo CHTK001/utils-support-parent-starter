@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 Java Properties 对象实现的属性源类。

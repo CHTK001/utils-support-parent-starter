@@ -3,6 +3,7 @@ package com.chua.common.support.task.message;
 import lombok.Getter;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 消息响应对象
@@ -12,6 +13,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/17
  */
+@NullUnmarked
 @Getter
 public class MessageResponse {
 

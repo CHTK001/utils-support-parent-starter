@@ -1,6 +1,7 @@
 package com.chua.common.support.sync;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步输入端
@@ -15,6 +16,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/28
  */
+@NullUnmarked
 public interface Input extends AutoCloseable {
 
     /**

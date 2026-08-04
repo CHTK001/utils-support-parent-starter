@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存 RAG 客户端实现，用于测试和演示。

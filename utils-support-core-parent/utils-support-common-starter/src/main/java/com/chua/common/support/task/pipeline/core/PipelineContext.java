@@ -1,6 +1,7 @@
 package com.chua.common.support.task.pipeline.core;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 流水线上下文。
@@ -22,6 +23,7 @@ import java.util.*;
  * @param <T> 数据类型
  * @author CH
  */
+@NullUnmarked
 public class PipelineContext<T> {
 
     /**

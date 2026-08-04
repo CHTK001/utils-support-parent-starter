@@ -5,6 +5,7 @@ import com.chua.common.support.utils.ArrayUtils;
 import java.util.List;
 
 import static com.chua.common.support.constant.CommonConstant.*;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -19,6 +20,7 @@ import static com.chua.common.support.constant.CommonConstant.*;
  * @version 1.0.0
  * @since 2020/11/5
  */
+@NullUnmarked
 public class IntegerArrayTypeConverter implements TypeConverter<Integer[]> {
 
     /**

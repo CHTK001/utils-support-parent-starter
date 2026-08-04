@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话消息
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

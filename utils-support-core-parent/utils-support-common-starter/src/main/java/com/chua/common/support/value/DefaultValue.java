@@ -1,6 +1,7 @@
 package com.chua.common.support.value;
 
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认值实现，包装一个具体值并支持携带可选的默认值和异常信息。
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
  * @param <T> 值类型
  * @author CH
  */
+@NullUnmarked
 @AllArgsConstructor
 class DefaultValue<T> implements Value<T> {
 

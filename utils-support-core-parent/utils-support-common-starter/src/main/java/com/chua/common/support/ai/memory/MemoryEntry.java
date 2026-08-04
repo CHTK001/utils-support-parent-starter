@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆条目。
@@ -15,6 +16,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @Builder(toBuilder = true)
 public record MemoryEntry(
         /**

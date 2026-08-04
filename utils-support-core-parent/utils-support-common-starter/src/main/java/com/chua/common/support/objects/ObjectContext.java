@@ -15,6 +15,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象容器上下文接口。
@@ -52,6 +53,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public interface ObjectContext {
 
     /**

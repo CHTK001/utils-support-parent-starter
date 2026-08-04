@@ -3,6 +3,7 @@ package com.chua.common.support.ai.chat;
 import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话流式响应
@@ -14,6 +15,7 @@ import lombok.Data;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 @Data
 @Builder
 public class ChatResponse {

@@ -3,6 +3,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.security.KeyPair;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ECIES 椭圆曲线集成加密方案 SPI 接口
@@ -31,6 +32,8 @@ import java.security.KeyPair;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface EciesCipher extends Cipher {
 
     /**

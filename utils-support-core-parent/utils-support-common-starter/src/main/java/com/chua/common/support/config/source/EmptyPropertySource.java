@@ -2,6 +2,7 @@ package com.chua.common.support.config.source;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 空属性源实现类。

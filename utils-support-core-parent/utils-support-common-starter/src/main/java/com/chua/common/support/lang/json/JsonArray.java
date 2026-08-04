@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,6 +17,7 @@ import java.util.function.Consumer;
  *
  * @author CH
  */
+@NullUnmarked
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonArray extends LinkedList<Object> {
 

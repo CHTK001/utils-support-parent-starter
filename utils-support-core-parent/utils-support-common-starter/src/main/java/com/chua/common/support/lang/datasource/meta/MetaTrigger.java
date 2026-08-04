@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.meta;
 import com.chua.common.support.lang.datasource.meta.model.TriggerDef;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 触发器元数据操作接口。
@@ -37,6 +38,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface MetaTrigger {
 
     /**

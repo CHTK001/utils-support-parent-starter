@@ -12,12 +12,14 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 工具类。
  *
  * @author CH
  */
+@NullUnmarked
 public class IdUtils {
 
     /** 雪花算法 ID 生成器实例 */

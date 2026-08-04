@@ -1,11 +1,14 @@
 package com.chua.common.support.lang.format;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 格式化器接口，用于定义字符串格式化的标准行为。
  * 实现类应提供将输入源字符串转换为特定格式的逻辑。
  *
  * @author CH
  */
+@NullUnmarked
 public interface Formatter {
     /**
      * 格式化给定的源字符串。

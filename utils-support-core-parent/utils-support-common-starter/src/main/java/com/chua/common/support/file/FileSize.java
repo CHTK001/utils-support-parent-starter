@@ -1,6 +1,7 @@
 package com.chua.common.support.file;
 
 import java.text.DecimalFormat;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件大小工具类，提供文件大小格式化和解析功能。
@@ -24,6 +25,7 @@ import java.text.DecimalFormat;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 public class FileSize {
 
     /** 字节数 */

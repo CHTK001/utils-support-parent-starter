@@ -4,6 +4,7 @@ import com.chua.common.support.storage.MultipartStorage;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分片上传结果。
@@ -11,6 +12,7 @@ import lombok.experimental.SuperBuilder;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Getter
 @Setter
 @SuperBuilder

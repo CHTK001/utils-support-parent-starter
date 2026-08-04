@@ -1,6 +1,7 @@
 package com.chua.common.support.language.pinyin;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 拼音转换器接口，定义汉字到拼音的转换契约。
@@ -15,6 +16,7 @@ import java.util.List;
  *
  * @author CH
  */
+@NullUnmarked
 public interface PinyinConverter {
 
     /**

@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.qr;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 二维码纠错等级枚举。
  * <p>
@@ -8,6 +10,7 @@ package com.chua.common.support.lang.qr;
  *
  * @author CH
  */
+@NullUnmarked
 public enum CodeLevel {
     /**
      * 低纠错等级 (Low)，可恢复约7%的数据错误。

@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话客户端配置
@@ -12,6 +13,7 @@ import lombok.Data;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 @Data
 @Builder
 public class ChatClientSetting {

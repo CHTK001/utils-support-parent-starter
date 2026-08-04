@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK 内置 {@link java.net.http.HttpClient} 的执行器实现。
@@ -34,6 +35,7 @@ import java.util.function.Consumer;
  * @see HttpClientExecutor
  * @see HttpClientFactory
  */
+@NullUnmarked
 public class JdkHttpClientExecutor implements HttpClientExecutor {
 
     /**

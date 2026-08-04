@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -45,6 +46,8 @@ import java.util.List;
  * @author CH
  * @since 2024/5/23
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class Version implements Comparable<Version> {
 

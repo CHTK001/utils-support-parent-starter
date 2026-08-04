@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import com.chua.common.support.function.NamedThreadFactory;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK 默认异步提供者实现
@@ -23,6 +24,7 @@ import com.chua.common.support.function.NamedThreadFactory;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class JdkAsyncProvider extends AbstractAsyncProvider {
 
     /**

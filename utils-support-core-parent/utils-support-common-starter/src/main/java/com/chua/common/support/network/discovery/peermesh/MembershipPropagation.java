@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 路由表传播：负责向全表节点发送心跳及 NEW_PEER 推送。
@@ -13,6 +14,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Slf4j
 public class MembershipPropagation {
 

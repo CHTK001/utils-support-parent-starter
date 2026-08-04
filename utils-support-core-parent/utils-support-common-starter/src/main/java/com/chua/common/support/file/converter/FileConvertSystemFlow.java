@@ -3,6 +3,7 @@ package com.chua.common.support.file.converter;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.io.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件转换流式 API — {@code FileConvertSystemFlow.of(source, target).convert()}。
@@ -18,6 +19,7 @@ import java.io.*;
  * @author CH
  * @since 2026-07-16
  */
+@NullUnmarked
 public class FileConvertSystemFlow {
 
     /**

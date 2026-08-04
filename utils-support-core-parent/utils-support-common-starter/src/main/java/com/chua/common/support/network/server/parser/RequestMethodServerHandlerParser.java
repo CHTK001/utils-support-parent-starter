@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 解析 {@link RequestMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
@@ -25,6 +26,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Spi("request-method")
 @Slf4j
 public class RequestMethodServerHandlerParser implements ServerHandlerAnnotationParser {

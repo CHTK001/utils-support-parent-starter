@@ -2,6 +2,7 @@ package com.chua.common.support.storage.metadata;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件元数据。
@@ -11,6 +12,7 @@ import lombok.Data;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Data
 @Builder
 public class Metadata {

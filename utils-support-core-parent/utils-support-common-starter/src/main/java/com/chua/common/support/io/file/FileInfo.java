@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件信息
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
  * @author CH
  * @since 2026/7/30
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

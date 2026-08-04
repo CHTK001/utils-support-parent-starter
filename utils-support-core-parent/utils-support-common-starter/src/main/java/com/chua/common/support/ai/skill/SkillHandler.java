@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.skill;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 技能处理器接口
@@ -10,6 +11,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 public interface SkillHandler {
 
     /**

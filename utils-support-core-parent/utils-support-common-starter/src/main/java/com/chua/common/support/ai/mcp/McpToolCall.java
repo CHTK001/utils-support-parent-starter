@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.mcp;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * MCP 工具调用请求
@@ -10,6 +11,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 public class McpToolCall {
 
     /** 工具名称 */

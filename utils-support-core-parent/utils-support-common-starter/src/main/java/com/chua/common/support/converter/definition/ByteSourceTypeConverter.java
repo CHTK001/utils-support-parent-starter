@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -24,6 +25,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 2024/5/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
     @Override
     public Class<byte[]> getType() {

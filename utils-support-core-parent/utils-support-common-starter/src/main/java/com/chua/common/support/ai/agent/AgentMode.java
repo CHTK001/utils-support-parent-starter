@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.agent;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Agent 执行模式
  *
@@ -17,6 +19,7 @@ package com.chua.common.support.ai.agent;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 public enum AgentMode {
 
     /**

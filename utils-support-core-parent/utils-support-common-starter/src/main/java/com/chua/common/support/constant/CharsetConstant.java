@@ -2,6 +2,7 @@ package com.chua.common.support.constant;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字符集常量类
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
  * @since 2024-05-20
  * @version 1.0.0
  */
+@NullUnmarked
 @SuppressWarnings("ALL")
 public interface CharsetConstant {
     /**

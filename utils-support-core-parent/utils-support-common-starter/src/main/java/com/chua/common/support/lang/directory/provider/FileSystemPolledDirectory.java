@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK WatchService 的文件系统目录轮询实现。
@@ -31,6 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class FileSystemPolledDirectory implements PolledDirectory {
 

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Sigmoid 可训练校准器

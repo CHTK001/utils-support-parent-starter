@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Base64 编码与解码工具类
  *
@@ -22,6 +24,7 @@ package com.chua.common.support.lang.algorithm.cipher;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public final class Base64 {
 
     private Base64() {

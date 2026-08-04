@@ -156,6 +156,7 @@ public class H264NvencEncoder implements VideoEncoder {
         try {
             FFmpegFrameRecorder r = new FFmpegFrameRecorder(
                     new MemoryOutputStream(memoryStream), encWidth, encHeight);
+            r.setFormat("h264");
             r.setVideoCodecName(codecName);
             r.setFrameRate(fps);
             r.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);

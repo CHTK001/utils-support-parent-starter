@@ -2,6 +2,7 @@ package com.chua.common.support.task.backup;
 
 import java.nio.file.Path;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 备份策略 SPI 接口
@@ -28,6 +29,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public interface BackupStrategy {
 
     /**

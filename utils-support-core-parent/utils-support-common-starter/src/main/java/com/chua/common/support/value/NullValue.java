@@ -1,5 +1,7 @@
 package com.chua.common.support.value;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 空值实现（空对象模式）。
  * <p>
@@ -9,6 +11,7 @@ package com.chua.common.support.value;
  *
  * @author CH
  */
+@NullUnmarked
 final class NullValue implements Value<Object> {
 
     /** 全局单例实例 */

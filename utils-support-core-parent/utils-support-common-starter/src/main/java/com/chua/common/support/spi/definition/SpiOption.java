@@ -1,5 +1,7 @@
 package com.chua.common.support.spi.definition;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * SPI 选项元数据，描述一个 SPI 扩展点所支持的配置项。
  *
@@ -12,6 +14,7 @@ package com.chua.common.support.spi.definition;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class SpiOption {
 
     /**

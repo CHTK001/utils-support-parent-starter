@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.ast;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 表达式解析器 SPI 接口
  *
@@ -25,6 +27,7 @@ package com.chua.common.support.lang.ast;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public interface ExpressionParser {
 
     /**

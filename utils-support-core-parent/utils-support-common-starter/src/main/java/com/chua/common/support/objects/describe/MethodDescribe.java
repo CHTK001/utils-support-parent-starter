@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.describe;
 
 import java.lang.reflect.Method;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 方法描述元数据。
@@ -11,6 +12,8 @@ import java.lang.reflect.Method;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class MethodDescribe {
 
     private final Object target;

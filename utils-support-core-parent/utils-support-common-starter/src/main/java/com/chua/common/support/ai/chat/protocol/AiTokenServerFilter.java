@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 令牌认证过滤器 — 校验请求中的 Bearer Token。
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Slf4j
 public class AiTokenServerFilter implements ServerFilter {
 

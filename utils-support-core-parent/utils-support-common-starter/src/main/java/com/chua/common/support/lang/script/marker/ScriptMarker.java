@@ -3,6 +3,7 @@ package com.chua.common.support.lang.script.marker;
 import com.chua.common.support.lang.script.marker.listener.Listener;
 
 import java.nio.file.Path;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 脚本标记器 SPI 接口。
@@ -43,6 +44,8 @@ import java.nio.file.Path;
  * @see AbstractScriptMarker
  * @see Listener
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface ScriptMarker {
 
     /**

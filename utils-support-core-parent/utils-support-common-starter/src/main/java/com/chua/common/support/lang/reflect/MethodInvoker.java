@@ -12,6 +12,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 方法调用器，统一封装 Java 方法调用，优先使用 MethodHandle 以提供更高性能。
@@ -48,6 +49,8 @@ import java.util.Map;
  * @version 1.0.0
  * @since 2025/12/03
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public final class MethodInvoker {
 

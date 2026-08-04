@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认断路器判断器

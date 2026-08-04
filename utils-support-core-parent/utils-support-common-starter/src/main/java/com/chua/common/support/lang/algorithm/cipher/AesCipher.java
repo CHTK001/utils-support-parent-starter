@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 import static java.util.Base64.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AES 对称加解密实现
@@ -34,6 +35,7 @@ import static java.util.Base64.*;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.Cipher {
 
     /**

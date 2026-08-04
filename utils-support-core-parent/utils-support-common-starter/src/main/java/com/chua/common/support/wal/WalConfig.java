@@ -2,6 +2,7 @@ package com.chua.common.support.wal;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL 配置。
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public final class WalConfig {
 
     /**

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 轮询目录备份实现
@@ -35,6 +36,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public class PolledDirectoryBackup implements BackupStrategy {
 
     /**

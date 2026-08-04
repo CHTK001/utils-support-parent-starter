@@ -1,6 +1,7 @@
 package com.chua.common.support.spi.autowire;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -8,6 +9,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  */
+@NullUnmarked
 public interface ServiceAutowire {
 
     /**

@@ -4,6 +4,7 @@ import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
 
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 客户端执行器 SPI（Service Provider Interface），封装不同 HTTP 库的实现差异。
@@ -32,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
  * @see com.chua.common.support.network.client.DefaultHttpClient
  * @see com.chua.common.support.network.client.JdkHttpClientExecutor
  */
+@NullUnmarked
 public interface HttpClientExecutor {
 
     /**

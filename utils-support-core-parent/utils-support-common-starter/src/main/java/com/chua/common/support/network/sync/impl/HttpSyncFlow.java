@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.ServerSetting;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 同步流程管理器。
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author CH
  * @since 2026-07-25
  */
+@NullUnmarked
 public class HttpSyncFlow implements SyncFlow {
 
     /**

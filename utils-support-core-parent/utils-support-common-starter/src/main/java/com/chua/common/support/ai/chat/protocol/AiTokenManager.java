@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.chat.protocol;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * @deprecated 已由 {@link FileAiTokenProvider} + {@link AiTokenProvider} 替代。
  * 请使用 {@link FileAiTokenProvider} 实现基于文件的令牌管理，
@@ -7,6 +9,7 @@ package com.chua.common.support.ai.chat.protocol;
  * 此类将不会包含任何实现，引用此类的代码将无法编译。
   * @author CH
  */
+@NullUnmarked
 @Deprecated
 public class AiTokenManager {
     private AiTokenManager() {

@@ -4,6 +4,7 @@ import java.util.Currency;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -14,6 +15,8 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/12/31
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class CurrencyTypeConverter implements TypeConverter<Currency> {
 
     /**

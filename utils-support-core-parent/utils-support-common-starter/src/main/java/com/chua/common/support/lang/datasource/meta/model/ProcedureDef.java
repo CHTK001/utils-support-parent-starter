@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 存储过程定义，描述数据库中的一个存储过程或函数。
@@ -13,6 +14,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

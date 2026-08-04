@@ -2,6 +2,7 @@ package com.chua.common.support.lang.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 统一返回状态码枚举
@@ -23,6 +24,7 @@ import lombok.Getter;
  * @author CH
  * @since 2023-04-01
  */
+@NullUnmarked
 @Getter
 @AllArgsConstructor
 public enum ReturnCode implements ResultCode {

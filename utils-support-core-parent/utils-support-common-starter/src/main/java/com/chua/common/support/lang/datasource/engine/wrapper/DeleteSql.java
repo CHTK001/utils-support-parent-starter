@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 删除 SQL 信息记录，包含构建删除语句所需的所有结构化数据。
@@ -8,6 +9,7 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public record DeleteSql<T>(
         Class<T> entityClass,
         String whereClause,

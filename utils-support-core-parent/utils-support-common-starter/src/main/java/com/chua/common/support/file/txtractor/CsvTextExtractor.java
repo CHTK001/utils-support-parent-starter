@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * CSV 文本提取器 SPI 实现，从 CSV 文件中提取纯文本表格内容。
@@ -18,6 +19,7 @@ import java.util.List;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 @Spi({"csv", "tsv"})
 public class CsvTextExtractor implements TextExtractor {

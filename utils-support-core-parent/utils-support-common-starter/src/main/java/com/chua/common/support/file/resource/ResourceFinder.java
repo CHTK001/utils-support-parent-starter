@@ -1,6 +1,7 @@
 package com.chua.common.support.file.resource;
 
 import java.util.Set;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 资源查找器接口。
@@ -14,6 +15,7 @@ import java.util.Set;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public interface ResourceFinder {
 
     /**

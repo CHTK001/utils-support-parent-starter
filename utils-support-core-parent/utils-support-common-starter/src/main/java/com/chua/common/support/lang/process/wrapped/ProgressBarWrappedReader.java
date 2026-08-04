@@ -5,6 +5,7 @@ import com.chua.common.support.lang.process.ProgressBar;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 一个由进度条跟踪进度的读取器。
@@ -16,6 +17,7 @@ import java.io.Reader;
  * @since 0.9.2
  * @author CH
  */
+@NullUnmarked
 public class ProgressBarWrappedReader extends FilterReader {
 
     /**

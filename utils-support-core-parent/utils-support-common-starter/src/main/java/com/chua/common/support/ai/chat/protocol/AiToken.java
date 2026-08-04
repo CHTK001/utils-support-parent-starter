@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 访问令牌数据模型。
@@ -14,6 +15,7 @@ import java.util.Date;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 public class AiToken {

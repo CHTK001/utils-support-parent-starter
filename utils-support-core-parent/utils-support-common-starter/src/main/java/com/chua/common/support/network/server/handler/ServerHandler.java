@@ -3,6 +3,7 @@ package com.chua.common.support.network.server.handler;
 import com.chua.common.support.network.server.http.HttpDefaultServerHandler;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 通用路由处理器接口，该接口设计为协议无关。
@@ -20,6 +21,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @FunctionalInterface
 public interface ServerHandler {
 

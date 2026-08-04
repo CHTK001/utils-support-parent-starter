@@ -6,12 +6,14 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.annotation.Nonnull;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 一个包装输出流，用于在写入数据时更新进度条。
  *
  * @author CH
  */
+@NullUnmarked
 public class ProgressBarWrappedOutputStream extends FilterOutputStream {
 
     /**

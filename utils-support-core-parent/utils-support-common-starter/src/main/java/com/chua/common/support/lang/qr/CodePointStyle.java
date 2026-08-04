@@ -1,11 +1,14 @@
 package com.chua.common.support.lang.qr;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 二维码点阵样式枚举。
  * 定义了生成二维码时使用的各种点阵形状和附加内容类型。
  *
  * @author CH
  */
+@NullUnmarked
 public enum CodePointStyle {
     /**
      * 迷你矩形样式，用于紧凑的二维码点阵。

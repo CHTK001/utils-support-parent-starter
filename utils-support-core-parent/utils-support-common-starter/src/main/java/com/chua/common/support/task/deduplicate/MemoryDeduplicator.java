@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存去重器，基于 ConcurrentHashMap 实现。
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.41
  */
+@NullUnmarked
 @Slf4j
 @SpiDefault
 public class MemoryDeduplicator implements Deduplicator {

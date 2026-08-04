@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 温度缩放纯校准器
@@ -37,6 +38,7 @@ import lombok.Setter;
  *
  * @author CH
  */
+@NullUnmarked
 @Getter
 @Setter
 @NoArgsConstructor

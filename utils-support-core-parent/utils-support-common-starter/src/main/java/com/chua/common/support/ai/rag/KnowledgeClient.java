@@ -8,6 +8,8 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 向量知识库客户端接口。
  * <p>
@@ -30,7 +32,6 @@ public interface KnowledgeClient extends AutoCloseable {
      * @param metadata 扩展元数据
      * @param embedding 向量（为 null 时由 VectorService 计算）
      */
-import org.jspecify.annotations.NullUnmarked;
     record Document(String id, String content, Map<String, Object> metadata, float[] embedding) {}
 
     /**

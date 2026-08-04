@@ -2,6 +2,7 @@ package com.chua.common.support.config.center;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -12,6 +13,7 @@ import lombok.Data;
  *
  * @author CH
  */
+@NullUnmarked
 @Data
 @Builder
 public class ConfigCenterSetting {

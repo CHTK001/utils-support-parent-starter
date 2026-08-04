@@ -6,6 +6,7 @@ import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 创建搜索引擎索引链式构建器。
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface SearchIndexCreateBuilder {
 
     /**

@@ -4,6 +4,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 访问日志过滤器。
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 public class AccessLogFilter implements ServerFilter {
 

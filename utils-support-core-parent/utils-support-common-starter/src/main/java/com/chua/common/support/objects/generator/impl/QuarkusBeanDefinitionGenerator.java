@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Quarkus Bean 定义生成器，处理 Quarkus/CDI 注解（@ApplicationScoped、@Singleton 等）的类。
@@ -22,6 +23,7 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Slf4j
 @Spi("quarkus")
 @SpiDescribe("Quarkus/CDI Bean 定义生成器")

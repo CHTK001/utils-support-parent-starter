@@ -5,6 +5,7 @@ import com.chua.common.support.utils.StringUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令行选项定义，描述一个命令行参数的名称、类型、描述等元信息。
@@ -57,6 +58,8 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public final class CliOption {
 
     /** 选项的值类型枚举 */

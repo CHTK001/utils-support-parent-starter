@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件格式转换统一入口，提供链式调用 API。
@@ -22,6 +23,8 @@ import java.io.OutputStream;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ConvertSupport {
 
     /**

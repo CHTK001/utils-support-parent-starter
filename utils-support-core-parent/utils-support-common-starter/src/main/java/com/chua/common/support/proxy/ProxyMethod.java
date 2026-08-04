@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -30,6 +31,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 2025/7/20
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Data
 @Builder
 @Slf4j

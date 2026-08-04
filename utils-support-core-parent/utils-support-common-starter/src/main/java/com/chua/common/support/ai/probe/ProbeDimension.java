@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.probe;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 探测器维度枚举。
  *
@@ -8,6 +10,7 @@ package com.chua.common.support.ai.probe;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public enum ProbeDimension {
 
     /**

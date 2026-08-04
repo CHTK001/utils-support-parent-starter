@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 表元数据，描述一个数据库表的完整结构信息。

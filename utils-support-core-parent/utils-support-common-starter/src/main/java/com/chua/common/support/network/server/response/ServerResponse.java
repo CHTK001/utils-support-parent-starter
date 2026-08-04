@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.ServerSetting;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器响应抽象接口。

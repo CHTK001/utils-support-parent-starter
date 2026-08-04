@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_OBJECT_ARRAY;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象工具类，提供对象操作的核心工具方法。
@@ -38,6 +39,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  *
  * @author CH
  */
+@NullUnmarked
 public class ObjectUtils {
     private static final int INITIAL_HASH = 7;
     private static final int MULTIPLIER = 31;

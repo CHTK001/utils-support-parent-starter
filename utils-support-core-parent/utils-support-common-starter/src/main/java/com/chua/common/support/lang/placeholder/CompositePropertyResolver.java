@@ -3,6 +3,7 @@ package com.chua.common.support.lang.placeholder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -31,6 +32,7 @@ import java.util.List;
  * @author CH
  * @since 2024-12-23
  */
+@NullUnmarked
 public class CompositePropertyResolver implements PropertyResolver {
 
     /**

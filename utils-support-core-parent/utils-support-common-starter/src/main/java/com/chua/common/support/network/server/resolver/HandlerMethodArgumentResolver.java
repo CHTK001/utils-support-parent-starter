@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.reflect.Method;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 处理器方法参数解析器 SPI。
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Spi
 public interface HandlerMethodArgumentResolver {
 

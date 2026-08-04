@@ -1,5 +1,7 @@
 package com.chua.common.support.base.validator.group;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 忽略组校验标记接口
  *
@@ -8,5 +10,6 @@ package com.chua.common.support.base.validator.group;
  * @author CH
  * @since 2025/1/1
  */
+@NullUnmarked
 public interface IgnoreGroup {
 }

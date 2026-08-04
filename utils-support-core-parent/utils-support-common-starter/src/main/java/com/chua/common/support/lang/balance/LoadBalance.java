@@ -4,10 +4,13 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Collection;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 /**
  * @author CH
  */
 
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface LoadBalance extends AutoCloseable {
 
     static LoadBalance auto(String type, BalanceConfig config) {

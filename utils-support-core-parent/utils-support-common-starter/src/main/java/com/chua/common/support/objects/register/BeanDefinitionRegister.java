@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 定义注册器 SPI，负责 BeanDefinition 的存储和检索。
@@ -13,6 +14,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public interface BeanDefinitionRegister {
 
     /**

@@ -20,6 +20,7 @@ import java.util.stream.StreamSupport;
 import static com.chua.common.support.lang.process.Util.createConsoleConsumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -31,6 +32,8 @@ import javax.annotation.Nullable;
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ProgressBar implements AutoCloseable {
 
     /**

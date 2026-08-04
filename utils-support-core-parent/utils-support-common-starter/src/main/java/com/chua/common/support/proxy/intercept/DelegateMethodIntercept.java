@@ -5,6 +5,7 @@ import com.chua.common.support.proxy.ProxyMethod;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 委托方法拦截器
@@ -12,6 +13,7 @@ import java.util.function.Function;
  * @param <T> 接口类型
  * @author CH
  */
+@NullUnmarked
 public class DelegateMethodIntercept<T> implements InvocationHandler {
 
     /**

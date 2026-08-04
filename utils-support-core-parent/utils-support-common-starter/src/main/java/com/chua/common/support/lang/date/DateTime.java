@@ -7,6 +7,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 日期时间工具类。
@@ -15,6 +16,8 @@ import java.util.Locale;
  * @author CH
  * @since 2026/07/19
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public final class DateTime {
 
     /**

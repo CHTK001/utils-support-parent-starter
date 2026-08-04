@@ -3,6 +3,7 @@ package com.chua.common.support.lang.document;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档导出链式构建器。
@@ -25,6 +26,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class DocumentExporter {
 
     /**

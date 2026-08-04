@@ -1,6 +1,7 @@
 package com.chua.common.support.task.scheduler;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 调度器提供者接口
@@ -21,6 +22,7 @@ import java.util.List;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public interface SchedulerProvider {
 
     /**

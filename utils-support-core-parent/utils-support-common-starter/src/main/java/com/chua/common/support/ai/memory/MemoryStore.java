@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.memory;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆存储接口
@@ -11,6 +12,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public interface MemoryStore extends AutoCloseable {
 
     /**

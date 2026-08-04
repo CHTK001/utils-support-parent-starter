@@ -2,6 +2,7 @@ package com.chua.common.support.lang.json;
 
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSONPath SPI 接口，提供声明式的 JSON 路径查询与操作能力。
@@ -39,6 +40,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * @author CH
  * @see ServiceProvider
  */
+@NullUnmarked
 @Spi
 public interface JsonPath {
 

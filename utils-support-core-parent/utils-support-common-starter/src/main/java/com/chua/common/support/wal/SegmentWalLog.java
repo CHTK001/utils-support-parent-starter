@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分片 WAL 实现，支持按大小/记录数自动滚动分片、checkpoint 管理、范围回放。
@@ -36,6 +37,7 @@ import java.util.zip.CRC32;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class SegmentWalLog implements WalLog {
 
     /**

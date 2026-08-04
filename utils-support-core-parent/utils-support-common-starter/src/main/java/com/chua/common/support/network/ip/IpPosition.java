@@ -1,11 +1,14 @@
 package com.chua.common.support.network.ip;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * IP 地理位置查询 SPI 接口。
  *
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public interface IpPosition {
 
     /**

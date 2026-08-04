@@ -2,6 +2,7 @@ package com.chua.common.support.concurrent.lock;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -10,6 +11,7 @@ import lombok.Data;
  * @author CH
  * @since 2025-11-26
  */
+@NullUnmarked
 @Data
 @Builder
 public class LockSetting {

@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 Java 内置 ReentrantLock 实现的对象锁提供者。
@@ -15,6 +16,7 @@ import java.util.concurrent.locks.Condition;
  * @author CH
  * @since 2023-01-01
  */
+@NullUnmarked
 @Spi("object")
 public class ObjectLockProvider extends AbstractLockProvider {
 

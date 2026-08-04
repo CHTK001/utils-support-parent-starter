@@ -4,6 +4,7 @@ import com.chua.common.support.concurrent.backoff.BackoffProvider;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 带抖动的指数退避提供者。
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
 public class JitterBackoffProvider implements BackoffProvider {
 
     /**

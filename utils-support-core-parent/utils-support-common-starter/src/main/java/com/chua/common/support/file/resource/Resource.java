@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.chua.common.support.constant.CommonConstant.FILE_PROTOCOL;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 资源抽象接口，统一描述类路径、文件系统、URL 等不同来源的可读取资源。
@@ -32,6 +33,7 @@ import static com.chua.common.support.constant.CommonConstant.FILE_PROTOCOL;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public interface Resource {
 
     /**

@@ -13,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于现有 ServiceDiscovery 的节点发现支持。
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 public class ScatterGatherDiscoverySupport {
 

@@ -2,6 +2,7 @@ package com.chua.common.support.scattergather;
 
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 一次 Scatter-Gather 查询的上下文。
@@ -9,6 +10,7 @@ import java.util.Objects;
  *
  * @author CH
  */
+@NullUnmarked
 public final class ScatterGatherContext {
 
     /**

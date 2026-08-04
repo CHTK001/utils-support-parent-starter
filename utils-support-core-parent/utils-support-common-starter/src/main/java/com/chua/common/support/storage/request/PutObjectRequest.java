@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.chua.common.support.utils.UrlUtils.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 上传文件请求对象。
@@ -45,6 +46,7 @@ import static com.chua.common.support.utils.UrlUtils.*;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Data
 @Builder
 public class PutObjectRequest {

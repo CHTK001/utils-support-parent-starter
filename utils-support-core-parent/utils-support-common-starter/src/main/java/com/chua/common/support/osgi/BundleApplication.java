@@ -1,5 +1,7 @@
 package com.chua.common.support.osgi;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * OSGI Bundle 应用声明接口，允许模块声明自身为 OSGI Bundle 并使用 Bundle 上下文注册服务。
  * <p>
@@ -9,6 +11,7 @@ package com.chua.common.support.osgi;
  *
  * @author CH
  */
+@NullUnmarked
 public interface BundleApplication {
 
     /**

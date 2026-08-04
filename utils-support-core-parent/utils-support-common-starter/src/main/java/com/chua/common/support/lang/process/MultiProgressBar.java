@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 多任务并排进度条，同时跟踪多个任务并在终端中统一刷新渲染。
@@ -37,6 +38,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class MultiProgressBar implements AutoCloseable {
 
     /**

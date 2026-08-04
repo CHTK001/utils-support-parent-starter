@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Cron 表达式解析引擎
@@ -41,6 +42,7 @@ import java.util.List;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class CronExpression {
 
     /**

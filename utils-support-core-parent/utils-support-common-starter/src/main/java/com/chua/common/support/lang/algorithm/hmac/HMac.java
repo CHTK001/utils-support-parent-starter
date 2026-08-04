@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -39,6 +40,7 @@ import java.util.Base64;
  * @author CH
  * @since 2025/10/23
  */
+@NullUnmarked
 public class HMac implements Serializable {
 
     private static final long serialVersionUID = 1L;

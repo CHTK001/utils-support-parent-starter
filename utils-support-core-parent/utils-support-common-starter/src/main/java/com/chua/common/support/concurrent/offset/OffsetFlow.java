@@ -3,6 +3,7 @@ package com.chua.common.support.concurrent.offset;
 import com.chua.common.support.concurrent.offset.provider.FileOffsetStore;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * offset 门面，支持链式调用、provider 切换和重试操作。

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * KNN（K-Nearest Neighbors）临近算法实现，基于欧几里得距离查找最近的 K 个邻居。
@@ -35,6 +36,7 @@ import java.util.PriorityQueue;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
 
     /**

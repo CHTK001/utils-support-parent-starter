@@ -4,6 +4,7 @@ import com.chua.common.support.constant.CommonConstant;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -12,6 +13,8 @@ import java.util.regex.Pattern;
  *
  * @author CHTK
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface Compiler {
 
     /**

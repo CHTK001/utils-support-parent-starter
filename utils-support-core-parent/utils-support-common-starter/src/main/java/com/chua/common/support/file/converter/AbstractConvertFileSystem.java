@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件转换器抽象基类 — 简化 ConvertFileSystem 实现。
@@ -12,6 +13,8 @@ import java.nio.file.Path;
  * @author CH
  * @since 2026-07-16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
 
     @Override

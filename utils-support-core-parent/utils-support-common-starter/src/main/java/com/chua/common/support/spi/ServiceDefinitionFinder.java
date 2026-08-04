@@ -24,6 +24,7 @@ import static com.chua.common.support.constant.NameConstant.METHOD_GETTER;
 import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATOR;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -34,6 +35,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  */
+@NullUnmarked
 public class ServiceDefinitionFinder {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceDefinitionFinder.class);

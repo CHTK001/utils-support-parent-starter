@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档导出器 SPI 接口。
@@ -34,6 +35,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi
 public interface DocumentProvider {
 

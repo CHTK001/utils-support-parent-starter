@@ -1,5 +1,7 @@
 package com.chua.common.support.exception;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 运行时超时异常。
  * <p>
@@ -8,6 +10,7 @@ package com.chua.common.support.exception;
  *
  * @author CH
  */
+@NullUnmarked
 public class RuntimeTimeoutException extends RuntimeException {
 
     public RuntimeTimeoutException() {

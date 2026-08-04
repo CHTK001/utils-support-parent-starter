@@ -9,6 +9,7 @@ import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 路由处理器接口。
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
     /**
      * 目标 Bean 对象，其中包含需要调用的处理方法。
