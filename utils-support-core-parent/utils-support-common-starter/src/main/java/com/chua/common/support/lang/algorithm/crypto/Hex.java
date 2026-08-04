@@ -91,7 +91,7 @@ public class Hex {
      * @param data 待编码的字节数组
      * @return 十六进制表示的字符数组
      */
-    public static @Nullable char[] encodeHex(byte[] data) {
+    public static char[] encodeHex(byte[] data) {
         return encodeHex(data, true);
     }
 
@@ -102,7 +102,7 @@ public class Hex {
      * @param toLowerCase 如果为 true 则使用小写字母，否则使用大写字母
      * @return 十六进制表示的字符数组
      */
-    public static @Nullable char[] encodeHex(byte[] data, boolean toLowerCase) {
+    public static char[] encodeHex(byte[] data, boolean toLowerCase) {
         return encodeHex(data, toLowerCase ? DIGITS_LOWER : DIGITS_UPPER);
     }
 
@@ -113,9 +113,9 @@ public class Hex {
      * @param toDigits 用于映射数字的字符数组 (小写或大写)
      * @return 十六进制表示的字符数组
      */
-    private static @Nullable char[] encodeHex(byte[] data, char[] toDigits) {
+    private static char[] encodeHex(byte[] data, char[] toDigits) {
         if (data == null) {
-            return null;
+            return new char[0];
         }
         int length = data.length;
         // 每个字节转换为两个十六进制字符
@@ -136,9 +136,8 @@ public class Hex {
      * @param data 待编码的字节数组
      * @return 十六进制字符串
      */
-    public static @Nullable String encodeHexString(byte[] data) {
-        @Nullable char[] result = encodeHex(data);
-        return result == null ? null : new String(result);
+    public static String encodeHexString(byte[] data) {
+        return new String(encodeHex(data));
     }
 
     /**
@@ -148,9 +147,8 @@ public class Hex {
      * @param toLowerCase 如果为 true 则使用小写字母，否则使用大写字母
      * @return 十六进制字符串
      */
-    public static @Nullable String encodeHexString(byte[] data, boolean toLowerCase) {
-        @Nullable char[] result = encodeHex(data, toLowerCase);
-        return result == null ? null : new String(result);
+    public static String encodeHexString(byte[] data, boolean toLowerCase) {
+        return new String(encodeHex(data, toLowerCase));
     }
 
     /**
@@ -159,7 +157,7 @@ public class Hex {
      * @param data 待编码的 ByteBuffer
      * @return 十六进制表示的字符数组
      */
-    public static @Nullable char[] encodeHex(ByteBuffer data) {
+    public static char[] encodeHex(ByteBuffer data) {
         return encodeHex(toByteArray(data));
     }
 
@@ -169,9 +167,8 @@ public class Hex {
      * @param data 待编码的 ByteBuffer
      * @return 十六进制字符串
      */
-    public static @Nullable String encodeHexString(ByteBuffer data) {
-        @Nullable char[] result = encodeHex(data);
-        return result == null ? null : new String(result);
+    public static String encodeHexString(ByteBuffer data) {
+        return new String(encodeHex(data));
     }
 
     /**
@@ -181,9 +178,9 @@ public class Hex {
      * @return 解码后的字节数组
      * @throws IllegalArgumentException 当字符数为奇数或包含非法十六进制字符时抛出
      */
-    public static @Nullable byte[] decodeHex(char[] data) {
+    public static byte[] decodeHex(@Nullable char[] data) {
         if (data == null) {
-            return null;
+            return new byte[0];
         }
         int length = data.length;
         // 十六进制字符串长度必须是偶数
@@ -210,9 +207,9 @@ public class Hex {
      * @return 解码后的字节数组
      * @throws IllegalArgumentException 当字符串长度为奇数或包含非法十六进制字符时抛出
      */
-    public static @Nullable byte[] decodeHex(String data) {
+    public static byte[] decodeHex(@Nullable String data) {
         if (data == null) {
-            return null;
+            return new byte[0];
         }
         return decodeHex(data.toCharArray());
     }
@@ -239,9 +236,9 @@ public class Hex {
      * @param byteBuffer 输入的 ByteBuffer
      * @return 转换后的字节数组
      */
-    private static @Nullable byte[] toByteArray(ByteBuffer byteBuffer) {
+    private static byte[] toByteArray(@Nullable ByteBuffer byteBuffer) {
         if (byteBuffer == null) {
-            return null;
+            return new byte[0];
         }
         int remaining = byteBuffer.remaining();
         // 如果 ByteBuffer 内部有数组且剩余量等于数组长度，直接返回数组副本
@@ -274,8 +271,7 @@ public class Hex {
      * @return 编码后的字节数组 (十六进制字符串的字节表示)
      */
     public byte[] encode(byte[] source) {
-        String hex = encodeHexString(source);
-        return hex == null ? new byte[0] : hex.getBytes(charset);
+        return encodeHexString(source).getBytes(charset);
     }
 
     /**
@@ -285,8 +281,7 @@ public class Hex {
      * @return 解码后的原始字节数组
      */
     public byte[] decode(byte[] source) {
-        byte[] decoded = decodeHex(new String(source, charset));
-        return decoded == null ? new byte[0] : decoded;
+        return decodeHex(new String(source, charset));
     }
 
     /**
@@ -296,8 +291,7 @@ public class Hex {
      * @return 十六进制字符串
      */
     public String encode(String source) {
-        String result = encodeHexString(source.getBytes(charset));
-        return result == null ? "" : result;
+        return encodeHexString(source.getBytes(charset));
     }
 
     /**
@@ -307,8 +301,7 @@ public class Hex {
      * @return 解码后的原始字符串
      */
     public String decode(String source) {
-        byte[] decoded = decodeHex(source);
-        return decoded == null ? "" : new String(decoded, charset);
+        return new String(decodeHex(source), charset);
     }
 
     /**
