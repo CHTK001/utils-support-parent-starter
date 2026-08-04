@@ -212,7 +212,7 @@ public abstract class WriteBuilder {
      * @param data 待写入的 POJO 对象
      * @return 转换后的 Map
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     protected Map<String, Object> toMap(Object data) {
         if (data instanceof Map) {
             return (Map<String, Object>) data;
@@ -226,7 +226,6 @@ public abstract class WriteBuilder {
      * @param data 待写入的 POJO 对象
      * @return 转换后的 Map 列表
      */
-    @SuppressWarnings("unchecked")
     protected List<Map<String, Object>> toMapList(Object data) {
         if (data instanceof List) {
             return ((List<?>) data).stream()

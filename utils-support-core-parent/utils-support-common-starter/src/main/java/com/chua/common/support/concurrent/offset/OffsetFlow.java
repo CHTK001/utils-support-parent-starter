@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.43
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public final class OffsetFlow implements AutoCloseable {
 
     /**

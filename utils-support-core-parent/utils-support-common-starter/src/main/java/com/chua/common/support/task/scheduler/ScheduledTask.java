@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 1.0.0
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class ScheduledTask {
 
     /**

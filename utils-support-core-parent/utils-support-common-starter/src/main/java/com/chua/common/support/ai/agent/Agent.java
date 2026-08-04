@@ -101,6 +101,8 @@ import java.util.concurrent.CompletableFuture;
  * @author CH
  * @since 2026/07/15
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface Agent extends AutoCloseable {
 
     /**

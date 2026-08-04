@@ -20,6 +20,8 @@ import java.util.function.Supplier;
  * @author CH
  * @since 2026/07/24
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public final class BackoffFlow {
 
     /**

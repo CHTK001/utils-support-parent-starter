@@ -64,7 +64,7 @@ public final class ServerAttribute {
      * @param <T>     属性类型
      * @return 属性值，不存在返回 null
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public static <T> T getAttribute(ServerRequest request, String name) {
         return (T) request.getAttribute(name);
     }
@@ -216,7 +216,6 @@ public final class ServerAttribute {
      * @param request 请求对象
      * @return 变量 Map，不存在返回空 Map
      */
-    @SuppressWarnings("unchecked")
     public static Map<String, String> getPathVariables(ServerRequest request) {
         Map<String, String> vars = (Map<String, String>) request.getAttribute(PATH_VARIABLES);
         return vars != null ? vars : Map.of();

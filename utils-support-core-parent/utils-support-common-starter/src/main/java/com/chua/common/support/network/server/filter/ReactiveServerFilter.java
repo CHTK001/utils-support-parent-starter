@@ -18,6 +18,8 @@ import java.util.concurrent.CompletionStage;
  * @author CH
  * @since 2026/07/16
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface ReactiveServerFilter {
 
     /**

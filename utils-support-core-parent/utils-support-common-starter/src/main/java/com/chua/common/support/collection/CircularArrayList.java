@@ -27,6 +27,8 @@ import java.util.function.UnaryOperator;
  * @version 1.0.0
  * @see CircularArray
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class CircularArrayList<E> implements CircularArray<E> {
 
     /**
@@ -163,7 +165,6 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         T[] result = a.length >= size ? a : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
         for (int i = 0; i < size; i++) {
@@ -264,7 +265,6 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public E get(int index) {
         checkElementIndex(index);
         return (E) elements[actualIndex(index)];

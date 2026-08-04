@@ -28,6 +28,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.41
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AgentModelDefinition implements ChatClient {
 
     private static final String DEFAULT_MODEL = "router-auto";

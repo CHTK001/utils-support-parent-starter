@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/ws': {
-        target: 'ws://192.168.50.101:8082',
+        target: 'ws://127.0.0.1:8082',
         ws: true
       },
       '/api': {

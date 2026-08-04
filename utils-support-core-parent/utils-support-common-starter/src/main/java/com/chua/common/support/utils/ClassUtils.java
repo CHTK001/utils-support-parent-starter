@@ -40,7 +40,7 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
  *
  * @author CH
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL"})
 public class ClassUtils {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClassUtils.class);
@@ -840,7 +840,6 @@ public class ClassUtils {
  * @author CH
      * @since 1.0
      */
-    @SuppressWarnings("ALL")
     public static <T> T forObject(Class<T> tClass, ClassLoader classLoader, Object... params) throws Exception {
         if (null == tClass) { return null; }
 
@@ -929,7 +928,6 @@ public class ClassUtils {
      * @param params       
      * @return       
      */
-    @SuppressWarnings("all")
     private static <T> T createAlgorithm(Class<T> tClass, Object[] params) {
         Map<Constructor<?>, Object[]> loss = new LinkedHashMap<>();
         Map<Constructor<?>, Object[]> allnull = new LinkedHashMap<>();
@@ -988,7 +986,6 @@ public class ClassUtils {
      * @param <T> 返回类型泛型
      * @return 创建成功的实例，失败时返回 {@code null}
      */
-    @SuppressWarnings("all")
     private static <T> T createAlgorithm(Constructor<?> declaredConstructor, Map<Class<?>, Object> params, Map<Constructor<?>, Object[]> loss,
                                          Map<Constructor<?>, Object[]> allNull) throws Exception {
         Class<?>[] parameterTypes = declaredConstructor.getParameterTypes();
@@ -1662,7 +1659,6 @@ public class ClassUtils {
      * @param clazz    
      * @return        Object.class       null       true
      */
-    @SuppressWarnings("all")
     public static boolean isObject(Class<?> clazz) {
         return null == clazz || Object.class.getName().equals(clazz.getName());
     }

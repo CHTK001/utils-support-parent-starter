@@ -52,7 +52,7 @@ public class ProxyUtils {
      * @param <T>         接口类型
      * @return 代理实例
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public static <T> T newProxy(Class<T> type, ClassLoader classLoader, DelegateMethodIntercept<T> handler) {
         return (T) Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, handler);
     }
@@ -70,7 +70,6 @@ public class ProxyUtils {
      * @param <T>         接口类型
      * @return 代理实例
      */
-    @SuppressWarnings("unchecked")
     public static <T> T proxy(Class<T> type, ClassLoader classLoader, InvocationHandler handler) {
         return (T) Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, handler);
     }

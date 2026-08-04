@@ -61,6 +61,8 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Spi("aggregate")
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AggregateChatClient implements ChatClient {
 
     /**

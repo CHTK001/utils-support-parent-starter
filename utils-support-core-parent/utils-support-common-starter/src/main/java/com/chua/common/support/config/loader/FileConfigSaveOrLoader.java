@@ -22,6 +22,8 @@ import java.util.Optional;
  */
 @Spi({"file", "local"})
 @SpiOrder(100)
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 
     private final Path rootPath;

@@ -55,6 +55,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author CH
  * @since 2026/07/16
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**

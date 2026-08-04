@@ -18,6 +18,8 @@ import lombok.Singular;
  */
 @Data
 @Builder
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class BotInboundMessage {
 
     /** 消息类型枚举 */
@@ -128,7 +130,6 @@ public class BotInboundMessage {
      * @param key 字段名
      * @return 字段值，不存在则 null
      */
-    @SuppressWarnings("unchecked")
     public <T> T rawField(String key) {
         if (rawFields == null) {
             return null;

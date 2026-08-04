@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class MemoryRagClient implements RagClient {
 
     private final RagClientSetting setting;

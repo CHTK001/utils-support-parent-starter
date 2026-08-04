@@ -20,6 +20,8 @@ import java.util.function.Supplier;
  * @author CH
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
     private final Supplier<ImageClient> clientSupplier;

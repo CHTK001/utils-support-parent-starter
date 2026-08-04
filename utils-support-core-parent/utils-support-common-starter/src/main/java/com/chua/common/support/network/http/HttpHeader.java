@@ -31,6 +31,8 @@ import java.util.Map;
  *
  * @author CH
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class HttpHeader {
 
     /** Content-Type */

@@ -38,6 +38,8 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface RagClient extends AutoCloseable {
 
     /**

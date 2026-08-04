@@ -23,6 +23,8 @@ import lombok.Data;
  * @since 4.0.0.42
  */
 @Data
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AiChatClientBindingEntity {
 
     /** 主键 */

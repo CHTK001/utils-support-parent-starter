@@ -65,7 +65,7 @@ public class NativeRpcClient implements RpcClient {
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes"})
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type ->
                 ProxyUtils.newProxy((Class<T>) type, type.getClassLoader(),
@@ -138,7 +138,6 @@ public class NativeRpcClient implements RpcClient {
         return bos.toByteArray();
     }
 
-    @SuppressWarnings("unchecked")
     static <T> T deserialize(byte[] data) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
             return (T) ois.readObject();

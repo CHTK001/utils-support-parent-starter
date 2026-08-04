@@ -34,7 +34,7 @@ public interface Value<T> extends Serializable {
      * @param <T> 值类型
      * @return Value 实例
      */
-    @SuppressWarnings("ALL")
+@SuppressWarnings({"ALL"})
     static <T> Value<T> of(T value) {
         return null == value ? (Value<T>) NullValue.INSTANCE : new DefaultValue<>(value);
     }
@@ -52,7 +52,6 @@ public interface Value<T> extends Serializable {
      * @param defaultValue 默认值
      * @return 值或默认值
      */
-    @SuppressWarnings("ALL")
     default T getDefaultValue(Object defaultValue) {
         return Optional.ofNullable(getValue()).orElse((T) defaultValue);
     }
@@ -65,7 +64,6 @@ public interface Value<T> extends Serializable {
      * @param <E> 目标类型
      * @return 转换后的值
      */
-    @SuppressWarnings("ALL")
     default <E> E getValue(Class<E> target) {
         if (target == Object.class) {
             return (E) getValue();

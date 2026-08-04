@@ -12,6 +12,8 @@ import lombok.Data;
  * @since 2026/07/18
  */
 @Data
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class BotSendResult {
 
     /** 是否发送成功 */

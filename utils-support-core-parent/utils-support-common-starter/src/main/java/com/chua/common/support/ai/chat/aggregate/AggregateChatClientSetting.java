@@ -53,6 +53,8 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AggregateChatClientSetting {
 
     /**

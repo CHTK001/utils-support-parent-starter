@@ -63,7 +63,7 @@ public class JsonFileSystem implements FileSystem {
          *
          * @return Map 行数据列表
          */
-        @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             try {
@@ -194,7 +194,6 @@ public class JsonFileSystem implements FileSystem {
             return this;
         }
 
-        @SuppressWarnings("unchecked")
         public void writeAndFlush(Object object) {
             callback.onStart();
             callback.onBeginWrite();
@@ -211,7 +210,6 @@ public class JsonFileSystem implements FileSystem {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void finish() {
             callback.onStart();
             callback.onBeginWrite();

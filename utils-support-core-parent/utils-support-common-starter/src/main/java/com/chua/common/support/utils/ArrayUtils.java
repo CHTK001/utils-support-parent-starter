@@ -81,7 +81,7 @@ public class ArrayUtils {
      * @return {@code null}
      * @since 3.0.7
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "all"})
     public static <T> boolean hasNull(T... array) {
         if (!isEmpty(array)) {
             for (T element : array) {
@@ -177,7 +177,6 @@ public class ArrayUtils {
      * @param value value
      * @return float[]                null
      */
-    @SuppressWarnings("all")
     public static float[] transToFloatArray(byte[] value) {
         float[] floats = new float[value.length];
         int count = 0;
@@ -194,7 +193,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(byte[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -214,7 +212,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(long[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -234,7 +231,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(float[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -254,7 +250,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(double[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -274,7 +269,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(short[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -294,7 +288,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(int[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -314,7 +307,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(boolean[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -334,7 +326,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(Object[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
         if (newInstance.length == 0) {
@@ -354,7 +345,6 @@ public class ArrayUtils {
      * @param type  type
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> T[] transToArray(List value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, null == value ? 0 : value.size());
         if (newInstance.length == 0) {
@@ -888,7 +878,6 @@ public class ArrayUtils {
      * @param target target
      * @param source source
      */
-    @SuppressWarnings("ALL")
     public static <E> void insertElement(E[] target, Collection<E> source) {
         insertElement(target, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
     }
@@ -900,7 +889,6 @@ public class ArrayUtils {
      * @param source source
      * @param offset offset
      */
-    @SuppressWarnings("ALL")
     public static <E> void insertElement(E[] target, int offset, Collection<E> source) {
         insertElement(target, offset, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
     }
@@ -1029,7 +1017,6 @@ public class ArrayUtils {
      * @param iterable iterable
      * @return the result
      */
-    @SuppressWarnings("unchecked")
     public static <T> T[] toArray(Iterable<? extends T> iterable) {
         List<? extends T> ts = CollectionUtils.newArrayList(iterable);
         if (null == ts || ts.isEmpty()) {
@@ -1061,7 +1048,6 @@ public class ArrayUtils {
      * @param value value
      * @return null
      */
-    @SuppressWarnings("all")
     public static byte[] transToByteArray(String[] value) {
         if (value == null) {
             return new byte[0];
@@ -1085,7 +1071,6 @@ public class ArrayUtils {
      * @param value value
      * @return null
      */
-    @SuppressWarnings("all")
     public static byte[] transToByteArray(Object value) {
         if (value == null) {
             return new byte[0];
@@ -1112,7 +1097,6 @@ public class ArrayUtils {
      * @param value value
      * @return null
      */
-    @SuppressWarnings("all")
     public static byte[] transToByteArray(List value) {
         byte[] newInstance = new byte[value.size()];
         if (newInstance.length == 0) {
@@ -1131,7 +1115,6 @@ public class ArrayUtils {
      * @param value value
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> byte[] transToByteArray(T[] value) {
         byte[] newInstance = new byte[value.length];
         if (newInstance.length == 0) {
@@ -1165,7 +1148,6 @@ public class ArrayUtils {
      * @param value value
      * @return null
      */
-    @SuppressWarnings("all")
     public static <T> int[] transToIntArray(byte[] value) {
         int[] newInstance = new int[value.length];
         if (newInstance.length == 0) {
@@ -1218,7 +1200,6 @@ public class ArrayUtils {
      * @param newSize       newSize
      * @return the result
      */
-    @SuppressWarnings("unchecked")
     public static <T> T[] newArray(Class<?> componentType, int newSize) {
         return (T[]) Array.newInstance(componentType, newSize);
     }
@@ -1374,7 +1355,6 @@ public class ArrayUtils {
      * @param offset offset
      * @return the result
      */
-    @SuppressWarnings("ALL")
     public static <T> T[] subArray(T[] arr, int offset) {
         if (arr.length < offset) {
             return null;
@@ -1435,7 +1415,6 @@ public class ArrayUtils {
      * @param offset2 offset2
      * @return the result
      */
-    @SuppressWarnings("ALL")
     public static <T> T[] subArray(T[] arr, int offset, int offset2) {
         if (arr.length < offset) {
             return null;
@@ -1474,7 +1453,6 @@ public class ArrayUtils {
      * @param offset2 offset2
      * @return the result
      */
-    @SuppressWarnings("ALL")
     public static byte[] subArray(byte[] arr, int offset, int offset2) {
         if (arr.length < offset) {
             return null;
@@ -1572,7 +1550,6 @@ public class ArrayUtils {
      * @param <E>
      * @return the result
      */
-    @SuppressWarnings("unchecked")
     public static <E> E[] of(E... ele) {
         //                                                                                        
         E[] rs = (E[]) Array.newInstance(ele.getClass().getComponentType(), ele.length);
@@ -1650,7 +1627,6 @@ public class ArrayUtils {
      * @param limit limit
      * @return the result
      */
-    @SuppressWarnings("ALL")
     public static byte[] rightPadAndLimit(byte[] key, int limit) {
         byte[] rs = new byte[limit];
         if (key.length >= limit) {
@@ -1699,7 +1675,6 @@ public class ArrayUtils {
      * @param <R>
      * @return the result
      */
-    @SuppressWarnings("ALL")
     public static <S, T, R> R[] convert(S[] strings, T[] strings1, BiFunction<S, T, R> strBiFunction) {
         List<Object> result = new ArrayList<Object>(strings.length * strings1.length);
         for (S string : strings) {

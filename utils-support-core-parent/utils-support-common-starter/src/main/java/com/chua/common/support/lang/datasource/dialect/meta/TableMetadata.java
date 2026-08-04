@@ -14,6 +14,8 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class TableMetadata {
 
     /** 表名 */

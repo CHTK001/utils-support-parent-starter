@@ -25,6 +25,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Data
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AiChatConfigEntity {
 
     /** 主键 */

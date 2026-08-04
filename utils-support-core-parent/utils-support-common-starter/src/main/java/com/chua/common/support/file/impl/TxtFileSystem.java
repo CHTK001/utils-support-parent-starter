@@ -167,7 +167,7 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
         public TxtWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);
@@ -183,7 +183,6 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void finish() {
             txtHeaderDone = false;
             txtHeaderCols = new ArrayList<>();
@@ -204,7 +203,6 @@ public class TxtFileSystem implements FileSystem {
             }
         }
 
-        @SuppressWarnings("unchecked")
         private List<String> resolveLines() {
             List<String> result = new ArrayList<>();
             for (Object entry : pending) {

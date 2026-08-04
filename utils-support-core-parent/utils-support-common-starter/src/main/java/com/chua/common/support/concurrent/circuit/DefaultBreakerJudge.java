@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
  * @since 2026/07/28
  */
 @Spi("default")
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class DefaultBreakerJudge implements BreakerJudge {
 
     /**

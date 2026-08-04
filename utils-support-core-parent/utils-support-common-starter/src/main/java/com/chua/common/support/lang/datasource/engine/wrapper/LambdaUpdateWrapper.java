@@ -34,6 +34,8 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/12
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdateWrapper<T>> {
 
     /** SET 值映射：列名 → 新值 */

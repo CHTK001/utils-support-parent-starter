@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /** token → AiToken 映射 */

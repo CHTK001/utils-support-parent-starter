@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 4.0.0.42
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface EmbeddingClient extends AutoCloseable {
 
     /**

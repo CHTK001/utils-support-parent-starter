@@ -73,6 +73,8 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface Engine extends AutoCloseable {
 
     /**

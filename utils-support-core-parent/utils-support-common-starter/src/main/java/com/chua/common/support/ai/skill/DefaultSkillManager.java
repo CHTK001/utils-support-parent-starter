@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/07/20
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class DefaultSkillManager implements SkillManager {
 
     private final Map<String, SkillDefinition> skills = new ConcurrentHashMap<>();

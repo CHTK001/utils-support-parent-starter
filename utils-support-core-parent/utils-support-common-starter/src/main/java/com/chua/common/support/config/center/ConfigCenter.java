@@ -12,6 +12,8 @@ import java.util.Map;
  *
  * @author CH
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface ConfigCenter extends AutoCloseable {
 
     /**

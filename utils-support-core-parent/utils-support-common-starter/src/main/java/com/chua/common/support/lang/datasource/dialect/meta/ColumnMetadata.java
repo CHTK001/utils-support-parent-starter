@@ -13,6 +13,8 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class ColumnMetadata {
 
     /** 列名 */

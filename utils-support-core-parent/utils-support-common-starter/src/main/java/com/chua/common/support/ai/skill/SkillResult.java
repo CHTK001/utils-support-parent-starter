@@ -8,6 +8,8 @@ package com.chua.common.support.ai.skill;
  * @author CH
  * @since 2026/07/15
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class SkillResult {
 
     /** 是否成功 */

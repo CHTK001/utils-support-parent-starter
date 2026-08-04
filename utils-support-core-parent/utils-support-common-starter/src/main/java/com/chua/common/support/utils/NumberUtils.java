@@ -934,7 +934,7 @@ public class NumberUtils {
      * @param targetClass targetClass
      * @return Number
      */
-    @SuppressWarnings("all")
+@SuppressWarnings({"all"})
     public static <T extends Number> T parseNumber(Number number, Class<T> targetClass) {
         if (targetClass.isInstance(number)) {
             return (T) number;
@@ -1021,7 +1021,6 @@ public class NumberUtils {
      * @param targetClass targetClass
      * @return Number
      */
-    @SuppressWarnings("all")
     public static <T extends Number> T converterNumber(String text, Class<T> targetClass) {
         String trimmed = StringUtils.trimAllWhitespace(text);
 

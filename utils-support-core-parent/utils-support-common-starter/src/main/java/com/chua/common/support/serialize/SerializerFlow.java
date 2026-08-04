@@ -73,7 +73,7 @@ public class SerializerFlow {
         if (object == null) {
             return new byte[0];
         }
-        @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
         Serializer<Serializable> s = (Serializer<Serializable>) currentSerializer;
         return s.serialize((Serializable) object);
     }
@@ -85,7 +85,6 @@ public class SerializerFlow {
      * @param clazz 目标类型
      * @return 反序列化后的对象
      */
-    @SuppressWarnings("unchecked")
     public <T extends Serializable> T deserialize(byte[] bytes, Class<T> clazz) {
         if (bytes == null || bytes.length == 0) {
             return null;
@@ -100,7 +99,6 @@ public class SerializerFlow {
      * @param bytes 字节数组
      * @return 反序列化后的对象
      */
-    @SuppressWarnings("unchecked")
     public <T extends Serializable> T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;

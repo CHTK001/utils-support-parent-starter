@@ -26,6 +26,8 @@ import lombok.Singular;
  */
 @Data
 @Builder
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class BotOutboundMessage {
 
     /**
@@ -162,7 +164,6 @@ public class BotOutboundMessage {
      * @param key 字段名
      * @return 字段值
      */
-    @SuppressWarnings("unchecked")
     public <T> T extension(String key) {
         if (extensions == null) {
             return null;

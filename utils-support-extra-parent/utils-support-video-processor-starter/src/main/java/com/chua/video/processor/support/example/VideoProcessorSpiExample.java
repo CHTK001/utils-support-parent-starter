@@ -2,6 +2,7 @@ package com.chua.video.processor.support.example;
 
 import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.CommandLine;
 import com.chua.video.processor.support.bridge.VideoProcessorBridge;
 
 import java.io.File;
@@ -15,27 +16,43 @@ import java.util.List;
  * <p>对应实现：{@code com.chua.ffmpeg.rust.support.processor.RustFFmpegProcessor}</p>
  *
  * <p>用法：<pre>
- *   java -cp ... VideoProcessorSpiExample /path/to/input.mp4 [outputDir]
+ *   java -cp ... VideoProcessorSpiExample --input /path/to/input.mp4 [--output outputDir] [--type rust]
+ *   java -cp ... VideoProcessorSpiExample --help
  * </pre></p>
  *
  * @author CH
  */
 public class VideoProcessorSpiExample {
 
-    private static final String PROVIDER_TYPE = System.getProperty("video.type", "rust");
-
     public static void main(String[] args) throws Exception {
-        System.out.println("===== 视频处理 SPI 示例 (provider=" + PROVIDER_TYPE + ") =====\n");
+        System.out.println("===== 视频处理 SPI 示例 =====\n");
 
-        if (args.length < 1) {
-            System.out.println("用法: VideoProcessorSpiExample <input.mp4> [outputDir]");
-            System.exit(1);
+        CommandLine cli = CommandLine.parse(args)
+                .program("VideoProcessorSpiExample")
+                .register("input", "i", "输入的 MP4 文件路径")
+                .register("output", "o", "HLS 输出目录（默认使用系统临时目录）")
+                .register("type", "t", "SPI 实现类型（默认: rust）", System.getProperty("video.type", "rust"))
+                .register("help", "h", "显示帮助");
+
+        if (cli.isHelp()) {
+            cli.help();
+            return;
         }
 
-        String inputPath = args[0];
-        Path outputDir = args.length >= 2
-                ? Path.of(args[1])
+        String inputPath = cli.get("input");
+        if (inputPath == null || inputPath.isBlank()) {
+            System.out.println("[ERROR] 必须指定 --input 输入文件路径");
+            cli.help();
+            System.exit(1);
+            return;
+        }
+
+        String providerType = cli.get("type", System.getProperty("video.type", "rust"));
+        Path outputDir = cli.get("output") != null
+                ? Path.of(cli.get("output"))
                 : Files.createTempDirectory("video-output");
+
+        System.out.println("===== 视频处理 SPI 示例 (provider=" + providerType + ") =====\n");
 
         ServiceProvider<FFmpegProcessor> provider = ServiceProvider.of(FFmpegProcessor.class);
 
@@ -47,13 +64,14 @@ public class VideoProcessorSpiExample {
         }
 
         System.out.println("\n--- 2. 获取指定实现 ---");
-        FFmpegProcessor processor = provider.getNewExtension(PROVIDER_TYPE);
+        FFmpegProcessor processor = provider.getNewExtension(providerType);
         if (processor == null || !processor.isAvailable()) {
             processor = all.stream().findFirst().orElse(null);
         }
         if (processor == null) {
             System.out.println("  [ERROR] 未找到可用的 FFmpegProcessor 实现");
             System.exit(1);
+            return;
         }
         System.out.println("  实现类: " + processor.getClass().getSimpleName());
         System.out.println("  可用: " + processor.isAvailable());
@@ -64,6 +82,7 @@ public class VideoProcessorSpiExample {
         if (!inputFile.exists()) {
             System.out.println("  输入文件不存在: " + inputPath);
             System.exit(1);
+            return;
         }
         var info = processor.getMediaInfo(inputFile);
         System.out.println("  格式: " + info.getFormatName());

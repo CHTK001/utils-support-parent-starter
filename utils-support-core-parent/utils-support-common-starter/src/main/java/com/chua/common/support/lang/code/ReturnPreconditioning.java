@@ -25,7 +25,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL", "unchecked"})
 public class ReturnPreconditioning<T> {
 
     /**
@@ -80,7 +80,6 @@ public class ReturnPreconditioning<T> {
      * @param <T>  类型
      * @return 前置条件
      */
-    @SuppressWarnings("unchecked")
     public static <T> ReturnPreconditioning<T> of(T data) {
         Predicate<T> condition;
         if (data instanceof Boolean) {

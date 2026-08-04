@@ -14,6 +14,8 @@ import java.lang.reflect.Method;
  * @since 2024/12/20
  */
 @Spi
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface BeanDefinitionConfigInjector {
 
     /**

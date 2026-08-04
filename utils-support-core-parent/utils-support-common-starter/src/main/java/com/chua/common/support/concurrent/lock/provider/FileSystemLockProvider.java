@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit;
  * @since 2022-05-27
  */
 @Spi("filesystem")
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class FileSystemLockProvider extends AbstractLockProvider {
 
     /**
@@ -219,4 +221,3 @@ public class FileSystemLockProvider extends AbstractLockProvider {
         e.printStackTrace();
     }
 }
-

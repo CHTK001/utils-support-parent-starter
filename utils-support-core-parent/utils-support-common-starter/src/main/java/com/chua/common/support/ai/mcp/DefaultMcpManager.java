@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/07/27
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class DefaultMcpManager implements McpManager {
 
     private final Map<String, McpClient> clients = new ConcurrentHashMap<>();

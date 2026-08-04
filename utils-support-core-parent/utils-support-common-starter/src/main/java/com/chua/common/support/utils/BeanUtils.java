@@ -34,7 +34,7 @@ import java.util.Map;
  * @author CH
  * @since 1.0.0
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL", "unchecked"})
 public final class BeanUtils {
 
     private static final BeanCopier COPIER;
@@ -266,7 +266,6 @@ public final class BeanUtils {
     /**
      * 将源对象尽可能转换为目标类型的新实例。
      */
-    @SuppressWarnings("unchecked")
     public static <T> T convert(Object source, Class<T> targetType) {
         if (source == null) {
             return null;

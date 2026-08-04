@@ -28,6 +28,8 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
  * @author CH
  * @since 2024/12/12
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public interface EngineDataSource<T> extends AutoCloseable {
 
     /**
@@ -58,7 +60,6 @@ public interface EngineDataSource<T> extends AutoCloseable {
      * @param <R>  类型参数
      * @return 类型匹配的实例，不匹配返回 null
      */
-    @SuppressWarnings("unchecked")
     default <R> R getSource(Class<R> type) {
         T source = getSource();
         return type.isInstance(source) ? (R) source : null;
@@ -149,7 +150,6 @@ public interface EngineDataSource<T> extends AutoCloseable {
      * <p>如果底层数据源实现了 {@link AutoCloseable}，则自动调用 close。</p>
      */
     @Override
-    @SuppressWarnings("unchecked")
     default void close() {
         T source = getSource();
         if (source instanceof AutoCloseable c) {

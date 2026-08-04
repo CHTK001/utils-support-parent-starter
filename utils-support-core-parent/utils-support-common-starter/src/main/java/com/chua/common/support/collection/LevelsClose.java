@@ -73,11 +73,10 @@ public class LevelsClose implements Levels {
      */
     private void dataFormatProfileHierarchicalAnalysis(String parentName, Object valueObject, Map<String, Object> result) {
         if (valueObject instanceof Map) {
-            @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
             Map<String, Object> mapValue = (Map<String, Object>) valueObject;
             doAnalysisMapValueHierarchicalAnalysis(parentName, mapValue, result);
         } else if (valueObject instanceof List) {
-            @SuppressWarnings("unchecked")
             List<Object> listValue = (List<Object>) valueObject;
             doAnalysisListValueHierarchicalAnalysis(parentName, listValue, result);
         } else {

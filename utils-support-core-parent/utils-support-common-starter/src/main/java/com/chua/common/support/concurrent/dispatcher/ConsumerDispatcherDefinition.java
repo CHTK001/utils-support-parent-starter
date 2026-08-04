@@ -10,6 +10,8 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
 
     private final Consumer<T> consumer;

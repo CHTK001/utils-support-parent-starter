@@ -44,6 +44,48 @@
     <div id="fps">-- fps</div>
     <div id="info">等待连接...</div>
   </div>
+  <script>
+    function toggleConnect() {
+      const btn = document.getElementById('btnConnect');
+      const app = window.__app;
+      if (!app) return;
+      if (app.connected) {
+        app.disconnect();
+        btn.textContent = '连接';
+        btn.disabled = false;
+      } else {
+        const targetId = document.getElementById('inputTargetId').value;
+        const verifyCode = document.getElementById('inputVerifyCode').value;
+        const codec = document.getElementById('selectCodec').value;
+        btn.disabled = true;
+        btn.textContent = '连接中...';
+        app.connect(targetId, verifyCode, codec);
+      }
+    }
+    window.addEventListener('load', () => {
+      const app = window.__app;
+      if (app) {
+        app.$watch('connected', (val) => {
+          const btn = document.getElementById('btnConnect');
+          if (btn) {
+            btn.textContent = val ? '断开' : '连接';
+            btn.disabled = false;
+          }
+          const status = document.getElementById('status');
+          if (status) {
+            status.textContent = val ? '已连接' : '就绪';
+            status.className = val ? 'ok' : '';
+          }
+        });
+        app.$watch('infoText', (val) => {
+          const status = document.getElementById('status');
+          if (status && !app.connected) {
+            status.textContent = val || '就绪';
+          }
+        });
+      }
+    });
+  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

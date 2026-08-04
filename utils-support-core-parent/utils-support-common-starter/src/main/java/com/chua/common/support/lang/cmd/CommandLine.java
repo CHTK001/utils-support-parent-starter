@@ -544,7 +544,7 @@ public final class CommandLine {
     /**
      * 将字符串值转换为选项对应的类型。
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     private static Object convertValue(CliOption opt, String value) {
         if (value == null) {
             return null;
@@ -854,7 +854,6 @@ public final class CommandLine {
          * @return 选项值，未指定时返回 null
          */
         @Nullable
-        @SuppressWarnings("unchecked")
         public <T> T get(@Nonnull String name) {
             CliOption opt = resolveOption(name);
             if (opt == null) {

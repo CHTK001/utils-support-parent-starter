@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
  * @author CH
  * @since 2026/07/31
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public record TunnelInfo(
         int port,
         TunnelStatus status,

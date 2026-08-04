@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
  */
 @Getter
 @RequiredArgsConstructor
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public abstract class AbstractPropertySource implements PropertySource {
 
     /**
@@ -93,7 +95,6 @@ public abstract class AbstractPropertySource implements PropertySource {
      * @param key 嵌套属性路径
      * @return 找到的属性值，如果未找到则返回 null
      */
-    @SuppressWarnings("unchecked")
     protected Object getNestedProperty(String key) {
         Object source = getSource();
         if (!(source instanceof Map)) {
@@ -153,7 +154,6 @@ public abstract class AbstractPropertySource implements PropertySource {
      * @param key    键
      * @return 对应的值，如果类型不匹配则返回 null
      */
-    @SuppressWarnings("unchecked")
     private Object getFromSource(Object source, String key) {
         if (source instanceof Map) {
             return ((Map<String, Object>) source).get(key);
@@ -168,7 +168,6 @@ public abstract class AbstractPropertySource implements PropertySource {
      * @param key    原始键
      * @return 找到的值，如果未找到则返回 null
      */
-    @SuppressWarnings("unchecked")
     private Object getFromSourceWithVariants(Object source, String key) {
         if (!(source instanceof Map)) {
             return null;
@@ -201,7 +200,6 @@ public abstract class AbstractPropertySource implements PropertySource {
      * @param index  索引位置
      * @return 对应索引的元素，如果索引越界或类型不匹配则返回 null
      */
-    @SuppressWarnings("unchecked")
     private Object getFromList(Object source, int index) {
         if (source instanceof List) {
             List<Object> list = (List<Object>) source;

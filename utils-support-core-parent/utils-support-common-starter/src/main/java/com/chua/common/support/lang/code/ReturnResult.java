@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 @Accessors(chain = true)
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL", "unchecked"})
 public class ReturnResult<T> implements Serializable {
 
     /**
@@ -118,7 +118,6 @@ public class ReturnResult<T> implements Serializable {
      * @param <T>  类型
      * @return 结果
      */
-    @SuppressWarnings("unchecked")
     public static <T> ReturnResult<T> of(Object data) {
         if (data instanceof Throwable) {
             return (ReturnResult<T>) error((Throwable) data);

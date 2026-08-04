@@ -23,6 +23,8 @@ import java.util.function.Predicate;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class HybridStrategy implements RouterStrategy {
 
     private final List<GroupRouter> groups;

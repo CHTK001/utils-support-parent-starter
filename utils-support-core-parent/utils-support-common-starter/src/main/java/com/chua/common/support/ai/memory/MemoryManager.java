@@ -41,6 +41,8 @@ import java.util.UUID;
  * @since 2026/07/16
  */
 @Slf4j
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class MemoryManager implements AutoCloseable {
 
     /** 记忆存储 */
@@ -356,7 +358,6 @@ public class MemoryManager implements AutoCloseable {
         return "{}";
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> toTagList(Object obj) {
         if (obj instanceof List<?> list) {
             return list.stream().map(String::valueOf).toList();

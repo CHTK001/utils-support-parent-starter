@@ -37,7 +37,8 @@ import java.util.function.Consumer;
  * @see LambdaUpdateWrapper
  * @see LambdaDeleteWrapper
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "NullAway"})
+@NullUnmarked
 public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T, C>> {
 
     /** 实体类类型 */

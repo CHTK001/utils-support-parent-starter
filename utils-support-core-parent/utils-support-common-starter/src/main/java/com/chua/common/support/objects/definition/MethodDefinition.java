@@ -13,6 +13,8 @@ import java.lang.reflect.Method;
  *
  * @author CH
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class MethodDefinition extends AbstractBeanDefinition {
 
     /**

@@ -14,6 +14,8 @@ package com.chua.common.support.config.source;
  * @author CH
  * @since 2023-01-01
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class SystemEnvironmentPropertySource extends AbstractPropertySource {
 
     /**

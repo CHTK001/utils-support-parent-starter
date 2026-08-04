@@ -66,7 +66,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2025/11/26
  * @version 1.1.0
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 class DefaultProxyProvider<T> implements ProxyProvider<T> {
 
     /**
@@ -304,7 +304,6 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * @param intercept 组合后的方法拦截器
      * @return ASM 创建的代理对象，如果失败则返回 null
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private T tryAsm(Class<T> type, Class<?>[] ifaces, ClassLoader loader, MethodIntercept<T> intercept) {
         try {
             ProxyFactory<?> factory = ServiceProvider.of(ProxyFactory.class).getExtension("asm");
@@ -330,7 +329,6 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * @param intercept 组合后的方法拦截器
      * @return Javassist 创建的代理对象，如果失败则返回 null
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private T tryJavassist(Class<T> type, Class<?>[] ifaces, ClassLoader loader, MethodIntercept<T> intercept) {
         try {
             ProxyFactory<?> factory = ServiceProvider.of(ProxyFactory.class).getExtension("javassist");

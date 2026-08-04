@@ -28,6 +28,8 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDeleteWrapper<T>> {
 
     public LambdaDeleteWrapper(Class<T> entityClass) {
