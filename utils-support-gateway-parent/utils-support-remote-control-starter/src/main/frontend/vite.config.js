@@ -6,6 +6,7 @@ export default defineConfig({
     server: {
       port: 28849,
       strictPort: true,
+      host: '0.0.0.0',
       proxy: {
         '/ws': {
           target: 'ws://127.0.0.1:8082',
