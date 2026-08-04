@@ -1,10 +1,7 @@
 package com.chua.remote.support.agent.desktop;
 
 import com.chua.common.support.media.codec.VideoEncoder;
-
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.util.function.BiConsumer;
+import org.bytedeco.javacv.Frame;
 
 /**
  * 桌面会话 SPI 抽象。
@@ -58,20 +55,11 @@ public interface DesktopSession {
     void stop();
 
     /**
-     * 送入原始 BufferedImage 帧进行编码。
+     * 送入 YUV420P Frame 进行编码，零拷贝。
      *
-     * @param image 原始 BufferedImage 帧
+     * @param frame YUV420P 格式的 Frame
      */
-    void feedFrame(BufferedImage image);
-
-    /**
-     * 送入 ByteBuffer BGR 数据直接编码（零拷贝路径）。
-     *
-     * @param bgrData BGR 格式的 DirectByteBuffer
-     * @param width 帧宽度
-     * @param height 帧高度
-     */
-    void feedFrame(ByteBuffer bgrData, int width, int height);
+    void feedFrame(Frame frame);
 
     /**
      * 设置目标尺寸。

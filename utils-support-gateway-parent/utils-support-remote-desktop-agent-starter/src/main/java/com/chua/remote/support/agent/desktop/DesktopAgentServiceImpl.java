@@ -5,15 +5,17 @@ import com.chua.common.support.media.codec.VideoEncoder;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.remote.support.agent.BaseRemoteAgent;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.javacv.Frame;
 
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * 默认桌面代理服务实现。
  *
  * <p>使用 SPI 加载 ScreenCature 采集器和 VideoEncoder 编码器，实现桌面远程控制。</p>
+ * <p>采集和编码使用独立线程，通过 BlockingQueue 解耦。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -28,11 +31,44 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class DesktopAgentServiceImpl implements DesktopAgentService {
 
+    /**
+     * 采集帧队列容量
+     */
+    private static final int CAPTURE_QUEUE_CAPACITY = 4;
+
+    /**
+     * 远程代理实例
+     */
     private final BaseRemoteAgent agent;
+
+    /**
+     * 屏幕采集器
+     */
     private final ScreenCature capture;
+
+    /**
+     * 桌面会话集合
+     */
     private final Map<String, DesktopSession> sessions = new ConcurrentHashMap<>();
+
+    /**
+     * 采集线程池
+     */
     private ExecutorService captureExecutor;
+
+    /**
+     * 是否正在采集
+     */
     private volatile boolean capturing;
+
+    /**
+     * 采集帧队列（生产者-消费者模式）
+     */
+    private BlockingQueue<Frame> frameQueue;
+
+    /**
+     * 输入模拟器
+     */
     private Robot robot;
 
     /**
@@ -52,7 +88,6 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
      */
     private ScreenCature createCapture() {
         try {
-            // 优先使用 javacv，回退到 robot
             ScreenCature cap = ServiceProvider.of(ScreenCature.class).getNewExtension("javacv");
             if (cap == null) {
                 cap = ServiceProvider.of(ScreenCature.class).getNewExtension("robot");
@@ -74,10 +109,15 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             return;
         }
 
-        int clientW = 1920, clientH = 1080;
+        int clientW = 1920;
+        int clientH = 1080;
         if (target != null) {
-            if (target.get("width") instanceof Number) clientW = ((Number) target.get("width")).intValue();
-            if (target.get("height") instanceof Number) clientH = ((Number) target.get("height")).intValue();
+            if (target.get("width") instanceof Number) {
+                clientW = ((Number) target.get("width")).intValue();
+            }
+            if (target.get("height") instanceof Number) {
+                clientH = ((Number) target.get("height")).intValue();
+            }
         }
         int encW = clientW + (clientW & 1);
         int encH = clientH + (clientH & 1);
@@ -124,12 +164,16 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
     @Override
     public void handleControl(String sessionId, String type, Map<String, Object> payload) {
         DesktopSession s = sessions.get(sessionId);
-        if (s == null) return;
+        if (s == null) {
+            return;
+        }
         if ("desktop_control".equals(type)) {
             String action = (String) payload.get("action");
-            if ("start".equals(action)) s.start();
-            else if ("stop".equals(action)) s.stop();
-            else if ("quality_mode".equals(action)) {
+            if ("start".equals(action)) {
+                s.start();
+            } else if ("stop".equals(action)) {
+                s.stop();
+            } else if ("quality_mode".equals(action)) {
                 String mode = (String) payload.get("value");
                 try {
                     s.setQualityMode(DesktopSession.QualityMode.valueOf(mode));
@@ -148,14 +192,20 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
     @Override
     public void updateTargetSize(String sessionId, int width, int height) {
         DesktopSession s = sessions.get(sessionId);
-        if (s != null) s.setTargetSize(width, height);
+        if (s != null) {
+            s.setTargetSize(width, height);
+        }
     }
 
     @Override
     public void handleInput(String sessionId, String type, Map<String, Object> payload) {
-        if (!sessions.containsKey(sessionId)) return;
+        if (!sessions.containsKey(sessionId)) {
+            return;
+        }
         try {
-            if (robot == null) robot = new Robot();
+            if (robot == null) {
+                robot = new Robot();
+            }
             switch (type) {
                 case "mouse" -> handleMouse(payload);
                 case "key" -> handleKey(payload);
@@ -170,8 +220,12 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         int x = p.containsKey("x") ? ((Number) p.get("x")).intValue() : -1;
         int y = p.containsKey("y") ? ((Number) p.get("y")).intValue() : -1;
         String action = (String) p.get("action");
-        if (x >= 0 && y >= 0) robot.mouseMove(x, y);
-        if (action == null) return;
+        if (x >= 0 && y >= 0) {
+            robot.mouseMove(x, y);
+        }
+        if (action == null) {
+            return;
+        }
         int btn = p.containsKey("button") ? ((Number) p.get("button")).intValue() : 1;
         int mask = switch (btn) {
             case 2 -> InputEvent.BUTTON2_DOWN_MASK;
@@ -185,15 +239,21 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                 int wheel = p.containsKey("wheel") ? ((Number) p.get("wheel")).intValue() : 0;
                 robot.mouseWheel(wheel);
             }
+            default -> {
+            }
         }
     }
 
     private void handleKey(Map<String, Object> p) {
         int keyCode = p.containsKey("keyCode") ? ((Number) p.get("keyCode")).intValue() : 0;
         String action = (String) p.get("action");
-        if (keyCode <= 0 || action == null) return;
+        if (keyCode <= 0 || action == null) {
+            return;
+        }
         int awtCode = toAwtKeyCode(keyCode);
-        if (awtCode <= 0) return;
+        if (awtCode <= 0) {
+            return;
+        }
         if ("down".equals(action)) {
             robot.keyPress(awtCode);
         } else if ("up".equals(action)) {
@@ -202,7 +262,9 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
     }
 
     private static int toAwtKeyCode(int jsCode) {
-        if (jsCode >= 32 && jsCode <= 126) return jsCode;
+        if (jsCode >= 32 && jsCode <= 126) {
+            return jsCode;
+        }
         return switch (jsCode) {
             case 8 -> KeyEvent.VK_BACK_SPACE;
             case 9 -> KeyEvent.VK_TAB;
@@ -269,10 +331,9 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             case 121 -> KeyEvent.VK_F10;
             case 122 -> KeyEvent.VK_F11;
             case 123 -> KeyEvent.VK_F12;
-            case 155 -> KeyEvent.VK_INSERT;
             case 144 -> KeyEvent.VK_NUM_LOCK;
             case 145 -> KeyEvent.VK_SCROLL_LOCK;
-            case 127 -> KeyEvent.VK_DELETE;
+            case 155 -> KeyEvent.VK_INSERT;
             default -> 0;
         };
     }
@@ -282,18 +343,21 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         return agent;
     }
 
-    /**
-     * 通过 SPI 创建 VideoEncoder 实例。
-     */
     private VideoEncoder createEncoder(int w, int h, int fps) {
         try {
             VideoEncoder encoder = ServiceProvider.of(VideoEncoder.class)
-                    .getNewExtension("javacv-ffmpeg", w, h, fps);
+                    .getNewExtension("nvenc", w, h, fps);
             if (encoder == null) {
-                log.warn("[DesktopAgent] SPI 编码器创建失败");
+                log.warn("[DesktopAgent] NVENC 编码器不可用，回退到软件编码");
+                encoder = ServiceProvider.of(VideoEncoder.class)
+                        .getNewExtension("software", w, h, fps);
+            }
+            if (encoder == null) {
+                log.warn("[DesktopAgent] 所有编码器创建失败");
                 return null;
             }
-            log.info("[DesktopAgent] 编码器: {} {}x{} {}fps", encoder.getCodecName(), w, h, fps);
+            log.info("[DesktopAgent] 编码器: {} {}x{} {}fps 硬件加速={}",
+                    encoder.getCodecName(), w, h, fps, encoder.isHardwareAccelerated());
             return encoder;
         } catch (Exception e) {
             log.error("[DesktopAgent] 编码器创建失败: {}", e.getMessage());
@@ -301,69 +365,104 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
         }
     }
 
-    /**
-     * 启动采集循环。
-     */
     private synchronized void startCapture() {
-        if (capturing || capture == null) return;
+        if (capturing || capture == null) {
+            return;
+        }
         if (!capture.init(1920, 1080, 30)) {
             log.error("[DesktopAgent] 采集器初始化失败");
             return;
         }
         capturing = true;
-        captureExecutor = Executors.newSingleThreadExecutor(r -> new Thread(r, "desktop-capture"));
+        frameQueue = new LinkedBlockingQueue<>(CAPTURE_QUEUE_CAPACITY);
+
+        captureExecutor = Executors.newFixedThreadPool(2, r -> {
+            Thread t = new Thread(r, "desktop-capture");
+            t.setDaemon(true);
+            return t;
+        });
         captureExecutor.submit(this::captureLoop);
+        captureExecutor.submit(this::encodeLoop);
+
         ScheduledExecutorService metricsScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "desktop-metrics");
             t.setDaemon(true);
             return t;
         });
-        pushMetrics();
         metricsScheduler.scheduleAtFixedRate(this::pushMetrics, 1, 1, TimeUnit.SECONDS);
         log.info("[DesktopAgent] 采集已启动");
     }
 
-    /**
-     * 停止采集循环。
-     */
     private synchronized void stopCapture() {
         capturing = false;
         if (captureExecutor != null) {
             captureExecutor.shutdownNow();
             captureExecutor = null;
         }
-        if (capture != null) capture.close();
+        if (frameQueue != null) {
+            frameQueue.clear();
+            frameQueue = null;
+        }
+        if (capture != null) {
+            capture.close();
+        }
     }
 
     private void captureLoop() {
         while (capturing) {
             if (sessions.isEmpty()) {
-                try { Thread.sleep(50); } catch (InterruptedException e) { break; }
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
                 continue;
             }
             long frameStart = System.nanoTime();
             try {
-                ByteBuffer buf = capture.grabFrame();
-                if (buf == null) {
+                Frame frame = capture.grabFrame();
+                if (frame == null) {
                     Thread.sleep(1);
                     continue;
                 }
-                int w = capture.getWidth();
-                int h = capture.getHeight();
-                for (DesktopSession session : sessions.values()) {
-                    if (session.isRunning()) {
-                        buf.rewind();
-                        session.feedFrame(buf, w, h);
-                    }
+                if (!frameQueue.offer(frame)) {
+                    frameQueue.poll();
+                    frameQueue.offer(frame);
                 }
-                } catch (Exception e) {
+            } catch (Exception e) {
                 log.warn("[DesktopAgent] 采集异常: {}", e.getMessage());
             }
             long elapsed = System.nanoTime() - frameStart;
             int targetFps = sessions.values().stream()
-                    .findFirst().map(s -> getTargetFps(s)).orElse(60);
-            long sleepMs = Math.max(0, (1000 / targetFps) - elapsed / 1_000_000);
-            try { Thread.sleep(sleepMs); } catch (InterruptedException e) { break; }
+                    .findFirst().map(this::getTargetFps).orElse(60);
+            long sleepMs = Math.max(0, (1000L / targetFps) - elapsed / 1_000_000);
+            if (sleepMs > 0) {
+                try {
+                    Thread.sleep(sleepMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void encodeLoop() {
+        while (capturing) {
+            try {
+                Frame frame = frameQueue.take();
+                for (DesktopSession session : sessions.values()) {
+                    if (session.isRunning()) {
+                        session.feedFrame(frame);
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (Exception e) {
+                log.warn("[DesktopAgent] 编码异常: {}", e.getMessage());
+            }
         }
     }
 
@@ -379,7 +478,8 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                     log.info("[DesktopAgent] pushMetrics: fps={}, decoder={}", fps, decoder);
                     String json = String.format(
                             "{\"type\":\"desktop_metrics\",\"sessionId\":\"%s\",\"fps\":%d,\"memUsed\":%d,\"memTotal\":%d,\"capture\":\"%s\",\"decoder\":\"%s\"}",
-                            s.getSessionId(), fps, memUsed, memTotal, capture.getClass().getSimpleName(), decoder);
+                            s.getSessionId(), fps, memUsed, memTotal,
+                            capture.getClass().getSimpleName(), decoder);
                     agent.sendToGateway(json);
                 }
             }

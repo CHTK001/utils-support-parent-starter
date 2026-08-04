@@ -7,8 +7,6 @@ import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 
-import java.nio.ByteBuffer;
-
 /**
  * 基于 JavaCV(FFmpeg) 的屏幕采集器，根据平台自动选择采集器。
  *
@@ -118,7 +116,7 @@ public class JavaCVScreenCapture implements ScreenCature {
             grabber.setImageWidth(width);
             grabber.setImageHeight(height);
             grabber.setFrameRate(Math.min(60, Math.max(1, fps)));
-            grabber.setPixelFormat(avutil.AV_PIX_FMT_BGR24);
+            grabber.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
             grabber.setOption("probesize", PROBESIZE);
             grabber.setOption("analyzeduration", ANALYZE_DURATION);
             grabber.setOption("framerate", String.valueOf(Math.min(60, Math.max(1, fps))));
@@ -140,20 +138,12 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
-    public ByteBuffer grabFrame() {
+    public Frame grabFrame() {
         if (!initialized || grabber == null) {
             return null;
         }
         try {
-            Frame frame = grabber.grabImage();
-            if (frame == null || frame.image == null || frame.image.length == 0) {
-                return null;
-            }
-            // 零拷贝：frame.image[0] 已经是 DirectByteBuffer（BGR24 格式）
-            if (frame.image[0] instanceof ByteBuffer buf) {
-                return buf;
-            }
-            return null;
+            return grabber.grabImage();
         } catch (Exception e) {
             log.warn("[JavaCVScreenCapture] 采集失败: {}", e.getMessage());
             return null;

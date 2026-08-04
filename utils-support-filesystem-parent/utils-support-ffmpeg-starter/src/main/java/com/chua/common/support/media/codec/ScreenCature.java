@@ -1,12 +1,12 @@
 package com.chua.common.support.media.codec;
 
-import java.nio.ByteBuffer;
+import org.bytedeco.javacv.Frame;
 
 /**
  * 屏幕采集接口 — 提供帧采集能力。
  *
  * <p>实现类应通过 {@code @Spi("name")} 注解注册，由 ServiceProvider 发现。</p>
- * <p>返回 {@link ByteBuffer}（DirectByteBuffer），BGR 格式，可直接传递给编码器实现零拷贝。</p>
+ * <p>返回 {@link Frame}，YUV420P 格式，零拷贝传递给编码器。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,11 +24,12 @@ public interface ScreenCature extends AutoCloseable {
     boolean init(int width, int height, int fps);
 
     /**
-     * 采集一帧图像，格式为 BGR（TYPE_3BYTE_BGR），DirectByteBuffer。
+     * 采集一帧图像，YUV420P 格式的 Frame。
+     * <p>Frame 的 image[0]=Y, image[1]=U, image[2]=V 为 DirectByteBuffer，零拷贝。</p>
      *
-     * @return BGR 字节序的 ByteBuffer，失败返回 null
+     * @return YUV420P 格式的 Frame，失败返回 null
      */
-    ByteBuffer grabFrame();
+    Frame grabFrame();
 
     /**
      * 获取采集宽度。
