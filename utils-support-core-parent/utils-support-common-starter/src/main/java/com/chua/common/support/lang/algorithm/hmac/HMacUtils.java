@@ -3,8 +3,8 @@ package com.chua.common.support.lang.algorithm.hmac;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jspecify.annotations.NullUnmarked;
 
+import org.jspecify.annotations.NullMarked;
 
 /**
  * HMAC (Hash-based Message Authentication Code) 工具类
@@ -16,7 +16,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025/10/23
  */
-@NullUnmarked
+@NullMarked
 public class HMacUtils {
 
     private HMacUtils() {
