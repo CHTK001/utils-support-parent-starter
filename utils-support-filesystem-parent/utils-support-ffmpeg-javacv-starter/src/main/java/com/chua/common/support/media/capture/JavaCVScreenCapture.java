@@ -3,28 +3,24 @@ package com.chua.common.support.media.capture;
 import com.chua.common.support.media.codec.ScreenCature;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.ffmpeg.avutil.AVFrame;
 import org.bytedeco.ffmpeg.global.avutil;
-import org.bytedeco.ffmpeg.swscale.SwsContext;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.IntPointer;
-import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 
 import java.nio.ByteBuffer;
 
-import static org.bytedeco.ffmpeg.global.avutil.av_frame_alloc;
-import static org.bytedeco.ffmpeg.global.avutil.av_frame_free;
-import static org.bytedeco.ffmpeg.global.avutil.av_free;
-import static org.bytedeco.ffmpeg.global.avutil.av_image_fill_arrays;
-import static org.bytedeco.ffmpeg.global.avutil.av_image_get_buffer_size;
-import static org.bytedeco.ffmpeg.global.avutil.av_malloc;
-import static org.bytedeco.ffmpeg.global.swscale.SWS_BILINEAR;
-import static org.bytedeco.ffmpeg.global.swscale.sws_freeContext;
-import static org.bytedeco.ffmpeg.global.swscale.sws_getContext;
-import static org.bytedeco.ffmpeg.global.swscale.sws_scale;
-
+/**
+ * 基于 JavaCV(FFmpeg) 的屏幕采集器。
+ *
+ * <p>使用 gdigrab 采集桌面，设置 {@code AV_PIX_FMT_YUV420P} 后通过
+ * {@code grabber.grab()} 直接得到 YUV420P 三平面 Frame（FFmpeg 内部 sws_scale 转换，
+ * 不手动触碰 native 指针，避免崩溃）。</p>
+ *
+ * <p>因为 grabber 会复用内部缓冲区，这里对三平面做深度复制，保证下游安全消费。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 @Spi("javacv")
 public class JavaCVScreenCapture implements ScreenCature {
@@ -34,15 +30,8 @@ public class JavaCVScreenCapture implements ScreenCature {
     private int height;
     private int fps;
     private volatile boolean initialized;
-
-    private SwsContext swsCtx;
-    private BytePointer dstBuf;
-    private AVFrame dstAvFrame;
     private int ySize;
     private int uvSize;
-    private int srcStride;
-    private int srcPixelFmt;
-    private boolean converterReady;
 
     @Override
     public boolean init(int width, int height, int fps) {
@@ -53,20 +42,22 @@ public class JavaCVScreenCapture implements ScreenCature {
             grabber.setImageWidth(width);
             grabber.setImageHeight(height);
             grabber.setFrameRate(Math.min(60, Math.max(1, fps)));
+            // 关键：让 FFmpeg 内部把 BGRA 转成 YUV420P
+            grabber.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
             grabber.setOption("probesize", "1M");
             grabber.setOption("analyzeduration", "0");
             grabber.setOption("framerate", String.valueOf(Math.min(60, Math.max(1, fps))));
             grabber.start();
 
-            this.width = width;
-            this.height = height;
+            this.width = grabber.getImageWidth();
+            this.height = grabber.getImageHeight();
             this.fps = fps;
             this.ySize = this.width * this.height;
             this.uvSize = (this.width / 2) * (this.height / 2);
-            this.converterReady = false;
-
             this.initialized = true;
-            log.info("[JavaCVScreenCapture] 已启动: {}x{}@{}fps", this.width, this.height, this.fps);
+
+            log.info("[JavaCVScreenCapture] 已启动: {}x{}@{}fps pixelFormat=YUV420P (gdigrab→grab→YUV420P)",
+                    this.width, this.height, this.fps);
             return true;
         } catch (Exception e) {
             log.error("[JavaCVScreenCapture] 初始化失败: {}", e.getMessage(), e);
@@ -83,12 +74,10 @@ public class JavaCVScreenCapture implements ScreenCature {
         try {
             int retries = 3;
             while (retries-- > 0) {
-                Frame src = grabber.grabImage();
-                if (src != null && src.image != null && src.image.length > 0 && src.image[0] != null) {
-                    if (!converterReady) {
-                        initConverterFromFrame(src);
-                    }
-                    return convertToYuv420p(src);
+                Frame src = grabber.grab();
+                if (src != null && src.image != null && src.image.length >= 3
+                        && src.image[0] != null && src.image[1] != null && src.image[2] != null) {
+                    return copyYuv420p(src);
                 }
                 try {
                     Thread.sleep(10);
@@ -97,7 +86,7 @@ public class JavaCVScreenCapture implements ScreenCature {
                     return null;
                 }
             }
-            log.warn("[JavaCVScreenCapture] 多次尝试后 frame 为 null");
+            log.warn("[JavaCVScreenCapture] 多次尝试后 frame 仍非 YUV420P");
             return null;
         } catch (Exception e) {
             log.warn("[JavaCVScreenCapture] 采集失败: {}", e.getMessage());
@@ -106,66 +95,23 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     /**
-     * 根据首帧实际缓冲区大小检测源格式（gdigrab 可能输出 BGR24 或 BGRA）。
+     * 深度复制 YUV420P 三平面到独立缓冲区，避免 grabber 复用内部 buffer。
      */
-    private void initConverterFromFrame(Frame src) {
-        ByteBuffer buf = (ByteBuffer) src.image[0];
-        int cap = buf.capacity();
-        int bpp = cap / (width * height);
-        if (bpp == 4) {
-            srcPixelFmt = avutil.AV_PIX_FMT_BGRA;
-            srcStride = width * 4;
-        } else {
-            srcPixelFmt = avutil.AV_PIX_FMT_BGR24;
-            srcStride = width * 3;
-        }
-        log.info("[JavaCVScreenCapture] 首帧检测: bpp={} pixFmt={} stride={}", bpp, srcPixelFmt, srcStride);
-
-        swsCtx = sws_getContext(
-                width, height, srcPixelFmt,
-                width, height, avutil.AV_PIX_FMT_YUV420P,
-                SWS_BILINEAR, null, null, (double[]) null);
-        if (swsCtx == null || swsCtx.isNull()) {
-            throw new IllegalStateException("sws_getContext 返回 null");
-        }
-
-        dstAvFrame = av_frame_alloc();
-        int bufSize = av_image_get_buffer_size(avutil.AV_PIX_FMT_YUV420P, width, height, 1);
-        dstBuf = new BytePointer(av_malloc(bufSize));
-        av_image_fill_arrays(dstAvFrame.data(), dstAvFrame.linesize(),
-                dstBuf, avutil.AV_PIX_FMT_YUV420P, width, height, 1);
-        dstAvFrame.format(avutil.AV_PIX_FMT_YUV420P);
-        dstAvFrame.width(width);
-        dstAvFrame.height(height);
-        converterReady = true;
-    }
-
-    private Frame convertToYuv420p(Frame src) {
+    private Frame copyYuv420p(Frame src) {
         try {
-            ByteBuffer srcBuf = (ByteBuffer) src.image[0];
-            if (!srcBuf.isDirect()) {
-                byte[] arr = new byte[srcBuf.remaining()];
-                srcBuf.get(arr);
-                ByteBuffer direct = ByteBuffer.allocateDirect(arr.length);
-                direct.put(arr);
-                direct.flip();
-                srcBuf = direct;
-            }
-            srcBuf.position(0);
-            BytePointer srcData = new BytePointer(srcBuf);
+            int totalSize = ySize + uvSize * 2;
+            ByteBuffer dst = ByteBuffer.allocateDirect(totalSize);
 
-            sws_scale(swsCtx,
-                    new PointerPointer(srcData),
-                    new IntPointer(srcStride),
-                    0, height,
-                    dstAvFrame.data(),
-                    dstAvFrame.linesize());
+            copyPlane(src.image[0], dst, 0, ySize);
+            copyPlane(src.image[1], dst, ySize, uvSize);
+            copyPlane(src.image[2], dst, ySize + uvSize, uvSize);
 
-            ByteBuffer dstBuffer = dstBuf.asBuffer();
+            dst.position(0);
+
             Frame result = new Frame(width, height, Frame.DEPTH_UBYTE, 2);
-            result.image[0] = dstBuffer.slice(0, ySize);
-            result.image[1] = dstBuffer.slice(ySize, uvSize);
-            result.image[2] = dstBuffer.slice(ySize + uvSize, uvSize);
+            result.image[0] = slice(dst, 0, ySize);
+            result.image[1] = slice(dst, ySize, uvSize);
+            result.image[2] = slice(dst, ySize + uvSize, uvSize);
             result.imageWidth = width;
             result.imageHeight = height;
             result.imageStride = width;
@@ -173,9 +119,35 @@ public class JavaCVScreenCapture implements ScreenCature {
             result.timestamp = src.timestamp;
             return result;
         } catch (Exception e) {
-            log.warn("[JavaCVScreenCapture] 转换失败: {}", e.getMessage());
+            log.warn("[JavaCVScreenCapture] 复制帧失败: {}", e.getMessage());
             return null;
         }
+    }
+
+    private static void copyPlane(Object srcObj, ByteBuffer dst, int offset, int size) {
+        ByteBuffer src;
+        if (srcObj instanceof ByteBuffer buf) {
+            src = buf;
+        } else if (srcObj instanceof byte[] arr) {
+            src = ByteBuffer.wrap(arr);
+        } else if (srcObj instanceof org.bytedeco.javacpp.Pointer ptr) {
+            src = new org.bytedeco.javacpp.BytePointer(ptr).asBuffer();
+        } else {
+            log.warn("[JavaCVScreenCapture] 不支持的 image 类型: {}", srcObj.getClass().getName());
+            return;
+        }
+        src.position(0);
+        byte[] tmp = new byte[Math.min(size, src.remaining())];
+        src.get(tmp);
+        dst.position(offset);
+        dst.put(tmp);
+    }
+
+    private static ByteBuffer slice(ByteBuffer buf, int offset, int size) {
+        ByteBuffer s = buf.duplicate();
+        s.position(offset);
+        s.limit(offset + size);
+        return s.slice();
     }
 
     @Override
@@ -192,15 +164,6 @@ public class JavaCVScreenCapture implements ScreenCature {
     public void close() {
         initialized = false;
         try {
-            if (dstBuf != null && !dstBuf.isNull()) {
-                if (dstAvFrame != null && !dstAvFrame.isNull()) {
-                    av_frame_free(dstAvFrame);
-                }
-                av_free(dstBuf);
-            }
-            if (swsCtx != null && !swsCtx.isNull()) {
-                sws_freeContext(swsCtx);
-            }
             if (grabber != null) {
                 try {
                     grabber.stop();
@@ -215,9 +178,6 @@ public class JavaCVScreenCapture implements ScreenCature {
             log.warn("[JavaCVScreenCapture] close 异常: {}", e.getMessage());
         }
         grabber = null;
-        swsCtx = null;
-        dstBuf = null;
-        dstAvFrame = null;
         log.info("[JavaCVScreenCapture] 已关闭");
     }
 }
