@@ -60,7 +60,7 @@ public interface RsaCipher extends Cipher {
      * @return RsaCipher 实例
      * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
      */
-    static RsaCipher create(String provider) {
+    static @Nullable RsaCipher create(String provider) {
         return ServiceProvider.of(RsaCipher.class).getNewExtension(provider);
     }
 
