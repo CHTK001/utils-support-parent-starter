@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * KNN（K-Nearest Neighbors）临近算法实现，基于欧几里得距离查找最近的 K 个邻居。
@@ -36,7 +36,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
+@NullMarked
 public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
 
     /**
@@ -72,9 +72,12 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
 
             if (maxHeap.size() < actualK) {
                 maxHeap.offer(result);
-            } else if (distance < maxHeap.peek().getDistance()) {
-                maxHeap.poll();
-                maxHeap.offer(result);
+            } else {
+                NeighborResult peek = maxHeap.peek();
+                if (peek != null && distance < peek.getDistance()) {
+                    maxHeap.poll();
+                    maxHeap.offer(result);
+                }
             }
         }
 
@@ -94,11 +97,9 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
      */
     @Override
     public NeighborResult searchNearest(double[] target, List<double[]> dataset) {
-        if (target == null || target.length == 0 || dataset == null || dataset.isEmpty()) {
-            return NeighborResult.EMPTY;
-        }
+        validate(target, dataset, 1);
 
-        NeighborResult nearest = null;
+        NeighborResult nearest = NeighborResult.EMPTY;
         double minDistance = Double.MAX_VALUE;
 
         for (int i = 0; i < dataset.size(); i++) {
@@ -111,7 +112,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
             }
         }
 
-        return nearest != null ? nearest : NeighborResult.EMPTY;
+        return nearest;
     }
 
     /**
@@ -143,12 +144,8 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
      * @throws IllegalArgumentException 如果参数不合法
      */
     private void validate(double[] target, List<double[]> dataset, int k) {
-        if (target == null || target.length == 0) {
+        if (target.length == 0) {
             throw new IllegalArgumentException("目标向量不能为空");
-        }
-
-        if (dataset == null) {
-            throw new IllegalArgumentException("数据集不能为 null");
         }
 
         if (k <= 0) {
