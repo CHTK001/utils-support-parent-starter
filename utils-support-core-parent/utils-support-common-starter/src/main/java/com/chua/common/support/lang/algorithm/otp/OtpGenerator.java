@@ -1,6 +1,6 @@
 package com.chua.common.support.lang.algorithm.otp;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 
 /**
@@ -10,7 +10,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/3
  */
-@NullUnmarked
+@NullMarked
 public interface OtpGenerator {
 
     /**
