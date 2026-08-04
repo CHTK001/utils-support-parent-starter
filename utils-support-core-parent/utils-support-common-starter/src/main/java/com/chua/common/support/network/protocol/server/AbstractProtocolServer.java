@@ -14,11 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractProtocolServer {
 
     /**
-     * 日志对象，供子类使用。
-     */
-    protected final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
-
-    /**
      * 服务器配置设置。
      */
     protected final ServerSetting serverSetting;

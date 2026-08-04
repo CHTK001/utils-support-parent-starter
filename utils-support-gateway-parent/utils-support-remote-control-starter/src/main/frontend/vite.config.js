@@ -3,17 +3,19 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  server: {
-    proxy: {
-      '/ws': {
-        target: 'ws://127.0.0.1:8082',
-        ws: true
-      },
-      '/api': {
-        target: 'http://192.168.50.101:8083'
+    server: {
+      port: 28849,
+      strictPort: true,
+      proxy: {
+        '/ws': {
+          target: 'ws://127.0.0.1:8082',
+          ws: true
+        },
+        '/api': {
+          target: 'http://127.0.0.1:3000'
+        }
       }
-    }
-  },
+    },
   build: {
     outDir: 'dist',
     emptyOutDir: true
