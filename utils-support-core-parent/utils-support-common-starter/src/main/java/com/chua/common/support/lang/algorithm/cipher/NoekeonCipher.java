@@ -2,6 +2,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Noekeon 对称加解密 SPI 接口
@@ -38,7 +39,7 @@ public interface NoekeonCipher extends Cipher {
      * @return NoekeonCipher 实例
      * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
      */
-    static NoekeonCipher create(String provider) {
+    static @Nullable NoekeonCipher create(String provider) {
         return ServiceProvider.of(NoekeonCipher.class).getNewExtension(provider);
     }
 

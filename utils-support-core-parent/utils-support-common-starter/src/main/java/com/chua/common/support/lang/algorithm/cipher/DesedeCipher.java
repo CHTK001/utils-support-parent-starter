@@ -2,6 +2,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * DESede（3DES）对称加解密 SPI 接口
@@ -41,7 +42,7 @@ public interface DesedeCipher extends Cipher {
      * @return DesedeCipher 实例
      * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
      */
-    static DesedeCipher create(String provider) {
+    static @Nullable DesedeCipher create(String provider) {
         return ServiceProvider.of(DesedeCipher.class).getNewExtension(provider);
     }
 
