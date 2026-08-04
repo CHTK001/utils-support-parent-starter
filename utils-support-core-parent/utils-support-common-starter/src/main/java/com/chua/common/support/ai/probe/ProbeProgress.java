@@ -14,6 +14,8 @@ package com.chua.common.support.ai.probe;
  * @author CH
  * @since 4.0.0.42
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public record ProbeProgress(
     int progress,
     String message,

@@ -261,7 +261,7 @@ public class CsvFileSystem implements FileSystem {
                                 headerWritten = true;
                             }
                             for (Object rowObj : list) {
-                                @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
                                 Map<String, Object> row = (Map<String, Object>) rowObj;
                                 // 写入行过滤
                                 if (!testRow(row)) continue;
@@ -294,7 +294,6 @@ public class CsvFileSystem implements FileSystem {
                 if (entry instanceof List) {
                     List<?> list = (List<?>) entry;
                     if (!list.isEmpty() && list.get(0) instanceof Map) {
-                        @SuppressWarnings("unchecked")
                         Map<String, Object> first = (Map<String, Object>) list.get(0);
                         return new ArrayList<>(first.keySet());
                     }

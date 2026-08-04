@@ -19,6 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class PartitionMetadata {
 
     /**

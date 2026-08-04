@@ -20,6 +20,8 @@ import java.util.function.Supplier;
  *
  * @author CH
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public final class LockFlow {
 
     /**
@@ -193,7 +195,6 @@ public final class LockFlow {
      * @return 降级回调结果
      * @throws Exception 降级回调执行异常
      */
-    @SuppressWarnings("unchecked")
     private <T> T onRejected() throws Exception {
         if (fallback != null) {
             return (T) fallback.get();

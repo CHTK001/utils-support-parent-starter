@@ -12,6 +12,8 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/12
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public record Vector(
         String id,
         float[] data,

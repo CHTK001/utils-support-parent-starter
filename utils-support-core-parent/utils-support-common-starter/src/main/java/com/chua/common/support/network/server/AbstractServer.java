@@ -167,7 +167,7 @@ public abstract class AbstractServer implements ConfigServer {
      * @param response 响应
      */
     protected void handleReactive(ServerRequest request, ServerResponse response) {
-        @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
 
         DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(
@@ -214,7 +214,6 @@ public abstract class AbstractServer implements ConfigServer {
      */
     private void handleBlocking(ServerRequest request, ServerResponse response) {
         try {
-            @SuppressWarnings("unchecked")
             List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
             DefaultServerFilterChain chain = new DefaultServerFilterChain(
                     filterManager.getMergedFilters(), DEFAULT_404_HANDLER, listeners);

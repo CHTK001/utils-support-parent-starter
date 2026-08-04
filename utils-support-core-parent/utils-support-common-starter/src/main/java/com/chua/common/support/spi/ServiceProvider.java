@@ -60,7 +60,7 @@ import java.util.function.Function;
  * @see DefaultServiceProvider
  * @see ServiceDefinition
  */
-@SuppressWarnings({"ALL"})
+@SuppressWarnings({"ALL", "unchecked"})
 public interface ServiceProvider<T> {
 
     /**
@@ -126,7 +126,6 @@ public interface ServiceProvider<T> {
      * @param <T>         服务类型
      * @return 服务提供者实例
      */
-    @SuppressWarnings("unchecked")
     @Nonnull
     static <T> ServiceProvider<T> of(@Nonnull Class<T> type, @Nullable ClassLoader classLoader) {
         try {

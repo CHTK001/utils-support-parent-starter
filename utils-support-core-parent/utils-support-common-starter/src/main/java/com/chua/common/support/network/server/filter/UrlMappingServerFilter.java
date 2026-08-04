@@ -38,6 +38,8 @@ import java.util.concurrent.CompletionStage;
  */
 @Spi("url-mapping")
 @SpiDescribe("URL 路径到处理器映射过滤器")
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFilter {
 
     /**

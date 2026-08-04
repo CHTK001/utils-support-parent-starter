@@ -28,6 +28,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 2024/12/20
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
 
     /**

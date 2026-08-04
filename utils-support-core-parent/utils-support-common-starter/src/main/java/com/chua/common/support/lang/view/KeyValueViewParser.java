@@ -26,7 +26,7 @@ public class KeyValueViewParser implements ViewParser {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public String render(Object data) {
         Map<String, String> map = toKeyValue(data);
         if (map.isEmpty()) {
@@ -50,7 +50,6 @@ public class KeyValueViewParser implements ViewParser {
     /**
      * 将对象转为键值对映射。
      */
-    @SuppressWarnings("unchecked")
     private static Map<String, String> toKeyValue(Object data) {
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;

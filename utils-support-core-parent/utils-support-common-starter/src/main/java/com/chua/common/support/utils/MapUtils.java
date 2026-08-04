@@ -43,6 +43,8 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  *
  * @author CH
  */
+@SuppressWarnings({"NullAway", "unchecked", "ALL"})
+@NullUnmarked
 public class MapUtils {
 
     /**
@@ -68,7 +70,6 @@ public class MapUtils {
      * @param map 待展开的嵌套 Map，允许为 null
      * @return 扁平化后的 Map，若 map 为 null 则返回空 Map
      */
-    @SuppressWarnings("unchecked")
     public static Map<String, Object> flattenMap(Map<String, Object> map) {
         if (null == map) {
             return Collections.emptyMap();
@@ -855,7 +856,6 @@ public class MapUtils {
      * @param key 键
      * @return 取到的 List，若 Map 为 null、值为 null 或类型不匹配则返回 null
      */
-    @SuppressWarnings("unchecked")
     public static <K, V, E> List<E> getList(final Map<K, V> map, final K key) {
         if (map == null) {
             return null;
@@ -897,7 +897,6 @@ public class MapUtils {
      * @param key  键
      * @return 取到的内嵌 Map，若值不存在或类型不匹配则返回 null
      */
-    @SuppressWarnings("unchecked")
     public static <K, V, MK, MV> Map<MK, MV> getMap(final Map<K, V> map, final K key) {
         if (map == null) {
             return null;
@@ -1373,7 +1372,6 @@ public class MapUtils {
      * @param key    键
      * @param value  值，若为 null 则不做任何操作
      */
-    @SuppressWarnings("ALL")
     private static void convertToList(Map<String, Object> target, String key, Object value) {
         Object computeIfAbsent = target.computeIfAbsent(key, (Function<String, List<Object>>) input -> new ArrayList());
         if (null == value) {
@@ -1555,7 +1553,6 @@ public class MapUtils {
      * @param consumer 处理非 null 值的回调
      * @param name     要查询的键列表
      */
-    @SuppressWarnings("unchecked")
     public static <V> void filterNone(Map<String, V> map, Consumer<V> consumer, String... name) {
         for (String s : name) {
             Object object = getObject(map, s);
@@ -1573,7 +1570,6 @@ public class MapUtils {
      * @param source 源 Map
      * @return 键为 String 的新 LinkedHashMap
      */
-    @SuppressWarnings("ALL")
     public static Map<String, Object> asStringObjectMap(Map source) {
         Map<String, Object> tpl = new LinkedHashMap<>(source.size());
         source.forEach((k, v) -> {
@@ -1588,7 +1584,6 @@ public class MapUtils {
      * @param source 源 Map
      * @return 键和值均为 String 的新 LinkedHashMap
      */
-    @SuppressWarnings("ALL")
     public static Map<String, String> asStringMap(Map source) {
         Map<String, String> tpl = new LinkedHashMap<>(source.size());
         source.forEach((k, v) -> {
@@ -1634,7 +1629,6 @@ public class MapUtils {
      * @param <K> 键类型
      * @return Map.Entry::getKey 函数
      */
-    @SuppressWarnings("unchecked")
     public static <K extends Object> Function<Map.Entry<K, ?>, K> keyFunction() {
         return Map.Entry::getKey;
     }
@@ -1645,7 +1639,6 @@ public class MapUtils {
      * @param <V> 值类型
      * @return Map.Entry::getValue 函数
      */
-    @SuppressWarnings("unchecked")
     public static <V extends Object> Function<Map.Entry<?, V>, V> valueFunction() {
         return Map.Entry::getValue;
     }
@@ -1804,7 +1797,6 @@ public class MapUtils {
      * @param name 配置项名称
      * @return 取到的配置值
      */
-    @SuppressWarnings("ALL")
     public static <K, V> V getConfig(Map<K, V> arg, String name) {
         V v = arg.get(name);
         if (null == v) {
@@ -1985,7 +1977,6 @@ public class MapUtils {
      * @param defaultValue 默认值
      * @return 取到的值或默认值
      */
-    @SuppressWarnings("ALL")
     public static Object getTreeOrDefault(Map properties, String name, Object defaultValue) {
         if (isEmpty(properties) || StringUtils.isEmpty(name)) {
             return defaultValue;
@@ -2047,7 +2038,6 @@ public class MapUtils {
      * @param properties Properties 对象
      * @return 扁平化的 Map
      */
-    @SuppressWarnings("ALL")
     public static Map<String, Object> flattenToProperties(Properties properties) {
         return flattenToProperties(new HashMap(properties), "");
     }
@@ -2077,7 +2067,6 @@ public class MapUtils {
 
             if (value instanceof Map) {
                 //                   Map
-                @SuppressWarnings("unchecked")
                 Map<String, Object> nestedMap = (Map<String, Object>) value;
                 result.putAll(flattenToProperties(nestedMap, newKey));
             } else if (value instanceof Collection<?> collection) {
@@ -2086,7 +2075,6 @@ public class MapUtils {
                 for (Object item : collection) {
                     String indexKey = newKey + "[" + index + "]";
                     if (item instanceof Map) {
-                        @SuppressWarnings("unchecked")
                         Map<String, Object> itemMap = (Map<String, Object>) item;
                         result.putAll(flattenToProperties(itemMap, indexKey));
                     } else {
@@ -2101,7 +2089,6 @@ public class MapUtils {
                     String indexKey = newKey + "[" + i + "]";
                     Object item = array[i];
                     if (item instanceof Map) {
-                        @SuppressWarnings("unchecked")
                         Map<String, Object> itemMap = (Map<String, Object>) item;
                         result.putAll(flattenToProperties(itemMap, indexKey));
                     } else {
@@ -2151,7 +2138,6 @@ public class MapUtils {
      * @param key   点号分隔的键
      * @param value 要设置的值
      */
-    @SuppressWarnings("unchecked")
     private static void setNestedValue(Map<String, Object> map, String key, Object value) {
         if (key == null || key.isEmpty()) {
             return;
@@ -2182,7 +2168,6 @@ public class MapUtils {
      * @param part    键路径片段，可为普通键名或 "arrayName[index]" 格式
      * @return 下一层级的 Map 节点
      */
-    @SuppressWarnings("unchecked")
     private static Map<String, Object> processMapPart(Map<String, Object> current, String part) {
         //                          "items[0]"
         if (part.contains("[") && part.contains("]")) {
@@ -2236,7 +2221,6 @@ public class MapUtils {
      * @param key     要确保存在的键
      * @return key 对应的子 Map 节点，保证非 null 且为 Map 类型
      */
-    @SuppressWarnings("unchecked")
     private static Map<String, Object> ensureMapExists(Map<String, Object> current, String key) {
         if (!current.containsKey(key)) {
             current.put(key, new LinkedHashMap<String, Object>());
@@ -2257,7 +2241,6 @@ public class MapUtils {
      * @param finalKey 最终键名，可包含 [index] 数组下标
      * @param value    要设置的值
      */
-    @SuppressWarnings("unchecked")
     private static void setFinalValue(Map<String, Object> current, String finalKey, Object value) {
         if (finalKey.contains("[") && finalKey.contains("]")) {
             String arrayName = finalKey.substring(0, finalKey.indexOf('['));

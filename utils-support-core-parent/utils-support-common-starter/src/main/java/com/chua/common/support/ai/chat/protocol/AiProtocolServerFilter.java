@@ -44,6 +44,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     private final ChatClient chatClient;
@@ -436,7 +438,6 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     // ==================== Prompt 提取 ====================
 
     private String extractOpenAiPrompt(Map<String, Object> body) {
-        @SuppressWarnings("unchecked")
         List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get("messages");
         if (messages == null) return "";
 
@@ -452,7 +453,6 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     }
 
     private String extractOpenAiSystem(Map<String, Object> body) {
-        @SuppressWarnings("unchecked")
         List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get("messages");
         if (messages == null) return null;
         for (Map<String, Object> msg : messages) {
@@ -465,7 +465,6 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     private String extractClaudePrompt(Map<String, Object> body) {
         String system = extractText(body.get("system"));
-        @SuppressWarnings("unchecked")
         List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get("messages");
         StringBuilder sb = new StringBuilder();
         if (system != null) sb.append(system).append("\n");
@@ -767,7 +766,6 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     // ==================== Helpers ====================
 
-    @SuppressWarnings("unchecked")
     private Map<String, Object> parseBody(ServerRequest request) {
         String bodyStr = request.getBodyString();
         if (bodyStr == null || bodyStr.isBlank()) {

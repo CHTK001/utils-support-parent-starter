@@ -13,6 +13,8 @@ import java.util.Map;
  * @author CH
  */
 @Data
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class MemoryEntryEntity {
 
     /**

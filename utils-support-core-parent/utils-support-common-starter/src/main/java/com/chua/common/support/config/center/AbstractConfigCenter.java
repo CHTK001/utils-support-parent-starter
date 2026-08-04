@@ -17,6 +17,8 @@ import java.util.Map;
  */
 @Getter
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public abstract class AbstractConfigCenter implements ConfigCenter {
 
     /**

@@ -33,6 +33,8 @@ import java.util.List;
  * @see LambdaUpdateWrapper
  * @see LambdaDeleteWrapper
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryWrapper<T>> {
 
     private final List<String> selectColumns = new ArrayList<>();

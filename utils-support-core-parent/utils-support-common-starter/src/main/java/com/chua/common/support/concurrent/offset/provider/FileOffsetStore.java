@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 @Spi("file")
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class FileOffsetStore implements OffsetStore {
 
     /**

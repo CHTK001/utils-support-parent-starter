@@ -25,6 +25,8 @@ import java.util.Map;
  * @version 2.0
  * @since 2026/07/16
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface ServerFilter {
 
     /**

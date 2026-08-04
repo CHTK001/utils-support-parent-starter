@@ -41,6 +41,8 @@ import java.util.Set;
  * @author CH
  * @since 2026/07/17
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class LiteRawMap implements Map<String, Object> {
 
     /**
@@ -110,7 +112,6 @@ public class LiteRawMap implements Map<String, Object> {
      * @param type    目标类型
      * @return 转换后的值
      */
-    @SuppressWarnings("unchecked")
     public <T> T getDot(String dotPath, Class<T> type) {
         Object val = getDot(dotPath);
         if (val == null) {
@@ -207,7 +208,6 @@ public class LiteRawMap implements Map<String, Object> {
      * @param key 属性键
      * @return List 值，不存在则返回 null
      */
-    @SuppressWarnings("unchecked")
     public <T> List<T> getList(String key) {
         Object val = delegate.get(key);
         if (val instanceof List<?> list) {
@@ -222,7 +222,6 @@ public class LiteRawMap implements Map<String, Object> {
      * @param key 属性键
      * @return 嵌套 Map，不存在则返回 null
      */
-    @SuppressWarnings("unchecked")
     public Map<String, Object> getMap(String key) {
         Object val = delegate.get(key);
         if (val instanceof Map<?, ?> map) {
@@ -250,7 +249,6 @@ public class LiteRawMap implements Map<String, Object> {
     /**
      * 递归扁平化
      */
-    @SuppressWarnings("unchecked")
     private void flattenInternal(Map<String, ?> map, String prefix, Map<String, Object> result) {
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();

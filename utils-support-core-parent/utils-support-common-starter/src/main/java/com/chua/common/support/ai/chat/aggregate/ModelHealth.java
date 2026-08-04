@@ -8,6 +8,8 @@ import java.time.Instant;
  * @author CH
  * @since 4.0.0.43
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class ModelHealth {
 
     /** 服务商 */

@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
  * @version 1.0.0
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class ConfigValueBindingManager implements ConfigListener {
 
     /**

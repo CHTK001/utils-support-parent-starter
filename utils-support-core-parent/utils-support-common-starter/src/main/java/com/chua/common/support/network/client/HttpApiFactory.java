@@ -53,7 +53,7 @@ public class HttpApiFactory {
      *                 {@code @RequestMapping} 或 {@code @RequestMethod} 等注解
      * @return 动态代理实现
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public static <T> T create(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -74,7 +74,6 @@ public class HttpApiFactory {
      * @param apiClass 接口类
      * @return 新的动态代理实例
      */
-    @SuppressWarnings("unchecked")
     public static <T> T createNew(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());

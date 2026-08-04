@@ -22,6 +22,8 @@ import static com.chua.common.support.utils.MapUtils.DEFAULT_INITIAL_CAPACITY;
  * @author CH
  * @version 1.0.0
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class LevelsOpen implements Levels {
 
     /**
@@ -117,7 +119,6 @@ public class LevelsOpen implements Levels {
                 if (isAllMap(o, o1)) {
                     Map<String, Object> asMap = BeanUtils.objectToMap(o);
                     merge(asMap, BeanUtils.objectToMap(o1));
-                    @SuppressWarnings("unchecked")
                     Map<String, Object> targetMap = (Map<String, Object>) o;
                     targetMap.putAll(asMap);
                 } else if (CollectionUtils.isList(o)) {
@@ -176,9 +177,7 @@ public class LevelsOpen implements Levels {
         Object o3 = list.get(0);
         Object o2 = temp.get(offset);
         if (isAllMap(o2, o3)) {
-            @SuppressWarnings("unchecked")
             Map<String, Object> o2Temp = (Map<String, Object>) o2;
-            @SuppressWarnings("unchecked")
             Map<String, Object> o3Temp = (Map<String, Object>) o3;
             boolean isAll = allIn(o2Temp, o3Temp);
             if (!isAll) {

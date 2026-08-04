@@ -57,6 +57,8 @@ import java.util.List;
  * @author CH
  * @since 2026/07/15
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AgentDefinition {
 
     /** Agent 标识 */

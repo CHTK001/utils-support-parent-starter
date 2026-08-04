@@ -13,6 +13,8 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class IndexMetadata {
 
     /** 索引名称 */

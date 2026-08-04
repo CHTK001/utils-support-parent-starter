@@ -22,6 +22,8 @@ import java.util.Properties;
  * @since 2023-09-07
  */
 @Getter
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class PropertiesPropertySource extends AbstractPropertySource {
 
     /**
@@ -55,7 +57,6 @@ public class PropertiesPropertySource extends AbstractPropertySource {
         return properties.getProperty(key);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected Object getSource() {
         if (properties == null) {

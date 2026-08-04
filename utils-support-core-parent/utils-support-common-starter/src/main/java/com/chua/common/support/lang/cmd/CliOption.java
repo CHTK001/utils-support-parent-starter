@@ -111,7 +111,7 @@ public final class CliOption {
      * @return 枚举常量名称数组
      */
     @Nonnull
-    @SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unchecked"})
     private static String[] buildEnumConstants(Class<? extends Enum> enumClass) {
         Enum[] constants = enumClass.getEnumConstants();
         if (constants == null) {
@@ -371,7 +371,6 @@ public final class CliOption {
             } else if (typeClass == java.nio.file.Path.class) {
                 this.type = OptionType.PATH;
             } else if (typeClass.isEnum()) {
-                @SuppressWarnings("unchecked")
                 Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) typeClass;
                 this.type = OptionType.ENUM;
                 this.enumType = enumCls;

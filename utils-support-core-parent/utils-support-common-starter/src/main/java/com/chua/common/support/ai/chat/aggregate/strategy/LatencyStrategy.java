@@ -23,6 +23,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class LatencyStrategy implements RouterStrategy {
 
     private static final long MAX_WAIT_MS = 60_000;

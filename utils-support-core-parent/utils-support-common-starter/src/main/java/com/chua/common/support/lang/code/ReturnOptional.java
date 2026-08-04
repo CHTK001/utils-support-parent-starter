@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  */
 @Getter
 @Setter
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL", "unchecked"})
 public class ReturnOptional<T> {
 
     /**
@@ -74,7 +74,6 @@ public class ReturnOptional<T> {
     /**
      * 根据结果类型初始化默认成功条件
      */
-    @SuppressWarnings("unchecked")
     private void initialFunction() {
         if (result instanceof Boolean) {
             this.successFunction = value -> ReturnPreconditioning.BOOLEAN.test((Boolean) value);
@@ -164,7 +163,6 @@ public class ReturnOptional<T> {
      *
      * @return 是否成功
      */
-    @SuppressWarnings("unchecked")
     public boolean isSuccessful() {
         if (null != error) {
             return false;
@@ -186,7 +184,6 @@ public class ReturnOptional<T> {
      *
      * @return ReturnResult
      */
-    @SuppressWarnings("unchecked")
     public ReturnResult<T> asResult() {
         if (null != error) {
             ReturnCode returnCode = ReturnCode.fromThrowable(error);

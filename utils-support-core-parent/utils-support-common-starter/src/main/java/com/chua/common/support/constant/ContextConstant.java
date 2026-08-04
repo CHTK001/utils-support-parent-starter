@@ -19,6 +19,8 @@ import java.lang.annotation.Annotation;
  * @since 1.0
  * @see org.springframework.stereotype.Component
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface ContextConstant {
 
     /**

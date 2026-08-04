@@ -25,6 +25,8 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_QUESTION;
  * @author CH
  * @version 1.0.0
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class FlatHashMap implements FlatMap {
 
     private static final PathMatcher MATCHER = PathMatcher.INSTANCE;

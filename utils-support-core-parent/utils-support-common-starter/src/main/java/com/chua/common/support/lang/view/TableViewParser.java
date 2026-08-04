@@ -41,7 +41,7 @@ public class TableViewParser implements ViewParser {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public String render(Object data) {
         if (data instanceof Map) {
             return renderMap((Map<Object, Object>) data);
@@ -51,7 +51,6 @@ public class TableViewParser implements ViewParser {
             return "(empty)";
         }
         if (rows.get(0) instanceof Map) {
-            @SuppressWarnings("unchecked")
             List<Map<String, Object>> mapRows = (List<Map<String, Object>>) (List<?>) rows;
             return renderMapRows(mapRows);
         }

@@ -304,7 +304,7 @@ public class Json {
      * @param <T>        泛型类型
      * @return List 集合
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "ALL"})
     public static <T> List<T> fromJsonToList(String json, Class<T> targetType) {
         if (null == json) {
             return Collections.emptyList();
@@ -326,7 +326,6 @@ public class Json {
      * @param <T>    泛型类型
      * @return 目标对象
      */
-    @SuppressWarnings("ALL")
     public static <T> T fromJson(String json, Class<T> target) {
         try {
             return getMapper().readValue(json, target);

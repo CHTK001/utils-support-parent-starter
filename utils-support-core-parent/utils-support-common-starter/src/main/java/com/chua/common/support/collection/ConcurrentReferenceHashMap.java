@@ -32,6 +32,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author CH
  * @version 1.0.0
  */
+@SuppressWarnings({"NullAway", "unchecked", "serial", "rawtypes"})
+@NullUnmarked
 public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
@@ -139,7 +141,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      * @param concurrencyLevel 预期的并发写入线程数
      * @param referenceType    条目的引用类型（软引用或弱引用）
      */
-    @SuppressWarnings("unchecked")
     public ConcurrentReferenceHashMap(
             int initialCapacity, float loadFactor, int concurrencyLevel, ReferenceType referenceType) {
 
@@ -430,7 +431,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     /**
      * 单个分段（Segment），用于将 Map 拆分为多个段以提高并发性能。
      */
-    @SuppressWarnings("serial")
     protected final class Segment extends ReentrantLock {
 
         private final ReferenceManager referenceManager;
@@ -499,7 +499,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
                 Reference<K, V> ref = findInChain(head, key, hash);
                 Entry<K, V> entry = (ref != null ? ref.get() : null);
                 Entries<V> entries = value -> {
-                    @SuppressWarnings("unchecked")
                     Entry<K, V> newEntry = new Entry<>((K) key, value);
                     Reference<K, V> newReference = Segment.this.referenceManager.createReference(newEntry, hash, head);
                     Segment.this.references[index] = newReference;
@@ -622,7 +621,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
             return null;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         private Reference<K, V>[] createReferenceArray(int size) {
             return new Reference[size];
         }
@@ -734,7 +732,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         }
 
         @Override
-        @SuppressWarnings("rawtypes")
         public final boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -996,7 +993,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
          *
          * @return 需要清除的引用，或 {@code null}
          */
-        @SuppressWarnings("unchecked")
 
         public Reference<K, V> pollForPurge() {
             return (Reference<K, V>) this.queue.poll();

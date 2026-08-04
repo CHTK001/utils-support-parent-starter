@@ -19,6 +19,8 @@ import java.util.function.Supplier;
  * @author CH
  * @since 2024/12/20
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface ObjectProvider<T> {
 
     /**

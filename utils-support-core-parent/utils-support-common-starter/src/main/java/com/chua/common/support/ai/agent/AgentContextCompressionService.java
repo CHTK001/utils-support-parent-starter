@@ -27,6 +27,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AgentContextCompressionService implements AgentContextCompressionConsumer {
 
     private static final String BASELINE_TYPE = "context_baseline";

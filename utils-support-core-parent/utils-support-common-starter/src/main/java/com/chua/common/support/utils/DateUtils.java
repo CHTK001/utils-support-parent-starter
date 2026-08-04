@@ -2763,7 +2763,7 @@ public class DateUtils {
      * @param <T> the <T>
      * @return the result
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public static <T> T plusDay(T date, int days) {
         if (date == null) {
             return null;
@@ -2798,7 +2798,6 @@ public class DateUtils {
      * @param <T> the <T>
      * @return the result
      */
-    @SuppressWarnings("unchecked")
     public static <T> T plusHour(T date, int hours) {
         if (date == null) {
             return null;
@@ -2833,7 +2832,6 @@ public class DateUtils {
      * @param <T> the <T>
      * @return the result
      */
-    @SuppressWarnings("unchecked")
     public static <T> T plusMinute(T date, int minutes) {
         if (date == null) {
             return null;

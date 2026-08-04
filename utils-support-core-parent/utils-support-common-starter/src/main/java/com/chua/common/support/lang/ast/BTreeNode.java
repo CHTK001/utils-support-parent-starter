@@ -22,6 +22,8 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class BTreeNode {
 
     /**

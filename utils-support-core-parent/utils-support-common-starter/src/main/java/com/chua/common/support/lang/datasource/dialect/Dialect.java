@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 2024/12/12
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface Dialect {
 
     /**

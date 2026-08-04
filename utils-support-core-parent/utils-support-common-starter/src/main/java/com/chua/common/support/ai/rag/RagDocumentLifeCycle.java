@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
  * @since 4.0.0.42
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class RagDocumentLifeCycle implements AutoCloseable {
 
     private static final ObjectMapper MAPPER = new ObjectMapper()

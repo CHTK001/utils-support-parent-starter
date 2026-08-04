@@ -63,7 +63,7 @@ import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATO
  * @see ServiceProvider
  * @see ServiceDefinition
  */
-@SuppressWarnings({"ALL"})
+@SuppressWarnings({"ALL", "unchecked"})
 public class DefaultServiceProvider<T> implements ServiceProvider<T>, InitializingAware {
     /**
      * SPI 名称缓存
@@ -164,7 +164,6 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.unmodifiableList(result);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T getExtension(String name) {
         if (StringUtils.isEmpty(name)) {
@@ -318,7 +317,6 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.emptyList();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Class<T>> listType() {
         if (definitions.isEmpty()) {
@@ -618,7 +616,6 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return definitions.isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T getIfAvailable(String name, Object... args) {
         SortedList<ServiceDefinition> temp = definitionFinder.getDefinitions(name, args);

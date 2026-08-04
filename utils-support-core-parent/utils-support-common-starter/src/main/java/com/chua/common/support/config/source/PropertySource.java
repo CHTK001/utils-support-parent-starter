@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 2023-08-01
  */
+@SuppressWarnings({"NullAway", "unchecked", "rawtypes"})
+@NullUnmarked
 public interface PropertySource {
 
     /**
@@ -246,7 +248,6 @@ public interface PropertySource {
      * @param key 属性键
      * @return 字符串列表类型的属性值
      */
-    @SuppressWarnings("unchecked")
     default List<String> getList(String key) {
         Object value = getProperty(key);
         if (value == null) {
@@ -267,7 +268,6 @@ public interface PropertySource {
      *
      * @return 转换后的 Map，如果为空则返回空 Map
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     default Map<String, Object> toMap() {
         if (this == EMPTY) { return Map.of(); }
 

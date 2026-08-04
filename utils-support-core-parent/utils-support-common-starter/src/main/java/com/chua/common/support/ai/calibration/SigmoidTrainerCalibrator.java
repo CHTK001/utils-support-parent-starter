@@ -49,6 +49,8 @@ import java.util.Random;
  * @author CH
  */
 @Getter
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     // ==================== 内部状态 ====================

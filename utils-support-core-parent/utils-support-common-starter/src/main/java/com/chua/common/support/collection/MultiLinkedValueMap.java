@@ -20,6 +20,8 @@ import java.util.function.BiConsumer;
  * @author CH
  * @version 1.0.0
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializable {
 
     private final Map<K, List<V>> targetMap = new LinkedHashMap<>();

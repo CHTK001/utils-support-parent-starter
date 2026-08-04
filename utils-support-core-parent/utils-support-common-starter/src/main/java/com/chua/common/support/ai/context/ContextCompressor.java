@@ -26,6 +26,8 @@ import java.util.List;
  * @author CH
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public final class ContextCompressor {
 
     private final ContextCompressionConfig config;

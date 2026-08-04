@@ -50,6 +50,8 @@ import java.util.stream.IntStream;
  * @author CH
  * @since 2026/07/24
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public final class StructuredConcurrencyFlow {
 
     /**
@@ -190,12 +192,10 @@ public final class StructuredConcurrencyFlow {
         executeAll();
     }
 
-    @SuppressWarnings("unchecked")
     public <T> List<T> collect() throws Exception {
         return (List<T>) executeAll();
     }
 
-    @SuppressWarnings("unchecked")
     public <T, R> R merge(Function<List<T>, R> merger) throws Exception {
         return merger.apply((List<T>) executeAll());
     }

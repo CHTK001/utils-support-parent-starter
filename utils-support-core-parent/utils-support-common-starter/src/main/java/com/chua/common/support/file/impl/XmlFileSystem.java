@@ -70,7 +70,7 @@ public class XmlFileSystem implements FileSystem {
          *
          * @return Map 行数据列表
          */
-        @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             try {
@@ -200,7 +200,6 @@ public class XmlFileSystem implements FileSystem {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public XmlWriteBuilder write(Object data) {
             if (data instanceof Map) {
                 pending.add(data);
@@ -224,7 +223,6 @@ public class XmlFileSystem implements FileSystem {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void finish() {
             callback.onStart();
             callback.onBeginWrite();
@@ -239,7 +237,6 @@ public class XmlFileSystem implements FileSystem {
             }
         }
 
-        @SuppressWarnings("unchecked")
         private String renderXml() {
             StringBuilder sb = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n");
             for (Object data : pending) {

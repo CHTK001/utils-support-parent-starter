@@ -33,6 +33,8 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.41
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AgentChatClient implements ChatClient {
 
     private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>();

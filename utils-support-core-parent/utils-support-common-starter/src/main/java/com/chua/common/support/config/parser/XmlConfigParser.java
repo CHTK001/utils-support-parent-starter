@@ -78,6 +78,8 @@ import java.util.Map;
  */
 @Slf4j
 @Spi({"xml"})
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class XmlConfigParser implements ConfigParser {
 
     @Override

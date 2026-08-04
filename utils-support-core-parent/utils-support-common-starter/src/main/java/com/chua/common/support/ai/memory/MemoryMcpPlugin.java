@@ -44,6 +44,8 @@ import java.util.UUID;
  * @author CH
  * @since 2026/07/16
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public class MemoryMcpPlugin {
 
     /** 工具名称前缀 */
@@ -193,7 +195,6 @@ public class MemoryMcpPlugin {
         return defaultVal;
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> toTagList(Object obj) {
         if (obj instanceof List<?> list) {
             return list.stream().map(String::valueOf).toList();

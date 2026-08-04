@@ -19,6 +19,8 @@ import java.util.List;
  * @see AbstractLambdaWrapper
  */
 @Getter
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class Condition {
 
     /**

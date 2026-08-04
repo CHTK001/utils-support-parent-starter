@@ -44,6 +44,8 @@ import java.util.concurrent.CompletableFuture;
  * @since 4.0.0.42
  */
 @Data
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AiUsageRecord {
 
     /** 主键 */

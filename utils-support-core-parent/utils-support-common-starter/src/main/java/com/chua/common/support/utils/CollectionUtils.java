@@ -133,7 +133,7 @@ public class CollectionUtils {
      * @return
      * @since 4.0.6
      */
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "all"})
     public static <T> List<T> getAny(Collection<T> collection, int... indexes) {
         final int size = collection.size();
         final ArrayList<T> result = new ArrayList<>();
@@ -756,7 +756,6 @@ public class CollectionUtils {
      * @param <E>      元素类型
      * @return 不可变的 List，Iterable 为 null 返回空列表
      */
-    @SuppressWarnings("all")
     public static <E> List<E> newArrayList(Iterable<? extends E> elements) {
         if (null == elements) {
             return Collections.emptyList();

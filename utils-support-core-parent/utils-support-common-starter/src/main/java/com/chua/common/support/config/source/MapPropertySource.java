@@ -15,6 +15,8 @@ import java.util.Map;
  * @since 2023-09-07
  */
 @Getter
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class MapPropertySource extends AbstractPropertySource {
 
     /**

@@ -37,7 +37,7 @@ public class TreeViewParser implements ViewParser {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public String render(Object data) {
         StringBuilder sb = new StringBuilder();
         if (data instanceof Map) {
@@ -69,7 +69,6 @@ public class TreeViewParser implements ViewParser {
     /**
      * 递归渲染树节点。
      */
-    @SuppressWarnings("unchecked")
     private void renderNode(StringBuilder sb, String name, Object value, String prefix, boolean last) {
         sb.append(prefix);
         sb.append(last ? "└── " : "├── ");
@@ -98,7 +97,6 @@ public class TreeViewParser implements ViewParser {
     /**
      * 将值转为子节点列表。Map 的每个条目编码为 {@link Map.Entry} 以携带 key+value。
      */
-    @SuppressWarnings("unchecked")
     private static List<Map.Entry<Object, Object>> toChildren(Object value) {
         if (value instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) value;

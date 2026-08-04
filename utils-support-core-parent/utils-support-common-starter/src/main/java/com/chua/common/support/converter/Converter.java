@@ -33,8 +33,9 @@ import java.util.function.Function;
  * @author CH
  * @since 2020/12/19
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings({"ALL", "NullAway", "unchecked"})
 @Slf4j
+@NullUnmarked
 public final class Converter {
 
     /**
@@ -154,7 +155,6 @@ public final class Converter {
      * @param <E>   泛型类型
      * @return 转换后的值，如果无法转换则返回 null
      */
-    @SuppressWarnings("unchecked")
     public static <E> E convertIfNecessary(Object value, Class<E> type) {
         if (value == null) {
             return null;
@@ -284,7 +284,6 @@ public final class Converter {
      * @param <T>    泛型类型
      * @return 转换后的目标类型数组，如果 source 为 null 则返回空数组
      */
-    @SuppressWarnings("unchecked")
     public static <T> T[] convertArray(Object[] source, Class<T> type) {
         if (source == null) {
             return (T[]) java.lang.reflect.Array.newInstance(type, 0);
@@ -310,7 +309,6 @@ public final class Converter {
      * @param <E>   泛型类型
      * @return 枚举常量，如果无法匹配则返回 null
      */
-    @SuppressWarnings("unchecked")
     public static <E extends Enum<E>> E toEnum(Object value, Class<E> type) {
         if (value == null) {
             return null;
@@ -439,7 +437,6 @@ public final class Converter {
     /**
      * 泛型参数类型的转换处理
      */
-    @SuppressWarnings("unchecked")
     private static <E> E convertParameterized(Object value, ParameterizedType pt) {
         Class<?> rawClass = (Class<?>) pt.getRawType();
         Type[] args = pt.getActualTypeArguments();
@@ -488,7 +485,6 @@ public final class Converter {
     /**
      * 转换为带类型的 Set
      */
-    @SuppressWarnings("unchecked")
     private static <E> Set<E> convertToSetWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
         List<?> src = ListTypeConverter.INSTANCE.convert(value);
@@ -505,7 +501,6 @@ public final class Converter {
     /**
      * 转换为带类型的 Optional
      */
-    @SuppressWarnings("unchecked")
     private static <E> Optional<E> convertToOptionalWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
         if (elemType instanceof Class<?> elemClass) {

@@ -388,7 +388,7 @@ public class ObjectUtils {
      * @param <T> 值类型
      * @return 第一个非空的值，如果都为空则返回 null
      */
-    @SuppressWarnings("ALL")
+@SuppressWarnings({"ALL"})
     public static <T>T firstNonNull(T v1, T v2) {
         if(v1 instanceof Optional<?> optionalO) {
             if(optionalO.isPresent()) {
@@ -444,7 +444,6 @@ public class ObjectUtils {
      * @param <T>          类型
      * @return 有效的 Class 或默认值
      */
-    @SuppressWarnings("ALL")
     public static <T> Class<T> defaultIfNull(Class<?> value, Class<?> defaultValue) {
         if (null == value || void.class.isAssignableFrom(value) || Void.class.isAssignableFrom(value)) {
             return (Class<T>) defaultValue;
@@ -851,7 +850,6 @@ public class ObjectUtils {
      * @param <T>        目标类型
      * @return 匹配时返回原值，否则返回回调结果
      */
-    @SuppressWarnings("ALL")
     public static <T> T isPresent(Class<? extends T> targetType, Object value, Supplier<T> supplier) {
         if (null == value || !(targetType.isAssignableFrom(value.getClass()))) {
             return supplier.get();
@@ -955,7 +953,6 @@ public class ObjectUtils {
      * @param <E>   值类型
      * @return Comparable 实例
      */
-    @SuppressWarnings("ALL")
     public static <E>Comparable<E> newComparable(E value) {
         if(value == null) {
             return o -> 0;

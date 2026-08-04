@@ -47,6 +47,8 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class AiChatConfig {
 
     /**

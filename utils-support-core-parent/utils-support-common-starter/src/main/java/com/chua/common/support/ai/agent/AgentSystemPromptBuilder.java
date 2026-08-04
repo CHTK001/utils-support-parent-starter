@@ -58,6 +58,8 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/16
  */
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public final class AgentSystemPromptBuilder {
 
     private AgentSystemPromptBuilder() {
@@ -184,7 +186,6 @@ public final class AgentSystemPromptBuilder {
         if (value instanceof String) return "\"" + escapeJson((String) value) + "\"";
         if (value instanceof Number || value instanceof Boolean) return value.toString();
         if (value instanceof Map) {
-            @SuppressWarnings("unchecked")
             Map<String, Object> map = (Map<String, Object>) value;
             StringBuilder sb = new StringBuilder("{");
             for (Map.Entry<String, Object> e : map.entrySet()) {
@@ -197,7 +198,6 @@ public final class AgentSystemPromptBuilder {
             return sb.toString();
         }
         if (value instanceof List) {
-            @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) value;
             StringBuilder sb = new StringBuilder("[");
             for (Object item : list) {

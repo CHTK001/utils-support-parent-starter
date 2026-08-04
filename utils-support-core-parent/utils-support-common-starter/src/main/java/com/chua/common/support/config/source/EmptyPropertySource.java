@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 2023-08-01
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class EmptyPropertySource implements PropertySource {
 
     /**

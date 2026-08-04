@@ -49,6 +49,8 @@ import java.util.function.Consumer;
  *      包装已配置 Engine 的 AggregateChatClient 会导致用量重复写入，请避免。
  */
 @Slf4j
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public class UsagePersistChatClient implements ChatClient {
 
     private final ChatClient delegate;

@@ -31,7 +31,7 @@ public class MarkdownTableViewParser implements ViewParser {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
     public String render(Object data) {
         List<String[]> rows = extractRows(data);
         if (rows.isEmpty()) {
@@ -84,7 +84,6 @@ public class MarkdownTableViewParser implements ViewParser {
         return r;
     }
 
-    @SuppressWarnings("unchecked")
     private List<String[]> extractRows(Object data) {
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;

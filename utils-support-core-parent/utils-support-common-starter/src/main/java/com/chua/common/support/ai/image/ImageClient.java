@@ -38,6 +38,8 @@ import java.util.List;
  *
  * @author CH
  */
+@SuppressWarnings("NullAway")
+@NullUnmarked
 public interface ImageClient extends AutoCloseable {
 
     /**

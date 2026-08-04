@@ -46,7 +46,7 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
-                        <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:${nullaway.mode} -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:AnnotatedPackages=com.chua -XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
+                            <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:${nullaway.mode} -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:AnnotatedPackages=com.chua -XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>

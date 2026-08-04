@@ -38,6 +38,8 @@ import java.util.function.Function;
  * @since 2024/12/20
  */
 @Slf4j
+@SuppressWarnings({"NullAway", "unchecked"})
+@NullUnmarked
 public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     /**
@@ -281,7 +283,6 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
         if (annotationType == null) {
             return null;

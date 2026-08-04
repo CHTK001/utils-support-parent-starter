@@ -14,6 +14,8 @@ import java.util.Map;
  * @since 2023-09-07
  */
 @Getter
+@SuppressWarnings({"NullAway", "ALL"})
+@NullUnmarked
 public class PropertiesMutiPropertySource extends AbstractPropertySource implements MutiPropertySource {
 
     /**
@@ -33,7 +35,6 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
         this.properties = properties;
     }
 
-    @SuppressWarnings("ALL")
     @Override
     protected Object getRawProperty(String key) {
         if (properties == null) {
@@ -47,7 +48,6 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
         return null;
     }
 
-    @SuppressWarnings("ALL")
     @Override
     protected Object getSource() {
         if (properties == null) {
