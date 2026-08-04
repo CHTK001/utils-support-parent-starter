@@ -5,14 +5,15 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 分页结果
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 @Data
 @Builder
 public class PageResult<T> implements Serializable {
@@ -38,7 +39,7 @@ public class PageResult<T> implements Serializable {
     /**
      * 数据
      */
-    private List<T> data;
+    private @Nullable List<T> data;
 
     /**
      * 空分页结果单例

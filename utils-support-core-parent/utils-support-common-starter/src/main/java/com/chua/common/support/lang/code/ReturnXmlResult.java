@@ -1,15 +1,17 @@
 package com.chua.common.support.lang.code;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 /**
  * 返回结果
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 public record ReturnXmlResult(
         Integer code,
-        String data,
+        @Nullable String data,
         String msg
 ) {
 }

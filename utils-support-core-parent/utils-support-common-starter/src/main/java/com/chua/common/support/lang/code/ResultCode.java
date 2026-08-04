@@ -1,7 +1,8 @@
 package com.chua.common.support.lang.code;
 
 import static com.chua.common.support.lang.code.ReturnCode.*;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 结果状态码接口
@@ -11,7 +12,7 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 public interface ResultCode {
 
     // ==================== HTTP 常量 ====================
@@ -114,7 +115,7 @@ public interface ResultCode {
      * @param status 编码
      * @return 结果
      */
-    static String transferForHttpCodeStatus(Integer status) {
+    static String transferForHttpCodeStatus(@Nullable Integer status) {
         return transferForHttpCode(status).getMsg();
     }
 
@@ -124,7 +125,7 @@ public interface ResultCode {
      * @param status 编码
      * @return 结果
      */
-    static ResultCode transferForHttpCode(Integer status) {
+    static ResultCode transferForHttpCode(@Nullable Integer status) {
         if (null == status) {
             return SYSTEM_SERVER_OTHER_ERROR;
         }
