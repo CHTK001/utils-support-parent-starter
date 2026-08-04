@@ -1,6 +1,6 @@
 package com.chua.common.support.lang.algorithm.boundary;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 基于欧几里得距离（Euclidean Distance）的边界距离算法实现。
@@ -30,7 +30,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
+@NullMarked
 public class EuclideanBoundaryDistance extends AbstractBoundaryDistance {
 
     @Override
