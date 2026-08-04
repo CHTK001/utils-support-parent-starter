@@ -11,10 +11,6 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
-import static org.bytedeco.ffmpeg.global.swscale.sws_getCachedContext;
-import static org.bytedeco.ffmpeg.global.swscale.sws_scale;
-import static org.bytedeco.ffmpeg.global.swscale.SWS_BILINEAR;
-
 /**
  * 基于 java.awt.Robot 的纯 Java 屏幕采集实现。
  *
@@ -87,10 +83,8 @@ public class RobotScreenCapture implements ScreenCature {
     public void close() {
         this.initialized = false;
         this.robot = null;
-        if (swsCtx != null) {
-            org.bytedeco.ffmpeg.global.swscale.sws_freeContext(swsCtx);
-            swsCtx = null;
-        }
+        this.frameConverter = null;
+        this.captureBuf = null;
         log.info("[RobotScreenCapture] 已关闭");
     }
 }
