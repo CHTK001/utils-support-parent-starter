@@ -1,7 +1,7 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * SM4 对称加解密接口
