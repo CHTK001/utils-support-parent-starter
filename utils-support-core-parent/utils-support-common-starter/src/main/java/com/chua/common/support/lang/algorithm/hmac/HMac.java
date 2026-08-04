@@ -12,7 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -40,7 +41,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025/10/23
  */
-@NullUnmarked
+@NullMarked
 public class HMac implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -243,12 +244,12 @@ public class HMac implements Serializable {
      * @return 计算得到的摘要字节数组
      * @throws IllegalArgumentException 当 data 为 null 时抛出
      */
-    public byte[] digest(String data, Charset charset) {
+    public byte[] digest(String data, @Nullable Charset charset) {
         if (data == null) {
             throw new IllegalArgumentException("输入数据不能为 null");
         }
         // 将字符串按指定字符集转换为字节数组后进行计算
-        return digest(data.getBytes(charset));
+        return digest(data.getBytes(charset == null ? DEFAULT_CHARSET : charset));
     }
 
     /**
@@ -325,7 +326,7 @@ public class HMac implements Serializable {
      * @param charset 用于编码字符串的字符集
      * @return 十六进制格式的摘要字符串
      */
-    public String digestHex(String data, Charset charset) {
+    public String digestHex(String data, @Nullable Charset charset) {
         return Hex.encodeHexString(digest(data, charset));
     }
 
