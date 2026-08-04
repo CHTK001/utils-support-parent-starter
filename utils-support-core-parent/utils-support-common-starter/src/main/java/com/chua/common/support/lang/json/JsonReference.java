@@ -54,7 +54,7 @@ public class JsonReference {
      * @return 如果是 JSON 数组则返回 true，否则返回 false。
      */
     public boolean isArray() {
-        return StringUtils.isNotBlank(json) && json.startsWith(SYMBOL_LEFT_SQUARE_BRACKET);
+        return json != null && json.startsWith(SYMBOL_LEFT_SQUARE_BRACKET);
     }
 
     /**
@@ -64,7 +64,7 @@ public class JsonReference {
      * @return 如果是 JSON 对象则返回 true，否则返回 false。
      */
     public boolean isObject() {
-        return StringUtils.isNotBlank(json) && json.startsWith(SYMBOL_LEFT_BIG_PARENTHESES);
+        return json != null && json.startsWith(SYMBOL_LEFT_BIG_PARENTHESES);
     }
 
     /**

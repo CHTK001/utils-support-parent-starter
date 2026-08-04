@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.cmd;
 
-import javax.annotation.Nonnull;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 命令接口 — 代表一个可注册、可发现、可执行的命令。
@@ -60,7 +59,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @see Commands
  * @see CmdResult
  */
-@NullUnmarked
+@NullMarked
 public interface Cmd {
 
     /**
@@ -71,7 +70,6 @@ public interface Cmd {
      *
      * @return 命令名称（非空）
      */
-    @Nonnull
     String name();
 
     /**
@@ -79,7 +77,6 @@ public interface Cmd {
      *
      * @return 命令描述，用于帮助信息和命令列表
      */
-    @Nonnull
     String description();
 
     /**
@@ -89,7 +86,6 @@ public interface Cmd {
      *
      * @return {@link CommandLine} 实例
      */
-    @Nonnull
     CommandLine cli();
 
     /**
@@ -98,8 +94,7 @@ public interface Cmd {
      * @param args 已解析的命令行参数（来自 {@link CommandLine#parse(String[])}）
      * @return 命令执行结果
      */
-    @Nonnull
-    CmdResult execute(@Nonnull CommandLine.Result args);
+    CmdResult execute(CommandLine.Result args);
 
     /**
      * 直接通过原始参数执行命令。
@@ -111,8 +106,7 @@ public interface Cmd {
      * @return 命令执行结果
      * @throws IllegalArgumentException 如果参数解析失败
      */
-    @Nonnull
-    default CmdResult execute(@Nonnull String[] rawArgs) {
+    default CmdResult execute(String[] rawArgs) {
         CommandLine.Result parsed = cli().parse(rawArgs);
         // 自动处理 --help
         if (parsed.has("help")) {

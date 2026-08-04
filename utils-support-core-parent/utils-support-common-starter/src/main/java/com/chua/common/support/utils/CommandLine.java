@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 命令行参数解析工具。
@@ -35,6 +37,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullMarked
 public class CommandLine {
 
     /**
@@ -95,7 +98,7 @@ public class CommandLine {
      * @param description 命令描述
      * @return this
      */
-    public CommandLine register(String name, String shortName, String description) {
+    public CommandLine register(String name, @Nullable String shortName, String description) {
         specs.add(new CommandSpec(name, shortName, description, null));
         return this;
     }
@@ -109,7 +112,7 @@ public class CommandLine {
      * @param defaultValue 默认值（字符串形式，仅用于 help 显示）
      * @return this
      */
-    public CommandLine register(String name, String shortName, String description, String defaultValue) {
+    public CommandLine register(String name, @Nullable String shortName, String description, @Nullable String defaultValue) {
         specs.add(new CommandSpec(name, shortName, description, defaultValue));
         return this;
     }
@@ -176,7 +179,7 @@ public class CommandLine {
      * @param name 选项基础名
      * @return 值，未设置返回 null
      */
-    public String get(String name) {
+    public @Nullable String get(String name) {
         return resolve(name);
     }
 
@@ -286,7 +289,7 @@ public class CommandLine {
         shortToBase.put(token, base);
     }
 
-    private String resolve(String name) {
+    private @Nullable String resolve(String name) {
         if (name == null) {
             return null;
         }
@@ -313,11 +316,11 @@ public class CommandLine {
      */
     private static class CommandSpec {
         final String name;
-        final String shortName;
+        final @Nullable String shortName;
         final String description;
-        final String defaultValue;
+        final @Nullable String defaultValue;
 
-        CommandSpec(String name, String shortName, String description, String defaultValue) {
+        CommandSpec(String name, @Nullable String shortName, String description, @Nullable String defaultValue) {
             this.name = name;
             this.shortName = shortName;
             this.description = description;

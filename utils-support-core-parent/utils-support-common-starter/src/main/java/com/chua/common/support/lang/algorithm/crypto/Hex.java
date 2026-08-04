@@ -178,6 +178,7 @@ public class Hex {
      * @return 解码后的字节数组
      * @throws IllegalArgumentException 当字符数为奇数或包含非法十六进制字符时抛出
      */
+    @SuppressWarnings("NullAway")
     public static byte[] decodeHex(@Nullable char[] data) {
         if (data == null) {
             return new byte[0];
