@@ -2,14 +2,15 @@ package com.chua.common.support.lang.code;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 错误项
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 @Data
 @Builder
 public class ErrorItem {
@@ -27,11 +28,11 @@ public class ErrorItem {
     /**
      * 错误信息
      */
-    private String message;
+    private @Nullable String message;
     /**
      * 错误
      */
-    private volatile transient Throwable throwable;
+    private volatile @Nullable transient Throwable throwable;
 
     /**
      * 错误
@@ -40,7 +41,7 @@ public class ErrorItem {
      * @param message 错误信息
      * @return 错误项
      */
-    public static ErrorItem of(boolean value, String message) {
+    public static ErrorItem of(boolean value, @Nullable String message) {
         if (value) {
             return ErrorItem.builder().build();
         }
@@ -54,7 +55,7 @@ public class ErrorItem {
      * @param throwable 错误
      * @return 错误项
      */
-    public static ErrorItem of(boolean value, Throwable throwable) {
+    public static ErrorItem of(boolean value, @Nullable Throwable throwable) {
         if (value) {
             return ErrorItem.builder().build();
         }
@@ -67,7 +68,7 @@ public class ErrorItem {
      * @param message 错误信息
      * @return 错误项
      */
-    public static ErrorItem of(String message) {
+    public static ErrorItem of(@Nullable String message) {
         return ErrorItem.builder().message(message).build();
     }
 

@@ -2,7 +2,8 @@ package com.chua.common.support.lang.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 统一返回状态码枚举
@@ -24,7 +25,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2023-04-01
  */
-@NullUnmarked
+@NullMarked
 @Getter
 @AllArgsConstructor
 public enum ReturnCode implements ResultCode {
@@ -323,7 +324,10 @@ public enum ReturnCode implements ResultCode {
      * @param code 编码
      * @return 状态码
      */
-    public static ReturnCode fromCode(String code) {
+    public static ReturnCode fromCode(@Nullable String code) {
+        if (code == null) {
+            return SYSTEM_SERVER_OTHER_ERROR;
+        }
         for (ReturnCode value : values()) {
             if (value.getCode().equals(code)) {
                 return value;
@@ -347,7 +351,7 @@ public enum ReturnCode implements ResultCode {
      * @param throwable 异常
      * @return 状态码
      */
-    public static ReturnCode fromThrowable(Throwable throwable) {
+    public static ReturnCode fromThrowable(@Nullable Throwable throwable) {
         if (null == throwable) {
             return SYSTEM_SERVER_OTHER_ERROR;
         }
@@ -424,7 +428,10 @@ public enum ReturnCode implements ResultCode {
      * @param simpleName 简单类名
      * @return 是否匹配
      */
-    private static boolean isClass(String className, String simpleName) {
+    private static boolean isClass(@Nullable String className, String simpleName) {
+        if (className == null) {
+            return false;
+        }
         return className.endsWith("." + simpleName) || className.equals(simpleName);
     }
 }
