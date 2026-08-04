@@ -1,6 +1,7 @@
 package com.chua.common.support.converter.definition;
 
 import java.util.Optional;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -11,6 +12,7 @@ import java.util.Optional;
  * @version 1.0.0
  * @since 2020/11/26
  */
+@NullUnmarked
 @SuppressWarnings("ALL")
 public class OptionalConverter implements TypeConverter<Optional> {
 

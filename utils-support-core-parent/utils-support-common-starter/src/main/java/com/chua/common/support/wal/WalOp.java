@@ -1,5 +1,7 @@
 package com.chua.common.support.wal;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * WAL 单个操作（用于链式 API）。
  *
@@ -8,6 +10,7 @@ package com.chua.common.support.wal;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public record WalOp(
     byte op,
     byte[] payload

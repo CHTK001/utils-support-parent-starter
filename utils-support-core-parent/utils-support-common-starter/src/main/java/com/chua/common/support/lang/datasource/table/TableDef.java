@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 表定义，描述数据库中的一张表。

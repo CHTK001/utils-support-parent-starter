@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -19,6 +20,7 @@ import java.util.Properties;
  * @author CH
  * @since 2023-09-05
  */
+@NullUnmarked
 @Slf4j
 @Spi({"properties"})
 public class PropertiesConfigParser implements ConfigParser {

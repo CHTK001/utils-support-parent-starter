@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -25,6 +26,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Spi("default")
 public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 

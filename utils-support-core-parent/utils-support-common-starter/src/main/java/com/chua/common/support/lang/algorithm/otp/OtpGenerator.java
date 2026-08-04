@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.algorithm.otp;
 
+import org.jspecify.annotations.NullUnmarked;
+
 
 /**
  * 一次性密码（OTP）生成器接口，用于定义生成动态口令所需的配置信息。
@@ -8,6 +10,7 @@ package com.chua.common.support.lang.algorithm.otp;
  * @author CH
  * @since 2024/12/3
  */
+@NullUnmarked
 public interface OtpGenerator {
 
     /**

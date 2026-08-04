@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat.protocol;
 
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 令牌提供者接口 — 提供令牌的存储、校验、增删改查能力。
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface AiTokenProvider {
 
     /**

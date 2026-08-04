@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.chat.aggregate;
 
 import java.time.Instant;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模型健康状态

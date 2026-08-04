@@ -3,6 +3,7 @@ package com.chua.common.support.network.server;
 import com.chua.common.support.network.server.request.ServerRequest;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 请求级变量容器，用于在一次请求的生命周期内在多个 Filter 之间传递数据。
@@ -21,6 +22,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public final class ServerAttribute {
 
     /** 反向代理后端目标地址 (host:port) */

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,6 +17,7 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 2025-01-15
  */
+@NullUnmarked
 @Slf4j
 public class MatchUtils {
 

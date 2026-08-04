@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -23,6 +24,8 @@ import java.util.Date;
  * @version 1.0.0
  * @since 2021/1/26
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class LocalDateTypeConverter implements TypeConverter<LocalDate> {
     /**
      * 将给定值转换为 LocalDate。

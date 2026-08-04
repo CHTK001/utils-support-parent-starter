@@ -1,6 +1,7 @@
 package com.chua.common.support.utils;
 
 import java.util.concurrent.ThreadLocalRandom;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 随机数工具类
@@ -21,6 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public final class RandomUtils {
 
     /**

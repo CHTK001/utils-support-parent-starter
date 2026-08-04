@@ -5,6 +5,7 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.ThreadLocalRandom;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * MAC 地址自增序列算法 ID 生成器，基于机器 MAC 地址自动生成分布式全局唯一 ID。
@@ -42,6 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class MacSequenceGenerator {
 
     // ==================== 默认位分配 ====================

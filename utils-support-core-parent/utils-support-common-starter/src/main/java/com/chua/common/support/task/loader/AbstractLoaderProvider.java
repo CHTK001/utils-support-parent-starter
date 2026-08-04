@@ -1,5 +1,7 @@
 package com.chua.common.support.task.loader;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 加载器抽象基类，提供线程安全的单例懒加载实现。
  *
@@ -11,6 +13,7 @@ package com.chua.common.support.task.loader;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 public abstract class AbstractLoaderProvider<T> implements Loader<T> {
 
     private volatile T instance;

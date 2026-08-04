@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存式分发器提供者工具类，基于 Reactor 实现进程内的发布订阅。
@@ -22,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author CH
  * @since 2025-11-26
  */
+@NullUnmarked
 @Slf4j
 @SpiDefault
 @Spi("memory")

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 定义注册中心，统一管理所有 BeanDefinitionRegister。

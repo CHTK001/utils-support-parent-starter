@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.ToString;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 返回前置条件
@@ -25,6 +26,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
+@NullUnmarked
 @SuppressWarnings({"ALL", "unchecked"})
 public class ReturnPreconditioning<T> {
 

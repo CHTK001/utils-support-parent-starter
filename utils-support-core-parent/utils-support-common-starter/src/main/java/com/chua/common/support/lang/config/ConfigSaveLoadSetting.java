@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置保存和加载的设置类。
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 
  * @author CH
  */@Data
+@NullUnmarked
 @Builder
 public class ConfigSaveLoadSetting {
 

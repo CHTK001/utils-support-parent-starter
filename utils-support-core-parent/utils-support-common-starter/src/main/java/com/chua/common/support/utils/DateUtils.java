@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import static com.chua.common.support.constant.NumberConstant.NUMBER_10;
 import static java.util.Calendar.DAY_OF_WEEK;
 import static java.util.Calendar.getInstance;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -48,6 +49,7 @@ import static java.util.Calendar.getInstance;
  * @version 1.0.0
  * @since 2020/12/21
  */
+@NullUnmarked
 @Slf4j
 public class DateUtils {
     /**

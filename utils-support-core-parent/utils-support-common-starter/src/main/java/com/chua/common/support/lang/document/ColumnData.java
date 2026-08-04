@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.document;
 
 import lombok.Builder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 列结构数据。
@@ -12,6 +13,7 @@ import lombok.Builder;
  * @author CH
  * @since 4.0.0.41
  */
+@NullUnmarked
 @Builder
 public record ColumnData(
         /** 列序号（从 1 开始） */

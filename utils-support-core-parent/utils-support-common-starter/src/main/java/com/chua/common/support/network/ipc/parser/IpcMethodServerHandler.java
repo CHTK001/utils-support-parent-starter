@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * IPC 方法反射处理器。
@@ -20,6 +21,8 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class IpcMethodServerHandler implements HttpDefaultServerHandler {
 
     private final ObjectContext objectContext;

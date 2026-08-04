@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分区元数据，描述表的分区信息。

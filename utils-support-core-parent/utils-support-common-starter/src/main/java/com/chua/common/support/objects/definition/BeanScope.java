@@ -1,5 +1,7 @@
 package com.chua.common.support.objects.definition;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Bean 作用域枚举。
  *
@@ -12,6 +14,7 @@ package com.chua.common.support.objects.definition;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public enum BeanScope {
 
     /** 单例，整个容器生命周期内只有一个实例 */

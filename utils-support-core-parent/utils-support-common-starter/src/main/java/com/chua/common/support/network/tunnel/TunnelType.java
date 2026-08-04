@@ -1,11 +1,14 @@
 package com.chua.common.support.network.tunnel;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 隧道类型枚举。
  *
  * @author CH
  * @since 2026/07/31
  */
+@NullUnmarked
 public enum TunnelType {
 
     /** 正向隧道：本地端口 → 远程主机端口 */

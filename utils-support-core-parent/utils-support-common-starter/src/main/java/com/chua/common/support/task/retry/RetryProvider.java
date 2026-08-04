@@ -2,6 +2,7 @@ package com.chua.common.support.task.retry;
 
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 重试提供者接口
@@ -26,6 +27,7 @@ import java.util.function.Predicate;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public interface RetryProvider {
 
     /**

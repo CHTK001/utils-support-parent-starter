@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,6 +19,8 @@ import javax.annotation.Nullable;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class JsonObjectTypeConverter implements TypeConverter<Map> {
     @Override
     public Class<Map> getType() {

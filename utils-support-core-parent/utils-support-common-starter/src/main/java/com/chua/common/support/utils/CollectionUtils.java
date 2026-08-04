@@ -17,6 +17,7 @@ import java.util.function.Function;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -76,6 +77,7 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 public class CollectionUtils {
 

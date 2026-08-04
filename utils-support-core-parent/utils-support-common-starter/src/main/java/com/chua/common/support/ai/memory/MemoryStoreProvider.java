@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.memory;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 记忆存储 SPI 提供者
  *
@@ -10,6 +12,7 @@ package com.chua.common.support.ai.memory;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public interface MemoryStoreProvider {
 
     /**

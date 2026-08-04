@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat.aggregate.monitor;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 用量统计摘要
@@ -9,6 +10,7 @@ import lombok.Data;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 public class UsageStats {

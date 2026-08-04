@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.agent;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Agent 调试 Hook
  *
@@ -9,6 +11,7 @@ package com.chua.common.support.ai.agent;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @FunctionalInterface
 public interface AgentDebugHook {
 

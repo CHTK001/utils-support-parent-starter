@@ -5,6 +5,7 @@ import com.google.common.net.MediaType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 媒体类型（MIME Type）工具类，基于 Guava {@link com.google.common.net.MediaType} 提供文件名与 MIME 字符串之间的解析能力。
@@ -44,6 +45,7 @@ import java.util.Optional;
  * @since 1.0
  * @see com.google.common.net.MediaType
  */
+@NullUnmarked
 public class MediaTypeUtils {
     private MediaTypeUtils() {
         //

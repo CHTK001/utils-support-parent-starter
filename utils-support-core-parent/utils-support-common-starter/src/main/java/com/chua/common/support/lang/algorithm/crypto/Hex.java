@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -17,6 +18,8 @@ import java.nio.charset.StandardCharsets;
  * @version 1.0.0
  * @since 2025/11/29
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Getter
 public class Hex {
 

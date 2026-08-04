@@ -3,6 +3,7 @@ package com.chua.common.support.lang.directory;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor;
 import com.chua.common.support.lang.directory.executor.VirtualThreadPollerExecutor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 可轮询目录接口，定义目录或数据源变更监听的生命周期方法。
@@ -14,6 +15,8 @@ import com.chua.common.support.lang.directory.executor.VirtualThreadPollerExecut
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface PolledDirectory extends AutoCloseable {
 
     /**

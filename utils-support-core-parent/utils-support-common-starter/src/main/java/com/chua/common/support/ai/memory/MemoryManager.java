@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆管理器

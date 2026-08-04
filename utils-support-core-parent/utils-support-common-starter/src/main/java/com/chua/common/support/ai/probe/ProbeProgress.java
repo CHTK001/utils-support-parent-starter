@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.probe;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 探测进度事件。
  *

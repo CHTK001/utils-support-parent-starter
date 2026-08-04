@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.meta;
 import com.chua.common.support.lang.datasource.table.TableDef;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 表元数据操作接口。
@@ -39,6 +40,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface MetaTable {
 
     /**

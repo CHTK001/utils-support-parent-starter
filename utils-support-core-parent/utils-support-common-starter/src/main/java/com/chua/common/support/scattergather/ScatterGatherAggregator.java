@@ -1,6 +1,7 @@
 package com.chua.common.support.scattergather;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 聚合器。
@@ -9,6 +10,7 @@ import java.util.List;
  * @param <T> 数据类型
  * @author CH
  */
+@NullUnmarked
 public interface ScatterGatherAggregator<T> {
 
     /**

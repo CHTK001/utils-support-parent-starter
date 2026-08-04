@@ -1,6 +1,7 @@
 package com.chua.common.support.matcher;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 路径匹配器
@@ -8,6 +9,7 @@ import java.util.Map;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 public interface PathMatcher {
     
     /**

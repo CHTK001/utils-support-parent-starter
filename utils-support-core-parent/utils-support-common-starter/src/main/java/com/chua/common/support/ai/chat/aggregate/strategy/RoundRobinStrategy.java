@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat.aggregate.strategy;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 轮转策略 — 按顺序轮流选择客户端。
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class RoundRobinStrategy implements RouterStrategy {
 
     private final AtomicInteger counter = new AtomicInteger(0);

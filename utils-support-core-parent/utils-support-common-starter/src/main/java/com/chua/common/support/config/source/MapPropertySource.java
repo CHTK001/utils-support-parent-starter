@@ -4,6 +4,7 @@ import com.chua.common.support.collection.LiteRawMap;
 import lombok.Getter;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 LiteRawMap 的属性源

@@ -2,6 +2,7 @@ package com.chua.common.support.ai.image;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 图片生成客户端配置
@@ -11,6 +12,7 @@ import lombok.Data;
  *
  * @author CH
  */
+@NullUnmarked
 @Data
 @Builder
 public class ImageClientSetting {

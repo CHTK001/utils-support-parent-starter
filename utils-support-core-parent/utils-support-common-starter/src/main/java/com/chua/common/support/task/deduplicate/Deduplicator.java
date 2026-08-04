@@ -1,6 +1,7 @@
 package com.chua.common.support.task.deduplicate;
 
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 去重器接口，提供幂等判断和标记能力。
@@ -12,6 +13,7 @@ import java.util.function.Supplier;
  * @author CH
  * @since 4.0.0.41
  */
+@NullUnmarked
 public interface Deduplicator {
 
     /**

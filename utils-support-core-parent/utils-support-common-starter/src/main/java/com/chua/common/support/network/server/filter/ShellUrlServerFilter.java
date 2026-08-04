@@ -13,6 +13,7 @@ import com.chua.common.support.spi.annotations.SpiDescribe;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Shell 命令匹配的 ServerFilter。
@@ -31,6 +32,8 @@ import java.util.Set;
  * @since 4.0.0.42
  * @see UrlMappingServerFilter
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("shell-url-mapping")
 @SpiDescribe("Shell 命令到处理器映射过滤器")
 public class ShellUrlServerFilter implements EndServerFilter {

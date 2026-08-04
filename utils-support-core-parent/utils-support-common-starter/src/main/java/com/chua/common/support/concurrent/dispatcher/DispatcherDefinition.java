@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分发器注册定义工具类，封装单个订阅方法及其目标主题。
@@ -17,6 +18,7 @@ import java.util.List;
  * @author CH
  * @since 2025-11-26
  */
+@NullUnmarked
 @Slf4j
 public class DispatcherDefinition {
 

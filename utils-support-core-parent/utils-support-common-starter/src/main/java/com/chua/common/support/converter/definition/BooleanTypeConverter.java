@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -20,6 +21,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @version 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
 

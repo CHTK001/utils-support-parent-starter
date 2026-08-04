@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 外键定义，描述表之间的外键约束关系。
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

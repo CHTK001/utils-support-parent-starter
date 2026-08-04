@@ -1,6 +1,7 @@
 package com.chua.common.support.collection;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link LinkedHashMap} 的有序环状集合实现，固定容量。
@@ -27,6 +28,7 @@ import java.util.*;
  * @version 1.0.0
  * @see CircularSet
  */
+@NullUnmarked
 public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<E> {
 
     /**

@@ -2,6 +2,7 @@ package com.chua.common.support.ai.splitter;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文本分割器接口。
@@ -13,6 +14,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface TextSplitter {
 
     /**

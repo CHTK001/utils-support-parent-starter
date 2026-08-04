@@ -1,10 +1,13 @@
 package com.chua.common.support.network.http;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * HTTP 请求方法枚举，定义标准的 RESTful 方法。
  *
  * @author CH
  */
+@NullUnmarked
 public enum HttpMethod {
 
     /**

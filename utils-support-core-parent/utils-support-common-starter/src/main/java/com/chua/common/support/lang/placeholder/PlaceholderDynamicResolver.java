@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -9,6 +10,7 @@ import java.util.Map;
  *
  * @author CH
  */
+@NullUnmarked
 public interface PlaceholderDynamicResolver {
     /**
      * 添加一个名称和对应的值到解析器中。

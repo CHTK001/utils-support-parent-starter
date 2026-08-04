@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.mcp;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * MCP 工具调用结果
  *

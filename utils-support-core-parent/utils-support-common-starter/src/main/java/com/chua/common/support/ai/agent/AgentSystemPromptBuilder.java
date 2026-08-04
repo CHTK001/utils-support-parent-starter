@@ -6,6 +6,7 @@ import com.chua.common.support.ai.skill.SkillDefinition;
 
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Agent 系统提示词构建器

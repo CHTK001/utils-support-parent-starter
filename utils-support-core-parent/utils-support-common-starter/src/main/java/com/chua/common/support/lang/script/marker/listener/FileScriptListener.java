@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件脚本源码监听器。
@@ -22,6 +23,8 @@ import java.nio.file.Path;
  * @since 4.0.0.42
  * @see Listener
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class FileScriptListener implements Listener {
 
     /**

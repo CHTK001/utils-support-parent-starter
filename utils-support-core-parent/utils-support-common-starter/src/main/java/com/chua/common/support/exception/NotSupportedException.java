@@ -2,6 +2,7 @@ package com.chua.common.support.exception;
 
 
 import com.chua.common.support.utils.StringUtils;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 不支持的操作异常。
@@ -9,6 +10,7 @@ import com.chua.common.support.utils.StringUtils;
  *
  * @author CH
  */
+@NullUnmarked
 public class NotSupportedException extends RuntimeException {
 
     /**

@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Neo4j Cypher 表达式解析器
@@ -52,6 +53,8 @@ import java.util.List;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("cypher")
 public class CypherExpressionParser implements ExpressionParser {
 

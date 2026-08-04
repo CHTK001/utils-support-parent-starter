@@ -3,6 +3,7 @@ package com.chua.common.support.objects.generator;
 import com.chua.common.support.objects.definition.BeanDefinition;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 定义生成器 SPI，用于从指定的 Class 对象生成对应的 BeanDefinition 列表。
@@ -12,6 +13,7 @@ import java.util.List;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public interface BeanDefinitionGenerator {
 
     /**

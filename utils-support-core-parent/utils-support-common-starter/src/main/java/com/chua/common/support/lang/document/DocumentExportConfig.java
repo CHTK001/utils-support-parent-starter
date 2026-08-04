@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.File;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档导出配置。
@@ -14,6 +15,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Data
 @Builder
 public class DocumentExportConfig {

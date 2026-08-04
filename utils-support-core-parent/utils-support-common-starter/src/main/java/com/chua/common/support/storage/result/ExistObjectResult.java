@@ -3,6 +3,7 @@ package com.chua.common.support.storage.result;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件存在性检查结果对象。
@@ -10,6 +11,7 @@ import lombok.experimental.SuperBuilder;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Getter
 @Setter
 @SuperBuilder

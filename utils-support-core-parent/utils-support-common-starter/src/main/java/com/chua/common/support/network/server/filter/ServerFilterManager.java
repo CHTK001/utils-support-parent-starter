@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器过滤器管理器。
@@ -33,6 +34,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class ServerFilterManager {
 

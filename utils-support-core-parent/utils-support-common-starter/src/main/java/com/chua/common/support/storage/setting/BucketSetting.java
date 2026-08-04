@@ -2,6 +2,7 @@ package com.chua.common.support.storage.setting;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象存储（Bucket）配置。
@@ -12,6 +13,7 @@ import lombok.Data;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Data
 @Builder
 public class BucketSetting {

@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.meta;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 索引入口接口。
@@ -31,6 +32,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface MetaIndex {
 
     /**

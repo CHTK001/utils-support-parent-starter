@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link Path} 的文件路径资源实现。
@@ -16,6 +17,7 @@ import java.nio.file.Paths;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class PathResource implements Resource {
 
     /**

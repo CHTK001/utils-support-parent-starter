@@ -1,6 +1,7 @@
 package com.chua.common.support.utils;
 
 import lombok.Getter;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分页工具类
@@ -11,6 +12,7 @@ import lombok.Getter;
  *
  * @author CH
  */
+@NullUnmarked
 public class PageUtils {
 
     /**

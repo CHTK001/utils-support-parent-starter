@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件列表结果对象。
@@ -15,6 +16,7 @@ import java.util.List;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Getter
 @Setter
 @SuperBuilder

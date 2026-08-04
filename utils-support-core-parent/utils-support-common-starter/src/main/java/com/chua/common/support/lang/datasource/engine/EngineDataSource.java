@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 引擎数据源泛型接口，封装任意类型的数据源及其关联的方言信息。

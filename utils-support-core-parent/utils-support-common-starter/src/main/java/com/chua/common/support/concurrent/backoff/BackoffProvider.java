@@ -1,5 +1,7 @@
 package com.chua.common.support.concurrent.backoff;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 避让器提供者 SPI 接口。
  *
@@ -9,6 +11,7 @@ package com.chua.common.support.concurrent.backoff;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
 public interface BackoffProvider {
 
     /**

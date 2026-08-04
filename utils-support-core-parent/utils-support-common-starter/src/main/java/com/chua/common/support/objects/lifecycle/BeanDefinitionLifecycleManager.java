@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 生命周期管理器，统一调度所有 BeanDefinitionLifecycle SPI 实现。
@@ -14,6 +15,7 @@ import java.util.List;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 public class BeanDefinitionLifecycleManager {
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步上下文
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/28
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

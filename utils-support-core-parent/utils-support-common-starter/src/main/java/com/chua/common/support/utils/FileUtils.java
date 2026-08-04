@@ -18,12 +18,14 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_COLON;
 import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX;
 import static com.chua.common.support.constant.NameConstant.FILE_URL_PREFIX;
 import static com.chua.common.support.constant.NumberConstant.NUMBER_2;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件工具类
  *
  * @author CH
  */
+@NullUnmarked
 public class FileUtils {
 
     /**

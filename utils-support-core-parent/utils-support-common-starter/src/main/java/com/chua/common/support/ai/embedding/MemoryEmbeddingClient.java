@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.embedding;
 
 import com.chua.common.support.spi.annotations.Spi;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存嵌入向量客户端，用于测试和演示。
@@ -12,6 +13,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Spi("memory")
 public class MemoryEmbeddingClient implements EmbeddingClient {
 

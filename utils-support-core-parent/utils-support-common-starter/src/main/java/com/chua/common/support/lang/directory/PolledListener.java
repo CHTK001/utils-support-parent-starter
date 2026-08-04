@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.directory;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 目录轮询监听器接口，定义文件变更事件的回调方法。
  * <p>所有方法均为 default 空实现，使用者只需按需覆写关心的回调。</p>
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.directory;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public interface PolledListener {
 
     /**

@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.qr;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 二维码Logo样式枚举。
  * <p>
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.qr;
  *
  * @author CH
  */
+@NullUnmarked
 public enum LogoStyle {
 
     /**

@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.loader;
 
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link Supplier} 接口的延迟加载器实现。
@@ -25,6 +26,7 @@ import java.util.function.Supplier;
  * @version 1.0.0
  * @since 2024/12/03
  */
+@NullUnmarked
 public class SupplierLazyLoader<T> extends LazyLoader<T> {
 
     /**

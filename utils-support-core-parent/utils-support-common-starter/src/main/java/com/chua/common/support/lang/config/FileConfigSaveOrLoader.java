@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 本地文件实现的配置保存和加载器。
@@ -17,6 +18,8 @@ import java.util.Optional;
 
  * @author CH
  */@Spi({"file", "local"})
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @SpiOrder(100)
 public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 

@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.qr;
 
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码码点配置类。
@@ -8,6 +9,7 @@ import lombok.Data;
  *
  * @author CH
  */
+@NullUnmarked
 @Data
 public class CodePointSetting {
     /**

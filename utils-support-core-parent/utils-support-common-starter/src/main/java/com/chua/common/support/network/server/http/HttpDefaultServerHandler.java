@@ -5,6 +5,7 @@ import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 路由处理器接口。
@@ -16,6 +17,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @FunctionalInterface
 public interface HttpDefaultServerHandler extends ServerHandler {
 

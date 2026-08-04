@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.meta;
 import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 搜索引擎 SPI 接口。
@@ -33,6 +34,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface SearchEngine {
 
     /**

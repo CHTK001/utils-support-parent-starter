@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Markdown 表格视图解析器，将数据渲染为 Markdown 表格格式。
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Spi("md")
 public class MarkdownTableViewParser implements ViewParser {
 

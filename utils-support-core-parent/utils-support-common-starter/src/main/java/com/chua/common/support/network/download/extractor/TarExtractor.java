@@ -4,6 +4,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,6 +17,7 @@ import java.io.*;
  * @version 1.0.0
  * @since 2025/11/29
  */
+@NullUnmarked
 @Slf4j
 @Spi({"tar"})
 public class TarExtractor extends TarGzExtractor {

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认响应式过滤器链实现。
@@ -31,6 +32,7 @@ import java.util.concurrent.CompletionStage;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @Slf4j
 public class DefaultReactiveFilterChain implements ReactiveFilterChain {
 

@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 方法注入器 SPI。
@@ -21,6 +22,7 @@ import java.util.function.Function;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Spi
 public interface BeanDefinitionMethodInjector {
 

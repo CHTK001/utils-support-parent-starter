@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -19,6 +20,8 @@ import javax.annotation.Nullable;
  * @author CH
  * @version 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
 

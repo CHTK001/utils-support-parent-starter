@@ -1,5 +1,7 @@
 package com.chua.common.support.network.client;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 通用异步回调接口，用于 HTTP 客户端的异步调用结果通知。
  *
@@ -40,6 +42,7 @@ package com.chua.common.support.network.client;
  * @see HttpClient#executeAsync(ClientRequest, Callback)
  * @see HttpClientBuilder
  */
+@NullUnmarked
 @FunctionalInterface
 public interface Callback<T> {
 

@@ -1,11 +1,14 @@
 package com.chua.common.support.network.server.request;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 上传文件描述，包含字段名、文件名、内容类型和文件数据。
  *
  * @author CH
  * @since 2026/07/17
  */
+@NullUnmarked
 public class FormFile {
 
     /** 表单字段名 */

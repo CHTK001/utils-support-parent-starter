@@ -14,6 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.Deflater;
 import java.util.zip.ZipOutputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ZIP 压缩文件系统 SPI 实现。
@@ -46,6 +47,8 @@ import java.util.zip.ZipOutputStream;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi({"zip"})
 public class ZipFileSystem implements FileSystem {
 

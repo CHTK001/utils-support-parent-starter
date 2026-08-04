@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.chua.common.support.constant.CommonConstant.*;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -21,6 +22,8 @@ import static com.chua.common.support.constant.CommonConstant.*;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class AntPathMatcher implements PathMatcher {
 
     /**

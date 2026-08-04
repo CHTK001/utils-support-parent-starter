@@ -1,5 +1,7 @@
 package com.chua.common.support.scattergather;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * TCP 节点查询响应。
  * <p>节点服务处理请求后返回的响应对象，可转换为通用结果。</p>
@@ -7,6 +9,7 @@ package com.chua.common.support.scattergather;
  * @param <T> 数据类型
  * @author CH
  */
+@NullUnmarked
 public class ScatterGatherNodeResponse<T> {
 
     /**

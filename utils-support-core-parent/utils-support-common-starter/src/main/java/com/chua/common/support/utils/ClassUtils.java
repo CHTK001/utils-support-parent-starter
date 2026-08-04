@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import static com.chua.common.support.constant.CommonConstant.*;
 import static com.chua.common.support.constant.ValueConstant.*;
 import static com.chua.common.support.converter.Converter.convertIfPrimitive;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 类型与反射辅助工具类，提供类名解析、原始类型/包装类型转换、
@@ -40,6 +41,7 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
  *
  * @author CH
  */
+@NullUnmarked
 @SuppressWarnings({"ALL"})
 public class ClassUtils {
 

@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK ServerSocket 的 TCP 服务器实现。
@@ -75,6 +76,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/26
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 @Spi({"jdk-tcp"})
 public class JdkTcpServer extends AbstractServer {

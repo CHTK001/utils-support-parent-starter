@@ -3,6 +3,7 @@ package com.chua.common.support.task.async;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 异步提供者接口
@@ -20,6 +21,7 @@ import java.util.function.Supplier;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public interface AsyncProvider {
 
     /**

@@ -3,6 +3,7 @@ package com.chua.common.support.constant;
 import java.text.DecimalFormat;
 
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 通用常量接口，集中定义项目中使用的各种常量。
@@ -24,6 +25,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * @version 1.0.0
  * @since 2024-01-01
  */
+@NullUnmarked
 public interface CommonConstant {
 
 

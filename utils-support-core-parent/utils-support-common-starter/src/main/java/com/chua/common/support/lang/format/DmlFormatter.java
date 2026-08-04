@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.format;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * DML（数据操作语言，Data Manipulation Language）格式化器。
@@ -42,6 +43,8 @@ import java.util.*;
  * @see SqlFormatter
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class DmlFormatter extends SqlFormatter {
     /**
      * 无参构造器（默认配置）

@@ -1,11 +1,14 @@
 package com.chua.common.support.objects.definition;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 映射定义接口——描述一个路由映射的基本信息。
  *
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface MappingDefinition {
 
     /**

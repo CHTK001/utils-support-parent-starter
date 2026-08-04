@@ -12,12 +12,14 @@ import java.nio.file.Path;
 
 import static com.chua.common.support.constant.CommonConstant.INDEX_NOT_FOUND;
 import static com.chua.common.support.constant.NumberConstant.DEFAULT_BUFFER_SIZE;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * IO 工具类
  *
  * @author CH
  */
+@NullUnmarked
 public class IoUtils {
 
     public static byte[] asBytes(final InputStreamReader input, final Charset charset) throws IOException {

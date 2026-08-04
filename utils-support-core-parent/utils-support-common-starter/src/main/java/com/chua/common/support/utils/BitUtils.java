@@ -2,6 +2,7 @@ package com.chua.common.support.utils;
 
 
 import static com.chua.common.support.utils.ByteUtils.*;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -14,6 +15,7 @@ import static com.chua.common.support.utils.ByteUtils.*;
  * @version 1.0.0
  * @since 2021/3/3
  */
+@NullUnmarked
 public class BitUtils {
     /**
      * 单个字节对应的二进制位数。

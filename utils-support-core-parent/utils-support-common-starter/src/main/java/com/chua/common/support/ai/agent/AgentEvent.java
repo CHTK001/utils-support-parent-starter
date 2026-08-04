@@ -3,6 +3,7 @@ package com.chua.common.support.ai.agent;
 import lombok.Builder;
 
 import java.io.Serializable;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Agent 执行事件。
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 @Builder
 public record AgentEvent(
         /** 事件类型 */

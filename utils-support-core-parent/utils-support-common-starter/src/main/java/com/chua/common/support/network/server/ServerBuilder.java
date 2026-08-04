@@ -4,6 +4,7 @@ import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.ServiceProvider;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Server 链式构建器，内部通过 SPI 创建 {@link Server} 实例。
@@ -21,6 +22,8 @@ import com.chua.common.support.spi.ServiceProvider;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ServerBuilder {
 
     private ServerSetting setting;

@@ -4,6 +4,7 @@ import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.http.HttpMethod;
 
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认 HTTP 客户端实现，采用<b>委托模式（Delegation Pattern）</b>转发给 {@link HttpClientExecutor}。
@@ -37,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
  * @see HttpClientExecutor
  * @see HttpClientFactory
  */
+@NullUnmarked
 public class DefaultHttpClient implements HttpClient {
 
     /**

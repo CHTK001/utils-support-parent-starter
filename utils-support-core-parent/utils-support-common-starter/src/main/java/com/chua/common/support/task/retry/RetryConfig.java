@@ -1,6 +1,7 @@
 package com.chua.common.support.task.retry;
 
 import java.util.function.Predicate;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 重试配置
@@ -10,6 +11,7 @@ import java.util.function.Predicate;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class RetryConfig {
     /**
      * 最大重试次数

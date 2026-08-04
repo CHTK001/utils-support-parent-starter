@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 定义接口。
@@ -27,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public interface BeanDefinition {
 
     BeanDefinition EMPTY_BEAN_DEFINITION = new AbstractBeanDefinition() {

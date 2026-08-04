@@ -2,6 +2,7 @@ package com.chua.common.support.proxy.intercept;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 空方法拦截器，所有方法调用都返回默认值。
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 public class VoidMethodIntercept<T> implements MethodIntercept<T>, InvocationHandler {
 
     @Override

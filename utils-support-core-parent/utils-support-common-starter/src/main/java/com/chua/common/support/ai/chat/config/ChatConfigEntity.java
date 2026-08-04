@@ -3,6 +3,7 @@ package com.chua.common.support.ai.chat.config;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 单个 ChatClient 配置持久化实体 — 通过 Engine ORM 属性字段存储。

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Lambda 查询包装器，提供类似 MyBatis-Plus 的链式查询条件构建和 SQL 生成功能。

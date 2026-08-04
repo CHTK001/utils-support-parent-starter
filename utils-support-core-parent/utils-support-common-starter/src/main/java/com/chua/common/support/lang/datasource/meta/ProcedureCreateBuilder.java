@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.meta.model.ProcedureDef;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 创建存储过程链式构建器。
@@ -8,6 +9,7 @@ import com.chua.common.support.lang.datasource.meta.model.ProcedureDef;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface ProcedureCreateBuilder {
 
     /**

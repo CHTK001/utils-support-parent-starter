@@ -6,10 +6,13 @@ import com.chua.common.support.spi.annotations.SpiDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @SpiDefault
 @Spi({"round", "polling"})
 public class RoundLoadBalance implements LoadBalance {

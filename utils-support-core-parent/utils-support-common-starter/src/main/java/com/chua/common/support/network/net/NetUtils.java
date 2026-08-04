@@ -7,12 +7,14 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 网络工具类
  *
  * @author CH
  */
+@NullUnmarked
 public final class NetUtils {
 
     private static final String LOCAL_HOST_CACHE;

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_BYTE_ARRAY;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -27,6 +28,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @version 1.0.0
  * @since 2020/12/26
  */
+@NullUnmarked
 @Slf4j
 public class ByteUtils extends BitUtils {
 

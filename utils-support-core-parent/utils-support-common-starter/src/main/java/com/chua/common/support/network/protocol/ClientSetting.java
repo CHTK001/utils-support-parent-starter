@@ -1,11 +1,15 @@
 package com.chua.common.support.network.protocol;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 客户端设置，包含连接参数。
  *
  * @author CH
  * @since 2026/07/27
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ClientSetting {
 
     private final String host;

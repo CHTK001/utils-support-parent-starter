@@ -1,6 +1,7 @@
 package com.chua.common.support.scattergather;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Scatter-Gather 节点生命周期与结果监听器。
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author CH
  */
+@NullUnmarked
 public interface ScatterGatherNodeListener<O> {
 
     /**

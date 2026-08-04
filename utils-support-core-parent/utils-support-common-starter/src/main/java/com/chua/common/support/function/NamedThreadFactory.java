@@ -2,6 +2,7 @@ package com.chua.common.support.function;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 自定义命名线程工厂
@@ -10,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 2021-09-27
  */
+@NullUnmarked
 public class NamedThreadFactory implements ThreadFactory {
 
     /**

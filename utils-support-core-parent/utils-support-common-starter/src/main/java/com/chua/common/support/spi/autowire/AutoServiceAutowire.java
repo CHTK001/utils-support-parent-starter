@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -14,6 +15,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  */
+@NullUnmarked
 public class AutoServiceAutowire implements ServiceAutowire {
 
     /**

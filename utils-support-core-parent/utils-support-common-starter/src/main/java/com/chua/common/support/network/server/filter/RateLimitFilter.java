@@ -6,6 +6,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 限流过滤器，通过 SPI 加载 {@link RateLimitProvider} 实现。
@@ -32,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class RateLimitFilter implements ServerFilter {
 

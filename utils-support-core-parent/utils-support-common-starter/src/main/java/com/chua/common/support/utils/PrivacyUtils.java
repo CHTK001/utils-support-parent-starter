@@ -1,5 +1,7 @@
 package com.chua.common.support.utils;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 隐私脱敏工具类
  *
@@ -25,6 +27,7 @@ package com.chua.common.support.utils;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public final class PrivacyUtils {
 
     /**

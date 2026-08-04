@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.process;
 
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 进度条样式配置类。
@@ -12,6 +13,7 @@ import lombok.Data;
  * @since 2023-04-01
  * @version 1.0.0
  */
+@NullUnmarked
 @Data
 public class ProgressBarStyle {
 

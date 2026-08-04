@@ -1,6 +1,7 @@
 package com.chua.common.support.proxy;
 
 import com.chua.common.support.proxy.intercept.MethodIntercept;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 代理工厂接口，定义了代理对象的统一创建方法。
@@ -25,6 +26,7 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
  * @see DefaultProxyProvider
  * @see com.chua.common.support.spi.ServiceProvider
  */
+@NullUnmarked
 public interface ProxyFactory<T> {
 
     /**

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI 服务解析器，从全局唯一的 OSGI 框架实例中获取 SPI 服务实现。
@@ -18,6 +19,7 @@ import java.util.List;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 public class OsgiServiceResolver implements ServiceResolver {
 

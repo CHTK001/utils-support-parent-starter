@@ -1,5 +1,7 @@
 package com.chua.common.support.network.sse;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * SSE（Server-Sent Events）事件监听器
  *
@@ -15,6 +17,7 @@ package com.chua.common.support.network.sse;
  * @author CH
  * @since 2026/07/21
  */
+@NullUnmarked
 @FunctionalInterface
 public interface SseListener {
 

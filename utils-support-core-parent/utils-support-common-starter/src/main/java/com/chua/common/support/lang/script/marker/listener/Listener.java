@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.script.marker.listener;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 脚本源码监听器接口。
  *
@@ -25,6 +27,7 @@ package com.chua.common.support.lang.script.marker.listener;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public interface Listener {
 
     /**

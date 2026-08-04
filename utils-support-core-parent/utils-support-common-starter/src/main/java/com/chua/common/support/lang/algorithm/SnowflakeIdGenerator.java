@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.algorithm;
 
 import java.util.concurrent.ThreadLocalRandom;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 雪花算法 ID 生成器，分布式全局唯一 ID 生成算法。
@@ -34,6 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class SnowflakeIdGenerator {
 
     // ==================== 默认位分配 ====================

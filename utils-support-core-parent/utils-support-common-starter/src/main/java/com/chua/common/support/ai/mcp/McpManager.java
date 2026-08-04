@@ -2,6 +2,7 @@ package com.chua.common.support.ai.mcp;
 
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * MCP 管理器接口
@@ -12,6 +13,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 public interface McpManager {
 
     /**

@@ -4,6 +4,7 @@ import com.chua.common.support.concurrent.rate.RateLimiterProvider;
 import com.google.common.util.concurrent.RateLimiter;
 
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 Guava RateLimiter 的限流器实现。
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
 public class GuavaRateLimiterProvider implements RateLimiterProvider {
 
     private final String name;

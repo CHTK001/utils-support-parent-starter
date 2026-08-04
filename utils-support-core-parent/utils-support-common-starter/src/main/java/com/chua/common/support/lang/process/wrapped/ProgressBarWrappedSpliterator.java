@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,6 +17,8 @@ import java.util.function.Consumer;
  * @author CH
  * @since 0.7.2
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @lombok.EqualsAndHashCode
 public class ProgressBarWrappedSpliterator<T> implements Spliterator<T>, AutoCloseable {
 

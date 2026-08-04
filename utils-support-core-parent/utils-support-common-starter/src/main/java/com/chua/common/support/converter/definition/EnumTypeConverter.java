@@ -3,6 +3,7 @@ package com.chua.common.support.converter.definition;
 import com.chua.common.support.converter.Converter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -13,7 +14,8 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/12/19
  */
-@SuppressWarnings("rawtypes")
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class EnumTypeConverter implements TypeConverter<Enum> {
 
     /**

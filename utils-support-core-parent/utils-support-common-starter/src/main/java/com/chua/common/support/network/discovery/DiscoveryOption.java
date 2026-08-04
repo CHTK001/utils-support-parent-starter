@@ -4,12 +4,14 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务发现配置选项。
  * 用于配置连接远程服务注册中心或发现服务的参数。
  * @author CH
  */
+@NullUnmarked
 @Data
 @Accessors(chain = true)
 public class DiscoveryOption {

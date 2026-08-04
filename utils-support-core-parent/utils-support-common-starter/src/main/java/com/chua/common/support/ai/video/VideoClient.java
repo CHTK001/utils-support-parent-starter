@@ -4,6 +4,7 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 视频生成客户端接口

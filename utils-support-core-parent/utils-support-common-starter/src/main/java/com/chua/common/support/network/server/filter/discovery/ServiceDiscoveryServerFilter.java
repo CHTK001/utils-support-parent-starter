@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务发现过滤器，从 ServiceDiscovery 获取后端地址并存入请求属性。
@@ -46,6 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2026/07/18
  * @see ReverseProxyServerFilter
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public class ServiceDiscoveryServerFilter implements ServerFilter {
 

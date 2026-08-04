@@ -1,10 +1,13 @@
 package com.chua.common.support.file.tar;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * Tar 文件格式常量定义。
  *
  * @author CH
  */
+@NullUnmarked
 public final class TarConstants {
 
     /**

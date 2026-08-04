@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 上下文压缩配置（轻量，可脱离 Agent 使用）。
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
  *
  * @author CH
  */
+@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

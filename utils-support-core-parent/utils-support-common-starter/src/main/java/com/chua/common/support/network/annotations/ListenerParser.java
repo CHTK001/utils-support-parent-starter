@@ -2,6 +2,7 @@ package com.chua.common.support.network.annotations;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 监听解析器 SPI，将事件监听注解解析为回调处理器。
@@ -14,6 +15,7 @@ import java.util.Map;
  *
  * @author CH
  */
+@NullUnmarked
 public interface ListenerParser {
 
     /**

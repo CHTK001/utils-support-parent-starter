@@ -4,6 +4,7 @@ import com.chua.common.support.collection.MultiValueMap;
 import com.chua.common.support.lang.json.Json;
 
 import java.util.Collection;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 多值映射混合系统占位符解析器。
@@ -20,6 +21,8 @@ import java.util.Collection;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class MultiMapMixSystemPlaceholderResolver implements PlaceholderResolver, PlaceholderDynamicResolver {
 
     /**

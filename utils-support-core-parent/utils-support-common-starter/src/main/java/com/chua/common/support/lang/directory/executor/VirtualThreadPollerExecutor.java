@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于虚拟线程的目录轮询执行器。
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 @Slf4j
 public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
 

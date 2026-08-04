@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import lombok.Getter;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 断路器

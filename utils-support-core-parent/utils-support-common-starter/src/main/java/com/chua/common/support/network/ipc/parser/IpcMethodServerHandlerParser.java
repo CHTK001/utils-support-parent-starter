@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 解析 {@link IpcMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
@@ -27,6 +28,7 @@ import java.util.Set;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 @Spi("ipc-method")
 public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationParser {
 

@@ -4,6 +4,7 @@ import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 嵌入向量响应。
@@ -14,6 +15,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Builder
 public record EmbeddingResponse(
         /**

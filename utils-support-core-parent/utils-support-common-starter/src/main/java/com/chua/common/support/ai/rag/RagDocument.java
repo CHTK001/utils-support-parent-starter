@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.rag;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RAG 文档元数据。

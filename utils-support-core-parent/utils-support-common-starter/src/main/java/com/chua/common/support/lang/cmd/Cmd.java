@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.cmd;
 
 import javax.annotation.Nonnull;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令接口 — 代表一个可注册、可发现、可执行的命令。
@@ -59,6 +60,7 @@ import javax.annotation.Nonnull;
  * @see Commands
  * @see CmdResult
  */
+@NullUnmarked
 public interface Cmd {
 
     /**

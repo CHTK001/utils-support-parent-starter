@@ -1,6 +1,7 @@
 package com.chua.common.support.task.retry;
 
 import java.util.concurrent.Callable;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 重试提供者抽象基类
@@ -11,6 +12,7 @@ import java.util.concurrent.Callable;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public abstract class AbstractRetryProvider implements RetryProvider {
 
     @Override

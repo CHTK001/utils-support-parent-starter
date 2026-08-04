@@ -1,6 +1,7 @@
 package com.chua.common.support.osgi;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI Bundle 上下文，提供服务注册和获取的能力。
@@ -10,6 +11,7 @@ import java.util.List;
  *
  * @author CH
  */
+@NullUnmarked
 public interface BundleContext {
 
     /**

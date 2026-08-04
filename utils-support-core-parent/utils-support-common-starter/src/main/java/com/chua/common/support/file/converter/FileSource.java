@@ -3,6 +3,7 @@ package com.chua.common.support.file.converter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件资源定位描述符，统一抽象文件转换过程中的输入源和输出目标。
@@ -36,6 +37,8 @@ import java.net.URL;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class FileSource {
 
     /**

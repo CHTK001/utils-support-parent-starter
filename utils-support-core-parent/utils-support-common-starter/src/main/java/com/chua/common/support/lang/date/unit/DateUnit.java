@@ -3,6 +3,7 @@ package com.chua.common.support.lang.date.unit;
 import lombok.Getter;
 
 import java.time.temporal.ChronoUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -10,6 +11,8 @@ import java.time.temporal.ChronoUnit;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Getter
 public enum DateUnit  {
     /**

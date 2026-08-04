@@ -2,6 +2,7 @@ package com.chua.common.support.network.server;
 
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步服务端接口，基于长连接双向通道提供主题发布、会话管理和消息推送能力。
@@ -11,6 +12,7 @@ import java.util.Map;
  *
  * @author CH
  */
+@NullUnmarked
 public interface SyncServer extends Server {
 
     /**

@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -27,6 +28,8 @@ import javax.annotation.Nullable;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> {
     private static final String BUFFERED_IMAGE_CLASS = "com.chua.deeplearning.support.ml.BufferedImagePredictResult";
 

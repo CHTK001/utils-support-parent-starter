@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
+import org.jspecify.annotations.NullUnmarked;
+
 
 /**
  * 属性占位符配置器。
@@ -11,6 +13,7 @@ package com.chua.common.support.lang.placeholder;
  *
  * @author CH
  */
+@NullUnmarked
 public class PropertyPlaceholderConfigurer extends PlaceholderSupport {
 
     /**

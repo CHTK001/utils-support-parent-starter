@@ -1,5 +1,7 @@
 package com.chua.common.support.objects.definition;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 框架 Bean 定义包装器，用于将外部框架（Spring / CDI / OSGi）管理的 Bean
  * 桥接到框架 IoC 容器。
@@ -11,6 +13,7 @@ package com.chua.common.support.objects.definition;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public class FrameworkBeanDefinition extends AbstractBeanDefinition {
 
     private volatile Object instance;

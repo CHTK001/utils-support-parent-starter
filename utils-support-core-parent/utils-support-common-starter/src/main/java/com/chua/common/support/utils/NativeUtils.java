@@ -7,12 +7,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 本地库工具类。
  *
  * @author CH
  */
+@NullUnmarked
 public class NativeUtils {
 
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase();

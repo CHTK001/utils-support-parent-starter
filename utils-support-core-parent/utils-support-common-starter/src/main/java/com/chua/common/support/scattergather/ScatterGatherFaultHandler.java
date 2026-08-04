@@ -1,11 +1,14 @@
 package com.chua.common.support.scattergather;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 节点故障处理器。
  * <p>在节点故障标记与恢复时回调。</p>
  *
  * @author CH
  */
+@NullUnmarked
 public interface ScatterGatherFaultHandler {
 
     /**

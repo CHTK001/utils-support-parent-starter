@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -38,6 +39,8 @@ import java.util.regex.Pattern;
  * @version 1.0.0
  * @since 2020/10/30
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface TypeConverter<O> {
 
     /** 科学计数法标识字符（如 1e10 中的 e） */

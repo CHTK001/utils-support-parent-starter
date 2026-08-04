@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.process;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 进度更新动作，负责定时刷新进度条显示。
  * <p>
@@ -9,6 +11,7 @@ package com.chua.common.support.lang.process;
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
 class ProgressUpdateAction implements Runnable {
 
     /**

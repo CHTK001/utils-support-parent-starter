@@ -3,6 +3,7 @@ package com.chua.common.support.file.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link URL} 的资源实现。
@@ -13,6 +14,7 @@ import java.net.URL;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class UrlResource implements Resource {
 
     /**

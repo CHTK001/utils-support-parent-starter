@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HMAC (Hash-based Message Authentication Code) 算法枚举。
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 2025/10/23
  */
+@NullUnmarked
 @Getter
 public enum HmacAlgorithm {
 

@@ -1,5 +1,7 @@
 package com.chua.common.support.task.loader;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 加载器接口，提供单例懒加载对象的获取和管理能力。
  *
@@ -19,6 +21,7 @@ package com.chua.common.support.task.loader;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 public interface Loader<T> {
 
     /**

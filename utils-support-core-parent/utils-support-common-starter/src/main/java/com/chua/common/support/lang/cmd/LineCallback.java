@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.cmd;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 命令行实时输出回调接口。
  *
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.cmd;
  *
  * @author CH
  */
+@NullUnmarked
 public interface LineCallback {
 
     /**

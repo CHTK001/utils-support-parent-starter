@@ -20,6 +20,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 定义抽象基类。

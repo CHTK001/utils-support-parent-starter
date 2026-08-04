@@ -1,5 +1,7 @@
 package com.chua.common.support.constant;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 数字常量接口，定义了常用的数字常量。
  *
@@ -20,6 +22,7 @@ package com.chua.common.support.constant;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 public interface NumberConstant {
 
     /**

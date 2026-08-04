@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 单例注册器，管理单例 Bean 实例的创建和注册。
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 public abstract class BeanSingletonRegistry {
 

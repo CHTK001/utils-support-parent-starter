@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 占位符解析器接口。
  * 用于根据给定的占位符名称或属性键，解析并返回对应的值。
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.placeholder;
  *
  * @author CH
  */
+@NullUnmarked
 public interface PlaceholderResolver {
 
     /**

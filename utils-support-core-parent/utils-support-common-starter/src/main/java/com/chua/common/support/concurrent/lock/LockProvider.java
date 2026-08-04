@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.lock;
 
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2025-11-26
  */
+@NullUnmarked
 public interface LockProvider extends AutoCloseable {
 
     /**

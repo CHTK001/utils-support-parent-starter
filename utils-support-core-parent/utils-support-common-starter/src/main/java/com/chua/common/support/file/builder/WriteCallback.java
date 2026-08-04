@@ -1,8 +1,11 @@
 package com.chua.common.support.file.builder;
+
+import org.jspecify.annotations.NullUnmarked;
 /**
  * @author CH
  */
 
+@NullUnmarked
 public interface WriteCallback {
     void onComplete(boolean success);
 

@@ -3,6 +3,7 @@ package com.chua.common.support.storage.request;
 import com.chua.common.support.storage.MultipartStorage;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分片上传请求。
@@ -10,6 +11,7 @@ import lombok.Data;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Data
 @Builder
 public class MultipartUploadPartRequest {

@@ -1,5 +1,7 @@
 package com.chua.common.support.network.http;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * HTTP 状态码常量与分类判断工具类。
  *
@@ -33,6 +35,7 @@ package com.chua.common.support.network.http;
  * @author CH
  * @see ClientResponse#isSuccess()
  */
+@NullUnmarked
 public class HttpStatus {
 
     // ==================== 2xx 成功 ====================

@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.nio.file.Path;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 备份结果
@@ -14,6 +15,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @Data
 @Builder
 public class BackupResult {

@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.lock;
 
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 锁提供者抽象基类
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public abstract class AbstractLockProvider implements LockProvider {
 
     @Override

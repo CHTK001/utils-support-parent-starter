@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 返回选项
@@ -17,6 +18,7 @@ import java.util.function.Supplier;
  */
 @Getter
 @Setter
+@NullUnmarked
 @SuppressWarnings({"ALL", "unchecked"})
 public class ReturnOptional<T> {
 

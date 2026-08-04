@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 图片工具类，提供图片读取、缩放、灰度化、旋转、字符画转换等能力。
@@ -33,6 +34,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class BufferedImageUtils {
 
     /**

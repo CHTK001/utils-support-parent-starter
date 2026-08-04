@@ -3,6 +3,7 @@ package com.chua.common.support.lang.datasource.dialect.meta;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 索引元数据，描述表上的一个索引信息。

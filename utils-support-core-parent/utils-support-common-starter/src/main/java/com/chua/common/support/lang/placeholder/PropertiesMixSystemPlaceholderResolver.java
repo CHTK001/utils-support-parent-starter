@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
 import java.util.Properties;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,6 +17,7 @@ import java.util.Properties;
  *
  * @author CH
  */
+@NullUnmarked
 public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolver, PlaceholderDynamicResolver {
 
     /**

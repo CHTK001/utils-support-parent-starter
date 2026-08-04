@@ -5,12 +5,14 @@ import com.chua.common.support.lang.process.ProgressBar;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 任何输入流，其进度由进度条跟踪。
  * @author CH
  * @since 0.7.0
  */
+@NullUnmarked
 public class ProgressBarWrappedInputStream extends FilterInputStream {
 
     /**

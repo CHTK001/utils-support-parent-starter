@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * UDP 模式探针：广播发现对等节点。
@@ -15,6 +16,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class UdpModeProbe implements ProbeStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(UdpModeProbe.class);

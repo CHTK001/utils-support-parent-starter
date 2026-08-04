@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档生成配置。
@@ -24,6 +25,7 @@ import java.util.*;
  * @author CH
  * @since 4.0.0.41
  */
+@NullUnmarked
 @Data
 @Builder
 public class DocumentConfig {

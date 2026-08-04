@@ -4,6 +4,7 @@ package com.chua.common.support.converter.definition;
 import com.chua.common.support.utils.ClassUtils;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_DOT;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,6 +19,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_DOT;
  * @version 1.0.0
  * @since 2020/11/26
  */
+@NullUnmarked
 @SuppressWarnings("ALL")
 public class ClassTypeConverter implements TypeConverter<Class> {
 

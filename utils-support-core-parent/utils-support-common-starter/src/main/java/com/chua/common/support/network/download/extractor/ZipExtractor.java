@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ZIP 压缩文件提取器
@@ -18,6 +19,7 @@ import java.util.zip.ZipInputStream;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 @Spi("zip")
 public class ZipExtractor implements Extractor {

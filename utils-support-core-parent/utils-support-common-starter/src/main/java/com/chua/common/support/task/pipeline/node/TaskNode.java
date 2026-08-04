@@ -4,6 +4,7 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 执行节点。
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
  *
  * @author CH
  */
+@NullUnmarked
 public class TaskNode implements PipelineNode {
 
     /**

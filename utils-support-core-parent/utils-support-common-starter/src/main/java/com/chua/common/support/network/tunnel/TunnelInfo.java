@@ -1,6 +1,7 @@
 package com.chua.common.support.network.tunnel;
 
 import java.time.LocalDateTime;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 隧道实时信息快照。

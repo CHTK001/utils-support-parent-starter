@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import reactor.core.publisher.Mono;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 图像操作 SPI 接口。
  *
  * @author CH
  */
+@NullUnmarked
 public interface ImageOperation {
 
     /**

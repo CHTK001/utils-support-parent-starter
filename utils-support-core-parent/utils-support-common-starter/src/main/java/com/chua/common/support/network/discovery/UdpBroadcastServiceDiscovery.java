@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于UDP广播的服务发现实现类。
@@ -20,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
  * @author CH
  */@Spi("udp-broadcast")
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(UdpBroadcastServiceDiscovery.class);

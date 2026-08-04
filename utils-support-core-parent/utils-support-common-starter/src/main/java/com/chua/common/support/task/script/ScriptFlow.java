@@ -5,6 +5,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 脚本流程管理器，提供脚本的统一管理能力。
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public class ScriptFlow {
 
     /**

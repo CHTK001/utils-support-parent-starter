@@ -9,6 +9,7 @@ import com.chua.common.support.network.annotations.OnEventError;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 自定义事件注解的监听解析器实现。
@@ -27,6 +28,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public class CustomListenerParser implements ListenerParser {
 
     @Override

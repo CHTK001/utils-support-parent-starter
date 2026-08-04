@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.skill;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 技能执行结果
  *

@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.bot;
 
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 发送结果

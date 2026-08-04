@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.table;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 链式 DDL 构建器，用于通过流式 API 生成 CREATE TABLE / ALTER TABLE / DROP TABLE 语句。
@@ -48,6 +49,8 @@ import java.util.List;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class DdlBuilder {
 
     /**

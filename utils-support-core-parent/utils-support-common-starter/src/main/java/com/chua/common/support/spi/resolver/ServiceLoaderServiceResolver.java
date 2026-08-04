@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 Java ServiceLoader 的 SPI 服务解析器实现。
@@ -21,6 +22,7 @@ import java.util.List;
  *
  * @author CH
  */
+@NullUnmarked
 public class ServiceLoaderServiceResolver implements ServiceResolver {
 
     @Override

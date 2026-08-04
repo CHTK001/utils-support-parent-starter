@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSR 标准注解注入器，通过反射处理 @Resource 和 @Inject 注解。
@@ -26,6 +27,7 @@ import java.util.function.Function;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Slf4j
 @Spi("jsr")
 @SpiDescribe("JSR 标准注解注入器（@Resource、@Inject）")

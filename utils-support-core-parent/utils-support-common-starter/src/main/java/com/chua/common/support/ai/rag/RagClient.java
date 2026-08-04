@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RAG 客户端接口。

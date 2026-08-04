@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置值表达式解析工具，按 SPI 链尝试解析表达式。
@@ -11,6 +12,7 @@ import java.util.List;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 public final class ConfigValueResolvers {
 

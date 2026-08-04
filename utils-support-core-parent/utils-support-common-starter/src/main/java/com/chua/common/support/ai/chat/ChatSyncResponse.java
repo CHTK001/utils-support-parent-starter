@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat;
 
 import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话同步响应。
@@ -15,6 +16,7 @@ import lombok.Builder;
  * @author CH
  * @since 2026/07/15
  */
+@NullUnmarked
 @Builder
 public record ChatSyncResponse(
         /**

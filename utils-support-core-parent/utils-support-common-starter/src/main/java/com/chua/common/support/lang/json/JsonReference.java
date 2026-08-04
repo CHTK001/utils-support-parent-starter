@@ -4,6 +4,7 @@ import com.chua.common.support.utils.StringUtils;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_BIG_PARENTHESES;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -13,6 +14,8 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class JsonReference {
     /**
      * 内部存储的原始 JSON 字符串（已去除首尾空白）。

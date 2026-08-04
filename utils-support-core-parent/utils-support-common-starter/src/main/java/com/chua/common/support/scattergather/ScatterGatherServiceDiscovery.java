@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 Scatter-Gather 的服务发现实现。
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  */
+@NullUnmarked
 @Slf4j
 public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
 

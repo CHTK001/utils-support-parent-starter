@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.process;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 进度模拟器，模拟进度从 0 到 100 的变化过程。
  * <p>
@@ -9,6 +11,7 @@ package com.chua.common.support.lang.process;
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
 public final class ProgressSimulator {
 
     /**

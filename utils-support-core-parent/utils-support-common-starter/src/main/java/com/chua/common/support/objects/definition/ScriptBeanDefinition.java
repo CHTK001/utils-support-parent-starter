@@ -2,6 +2,7 @@ package com.chua.common.support.objects.definition;
 
 import com.chua.common.support.lang.script.marker.ScriptMarker;
 import com.chua.common.support.lang.script.marker.listener.Listener;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 通用脚本 Bean 定义，内部持有 {@link ScriptMarker} 和 {@link Listener}。
@@ -11,6 +12,7 @@ import com.chua.common.support.lang.script.marker.listener.Listener;
  * @author CH
  * @since 2026/07/29
  */
+@NullUnmarked
 public class ScriptBeanDefinition extends AbstractScriptDefinition {
 
     /**

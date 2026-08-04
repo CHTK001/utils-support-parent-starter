@@ -1,6 +1,7 @@
 package com.chua.common.support.network.rpc;
 
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RPC 注册中心配置。
@@ -18,6 +19,7 @@ import lombok.Data;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 @Data
 public class RpcRegistryConfig {
     /** 注册中心地址 */

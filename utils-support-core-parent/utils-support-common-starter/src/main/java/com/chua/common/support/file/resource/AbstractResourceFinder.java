@@ -15,6 +15,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH_CHAR;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_QUESTION;
 import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 资源查找器抽象基类，封装各协议查找器共用的路径匹配与排除规则逻辑。
@@ -32,6 +33,7 @@ import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public abstract class AbstractResourceFinder implements ResourceFinder {
 
     /**

@@ -1,5 +1,7 @@
 package com.chua.common.support.document.request;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 文档生成请求参数
  *
@@ -7,6 +9,8 @@ package com.chua.common.support.document.request;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class GenerateRequest {
 
     /**

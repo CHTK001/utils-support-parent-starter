@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.nio.file.Path;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 恢复配置
@@ -13,6 +14,7 @@ import java.nio.file.Path;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 @Data
 @Builder
 public class RestoreConfig {

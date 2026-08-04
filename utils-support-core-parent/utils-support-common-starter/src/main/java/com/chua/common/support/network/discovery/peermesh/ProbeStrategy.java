@@ -1,6 +1,7 @@
 package com.chua.common.support.network.discovery.peermesh;
 
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 探针策略接口，用于在启动时或周期性发现对等节点。
@@ -8,6 +9,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface ProbeStrategy {
 
     /**

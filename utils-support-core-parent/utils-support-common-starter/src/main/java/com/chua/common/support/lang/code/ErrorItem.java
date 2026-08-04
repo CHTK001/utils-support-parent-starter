@@ -2,12 +2,14 @@ package com.chua.common.support.lang.code;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 错误项
  *
  * @author CH
  */
+@NullUnmarked
 @Data
 @Builder
 public class ErrorItem {

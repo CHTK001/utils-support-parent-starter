@@ -1,5 +1,7 @@
 package com.chua.common.support.vector;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 向量存储链式构建器。
  * <p>
@@ -10,6 +12,7 @@ package com.chua.common.support.vector;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public class VectorStorageBuilder {
 
     /**

@@ -5,6 +5,7 @@ import com.chua.common.support.objects.environment.ConfigValueExpressionResolver
 import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认配置值表达式解析器，处理 {@code ${key:default}} 占位符格式。
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 @Spi("default")
 public class DefaultConfigValueExpressionResolver implements ConfigValueExpressionResolver {

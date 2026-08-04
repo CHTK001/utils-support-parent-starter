@@ -1,6 +1,7 @@
 package com.chua.common.support.base.converter;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字符串转配置转换器接口。
@@ -10,6 +11,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface StringToConfigConverter {
 
     /**

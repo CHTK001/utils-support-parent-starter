@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器抽象基类，协议无关。
@@ -31,6 +32,8 @@ import java.util.concurrent.Semaphore;
  * @version 2.1
  * @since 2026/07/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 public abstract class AbstractServer implements ConfigServer {
 

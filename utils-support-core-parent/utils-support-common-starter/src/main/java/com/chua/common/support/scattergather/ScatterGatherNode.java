@@ -4,6 +4,7 @@ import com.chua.common.support.network.discovery.Discovery;
 
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Scatter-Gather 节点视图。
@@ -11,6 +12,7 @@ import java.util.Objects;
  *
  * @author CH
  */
+@NullUnmarked
 public final class ScatterGatherNode {
 
     /**

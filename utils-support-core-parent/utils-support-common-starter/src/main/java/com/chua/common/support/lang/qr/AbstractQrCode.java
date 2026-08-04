@@ -1,12 +1,14 @@
 package com.chua.common.support.lang.qr;
 
 import java.io.OutputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码生成抽象基类。
  *
  * @author CH
  */
+@NullUnmarked
 public abstract class AbstractQrCode {
 
     /**

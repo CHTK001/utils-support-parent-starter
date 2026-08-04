@@ -27,6 +27,7 @@ import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_ASTERISK;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH;
 import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * {@code classpath:} 协议资源查找器。
@@ -40,6 +41,7 @@ import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class ClassPathResourceFinder extends AbstractResourceFinder {
 
     private static final Logger log = LoggerFactory.getLogger(ClassPathResourceFinder.class);

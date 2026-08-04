@@ -2,6 +2,7 @@ package com.chua.common.support.collection;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于数组的环状数组实现，固定容量，支持环状旋转。

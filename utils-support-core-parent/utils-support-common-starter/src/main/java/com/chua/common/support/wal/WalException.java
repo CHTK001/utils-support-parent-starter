@@ -1,11 +1,14 @@
 package com.chua.common.support.wal;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * WAL 操作异常。
  *
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class WalException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

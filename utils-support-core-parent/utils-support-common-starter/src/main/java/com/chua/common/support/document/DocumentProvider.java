@@ -5,6 +5,7 @@ import com.chua.common.support.document.result.GenerateResult;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档生成器 SPI 接口。
@@ -33,6 +34,8 @@ import java.util.Map;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi
 public interface DocumentProvider {
 

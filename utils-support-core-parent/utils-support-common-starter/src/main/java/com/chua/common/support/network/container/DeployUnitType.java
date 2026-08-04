@@ -1,5 +1,7 @@
 package com.chua.common.support.network.container;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 可部署单元类型枚举。
  *
@@ -9,6 +11,7 @@ package com.chua.common.support.network.container;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public enum DeployUnitType {
 
     /** Web Application Archive - Java Web 应用归档 */

@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 搜索引擎字段构建器。
@@ -24,6 +25,7 @@ import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface SearchFieldBuilder {
 
     /**

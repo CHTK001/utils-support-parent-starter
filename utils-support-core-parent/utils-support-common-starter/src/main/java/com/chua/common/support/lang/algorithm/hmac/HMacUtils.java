@@ -3,6 +3,7 @@ package com.chua.common.support.lang.algorithm.hmac;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -15,6 +16,7 @@ import java.io.InputStream;
  * @author CH
  * @since 2025/10/23
  */
+@NullUnmarked
 public class HMacUtils {
 
     private HMacUtils() {

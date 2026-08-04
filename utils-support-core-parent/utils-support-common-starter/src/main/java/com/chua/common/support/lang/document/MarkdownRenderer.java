@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Markdown 文档导出器。
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Spi("markdown")
 public class MarkdownRenderer implements DocumentProvider {
 

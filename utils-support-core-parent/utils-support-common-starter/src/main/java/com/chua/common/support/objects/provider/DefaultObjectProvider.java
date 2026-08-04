@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.provider;
 
 import com.chua.common.support.objects.ObjectContext;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认对象提供者实现。
@@ -12,6 +13,7 @@ import com.chua.common.support.objects.ObjectContext;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 public class DefaultObjectProvider<T> implements ObjectProvider<T> {
 
     private final ObjectContext ctx;

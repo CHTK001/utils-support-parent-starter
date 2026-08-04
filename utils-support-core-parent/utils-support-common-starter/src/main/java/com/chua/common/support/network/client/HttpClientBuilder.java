@@ -9,6 +9,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 链式 HTTP 客户端请求构建器。
@@ -77,6 +78,8 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class HttpClientBuilder {
 
     /**

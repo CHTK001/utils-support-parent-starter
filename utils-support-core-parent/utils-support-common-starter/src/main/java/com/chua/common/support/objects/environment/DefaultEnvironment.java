@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认环境配置实现。
@@ -36,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @Slf4j
 public class DefaultEnvironment implements Environment {
 

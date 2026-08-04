@@ -1,5 +1,7 @@
 package com.chua.common.support.network.client;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * HTTP 客户端全局配置，定义连接超时、代理、重试等参数。
  *
@@ -29,6 +31,8 @@ package com.chua.common.support.network.client;
  * @author CH
  * @see AbstractHttpClient
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ClientSetting {
 
     /**

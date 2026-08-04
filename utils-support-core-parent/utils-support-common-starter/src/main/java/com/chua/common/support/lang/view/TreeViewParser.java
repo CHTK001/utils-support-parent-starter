@@ -4,6 +4,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 树形视图解析器，将嵌套数据渲染为终端树。
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("tree")
 public class TreeViewParser implements ViewParser {
 

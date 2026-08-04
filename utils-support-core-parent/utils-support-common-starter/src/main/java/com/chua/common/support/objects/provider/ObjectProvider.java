@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.provider;
 
 import java.util.function.Supplier;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象提供者接口。

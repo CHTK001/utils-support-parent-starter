@@ -3,6 +3,7 @@ package com.chua.common.support.lang.format;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * DDL（数据定义语言，Data Definition Language）格式化器。
@@ -41,6 +42,8 @@ import java.util.regex.Pattern;
  * @see SqlFormatter
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class DdlFormatter extends SqlFormatter {
     /**
      * 无参构造器（默认配置）

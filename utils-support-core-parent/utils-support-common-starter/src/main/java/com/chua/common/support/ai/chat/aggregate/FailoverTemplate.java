@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 公共故障转移模板 — 包装任意 {@link RouterStrategy}，自动处理重试和用量记录。
@@ -20,6 +21,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Slf4j
 public final class FailoverTemplate {
 

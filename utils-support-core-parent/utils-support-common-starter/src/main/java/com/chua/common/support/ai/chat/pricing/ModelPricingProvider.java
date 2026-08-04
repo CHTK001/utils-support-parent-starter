@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.chat.pricing;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模型定价提供者扩展接口，用于从各厂商定价源获取模型单价。
@@ -10,6 +11,7 @@ import com.chua.common.support.ai.chat.ModelDefinition;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public interface ModelPricingProvider {
 
     /**

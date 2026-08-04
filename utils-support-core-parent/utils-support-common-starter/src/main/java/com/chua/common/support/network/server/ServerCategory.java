@@ -1,5 +1,7 @@
 package com.chua.common.support.network.server;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 服务器协议分类枚举，标识服务器所使用协议的核心用途类型。
  *
@@ -10,6 +12,7 @@ package com.chua.common.support.network.server;
  *
  * @author CH
  */
+@NullUnmarked
 public enum ServerCategory {
 
     /**

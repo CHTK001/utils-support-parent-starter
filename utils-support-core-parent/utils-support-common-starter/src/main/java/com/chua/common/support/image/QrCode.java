@@ -3,6 +3,7 @@ package com.chua.common.support.image;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码/条形码编解码接口。
@@ -11,6 +12,7 @@ import java.io.OutputStream;
  * @author CH
  * @since 2026-07-16
  */
+@NullUnmarked
 public interface QrCode {
 
     /**

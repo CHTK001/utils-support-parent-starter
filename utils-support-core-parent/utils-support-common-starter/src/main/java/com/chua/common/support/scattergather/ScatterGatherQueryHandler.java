@@ -1,11 +1,14 @@
 package com.chua.common.support.scattergather;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 本地业务数据查询器。
  * <p>节点服务通过此接口执行本地查询逻辑。</p>
  *
  * @author CH
  */
+@NullUnmarked
 public interface ScatterGatherQueryHandler {
 
     /**

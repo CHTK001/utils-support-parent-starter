@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于虚拟线程的结构化并发实现。
@@ -16,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 2026/07/24
  */
+@NullUnmarked
 public class VirtualThreadStructuredConcurrencyProvider implements StructuredConcurrencyProvider {
 
     /**

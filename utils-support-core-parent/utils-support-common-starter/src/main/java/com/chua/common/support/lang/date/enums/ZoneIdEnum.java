@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.date.enums;
 
 import lombok.Getter;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 时区短ID枚举，例如: "Asia/Shanghai", "亚洲/上海"。
@@ -8,6 +9,7 @@ import lombok.Getter;
  * @author CH
  * @see java.time.ZoneId#SHORT_IDS
  */
+@NullUnmarked
 @Getter
 public enum ZoneIdEnum {
 

@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import static com.chua.common.support.constant.CommonConstant.*;
 import static com.chua.common.support.constant.RegexConstant.DECIMALS;
 import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -34,6 +35,7 @@ import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
  *
  * @author CH
  */
+@NullUnmarked
 public class NumberUtils {
 
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);

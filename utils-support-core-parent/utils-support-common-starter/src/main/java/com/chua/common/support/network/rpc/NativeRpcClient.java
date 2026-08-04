@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 原生 TCP NIO RPC 客户端，纯 JDK 实现。
@@ -27,6 +28,8 @@ import java.util.function.Function;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Spi("native")
 public class NativeRpcClient implements RpcClient {
 

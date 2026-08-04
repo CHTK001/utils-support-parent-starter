@@ -2,6 +2,7 @@ package com.chua.common.support.task.message;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 消息环境配置
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/07/17
  */
+@NullUnmarked
 public class MessageEnvironment {
 
     private final Map<String, String> properties = new ConcurrentHashMap<>();

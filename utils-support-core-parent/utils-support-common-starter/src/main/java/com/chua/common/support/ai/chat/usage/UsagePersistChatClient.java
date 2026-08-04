@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 用量持久化 ChatClient 包装器 — 为任意 {@link ChatClient} 添加异步 AiUsage 持久化能力。

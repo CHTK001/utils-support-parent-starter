@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.directory;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 目录监听事件类型枚举。
  * <p>定义文件目录变更的四种事件类型：创建、修改、删除、溢出，以及通配类型 ALL_KIND。</p>
@@ -7,6 +9,7 @@ package com.chua.common.support.lang.directory;
  * @author CH
  * @since 2024/12/12
  */
+@NullUnmarked
 public enum WatcherEvent {
 
     /**

@@ -1,10 +1,13 @@
 package com.chua.common.support.function;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 名称感知接口
  *
  * @author CH
  */
+@NullUnmarked
 @FunctionalInterface
 public interface NameAware {
 

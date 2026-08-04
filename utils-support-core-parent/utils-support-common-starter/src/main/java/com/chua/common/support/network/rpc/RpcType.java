@@ -1,5 +1,7 @@
 package com.chua.common.support.network.rpc;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * RPC 协议类型枚举，标识当前使用的底层 RPC 通信协议。
  *
@@ -15,6 +17,7 @@ package com.chua.common.support.network.rpc;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public enum RpcType {
 
     /**

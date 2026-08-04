@@ -2,6 +2,7 @@ package com.chua.common.support.ai.bot;
 
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 用户存储 SPI 接口
@@ -12,6 +13,7 @@ import java.util.Optional;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
 public interface BotUserStore extends AutoCloseable {
 
     /**

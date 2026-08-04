@@ -1,12 +1,14 @@
 package com.chua.common.support.function;
 
 import java.lang.reflect.Method;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 方法过滤器接口，用于根据特定条件筛选方法。
  *
  * @author CH
  */
+@NullUnmarked
 public interface MethodFilter {
 
     /**

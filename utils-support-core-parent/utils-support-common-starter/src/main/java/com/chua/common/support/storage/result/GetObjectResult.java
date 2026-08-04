@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.InputStream;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 获取/下载文件结果对象。
@@ -15,6 +16,7 @@ import java.io.InputStream;
  * @author CH
  * @since 1.0
  */
+@NullUnmarked
 @Getter
 @Setter
 @SuperBuilder

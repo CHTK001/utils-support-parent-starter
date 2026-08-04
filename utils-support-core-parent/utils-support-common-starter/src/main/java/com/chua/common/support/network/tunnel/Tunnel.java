@@ -2,6 +2,7 @@ package com.chua.common.support.network.tunnel;
 
 import java.io.Closeable;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 隧道接口，支持开启（返回隧道端口）、关闭、实时信息回调。
@@ -37,6 +38,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 2026/07/31
  */
+@NullUnmarked
 public interface Tunnel extends Closeable {
 
     /**

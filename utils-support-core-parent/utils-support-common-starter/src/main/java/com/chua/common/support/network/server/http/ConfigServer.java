@@ -14,6 +14,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 协议专用服务器接口，继承自协议无关的 {@link Server}。
@@ -42,6 +43,8 @@ import java.util.Map;
  * @version 2.0
  * @since 2026/07/16
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface ConfigServer extends Server {
 
     // ==================== 路由注册 ====================

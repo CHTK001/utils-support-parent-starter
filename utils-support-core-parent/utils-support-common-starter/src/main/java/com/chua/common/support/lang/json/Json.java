@@ -39,6 +39,7 @@ import java.util.*;
 
 import static com.chua.common.support.constant.DateFormatConstant.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSON 工具类，提供便捷的 JSON 序列化和反序列化功能。
@@ -46,6 +47,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  *
  * @author CH
  */
+@NullUnmarked
 public class Json {
 
     /**

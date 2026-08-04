@@ -10,6 +10,7 @@ import java.util.*;
 import static com.chua.common.support.constant.CommonConstant.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -26,6 +27,7 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/11/5
  */
+@NullUnmarked
 public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
 
     /**

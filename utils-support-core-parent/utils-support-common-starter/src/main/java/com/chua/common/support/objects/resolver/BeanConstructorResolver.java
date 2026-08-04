@@ -4,6 +4,7 @@ import com.chua.common.support.objects.definition.BeanDefinition;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 构造器参数解析器 SPI 接口。
@@ -14,6 +15,7 @@ import java.util.function.Function;
  * @author CH
  * @since 2024/12/20
  */
+@NullUnmarked
 @FunctionalInterface
 public interface BeanConstructorResolver {
 

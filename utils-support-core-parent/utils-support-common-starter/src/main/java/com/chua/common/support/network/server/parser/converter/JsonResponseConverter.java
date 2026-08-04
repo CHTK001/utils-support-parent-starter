@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.lang.json.Json;
 
 import java.nio.charset.StandardCharsets;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSON 响应转化器，将数据对象转换为 JSON 格式文本。
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 2026/07/16
  */
+@NullUnmarked
 public class JsonResponseConverter implements ResponseConverter {
 
     @Override

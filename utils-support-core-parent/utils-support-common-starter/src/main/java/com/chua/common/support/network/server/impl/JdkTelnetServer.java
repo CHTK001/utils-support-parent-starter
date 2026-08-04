@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK 的 Telnet 服务器实现。
@@ -62,6 +63,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/18
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 @Slf4j
 @Spi({"jdk-telnet"})
 public class JdkTelnetServer extends AbstractServer {

@@ -2,6 +2,7 @@ package com.chua.common.support.lang.date;
 
 import java.time.LocalDateTime;
 import java.time.Duration;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 时间区间。
@@ -10,6 +11,8 @@ import java.time.Duration;
  * @author CH
  * @since 2026/07/19
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public final class DateTimeRange {
 
     /**

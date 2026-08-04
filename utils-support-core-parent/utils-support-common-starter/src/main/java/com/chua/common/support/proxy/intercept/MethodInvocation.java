@@ -1,5 +1,7 @@
 package com.chua.common.support.proxy.intercept;
 
+import org.jspecify.annotations.NullUnmarked;
+
 
 /**
  * 方法调用链接口，用于在环绕拦截器中继续执行目标方法。
@@ -10,6 +12,7 @@ package com.chua.common.support.proxy.intercept;
  * @since 2025/11/26
  * @see MethodArroundIntercept
  */
+@NullUnmarked
 @FunctionalInterface
 public interface MethodInvocation {
 

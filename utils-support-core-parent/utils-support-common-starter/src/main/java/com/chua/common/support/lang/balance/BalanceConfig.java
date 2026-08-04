@@ -2,10 +2,12 @@ package com.chua.common.support.lang.balance;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
+@NullUnmarked
 @Data
 @Builder
 public class BalanceConfig {

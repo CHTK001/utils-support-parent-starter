@@ -1,6 +1,7 @@
 package com.chua.common.support.network.client;
 
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 客户端抽象基类，采用<b>模板方法模式（Template Method）</b>封装通用逻辑。
@@ -47,6 +48,7 @@ import java.util.concurrent.CompletableFuture;
  * @see ClientSetting
  * @see DefaultHttpClient
  */
+@NullUnmarked
 public abstract class AbstractHttpClient implements HttpClient {
 
     /**

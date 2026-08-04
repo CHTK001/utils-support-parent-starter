@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SEED 模式探针：连接种子节点列表。
@@ -22,6 +23,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class SeedModeProbe implements ProbeStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(SeedModeProbe.class);

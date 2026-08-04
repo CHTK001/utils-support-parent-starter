@@ -1,6 +1,7 @@
 package com.chua.common.support.collection;
 
 import java.util.*;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 可重复元素的集合（Multiset），记录每个元素的出现次数。
@@ -26,6 +27,7 @@ import java.util.*;
  * @see #uniqueElements()
  * @see #entrySet()
  */
+@NullUnmarked
 public class Multiset<E> extends AbstractSet<E> {
 
     /**

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import com.chua.common.support.utils.BeanUtils;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件写入构建器抽象基类。
@@ -17,6 +18,8 @@ import com.chua.common.support.utils.BeanUtils;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public abstract class WriteBuilder {
 
     /** 待写入的文件 */

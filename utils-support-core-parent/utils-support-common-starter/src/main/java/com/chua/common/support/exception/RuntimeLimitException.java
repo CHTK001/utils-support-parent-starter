@@ -1,5 +1,7 @@
 package com.chua.common.support.exception;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 运行时限制异常。
  * <p>
@@ -9,5 +11,6 @@ package com.chua.common.support.exception;
  *
  * @author CH
  */
+@NullUnmarked
 public class RuntimeLimitException extends RuntimeException {
 }

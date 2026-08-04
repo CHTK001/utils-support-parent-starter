@@ -1,11 +1,14 @@
 package com.chua.common.support.exception;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 启动失败异常。
  *
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class StartFailedException extends RuntimeException {
 
     /**

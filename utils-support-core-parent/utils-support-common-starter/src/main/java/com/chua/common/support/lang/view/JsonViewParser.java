@@ -2,6 +2,7 @@ package com.chua.common.support.lang.view;
 
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSON 视图解析器，将数据渲染为格式化 JSON。
@@ -10,6 +11,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 @Spi("json")
 public class JsonViewParser implements ViewParser {
 

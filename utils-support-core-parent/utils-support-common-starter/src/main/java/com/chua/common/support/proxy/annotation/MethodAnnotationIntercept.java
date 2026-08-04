@@ -5,6 +5,7 @@ import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.annotation.Annotation;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 注解方法拦截器接口，用于拦截带有特定注解的方法调用。
@@ -74,6 +75,7 @@ import java.lang.annotation.Annotation;
  * @see MethodInvocation
  * @see Spi
  */
+@NullUnmarked
 public interface MethodAnnotationIntercept<A extends Annotation> {
 
     /**

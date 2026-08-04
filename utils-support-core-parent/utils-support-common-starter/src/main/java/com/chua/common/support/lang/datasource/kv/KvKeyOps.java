@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.datasource.kv;
 
 import java.time.Duration;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 键级链式操作器，由 {@link KvTemplate#key(String)} 创建并绑定到单个键。
@@ -14,6 +15,8 @@ import java.time.Duration;
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class KvKeyOps {
 
     /**

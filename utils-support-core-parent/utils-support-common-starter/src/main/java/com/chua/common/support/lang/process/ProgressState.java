@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -15,6 +16,7 @@ import javax.annotation.Nullable;
  * @since 2024-01-01
  * @version 1.0.0
  */
+@NullUnmarked
 public class ProgressState {
 
     /**

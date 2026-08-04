@@ -1,5 +1,7 @@
 package com.chua.common.support.task.pipeline.core;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 流水线节点接口。
  *
@@ -16,6 +18,7 @@ package com.chua.common.support.task.pipeline.core;
  *
  * @author CH
  */
+@NullUnmarked
 @FunctionalInterface
 public interface PipelineNode {
 

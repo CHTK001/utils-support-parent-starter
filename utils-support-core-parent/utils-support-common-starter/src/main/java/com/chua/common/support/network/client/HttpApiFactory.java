@@ -3,6 +3,7 @@ package com.chua.common.support.network.client;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 声明式 HTTP API 客户端工厂，为注解标注的接口生成 HTTP 客户端动态代理。
@@ -38,6 +39,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author CH
  * @see HttpApiInvocationHandler
  */
+@NullUnmarked
 public class HttpApiFactory {
 
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();

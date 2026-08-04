@@ -3,6 +3,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.security.KeyPair;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RSA 非对称加解密 SPI 接口
@@ -48,6 +49,8 @@ import java.security.KeyPair;
  * @see Cipher
  * @see com.chua.common.support.spi.ServiceProvider
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface RsaCipher extends Cipher {
 
     /**

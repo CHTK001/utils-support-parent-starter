@@ -7,6 +7,7 @@ import com.chua.common.support.utils.MapUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -15,6 +16,7 @@ import java.util.function.BiConsumer;
  *
  * @author CH
  */
+@NullUnmarked
 @SuppressWarnings("ALL")
 public class JsonObject extends LinkedHashMap<String, Object> {
 

@@ -1,11 +1,14 @@
 package com.chua.common.support.exception;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * 配置无效异常。
  *
  * @author CH
  * @since 4.0.0.42
  */
+@NullUnmarked
 public class ConfigInvalidException extends RuntimeException {
 
     /**

@@ -12,6 +12,7 @@ import java.util.List;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_HASH;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -33,6 +34,8 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/10/30
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public class ColorTypeConverter implements TypeConverter<Color> {
 
     private static final String HEX_16 = "0x";

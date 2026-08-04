@@ -1,5 +1,7 @@
 package com.chua.common.support.network.ip;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * IP 定位配置
  *
@@ -8,6 +10,7 @@ package com.chua.common.support.network.ip;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class GeoSetting {
 
     /** 默认配置 */

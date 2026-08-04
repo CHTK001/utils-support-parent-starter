@@ -2,6 +2,7 @@ package com.chua.common.support.task.retry;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK 默认重试提供者实现
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 1.0.0
  */
+@NullUnmarked
 public class JdkRetryProvider extends AbstractRetryProvider {
 
     /**

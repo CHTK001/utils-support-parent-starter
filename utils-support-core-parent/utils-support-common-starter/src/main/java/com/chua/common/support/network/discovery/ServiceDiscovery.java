@@ -1,6 +1,7 @@
 package com.chua.common.support.network.discovery;
 
 import java.util.Set;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务发现接口定义。
@@ -8,6 +9,8 @@ import java.util.Set;
  *
  * @author CH
  */
+@NullUnmarked
+@SuppressWarnings("NullAway")
 public interface ServiceDiscovery extends AutoCloseable {
 
     /**
