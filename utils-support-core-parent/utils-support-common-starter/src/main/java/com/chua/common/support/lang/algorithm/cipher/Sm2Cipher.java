@@ -65,7 +65,7 @@ public interface Sm2Cipher extends Cipher {
      * @return Sm2Cipher 实例
      * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
      */
-    static Sm2Cipher create(String provider) {
+    static @Nullable Sm2Cipher create(String provider) {
         return ServiceProvider.of(Sm2Cipher.class).getNewExtension(provider);
     }
 
