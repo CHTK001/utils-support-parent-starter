@@ -1,10 +1,8 @@
 package com.chua.flow.support.node;
 
-import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.task.flow.FlowInstance;
-import com.chua.common.support.task.flow.FlowNode;
-import com.chua.common.support.task.flow.FlowNodeExecutor;
+import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowProps;
+import com.chua.common.support.task.flow.HttpCallNode;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -14,9 +12,9 @@ import java.time.Duration;
 import java.util.Map;
 
 /**
- * HTTP 调用节点执行器。
+ * HTTP 调用节点。
  *
- * <p>使用 JDK HttpClient 发起 HTTP 请求，响应结果写入实例上下文，
+ * <p>使用 JDK HttpClient 发起 HTTP 请求，响应结果写入流程上下文，
  * 供下游节点消费。支持 GET / POST / PUT / DELETE 等常用方法及自定义请求头。</p>
  *
  * <p>节点属性说明：</p>
@@ -36,9 +34,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("httpCall")
-@FlowNode(value = "httpCall", describe = "HTTP 调用")
-public class HttpCallFlowNode implements FlowNodeExecutor {
+public class HttpCallFlowNode implements HttpCallNode {
 
     /**
      * 结果上下文属性键：响应体
@@ -66,11 +62,11 @@ public class HttpCallFlowNode implements FlowNodeExecutor {
      * <p>根据节点属性构造请求并发送，响应结果写入实例上下文。
      * 请求失败时抛出运行时异常，由引擎标记实例失败。</p>
      *
-     * @param instance 当前流程实例
+     * @param context 当前流程上下文
      */
     @Override
-    public void execute(FlowInstance instance) {
-        FlowProps props = instance.currentNodeProps();
+    public void execute(FlowContext context) {
+        FlowProps props = context.currentNodeProps();
         String url = props.getString("url");
         if (url == null || url.isEmpty()) {
             throw new IllegalArgumentException("httpCall 节点缺少 url 属性");
@@ -80,8 +76,8 @@ public class HttpCallFlowNode implements FlowNodeExecutor {
         String body = props.getString("body");
 
         HttpResponse<String> response = send(url, method, headers, body);
-        instance.setAttribute(RESULT_KEY, response.body());
-        instance.setAttribute(STATUS_KEY, response.statusCode());
+        context.setAttribute(RESULT_KEY, response.body());
+        context.setAttribute(STATUS_KEY, response.statusCode());
     }
 
     /**

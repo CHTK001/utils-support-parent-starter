@@ -162,7 +162,7 @@ public class FlowController {
             return ResponseEntity.notFound().build();
         }
         Flow flow = FlowEngine.createFlow(definition);
-        FlowInstance instance = flow.createInstance(params);
+        FlowInstance instance = flow.createGraph().createInstance(params);
         instanceRegistry.register(instance);
         instance.run();
         return ResponseEntity.ok(buildResult(instance));

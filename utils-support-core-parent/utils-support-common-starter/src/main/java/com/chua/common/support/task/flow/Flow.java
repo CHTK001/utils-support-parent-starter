@@ -1,31 +1,32 @@
 package com.chua.common.support.task.flow;
 
+import java.util.List;
 import java.util.Map;
 
 /**
- * 流程接口。
+ * 流程容器接口。
  *
- * <p>流程编排的核心抽象，定义一条可执行的节点链路。
- * 支持 {@code addNode} + {@code addNext} 链式构建、条件分支、
- * 实例创建以及 JSON 图导入导出。</p>
+ * <p>负责节点定义的管理，通过 {@link #addNode(String, FlowNode)} 添加节点实例
+ * （节点直接以对象形式加入，无需 SPI 注册），通过 {@link #createGraph()}
+ * 开始创建编排图并进入可执行状态。</p>
  *
  * <p>使用示例：</p>
  * <pre>{@code
  * Flow flow = FlowEngine.createFlow("demo")
- *     .addNode("start", "start")
- *     .addNext("start", "fetch")
- *     .addNode("fetch", "spider", FlowProps.of(Map.of("urls", List.of("https://example.com"))))
- *     .addNext("fetch", "check")
- *     .addNode("check", "condition", FlowProps.of(Map.of("key", "spider.result")))
- *     .when("check", true, "save")
- *     .when("check", false, "end")
- *     .addNext("check", "save")
- *     .addNode("save", "httpCall", FlowProps.of(Map.of("url", "https://api.example.com/save")))
- *     .addNext("save", "end")
- *     .addNode("end", "end")
- *     .build();
+ *     .addNode("start", new DefaultStartNode())
+ *     .addNode("fetch", new SpiderFlowNode(), Map.of("urls", List.of("https://example.com")))
+ *     .addNode("check", new DefaultConditionNode(), Map.of("key", "spider.result"))
+ *     .addNode("transform", new DefaultTransformNode(), Map.of("source", "attribute:bizId"))
+ *     .addNode("end", new DefaultEndNode());
  *
- * FlowInstance instance = flow.createInstance(Map.of("bizId", "1"));
+ * FlowGraph graph = flow.createGraph()
+ *     .start("start").next("fetch").next("check")
+ *     .when("check", true, "transform")
+ *     .when("check", false, "end")
+ *     .next("transform").next("end")
+ *     .end();
+ *
+ * FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
  * instance.run();
  * }</pre>
  *
@@ -42,89 +43,62 @@ public interface Flow {
     String getId();
 
     /**
-     * 添加节点。
+     * 添加节点定义。
      *
-     * @param id    节点唯一标识
-     * @param type  节点类型
-     * @param props 节点配置属性
-     * @return 当前流程，支持链式调用
-     */
-    Flow addNode(String id, String type, FlowProps props);
-
-    /**
-     * 添加节点。
-     *
-     * @param id    节点唯一标识
-     * @param type  节点类型
-     * @param props 节点配置属性
-     * @return 当前流程，支持链式调用
-     */
-    Flow addNode(String id, String type, Map<String, Object> props);
-
-    /**
-     * 添加无属性节点。
+     * <p>节点直接以实例形式加入，不需要 SPI 注册，灵活可组合。
+     * 节点类型由 {@link FlowNode#type()} 提供，无配置属性。</p>
      *
      * @param id   节点唯一标识
-     * @param type 节点类型
+     * @param node 节点实例
      * @return 当前流程，支持链式调用
      */
-    Flow addNode(String id, String type);
+    Flow addNode(String id, FlowNode node);
 
     /**
-     * 添加顺序连线。
+     * 添加节点定义并携带配置属性。
      *
-     * <p>从源节点到目标节点的顺序边，源节点执行完毕后按默认顺序进入目标节点。</p>
+     * <p>节点执行时通过 {@link FlowContext#currentNodeProps()} 读取配置属性，
+     * 属性同时参与流程定义 JSON 的导出。</p>
      *
-     * @param from 源节点 ID
-     * @param to   目标节点 ID
+     * @param id    节点唯一标识
+     * @param node  节点实例
+     * @param props 节点配置属性
      * @return 当前流程，支持链式调用
      */
-    Flow addNext(String from, String to);
+    Flow addNode(String id, FlowNode node, Map<String, Object> props);
 
     /**
-     * 配置条件节点分支。
+     * 获取指定节点。
      *
-     * <p>为条件节点指定判断结果对应的下一节点，true/false 各可配置一条。</p>
-     *
-     * @param nodeId 条件节点 ID
-     * @param result 判断结果
-     * @param target 该结果对应的下一节点 ID
-     * @return 当前流程，支持链式调用
+     * @param id 节点唯一标识
+     * @return 节点实例，不存在时返回 null
      */
-    Flow when(String nodeId, boolean result, String target);
+    FlowNode getNode(String id);
 
     /**
-     * 指定起始节点 ID。
+     * 判断节点是否存在。
      *
-     * @param nodeId 起始节点 ID
-     * @return 当前流程，支持链式调用
+     * @param id 节点唯一标识
+     * @return 存在返回 true，否则返回 false
      */
-    Flow start(String nodeId);
+    boolean containsNode(String id);
 
     /**
-     * 指定终止节点 ID。
+     * 获取全部节点实例。
      *
-     * @param nodeId 终止节点 ID
-     * @return 当前流程，支持链式调用
+     * @return 节点实例列表
      */
-    Flow end(String nodeId);
+    List<FlowNode> listNodes();
 
     /**
-     * 创建流程实例。
+     * 开始创建编排图。
      *
-     * @return 流程实例，持有唯一执行上下文
+     * <p>调用后进入可执行状态，通过 {@link FlowGraph} 的
+     * {@code start(id).next(...).when(...).end()} 链式 DSL 构建节点连线。</p>
+     *
+     * @return 编排图实例
      */
-    FlowInstance createInstance();
-
-    /**
-     * 创建流程实例并携带初始参数。
-     *
-     * <p>参数在首次运行时合并写入实例上下文。</p>
-     *
-     * @param params 初始参数
-     * @return 流程实例，持有唯一执行上下文
-     */
-    FlowInstance createInstance(Map<String, Object> params);
+    FlowGraph createGraph();
 
     /**
      * 导出流程定义 JSON。
@@ -142,7 +116,7 @@ public interface Flow {
      * 节点类型需已注册，否则抛出异常。</p>
      *
      * @param json 流程定义 JSON 字符串
-     * @return 可执行的流程实例
+     * @return 流程实例
      */
     Flow importJson(String json);
 }

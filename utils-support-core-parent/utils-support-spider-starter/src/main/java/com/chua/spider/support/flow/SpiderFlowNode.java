@@ -1,10 +1,8 @@
 package com.chua.spider.support.flow;
 
-import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.task.flow.FlowInstance;
-import com.chua.common.support.task.flow.FlowNode;
-import com.chua.common.support.task.flow.FlowNodeExecutor;
+import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowProps;
+import com.chua.common.support.task.flow.SpiderNode;
 import com.chua.spider.support.Spider;
 import com.chua.spider.support.model.SpiderResult;
 import com.chua.spider.support.model.SpiderSite;
@@ -12,10 +10,10 @@ import com.chua.spider.support.model.SpiderSite;
 import java.util.List;
 
 /**
- * 爬虫流程节点执行器。
+ * 爬虫流程节点。
  *
  * <p>将爬虫能力封装为流程编排节点，作为爬虫编排的入口：
- * 流程运行到该节点时启动一次爬虫抓取，结果写入实例上下文供下游节点消费
+ * 流程运行到该节点时启动一次爬虫抓取，结果写入流程上下文供下游节点消费
  * （清洗、入库、通知等）。</p>
  *
  * <p>节点属性说明：</p>
@@ -37,9 +35,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("spider")
-@FlowNode(value = "spider", describe = "爬虫抓取")
-public class SpiderFlowNode implements FlowNodeExecutor {
+public class SpiderFlowNode implements SpiderNode {
 
     /**
      * 结果上下文属性键：爬取结果列表
@@ -65,14 +61,14 @@ public class SpiderFlowNode implements FlowNodeExecutor {
      * 执行爬虫节点。
      *
      * <p>根据节点属性构建爬虫并同步执行抓取，
-     * 结果写入实例上下文供下游节点消费。
+     * 结果写入上下文供下游节点消费。
      * 种子 URL 为空时抛出异常，由引擎标记实例失败。</p>
      *
-     * @param instance 当前流程实例
+     * @param context 当前流程上下文
      */
     @Override
-    public void execute(FlowInstance instance) {
-        FlowProps props = instance.currentNodeProps();
+    public void execute(FlowContext context) {
+        FlowProps props = context.currentNodeProps();
         List<String> urls = props.getStringList("urls");
         if (urls.isEmpty()) {
             throw new IllegalArgumentException("spider 节点缺少 urls 属性");
@@ -81,8 +77,8 @@ public class SpiderFlowNode implements FlowNodeExecutor {
         Spider.Builder builder = buildSpider(urls, props);
         List<SpiderResult> results = builder.build().runSync();
 
-        instance.setAttribute(RESULT_KEY, results);
-        instance.setCurrentData(results);
+        context.setAttribute(RESULT_KEY, results);
+        context.setData(results);
     }
 
     /**

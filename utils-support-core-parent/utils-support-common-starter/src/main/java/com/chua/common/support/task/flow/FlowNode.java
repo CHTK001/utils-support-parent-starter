@@ -1,55 +1,76 @@
 package com.chua.common.support.task.flow;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * 流程节点类型注解。
+ * 流程节点接口。
  *
- * <p>标注在 {@link FlowNodeExecutor} 实现类上，声明节点类型标识与描述信息。
- * 节点类型注册表 {@link FlowNodeRegistry} 通过 SPI 机制发现所有实现类，
- * 运行时按类型标识匹配并实例化对应的节点执行器。</p>
+ * <p>流程编排图中每个节点的执行逻辑载体。与旧版"注解 + SPI 注册"不同，
+ * 新架构中节点是普通接口，直接以实例形式通过 {@link Flow#addNode} 加入流程，
+ * 无需任何 SPI 注册，灵活性和可组合性更强。</p>
+ *
+ * <p>节点通过 {@link FlowContext} 与流程交互：</p>
+ * <ul>
+ *   <li>读取节点配置属性：{@link FlowContext#currentNodeProps()}</li>
+ *   <li>读写共享上下文：{@link FlowContext#getAttribute(String)}、
+ *       {@link FlowContext#setAttribute(String, Object)}</li>
+ *   <li>更新当前数据：{@link FlowContext#getData()}、{@link FlowContext#setData(Object)}</li>
+ *   <li>控制流程流向：{@link FlowContext#waitForResume()} 挂起、
+ *       {@link FlowContext#exit()} 终止、{@link FlowContext#setNextNodeId(String)} 指定下一节点</li>
+ * </ul>
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * @Spi("spider")
- * @FlowNode(value = "spider", describe = "爬虫抓取")
- * public class SpiderFlowNode implements FlowNodeExecutor {
+ * FlowNode node = new FlowNode() {
  *     @Override
- *     public void execute(FlowInstance instance) {
- *         // 节点执行逻辑
+ *     public String type() {
+ *         return "custom";
  *     }
- * }
+ *
+ *     @Override
+ *     public void execute(FlowContext context) {
+ *         context.setData("hello");
+ *     }
+ * };
+ *
+ * Flow flow = FlowEngine.createFlow("demo").addNode("n1", node);
  * }</pre>
+ *
+ * <p>内置了常用二级节点接口，直接使用即可：{@link StartNode}、{@link EndNode}、
+ * {@link ConditionNode}、{@link TransformNode}、{@link LogNode}、{@link HttpCallNode}、
+ * {@link SpiderNode}。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface FlowNode {
+public interface FlowNode {
 
     /**
-     * 节点类型标识。
+     * 获取节点类型标识。
      *
-     * <p>与前端 ReFlow 画布节点 {@code type} 字段保持一致，
-     * 同时是 JSON 图定义导入时解析节点执行器的依据。</p>
+     * <p>用于节点清单展示与 JSON 图定义导入时匹配节点实现。</p>
      *
      * @return 节点类型标识
      */
-    String value();
+    String type();
 
     /**
-     * 节点类型描述。
+     * 执行节点逻辑。
      *
-     * <p>供前端属性面板与后端节点类型清单展示使用，
-     * 说明该节点类型的功能用途。</p>
+     * <p>由流程引擎调度到当前节点时调用。执行期间可通过上下文读写数据、
+     * 控制流程动作；抛出异常会被引擎捕获并标记实例为失败状态。</p>
      *
-     * @return 节点类型描述
+     * @param context 当前流程上下文
      */
-    String describe() default "";
+    void execute(FlowContext context);
+
+    /**
+     * 克隆节点实例。
+     *
+     * <p>默认返回当前实例。有状态节点应覆写本方法返回独立副本，
+     * 避免 JSON 导入创建流程时多流程共享可变节点状态。</p>
+     *
+     * @return 节点实例副本
+     */
+    default FlowNode cloneNode() {
+        return this;
+    }
 }
