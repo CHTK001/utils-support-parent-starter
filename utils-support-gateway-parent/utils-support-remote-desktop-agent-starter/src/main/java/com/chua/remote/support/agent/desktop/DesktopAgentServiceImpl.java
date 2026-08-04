@@ -1,5 +1,6 @@
 package com.chua.remote.support.agent.desktop;
 
+import com.chua.common.support.media.capture.JavaCVScreenCapture;
 import com.chua.common.support.media.codec.ScreenCature;
 import com.chua.common.support.media.codec.VideoEncoder;
 import com.chua.common.support.spi.ServiceProvider;
@@ -87,18 +88,33 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
      * @return ScreenCature 实例
      */
     private ScreenCature createCapture() {
+        JavaCVScreenCapture javacv = null;
         try {
-            ScreenCature cap = ServiceProvider.of(ScreenCature.class).getNewExtension("javacv");
-            if (cap == null) {
-                log.warn("[DesktopAgent] JavaCVScreenCapture not available, falling back to RobotScreenCapture");
-                cap = ServiceProvider.of(ScreenCature.class).getNewExtension("robot");
+            javacv = new JavaCVScreenCapture();
+            if (javacv.init(1920, 1080, 30)) {
+                Frame testFrame = javacv.grabFrame();
+                if (testFrame != null && testFrame.image != null && testFrame.image.length > 0 && testFrame.image[0] != null) {
+                    log.info("[DesktopAgent] 采集器: JavaCVScreenCapture (已验证)");
+                    javacv.close();
+                    return javacv;
+                }
+                javacv.close();
+                log.warn("[DesktopAgent] JavaCVScreenCapture 验证失败（frame 无效），回退到 RobotScreenCapture");
             }
+        } catch (Exception e) {
+            if (javacv != null) {
+                try { javacv.close(); } catch (Exception ignored) {}
+            }
+            log.warn("[DesktopAgent] JavaCVScreenCapture 创建/初始化失败: {}", e.getMessage());
+        }
+        try {
+            ScreenCature cap = ServiceProvider.of(ScreenCature.class).getNewExtension("robot");
             if (cap != null) {
-                log.info("[DesktopAgent] 采集器: {} (SPI)", cap.getClass().getSimpleName());
+                log.info("[DesktopAgent] 采集器: RobotScreenCapture (SPI)");
             }
             return cap;
-        } catch (Exception e) {
-            log.warn("[DesktopAgent] 创建采集器失败: {}", e.getMessage());
+        } catch (Exception e2) {
+            log.warn("[DesktopAgent] RobotScreenCapture 创建也失败: {}", e2.getMessage());
             return null;
         }
     }
@@ -425,6 +441,10 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                 Frame frame = capture.grabFrame();
                 if (frame == null) {
                     Thread.sleep(1);
+                    continue;
+                }
+                // JavaCV 有时返回 frame.image == null，跳过无效帧
+                if (frame.image == null || frame.image.length == 0 || frame.image[0] == null) {
                     continue;
                 }
                 if (!frameQueue.offer(frame)) {
