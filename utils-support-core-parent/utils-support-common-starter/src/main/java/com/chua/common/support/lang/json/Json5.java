@@ -16,7 +16,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -35,8 +36,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/8/7
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 public class Json5 {
 
     private static final Logger log = LoggerFactory.getLogger(Json5.class);
@@ -85,7 +85,7 @@ public class Json5 {
      * @return 反序列化后的 List 对象
      * @throws RuntimeException 如果解析失败则抛出运行时异常
      */
-    public static <T> List<T> fromJsonList(String json, Class<T> clazz) {
+    public static <T> List<T> fromJsonList(@Nullable String json, Class<T> clazz) {
         try {
             // 使用 TypeReference 确保正确获取泛型信息
             return JSON5_MAPPER.readValue(json, new TypeReference<List<T>>() {
@@ -113,7 +113,7 @@ public class Json5 {
      * @param <T>    目标对象的泛型类型
      * @return 反序列化后的对象，若输入为空则返回 null
      */
-    public static <T> T fromJson(String json5, Class<T> target) {
+    public static <T> @Nullable T fromJson(@Nullable String json5, Class<T> target) {
         if (json5 == null || json5.trim().isEmpty()) {
             return null;
         }
@@ -145,9 +145,10 @@ public class Json5 {
      * @param json5 JSON5 格式的字符串内容
      * @return JsonObject 对象，解析失败时返回空对象
      */
-    public static JsonObject getJsonObject(String json5) {
+    public static JsonObject getJsonObject(@Nullable String json5) {
         try {
-            return fromJson(json5, JsonObject.class);
+            @Nullable JsonObject result = fromJson(json5, JsonObject.class);
+            return result != null ? result : new JsonObject();
         } catch (Exception e) {
             log.warn("JSON5 解析为 JsonObject 失败，返回空对象：{}", e.getMessage());
             return new JsonObject();
@@ -163,9 +164,10 @@ public class Json5 {
      * @param json5 JSON5 格式的字符串内容
      * @return JsonArray 对象，解析失败时返回空数组
      */
-    public static JsonArray getJsonArray(String json5) {
+    public static JsonArray getJsonArray(@Nullable String json5) {
         try {
-            return fromJson(json5, JsonArray.class);
+            @Nullable JsonArray result = fromJson(json5, JsonArray.class);
+            return result != null ? result : new JsonArray();
         } catch (Exception e) {
             log.warn("JSON5 解析为 JsonArray 失败，返回空数组：{}", e.getMessage());
             return new JsonArray();
@@ -180,7 +182,7 @@ public class Json5 {
      * @param <T>    目标对象的泛型类型
      * @return 反序列化后的对象
      */
-    public static <T> T fromJson(byte[] bytes, Class<T> target) {
+    public static <T> @Nullable T fromJson(byte[] bytes, Class<T> target) {
         return fromJson(new String(bytes, StandardCharsets.UTF_8), target);
     }
 
@@ -192,7 +194,8 @@ public class Json5 {
      * @return 解析后的 JsonObject
      */
     public static JsonObject fromJson(byte[] bytes, Charset charset) {
-        return fromJson(new String(bytes, charset), JsonObject.class);
+        @Nullable JsonObject result = fromJson(new String(bytes, charset), JsonObject.class);
+        return result != null ? result : new JsonObject();
     }
 
     /**
@@ -238,7 +241,7 @@ public class Json5 {
      * @param json5 JSON5 格式的字符串内容
      * @return 解析后的 Map 对象
      */
-    public static Map<String, Object> fromJson(String json5) {
+    public static Map<String, Object> fromJson(@Nullable String json5) {
         try {
             return JSON5_MAPPER.readerForMapOf(Object.class).readValue(json5);
         } catch (JsonProcessingException e) {
@@ -257,7 +260,7 @@ public class Json5 {
      * @param object 需要序列化的 Java 对象
      * @return JSON5 格式的字符串
      */
-    public static String toJson(Object object) {
+    public static String toJson(@Nullable Object object) {
         try {
             return JSON5_MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -272,7 +275,7 @@ public class Json5 {
      * @param object 需要序列化的 Java 对象
      * @return JSON5 格式的字节数组
      */
-    public static byte[] toJsonByte(Object object) {
+    public static byte[] toJsonByte(@Nullable Object object) {
         try {
             return JSON5_MAPPER.writeValueAsBytes(object);
         } catch (JsonProcessingException e) {
@@ -287,7 +290,7 @@ public class Json5 {
      * @param json5Str 待验证的字符串
      * @return 如果是有效的 JSON5 返回 true，否则返回 false
      */
-    public static boolean validate(String json5Str) {
+    public static boolean validate(@Nullable String json5Str) {
         try {
             // 尝试解析树节点，成功则说明格式有效
             JSON5_MAPPER.readTree(json5Str);
@@ -309,7 +312,7 @@ public class Json5 {
      * @param text 待检测的字符串
      * @return 如果符合 JSON5 特征返回 true，否则返回 false
      */
-    public static boolean isJson5(String text) {
+    public static boolean isJson5(@Nullable String text) {
         if (text == null || text.trim().isEmpty()) {
             return false;
         }
@@ -335,7 +338,7 @@ public class Json5 {
      * @param json5 原始 JSON5 字符串
      * @return 去除注释后的纯净 JSON5 字符串
      */
-    public static String preprocessJson5(String json5) {
+    public static @Nullable String preprocessJson5(@Nullable String json5) {
         if (json5 == null) {
             return null;
         }

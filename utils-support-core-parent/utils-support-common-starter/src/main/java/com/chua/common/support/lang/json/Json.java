@@ -39,7 +39,8 @@ import java.util.*;
 
 import static com.chua.common.support.constant.DateFormatConstant.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * JSON 工具类，提供便捷的 JSON 序列化和反序列化功能。
@@ -47,7 +48,7 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 public class Json {
 
     /**
@@ -184,7 +185,7 @@ public class Json {
      * @param json JSON 字符串
      * @return JsonObject 对象
      */
-    public static JsonObject getJsonObject(String json) {
+    public static JsonObject getJsonObject(@Nullable String json) {
         try {
             return getMapper().readValue(json, JsonObject.class);
         } catch (Exception e) {
@@ -198,7 +199,7 @@ public class Json {
      * @param json JSON 字符串
      * @return JsonReference 对象
      */
-    public static JsonReference getJsonReference(String json) {
+    public static JsonReference getJsonReference(@Nullable String json) {
         return new JsonReference(json);
     }
 
@@ -208,7 +209,7 @@ public class Json {
      * @param jsonArray 字节数组
      * @return JsonArray 对象
      */
-    public static JsonArray getJsonArray(byte[] jsonArray) {
+    public static JsonArray getJsonArray(@Nullable byte[] jsonArray) {
         if (null == jsonArray) {
             return new JsonArray();
         }
@@ -222,7 +223,7 @@ public class Json {
      * @param json JSON 字符串
      * @return JsonArray 对象
      */
-    public static JsonArray getJsonArray(String json) {
+    public static JsonArray getJsonArray(@Nullable String json) {
         if (null == json) {
             return new JsonArray();
         }
@@ -278,7 +279,7 @@ public class Json {
      * @param charset 字符集名称
      * @return JsonObject 对象
      */
-    public static JsonObject getJsonObject(InputStream inputStream, String charset) {
+    public static JsonObject getJsonObject(InputStream inputStream, @Nullable String charset) {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
         } catch (UnsupportedEncodingException e) {
@@ -306,8 +307,8 @@ public class Json {
      * @param <T>        泛型类型
      * @return List 集合
      */
-@SuppressWarnings({"unchecked", "ALL"})
-    public static <T> List<T> fromJsonToList(String json, Class<T> targetType) {
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> fromJsonToList(@Nullable String json, Class<T> targetType) {
         if (null == json) {
             return Collections.emptyList();
         }
@@ -328,7 +329,7 @@ public class Json {
      * @param <T>    泛型类型
      * @return 目标对象
      */
-    public static <T> T fromJson(String json, Class<T> target) {
+    public static <T> T fromJson(@Nullable String json, Class<T> target) {
         try {
             return getMapper().readValue(json, target);
         } catch (JsonProcessingException e) {
@@ -402,7 +403,7 @@ public class Json {
      * @param ignores 需要忽略的字段名数组
      * @return JSON 字符串
      */
-    public static String toJson(Object object, String... ignores) {
+    public static String toJson(@Nullable Object object, String... ignores) {
         try {
             // 收集需要忽略的字段名
             Set<String> ignoreFields = new HashSet<>();
@@ -464,7 +465,7 @@ public class Json {
      * @param object 待序列化的对象
      * @return 美化后的 JSON 字符串
      */
-    public static String prettyFormat(Object object) {
+    public static String prettyFormat(@Nullable Object object) {
         try {
             return getPrettyFormatMapper().writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -478,7 +479,7 @@ public class Json {
      * @param obj 待序列化的对象
      * @return 美化后的 JSON 字符串
      */
-    public static String toPrettyJson(Object obj) {
+    public static String toPrettyJson(@Nullable Object obj) {
         return prettyFormat(obj);
     }
 
@@ -488,7 +489,7 @@ public class Json {
      * @param object 待序列化的对象
      * @return JSON 字节数组
      */
-    public static byte[] toJsonByte(Object object) {
+    public static byte[] toJsonByte(@Nullable Object object) {
         try {
             return getMapper().writeValueAsBytes(object);
         } catch (JsonProcessingException e) {
@@ -503,7 +504,7 @@ public class Json {
      * @param ext 待检查的对象
      * @return 是否为 JSON 字符串
      */
-    public static boolean isJson(Object ext) {
+    public static boolean isJson(@Nullable Object ext) {
         if (null == ext) {
             return false;
         }
@@ -524,7 +525,7 @@ public class Json {
      * @param string JSON 字符串
      * @return List 对象
      */
-    public static List<?> toList(String string) {
+    public static List<?> toList(@Nullable String string) {
         try {
             // 注意：此处使用了 getPrettyFormatMapper，通常应使用标准 getMapper，但保留原逻辑
             return getPrettyFormatMapper().readValue(string, JsonArray.class);
@@ -539,7 +540,7 @@ public class Json {
      * @param object 待序列化的对象
      * @return JSON 字节数组
      */
-    public static byte[] toJSONBytes(Object object) {
+    public static byte[] toJSONBytes(@Nullable Object object) {
         return toJsonByte(object);
     }
 
@@ -549,7 +550,7 @@ public class Json {
      * @param object 待序列化的对象
      * @return JSON 字符串
      */
-    public static String toJSONString(Object object) {
+    public static String toJSONString(@Nullable Object object) {
         return toJson(object);
     }
 
@@ -559,7 +560,7 @@ public class Json {
      * @param jsonStr JSON 字符串
      * @return 是否合法
      */
-    public static boolean validate(String jsonStr) {
+    public static boolean validate(@Nullable String jsonStr) {
         try {
             getMapper().readTree(jsonStr);
         } catch (Exception e) {
@@ -574,7 +575,7 @@ public class Json {
      * @param string JSON 字符串
      * @return Map 对象
      */
-    public static Map<String, Object> fromJson(String string) {
+    public static Map<String, Object> fromJson(@Nullable String string) {
         try {
             return getMapper().readerForMapOf(Object.class).readValue(string);
         } catch (JsonProcessingException e) {
@@ -590,7 +591,7 @@ public class Json {
      * @param <T> 泛型类型
      * @return 目标对象
      */
-    public static <T> T fromJson(String stringValue, TypeReference<T> typeReference) {
+    public static <T> T fromJson(@Nullable String stringValue, TypeReference<T> typeReference) {
         try {
             return getMapper().readValue(stringValue, typeReference);
         } catch (JsonProcessingException e) {
@@ -622,7 +623,7 @@ public class Json {
      * @param object 待序列化的对象
      * @param writer 输出 Writer
      */
-    public static void toJson(Object object, Writer writer) {
+    public static void toJson(@Nullable Object object, Writer writer) {
         try {
             getMapper().writeValue(writer, object);
         } catch (IOException e) {

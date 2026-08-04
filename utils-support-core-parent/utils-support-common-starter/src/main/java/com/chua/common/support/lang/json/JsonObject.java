@@ -7,7 +7,8 @@ import com.chua.common.support.utils.MapUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -16,14 +17,14 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 @SuppressWarnings("ALL")
-public class JsonObject extends LinkedHashMap<String, Object> {
+public class JsonObject extends LinkedHashMap<String, @Nullable Object> {
 
     /**
      * 源数据映射，默认指向当前实例。
      */
-    protected Map<String, Object> source = this;
+    protected Map<String, @Nullable Object> source = this;
 
     /**
      * 静态空对象实例，用于避免频繁创建空的 JsonObject。
@@ -41,7 +42,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      *
      * @param m 包含初始数据的 Map，如果为 null 则不做任何操作。
      */
-    public JsonObject(Map m) {
+    public JsonObject(@Nullable Map m) {
         if (null == m) {
             return;
         }
@@ -64,7 +65,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param value 值
      * @return 包含指定键值对的新 JsonObject
      */
-    public static JsonObject of(String key, Object value) {
+    public static JsonObject of(String key, @Nullable Object value) {
         return JsonObject.create().fluent(key, value);
     }
 
@@ -83,7 +84,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param json JSON 格式的字符串
      * @return 解析后的 JsonObject
      */
-    public static JsonObject parse(String json) {
+    public static JsonObject parse(@Nullable String json) {
         return Json.getJsonObject(json);
     }
 
@@ -93,7 +94,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param string 键名
      * @return 对应的对象，如果不存在则返回 null
      */
-    public Object getObject(String string) {
+    public @Nullable Object getObject(String string) {
         return get(string);
     }
 
@@ -104,7 +105,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param value 值
      * @return 当前 JsonObject 实例
      */
-    public JsonObject fluent(String key, Object value) {
+    public JsonObject fluent(String key, @Nullable Object value) {
         this.put(key, value);
         return this;
     }
@@ -114,7 +115,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      *
      * @return 转换后的 Map 对象
      */
-    public Map<String, Object> toMap() {
+    public Map<String, @Nullable Object> toMap() {
         return this;
     }
 
@@ -129,7 +130,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @return 对应的 JsonObject，如果不存在或类型不匹配则返回空对象
      */
     public JsonObject getJsonObject(String name) {
-        Object object = get(name);
+        @Nullable Object object = get(name);
         if (null == object) {
             return EMPTY;
         }
@@ -176,7 +177,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @return 对应的 JsonArray
      */
     public JsonArray getJsonArray(String item) {
-        Object object = Optional.ofNullable(get(item)).orElse(Collections.emptyList());
+        @Nullable Object object = Optional.ofNullable(get(item)).orElse(Collections.emptyList());
         if (object instanceof Collection) {
             return new JsonArray((Collection) object);
         }
@@ -214,7 +215,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param <E>  目标类型
      * @return 转换后的对象
      */
-    public <E> E getObject(String name, Class<E> type) {
+    public <E> @Nullable E getObject(String name, Class<E> type) {
         return Converter.convertIfNecessary(MapUtils.getObject(this, name), type);
     }
 
@@ -233,7 +234,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param bean 源 Bean 对象
      * @return 转换后的 JsonObject
      */
-    public static JsonObject create(Object bean) {
+    public static JsonObject create(@Nullable Object bean) {
         return new JsonObject(BeanUtils.objectToMap(bean));
     }
 
@@ -262,24 +263,24 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param data 值
      * @return 当前 JsonObject 实例
      */
-    public JsonObject fluentPut(String name, Object data) {
+    public JsonObject fluentPut(String name, @Nullable Object data) {
         this.put(name, data);
         return this;
     }
+
     /**
      * 添加键值对（无条件版本）。
      *
-     * @param name 键名
-     * @param data 值
+     * @param map 键值对源 Map
      * @return 当前 JsonObject 实例
      */
-    public JsonObject fluentPut(Map<?extends Object, ? extends Object> map) {
+    public JsonObject fluentPut(@Nullable Map<? extends Object, ? extends Object> map) {
         if (map == null) {
             return this;
         }
         for (Map.Entry<? extends Object, ? extends Object> entry : map.entrySet()) {
-            Object key = entry.getKey();
-            Object value = entry.getValue();
+            @Nullable Object key = entry.getKey();
+            @Nullable Object value = entry.getValue();
             if (key == null || value == null) {
                 continue;
             }
@@ -297,7 +298,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param data      值
      * @return 当前 JsonObject 实例
      */
-    public JsonObject fluentPut(boolean condition, String name, Object data) {
+    public JsonObject fluentPut(boolean condition, String name, @Nullable Object data) {
         if (condition) {
             return fluentPut(name, data);
         }
@@ -339,10 +340,10 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param action 要执行的消费操作
      */
     @Override
-    public void forEach(BiConsumer<? super String, ? super Object> action) {
-        super.forEach(new BiConsumer<String, Object>() {
+    public void forEach(BiConsumer<? super String, ? super @Nullable Object> action) {
+        super.forEach(new BiConsumer<String, @Nullable Object>() {
             @Override
-            public void accept(String s, Object o) {
+            public void accept(String s, @Nullable Object o) {
                 if (o instanceof Map) {
                     action.accept(s, new JsonObject((Map) o));
                     return;
@@ -365,7 +366,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
      * @param <T>    目标类型
      * @return 转换后的 Java 对象，如果转换失败可能返回 null
      */
-    public <T> T toJavaType(Class<T> target) {
+    public <T> @Nullable T toJavaType(Class<T> target) {
         return Json.fromJson(this.toJSONString(), target);
     }
 
