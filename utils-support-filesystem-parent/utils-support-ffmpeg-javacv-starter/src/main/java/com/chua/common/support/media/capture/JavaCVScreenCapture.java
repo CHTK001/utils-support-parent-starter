@@ -95,13 +95,14 @@ public class JavaCVScreenCapture implements ScreenCature {
      * 深度复制 grabber 帧到独立 ByteBuffer，避免 grabber 复用内部 buffer。
      *
      * <p>支持单平面 BGR/BGRA，由 FFmpegFrameRecorder 自动识别格式。</p>
+     * <p>使用堆上 ByteBuffer 避免 JDK25 的 {@code jlong_disjoint_arraycopy}
+     * 在非 8 字节对齐的 allocateDirect 缓冲区上崩溃。</p>
      */
     private Frame copyFrame(Frame src) {
         try {
             int channels = src.imageChannels > 0 ? src.imageChannels : 3;
             int stride = src.imageStride > 0 ? src.imageStride : width * channels;
             int rowBytes = stride * src.imageHeight;
-            java.nio.ByteBuffer dst = java.nio.ByteBuffer.allocateDirect(rowBytes);
 
             Object srcObj = src.image[0];
             java.nio.ByteBuffer srcBuf;
@@ -115,17 +116,26 @@ public class JavaCVScreenCapture implements ScreenCature {
                 log.warn("[JavaCVScreenCapture] 不支持的 image 类型: {}", srcObj.getClass().getName());
                 return null;
             }
+
+            // 堆上 ByteBuffer 避免 jlong_disjoint_arraycopy 在非对齐 allocateDirect 上崩溃
+            java.nio.ByteBuffer dst = java.nio.ByteBuffer.allocate(rowBytes);
+
+            // 使用 chunked copy 避免大块 System.arraycopy 触发 native 拷贝
+            int chunkSize = 64 * 1024;
             srcBuf.position(0);
-            byte[] tmp = new byte[Math.min(rowBytes, srcBuf.remaining())];
-            srcBuf.get(tmp);
-            dst.put(tmp);
+            while (srcBuf.hasRemaining()) {
+                int len = Math.min(chunkSize, srcBuf.remaining());
+                byte[] tmp = new byte[len];
+                srcBuf.get(tmp);
+                dst.put(tmp);
+            }
             dst.position(0);
 
             Frame result = new Frame(width, height, Frame.DEPTH_UBYTE, channels);
             result.image[0] = dst;
             result.imageWidth = width;
             result.imageHeight = height;
-            result.imageStride = width * channels;
+            result.imageStride = stride;
             result.keyFrame = src.keyFrame;
             result.timestamp = src.timestamp;
             return result;
