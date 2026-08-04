@@ -50,7 +50,16 @@
                         <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
                         <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
                         <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                    </compilerArgs>
+                    
+                            <arg>-Xplugin:ErrorProne</arg>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>--should-stop=ifError=FLOW</arg>
+                            <arg>-XepDisableAllChecks</arg>
+                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
+                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
+                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
+                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
+</compilerArgs>
                     <source>25</source>
                     <target>25</target>
                     <release>25</release>

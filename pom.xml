@@ -2181,6 +2181,7 @@
         </snapshotRepository>
     </distributionManagement>
     <profiles>
+        <!-- 开发默认:启用空安全 ERROR 级别,任何 NPE 违规直接阻断 -->
         <profile>
             <id>dev</id>
             <activation>
@@ -2188,18 +2189,18 @@
             </activation>
             <properties>
                 <skipTests>true</skipTests>
-                <nullaway.mode>WARN</nullaway.mode>
-            </properties>
-        </profile>
-        <!-- 严格模式:NullAway 编译期升级到 ERROR,任何 NPE 违规直接阻断构建。
-             用法: mvn clean install -Pnullaway-strict -->
-        <profile>
-            <id>nullaway-strict</id>
-            <properties>
                 <nullaway.mode>ERROR</nullaway.mode>
             </properties>
         </profile>
-        <!-- 关闭空安全检查,适合离线或 CI 跳过:
+        <!-- 警告模式:NullAway 降级为 WARN,只报警告不阻断,便于排查大量 NPE 的代码:
+             用法: mvn clean install -Pnullaway-warn -->
+        <profile>
+            <id>nullaway-warn</id>
+            <properties>
+                <nullaway.mode>WARN</nullaway.mode>
+            </properties>
+        </profile>
+        <!-- 关闭空安全检查,适合离线或临时跳过:
              用法: mvn clean install -Pnullaway-off -->
         <profile>
             <id>nullaway-off</id>
