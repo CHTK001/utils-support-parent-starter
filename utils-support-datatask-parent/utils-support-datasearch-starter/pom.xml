@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -9,7 +9,7 @@
     </parent>
     <artifactId>utils-support-datasearch-starter</artifactId>
     <name>Datasearch Starter</name>
-    <description>数据搜索模块，提供视频/音乐资源搜索、WebDAV云存储、JDBC元数据、数据同步输入等能力</description>
+    <description>鏁版嵁鎼滅储妯″潡锛屾彁渚涜棰?闊充箰璧勬簮鎼滅储銆乄ebDAV浜戝瓨鍌ㄣ€丣DBC鍏冩暟鎹€佹暟鎹悓姝ヨ緭鍏ョ瓑鑳藉姏</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -41,50 +41,7 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgs>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                    <source>25</source>
-                    <target>25</target>
-                    <release>25</release>
-                    <encoding>UTF-8</encoding>
-                    <proc>full</proc>
-                    <useIncrementalCompilation>false</useIncrementalCompilation>
-                    <fork>true</fork>
-                    <meminitial>512m</meminitial>
-                    <maxmem>2048m</maxmem>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

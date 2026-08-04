@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -11,13 +11,13 @@
     <artifactId>utils-support-spring-starter</artifactId>
     <name>Utils Support Spring Starter</name>
     <description>
-        Utils Support Spring Starter - Spring 框架集成模块
+        Utils Support Spring Starter - Spring 妗嗘灦闆嗘垚妯″潡
 
-        提供 Spring 环境下的工具支持：
-        - Spring 环境配置注入（SpringBeanUtils / ApplicationContextInitializer）
-        - 日期时间 ConversionService / Formatter 配置
-        - Spring MVC 地址解析 SPI
-        - Request/Response 工具
+        鎻愪緵 Spring 鐜涓嬬殑宸ュ叿鏀寔锛?
+        - Spring 鐜閰嶇疆娉ㄥ叆锛圫pringBeanUtils / ApplicationContextInitializer锛?
+        - 鏃ユ湡鏃堕棿 ConversionService / Formatter 閰嶇疆
+        - Spring MVC 鍦板潃瑙ｆ瀽 SPI
+        - Request/Response 宸ュ叿
     </description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
@@ -77,44 +77,7 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>25</release>
-                        <fork>true</fork>
-                    <compilerArgs>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                    <parameters>true</parameters>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+            
         </plugins>
     </build>
 </project>
