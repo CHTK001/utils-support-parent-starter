@@ -2,6 +2,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * SM4 对称加解密接口
@@ -62,7 +63,7 @@ public interface Sm4Cipher extends Cipher {
      * @return Sm4Cipher 实例
      * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
      */
-    static Sm4Cipher create(String provider) {
+    static @Nullable Sm4Cipher create(String provider) {
         return ServiceProvider.of(Sm4Cipher.class).getNewExtension(provider);
     }
 
