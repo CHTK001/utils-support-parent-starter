@@ -1,6 +1,6 @@
 package com.chua.common.support.lang.format;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 格式化器接口，用于定义字符串格式化的标准行为。
@@ -8,7 +8,7 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 public interface Formatter {
     /**
      * 格式化给定的源字符串。
