@@ -7,29 +7,57 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import org.jspecify.annotations.NullUnmarked;
+
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
+ * 加权随机负载均衡器。
+ * <p>按节点权重构造概率区间后随机抽样，被选中的节点权重衰减以避免热点命中。</p>
+ *
  * @author CH
+ * @since 4.0.0.42
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 @Spi("weight")
 public class WeightLoadBalance implements LoadBalance {
 
+    /**
+     * 权重衰减系数
+     */
     private static final double WEIGHT_DECAY_FACTOR = 2.0;
+
+    /**
+     * 节点列表
+     */
     private final List<Node> nodes;
 
-    public WeightLoadBalance() { this(new LinkedList<>()); }
+    /**
+     * 默认构造，初始化空节点列表。
+     */
+    public WeightLoadBalance() {
+        this(new LinkedList<>());
+    }
 
-    public WeightLoadBalance(List<Node> nodes) { this.nodes = nodes; }
+    /**
+     * 使用给定节点列表构造。
+     *
+     * @param nodes 节点列表，为 null 时使用空列表
+     */
+    public WeightLoadBalance(@Nullable List<Node> nodes) {
+        this.nodes = nodes == null ? new LinkedList<>() : nodes;
+    }
 
     @Override
-    public Node selectNode() {
-        if (CollectionUtils.isEmpty(nodes)) { return null; }
+    public @Nullable Node selectNode() {
+        if (CollectionUtils.isEmpty(nodes)) {
+            return null;
+        }
 
         double weight = 0;
-        for (Node node : nodes) weight += node.getWeight();
+        for (Node node : nodes) {
+            weight += node.getWeight();
+        }
 
         double[] avgWeight = new double[nodes.size()];
         for (int i = 0; i < nodes.size(); i++) {
@@ -41,28 +69,46 @@ public class WeightLoadBalance implements LoadBalance {
 
         var nextDouble = ThreadLocalRandom.current().nextDouble(1);
         var index = -Arrays.binarySearch(avgWeight, nextDouble) - 1;
-        if (index < 0 || index >= nodes.size()) index = 0;
+        if (index < 0 || index >= nodes.size()) {
+            index = 0;
+        }
         var node = nodes.get(index);
         node.setWeight(node.getWeight() / WEIGHT_DECAY_FACTOR);
         return node;
     }
 
     @Override
-    public LoadBalance create() { return new WeightLoadBalance(nodes); }
+    public LoadBalance create() {
+        return new WeightLoadBalance(nodes);
+    }
 
     @Override
-    public LoadBalance clear() { nodes.clear(); return this; }
+    public LoadBalance clear() {
+        nodes.clear();
+        return this;
+    }
 
     @Override
-    public LoadBalance addNode(Node node) { nodes.add(node); return this; }
+    public LoadBalance addNode(@Nullable Node node) {
+        if (node != null) {
+            nodes.add(node);
+        }
+        return this;
+    }
 
     @Override
-    public <T> T select(List<T> values) {
-        if (CollectionUtils.isEmpty(values)) { return null; }
+    public <T> @Nullable T select(@Nullable List<T> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
         Node node = selectNode();
-        if (null == node) { return null; }
+        if (null == node) {
+            return null;
+        }
         int index = nodes.indexOf(node);
-        if (index < 0 || index >= values.size()) { return values.get(0); }
+        if (index < 0 || index >= values.size()) {
+            return values.get(0);
+        }
         return values.get(index);
     }
 }
