@@ -5,7 +5,8 @@ import lombok.Getter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -18,8 +19,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2025/11/29
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 @Getter
 public class Hex {
 
@@ -27,12 +27,12 @@ public class Hex {
      * 十六进制前缀小写形式 (例如："0x")
      */
     public static final String PREFIX = "0x";
-    
+
     /**
      * 十六进制前缀大写形式 (例如："0X")
      */
     public static final String PREFIX_UPPER = "0X";
-    
+
     /**
      * 用于十六进制编码的小写字母字符集 ('0'-'9', 'a'-'f')
      */
@@ -71,7 +71,7 @@ public class Hex {
      *
      * @param charset 指定的字符集，如果为 null 则默认使用 UTF-8
      */
-    public Hex(Charset charset) {
+    public Hex(@Nullable Charset charset) {
         this.charset = charset != null ? charset : StandardCharsets.UTF_8;
     }
 
@@ -91,7 +91,7 @@ public class Hex {
      * @param data 待编码的字节数组
      * @return 十六进制表示的字符数组
      */
-    public static char[] encodeHex(byte[] data) {
+    public static @Nullable char[] encodeHex(byte[] data) {
         return encodeHex(data, true);
     }
 
@@ -102,7 +102,7 @@ public class Hex {
      * @param toLowerCase 如果为 true 则使用小写字母，否则使用大写字母
      * @return 十六进制表示的字符数组
      */
-    public static char[] encodeHex(byte[] data, boolean toLowerCase) {
+    public static @Nullable char[] encodeHex(byte[] data, boolean toLowerCase) {
         return encodeHex(data, toLowerCase ? DIGITS_LOWER : DIGITS_UPPER);
     }
 
@@ -113,7 +113,7 @@ public class Hex {
      * @param toDigits 用于映射数字的字符数组 (小写或大写)
      * @return 十六进制表示的字符数组
      */
-    private static char[] encodeHex(byte[] data, char[] toDigits) {
+    private static @Nullable char[] encodeHex(byte[] data, char[] toDigits) {
         if (data == null) {
             return null;
         }
@@ -136,8 +136,9 @@ public class Hex {
      * @param data 待编码的字节数组
      * @return 十六进制字符串
      */
-    public static String encodeHexString(byte[] data) {
-        return new String(encodeHex(data));
+    public static @Nullable String encodeHexString(byte[] data) {
+        char[] result = encodeHex(data);
+        return result == null ? null : new String(result);
     }
 
     /**
@@ -147,8 +148,9 @@ public class Hex {
      * @param toLowerCase 如果为 true 则使用小写字母，否则使用大写字母
      * @return 十六进制字符串
      */
-    public static String encodeHexString(byte[] data, boolean toLowerCase) {
-        return new String(encodeHex(data, toLowerCase));
+    public static @Nullable String encodeHexString(byte[] data, boolean toLowerCase) {
+        char[] result = encodeHex(data, toLowerCase);
+        return result == null ? null : new String(result);
     }
 
     /**
@@ -157,7 +159,7 @@ public class Hex {
      * @param data 待编码的 ByteBuffer
      * @return 十六进制表示的字符数组
      */
-    public static char[] encodeHex(ByteBuffer data) {
+    public static @Nullable char[] encodeHex(ByteBuffer data) {
         return encodeHex(toByteArray(data));
     }
 
@@ -167,8 +169,9 @@ public class Hex {
      * @param data 待编码的 ByteBuffer
      * @return 十六进制字符串
      */
-    public static String encodeHexString(ByteBuffer data) {
-        return new String(encodeHex(data));
+    public static @Nullable String encodeHexString(ByteBuffer data) {
+        char[] result = encodeHex(data);
+        return result == null ? null : new String(result);
     }
 
     /**
@@ -178,7 +181,7 @@ public class Hex {
      * @return 解码后的字节数组
      * @throws IllegalArgumentException 当字符数为奇数或包含非法十六进制字符时抛出
      */
-    public static byte[] decodeHex(char[] data) {
+    public static @Nullable byte[] decodeHex(char[] data) {
         if (data == null) {
             return null;
         }
@@ -207,7 +210,7 @@ public class Hex {
      * @return 解码后的字节数组
      * @throws IllegalArgumentException 当字符串长度为奇数或包含非法十六进制字符时抛出
      */
-    public static byte[] decodeHex(String data) {
+    public static @Nullable byte[] decodeHex(String data) {
         if (data == null) {
             return null;
         }
@@ -236,7 +239,7 @@ public class Hex {
      * @param byteBuffer 输入的 ByteBuffer
      * @return 转换后的字节数组
      */
-    private static byte[] toByteArray(ByteBuffer byteBuffer) {
+    private static @Nullable byte[] toByteArray(ByteBuffer byteBuffer) {
         if (byteBuffer == null) {
             return null;
         }
@@ -295,7 +298,7 @@ public class Hex {
     }
 
     /**
-     * 将十六进制字符串解码为原始字符串 (基于当前字符集)
+     * 将六进制字符串解码为原始字符串 (基于当前字符集)
      *
      * @param source 十六进制字符串
      * @return 解码后的原始字符串
