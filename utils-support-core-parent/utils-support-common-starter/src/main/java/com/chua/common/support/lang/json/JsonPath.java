@@ -2,7 +2,8 @@ package com.chua.common.support.lang.json;
 
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * JSONPath SPI 接口，提供声明式的 JSON 路径查询与操作能力。
@@ -40,7 +41,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @see ServiceProvider
  */
-@NullUnmarked
+@NullMarked
 @Spi
 public interface JsonPath {
 
@@ -54,7 +55,7 @@ public interface JsonPath {
      * @param <T>      返回值类型
      * @return JSONPath 指向的值，路径不存在返回 null
      */
-    <T> T read(String json, String jsonPath);
+    <T> @Nullable T read(String json, String jsonPath);
 
     /**
      * 从 JSON 字符串中读取指定类型的值。
@@ -65,7 +66,7 @@ public interface JsonPath {
      * @param <T>      返回值类型
      * @return 解析后的值，路径不存在返回 null
      */
-    <T> T read(String json, String jsonPath, Class<T> type);
+    <T> @Nullable T read(String json, String jsonPath, Class<T> type);
 
     /**
      * 在 JSON 中设置指定路径的值。
@@ -75,7 +76,7 @@ public interface JsonPath {
      * @param value    要设置的新值
      * @return 修改后的 JSON 字符串
      */
-    String set(String json, String jsonPath, Object value);
+    @Nullable String set(String json, String jsonPath, @Nullable Object value);
 
     /**
      * 在 JSON 中删除指定路径的值。
@@ -84,7 +85,7 @@ public interface JsonPath {
      * @param jsonPath JSONPath 表达式
      * @return 删除后的 JSON 字符串
      */
-    String delete(String json, String jsonPath);
+    @Nullable String delete(String json, String jsonPath);
 
     /**
      * 在 JSON 数组末尾追加元素。
@@ -94,7 +95,7 @@ public interface JsonPath {
      * @param value    要添加的元素
      * @return 添加后的 JSON 字符串
      */
-    String add(String json, String jsonPath, Object value);
+    @Nullable String add(String json, String jsonPath, @Nullable Object value);
 
     /**
      * 在 JSON 对象中设置键值对（相当于 Map.put）。
@@ -105,7 +106,7 @@ public interface JsonPath {
      * @param value    键值
      * @return 设置后的 JSON 字符串
      */
-    String put(String json, String jsonPath, String key, Object value);
+    @Nullable String put(String json, String jsonPath, String key, @Nullable Object value);
 
     /**
      * 判断 JSONPath 路径在 JSON 中是否存在。
@@ -147,7 +148,7 @@ public interface JsonPath {
      * @return JSONPath 指向的值
      * @throws IllegalStateException 如果未先调用 {@link #parse(String)}
      */
-    <T> T read(String jsonPath);
+    <T> @Nullable T read(String jsonPath);
 
     /**
      * 在链式模式下读取当前文档中指定类型的值。
@@ -158,7 +159,7 @@ public interface JsonPath {
      * @return 解析后的值
      * @throws IllegalStateException 如果未先调用 {@link #parse(String)}
      */
-    <T> T read(String jsonPath, Class<T> type);
+    <T> @Nullable T read(String jsonPath, Class<T> type);
 
     /**
      * 在链式模式下设置当前文档中指定路径的值。
@@ -168,7 +169,7 @@ public interface JsonPath {
      * @return 当前实例（链式调用）
      * @throws IllegalStateException 如果未先调用 {@link #parse(String)}
      */
-    JsonPath set(String jsonPath, Object value);
+    JsonPath set(String jsonPath, @Nullable Object value);
 
     /**
      * 在链式模式下删除当前文档中指定路径的值。
@@ -187,7 +188,7 @@ public interface JsonPath {
      * @return 当前实例（链式调用）
      * @throws IllegalStateException 如果未先调用 {@link #parse(String)}
      */
-    JsonPath add(String jsonPath, Object value);
+    JsonPath add(String jsonPath, @Nullable Object value);
 
     /**
      * 在链式模式下向当前文档的对象设置键值对。
@@ -198,7 +199,7 @@ public interface JsonPath {
      * @return 当前实例（链式调用）
      * @throws IllegalStateException 如果未先调用 {@link #parse(String)}
      */
-    JsonPath put(String jsonPath, String key, Object value);
+    JsonPath put(String jsonPath, String key, @Nullable Object value);
 
     /**
      * 在链式模式下判断当前文档中 JSONPath 路径是否存在。
@@ -238,7 +239,7 @@ public interface JsonPath {
      */
     static JsonPath getInstance() {
         ServiceProvider<JsonPath> provider = ServiceProvider.of(JsonPath.class);
-        JsonPath instance = provider.getDefault();
+        @Nullable JsonPath instance = provider.getDefault();
         if (instance == null) {
             instance = provider.getExtension("json");
         }

@@ -4,7 +4,8 @@ import com.chua.common.support.utils.StringUtils;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_BIG_PARENTHESES;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -14,13 +15,12 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 public class JsonReference {
     /**
      * 内部存储的原始 JSON 字符串（已去除首尾空白）。
      */
-    private final String json;
+    private final @Nullable String json;
 
     /**
      * 构造函数，初始化 JSON 引用。
@@ -28,7 +28,7 @@ public class JsonReference {
      *
      * @param json 待引用的 JSON 字符串。若为 null，则视为无效输入。
      */
-    public JsonReference(String json) {
+    public JsonReference(@Nullable String json) {
         this.json = null == json ? null : json.trim();
     }
 

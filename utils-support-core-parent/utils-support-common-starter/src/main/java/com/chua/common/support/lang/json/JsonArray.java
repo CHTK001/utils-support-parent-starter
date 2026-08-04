@@ -7,7 +7,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -17,9 +18,9 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
+@NullMarked
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class JsonArray extends LinkedList<Object> {
+public class JsonArray extends LinkedList<@Nullable Object> {
 
     /**
      * 一个单例的空 JsonArray 实例，用于节省内存。
@@ -83,7 +84,7 @@ public class JsonArray extends LinkedList<Object> {
      *
      * @param collection 源 Iterable
      */
-    public JsonArray(Iterable collection) {
+    public JsonArray(@Nullable Iterable collection) {
         if (null != collection) {
             collection.forEach((SafeConsumer<Object>) this::add);
         }
@@ -113,7 +114,7 @@ public class JsonArray extends LinkedList<Object> {
      * @param json JSON 格式的字符串
      * @return 解析后的 JsonArray
      */
-    public static JsonArray parse(String json) {
+    public static JsonArray parse(@Nullable String json) {
         return Json.getJsonArray(json);
     }
 
@@ -124,7 +125,8 @@ public class JsonArray extends LinkedList<Object> {
      * @return 对应索引处的 JsonObject
      */
     public JsonObject getJsonObject(int i) {
-        return new JsonObject(getJSONObject(i));
+        @Nullable Map raw = getJSONObject(i);
+        return new JsonObject(raw);
     }
 
     /**
@@ -133,7 +135,7 @@ public class JsonArray extends LinkedList<Object> {
      * @param i 元素索引
      * @return 对应索引处的 Map
      */
-    private Map getJSONObject(int i) {
+    private @Nullable Map getJSONObject(int i) {
         return (Map) get(i);
     }
 
@@ -144,7 +146,7 @@ public class JsonArray extends LinkedList<Object> {
      * @return 对应索引处的 JsonArray
      */
     public JsonArray getJsonArray(int i) {
-        return new JsonArray(getJSONArray(i));
+        return new JsonArray((@Nullable Iterable) getJSONArray(i));
     }
 
     /**
@@ -153,7 +155,7 @@ public class JsonArray extends LinkedList<Object> {
      * @param i 元素索引
      * @return 对应索引处的 Collection
      */
-    private Collection<Object> getJSONArray(int i) {
+    private @Nullable Collection<Object> getJSONArray(int i) {
         return (Collection<Object>) super.get(i);
     }
 
@@ -164,10 +166,10 @@ public class JsonArray extends LinkedList<Object> {
      * @param action 要执行的操作
      */
     @Override
-    public void forEach(Consumer<? super Object> action) {
-        super.forEach(new SafeConsumer<Object>() {
+    public void forEach(Consumer<? super @Nullable Object> action) {
+        super.forEach(new SafeConsumer<@Nullable Object>() {
             @Override
-            public void safeAccept(Object o) throws Throwable {
+            public void safeAccept(@Nullable Object o) throws Throwable {
                 if (o instanceof Map) {
                     action.accept(new JsonObject((Map) o));
                     return;
@@ -202,7 +204,7 @@ public class JsonArray extends LinkedList<Object> {
      * @param item 要添加的元素
      * @return 当前 JsonArray 实例
      */
-    public JsonArray fluent(Object item) {
+    public JsonArray fluent(@Nullable Object item) {
         add(item);
         return this;
     }

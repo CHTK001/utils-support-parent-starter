@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * JSON 模板提取器：用一份“模板 JSON”从另一份输入 JSON 中抽取变量。
@@ -55,10 +56,10 @@ import org.jspecify.annotations.NullUnmarked;
  * @see TemplateExtractResult
  * @see TemplateVar
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 @Spi("json")
 @SpiDefault
+@SuppressWarnings("NullAway")
 public class JsonTemplateExtractor implements TemplateExtractor {
 
     /**
@@ -119,7 +120,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
     /**
      * 解析后的模板树，供多次提取复用。
      */
-    private JsonNode templateRoot;
+    private @Nullable JsonNode templateRoot;
 
     // ==================== 构造与构建 ====================
 
@@ -158,7 +159,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
      */
     public static JsonTemplateExtractor getInstance() {
         ServiceProvider<JsonTemplateExtractor> provider = ServiceProvider.of(JsonTemplateExtractor.class);
-        JsonTemplateExtractor instance = provider.getDefault();
+        @Nullable JsonTemplateExtractor instance = provider.getDefault();
         if (instance == null) {
             instance = provider.getExtension("json");
         }
@@ -245,7 +246,8 @@ public class JsonTemplateExtractor implements TemplateExtractor {
      * @return 提取结果，含已提取变量与缺失变量列表
      */
     public TemplateExtractResult extract(String inputJson) {
-        if (templateRoot == null) {
+        @Nullable JsonNode root = templateRoot;
+        if (root == null) {
             throw new IllegalStateException("尚未调用 template(...) 设置模板");
         }
         JsonNode inputRoot = readTree(inputJson, "输入");
@@ -256,7 +258,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
 
         // 遍历模板树，收集所有占位符规则并按路径在输入中定位
         List<Object> rootPath = new ArrayList<>();
-        collectAndExtract(templateRoot, inputRoot, rootPath, extracted, missing, vars);
+        collectAndExtract(root, inputRoot, rootPath, extracted, missing, vars);
 
         if (missing.isEmpty()) {
             return TemplateExtractResult.success(extracted, vars);
@@ -386,7 +388,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
      * @param extracted 已提取变量收集容器
      * @param missing   缺失变量收集容器
      */
-    private void collectAndExtract(JsonNode tpl, JsonNode in, List<Object> path,
+    private void collectAndExtract(JsonNode tpl, @Nullable JsonNode in, List<Object> path,
                                    Map<String, Object> extracted, List<String> missing,
                                    List<TemplateVar> vars) {
         if (tpl == null) {
@@ -395,39 +397,35 @@ public class JsonTemplateExtractor implements TemplateExtractor {
 
         if (tpl.isObject()) {
             // 结构不对齐（输入非对象）时，子树内的占位符一律视为缺失
-            if (in != null && !in.isObject()) {
-                in = null;
-            }
+            @Nullable JsonNode useIn = (in != null && !in.isObject()) ? null : in;
             Iterator<String> fields = tpl.fieldNames();
             while (fields.hasNext()) {
                 String field = fields.next();
                 List<Object> childPath = new ArrayList<>(path);
                 childPath.add(field);
-                JsonNode childIn = (in == null) ? null : in.get(field);
+                @Nullable JsonNode childIn = (useIn == null) ? null : useIn.get(field);
                 collectAndExtract(tpl.get(field), childIn, childPath, extracted, missing, vars);
             }
             return;
         }
 
         if (tpl.isArray()) {
-            if (in != null && !in.isArray()) {
-                in = null;
-            }
+            @Nullable JsonNode useIn = (in != null && !in.isArray()) ? null : in;
             // 单元素模板匹配全部：模板数组仅一个元素时，将其作为模式套用到输入数组每个元素
             if (arrayStrategy == ArrayMatchStrategy.SINGLE_MATCHES_ALL
-                    && tpl.size() == 1 && in != null) {
+                    && tpl.size() == 1 && useIn != null) {
                 JsonNode tplElem = tpl.get(0);
-                for (int i = 0; i < in.size(); i++) {
+                for (int i = 0; i < useIn.size(); i++) {
                     List<Object> childPath = new ArrayList<>(path);
                     childPath.add(i);
-                    collectAndExtract(tplElem, in.get(i), childPath, extracted, missing, vars);
+                    collectAndExtract(tplElem, useIn.get(i), childPath, extracted, missing, vars);
                 }
                 return;
             }
             for (int i = 0; i < tpl.size(); i++) {
                 List<Object> childPath = new ArrayList<>(path);
                 childPath.add(i);
-                JsonNode childIn = (in == null || i >= in.size()) ? null : in.get(i);
+                @Nullable JsonNode childIn = (useIn == null || i >= useIn.size()) ? null : useIn.get(i);
                 collectAndExtract(tpl.get(i), childIn, childPath, extracted, missing, vars);
             }
             return;
@@ -449,7 +447,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
      * @param missing   缺失变量收集容器
      * @param vars      已成功提取的变量有序列表（携带路径信息）
      */
-    private void handleText(String text, JsonNode in, List<Object> path,
+    private void handleText(String text, @Nullable JsonNode in, List<Object> path,
                             Map<String, Object> extracted, List<String> missing,
                             List<TemplateVar> vars) {
         List<String> varNames = findPlaceholders(text);
