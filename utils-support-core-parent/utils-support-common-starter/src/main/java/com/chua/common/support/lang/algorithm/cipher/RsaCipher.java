@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.security.KeyPair;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * RSA 非对称加解密 SPI 接口

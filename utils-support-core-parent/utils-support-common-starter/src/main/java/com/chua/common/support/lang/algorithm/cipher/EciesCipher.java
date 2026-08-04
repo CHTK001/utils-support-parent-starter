@@ -4,6 +4,7 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.security.KeyPair;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * ECIES 椭圆曲线集成加密方案 SPI 接口
@@ -42,7 +43,7 @@ public interface EciesCipher extends Cipher {
      * @return EciesCipher 实例
      * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
      */
-    static EciesCipher create(String provider) {
+    static @Nullable EciesCipher create(String provider) {
         return ServiceProvider.of(EciesCipher.class).getNewExtension(provider);
     }
 
