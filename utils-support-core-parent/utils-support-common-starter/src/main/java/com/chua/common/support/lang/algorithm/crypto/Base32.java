@@ -1,7 +1,8 @@
 package com.chua.common.support.lang.algorithm.crypto;
 
 import java.util.Arrays;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -10,7 +11,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/3
  */
-@NullUnmarked
+@NullMarked
 public class Base32 {
     /**
      * 默认使用的 Base32 字母表 (RFC 4648)
@@ -150,18 +151,21 @@ public class Base32 {
      * @param encoded Base32 编码后的字符串
      * @return 解码后的原始字节数组
      */
-    public static byte[] decode(CharSequence encoded) {
+    public static byte[] decode(@Nullable CharSequence encoded) {
+        if (encoded == null) {
+            return new byte[0];
+        }
         // // 遍历编码字符串的索引
-        int i;      
+        int i;
         // // 当前位偏移量 (0-7)
-        int index;  
+        int index;
         // // 字符对应的 ASCII 偏移量
-        int lookup; 
+        int lookup;
         // // 输出字节数组的索引
-        int offset; 
+        int offset;
         // // 解码得到的 5 位数值 (0-31)
-        int digit;  
-        
+        int digit;
+
         final String base32 = encoded.toString();
         
         // 计算解码后的字节长度
