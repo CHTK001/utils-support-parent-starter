@@ -306,7 +306,8 @@ public class HMac implements Serializable {
      * @return 十六进制格式的摘要字符串
      */
     public String digestHex(byte[] data) {
-        return Hex.encodeHexString(digest(data));
+        String result = Hex.encodeHexString(digest(data));
+        return result == null ? "" : result;
     }
 
     /**
@@ -316,7 +317,8 @@ public class HMac implements Serializable {
      * @return 十六进制格式的摘要字符串
      */
     public String digestHex(String data) {
-        return Hex.encodeHexString(digest(data));
+        String result = Hex.encodeHexString(digest(data));
+        return result == null ? "" : result;
     }
 
     /**
@@ -327,7 +329,8 @@ public class HMac implements Serializable {
      * @return 十六进制格式的摘要字符串
      */
     public String digestHex(String data, @Nullable Charset charset) {
-        return Hex.encodeHexString(digest(data, charset));
+        String result = Hex.encodeHexString(digest(data, charset));
+        return result == null ? "" : result;
     }
 
     /**
@@ -338,7 +341,8 @@ public class HMac implements Serializable {
      * @throws IOException 当文件读取失败时抛出
      */
     public String digestHex(File file) throws IOException {
-        return Hex.encodeHexString(digest(file));
+        String result = Hex.encodeHexString(digest(file));
+        return result == null ? "" : result;
     }
 
     /**
@@ -349,7 +353,8 @@ public class HMac implements Serializable {
      * @throws IOException 当流读取失败时抛出
      */
     public String digestHex(InputStream in) throws IOException {
-        return Hex.encodeHexString(digest(in));
+        String result = Hex.encodeHexString(digest(in));
+        return result == null ? "" : result;
     }
 
     // ==================== Base64 编码摘要方法 ====================
@@ -381,7 +386,7 @@ public class HMac implements Serializable {
      * @param charset 用于编码字符串的字符集
      * @return Base64 编码的摘要字符串
      */
-    public String digestBase64(String data, Charset charset) {
+    public String digestBase64(String data, @Nullable Charset charset) {
         return Base64.getEncoder().encodeToString(digest(data, charset));
     }
 
