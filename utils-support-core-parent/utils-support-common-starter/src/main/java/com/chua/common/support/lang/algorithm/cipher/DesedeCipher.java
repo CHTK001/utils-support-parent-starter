@@ -1,7 +1,7 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * DESede（3DES）对称加解密 SPI 接口
@@ -31,8 +31,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @see Sm4Cipher
  * @see Cipher
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 public interface DesedeCipher extends Cipher {
 
     /**

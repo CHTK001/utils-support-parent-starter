@@ -3,7 +3,7 @@ package com.chua.common.support.lang.algorithm.cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * DES 对称加解密实现
@@ -31,7 +31,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
+@NullMarked
 public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.Cipher {
 
     /**
