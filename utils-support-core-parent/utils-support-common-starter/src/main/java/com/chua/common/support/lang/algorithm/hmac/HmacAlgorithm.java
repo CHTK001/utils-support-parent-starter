@@ -6,7 +6,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * HMAC (Hash-based Message Authentication Code) 算法枚举。
@@ -18,7 +19,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025/10/23
  */
-@NullUnmarked
+@NullMarked
 @Getter
 public enum HmacAlgorithm {
 
@@ -116,7 +117,7 @@ public enum HmacAlgorithm {
      * @param name 算法名称字符串（例如 "HmacSHA256"）
      * @return 包含对应枚举实例的 Optional，如果未找到则返回空
      */
-    public static Optional<HmacAlgorithm> fromValue(String name) {
+    public static Optional<HmacAlgorithm> fromValue(@Nullable String name) {
         if (name == null || name.isEmpty()) {
             return Optional.empty();
         }

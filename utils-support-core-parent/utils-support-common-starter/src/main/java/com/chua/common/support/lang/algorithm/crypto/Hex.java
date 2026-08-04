@@ -137,7 +137,7 @@ public class Hex {
      * @return 十六进制字符串
      */
     public static @Nullable String encodeHexString(byte[] data) {
-        char[] result = encodeHex(data);
+        @Nullable char[] result = encodeHex(data);
         return result == null ? null : new String(result);
     }
 
@@ -149,7 +149,7 @@ public class Hex {
      * @return 十六进制字符串
      */
     public static @Nullable String encodeHexString(byte[] data, boolean toLowerCase) {
-        char[] result = encodeHex(data, toLowerCase);
+        @Nullable char[] result = encodeHex(data, toLowerCase);
         return result == null ? null : new String(result);
     }
 
@@ -170,7 +170,7 @@ public class Hex {
      * @return 十六进制字符串
      */
     public static @Nullable String encodeHexString(ByteBuffer data) {
-        char[] result = encodeHex(data);
+        @Nullable char[] result = encodeHex(data);
         return result == null ? null : new String(result);
     }
 
@@ -274,7 +274,8 @@ public class Hex {
      * @return 编码后的字节数组 (十六进制字符串的字节表示)
      */
     public byte[] encode(byte[] source) {
-        return encodeHexString(source).getBytes(charset);
+        String hex = encodeHexString(source);
+        return hex == null ? new byte[0] : hex.getBytes(charset);
     }
 
     /**
@@ -284,7 +285,8 @@ public class Hex {
      * @return 解码后的原始字节数组
      */
     public byte[] decode(byte[] source) {
-        return decodeHex(new String(source, charset));
+        byte[] decoded = decodeHex(new String(source, charset));
+        return decoded == null ? new byte[0] : decoded;
     }
 
     /**
@@ -294,17 +296,19 @@ public class Hex {
      * @return 十六进制字符串
      */
     public String encode(String source) {
-        return encodeHexString(source.getBytes(charset));
+        String result = encodeHexString(source.getBytes(charset));
+        return result == null ? "" : result;
     }
 
     /**
-     * 将六进制字符串解码为原始字符串 (基于当前字符集)
+     * 将十六进制字符串解码为原始字符串 (基于当前字符集)
      *
      * @param source 十六进制字符串
      * @return 解码后的原始字符串
      */
     public String decode(String source) {
-        return new String(decodeHex(source), charset);
+        byte[] decoded = decodeHex(source);
+        return decoded == null ? "" : new String(decoded, charset);
     }
 
     /**
