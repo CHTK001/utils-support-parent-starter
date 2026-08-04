@@ -42,15 +42,18 @@ public class SearchFieldDef {
     /**
      * 是否建立索引（默认 true）
      */
+    @lombok.Builder.Default
     private boolean indexed = true;
 
     /**
      * 是否存储原文（默认 false）
      */
+    @lombok.Builder.Default
     private boolean stored = false;
 
     /**
      * 字段权重（用于排序/打分，默认 1.0）
      */
+    @lombok.Builder.Default
     private double weight = 1.0;
 }

@@ -24,21 +24,25 @@ public class MeshConfig {
     /**
      * 通信模式：udp 或 tcp。默认 tcp。
      */
+    @lombok.Builder.Default
     private String mode = "tcp";
 
     /**
      * 发现模式：c / seed / c-seed。默认 c-seed。
      */
+    @lombok.Builder.Default
     private String discovery = "c-seed";
 
     /**
      * 主端口。默认 9876。
      */
+    @lombok.Builder.Default
     private int port = 9876;
 
     /**
      * 备用端口。默认 9877。
      */
+    @lombok.Builder.Default
     private int altPort = 9877;
 
     /**
@@ -54,16 +58,19 @@ public class MeshConfig {
     /**
      * C 模式扫描间隔（秒）。默认 30 秒。
      */
+    @lombok.Builder.Default
     private int scanInterval = 30;
 
     /**
      * 心跳间隔（秒）。默认 5 秒。
      */
+    @lombok.Builder.Default
     private int heartbeatInterval = 5;
 
     /**
      * 剔除超时时间（秒）。默认 15 秒。
      */
+    @lombok.Builder.Default
     private int evictTimeout = 15;
 
     /**

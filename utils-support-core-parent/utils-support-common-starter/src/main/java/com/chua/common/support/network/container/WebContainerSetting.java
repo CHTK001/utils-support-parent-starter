@@ -123,6 +123,7 @@ public class WebContainerSetting {
         private String keyStorePassword;
 
         /** KeyStore 类型，默认 PKCS12 */
+        @lombok.Builder.Default
         private String keyStoreType = "PKCS12";
 
         /** SSL 证书文件路径（PEM） */
@@ -135,6 +136,7 @@ public class WebContainerSetting {
         private String keyPassword;
 
         /** SSL 协议，默认 TLS */
+        @lombok.Builder.Default
         private String sslProtocol = "TLS";
     }
 }
