@@ -4,10 +4,12 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.splitter.TextChunk;
 import com.chua.common.support.ai.splitter.TextSplitter;
+import com.chua.common.support.file.txtractor.TextExtractor;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -122,11 +124,12 @@ public class MemoryRagClient implements RagClient {
     @Override
     public RagDocument uploadDocument(String fileName, byte[] data) {
         String docId = UUID.randomUUID().toString().replace("-", "");
-        String fileType = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf('.') + 1) : "";
+        String fileType = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase() : "";
         RagDocument doc = RagDocument.processing(docId, fileName, fileType, data.length);
 
+        Path targetFile;
         try {
-            Path targetFile = filesDir.resolve(docId + "_" + fileName);
+            targetFile = filesDir.resolve(docId + "_" + fileName);
             Files.write(targetFile, data);
         } catch (IOException e) {
             RagDocument failed = doc.withError("保存文件失败: " + e.getMessage());
@@ -135,8 +138,18 @@ public class MemoryRagClient implements RagClient {
         }
 
         try {
-            String text = new String(data, StandardCharsets.UTF_8);
+            String text = extractText(targetFile.toFile(), fileName);
+            if (text == null || text.isBlank()) {
+                RagDocument failed = doc.withError("提取文本为空");
+                documents.add(failed);
+                return failed;
+            }
             List<TextChunk> chunks = textSplitter.split(text);
+            if (chunks.isEmpty()) {
+                RagDocument failed = doc.withError("分块为空");
+                documents.add(failed);
+                return failed;
+            }
 
             for (TextChunk chunk : chunks) {
                 float[] vector = vectorService.embed(chunk.text());
@@ -144,6 +157,8 @@ public class MemoryRagClient implements RagClient {
                 metadata.put("content", chunk.text());
                 metadata.put("docId", docId);
                 metadata.put("fileName", fileName);
+                metadata.put("fileType", fileType);
+                metadata.put("chunkIndex", chunk.index());
                 vectorStorage.add(new Vector(docId + "_" + chunk.index(), vector, metadata));
             }
 
@@ -155,6 +170,30 @@ public class MemoryRagClient implements RagClient {
 
         documents.add(doc);
         return doc;
+    }
+
+    /**
+     * 抽取已落盘文件的文本内容。
+     * <p>
+     * 优先调用 setting 中注入的 TextExtractor（PDF/Word/Excel 等由其解析）；
+     * 若未注入或抽取失败，则按 UTF-8 兜底读取文件内容。
+     * </p>
+     *
+     * @param file     已保存的文件
+     * @param fileName 原始文件名（用于日志）
+     * @return 抽取出的文本
+     * @throws IOException 读取失败
+     */
+    private String extractText(File file, String fileName) throws IOException {
+        TextExtractor extractor = setting.getTextExtractor();
+        if (extractor != null) {
+            try {
+                return extractor.extractFullText(file);
+            } catch (Exception e) {
+                log.warn("[MemoryRagClient] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage());
+            }
+        }
+        return Files.readString(file.toPath(), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -186,14 +225,19 @@ public class MemoryRagClient implements RagClient {
             try {
                 Path file = filesDir.resolve(doc.id() + "_" + doc.fileName());
                 if (Files.exists(file)) {
-                    byte[] data = Files.readAllBytes(file);
-                    String text = new String(data, StandardCharsets.UTF_8);
+                    String text = extractText(file.toFile(), doc.fileName());
+                    if (text == null || text.isBlank()) {
+                        continue;
+                    }
                     List<TextChunk> chunks = textSplitter.split(text);
                     for (TextChunk chunk : chunks) {
                         float[] vector = vectorService.embed(chunk.text());
                         Map<String, Object> metadata = new HashMap<>();
                         metadata.put("content", chunk.text());
                         metadata.put("docId", doc.id());
+                        metadata.put("fileName", doc.fileName());
+                        metadata.put("fileType", doc.fileType());
+                        metadata.put("chunkIndex", chunk.index());
                         vectorStorage.add(new Vector(doc.id() + "_" + chunk.index(), vector, metadata));
                     }
                     count++;
@@ -218,40 +262,15 @@ public class MemoryRagClient implements RagClient {
     }
 
     @Override
-    /**
-     * 获取当前配置。
-     * <p>
-     * 返回的 setting 对象是可变的，调用方持有引用时修改会立即生效。
-     * </p>
-     *
-     * @return 客户端配置
-     */
     public RagClientSetting getSetting() {
         return setting;
     }
 
-    /**
-     * 运行时替换 ChatClient。
-     * <p>
-     * 直接修改内部 setting 对象，所有后续 query 调用将使用新的 ChatClient。
-     * 调用方无需重新创建 RagClient 实例。
-     * </p>
-     *
-     * @param chatClient 新的对话客户端
-     */
     @Override
     public void setChatClient(ChatClient chatClient) {
         setting.setChatClient(chatClient);
     }
 
-    /**
-     * 运行时替换 EmbeddingClient。
-     * <p>
-     * 同时更新内部 VectorService 适配器，确保后续索引和查询使用新的向量化服务。
-     * </p>
-     *
-     * @param embeddingClient 新的嵌入向量客户端
-     */
     @Override
     public void setEmbeddingClient(EmbeddingClient embeddingClient) {
         setting.setEmbeddingClient(embeddingClient);
