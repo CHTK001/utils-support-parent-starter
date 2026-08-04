@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -11,15 +11,15 @@
     <artifactId>utils-support-maven-starter</artifactId>
     <name>Utils Support Maven Starter</name>
     <description>
-        Utils Support Maven Starter - Maven 编译集成模块
+        Utils Support Maven Starter - Maven 缂栬瘧闆嗘垚妯″潡
 
-        提供 Maven 项目的链式编译与构建支持：
-        - 链式 Builder API 创建 MavenClient
-        - 同步/异步 pom.xml 编译与构建
-        - 编译过程实时进度回调
-        - 自定义编译目标与 Profile
-        - 基于 Maven Invoker 的独立进程编译
-        - 支持 JDK 多版本切换
+        鎻愪緵 Maven 椤圭洰鐨勯摼寮忕紪璇戜笌鏋勫缓鏀寔锛?
+        - 閾惧紡 Builder API 鍒涘缓 MavenClient
+        - 鍚屾/寮傛 pom.xml 缂栬瘧涓庢瀯寤?
+        - 缂栬瘧杩囩▼瀹炴椂杩涘害鍥炶皟
+        - 鑷畾涔夌紪璇戠洰鏍囦笌 Profile
+        - 鍩轰簬 Maven Invoker 鐨勭嫭绔嬭繘绋嬬紪璇?
+        - 鏀寔 JDK 澶氱増鏈垏鎹?
     </description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
@@ -50,7 +50,7 @@
             <version>${maven.invoker.version}</version>
         </dependency>
 
-        <!-- SSH 部署支持（provided，按需引入） -->
+        <!-- SSH 閮ㄧ讲鏀寔锛坧rovided锛屾寜闇€寮曞叆锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-ssh-starter</artifactId>
@@ -62,44 +62,7 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>25</release>
-                        <fork>true</fork>
-                    <compilerArgs>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                    <parameters>true</parameters>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+            
         </plugins>
     </build>
 </project>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -11,46 +11,10 @@
     </parent>
     <artifactId>utils-support-deeplearning-3d-starter</artifactId>
     <name>Utils Support Deep Learning 3D Starter</name>
-    <description>3D 生成模块：支持文本、图片生成 3D 模型</description>
+    <description>3D 鐢熸垚妯″潡锛氭敮鎸佹枃鏈€佸浘鐗囩敓鎴?3D 妯″瀷</description>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>25</release>
-                        <fork>true</fork>
-                    <compilerArgs>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+            
         </plugins>
     </build>
     <dependencies>

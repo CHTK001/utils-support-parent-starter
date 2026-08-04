@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -11,20 +11,20 @@
     <artifactId>utils-support-ast-starter</artifactId>
     <name>Utils Support AST Processor Starter - AST</name>
     <description>
-        基于 Java AST (Abstract Syntax Tree) 的编译期注解处理器，利用 javac Tree API 在编译阶段修改和生成代码。
+        鍩轰簬 Java AST (Abstract Syntax Tree) 鐨勭紪璇戞湡娉ㄨВ澶勭悊鍣紝鍒╃敤 javac Tree API 鍦ㄧ紪璇戦樁娈典慨鏀瑰拰鐢熸垚浠ｇ爜銆?
 
-        支持的注解及功能：
-        - @DefaultValue    : 为字段或方法参数提供默认值
-        - @NonNull         : 自动生成非空 (null) 校验代码
-        - @Slf4j           : 自动注入并初始化 Slf4j Logger 对象
-        - @ToString        : 自动生成 toString() 方法
-        - @Trimmed         : 自动对 String 类型字段调用 String.trim() 去除首尾空格
-        - @OptionalCode    : 支持条件代码块或可选代码生成
-        - @SneakyThrows    : 优雅地抛出受检异常，无需在方法签名中声明 throws
+        鏀寔鐨勬敞瑙ｅ強鍔熻兘锛?
+        - @DefaultValue    : 涓哄瓧娈垫垨鏂规硶鍙傛暟鎻愪緵榛樿鍊?
+        - @NonNull         : 鑷姩鐢熸垚闈炵┖ (null) 鏍￠獙浠ｇ爜
+        - @Slf4j           : 鑷姩娉ㄥ叆骞跺垵濮嬪寲 Slf4j Logger 瀵硅薄
+        - @ToString        : 鑷姩鐢熸垚 toString() 鏂规硶
+        - @Trimmed         : 鑷姩瀵?String 绫诲瀷瀛楁璋冪敤 String.trim() 鍘婚櫎棣栧熬绌烘牸
+        - @OptionalCode    : 鏀寔鏉′欢浠ｇ爜鍧楁垨鍙€変唬鐮佺敓鎴?
+        - @SneakyThrows    : 浼橀泤鍦版姏鍑哄彈妫€寮傚父锛屾棤闇€鍦ㄦ柟娉曠鍚嶄腑澹版槑 throws
 
-        核心实现：
-        - 基于 javax.annotation.processing.AbstractProcessor 与 javac Tree API
-        - 纯编译期处理，无运行时依赖，零性能损耗
+        鏍稿績瀹炵幇锛?
+        - 鍩轰簬 javax.annotation.processing.AbstractProcessor 涓?javac Tree API
+        - 绾紪璇戞湡澶勭悊锛屾棤杩愯鏃朵緷璧栵紝闆舵€ц兘鎹熻€?
     </description>
 
     <properties>
@@ -46,89 +46,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration combine.self="override">
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <encoding>UTF-8</encoding>
-                    <!--        javac        AST API -->
-                    <fork>true</fork>
-                    <meminitial>512m</meminitial>
-                    <maxmem>2048m</maxmem>
-                    <compilerArgs>
-                        <!--        jdk.compiler        -->
-                        <arg>--add-modules</arg>
-                        <arg>jdk.compiler</arg>
-                        <!--                 javac           -->
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.source.util=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.source.tree=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-                        <!-- JVM                 javac                                            -->
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-                        <arg>-parameters</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                    <!-- 注释掉，让处理器从 classpath SPI 发现 -->
-                    <!--
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-
-                    </annotationProcessorPaths>
-                    -->
-                </configuration>
-            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

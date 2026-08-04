@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -8,21 +8,21 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-image-starter</artifactId>
-    <name>Utils Support Image Starter - 图像处理模块</name>
+    <name>Utils Support Image Starter - 鍥惧儚澶勭悊妯″潡</name>
     <description>
-        Utils Support Image Starter - 图像处理模块
-        该模块提供专业的功能支持和工具集成。
-        主要特性：
-        - 功能完整：提供完整的功能实现
-        - 性能优化：高性能的实现方案
-        - 稳定可靠：经过充分测试和验证
-        - 文档完善：详细的使用文档和示例
-        - 易于集成：简单的 API 和配置方式
-        适用场景：
-        - 企业级应用开发
-        - 系统集成项目
-        - 工具链构建
-        - 第三方服务集成
+        Utils Support Image Starter - 鍥惧儚澶勭悊妯″潡
+        璇ユā鍧楁彁渚涗笓涓氱殑鍔熻兘鏀寔鍜屽伐鍏烽泦鎴愩€?
+        涓昏鐗规€э細
+        - 鍔熻兘瀹屾暣锛氭彁渚涘畬鏁寸殑鍔熻兘瀹炵幇
+        - 鎬ц兘浼樺寲锛氶珮鎬ц兘鐨勫疄鐜版柟妗?
+        - 绋冲畾鍙潬锛氱粡杩囧厖鍒嗘祴璇曞拰楠岃瘉
+        - 鏂囨。瀹屽杽锛氳缁嗙殑浣跨敤鏂囨。鍜岀ず渚?
+        - 鏄撲簬闆嗘垚锛氱畝鍗曠殑 API 鍜岄厤缃柟寮?
+        閫傜敤鍦烘櫙锛?
+        - 浼佷笟绾у簲鐢ㄥ紑鍙?
+        - 绯荤粺闆嗘垚椤圭洰
+        - 宸ュ叿閾炬瀯寤?
+        - 绗笁鏂规湇鍔￠泦鎴?
     </description>
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
@@ -54,38 +54,7 @@
             </extension>
         </extensions>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <compilerArgs>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                        <arg>-proc:full</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-                        </annotationProcessorPaths>
-</configuration>
-            </plugin>
+            
         </plugins>
     </build>
     <profiles>

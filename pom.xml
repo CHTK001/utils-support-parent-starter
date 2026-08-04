@@ -1964,35 +1964,56 @@
                         <release>25</release>
                         <encoding>UTF-8</encoding>
                         <useIncrementalCompilation>false</useIncrementalCompilation>
+                        <fork>true</fork>
                         <compilerArgs>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-                            <arg>-J--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
-                            <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                            <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                            <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                            <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                            <arg>--enable-preview</arg>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>--should-stop=ifError=FLOW</arg>
+                            <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:${nullaway.mode} -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:AnnotatedPackages=com.chua -XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
                             <arg>-parameters</arg>
                         </compilerArgs>
                         <annotationProcessorPaths>
                             <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${error.prone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>io.github.eisop</groupId>
+                                <artifactId>dataflow-errorprone</artifactId>
+                                <version>${dataflow.errorprone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.uber.nullaway</groupId>
+                                <artifactId>nullaway</artifactId>
+                                <version>${nullaway.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.checkerframework</groupId>
+                                <artifactId>dataflow-nullaway</artifactId>
+                                <version>4.0.0</version>
+                            </path>
+                            <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
                                 <version>${lombok.version}</version>
-                            </path>
-                            <path>
-                                <groupId>org.slf4j</groupId>
-                                <artifactId>slf4j-api</artifactId>
-                                <version>${slf4j.version}</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
@@ -2181,7 +2202,8 @@
         </snapshotRepository>
     </distributionManagement>
     <profiles>
-        <!-- 开发默认:启用空安全 ERROR 级别,任何 NPE 违规直接阻断 -->
+        <!-- 开发默认:启用空安全 WARN 级别,只报警告不阻断,便于排查大量 NPE 的代码:
+             用法: mvn clean install                                    (默认 WARN) -->
         <profile>
             <id>dev</id>
             <activation>
@@ -2189,10 +2211,18 @@
             </activation>
             <properties>
                 <skipTests>true</skipTests>
+                <nullaway.mode>WARN</nullaway.mode>
+            </properties>
+        </profile>
+        <!-- 严格模式:NullAway 升级为 ERROR,任何 NPE 违规直接阻断:
+             用法: mvn clean install -Pnullaway-strict -->
+        <profile>
+            <id>nullaway-strict</id>
+            <properties>
                 <nullaway.mode>ERROR</nullaway.mode>
             </properties>
         </profile>
-        <!-- 警告模式:NullAway 降级为 WARN,只报警告不阻断,便于排查大量 NPE 的代码:
+        <!-- 警告模式:NullAway 降级为 WARN(同 dev,显式开启):
              用法: mvn clean install -Pnullaway-warn -->
         <profile>
             <id>nullaway-warn</id>

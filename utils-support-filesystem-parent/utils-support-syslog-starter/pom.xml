@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -7,17 +7,17 @@
         <version>4.0.0.42</version>
     </parent>
     <artifactId>utils-support-syslog-starter</artifactId>
-    <name>Utils Support Syslog Starter - 系统日志模块</name>
+    <name>Utils Support Syslog Starter - 绯荤粺鏃ュ織妯″潡</name>
     <description>
-        系统日志模块，提供跨平台（Windows/Linux/macOS）系统日志检索与实时监听功能。
-        主要功能：
-        - 通配符搜索：支持 glob 模式匹配系统日志条目
-        - 实时监听：PolledDirectory 轮询实时推送新增日志（替代 tail -f）
-        - Windows：通过 Java 25 FFM API 直调 advapi32 Event Log API
-        - Linux：通过 FFM 调用 libsystemd journald API，回退 /var/log 文件读取
-        - macOS：通过 ProcessBuilder 调用 log show 命令，回退 /var/log 文件读取
-        - ResourceProvider 集成：支持 syslog: 协议统一查询
-        - SPI 可扩展：自定义 SystemLogProvider 实现
+        绯荤粺鏃ュ織妯″潡锛屾彁渚涜法骞冲彴锛圵indows/Linux/macOS锛夌郴缁熸棩蹇楁绱笌瀹炴椂鐩戝惉鍔熻兘銆?
+        涓昏鍔熻兘锛?
+        - 閫氶厤绗︽悳绱細鏀寔 glob 妯″紡鍖归厤绯荤粺鏃ュ織鏉＄洰
+        - 瀹炴椂鐩戝惉锛歅olledDirectory 杞瀹炴椂鎺ㄩ€佹柊澧炴棩蹇楋紙鏇夸唬 tail -f锛?
+        - Windows锛氶€氳繃 Java 25 FFM API 鐩磋皟 advapi32 Event Log API
+        - Linux锛氶€氳繃 FFM 璋冪敤 libsystemd journald API锛屽洖閫€ /var/log 鏂囦欢璇诲彇
+        - macOS锛氶€氳繃 ProcessBuilder 璋冪敤 log show 鍛戒护锛屽洖閫€ /var/log 鏂囦欢璇诲彇
+        - ResourceProvider 闆嗘垚锛氭敮鎸?syslog: 鍗忚缁熶竴鏌ヨ
+        - SPI 鍙墿灞曪細鑷畾涔?SystemLogProvider 瀹炵幇
     </description>
     <dependencies>
         <dependency>
@@ -33,44 +33,7 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>25</release>
-                        <fork>true</fork>
-                    <compilerArgs>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                        <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-                        <arg>-proc:full</arg>
-                    
-                            <arg>-Xplugin:ErrorProne</arg>
-                            <arg>-XDcompilePolicy=simple</arg>
-                            <arg>--should-stop=ifError=FLOW</arg>
-                            <arg>-XepDisableAllChecks</arg>
-                            <arg>-Xep:NullAway:${nullaway.mode}</arg>
-                            <arg>-XepOpt:NullAway:JSpecifyMode=true</arg>
-                            <arg>-XepOpt:NullAway:AnnotatedPackages=com.chua</arg>
-                            <arg>-XepOpt:NullAway:CustomGeneratedAnnotations=lombok.Generated,javax.annotation.Generated</arg>
-</compilerArgs>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-
-                            <path>
-                                <groupId>com.uber.nullaway</groupId>
-                                <artifactId>nullaway</artifactId>
-                                <version>${nullaway.version}</version>
-                            </path>
-
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
