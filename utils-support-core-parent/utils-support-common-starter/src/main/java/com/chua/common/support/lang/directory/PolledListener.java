@@ -1,6 +1,6 @@
 package com.chua.common.support.lang.directory;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 目录轮询监听器接口，定义文件变更事件的回调方法。
@@ -9,7 +9,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
+@NullMarked
 public interface PolledListener {
 
     /**

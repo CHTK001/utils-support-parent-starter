@@ -1,6 +1,6 @@
 package com.chua.common.support.lang.directory;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 目录监听事件类型枚举。
@@ -9,7 +9,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
+@NullMarked
 public enum WatcherEvent {
 
     /**
