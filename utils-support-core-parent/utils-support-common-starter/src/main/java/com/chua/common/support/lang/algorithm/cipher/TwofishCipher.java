@@ -1,7 +1,7 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Twofish 对称加解密 SPI 接口
@@ -28,8 +28,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 public interface TwofishCipher extends Cipher {
 
     /**
