@@ -49,8 +49,7 @@ import org.jspecify.annotations.NullMarked;
  * @see Cipher
  * @see com.chua.common.support.spi.ServiceProvider
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
+@NullMarked
 public interface Sm4Cipher extends Cipher {
 
     /**
