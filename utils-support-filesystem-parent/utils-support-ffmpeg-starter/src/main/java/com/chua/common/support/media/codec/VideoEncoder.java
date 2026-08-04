@@ -1,5 +1,8 @@
 package com.chua.common.support.media.codec;
 
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
+
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
@@ -38,15 +41,27 @@ public interface VideoEncoder {
     void forceKeyFrame();
 
     /**
-     * 编码单帧 BufferedImage。
+     * 编码单帧 YUV420P Frame。
+     *
+     * @param frame YUV420P 格式的 Frame
+     * @return 编码后的字节数组
+     */
+    byte[] encode(Frame frame);
+
+    /**
+     * 编码单帧 BufferedImage（默认实现，转为 Frame 后编码）。
      *
      * @param image BufferedImage 格式的输入帧
      * @return 编码后的字节数组
      */
-    byte[] encode(BufferedImage image);
+    default byte[] encode(BufferedImage image) {
+        Java2DFrameConverter converter = new Java2DFrameConverter();
+        Frame frame = converter.getFrame(image);
+        return encode(frame);
+    }
 
     /**
-     * 编码单帧 BGR ByteBuffer（零拷贝路径）。
+     * 编码单帧 BGR ByteBuffer（默认实现，转为 BufferedImage 后编码）。
      *
      * @param bgrData BGR 格式的 DirectByteBuffer
      * @param width 帧宽度
