@@ -109,12 +109,30 @@ public class DefaultPipeline implements Pipeline {
         if (startNodeId != null) {
             ctx.setNextNodeId(startNodeId);
         }
-        run(ctx);
-        return ctx;
+        return executeWith(ctx);
+    }
+
+    @Override
+    public <T> PipelineContext<T> execute(PipelineContext<T> existingContext) {
+        return executeWith(existingContext);
     }
 
     @Override
     public <T> PipelineContext<T> resume(PipelineContext<T> ctx) {
+        return executeWith(ctx);
+    }
+
+    /**
+     * 使用已有上下文执行流水线。
+     *
+     * <p>复用传入的上下文实例，不重建上下文对象，
+     * 首次执行时需由调用方设置起始节点 ID。</p>
+     *
+     * @param ctx 已存在的上下文实例
+     * @param <T> 数据类型
+     * @return 执行完成后的上下文
+     */
+    public <T> PipelineContext<T> executeWith(PipelineContext<T> ctx) {
         ctx.setAction(Action.NEXT);
         run(ctx);
         return ctx;
@@ -173,6 +191,15 @@ public class DefaultPipeline implements Pipeline {
                 fireAfterNode(ctx);
 
                 if (ctx.getAction() == Action.EXIT || ctx.getAction() == Action.WAIT) {
+                    if (ctx.getAction() == Action.WAIT
+                            && Objects.equals(prevNextId, ctx.getNextNodeId())) {
+                        // 挂起前推进到下一节点，resume 时从下一节点继续执行
+                        if (decisionTargets.contains(nodeId)) {
+                            ctx.setNextNodeId(null);
+                        } else {
+                            ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+                        }
+                    }
                     break;
                 }
 

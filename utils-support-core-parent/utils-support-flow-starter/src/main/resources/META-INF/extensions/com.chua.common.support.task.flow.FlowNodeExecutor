@@ -1,0 +1,6 @@
+start=com.chua.flow.support.node.StartFlowNode
+end=com.chua.flow.support.node.EndFlowNode
+condition=com.chua.flow.support.node.ConditionFlowNode
+httpCall=com.chua.flow.support.node.HttpCallFlowNode
+log=com.chua.flow.support.node.LogFlowNode
+transform=com.chua.flow.support.node.TransformFlowNode
