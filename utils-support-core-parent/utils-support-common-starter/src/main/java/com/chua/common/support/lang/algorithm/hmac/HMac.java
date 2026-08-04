@@ -306,8 +306,7 @@ public class HMac implements Serializable {
      * @return 十六进制格式的摘要字符串
      */
     public String digestHex(byte[] data) {
-        String result = Hex.encodeHexString(digest(data));
-        return result == null ? "" : result;
+        return Hex.encodeHexString(digest(data));
     }
 
     /**
@@ -317,8 +316,7 @@ public class HMac implements Serializable {
      * @return 十六进制格式的摘要字符串
      */
     public String digestHex(String data) {
-        String result = Hex.encodeHexString(digest(data));
-        return result == null ? "" : result;
+        return Hex.encodeHexString(digest(data));
     }
 
     /**
@@ -329,8 +327,7 @@ public class HMac implements Serializable {
      * @return 十六进制格式的摘要字符串
      */
     public String digestHex(String data, @Nullable Charset charset) {
-        String result = Hex.encodeHexString(digest(data, charset));
-        return result == null ? "" : result;
+        return Hex.encodeHexString(digest(data, charset));
     }
 
     /**
@@ -341,8 +338,7 @@ public class HMac implements Serializable {
      * @throws IOException 当文件读取失败时抛出
      */
     public String digestHex(File file) throws IOException {
-        String result = Hex.encodeHexString(digest(file));
-        return result == null ? "" : result;
+        return Hex.encodeHexString(digest(file));
     }
 
     /**
@@ -353,8 +349,7 @@ public class HMac implements Serializable {
      * @throws IOException 当流读取失败时抛出
      */
     public String digestHex(InputStream in) throws IOException {
-        String result = Hex.encodeHexString(digest(in));
-        return result == null ? "" : result;
+        return Hex.encodeHexString(digest(in));
     }
 
     // ==================== Base64 编码摘要方法 ====================
