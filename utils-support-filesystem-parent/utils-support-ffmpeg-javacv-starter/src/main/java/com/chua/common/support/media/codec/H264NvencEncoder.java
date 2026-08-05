@@ -192,6 +192,7 @@ public class H264NvencEncoder implements VideoEncoder {
             r.setOption("zerolatency", "1");
             r.start();
             clearGlobalHeader();
+            loadSpsPpsFromExtradata();
             this.recorder = r;
             log.info("[H264NvencEncoder] {} 初始化成功", codecName);
             return true;
