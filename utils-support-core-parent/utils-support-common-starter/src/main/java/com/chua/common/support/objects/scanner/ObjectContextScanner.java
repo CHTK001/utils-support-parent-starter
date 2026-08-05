@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ObjectContext 包扫描器，用于扫描指定包路径下的类并自动注册到容器。
@@ -23,7 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Slf4j
 public final class ObjectContextScanner {
 

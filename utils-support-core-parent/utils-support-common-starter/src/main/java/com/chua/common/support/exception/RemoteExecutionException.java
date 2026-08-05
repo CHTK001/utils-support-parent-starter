@@ -1,6 +1,5 @@
 package com.chua.common.support.exception;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 远程执行异常，用于封装 RPC/HTTP/远程调用失败时抛出的运行时异常。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public class RemoteExecutionException extends RuntimeException {
 
     /**

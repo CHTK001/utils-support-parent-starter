@@ -6,7 +6,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.FileUtils;
 
 import java.io.File;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件系统 SPI 接口，统一文件读写入口。
@@ -16,8 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public interface FileSystem {
 
     /**

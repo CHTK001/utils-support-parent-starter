@@ -4,7 +4,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
 import java.net.URL;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件转换系统 SPI 接口 — 将一种格式转换为另一种格式。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026-07-16
  */
-@NullUnmarked
 public interface ConvertFileSystem {
 
     /**

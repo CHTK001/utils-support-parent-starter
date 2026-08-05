@@ -1,6 +1,5 @@
 package com.chua.common.support.osgi;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI Bundle 生命周期监听器接口。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@NullUnmarked
 public interface BundleLifecycleListener {
 
     /**

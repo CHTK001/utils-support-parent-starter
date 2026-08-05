@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 多属性源类，用于处理多个 Map 形式的配置属性。
@@ -15,8 +14,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2023-09-07
  */
 @Getter
-@SuppressWarnings({"NullAway", "ALL"})
-@NullUnmarked
+@SuppressWarnings("ALL")
 public class PropertiesMutiPropertySource extends AbstractPropertySource implements MutiPropertySource {
 
     /**

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 条件评估器，用于评估服务定义是否满足加载条件。
@@ -38,7 +37,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see ConditionalOnClass
  * @see ConditionalOnMissingClass
  */
-@NullUnmarked
 public class ConditionEvaluator {
 
     private static final Logger log = LoggerFactory.getLogger(ConditionEvaluator.class);

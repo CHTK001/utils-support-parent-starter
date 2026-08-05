@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 注解 Bean 定义注册器，按注解对 BeanDefinition 进行索引和注册。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("annotation")
 @SpiDescribe("注解 Bean 定义注册器")

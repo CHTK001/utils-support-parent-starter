@@ -13,14 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 抽象读取器类，用于处理文件的读取操作。
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public abstract class AbstractReader implements FileSystem {
 

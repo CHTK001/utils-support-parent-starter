@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 消息请求对象
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@NullUnmarked
 @Getter
 public class MessageRequest {
 

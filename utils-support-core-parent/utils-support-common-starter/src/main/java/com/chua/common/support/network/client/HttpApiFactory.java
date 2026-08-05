@@ -3,7 +3,6 @@ package com.chua.common.support.network.client;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 声明式 HTTP API 客户端工厂，为注解标注的接口生成 HTTP 客户端动态代理。
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @see HttpApiInvocationHandler
  */
-@NullUnmarked
 public class HttpApiFactory {
 
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
@@ -55,7 +53,7 @@ public class HttpApiFactory {
      *                 {@code @RequestMapping} 或 {@code @RequestMethod} 等注解
      * @return 动态代理实现
      */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     public static <T> T create(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());

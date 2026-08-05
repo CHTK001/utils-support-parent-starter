@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.probe;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 探测进度事件。
@@ -16,8 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public record ProbeProgress(
     int progress,
     String message,

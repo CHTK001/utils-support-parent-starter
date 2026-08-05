@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 调度器提供者抽象基类
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public abstract class AbstractSchedulerProvider implements SchedulerProvider {
 
     protected final Map<String, ScheduledTask> taskMap = new ConcurrentHashMap<>();

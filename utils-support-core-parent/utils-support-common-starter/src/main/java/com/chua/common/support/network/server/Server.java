@@ -5,7 +5,6 @@ import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.objects.ObjectContext;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器顶层接口，协议无关。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 2.0
  * @since 2026/07/16
  */
-@NullUnmarked
 public interface Server extends AutoCloseable {
 
     /**

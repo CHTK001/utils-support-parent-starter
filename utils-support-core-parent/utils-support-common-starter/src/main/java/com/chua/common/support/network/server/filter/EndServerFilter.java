@@ -2,7 +2,6 @@ package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 终结型过滤器 — 标记过滤器链的末端。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public interface EndServerFilter extends ServerFilter {
 
     /**

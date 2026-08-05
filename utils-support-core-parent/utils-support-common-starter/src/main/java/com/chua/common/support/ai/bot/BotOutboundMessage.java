@@ -6,7 +6,6 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 出站消息
@@ -27,8 +26,7 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Data
 @Builder
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public class BotOutboundMessage {
 
     /**

@@ -1,7 +1,6 @@
 package com.chua.common.support.serialize;
 
 import java.io.Serializable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 序列化接口，定义了对象序列化和反序列化的标准方法。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public interface Serializer<T extends Serializable> {
 
     /**

@@ -3,7 +3,6 @@ package com.chua.common.support.concurrent.backoff.provider;
 import com.chua.common.support.concurrent.backoff.BackoffProvider;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 线性退避提供者。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/24
  */
-@NullUnmarked
 public class LinearBackoffProvider implements BackoffProvider {
 
     /**

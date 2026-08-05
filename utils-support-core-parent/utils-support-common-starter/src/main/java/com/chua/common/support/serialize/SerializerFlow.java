@@ -3,7 +3,6 @@ package com.chua.common.support.serialize;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 序列化流管理器
@@ -31,7 +30,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class SerializerFlow {
 
     /**
@@ -75,7 +73,7 @@ public class SerializerFlow {
         if (object == null) {
             return new byte[0];
         }
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
         Serializer<Serializable> s = (Serializer<Serializable>) currentSerializer;
         return s.serialize((Serializable) object);
     }

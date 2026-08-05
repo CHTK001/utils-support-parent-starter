@@ -1,7 +1,6 @@
 package com.chua.common.support.file.tar;
 
 import java.io.File;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tar 文件头结构定义。
@@ -46,7 +45,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class TarHeader {
 
     /** Header 区域字段长度：文件名 */

@@ -1,7 +1,6 @@
 package com.chua.common.support.network.container;
 
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Web 容器接口，定义嵌入式 Servlet 容器的标准生命周期操作。
@@ -37,7 +36,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public interface WebContainer {
 
     /**

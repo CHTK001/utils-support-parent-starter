@@ -5,7 +5,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 卡片视图解析器，将单对象渲染为带标题的分隔卡片。
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("card")
 public class CardViewParser implements ViewParser {
 

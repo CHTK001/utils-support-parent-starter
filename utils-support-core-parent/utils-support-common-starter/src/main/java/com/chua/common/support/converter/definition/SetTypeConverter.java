@@ -6,7 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.chua.common.support.constant.CommonConstant.*;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/11/5
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class SetTypeConverter implements TypeConverter<Set> {
     public static final SetTypeConverter INSTANCE = new SetTypeConverter();
 

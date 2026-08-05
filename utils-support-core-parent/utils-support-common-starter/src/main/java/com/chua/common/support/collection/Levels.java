@@ -2,7 +2,6 @@ package com.chua.common.support.collection;
 
 import java.util.Map;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 层级映射函数接口，继承 {@link Function}{@code <Map<String, Object>, Map<String, Object>>}。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 @FunctionalInterface
 public interface Levels extends Function<Map<String, Object>, Map<String, Object>> {
 }

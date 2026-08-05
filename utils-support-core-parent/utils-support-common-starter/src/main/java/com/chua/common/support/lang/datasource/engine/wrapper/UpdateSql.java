@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 更新 SQL 信息记录，包含构建更新语句所需的所有结构化数据。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public record UpdateSql<T>(
         Class<T> entityClass,
         String setClause,

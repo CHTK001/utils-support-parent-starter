@@ -9,7 +9,6 @@ import java.util.*;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_ASTERISK;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_QUESTION;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -26,8 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class FlatHashMap implements FlatMap {
 
     private static final PathMatcher MATCHER = PathMatcher.INSTANCE;

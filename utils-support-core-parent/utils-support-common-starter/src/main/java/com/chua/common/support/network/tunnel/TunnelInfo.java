@@ -1,7 +1,6 @@
 package com.chua.common.support.network.tunnel;
 
 import java.time.LocalDateTime;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 隧道实时信息快照。
@@ -17,8 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/31
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public record TunnelInfo(
         int port,
         TunnelStatus status,

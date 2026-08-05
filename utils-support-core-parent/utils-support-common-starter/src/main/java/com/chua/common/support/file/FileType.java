@@ -1,6 +1,5 @@
 package com.chua.common.support.file;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件类型枚举，按文件扩展名对文件进行分类。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0
  */
-@NullUnmarked
 public enum FileType {
 
     // ========== 图片 ==========

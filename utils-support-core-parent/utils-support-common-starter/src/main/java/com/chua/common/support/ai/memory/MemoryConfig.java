@@ -4,7 +4,6 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆体配置
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Data
 @Builder
 public class MemoryConfig {

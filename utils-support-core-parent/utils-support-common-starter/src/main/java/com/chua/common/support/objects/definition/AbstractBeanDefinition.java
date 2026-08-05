@@ -20,7 +20,6 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 定义抽象基类。
@@ -39,8 +38,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024/12/20
  */
 @Slf4j
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     /**

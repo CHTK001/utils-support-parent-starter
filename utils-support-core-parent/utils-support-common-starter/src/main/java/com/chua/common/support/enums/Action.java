@@ -1,6 +1,5 @@
 package com.chua.common.support.enums;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 用户操作类型枚举，用于标识日志/审计中常见的业务动作。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public enum Action {
 
     /**

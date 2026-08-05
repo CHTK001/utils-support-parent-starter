@@ -5,7 +5,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 表格视图解析器，将结构化数据渲染为终端 ASCII 表格。
@@ -30,7 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("table")
 public class TableViewParser implements ViewParser {
 
@@ -43,7 +41,7 @@ public class TableViewParser implements ViewParser {
     }
 
     @Override
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     public String render(Object data) {
         if (data instanceof Map) {
             return renderMap((Map<Object, Object>) data);

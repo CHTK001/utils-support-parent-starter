@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 import static com.chua.common.support.constant.CommonConstant.*;
 import static com.chua.common.support.constant.ValueConstant.*;
 import static com.chua.common.support.converter.Converter.convertIfPrimitive;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 类型与反射辅助工具类，提供类名解析、原始类型/包装类型转换、
@@ -41,8 +40,7 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings({"ALL"})
+@SuppressWarnings("ALL")
 public class ClassUtils {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClassUtils.class);

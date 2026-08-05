@@ -1,14 +1,12 @@
 package com.chua.common.support.lang.qr;
 
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码定位点配置类。
  *
  * @author CH
  */
-@NullUnmarked
 @Data
 public class CodeEyeSetting {
     /**

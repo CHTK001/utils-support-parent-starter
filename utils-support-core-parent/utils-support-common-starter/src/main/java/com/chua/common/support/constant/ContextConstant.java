@@ -1,7 +1,6 @@
 package com.chua.common.support.constant;
 
 import java.lang.annotation.Annotation;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 上下文常量接口，定义了与 Spring 框架相关的常量。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 1.0
  * @see org.springframework.stereotype.Component
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface ContextConstant {
 
     /**

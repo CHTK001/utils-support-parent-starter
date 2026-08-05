@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link Engine} 接口的记忆存储（无反射、不依赖 datasource 实现包）。
@@ -30,7 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Slf4j
 public class EngineMemoryStore implements MemoryStore {
 

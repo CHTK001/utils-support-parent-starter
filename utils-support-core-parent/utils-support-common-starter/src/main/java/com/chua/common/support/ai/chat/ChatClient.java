@@ -9,7 +9,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话客户端接口
@@ -43,7 +42,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@NullUnmarked
 public interface ChatClient extends AutoCloseable {
 
     /**

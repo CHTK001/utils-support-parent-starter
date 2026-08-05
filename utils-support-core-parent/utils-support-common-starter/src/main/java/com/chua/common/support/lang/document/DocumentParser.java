@@ -2,7 +2,6 @@ package com.chua.common.support.lang.document;
 
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档解析器 SPI 接口。
@@ -28,8 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi
 public interface DocumentParser {
 

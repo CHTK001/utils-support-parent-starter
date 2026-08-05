@@ -2,7 +2,6 @@ package com.chua.common.support.network;
 
 import com.chua.common.support.network.server.ServerCategory;
 import lombok.Getter;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 协议类型枚举，用于区分不同类型的网络协议。
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 2.0
  * @since 2026/07/16
  */
-@NullUnmarked
 @Getter
 public enum ProtocolType {
 

@@ -6,7 +6,6 @@ import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器处理器注解解析器 SPI。
@@ -17,7 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Spi
 public interface ServerHandlerAnnotationParser {
 

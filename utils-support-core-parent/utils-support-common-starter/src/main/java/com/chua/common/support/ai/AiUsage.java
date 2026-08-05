@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 服务用量信息
@@ -57,7 +56,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Data
 @Builder
 public class AiUsage {

@@ -4,7 +4,6 @@ import com.chua.common.support.ai.calibration.train.TrainingData;
 import com.chua.common.support.ai.calibration.train.TrainingStats;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 可训练的纯校准器接口（二级接口）
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * <p>
  * @author CH
  */
-@NullUnmarked
 public interface TrainerPureCalibrator extends PureCalibrator {
 
     // ==================== 训练数据生成 ====================

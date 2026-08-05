@@ -3,7 +3,6 @@ package com.chua.common.support.task.pipeline.node;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 子流水线节点。
@@ -33,7 +32,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class SubPipelineNode implements PipelineNode {
 
     /**

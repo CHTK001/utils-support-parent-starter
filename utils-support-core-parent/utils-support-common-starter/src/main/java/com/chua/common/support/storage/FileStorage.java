@@ -14,7 +14,6 @@ import com.chua.common.support.storage.result.MultipartPartResult;
 import com.chua.common.support.storage.result.ObjectResult;
 import com.chua.common.support.storage.result.PutObjectResult;
 import com.chua.common.support.storage.setting.BucketSetting;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件存储 SPI（Service Provider Interface）接口。
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0
  */
-@NullUnmarked
 @Spi
 public interface FileStorage extends AutoCloseable {
 

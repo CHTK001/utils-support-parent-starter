@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import static com.chua.common.support.constant.CommonConstant.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -29,7 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public class BytesTypeConverter implements TypeConverter<byte[]> {
 
 

@@ -7,7 +7,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -25,8 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/11/26
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class UrlTypeConverter implements TypeConverter<URL> {
 
     private static final String HTTP_PROTOCOL = "http";

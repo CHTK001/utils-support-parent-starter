@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -19,8 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024-01-01
  * @version 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class ProgressBarBuilder {
 
     /**

@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SPI Bean 定义注册器（只读）。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("spi")
 @SpiDescribe("SPI Bean 定义注册器（只读，由 ServiceProvider 自动发现服务）")

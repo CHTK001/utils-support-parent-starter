@@ -2,7 +2,6 @@ package com.chua.common.support.lang.script.marker;
 
 import com.chua.common.support.lang.script.marker.listener.Listener;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 脚本标记器抽象基类。
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see ScriptMarker
  * @see Listener
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public abstract class AbstractScriptMarker implements ScriptMarker {
 

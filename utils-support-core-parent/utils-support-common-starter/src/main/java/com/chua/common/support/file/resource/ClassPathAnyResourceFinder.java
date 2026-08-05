@@ -30,7 +30,6 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SLASH;
 import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_ALL_PREFIX;
 import static com.chua.common.support.constant.NameConstant.FILE_URL_PREFIX;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * {@code classpath*:} 协议资源查找器。
@@ -45,7 +44,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Slf4j
 public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
 

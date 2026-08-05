@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认代理提供者实现，采用建造者模式构建代理对象。
@@ -67,7 +66,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2025/11/26
  * @version 1.1.0
  */
-@NullUnmarked
 @SuppressWarnings({"unchecked", "rawtypes"})
 class DefaultProxyProvider<T> implements ProxyProvider<T> {
 

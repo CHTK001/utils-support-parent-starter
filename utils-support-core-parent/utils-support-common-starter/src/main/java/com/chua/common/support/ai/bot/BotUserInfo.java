@@ -3,7 +3,6 @@ package com.chua.common.support.ai.bot;
 import lombok.Builder;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 用户信息。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
 @Builder
 public record BotUserInfo(
         /** 用户在 Bot 平台中的唯一 ID */

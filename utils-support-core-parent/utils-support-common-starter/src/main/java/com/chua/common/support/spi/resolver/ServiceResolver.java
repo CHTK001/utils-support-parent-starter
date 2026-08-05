@@ -5,7 +5,6 @@ import com.chua.common.support.spi.definition.ServiceDefinition;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务解析器接口，负责从不同来源发现和解析 SPI 服务实现。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ServiceResolver {
 
     /**

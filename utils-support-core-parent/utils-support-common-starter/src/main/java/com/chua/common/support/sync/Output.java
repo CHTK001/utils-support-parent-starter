@@ -1,7 +1,6 @@
 package com.chua.common.support.sync;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步输出端
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/28
  */
-@NullUnmarked
 public interface Output extends AutoCloseable {
 
     /**

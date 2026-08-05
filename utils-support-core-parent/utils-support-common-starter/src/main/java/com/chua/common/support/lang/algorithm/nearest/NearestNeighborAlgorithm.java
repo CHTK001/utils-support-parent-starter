@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.algorithm.nearest;
 
 import java.util.List;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 临近算法顶级接口，定义最近邻搜索的统一抽象。
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public interface NearestNeighborAlgorithm {
 
     /**

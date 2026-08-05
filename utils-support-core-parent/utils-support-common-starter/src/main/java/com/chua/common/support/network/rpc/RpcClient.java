@@ -4,7 +4,6 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RPC 客户端 SPI 接口，定义远程服务代理获取与生命周期管理。
@@ -28,8 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public interface RpcClient extends AutoCloseable {
 
     static RpcClient createClient(String name, RpcRegistryConfig registryConfig,

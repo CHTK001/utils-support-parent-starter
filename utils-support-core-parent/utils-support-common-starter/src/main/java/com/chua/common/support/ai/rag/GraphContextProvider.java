@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.rag;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * GraphRAG 上下文提供者接口（可选）。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @FunctionalInterface
 public interface GraphContextProvider {
 

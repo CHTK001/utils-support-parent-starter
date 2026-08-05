@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 用量持久化 ChatClient 包装器 — 为任意 {@link ChatClient} 添加异步 AiUsage 持久化能力。
@@ -50,8 +49,6 @@ import org.jspecify.annotations.NullUnmarked;
  *      包装已配置 Engine 的 AggregateChatClient 会导致用量重复写入，请避免。
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class UsagePersistChatClient implements ChatClient {
 
     private final ChatClient delegate;

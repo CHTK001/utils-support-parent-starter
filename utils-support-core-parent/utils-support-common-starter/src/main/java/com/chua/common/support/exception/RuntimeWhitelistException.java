@@ -1,6 +1,5 @@
 package com.chua.common.support.exception;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 运行时白名单异常。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class RuntimeWhitelistException extends RuntimeException {
 
     /**

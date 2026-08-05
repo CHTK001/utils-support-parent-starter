@@ -4,7 +4,6 @@ import com.chua.common.support.network.annotations.ResponseConverter;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.nio.charset.StandardCharsets;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * XML 响应转化器，将数据对象转换为 XML 格式文本。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class XmlResponseConverter implements ResponseConverter {
 
     @Override

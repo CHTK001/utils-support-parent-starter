@@ -2,7 +2,6 @@ package com.chua.common.support.network.protocol.server;
 
 import com.chua.common.support.network.server.ServerSetting;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 协议服务器抽象基类。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/26
  */
-@NullUnmarked
 @Slf4j
 public abstract class AbstractProtocolServer {
 

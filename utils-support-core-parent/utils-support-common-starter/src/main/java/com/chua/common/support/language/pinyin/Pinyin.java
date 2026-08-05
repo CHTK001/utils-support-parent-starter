@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 拼音结果，表示一个汉字或词语的完整拼音转换结果。
@@ -21,8 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2021-12-30
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor

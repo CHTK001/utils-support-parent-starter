@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.bot;
 
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 发送结果
@@ -13,8 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2026/07/18
  */
 @Data
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class BotSendResult {
 
     /** 是否发送成功 */

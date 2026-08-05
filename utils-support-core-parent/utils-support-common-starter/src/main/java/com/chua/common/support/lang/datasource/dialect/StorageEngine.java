@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.dialect;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 数据库存储引擎枚举。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public enum StorageEngine {
     INNODB,
     MYISAM,

@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK {@link HttpClient} 的 SSE 客户端实现
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/21
  */
-@NullUnmarked
 @Slf4j
 @Spi("jdk")
 public class JdkSseClient implements SseClient {

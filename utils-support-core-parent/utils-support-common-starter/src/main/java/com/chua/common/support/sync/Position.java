@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步位点
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/28
  */
-@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

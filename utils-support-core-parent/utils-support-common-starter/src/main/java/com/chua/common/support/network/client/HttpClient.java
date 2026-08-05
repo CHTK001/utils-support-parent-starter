@@ -3,7 +3,6 @@ package com.chua.common.support.network.client;
 import com.chua.common.support.network.http.HttpMethod;
 
 import java.util.concurrent.CompletableFuture;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 客户端顶层接口，提供 HTTP 请求的抽象和便捷方法。
@@ -35,7 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see DefaultHttpClient
  * @see AbstractHttpClient
  */
-@NullUnmarked
 public interface HttpClient extends AutoCloseable {
 
     /**

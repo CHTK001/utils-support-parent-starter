@@ -16,7 +16,6 @@ import java.util.stream.IntStream;
 import static com.chua.common.support.constant.CommonConstant.*;
 import static com.chua.common.support.constant.RegexConstant.DECIMALS;
 import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -35,7 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class NumberUtils {
 
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
@@ -936,7 +934,7 @@ public class NumberUtils {
      * @param targetClass targetClass
      * @return Number
      */
-@SuppressWarnings({"all"})
+@SuppressWarnings("all")
     public static <T extends Number> T parseNumber(Number number, Class<T> targetClass) {
         if (targetClass.isInstance(number)) {
             return (T) number;

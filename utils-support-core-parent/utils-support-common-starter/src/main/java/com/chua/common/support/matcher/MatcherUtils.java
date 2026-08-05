@@ -3,7 +3,6 @@ package com.chua.common.support.matcher;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 路径匹配工具类，提供 URL 路径的 Ant 风格匹配、模板变量提取等功能。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public final class MatcherUtils {
 
     private static final PathMatcher PATH_MATCHER = new AntPathMatcher();

@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.algorithm.otp;
 
-import org.jspecify.annotations.NullMarked;
 
 
 /**
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 2024/12/3
  */
-@NullMarked
 public interface HotpGenerator extends OtpGenerator {
 
     /**

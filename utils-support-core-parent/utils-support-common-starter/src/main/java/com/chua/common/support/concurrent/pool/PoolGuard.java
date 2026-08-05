@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.pool;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象池守卫（支持 try-with-resources 自动归还）
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class PoolGuard<T> implements AutoCloseable {
 
     /**

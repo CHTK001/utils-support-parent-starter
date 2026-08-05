@@ -7,7 +7,6 @@ import com.chua.common.support.ai.chat.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 统一上下文压缩入口 — Agent / 普通 ChatClient 共用。
@@ -27,8 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public final class ContextCompressor {
 
     private final ContextCompressionConfig config;

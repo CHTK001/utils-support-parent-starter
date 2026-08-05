@@ -1,6 +1,5 @@
 package com.chua.common.support.objects.exception;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 类型不匹配异常。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 public class BeanTypeMismatchException extends RuntimeException {
 
     public BeanTypeMismatchException(String msg) {

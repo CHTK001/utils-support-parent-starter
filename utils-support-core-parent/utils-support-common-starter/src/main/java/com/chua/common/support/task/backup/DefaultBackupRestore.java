@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认备份恢复实现
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class DefaultBackupRestore implements BackupRestore {
 
     private static final String ARCHIVE_DIR = "archive";

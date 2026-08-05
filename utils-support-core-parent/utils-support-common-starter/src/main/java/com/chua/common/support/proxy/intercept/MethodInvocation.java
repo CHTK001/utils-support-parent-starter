@@ -1,6 +1,5 @@
 package com.chua.common.support.proxy.intercept;
 
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2025/11/26
  * @see MethodArroundIntercept
  */
-@NullUnmarked
 @FunctionalInterface
 public interface MethodInvocation {
 

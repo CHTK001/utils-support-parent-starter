@@ -1,6 +1,5 @@
 package com.chua.common.support.exception;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 权限异常类。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class NoPermissionException extends RuntimeException {
 
     public NoPermissionException() {

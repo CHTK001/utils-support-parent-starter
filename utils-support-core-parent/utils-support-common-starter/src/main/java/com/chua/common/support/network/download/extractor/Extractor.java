@@ -3,7 +3,6 @@ package com.chua.common.support.network.download.extractor;
 import java.io.File;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件解压接口定义。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2025/11/29
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public interface Extractor {
 
     /**

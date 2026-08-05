@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 避让器门面，支持链式调用和受保护执行。
@@ -21,8 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/24
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public final class BackoffFlow {
 
     /**

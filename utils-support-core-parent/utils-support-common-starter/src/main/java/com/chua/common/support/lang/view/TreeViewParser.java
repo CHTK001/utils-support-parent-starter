@@ -4,7 +4,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 树形视图解析器，将嵌套数据渲染为终端树。
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("tree")
 public class TreeViewParser implements ViewParser {
 
@@ -40,7 +37,7 @@ public class TreeViewParser implements ViewParser {
     }
 
     @Override
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     public String render(Object data) {
         StringBuilder sb = new StringBuilder();
         if (data instanceof Map) {

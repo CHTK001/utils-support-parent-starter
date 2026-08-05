@@ -1,7 +1,6 @@
 package com.chua.common.support.network.annotations;
 
 import com.chua.common.support.network.server.response.ServerResponse;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 响应转化器 SPI，将服务端响应内容转换为指定格式。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ResponseConverter {
 
     /**

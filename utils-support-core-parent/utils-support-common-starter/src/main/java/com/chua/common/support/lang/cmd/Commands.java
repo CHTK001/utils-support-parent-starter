@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令注册中心 — 管理所有可用的 {@link Cmd} 命令。
@@ -63,8 +62,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see CmdResult
  * @see CommandLine
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public final class Commands {
 
     /** 内部命令容器 */

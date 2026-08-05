@@ -2,7 +2,6 @@ package com.chua.common.support.converter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字段映射上下文 — 封装转换时的配置参数与上下文数据。
@@ -13,8 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class FieldMappingContext {
 
     /** 字段名称 */

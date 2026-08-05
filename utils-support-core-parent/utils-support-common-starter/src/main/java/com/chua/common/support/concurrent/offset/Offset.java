@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.offset;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * offset 持久化操作。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.43
  */
-@NullUnmarked
 public interface Offset extends AutoCloseable {
 
     String subscriberId();

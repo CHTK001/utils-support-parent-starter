@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令行参数解析器，支持 POSIX 风格和 GNU 风格参数解析与组装。
@@ -79,8 +78,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public final class CommandLine {
 
     /** 默认帮助选项的长名称 */
@@ -547,7 +544,7 @@ public final class CommandLine {
     /**
      * 将字符串值转换为选项对应的类型。
      */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     private static Object convertValue(CliOption opt, String value) {
         if (value == null) {
             return null;

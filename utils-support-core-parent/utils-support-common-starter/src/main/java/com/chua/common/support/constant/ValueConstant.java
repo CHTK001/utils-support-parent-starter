@@ -3,13 +3,11 @@ package com.chua.common.support.constant;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Properties;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 常量数据
  * @author CH
  */
-@NullUnmarked
 public interface ValueConstant {
     /**
      * 空字符串常量。

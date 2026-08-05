@@ -1,7 +1,6 @@
 package com.chua.common.support.task.pipeline.core;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 流水线入口接口。
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface Pipeline {
 
     /**

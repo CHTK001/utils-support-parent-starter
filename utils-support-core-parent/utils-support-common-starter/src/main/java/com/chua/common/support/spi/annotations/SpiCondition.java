@@ -1,7 +1,6 @@
 package com.chua.common.support.spi.annotations;
 
 import java.lang.annotation.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SPI 条件注解
@@ -82,7 +81,6 @@ public @interface SpiCondition {
  * @author CH
      * @since 2024-01-01
      */
-@NullUnmarked
     interface Condition {
         /**
          * 判断条件是否满足

@@ -1,6 +1,5 @@
 package com.chua.common.support.wal;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL Checkpoint 元信息。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record CheckpointMeta(
     long checkpointLsn,
     int checkpointSegmentNo,

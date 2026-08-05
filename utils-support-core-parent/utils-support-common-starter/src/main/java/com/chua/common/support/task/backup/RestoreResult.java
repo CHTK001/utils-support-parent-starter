@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.nio.file.Path;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 恢复结果
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Data
 @Builder
 public class RestoreResult {

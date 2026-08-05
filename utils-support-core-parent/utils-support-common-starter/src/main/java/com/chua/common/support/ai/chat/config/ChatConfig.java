@@ -5,7 +5,6 @@ import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 单个 ChatClient 配置的链式 Builder — 以 fluent API 替代 JSON/@Builder 配置。
@@ -43,8 +42,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Getter
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ChatConfig {
 
     /**

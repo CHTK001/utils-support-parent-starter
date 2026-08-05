@@ -3,7 +3,6 @@ package com.chua.common.support.lang.ast.parser;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SQL 表达式解析器
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Spi("sql")
 public class SqlExpressionParser implements ExpressionParser {
 

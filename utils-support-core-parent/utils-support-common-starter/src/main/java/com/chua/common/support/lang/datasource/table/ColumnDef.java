@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.table;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 列定义，描述数据库表中的一个字段。
@@ -38,8 +37,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Data
 @Accessors(chain = true)
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ColumnDef {
 
     /**

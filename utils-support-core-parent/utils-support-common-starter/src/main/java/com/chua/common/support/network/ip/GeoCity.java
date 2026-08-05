@@ -1,6 +1,5 @@
 package com.chua.common.support.network.ip;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 地理位置信息
@@ -10,8 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class GeoCity {
 
     /** 空对象常量 */

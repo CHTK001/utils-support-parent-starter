@@ -7,7 +7,6 @@ import com.chua.common.support.utils.ObjectUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分词器接口，定义中文分词的核心 SPI 契约。
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("jieba")
 public interface Tokenizer {
 

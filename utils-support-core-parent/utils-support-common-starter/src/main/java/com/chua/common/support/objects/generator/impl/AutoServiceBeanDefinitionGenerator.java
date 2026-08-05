@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AutoService Bean 定义生成器，处理 @AutoService 注解的类。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("autoservice")
 @SpiDescribe("AutoService Bean 定义生成器")

@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * XML 文件系统 SPI 实现（简易 DOM 解析）。
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Spi("xml")
 public class XmlFileSystem implements FileSystem {
 
@@ -72,7 +70,7 @@ public class XmlFileSystem implements FileSystem {
          *
          * @return Map 行数据列表
          */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             try {

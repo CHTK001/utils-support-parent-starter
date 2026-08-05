@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.format;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SQL格式化器工厂类。
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class SqlFormatterFactory {
 
     /**

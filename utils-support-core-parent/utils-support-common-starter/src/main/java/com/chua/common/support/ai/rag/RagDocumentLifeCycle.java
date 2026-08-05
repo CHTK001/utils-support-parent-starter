@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RAG 文档生命周期管理。
@@ -34,8 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.42
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class RagDocumentLifeCycle implements AutoCloseable {
 
     private static final ObjectMapper MAPPER = new ObjectMapper()

@@ -2,7 +2,6 @@ package com.chua.common.support.config.source;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 空属性源实现类。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2023-08-01
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class EmptyPropertySource implements PropertySource {
 
     /**

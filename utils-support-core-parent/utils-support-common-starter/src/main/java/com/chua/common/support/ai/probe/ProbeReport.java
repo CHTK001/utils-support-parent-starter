@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.probe;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 真伪探测综合报告。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record ProbeReport(
     java.util.List<ProbeResult> results,
     double overallConfidence,

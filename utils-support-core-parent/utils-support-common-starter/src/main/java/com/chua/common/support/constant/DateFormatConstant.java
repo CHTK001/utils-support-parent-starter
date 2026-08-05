@@ -8,7 +8,6 @@ import java.time.temporal.ChronoField;
 import java.util.Locale;
 
 import static com.chua.common.support.lang.date.enums.ZoneIdEnum.CTT;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/12/31
  */
-@NullUnmarked
 public interface DateFormatConstant {
     String[] MONTHS_OF_CHINESE = {"      ", "      ", "      ", "      ", "      ", "      ",
             "      ", "      ", "      ", "      ", "         ", "         "};

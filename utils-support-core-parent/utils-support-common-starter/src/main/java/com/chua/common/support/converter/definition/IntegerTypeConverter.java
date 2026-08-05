@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,8 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/10/30
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class IntegerTypeConverter implements TypeConverter<Integer> {
 
     /**

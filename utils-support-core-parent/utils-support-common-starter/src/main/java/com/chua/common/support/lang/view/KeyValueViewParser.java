@@ -3,7 +3,6 @@ package com.chua.common.support.lang.view;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 键值对视图解析器，将 {@link Map} 渲染为 {@code key: value} 格式。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("kv")
 public class KeyValueViewParser implements ViewParser {
 
@@ -28,7 +26,7 @@ public class KeyValueViewParser implements ViewParser {
     }
 
     @Override
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     public String render(Object data) {
         Map<String, String> map = toKeyValue(data);
         if (map.isEmpty()) {

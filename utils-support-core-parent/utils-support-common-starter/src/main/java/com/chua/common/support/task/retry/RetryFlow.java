@@ -6,7 +6,6 @@ import com.chua.common.support.concurrent.backoff.BackoffProvider;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 重试流门面，支持链式调用、降级回调和受保护执行。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/24
  */
-@NullUnmarked
 public final class RetryFlow {
 
     /**

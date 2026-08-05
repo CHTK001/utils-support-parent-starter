@@ -2,7 +2,6 @@ package com.chua.common.support.network.voice;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 语音呼叫请求参数。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Data
 @Builder
 public class CallRequest {

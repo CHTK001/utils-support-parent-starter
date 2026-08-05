@@ -5,7 +5,6 @@ import com.chua.common.support.network.server.ServerSetting;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器响应抽象接口。
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 2.0
  * @since 2026/07/16
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface ServerResponse {
 
     /**

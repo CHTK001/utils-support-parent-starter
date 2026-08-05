@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TXT 纯文本文件系统 SPI 实现。
@@ -21,8 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("txt")
 public class TxtFileSystem implements FileSystem {
 
@@ -170,7 +167,7 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
         public TxtWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);

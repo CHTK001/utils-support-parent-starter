@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -24,8 +23,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2023-08-01
  */
-@SuppressWarnings({"NullAway", "unchecked", "rawtypes"})
-@NullUnmarked
+@SuppressWarnings({"unchecked", "rawtypes"})
 public interface PropertySource {
 
     /**

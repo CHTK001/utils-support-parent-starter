@@ -4,7 +4,6 @@ import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 代理工具类，提供创建 JDK 动态代理实例的便捷静态方法。
@@ -38,7 +37,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see DelegateMethodIntercept
  * @see InvocationHandler
  */
-@NullUnmarked
 public class ProxyUtils {
 
     /**
@@ -54,7 +52,7 @@ public class ProxyUtils {
      * @param <T>         接口类型
      * @return 代理实例
      */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     public static <T> T newProxy(Class<T> type, ClassLoader classLoader, DelegateMethodIntercept<T> handler) {
         return (T) Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, handler);
     }

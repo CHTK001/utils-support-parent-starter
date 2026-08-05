@@ -2,7 +2,6 @@ package com.chua.common.support.objects.scope;
 
 import com.chua.common.support.objects.definition.BeanScope;
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 作用域检测器 SPI。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi
 public interface BeanScopeDetector {
 

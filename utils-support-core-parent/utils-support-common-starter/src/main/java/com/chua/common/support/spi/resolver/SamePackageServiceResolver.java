@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import static com.chua.common.support.spi.definition.ServiceDefinitionUtils.buildDefinition;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -42,7 +41,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class SamePackageServiceResolver implements ServiceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(SamePackageServiceResolver.class);

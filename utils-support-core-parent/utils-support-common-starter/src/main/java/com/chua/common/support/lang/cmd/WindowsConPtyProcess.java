@@ -7,7 +7,6 @@ import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Windows ConPTY 进程封装，基于 JDK Panama FFI 调用 kernel32 实现伪控制台子进程。
@@ -19,8 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public final class WindowsConPtyProcess implements Closeable {
 
     /**

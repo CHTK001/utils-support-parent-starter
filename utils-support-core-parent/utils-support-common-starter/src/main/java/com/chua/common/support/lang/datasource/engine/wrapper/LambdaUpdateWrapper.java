@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Lambda 更新包装器，提供类似 MyBatis-Plus 的链式 SET 和 WHERE 条件构建功能。
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdateWrapper<T>> {
 
     /** SET 值映射：列名 → 新值 */

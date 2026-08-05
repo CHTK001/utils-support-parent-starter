@@ -2,7 +2,6 @@ package com.chua.common.support.ai.rag;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RAG 查询响应。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record RagResponse(
         String answer,
         List<Source> sources,

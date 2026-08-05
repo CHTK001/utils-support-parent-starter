@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模板提取结果，承载从输入文本中按模板抽取出的变量集合。
@@ -27,8 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public record TemplateExtractResult(
         Map<String, Object> extracted,
         List<String> missing,

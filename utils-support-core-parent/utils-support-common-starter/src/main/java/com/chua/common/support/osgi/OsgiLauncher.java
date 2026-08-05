@@ -2,7 +2,6 @@ package com.chua.common.support.osgi;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI 启动器接口，负责启动、停止和管理 OSGI 框架实例。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface OsgiLauncher {
 
     /**

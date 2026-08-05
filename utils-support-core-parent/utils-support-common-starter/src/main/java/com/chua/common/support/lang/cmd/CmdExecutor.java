@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.cmd;
 
 import java.util.concurrent.TimeUnit;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令执行器 SPI 接口。
@@ -36,8 +35,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public interface CmdExecutor extends AutoCloseable {
 
     /**

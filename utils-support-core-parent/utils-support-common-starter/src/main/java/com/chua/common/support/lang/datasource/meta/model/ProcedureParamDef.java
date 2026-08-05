@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 存储过程参数定义，描述存储过程或函数的一个参数。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Data
 @Builder
 @NoArgsConstructor

@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.calibration;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 纯分数校准器接口
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * 不含任何训练/拟合方法，参数通过构造函数或builder注入。
  * @author CH
  */
-@NullUnmarked
 public interface PureCalibrator {
 
     /**

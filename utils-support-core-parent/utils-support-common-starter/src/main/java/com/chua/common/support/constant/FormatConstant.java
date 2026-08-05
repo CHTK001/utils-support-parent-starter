@@ -1,7 +1,6 @@
 package com.chua.common.support.constant;
 
 import java.text.DecimalFormat;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 格式常量接口，集中定义项目中使用的各类格式化模式。
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024-01-01
  */
-@NullUnmarked
 public interface FormatConstant {
 
     // ========================== 日期格式 ==========================

@@ -4,7 +4,6 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.StringUtils;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class NumberValue implements Value<Number> {
 
     /**

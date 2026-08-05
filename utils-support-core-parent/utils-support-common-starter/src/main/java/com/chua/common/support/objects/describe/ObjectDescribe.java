@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象描述，封装对对象的反射操作，提供便捷的方法访问。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Getter
 public class ObjectDescribe {
 

@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.splitter;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文本分块结果。
@@ -13,6 +12,5 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record TextChunk(int index, int startOffset, int endOffset, String text, String type) {
 }

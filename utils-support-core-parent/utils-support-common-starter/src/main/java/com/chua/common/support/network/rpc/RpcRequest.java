@@ -3,7 +3,6 @@ package com.chua.common.support.network.rpc;
 import lombok.Data;
 
 import java.io.Serializable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RPC 请求数据传输对象，封装一次远程过程调用的完整请求信息。
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Data
 public class RpcRequest implements Serializable {
     /**

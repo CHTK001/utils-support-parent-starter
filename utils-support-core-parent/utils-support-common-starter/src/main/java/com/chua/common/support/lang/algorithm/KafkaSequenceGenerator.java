@@ -2,7 +2,6 @@ package com.chua.common.support.lang.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * Kafka 自增序列 ID 生成器，一种改进的雪花算法变体，适用于高吞吐消息场景。
@@ -36,7 +35,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public class KafkaSequenceGenerator {
 
     // ==================== 默认位分配 ====================

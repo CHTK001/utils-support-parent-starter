@@ -3,7 +3,6 @@ package com.chua.common.support.ai.image;
 import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 图片生成任务响应
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Data
 @Builder
 public class ImageResponse {

@@ -6,7 +6,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 
 import java.lang.annotation.Annotation;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSR/CDI 作用域检测器。
@@ -24,7 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("jsr")
 @SpiDescribe("JSR/CDI 作用域检测器")
 public class JsrBeanScopeDetector implements BeanScopeDetector {

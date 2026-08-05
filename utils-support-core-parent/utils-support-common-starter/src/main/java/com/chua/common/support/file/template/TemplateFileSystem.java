@@ -3,7 +3,6 @@ package com.chua.common.support.file.template;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件模板系统接口，定义模板解析与合并的统一抽象。
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public interface TemplateFileSystem {
 
     /**

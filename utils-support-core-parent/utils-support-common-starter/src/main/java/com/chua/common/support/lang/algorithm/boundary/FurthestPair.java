@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.algorithm.boundary;
 
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 最远点对结果，封装数据集中距离最远的两个样本点信息。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public class FurthestPair {
 
     /** 空结果常量 */

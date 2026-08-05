@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.pool;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象池耗尽异常。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class PoolExhaustedException extends RuntimeException {
 
     public PoolExhaustedException(String message) {

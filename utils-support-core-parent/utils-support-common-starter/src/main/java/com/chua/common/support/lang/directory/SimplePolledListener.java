@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.directory;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 简单的 SLF4J 日志监听器，将文件变更事件输出到日志。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullMarked
 @Slf4j
 public class SimplePolledListener implements PolledListener {
 

@@ -17,7 +17,6 @@ import com.chua.common.support.utils.ThreadUtils;
 import java.util.LinkedHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * URL 路径到处理器映射过滤器。
@@ -39,8 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Spi("url-mapping")
 @SpiDescribe("URL 路径到处理器映射过滤器")
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFilter {
 
     /**

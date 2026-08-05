@@ -2,7 +2,6 @@ package com.chua.common.support.vector;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 id→序数(ordinal) 双向映射的向量存储抽象基类。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public abstract class AbstractIdOrdinalStorage {
 
     /**

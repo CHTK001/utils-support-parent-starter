@@ -4,7 +4,6 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * CORS 跨域过滤器。
@@ -15,8 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class CorsFilter implements ServerFilter {
 
     private volatile ServerSetting setting;

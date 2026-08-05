@@ -4,7 +4,6 @@ import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.concurrent.atomic.AtomicReference;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 客户端工厂，负责自动选择可用的 {@link HttpClientExecutor} 实现并创建客户端实例。
@@ -45,8 +44,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see HttpClientBuilder
  * @see HttpClientExecutor
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class HttpClientFactory {
 
     /**

@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于句子边界的文本分割器。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public class SentenceTextSplitter implements TextSplitter {
 
     private static final int DEFAULT_MAX_CHUNK_SIZE = 500;

@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * CSV 文件系统 SPI 实现。
@@ -23,8 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("csv")
 public class CsvFileSystem implements FileSystem {
 
@@ -264,7 +261,7 @@ public class CsvFileSystem implements FileSystem {
                                 headerWritten = true;
                             }
                             for (Object rowObj : list) {
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
                                 Map<String, Object> row = (Map<String, Object>) rowObj;
                                 // 写入行过滤
                                 if (!testRow(row)) continue;

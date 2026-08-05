@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.chua.common.support.constant.NumberConstant.DEFAULT_BUFFER_SIZE;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 层级结构展平处理类，将多层级嵌套的 Map 结构展平为单层级的键值对结构。
@@ -23,7 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public class LevelsClose implements Levels {
     private static final String DEFAULT_SEPARATOR = ".";
 
@@ -75,7 +73,7 @@ public class LevelsClose implements Levels {
      */
     private void dataFormatProfileHierarchicalAnalysis(String parentName, Object valueObject, Map<String, Object> result) {
         if (valueObject instanceof Map) {
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
             Map<String, Object> mapValue = (Map<String, Object>) valueObject;
             doAnalysisMapValueHierarchicalAnalysis(parentName, mapValue, result);
         } else if (valueObject instanceof List) {

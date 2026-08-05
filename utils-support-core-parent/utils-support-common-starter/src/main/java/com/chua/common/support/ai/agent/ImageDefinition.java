@@ -6,7 +6,6 @@ import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.skill.SkillManager;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ImageDefinition 扩展 AgentDefinition，增加图像生成能力。
@@ -17,7 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public class ImageDefinition extends AgentDefinition {
 
     /** 图像生成模型名称，如 dall-e-3、agnes-image-2.0-flash */

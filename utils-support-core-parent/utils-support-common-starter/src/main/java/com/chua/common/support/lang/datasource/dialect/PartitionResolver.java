@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.meta.PartitionMetadata;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分区解析器，定义数据库分区管理的 DDL 操作。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public interface PartitionResolver {
 
     default String createPartition(PartitionMetadata partitionMetadata) {

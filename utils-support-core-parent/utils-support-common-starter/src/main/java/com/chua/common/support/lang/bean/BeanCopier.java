@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.bean;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 属性拷贝 SPI 接口，提供对象间属性复制功能。
@@ -23,7 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public interface BeanCopier {
 
     /**

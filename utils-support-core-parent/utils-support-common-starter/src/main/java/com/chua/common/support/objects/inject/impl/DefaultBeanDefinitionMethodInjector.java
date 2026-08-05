@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认方法注入器，处理 {@link AutoInject} 注解的 setter 方法。
@@ -17,7 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("default")
 public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {

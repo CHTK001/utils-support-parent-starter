@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/11/5
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class StringTypeConverter implements TypeConverter<String> {
 
     @Override

@@ -5,7 +5,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 目录备份实现
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class DirectoryBackup implements BackupStrategy {
 
     /**

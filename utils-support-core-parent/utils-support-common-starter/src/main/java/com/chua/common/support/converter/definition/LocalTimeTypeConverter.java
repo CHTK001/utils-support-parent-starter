@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -23,8 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2021/1/26
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class LocalTimeTypeConverter implements TypeConverter<LocalTime> {
 
 

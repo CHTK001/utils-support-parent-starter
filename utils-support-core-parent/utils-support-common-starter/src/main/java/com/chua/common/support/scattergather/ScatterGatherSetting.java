@@ -4,7 +4,6 @@ import com.chua.common.support.network.discovery.DiscoveryOption;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Scatter-Gather 节点配置。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Getter
 @Setter
 @Accessors(chain = true)

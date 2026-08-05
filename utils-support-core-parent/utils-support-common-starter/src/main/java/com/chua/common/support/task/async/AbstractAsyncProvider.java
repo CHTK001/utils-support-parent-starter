@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 异步提供者抽象基类
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public abstract class AbstractAsyncProvider implements AsyncProvider {
 
     @Override

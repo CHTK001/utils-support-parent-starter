@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 网卡选择器：优先使用配置 IP，否则自动选择私网 IPv4 地址。
@@ -19,8 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class InterfaceSelector {
 
     private static final Logger log = LoggerFactory.getLogger(InterfaceSelector.class);

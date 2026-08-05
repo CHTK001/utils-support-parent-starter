@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置中心抽象基类。
@@ -18,8 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Getter
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public abstract class AbstractConfigCenter implements ConfigCenter {
 
     /**

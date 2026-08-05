@@ -1,6 +1,5 @@
 package com.chua.common.support.scattergather;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 业务原始输入解析器。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <I> 解析后的数据类型
  * @author CH
  */
-@NullUnmarked
 public interface ScatterGatherDataParser<I> {
 
     /**

@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.placeholder;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 占位符解析器接口。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface PlaceholderResolver {
 
     /**

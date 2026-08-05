@@ -1,7 +1,6 @@
 package com.chua.common.support.file.converter;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件格式转换器 SPI 接口。
@@ -27,7 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see ConvertSupport 统一转换入口
  * @see FileSource 输入输出源
  */
-@NullUnmarked
 public interface FileConvertSystem {
 
     /**

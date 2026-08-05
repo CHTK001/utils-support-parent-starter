@@ -4,7 +4,6 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SQL 执行器接口，负责执行 SQL 语句并返回结果。
@@ -52,7 +51,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public interface SqlExecutor {
 
     /**

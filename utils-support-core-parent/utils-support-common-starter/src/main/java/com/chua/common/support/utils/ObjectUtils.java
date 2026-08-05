@@ -21,7 +21,6 @@ import java.util.function.Supplier;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_OBJECT_ARRAY;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象工具类，提供对象操作的核心工具方法。
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class ObjectUtils {
     private static final int INITIAL_HASH = 7;
     private static final int MULTIPLIER = 31;
@@ -390,7 +388,7 @@ public class ObjectUtils {
      * @param <T> 值类型
      * @return 第一个非空的值，如果都为空则返回 null
      */
-@SuppressWarnings({"ALL"})
+@SuppressWarnings("ALL")
     public static <T>T firstNonNull(T v1, T v2) {
         if(v1 instanceof Optional<?> optionalO) {
             if(optionalO.isPresent()) {

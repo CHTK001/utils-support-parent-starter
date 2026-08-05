@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认技能管理器（进程内注册表）。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/20
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class DefaultSkillManager implements SkillManager {
 
     private final Map<String, SkillDefinition> skills = new ConcurrentHashMap<>();

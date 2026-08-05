@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.rag;
 
 import com.chua.common.support.ai.embedding.EmbeddingClient;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量服务接口，提供文本向量化能力。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface VectorService {
 
     /**

@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器请求抽象基类，提供 {@link ServerRequest} 常用方法的默认实现。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public abstract class AbstractServerRequest implements ServerRequest {
 
     /** 请求属性，用于 Filter 间传递数据 */

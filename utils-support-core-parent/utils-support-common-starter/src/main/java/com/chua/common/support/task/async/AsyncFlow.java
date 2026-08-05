@@ -3,7 +3,6 @@ package com.chua.common.support.task.async;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 异步流管理器
@@ -31,7 +30,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class AsyncFlow {
 
     /**

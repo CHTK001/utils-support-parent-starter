@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话配置链式 Builder — 以 fluent API 替代 JSON/YAML 配置。
@@ -48,8 +47,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Getter
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AiChatConfig {
 
     /**

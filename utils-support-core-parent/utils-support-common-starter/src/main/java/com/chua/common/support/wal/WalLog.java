@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL 日志统一接口，支持追加、回放、链式事务、分片查找、checkpoint 管理。
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface WalLog extends Closeable {
 
     /**

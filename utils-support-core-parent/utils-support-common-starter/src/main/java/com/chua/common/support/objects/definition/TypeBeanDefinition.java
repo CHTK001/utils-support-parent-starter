@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 类型 Bean 定义，统一处理单例和原型作用域。
@@ -36,7 +35,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 public class TypeBeanDefinition extends AbstractBeanDefinition {
 

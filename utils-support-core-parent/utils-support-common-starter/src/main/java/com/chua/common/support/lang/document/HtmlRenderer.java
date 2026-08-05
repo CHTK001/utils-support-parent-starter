@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTML 文档导出器。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("html")
 public class HtmlRenderer implements DocumentProvider {
 

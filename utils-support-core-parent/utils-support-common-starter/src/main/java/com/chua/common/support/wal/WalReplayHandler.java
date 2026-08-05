@@ -1,6 +1,5 @@
 package com.chua.common.support.wal;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL 回放处理器，由业务方实现。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @FunctionalInterface
 public interface WalReplayHandler {
 

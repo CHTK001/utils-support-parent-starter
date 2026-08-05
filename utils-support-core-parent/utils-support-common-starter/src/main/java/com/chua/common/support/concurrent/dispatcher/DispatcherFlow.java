@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分发器流程工具类，统一管理消息发布、订阅注册和生命周期清理。
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025-11-26
  */
-@NullUnmarked
 @Slf4j
 public class DispatcherFlow {
 

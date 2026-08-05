@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.qr;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码点阵样式枚举。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public enum CodePointStyle {
     /**
      * 迷你矩形样式，用于紧凑的二维码点阵。

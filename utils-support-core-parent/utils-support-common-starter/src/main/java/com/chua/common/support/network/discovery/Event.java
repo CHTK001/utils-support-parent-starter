@@ -1,14 +1,12 @@
 package com.chua.common.support.network.discovery;
 
 import lombok.Getter;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务发现事件类型枚举。
  * 用于标识服务实例在注册中心中的状态变化或生命周期事件。
  * @author CH
  */
-@NullUnmarked
 @Getter
 public enum Event {
 

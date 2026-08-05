@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.page;
 
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 通用分页结果封装，将数据库分页查询的结果统一包装为带分页信息的对象。
@@ -38,7 +37,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public class Page<T> {
 
     private final int pageNum;

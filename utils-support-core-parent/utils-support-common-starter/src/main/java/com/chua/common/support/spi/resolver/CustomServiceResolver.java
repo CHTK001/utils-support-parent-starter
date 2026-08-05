@@ -17,7 +17,6 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH;
 import static com.chua.common.support.spi.definition.ServiceDefinitionUtils.buildDefinition;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SPI 自定义解析器
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024-01-03
  */
-@NullUnmarked
 public class CustomServiceResolver implements ServiceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(CustomServiceResolver.class);

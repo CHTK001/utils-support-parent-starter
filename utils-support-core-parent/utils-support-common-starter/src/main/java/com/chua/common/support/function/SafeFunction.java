@@ -3,7 +3,6 @@ package com.chua.common.support.function;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 1.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public interface SafeFunction<T, R> extends Function<T, R> {
 
     /**

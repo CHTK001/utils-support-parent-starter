@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Web 容器配置，用于控制嵌入式 Servlet 容器的启动参数。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Data
 public class WebContainerSetting {
 

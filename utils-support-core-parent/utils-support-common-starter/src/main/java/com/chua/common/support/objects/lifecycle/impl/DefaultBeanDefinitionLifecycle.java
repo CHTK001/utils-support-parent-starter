@@ -11,7 +11,6 @@ import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认生命周期处理器，支持 InitializingAware 接口、@PostConstruct、@PreDestroy。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认生命周期处理器")

@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 类型转换器核心类，提供对象类型转换的静态方法。
@@ -34,9 +33,8 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2020/12/19
  */
-@SuppressWarnings({"ALL", "NullAway", "unchecked"})
+@SuppressWarnings({"ALL", "unchecked"})
 @Slf4j
-@NullUnmarked
 public final class Converter {
 
     /**

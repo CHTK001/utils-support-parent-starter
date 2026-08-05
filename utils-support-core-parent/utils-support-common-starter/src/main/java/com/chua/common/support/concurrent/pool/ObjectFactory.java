@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.pool;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 对象工厂接口
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public interface ObjectFactory<T> {
 
     /**

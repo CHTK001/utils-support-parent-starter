@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RPC 服务注册工具，通过 {@link RpcService} 注解信息向 {@link RpcServer} 注册服务实例。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class RpcServiceScanner {
 
     private static final Logger log = LoggerFactory.getLogger(RpcServiceScanner.class);

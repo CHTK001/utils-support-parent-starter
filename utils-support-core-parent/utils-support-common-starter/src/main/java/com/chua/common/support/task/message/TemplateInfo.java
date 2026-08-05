@@ -1,7 +1,6 @@
 package com.chua.common.support.task.message;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模板信息
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@NullUnmarked
 public record TemplateInfo(String id, String name, String content, String type, Map<String, String> paramDefs) {
 
     /**

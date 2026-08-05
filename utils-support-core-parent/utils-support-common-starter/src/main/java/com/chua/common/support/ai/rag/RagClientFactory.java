@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.rag;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RagClient SPI 工厂接口。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface RagClientFactory {
 
     /**

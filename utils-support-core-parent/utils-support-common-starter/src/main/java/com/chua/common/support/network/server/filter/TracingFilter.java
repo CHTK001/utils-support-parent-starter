@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 链路追踪过滤器。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public class TracingFilter implements ServerFilter {
 

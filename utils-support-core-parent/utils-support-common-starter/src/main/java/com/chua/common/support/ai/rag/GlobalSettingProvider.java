@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.rag;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 全局设置 SPI 接口。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface GlobalSettingProvider {
 
     /**

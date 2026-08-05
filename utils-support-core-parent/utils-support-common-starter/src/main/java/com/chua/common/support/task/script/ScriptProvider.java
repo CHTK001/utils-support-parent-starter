@@ -1,7 +1,6 @@
 package com.chua.common.support.task.script;
 
 import java.nio.file.Path;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 脚本提供者接口
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public interface ScriptProvider {
 
     /**

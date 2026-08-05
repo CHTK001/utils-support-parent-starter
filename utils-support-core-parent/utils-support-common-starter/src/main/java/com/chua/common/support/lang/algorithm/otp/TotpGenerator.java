@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
-import org.jspecify.annotations.NullMarked;
 
 
 /**
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 2024/12/3
  */
-@NullMarked
 public interface TotpGenerator extends OtpGenerator {
 
     /**

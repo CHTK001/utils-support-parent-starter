@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * C 模式探针：并发扫描网段，发现存活节点。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public class CModeProbe implements ProbeStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(CModeProbe.class);

@@ -1,7 +1,6 @@
 package com.chua.common.support.function;
 
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 安全的消费者接口，继承自 {@link Consumer}。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @see Consumer
  */
-@NullUnmarked
 public interface SafeConsumer<T> extends Consumer<T> {
     /**
      * 消费给定的参数，内部调用 {@link #safeAccept(Object)} 并捕获所有异常。

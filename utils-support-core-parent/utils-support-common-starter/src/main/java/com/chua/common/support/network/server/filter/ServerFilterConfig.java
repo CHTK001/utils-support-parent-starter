@@ -3,7 +3,6 @@ package com.chua.common.support.network.server.filter;
 import java.util.Map;
 
 import com.chua.common.support.network.server.ServerSetting;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 过滤器初始化配置，在 {@link ServerFilter#init(ServerFilterConfig)} 时传入。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ServerFilterConfig {
 
     /**

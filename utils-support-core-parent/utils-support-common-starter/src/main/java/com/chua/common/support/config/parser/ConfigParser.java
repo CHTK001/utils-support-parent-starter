@@ -4,7 +4,6 @@ import com.chua.common.support.config.source.PropertySource;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.InputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置解析器 SPI 接口。
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Spi
 public interface ConfigParser {
 

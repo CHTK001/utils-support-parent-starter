@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.qr;
 
 import java.awt.image.BufferedImage;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码计数器接口。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface QrCounter {
 
     /**

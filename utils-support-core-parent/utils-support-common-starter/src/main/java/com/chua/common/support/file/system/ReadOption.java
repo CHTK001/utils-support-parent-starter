@@ -1,6 +1,5 @@
 package com.chua.common.support.file.system;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件读取选项，控制文件读取时的行为参数。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class ReadOption {
 
     /** 是否以 Map 格式返回数据 */

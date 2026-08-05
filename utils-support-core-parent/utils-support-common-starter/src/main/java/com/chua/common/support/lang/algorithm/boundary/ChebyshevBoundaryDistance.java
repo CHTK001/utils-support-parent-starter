@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.algorithm.boundary;
 
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 基于切比雪夫距离（Chebyshev Distance）的边界距离算法实现。
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public class ChebyshevBoundaryDistance extends AbstractBoundaryDistance {
 
     @Override

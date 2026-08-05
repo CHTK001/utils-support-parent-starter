@@ -16,7 +16,6 @@ import java.util.Base64;
 import java.util.UUID;
 
 import static com.chua.common.support.constant.CommonConstant.FILE_PROTOCOL;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -33,8 +32,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2021/5/24
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class FileTypeConverter implements TypeConverter<File> {
 
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};

@@ -4,7 +4,6 @@ import lombok.Data;
 
 import java.awt.Rectangle;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码结果数据模型。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Data
 public class QrResult {
 

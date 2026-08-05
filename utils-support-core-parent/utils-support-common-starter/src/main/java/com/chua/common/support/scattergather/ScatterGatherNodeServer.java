@@ -1,6 +1,5 @@
 package com.chua.common.support.scattergather;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Scatter-Gather 节点生命周期服务。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ScatterGatherNodeServer extends AutoCloseable {
 
     /**

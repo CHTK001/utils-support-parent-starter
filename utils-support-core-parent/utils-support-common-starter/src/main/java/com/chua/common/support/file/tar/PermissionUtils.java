@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件权限处理工具类。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class PermissionUtils {
 
     /**

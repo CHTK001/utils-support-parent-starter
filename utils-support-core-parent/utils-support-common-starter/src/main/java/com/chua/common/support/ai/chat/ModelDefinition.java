@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 模型定义。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Data
 @Builder
 public class ModelDefinition {

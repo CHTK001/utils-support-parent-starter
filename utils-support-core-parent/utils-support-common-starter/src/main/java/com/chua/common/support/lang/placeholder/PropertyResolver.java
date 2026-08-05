@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.placeholder;
 
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface PropertyResolver {
     /**
      * 解析文本中的所有占位符。

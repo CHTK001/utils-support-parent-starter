@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.algorithm.nearest;
 
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 临近算法搜索结果，封装邻居样本的索引、距离和数据向量。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public class NeighborResult {
 
     /** 空结果常量，表示查询无结果 */

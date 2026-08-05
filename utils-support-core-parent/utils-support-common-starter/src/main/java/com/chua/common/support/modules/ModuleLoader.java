@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK9+ 模块加载器。
@@ -18,8 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 2.0.0
  * @since 2024/04/10
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public class ModuleLoader {
 

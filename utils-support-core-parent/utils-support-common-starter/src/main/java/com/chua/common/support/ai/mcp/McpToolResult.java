@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.mcp;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * MCP 工具调用结果
@@ -10,8 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class McpToolResult {
 
     /** 是否成功 */

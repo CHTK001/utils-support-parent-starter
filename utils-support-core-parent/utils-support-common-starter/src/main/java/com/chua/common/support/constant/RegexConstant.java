@@ -1,7 +1,6 @@
 package com.chua.common.support.constant;
 
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 正则表达式常量接口，集中定义项目中使用的各类校验正则表达式。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024-01-01
  */
-@NullUnmarked
 @SuppressWarnings("all")
 public interface RegexConstant {
 

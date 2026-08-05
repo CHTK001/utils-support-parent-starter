@@ -1,7 +1,6 @@
 package com.chua.common.support.file.system;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件系统数据上下文，封装文件解析后单行或单条数据的 Map 表示。
@@ -13,8 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class FileSystemContext<T> {
 
     /** 字段名到字段值的映射数据 */

@@ -1,6 +1,5 @@
 package com.chua.common.support.network.voice;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 语音电话统一接口 — 通过 SPI 机制支持多提供商实现。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface VoiceCall {
 
     /**

@@ -6,7 +6,6 @@ import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * IP 黑白名单过滤器。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
 public class IpFilter implements ServerFilter {
 
     private final Set<String> whitelist = ConcurrentHashMap.newKeySet();

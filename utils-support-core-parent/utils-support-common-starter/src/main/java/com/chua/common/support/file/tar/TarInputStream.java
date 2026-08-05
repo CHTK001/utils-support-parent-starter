@@ -3,7 +3,6 @@ package com.chua.common.support.file.tar;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tar 文件输入流，用于读取 TAR 归档文件。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class TarInputStream extends FilterInputStream {
 
 	/**

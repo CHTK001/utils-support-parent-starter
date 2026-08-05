@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TAR.GZ 解压器
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2025/11/29
  */
-@NullUnmarked
 @Slf4j
 @Spi({"tar.gz", "tgz"})
 public class TarGzExtractor implements Extractor {

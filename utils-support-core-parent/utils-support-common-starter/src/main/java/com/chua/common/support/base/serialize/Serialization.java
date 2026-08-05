@@ -1,6 +1,5 @@
 package com.chua.common.support.base.serialize;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 序列化接口。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface Serialization {
 
     /**

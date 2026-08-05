@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 抽象属性源类。
@@ -20,8 +19,7 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Getter
 @RequiredArgsConstructor
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public abstract class AbstractPropertySource implements PropertySource {
 
     /**

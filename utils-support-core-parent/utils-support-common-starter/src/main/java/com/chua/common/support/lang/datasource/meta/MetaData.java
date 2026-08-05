@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.meta;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 元数据统一操作入口。
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface MetaData {
 
     /**

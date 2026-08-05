@@ -4,7 +4,6 @@ package com.chua.common.support.utils;
 import static com.chua.common.support.constant.CharConstant.*;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH_CHAR;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SLASH_CHAR;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字符工具类，提供常见字符类型判断、ASCII/Unicode 相关判断、
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class CharUtils {
     /**
      * 输入结束标记，常用于表示文本或流读取结束。

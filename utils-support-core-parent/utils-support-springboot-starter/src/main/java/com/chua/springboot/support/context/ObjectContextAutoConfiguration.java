@@ -64,4 +64,3 @@ public class ObjectContextAutoConfiguration {
         return context;
     }
 }
-}

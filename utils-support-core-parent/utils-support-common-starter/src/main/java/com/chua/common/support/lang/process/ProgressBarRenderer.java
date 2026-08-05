@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.process;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2023-09-20
  * @version 1.0.0
  */
-@NullUnmarked
 @FunctionalInterface
 public interface ProgressBarRenderer {
 

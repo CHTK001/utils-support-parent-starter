@@ -2,7 +2,6 @@ package com.chua.common.support.task.loader;
 
 import java.util.Objects;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link Supplier} 的单例懒加载器实现。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
 public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
 
     private final Supplier<T> supplier;

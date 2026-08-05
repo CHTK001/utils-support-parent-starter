@@ -3,7 +3,6 @@ package com.chua.common.support.ai.agent;
 import com.chua.common.support.ai.chat.ChatMessage;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 上下文压缩消费者 — 在压缩触发时回调。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface AgentContextCompressionConsumer {
 
     /**

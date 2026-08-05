@@ -5,7 +5,6 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.concurrent.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 请求超时过滤器，设置单个请求的最大处理时间。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
 public class RequestTimeoutFilter implements ServerFilter {
 
     private final long timeoutMillis;

@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.calibration;
 
 import lombok.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Sigmoid 纯校准器
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * double score = cal.calibrate(0.85); // 约90.59
  * @author CH
  */
-@NullUnmarked
 @Getter
 @Setter
 @NoArgsConstructor

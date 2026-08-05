@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK 动态代理处理器，将接口方法调用转换为 HTTP 请求。
@@ -37,8 +36,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @see HttpApiFactory
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class HttpApiInvocationHandler implements InvocationHandler {
 
     /** Spring MVC 方法级注解 → HTTP 方法映射 */

@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.placeholder;
 
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class PropertyPlaceholderConfigurer extends PlaceholderSupport {
 
     /**
