@@ -149,7 +149,7 @@ public final class FlowNodeRegistry {
          * @return 节点类型元信息
          */
         public FlowNodeMetadata toMetadata() {
-            return new FlowNodeMetadata(type, name, describe);
+            return new FlowNodeMetadata(type, name, describe, prototype.configSchema());
         }
     }
 }

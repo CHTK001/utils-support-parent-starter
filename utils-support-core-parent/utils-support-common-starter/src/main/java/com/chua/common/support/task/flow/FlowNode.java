@@ -1,5 +1,8 @@
 package com.chua.common.support.task.flow;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 流程节点接口。
  *
@@ -62,15 +65,28 @@ public interface FlowNode {
      */
     void execute(FlowContext context);
 
-    /**
-     * 克隆节点实例。
+/**
+     * ��¡�ڵ�ʵ����
      *
-     * <p>默认返回当前实例。有状态节点应覆写本方法返回独立副本，
-     * 避免 JSON 导入创建流程时多流程共享可变节点状态。</p>
+     * <p>Ĭ�Ϸ��ص�ǰʵ������״̬�ڵ�Ӧ��д���������ض���������
+     * ���� JSON ���봴������ʱ�����̹����ɱ�ڵ�״̬��</p>
      *
-     * @return 节点实例副本
+     * @return �ڵ�ʵ������
      */
     default FlowNode cloneNode() {
         return this;
     }
+
+    /**
+     * ��ȡ�ڵ����ñ��ε�Ԫ��Ϣ��
+     *
+     * <p>�ڵ�������嵥չʾʱ��ǰ�˸��ݷ��ص��ֶ��б���̬��ɸñ��εı���
+     * ��Լ�������ǰ�� ReFlow ���������һ�¡�δ�ṩ����ֶ�ʱ默�Ϸ��ؿ��б���</p>
+     *
+     * @return �ڵ����ñ��ε�Ԫ��Ϣ�б�
+     */
+    default List<FlowNodeField> configSchema() {
+        return new ArrayList<>();
+    }
+}
 }
