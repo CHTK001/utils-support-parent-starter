@@ -16,18 +16,17 @@
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-runtime-core</artifactId>
+            <artifactId>utils-support-runtime-plugin</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-spy</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
             <version>9.7.1</version>
         </dependency>
     </dependencies>
