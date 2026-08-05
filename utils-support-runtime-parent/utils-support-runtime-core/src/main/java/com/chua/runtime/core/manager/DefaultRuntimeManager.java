@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -343,11 +344,6 @@ public class DefaultRuntimeManager implements RuntimeManager {
         ServiceManager sm = getServiceManager();
         if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
         return sm.disable(serviceName);
-    }
-
-    @Override
-    public JavaAgentManager getJavaAgentManager() {
-        return javaAgentManager;
     }
 
     @Override

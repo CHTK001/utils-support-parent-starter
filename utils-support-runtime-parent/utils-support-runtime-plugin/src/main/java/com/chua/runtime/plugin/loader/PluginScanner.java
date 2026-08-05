@@ -128,11 +128,14 @@ public class PluginScanner {
         if (Files.exists(spiPath)) {
             return true;
         }
-        // 有 jar 文件也认为可能是插件
-        return Files.list(dir)
-                .filter(p -> p.getFileName().toString().endsWith(".jar"))
-                .findAny()
-                .isPresent();
+        try {
+            return Files.list(dir)
+                    .filter(p -> p.getFileName().toString().endsWith(".jar"))
+                    .findAny()
+                    .isPresent();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public List<PluginInfo> getPlugins() {

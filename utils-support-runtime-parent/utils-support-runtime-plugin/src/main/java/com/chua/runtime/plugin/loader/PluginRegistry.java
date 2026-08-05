@@ -2,6 +2,7 @@ package com.chua.runtime.plugin.loader;
 
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
+import com.chua.runtime.plugin.loader.PluginScanner.PluginInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;

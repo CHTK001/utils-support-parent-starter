@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -110,21 +111,25 @@ public class PluginClassLoader extends URLClassLoader {
      */
     private static URL[] toUrls(Path pluginDir) {
         List<URL> urls = new ArrayList<>();
-        if (Files.exists(pluginDir)) {
-            urls.add(pluginDir.toUri().toURL());
-            // 扫描 lib 目录
-            Path libDir = pluginDir.resolve("lib");
-            if (Files.exists(libDir)) {
-                Files.list(libDir)
-                        .filter(p -> p.getFileName().toString().endsWith(".jar"))
-                        .forEach(p -> {
-                            try {
-                                urls.add(p.toUri().toURL());
-                            } catch (Exception e) {
-                                log.warn("添加 lib 目录 JAR 失败: {}", p, e);
-                            }
-                        });
+        try {
+            if (Files.exists(pluginDir)) {
+                urls.add(pluginDir.toUri().toURL());
+                Path libDir = pluginDir.resolve("lib");
+                if (Files.exists(libDir)) {
+                    try (var stream = Files.list(libDir)) {
+                        stream.filter(p -> p.getFileName().toString().endsWith(".jar"))
+                                .forEach(p -> {
+                                    try {
+                                        urls.add(p.toUri().toURL());
+                                    } catch (Exception e) {
+                                        log.warn("添加 lib 目录 JAR 失败: {}", p, e);
+                                    }
+                                });
+                    }
+                }
             }
+        } catch (Exception e) {
+            log.warn("构建插件 URL 失败: {}", pluginDir, e);
         }
         return urls.toArray(new URL[0]);
     }
