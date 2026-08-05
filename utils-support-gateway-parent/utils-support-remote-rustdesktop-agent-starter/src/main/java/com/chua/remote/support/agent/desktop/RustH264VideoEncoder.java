@@ -4,6 +4,8 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.media.codec.VideoEncoder;
 import com.chua.nativevideocodec.support.NativeVideoCodec;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 
 import java.awt.image.BufferedImage;
 
@@ -139,7 +141,12 @@ public class RustH264VideoEncoder implements VideoEncoder {
     }
 
     @Override
-    public synchronized byte[] encode(BufferedImage image) {
+    public synchronized byte[] encode(Frame frame) {
+        if (frame == null || frame.image == null) {
+            return new byte[0];
+        }
+        Java2DFrameConverter converter = new Java2DFrameConverter();
+        BufferedImage image = converter.getBufferedImage(frame);
         if (image == null) {
             return new byte[0];
         }
