@@ -315,6 +315,63 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
+     * 从编码器 extradata 中提取 SPS/PPS 并转换为 Annex B 格式。
+     */
+    private void loadSpsPpsFromExtradata() {
+        if (videoCField == null || recorder == null) {
+            return;
+        }
+        try {
+            AVCodecContext videoC = (AVCodecContext) videoCField.get(recorder);
+            if (videoC == null) {
+                return;
+            }
+            BytePointer extradata = videoC.extradata();
+            int extradataSize = videoC.extradata_size();
+            if (extradata == null || extradataSize < 7) {
+                log.warn("[H264NvencEncoder] extradata 为空或过小: {}", extradataSize);
+                return;
+            }
+            byte[] data = new byte[extradataSize];
+            extradata.get(data);
+            // avcC 格式: 5 字节头 + SPS 列表 + PPS 列表
+            if (data[0] != 1) {
+                log.warn("[H264NvencEncoder] extradata version != 1: {}", data[0]);
+                return;
+            }
+            // numSPS 在 data[5] 的低 5 位
+            int numSPS = data[5] & 0x1f;
+            int pos = 6;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            for (int i = 0; i < numSPS; i++) {
+                if (pos + 2 > data.length) break;
+                int spsLen = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
+                pos += 2;
+                if (pos + spsLen > data.length) break;
+                baos.write(0x00); baos.write(0x00); baos.write(0x00); baos.write(0x01);
+                baos.write(data, pos, spsLen);
+                pos += spsLen;
+            }
+            if (pos + 1 > data.length) return;
+            int numPPS = data[pos] & 0x1f;
+            pos += 1;
+            for (int i = 0; i < numPPS; i++) {
+                if (pos + 2 > data.length) break;
+                int ppsLen = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
+                pos += 2;
+                if (pos + ppsLen > data.length) break;
+                baos.write(0x00); baos.write(0x00); baos.write(0x00); baos.write(0x01);
+                baos.write(data, pos, ppsLen);
+                pos += ppsLen;
+            }
+            spsPpsAnnexB = baos.toByteArray();
+            log.info("[H264NvencEncoder] 成功提取 SPS/PPS, 大小: {} 字节", spsPpsAnnexB.length);
+        } catch (Throwable e) {
+            log.warn("[H264NvencEncoder] 加载 SPS/PPS 失败: {}", e.getMessage());
+        }
+    }
+
+    /**
      * 刷新 AVIO 输出缓冲区，确保编码数据写入 memoryStream。
      */
     private void flushOutput() {

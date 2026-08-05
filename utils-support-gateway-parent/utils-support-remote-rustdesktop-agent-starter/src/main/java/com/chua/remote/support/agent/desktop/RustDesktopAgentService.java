@@ -5,8 +5,7 @@ import com.chua.common.support.media.codec.ScreenCature;
 import com.chua.common.support.media.codec.VideoEncoder;
 import com.chua.remote.support.agent.BaseRemoteAgent;
 import lombok.extern.slf4j.Slf4j;
-
-import java.nio.ByteBuffer;
+import org.bytedeco.javacv.Frame;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -270,7 +269,7 @@ public class RustDesktopAgentService implements DesktopAgentService {
 
             long start = System.nanoTime();
             try {
-                ByteBuffer image = captureProvider.grabFrame();
+                Frame image = captureProvider.grabFrame();
                 if (image == null) {
                     nullFrameCount++;
                     if (nullFrameCount == 1 || nullFrameCount % NULL_FRAME_LOG_INTERVAL == 0) {
@@ -291,7 +290,7 @@ public class RustDesktopAgentService implements DesktopAgentService {
 
                 for (DesktopSession session : desktopSessions.values()) {
                     if (session.isRunning()) {
-                        session.feedFrame(image, captureProvider.getWidth(), captureProvider.getHeight());
+                        session.feedFrame(image);
                     }
                 }
 
@@ -405,9 +404,8 @@ public class RustDesktopAgentService implements DesktopAgentService {
 
         DefaultDesktopSession session;
         try {
-            session = new DefaultDesktopSession(sessionId, encW, encH, DEFAULT_FPS, encoder,
-                    (sid, frame) -> agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), frame.keyFrame(), frame.data()),
-                    (sid, json) -> agent.sendToGateway(json));
+            session = new DefaultDesktopSession(sessionId, encW, encH, DEFAULT_FPS, encoder, "rustdesktop",
+                    (sid, frame) -> agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), frame.keyFrame(), frame.data()));
             session.setTargetSize(clientW, clientH);
         } catch (Throwable e) {
             log.error("[RustDesktopAgent] DesktopSession 创建失败: {}", e.getMessage(), e);
