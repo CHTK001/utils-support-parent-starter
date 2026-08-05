@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.datasource.search;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 全文检索接口，提供统一的全文索引创建、查询与删除能力。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface FulltextSearch {
 
     /**

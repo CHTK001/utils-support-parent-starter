@@ -6,7 +6,6 @@ import com.chua.common.support.ai.skill.SkillManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Agent 定义
@@ -58,8 +57,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AgentDefinition {
 
     /** Agent 标识 */

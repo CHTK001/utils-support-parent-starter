@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.io.Serializable;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 可序列化的函数式接口，用于 Lambda 方法引用到属性名的编译期安全解析。
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see LambdaUpdateWrapper
  * @see LambdaDeleteWrapper
  */
-@NullUnmarked
 @FunctionalInterface
 public interface SFunction<T, R> extends Function<T, R>, Serializable {
 }

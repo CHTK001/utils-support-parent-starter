@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SSE 请求参数
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/21
  */
-@NullUnmarked
 @Data
 @Builder
 public class SseRequest {

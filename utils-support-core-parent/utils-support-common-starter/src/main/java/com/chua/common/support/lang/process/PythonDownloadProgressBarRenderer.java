@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 1.0.0
  * @version 1.0.0
  */
-@NullUnmarked
 public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
     /**

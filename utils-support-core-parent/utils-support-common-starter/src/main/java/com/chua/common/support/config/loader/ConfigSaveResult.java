@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置保存结果类
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Data
 @Builder
 public class ConfigSaveResult {

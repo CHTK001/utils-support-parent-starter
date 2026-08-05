@@ -14,7 +14,6 @@ import java.util.StringJoiner;
 
 import static com.chua.common.support.constant.CommonConstant.*;
 import static com.chua.common.support.constant.ValueConstant.*;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class ArrayUtils {
 
     /**

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 节点故障容忍控制器。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Slf4j
 public class ScatterGatherFaultTolerance {
 

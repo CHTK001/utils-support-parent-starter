@@ -1,7 +1,6 @@
 package com.chua.common.support.objects.environment;
 
 import com.chua.common.support.config.source.PropertySource;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 环境配置接口。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 public interface Environment {
 
     /**

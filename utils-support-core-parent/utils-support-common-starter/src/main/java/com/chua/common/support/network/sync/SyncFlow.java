@@ -1,7 +1,6 @@
 package com.chua.common.support.network.sync;
 
 import com.chua.common.support.network.server.SyncServer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步流程管理器，负责协调 {@link SyncServer} 与 {@link SyncClient} 的生命周期与数据流转。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface SyncFlow extends AutoCloseable {
 
     /**

@@ -34,4 +34,7 @@
     <module>utils-support-debezium-starter</module>
     <module>utils-support-nitrite-starter</module>
     </modules>
+    <properties>
+        <nitrite.version>4.0.0</nitrite.version>
+    </properties>
 </project>

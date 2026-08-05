@@ -1,7 +1,6 @@
 package com.chua.common.support.collection;
 
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 ArrayList 的排序列表实现，在添加元素时自动按比较器排序。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
 
     private final Comparator<? super E> comparator;

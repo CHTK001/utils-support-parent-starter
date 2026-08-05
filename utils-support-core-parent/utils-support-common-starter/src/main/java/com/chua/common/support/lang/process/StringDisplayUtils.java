@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.process;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字符串显示工具类，提供字符串显示宽度计算和截断功能。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024-01-01
  * @version 1.0.0
  */
-@NullUnmarked
 class StringDisplayUtils {
 
     /**

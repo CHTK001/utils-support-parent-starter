@@ -1,7 +1,6 @@
 package com.chua.common.support.task.message;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 消息推送接口
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@NullUnmarked
 public interface MessagePush {
 
     /**

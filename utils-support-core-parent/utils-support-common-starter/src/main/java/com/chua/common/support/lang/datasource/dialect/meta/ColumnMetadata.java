@@ -3,7 +3,6 @@ package com.chua.common.support.lang.datasource.dialect.meta;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 列元数据，描述表中的一个列（字段）信息。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Data
 @Accessors(chain = true)
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ColumnMetadata {
 
     /** 列名 */

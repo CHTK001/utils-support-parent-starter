@@ -8,7 +8,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.List;
 import java.util.Map;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量知识库客户端接口。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface KnowledgeClient extends AutoCloseable {
 
     /**

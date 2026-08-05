@@ -14,14 +14,12 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 项目信息工具类，提供获取当前项目的进程ID、本机地址、JDK版本等运行时环境信息。
  *
  * @author CH
  */
-@NullUnmarked
 public final class Projects {
 
     /**

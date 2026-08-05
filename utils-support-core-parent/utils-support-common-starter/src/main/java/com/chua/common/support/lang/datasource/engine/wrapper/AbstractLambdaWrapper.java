@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.util.*;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
@@ -38,8 +37,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @see LambdaUpdateWrapper
  * @see LambdaDeleteWrapper
  */
-@SuppressWarnings({"unchecked", "NullAway"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T, C>> {
 
     /** 实体类类型 */

@@ -9,7 +9,6 @@ import lombok.Singular;
 
 import java.util.Set;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 资源查找配置。
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Builder
 @Data
 public class ResourceConfiguration {

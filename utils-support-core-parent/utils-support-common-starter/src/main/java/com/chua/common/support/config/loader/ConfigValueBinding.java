@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024-12-05
  * @version 1.0.0
  */
-@NullUnmarked
 @Getter
 @Builder
 public class ConfigValueBinding {

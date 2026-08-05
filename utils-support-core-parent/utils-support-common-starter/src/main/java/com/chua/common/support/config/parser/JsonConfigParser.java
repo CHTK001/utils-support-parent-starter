@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -30,7 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2023-09-05
  */
-@NullUnmarked
 @Slf4j
 @Spi({"json", "json5"})
 public class JsonConfigParser implements ConfigParser {

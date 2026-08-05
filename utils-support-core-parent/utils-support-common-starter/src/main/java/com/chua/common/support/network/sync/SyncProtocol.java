@@ -2,7 +2,6 @@ package com.chua.common.support.network.sync;
 
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步协议工厂，创建成对的 {@link SyncServer} 和 {@link SyncClient}。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.41
  */
-@NullUnmarked
 public interface SyncProtocol {
 
     /**

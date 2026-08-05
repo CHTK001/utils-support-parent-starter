@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.datasource.kv;
 
 import java.time.Duration;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 键值对（KV）存储公共契约，定义与具体后端无关的字符串型 KV 操作集合。
@@ -30,7 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface KvOperations {
 
     /**

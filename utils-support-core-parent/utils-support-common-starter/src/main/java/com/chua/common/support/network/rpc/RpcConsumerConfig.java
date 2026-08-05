@@ -1,7 +1,6 @@
 package com.chua.common.support.network.rpc;
 
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RPC 消费者全局配置，定义客户端侧的核心调用行为参数。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Data
 public class RpcConsumerConfig {
     /** 启动时检查 */

@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -17,8 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class StringValuePropertyResolver implements PropertyResolver {
 
     private final PlaceholderSupport placeholderSupport;

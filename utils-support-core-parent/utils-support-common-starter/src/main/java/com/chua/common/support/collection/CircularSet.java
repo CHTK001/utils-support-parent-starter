@@ -2,7 +2,6 @@ package com.chua.common.support.collection;
 
 import java.util.Collection;
 import java.util.Set;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 环状集合接口，继承 {@link Set}。
@@ -23,7 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @see CircularLinkedSet
  */
-@NullUnmarked
 public interface CircularSet<E> {
 
     /**

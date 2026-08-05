@@ -1,6 +1,5 @@
 package com.chua.common.support.vector;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量比较算法接口，支持自定义特征值距离计算。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public interface VectorCompareAlgorithm {
 
     /**

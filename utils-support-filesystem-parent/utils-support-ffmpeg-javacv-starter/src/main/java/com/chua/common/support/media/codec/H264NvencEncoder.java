@@ -2,6 +2,8 @@ package com.chua.common.support.media.codec;
 
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.ffmpeg.avcodec.AVCodecContext;
+import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.ffmpeg.swscale.SwsContext;
 import org.bytedeco.javacpp.BytePointer;
@@ -12,6 +14,7 @@ import org.bytedeco.javacv.Frame;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 
 import static org.bytedeco.ffmpeg.global.swscale.sws_getCachedContext;
 import static org.bytedeco.ffmpeg.global.swscale.sws_scale;
@@ -111,9 +114,27 @@ public class H264NvencEncoder implements VideoEncoder {
     private String codecName;
 
     /**
+     * 反射获取的 AVFormatContext 字段
+     */
+    private Field ocField;
+
+    /**
+     * 反射获取的 AVCodecContext 字段
+     */
+    private Field videoCField;
+
+    /**
      * 空构造。
      */
     public H264NvencEncoder() {
+        try {
+            ocField = FFmpegFrameRecorder.class.getDeclaredField("oc");
+            ocField.setAccessible(true);
+            videoCField = FFmpegFrameRecorder.class.getDeclaredField("video_c");
+            videoCField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            log.warn("[H264NvencEncoder] 反射字段获取失败: {}", e.getMessage());
+        }
     }
 
     /**
@@ -166,6 +187,7 @@ public class H264NvencEncoder implements VideoEncoder {
             r.setOption("tune", "ll");
             r.setOption("zerolatency", "1");
             r.start();
+            clearGlobalHeader();
             this.recorder = r;
             log.info("[H264NvencEncoder] {} 初始化成功", codecName);
             return true;
@@ -246,12 +268,12 @@ public class H264NvencEncoder implements VideoEncoder {
         if (inW == encWidth && inH == encHeight) {
             recorder.record(frame);
         } else {
-            // 缩放路径：通过 sws_scale 缩放到目标尺寸
             Frame scaled = scaleFrame(frame, inW, inH);
             scaled.keyFrame = frame.keyFrame;
             scaled.timestamp = frame.timestamp;
             recorder.record(scaled);
         }
+        flushOutput();
 
         byte[] all = memoryStream.toByteArray();
         int len = all.length - (int) captureSize;
@@ -260,8 +282,62 @@ public class H264NvencEncoder implements VideoEncoder {
         }
         byte[] frameBytes = new byte[len];
         System.arraycopy(all, (int) captureSize, frameBytes, 0, len);
+        if (frameIndex == 0 && frameBytes.length > 8) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < Math.min(64, frameBytes.length); i++) {
+                sb.append(String.format("%02x ", frameBytes[i] & 0xff));
+            }
+            System.out.println("[DEBUG-ENC] first frame hex: " + sb.toString() + " len=" + frameBytes.length);
+            // Dump NAL types found
+            StringBuilder nalInfo = new StringBuilder("nalTypes=");
+            for (int i = 0; i < frameBytes.length - 4; i++) {
+                if ((frameBytes[i] == 0 && frameBytes[i+1] == 0 && frameBytes[i+2] == 0 && frameBytes[i+3] == 1) ||
+                    (frameBytes[i] == 0 && frameBytes[i+1] == 0 && frameBytes[i+2] == 1)) {
+                    int startCodeLen = (frameBytes[i+2] == 1) ? 3 : 4;
+                    int nalType = frameBytes[i + startCodeLen] & 0x1f;
+                    nalInfo.append(nalType).append(",");
+                    i += startCodeLen - 1;
+                }
+            }
+            System.out.println("[DEBUG-ENC] " + nalInfo.toString());
+        }
         frameIndex++;
         return frameBytes;
+    }
+
+    /**
+     * 清除 AV_CODEC_FLAG_GLOBAL_HEADER 标志，强制编码器在每帧中写入 SPS/PPS。
+     */
+    private void clearGlobalHeader() {
+        if (videoCField == null || recorder == null) {
+            return;
+        }
+        try {
+            AVCodecContext videoC = (AVCodecContext) videoCField.get(recorder);
+            if (videoC != null) {
+                int flags = videoC.flags();
+                videoC.flags(flags & ~(1 << 22));
+            }
+        } catch (Throwable e) {
+            log.warn("[H264NvencEncoder] clearGlobalHeader 失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 刷新 AVIO 输出缓冲区，确保编码数据写入 memoryStream。
+     */
+    private void flushOutput() {
+        if (ocField == null || recorder == null) {
+            return;
+        }
+        try {
+            org.bytedeco.ffmpeg.avformat.AVFormatContext oc = (org.bytedeco.ffmpeg.avformat.AVFormatContext) ocField.get(recorder);
+            if (oc != null && oc.pb() != null && oc.pb().buffer() != null) {
+                org.bytedeco.ffmpeg.global.avformat.avio_flush(oc.pb());
+            }
+        } catch (Throwable e) {
+            log.warn("[H264NvencEncoder] flushOutput 失败: {}", e.getMessage());
+        }
     }
 
     /**

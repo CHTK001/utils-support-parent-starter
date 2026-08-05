@@ -7,7 +7,6 @@ import com.chua.common.support.ai.chat.aggregate.FailoverTemplate;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 路由策略接口 — 从一组候选中选择一个客户端。
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @FunctionalInterface
 public interface RouterStrategy {
 

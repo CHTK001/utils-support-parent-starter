@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 创建索引链式构建器。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface IndexCreateBuilder {
 
     /**

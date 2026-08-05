@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Multipart/form-data 请求体封装，支持文本字段和文件上传。
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class MultipartBody {
 
     private static final byte[] CRLF = {'\r', '\n'};

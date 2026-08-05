@@ -1,6 +1,5 @@
 package com.chua.common.support.math.unit.size;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 数据大小单位枚举。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public enum SizeUnit {
 
     /**

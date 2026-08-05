@@ -4,7 +4,6 @@ import com.chua.common.support.sync.executor.SinkExecutor;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 数据中心（缓冲池）
@@ -17,7 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/28
  */
-@NullUnmarked
 public interface Sink extends AutoCloseable {
 
     /**

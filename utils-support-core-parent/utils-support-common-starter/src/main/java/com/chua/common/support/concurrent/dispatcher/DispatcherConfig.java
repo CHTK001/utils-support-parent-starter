@@ -2,7 +2,6 @@ package com.chua.common.support.concurrent.dispatcher;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分发器配置工具类，封装消息分发器所需的连接参数、超时设置和消费行为。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025-11-26
  */
-@NullUnmarked
 @Data
 @Builder
 public class DispatcherConfig {

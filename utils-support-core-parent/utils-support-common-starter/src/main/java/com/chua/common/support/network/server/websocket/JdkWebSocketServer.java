@@ -29,12 +29,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Base64;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
-@NullUnmarked
 @Slf4j
 @Spi("jdk-websocket")
 public class JdkWebSocketServer extends AbstractServer {

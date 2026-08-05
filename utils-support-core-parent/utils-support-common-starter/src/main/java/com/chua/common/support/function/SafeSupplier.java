@@ -1,7 +1,6 @@
 package com.chua.common.support.function;
 
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 安全的 Supplier 接口
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public interface SafeSupplier<T> extends Supplier<T> {
     
     /**

@@ -6,7 +6,6 @@ import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicReference;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 脚本 Bean 定义抽象基类。
@@ -27,7 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see ScriptDefinition
  * @see AbstractBeanDefinition
  */
-@NullUnmarked
 @Slf4j
 public abstract class AbstractScriptDefinition extends AbstractBeanDefinition implements ScriptDefinition {
 

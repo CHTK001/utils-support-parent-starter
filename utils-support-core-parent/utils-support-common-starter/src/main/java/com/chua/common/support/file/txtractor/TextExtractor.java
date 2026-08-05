@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文本提取器接口，用于从各种文件格式中提取纯文本内容。
@@ -27,7 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface TextExtractor {
 
     /**

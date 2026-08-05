@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.format;
 
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SQL关键词高亮工具类。
@@ -30,8 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class SqlHighlighter {
 
     // ==================== 关键词分类 ====================

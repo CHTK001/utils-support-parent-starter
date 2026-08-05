@@ -1,6 +1,5 @@
 package com.chua.common.support.utils;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 此类已迁移到 {@code com.chua.common.support.lang.cmd.CliOption}。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @deprecated 已迁移到 {@code com.chua.common.support.lang.cmd} 包
  * @see com.chua.common.support.lang.cmd.CliOption
  */
-@NullUnmarked
 @Deprecated
 public final class CliOption {
     private CliOption() {

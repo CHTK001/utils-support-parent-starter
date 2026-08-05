@@ -10,7 +10,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 用量记录实体 — 通过 Engine ORM 属性字段持久化每次调用的 Token/费用/延迟。
@@ -45,8 +44,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.42
  */
 @Data
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AiUsageRecord {
 
     /** 主键 */

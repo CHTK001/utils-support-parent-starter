@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.chat;
 
 import lombok.Builder;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 附件。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Builder
 public record Attachment(
         /**

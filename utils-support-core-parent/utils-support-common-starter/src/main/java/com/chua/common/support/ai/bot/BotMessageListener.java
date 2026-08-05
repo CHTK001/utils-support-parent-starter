@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.bot;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bot 消息监听器
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
 public interface BotMessageListener {
 
     /**

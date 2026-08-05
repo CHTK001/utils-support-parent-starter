@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.annotation.Nonnull;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RAG 客户端配置。
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Data
 @Builder
 public class RagClientSetting {

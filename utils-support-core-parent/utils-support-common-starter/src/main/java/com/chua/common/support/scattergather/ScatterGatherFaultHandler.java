@@ -1,6 +1,5 @@
 package com.chua.common.support.scattergather;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 节点故障处理器。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ScatterGatherFaultHandler {
 
     /**

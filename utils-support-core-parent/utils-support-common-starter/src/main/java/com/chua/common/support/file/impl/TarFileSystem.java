@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TAR 归档文件系统 SPI 实现。
@@ -66,8 +65,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("tar")
 public class TarFileSystem implements FileSystem {
 

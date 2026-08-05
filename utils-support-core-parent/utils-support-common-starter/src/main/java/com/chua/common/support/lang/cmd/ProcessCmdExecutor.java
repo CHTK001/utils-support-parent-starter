@@ -9,7 +9,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@link ProcessBuilder} 的默认命令执行器实现。
@@ -36,8 +35,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @SpiDefault
 @Spi("process")
 public class ProcessCmdExecutor implements CmdExecutor {

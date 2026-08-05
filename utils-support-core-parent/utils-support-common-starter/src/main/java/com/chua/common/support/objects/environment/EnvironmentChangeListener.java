@@ -1,6 +1,5 @@
 package com.chua.common.support.objects.environment;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 环境配置变更监听器。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 public interface EnvironmentChangeListener {
 
     /**

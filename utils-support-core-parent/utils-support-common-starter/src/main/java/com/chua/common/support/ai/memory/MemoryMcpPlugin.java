@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆体 MCP 插件
@@ -45,8 +44,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public class MemoryMcpPlugin {
 
     /** 工具名称前缀 */

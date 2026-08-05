@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 技能定义
@@ -15,8 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class SkillDefinition {
 
     /** 技能名称 */

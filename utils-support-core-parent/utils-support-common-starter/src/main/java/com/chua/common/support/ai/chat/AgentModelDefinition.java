@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Agent 模型定义 — 将 Agent 包装为 ChatClient。
@@ -29,8 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.41
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AgentModelDefinition implements ChatClient {
 
     private static final String DEFAULT_MODEL = "router-auto";

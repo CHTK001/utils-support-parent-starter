@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件存储抽象基类。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0
  */
-@NullUnmarked
 public abstract class AbstractFileStorage implements FileStorage {
 
     protected final BucketSetting bucketSetting;

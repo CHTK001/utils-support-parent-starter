@@ -1,6 +1,5 @@
 package com.chua.common.support.function;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 初始化感知接口，用于在对象属性设置完成后执行初始化操作。
@@ -35,7 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 1.0
  * @see org.springframework.beans.factory.InitializingBean
  */
-@NullUnmarked
 public interface InitializingAware {
 
     /**

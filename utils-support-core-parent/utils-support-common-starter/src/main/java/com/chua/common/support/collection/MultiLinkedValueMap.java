@@ -5,7 +5,6 @@ import com.chua.common.support.utils.CollectionUtils;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -21,8 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializable {
 
     private final Map<K, List<V>> targetMap = new LinkedHashMap<>();

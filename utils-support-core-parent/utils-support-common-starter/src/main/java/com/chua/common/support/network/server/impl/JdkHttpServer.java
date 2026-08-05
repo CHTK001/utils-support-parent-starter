@@ -19,7 +19,6 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK {@link HttpServer} 的 HTTP 服务器实现。
@@ -31,8 +30,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 @Spi({"jdk", "jdk-http"})
 public class JdkHttpServer extends AbstractServer {

@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器抽象基类，协议无关。
@@ -32,8 +31,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 2.1
  * @since 2026/07/16
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public abstract class AbstractServer implements ConfigServer {
 
@@ -170,7 +167,7 @@ public abstract class AbstractServer implements ConfigServer {
      * @param response 响应
      */
     protected void handleReactive(ServerRequest request, ServerResponse response) {
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
 
         DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(

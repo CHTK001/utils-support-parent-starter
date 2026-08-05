@@ -3,7 +3,6 @@ package com.chua.common.support.task.pipeline.node;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 终止节点。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class EndNode implements PipelineNode {
 
     /**

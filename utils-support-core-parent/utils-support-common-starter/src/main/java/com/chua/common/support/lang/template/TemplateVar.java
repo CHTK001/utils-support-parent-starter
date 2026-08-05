@@ -2,7 +2,6 @@ package com.chua.common.support.lang.template;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模板提取得到的单个变量。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record TemplateVar(String name, Object value, String path) {
 
     /**

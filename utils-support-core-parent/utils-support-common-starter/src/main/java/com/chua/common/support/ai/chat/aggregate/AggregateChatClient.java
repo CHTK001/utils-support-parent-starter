@@ -38,7 +38,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 聚合 AI 对话客户端。
@@ -62,8 +61,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Slf4j
 @Spi("aggregate")
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AggregateChatClient implements ChatClient {
 
     /**

@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 原生 TCP NIO RPC 服务端，纯 JDK 实现。
@@ -31,8 +30,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("native")
 public class NativeRpcServer implements RpcServer {
 

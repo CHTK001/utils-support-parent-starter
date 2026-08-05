@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.loader;
 
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 初始化加载器接口
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullMarked;
  * @param <T> 初始化完成后返回的结果类型
  * @author CH
  */
-@NullMarked
 public interface InitLoader<T> {
     /**
      * 执行初始化逻辑

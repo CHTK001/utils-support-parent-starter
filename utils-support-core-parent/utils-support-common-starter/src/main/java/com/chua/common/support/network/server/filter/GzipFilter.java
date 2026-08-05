@@ -7,7 +7,6 @@ import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Gzip 响应压缩过滤器。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class GzipFilter implements ServerFilter {
 
     /**

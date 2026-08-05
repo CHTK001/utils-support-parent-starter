@@ -10,7 +10,6 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK Socket 的 WebSocket 同步客户端实现。
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026-07-25
  */
-@NullUnmarked
 public class WebSocketSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
     /**

@@ -1,6 +1,5 @@
 package com.chua.common.support.file.txtractor;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文本提取结果实体，包含文本内容及其在文档中的结构信息。
@@ -27,7 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param sourceFile 来源文件路径（相对路径），可为空
  * @author CH
  */
-@NullUnmarked
 public record TextExtractResult(
         String text,
         String section,

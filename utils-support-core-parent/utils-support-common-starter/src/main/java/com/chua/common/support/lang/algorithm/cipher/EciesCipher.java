@@ -3,8 +3,6 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.security.KeyPair;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 /**
  * ECIES 椭圆曲线集成加密方案 SPI 接口
@@ -33,42 +31,41 @@ import org.jspecify.annotations.Nullable;
  * @author CH
  * @since 2026/07/16
  */
-@NullMarked
 public interface EciesCipher extends Cipher {
 
-    /**
-     * 创建指定提供者的 ECIES 加解密实例
-     *
-     * @param provider 提供者名称，如 "bc"（BouncyCastle）
-     * @return EciesCipher 实例
-     * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
-     */
-    static @Nullable EciesCipher create(String provider) {
-        return ServiceProvider.of(EciesCipher.class).getNewExtension(provider);
-    }
+ /**
+ * 创建指定提供者的 ECIES 加解密实例
+ *
+ * @param provider 提供者名称，如 "bc"（BouncyCastle）
+ * @return EciesCipher 实例
+ * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
+ */
+ static EciesCipher create(String provider) {
+ return ServiceProvider.of(EciesCipher.class).getNewExtension(provider);
+ }
 
-    /**
-     * 生成椭圆曲线密钥对
-     *
-     * @return 包含公钥和私钥的 KeyPair
-     */
-    KeyPair generateKeyPair();
+ /**
+ * 生成椭圆曲线密钥对
+ *
+ * @return 包含公钥和私钥的 KeyPair
+ */
+ KeyPair generateKeyPair();
 
-    /**
-     * ECIES 加密
-     *
-     * @param publicKey 公钥编码字节
-     * @param data      待加密的明文数据
-     * @return 加密后的密文数据
-     */
-    byte[] encrypt(byte[] publicKey, byte[] data);
+ /**
+ * ECIES 加密
+ *
+ * @param publicKey 公钥编码字节
+ * @param data 待加密的明文数据
+ * @return 加密后的密文数据
+ */
+ byte[] encrypt(byte[] publicKey, byte[] data);
 
-    /**
-     * ECIES 解密
-     *
-     * @param privateKey 私钥编码字节
-     * @param ciphertext 待解密的密文数据
-     * @return 解密后的明文数据
-     */
-    byte[] decrypt(byte[] privateKey, byte[] ciphertext);
+ /**
+ * ECIES 解密
+ *
+ * @param privateKey 私钥编码字节
+ * @param ciphertext 待解密的密文数据
+ * @return 解密后的明文数据
+ */
+ byte[] decrypt(byte[] privateKey, byte[] ciphertext);
 }

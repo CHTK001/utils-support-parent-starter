@@ -5,7 +5,6 @@ import com.chua.common.support.objects.definition.BeanDefinition;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 服务注入器 SPI。
@@ -36,7 +35,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Spi
 public interface BeanDefinitionServiceInjector {
 

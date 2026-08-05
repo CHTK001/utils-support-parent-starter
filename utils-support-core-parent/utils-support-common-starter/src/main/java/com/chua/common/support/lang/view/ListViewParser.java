@@ -5,7 +5,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 带编号的列表视图解析器。
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("list")
 public class ListViewParser implements ViewParser {
 

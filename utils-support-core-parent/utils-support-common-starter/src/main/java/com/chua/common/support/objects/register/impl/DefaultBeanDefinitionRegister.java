@@ -11,7 +11,6 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认 Bean 定义注册器，基于内存存储 BeanDefinition。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认 Bean 定义注册器")

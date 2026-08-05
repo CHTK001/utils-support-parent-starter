@@ -10,7 +10,6 @@ import java.util.*;
 
 import static com.chua.common.support.constant.CommonConstant.*;
 import static com.chua.common.support.utils.MapUtils.DEFAULT_INITIAL_CAPACITY;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -23,8 +22,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public class LevelsOpen implements Levels {
 
     /**

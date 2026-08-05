@@ -1,7 +1,6 @@
 package com.chua.common.support.wal;
 
 import java.nio.file.Path;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL 分片元信息。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record WalSegmentInfo(
     int segmentNo,
     long firstLsn,

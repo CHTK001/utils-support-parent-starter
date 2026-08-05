@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK {@link HttpExchange} 的 {@link ServerResponse} 实现。
@@ -23,8 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class HttpServerResponse implements ServerResponse {
 
     private final HttpExchange exchange;

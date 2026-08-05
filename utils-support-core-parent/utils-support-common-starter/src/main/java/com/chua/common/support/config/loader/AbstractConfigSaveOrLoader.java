@@ -4,7 +4,6 @@ import com.chua.common.support.utils.StringUtils;
 
 import java.nio.charset.Charset;
 import java.util.Objects;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置保存/加载器抽象基类。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
 
     protected final ConfigSaveLoadSetting setting;

@@ -7,7 +7,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TXT 文本提取器 SPI 实现，从纯文本文件中提取文本内容。
@@ -17,7 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Slf4j
 @Spi("txt")
 public class TxtTextExtractor implements TextExtractor {

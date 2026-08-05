@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK HttpServer 的 HTTP 同步服务端实现。
@@ -24,7 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026-07-25
  */
-@NullUnmarked
 @Spi("http")
 public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 

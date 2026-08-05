@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI Agent 接口
@@ -102,8 +101,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface Agent extends AutoCloseable {
 
     /**

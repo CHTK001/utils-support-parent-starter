@@ -15,7 +15,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件 offset 存储实现。
@@ -25,8 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @Slf4j
 @Spi("file")
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class FileOffsetStore implements OffsetStore {
 
     /**

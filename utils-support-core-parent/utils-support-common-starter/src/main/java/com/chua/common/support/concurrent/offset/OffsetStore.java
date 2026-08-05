@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.offset;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * offset 存储 SPI。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.43
  */
-@NullUnmarked
 public interface OffsetStore extends AutoCloseable {
 
     Offset getOffset(String subscriberId);

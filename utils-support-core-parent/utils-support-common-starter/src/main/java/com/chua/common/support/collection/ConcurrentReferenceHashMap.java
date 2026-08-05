@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -33,8 +32,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@SuppressWarnings({"NullAway", "unchecked", "serial", "rawtypes"})
-@NullUnmarked
+@SuppressWarnings({"unchecked", "serial", "rawtypes"})
 public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 16;

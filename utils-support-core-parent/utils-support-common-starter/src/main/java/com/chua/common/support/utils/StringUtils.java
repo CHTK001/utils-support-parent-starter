@@ -39,7 +39,6 @@ import static com.chua.common.support.constant.RegexConstant.CONTROL_CHARS;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_ARRAY;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字符串工具类，提供丰富的字符串操作方法。
@@ -49,7 +48,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @SuppressWarnings("ALL")
 public class StringUtils {
     /**

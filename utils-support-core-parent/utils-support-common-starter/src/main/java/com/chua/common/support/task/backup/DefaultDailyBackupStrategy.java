@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认按天备份策略
@@ -36,7 +35,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class DefaultDailyBackupStrategy implements BackupStrategy {
 
     /**

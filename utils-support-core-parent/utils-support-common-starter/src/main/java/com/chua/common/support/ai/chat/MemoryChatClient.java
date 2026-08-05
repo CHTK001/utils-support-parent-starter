@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.chat;
 
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存对话客户端，用于测试和演示。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Spi("memory")
 public class MemoryChatClient implements ChatClient {
 

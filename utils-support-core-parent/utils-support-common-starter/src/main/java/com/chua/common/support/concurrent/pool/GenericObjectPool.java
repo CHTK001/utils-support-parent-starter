@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 通用对象池实现
@@ -56,8 +55,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**

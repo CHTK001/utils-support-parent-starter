@@ -5,7 +5,6 @@ import com.chua.common.support.network.http.HttpHeader;
 
 import java.util.Map;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 客户端请求封装，包含 URL、方法、请求头、请求体、超时等全部请求参数。
@@ -35,8 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see HttpClientBuilder
  * @see com.chua.common.support.network.client.spi.HttpClientExecutor
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class ClientRequest {
 
     /**

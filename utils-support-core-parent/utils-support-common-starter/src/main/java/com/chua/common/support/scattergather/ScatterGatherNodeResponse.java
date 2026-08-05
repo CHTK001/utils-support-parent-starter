@@ -1,6 +1,5 @@
 package com.chua.common.support.scattergather;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * TCP 节点查询响应。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <T> 数据类型
  * @author CH
  */
-@NullUnmarked
 public class ScatterGatherNodeResponse<T> {
 
     /**

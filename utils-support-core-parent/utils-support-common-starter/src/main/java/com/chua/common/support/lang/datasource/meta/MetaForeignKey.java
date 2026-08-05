@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.meta.model.ForeignKeyDef;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 外键元数据操作接口。
@@ -30,7 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface MetaForeignKey {
 
     /**

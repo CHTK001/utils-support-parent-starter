@@ -6,7 +6,6 @@ import com.chua.common.support.ai.skill.SkillDefinition;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Agent 系统提示词构建器
@@ -59,8 +58,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public final class AgentSystemPromptBuilder {
 
     private AgentSystemPromptBuilder() {

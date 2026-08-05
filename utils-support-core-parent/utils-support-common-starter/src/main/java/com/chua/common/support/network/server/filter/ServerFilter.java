@@ -6,7 +6,6 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器过滤器接口，用于实现协议无关的请求处理逻辑。
@@ -26,8 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 2.0
  * @since 2026/07/16
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface ServerFilter {
 
     /**

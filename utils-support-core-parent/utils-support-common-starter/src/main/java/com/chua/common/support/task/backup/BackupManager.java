@@ -5,7 +5,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 备份管理器
@@ -31,7 +30,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 public class BackupManager {
 
     /**

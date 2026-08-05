@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Lambda 删除包装器，提供类似 MyBatis-Plus 的链式 WHERE 条件构建功能。
@@ -29,8 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDeleteWrapper<T>> {
 
     public LambdaDeleteWrapper(Class<T> entityClass) {

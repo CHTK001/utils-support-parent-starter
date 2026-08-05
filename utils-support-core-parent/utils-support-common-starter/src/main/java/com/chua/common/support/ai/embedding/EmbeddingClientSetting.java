@@ -2,7 +2,6 @@ package com.chua.common.support.ai.embedding;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 嵌入向量客户端配置。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Data
 @Builder
 public class EmbeddingClientSetting {

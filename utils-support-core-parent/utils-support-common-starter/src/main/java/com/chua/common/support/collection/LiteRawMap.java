@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 轻量级原始 Map 封装
@@ -42,8 +41,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public class LiteRawMap implements Map<String, Object> {
 
     /**

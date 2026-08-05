@@ -2,7 +2,6 @@ package com.chua.common.support.task.scheduler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Cron 触发器
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class CronTrigger implements Trigger {
 
     /**

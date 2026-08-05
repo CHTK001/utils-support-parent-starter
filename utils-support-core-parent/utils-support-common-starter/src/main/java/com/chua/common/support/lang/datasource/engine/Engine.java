@@ -8,7 +8,6 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrappe
 import com.chua.common.support.lang.datasource.meta.MetaData;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 引擎接口，是数据源管理和 Lambda 链式操作的核心入口。
@@ -74,8 +73,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface Engine extends AutoCloseable {
 
     /**

@@ -5,7 +5,6 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 图片生成客户端接口
@@ -39,8 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface ImageClient extends AutoCloseable {
 
     /**

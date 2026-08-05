@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSON 文件系统 SPI 实现。
@@ -23,8 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("json")
 public class JsonFileSystem implements FileSystem {
 
@@ -66,7 +63,7 @@ public class JsonFileSystem implements FileSystem {
          *
          * @return Map 行数据列表
          */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             try {

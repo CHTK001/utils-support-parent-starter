@@ -1,6 +1,5 @@
 package com.chua.common.support.scattergather;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 将业务输入标准化为统一聚合实体。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <O> 输出类型
  * @author CH
  */
-@NullUnmarked
 public interface ScatterGatherDataNormalizer<I, O> {
 
     /**

@@ -2,7 +2,6 @@ package com.chua.common.support.task.pipeline.node;
 
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 起始节点。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class StartNode implements PipelineNode {
 
     /**

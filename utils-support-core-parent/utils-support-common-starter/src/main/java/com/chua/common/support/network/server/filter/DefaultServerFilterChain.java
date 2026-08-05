@@ -5,7 +5,6 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认过滤器链实现。
@@ -23,8 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class DefaultServerFilterChain implements ServerFilterChain {
 
     private final List<ServerFilter> filters;

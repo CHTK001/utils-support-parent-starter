@@ -3,7 +3,6 @@ package com.chua.common.support.lang.process.wrapped;
 import com.chua.common.support.lang.process.ProgressBarBuilder;
 
 import java.util.Iterator;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 任何可迭代对象在遍历时，都会通过进度条进行跟踪。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 0.6.0
  */
-@NullUnmarked
 public class ProgressBarWrappedIterable<T> implements Iterable<T> {
 
     /**

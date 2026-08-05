@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK HttpClient 的 HTTP 同步客户端实现。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026-07-25
  */
-@NullUnmarked
 @Spi("http")
 public class HttpSyncClient implements SyncClient {
 

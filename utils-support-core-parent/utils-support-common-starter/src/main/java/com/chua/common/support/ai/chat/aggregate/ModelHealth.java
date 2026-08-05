@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.chat.aggregate;
 
 import java.time.Instant;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模型健康状态
@@ -9,8 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.43
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ModelHealth {
 
     /** 服务商 */

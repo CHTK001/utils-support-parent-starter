@@ -5,12 +5,10 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
-@NullUnmarked
 @Spi("semaphore")
 public class SemaphoreLockProvider extends AbstractLockProvider {
 

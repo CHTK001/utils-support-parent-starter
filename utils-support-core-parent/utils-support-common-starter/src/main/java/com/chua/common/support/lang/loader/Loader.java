@@ -1,13 +1,11 @@
 package com.chua.common.support.lang.loader;
 
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 加载器
  *
  * @author CH
  */
-@NullMarked
 public interface Loader<T> {
     /**
      * 获取加载的对象 <br>

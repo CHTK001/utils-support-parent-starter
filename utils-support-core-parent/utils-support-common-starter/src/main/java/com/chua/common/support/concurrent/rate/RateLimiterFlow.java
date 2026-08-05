@@ -8,7 +8,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 限流器门面，支持链式调用、降级回调和受保护执行。
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/24
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public final class RateLimiterFlow {
 
     /**

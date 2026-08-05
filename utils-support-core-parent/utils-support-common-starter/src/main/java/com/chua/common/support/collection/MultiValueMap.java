@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public interface MultiValueMap<K, V> {
     /**
      * 获取指定 Key 关联的第一个值。

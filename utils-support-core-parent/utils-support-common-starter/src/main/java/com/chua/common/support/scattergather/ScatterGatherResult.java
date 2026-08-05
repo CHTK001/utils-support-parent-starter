@@ -1,7 +1,6 @@
 package com.chua.common.support.scattergather;
 
 import java.util.Objects;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 节点查询结果。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <T> 数据类型
  * @author CH
  */
-@NullUnmarked
 public final class ScatterGatherResult<T> {
 
     /**

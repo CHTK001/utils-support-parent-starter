@@ -1,6 +1,5 @@
 package com.chua.common.support.document.result;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档生成结果
@@ -9,8 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class GenerateResult {
 
     /**

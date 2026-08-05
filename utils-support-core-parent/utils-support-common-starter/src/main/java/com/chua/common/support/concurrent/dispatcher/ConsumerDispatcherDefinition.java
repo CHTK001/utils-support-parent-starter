@@ -2,7 +2,6 @@ package com.chua.common.support.concurrent.dispatcher;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 消费者订阅定义，基于 Consumer 接口，避免反射。
@@ -11,8 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
 
     private final Consumer<T> consumer;

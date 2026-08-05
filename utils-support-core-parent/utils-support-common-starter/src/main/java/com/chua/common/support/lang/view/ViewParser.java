@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.view;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 视图解析器 SPI，将结构化数据渲染为终端可读的文本视图。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface ViewParser {
 
     /**

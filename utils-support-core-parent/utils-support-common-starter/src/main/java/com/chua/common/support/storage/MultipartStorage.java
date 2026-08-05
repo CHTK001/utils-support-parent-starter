@@ -6,7 +6,6 @@ import com.chua.common.support.storage.result.DeleteObjectResult;
 import com.chua.common.support.storage.result.PutObjectResult;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分片上传存储接口。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0
  */
-@NullUnmarked
 public interface MultipartStorage {
 
     /**

@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.algorithm.boundary;
 
 import java.util.List;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 边界距离算法顶级接口，定义多维空间边界距离计算的统一抽象。
@@ -47,7 +46,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public interface BoundaryDistanceAlgorithm {
 
     /**

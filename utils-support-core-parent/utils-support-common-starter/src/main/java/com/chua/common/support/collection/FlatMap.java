@@ -6,7 +6,6 @@ import com.chua.common.support.utils.ClassUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 扁平化 Map 接口，继承 {@link Map}，支持将 Java 实体对象的属性平铺为键值对存储，
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public interface FlatMap extends Map<String, Object> {
     
     /**

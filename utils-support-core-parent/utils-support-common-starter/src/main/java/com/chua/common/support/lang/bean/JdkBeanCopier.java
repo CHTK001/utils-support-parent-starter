@@ -9,7 +9,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDK 反射实现的 Bean 属性拷贝器。
@@ -31,8 +30,7 @@ import org.jspecify.annotations.NullUnmarked;
  */
 @SpiDefault
 @Spi("jdk")
-@NullUnmarked
-@SuppressWarnings({"NullAway", "ALL"})
+@SuppressWarnings("ALL")
 public class JdkBeanCopier implements BeanCopier {
 
     /**

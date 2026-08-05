@@ -1,7 +1,6 @@
 package com.chua.common.support.osgi;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI Bundle 接口，表示 OSGI 框架中的一个模块单元。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface OsgiBundle {
 
     /**

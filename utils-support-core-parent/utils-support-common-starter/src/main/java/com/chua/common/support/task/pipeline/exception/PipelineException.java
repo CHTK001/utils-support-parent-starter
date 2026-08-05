@@ -1,6 +1,5 @@
 package com.chua.common.support.task.pipeline.exception;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 流水线异常。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class PipelineException extends RuntimeException {
 
     /**

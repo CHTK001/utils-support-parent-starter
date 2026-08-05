@@ -1,6 +1,5 @@
 package com.chua.common.support.wal;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL 单条记录（不可变）。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public record WalRecord(
     long lsn,
     byte op,

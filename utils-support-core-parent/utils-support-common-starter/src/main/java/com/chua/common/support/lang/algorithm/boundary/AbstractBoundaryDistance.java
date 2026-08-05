@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.algorithm.boundary;
 
 import java.util.List;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 边界距离算法抽象基类，提供 {@link #boundary(List)}、{@link #furthestPair(List)} 和 {@link #extent(List)}
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 1.0.0
  */
-@NullMarked
 public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgorithm {
 
     /**

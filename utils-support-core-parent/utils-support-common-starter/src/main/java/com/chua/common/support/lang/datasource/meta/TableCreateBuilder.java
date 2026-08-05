@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.datasource.meta;
 
 import com.chua.common.support.lang.datasource.table.TableDef;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 建表链式构建器。
@@ -24,7 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface TableCreateBuilder {
 
     /**

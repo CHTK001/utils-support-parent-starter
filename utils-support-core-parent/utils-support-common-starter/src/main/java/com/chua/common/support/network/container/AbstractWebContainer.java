@@ -11,7 +11,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Web 容器的抽象基类，提供容器状态管理与部署单元解析的通用实现。
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public abstract class AbstractWebContainer implements WebContainer {
 

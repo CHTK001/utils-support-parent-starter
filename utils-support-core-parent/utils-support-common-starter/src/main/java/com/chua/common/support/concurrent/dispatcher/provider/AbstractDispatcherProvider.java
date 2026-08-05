@@ -3,7 +3,6 @@ package com.chua.common.support.concurrent.dispatcher.provider;
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
 import lombok.Getter;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 抽象分发器提供者工具基类，封装通用配置持有与生命周期管理能力。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025-11-26
  */
-@NullUnmarked
 @Getter
 public abstract class AbstractDispatcherProvider implements DispatcherProvider {
 

@@ -15,14 +15,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
     private final Supplier<ImageClient> clientSupplier;

@@ -1,7 +1,6 @@
 package com.chua.common.support.network.sync;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步客户端接口，基于长连接与服务端进行双向数据同步。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface SyncClient extends AutoCloseable {
 
     /**

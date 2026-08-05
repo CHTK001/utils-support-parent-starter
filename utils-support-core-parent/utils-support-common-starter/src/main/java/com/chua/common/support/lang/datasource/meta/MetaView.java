@@ -3,7 +3,6 @@ package com.chua.common.support.lang.datasource.meta;
 import com.chua.common.support.lang.datasource.meta.model.ViewDef;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 视图元数据操作接口。
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface MetaView {
 
     /**

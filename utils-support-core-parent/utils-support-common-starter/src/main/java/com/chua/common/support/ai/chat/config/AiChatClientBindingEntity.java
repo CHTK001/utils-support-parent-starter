@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.chat.config;
 
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 对话客户端绑定实体 — 将层次化配置扁平化为单行记录。
@@ -24,8 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.42
  */
 @Data
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AiChatClientBindingEntity {
 
     /** 主键 */

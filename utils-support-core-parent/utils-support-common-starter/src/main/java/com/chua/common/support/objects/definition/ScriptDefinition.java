@@ -4,7 +4,6 @@ import com.chua.common.support.lang.script.marker.ScriptMarker;
 import com.chua.common.support.lang.script.marker.listener.Listener;
 
 import java.nio.file.Path;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 脚本 Bean 定义接口。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see ScriptMarker
  * @see Listener
  */
-@NullUnmarked
 public interface ScriptDefinition extends BeanDefinition {
 
     /**

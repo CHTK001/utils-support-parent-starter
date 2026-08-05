@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务发现抽象基类。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * 子类需要实现具体的服务注册和发现逻辑（通过 hook 方法）。
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());

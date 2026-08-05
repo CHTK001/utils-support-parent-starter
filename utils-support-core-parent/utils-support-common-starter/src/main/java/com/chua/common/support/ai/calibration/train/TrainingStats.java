@@ -2,7 +2,6 @@ package com.chua.common.support.ai.calibration.train;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 训练效果统计（校准前后对比）。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/31
  */
-@NullUnmarked
 @Data
 @Builder
 public class TrainingStats {

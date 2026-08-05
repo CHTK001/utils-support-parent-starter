@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认配置注入器，基于 @ConfigValue 注解进行配置值注入。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认配置注入器（@ConfigValue）")

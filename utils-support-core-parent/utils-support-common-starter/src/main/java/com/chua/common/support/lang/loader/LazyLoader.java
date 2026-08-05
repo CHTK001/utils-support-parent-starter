@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.loader;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 线程安全的懒加载器抽象类。
@@ -12,8 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <T> 加载对象的类型
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public abstract class LazyLoader<T> implements InitLoader<T>, Loader<T> {
 
     /**

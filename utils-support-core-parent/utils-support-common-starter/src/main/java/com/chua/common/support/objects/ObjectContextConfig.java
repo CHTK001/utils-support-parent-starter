@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ObjectContext 配置，控制 SPI 发现、注解扫描等行为。
@@ -26,7 +25,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullUnmarked
 @Getter
 @Builder
 public class ObjectContextConfig {

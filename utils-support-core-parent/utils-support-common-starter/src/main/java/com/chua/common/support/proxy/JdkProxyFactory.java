@@ -7,7 +7,6 @@ import com.chua.common.support.utils.ArrayUtils;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -39,7 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see java.lang.reflect.Proxy
  * @see java.lang.reflect.InvocationHandler
  */
-@NullUnmarked
 @SuppressWarnings("all")
 @Spi("jdk")
 public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFactory<T> {

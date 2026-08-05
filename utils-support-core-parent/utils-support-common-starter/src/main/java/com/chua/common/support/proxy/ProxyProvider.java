@@ -2,7 +2,6 @@ package com.chua.common.support.proxy;
 
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.proxy.intercept.MethodIntercept;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -44,7 +43,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2025/11/26
  * @version 1.0.0
  */
-@NullUnmarked
 public interface ProxyProvider<T> {
 
     /**

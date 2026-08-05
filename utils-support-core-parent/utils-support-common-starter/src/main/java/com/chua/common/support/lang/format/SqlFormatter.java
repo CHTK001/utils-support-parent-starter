@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.format;
 
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SQL格式化器抽象基类，提供通用的格式化能力和基础工具方法。
@@ -21,8 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public abstract class SqlFormatter implements Formatter {
 
     // ==================== 静态常量定义 ====================

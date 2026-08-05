@@ -1,7 +1,6 @@
 package com.chua.common.support.objects.environment;
 
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置值表达式解析器 SPI，处理 {@code ${key:default}}、{@code #{...}} 等表达式格式。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Spi
 public interface ConfigValueExpressionResolver {
 

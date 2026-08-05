@@ -1,7 +1,6 @@
 package com.chua.common.support.task.pipeline.callback;
 
 import com.chua.common.support.task.pipeline.core.PipelineContext;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 流水线全局回调监听器。
@@ -29,7 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface PipelineListener {
 
     /**

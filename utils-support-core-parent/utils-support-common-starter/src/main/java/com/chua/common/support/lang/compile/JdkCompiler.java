@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.jar.JarEntry;
 
 import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
-import org.jspecify.annotations.NullUnmarked;
 
 // 基于 JDK JavaCompiler API 实现的动态编译器，支持在运行时编译并加载 Java 源代码
 /**
@@ -24,8 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CHTK
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public class JdkCompiler implements Compiler {
     /**

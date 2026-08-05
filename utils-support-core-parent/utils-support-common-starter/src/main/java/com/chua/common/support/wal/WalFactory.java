@@ -3,7 +3,6 @@ package com.chua.common.support.wal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * WAL 工厂方法。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public final class WalFactory {
 
     private WalFactory() {

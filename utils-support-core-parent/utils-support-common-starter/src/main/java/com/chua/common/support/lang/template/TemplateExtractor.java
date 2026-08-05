@@ -2,7 +2,6 @@ package com.chua.common.support.lang.template;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模板匹配提取的公共契约（与具体格式无关）。
@@ -21,7 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see TemplateExtractResult
  * @see TemplateVar
  */
-@NullUnmarked
 public interface TemplateExtractor {
 
     /**

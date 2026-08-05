@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 响应改写过滤器，wrapping 模式：先放行链，返回后再改写响应。
@@ -52,8 +51,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class ResponseRewriteFilter implements ServerFilter {
 
     /**

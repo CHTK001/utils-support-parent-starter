@@ -1,6 +1,5 @@
 package com.chua.common.support.function;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 升级接口，用于对象配置的平滑升级
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <T> 升级后的类型
  * @author CH
  */
-@NullUnmarked
 public interface Upgrade<T> {
 
     /**

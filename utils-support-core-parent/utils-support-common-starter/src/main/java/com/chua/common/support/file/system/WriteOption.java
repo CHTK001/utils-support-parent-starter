@@ -4,13 +4,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 /**
  * @author CH
  */
 
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class WriteOption {
     private WriteType writeType = WriteType.MAP;
     /**

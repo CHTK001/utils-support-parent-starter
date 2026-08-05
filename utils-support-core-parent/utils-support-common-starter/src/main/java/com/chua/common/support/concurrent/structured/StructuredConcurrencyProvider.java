@@ -2,7 +2,6 @@ package com.chua.common.support.concurrent.structured;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 结构化并发提供者 SPI 接口。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/24
  */
-@NullUnmarked
 public interface StructuredConcurrencyProvider {
 
     /**

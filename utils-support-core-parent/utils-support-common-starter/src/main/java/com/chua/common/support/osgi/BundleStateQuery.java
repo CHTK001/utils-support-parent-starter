@@ -2,7 +2,6 @@ package com.chua.common.support.osgi;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI 框架状态查询接口。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@NullUnmarked
 public interface BundleStateQuery {
 
     /**

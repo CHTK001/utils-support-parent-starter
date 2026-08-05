@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 目录轮询器环境配置，承载监听参数和自定义属性。
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class DirectoryPollerEnvironment {
 
     /**

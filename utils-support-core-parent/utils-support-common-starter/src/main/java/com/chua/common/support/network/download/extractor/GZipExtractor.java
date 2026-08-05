@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * GZip 压缩文件提取器
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Slf4j
 @Spi("gz")
 public class GZipExtractor implements Extractor {

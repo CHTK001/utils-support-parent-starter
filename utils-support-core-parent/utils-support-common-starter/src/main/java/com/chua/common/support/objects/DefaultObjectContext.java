@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认对象容器实现。
@@ -46,7 +45,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Slf4j
 public class DefaultObjectContext implements ObjectContext {
 

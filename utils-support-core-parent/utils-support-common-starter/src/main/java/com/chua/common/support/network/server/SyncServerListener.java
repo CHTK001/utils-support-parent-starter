@@ -1,13 +1,11 @@
 package com.chua.common.support.network.server;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步服务端事件监听器，接收客户端连接、断开和消息事件。
  *
  * @author CH
  */
-@NullUnmarked
 public interface SyncServerListener {
 
     /**

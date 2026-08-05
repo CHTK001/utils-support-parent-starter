@@ -2,7 +2,6 @@ package com.chua.common.support.storage.request;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件列表请求对象。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0
  */
-@NullUnmarked
 @Data
 @Builder
 public class ListObjectRequest {

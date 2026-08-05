@@ -1,7 +1,6 @@
 package com.chua.common.support.network.ip;
 
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * IP 地理位置信息。
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Data
 public class IpLocation {
 

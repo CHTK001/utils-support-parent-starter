@@ -7,13 +7,10 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Data
 @Accessors(chain = true)
 public class NetAddress implements Serializable {

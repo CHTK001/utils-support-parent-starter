@@ -6,7 +6,6 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 判断节点。
@@ -24,7 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class DecisionNode implements PipelineNode {
 
     /**

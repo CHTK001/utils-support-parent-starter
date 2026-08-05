@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆管理器
@@ -42,8 +41,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2026/07/16
  */
 @Slf4j
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public class MemoryManager implements AutoCloseable {
 
     /** 记忆存储 */

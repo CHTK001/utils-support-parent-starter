@@ -5,7 +5,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSON序列化实现，基于Jackson实现。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @Spi("json")
 public class JsonSerializer<T extends Serializable> implements Serializer<T> {
 

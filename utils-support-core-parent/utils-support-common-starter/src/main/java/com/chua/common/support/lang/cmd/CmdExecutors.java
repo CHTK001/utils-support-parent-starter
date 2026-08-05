@@ -3,7 +3,6 @@ package com.chua.common.support.lang.cmd;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.concurrent.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 命令执行工具门面类，提供便捷的命令执行入口。
@@ -41,8 +40,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public final class CmdExecutors {
 
     /** 默认执行器名称 */

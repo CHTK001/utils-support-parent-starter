@@ -1,14 +1,12 @@
 package com.chua.common.support.lang.qr;
 
 import lombok.Data;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码背景设置类。
  *
  * @author CH
  */
-@NullUnmarked
 @Data
 public class BackgroundSetting {
     /**

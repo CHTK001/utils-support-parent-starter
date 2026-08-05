@@ -2,7 +2,6 @@ package com.chua.common.support.io.file.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 归档输入流接口。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface ArchiveInputStream {
 
     /**

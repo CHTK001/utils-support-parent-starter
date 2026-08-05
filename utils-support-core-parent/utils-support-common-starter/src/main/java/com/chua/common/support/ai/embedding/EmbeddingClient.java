@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 嵌入向量客户端接口。
@@ -33,8 +32,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface EmbeddingClient extends AutoCloseable {
 
     /**

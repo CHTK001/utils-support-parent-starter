@@ -4,7 +4,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Multipart/form-data 解析器 SPI。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/17
  */
-@NullUnmarked
 @Spi
 public interface MultipartParser {
 

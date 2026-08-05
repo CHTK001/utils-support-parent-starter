@@ -1,13 +1,11 @@
 package com.chua.common.support.file.tar;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 八进制数值转换工具类，用于 Tar 头部字段的解析与写入。
  *
  * @author CH
  */
-@NullUnmarked
 public class Octal {
 
     /**

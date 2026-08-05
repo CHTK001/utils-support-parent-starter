@@ -4,14 +4,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 注解工具类
  *
  * @author CH
  */
-@NullUnmarked
 public class AnnotationUtils {
 
     /**

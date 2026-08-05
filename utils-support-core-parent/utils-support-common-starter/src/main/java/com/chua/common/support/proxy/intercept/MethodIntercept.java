@@ -5,7 +5,6 @@ import com.chua.common.support.utils.ClassUtils;
 import java.lang.reflect.Method;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025/7/20
  */
-@NullUnmarked
 public interface MethodIntercept<T> {
 
     /**

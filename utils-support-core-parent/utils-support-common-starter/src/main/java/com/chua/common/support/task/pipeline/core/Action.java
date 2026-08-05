@@ -1,6 +1,5 @@
 package com.chua.common.support.task.pipeline.core;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 流水线动作枚举。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public enum Action {
 
     /**

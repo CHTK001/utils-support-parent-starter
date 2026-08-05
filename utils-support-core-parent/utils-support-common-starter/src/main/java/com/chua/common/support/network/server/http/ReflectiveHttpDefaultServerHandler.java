@@ -3,7 +3,6 @@ package com.chua.common.support.network.server.http;
 import com.chua.common.support.network.server.handler.ReactiveServerHandler;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 反射调用的 HTTP 处理器。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 public interface ReflectiveHttpDefaultServerHandler extends ReactiveServerHandler, HttpDefaultServerHandler {
 
 }

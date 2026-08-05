@@ -9,7 +9,6 @@ import java.time.LocalTime;
 import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -22,8 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class InstantTypeConverter implements TypeConverter<Instant>{
     /**
      * 获取当前转换器支持的目标类型。

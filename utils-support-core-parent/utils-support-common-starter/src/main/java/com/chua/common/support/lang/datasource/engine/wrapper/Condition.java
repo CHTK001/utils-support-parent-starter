@@ -3,7 +3,6 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 import lombok.Getter;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 条件值对象，表示一个 WHERE 条件的结构化描述。
@@ -20,8 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see AbstractLambdaWrapper
  */
 @Getter
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class Condition {
 
     /**

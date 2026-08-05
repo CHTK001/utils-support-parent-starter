@@ -5,7 +5,6 @@ import com.chua.common.support.utils.ArrayUtils;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -21,8 +20,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class JsonArrayTypeConverter implements TypeConverter<List> {
     @Override
     public Class<List> getType() {

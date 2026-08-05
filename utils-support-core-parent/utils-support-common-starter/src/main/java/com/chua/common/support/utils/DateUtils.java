@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import static com.chua.common.support.constant.NumberConstant.NUMBER_10;
 import static java.util.Calendar.DAY_OF_WEEK;
 import static java.util.Calendar.getInstance;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -49,7 +48,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/12/21
  */
-@NullUnmarked
 @Slf4j
 public class DateUtils {
     /**
@@ -2765,7 +2763,7 @@ public class DateUtils {
      * @param <T> the <T>
      * @return the result
      */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     public static <T> T plusDay(T date, int days) {
         if (date == null) {
             return null;

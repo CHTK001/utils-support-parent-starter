@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 内存向量存储实现，适用于测试和小规模场景。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public class MemoryVectorStorage extends AbstractVectorStorage {
 
     private final Map<String, Vector> store = new ConcurrentHashMap<>();

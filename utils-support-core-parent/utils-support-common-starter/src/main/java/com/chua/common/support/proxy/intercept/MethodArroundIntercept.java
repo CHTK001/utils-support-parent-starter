@@ -3,7 +3,6 @@ package com.chua.common.support.proxy.intercept;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.annotation.Around;
 import com.chua.common.support.spi.annotations.Spi;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 方法环绕拦截器接口，用于在方法调用前后执行自定义逻辑。
@@ -36,7 +35,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see Around
  * @see com.chua.common.support.proxy.annotation.MethodAnnotationIntercept
  */
-@NullUnmarked
 public interface MethodArroundIntercept {
 
     /**

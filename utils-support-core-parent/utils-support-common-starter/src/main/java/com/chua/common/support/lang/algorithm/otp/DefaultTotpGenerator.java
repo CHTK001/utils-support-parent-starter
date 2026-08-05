@@ -14,7 +14,6 @@ import java.time.*;
 import java.util.Date;
 
 import static com.chua.common.support.constant.NameConstant.DEFAULT;
-import org.jspecify.annotations.NullMarked;
 
 
 /**
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 2024/12/3
  */
-@NullMarked
 @Spi(DEFAULT)
 public class DefaultTotpGenerator implements TotpGenerator {
     // 注意：虽然常量名为 HMAC_SHA256，但实际使用的是 "HmacSHA1" 算法，这是 TOTP 标准推荐算法

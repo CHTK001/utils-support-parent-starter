@@ -1,7 +1,6 @@
 package com.chua.common.support.converter;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 字段转换器接口 — 在字段读写时进行自定义转换。
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface FieldConverter {
 
     /**

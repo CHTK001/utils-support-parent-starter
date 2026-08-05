@@ -6,7 +6,6 @@ import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * RAG 客户端接口。
@@ -39,8 +38,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public interface RagClient extends AutoCloseable {
 
     /**

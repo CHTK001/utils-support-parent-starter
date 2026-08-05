@@ -2,7 +2,6 @@ package com.chua.common.support.lang.datasource.dialect;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分页参数对象，封装前端传入的分页信息与后端返回的总记录数。
@@ -22,7 +21,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 @Data
 @Accessors(chain = true)
 public class Pagination {

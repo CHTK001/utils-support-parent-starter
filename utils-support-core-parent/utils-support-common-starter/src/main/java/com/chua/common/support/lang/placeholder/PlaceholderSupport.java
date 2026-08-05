@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 占位符支持类，用于解析字符串中的变量、函数调用、三元表达式和数组/Map访问。
@@ -33,8 +32,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/14
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Setter
 public class PlaceholderSupport {
 

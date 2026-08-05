@@ -1,6 +1,5 @@
 package com.chua.common.support.config.center;
 
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025/11/27 11:06
  */
-@NullUnmarked
 public interface ConfigListener {
 
 

@@ -3,7 +3,6 @@ package com.chua.common.support.lang.format;
 import lombok.Getter;
 
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * SQL高亮配置类，用于定义关键词的颜色和样式。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class HighlightConfig {
 
     /**

@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 双高斯纯校准器
@@ -38,7 +37,6 @@ import org.jspecify.annotations.NullUnmarked;
  * double score = cal.calibrate(0.81); // 约35分（靠近负类）
  * @author CH
  */
-@NullUnmarked
 @Getter
 @Setter
 @NoArgsConstructor

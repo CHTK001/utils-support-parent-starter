@@ -26,7 +26,6 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
 import static com.chua.common.support.constant.NumberConstant.NUMBER_3;
 import static com.chua.common.support.constant.ValueConstant.EMPTY_PROPERTIES;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -44,8 +43,7 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@SuppressWarnings({"NullAway", "unchecked", "ALL"})
-@NullUnmarked
+@SuppressWarnings({"unchecked", "ALL"})
 public class MapUtils {
 
     /**

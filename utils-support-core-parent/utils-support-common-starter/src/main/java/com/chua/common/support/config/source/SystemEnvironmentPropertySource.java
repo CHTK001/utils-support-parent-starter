@@ -1,6 +1,5 @@
 package com.chua.common.support.config.source;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 系统环境变量属性源类。
@@ -16,8 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2023-01-01
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class SystemEnvironmentPropertySource extends AbstractPropertySource {
 
     /**

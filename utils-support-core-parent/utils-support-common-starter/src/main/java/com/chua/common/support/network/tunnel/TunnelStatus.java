@@ -1,6 +1,5 @@
 package com.chua.common.support.network.tunnel;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 隧道状态枚举。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/31
  */
-@NullUnmarked
 public enum TunnelStatus {
 
     /** 隧道已开启，正在运行 */

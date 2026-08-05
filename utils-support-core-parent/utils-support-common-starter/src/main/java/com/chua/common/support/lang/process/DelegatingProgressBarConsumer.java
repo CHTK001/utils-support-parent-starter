@@ -3,7 +3,6 @@ package com.chua.common.support.lang.process;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024-01-01
  * @version 1.0.0
  */
-@NullUnmarked
 public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
 
     /**

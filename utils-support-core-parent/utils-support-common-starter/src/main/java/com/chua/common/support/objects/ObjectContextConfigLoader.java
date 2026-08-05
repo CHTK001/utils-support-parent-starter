@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 从 classpath 上的 application 配置文件加载 {@link ObjectContextConfig}。
@@ -30,7 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/20
  */
-@NullUnmarked
 @Slf4j
 public final class ObjectContextConfigLoader {
 

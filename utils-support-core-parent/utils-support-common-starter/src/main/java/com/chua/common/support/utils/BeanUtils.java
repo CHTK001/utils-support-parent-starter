@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 工具类，提供对象属性复制等操作。
@@ -35,7 +34,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 @SuppressWarnings({"ALL", "unchecked"})
 public final class BeanUtils {
 

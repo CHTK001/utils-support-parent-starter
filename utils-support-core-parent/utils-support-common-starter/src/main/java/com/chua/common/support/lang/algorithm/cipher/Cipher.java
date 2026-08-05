@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.algorithm.cipher;
 
-import org.jspecify.annotations.NullMarked;
 
 /**
  * 加解密算法顶级接口
@@ -31,6 +30,5 @@ import org.jspecify.annotations.NullMarked;
  * @author CH
  * @since 2026/07/16
  */
-@NullMarked
 public interface Cipher {
 }

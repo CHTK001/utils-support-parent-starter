@@ -1,7 +1,6 @@
 package com.chua.common.support.task.scheduler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 已调度的任务
@@ -27,8 +26,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ScheduledTask {
 
     /**

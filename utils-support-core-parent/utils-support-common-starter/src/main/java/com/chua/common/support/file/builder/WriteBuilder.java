@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import com.chua.common.support.utils.BeanUtils;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件写入构建器抽象基类。
@@ -18,8 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public abstract class WriteBuilder {
 
     /** 待写入的文件 */
@@ -215,7 +212,7 @@ public abstract class WriteBuilder {
      * @param data 待写入的 POJO 对象
      * @return 转换后的 Map
      */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings("unchecked")
     protected Map<String, Object> toMap(Object data) {
         if (data instanceof Map) {
             return (Map<String, Object>) data;

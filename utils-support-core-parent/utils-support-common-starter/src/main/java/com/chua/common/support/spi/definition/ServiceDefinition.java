@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class ServiceDefinition implements Comparable<ServiceDefinition> {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceDefinition.class);

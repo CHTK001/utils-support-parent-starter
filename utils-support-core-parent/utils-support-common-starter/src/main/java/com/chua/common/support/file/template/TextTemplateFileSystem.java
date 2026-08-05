@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 简易文本模板引擎 — 将 {@code #key#} 替换为 data 中的对应值
@@ -17,7 +16,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026-07-16
  */
-@NullUnmarked
 @Spi({"txt", "xml", "html"})
 public class TextTemplateFileSystem implements TemplateFileSystem {
 

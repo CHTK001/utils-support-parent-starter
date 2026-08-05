@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.document;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文档导出模板类型。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public enum DocumentTemplateType {
 
     /**

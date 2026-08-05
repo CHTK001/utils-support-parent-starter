@@ -3,7 +3,6 @@ package com.chua.common.support.config.source;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 系统属性源类。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2023-01-01
  */
-@NullUnmarked
 public class SystemPropertySource extends AbstractPropertySource {
 
     /**

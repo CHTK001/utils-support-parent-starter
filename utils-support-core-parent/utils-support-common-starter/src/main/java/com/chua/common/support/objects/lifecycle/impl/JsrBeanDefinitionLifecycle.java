@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JSR 标准生命周期处理器，通过反射处理 @PostConstruct 和 @PreDestroy 注解。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 @Slf4j
 @Spi("jsr")
 @SpiDescribe("JSR 标准生命周期处理器（@PostConstruct、@PreDestroy）")

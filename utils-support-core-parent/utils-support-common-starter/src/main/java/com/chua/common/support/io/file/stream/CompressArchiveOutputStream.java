@@ -3,7 +3,6 @@ package com.chua.common.support.io.file.stream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 归档压缩输出流提供者接口。
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface CompressArchiveOutputStream {
 
     /**

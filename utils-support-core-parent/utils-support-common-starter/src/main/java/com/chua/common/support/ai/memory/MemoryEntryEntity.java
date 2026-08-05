@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 记忆条目可写实体 — 供 {@link EngineMemoryStore} / Engine ORM 使用。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  */
 @Data
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class MemoryEntryEntity {
 
     /**

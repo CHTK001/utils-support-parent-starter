@@ -2,7 +2,6 @@ package com.chua.common.support.network.http;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 请求/响应头封装，提供键值对存储和链式操作。
@@ -32,8 +31,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class HttpHeader {
 
     /** Content-Type */

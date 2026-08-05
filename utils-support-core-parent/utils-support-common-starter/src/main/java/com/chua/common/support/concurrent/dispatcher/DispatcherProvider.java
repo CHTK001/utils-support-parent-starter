@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.dispatcher;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 分发器提供者工具接口，定义消息的发布和订阅行为。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2025-11-26
  */
-@NullUnmarked
 public interface DispatcherProvider {
 
     /**

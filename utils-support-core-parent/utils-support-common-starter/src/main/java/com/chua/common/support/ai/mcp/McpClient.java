@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.mcp;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * MCP 客户端接口
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/15
  */
-@NullUnmarked
 public interface McpClient extends AutoCloseable {
 
     /**

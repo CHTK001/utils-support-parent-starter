@@ -1,6 +1,5 @@
 package com.chua.common.support.constant;
 
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024-01-01
  * @version 1.0.0
  */
-@NullUnmarked
 public interface CharConstant {
     /**
      * 空格 {@code ' '}

@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * AI 协议 ServerFilter — 在 ProtocolServer 中直接处理 OpenAI / Claude / CCS RESTful 请求。
@@ -45,8 +44,7 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.42
  */
 @Slf4j
-@SuppressWarnings({"NullAway", "unchecked"})
-@NullUnmarked
+@SuppressWarnings("unchecked")
 public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     private final ChatClient chatClient;

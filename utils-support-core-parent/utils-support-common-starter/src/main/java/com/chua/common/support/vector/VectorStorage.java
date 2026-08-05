@@ -1,7 +1,6 @@
 package com.chua.common.support.vector;
 
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 向量存储接口，提供向量的添加、搜索和管理能力。
@@ -20,7 +19,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
 public interface VectorStorage extends AutoCloseable {
 
     /**

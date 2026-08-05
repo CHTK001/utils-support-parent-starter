@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 差异对比轮询目录抽象基类，实现 {@link PolledDirectory} 接口。
@@ -44,8 +43,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public abstract class DiffPolledDirectory<T> implements PolledDirectory {
 

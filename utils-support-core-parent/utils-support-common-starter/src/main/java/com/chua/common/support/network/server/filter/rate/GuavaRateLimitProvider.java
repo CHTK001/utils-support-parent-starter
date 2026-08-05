@@ -4,7 +4,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Guava RateLimiter 实现的限流提供者。
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/18
  */
-@NullUnmarked
 @Spi("guava")
 public class GuavaRateLimitProvider implements RateLimitProvider {
 

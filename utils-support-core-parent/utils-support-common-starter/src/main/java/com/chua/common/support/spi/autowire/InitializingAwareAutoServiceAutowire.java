@@ -5,7 +5,6 @@ import com.chua.common.support.objects.describe.ObjectDescribe;
 import com.chua.common.support.utils.ClassUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -13,7 +12,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
 
     /**

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 混合策略 — 分组路由 + 跨组故障转移。
@@ -24,8 +23,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.42
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class HybridStrategy implements RouterStrategy {
 
     private final List<GroupRouter> groups;

@@ -1,7 +1,6 @@
 package com.chua.common.support.function;
 
 import java.util.function.Predicate;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 安全的断言接口
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public interface SafePredicate<T> extends Predicate<T> {
 
     /**

@@ -3,7 +3,6 @@ package com.chua.common.support.file.system;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件读取结果，封装解析后的数据集合。
@@ -15,7 +14,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class ReadResult<T> {
 
     /** 解析后的数据上下文列表 */

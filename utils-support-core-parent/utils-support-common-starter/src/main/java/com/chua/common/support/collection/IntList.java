@@ -1,7 +1,6 @@
 package com.chua.common.support.collection;
 
 import java.util.*;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 {@code int[]} 的整数列表，避免 {@link Integer} 装箱开销。
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @see LongList
  */
-@NullUnmarked
 public class IntList extends AbstractList<Integer> implements RandomAccess {
 
     /**

@@ -1,6 +1,5 @@
 package com.chua.common.support.osgi;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * OSGI 启动器全局单例持有者。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class OsgiLauncherHolder {
 
     private static volatile OsgiLauncher INSTANCE;

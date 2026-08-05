@@ -9,7 +9,6 @@ import com.chua.common.support.objects.annotation.OnOpen;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * ObjectContext 通用注解的监听解析器实现。
@@ -29,7 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/20
  */
-@NullUnmarked
 public class ObjectContextListenerParser implements ListenerParser {
 
     @Override

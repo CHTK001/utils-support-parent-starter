@@ -17,7 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器处理器工厂。
@@ -29,8 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024/12/20
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
 
     /**

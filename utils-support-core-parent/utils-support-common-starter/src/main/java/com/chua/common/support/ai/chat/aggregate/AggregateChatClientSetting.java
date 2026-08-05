@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 聚合 ChatClient 配置（JSON 格式）
@@ -54,8 +53,6 @@ import org.jspecify.annotations.NullUnmarked;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AggregateChatClientSetting {
 
     /**

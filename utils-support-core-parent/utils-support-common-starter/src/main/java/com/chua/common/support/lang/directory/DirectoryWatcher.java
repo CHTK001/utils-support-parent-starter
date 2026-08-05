@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于 JDK {@link WatchService} 的本地文件系统目录监听器。
@@ -30,8 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/12
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Slf4j
 public class DirectoryWatcher {
 

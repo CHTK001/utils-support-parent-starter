@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 
 import static com.chua.common.support.constant.NameConstant.DEFAULT;
 import static java.util.concurrent.Executors.newThreadPerTaskExecutor;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -25,7 +24,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 @Slf4j
 public class ThreadUtils {
     /**

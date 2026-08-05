@@ -5,7 +5,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置源提供者 SPI，为 {@link DefaultEnvironment} 自动注册配置源。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Spi
 public interface ConfigSourceProvider {
 

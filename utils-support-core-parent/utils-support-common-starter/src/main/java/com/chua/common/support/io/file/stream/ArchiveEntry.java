@@ -1,6 +1,5 @@
 package com.chua.common.support.io.file.stream;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 归档条目接口。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public interface ArchiveEntry {
 
     /**

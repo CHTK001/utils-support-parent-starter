@@ -1,13 +1,11 @@
 package com.chua.common.support.network.sync;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 同步事件监听器，接收 {@link SyncFlow} 的生命周期和数据事件。
  *
  * @author CH
  */
-@NullUnmarked
 public interface SyncFlowListener {
 
     /**

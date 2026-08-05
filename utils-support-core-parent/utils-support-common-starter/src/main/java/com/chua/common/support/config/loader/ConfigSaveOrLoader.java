@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 配置保存或加载器接口。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ConfigSaveOrLoader extends Closeable {
 
     /**

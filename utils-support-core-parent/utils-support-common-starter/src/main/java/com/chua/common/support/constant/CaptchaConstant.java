@@ -1,6 +1,5 @@
 package com.chua.common.support.constant;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 验证码相关常量。
@@ -10,7 +9,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.42
  */
-@NullUnmarked
 public final class CaptchaConstant {
 
     /**

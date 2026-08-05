@@ -6,7 +6,6 @@ import com.chua.common.support.utils.NumberUtils;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -18,7 +17,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2024-01-01
  * @version 1.0.0
  */
-@NullUnmarked
 public enum ProgressUnitType implements ProgressUnit {
 
     /**

@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 基于文件的 AI 令牌提供者实现。
@@ -30,8 +29,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.42
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /** token → AiToken 映射 */

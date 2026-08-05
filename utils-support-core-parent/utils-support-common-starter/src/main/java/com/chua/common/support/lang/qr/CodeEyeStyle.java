@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.qr;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 二维码扫描眼样式枚举。
@@ -8,7 +7,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public enum CodeEyeStyle {
     /**
      * 无特殊样式，使用默认样式。

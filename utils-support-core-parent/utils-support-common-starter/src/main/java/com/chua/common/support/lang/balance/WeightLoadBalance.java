@@ -8,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 /**
  * 加权随机负载均衡器。
@@ -18,97 +16,96 @@ import org.jspecify.annotations.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
-@NullMarked
 @Spi("weight")
 public class WeightLoadBalance implements LoadBalance {
 
-    /**
-     * 权重衰减系数
-     */
-    private static final double WEIGHT_DECAY_FACTOR = 2.0;
+ /**
+ * 权重衰减系数
+ */
+ private static final double WEIGHT_DECAY_FACTOR = 2.0;
 
-    /**
-     * 节点列表
-     */
-    private final List<Node> nodes;
+ /**
+ * 节点列表
+ */
+ private final List<Node> nodes;
 
-    /**
-     * 默认构造，初始化空节点列表。
-     */
-    public WeightLoadBalance() {
-        this(new LinkedList<>());
-    }
+ /**
+ * 默认构造，初始化空节点列表。
+ */
+ public WeightLoadBalance() {
+ this(new LinkedList<>());
+ }
 
-    /**
-     * 使用给定节点列表构造。
-     *
-     * @param nodes 节点列表，为 null 时使用空列表
-     */
-    public WeightLoadBalance(@Nullable List<Node> nodes) {
-        this.nodes = nodes == null ? new LinkedList<>() : nodes;
-    }
+ /**
+ * 使用给定节点列表构造。
+ *
+ * @param nodes 节点列表，为 null 时使用空列表
+ */
+ public WeightLoadBalance(List<Node> nodes) {
+ this.nodes = nodes == null ? new LinkedList<>() : nodes;
+ }
 
-    @Override
-    public @Nullable Node selectNode() {
-        if (CollectionUtils.isEmpty(nodes)) {
-            return null;
-        }
+ @Override
+ public Node selectNode() {
+ if (CollectionUtils.isEmpty(nodes)) {
+ return null;
+ }
 
-        double weight = 0;
-        for (Node node : nodes) {
-            weight += node.getWeight();
-        }
+ double weight = 0;
+ for (Node node : nodes) {
+ weight += node.getWeight();
+ }
 
-        double[] avgWeight = new double[nodes.size()];
-        for (int i = 0; i < nodes.size(); i++) {
-            avgWeight[i] = nodes.get(i).getWeight() / weight;
-        }
-        for (int i = 1; i < avgWeight.length; i++) {
-            avgWeight[i] = avgWeight[i] + avgWeight[i - 1];
-        }
+ double[] avgWeight = new double[nodes.size()];
+ for (int i = 0; i < nodes.size(); i++) {
+ avgWeight[i] = nodes.get(i).getWeight() / weight;
+ }
+ for (int i = 1; i < avgWeight.length; i++) {
+ avgWeight[i] = avgWeight[i] + avgWeight[i - 1];
+ }
 
-        var nextDouble = ThreadLocalRandom.current().nextDouble(1);
-        var index = -Arrays.binarySearch(avgWeight, nextDouble) - 1;
-        if (index < 0 || index >= nodes.size()) {
-            index = 0;
-        }
-        var node = nodes.get(index);
-        node.setWeight(node.getWeight() / WEIGHT_DECAY_FACTOR);
-        return node;
-    }
+ var nextDouble = ThreadLocalRandom.current().nextDouble(1);
+ var index = -Arrays.binarySearch(avgWeight, nextDouble) - 1;
+ if (index < 0 || index >= nodes.size()) {
+ index = 0;
+ }
+ var node = nodes.get(index);
+ node.setWeight(node.getWeight() / WEIGHT_DECAY_FACTOR);
+ return node;
+ }
 
-    @Override
-    public LoadBalance create() {
-        return new WeightLoadBalance(nodes);
-    }
+ @Override
+ public LoadBalance create() {
+ return new WeightLoadBalance(nodes);
+ }
 
-    @Override
-    public LoadBalance clear() {
-        nodes.clear();
-        return this;
-    }
+ @Override
+ public LoadBalance clear() {
+ nodes.clear();
+ return this;
+ }
 
-    @Override
-    public LoadBalance addNode(@Nullable Node node) {
-        if (node != null) {
-            nodes.add(node);
-        }
-        return this;
-    }
+ @Override
+ public LoadBalance addNode(Node node) {
+ if (node != null) {
+ nodes.add(node);
+ }
+ return this;
+ }
 
-    @Override
-    public <T> @Nullable T select(@Nullable List<T> values) {
-        if (values == null || values.isEmpty()) {
-            return null;
-        }
-        Node node = selectNode();
-        if (null == node) {
-            return null;
-        }
-        int index = nodes.indexOf(node);
-        if (index < 0 || index >= values.size()) {
-            return values.get(0);
-        }
-        return values.get(index);
-    }
+ @Override
+ public <T> T select(List<T> values) {
+ if (values == null || values.isEmpty()) {
+ return null;
+ }
+ Node node = selectNode();
+ if (null == node) {
+ return null;
+ }
+ int index = nodes.indexOf(node);
+ if (index < 0 || index >= values.size()) {
+ return values.get(0);
+ }
+ return values.get(index);
+ }
 }

@@ -3,7 +3,6 @@ package com.chua.common.support.collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 排序列表接口，继承 {@link List}。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @version 1.0.0
  */
-@NullUnmarked
 public interface SortedList<E> extends List<E> {
 
     /**

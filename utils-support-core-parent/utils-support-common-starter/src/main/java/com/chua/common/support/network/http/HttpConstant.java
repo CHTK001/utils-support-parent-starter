@@ -1,13 +1,11 @@
 package com.chua.common.support.network.http;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * HTTP 相关常量。
  *
  * @author CH
  */
-@NullUnmarked
 public class HttpConstant {
 
     /** 请求头：Content-Type */

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 文件客户端接口，统一处理不同协议下的文件操作。
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/27
  */
-@NullUnmarked
 public interface FileClient {
 
     /**

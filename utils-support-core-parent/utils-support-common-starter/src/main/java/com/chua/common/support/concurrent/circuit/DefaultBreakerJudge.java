@@ -5,7 +5,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 默认断路器判断器
@@ -41,8 +40,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 2026/07/28
  */
 @Spi("default")
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class DefaultBreakerJudge implements BreakerJudge {
 
     /**

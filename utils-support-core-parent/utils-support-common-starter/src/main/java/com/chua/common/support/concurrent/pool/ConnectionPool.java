@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * JDBC 连接池
@@ -55,8 +54,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ConnectionPool extends GenericObjectPool<Connection> {
 
     /**

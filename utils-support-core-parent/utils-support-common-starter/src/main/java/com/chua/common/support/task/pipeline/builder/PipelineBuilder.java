@@ -9,7 +9,6 @@ import com.chua.common.support.task.pipeline.node.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 流水线构建器。
@@ -34,7 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public class PipelineBuilder {
 
     /**

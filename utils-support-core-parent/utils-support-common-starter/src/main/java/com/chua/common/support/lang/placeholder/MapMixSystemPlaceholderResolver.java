@@ -1,7 +1,6 @@
 package com.chua.common.support.lang.placeholder;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -11,8 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, PlaceholderDynamicResolver {
 
     /**

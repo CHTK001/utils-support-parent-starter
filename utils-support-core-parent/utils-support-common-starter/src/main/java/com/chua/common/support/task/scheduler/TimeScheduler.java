@@ -2,7 +2,6 @@ package com.chua.common.support.task.scheduler;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 时间调度管理器
@@ -29,7 +28,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 1.0.0
  */
-@NullUnmarked
 public class TimeScheduler {
 
     /**

@@ -9,7 +9,6 @@ import com.chua.common.support.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicReference;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Java 原生脚本标记器实现。
@@ -38,8 +37,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @see Listener
  * @see JdkCompiler
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 @Spi("java")
 @Slf4j
 public class JavaScriptMarker extends AbstractScriptMarker {

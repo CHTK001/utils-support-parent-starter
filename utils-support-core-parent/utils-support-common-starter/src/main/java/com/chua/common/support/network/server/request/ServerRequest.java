@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 服务器请求抽象，封装 HTTP 或自定义协议的请求数据。
@@ -16,7 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public interface ServerRequest {
 
     /** @return 完整 URI，包含路径和查询参数 */

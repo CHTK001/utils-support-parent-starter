@@ -4,7 +4,6 @@ import java.time.ZoneId;
 import java.util.TimeZone;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 
 /**
@@ -19,8 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @version 1.0.0
  * @since 2020/12/31
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class TimeZoneTypeConverter implements TypeConverter<TimeZone> {
 
     /**

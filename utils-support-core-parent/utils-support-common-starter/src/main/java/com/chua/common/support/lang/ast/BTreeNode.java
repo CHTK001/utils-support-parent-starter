@@ -2,7 +2,6 @@ package com.chua.common.support.lang.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * B-Tree 节点
@@ -23,8 +22,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2026/07/16
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class BTreeNode {
 
     /**

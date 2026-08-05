@@ -10,7 +10,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 模型健康检查器 - 负责定时检查模型状态并更新健康信息
@@ -19,8 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @since 4.0.0.43
  */
 @Slf4j
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class ModelHealthChecker {
 
     private final TimeScheduler scheduler;

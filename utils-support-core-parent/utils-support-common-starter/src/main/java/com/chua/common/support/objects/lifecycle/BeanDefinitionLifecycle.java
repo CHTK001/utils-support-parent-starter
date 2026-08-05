@@ -3,7 +3,6 @@ package com.chua.common.support.objects.lifecycle;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.BeanScope;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Bean 生命周期处理器 SPI，用于处理 Bean 的初始化和销毁过程。
@@ -11,7 +10,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2024/12/20
  */
-@NullUnmarked
 @Spi
 public interface BeanDefinitionLifecycle {
 

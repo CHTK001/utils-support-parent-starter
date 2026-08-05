@@ -3,7 +3,6 @@ package com.chua.common.support.ai.skill;
 import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
 
 import java.util.Map;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 技能描述注入 system 的轻量工具（不依赖 Agent 执行环）。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  *
  * @author CH
  */
-@NullUnmarked
 public final class SkillPrompt {
 
     private SkillPrompt() {

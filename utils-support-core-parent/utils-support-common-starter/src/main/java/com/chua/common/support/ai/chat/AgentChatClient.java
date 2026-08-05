@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Agent 路由对话客户端
@@ -34,8 +33,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 4.0.0.41
  */
-@SuppressWarnings("NullAway")
-@NullUnmarked
 public class AgentChatClient implements ChatClient {
 
     private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>();

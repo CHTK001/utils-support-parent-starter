@@ -4,7 +4,6 @@ import com.chua.common.support.utils.ClassUtils;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 安全可选对象，用于链式条件判断与值转换。
@@ -14,8 +13,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @param <R> 返回值类型
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public class SafeOptional<T, R> {
 
     private static final SafeOptional<?, ?> EMPTY = new SafeOptional<>(false, null);

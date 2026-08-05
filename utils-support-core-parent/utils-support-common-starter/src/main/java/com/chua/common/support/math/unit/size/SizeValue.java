@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 数据大小值，支持解析与格式化（如 12MB、5GB）。
@@ -16,8 +15,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author Sam Brannen, Stephane Nicoll
  * @author CH
  */
-@NullUnmarked
-@SuppressWarnings("NullAway")
 public final class SizeValue implements Comparable<SizeValue> {
 
     /**

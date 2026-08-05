@@ -1,6 +1,5 @@
 package com.chua.common.support.language.pinyin;
 
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * 拼音单元，表示一个汉字对应的拼音信息。
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NullUnmarked;
  * @author CH
  * @since 2021-12-30
  */
-@NullUnmarked
 public record PinyinItem(
         String name,
         String word,
