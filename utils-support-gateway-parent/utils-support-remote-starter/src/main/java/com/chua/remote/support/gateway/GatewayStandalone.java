@@ -21,7 +21,7 @@ public class GatewayStandalone {
         GatewayProperties p = new GatewayProperties();
         p.setApiTokenEnabled(true);
         p.setWsApiGatewayPort(8081);
-        p.setDwsRemoteControlPort(8082);
+        p.setDwsRemoteControlPort(8888);
         p.setHttpApiPort(8083);
         p.setSocks5GatewayPort(1080);
         p.setTcpControlPort(9000);

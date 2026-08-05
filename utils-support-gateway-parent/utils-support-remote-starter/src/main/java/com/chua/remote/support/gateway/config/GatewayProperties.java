@@ -17,7 +17,7 @@ public class GatewayProperties {
     private int socks5GatewayPort = 1080;
     private int httpManagementPort = 3000;
     private int wsApiGatewayPort = 8081;
-    private int dwsRemoteControlPort = 8082;
+    private int dwsRemoteControlPort = 8888;
     private int httpApiPort = 8083;
     private String livekitAgentRelayHost = "127.0.0.1";
     private int livekitAgentRelayPort = 9090;

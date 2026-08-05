@@ -190,10 +190,10 @@ public class H264NvencEncoder implements VideoEncoder {
             r.setOption("preset", "p1");
             r.setOption("tune", "ll");
             r.setOption("zerolatency", "1");
+            r.setVideoOption("repeat_headers", "1");
             r.start();
-            clearGlobalHeader();
-            loadSpsPpsFromExtradata();
             this.recorder = r;
+            loadSpsPpsFromExtradata();
             log.info("[H264NvencEncoder] {} 初始化成功", codecName);
             return true;
         } catch (Throwable e) {
@@ -293,8 +293,26 @@ public class H264NvencEncoder implements VideoEncoder {
             System.arraycopy(frameBytes, 0, withSpsPps, spsPpsAnnexB.length, frameBytes.length);
             frameBytes = withSpsPps;
         }
+        if (frame.keyFrame) {
+            int dumpLen = Math.min(32, frameBytes.length);
+            StringBuilder hex = new StringBuilder();
+            for (int i = 0; i < dumpLen; i++) hex.append(String.format("%02x ", frameBytes[i] & 0xff));
+            log.info("[H264NvencEncoder] KEYFRAME-INSPECT: totalLen={} first32=[{}] spsPpsAnnexBAttached={}",
+                    frameBytes.length, hex.toString().trim(), spsPpsAnnexB != null);
+        }
+        if (frameIndex < 8) {
+            log.info("[H264NvencEncoder] FRAME-INSPECT: idx={} keyFrame={} len={} first8=[{}]",
+                    frameIndex, frame.keyFrame, frameBytes.length,
+                    bytesToHex(frameBytes, Math.min(8, frameBytes.length)));
+        }
         frameIndex++;
         return frameBytes;
+    }
+
+    private static String bytesToHex(byte[] data, int n) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) sb.append(String.format("%02x ", data[i] & 0xff));
+        return sb.toString().trim();
     }
 
     /**
