@@ -3,7 +3,6 @@ package com.chua.common.support.media.codec;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.ffmpeg.avcodec.AVCodecContext;
-import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.ffmpeg.swscale.SwsContext;
 import org.bytedeco.javacpp.BytePointer;
@@ -122,6 +121,11 @@ public class H264NvencEncoder implements VideoEncoder {
      * 反射获取的 AVCodecContext 字段
      */
     private Field videoCField;
+
+    /**
+     * 从编码器 extradata 提取的 SPS/PPS（Annex B 格式），用于拼接到关键帧头部
+     */
+    private byte[] spsPpsAnnexB;
 
     /**
      * 空构造。
@@ -282,24 +286,11 @@ public class H264NvencEncoder implements VideoEncoder {
         }
         byte[] frameBytes = new byte[len];
         System.arraycopy(all, (int) captureSize, frameBytes, 0, len);
-        if (frameIndex == 0 && frameBytes.length > 8) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < Math.min(64, frameBytes.length); i++) {
-                sb.append(String.format("%02x ", frameBytes[i] & 0xff));
-            }
-            System.out.println("[DEBUG-ENC] first frame hex: " + sb.toString() + " len=" + frameBytes.length);
-            // Dump NAL types found
-            StringBuilder nalInfo = new StringBuilder("nalTypes=");
-            for (int i = 0; i < frameBytes.length - 4; i++) {
-                if ((frameBytes[i] == 0 && frameBytes[i+1] == 0 && frameBytes[i+2] == 0 && frameBytes[i+3] == 1) ||
-                    (frameBytes[i] == 0 && frameBytes[i+1] == 0 && frameBytes[i+2] == 1)) {
-                    int startCodeLen = (frameBytes[i+2] == 1) ? 3 : 4;
-                    int nalType = frameBytes[i + startCodeLen] & 0x1f;
-                    nalInfo.append(nalType).append(",");
-                    i += startCodeLen - 1;
-                }
-            }
-            System.out.println("[DEBUG-ENC] " + nalInfo.toString());
+        if (frame.keyFrame && spsPpsAnnexB != null) {
+            byte[] withSpsPps = new byte[spsPpsAnnexB.length + frameBytes.length];
+            System.arraycopy(spsPpsAnnexB, 0, withSpsPps, 0, spsPpsAnnexB.length);
+            System.arraycopy(frameBytes, 0, withSpsPps, spsPpsAnnexB.length, frameBytes.length);
+            frameBytes = withSpsPps;
         }
         frameIndex++;
         return frameBytes;
