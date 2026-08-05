@@ -98,4 +98,61 @@ public class Postgresql9Dialect extends AbstractDialect {
     public String getColumnComment(String comment) {
         return "";
     }
+
+    // ==================== 触发器 / 存储过程查询 SQL ====================
+
+    @Override
+    public String getTriggerListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT t.tgname AS trigger_name, n.nspname AS trigger_schema, c.relname AS table_name, "
+                        + "CASE WHEN t.tgtype::int & 2 <> 0 THEN 'BEFORE' "
+                        + "     WHEN t.tgtype::int & 64 <> 0 THEN 'INSTEAD OF' ELSE 'AFTER' END AS action_timing, "
+                        + "CASE WHEN t.tgtype::int & 4 <> 0 THEN 'INSERT' "
+                        + "     WHEN t.tgtype::int & 8 <> 0 THEN 'DELETE' "
+                        + "     WHEN t.tgtype::int & 16 <> 0 THEN 'UPDATE' "
+                        + "     WHEN t.tgtype::int & 32 <> 0 THEN 'TRUNCATE' END AS event_manipulation, "
+                        + "pg_get_triggerdef(t.oid) AS action_statement "
+                        + "FROM pg_trigger t "
+                        + "JOIN pg_class c ON c.oid = t.tgrelid "
+                        + "JOIN pg_namespace n ON n.oid = c.relnamespace "
+                        + "WHERE NOT t.tgisinternal");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" AND n.nspname = '").append(escape(schema)).append("'");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getTriggerSql(String triggerName, String schema) {
+        if (triggerName == null || triggerName.isEmpty()) {
+            return null;
+        }
+        return "SELECT * FROM (" + getTriggerListSql(schema) + ") T "
+                + "WHERE trigger_name = '" + escape(triggerName) + "'";
+    }
+
+    @Override
+    public String getProcedureListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT n.nspname AS routine_schema, p.proname AS routine_name, 'FUNCTION' AS routine_type, "
+                        + "pg_get_function_result(p.oid) AS data_type, "
+                        + "pg_get_functiondef(p.oid) AS routine_definition "
+                        + "FROM pg_proc p "
+                        + "JOIN pg_namespace n ON n.oid = p.pronamespace "
+                        + "WHERE NOT p.proisagg AND NOT p.proiswindow "
+                        + "AND n.nspname NOT IN ('pg_catalog', 'information_schema')");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" AND n.nspname = '").append(escape(schema)).append("'");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getProcedureSql(String procedureName, String schema) {
+        if (procedureName == null || procedureName.isEmpty()) {
+            return null;
+        }
+        return "SELECT * FROM (" + getProcedureListSql(schema) + ") T "
+                + "WHERE routine_name = '" + escape(procedureName) + "'";
+    }
 }

@@ -75,4 +75,27 @@ public class DerbyDialect extends AbstractDialect {
     public String getCurrentTimestampSelectString() {
         return "SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1";
     }
+
+    // ==================== 触发器查询 SQL（Derby 不支持存储过程） ====================
+
+    @Override
+    public String getTriggerListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT TRIGGER_NAME, TRIGGER_SCHEMA, EVENT_OBJECT_TABLE AS TABLE_NAME, "
+                        + "ACTION_TIMING, EVENT_MANIPULATION, ACTION_STATEMENT "
+                        + "FROM INFORMATION_SCHEMA.TRIGGERS");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" WHERE TRIGGER_SCHEMA = '").append(escape(schema)).append("'");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getTriggerSql(String triggerName, String schema) {
+        if (triggerName == null || triggerName.isEmpty()) {
+            return null;
+        }
+        return "SELECT * FROM (" + getTriggerListSql(schema) + ") T "
+                + "WHERE TRIGGER_NAME = '" + escape(triggerName) + "'";
+    }
 }

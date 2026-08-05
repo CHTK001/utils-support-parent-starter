@@ -89,4 +89,53 @@ public class SqlServerDialect extends AbstractDialect {
     public String getRenameIndexString(String oldIndexName, String newIndexName, String tableName) {
         return "EXEC sp_rename N'" + quote(tableName) + "." + oldIndexName + "', N'" + newIndexName + "', N'INDEX'";
     }
+
+    // ==================== 触发器 / 存储过程查询 SQL ====================
+
+    @Override
+    public String getTriggerListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT tr.name AS trigger_name, sc.name AS trigger_schema, tb.name AS table_name, "
+                        + "OBJECT_DEFINITION(tr.object_id) AS action_statement, "
+                        + "CASE WHEN tr.is_disabled = 0 THEN 'ENABLED' ELSE 'DISABLED' END AS status "
+                        + "FROM sys.triggers tr "
+                        + "JOIN sys.tables tb ON tb.object_id = tr.parent_id "
+                        + "JOIN sys.schemas sc ON sc.schema_id = tb.schema_id");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" WHERE sc.name = '").append(escape(schema)).append("'");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getTriggerSql(String triggerName, String schema) {
+        if (triggerName == null || triggerName.isEmpty()) {
+            return null;
+        }
+        return "SELECT * FROM (" + getTriggerListSql(schema) + ") T "
+                + "WHERE trigger_name = '" + escape(triggerName) + "'";
+    }
+
+    @Override
+    public String getProcedureListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT sc.name AS routine_schema, o.name AS routine_name, "
+                        + "CASE o.type WHEN 'P' THEN 'PROCEDURE' ELSE 'FUNCTION' END AS routine_type, "
+                        + "OBJECT_DEFINITION(o.object_id) AS routine_definition "
+                        + "FROM sys.objects o JOIN sys.schemas sc ON sc.schema_id = o.schema_id "
+                        + "WHERE o.type IN ('P', 'FN', 'TF', 'IF')");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" AND sc.name = '").append(escape(schema)).append("'");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getProcedureSql(String procedureName, String schema) {
+        if (procedureName == null || procedureName.isEmpty()) {
+            return null;
+        }
+        return "SELECT * FROM (" + getProcedureListSql(schema) + ") T "
+                + "WHERE routine_name = '" + escape(procedureName) + "'";
+    }
 }

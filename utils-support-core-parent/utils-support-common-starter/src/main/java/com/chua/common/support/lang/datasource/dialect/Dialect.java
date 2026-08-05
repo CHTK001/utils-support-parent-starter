@@ -602,6 +602,79 @@ public interface Dialect {
         return "";
     }
 
+    // ==================== 触发器 / 存储过程 SQL ====================
+
+    /**
+     * 生成查询触发器列表的 SQL。
+     * <p>
+     * 返回的查询结果需包含统一的列别名（大写），供 {@code JdbcEngine} 解析为 {@link TriggerDefinition}：
+     * <ul>
+     *   <li>{@code TRIGGER_NAME} — 触发器名</li>
+     *   <li>{@code TRIGGER_SCHEMA}（或 {@code TRIGGER_SCHEM}）— schema</li>
+     *   <li>{@code TABLE_NAME}（或 {@code EVENT_OBJECT_TABLE}）— 关联表</li>
+     *   <li>{@code ACTION_TIMING} — 触发时机</li>
+     *   <li>{@code EVENT_MANIPULATION} — 触发事件</li>
+     *   <li>{@code ACTION_STATEMENT} — 触发器体内容</li>
+     *   <li>{@code STATUS} — 触发器状态（可选）</li>
+     * </ul>
+     * </p>
+     * <p>默认返回 {@code null} 表示该数据库不支持获取触发器。</p>
+     *
+     * @param schema schema 名称，null 表示不限定
+     * @return 查询 SQL，不支持时返回 null
+     */
+    default String getTriggerListSql(String schema) {
+        return null;
+    }
+
+    /**
+     * 生成查询单个触发器定义的 SQL。
+     *
+     * @param triggerName 触发器名
+     * @param schema      schema 名称，null 表示不限定
+     * @return 查询 SQL，不支持时返回 null
+     * @see #getTriggerListSql(String)
+     */
+    default String getTriggerSql(String triggerName, String schema) {
+        return null;
+    }
+
+    /**
+     * 生成查询存储过程列表的 SQL。
+     * <p>
+     * 返回的查询结果需包含统一的列别名（大写），供 {@code JdbcEngine} 解析为 {@link ProcedureDefinition}：
+     * <ul>
+     *   <li>{@code ROUTINE_NAME}（或 {@code PROCEDURE_NAME}）— 存储过程名</li>
+     *   <li>{@code ROUTINE_SCHEMA}（或 {@code PROCEDURE_SCHEM}）— schema</li>
+     *   <li>{@code DATA_TYPE}（或 {@code RETURN_TYPE}）— 返回值类型</li>
+     *   <li>{@code ROUTINE_DEFINITION}（或 {@code BODY}）— 过程体内容</li>
+     *   <li>{@code ROUTINE_COMMENT}（或 {@code REMARKS}）— 注释</li>
+     *   <li>{@code SECURITY_TYPE} — 安全类型</li>
+     *   <li>{@code ROUTINE_BODY}（或 {@code LANGUAGE}）— 语言（可选）</li>
+     *   <li>{@code STATUS} — 状态（可选）</li>
+     * </ul>
+     * </p>
+     * <p>默认返回 {@code null} 表示该数据库不支持获取存储过程。</p>
+     *
+     * @param schema schema 名称，null 表示不限定
+     * @return 查询 SQL，不支持时返回 null
+     */
+    default String getProcedureListSql(String schema) {
+        return null;
+    }
+
+    /**
+     * 生成查询单个存储过程定义的 SQL。
+     *
+     * @param procedureName 存储过程名
+     * @param schema        schema 名称，null 表示不限定
+     * @return 查询 SQL，不支持时返回 null
+     * @see #getProcedureListSql(String)
+     */
+    default String getProcedureSql(String procedureName, String schema) {
+        return null;
+    }
+
     // ==================== SPI 工厂 ====================
 
     /**
