@@ -115,4 +115,69 @@ public class Oracle11gDialect extends AbstractDialect {
     public String getRenameIndexString(String oldIndexName, String newIndexName, String tableName) {
         return "ALTER INDEX " + oldIndexName + " RENAME TO " + newIndexName;
     }
+
+    // ==================== 触发器 / 存储过程查询 SQL ====================
+
+    @Override
+    public String getTriggerListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT TRIGGER_NAME AS trigger_name, OWNER AS trigger_schema, TABLE_NAME AS table_name, "
+                        + "TRIGGER_TYPE AS action_timing, TRIGGERING_EVENT AS event_manipulation, "
+                        + "STATUS AS status, TRIGGER_BODY AS action_statement "
+                        + "FROM ALL_TRIGGERS");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" WHERE OWNER = UPPER('").append(escape(schema)).append("')");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getTriggerSql(String triggerName, String schema) {
+        if (triggerName == null || triggerName.isEmpty()) {
+            return null;
+        }
+        StringBuilder sql = new StringBuilder(
+                "SELECT TRIGGER_NAME AS trigger_name, OWNER AS trigger_schema, TABLE_NAME AS table_name, "
+                        + "TRIGGER_TYPE AS action_timing, TRIGGERING_EVENT AS event_manipulation, "
+                        + "STATUS AS status, TRIGGER_BODY AS action_statement "
+                        + "FROM ALL_TRIGGERS WHERE TRIGGER_NAME = '").append(escape(triggerName)).append("'");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" AND OWNER = UPPER('").append(escape(schema)).append("')");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getProcedureListSql(String schema) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OWNER AS routine_schema, o.OBJECT_NAME AS routine_name, "
+                        + "o.OBJECT_TYPE AS routine_type, o.STATUS AS status, "
+                        + "(SELECT LISTAGG(s.TEXT, '') WITHIN GROUP (ORDER BY s.LINE) "
+                        + "FROM ALL_SOURCE s WHERE s.OWNER = o.OWNER AND s.NAME = o.OBJECT_NAME "
+                        + "AND s.TYPE = o.OBJECT_TYPE) AS routine_definition "
+                        + "FROM ALL_OBJECTS o WHERE o.OBJECT_TYPE IN ('PROCEDURE', 'FUNCTION')");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" AND o.OWNER = UPPER('").append(escape(schema)).append("')");
+        }
+        return sql.toString();
+    }
+
+    @Override
+    public String getProcedureSql(String procedureName, String schema) {
+        if (procedureName == null || procedureName.isEmpty()) {
+            return null;
+        }
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OWNER AS routine_schema, o.OBJECT_NAME AS routine_name, "
+                        + "o.OBJECT_TYPE AS routine_type, o.STATUS AS status, "
+                        + "(SELECT LISTAGG(s.TEXT, '') WITHIN GROUP (ORDER BY s.LINE) "
+                        + "FROM ALL_SOURCE s WHERE s.OWNER = o.OWNER AND s.NAME = o.OBJECT_NAME "
+                        + "AND s.TYPE = o.OBJECT_TYPE) AS routine_definition "
+                        + "FROM ALL_OBJECTS o WHERE o.OBJECT_TYPE IN ('PROCEDURE', 'FUNCTION') "
+                        + "AND o.OBJECT_NAME = '").append(escape(procedureName)).append("'");
+        if (schema != null && !schema.isEmpty()) {
+            sql.append(" AND o.OWNER = UPPER('").append(escape(schema)).append("')");
+        }
+        return sql.toString();
+    }
 }

@@ -77,4 +77,21 @@ public class SqliteDialect extends AbstractDialect {
         return "insert into " + quote(tableName) + " (" + columns + ") values (" + values
                 + ") on conflict do update set " + updateSet;
     }
+
+    // ==================== 触发器查询 SQL（SQLite 不支持存储过程） ====================
+
+    @Override
+    public String getTriggerListSql(String schema) {
+        return "SELECT name AS trigger_name, tbl_name AS table_name, sql AS action_statement "
+                + "FROM sqlite_master WHERE type = 'trigger'";
+    }
+
+    @Override
+    public String getTriggerSql(String triggerName, String schema) {
+        if (triggerName == null || triggerName.isEmpty()) {
+            return null;
+        }
+        return "SELECT name AS trigger_name, tbl_name AS table_name, sql AS action_statement "
+                + "FROM sqlite_master WHERE type = 'trigger' AND name = '" + escape(triggerName) + "'";
+    }
 }
