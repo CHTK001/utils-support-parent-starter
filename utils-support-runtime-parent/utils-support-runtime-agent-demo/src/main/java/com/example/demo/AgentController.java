@@ -2,15 +2,13 @@ package com.example.demo;
 
 import com.chua.runtime.agent.RuntimeAgent;
 import com.chua.runtime.apm.ApmBootstrap;
-import com.chua.runtime.apm.handler.DependencyGraphHandler;
-import com.chua.runtime.apm.handler.HandleLeakHandler;
+import com.chua.runtime.apm.handler.FileHandler;
+import com.chua.runtime.apm.handler.LogEntry;
+import com.chua.runtime.apm.handler.LogHandler;
+import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
-import com.chua.runtime.apm.handler.TransmissionHandler;
-import com.chua.runtime.protocol.Endpoint;
-import com.chua.runtime.protocol.Span;
-import com.chua.runtime.protocol.TransmissionRecord;
-import com.chua.runtime.protocol.DependencyEdge;
 import com.chua.runtime.spy.RuntimeSpy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,22 +24,19 @@ import java.util.Map;
  * <ul>
  *   <li>GET /agent/status — RuntimeAgent 是否启动</li>
  *   <li>GET /agent/traces — TraceHandler 当前 Span 列表</li>
- *   <li>GET /agent/transmissions — TransmissionHandler 当前记录</li>
- *   <li>GET /agent/dependencies — DependencyGraphHandler 当前边</li>
- *   <li>GET /agent/leaks — HandleLeakHandler 当前活跃句柄</li>
+ *   <li>GET /agent/logs — LogHandler 最近日志</li>
+ *   <li>GET /agent/net — NetHandler 网络记录</li>
+ *   <li>GET /agent/files — FileHandler 文件记录</li>
+ *   <li>GET /agent/mdc — 当前 MDC（traceId/spanId）</li>
  * </ul>
- *
- * <p>注意：这些端点仅在 -javaagent 启动时才有数据（Handler 由 RuntimeAgent 启动）。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @RestController
 public class AgentController {
 
-    /**
-     * RuntimeAgent 启动状态。
-     */
     @GetMapping("/agent/status")
     public Map<String, Object> status() {
         Map<String, Object> result = new HashMap<>();
@@ -49,67 +44,95 @@ public class AgentController {
         result.put("traceStackDepth", RuntimeSpy.getTraceStackSize());
         result.put("currentTraceId", RuntimeSpy.getCurrentTraceId());
         result.put("currentSpanId", RuntimeSpy.getCurrentSpanId());
+        result.put("interceptCount", RuntimeSpy.getInterceptCount());
         return result;
     }
 
-    /**
-     * TraceHandler 当前 Span 列表。
-     */
     @GetMapping("/agent/traces")
-    public List<Span> traces() {
-        TraceHandler handler = ApmBootstrap.getGlobalHandler(TraceHandler.class);
-        if (handler == null) {
-            return new ArrayList<>();
+    public List<Map<String, Object>> traces() {
+        List<Map<String, Object>> spans = new ArrayList<>();
+        for (TraceHandler.Span span : currentApm().getHandler(TraceHandler.class).getSpans()) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("spanId", span.getSpanId());
+            m.put("parentSpanId", span.getParentSpanId());
+            m.put("className", span.getClassName());
+            m.put("methodName", span.getMethodName());
+            m.put("duration", span.getDuration());
+            m.put("status", span.getStatus());
+            spans.add(m);
         }
-        return handler.getSpans();
+        return spans;
     }
 
-    /**
-     * TransmissionHandler 当前记录。
-     */
-    @GetMapping("/agent/transmissions")
-    public List<TransmissionRecord> transmissions() {
-        TransmissionHandler handler = ApmBootstrap.getGlobalHandler(TransmissionHandler.class);
+    @GetMapping("/agent/logs")
+    public List<Map<String, Object>> logs() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        LogHandler handler = currentApm().getHandler(LogHandler.class);
         if (handler == null) {
-            return new ArrayList<>();
+            return result;
         }
-        return handler.getRecords();
-    }
-
-    /**
-     * DependencyGraphHandler 当前边。
-     */
-    @GetMapping("/agent/dependencies")
-    public List<DependencyEdge> dependencies() {
-        DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
-        if (handler == null) {
-            return new ArrayList<>();
+        for (LogEntry entry : handler.tail(50)) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("level", entry.getLevel());
+            m.put("message", entry.getMessage());
+            m.put("className", entry.getClassName());
+            m.put("methodName", entry.getMethodName());
+            result.add(m);
         }
-        return handler.getEdges();
-    }
-
-    /**
-     * HandleLeakHandler 当前活跃句柄。
-     */
-    @GetMapping("/agent/leaks")
-    public Map<String, Object> leaks() {
-        HandleLeakHandler handler = ApmBootstrap.getGlobalHandler(HandleLeakHandler.class);
-        if (handler == null) {
-            return Map.of("active", 0);
-        }
-        Map<String, Object> result = new HashMap<>();
-        result.put("active", handler.getActiveHandles().size());
         return result;
     }
 
-    /**
-     * 当前 MDC 内容（traceId/spanId）。
-     */
+    @GetMapping("/agent/net")
+    public List<Map<String, Object>> net() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        NetHandler handler = currentApm().getHandler(NetHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (NetHandler.NetRecord record : handler.tail(50)) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("protocol", record.getProtocol());
+            m.put("status", record.getStatus());
+            m.put("className", record.getClassName());
+            m.put("methodName", record.getMethodName());
+            result.add(m);
+        }
+        return result;
+    }
+
+    @GetMapping("/agent/files")
+    public List<Map<String, Object>> files() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        FileHandler handler = currentApm().getHandler(FileHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (FileHandler.FileRecord record : handler.tail(50)) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("operation", record.getOperation());
+            m.put("path", record.getPath());
+            m.put("className", record.getClassName());
+            m.put("methodName", record.getMethodName());
+            result.add(m);
+        }
+        return result;
+    }
+
     @GetMapping("/agent/mdc")
     public Map<String, String> mdc() {
         Map<String, String> result = new HashMap<>();
-        result.put("traceId", RuntimeSpy.getCurrentTraceId() == null ? "" : RuntimeSpy.getCurrentTraceId());
-        result.put("spanId", RuntimeSpy.getCurrentSpanId() == null ? "" : RuntimeSpy.getCurrentSpanId());
+        result.put("traceId", RuntimeSpy.getCurrentTraceId() != null ? RuntimeSpy.getCurrentTraceId() : "");
+        result.put("spanId", RuntimeSpy.getCurrentSpanId() != null ? RuntimeSpy.getCurrentSpanId() : "");
         return result;
+    }
+
+    /**
+     * 获取全局 APM 实例（静态访问）。
+     *
+     * @return ApmBootstrap 实例
+     */
+    private ApmBootstrap currentApm() {
+        return ApmBootstrap.getGlobal() != null ? ApmBootstrap.getGlobal()
+                : new ApmBootstrap(java.nio.file.Paths.get("plugins"));
     }
 }
