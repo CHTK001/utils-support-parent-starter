@@ -1,9 +1,14 @@
 package com.chua.runtime.agent;
 
+import com.chua.runtime.apm.ApmBootstrap;
+import com.chua.runtime.apm.handler.DependencyGraphHandler;
+import com.chua.runtime.apm.handler.HandleLeakHandler;
+import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.spy.SpyBootstrap;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Paths;
 import java.util.jar.JarFile;
 
 /**
@@ -75,6 +80,12 @@ public class RuntimeAgent {
                 log.error("Runtime Agent 初始化失败");
                 return;
             }
+            // 启动 APM 处理器（4 默认 + 3 新增）
+            ApmBootstrap apm = new ApmBootstrap(Paths.get(System.getProperty("java.io.tmpdir")));
+            apm.addHandler(new TransmissionHandler());
+            apm.addHandler(new DependencyGraphHandler());
+            apm.addHandler(new HandleLeakHandler());
+            apm.start();
             started = true;
             log.info("Runtime Agent 启动成功");
         } catch (Exception e) {

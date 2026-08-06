@@ -147,6 +147,30 @@ public class ApmBootstrap {
     }
 
     /**
+     * 获取全局 ApmBootstrap 实例。
+     *
+     * @return 全局实例，未启动时返回 null
+     */
+    public static ApmBootstrap getGlobal() {
+        return globalInstance;
+    }
+
+    /**
+     * 获取全局指定类型的处理器。
+     *
+     * @param type 处理器类型
+     * @param <T>  处理器泛型
+     * @return 处理器实例，全局未启动或类型不存在时返回 null
+     */
+    public static <T extends Plugin> T getGlobalHandler(Class<T> type) {
+        ApmBootstrap global = globalInstance;
+        if (global == null) {
+            return null;
+        }
+        return global.getHandler(type);
+    }
+
+    /**
      * 获取所有已注册的处理器。
      *
      * @return 不可修改的处理器列表
