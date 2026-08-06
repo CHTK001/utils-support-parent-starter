@@ -33,6 +33,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
+                            <Premain-Class>com.chua.runtime.agent.RuntimeAgent</Premain-Class>
                             <Agent-Class>com.chua.runtime.agent.RuntimeAgent</Agent-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>

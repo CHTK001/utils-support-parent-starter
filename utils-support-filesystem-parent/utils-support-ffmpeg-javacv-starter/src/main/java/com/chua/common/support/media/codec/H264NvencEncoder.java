@@ -189,7 +189,9 @@ public class H264NvencEncoder implements VideoEncoder {
         this.memoryStream = new ByteArrayOutputStream(MEMORY_STREAM_INITIAL_CAPACITY);
 
         // 按平台优先级尝试硬件编码器
-        String[] candidates = {"h264_nvenc", "h264_qsv", "h264_amf", "h264_videotoolbox", "h264_vaapi"};
+        // 注意：bytedeco ffmpeg 7.1.1-1.5.12 的 h264_nvenc 在本机初始化成功但不工作（encodedLen=0），
+        // 因此跳过 nvenc，直接尝试 qsv/amf/vaapi。
+        String[] candidates = {"h264_qsv", "h264_amf", "h264_videotoolbox", "h264_vaapi", "h264_nvenc"};
         for (String name : candidates) {
             if (tryInitCodec(name)) {
                 this.codecName = name;
@@ -365,10 +367,10 @@ public class H264NvencEncoder implements VideoEncoder {
         long t5 = System.nanoTime();
 
         if (frameIndex < 16) {
-            log.info("[H264NvencEncoder] STEP-TIMING idx={} recordUs={} flushUs={} copyUs={} nalScanUs={} totalUs={} len={}",
+            log.info("[H264NvencEncoder] STEP-TIMING idx={} recordUs={} flushUs={} copyUs={} nalScanUs={} totalUs={} len={} hasIdr={}",
                     frameIndex,
                     (t2 - t1) / 1000, (t3 - t2) / 1000, (t4 - t3) / 1000, (t5 - t4) / 1000,
-                    (t5 - t0) / 1000, len);
+                    (t5 - t0) / 1000, len, hasIdr);
         }
 
         if (spsPpsAnnexB == null && frameIndex < 16) {
@@ -381,20 +383,18 @@ public class H264NvencEncoder implements VideoEncoder {
             }
         }
 
-        if (hasIdr) {
-            byte[] result;
-            if (spsPpsAnnexB != null) {
-                result = new byte[spsPpsAnnexB.length + frameBytes.length];
-                System.arraycopy(spsPpsAnnexB, 0, result, 0, spsPpsAnnexB.length);
-                System.arraycopy(frameBytes, 0, result, spsPpsAnnexB.length, frameBytes.length);
-            } else {
-                result = frameBytes;
-            }
-            frameIndex++;
-            return result;
+        // 修复：每帧都返回（不再仅在 IDR 时返回）。SPS/PPS 仅在首帧或 IDR 时拼接到头部。
+        // P 帧不解码不影响浏览器使用——前端 WebCodecs/WebAssembly decoder 能正确处理 I/P 帧流。
+        byte[] result;
+        if (hasIdr && spsPpsAnnexB != null) {
+            result = new byte[spsPpsAnnexB.length + frameBytes.length];
+            System.arraycopy(spsPpsAnnexB, 0, result, 0, spsPpsAnnexB.length);
+            System.arraycopy(frameBytes, 0, result, spsPpsAnnexB.length, frameBytes.length);
+        } else {
+            result = frameBytes;
         }
         frameIndex++;
-        return new byte[0];
+        return result;
     }
 
     /**
