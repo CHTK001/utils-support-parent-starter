@@ -95,6 +95,26 @@ public class RuntimeSpy {
     private static final Map<String, List<TraceStackFrame>> CROSS_THREAD_TRACES =
             new ConcurrentHashMap<>();
 
+    /**
+     * MDC 键：traceId（与 SLF4J MDC 桥接）
+     */
+    private static final String MDC_KEY_TRACE_ID = "traceId";
+
+    /**
+     * MDC 键：spanId
+     */
+    private static final String MDC_KEY_SPAN_ID = "spanId";
+
+    /**
+     * MDC 键：className
+     */
+    private static final String MDC_KEY_CLASS_NAME = "className";
+
+    /**
+     * MDC 键：methodName
+     */
+    private static final String MDC_KEY_METHOD_NAME = "methodName";
+
     private RuntimeSpy() {
     }
 
@@ -234,6 +254,11 @@ public class RuntimeSpy {
             String spanId = generateId();
             TRACE_STACK.get().push(new TraceStackFrame(traceId, spanId));
             CONTEXT.set(new SpyContext(className, methodName, System.currentTimeMillis()));
+            // MDC 桥接（SLF4J MDC，业务日志可看到 traceId/spanId）
+            putMdc(MDC_KEY_TRACE_ID, traceId);
+            putMdc(MDC_KEY_SPAN_ID, spanId);
+            putMdc(MDC_KEY_CLASS_NAME, className);
+            putMdc(MDC_KEY_METHOD_NAME, methodName);
         }
 
         // 调用 Interceptor（如果有匹配）
@@ -276,6 +301,10 @@ public class RuntimeSpy {
             }
             if (popped != null && log.isTraceEnabled()) {
                 log.trace("[Trace] exit span={} traceId={}", popped.spanId(), popped.traceId());
+            }
+            // 栈空时清 MDC（最外层方法退出）
+            if (TRACE_STACK.get().isEmpty()) {
+                clearMdc();
             }
         }
 
@@ -476,6 +505,48 @@ public class RuntimeSpy {
     }
 
     /**
+     * 写入 SLF4J MDC（业务日志可看到 traceId/spanId）。
+     *
+     * <p>使用反射调用 {@code org.slf4j.MDC.put}，避免 spy 模块强依赖 slf4j-api。
+     * SLF4J 不在 classpath 时静默跳过。</p>
+     *
+     * @param key   MDC key
+     * @param value MDC value
+     */
+    public static void putMdc(String key, String value) {
+        if (key == null) {
+            return;
+        }
+        try {
+            Class<?> mdcClass = Class.forName("org.slf4j.MDC");
+            mdcClass.getMethod("put", String.class, String.class).invoke(null, key, value);
+        } catch (ClassNotFoundException e) {
+            // slf4j 不在 classpath，静默跳过
+        } catch (Exception e) {
+            log.debug("MDC.put 失败 ({}={}): {}", key, value, e.getMessage());
+        }
+    }
+
+    /**
+     * 清除 SLF4J MDC 中所有 RuntimeSpy 写入的键。
+     *
+     * <p>使用反射调用 {@code org.slf4j.MDC.remove}。</p>
+     */
+    public static void clearMdc() {
+        try {
+            Class<?> mdcClass = Class.forName("org.slf4j.MDC");
+            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_TRACE_ID);
+            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_SPAN_ID);
+            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_CLASS_NAME);
+            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_METHOD_NAME);
+        } catch (ClassNotFoundException e) {
+            // 静默跳过
+        } catch (Exception e) {
+            log.debug("MDC.remove 失败: {}", e.getMessage());
+        }
+    }
+
+    /**
      * 获取已注册的拦截器数量。
      *
      * @return 数量
@@ -491,7 +562,88 @@ public class RuntimeSpy {
         INTERCEPTOR_MAP.clear();
         CONTEXT.remove();
         TRANSFORM_COUNT.remove();
+        clearMdc();
         log.info("RuntimeSpy 已清除");
+    }
+
+    /**
+     * 包装 Runnable — 在新线程中执行前自动恢复追踪上下文。
+     *
+     * <p>使用示例：</p>
+     * <pre>
+     * executor.submit(RuntimeSpy.wrap(() -> doWork()));
+     * </pre>
+     *
+     * @param task 原始任务
+     * @return 包装后的任务
+     */
+    public static Runnable wrap(Runnable task) {
+        if (task == null) {
+            return null;
+        }
+        TraceContextSnapshot snapshot = capture();
+        return () -> {
+            restore(snapshot);
+            try {
+                task.run();
+            } finally {
+                clearMdc();
+            }
+        };
+    }
+
+    /**
+     * 包装 Callable — 返回泛型版本。
+     *
+     * @param task 原始任务
+     * @param <T> 返回类型
+     * @return Callable
+     */
+    public static <T> java.util.concurrent.Callable<T> wrap(java.util.concurrent.Callable<T> task) {
+        if (task == null) {
+            return null;
+        }
+        TraceContextSnapshot snapshot = capture();
+        return () -> {
+            restore(snapshot);
+            try {
+                return task.call();
+            } finally {
+                clearMdc();
+            }
+        };
+    }
+
+    /**
+     * 包装 Thread — 启动时自动恢复追踪上下文。
+     *
+     * @param thread 原始 Thread
+     * @return 包装后的 Thread
+     */
+    public static Thread wrap(Thread thread) {
+        if (thread == null) {
+            return null;
+        }
+        TraceContextSnapshot snapshot = capture();
+        java.lang.reflect.Field targetField;
+        try {
+            targetField = Thread.class.getDeclaredField("target");
+            targetField.setAccessible(true);
+            Runnable originalTarget = (Runnable) targetField.get(thread);
+            targetField.set(thread, (Runnable) () -> {
+                restore(snapshot);
+                try {
+                    if (originalTarget != null) {
+                        originalTarget.run();
+                    }
+                } finally {
+                    clearMdc();
+                }
+            });
+        } catch (Exception e) {
+            log.debug("包装 Thread 失败: {}", e.getMessage());
+        }
+        return thread;
     }
 
     /**

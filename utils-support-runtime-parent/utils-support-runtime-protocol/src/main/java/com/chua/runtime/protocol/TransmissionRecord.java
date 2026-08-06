@@ -1,0 +1,109 @@
+package com.chua.runtime.protocol;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * 传输链路事件 — 一次网络 / 进程内传输的记录。
+ *
+ * <p>同时为链路追踪（traceId/spanId）和传输链路（source/target）提供数据。
+ * 应用层 Handler（Jedis/ZK/HTTP 客户端）显式声明 protocol + operation；
+ * Socket 层 Handler 通过端口推断 protocol。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TransmissionRecord {
+
+    /**
+     * 关联的追踪 ID
+     */
+    private String traceId;
+
+    /**
+     * 关联的 Span ID
+     */
+    private String spanId;
+
+    /**
+     * 父 Span ID（嵌套调用时填）
+     */
+    private String parentSpanId;
+
+    /**
+     * 源端点
+     */
+    private Endpoint source;
+
+    /**
+     * 目标端点
+     */
+    private Endpoint target;
+
+    /**
+     * 协议
+     */
+    private Protocol protocol;
+
+    /**
+     * 软件栈
+     */
+    private Software software;
+
+    /**
+     * 操作描述（"GET /api/order"、"SET user:1"、"CREATE /znode/path"）
+     */
+    private String operation;
+
+    /**
+     * 状态
+     */
+    @Builder.Default
+    private StatusCode status = StatusCode.UNSET;
+
+    /**
+     * 状态码（HTTP status / ZK rc / Redis reply）
+     */
+    private int statusCode;
+
+    /**
+     * 开始时间（毫秒）
+     */
+    private long startTime;
+
+    /**
+     * 结束时间（毫秒）
+     */
+    private long endTime;
+
+    /**
+     * 耗时（毫秒）
+     */
+    private long duration;
+
+    /**
+     * 发送字节数
+     */
+    private long bytesOut;
+
+    /**
+     * 接收字节数
+     */
+    private long bytesIn;
+
+    /**
+     * 错误信息
+     */
+    private String errorMessage;
+
+    /**
+     * 错误类型
+     */
+    private String errorType;
+}
