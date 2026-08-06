@@ -70,4 +70,9 @@ public class RagClientSetting {
      */
     @Builder.Default
     private double similarityThreshold = 0.1;
+
+    /**
+     * RAG 问答系统提示词，置于检索上下文之前。
+     */
+    private String systemPrompt;
 }

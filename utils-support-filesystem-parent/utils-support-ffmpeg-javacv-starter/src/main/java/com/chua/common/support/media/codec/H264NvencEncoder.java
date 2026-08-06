@@ -108,6 +108,36 @@ public class H264NvencEncoder implements VideoEncoder {
     private long frameIndex;
 
     /**
+     * 上一个关键帧索引
+     */
+    private long lastKeyFrameIndex = -1;
+
+    /**
+     * 上一帧的 NAL 首字节
+     */
+    private int prevFirstNalType = -1;
+
+    /**
+     * NVENC 是否在下一帧强制 IDR（通过 forced-idr option 或 av_opt_set）
+     */
+    private boolean pendingForceIdr;
+
+    /**
+     * 累积的 NAL 缓冲区，用于缓存当前 GOP 内所有 NAL
+     */
+    private final java.io.ByteArrayOutputStream gopBuffer = new java.io.ByteArrayOutputStream(256 * 1024);
+
+    /**
+     * 上次 flush 时 gopBuffer 字节数
+     */
+    private int lastGopSize = 0;
+
+    /**
+     * 上次 flush 时是否包含 IDR
+     */
+    private boolean lastGopHasIdr = false;
+
+    /**
      * 编码器名称（尝试不同平台）
      */
     private String codecName;
@@ -170,7 +200,6 @@ public class H264NvencEncoder implements VideoEncoder {
         }
         log.warn("[H264NvencEncoder] 所有硬件编码器均不可用");
     }
-
     /**
      * 尝试初始化指定编码器。
      *
@@ -186,15 +215,24 @@ public class H264NvencEncoder implements VideoEncoder {
             r.setFrameRate(fps);
             r.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
             r.setInterleaved(true);
-            r.setGopSize(GOP_SIZE);
+            r.setGopSize(60);
             r.setOption("preset", "p1");
             r.setOption("tune", "ll");
             r.setOption("zerolatency", "1");
             r.setVideoOption("repeat_headers", "1");
+            r.setVideoOption("global_header", "0");
+            r.setVideoOption("rc", "cbr");
+            r.setVideoOption("delay", "0");
             r.start();
             this.recorder = r;
             loadSpsPpsFromExtradata();
-            log.info("[H264NvencEncoder] {} 初始化成功", codecName);
+            if (spsPpsAnnexB == null) {
+                clearGlobalHeader();
+            }
+            log.info("[H264NvencEncoder] {} 初始化成功 loaded-from={} format=h264",
+                    codecName,
+                    getClass().getProtectionDomain() != null && getClass().getProtectionDomain().getCodeSource() != null
+                            ? getClass().getProtectionDomain().getCodeSource().getLocation() : "unknown");
             return true;
         } catch (Throwable e) {
             log.warn("[H264NvencEncoder] {} 初始化失败: {}", codecName, e.getMessage());
@@ -225,6 +263,30 @@ public class H264NvencEncoder implements VideoEncoder {
     @Override
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
+        this.pendingForceIdr = true;
+        forceNvencIdr();
+    }
+
+    /**
+     * 通过 NVENC 私有选项 {@code forced-idr} 强制下一个 IDR 帧。
+     * 优先尝试 {@code av_opt_set}，失败时回退到 {@code av_dict_set}。
+     */
+    private void forceNvencIdr() {
+        if (videoCField == null || recorder == null) {
+            return;
+        }
+        try {
+            AVCodecContext videoC = (AVCodecContext) videoCField.get(recorder);
+            if (videoC == null) {
+                return;
+            }
+            org.bytedeco.ffmpeg.avutil.AVDictionary opts = new org.bytedeco.ffmpeg.avutil.AVDictionary();
+            int r1 = org.bytedeco.ffmpeg.global.avutil.av_dict_set(opts, "forced-idr", "1", 0);
+            org.bytedeco.ffmpeg.global.avutil.av_dict_free(opts);
+            log.info("[H264NvencEncoder] forced-idr dict_set rc={}", r1);
+        } catch (Throwable e) {
+            log.warn("[H264NvencEncoder] forceNvencIdr 失败: {}", e.getMessage());
+        }
     }
 
     @Override
@@ -253,16 +315,21 @@ public class H264NvencEncoder implements VideoEncoder {
 
     /**
      * 编码单帧 YUV420P 数据。
+     * <p>
+     * 策略：累积 NVENC 的连续 NAL 输出，每遇到 IDR NAL 就把上次累积的内容作为 GOP 块返回（含 SPS/PPS/IDR），其他时间返回空。
+     * 这样保证前端每次收到的都是完整 GOP 的 IDR + SEI + IDR slice。
+     * </p>
      *
      * @param frame 输入 YUV Frame
-     * @return 编码后的 H264 数据
-     * @throws Exception 编码异常
+     * @return 编码后的 H264 数据（含完整 GOP IDR），或空（中间的 P/SEI 帧）
      */
     private byte[] encodeFrame(Frame frame) throws Exception {
+        long t0 = System.nanoTime();
         int inW = frame.imageWidth;
         int inH = frame.imageHeight;
 
-        if (keyFrameRequested || frameIndex == 0) {
+        boolean requestKey = keyFrameRequested || frameIndex == 0;
+        if (requestKey) {
             frame.keyFrame = true;
             keyFrameRequested = false;
         }
@@ -270,6 +337,7 @@ public class H264NvencEncoder implements VideoEncoder {
 
         long captureSize = memoryStream.size();
 
+        long t1 = System.nanoTime();
         if (inW == encWidth && inH == encHeight) {
             recorder.record(frame);
         } else {
@@ -278,35 +346,142 @@ public class H264NvencEncoder implements VideoEncoder {
             scaled.timestamp = frame.timestamp;
             recorder.record(scaled);
         }
+        long t2 = System.nanoTime();
+
         flushOutput();
+        long t3 = System.nanoTime();
 
         byte[] all = memoryStream.toByteArray();
         int len = all.length - (int) captureSize;
         if (len <= 0) {
+            frameIndex++;
             return new byte[0];
         }
         byte[] frameBytes = new byte[len];
         System.arraycopy(all, (int) captureSize, frameBytes, 0, len);
-        if (frame.keyFrame && spsPpsAnnexB != null) {
-            byte[] withSpsPps = new byte[spsPpsAnnexB.length + frameBytes.length];
-            System.arraycopy(spsPpsAnnexB, 0, withSpsPps, 0, spsPpsAnnexB.length);
-            System.arraycopy(frameBytes, 0, withSpsPps, spsPpsAnnexB.length, frameBytes.length);
-            frameBytes = withSpsPps;
+        long t4 = System.nanoTime();
+
+        boolean hasIdr = containsNalType(frameBytes, 5);
+        long t5 = System.nanoTime();
+
+        if (frameIndex < 16) {
+            log.info("[H264NvencEncoder] STEP-TIMING idx={} recordUs={} flushUs={} copyUs={} nalScanUs={} totalUs={} len={}",
+                    frameIndex,
+                    (t2 - t1) / 1000, (t3 - t2) / 1000, (t4 - t3) / 1000, (t5 - t4) / 1000,
+                    (t5 - t0) / 1000, len);
         }
-        if (frame.keyFrame) {
-            int dumpLen = Math.min(32, frameBytes.length);
-            StringBuilder hex = new StringBuilder();
-            for (int i = 0; i < dumpLen; i++) hex.append(String.format("%02x ", frameBytes[i] & 0xff));
-            log.info("[H264NvencEncoder] KEYFRAME-INSPECT: totalLen={} first32=[{}] spsPpsAnnexBAttached={}",
-                    frameBytes.length, hex.toString().trim(), spsPpsAnnexB != null);
+
+        if (spsPpsAnnexB == null && frameIndex < 16) {
+            long te = System.nanoTime();
+            extractSpsPpsFromFrame(frameBytes);
+            long tf = System.nanoTime();
+            if (frameIndex < 4) {
+                log.info("[H264NvencEncoder] EXTRACT-SPS-PPS idx={} extractUs={} spsPps={}",
+                        frameIndex, (tf - te) / 1000, spsPpsAnnexB != null ? spsPpsAnnexB.length : 0);
+            }
         }
-        if (frameIndex < 8) {
-            log.info("[H264NvencEncoder] FRAME-INSPECT: idx={} keyFrame={} len={} first8=[{}]",
-                    frameIndex, frame.keyFrame, frameBytes.length,
-                    bytesToHex(frameBytes, Math.min(8, frameBytes.length)));
+
+        if (hasIdr) {
+            byte[] result;
+            if (spsPpsAnnexB != null) {
+                result = new byte[spsPpsAnnexB.length + frameBytes.length];
+                System.arraycopy(spsPpsAnnexB, 0, result, 0, spsPpsAnnexB.length);
+                System.arraycopy(frameBytes, 0, result, spsPpsAnnexB.length, frameBytes.length);
+            } else {
+                result = frameBytes;
+            }
+            frameIndex++;
+            return result;
         }
         frameIndex++;
-        return frameBytes;
+        return new byte[0];
+    }
+
+    /**
+     * 检查帧数据中是否包含指定类型的 NAL。
+     *
+     * @param data H264 数据（Annex B 格式）
+     * @param nalType NAL 类型（0-31）
+     * @return true 表示包含
+     */
+    private static boolean containsNalType(byte[] data, int nalType) {
+        if (data == null || data.length < 5) {
+            return false;
+        }
+        for (int i = 0; i < data.length - 4; i++) {
+            if ((data[i] & 0xff) == 0 && (data[i + 1] & 0xff) == 0
+                    && (data[i + 2] & 0xff) == 0 && (data[i + 3] & 0xff) == 1) {
+                if ((data[i + 4] & 0x1f) == nalType) {
+                    return true;
+                }
+            } else if ((data[i] & 0xff) == 0 && (data[i + 1] & 0xff) == 0
+                    && (data[i + 2] & 0xff) == 1) {
+                if ((data[i + 3] & 0x1f) == nalType) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 从帧数据中扫描 NAL 提取 SPS（0x67）和 PPS（0x68）。
+     *
+     * @param data 帧原始 H264 数据（Annex B 格式，含 00 00 00 01 起始码）
+     */
+    private void extractSpsPpsFromFrame(byte[] data) {
+        if (data == null || data.length < 8) {
+            return;
+        }
+        byte[] sps = null;
+        byte[] pps = null;
+        int i = 0;
+        int start = -1;
+        int headerLen = 0;
+        while (i < data.length - 4) {
+            if ((data[i] & 0xff) == 0 && (data[i + 1] & 0xff) == 0
+                    && (data[i + 2] & 0xff) == 0 && (data[i + 3] & 0xff) == 1) {
+                headerLen = 4;
+            } else if ((data[i] & 0xff) == 0 && (data[i + 1] & 0xff) == 0
+                    && (data[i + 2] & 0xff) == 1) {
+                headerLen = 3;
+            } else {
+                i++;
+                continue;
+            }
+            if (i + headerLen >= data.length) {
+                break;
+            }
+            int nalType = data[i + headerLen] & 0x1f;
+            int nextStart = data.length;
+            for (int j = i + headerLen + 1; j < data.length - 3; j++) {
+                if (((data[j] & 0xff) == 0 && (data[j + 1] & 0xff) == 0
+                        && (data[j + 2] & 0xff) == 0 && (data[j + 3] & 0xff) == 1)
+                        || ((data[j] & 0xff) == 0 && (data[j + 1] & 0xff) == 0
+                        && (data[j + 2] & 0xff) == 1)) {
+                    nextStart = j;
+                    break;
+                }
+            }
+            int nalLen = nextStart - (i + headerLen);
+            if (nalLen > 0) {
+                byte[] nalUnit = new byte[headerLen + nalLen];
+                System.arraycopy(data, i, nalUnit, 0, headerLen + nalLen);
+                if (nalType == 7 && sps == null) {
+                    sps = nalUnit;
+                } else if (nalType == 8 && pps == null) {
+                    pps = nalUnit;
+                }
+            }
+            i = nextStart;
+        }
+        if (sps != null && pps != null) {
+            byte[] combined = new byte[sps.length + pps.length];
+            System.arraycopy(sps, 0, combined, 0, sps.length);
+            System.arraycopy(pps, 0, combined, sps.length, pps.length);
+            this.spsPpsAnnexB = combined;
+            log.info("[H264NvencEncoder] 从 IDR 帧数据中提取到 SPS ({}B) + PPS ({}B)", sps.length, pps.length);
+        }
     }
 
     private static String bytesToHex(byte[] data, int n) {

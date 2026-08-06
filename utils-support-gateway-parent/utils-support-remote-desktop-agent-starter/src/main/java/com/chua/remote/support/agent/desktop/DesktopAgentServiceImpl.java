@@ -68,6 +68,11 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
     private BlockingQueue<Frame> frameQueue;
 
     /**
+     * 采集帧计数器（用于debug日志）
+     */
+    private final java.util.concurrent.atomic.AtomicLong frameCounter = new java.util.concurrent.atomic.AtomicLong(0);
+
+    /**
      * 输入模拟器
      */
     private Robot robot;
@@ -149,7 +154,10 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
 
         String captureName = capture.getClass().getSimpleName();
         DefaultDesktopSession session = new DefaultDesktopSession(sessionId, encW, encH, 30, encoder, captureName,
-                (sid, frame) -> agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), frame.keyFrame(), frame.data()));
+                (sid, frame) -> {
+                    boolean realKeyFrame = frame.keyFrame() || containsIdrSlice(frame.data());
+                    agent.sendBinaryFrame((byte) 0xDF, sid, frame.width(), frame.height(), realKeyFrame, frame.data());
+                });
         session.setTargetSize(clientW, clientH);
         sessions.put(sessionId, session);
         session.start();
@@ -157,6 +165,32 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
 
         agent.sendToGateway("{\"type\":\"connected\",\"sessionId\":\"" + sessionId + "\",\"msg\":\"DESKTOP connected\"}");
         log.info("[DesktopAgent] 已连接: sessionId={}", sessionId);
+    }
+
+    /**
+     * 检查 H264 帧数据中是否包含 IDR slice（NAL type=5，0x65）。
+     *
+     * @param data Annex B 格式的 H264 字节
+     * @return true 表示包含 IDR slice
+     */
+    private static boolean containsIdrSlice(byte[] data) {
+        if (data == null || data.length < 6) {
+            return false;
+        }
+        for (int i = 0; i < data.length - 4; i++) {
+            if ((data[i] & 0xff) == 0 && (data[i + 1] & 0xff) == 0
+                    && (data[i + 2] & 0xff) == 0 && (data[i + 3] & 0xff) == 1) {
+                if (i + 4 < data.length && (data[i + 4] & 0x1f) == 5) {
+                    return true;
+                }
+            } else if ((data[i] & 0xff) == 0 && (data[i + 1] & 0xff) == 0
+                    && (data[i + 2] & 0xff) == 1) {
+                if (i + 3 < data.length && (data[i + 3] & 0x1f) == 5) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -439,6 +473,7 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             long frameStart = System.nanoTime();
             try {
                 Frame frame = capture.grabFrame();
+                long tGrab = System.nanoTime();
                 if (frame == null) {
                     Thread.sleep(1);
                     continue;
@@ -450,6 +485,11 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
                 if (!frameQueue.offer(frame)) {
                     frameQueue.poll();
                     frameQueue.offer(frame);
+                }
+                long tEnd = System.nanoTime();
+                if (frameCounter.incrementAndGet() <= 20 || frameCounter.get() % 30 == 0) {
+                    log.info("[DesktopAgent] capture-TIMING grabUs={} totalUs={} queueSize={}",
+                            (tGrab - frameStart) / 1000, (tEnd - frameStart) / 1000, frameQueue.size());
                 }
             } catch (Exception e) {
                 log.warn("[DesktopAgent] 采集异常: {}", e.getMessage());

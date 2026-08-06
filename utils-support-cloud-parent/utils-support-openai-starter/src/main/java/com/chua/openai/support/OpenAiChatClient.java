@@ -6,14 +6,23 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.ai.probe.ProbeReport;
 import com.chua.common.support.spi.annotations.Spi;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.JsonValue;
 import com.openai.core.http.StreamResponse;
+import com.openai.models.FunctionDefinition;
+import com.openai.models.FunctionParameters;
+import com.openai.models.ResponseFormatJsonObject;
+import com.openai.models.ResponseFormatText;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.chat.completions.ChatCompletionFunctionTool;
+import com.openai.models.chat.completions.ChatCompletionNamedToolChoice;
+import com.openai.models.chat.completions.ChatCompletionTool;
+import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.models.completions.CompletionUsage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +117,41 @@ public class OpenAiChatClient implements ChatClient {
     private List<ChatMessage> externalHistory;
 
     /**
+     * 工具（函数调用）定义列表
+     */
+    private final List<ChatTool> tools = new ArrayList<>();
+
+    /**
+     * 工具选择策略（tool_choice）：auto / none / required / 指定工具名称
+     */
+    private String toolChoice;
+
+    /**
+     * Top-P 采样参数
+     */
+    private Double topP;
+
+    /**
+     * 停止序列
+     */
+    private List<String> stop;
+
+    /**
+     * 随机种子
+     */
+    private Long seed;
+
+    /**
+     * 响应格式：text / json_object
+     */
+    private String responseFormat;
+
+    /**
+     * 额外请求体参数
+     */
+    private Map<String, Object> extraBody = new HashMap<>();
+
+    /**
      * 图片附件 URL 列表
      */
     private final List<String> imageUrls = new ArrayList<>();
@@ -131,6 +176,14 @@ public class OpenAiChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
+        this.topP = setting.getTopP();
+        this.toolChoice = setting.getToolChoice();
+        this.stop = setting.getStop() != null ? new ArrayList<>(setting.getStop()) : null;
+        this.seed = setting.getSeed();
+        this.responseFormat = setting.getResponseFormat();
+        if (setting.getTools() != null) {
+            this.tools.addAll(setting.getTools());
+        }
     }
 
     @Override
@@ -209,6 +262,59 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
+    public ChatClient tools(List<ChatTool> tools) {
+        this.tools.clear();
+        if (tools != null) {
+            this.tools.addAll(tools);
+        }
+        return this;
+    }
+
+    @Override
+    public ChatClient tool(ChatTool tool) {
+        if (tool != null) {
+            this.tools.add(tool);
+        }
+        return this;
+    }
+
+    @Override
+    public ChatClient toolChoice(String toolChoice) {
+        this.toolChoice = toolChoice;
+        return this;
+    }
+
+    @Override
+    public ChatClient topP(Double topP) {
+        this.topP = topP;
+        return this;
+    }
+
+    @Override
+    public ChatClient stop(List<String> stop) {
+        this.stop = stop != null ? new ArrayList<>(stop) : null;
+        return this;
+    }
+
+    @Override
+    public ChatClient seed(Long seed) {
+        this.seed = seed;
+        return this;
+    }
+
+    @Override
+    public ChatClient responseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
+        return this;
+    }
+
+    @Override
+    public ChatClient extraBody(Map<String, Object> extraBody) {
+        this.extraBody = extraBody != null ? extraBody : new HashMap<>();
+        return this;
+    }
+
+    @Override
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         StringBuilder reasoning = new StringBuilder();
@@ -265,6 +371,41 @@ public class OpenAiChatClient implements ChatClient {
 
         // 添加当前用户输入
         paramsBuilder.addUserMessage(prompt);
+
+        // 工具（函数调用）定义
+        if (tools != null && !tools.isEmpty()) {
+            List<ChatCompletionTool> toolDefs = new ArrayList<>();
+            for (ChatTool tool : tools) {
+                ChatCompletionTool def = toOpenAiTool(tool);
+                if (def != null) {
+                    toolDefs.add(def);
+                }
+            }
+            if (!toolDefs.isEmpty()) {
+                paramsBuilder.tools(toolDefs);
+            }
+        }
+
+        // 工具选择策略（tool_choice）
+        if (toolChoice != null && !toolChoice.isBlank()) {
+            ChatCompletionToolChoiceOption choice = toToolChoice(toolChoice);
+            if (choice != null) {
+                paramsBuilder.toolChoice(choice);
+            }
+        }
+
+        // 采样与生成参数
+        if (topP != null) {
+            paramsBuilder.topP(topP);
+        }
+        if (stop != null && !stop.isEmpty()) {
+            paramsBuilder.stopOfStrings(stop);
+        }
+        if (seed != null) {
+            paramsBuilder.seed(seed);
+        }
+        applyResponseFormat(paramsBuilder, responseFormat);
+        applyExtraBody(paramsBuilder, extraBody);
 
         ChatCompletionCreateParams params = paramsBuilder.build();
 
@@ -375,6 +516,132 @@ public class OpenAiChatClient implements ChatClient {
                 } catch (Exception e) {
                     log.debug("关闭 OpenAI 客户端失败", e);
                 }
+            }
+        }
+    }
+
+    /**
+     * 将统一的 {@link ChatTool} 定义转换为 OpenAI 的 {@link ChatCompletionTool}。
+     *
+     * @param tool 工具定义
+     * @return OpenAI 工具对象，工具名称为空时返回 null
+     */
+    private static ChatCompletionTool toOpenAiTool(ChatTool tool) {
+        if (tool == null || tool.getName() == null || tool.getName().isBlank()) {
+            return null;
+        }
+        FunctionDefinition.Builder functionBuilder = FunctionDefinition.builder().name(tool.getName());
+        if (tool.getDescription() != null && !tool.getDescription().isBlank()) {
+            functionBuilder.description(tool.getDescription());
+        }
+        if (tool.getParameters() != null && !tool.getParameters().isEmpty()) {
+            functionBuilder.parameters(FunctionParameters.builder()
+                    .additionalProperties(toJsonValueMap(tool.getParameters()))
+                    .build());
+        }
+        return ChatCompletionTool.ofFunction(ChatCompletionFunctionTool.builder()
+                .function(functionBuilder.build())
+                .build());
+    }
+
+    /**
+     * 将字符串形式的 tool_choice 转换为 OpenAI 工具选择对象。
+     *
+     * @param toolChoice tool_choice 取值
+     * @return OpenAI 工具选择对象，无法识别时返回 null
+     */
+    private static ChatCompletionToolChoiceOption toToolChoice(String toolChoice) {
+        if (toolChoice == null || toolChoice.isBlank()) {
+            return null;
+        }
+        String value = toolChoice.trim().toLowerCase();
+        return switch (value) {
+            case "none" -> ChatCompletionToolChoiceOption.ofAuto(ChatCompletionToolChoiceOption.Auto.NONE);
+            case "auto" -> ChatCompletionToolChoiceOption.ofAuto(ChatCompletionToolChoiceOption.Auto.AUTO);
+            case "required" -> ChatCompletionToolChoiceOption.ofAuto(ChatCompletionToolChoiceOption.Auto.REQUIRED);
+            default -> ChatCompletionToolChoiceOption.ofNamedToolChoice(
+                    ChatCompletionNamedToolChoice.builder()
+                            .function(ChatCompletionNamedToolChoice.Function.builder().name(toolChoice.trim()).build())
+                            .build());
+        };
+    }
+
+    /**
+     * 将统一 JSON Schema（Map 形式）转换为 OpenAI JsonValue 映射。
+     *
+     * @param params 参数 Schema
+     * @return JsonValue 映射
+     */
+    private static Map<String, JsonValue> toJsonValueMap(Map<String, Object> params) {
+        Map<String, JsonValue> result = new HashMap<>();
+        if (params != null) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                if (entry.getValue() != null) {
+                    result.put(entry.getKey(), JsonValue.from(entry.getValue()));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 应用响应格式（response_format）。
+     *
+     * <p>当前支持 text 与 json_object，json_schema 需要额外 schema 定义，暂不自动生成。
+     *
+     * @param builder        OpenAI 请求参数构建器
+     * @param responseFormat 响应格式取值
+     */
+    private static void applyResponseFormat(ChatCompletionCreateParams.Builder builder, String responseFormat) {
+        if (responseFormat == null || responseFormat.isBlank()) {
+            return;
+        }
+        String value = responseFormat.trim().toLowerCase();
+        if ("json_object".equals(value)) {
+            builder.responseFormat(ResponseFormatJsonObject.builder().build());
+        } else if ("json_schema".equals(value)) {
+            log.debug("response_format=json_schema 需要额外 schema 定义，OpenAiChatClient 暂不自动构建");
+        } else {
+            builder.responseFormat(ResponseFormatText.builder().build());
+        }
+    }
+
+    /**
+     * 应用额外请求体参数，将通用 key 映射到 OpenAI 标准字段。
+     *
+     * <p>支持的 key：frequency_penalty、presence_penalty、max_completion_tokens、user。
+     * 未识别 key 忽略（保证向后兼容）。
+     *
+     * @param builder   OpenAI 请求参数构建器
+     * @param extraBody 额外请求体参数
+     */
+    private static void applyExtraBody(ChatCompletionCreateParams.Builder builder, Map<String, Object> extraBody) {
+        if (extraBody == null || extraBody.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, Object> entry : extraBody.entrySet()) {
+            Object value = entry.getValue();
+            if (value == null) {
+                continue;
+            }
+            switch (entry.getKey()) {
+                case "frequency_penalty" -> {
+                    if (value instanceof Number number) {
+                        builder.frequencyPenalty(number.doubleValue());
+                    }
+                }
+                case "presence_penalty" -> {
+                    if (value instanceof Number number) {
+                        builder.presencePenalty(number.doubleValue());
+                    }
+                }
+                case "max_completion_tokens" -> {
+                    if (value instanceof Number number) {
+                        builder.maxCompletionTokens(number.longValue());
+                    }
+                }
+                case "user" -> builder.user(String.valueOf(value));
+                default -> log.debug("忽略未映射的额外请求体参数: {}", entry.getKey());
             }
         }
     }

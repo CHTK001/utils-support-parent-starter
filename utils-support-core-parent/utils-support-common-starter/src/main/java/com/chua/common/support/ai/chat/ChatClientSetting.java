@@ -3,6 +3,9 @@ package com.chua.common.support.ai.chat;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * AI 对话客户端配置
  *
@@ -84,6 +87,37 @@ public class ChatClientSetting {
      * <p>未通过链式调用指定时使用的系统提示词。
      */
     private String system;
+
+    /**
+     * 默认工具（函数调用）定义列表
+     *
+     * <p>未通过链式调用指定时使用的工具列表。
+     */
+    private List<ChatTool> tools;
+
+    /**
+     * 默认工具选择策略（tool_choice）
+     *
+     * <p>取值约定：auto / none / required / 指定工具名称。
+     */
+    private String toolChoice;
+
+    /**
+     * 默认停止序列
+     */
+    private List<String> stop;
+
+    /**
+     * 默认随机种子
+     */
+    private Long seed;
+
+    /**
+     * 默认响应格式
+     *
+     * <p>取值约定：text / json_object / json_schema。
+     */
+    private String responseFormat;
 
     /**
      * HTTP 代理地址
