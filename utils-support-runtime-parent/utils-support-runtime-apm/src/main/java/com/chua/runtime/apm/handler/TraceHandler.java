@@ -8,7 +8,11 @@ import com.chua.runtime.spy.RuntimeSpy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,6 +43,51 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
+
+    /**
+     * 插件名称
+     */
+    private static final String HANDLER_NAME = "trace-handler";
+
+    /**
+     * 插件版本
+     */
+    private static final String HANDLER_VERSION = "1.0.0";
+
+    /**
+     * 启用配置属性 key
+     */
+    private static final String PROP_TRACE_ENABLED = "trace.enabled";
+
+    /**
+     * 默认启用值
+     */
+    private static final String DEFAULT_TRACE_ENABLED = "true";
+
+    /**
+     * 追踪类列表属性 key（逗号分隔）
+     */
+    private static final String PROP_TRACE_CLASSES = "trace.classes";
+
+    /**
+     * 追踪 ID 长度（UUID 去横线后取前 N 位）
+     */
+    private static final int ID_LENGTH = 16;
+
+    /**
+     * 状态值：成功
+     */
+    private static final String STATUS_OK = "OK";
+
+    /**
+     * 状态值：异常
+     */
+    private static final String STATUS_ERROR = "ERROR";
+
+    /**
+     * 异常占位文本（throwable 为 null 时）
+     */
+    private static final String UNKNOWN_ERROR = "unknown";
 
     /**
      * 追踪上下文
@@ -84,18 +133,18 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
 
     @Override
     public String name() {
-        return "trace-handler";
+        return HANDLER_NAME;
     }
 
     @Override
     public String version() {
-        return "1.0.0";
+        return HANDLER_VERSION;
     }
 
     @Override
     public void init(PluginContext context) throws Exception {
         this.context = context;
-        this.enabled = "true".equals(context.getProperty("trace.enabled", "true"));
+        this.enabled = DEFAULT_TRACE_ENABLED.equals(context.getProperty(PROP_TRACE_ENABLED, DEFAULT_TRACE_ENABLED));
         log.info("TraceHandler 初始化完成，启用状态: {}", enabled);
     }
 
@@ -109,7 +158,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         // 通过 SpyTransformer 的 ENTRY/EXIT 对所有应用类方法插桩，
         // 实际插桩范围由 include/exclude 过滤控制
-        String[] classes = context.getProperty("trace.classes", "").split(",");
+        String[] classes = context.getProperty(PROP_TRACE_CLASSES, "").split(",");
         for (String clazz : classes) {
             String name = clazz.trim().replace('.', '/');
             if (name.isEmpty()) {
@@ -122,7 +171,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             RuntimeSpy.registerInterceptor(name, "*",
                     "", InterceptPoint.EXCEPTION, this);
         }
-        log.info("TraceHandler 启动完成，注册追踪类: {}", context.getProperty("trace.classes", ""));
+        log.info("TraceHandler 启动完成，注册追踪类: {}", context.getProperty(PROP_TRACE_CLASSES, ""));
     }
 
     @Override
@@ -231,7 +280,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         if (span != null) {
             span.setEndTime(System.currentTimeMillis());
             span.setDuration(span.getEndTime() - span.getStartTime());
-            span.setStatus("OK");
+            span.setStatus(STATUS_OK);
             log.trace("[Trace] END: {}.{}, span={}, duration={}ms",
                     className, methodName, span.getSpanId(), span.getDuration());
         }
@@ -249,30 +298,30 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         if (span != null) {
             span.setEndTime(System.currentTimeMillis());
             span.setDuration(span.getEndTime() - span.getStartTime());
-            span.setStatus("ERROR");
-            span.setException(throwable != null ? throwable.getMessage() : "unknown");
+            span.setStatus(STATUS_ERROR);
+            String errorMsg = throwable != null ? throwable.getMessage() : UNKNOWN_ERROR;
+            span.setException(errorMsg);
             log.trace("[Trace] ERROR: {}.{}, span={}, error={}",
-                    className, methodName, span.getSpanId(),
-                    throwable != null ? throwable.getMessage() : "unknown");
+                    className, methodName, span.getSpanId(), errorMsg);
         }
-    }
-
-    /**
-     * 生成 Span ID。
-     *
-     * @return Span ID
-     */
-    private String generateSpanId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
     /**
      * 生成 traceId。
      *
-     * @return traceId
+     * @return traceId（16 字符）
      */
     private String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
+    }
+
+    /**
+     * 生成 Span ID。
+     *
+     * @return Span ID（16 字符）
+     */
+    private String generateSpanId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
     }
 
     /**
@@ -314,6 +363,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 追踪上下文 — 线程局部变量。
+     *
+     * @author CH
+     * @since 4.0.0.42
      */
     public static class TraceContext {
 
@@ -371,7 +423,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         private String spanId;
 
         /**
-         * 父 Span ID
+         * 父 Span ID（根调用为 null）
          */
         private String parentSpanId;
 
@@ -391,12 +443,12 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         private String descriptor;
 
         /**
-         * 开始时间
+         * 开始时间（毫秒）
          */
         private long startTime;
 
         /**
-         * 结束时间
+         * 结束时间（毫秒）
          */
         private long endTime;
 
@@ -406,7 +458,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         private long duration;
 
         /**
-         * 状态
+         * 状态（OK / ERROR）
          */
         private String status;
 

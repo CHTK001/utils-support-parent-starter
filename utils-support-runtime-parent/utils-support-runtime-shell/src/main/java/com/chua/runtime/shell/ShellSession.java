@@ -25,6 +25,21 @@ import java.util.List;
 public class ShellSession implements Runnable {
 
     /**
+     * 欢迎横幅
+     */
+    private static final String BANNER = "Chua Runtime Shell v4.0.0.42";
+
+    /**
+     * "exit" 命令
+     */
+    private static final String CMD_EXIT = "exit";
+
+    /**
+     * "quit" 命令
+     */
+    private static final String CMD_QUIT = "quit";
+
+    /**
      * 客户端连接
      */
     private final Socket socket;
@@ -33,11 +48,6 @@ public class ShellSession implements Runnable {
      * 命令注册表
      */
     private final CommandRegistry registry;
-
-    /**
-     * 欢迎横幅
-     */
-    private static final String BANNER = "Chua Runtime Shell v4.0.0.42";
 
     /**
      * 创建会话。
@@ -108,7 +118,7 @@ public class ShellSession implements Runnable {
         String[] args = new String[parts.length - 1];
         System.arraycopy(parts, 1, args, 0, args.length);
 
-        if ("exit".equalsIgnoreCase(cmdName) || "quit".equalsIgnoreCase(cmdName)) {
+        if (CMD_EXIT.equalsIgnoreCase(cmdName) || CMD_QUIT.equalsIgnoreCase(cmdName)) {
             console.success("再见");
             return;
         }

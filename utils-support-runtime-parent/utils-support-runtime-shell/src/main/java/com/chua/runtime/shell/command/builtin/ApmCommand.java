@@ -2,8 +2,8 @@ package com.chua.runtime.shell.command.builtin;
 
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.apm.handler.FileHandler;
-import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.LogEntry;
+import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.plugin.Plugin;
@@ -17,12 +17,77 @@ import java.util.List;
  * APM 命令 — 动态展示已加载的 APM 处理器及其数据。
  *
  * <p>子命令从 ApmBootstrap 实际加载的 Plugin 动态生成：
- * 主命令 apm 显示总览，apm &lt;handler&gt; 查看具体 handler 数据。</p>
+ * 主命令 {@code apm} 显示总览，{@code apm &lt;handler&gt;} 查看具体 handler 数据。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class ApmCommand implements Command {
+
+    /**
+     * Handler 名称中的 "-handler" 后缀
+     */
+    private static final String HANDLER_SUFFIX = "-handler";
+
+    /**
+     * 主命令名
+     */
+    private static final String CMD_NAME = "apm";
+
+    /**
+     * "list" 子命令
+     */
+    private static final String SUB_LIST = "list";
+
+    /**
+     * "status" 子命令
+     */
+    private static final String SUB_STATUS = "status";
+
+    /**
+     * "help" 子命令
+     */
+    private static final String SUB_HELP = "help";
+
+    /**
+     * "logs" 子命令（向后兼容别名）
+     */
+    private static final String SUB_LOGS = "logs";
+
+    /**
+     * "net" 子命令（向后兼容别名）
+     */
+    private static final String SUB_NET = "net";
+
+    /**
+     * "file" 子命令（向后兼容别名）
+     */
+    private static final String SUB_FILE = "file";
+
+    /**
+     * "trace" 子命令（向后兼容别名）
+     */
+    private static final String SUB_TRACE = "trace";
+
+    /**
+     * Handler 运行状态字符串
+     */
+    private static final String STATUS_RUNNING = "RUNNING";
+
+    /**
+     * Handler 停止状态字符串
+     */
+    private static final String STATUS_STOPPED = "STOPPED";
+
+    /**
+     * 根 Span 标识（parentSpanId 为 null 时显示）
+     */
+    private static final String ROOT_SPAN = "(root)";
+
+    /**
+     * 默认日志/记录显示条数
+     */
+    private static final int DEFAULT_DISPLAY_LIMIT = 20;
 
     /**
      * APM 启动器
@@ -40,16 +105,16 @@ public class ApmCommand implements Command {
 
     @Override
     public String name() {
-        return "apm";
+        return CMD_NAME;
     }
 
     @Override
     public String[] aliases() {
-        // 动态别名: handler 名称
+        // 动态别名：handler 名称去除 -handler 后缀
         List<String> aliases = new ArrayList<>();
         if (apm != null) {
             for (Plugin p : apm.getHandlers()) {
-                aliases.add(p.name().replace("-handler", ""));
+                aliases.add(shortName(p.name()));
             }
         }
         return aliases.toArray(new String[0]);
@@ -64,16 +129,16 @@ public class ApmCommand implements Command {
     public List<String> complete(String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 0 || args.length == 1) {
-            completions.add("list");
-            completions.add("status");
-            completions.add("help");
+            completions.add(SUB_LIST);
+            completions.add(SUB_STATUS);
+            completions.add(SUB_HELP);
             if (apm != null) {
                 for (Plugin p : apm.getHandlers()) {
-                    String shortName = p.name().replace("-handler", "");
-                    if (shortName.equals(args.length == 0 ? "" : args[0])) {
+                    String name = shortName(p.name());
+                    if (name.equals(args.length == 0 ? "" : args[0])) {
                         continue;
                     }
-                    completions.add(shortName);
+                    completions.add(name);
                 }
             }
         }
@@ -93,13 +158,13 @@ public class ApmCommand implements Command {
 
         String subCmd = args[0].toLowerCase();
         switch (subCmd) {
-            case "list":
+            case SUB_LIST:
                 showOverview(console);
                 break;
-            case "status":
+            case SUB_STATUS:
                 console.println(apm.status());
                 break;
-            case "help":
+            case SUB_HELP:
                 showHelp(console);
                 break;
             default:
@@ -125,7 +190,7 @@ public class ApmCommand implements Command {
         for (Plugin p : apm.getHandlers()) {
             console.println(String.format("%-20s | %-7s | %s",
                     p.name(),
-                    p.isRunning() ? "RUNNING" : "STOPPED",
+                    p.isRunning() ? STATUS_RUNNING : STATUS_STOPPED,
                     p.status()));
         }
         console.blank();
@@ -157,7 +222,7 @@ public class ApmCommand implements Command {
      * @return 退出码
      */
     private int showHandler(Plugin handler, Console console, String[] args) {
-        int limit = 20;
+        int limit = DEFAULT_DISPLAY_LIMIT;
         if (args.length > 1) {
             try {
                 limit = Integer.parseInt(args[1]);
@@ -180,6 +245,10 @@ public class ApmCommand implements Command {
 
     /**
      * 显示日志条目。
+     *
+     * @param handler 日志处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showLogs(LogHandler handler, Console console, int limit) {
         List<LogEntry> entries = handler.getLogEntries();
@@ -202,6 +271,10 @@ public class ApmCommand implements Command {
 
     /**
      * 显示网络记录。
+     *
+     * @param handler 网络处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showNet(NetHandler handler, Console console, int limit) {
         List<NetHandler.NetRecord> records = handler.getRecords();
@@ -223,6 +296,10 @@ public class ApmCommand implements Command {
 
     /**
      * 显示文件记录。
+     *
+     * @param handler 文件处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showFile(FileHandler handler, Console console, int limit) {
         List<FileHandler.FileRecord> records = handler.getRecords();
@@ -244,6 +321,10 @@ public class ApmCommand implements Command {
 
     /**
      * 显示链路追踪 Span。
+     *
+     * @param handler 追踪处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showTrace(TraceHandler handler, Console console, int limit) {
         List<TraceHandler.Span> spans = handler.getSpans();
@@ -255,7 +336,7 @@ public class ApmCommand implements Command {
             TraceHandler.Span s = spans.get(i);
             console.println(String.format("%-18s | %-17s | %-28s | %-9d | %s",
                     truncate(s.getSpanId(), 18),
-                    s.getParentSpanId() != null ? truncate(s.getParentSpanId(), 17) : "(root)",
+                    s.getParentSpanId() != null ? truncate(s.getParentSpanId(), 17) : ROOT_SPAN,
                     truncate(s.getClassName() + "." + s.getMethodName(), 28),
                     s.getDuration(),
                     s.getStatus()));
@@ -267,13 +348,16 @@ public class ApmCommand implements Command {
 
     /**
      * 根据简称查找 handler。
+     *
+     * @param shortName 简称
+     * @return 处理器实例，未找到返回 null
      */
     private Plugin findHandler(String shortName) {
         if (apm == null) {
             return null;
         }
         for (Plugin p : apm.getHandlers()) {
-            if (p.name().equalsIgnoreCase(shortName + "-handler")) {
+            if (p.name().equalsIgnoreCase(shortName + HANDLER_SUFFIX)) {
                 return p;
             }
             if (p.name().equalsIgnoreCase(shortName)) {
@@ -285,19 +369,35 @@ public class ApmCommand implements Command {
 
     /**
      * 获取所有 handler 的简称列表。
+     *
+     * @return 简称列表
      */
     private List<String> handlerNames() {
         List<String> names = new ArrayList<>();
         if (apm != null) {
             for (Plugin p : apm.getHandlers()) {
-                names.add(p.name().replace("-handler", ""));
+                names.add(shortName(p.name()));
             }
         }
         return names;
     }
 
     /**
-     * 截断字符串到指定长度。
+     * 去除 handler 名称中的 "-handler" 后缀得到简称。
+     *
+     * @param fullName 完整名称
+     * @return 简称
+     */
+    private String shortName(String fullName) {
+        return fullName.replace(HANDLER_SUFFIX, "");
+    }
+
+    /**
+     * 截断字符串到指定长度（省略号补齐）。
+     *
+     * @param s   原始字符串
+     * @param max 最大长度
+     * @return 截断结果
      */
     private String truncate(String s, int max) {
         if (s == null) {

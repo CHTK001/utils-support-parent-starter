@@ -1,5 +1,6 @@
 package com.chua.runtime.shell.command.builtin;
 
+import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.runtime.core.manager.RuntimeInstance;
 import com.chua.runtime.core.manager.RuntimeManager;
 import com.chua.runtime.core.model.RuntimeStatus;
@@ -17,6 +18,41 @@ import java.util.List;
 public class RuntimeCommand implements Command {
 
     /**
+     * 主命令名
+     */
+    private static final String CMD_NAME = "runtime";
+
+    /**
+     * "list" 子命令
+     */
+    private static final String SUB_LIST = "list";
+
+    /**
+     * "start" 子命令
+     */
+    private static final String SUB_START = "start";
+
+    /**
+     * "stop" 子命令
+     */
+    private static final String SUB_STOP = "stop";
+
+    /**
+     * "status" 子命令
+     */
+    private static final String SUB_STATUS = "status";
+
+    /**
+     * "log" 子命令
+     */
+    private static final String SUB_LOG = "log";
+
+    /**
+     * PID 显示前缀
+     */
+    private static final String PID_PREFIX = "PID: ";
+
+    /**
      * 运行时管理器
      */
     private final RuntimeManager manager;
@@ -32,12 +68,12 @@ public class RuntimeCommand implements Command {
 
     @Override
     public String name() {
-        return "runtime";
+        return CMD_NAME;
     }
 
     @Override
     public String[] aliases() {
-        return new String[]{"list", "services"};
+        return new String[]{SUB_LIST, "services"};
     }
 
     @Override
@@ -53,11 +89,11 @@ public class RuntimeCommand implements Command {
         }
         String sub = args[0].toLowerCase();
         switch (sub) {
-            case "list" -> listAll(console);
-            case "start" -> startArtifact(console, args);
-            case "stop" -> stopArtifact(console, args);
-            case "status" -> statusArtifact(console, args);
-            case "log" -> tailLog(console, args);
+            case SUB_LIST -> listAll(console);
+            case SUB_START -> startArtifact(console, args);
+            case SUB_STOP -> stopArtifact(console, args);
+            case SUB_STATUS -> statusArtifact(console, args);
+            case SUB_LOG -> tailLog(console, args);
             default -> console.error("未知子命令: " + sub + "，支持: list/start/stop/status/log");
         }
         return 0;
@@ -77,7 +113,7 @@ public class RuntimeCommand implements Command {
             RuntimeStatus status = manager.status(id);
             RuntimeInstance inst = manager.getInstance(id);
             console.println(String.format("%-20s | %-8s | %s", id,
-                    status.toString(), inst != null ? "PID: " + inst.pid() : "无"));
+                    status.toString(), inst != null ? PID_PREFIX + inst.pid() : "无"));
         }
         if (ids.isEmpty()) {
             console.println("  （无已注册工件）");
@@ -144,7 +180,7 @@ public class RuntimeCommand implements Command {
             return;
         }
         String id = args[1];
-        manager.tailLog(id, new com.chua.common.support.lang.cmd.LineCallback() {
+        manager.tailLog(id, new LineCallback() {
             @Override
             public void onLine(String line) {
                 console.println(line);
