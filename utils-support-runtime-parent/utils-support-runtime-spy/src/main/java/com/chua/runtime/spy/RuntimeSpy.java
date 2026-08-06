@@ -567,6 +567,42 @@ public class RuntimeSpy {
     }
 
     /**
+     * 获取当前线程追踪栈的 traceId（栈顶）。
+     *
+     * @return traceId，栈空时返回 null
+     */
+    public static String getCurrentTraceId() {
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        if (stack == null || stack.isEmpty()) {
+            return null;
+        }
+        return stack.peek().traceId();
+    }
+
+    /**
+     * 获取当前线程追踪栈的 spanId（栈顶）。
+     *
+     * @return spanId，栈空时返回 null
+     */
+    public static String getCurrentSpanId() {
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        if (stack == null || stack.isEmpty()) {
+            return null;
+        }
+        return stack.peek().spanId();
+    }
+
+    /**
+     * 获取当前线程追踪栈深度。
+     *
+     * @return 栈深度（0 表示无追踪）
+     */
+    public static int getTraceStackSize() {
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        return stack == null ? 0 : stack.size();
+    }
+
+    /**
      * 包装 Runnable — 在新线程中执行前自动恢复追踪上下文。
      *
      * <p>使用示例：</p>

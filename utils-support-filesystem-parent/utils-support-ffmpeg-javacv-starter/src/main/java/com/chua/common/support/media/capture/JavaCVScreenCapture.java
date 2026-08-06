@@ -105,25 +105,28 @@ public class JavaCVScreenCapture implements ScreenCature {
             int rowBytes = stride * src.imageHeight;
 
             Object srcObj = src.image[0];
-
-            // 修复：直接一次性拷贝，避免 chunked copy 的反复堆分配与临时数组开销
-            // 仍然使用堆上 ByteBuffer 避免 jlong_disjoint_arraycopy 在非 8 字节对齐的 allocateDirect 上崩溃
-            java.nio.ByteBuffer dst;
+            java.nio.ByteBuffer srcBuf;
             if (srcObj instanceof java.nio.ByteBuffer buf) {
-                byte[] tmp = new byte[buf.remaining()];
-                buf.position(0);
-                buf.get(tmp);
-                dst = java.nio.ByteBuffer.wrap(tmp);
+                srcBuf = buf;
             } else if (srcObj instanceof byte[] arr) {
-                dst = java.nio.ByteBuffer.wrap(arr.clone());
+                srcBuf = java.nio.ByteBuffer.wrap(arr);
             } else if (srcObj instanceof org.bytedeco.javacpp.Pointer ptr) {
-                byte[] tmp = new byte[rowBytes];
-                new org.bytedeco.javacpp.BytePointer(ptr).asBuffer().get(tmp);
-                dst = java.nio.ByteBuffer.wrap(tmp);
+                srcBuf = new org.bytedeco.javacpp.BytePointer(ptr).asBuffer();
             } else {
                 log.warn("[JavaCVScreenCapture] 不支持的 image 类型: {}", srcObj.getClass().getName());
                 return null;
             }
+
+            // 堆上 ByteBuffer 避免 jlong_disjoint_arraycopy 在非对齐 allocateDirect 上崩溃
+            java.nio.ByteBuffer dst = java.nio.ByteBuffer.allocate(rowBytes);
+
+            // 一次性 System.arraycopy（堆 byte[] 不会触发 jlong_disjoint_arraycopy 崩溃）
+            // 把 srcBuf 拷到临时 heap byte[]，再一次性写入 dst
+            byte[] tmpArr = new byte[rowBytes];
+            srcBuf.position(0);
+            srcBuf.get(tmpArr);
+            dst.put(tmpArr);
+            dst.position(0);
 
             Frame result = new Frame(width, height, Frame.DEPTH_UBYTE, channels);
             result.image[0] = dst;

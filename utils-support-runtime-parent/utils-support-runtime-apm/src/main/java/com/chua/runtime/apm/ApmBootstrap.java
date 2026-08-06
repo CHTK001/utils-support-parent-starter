@@ -28,6 +28,11 @@ import java.util.List;
 public class ApmBootstrap {
 
     /**
+     * 全局唯一实例（RuntimeAgent.premain 启动时设置）
+     */
+    private static volatile ApmBootstrap globalInstance;
+
+    /**
      * 处理器列表
      */
     private final List<Plugin> handlers;
@@ -46,6 +51,7 @@ public class ApmBootstrap {
         this.handlers = new ArrayList<>();
         this.started = false;
         registerDefaults(pluginDir);
+        globalInstance = this;
     }
 
     /**
