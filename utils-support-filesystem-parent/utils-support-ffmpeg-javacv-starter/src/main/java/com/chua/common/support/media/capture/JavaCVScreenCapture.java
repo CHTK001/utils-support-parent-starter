@@ -105,31 +105,25 @@ public class JavaCVScreenCapture implements ScreenCature {
             int rowBytes = stride * src.imageHeight;
 
             Object srcObj = src.image[0];
-            java.nio.ByteBuffer srcBuf;
+
+            // 修复：直接一次性拷贝，避免 chunked copy 的反复堆分配与临时数组开销
+            // 仍然使用堆上 ByteBuffer 避免 jlong_disjoint_arraycopy 在非 8 字节对齐的 allocateDirect 上崩溃
+            java.nio.ByteBuffer dst;
             if (srcObj instanceof java.nio.ByteBuffer buf) {
-                srcBuf = buf;
+                byte[] tmp = new byte[buf.remaining()];
+                buf.position(0);
+                buf.get(tmp);
+                dst = java.nio.ByteBuffer.wrap(tmp);
             } else if (srcObj instanceof byte[] arr) {
-                srcBuf = java.nio.ByteBuffer.wrap(arr);
+                dst = java.nio.ByteBuffer.wrap(arr.clone());
             } else if (srcObj instanceof org.bytedeco.javacpp.Pointer ptr) {
-                srcBuf = new org.bytedeco.javacpp.BytePointer(ptr).asBuffer();
+                byte[] tmp = new byte[rowBytes];
+                new org.bytedeco.javacpp.BytePointer(ptr).asBuffer().get(tmp);
+                dst = java.nio.ByteBuffer.wrap(tmp);
             } else {
                 log.warn("[JavaCVScreenCapture] 不支持的 image 类型: {}", srcObj.getClass().getName());
                 return null;
             }
-
-            // 堆上 ByteBuffer 避免 jlong_disjoint_arraycopy 在非对齐 allocateDirect 上崩溃
-            java.nio.ByteBuffer dst = java.nio.ByteBuffer.allocate(rowBytes);
-
-            // 使用 chunked copy 避免大块 System.arraycopy 触发 native 拷贝
-            int chunkSize = 64 * 1024;
-            srcBuf.position(0);
-            while (srcBuf.hasRemaining()) {
-                int len = Math.min(chunkSize, srcBuf.remaining());
-                byte[] tmp = new byte[len];
-                srcBuf.get(tmp);
-                dst.put(tmp);
-            }
-            dst.position(0);
 
             Frame result = new Frame(width, height, Frame.DEPTH_UBYTE, channels);
             result.image[0] = dst;

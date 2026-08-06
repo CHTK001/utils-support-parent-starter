@@ -131,8 +131,8 @@ public class DesktopAgentServiceImpl implements DesktopAgentService {
             return;
         }
 
-        int clientW = 1920;
-        int clientH = 1080;
+        int clientW = 1280;
+        int clientH = 720;
         if (target != null) {
             if (target.get("width") instanceof Number) {
                 clientW = ((Number) target.get("width")).intValue();
