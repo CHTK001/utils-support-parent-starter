@@ -1,6 +1,7 @@
 package com.chua.runtime.spy;
 
 import com.chua.runtime.plugin.InterceptPoint;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -49,6 +50,38 @@ public class InterceptContext {
      * 用户附加数据
      */
     private Object userData;
+
+    /**
+     * 全局追踪 ID（同一根调用链共享）。
+     *
+     * <p>由 RuntimeSpy 在 ENTRY 插桩时为根调用生成，子调用继承。
+     * 跨线程时可通过 RuntimeSpy.capture()/restore() 传递。</p>
+     */
+    private String traceId;
+
+    /**
+     * 当前 Span ID（每次 ENTRY 新建）。
+     */
+    private String spanId;
+
+    /**
+     * 父 Span ID（嵌套调用时指向调用方 span，根调用为 null）。
+     */
+    private String parentSpanId;
+
+    /**
+     * 追踪栈便捷设置方法（替代三个独立 setter）。
+     *
+     * @param stack 追踪栈对象
+     */
+    public void setTraceStack(TraceStack stack) {
+        if (stack == null) {
+            return;
+        }
+        this.traceId = stack.getTraceId();
+        this.spanId = stack.getSpanId();
+        this.parentSpanId = stack.getParentSpanId();
+    }
 
     /**
      * 获取人类可读的类名。
@@ -105,5 +138,52 @@ public class InterceptContext {
      */
     public boolean isException() {
         return point == InterceptPoint.EXCEPTION;
+    }
+
+    /**
+     * 是否根 Span（无父调用）。
+     *
+     * @return true 表示根
+     */
+    public boolean isRootSpan() {
+        return parentSpanId == null;
+    }
+
+    /**
+     * 追踪栈对象 — 包含 traceId/spanId/parentSpanId 的不可变快照。
+     */
+    @lombok.Data
+    @lombok.AllArgsConstructor
+    public static class TraceStack {
+        private final String traceId;
+        private final String spanId;
+        private final String parentSpanId;
+
+        /**
+         * 获取 traceId。
+         *
+         * @return traceId
+         */
+        public String getTraceId() {
+            return traceId;
+        }
+
+        /**
+         * 获取 spanId。
+         *
+         * @return spanId
+         */
+        public String getSpanId() {
+            return spanId;
+        }
+
+        /**
+         * 获取 parentSpanId。
+         *
+         * @return parentSpanId
+         */
+        public String getParentSpanId() {
+            return parentSpanId;
+        }
     }
 }

@@ -2,6 +2,9 @@ package com.chua.runtime.shell.command;
 
 import com.chua.runtime.shell.output.Console;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Shell 命令接口 — 所有内置/自定义命令必须实现。
  *
@@ -40,6 +43,18 @@ public interface Command {
      */
     default String usage() {
         return name();
+    }
+
+    /**
+     * Tab 补全建议。
+     *
+     * <p>ShellSession 在用户按下 Tab 时调用此方法获取当前参数上下文下的补全候选。</p>
+     *
+     * @param args 当前已输入的参数数组（不含命令名本身）
+     * @return 补全候选列表
+     */
+    default List<String> complete(String[] args) {
+        return Collections.emptyList();
     }
 
     /**

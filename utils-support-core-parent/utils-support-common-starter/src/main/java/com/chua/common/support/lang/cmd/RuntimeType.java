@@ -47,6 +47,11 @@ public enum RuntimeType {
     DOCKER,
 
     /**
+     * Apache Tomcat 服务器
+     */
+    TOMCAT,
+
+    /**
      * 未知/自动检测类型
      */
     UNKNOWN

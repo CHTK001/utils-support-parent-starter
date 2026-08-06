@@ -141,6 +141,15 @@ public class ApmBootstrap {
     }
 
     /**
+     * 获取所有已注册的处理器。
+     *
+     * @return 处理器列表
+     */
+    public List<Plugin> getHandlers() {
+        return java.util.Collections.unmodifiableList(handlers);
+    }
+
+    /**
      * 是否已启动。
      *
      * @return 已启动返回 true

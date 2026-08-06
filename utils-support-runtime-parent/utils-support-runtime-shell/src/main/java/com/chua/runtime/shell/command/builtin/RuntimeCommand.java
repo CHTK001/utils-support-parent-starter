@@ -77,7 +77,7 @@ public class RuntimeCommand implements Command {
             RuntimeStatus status = manager.status(id);
             RuntimeInstance inst = manager.getInstance(id);
             console.println(String.format("%-20s | %-8s | %s", id,
-                    status.toString(), inst != null ? "PID: " + inst.getPid() : "无"));
+                    status.toString(), inst != null ? "PID: " + inst.pid() : "无"));
         }
         if (ids.isEmpty()) {
             console.println("  （无已注册工件）");
