@@ -6,9 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 爬虫模块自动配置。
- *
- * <p>当类路径存在 Spring Web 时自动注册爬虫 CRUD 控制器。</p>
+ * 爬虫模块自动配置（含代理池）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -17,14 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @ConditionalOnClass(RestController.class)
 public class SpiderAutoConfiguration {
 
-    /**
-     * 注册爬虫定义控制器。
-     *
-     * @return 爬虫控制器
-     */
     @Bean
-    @ConditionalOnClass(name = "org.springframework.web.bind.annotation.RestController")
     public SpiderController spiderController() {
         return new SpiderController();
+    }
+
+    @Bean
+    public SpiderProxyPoolController spiderProxyPoolController() {
+        return new SpiderProxyPoolController();
     }
 }

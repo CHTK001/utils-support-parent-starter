@@ -86,10 +86,30 @@ public class SpiderDefinition {
      */
     private String spiderScheduleCron;
 
-    /**
-     * 描述
-     */
-    private String spiderDescription;
+/**
+ * 描述
+ */
+private String spiderDescription;
+
+/**
+ * 是否启用代理池（0 否 / 1 是）
+ */
+private Integer spiderProxyPoolEnable;
+
+/**
+ * 绑定的代理池编码
+ */
+private String spiderProxyPoolCode;
+
+/**
+ * 公共 Cookie（JSON 数组字符串 [{"name":"sid","value":"abc","domain":".example.com"}]）
+ */
+private String spiderCookies;
+
+/**
+ * 公共请求头（JSON 字符串 {"User-Agent":"..."}）
+ */
+private String spiderHeaders;
 
     /**
      * 创建时间
