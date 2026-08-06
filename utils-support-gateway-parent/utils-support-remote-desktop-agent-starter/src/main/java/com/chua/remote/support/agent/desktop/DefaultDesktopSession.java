@@ -117,11 +117,17 @@ public class DefaultDesktopSession implements DesktopSession {
         }
         try {
             int count = frameCount.getAndIncrement();
-            boolean keyFrame = count % 150 == 0;
+            boolean keyFrame = count == 0 || count % 150 == 0;
             if (keyFrame) {
                 encoder.forceKeyFrame();
             }
+            long t0 = System.nanoTime();
             byte[] encoded = encoder.encode(frame);
+            long t1 = System.nanoTime();
+            if (count < 16 || count % 30 == 0) {
+                log.info("[Desktop] feedFrame-TIMING count={} encodeUs={} encodedLen={}",
+                        count, (t1 - t0) / 1000, encoded != null ? encoded.length : 0);
+            }
             if (encoded != null && encoded.length > 0 && frameCallback != null) {
                 fpsCounter.incrementAndGet();
                 frameCallback.accept(sessionId, new EncodedScreen(targetWidth, targetHeight, keyFrame, encoded));

@@ -101,6 +101,10 @@ public class MemoryRagClient implements RagClient {
         }
 
         String prompt = "基于以下上下文回答问题。\n\n上下文:\n" + context + "\n\n问题: " + query;
+        String systemPrompt = setting.getSystemPrompt();
+        if (systemPrompt != null && !systemPrompt.isBlank()) {
+            prompt = systemPrompt + "\n\n" + prompt;
+        }
         String answer = setting.getChatClient().chatSync(prompt);
 
         return new RagResponse(answer, sources, Map.of());
