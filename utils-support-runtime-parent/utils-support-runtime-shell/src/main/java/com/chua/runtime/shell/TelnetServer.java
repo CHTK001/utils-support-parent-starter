@@ -28,6 +28,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TelnetServer {
 
     /**
+     * 默认 Shell 端口
+     */
+    private static final int DEFAULT_PORT = 4567;
+
+    /**
      * 服务端套接字
      */
     private ServerSocket serverSocket;

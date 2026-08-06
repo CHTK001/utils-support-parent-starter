@@ -43,7 +43,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
-     * SLF4J Logger 类名
+     * 插件名称
+     */
+    private static final String HANDLER_NAME = "log-handler";
+
+    /**
+     * 插件版本
+     */
+    private static final String HANDLER_VERSION = "1.0.0";
+
+    /**
+     * 启用配置属性 key
+     */
+    private static final String PROP_LOG_ENABLED = "log.enabled";
+
+    /**
+     * 默认启用值
+     */
+    private static final String DEFAULT_ENABLED = "true";
+
+    /**
+     * SLF4J Logger 类名（内部名格式）
      */
     private static final String SLF4J_LOGGER = "org/slf4j/Logger";
 
@@ -126,18 +146,18 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
 
     @Override
     public String name() {
-        return "log-handler";
+        return HANDLER_NAME;
     }
 
     @Override
     public String version() {
-        return "1.0.0";
+        return HANDLER_VERSION;
     }
 
     @Override
     public void init(PluginContext context) throws Exception {
         this.context = context;
-        this.enabled = "true".equals(context.getProperty("log.enabled", "true"));
+        this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LOG_ENABLED, DEFAULT_ENABLED));
         log.info("LogHandler 初始化完成，启用状态: {}", enabled);
     }
 

@@ -16,7 +16,9 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -84,9 +86,8 @@ public class RuntimeE2ETest {
             );
             assertNotNull("插桩后字节码不应为空（className=" + ORDER_SERVICE + "）", transformed);
             assertFalse("插桩后字节码应变化",
-                    java.util.Arrays.equals(originalBytes, transformed));
+                    Arrays.equals(originalBytes, transformed));
         } catch (Throwable t) {
-            t.printStackTrace();
             throw t;
         }
     }
@@ -124,7 +125,7 @@ public class RuntimeE2ETest {
                 originalBytes
         );
         assertNotNull(result);
-        assertFalse("插桩后字节码应变化", java.util.Arrays.equals(originalBytes, result));
+        assertFalse("插桩后字节码应变化", Arrays.equals(originalBytes, result));
     }
 
     /**
@@ -360,7 +361,7 @@ public class RuntimeE2ETest {
             ThreadLocal<?> tl = (ThreadLocal<?>) stackField.get(null);
             java.lang.reflect.Method getMethod = ThreadLocal.class.getDeclaredMethod("get");
             @SuppressWarnings("unchecked")
-            java.util.Deque<RuntimeSpy.TraceStackFrame> stack = (java.util.Deque<RuntimeSpy.TraceStackFrame>) getMethod.invoke(tl);
+            Deque<RuntimeSpy.TraceStackFrame> stack = (Deque<RuntimeSpy.TraceStackFrame>) getMethod.invoke(tl);
             stack.push(frame1);
             stack.push(frame2);
 

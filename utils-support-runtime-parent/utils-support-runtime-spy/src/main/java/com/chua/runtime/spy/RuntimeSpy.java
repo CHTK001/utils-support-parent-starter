@@ -3,7 +3,13 @@ package com.chua.runtime.spy;
 import com.chua.runtime.plugin.InterceptPoint;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -49,9 +55,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RuntimeSpy {
 
     /**
-     * 拦截点匹配键：className#methodName#pointKey
+     * 拦截点匹配键分隔符（className#methodName#pointKey）
      */
     private static final String KEY_SEPARATOR = "#";
+
+    /**
+     * traceId / spanId 标识长度（16 字符）
+     */
+    private static final int ID_LENGTH = 16;
 
     /**
      * 插桩上下文（仅 ENTRY/EXIT 之间有效）
@@ -65,23 +76,23 @@ public class RuntimeSpy {
      * 保持 spanId 父子关系。每次调用 Interceptor 时，traceId 始终不变，
      * spanId 是当前栈帧，parentSpanId 是栈帧下方那个 spanId。</p>
      */
-    private static final ThreadLocal<java.util.Deque<TraceStackFrame>> TRACE_STACK =
-            ThreadLocal.withInitial(java.util.ArrayDeque::new);
+    private static final ThreadLocal<Deque<TraceStackFrame>> TRACE_STACK =
+            ThreadLocal.withInitial(ArrayDeque::new);
 
     /**
-     * Handler 注册表：拦截键 -> Handler 实例
+     * Handler 注册表：拦截键 → Handler 实例
      */
     private static final Map<String, Interceptor> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
 
     /**
-     * 插桩计数器
+     * 插桩计数器（线程局部）
      */
     private static final ThreadLocal<Integer> TRANSFORM_COUNT = ThreadLocal.withInitial(() -> 0);
 
     /**
-     * 跨线程追踪上下文存储（key 由用户指定）。
+     * 跨线程追踪上下文存储（key 由用户指定）
      */
-    private static final Map<String, java.util.List<TraceStackFrame>> CROSS_THREAD_TRACES =
+    private static final Map<String, List<TraceStackFrame>> CROSS_THREAD_TRACES =
             new ConcurrentHashMap<>();
 
     private RuntimeSpy() {
@@ -218,9 +229,9 @@ public class RuntimeSpy {
         if (point == InterceptPoint.ENTRY) {
             // 新建栈帧
             if (traceId == null) {
-                traceId = generateTraceId();
+                traceId = generateId();
             }
-            String spanId = generateSpanId();
+            String spanId = generateId();
             TRACE_STACK.get().push(new TraceStackFrame(traceId, spanId));
             CONTEXT.set(new SpyContext(className, methodName, System.currentTimeMillis()));
         }
@@ -290,13 +301,12 @@ public class RuntimeSpy {
      * @return 追踪栈快照，调用方负责传递给子线程
      */
     public static TraceContextSnapshot capture() {
-        java.util.Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
         if (stack.isEmpty()) {
-            return new TraceContextSnapshot(null, java.util.Collections.emptyList());
+            return new TraceContextSnapshot(null, Collections.emptyList());
         }
         TraceStackFrame top = stack.peek();
-        return new TraceContextSnapshot(top.traceId(),
-                new java.util.ArrayList<>(stack));
+        return new TraceContextSnapshot(top.traceId(), new ArrayList<>(stack));
     }
 
     /**
@@ -312,12 +322,10 @@ public class RuntimeSpy {
             TRACE_STACK.get().clear();
             return;
         }
-        java.util.Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
         stack.clear();
         // 只压栈根 traceId + 顶层 spanId，使后续 ENTRY 作为顶层 span 的子节点
-        // 把栈顶（被调用的 span）作为父节点
         TraceStackFrame top = snapshot.frames().get(snapshot.frames().size() - 1);
-        // 用一个特殊 frame 记录 traceId，但 spanId=null — 下次 ENTRY 会用其作为 parentSpanId
         stack.push(new TraceStackFrame(snapshot.traceId(), top.spanId()));
     }
 
@@ -344,13 +352,13 @@ public class RuntimeSpy {
         if (key == null || key.isEmpty()) {
             return;
         }
-        java.util.List<TraceStackFrame> frames = CROSS_THREAD_TRACES.get(key);
+        List<TraceStackFrame> frames = CROSS_THREAD_TRACES.get(key);
         CROSS_THREAD_TRACES.remove(key);
         if (frames == null || frames.isEmpty()) {
             TRACE_STACK.get().clear();
             return;
         }
-        java.util.Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
         stack.clear();
         TraceStackFrame top = frames.get(frames.size() - 1);
         String traceId = top.traceId();
@@ -358,21 +366,12 @@ public class RuntimeSpy {
     }
 
     /**
-     * 生成 traceId (16 字符)。
+     * 生成 16 字符 traceId / spanId（UUID 去横线取前 16 位）。
      *
-     * @return traceId
+     * @return ID 字符串
      */
-    private static String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-    }
-
-    /**
-     * 生成 spanId (16 字符)。
-     *
-     * @return spanId
-     */
-    private static String generateSpanId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+    private static String generateId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
     }
 
     /**
@@ -496,7 +495,7 @@ public class RuntimeSpy {
     }
 
     /**
-     * 插桩上下文。
+     * 插桩上下文（线程局部）。
      *
      * @param className  类名
      * @param methodName 方法名
@@ -513,6 +512,11 @@ public class RuntimeSpy {
 
     /**
      * 追踪栈帧。
+     *
+     * @param traceId 全局追踪 ID
+     * @param spanId  当前 Span ID
+     * @author CH
+     * @since 4.0.0.42
      */
     public record TraceStackFrame(
             String traceId,
@@ -525,10 +529,12 @@ public class RuntimeSpy {
      *
      * @param traceId 根 traceId
      * @param frames  追踪栈（按从栈底到栈顶顺序）
+     * @author CH
+     * @since 4.0.0.42
      */
     public record TraceContextSnapshot(
             String traceId,
-            java.util.List<TraceStackFrame> frames
+            List<TraceStackFrame> frames
     ) {
     }
 

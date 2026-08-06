@@ -143,7 +143,7 @@ public class ApmBootstrap {
     /**
      * 获取所有已注册的处理器。
      *
-     * @return 处理器列表
+     * @return 不可修改的处理器列表
      */
     public List<Plugin> getHandlers() {
         return java.util.Collections.unmodifiableList(handlers);
