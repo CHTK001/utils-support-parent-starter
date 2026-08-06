@@ -1,7 +1,9 @@
 package com.chua.runtime.shell;
 
+import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.shell.command.Command;
 import com.chua.runtime.shell.command.CommandRegistry;
+import com.chua.runtime.shell.command.builtin.ApmCommand;
 import com.chua.runtime.shell.command.builtin.HelpCommand;
 import com.chua.runtime.shell.command.builtin.StatusCommand;
 import com.chua.runtime.shell.command.builtin.InfoCommand;
@@ -36,6 +38,11 @@ public class TelnetServer {
     private final CommandRegistry registry;
 
     /**
+     * APM 启动器（可选，用于 apm 命令动态展示）
+     */
+    private ApmBootstrap apm;
+
+    /**
      * 线程池
      */
     private ExecutorService executor;
@@ -46,10 +53,22 @@ public class TelnetServer {
     private final AtomicBoolean running;
 
     /**
-     * 创建 Telnet 服务器。
+     * 创建 Telnet 服务器（无 APM 集成）。
      */
     public TelnetServer() {
         this.registry = new CommandRegistry();
+        this.running = new AtomicBoolean(false);
+        registerDefaults();
+    }
+
+    /**
+     * 创建 Telnet 服务器，绑定 APM 启动器。
+     *
+     * @param apm APM 启动器
+     */
+    public TelnetServer(ApmBootstrap apm) {
+        this.registry = new CommandRegistry();
+        this.apm = apm;
         this.running = new AtomicBoolean(false);
         registerDefaults();
     }
@@ -63,6 +82,10 @@ public class TelnetServer {
         registry.register(new InfoCommand());
         registry.register(new ThreadsCommand());
         registry.register(new MemoryCommand());
+        // APM 命令动态注册（如果 apm 可用）
+        if (apm != null) {
+            registry.register(new ApmCommand(apm));
+        }
     }
 
     /**
@@ -140,5 +163,14 @@ public class TelnetServer {
      */
     public boolean isRunning() {
         return running.get();
+    }
+
+    /**
+     * 获取命令注册表（外部测试用）。
+     *
+     * @return CommandRegistry
+     */
+    public CommandRegistry getRegistry() {
+        return registry;
     }
 }

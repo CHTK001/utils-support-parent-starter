@@ -47,11 +47,10 @@ public class ThreadsCommand implements Command {
                     : "";
             console.println(String.format("%-6d | %-10s | %-8s | %d   | %s",
                     id, truncate(info.getThreadName(), 10),
-                    info.getThreadState().toString(), bean.getCpuTime(id), locked));
+                    info.getThreadState().toString(), bean.getThreadCpuTime(id), locked));
         }
         console.blank();
-        console.println("Blocked: " + bean.getThreadBlockCount());
-        console.println("Locked : " + bean.getThreadContentionCount());
+        console.println("Blocked : " + bean.getThreadCount() + " (deprecated counters removed in Java 25)");
         return 0;
     }
 

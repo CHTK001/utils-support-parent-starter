@@ -54,9 +54,19 @@ public class RuntimeSpy {
     private static final String KEY_SEPARATOR = "#";
 
     /**
-     * 插桩上下文
+     * 插桩上下文（仅 ENTRY/EXIT 之间有效）
      */
     private static final ThreadLocal<SpyContext> CONTEXT = new ThreadLocal<>();
+
+    /**
+     * 全局追踪栈 — 每个线程保存 traceId + spanId 栈帧。
+     *
+     * <p>栈帧结构：(traceId, spanId)。ENTRY 压栈，EXIT/EXCEPTION 弹栈，
+     * 保持 spanId 父子关系。每次调用 Interceptor 时，traceId 始终不变，
+     * spanId 是当前栈帧，parentSpanId 是栈帧下方那个 spanId。</p>
+     */
+    private static final ThreadLocal<java.util.Deque<TraceStackFrame>> TRACE_STACK =
+            ThreadLocal.withInitial(java.util.ArrayDeque::new);
 
     /**
      * Handler 注册表：拦截键 -> Handler 实例
@@ -67,6 +77,12 @@ public class RuntimeSpy {
      * 插桩计数器
      */
     private static final ThreadLocal<Integer> TRANSFORM_COUNT = ThreadLocal.withInitial(() -> 0);
+
+    /**
+     * 跨线程追踪上下文存储（key 由用户指定）。
+     */
+    private static final Map<String, java.util.List<TraceStackFrame>> CROSS_THREAD_TRACES =
+            new ConcurrentHashMap<>();
 
     private RuntimeSpy() {
     }
@@ -193,44 +209,170 @@ public class RuntimeSpy {
 
         String key = buildKey(className, methodName, pointKey);
         Interceptor interceptor = INTERCEPTOR_MAP.get(key);
-        if (interceptor == null) {
-            return;
-        }
 
-        try {
-            InterceptContext ctx = InterceptContext.builder()
-                    .className(className)
-                    .methodName(methodName)
-                    .descriptor(descriptor)
-                    .point(point)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
-            interceptor.onIntercept(ctx);
-        } catch (Exception e) {
-            log.error("拦截器执行异常: {}", key, e);
-        }
+        // 链路追踪栈帧管理
+        TraceStackFrame currentFrame = TRACE_STACK.get().peek();
+        String traceId = currentFrame != null ? currentFrame.traceId() : null;
+        String parentSpanId = currentFrame != null ? currentFrame.spanId() : null;
 
-        // 链路追踪上下文维护
         if (point == InterceptPoint.ENTRY) {
-            SpyContext spyCtx = new SpyContext(className, methodName, System.currentTimeMillis());
-            CONTEXT.set(spyCtx);
-        } else if (point == InterceptPoint.EXIT) {
-            SpyContext spyCtx = CONTEXT.get();
-            CONTEXT.remove();
-            if (spyCtx != null) {
-                long duration = System.currentTimeMillis() - spyCtx.startTime;
-                log.trace("[Spy] {}.{}, duration={}ms", className, methodName, duration);
+            // 新建栈帧
+            if (traceId == null) {
+                traceId = generateTraceId();
             }
-        } else if (point == InterceptPoint.EXCEPTION) {
+            String spanId = generateSpanId();
+            TRACE_STACK.get().push(new TraceStackFrame(traceId, spanId));
+            CONTEXT.set(new SpyContext(className, methodName, System.currentTimeMillis()));
+        }
+
+        // 调用 Interceptor（如果有匹配）
+        if (interceptor != null) {
+            try {
+                TraceStackFrame topFrame = TRACE_STACK.get().peek();
+                InterceptContext.TraceStack traceStack = null;
+                if (topFrame != null) {
+                    traceStack = new InterceptContext.TraceStack(
+                            topFrame.traceId(), topFrame.spanId(), parentSpanId);
+                }
+                InterceptContext ctx = InterceptContext.builder()
+                        .className(className)
+                        .methodName(methodName)
+                        .descriptor(descriptor)
+                        .point(point)
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+                if (traceStack != null) {
+                    ctx.setTraceStack(traceStack);
+                }
+                interceptor.onIntercept(ctx);
+            } catch (Exception e) {
+                log.error("拦截器执行异常: {}", key, e);
+            }
+        }
+
+        // 维护 ENTRY/EXIT 计数 + 链路追踪栈弹栈
+        if (point == InterceptPoint.EXIT || point == InterceptPoint.EXCEPTION) {
+            TraceStackFrame popped = TRACE_STACK.get().poll();
             SpyContext spyCtx = CONTEXT.get();
             CONTEXT.remove();
             if (spyCtx != null) {
                 long duration = System.currentTimeMillis() - spyCtx.startTime;
-                log.trace("[Spy] {}.{}, duration={}ms [EXCEPTION]", className, methodName, duration);
+                if (point == InterceptPoint.EXCEPTION) {
+                    log.trace("[Spy] {}.{}, duration={}ms [EXCEPTION]", className, methodName, duration);
+                } else {
+                    log.trace("[Spy] {}.{}, duration={}ms", className, methodName, duration);
+                }
+            }
+            if (popped != null && log.isTraceEnabled()) {
+                log.trace("[Trace] exit span={} traceId={}", popped.spanId(), popped.traceId());
             }
         }
 
         TRANSFORM_COUNT.set(TRANSFORM_COUNT.get() + 1);
+    }
+
+    /**
+     * 捕获当前线程的追踪栈（用于跨线程传播）。
+     *
+     * <p>使用示例（在新线程中恢复追踪上下文）：</p>
+     * <pre>
+     * TraceContextSnapshot snap = RuntimeSpy.capture();
+     * new Thread(() -&gt; {
+     *     RuntimeSpy.restore(snap);
+     *     try {
+     *         // 业务代码...
+     *     } finally {
+     *         RuntimeSpy.clear();
+     *     }
+     * }).start();
+     * </pre>
+     *
+     * @return 追踪栈快照，调用方负责传递给子线程
+     */
+    public static TraceContextSnapshot capture() {
+        java.util.Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        if (stack.isEmpty()) {
+            return new TraceContextSnapshot(null, java.util.Collections.emptyList());
+        }
+        TraceStackFrame top = stack.peek();
+        return new TraceContextSnapshot(top.traceId(),
+                new java.util.ArrayList<>(stack));
+    }
+
+    /**
+     * 在子线程中恢复追踪上下文（跨线程传播）。
+     *
+     * <p>调用此方法后，该线程后续的 ENTRY 插桩会作为快照中根 Span 的子 Span，
+     * 直到调用 clear() 或 restore(null)。</p>
+     *
+     * @param snapshot 之前调用 capture() 获得的快照
+     */
+    public static void restore(TraceContextSnapshot snapshot) {
+        if (snapshot == null || snapshot.frames().isEmpty()) {
+            TRACE_STACK.get().clear();
+            return;
+        }
+        java.util.Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        stack.clear();
+        // 只压栈根 traceId + 顶层 spanId，使后续 ENTRY 作为顶层 span 的子节点
+        // 把栈顶（被调用的 span）作为父节点
+        TraceStackFrame top = snapshot.frames().get(snapshot.frames().size() - 1);
+        // 用一个特殊 frame 记录 traceId，但 spanId=null — 下次 ENTRY 会用其作为 parentSpanId
+        stack.push(new TraceStackFrame(snapshot.traceId(), top.spanId()));
+    }
+
+    /**
+     * 捕获并以 key 保存追踪上下文（用于通过 ExecutorService 跨线程传递）。
+     *
+     * @param key 标识键
+     * @return 快照
+     */
+    public static TraceContextSnapshot captureAsKey(String key) {
+        TraceContextSnapshot snap = capture();
+        if (key != null && !key.isEmpty()) {
+            CROSS_THREAD_TRACES.put(key, snap.frames());
+        }
+        return snap;
+    }
+
+    /**
+     * 用 key 恢复追踪上下文（跨 ExecutorService.submit(Runnable, key) 模式）。
+     *
+     * @param key 标识键
+     */
+    public static void restoreByKey(String key) {
+        if (key == null || key.isEmpty()) {
+            return;
+        }
+        java.util.List<TraceStackFrame> frames = CROSS_THREAD_TRACES.get(key);
+        CROSS_THREAD_TRACES.remove(key);
+        if (frames == null || frames.isEmpty()) {
+            TRACE_STACK.get().clear();
+            return;
+        }
+        java.util.Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        stack.clear();
+        TraceStackFrame top = frames.get(frames.size() - 1);
+        String traceId = top.traceId();
+        stack.push(new TraceStackFrame(traceId, top.spanId()));
+    }
+
+    /**
+     * 生成 traceId (16 字符)。
+     *
+     * @return traceId
+     */
+    private static String generateTraceId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+    }
+
+    /**
+     * 生成 spanId (16 字符)。
+     *
+     * @return spanId
+     */
+    private static String generateSpanId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
     /**
@@ -366,6 +508,27 @@ public class RuntimeSpy {
             String className,
             String methodName,
             long startTime
+    ) {
+    }
+
+    /**
+     * 追踪栈帧。
+     */
+    public record TraceStackFrame(
+            String traceId,
+            String spanId
+    ) {
+    }
+
+    /**
+     * 追踪上下文快照 — 用于跨线程传递。
+     *
+     * @param traceId 根 traceId
+     * @param frames  追踪栈（按从栈底到栈顶顺序）
+     */
+    public record TraceContextSnapshot(
+            String traceId,
+            java.util.List<TraceStackFrame> frames
     ) {
     }
 

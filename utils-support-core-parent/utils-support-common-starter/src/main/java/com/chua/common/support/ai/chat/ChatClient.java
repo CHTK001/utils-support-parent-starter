@@ -7,6 +7,7 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -193,6 +194,115 @@ public interface ChatClient extends AutoCloseable {
      * @return 当前客户端实例，支持链式调用
      */
     default ChatClient history(List<ChatMessage> messages) {
+        return this;
+    }
+
+    /**
+     * 设置工具（函数调用）定义列表
+     *
+     * <p>一次设置多个可被模型调用的工具，覆盖之前添加的工具。
+     * 各实现类据此构建对应的 function calling 请求参数。
+     *
+     * @param tools 工具定义列表
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient tools(List<ChatTool> tools) {
+        return this;
+    }
+
+    /**
+     * 追加一个工具（函数调用）定义
+     *
+     * <p>与 {@link #tools(List)} 不同，此方法向现有工具列表追加单个工具。
+     *
+     * @param tool 工具定义
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient tool(ChatTool tool) {
+        return this;
+    }
+
+    /**
+     * 设置工具选择策略（tool_choice）
+     *
+     * <p>取值约定：
+     * <ul>
+     *   <li>auto — 由模型自行决定是否调用工具（默认）</li>
+     *   <li>none — 禁止模型调用工具</li>
+     *   <li>required — 强制模型必须调用工具</li>
+     *   <li>工具名称 — 强制模型调用指定工具</li>
+     * </ul>
+     *
+     * @param toolChoice 工具选择策略
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient toolChoice(String toolChoice) {
+        return this;
+    }
+
+    /**
+     * 设置 Top-P 采样参数
+     *
+     * <p>核采样参数，控制生成文本的多样性，取值范围 [0.0, 1.0]。
+     *
+     * @param topP Top-P 值
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient topP(Double topP) {
+        return this;
+    }
+
+    /**
+     * 设置停止序列
+     *
+     * <p>当模型输出命中任一停止序列时终止生成。
+     *
+     * @param stop 停止序列列表
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient stop(List<String> stop) {
+        return this;
+    }
+
+    /**
+     * 设置随机种子
+     *
+     * <p>指定后模型在相同输入下尽量产生确定性输出。
+     *
+     * @param seed 随机种子
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient seed(Long seed) {
+        return this;
+    }
+
+    /**
+     * 设置响应格式
+     *
+     * <p>取值约定：
+     * <ul>
+     *   <li>text — 普通文本（默认）</li>
+     *   <li>json_object — 强制返回 JSON 对象</li>
+     *   <li>json_schema — 按 JSON Schema 约束结构化输出</li>
+     * </ul>
+     *
+     * @param responseFormat 响应格式
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient responseFormat(String responseFormat) {
+        return this;
+    }
+
+    /**
+     * 设置额外请求体参数
+     *
+     * <p>透传给各服务商请求体的额外字段（如 frequency_penalty、
+     * presence_penalty、max_completion_tokens 等），用于覆盖标准参数之外的能力。
+     *
+     * @param extraBody 额外请求体参数键值映射
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient extraBody(Map<String, Object> extraBody) {
         return this;
     }
 

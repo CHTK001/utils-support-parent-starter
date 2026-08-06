@@ -156,7 +156,12 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         InterceptPoint point = ctx.getPoint();
         switch (point) {
-            case ENTRY -> begin(ctx.getClassName(), ctx.getMethodName(), ctx.getDescriptor());
+            case ENTRY -> {
+                // 使用 Context 中的 traceId/parentSpanId（由 RuntimeSpy 注入），保持全链路共享
+                String traceId = ctx.getTraceId();
+                String parentSpanId = ctx.getParentSpanId();
+                begin(ctx.getClassName(), ctx.getMethodName(), ctx.getDescriptor(), traceId, parentSpanId);
+            }
             case EXIT -> end(ctx.getClassName(), ctx.getMethodName());
             case EXCEPTION -> onError(ctx.getClassName(), ctx.getMethodName(), ctx.getThrowable());
             default -> {
@@ -165,18 +170,21 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 方法入口插桩。
+     * 方法入口插桩（带 traceId/parentSpanId）。
      *
-     * @param className  类名
-     * @param methodName 方法名
-     * @param descriptor 方法描述符
+     * @param className    类名
+     * @param methodName   方法名
+     * @param descriptor   方法描述符
+     * @param traceId      全局追踪 ID（可为 null 表示由本方法生成）
+     * @param parentSpanId 父 Span ID（嵌套调用时传入）
      * @return Span ID
      */
-    public String begin(String className, String methodName, String descriptor) {
-        Span parent = traceContext.currentSpan();
+    public String begin(String className, String methodName, String descriptor,
+                        String traceId, String parentSpanId) {
         Span span = new Span();
+        span.setTraceId(traceId != null ? traceId : generateTraceId());
         span.setSpanId(generateSpanId());
-        span.setParentSpanId(parent != null ? parent.getSpanId() : null);
+        span.setParentSpanId(parentSpanId);
         span.setClassName(className);
         span.setMethodName(methodName);
         span.setDescriptor(descriptor);
@@ -191,9 +199,25 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             spanMap.remove(old.getSpanId());
         }
 
-        log.trace("[Trace] BEGIN: {} -> {}.{}, span={}",
-                parent != null ? parent.getSpanId() : "root", className, methodName, span.getSpanId());
+        log.trace("[Trace] BEGIN: traceId={}, parent={}, span={}, class={}.{}",
+                span.getTraceId(), parentSpanId != null ? parentSpanId : "root",
+                span.getSpanId(), className, methodName);
         return span.getSpanId();
+    }
+
+    /**
+     * 方法入口插桩（兼容旧调用）。
+     *
+     * @param className  类名
+     * @param methodName 方法名
+     * @param descriptor 方法描述符
+     * @return Span ID
+     */
+    public String begin(String className, String methodName, String descriptor) {
+        Span parent = traceContext.currentSpan();
+        return begin(className, methodName, descriptor,
+                parent != null ? parent.getTraceId() : null,
+                parent != null ? parent.getSpanId() : null);
     }
 
     /**
@@ -239,6 +263,15 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return Span ID
      */
     private String generateSpanId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+    }
+
+    /**
+     * 生成 traceId。
+     *
+     * @return traceId
+     */
+    private String generateTraceId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
@@ -326,6 +359,11 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     @Data
     public static class Span {
+
+        /**
+         * 全局追踪 ID（同一根调用链共享）
+         */
+        private String traceId;
 
         /**
          * Span ID
