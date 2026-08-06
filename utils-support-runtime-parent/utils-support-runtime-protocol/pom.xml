@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-runtime-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-runtime-protocol</artifactId>
+    <name>Utils Support Runtime Protocol</name>
+    <description>运行时协议抽象：Endpoint/Protocol/Software/EndpointKind/SpanKind/Direction/StatusCode/TransmissionRecord/Span/Trace 等值对象与枚举，供所有 APM Handler 共享。</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

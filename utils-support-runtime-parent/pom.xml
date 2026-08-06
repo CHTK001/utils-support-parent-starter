@@ -26,6 +26,7 @@
         <module>utils-support-runtime-agent</module>
         <module>utils-support-runtime-shell</module>
         <module>utils-support-runtime-starter</module>
+        <module>utils-support-runtime-protocol</module>
         <module>utils-support-runtime-e2e-test</module>
     </modules>
 
