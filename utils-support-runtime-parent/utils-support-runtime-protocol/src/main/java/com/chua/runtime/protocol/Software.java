@@ -113,6 +113,16 @@ public enum Software {
     GRPC("gRPC"),
 
     /**
+     * Memcached Java Client
+     */
+    MEMCACHED("Memcached"),
+
+    /**
+     * Elasticsearch Client
+     */
+    ELASTICSEARCH("Elasticsearch"),
+
+    /**
      * 进程内直接调用
      */
     PROCESS("Process"),
