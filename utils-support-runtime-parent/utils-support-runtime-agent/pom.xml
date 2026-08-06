@@ -19,6 +19,16 @@
             <artifactId>utils-support-runtime-spy</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-apm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
