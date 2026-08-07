@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,12 +47,38 @@ public class OrderController {
         long orderId = COUNTER.incrementAndGet();
         LOG.info("创建订单 amount={} orderId={}", amount, orderId);
 
+        // 触发外部 HTTP 连接（即使不可达也会被 TransmissionHandler 拦截）
+        notifyExternalService(orderId);
+
         Map<String, Object> result = new HashMap<>();
         result.put("orderId", "ORDER-" + orderId);
         result.put("amount", amount);
         result.put("status", "CREATED");
         result.put("timestamp", System.currentTimeMillis());
         return result;
+    }
+
+    /**
+     * 触发外部 HTTP 连接 — 用于演示 TransmissionHandler + SoftwareDetector 识别客户端栈帧。
+     *
+     * <p>尝试连接 192.0.2.1:9999（RFC 5737 TEST-NET-1 地址，肯定不可达，但 Socket.connect 仍会被拦截）。</p>
+     */
+    private void notifyExternalService(long orderId) {
+        try {
+            URL url = new URL("http://192.0.2.1:9999/notify?orderId=" + orderId);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(500);
+            conn.setReadTimeout(500);
+            try {
+                conn.getResponseCode();
+            } catch (Exception ignored) {
+            } finally {
+                conn.disconnect();
+            }
+        } catch (Exception e) {
+            // 连接失败也正常 —— 我们只关心 Socket.connect 是否被拦截
+            LOG.debug("外部通知失败: {}", e.getMessage());
+        }
     }
 
     /**
