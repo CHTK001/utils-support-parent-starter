@@ -2,8 +2,8 @@ package com.chua.runtime.apm.handler;
 
 import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
@@ -19,9 +19,9 @@ import java.util.*;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public final class SoftwareDetector {
 
+    private static final Logger LOG = Logger.getLogger(SoftwareDetector.class.getName());
     private SoftwareDetector() {
     }
 

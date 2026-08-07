@@ -7,8 +7,8 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.core.model.LogStream;
 import com.chua.runtime.core.model.RuntimeArtifact;
 import com.chua.runtime.core.model.RuntimeStatus;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -31,9 +31,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class DefaultRuntimeInstance implements RuntimeInstance {
 
+
+    private static final Logger LOG = Logger.getLogger(DefaultRuntimeInstance.class.getName());
     /**
      * 健康检查超时（秒）
      */
@@ -132,7 +133,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
         try {
             List<String> cmd = buildCommand();
-            log.debug("启动命令: {}", cmd);
+            LOG.log(Level.FINE, String.format("启动命令: %s", cmd));
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             if (artifact.getWorkDir() != null) {
@@ -163,7 +164,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
             status.set(RuntimeStatus.RUNNING);
             startTime = System.currentTimeMillis();
-            log.info("工件[{}] 启动成功，PID: {}", artifact.getId(), process.pid());
+            LOG.log(Level.INFO, String.format("工件[%s] 启动成功，PID: %s", artifact.getId(), process.pid()));
             waitForExitAsync(process);
 
             if (hasHealthCheck()) {
@@ -179,7 +180,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
         } catch (Exception e) {
             status.set(RuntimeStatus.CRASHED);
-            log.error("启动失败", e);
+            LOG.log(Level.SEVERE, String.format("启动失败", e));
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr(e.getMessage())
@@ -326,7 +327,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                 }
             } catch (IOException e) {
                 if (status.get() == RuntimeStatus.RUNNING) {
-                    log.warn("日志读取异常", e);
+                    LOG.log(Level.WARNING, String.format("日志读取异常", e));
                 }
             }
         }, "runtime-log-" + artifact.getId());

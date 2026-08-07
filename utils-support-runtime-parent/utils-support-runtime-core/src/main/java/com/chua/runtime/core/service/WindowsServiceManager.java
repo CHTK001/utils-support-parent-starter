@@ -3,8 +3,8 @@ package com.chua.runtime.core.service;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.runtime.core.model.ManagedService;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -13,9 +13,10 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class WindowsServiceManager implements ServiceManager {
 
+
+    private static final Logger LOG = Logger.getLogger(WindowsServiceManager.class.getName());
     /**
      * 命令超时（秒）
      */
@@ -34,7 +35,7 @@ public class WindowsServiceManager implements ServiceManager {
 
     @Override
     public CmdResult install(ManagedService service) {
-        log.info("正在安装 Windows 服务[{}]", service.getServiceName());
+        LOG.log(Level.INFO, String.format("正在安装 Windows 服务[%s]", service.getServiceName()));
         String exec = service.getExecutable();
         String args = service.getArgs() != null && !service.getArgs().isEmpty()
                 ? " " + String.join(" ", service.getArgs()) : "";
@@ -44,21 +45,21 @@ public class WindowsServiceManager implements ServiceManager {
                 service.getDisplayName() != null ? service.getDisplayName() : service.getServiceName());
         CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT, TimeUnit.SECONDS);
         if (result.isSuccess()) {
-            log.info("Windows 服务[{}] 安装成功", service.getServiceName());
+            LOG.log(Level.INFO, String.format("Windows 服务[%s] 安装成功", service.getServiceName()));
             if (service.getDescription() != null && !service.getDescription().isBlank()) {
                 CmdExecutors.execute(
                         "sc description \"" + service.getServiceName() + "\" \"" + service.getDescription() + "\"",
                         CMD_TIMEOUT, TimeUnit.SECONDS);
             }
         } else {
-            log.error("Windows 服务[{}] 安装失败: {}", service.getServiceName(), result.getStderr());
+            LOG.log(Level.SEVERE, String.format("Windows 服务[%s] 安装失败: %s", service.getServiceName(), result.getStderr()));
         }
         return result;
     }
 
     @Override
     public CmdResult uninstall(String serviceName) {
-        log.info("正在卸载 Windows 服务[{}]", serviceName);
+        LOG.log(Level.INFO, String.format("正在卸载 Windows 服务[%s]", serviceName));
         return CmdExecutors.execute("sc delete \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 

@@ -3,8 +3,8 @@ package com.chua.runtime.core.manager;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.runtime.core.service.JavaAgentManager;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +16,10 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class DefaultJavaAgentManager implements JavaAgentManager {
 
+
+    private static final Logger LOG = Logger.getLogger(DefaultJavaAgentManager.class.getName());
     /**
      * 命令超时（秒）
      */
@@ -48,7 +49,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
                 }
             }
         } catch (Exception e) {
-            log.warn("列出进程失败", e);
+            LOG.log(Level.WARNING, String.format("列出进程失败", e));
         }
         return jvms;
     }
@@ -71,7 +72,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
 
     @Override
     public CmdResult attach(int pid, Path agentPath, String options) {
-        log.info("正在注入 Agent 到 PID[{}]", pid);
+        LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]", pid));
         try {
             Class<?> vmClass = Class.forName("com.sun.tools.attach.VirtualMachine");
             Object vm = vmClass.getMethod("attach", String.class).invoke(null, String.valueOf(pid));

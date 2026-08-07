@@ -2,7 +2,8 @@ package com.chua.runtime.spy;
 
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.loader.PluginManager;
-import lombok.extern.slf4j.Slf4j;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
 
@@ -44,9 +45,10 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class SpyTransformer implements ClassFileTransformer {
 
+
+    private static final Logger LOG = Logger.getLogger(SpyTransformer.class.getName());
     /**
      * ASM API 版本
      */
@@ -121,7 +123,7 @@ public class SpyTransformer implements ClassFileTransformer {
     public void registerMethod(String className, String methodName, InterceptPoint point) {
         String key = className + "#" + methodName;
         methodRules.computeIfAbsent(key, k -> EnumSet.noneOf(InterceptPoint.class)).add(point);
-        log.debug("注册精确插桩规则: {} -> {}", key, point.getKey());
+        LOG.log(Level.FINE, String.format("注册精确插桩规则: %s -> %s", key, point.getKey()));
     }
 
     /**
@@ -140,7 +142,7 @@ public class SpyTransformer implements ClassFileTransformer {
                 methodRules.remove(key);
             }
         }
-        log.debug("注销精确插桩规则: {} -> {}", key, point.getKey());
+        LOG.log(Level.FINE, String.format("注销精确插桩规则: %s -> %s", key, point.getKey()));
     }
 
     /**
@@ -206,7 +208,7 @@ public class SpyTransformer implements ClassFileTransformer {
             return transformClass(className, classfileBuffer);
 
         } catch (Exception e) {
-            log.warn("插桩失败: {}", className, e);
+            LOG.log(Level.WARNING, String.format("插桩失败: %s", className, e));
             return null;
         }
     }
@@ -294,7 +296,7 @@ public class SpyTransformer implements ClassFileTransformer {
             }
         }
         if (!toRetransform.isEmpty()) {
-            log.info("对 {} 个已加载类执行 retransform", toRetransform.size());
+            LOG.log(Level.INFO, String.format("对 %s 个已加载类执行 retransform", toRetransform.size()));
             inst.retransformClasses(toRetransform.toArray(new Class[0]));
         }
     }

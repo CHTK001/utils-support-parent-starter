@@ -2,8 +2,8 @@ package com.chua.runtime.plugin.loader;
 
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -17,9 +17,10 @@ import java.util.*;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class PluginClassLoader extends URLClassLoader {
 
+
+    private static final Logger LOG = Logger.getLogger(PluginClassLoader.class.getName());
     /**
      * 插件名称
      */
@@ -122,14 +123,14 @@ public class PluginClassLoader extends URLClassLoader {
                                     try {
                                         urls.add(p.toUri().toURL());
                                     } catch (Exception e) {
-                                        log.warn("添加 lib 目录 JAR 失败: {}", p, e);
+                                        LOG.log(Level.WARNING, String.format("添加 lib 目录 JAR 失败: %s", p, e));
                                     }
                                 });
                     }
                 }
             }
         } catch (Exception e) {
-            log.warn("构建插件 URL 失败: {}", pluginDir, e);
+            LOG.log(Level.WARNING, String.format("构建插件 URL 失败: %s", pluginDir, e));
         }
         return urls.toArray(new URL[0]);
     }
@@ -158,7 +159,7 @@ public class PluginClassLoader extends URLClassLoader {
             try {
                 Files.readAllLines(spiPath).forEach(plugins::add);
             } catch (IOException e) {
-                log.warn("扫描 SPI 配置失败", e);
+                LOG.log(Level.WARNING, String.format("扫描 SPI 配置失败", e));
             }
         }
         return plugins;

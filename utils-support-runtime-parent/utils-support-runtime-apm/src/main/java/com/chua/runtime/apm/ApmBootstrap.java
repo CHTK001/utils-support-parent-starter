@@ -6,8 +6,8 @@ import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,9 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class ApmBootstrap {
 
+    private static final Logger LOG = Logger.getLogger(ApmBootstrap.class.getName());
     /**
      * 全局唯一实例（RuntimeAgent.premain 启动时设置）
      */
@@ -70,7 +70,7 @@ public class ApmBootstrap {
                 handler.init(context);
             }
         } catch (Exception e) {
-            log.error("APM 处理器初始化失败", e);
+            LOG.log(Level.SEVERE, String.format("APM 处理器初始化失败", e));
         }
     }
 
@@ -93,9 +93,9 @@ public class ApmBootstrap {
         for (Plugin handler : handlers) {
             try {
                 handler.start();
-                log.info("APM 处理器[{}] 启动", handler.name());
+                LOG.log(Level.INFO, String.format("APM 处理器[%s] 启动", handler.name()));
             } catch (Exception e) {
-                log.error("APM 处理器[{}] 启动失败", handler.name(), e);
+                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 启动失败", handler.name(), e));
             }
         }
         started = true;
@@ -109,9 +109,9 @@ public class ApmBootstrap {
             Plugin handler = handlers.get(i);
             try {
                 handler.stop();
-                log.info("APM 处理器[{}] 停止", handler.name());
+                LOG.log(Level.INFO, String.format("APM 处理器[%s] 停止", handler.name()));
             } catch (Exception e) {
-                log.error("APM 处理器[{}] 停止失败", handler.name(), e);
+                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 停止失败", handler.name(), e));
             }
         }
         started = false;

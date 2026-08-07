@@ -9,8 +9,8 @@ import com.chua.runtime.shell.command.builtin.StatusCommand;
 import com.chua.runtime.shell.command.builtin.InfoCommand;
 import com.chua.runtime.shell.command.builtin.ThreadsCommand;
 import com.chua.runtime.shell.command.builtin.MemoryCommand;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class TelnetServer {
 
+    private static final Logger LOG = Logger.getLogger(TelnetServer.class.getName());
     /**
      * 默认 Shell 端口
      */
@@ -110,7 +110,7 @@ public class TelnetServer {
      */
     public void start(int port) throws IOException {
         if (!running.compareAndSet(false, true)) {
-            log.warn("Shell 服务器已运行");
+            LOG.log(Level.WARNING, "Shell 服务器已运行");
             return;
         }
         this.serverSocket = new ServerSocket(port);
@@ -119,7 +119,7 @@ public class TelnetServer {
             t.setDaemon(true);
             return t;
         });
-        log.info("Telnet Shell 已启动，监听端口: {}", port);
+        LOG.log(Level.INFO, String.format("Telnet Shell 已启动，监听端口: %s", port));
         Thread acceptor = new Thread(this::acceptLoop, "runtime-shell-acceptor");
         acceptor.setDaemon(true);
         acceptor.start();
@@ -135,7 +135,7 @@ public class TelnetServer {
                 executor.submit(new ShellSession(socket, registry));
             } catch (IOException e) {
                 if (running.get()) {
-                    log.warn("接受连接异常: {}", e.getMessage());
+                    LOG.log(Level.WARNING, String.format("接受连接异常: %s", e.getMessage()));
                 }
             }
         }
@@ -153,12 +153,12 @@ public class TelnetServer {
                 serverSocket.close();
             }
         } catch (IOException e) {
-            log.warn("关闭服务器异常", e);
+            LOG.log(Level.WARNING, String.format("关闭服务器异常", e));
         }
         if (executor != null) {
             executor.shutdownNow();
         }
-        log.info("Telnet Shell 已停止");
+        LOG.log(Level.INFO, "Telnet Shell 已停止");
     }
 
     /**

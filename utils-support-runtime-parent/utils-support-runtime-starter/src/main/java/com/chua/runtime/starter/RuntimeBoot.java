@@ -18,8 +18,8 @@ import com.chua.runtime.shell.command.builtin.RuntimeCommand;
 import com.chua.runtime.spy.SpyBootstrap;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,9 +46,9 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class RuntimeBoot {
 
+    private static final Logger LOG = Logger.getLogger(RuntimeBoot.class.getName());
     /**
      * 配置
      */
@@ -173,20 +173,20 @@ public class RuntimeBoot {
     public RuntimeBoot install() {
         String id = config.getArtifact().getId();
         if (manager.getArtifact(id) != null) {
-            log.info("工件[{}] 已注册，下载中...", id);
+            LOG.log(Level.INFO, String.format("工件[%s] 已注册，下载中...", id));
             manager.download(id, new LineCallback() {
                 @Override
                 public void onLine(String line) {
-                    log.info(line);
+                    LOG.log(Level.INFO, String.valueOf(line));
                 }
 
                 @Override
                 public void onError(String key, Throwable e) {
-                    log.error("下载失败: " + key, e);
+                    LOG.log(Level.SEVERE, String.format("下载失败: \" + ke", e));
                 }
             }).join();
         } else {
-            log.warn("未找到工件[{}]，跳过下载", id);
+            LOG.log(Level.WARNING, String.format("未找到工件[%s]，跳过下载", id));
         }
         return this;
     }
@@ -199,15 +199,15 @@ public class RuntimeBoot {
     public RuntimeBoot attachAgent() {
         Path agentPath = config.getAgentPath();
         if (agentPath == null || !Files.exists(agentPath)) {
-            log.warn("Agent 路径不存在，跳过注入");
+            LOG.log(Level.WARNING, "Agent 路径不存在，跳过注入");
             return this;
         }
         if (config.getPid() == 0) {
-            log.warn("未指定 PID，跳过注入");
+            LOG.log(Level.WARNING, "未指定 PID，跳过注入");
             return this;
         }
         manager.attachToJvm(config.getPid(), agentPath, config.getAgentOptions());
-        log.info("Agent 注入完成，PID[{}]", config.getPid());
+        LOG.log(Level.INFO, String.format("Agent 注入完成，PID[%s]", config.getPid()));
         return this;
     }
 
@@ -220,7 +220,7 @@ public class RuntimeBoot {
         try {
             shell.start(config.getShellPort());
         } catch (IOException e) {
-            log.warn("Shell 启动失败: {}", e.getMessage());
+            LOG.log(Level.WARNING, String.format("Shell 启动失败: %s", e.getMessage()));
         }
         return this;
     }
@@ -244,7 +244,7 @@ public class RuntimeBoot {
         String id = config.getArtifact().getId();
         RuntimeStatus status = manager.status(id);
         if (status == RuntimeStatus.RUNNING) {
-            log.info("工件[{}] 已运行", id);
+            LOG.log(Level.INFO, String.format("工件[%s] 已运行", id));
             return this;
         }
         manager.start(id);
@@ -260,16 +260,16 @@ public class RuntimeBoot {
      */
     public void run() {
         if (running) {
-            log.warn("已运行");
+            LOG.log(Level.WARNING, "已运行");
             return;
         }
         running = true;
         RuntimeStatus status = manager.status(config.getArtifact().getId());
         if (status == RuntimeStatus.STOPPED) {
-            log.info("启动工件: {}", config.getArtifact().getName());
+            LOG.log(Level.INFO, String.format("启动工件: %s", config.getArtifact().getName()));
             manager.start(config.getArtifact().getId());
         }
-        log.info("Runtime 运行中，PID[{}]", manager.getInstance(config.getArtifact().getId()));
+        LOG.log(Level.INFO, String.format("Runtime 运行中，PID[%s]", manager.getInstance(config.getArtifact().getId())));
         try {
             Thread.currentThread().join();
         } catch (InterruptedException e) {
@@ -281,7 +281,7 @@ public class RuntimeBoot {
      * 停止所有组件。
      */
     public void shutdown() {
-        log.info("关闭 Runtime...");
+        LOG.log(Level.INFO, "关闭 Runtime...");
         if (shell != null) {
             shell.stop();
         }
@@ -291,7 +291,7 @@ public class RuntimeBoot {
         try {
             manager.close();
         } catch (Exception e) {
-            log.warn("关闭管理器异常", e);
+            LOG.log(Level.WARNING, String.format("关闭管理器异常", e));
         }
         running = false;
     }

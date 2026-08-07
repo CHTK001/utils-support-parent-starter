@@ -6,8 +6,8 @@ import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.Socket;
@@ -37,8 +37,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
+    private static final Logger LOG = Logger.getLogger(HandleLeakHandler.class.getName());
 
     /**
      * 插件名称
@@ -124,7 +124,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     @Override
     public void init(PluginContext context) throws Exception {
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LEAK_ENABLED, DEFAULT_ENABLED));
-        log.info("HandleLeakHandler 初始化完成，启用状态: {}", enabled);
+        LOG.log(Level.INFO, String.format("HandleLeakHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
@@ -145,7 +145,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "close", "()V", InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(SOCKET, "close", "()V", InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(SERVER_SOCKET, "close", "()V", InterceptPoint.EXIT, this);
-        log.info("HandleLeakHandler 启动完成，句柄泄漏检测已启用");
+        LOG.log(Level.INFO, "HandleLeakHandler 启动完成，句柄泄漏检测已启用");
     }
 
     @Override
@@ -154,7 +154,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         if (started.compareAndSet(true, false)) {
             RuntimeSpy.unregisterAll(this);
         }
-        log.info("HandleLeakHandler 停止");
+        LOG.log(Level.INFO, "HandleLeakHandler 停止");
     }
 
     @Override
@@ -199,7 +199,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         record.setLastUsedAt(System.currentTimeMillis());
         record.setClosed(false);
         handles.put(handleId, record);
-        log.trace("[Handle] OPEN: kind={} id={} thread={}", kind, handleId, record.getOwnerThread());
+        LOG.log(Level.FINE, String.format("[Handle] OPEN: kind=%s id=%s thread=%s", kind, handleId, record.getOwnerThread()));
     }
 
     /**
@@ -223,8 +223,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
             oldest.setClosed(true);
             oldest.setLastUsedAt(System.currentTimeMillis());
             handles.remove(oldest.getHandleId());
-            log.trace("[Handle] CLOSE: kind={} id={} age={}ms", kind, oldest.getHandleId(),
-                    oldest.getLastUsedAt() - oldest.getCreatedAt());
+            LOG.log(Level.FINE, String.format("[Handle] CLOSE: kind=%s id=%s age=%sms", kind, oldest.getHandleId(), oldest.getLastUsedAt() - oldest.getCreatedAt()));
         }
     }
 
@@ -287,6 +286,8 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
      * 句柄类型枚举。
      */
     public enum HandleKind {
+
+
         /**
          * 文件
          */

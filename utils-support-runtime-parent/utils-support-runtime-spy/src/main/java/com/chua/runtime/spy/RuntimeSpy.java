@@ -1,8 +1,8 @@
 package com.chua.runtime.spy;
 
 import com.chua.runtime.plugin.InterceptPoint;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,9 +51,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class RuntimeSpy {
 
+    private static final Logger LOG = Logger.getLogger(RuntimeSpy.class.getName());
     /**
      * 拦截点匹配键分隔符（className#methodName#pointKey）
      */
@@ -138,7 +138,7 @@ public class RuntimeSpy {
         INTERCEPTOR_MAP.put(key, interceptor);
         // 同步精确插桩规则到 SpyTransformer
         syncTransformerRule(className, methodName, point, true);
-        log.debug("注册拦截器: {} -> {}[{}]", key, interceptor.getClass().getSimpleName(), point.getKey());
+        LOG.log(Level.FINE, String.format("注册拦截器: %s -> %s[%s]", key, interceptor.getClass().getSimpleName(), point.getKey()));
     }
 
     /**
@@ -165,7 +165,7 @@ public class RuntimeSpy {
                 }
             }
         } catch (Exception e) {
-            log.warn("同步插桩规则失败: {}.{}.{}", className, methodName, e.getMessage());
+            LOG.log(Level.WARNING, String.format("同步插桩规则失败: %s.%s.%s", className, methodName, e.getMessage()));
         }
     }
 
@@ -181,7 +181,7 @@ public class RuntimeSpy {
                                              InterceptPoint point) {
         String key = buildKey(className, methodName, point.getKey());
         INTERCEPTOR_MAP.remove(key);
-        log.debug("注销拦截器: {}", key);
+        LOG.log(Level.FINE, String.format("注销拦截器: %s", key));
     }
 
     /**
@@ -202,7 +202,7 @@ public class RuntimeSpy {
             INTERCEPTOR_MAP.remove(key);
             syncRemoveRule(key);
         }
-        log.debug("注销 {} 的所有拦截器，共 {} 个", handlerName, keysToRemove.size());
+        LOG.log(Level.FINE, String.format("注销 %s 的所有拦截器，共 %s 个", handlerName, keysToRemove.size()));
     }
 
     /**
@@ -282,7 +282,7 @@ public class RuntimeSpy {
                 }
                 interceptor.onIntercept(ctx);
             } catch (Exception e) {
-                log.error("拦截器执行异常: {}", key, e);
+                LOG.log(Level.SEVERE, String.format("拦截器执行异常: %s", key, e));
             }
         }
 
@@ -294,13 +294,13 @@ public class RuntimeSpy {
             if (spyCtx != null) {
                 long duration = System.currentTimeMillis() - spyCtx.startTime;
                 if (point == InterceptPoint.EXCEPTION) {
-                    log.trace("[Spy] {}.{}, duration={}ms [EXCEPTION]", className, methodName, duration);
+                    LOG.log(Level.FINE, String.format("[Spy] %s.%s, duration=%sms [EXCEPTION]", className, methodName, duration));
                 } else {
-                    log.trace("[Spy] {}.{}, duration={}ms", className, methodName, duration);
+                    LOG.log(Level.FINE, String.format("[Spy] %s.%s, duration=%sms", className, methodName, duration));
                 }
             }
-            if (popped != null && log.isTraceEnabled()) {
-                log.trace("[Trace] exit span={} traceId={}", popped.spanId(), popped.traceId());
+            if (popped != null && LOG.isLoggable(java.util.logging.Level.FINE)) {
+                LOG.log(Level.FINE, String.format("[Trace] exit span=%s traceId=%s", popped.spanId(), popped.traceId()));
             }
             // 栈空时清 MDC（最外层方法退出）
             if (TRACE_STACK.get().isEmpty()) {
@@ -463,7 +463,7 @@ public class RuntimeSpy {
                     .build();
             interceptor.onIntercept(ctx);
         } catch (Exception e) {
-            log.error("异常拦截器执行异常: {}", key, e);
+            LOG.log(Level.SEVERE, String.format("异常拦截器执行异常: %s", key, e));
         }
     }
 
@@ -523,7 +523,7 @@ public class RuntimeSpy {
         } catch (ClassNotFoundException e) {
             // slf4j 不在 classpath，静默跳过
         } catch (Exception e) {
-            log.debug("MDC.put 失败 ({}={}): {}", key, value, e.getMessage());
+            LOG.log(Level.FINE, String.format("MDC.put 失败 (%s=%s): %s", key, value, e.getMessage()));
         }
     }
 
@@ -542,7 +542,7 @@ public class RuntimeSpy {
         } catch (ClassNotFoundException e) {
             // 静默跳过
         } catch (Exception e) {
-            log.debug("MDC.remove 失败: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("MDC.remove 失败: %s", e.getMessage()));
         }
     }
 
@@ -563,7 +563,7 @@ public class RuntimeSpy {
         CONTEXT.remove();
         TRANSFORM_COUNT.remove();
         clearMdc();
-        log.info("RuntimeSpy 已清除");
+        LOG.log(Level.INFO, "RuntimeSpy 已清除");
     }
 
     /**
@@ -677,7 +677,7 @@ public class RuntimeSpy {
                 }
             });
         } catch (Exception e) {
-            log.debug("包装 Thread 失败: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("包装 Thread 失败: %s", e.getMessage()));
         }
         return thread;
     }

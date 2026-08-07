@@ -8,7 +8,8 @@ import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.spy.RuntimeSpy;
-import lombok.extern.slf4j.Slf4j;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,10 +34,10 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 @RestController
 public class AgentController {
 
+    private static final Logger LOG = Logger.getLogger(AgentController.class.getName());
     @GetMapping("/agent/status")
     public Map<String, Object> status() {
         Map<String, Object> result = new HashMap<>();

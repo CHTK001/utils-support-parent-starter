@@ -6,8 +6,8 @@ import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
+    private static final Logger LOG = Logger.getLogger(LogHandler.class.getName());
 
     /**
      * 插件名称
@@ -158,7 +158,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LOG_ENABLED, DEFAULT_ENABLED));
-        log.info("LogHandler 初始化完成，启用状态: {}", enabled);
+        LOG.log(Level.INFO, String.format("LogHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
@@ -182,7 +182,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         // 劫持 System.out/err
         hijackSystemStreams();
 
-        log.info("LogHandler 启动完成，已注册日志拦截点");
+        LOG.log(Level.INFO, "LogHandler 启动完成，已注册日志拦截点");
     }
 
     @Override
@@ -197,7 +197,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         // 注销所有拦截器
         RuntimeSpy.unregisterAll(this);
-        log.info("LogHandler 停止");
+        LOG.log(Level.INFO, "LogHandler 停止");
     }
 
     @Override
@@ -247,7 +247,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
             // 日志方法调用后：补充处理
             String level = mapMethodToLevel(methodName);
             if (level != null) {
-                log.trace("[LogPost] {}.{} level={}", context.getReadableClassName(), methodName, level);
+                LOG.log(Level.FINE, String.format("[LogPost] %s.%s level=%s", context.getReadableClassName(), methodName, level));
             }
         }
     }
@@ -266,7 +266,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
                         InterceptPoint.LOG_POST, this);
             }
         }
-        log.debug("已注册 SLF4J 拦截点: {} 方法 × {} 描述符", LOG_METHODS.length, LOG_METHOD_DESCS.length);
+        LOG.log(Level.FINE, String.format("已注册 SLF4J 拦截点: %s 方法 × %s 描述符", LOG_METHODS.length, LOG_METHOD_DESCS.length));
     }
 
     /**
@@ -287,7 +287,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
                         InterceptPoint.LOG_PRE, this);
             }
         }
-        log.debug("已注册 JUL 拦截点");
+        LOG.log(Level.FINE, "已注册 JUL 拦截点");
     }
 
     /**
@@ -301,7 +301,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
                         InterceptPoint.LOG_PRE, this);
             }
         }
-        log.debug("已注册 APCL 拦截点");
+        LOG.log(Level.FINE, "已注册 APCL 拦截点");
     }
 
     /**
@@ -315,7 +315,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
                         InterceptPoint.LOG_PRE, this);
             }
         }
-        log.debug("已注册 Log4j2 拦截点");
+        LOG.log(Level.FINE, "已注册 Log4j2 拦截点");
     }
 
     /**
@@ -332,7 +332,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         System.setOut(new LoggingPrintStream(originalOut, "stdout"));
         System.setErr(new LoggingPrintStream(originalErr, "stderr"));
 
-        log.debug("System.out/err 劫持完成");
+        LOG.log(Level.FINE, "System.out/err 劫持完成");
     }
 
     /**
