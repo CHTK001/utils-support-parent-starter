@@ -17,6 +17,13 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>3.2.0</spring.boot.version>
+        <!-- 父 pom 默认 spring 7.0.8 与 spring-boot 3.2 不兼容，强制锁定 spring 6.1.x -->
+        <spring.version>6.1.14</spring.version>
+        <!-- JDK 25 编译的 class 文件版本 69，Spring 6.1 ASM 不识别；
+             目标字节码锁定到 21，兼容 JDK 17-25 运行 -->
+        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <build>
@@ -26,6 +33,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <source>21</source>
+                    <target>21</target>
+                    <release>21</release>
                 </configuration>
             </plugin>
         </plugins>
@@ -81,6 +91,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 完整 Spring Boot starter（保证 spring-core 版本一致） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.2.0</version>
             <optional>true</optional>
         </dependency>
 
