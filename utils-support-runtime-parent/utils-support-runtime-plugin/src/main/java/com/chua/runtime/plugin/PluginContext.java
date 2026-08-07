@@ -1,7 +1,7 @@
 package com.chua.runtime.plugin;
 
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class PluginContext {
 
+    private static final Logger LOG = Logger.getLogger(PluginContext.class.getName());
     /**
      * 插件根目录
      */
@@ -64,14 +64,14 @@ public class PluginContext {
     }
 
     public void info(String message) {
-        log.info("[PluginContext] {}", message);
+        LOG.log(Level.INFO, String.format("[PluginContext] %s", message));
     }
 
     public void warn(String message) {
-        log.warn("[PluginContext] {}", message);
+        LOG.log(Level.WARNING, String.format("[PluginContext] %s", message));
     }
 
     public void error(String message, Throwable throwable) {
-        log.error("[PluginContext] {}", message, throwable);
+        LOG.log(Level.SEVERE, String.format("[PluginContext] %s", message, throwable));
     }
 }

@@ -3,8 +3,8 @@ package com.chua.runtime.core.service;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.runtime.core.model.ManagedService;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,9 +17,10 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class SystemdServiceManager implements ServiceManager {
 
+
+    private static final Logger LOG = Logger.getLogger(SystemdServiceManager.class.getName());
     /**
      * systemd 服务目录
      */
@@ -44,7 +45,7 @@ public class SystemdServiceManager implements ServiceManager {
 
     @Override
     public CmdResult install(ManagedService service) {
-        log.info("正在安装 systemd 服务[{}]", service.getServiceName());
+        LOG.log(Level.INFO, String.format("正在安装 systemd 服务[%s]", service.getServiceName()));
         try {
             String content = generateServiceFile(service);
             String tmp = "/tmp/" + service.getServiceName() + ".service";
@@ -66,14 +67,14 @@ public class SystemdServiceManager implements ServiceManager {
             if ("auto".equalsIgnoreCase(service.getStartupType())) {
                 enable(service.getServiceName());
             }
-            log.info("systemd 服务[{}] 安装成功", service.getServiceName());
+            LOG.log(Level.INFO, String.format("systemd 服务[%s] 安装成功", service.getServiceName()));
             return CmdResult.builder()
                     .exitCode(0)
                     .stdout("systemd 服务[" + service.getServiceName() + "] 安装成功")
                     .command("install service " + service.getServiceName())
                     .build();
         } catch (IOException e) {
-            log.error("生成 service 文件失败", e);
+            LOG.log(Level.SEVERE, String.format("生成 service 文件失败", e));
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr("生成失败: " + e.getMessage())
@@ -93,7 +94,7 @@ public class SystemdServiceManager implements ServiceManager {
             CmdExecutors.execute("sudo rm -f " + svc, CMD_TIMEOUT, TimeUnit.SECONDS);
         }
         CmdExecutors.execute("systemctl daemon-reload", CMD_TIMEOUT, TimeUnit.SECONDS);
-        log.info("systemd 服务[{}] 卸载完成", serviceName);
+        LOG.log(Level.INFO, String.format("systemd 服务[%s] 卸载完成", serviceName));
         return r;
     }
 

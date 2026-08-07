@@ -7,8 +7,8 @@ import com.chua.runtime.protocol.Endpoint;
 import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,9 +32,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class DependencyGraphHandler implements Plugin {
 
+
+    private static final Logger LOG = Logger.getLogger(DependencyGraphHandler.class.getName());
     /**
      * 插件名称
      */
@@ -94,7 +95,7 @@ public class DependencyGraphHandler implements Plugin {
     @Override
     public void init(PluginContext context) throws Exception {
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_DEP_ENABLED, DEFAULT_ENABLED));
-        log.info("DependencyGraphHandler 初始化完成，启用状态: {}", enabled);
+        LOG.log(Level.INFO, String.format("DependencyGraphHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
@@ -103,14 +104,14 @@ public class DependencyGraphHandler implements Plugin {
             return;
         }
         started.set(true);
-        log.info("DependencyGraphHandler 启动完成，依赖关系追踪已启用");
+        LOG.log(Level.INFO, "DependencyGraphHandler 启动完成，依赖关系追踪已启用");
     }
 
     @Override
     public void stop() throws Exception {
         this.enabled = false;
         started.set(false);
-        log.info("DependencyGraphHandler 停止");
+        LOG.log(Level.INFO, "DependencyGraphHandler 停止");
     }
 
     @Override
@@ -150,9 +151,7 @@ public class DependencyGraphHandler implements Plugin {
                 .software(software)
                 .build());
         edge.record(duration, isError, error);
-        log.trace("[Dependency] {} -> {} ({}ms, calls={}, errors={})",
-                source.displayLabel(), target.displayLabel(),
-                duration, edge.getCallCount(), edge.getErrorCount());
+        LOG.log(Level.FINE, String.format("[Dependency] %s -> %s (%sms, calls=%s, errors=%s)", source.displayLabel(), target.displayLabel(), duration, edge.getCallCount(), edge.getErrorCount()));
     }
 
     /**

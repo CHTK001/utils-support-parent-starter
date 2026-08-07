@@ -33,6 +33,23 @@ public class JavaCVScreenCapture implements ScreenCature {
     private volatile boolean initialized;
     private int pixelStride;
 
+    /**
+     * 复用的 BGR/BGRA 字节数组，避免每帧分配 2.7MB 堆内存造成 GC 压力。
+     * 在 init() 中按 (width * channels * height) 分配，copyFrame 复用同一份。
+     * 仅本线程访问，但加 volatile 保证可见性。
+     */
+    private volatile byte[] reusableBgrBuf;
+
+    /**
+     * 复用的 ByteBuffer 视图，持有对 {@link #reusableBgrBuf} 的引用。
+     */
+    private volatile java.nio.ByteBuffer reusableBgrByteBuffer;
+
+    /**
+     * 复用的 Frame 对象，避免每帧 new Frame() 带来的分配。
+     */
+    private volatile Frame reusableResultFrame;
+
     @Override
     public boolean init(int width, int height, int fps) {
         close();
@@ -53,8 +70,18 @@ public class JavaCVScreenCapture implements ScreenCature {
             this.pixelStride = this.width * 3;
             this.initialized = true;
 
-            log.info("[JavaCVScreenCapture] 已启动: {}x{}@{}fps (gdigrab 单平面, 编码端转换YUV420P)",
-                    this.width, this.height, this.fps);
+            // 预分配可复用缓冲区，避免每帧分配 ~2.7MB 堆内存（720p BGR）
+            // 之前每帧 new byte[rowBytes] + ByteBuffer.allocate(rowBytes) 导致 GC 拖慢抓屏
+            int rowBytes = this.pixelStride * this.height;
+            this.reusableBgrBuf = new byte[rowBytes];
+            this.reusableBgrByteBuffer = java.nio.ByteBuffer.wrap(reusableBgrBuf);
+            this.reusableResultFrame = new Frame(this.width, this.height, Frame.DEPTH_UBYTE, 3);
+            this.reusableResultFrame.imageWidth = this.width;
+            this.reusableResultFrame.imageHeight = this.height;
+            this.reusableResultFrame.imageStride = this.pixelStride;
+
+            log.info("[JavaCVScreenCapture] 已启动: {}x{}@{}fps (gdigrab 单平面, 编码端转换YUV420P, 复用BGR缓冲={}KB)",
+                    this.width, this.height, this.fps, rowBytes / 1024);
             return true;
         } catch (Exception e) {
             log.error("[JavaCVScreenCapture] 初始化失败: {}", e.getMessage(), e);
@@ -92,10 +119,9 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     /**
-     * 深度复制 grabber 帧到独立 ByteBuffer，避免 grabber 复用内部 buffer。
-     *
+     * 深度复制 grabber 帧到复用的缓冲区，避免每帧分配 ~2.7MB 堆内存。
      * <p>支持单平面 BGR/BGRA，由 FFmpegFrameRecorder 自动识别格式。</p>
-     * <p>使用堆上 ByteBuffer 避免 JDK25 的 {@code jlong_disjoint_arraycopy}
+     * <p>使用堆上 byte[]（通过 ByteBuffer 视图）避免 JDK25 的 {@code jlong_disjoint_arraycopy}
      * 在非 8 字节对齐的 allocateDirect 缓冲区上崩溃。</p>
      */
     private Frame copyFrame(Frame src) {
@@ -104,32 +130,53 @@ public class JavaCVScreenCapture implements ScreenCature {
             int stride = src.imageStride > 0 ? src.imageStride : width * channels;
             int rowBytes = stride * src.imageHeight;
 
+            // 复用 buffer：尺寸变化（理论上不应发生）时才重新分配
+            byte[] dstBuf = reusableBgrBuf;
+            java.nio.ByteBuffer dstView = reusableBgrByteBuffer;
+            Frame result = reusableResultFrame;
+            if (dstBuf == null || dstBuf.length < rowBytes) {
+                dstBuf = new byte[rowBytes];
+                dstView = java.nio.ByteBuffer.wrap(dstBuf);
+                reusableBgrBuf = dstBuf;
+                reusableBgrByteBuffer = dstView;
+                result = new Frame(width, height, Frame.DEPTH_UBYTE, channels);
+                result.imageWidth = width;
+                result.imageHeight = height;
+                result.imageStride = stride;
+                reusableResultFrame = result;
+            }
+
             Object srcObj = src.image[0];
-            java.nio.ByteBuffer srcBuf;
+            int toCopy = Math.min(rowBytes, dstBuf.length);
             if (srcObj instanceof java.nio.ByteBuffer buf) {
-                srcBuf = buf;
+                // 在堆 buffer 之间直接拷贝，无 native 调用
+                int srcRemaining = buf.remaining();
+                int copyLen = Math.min(toCopy, srcRemaining);
+                buf.position(0);
+                buf.get(dstBuf, 0, copyLen);
+                if (copyLen < toCopy) {
+                    // src 比 dst 短，剩余部分填 0（罕见）
+                    java.util.Arrays.fill(dstBuf, copyLen, toCopy, (byte) 0);
+                }
             } else if (srcObj instanceof byte[] arr) {
-                srcBuf = java.nio.ByteBuffer.wrap(arr);
+                int copyLen = Math.min(toCopy, arr.length);
+                System.arraycopy(arr, 0, dstBuf, 0, copyLen);
+                if (copyLen < toCopy) {
+                    java.util.Arrays.fill(dstBuf, copyLen, toCopy, (byte) 0);
+                }
             } else if (srcObj instanceof org.bytedeco.javacpp.Pointer ptr) {
-                srcBuf = new org.bytedeco.javacpp.BytePointer(ptr).asBuffer();
+                // 单次拷贝：BytePointer → 堆 byte[]
+                org.bytedeco.javacpp.BytePointer bp = new org.bytedeco.javacpp.BytePointer(ptr);
+                bp.get(dstBuf, 0, toCopy);
             } else {
                 log.warn("[JavaCVScreenCapture] 不支持的 image 类型: {}", srcObj.getClass().getName());
                 return null;
             }
+            dstView.position(0);
 
-            // 堆上 ByteBuffer 避免 jlong_disjoint_arraycopy 在非对齐 allocateDirect 上崩溃
-            java.nio.ByteBuffer dst = java.nio.ByteBuffer.allocate(rowBytes);
-
-            // 一次性 System.arraycopy（堆 byte[] 不会触发 jlong_disjoint_arraycopy 崩溃）
-            // 把 srcBuf 拷到临时 heap byte[]，再一次性写入 dst
-            byte[] tmpArr = new byte[rowBytes];
-            srcBuf.position(0);
-            srcBuf.get(tmpArr);
-            dst.put(tmpArr);
-            dst.position(0);
-
-            Frame result = new Frame(width, height, Frame.DEPTH_UBYTE, channels);
-            result.image[0] = dst;
+            // 复用同一 Frame 对象，但需保证 recorder.record() 同步调用（因为 image[0] 引用复用 buffer）
+            // JavaCV FFmpegFrameRecorder.record(Frame) 是同步阻塞的，所以单线程 grab → encode 安全。
+            result.image[0] = dstView;
             result.imageWidth = width;
             result.imageHeight = height;
             result.imageStride = stride;
@@ -170,6 +217,10 @@ public class JavaCVScreenCapture implements ScreenCature {
             log.warn("[JavaCVScreenCapture] close 异常: {}", e.getMessage());
         }
         grabber = null;
+        // 释放复用缓冲区
+        reusableBgrBuf = null;
+        reusableBgrByteBuffer = null;
+        reusableResultFrame = null;
         log.info("[JavaCVScreenCapture] 已关闭");
     }
 }

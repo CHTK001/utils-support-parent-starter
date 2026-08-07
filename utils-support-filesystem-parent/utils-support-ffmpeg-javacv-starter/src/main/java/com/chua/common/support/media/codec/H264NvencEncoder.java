@@ -63,6 +63,11 @@ public class H264NvencEncoder implements VideoEncoder {
     private ByteArrayOutputStream memoryStream;
 
     /**
+     * memoryStream 的扩展 holder，允许 drain 部分字节并 reset 避免反复全量复制。
+     */
+    private DrainableByteArrayOutputStream memoryStreamHolder;
+
+    /**
      * 色彩空间转换上下文（缩放用）
      */
     private SwsContext swsCtx;
@@ -186,7 +191,8 @@ public class H264NvencEncoder implements VideoEncoder {
         this.pts = 0;
         this.frameIndex = 0;
         this.keyFrameRequested = false;
-        this.memoryStream = new ByteArrayOutputStream(MEMORY_STREAM_INITIAL_CAPACITY);
+        this.memoryStreamHolder = new DrainableByteArrayOutputStream(MEMORY_STREAM_INITIAL_CAPACITY);
+        this.memoryStream = memoryStreamHolder.asByteArrayOutputStream();
 
         // 按平台优先级尝试硬件编码器
         // 注意：bytedeco ffmpeg 7.1.1-1.5.12 的 h264_nvenc 在本机初始化成功但不工作（encodedLen=0），
@@ -353,14 +359,17 @@ public class H264NvencEncoder implements VideoEncoder {
         flushOutput();
         long t3 = System.nanoTime();
 
-        byte[] all = memoryStream.toByteArray();
-        int len = all.length - (int) captureSize;
+        // 修复 O(n²) 内存拷贝：以前每次 toByteArray() 复制整个累计 buffer（30s 后 100MB+），
+        // 然后 System.arraycopy 截取增量。改为从 memoryStreamHolder 读取增量后 reset。
+        long totalLen = memoryStream.size();
+        long len = totalLen - captureSize;
+        byte[] frameBytes;
         if (len <= 0) {
+            memoryStreamHolder.reset();
             frameIndex++;
             return new byte[0];
         }
-        byte[] frameBytes = new byte[len];
-        System.arraycopy(all, (int) captureSize, frameBytes, 0, len);
+        frameBytes = memoryStreamHolder.drain((int) captureSize, (int) len);
         long t4 = System.nanoTime();
 
         boolean hasIdr = containsNalType(frameBytes, 5);
@@ -669,6 +678,9 @@ public class H264NvencEncoder implements VideoEncoder {
             org.bytedeco.ffmpeg.global.swscale.sws_freeContext(swsCtx);
             swsCtx = null;
         }
+        if (memoryStreamHolder != null) {
+            memoryStreamHolder.reset();
+        }
     }
 
     /**
@@ -712,6 +724,37 @@ public class H264NvencEncoder implements VideoEncoder {
 
         @Override
         public void close() {
+        }
+    }
+
+    /**
+     * 可增量排出（drain）字节的 ByteArrayOutputStream。
+     * <p>
+     * 解决 H264NvencEncoder 旧实现中 {@code memoryStream.toByteArray() + System.arraycopy}
+     * 带来的 O(n²) 内存拷贝问题：每次编码一帧前，编码器记录 {@code memoryStream.size()}，
+     * 编码 + flush 之后需要读取增量并清空。如果直接调用 {@code toByteArray()}，
+     * 30 秒后累计 buffer 达到 100MB+ 后，每次都会完整复制 100MB。
+     * </p>
+     * <p>
+     * 本类通过 {@link #drain(int, int)} 直接读取并清空指定区间，避免重复扫描。
+     * </p>
+     */
+    private static final class DrainableByteArrayOutputStream extends ByteArrayOutputStream {
+        DrainableByteArrayOutputStream(int capacity) {
+            super(capacity);
+        }
+
+        /** 读取 [offset, offset+length) 区间的字节并 reset() 清空整个累计区。 */
+        synchronized byte[] drain(int offset, int length) {
+            byte[] out = new byte[length];
+            System.arraycopy(this.buf, offset, out, 0, length);
+            this.reset();
+            return out;
+        }
+
+        /** 暴露底层 ByteArrayOutputStream 视图（用于 MemoryOutputStream 适配）。 */
+        ByteArrayOutputStream asByteArrayOutputStream() {
+            return this;
         }
     }
 }

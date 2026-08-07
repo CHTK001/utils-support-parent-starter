@@ -2,8 +2,8 @@ package com.chua.runtime.plugin.loader;
 
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,9 +22,9 @@ import java.util.*;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class PluginScanner {
 
+    private static final Logger LOG = Logger.getLogger(PluginScanner.class.getName());
     /**
      * 插件根目录
      */
@@ -60,7 +60,7 @@ public class PluginScanner {
         plugins.clear();
         if (!Files.exists(pluginRoot)) {
             Files.createDirectories(pluginRoot);
-            log.info("插件目录不存在，已创建: {}", pluginRoot);
+            LOG.log(Level.INFO, String.format("插件目录不存在，已创建: %s", pluginRoot));
             return plugins;
         }
 
@@ -79,14 +79,14 @@ public class PluginScanner {
      */
     private void scanPlugin(Path pluginDir) {
         String pluginName = pluginDir.getFileName().toString();
-        log.info("正在加载插件: {}", pluginName);
+        LOG.log(Level.INFO, String.format("正在加载插件: %s", pluginName));
 
         try {
             PluginClassLoader classLoader = new PluginClassLoader(pluginName, pluginDir, parentLoader);
             List<String> pluginClasses = classLoader.scanPlugins();
 
             if (pluginClasses.isEmpty()) {
-                log.warn("插件[{}] 未找到 SPI 配置", pluginName);
+                LOG.log(Level.WARNING, String.format("插件[%s] 未找到 SPI 配置", pluginName));
                 return;
             }
 
@@ -101,13 +101,13 @@ public class PluginScanner {
                     plugin.init(context);
                     PluginInfo info = new PluginInfo(pluginName, plugin, classLoader, context);
                     plugins.add(info);
-                    log.info("插件[{}] 加载成功: {}", pluginName, plugin.name());
+                    LOG.log(Level.INFO, String.format("插件[%s] 加载成功: %s", pluginName, plugin.name()));
                 } catch (Exception e) {
-                    log.error("插件[{}] 加载失败: {}", pluginName, className, e);
+                    LOG.log(Level.SEVERE, String.format("插件[%s] 加载失败: %s", pluginName, className, e));
                 }
             }
         } catch (IOException e) {
-            log.error("插件[{}] 目录读取失败", pluginName, e);
+            LOG.log(Level.SEVERE, String.format("插件[%s] 目录读取失败", pluginName, e));
         }
     }
 

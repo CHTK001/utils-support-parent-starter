@@ -3,8 +3,8 @@ package com.chua.runtime.plugin.loader;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.plugin.loader.PluginScanner.PluginInfo;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class PluginManager {
 
+    private static final Logger LOG = Logger.getLogger(PluginManager.class.getName());
     /**
      * 插件根目录
      */
@@ -59,10 +59,10 @@ public class PluginManager {
             for (PluginInfo info : plugins) {
                 registry.register(info);
             }
-            log.info("加载了 {} 个插件", registry.size());
+            LOG.log(Level.INFO, String.format("加载了 %s 个插件", registry.size()));
             return registry.size();
         } catch (IOException e) {
-            log.error("插件加载失败", e);
+            LOG.log(Level.SEVERE, String.format("插件加载失败", e));
             return 0;
         }
     }

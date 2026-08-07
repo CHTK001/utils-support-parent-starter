@@ -12,8 +12,8 @@ import com.chua.runtime.core.service.JavaAgentManager;
 import com.chua.runtime.core.service.ServiceManager;
 import com.chua.runtime.core.service.SystemdServiceManager;
 import com.chua.runtime.core.service.WindowsServiceManager;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,9 +32,10 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class DefaultRuntimeManager implements RuntimeManager {
 
+
+    private static final Logger LOG = Logger.getLogger(DefaultRuntimeManager.class.getName());
     /**
      * 工件注册表
      */
@@ -76,7 +77,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
             try {
                 old.close();
             } catch (Exception e) {
-                log.warn("关闭旧实例异常", e);
+                LOG.log(Level.WARNING, String.format("关闭旧实例异常", e));
             }
             instanceMap.remove(artifact.getId());
         }
@@ -90,7 +91,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
             try {
                 inst.close();
             } catch (Exception e) {
-                log.warn("关闭异常", e);
+                LOG.log(Level.WARNING, String.format("关闭异常", e));
             }
             instanceMap.remove(id);
         }
@@ -163,7 +164,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
                 }
                 return true;
             } catch (Exception e) {
-                log.error("下载失败", e);
+                LOG.log(Level.SEVERE, String.format("下载失败", e));
                 if (callback != null) {
                     callback.onError("download", e);
                 }
@@ -348,7 +349,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
 
     @Override
     public CmdResult attachToJvm(int pid, Path agentPath, String options) {
-        log.info("正在注入 Agent 到 PID[{}]...", pid);
+        LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]...", pid));
         try {
             Class<?> vmClass = Class.forName("com.sun.tools.attach.VirtualMachine");
             Object vm = vmClass.getMethod("attach", String.class).invoke(null, String.valueOf(pid));
@@ -380,7 +381,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
                 }
             }
         } catch (Exception e) {
-            log.warn("列出 Java 进程失败", e);
+            LOG.log(Level.WARNING, String.format("列出 Java 进程失败", e));
         }
         return jvms;
     }
@@ -403,7 +404,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
             try {
                 i.close();
             } catch (Exception e) {
-                log.warn("关闭异常", e);
+                LOG.log(Level.WARNING, String.format("关闭异常", e));
             }
         }
         instanceMap.clear();

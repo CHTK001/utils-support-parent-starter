@@ -11,8 +11,8 @@ import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.spy.RuntimeSpy;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
+    private static final Logger LOG = Logger.getLogger(TransmissionHandler.class.getName());
 
     private static final String HANDLER_NAME = "transmission-handler";
 
@@ -152,7 +152,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_TRANSMISSION_ENABLED, DEFAULT_ENABLED));
-        log.info("TransmissionHandler 初始化完成，启用状态: {}", enabled);
+        LOG.log(Level.INFO, String.format("TransmissionHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
@@ -164,7 +164,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             return;
         }
         registerSocketInterceptors();
-        log.info("TransmissionHandler 启动完成，传输链路追踪已启用");
+        LOG.log(Level.INFO, "TransmissionHandler 启动完成，传输链路追踪已启用");
     }
 
     @Override
@@ -173,7 +173,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         if (started.compareAndSet(true, false)) {
             RuntimeSpy.unregisterAll(this);
         }
-        log.info("TransmissionHandler 停止");
+        LOG.log(Level.INFO, "TransmissionHandler 停止");
     }
 
     @Override
@@ -245,7 +245,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
 
             TRANSMISSION_HOLDER.set(record);
         } catch (Exception e) {
-            log.debug("TransmissionHandler.entry 处理异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("TransmissionHandler.entry 处理异常: %s", e.getMessage()));
         }
     }
 
@@ -275,14 +275,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             }
             records.add(record);
 
-            log.trace("[Transmission] {} {} -> {} {}ms software={}",
-                    record.getProtocol(),
-                    record.getOperation(),
-                    record.getTarget() != null ? record.getTarget().displayLabel() : "?",
-                    record.getDuration(),
-                    record.getSoftware());
+            LOG.log(Level.FINE, String.format("[Transmission] %s %s -> %s %sms software=%s", record.getProtocol(), record.getOperation(), record.getTarget() != null ? record.getTarget().displayLabel() : "?", record.getDuration(), record.getSoftware()));
         } catch (Exception e) {
-            log.debug("TransmissionHandler.exit 处理异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("TransmissionHandler.exit 处理异常: %s", e.getMessage()));
         }
     }
 
@@ -300,7 +295,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 enrichHttpEndpoint(ctx, record);
             }
         } catch (Exception e) {
-            log.debug("enrichTargetEndpoint 异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("enrichTargetEndpoint 异常: %s", e.getMessage()));
         }
     }
 
@@ -322,7 +317,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                         .build());
             }
         } catch (Exception e) {
-            log.debug("enrichSocketEndpoint 异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("enrichSocketEndpoint 异常: %s", e.getMessage()));
         }
     }
 
@@ -353,7 +348,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                         .build());
             }
         } catch (Exception e) {
-            log.debug("enrichHttpEndpoint 异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("enrichHttpEndpoint 异常: %s", e.getMessage()));
         }
     }
 

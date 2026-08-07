@@ -6,8 +6,8 @@ import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,8 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
+    private static final Logger LOG = Logger.getLogger(NetHandler.class.getName());
 
     /**
      * java.net.Socket 类名
@@ -99,7 +99,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = "true".equals(context.getProperty("net.enabled", "true"));
-        log.info("NetHandler 初始化完成，启用状态: {}", enabled);
+        LOG.log(Level.INFO, String.format("NetHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
@@ -113,7 +113,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
         registerSocketIntercepts();
         registerDatagramIntercepts();
         registerHttpIntercepts();
-        log.info("NetHandler 启动完成，已注册网络拦截点");
+        LOG.log(Level.INFO, "NetHandler 启动完成，已注册网络拦截点");
     }
 
     @Override
@@ -122,7 +122,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
         if (started.compareAndSet(true, false)) {
             RuntimeSpy.unregisterAll(this);
         }
-        log.info("NetHandler 停止");
+        LOG.log(Level.INFO, "NetHandler 停止");
     }
 
     @Override
@@ -212,7 +212,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         NetRecord record = records.get(records.size() - 1);
         action.apply(record);
-        log.trace("[Net] {} {} 字节计数更新", ctx.getReadableClassName(), ctx.getMethodName());
+        LOG.log(Level.FINE, String.format("[Net] %s %s 字节计数更新", ctx.getReadableClassName(), ctx.getMethodName()));
     }
 
     /**
@@ -223,7 +223,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
                 "(Ljava/net/SocketAddress;I)V", InterceptPoint.NET_CONNECT_PRE, this);
         RuntimeSpy.registerInterceptor(SOCKET_CLASS, "connect",
                 "(Ljava/net/SocketAddress;I)V", InterceptPoint.NET_CONNECT_POST, this);
-        log.debug("已注册 Socket 拦截点");
+        LOG.log(Level.FINE, "已注册 Socket 拦截点");
     }
 
     /**
@@ -234,7 +234,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
                 "(Ljava/net/DatagramPacket;)V", InterceptPoint.NET_WRITE_PRE, this);
         RuntimeSpy.registerInterceptor(DATAGRAM_CLASS, "receive",
                 "(Ljava/net/DatagramPacket;)V", InterceptPoint.NET_READ_PRE, this);
-        log.debug("已注册 DatagramSocket 拦截点");
+        LOG.log(Level.FINE, "已注册 DatagramSocket 拦截点");
     }
 
     /**
@@ -245,7 +245,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
                 "()V", InterceptPoint.HTTP_REQUEST_PRE, this);
         RuntimeSpy.registerInterceptor(HTTP_URL_CONN, "connect",
                 "()V", InterceptPoint.HTTP_RESPONSE_POST, this);
-        log.debug("已注册 HttpURLConnection 拦截点");
+        LOG.log(Level.FINE, "已注册 HttpURLConnection 拦截点");
     }
 
     /**

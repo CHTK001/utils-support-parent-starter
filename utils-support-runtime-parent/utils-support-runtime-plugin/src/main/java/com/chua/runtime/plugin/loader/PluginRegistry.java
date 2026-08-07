@@ -3,8 +3,8 @@ package com.chua.runtime.plugin.loader;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.plugin.loader.PluginScanner.PluginInfo;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.*;
 
 /**
@@ -13,9 +13,9 @@ import java.util.*;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class PluginRegistry {
 
+    private static final Logger LOG = Logger.getLogger(PluginRegistry.class.getName());
     /**
      * 插件名称到信息映射
      */
@@ -42,7 +42,7 @@ public class PluginRegistry {
         }
         pluginMap.put(info.name(), info);
         pluginList.add(info);
-        log.info("注册插件: {}", info.name());
+        LOG.log(Level.INFO, String.format("注册插件: %s", info.name()));
     }
 
     /**
@@ -118,9 +118,9 @@ public class PluginRegistry {
         for (PluginInfo info : pluginList) {
             try {
                 info.plugin().start();
-                log.info("插件[{}] 启动成功", info.name());
+                LOG.log(Level.INFO, String.format("插件[%s] 启动成功", info.name()));
             } catch (Exception e) {
-                log.error("插件[{}] 启动失败", info.name(), e);
+                LOG.log(Level.SEVERE, String.format("插件[%s] 启动失败", info.name(), e));
             }
         }
     }
@@ -132,9 +132,9 @@ public class PluginRegistry {
         for (PluginInfo info : pluginList) {
             try {
                 info.plugin().stop();
-                log.info("插件[{}] 停止成功", info.name());
+                LOG.log(Level.INFO, String.format("插件[%s] 停止成功", info.name()));
             } catch (Exception e) {
-                log.error("插件[{}] 停止失败", info.name(), e);
+                LOG.log(Level.SEVERE, String.format("插件[%s] 停止失败", info.name(), e));
             }
         }
     }

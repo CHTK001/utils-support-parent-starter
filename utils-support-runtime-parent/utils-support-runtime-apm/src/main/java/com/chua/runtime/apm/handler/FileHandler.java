@@ -6,8 +6,8 @@ import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,8 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
+    private static final Logger LOG = Logger.getLogger(FileHandler.class.getName());
 
     /**
      * FileInputStream 类名
@@ -94,7 +94,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = "true".equals(context.getProperty("file.enabled", "true"));
-        log.info("FileHandler 初始化完成，启用状态: {}", enabled);
+        LOG.log(Level.INFO, String.format("FileHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
             return;
         }
         registerFileIntercepts();
-        log.info("FileHandler 启动完成，已注册文件拦截点");
+        LOG.log(Level.INFO, "FileHandler 启动完成，已注册文件拦截点");
     }
 
     @Override
@@ -115,7 +115,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
         if (started.compareAndSet(true, false)) {
             RuntimeSpy.unregisterAll(this);
         }
-        log.info("FileHandler 停止");
+        LOG.log(Level.INFO, "FileHandler 停止");
     }
 
     @Override
@@ -175,7 +175,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
         registerInputStreamIntercepts();
         registerOutputStreamIntercepts();
         registerRandomAccessIntercepts();
-        log.debug("已注册文件 I/O 拦截点");
+        LOG.log(Level.FINE, "已注册文件 I/O 拦截点");
     }
 
     /**
@@ -188,7 +188,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
                 "(Ljava/io/File;)V", InterceptPoint.FILE_OPEN_PRE, this);
         RuntimeSpy.registerInterceptor(FILE_INPUT, "read",
                 "([BII)I", InterceptPoint.FILE_READ_PRE, this);
-        log.debug("已注册 FileInputStream 拦截点");
+        LOG.log(Level.FINE, "已注册 FileInputStream 拦截点");
     }
 
     /**
@@ -201,7 +201,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
                 "(Ljava/io/File;)V", InterceptPoint.FILE_OPEN_PRE, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT, "write",
                 "([BII)V", InterceptPoint.FILE_READ_PRE, this);
-        log.debug("已注册 FileOutputStream 拦截点");
+        LOG.log(Level.FINE, "已注册 FileOutputStream 拦截点");
     }
 
     /**
@@ -214,7 +214,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
                 "([B)I", InterceptPoint.FILE_READ_PRE, this);
         RuntimeSpy.registerInterceptor(RANDOM_FILE, "write",
                 "([B)V", InterceptPoint.FILE_READ_PRE, this);
-        log.debug("已注册 RandomAccessFile 拦截点");
+        LOG.log(Level.FINE, "已注册 RandomAccessFile 拦截点");
     }
 
     /**

@@ -10,8 +10,8 @@ import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,8 +57,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
+    private static final Logger LOG = Logger.getLogger(TraceHandler.class.getName());
 
     /**
      * 插件名称
@@ -273,7 +273,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         this.context = context;
         this.enabled = DEFAULT_TRACE_ENABLED.equals(context.getProperty(PROP_TRACE_ENABLED, DEFAULT_TRACE_ENABLED));
         this.httpTracingEnabled = "true".equals(context.getProperty("trace.http.enabled", "true"));
-        log.info("TraceHandler 初始化完成，启用状态: trace={} http={}", enabled, httpTracingEnabled);
+        LOG.log(Level.INFO, String.format("TraceHandler 初始化完成，启用状态: trace=%s http=%s", enabled, httpTracingEnabled));
     }
 
     @Override
@@ -300,7 +300,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             registerTomcatHttpInterceptors();
         }
 
-        log.info("TraceHandler 启动完成，注册追踪类: {}", context.getProperty(PROP_TRACE_CLASSES, ""));
+        LOG.log(Level.INFO, String.format("TraceHandler 启动完成，注册追踪类: %s", context.getProperty(PROP_TRACE_CLASSES, "")));
     }
 
     @Override
@@ -309,7 +309,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         if (started.compareAndSet(true, false)) {
             RuntimeSpy.unregisterAll(this);
         }
-        log.info("TraceHandler 停止");
+        LOG.log(Level.INFO, "TraceHandler 停止");
     }
 
     @Override
@@ -347,7 +347,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
                 "()V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(COYOTE_ADAPTER, "service",
                 "()I", InterceptPoint.EXIT, this);
-        log.debug("已注册 Tomcat HTTP 请求追踪拦截点");
+        LOG.log(Level.FINE, "已注册 Tomcat HTTP 请求追踪拦截点");
     }
 
     /**
@@ -428,9 +428,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             httpCtx.setTraceId(traceId != null ? traceId : generateTraceId());
             HTTP_REQUEST_CONTEXT.set(httpCtx);
 
-            log.debug("[Trace-HTTP] {} clientIp={} accept={}", path, clientIp, accept);
+            LOG.log(Level.FINE, String.format("[Trace-HTTP] %s clientIp=%s accept=%s", path, clientIp, accept));
         } catch (Exception e) {
-            log.debug("TraceHandler.handleHttpEntry 处理异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("TraceHandler.handleHttpEntry 处理异常: %s", e.getMessage()));
         }
     }
 
@@ -471,11 +471,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
                 span.setClientIp(httpCtx.getClientIp());
                 span.setAccept(httpCtx.getAccept());
 
-                log.debug("[Trace-HTTP] {} status={} duration={}ms clientIp={}",
-                        httpCtx.getRequestPath(), status, duration, httpCtx.getClientIp());
+                LOG.log(Level.FINE, String.format("[Trace-HTTP] %s status=%s duration=%sms clientIp=%s", httpCtx.getRequestPath(), status, duration, httpCtx.getClientIp()));
             }
         } catch (Exception e) {
-            log.debug("TraceHandler.handleHttpExit 处理异常: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("TraceHandler.handleHttpExit 处理异常: %s", e.getMessage()));
         }
     }
 
@@ -509,9 +508,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             spanMap.remove(old.getSpanId());
         }
 
-        log.trace("[Trace] BEGIN: traceId={}, parent={}, span={}, class={}.{}",
-                span.getTraceId(), parentSpanId != null ? parentSpanId : "root",
-                span.getSpanId(), className, methodName);
+        LOG.log(Level.FINE, String.format("[Trace] BEGIN: traceId=%s, parent=%s, span=%s, class=%s.%s", span.getTraceId(), parentSpanId != null ? parentSpanId : "root", span.getSpanId(), className, methodName));
         return span.getSpanId();
     }
 
@@ -542,8 +539,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             span.setEndTime(System.currentTimeMillis());
             span.setDuration(span.getEndTime() - span.getStartTime());
             span.setStatus(STATUS_OK);
-            log.trace("[Trace] END: {}.{}, span={}, duration={}ms",
-                    className, methodName, span.getSpanId(), span.getDuration());
+            LOG.log(Level.FINE, String.format("[Trace] END: %s.%s, span=%s, duration=%sms", className, methodName, span.getSpanId(), span.getDuration()));
         }
     }
 
@@ -562,8 +558,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             span.setStatus(STATUS_ERROR);
             String errorMsg = throwable != null ? throwable.getMessage() : UNKNOWN_ERROR;
             span.setException(errorMsg);
-            log.trace("[Trace] ERROR: {}.{}, span={}, error={}",
-                    className, methodName, span.getSpanId(), errorMsg);
+            LOG.log(Level.FINE, String.format("[Trace] ERROR: %s.%s, span=%s, error=%s", className, methodName, span.getSpanId(), errorMsg));
         }
     }
 

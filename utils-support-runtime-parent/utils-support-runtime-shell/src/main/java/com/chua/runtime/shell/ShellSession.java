@@ -3,8 +3,8 @@ package com.chua.runtime.shell;
 import com.chua.runtime.shell.command.Command;
 import com.chua.runtime.shell.command.CommandRegistry;
 import com.chua.runtime.shell.output.Console;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,9 +21,10 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class ShellSession implements Runnable {
 
+
+    private static final Logger LOG = Logger.getLogger(ShellSession.class.getName());
     /**
      * 欢迎横幅
      */
@@ -101,7 +102,7 @@ public class ShellSession implements Runnable {
                 }
             }
         } catch (IOException e) {
-            log.debug("会话关闭: {}", e.getMessage());
+            LOG.log(Level.FINE, String.format("会话关闭: %s", e.getMessage()));
         }
     }
 

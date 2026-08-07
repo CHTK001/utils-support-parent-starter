@@ -5,8 +5,8 @@ import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.spy.SpyBootstrap;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
@@ -33,9 +33,9 @@ import java.util.jar.JarFile;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class RuntimeAgent {
 
+    private static final Logger LOG = Logger.getLogger(RuntimeAgent.class.getName());
     /**
      * 默认 Shell 端口
      */
@@ -67,17 +67,17 @@ public class RuntimeAgent {
      */
     public static void premain(String args, Instrumentation inst) {
         if (started) {
-            log.warn("Runtime Agent 已启动，忽略重复加载");
+            LOG.log(Level.WARNING, "Runtime Agent 已启动，忽略重复加载");
             return;
         }
-        log.info("Runtime Agent 启动中，参数: {}", args);
+        LOG.log(Level.INFO, String.format("Runtime Agent 启动中，参数: %s", args));
         try {
             // 将 Agent JAR 追加到系统类路径，保证 com.chua 类可用
             appendToClasspath(inst);
             // 初始化 Spy 引擎
             boolean ok = SpyBootstrap.init(args, inst);
             if (!ok) {
-                log.error("Runtime Agent 初始化失败");
+                LOG.log(Level.SEVERE, "Runtime Agent 初始化失败");
                 return;
             }
             // 启动 APM 处理器（4 默认 + 3 新增）
@@ -87,9 +87,9 @@ public class RuntimeAgent {
             apm.addHandler(new HandleLeakHandler());
             apm.start();
             started = true;
-            log.info("Runtime Agent 启动成功");
+            LOG.log(Level.INFO, "Runtime Agent 启动成功");
         } catch (Exception e) {
-            log.error("Runtime Agent 启动异常", e);
+            LOG.log(Level.SEVERE, String.format("Runtime Agent 启动异常", e));
         }
     }
 
@@ -107,9 +107,9 @@ public class RuntimeAgent {
             if (path.endsWith(".jar") && path.contains("runtime-agent")) {
                 try {
                     inst.appendToSystemClassLoaderSearch(new JarFile(path));
-                    log.debug("已追加 Agent JAR 到系统类路径: {}", path);
+                    LOG.log(Level.FINE, String.format("已追加 Agent JAR 到系统类路径: %s", path));
                 } catch (Exception e) {
-                    log.warn("追加 Agent JAR 失败: {}", path, e);
+                    LOG.log(Level.WARNING, String.format("追加 Agent JAR 失败: %s", path, e));
                 }
             }
         }
