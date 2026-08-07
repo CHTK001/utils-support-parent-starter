@@ -1,2 +1,0 @@
-datasource=com.chua.remote.support.gateway.core.auth.DatasourceTokenVerifier
-file=com.chua.remote.support.gateway.core.auth.FileBasedTokenVerifier
