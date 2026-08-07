@@ -88,6 +88,7 @@ public class AgentController {
             Map<String, Object> m = new HashMap<>();
             m.put("level", entry.getLevel());
             m.put("message", entry.getMessage());
+            m.put("logger", entry.getLogger());
             m.put("className", entry.getClassName());
             m.put("methodName", entry.getMethodName());
             result.add(m);
@@ -222,6 +223,19 @@ public class AgentController {
                 leak.put("name", e.getValue().getName());
                 leak.put("thread", e.getValue().getOwnerThread());
                 leak.put("age", ageMs);
+                StackTraceElement[] st = e.getValue().getStackTrace();
+                List<Map<String, String>> stackFrames = new ArrayList<>();
+                if (st != null) {
+                    for (StackTraceElement frame : st) {
+                        Map<String, String> f = new HashMap<>();
+                        f.put("class", frame.getClassName());
+                        f.put("method", frame.getMethodName());
+                        f.put("file", frame.getFileName());
+                        f.put("line", String.valueOf(frame.getLineNumber()));
+                        stackFrames.add(f);
+                    }
+                }
+                leak.put("stackTrace", stackFrames);
                 leakList.add(leak);
             }
         }
