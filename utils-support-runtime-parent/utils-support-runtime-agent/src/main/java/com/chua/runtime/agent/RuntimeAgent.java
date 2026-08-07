@@ -98,14 +98,16 @@ public class RuntimeAgent {
     /**
      * 把当前 Agent JAR 追加到系统类加载器。
      *
-     * <p>通过 ProtectionDomain 解析 RuntimeAgent 自身所在 jar 路径，调用
-     * {@link Instrumentation#appendToSystemClassLoaderSearch}。
-     * 这样 shaded jar 内的 RuntimeSpy / ApmBootstrap / Bootstrap 类都被 system classloader 加载，
-     * 业务线程（spring-boot LaunchedURLClassLoader.parent = system classloader）可见。</p>
+     * <p>关键：因为 {@code java.net.Socket} 等 JDK 类由 <b>bootstrap classloader</b> 加载，
+     * 它们织入的 {@code INVOKESTATIC com.chua.runtime.agent.Bootstrap.onIntercept} 必须在
+     * bootstrap classloader 内可解析。因此 shaded agent JAR 必须同时存在于 system 和 bootstrap
+     * classpath。这样 Bootstrap/RuntimeSpy/Interceptor 接口全部在 bootstrap 内一致，
+     * 不会出现 LinkageError。</p>
      *
-     * <p>注意：不调用 {@code appendToBootstrapClassLoaderSearch} —
-     * 因为这会让 shaded 类进入 bootstrap，而 RuntimeAgent 在 app classloader，
-     * 跨 loader 的 Plugin/Handler 接口引用会触发 {@code LinkageError loader constraint violation}。</p>
+     * <p>注意：使用前请确保启动命令包含 {@code -Xbootclasspath/a:agent.jar} 优先于
+     * {@code -javaagent:agent.jar}，这样 Premain-Class {@code RuntimeAgent} 本身由
+     * bootstrap 加载，避免 javaagent 路径将 RuntimeAgent 装入 app classloader 后再将
+     * 同名类塞入 bootstrap 触发 loader constraint violation。</p>
      *
      * @param inst Instrumentation 实例
      */
@@ -122,11 +124,23 @@ public class RuntimeAgent {
             LOG.log(Level.WARNING, "追加 Agent JAR 到系统类加载器失败: " + agentPath, e);
         }
         try {
+            inst.appendToBootstrapClassLoaderSearch(new JarFile(agentPath));
+            LOG.info("[RuntimeAgent] 已追加 Agent JAR 到启动类加载器: " + agentPath);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "追加 Agent JAR 到启动类加载器失败: " + agentPath, e);
+        }
+        try {
             Class<?> c = Class.forName("com.chua.runtime.agent.Bootstrap", false,
                     ClassLoader.getSystemClassLoader());
             LOG.info("[RuntimeAgent] Bootstrap 可见 (system): " + c.getName() + " @ " + c.getClassLoader());
         } catch (Throwable e) {
             LOG.warning("[RuntimeAgent] Bootstrap 在系统类加载器不可见: " + e.getMessage());
+        }
+        try {
+            Class<?> c = Class.forName("com.chua.runtime.agent.Bootstrap", false, null);
+            LOG.info("[RuntimeAgent] Bootstrap 可见 (bootstrap): " + c.getName() + " @ " + c.getClassLoader());
+        } catch (Throwable e) {
+            LOG.warning("[RuntimeAgent] Bootstrap 在启动类加载器不可见: " + e.getMessage());
         }
     }
 

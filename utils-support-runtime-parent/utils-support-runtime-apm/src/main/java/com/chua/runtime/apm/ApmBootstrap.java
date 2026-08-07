@@ -9,6 +9,7 @@ import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,10 +78,19 @@ public class ApmBootstrap {
     /**
      * 注册自定义处理器。
      *
+     * <p>同时使用默认 {@link PluginContext} 调用 {@link Plugin#init(PluginContext)}，
+     * 否则处理器中需要初始化的字段（如 enabled）将保持默认值，start() 会被短路。</p>
+     *
      * @param handler 插件处理器
      */
     public void addHandler(Plugin handler) {
         handlers.add(handler);
+        try {
+            PluginContext context = new PluginContext(Paths.get(System.getProperty("java.io.tmpdir")));
+            handler.init(context);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, String.format("自定义处理器[%s] 初始化失败", handler.name()), e);
+        }
     }
 
     /**
