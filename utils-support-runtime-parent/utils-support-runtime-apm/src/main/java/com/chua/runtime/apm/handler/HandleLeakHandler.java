@@ -196,6 +196,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     private void recordOpen(String className) {
         String handleId = "h-" + idGenerator.incrementAndGet() + "-" + UUID.randomUUID().toString().substring(0, 8);
         HandleKind kind = inferKind(className);
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         HandleRecord record = new HandleRecord();
         record.setHandleId(handleId);
         record.setKind(kind);
@@ -203,6 +204,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         record.setOwnerThread(Thread.currentThread().getName());
         record.setCreatedAt(System.currentTimeMillis());
         record.setLastUsedAt(System.currentTimeMillis());
+        record.setStackTrace(stackTrace);
         record.setClosed(false);
         handles.put(handleId, record);
         LOG.log(Level.FINE, String.format("[Handle] OPEN: kind=%s id=%s thread=%s", kind, handleId, record.getOwnerThread()));
@@ -365,6 +367,11 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
          * 是否已关闭
          */
         private boolean closed;
+
+        /**
+         * 句柄创建时的调用栈
+         */
+        private StackTraceElement[] stackTrace;
 
         /**
          * 句柄存活时长（毫秒）

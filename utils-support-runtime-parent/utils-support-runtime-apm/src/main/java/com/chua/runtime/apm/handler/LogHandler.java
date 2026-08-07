@@ -227,18 +227,16 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
 
         // 判断是入口还是出口
         if (point == InterceptPoint.LOG_PRE) {
-            // 日志方法调用前：提取日志级别
             String level = mapMethodToLevel(methodName);
             if (level == null) {
                 return;
             }
-            // 这里无法获取日志消息内容（在方法参数中），
-            // 实际需要通过 MethodVisitor 获取局部变量
-            // 简单实现：记录方法调用
+            Object loggerInstance = context.getUserData();
+            String loggerName = extractLoggerName(loggerInstance, className);
             addLogEntry(LogEntry.builder()
                     .timestamp(context.getTimestamp())
                     .level(level)
-                    .logger(resolveLoggerName(className))
+                    .logger(loggerName)
                     .message("[Log intercepted]")
                     .className(context.getReadableClassName())
                     .methodName(methodName)
@@ -355,20 +353,25 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 解析 Logger 名称。
+     * 从 Logger 实例反射获取业务类名。
      *
-     * @param className 类名
-     * @return Logger 名称
+     * @param loggerInstance Logger 实例（SLF4J/JUL/APCL/Log4j2）
+     * @param className 类内部名（兜底用）
+     * @return 业务类名（如 com.example.demo.DemoController）
      */
-    private String resolveLoggerName(String className) {
-        if (SLF4J_LOGGER.equals(className)) {
-            return "org.slf4j.Logger";
-        } else if (JUL_LOGGER.equals(className)) {
-            return "java.util.logging.Logger";
-        } else if (APCL_LOG.equals(className)) {
-            return "org.apache.commons.logging.Log";
-        } else if (LOG4J2_LOGGER.equals(className)) {
-            return "org.apache.logging.log4j.Logger";
+    private String extractLoggerName(Object loggerInstance, String className) {
+        if (loggerInstance == null) {
+            return className.replace('/', '.');
+        }
+        // 尝试反射调用 getName()（SLF4J Logger、JUL Logger、APCL Log、Log4j2 Logger 均支持）
+        try {
+            java.lang.reflect.Method getName = loggerInstance.getClass().getMethod("getName");
+            Object result = getName.invoke(loggerInstance);
+            if (result instanceof String && !((String) result).isEmpty()) {
+                return (String) result;
+            }
+        } catch (Exception e) {
+            // 反射失败，使用兜底
         }
         return className.replace('/', '.');
     }

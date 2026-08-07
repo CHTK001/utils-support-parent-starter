@@ -242,7 +242,8 @@ public final class SoftwareDetector {
      */
     public static String extractHttpUrl(Object conn) {
         try {
-            return (String) conn.getClass().getMethod("getURL").invoke(conn);
+            Object url = conn.getClass().getMethod("getURL").invoke(conn);
+            return url != null ? url.toString() : "?";
         } catch (Exception e) {
             return "?";
         }
