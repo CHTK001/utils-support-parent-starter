@@ -32,9 +32,11 @@ public class SpiderController {
 
     /**
      * 构造爬虫控制器。
+     *
+     * @param store 爬虫定义存储
      */
-    public SpiderController() {
-        this.store = new SpiderDefinitionStore();
+    public SpiderController(SpiderDefinitionStore store) {
+        this.store = store;
     }
 
     /**
