@@ -1,6 +1,7 @@
 package com.chua.spider.support.config;
 
 import com.chua.spider.support.config.store.SpiderDefinitionStore;
+import com.chua.spider.support.config.store.SpiderExecutionStore;
 import com.chua.spider.support.config.store.SpiderProxyPoolStore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 爬虫模块自动配置（含代理池 + 定时调度）。
+ * 爬虫模块自动配置（含代理池 + 定时调度 + 执行）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,6 +24,14 @@ public class SpiderAutoConfiguration {
     @Bean
     public SpiderDefinitionStore spiderDefinitionStore() {
         return new SpiderDefinitionStore();
+    }
+
+    /**
+     * 执行记录存储（单例 Bean）。
+     */
+    @Bean
+    public SpiderExecutionStore spiderExecutionStore() {
+        return new SpiderExecutionStore();
     }
 
     /**
@@ -42,11 +51,24 @@ public class SpiderAutoConfiguration {
     }
 
     /**
+     * 爬虫执行器：根据 SpiderDefinition 启动后台线程执行爬虫。
+     */
+    @Bean
+    public SpiderRunner spiderRunner(SpiderDefinitionStore defStore,
+                                    SpiderExecutionStore execStore,
+                                    SpiderRequestFactory requestFactory) {
+        return new SpiderRunner(defStore, execStore, requestFactory);
+    }
+
+    /**
      * 爬虫定时调度服务：根据 spiderScheduleCron 触发任务。
      */
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public SpiderTimerService spiderTimerService(SpiderDefinitionStore defStore) {
-        return new SpiderTimerService(defStore);
+    public SpiderTimerService spiderTimerService(SpiderDefinitionStore defStore,
+                                                SpiderRunner runner) {
+        SpiderTimerService service = new SpiderTimerService(defStore);
+        service.setTaskHandler(runner::start);
+        return service;
     }
 
     @Bean
@@ -57,5 +79,12 @@ public class SpiderAutoConfiguration {
     @Bean
     public SpiderProxyPoolController spiderProxyPoolController() {
         return new SpiderProxyPoolController();
+    }
+
+    @Bean
+    public SpiderExecutionController spiderExecutionController(SpiderExecutionStore execStore,
+                                                              SpiderDefinitionStore defStore,
+                                                              SpiderRunner runner) {
+        return new SpiderExecutionController(execStore, defStore, runner);
     }
 }
