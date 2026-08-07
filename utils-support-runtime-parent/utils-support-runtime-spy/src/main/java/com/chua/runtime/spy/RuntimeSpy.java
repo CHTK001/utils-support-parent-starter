@@ -1,6 +1,7 @@
 package com.chua.runtime.spy;
 
 import com.chua.runtime.plugin.InterceptPoint;
+import java.lang.instrument.Instrumentation;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayDeque;
@@ -162,10 +163,49 @@ public class RuntimeSpy {
                     } else {
                         transformer.unregisterMethod(className, methodName, point);
                     }
+                    if (register && SpyBootstrap.getInstrumentation() != null) {
+                        retransformLoadedClass(className);
+                    }
                 }
             }
         } catch (Exception e) {
             LOG.log(Level.WARNING, String.format("同步插桩规则失败: %s.%s.%s", className, methodName, e.getMessage()));
+        }
+    }
+
+    /**
+     * 对已加载的目标类触发重变换 — 关键！否则 handler.start() 在 premain 之后注册时，
+     * 类已用空规则集被首次变换过，bytecode 没有真实的 Bootstrap.onIntercept 调用。
+     *
+     * <p>前提：Agent JAR 已同时追加到 bootstrap classpath（{@code appendToBootstrapClassLoaderSearch}），
+     * 因此 Bootstrap 类在 bootstrap 内可解析，对 java/net/Socket 等 JDK 类也可见。</p>
+     *
+     * @param internalName 类内部名（如 "java/net/Socket"）
+     */
+    private static void retransformLoadedClass(String internalName) {
+        Instrumentation inst = SpyBootstrap.getInstrumentation();
+        if (inst == null) {
+            return;
+        }
+        try {
+            Class<?> target = null;
+            for (Class<?> c : inst.getAllLoadedClasses()) {
+                if (c.getName().equals(internalName.replace('/', '.'))) {
+                    target = c;
+                    break;
+                }
+            }
+            if (target == null) {
+                return;
+            }
+            if (!inst.isModifiableClass(target)) {
+                LOG.log(Level.FINE, "跳过不可重变换类: " + internalName);
+                return;
+            }
+            inst.retransformClasses(target);
+            LOG.log(Level.INFO, "已对 " + internalName + " 触发重变换");
+        } catch (Throwable e) {
+            LOG.log(Level.WARNING, "retransform " + internalName + " 失败: " + e.getMessage());
         }
     }
 
