@@ -5,14 +5,15 @@ import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.spy.SpyBootstrap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Paths;
+import java.security.ProtectionDomain;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * 运行时 Agent 入口 — 通过 agentmain 注入运行时管理能力。
+ * 运行时 Agent 入口 — 通过 agentmain/premain 注入运行时管理能力。
  *
  * <p>使用方式：</p>
  * <pre>
@@ -35,14 +36,18 @@ import java.util.jar.JarFile;
  */
 public class RuntimeAgent {
 
-    private static final Logger LOG = Logger.getLogger(RuntimeAgent.class.getName());
     /**
-     * 默认 Shell 端口
+     * JUL Logger — 不依赖 slf4j。
+     */
+    private static final Logger LOG = Logger.getLogger(RuntimeAgent.class.getName());
+
+    /**
+     * 默认 Shell 端口。
      */
     private static final int DEFAULT_PORT = 4567;
 
     /**
-     * 是否已启动
+     * 是否已启动。
      */
     private static volatile boolean started;
 
@@ -70,49 +75,80 @@ public class RuntimeAgent {
             LOG.log(Level.WARNING, "Runtime Agent 已启动，忽略重复加载");
             return;
         }
-        LOG.log(Level.INFO, String.format("Runtime Agent 启动中，参数: %s", args));
+        LOG.info("Runtime Agent 启动中，参数: " + args);
         try {
-            // 将 Agent JAR 追加到系统类路径，保证 com.chua 类可用
             appendToClasspath(inst);
-            // 初始化 Spy 引擎
             boolean ok = SpyBootstrap.init(args, inst);
             if (!ok) {
-                LOG.log(Level.SEVERE, "Runtime Agent 初始化失败");
+                LOG.severe("Runtime Agent 初始化失败");
                 return;
             }
-            // 启动 APM 处理器（4 默认 + 3 新增）
             ApmBootstrap apm = new ApmBootstrap(Paths.get(System.getProperty("java.io.tmpdir")));
             apm.addHandler(new TransmissionHandler());
             apm.addHandler(new DependencyGraphHandler());
             apm.addHandler(new HandleLeakHandler());
             apm.start();
             started = true;
-            LOG.log(Level.INFO, "Runtime Agent 启动成功");
+            LOG.info("Runtime Agent 启动成功");
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, String.format("Runtime Agent 启动异常", e));
+            LOG.log(Level.SEVERE, "Runtime Agent 启动异常", e);
         }
     }
 
     /**
-     * 将当前 Agent JAR 追加到系统类加载器。
+     * 把当前 Agent JAR 追加到系统类加载器。
+     *
+     * <p>通过 ProtectionDomain 解析 RuntimeAgent 自身所在 jar 路径，调用
+     * {@link Instrumentation#appendToSystemClassLoaderSearch}。
+     * 这样 shaded jar 内的 RuntimeSpy / ApmBootstrap / Bootstrap 类都被 system classloader 加载，
+     * 业务线程（spring-boot LaunchedURLClassLoader.parent = system classloader）可见。</p>
+     *
+     * <p>注意：不调用 {@code appendToBootstrapClassLoaderSearch} —
+     * 因为这会让 shaded 类进入 bootstrap，而 RuntimeAgent 在 app classloader，
+     * 跨 loader 的 Plugin/Handler 接口引用会触发 {@code LinkageError loader constraint violation}。</p>
      *
      * @param inst Instrumentation 实例
      */
     private static void appendToClasspath(Instrumentation inst) {
-        String agentPath = System.getProperty("java.class.path");
-        if (agentPath == null || agentPath.isBlank()) {
+        String agentPath = resolveAgentJarPath();
+        LOG.info("[RuntimeAgent] agent JAR 路径: " + agentPath);
+        if (agentPath == null) {
             return;
         }
-        for (String path : agentPath.split(java.io.File.pathSeparator)) {
-            if (path.endsWith(".jar") && path.contains("runtime-agent")) {
-                try {
-                    inst.appendToSystemClassLoaderSearch(new JarFile(path));
-                    LOG.log(Level.FINE, String.format("已追加 Agent JAR 到系统类路径: %s", path));
-                } catch (Exception e) {
-                    LOG.log(Level.WARNING, String.format("追加 Agent JAR 失败: %s", path, e));
+        try {
+            inst.appendToSystemClassLoaderSearch(new JarFile(agentPath));
+            LOG.info("[RuntimeAgent] 已追加 Agent JAR 到系统类加载器: " + agentPath);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "追加 Agent JAR 到系统类加载器失败: " + agentPath, e);
+        }
+        try {
+            Class<?> c = Class.forName("com.chua.runtime.agent.Bootstrap", false,
+                    ClassLoader.getSystemClassLoader());
+            LOG.info("[RuntimeAgent] Bootstrap 可见 (system): " + c.getName() + " @ " + c.getClassLoader());
+        } catch (Throwable e) {
+            LOG.warning("[RuntimeAgent] Bootstrap 在系统类加载器不可见: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 通过 ProtectionDomain 解析 agent jar 的绝对路径。
+     *
+     * @return jar 绝对路径，无法解析返回 null
+     */
+    private static String resolveAgentJarPath() {
+        try {
+            ProtectionDomain domain = RuntimeAgent.class.getProtectionDomain();
+            if (domain != null && domain.getCodeSource() != null && domain.getCodeSource().getLocation() != null) {
+                String loc = domain.getCodeSource().getLocation().toString();
+                LOG.fine("[RuntimeAgent] ProtectionDomain location: " + loc);
+                if (loc.startsWith("file:") && loc.endsWith(".jar")) {
+                    return loc.substring("file:".length());
                 }
             }
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "解析 Agent JAR 路径失败: " + e.getMessage());
         }
+        return null;
     }
 
     /**

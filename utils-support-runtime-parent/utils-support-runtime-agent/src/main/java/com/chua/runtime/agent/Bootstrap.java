@@ -29,10 +29,9 @@ public final class Bootstrap {
      * @param methodName 方法名
      * @param descriptor  方法描述符
      * @param point       插桩点 key
-     * @return 原始方法返回值（EXIT 阶段）
      */
-    public static Object onIntercept(String className, String methodName, String descriptor, String point) {
-        return RuntimeSpy.onIntercept(className, methodName, descriptor, point);
+    public static void onIntercept(String className, String methodName, String descriptor, String point) {
+        RuntimeSpy.onIntercept(className, methodName, descriptor, point);
     }
 
     /**
