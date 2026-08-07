@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
  * <ul>
  *   <li>{@code *} - any value</li>
  *   <li>{@code N} - fixed value</li>
- *   <li>{@code */N} - step</li>
+ *   <li>{@code step} ({@code 0/N} syntax) - step interval</li>
  *   <li>{@code a,b,c} - list</li>
  * </ul>
  *
@@ -201,7 +201,7 @@ public class CronExpression {
         }
 
         /**
-         * Step ({@code */N})
+         * Step interval (e.g. 0/5 means every 5 units)
          */
         static Field step(int min, int max, int step) {
             Field f = new Field(min, max);

@@ -83,5 +83,12 @@
             <artifactId>spring-context</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Jakarta 注解（@PostConstruct / @PreDestroy） -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>
