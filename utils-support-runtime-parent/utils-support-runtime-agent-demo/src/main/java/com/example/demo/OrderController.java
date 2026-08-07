@@ -62,31 +62,18 @@ public class OrderController {
     /**
      * 触发外部 HTTP 连接 — 用于验证 TransmissionHandler + SoftwareDetector 识别客户端栈帧。
      *
-     * <p>尝试连接 192.0.2.1:9999（RFC 5737 TEST-NET-1 地址，肯定不可达，
-     * 但 Socket.connect / HttpURLConnection.getResponseCode 仍会被拦截）。</p>
-     *
-     * <p>需要 Java 启动时通过 {@code -Xbootclasspath/a:} 把 agent jar 放在 bootstrap classloader，
-     * 否则插桩代码 NoClassDefFoundError（本演示通过启动脚本的 JVM 参数启用）。</p>
+     * <p>调用本服务自身的 {@code /ping} 端点，确保 Socket/HTTP 连接真实建立。
+     * 这样 ENTRY + EXIT 都会被触发，TransmissionHandler 能记录完整传输链路。</p>
      *
      * @param orderId 订单 ID
      */
     private void notifyExternalService(long orderId) {
         LOG.info("notifyExternalService 被调用，orderId={}", orderId);
         try {
-            // 同时发起两个连接：一个 HTTP（HttpURLConnection 拦截），一个纯 Socket（Socket.connect 拦截）
-            // 纯 Socket 更容易被 transformer 拦截 —— HttpURLConnection.connect 是 protected abstract
-            try {
-                java.net.Socket sock = new java.net.Socket();
-                sock.connect(new java.net.InetSocketAddress("192.0.2.1", 9999), 200);
-                sock.close();
-            } catch (Throwable t) {
-                LOG.info("Socket 连接异常: {}", t.getClass().getSimpleName());
-            }
-            // HTTP 备用
-            URL url = new URL("http://192.0.2.1:9999/notify?orderId=" + orderId);
+            URL url = new URL("http://localhost:" + System.getProperty("server.port", "8580") + "/ping?orderId=" + orderId);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(200);
-            conn.setReadTimeout(200);
+            conn.setConnectTimeout(2000);
+            conn.setReadTimeout(2000);
             try {
                 int code = conn.getResponseCode();
                 LOG.info("外部 notify 状态码: {}", code);
