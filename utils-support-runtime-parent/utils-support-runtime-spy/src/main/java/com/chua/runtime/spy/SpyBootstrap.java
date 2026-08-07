@@ -4,12 +4,16 @@ import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.plugin.loader.PluginManager;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -28,8 +32,12 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class SpyBootstrap {
+
+    /**
+     * JUL Logger — 不依赖 slf4j，避免与外部 Logger 框架冲突
+     */
+    private static final Logger LOG = Logger.getLogger(SpyBootstrap.class.getName());
 
     /**
      * 字节码转换器
@@ -57,13 +65,13 @@ public class SpyBootstrap {
     /**
      * 初始化 Spy 引擎。
      *
-     * @param args   Agent 参数
-     * @param inst   Instrumentation 实例
+     * @param args Agent 参数
+     * @param inst Instrumentation 实例
      * @return 是否成功
      */
     public static boolean init(String args, Instrumentation inst) {
         if (initialized) {
-            log.warn("Spy 引擎已初始化，跳过");
+            LOG.warning("Spy 引擎已初始化，跳过");
             return true;
         }
         try {
@@ -71,11 +79,11 @@ public class SpyBootstrap {
             parseAgentArgs(args);
             initTransformer(inst);
             initPluginManager(inst);
-            log.info("Spy 引擎初始化完成");
+            LOG.info("Spy 引擎初始化完成");
             initialized = true;
             return true;
         } catch (Exception e) {
-            log.error("Spy 引擎初始化失败", e);
+            LOG.log(Level.SEVERE, "Spy 引擎初始化失败", e);
             return false;
         }
     }
@@ -90,9 +98,9 @@ public class SpyBootstrap {
         if (transformer != null && instrumentation != null) {
             try {
                 instrumentation.removeTransformer(transformer);
-                log.info("已移除字节码转换器");
+                LOG.info("已移除字节码转换器");
             } catch (Exception e) {
-                log.warn("移除转换器失败", e);
+                LOG.log(Level.WARNING, "移除转换器失败", e);
             }
         }
         if (pluginManager != null) {
@@ -117,7 +125,7 @@ public class SpyBootstrap {
                 params.put(kv[0].trim().toLowerCase(), kv[1].trim());
             }
         }
-        log.info("Agent 参数: {}", params);
+        LOG.info("Agent 参数: " + params);
     }
 
     /**
@@ -126,15 +134,12 @@ public class SpyBootstrap {
      * @param inst Instrumentation 实例
      */
     private static void initTransformer(Instrumentation inst) throws Exception {
-        // 默认包含模式
         List<Pattern> includes = Arrays.asList(
                 Pattern.compile("com\\.example\\..*"),
                 Pattern.compile("org\\..*"),
                 Pattern.compile("java\\.net\\..*"),
                 Pattern.compile("java\\.io\\..*")
         );
-
-        // 默认排除模式
         List<Pattern> excludes = Arrays.asList(
                 Pattern.compile("java\\.lang\\..*"),
                 Pattern.compile("com\\.chua\\..*")
@@ -143,16 +148,13 @@ public class SpyBootstrap {
         transformer = new SpyTransformer(null, includes, excludes);
         inst.addTransformer(transformer, true);
 
-        // 对已加载类执行 retransform
         for (Class<?> clazz : inst.getAllLoadedClasses()) {
-            String name = clazz.getName().replace('.', '/');
             try {
                 inst.retransformClasses(clazz);
             } catch (UnmodifiableClassException e) {
-                // 部分类不可修改，忽略
             }
         }
-        log.info("字节码转换器注册完成，已插桩 {} 个类", transformer.getTransformedClassCount());
+        LOG.info("字节码转换器注册完成，已插桩 " + transformer.getTransformedClassCount() + " 个类");
     }
 
     /**
@@ -165,18 +167,17 @@ public class SpyBootstrap {
                 System.getProperty("user.dir") + "/plugins");
         pluginManager = new PluginManager(new java.io.File(pluginDir).toPath());
         pluginManager.load();
-        log.info("插件加载完成，共 {} 个插件", pluginManager.size());
+        LOG.info("插件加载完成，共 " + pluginManager.size() + " 个插件");
     }
 
     /**
      * 注册插桩点。
      *
-     * @param point    插桩点
-     * @param descriptor 方法描述符
+     * @param point       插桩点
+     * @param descriptor  方法描述符
      */
     public static void registerInterceptPoint(InterceptPoint point, String descriptor) {
-        // 精确插桩规则已由 RuntimeSpy.registerInterceptor 通过 spyTransformer 注册
-        log.debug("注册插桩点（旧式，已迁移至精确规则）: {}", point.getKey());
+        LOG.fine("注册插桩点（旧式，已迁移至精确规则）: " + point.getKey());
     }
 
     /**

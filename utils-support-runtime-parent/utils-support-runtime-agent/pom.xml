@@ -52,6 +52,46 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.chua:utils-support-runtime-spy</include>
+                                    <include>com.chua:utils-support-runtime-apm</include>
+                                    <include>com.chua:utils-support-runtime-protocol</include>
+                                    <include>com.chua:utils-support-runtime-plugin</include>
+                                    <include>com.chua:utils-support-runtime-core</include>
+                                    <include>org.ow2.asm:asm</include>
+                                    <include>org.ow2.asm:asm-commons</include>
+                                    <include>org.ow2.asm:asm-tree</include>
+                                    <include>org.ow2.asm:asm-util</include>
+                                </includes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/services/*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

@@ -51,7 +51,11 @@ public class AgentController {
     @GetMapping("/agent/traces")
     public List<Map<String, Object>> traces() {
         List<Map<String, Object>> spans = new ArrayList<>();
-        for (TraceHandler.Span span : currentApm().getHandler(TraceHandler.class).getSpans()) {
+        TraceHandler handler = ApmBootstrap.getGlobalHandler(TraceHandler.class);
+        if (handler == null) {
+            return spans;
+        }
+        for (TraceHandler.Span span : handler.getSpans()) {
             Map<String, Object> m = new HashMap<>();
             m.put("spanId", span.getSpanId());
             m.put("parentSpanId", span.getParentSpanId());
@@ -67,7 +71,7 @@ public class AgentController {
     @GetMapping("/agent/logs")
     public List<Map<String, Object>> logs() {
         List<Map<String, Object>> result = new ArrayList<>();
-        LogHandler handler = currentApm().getHandler(LogHandler.class);
+        LogHandler handler = ApmBootstrap.getGlobalHandler(LogHandler.class);
         if (handler == null) {
             return result;
         }
@@ -85,7 +89,7 @@ public class AgentController {
     @GetMapping("/agent/net")
     public List<Map<String, Object>> net() {
         List<Map<String, Object>> result = new ArrayList<>();
-        NetHandler handler = currentApm().getHandler(NetHandler.class);
+        NetHandler handler = ApmBootstrap.getGlobalHandler(NetHandler.class);
         if (handler == null) {
             return result;
         }
@@ -103,7 +107,7 @@ public class AgentController {
     @GetMapping("/agent/files")
     public List<Map<String, Object>> files() {
         List<Map<String, Object>> result = new ArrayList<>();
-        FileHandler handler = currentApm().getHandler(FileHandler.class);
+        FileHandler handler = ApmBootstrap.getGlobalHandler(FileHandler.class);
         if (handler == null) {
             return result;
         }
@@ -124,15 +128,5 @@ public class AgentController {
         result.put("traceId", RuntimeSpy.getCurrentTraceId() != null ? RuntimeSpy.getCurrentTraceId() : "");
         result.put("spanId", RuntimeSpy.getCurrentSpanId() != null ? RuntimeSpy.getCurrentSpanId() : "");
         return result;
-    }
-
-    /**
-     * 获取全局 APM 实例（静态访问）。
-     *
-     * @return ApmBootstrap 实例
-     */
-    private ApmBootstrap currentApm() {
-        return ApmBootstrap.getGlobal() != null ? ApmBootstrap.getGlobal()
-                : new ApmBootstrap(java.nio.file.Paths.get("plugins"));
     }
 }
