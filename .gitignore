@@ -165,3 +165,6 @@ utils-support-extra-parent/utils-support-example-starter/hs_err_pid*.log
 
 dependency-reduced-pom.xml
 *.err
+
+# Rust
+**/Cargo.lock
