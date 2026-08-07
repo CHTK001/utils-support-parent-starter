@@ -208,15 +208,19 @@ public class AgentController {
             return result;
         }
         Map<String, HandleLeakHandler.HandleRecord> handles = handler.getHandles();
+        long thresholdMs = Long.parseLong(System.getProperty("leak.threshold.ms", "1000"));
         result.put("active", handles.size());
+        result.put("threshold", thresholdMs);
         List<Map<String, Object>> leakList = new ArrayList<>();
         long now = System.currentTimeMillis();
         for (Map.Entry<String, HandleLeakHandler.HandleRecord> e : handles.entrySet()) {
             long ageMs = now - e.getValue().getCreatedAt();
-            if (ageMs > 60000L) {
+            if (ageMs >= thresholdMs) {
                 Map<String, Object> leak = new HashMap<>();
                 leak.put("handleId", e.getKey());
                 leak.put("kind", e.getValue().getKind() == null ? null : e.getValue().getKind().name());
+                leak.put("name", e.getValue().getName());
+                leak.put("thread", e.getValue().getOwnerThread());
                 leak.put("age", ageMs);
                 leakList.add(leak);
             }

@@ -11,12 +11,80 @@
     </parent>
     <artifactId>utils-support-gateway-server-starter</artifactId>
     <name>Utils Support Gateway Server Starter</name>
-    <description>远控网关 - 服务端（WebSocket / TCP 信令中心）</description>
+    <description>远控网关 - 服务端（HTTP+WS API 中心）。RuntimeBoot 启动 guacd 子进程，
+        SPI 机制让 VNC/SSH/RDP/Rustdesk 一键接入。</description>
+
     <dependencies>
+        <!-- 通用网络栈（Server, Tunnel, ProtocolType） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- 运行时 jar/native 生命周期管理（RuntimeBoot, GuacamoleArtifact） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- SSH client -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+
+        <!-- Apache Guacamole Java 公共 API（RDP/VNC/SSH 抽象） -->
+        <dependency>
+            <groupId>org.apache.guacamole</groupId>
+            <artifactId>guacamole-common</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+
+        <!-- 嵌入式 sqlite 驱动 -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.0.0</version>
+        </dependency>
+
+        <!-- JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.1</version>
+        </dependency>
+
+        <!-- SLF4J 日志（@Slf4j） -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

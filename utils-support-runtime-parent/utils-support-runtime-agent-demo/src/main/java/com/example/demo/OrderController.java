@@ -37,6 +37,15 @@ public class OrderController {
     private static final AtomicLong COUNTER = new AtomicLong(0L);
 
     /**
+     * 故意泄漏的 FileInputStream 列表 — 演示 HandleLeakHandler 检测。
+     *
+     * <p>每次 /order/create 故意创建一个 FileInputStream 不关闭，
+     * 1 秒后即可在 /agent/leaks 看到记录。</p>
+     */
+    private static final java.util.List<java.io.FileInputStream> LEAKED_STREAMS =
+            java.util.Collections.synchronizedList(new java.util.ArrayList<>());
+
+    /**
      * 创建订单 — GET /order/create?amount=100。
      *
      * @param amount 金额（默认 100）
@@ -50,6 +59,26 @@ public class OrderController {
 
         // 主动发起外部 HTTP 连接，触发 TransmissionHandler + Socket 字节码插桩
         notifyExternalService(orderId);
+
+        // 故意泄漏一个 FileInputStream（演示 HandleLeakHandler）
+        try {
+            java.io.File tmp = java.io.File.createTempFile("order-", ".log");
+            try (java.io.FileWriter fw = new java.io.FileWriter(tmp)) {
+                fw.write("order=" + orderId + "\n");
+            }
+            java.io.FileInputStream fis = new java.io.FileInputStream(tmp);
+            LEAKED_STREAMS.add(fis);
+            if (LEAKED_STREAMS.size() > 50) {
+                java.io.FileInputStream old = LEAKED_STREAMS.remove(0);
+                try {
+                    old.close();
+                } catch (java.io.IOException ignored) {
+                }
+            }
+            LOG.info("故意泄漏 FileInputStream id={}, 累积泄漏数={}", orderId, LEAKED_STREAMS.size());
+        } catch (java.io.IOException e) {
+            LOG.warn("构造泄漏句柄失败: {}", e.getMessage());
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("orderId", "ORDER-" + orderId);

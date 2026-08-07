@@ -23,15 +23,23 @@ public final class Bootstrap {
     }
 
     /**
-     * 拦截入口（ENTRY / EXIT）。
+     * 拦截入口（ENTRY / EXIT / LOG_PRE / ...）。
      *
+     * <p>由 SpyTransformer 注入的字节码调用，签名为
+     * {@code static void onIntercept(Object thisRef, String className, String methodName, String descriptor, String point)}，
+     * thisRef 是受拦截实例（Socket/HttURLConnection/FileInputStream 等），静态方法或 JDK 内部时为 null。
+     * 该方法转发到 {@link RuntimeSpy#onIntercept(String, String, String, String, Object)}，
+     * 由其把 thisRef 写入 InterceptContext.userData 供 Handler 使用。</p>
+     *
+     * @param thisRef  受拦截实例（可为 null）
      * @param className  目标类内部名
      * @param methodName 方法名
      * @param descriptor  方法描述符
      * @param point       插桩点 key
      */
-    public static void onIntercept(String className, String methodName, String descriptor, String point) {
-        RuntimeSpy.onIntercept(className, methodName, descriptor, point);
+    public static void onIntercept(Object thisRef, String className, String methodName,
+                                   String descriptor, String point) {
+        RuntimeSpy.onIntercept(className, methodName, descriptor, point, thisRef);
     }
 
     /**

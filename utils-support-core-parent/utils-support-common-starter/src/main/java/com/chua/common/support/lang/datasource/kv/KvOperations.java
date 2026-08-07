@@ -5,30 +5,17 @@ import java.time.Duration;
 /**
  * 键值对（KV）存储公共契约，定义与具体后端无关的字符串型 KV 操作集合。
  *
- * <p>该接口作为 Redis、MapDB、本地内存等任意 KV 后端的统一抽象，
- * 仅涵盖各后端都能支持的 {@code String → String} 基础能力（get / put / delete / containsKey / incr）。</p>
+ * <p><b>已废弃</b>：请使用 {@link KvEngine} 接口替代。{@code KvEngine} 是本接口的超集，
+ * 额外提供 {@link KvEngine#findAllByPrefix(String)} 前缀查询能力和 {@link KvEngine#key(String)} 链式操作。</p>
  *
- * <p>部分后端（如 MapDB）原生不支持过期时间（TTL），因此 {@code put(key, value, ttl)}、
- * {@code ttl(key)}、{@code expire(key, seconds)} 三个带过期语义的方法在接口中提供
- * <b>默认实现</b>并抛出 {@link UnsupportedOperationException}，由支持 TTL 的后端（如 Redis）覆盖。</p>
+ * <p>本接口作为 {@link KvEngine} 的父接口保留，以维持 SPI 扩展点的向后兼容。
+ * 所有实现类应直接实现 {@link KvEngine}，而非本接口。</p>
  *
- * <p><b>SPI 契约</b>：本接口是 KV 后端的 SPI 扩展点。各后端实现类使用
- * {@code @Spi("名称")} 标注，并在 {@code META-INF/services/com.chua.common.support.lang.datasource.kv.KvOperations}
- * 中注册，通过 {@code ServiceProvider.of(KvOperations.class).getNewExtension("名称", properties)} 加载。</p>
- *
- * <h2>典型使用</h2>
- * <pre>{@code
- * Properties props = new Properties();
- * props.setProperty("host", "127.0.0.1");
- * props.setProperty("port", "6379");
- * KvOperations kv = ServiceProvider.of(KvOperations.class).getNewExtension("redis", props);
- * kv.put("token", "abc123", Duration.ofHours(1));
- * String token = kv.get("token");
- * }</pre>
- *
+ * @deprecated 使用 {@link KvEngine} 接口替代。
  * @author CH
  * @since 4.0.0.42
  */
+@Deprecated(forRemoval = true, since = "4.0.0.42")
 public interface KvOperations {
 
     /**

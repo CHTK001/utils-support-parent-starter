@@ -1,0 +1,99 @@
+package com.chua.gateway.server.bridge;
+
+import com.chua.gateway.server.store.Connection;
+import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * SSH 协议桥接器（主进程内，JSCH）。
+ *
+ * <p>浏览器侧使用 xterm.js WebSocket 客户端发送伪终端输入。
+ * 协议栈：WebSocket ↔ ChannelShell (SSH) ↔ SSH Server (:22)。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Slf4j
+public class SshBridge implements RemoteBridge {
+
+    /**
+     * SSH 默认端口
+     */
+    private static final int DEFAULT_SSH_PORT = 22;
+
+    /**
+     * SSH JSch 会话超时（毫秒）
+     */
+    private static final int SESSION_TIMEOUT_MS = 10_000;
+
+    /**
+     * 底层连接
+     */
+    private final Connection connection;
+
+    /**
+     * JSch session
+     */
+    private volatile Session session;
+
+    /**
+     * shell 通道
+     */
+    private volatile ChannelShell channel;
+
+    public SshBridge(Connection connection) {
+        this.connection = connection;
+    }
+
+    @Override
+    public Connection connection() {
+        return connection;
+    }
+
+    @Override
+    public void connect() throws Exception {
+        if (session != null && session.isConnected()) {
+            return;
+        }
+        int port = connection.port() > 0 ? connection.port() : DEFAULT_SSH_PORT;
+        String user = connection.user() == null ? "" : connection.user();
+        String pass = connection.password() == null ? "" : connection.password();
+        log.info("SSH 连接: user={} target={}:{}", user, connection.host(), port);
+        JSch jsch = new JSch();
+        session = jsch.getSession(user, connection.host(), port);
+        session.setPassword(pass);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect(SESSION_TIMEOUT_MS);
+        channel = (ChannelShell) session.openChannel("shell");
+        channel.setPtyType("xterm");
+        log.info("SSH 连接 + shell 通道建立");
+    }
+
+    @Override
+    public void disconnect() {
+        if (channel != null && !channel.isClosed()) {
+            channel.disconnect();
+        }
+        if (session != null && session.isConnected()) {
+            session.disconnect();
+        }
+        channel = null;
+        session = null;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return session != null && session.isConnected() && channel != null && !channel.isClosed();
+    }
+
+    /**
+     * 返回 SSH shell 通道（供 WS handler 读写）。
+     *
+     * @return ChannelShell 实例，未连接返回 {@code null}
+     */
+    public ChannelShell channel() {
+        return channel;
+    }
+}

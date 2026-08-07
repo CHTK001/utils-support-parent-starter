@@ -2,7 +2,7 @@ package com.chua.redis.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.lang.datasource.kv.KvOperations;
+import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.redis.support.client.RedisClient;
 import redis.clients.jedis.JedisPool;
 /**
@@ -37,7 +37,7 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
                 return (T) pool;
             }
             // KV 视图：复用既有连接池包装出 RedisClient
-            if (type == KvOperations.class) {
+            if (type == KvEngine.class) {
                 return (T) new RedisClient(pool);
             }
             // 其它类型不兼容，返回 null（与 EngineDataSource 默认契约一致）

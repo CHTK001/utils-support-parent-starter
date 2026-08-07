@@ -1,21 +1,25 @@
 package com.chua.chronicle.support.kv;
 
-import com.chua.common.support.lang.datasource.kv.KvOperations;
+import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.common.support.spi.annotations.Spi;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
- * 基于 ChronicleMap 的键值对（KV）操作实现，作为 {@link KvOperations} 的 SPI 后端。
+ * 基于 ChronicleMap 的键值对（KV）操作实现，作为 {@link KvEngine} 的 SPI 后端。
  * <p>
- * 本实现覆盖 {@code get / put / containsKey / delete / incr} 等核心字符串型 KV 能力。
+ * 本实现覆盖 {@code get / put / containsKey / delete / incr} 等核心字符串型 KV 能力，
+ * 以及 {@link KvEngine#findAllByPrefix(String)} 前缀查询能力。
  * 当前所选 chronicle-map 版本（3.27ea2）未提供条目级过期时间（TTL）API，
  * 因此 {@code put(key, value, ttl)}、{@code ttl(key)}、{@code expire(key, seconds)}
- * 沿用 {@link KvOperations} 接口的默认实现并抛出 {@link UnsupportedOperationException}，
+ * 沿用 {@link KvEngine} 接口的默认实现并抛出 {@link UnsupportedOperationException}，
  * 与不支持 TTL 的其它后端（如 MapDB）行为一致。
  * </p>
  *
@@ -28,14 +32,14 @@ import java.util.Properties;
  * props.setProperty("file", "/data/kv.dat");   // 可选，缺省为内存型
  * props.setProperty("name", "chronicle-kv");   // 可选，默认 chronicle-kv
  * props.setProperty("entries", "10000");        // 可选，默认 10000
- * KvOperations kv = ServiceProvider.of(KvOperations.class).getNewExtension("chronicle", props);
+ * KvEngine engine = ServiceProvider.of(KvEngine.class).getNewExtension("chronicle", props);
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("chronicle")
-public class ChronicleMapKv implements KvOperations {
+@Api
+public class ChronicleMapKv implements KvEngine {
 
     /**
      * 底层 ChronicleMap 实例。
@@ -129,5 +133,27 @@ public class ChronicleMapKv implements KvOperations {
         String updated = map.compute(key, (k, v) ->
                 String.valueOf((v == null ? 0L : Long.parseLong(v)) + 1L));
         return Long.parseLong(updated);
+    }
+
+    /**
+     * 查找所有以指定前缀开头的键值对。
+     * <p>ChronicleMap 无原生前缀查询能力，采用线性扫描所有键。</p>
+     *
+     * @param prefix 键前缀，不可为 null
+     * @return 匹配前缀的键值对映射；无匹配时返回空 Map
+     */
+    @Override
+    public Map<String, String> findAllByPrefix(String prefix) {
+        if (prefix == null || prefix.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, String> result = new LinkedHashMap<>();
+        Set<String> keys = map.keySet();
+        for (String key : keys) {
+            if (key.startsWith(prefix)) {
+                result.put(key, map.get(key));
+            }
+        }
+        return result;
     }
 }
