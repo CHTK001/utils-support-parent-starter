@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
@@ -140,7 +141,8 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     @Override
     public void send(String clientId, String topic, Object message) {
-        String payload = topic + ":" + message.toString();
+        String messageBody = message instanceof String value ? value : Json.toJson(message);
+        String payload = topic + ":" + messageBody;
         for (Connection conn : connections) {
             if (clientId.equals(conn.sessionId)) {
                 try {

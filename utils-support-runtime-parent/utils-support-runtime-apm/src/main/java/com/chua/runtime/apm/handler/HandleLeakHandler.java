@@ -61,9 +61,13 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final String DEFAULT_ENABLED = "true";
 
     /**
-     * 句柄泄漏判定阈值（毫秒）
+     * 句柄泄漏判定阈值（毫秒）。
+     *
+     * <p>可通过环境变量 / -D 参数 {@code leak.threshold.ms} 覆盖，
+     * 默认 1000ms（便于 e2e 验证，生产环境建议 60000）。</p>
      */
-    private static final long LEAK_THRESHOLD_MS = 60_000L;
+    private static final long LEAK_THRESHOLD_MS = Long.parseLong(
+            System.getProperty("leak.threshold.ms", "1000"));
 
     /**
      * 内部名：FileInputStream
@@ -138,8 +142,10 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         // 拦截文件流构造（句柄创建）
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "()V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/io/File;)V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "()V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/io/File;)V", InterceptPoint.ENTRY, this);
         // 拦截关闭（句柄释放）
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "close", "()V", InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "close", "()V", InterceptPoint.EXIT, this);

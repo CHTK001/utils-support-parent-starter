@@ -1,6 +1,6 @@
 package com.chua.redis.support.client;
 
-import com.chua.common.support.lang.datasource.kv.KvOperations;
+import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +8,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.Transaction;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -21,6 +24,9 @@ import java.util.function.Function;
  * Redis 链式客户端，全功能封装 Jedis。
  *
  * <p>采用 Builder 模式 + 链式 API，支持 String/Hash/List/Set/ZSet 全类型操作。</p>
+ *
+ * <p>实现了 {@link KvEngine} 接口，支持统一 KV 操作契约，包括前缀查询
+ * {@link KvEngine#findAllByPrefix(String)} 和链式操作 {@link KvEngine#key(String)}。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
@@ -60,7 +66,7 @@ import java.util.function.Function;
 @Spi("redis")
 @Slf4j
 @Getter
-public class RedisClient implements AutoCloseable, KvOperations {
+public class RedisClient implements AutoCloseable, KvEngine {
 
     private final JedisPool pool;
     private final String host;
@@ -80,7 +86,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
 
     /**
      * 基于已有的 Jedis 连接池构造客户端（复用连接池，不新建）。
-     * <p>供数据源层将既有 {@link JedisPool} 包装为 {@link KvOperations} 视图使用。</p>
+     * <p>供数据源层将既有 {@link JedisPool} 包装为 {@link KvEngine} 视图使用。</p>
      *
      * @param pool 已有的 Jedis 连接池，不可为 null
      */
@@ -89,7 +95,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 基于 SPI 配置构造客户端，供 {@code ServiceProvider.of(KvOperations.class).getNewExtension("redis", props)} 调用。
+     * 基于 SPI 配置构造客户端，供 {@code ServiceProvider.of(KvEngine.class).getNewExtension("redis", props)} 调用。
      * <p>支持属性：host（默认 127.0.0.1）、port（默认 6379）、password、database（默认 0）、
      * timeout（毫秒，默认 3000）、maxTotal（默认 20）、maxIdle（默认 10）、minIdle（默认 2）。</p>
      *
@@ -210,7 +216,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 写入键值对（永不过期），实现 {@link KvOperations} 契约。
+     * 写入键值对（永不过期），实现 {@link KvEngine} 契约。
      *
      * @param key   键，不可为 null
      * @param value 值，可为 null
@@ -221,7 +227,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 写入带过期时间的键值对，实现 {@link KvOperations} 契约。
+     * 写入带过期时间的键值对，实现 {@link KvEngine} 契约。
      *
      * @param key   键，不可为 null
      * @param value 值，可为 null
@@ -234,7 +240,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 判断键是否存在，实现 {@link KvOperations} 契约。
+     * 判断键是否存在，实现 {@link KvEngine} 契约。
      *
      * @param key 键，不可为 null
      * @return 存在返回 true，否则返回 false
@@ -245,7 +251,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 删除指定键，实现 {@link KvOperations} 契约。
+     * 删除指定键，实现 {@link KvEngine} 契约。
      *
      * @param key 键，不可为 null
      * @return 删除成功返回 true，否则返回 false
@@ -263,7 +269,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 值递增，实现 {@link KvOperations} 契约。
+     * 值递增，实现 {@link KvEngine} 契约。
      */
     @Override
     public long incr(String key) {
@@ -336,7 +342,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 设置过期时间（秒），实现 {@link KvOperations} 契约。
+     * 设置过期时间（秒），实现 {@link KvEngine} 契约。
      */
     @Override
     public void expire(String key, long seconds) {
@@ -351,7 +357,7 @@ public class RedisClient implements AutoCloseable, KvOperations {
     }
 
     /**
-     * 获取剩余生存时间（秒），实现 {@link KvOperations} 契约。
+     * 获取剩余生存时间（秒），实现 {@link KvEngine} 契约。
      */
     @Override
     public long ttl(String key) {
@@ -391,6 +397,41 @@ public class RedisClient implements AutoCloseable, KvOperations {
      */
     public Set<String> keys(String pattern) {
         return execute(j -> j.keys(pattern));
+    }
+
+    /**
+     * 查找所有以指定前缀开头的键值对，使用 SCAN 命令避免阻塞。
+     *
+     * <p>实现 {@link KvEngine#findAllByPrefix(String)} 契约。</p>
+     *
+     * @param prefix 键前缀，不可为 null
+     * @return 匹配前缀的键值对映射；无匹配时返回空 Map
+     */
+    @Override
+    public Map<String, String> findAllByPrefix(String prefix) {
+        if (prefix == null || prefix.isEmpty()) {
+            return Map.of();
+        }
+        return execute(j -> {
+            Map<String, String> result = new LinkedHashMap<>();
+            String pattern = prefix + "*";
+            ScanParams scanParams = new ScanParams().count(1000);
+            String cursor = "0";
+            while (true) {
+                ScanResult<String> scanResult = j.scan(cursor, scanParams);
+                List<String> keys = scanResult.getResult();
+                for (String key : keys) {
+                    if (key.startsWith(prefix)) {
+                        result.put(key, j.get(key));
+                    }
+                }
+                cursor = scanResult.getCursor();
+                if (cursor.equals("0")) {
+                    break;
+                }
+            }
+            return result;
+        });
     }
 
     // ==================== Hash 操作 ====================

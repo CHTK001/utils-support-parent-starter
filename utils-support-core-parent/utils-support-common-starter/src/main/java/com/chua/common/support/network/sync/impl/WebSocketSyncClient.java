@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 
@@ -147,13 +148,30 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
             throw new IllegalStateException("客户端未连接");
         }
         try {
-            String payload = topic + ":" + message.toString();
+            String messageBody = message instanceof String value ? value : Json.toJson(message);
+            String payload = topic + ":" + messageBody;
             byte[] data = payload.getBytes(StandardCharsets.UTF_8);
-            byte[] frame = new byte[2 + data.length];
-            frame[0] = (byte) 0x81;
-            frame[1] = (byte) data.length;
-            System.arraycopy(data, 0, frame, 2, data.length);
-            output.write(frame);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            out.write(0x81);
+            if (data.length <= 125) {
+                out.write(0x80 | data.length);
+            } else if (data.length <= 65535) {
+                out.write(0x80 | 126);
+                out.write((data.length >> 8) & 0xFF);
+                out.write(data.length & 0xFF);
+            } else {
+                out.write(0x80 | 127);
+                for (int i = 7; i >= 0; i--) {
+                    out.write((int) ((data.length >> (8 * i)) & 0xFF));
+                }
+            }
+            byte[] maskKey = new byte[4];
+            new java.security.SecureRandom().nextBytes(maskKey);
+            out.write(maskKey);
+            for (int i = 0; i < data.length; i++) {
+                out.write(data[i] ^ maskKey[i % 4]);
+            }
+            output.write(out.toByteArray());
             output.flush();
         } catch (Exception e) {
             throw new RuntimeException("发送消息失败", e);
@@ -193,7 +211,11 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     // ==================== 连接管理 ====================
 
     private void doConnect() throws Exception {
-        URI uri = URI.create(serverUrl);
+        String url = serverUrl;
+        if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
+            url = "ws://" + url;
+        }
+        URI uri = URI.create(url);
         String host = uri.getHost();
         int port = uri.getPort() > 0 ? uri.getPort() : (uri.getScheme().equals("wss") ? 443 : 80);
         String path = uri.getPath().isEmpty() ? "/" : uri.getPath();

@@ -71,6 +71,14 @@ public class RuntimeSpy {
     private static final ThreadLocal<SpyContext> CONTEXT = new ThreadLocal<>();
 
     /**
+     * ENTRY 时记录的 thisRef（受拦截实例引用）。
+     *
+     * <p>在 ENTRY 插桩点压入，EXIT/EXCEPTION 阶段 ctx 注入 userData 后清空。
+     * 用于 Handler 在 EXIT 时拿到原始实例（Socket / HttpURLConnection / FileInputStream 等）。</p>
+     */
+    private static final ThreadLocal<Object> ENTRY_THIS = new ThreadLocal<>();
+
+    /**
      * 全局追踪栈 — 每个线程保存 traceId + spanId 栈帧。
      *
      * <p>栈帧结构：(traceId, spanId)。ENTRY 压栈，EXIT/EXCEPTION 弹栈，
@@ -264,6 +272,9 @@ public class RuntimeSpy {
     /**
      * ASM 字节码插桩入口 — 被 SpyTransformer 通过 INVOKESTATIC 调用。
      *
+     * <p>新签名：包含 thisRef，方便 Handler 直接拿到受拦截实例（Socket/HttURLConnection 等）。</p>
+     *
+     * @param thisRef  受拦截实例（可为 null）
      * @param className  目标类名
      * @param methodName 目标方法名
      * @param descriptor 方法描述符
@@ -272,7 +283,8 @@ public class RuntimeSpy {
     public static void onIntercept(String className,
                                    String methodName,
                                    String descriptor,
-                                   String pointKey) {
+                                   String pointKey,
+                                   Object thisRef) {
         InterceptPoint point = InterceptPoint.of(pointKey);
         if (point == null) {
             return;
@@ -294,6 +306,10 @@ public class RuntimeSpy {
             String spanId = generateId();
             TRACE_STACK.get().push(new TraceStackFrame(traceId, spanId));
             CONTEXT.set(new SpyContext(className, methodName, System.currentTimeMillis()));
+            // 保存 thisRef — 供 EXIT 阶段读取
+            if (thisRef != null) {
+                ENTRY_THIS.set(thisRef);
+            }
             // MDC 桥接（SLF4J MDC，业务日志可看到 traceId/spanId）
             putMdc(MDC_KEY_TRACE_ID, traceId);
             putMdc(MDC_KEY_SPAN_ID, spanId);
@@ -310,12 +326,15 @@ public class RuntimeSpy {
                     traceStack = new InterceptContext.TraceStack(
                             topFrame.traceId(), topFrame.spanId(), parentSpanId);
                 }
+                // 优先：ctx 显式传入 userData；否则用当前 ENTRY 阶段记录的 thisRef；EXIT 时也能拿到
+                Object resolvedUserData = thisRef != null ? thisRef : ENTRY_THIS.get();
                 InterceptContext ctx = InterceptContext.builder()
                         .className(className)
                         .methodName(methodName)
                         .descriptor(descriptor)
                         .point(point)
                         .timestamp(System.currentTimeMillis())
+                        .userData(resolvedUserData)
                         .build();
                 if (traceStack != null) {
                     ctx.setTraceStack(traceStack);
@@ -342,9 +361,10 @@ public class RuntimeSpy {
             if (popped != null && LOG.isLoggable(java.util.logging.Level.FINE)) {
                 LOG.log(Level.FINE, String.format("[Trace] exit span=%s traceId=%s", popped.spanId(), popped.traceId()));
             }
-            // 栈空时清 MDC（最外层方法退出）
+            // 栈空时清 MDC + 清 thisRef（最外层方法退出）
             if (TRACE_STACK.get().isEmpty()) {
                 clearMdc();
+                ENTRY_THIS.remove();
             }
         }
 
@@ -450,12 +470,14 @@ public class RuntimeSpy {
      * @param methodName 方法名
      * @param descriptor 描述符
      * @param pointKey   插桩点
+     * @param thisRef    受拦截实例
      */
     public static void onEntry(String className,
                                String methodName,
                                String descriptor,
-                               String pointKey) {
-        onIntercept(className, methodName, descriptor, pointKey);
+                               String pointKey,
+                               Object thisRef) {
+        onIntercept(className, methodName, descriptor, pointKey, thisRef);
     }
 
     /**
@@ -465,12 +487,14 @@ public class RuntimeSpy {
      * @param methodName 方法名
      * @param descriptor 描述符
      * @param pointKey   插桩点
+     * @param thisRef    受拦截实例
      */
     public static void onExit(String className,
                               String methodName,
                               String descriptor,
-                              String pointKey) {
-        onIntercept(className, methodName, descriptor, pointKey);
+                              String pointKey,
+                              Object thisRef) {
+        onIntercept(className, methodName, descriptor, pointKey, thisRef);
     }
 
     /**
@@ -601,6 +625,7 @@ public class RuntimeSpy {
     public static void clear() {
         INTERCEPTOR_MAP.clear();
         CONTEXT.remove();
+        ENTRY_THIS.remove();
         TRANSFORM_COUNT.remove();
         clearMdc();
         LOG.log(Level.INFO, "RuntimeSpy 已清除");

@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.protocol.Endpoint;
@@ -13,6 +14,7 @@ import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.spy.RuntimeSpy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -237,6 +239,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             record.setProtocol(protocol);
 
             // 端点角色：Socket 客户端=CLIENT，ServerSocket=DIRECT_SERVER
+            Object instance = ctx.getUserData();
             if (SERVER_SOCKET.equals(className)) {
                 record.setSource(Endpoint.builder().kind(EndpointKind.SERVER).build());
             } else {
@@ -261,7 +264,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             record.setDuration(record.getEndTime() - record.getStartTime());
             record.setStatus(StatusCode.OK);
 
-            // 补充目标端点信息
+            // 补充目标端点信息（EXIT 时再次调用，覆盖 ENTRY 阶段未到位的状态）
             enrichTargetEndpoint(ctx, record);
 
             // 累加连接计数（依赖图数据）
@@ -275,9 +278,33 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             }
             records.add(record);
 
+            // 同步到依赖图（DependencyGraphHandler）
+            emitToDependencyGraph(record);
+
             LOG.log(Level.FINE, String.format("[Transmission] %s %s -> %s %sms software=%s", record.getProtocol(), record.getOperation(), record.getTarget() != null ? record.getTarget().displayLabel() : "?", record.getDuration(), record.getSoftware()));
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("TransmissionHandler.exit 处理异常: %s", e.getMessage()));
+        }
+    }
+
+    /**
+     * 把单次传输事件同步到 DependencyGraphHandler，生成 source → target 边。
+     */
+    private void emitToDependencyGraph(TransmissionRecord record) {
+        try {
+            DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
+            if (handler == null) {
+                return;
+            }
+            Endpoint source = record.getSource();
+            Endpoint target = record.getTarget();
+            if (source == null || target == null) {
+                return;
+            }
+            handler.record(source, target, record.getProtocol(),
+                    record.getSoftware(), record.getDuration(), false, null);
+        } catch (Exception e) {
+            LOG.log(Level.FINE, String.format("emitToDependencyGraph 异常: %s", e.getMessage()));
         }
     }
 
@@ -304,16 +331,29 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             // 反射获取 Socket 实例（从 InterceptContext 的 userData 或自身）
             Object socket = resolveSocketObject(ctx);
             if (socket != null) {
-                String target = SoftwareDetector.extractSocketTarget((Socket) socket);
-                Protocol protocol = SoftwareDetector.inferProtocolFromSocket((Socket) socket);
+                String host = "?";
+                int port = 0;
+                try {
+                    java.net.InetSocketAddress remote = (java.net.InetSocketAddress) socket.getClass()
+                            .getMethod("getRemoteSocketAddress").invoke(socket);
+                    if (remote != null) {
+                        host = remote.getHostString();
+                        port = remote.getPort();
+                    }
+                } catch (Exception e) {
+                    // socket 未连接
+                }
+                Protocol protocol = record.getProtocol();
+                if (protocol == null || protocol == Protocol.UNKNOWN) {
+                    protocol = SoftwareDetector.inferProtocolFromSocket((Socket) socket);
+                }
                 record.setProtocol(protocol);
                 record.setTarget(Endpoint.builder()
                         .kind(EndpointKind.SERVER)
                         .protocol(protocol)
                         .software(record.getSoftware())
-                        .host("?")
-                        .port(0)
-                        .path(target)
+                        .host(host)
+                        .port(port)
                         .build());
             }
         } catch (Exception e) {
@@ -340,10 +380,21 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 String url = SoftwareDetector.extractHttpUrl(conn);
                 String method = SoftwareDetector.extractHttpMethod(conn);
                 record.setOperation(method + " " + url);
+                String host = "?";
+                int port = 0;
+                try {
+                    java.net.URL u = new java.net.URL(url);
+                    host = u.getHost();
+                    port = u.getPort() == -1 ? u.getDefaultPort() : u.getPort();
+                } catch (Exception e) {
+                    // url 解析失败
+                }
                 record.setTarget(Endpoint.builder()
                         .kind(EndpointKind.SERVER)
                         .protocol(Protocol.HTTP)
                         .software(record.getSoftware())
+                        .host(host)
+                        .port(port)
                         .path(url)
                         .build());
             }

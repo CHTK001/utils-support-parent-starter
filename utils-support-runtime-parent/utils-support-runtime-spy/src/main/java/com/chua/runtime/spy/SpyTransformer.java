@@ -72,10 +72,15 @@ public class SpyTransformer implements ClassFileTransformer {
     private String spyClass = DEFAULT_SPY_CLASS;
 
     /**
-     * onIntercept 方法描述符：固定为 4 个 String 参数返回 void
+     * onIntercept 方法描述符：5 个参数（className, methodName, descriptor, pointKey, thisRef）。
+     *
+     * <p>thisRef 在所有插桩点（ENTRY / EXIT / LOG_PRE / NET_CONNECT_PRE / ...）都压入：
+     * 对于静态方法即为 null，由 Bootstrap 自动用 ACC_STATIC 鉴别。
+     * 这样 Handler 在收到 ctx 时可以直接通过 {@code ctx.getUserData()} 拿到受拦截的实例
+     * （Socket、HttpURLConnection、FileInputStream 等）。</p>
      */
     private static final String INTERCEPT_DESC =
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+            "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 
     /**
      * onException 方法描述符
@@ -341,12 +346,13 @@ public class SpyTransformer implements ClassFileTransformer {
             if (mv == null) {
                 return null;
             }
-            // 跳过构造器与静态块
-            if (name.equals("<init>") || name.equals("<clinit>")) {
-                return mv;
-            }
             Set<InterceptPoint> points = classRules;
             boolean exact = !points.isEmpty();
+            // 跳过构造器与静态块（除非有针对 <init>/<clinit> 的精确插桩规则）
+            boolean isInitLike = name.equals("<init>") || name.equals("<clinit>");
+            if (isInitLike && !exact) {
+                return mv;
+            }
             // 无精确规则时仅插桩 public/protected 方法
             if (!exact && !((access & Opcodes.ACC_PUBLIC) != 0 || (access & Opcodes.ACC_PROTECTED) != 0)) {
                 return mv;
@@ -355,7 +361,8 @@ public class SpyTransformer implements ClassFileTransformer {
             if (points.isEmpty()) {
                 return mv;
             }
-            return new SpyMethodVisitor(ASM_API, mv, targetClass, name, descriptor, points, exact, spyClass);
+            boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
+            return new SpyMethodVisitor(ASM_API, mv, targetClass, name, descriptor, points, exact, spyClass, isStatic);
         }
     }
 
@@ -390,6 +397,11 @@ public class SpyTransformer implements ClassFileTransformer {
         private final boolean exact;
 
         /**
+         * 当前方法是否为静态。
+         */
+        private final boolean isStatic;
+
+        /**
          * Bootstrap 类内部名（RuntimeSpy 或 com.chua.runtime.agent.Bootstrap）。
          */
         private final String spyClass;
@@ -411,7 +423,8 @@ public class SpyTransformer implements ClassFileTransformer {
 
         SpyMethodVisitor(int api, MethodVisitor mv, String targetClass,
                          String methodName, String descriptor,
-                         Set<InterceptPoint> points, boolean exact, String spyClass) {
+                         Set<InterceptPoint> points, boolean exact, String spyClass,
+                         boolean isStatic) {
             super(api, mv, 0, methodName, descriptor);
             this.targetClass = targetClass;
             this.methodName = methodName;
@@ -419,6 +432,7 @@ public class SpyTransformer implements ClassFileTransformer {
             this.points = points;
             this.exact = exact;
             this.spyClass = spyClass;
+            this.isStatic = isStatic;
             this.tryStart = new Label();
             this.tryEnd = new Label();
             this.exceptionLabel = new Label();
@@ -472,9 +486,18 @@ public class SpyTransformer implements ClassFileTransformer {
         /**
          * 插入单个插桩点调用。
          *
+         * <p>签名：{@code static void onIntercept(Object thisRef, String className, String methodName, String descriptor, String pointKey)}</p>
+         * <p>静态方法传入 null 作为 thisRef。</p>
+         *
          * @param point 插桩点
          */
         private void insertInterceptCall(InterceptPoint point) {
+            // 压入 thisRef（静态方法传 null；实例方法传 ALOAD 0）
+            if (isStatic) {
+                mv.visitInsn(Opcodes.ACONST_NULL);
+            } else {
+                mv.visitVarInsn(Opcodes.ALOAD, 0);
+            }
             // 压入 className
             mv.visitLdcInsn(targetClass);
             // 压入 methodName

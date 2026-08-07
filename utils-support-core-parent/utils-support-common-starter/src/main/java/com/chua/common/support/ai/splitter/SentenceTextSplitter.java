@@ -17,8 +17,14 @@ import java.util.List;
  */
 public class SentenceTextSplitter implements TextSplitter {
 
+    /**
+     * 默认最大块大小（字符）
+     */
     private static final int DEFAULT_MAX_CHUNK_SIZE = 500;
 
+    /**
+     * 句子边界分隔符（按优先级依次匹配）
+     */
     private static final List<String> SENTENCE_DELIMITERS = List.of(
             "\n\n",
             "\n",
