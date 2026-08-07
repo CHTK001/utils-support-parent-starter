@@ -98,9 +98,8 @@ public final class GuacdArtifact {
         log.info("构造 GuacdArtifact: version={} url={}", version, downloadUrl);
         java.io.File extractDir = new java.io.File(userHome() + "/.utils-support-gateway/cache/" + ARTIFACT_ID + "/" + version);
         return RuntimeArtifact.builder()
-                .id(ARTIFACT_ID)
-                .name("Apache Guacamole guacd")
-                .version(version)
+                .id(ARTIFACT_ID + "-" + version)
+                .name("Apache Guacamole guacd " + version)
                 .type(RuntimeType.NATIVE)
                 .downloadUrl(downloadUrl)
                 .downloadFilename("guacamole-server-" + version + ".tar.gz")
