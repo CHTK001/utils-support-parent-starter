@@ -1,12 +1,17 @@
 package com.chua.runtime.shell.command.builtin;
 
 import com.chua.runtime.apm.ApmBootstrap;
+import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
+import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.LogEntry;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
+import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.plugin.Plugin;
+import com.chua.runtime.protocol.DependencyEdge;
+import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.shell.command.Command;
 import com.chua.runtime.shell.output.Console;
 
@@ -237,6 +242,12 @@ public class ApmCommand implements Command {
             showFile((FileHandler) handler, console, limit);
         } else if (handler instanceof TraceHandler) {
             showTrace((TraceHandler) handler, console, limit);
+        } else if (handler instanceof TransmissionHandler) {
+            showTransmission((TransmissionHandler) handler, console, limit);
+        } else if (handler instanceof DependencyGraphHandler) {
+            showDependency((DependencyGraphHandler) handler, console, limit);
+        } else if (handler instanceof HandleLeakHandler) {
+            showLeak((HandleLeakHandler) handler, console, limit);
         } else {
             console.println(handler.status());
         }
@@ -343,6 +354,86 @@ public class ApmCommand implements Command {
         }
         if (spans.isEmpty()) {
             console.println("  （暂无 Span）");
+        }
+    }
+
+    /**
+     * 显示传输链路记录。
+     *
+     * @param handler 传输处理器
+     * @param console 控制台
+     * @param limit   显示条数
+     */
+    private void showTransmission(TransmissionHandler handler, Console console, int limit) {
+        List<TransmissionRecord> records = handler.getRecords();
+        console.header("传输记录 (" + records.size() + ", 最近 " + limit + ")");
+        console.println("协议    | 软件栈       | 操作             | 目标地址            | 耗时(ms)");
+        console.println("--------|--------------|------------------|----------------------|----------");
+        int start = Math.max(0, records.size() - limit);
+        for (int i = start; i < records.size(); i++) {
+            TransmissionRecord r = records.get(i);
+            console.println(String.format("%-8s | %-12s | %-16s | %-22s | %d",
+                    r.getProtocol() != null ? r.getProtocol().name() : "-",
+                    r.getSoftware() != null ? truncate(r.getSoftware().name(), 12) : "-",
+                    truncate(r.getOperation(), 16),
+                    truncate(r.getTarget() != null ? r.getTarget().displayLabel() : "?", 22),
+                    r.getDuration()));
+        }
+        if (records.isEmpty()) {
+            console.println("  （暂无传输记录）");
+        }
+    }
+
+    /**
+     * 显示依赖图。
+     *
+     * @param handler 依赖图处理器
+     * @param console 控制台
+     * @param limit   显示条数
+     */
+    private void showDependency(DependencyGraphHandler handler, Console console, int limit) {
+        List<DependencyEdge> edges = handler.getEdges();
+        console.header("依赖图 (" + edges.size() + ", 最近 " + limit + ")");
+        console.println("源节点                  -> 目标节点                | 协议   | 软件栈       | 调用次数");
+        console.println("-----------------------  ------------------------  |--------|--------------|--------");
+        int start = Math.max(0, edges.size() - limit);
+        for (int i = start; i < edges.size(); i++) {
+            DependencyEdge e = edges.get(i);
+            console.println(String.format("%-23s -> %-24s | %-8s | %-12s | %d",
+                    truncate(e.getSource() != null ? e.getSource().displayLabel() : "?", 23),
+                    truncate(e.getTarget() != null ? e.getTarget().displayLabel() : "?", 24),
+                    e.getProtocol() != null ? e.getProtocol().name() : "-",
+                    e.getSoftware() != null ? truncate(e.getSoftware().name(), 12) : "-",
+                    e.getCallCount()));
+        }
+        if (edges.isEmpty()) {
+            console.println("  （暂无依赖边）");
+        }
+    }
+
+    /**
+     * 显示句柄泄漏检测。
+     *
+     * @param handler 句柄泄漏处理器
+     * @param console 控制台
+     * @param limit   显示条数
+     */
+    private void showLeak(HandleLeakHandler handler, Console console, int limit) {
+        List<HandleLeakHandler.HandleRecord> leaks = handler.detectLeaks();
+        console.header("句柄泄漏检测 (" + leaks.size() + " 个泄漏, 活跃 " + handler.getHandles().size() + ")");
+        console.println("类型      | 句柄名                 | 线程                     | 存活(ms)");
+        console.println("----------|------------------------|--------------------------|----------");
+        int start = Math.max(0, leaks.size() - limit);
+        for (int i = start; i < leaks.size(); i++) {
+            HandleLeakHandler.HandleRecord r = leaks.get(i);
+            console.println(String.format("%-10s | %-22s | %-26s | %d",
+                    r.getKind() != null ? r.getKind().name() : "?",
+                    truncate(r.getName(), 22),
+                    truncate(r.getOwnerThread(), 26),
+                    r.age()));
+        }
+        if (leaks.isEmpty()) {
+            console.println("  （无泄漏句柄）");
         }
     }
 

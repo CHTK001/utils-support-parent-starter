@@ -1,9 +1,12 @@
 package com.chua.runtime.apm;
 
+import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
+import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
+import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
@@ -66,6 +69,9 @@ public class ApmBootstrap {
         handlers.add(new NetHandler());
         handlers.add(new FileHandler());
         handlers.add(new TraceHandler());
+        handlers.add(new TransmissionHandler());
+        handlers.add(new DependencyGraphHandler());
+        handlers.add(new HandleLeakHandler());
         try {
             for (Plugin handler : handlers) {
                 handler.init(context);

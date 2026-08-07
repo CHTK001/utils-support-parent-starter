@@ -12,6 +12,7 @@ import com.chua.runtime.core.model.RuntimeArtifact;
 import com.chua.runtime.core.model.RuntimeStatus;
 import com.chua.runtime.core.service.JavaAgentManager;
 import com.chua.runtime.core.service.ServiceManager;
+import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.shell.TelnetServer;
 import com.chua.runtime.shell.command.builtin.ApmCommand;
 import com.chua.runtime.shell.command.builtin.RuntimeCommand;
@@ -162,6 +163,17 @@ public class RuntimeBoot {
      */
     public RuntimeBoot withApmCommand() {
         shell.register(new ApmCommand(apm));
+        return this;
+    }
+
+    /**
+     * 注册自定义 APM 处理器。
+     *
+     * @param handler 自定义处理器
+     * @return 自身
+     */
+    public RuntimeBoot withHandler(Plugin handler) {
+        apm.addHandler(handler);
         return this;
     }
 
