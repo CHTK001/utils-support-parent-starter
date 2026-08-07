@@ -2,11 +2,16 @@ package com.example.demo;
 
 import com.chua.runtime.agent.RuntimeAgent;
 import com.chua.runtime.apm.ApmBootstrap;
+import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
+import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.LogEntry;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
+import com.chua.runtime.apm.handler.TransmissionHandler;
+import com.chua.runtime.protocol.DependencyEdge;
+import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.spy.RuntimeSpy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,11 +28,14 @@ import java.util.Map;
  *
  * <p>端点：</p>
  * <ul>
- *   <li>GET /agent/status — RuntimeAgent 是否启动</li>
+ *   <li>GET /agent/status — RuntimeAgent 是否启动 + 拦截计数</li>
  *   <li>GET /agent/traces — TraceHandler 当前 Span 列表</li>
  *   <li>GET /agent/logs — LogHandler 最近日志</li>
  *   <li>GET /agent/net — NetHandler 网络记录</li>
  *   <li>GET /agent/files — FileHandler 文件记录</li>
+ *   <li>GET /agent/transmissions — TransmissionHandler 传输记录</li>
+ *   <li>GET /agent/dependencies — DependencyGraphHandler 依赖图边</li>
+ *   <li>GET /agent/leaks — HandleLeakHandler 句柄泄漏</li>
  *   <li>GET /agent/mdc — 当前 MDC（traceId/spanId）</li>
  * </ul>
  *
@@ -128,6 +136,92 @@ public class AgentController {
         Map<String, String> result = new HashMap<>();
         result.put("traceId", RuntimeSpy.getCurrentTraceId() != null ? RuntimeSpy.getCurrentTraceId() : "");
         result.put("spanId", RuntimeSpy.getCurrentSpanId() != null ? RuntimeSpy.getCurrentSpanId() : "");
+        return result;
+    }
+
+    /**
+     * 传输记录 — Socket connect/accept/HttpURLConnection 事件。
+     */
+    @GetMapping("/agent/transmissions")
+    public List<Map<String, Object>> transmissions() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        TransmissionHandler handler = ApmBootstrap.getGlobalHandler(TransmissionHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (TransmissionRecord record : handler.getRecords()) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("traceId", record.getTraceId());
+            m.put("spanId", record.getSpanId());
+            m.put("source", record.getSource() == null ? null : record.getSource().nodeId());
+            m.put("target", record.getTarget() == null ? null : record.getTarget().nodeId());
+            m.put("protocol", record.getProtocol() == null ? null : record.getProtocol().name());
+            m.put("software", record.getSoftware() == null ? null : record.getSoftware().name());
+            m.put("operation", record.getOperation());
+            m.put("status", record.getStatus() == null ? null : record.getStatus().name());
+            m.put("statusCode", record.getStatusCode());
+            m.put("duration", record.getDuration());
+            m.put("bytesOut", record.getBytesOut());
+            m.put("bytesIn", record.getBytesIn());
+            m.put("errorType", record.getErrorType());
+            m.put("errorMessage", record.getErrorMessage());
+            result.add(m);
+        }
+        return result;
+    }
+
+    /**
+     * 依赖图边 — source → target 聚合边。
+     */
+    @GetMapping("/agent/dependencies")
+    public List<Map<String, Object>> dependencies() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (DependencyEdge edge : handler.getEdges()) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("source", edge.getSource() == null ? null : edge.getSource().nodeId());
+            m.put("target", edge.getTarget() == null ? null : edge.getTarget().nodeId());
+            m.put("protocol", edge.getProtocol() == null ? null : edge.getProtocol().name());
+            m.put("software", edge.getSoftware() == null ? null : edge.getSoftware().name());
+            m.put("callCount", edge.getCallCount());
+            m.put("totalDuration", edge.getTotalDuration());
+            m.put("errorCount", edge.getErrorCount());
+            m.put("avgDuration", edge.avgDuration());
+            result.add(m);
+        }
+        return result;
+    }
+
+    /**
+     * 句柄泄漏 — 当前活跃未释放的句柄数。
+     */
+    @GetMapping("/agent/leaks")
+    public Map<String, Object> leaks() {
+        Map<String, Object> result = new HashMap<>();
+        HandleLeakHandler handler = ApmBootstrap.getGlobalHandler(HandleLeakHandler.class);
+        if (handler == null) {
+            result.put("active", 0);
+            result.put("leaks", java.util.Collections.emptyList());
+            return result;
+        }
+        Map<String, HandleLeakHandler.HandleRecord> handles = handler.getHandles();
+        result.put("active", handles.size());
+        List<Map<String, Object>> leakList = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        for (Map.Entry<String, HandleLeakHandler.HandleRecord> e : handles.entrySet()) {
+            long ageMs = now - e.getValue().getCreatedAt();
+            if (ageMs > 60000L) {
+                Map<String, Object> leak = new HashMap<>();
+                leak.put("handleId", e.getKey());
+                leak.put("kind", e.getValue().getKind() == null ? null : e.getValue().getKind().name());
+                leak.put("age", ageMs);
+                leakList.add(leak);
+            }
+        }
+        result.put("leaks", leakList);
         return result;
     }
 }
