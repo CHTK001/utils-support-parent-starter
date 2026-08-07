@@ -1,9 +1,6 @@
 package com.chua.runtime.agent;
 
 import com.chua.runtime.apm.ApmBootstrap;
-import com.chua.runtime.apm.handler.DependencyGraphHandler;
-import com.chua.runtime.apm.handler.HandleLeakHandler;
-import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.spy.SpyBootstrap;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Paths;
@@ -84,9 +81,6 @@ public class RuntimeAgent {
                 return;
             }
             ApmBootstrap apm = new ApmBootstrap(Paths.get(System.getProperty("java.io.tmpdir")));
-            apm.addHandler(new TransmissionHandler());
-            apm.addHandler(new DependencyGraphHandler());
-            apm.addHandler(new HandleLeakHandler());
             apm.start();
             started = true;
             LOG.info("Runtime Agent 启动成功");
