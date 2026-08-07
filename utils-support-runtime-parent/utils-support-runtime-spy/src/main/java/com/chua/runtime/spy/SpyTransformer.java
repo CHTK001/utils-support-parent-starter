@@ -55,9 +55,21 @@ public class SpyTransformer implements ClassFileTransformer {
     private static final int ASM_API = Opcodes.ASM9;
 
     /**
-     * RuntimeSpy 插桩入口类
+     * 默认 Bootstrap 类 — 业务代码拦截入口。
+     *
+     * <p>使用 {@code com.chua.runtime.agent.Bootstrap} 作为字节码调用的 owner，
+     * 该类在 RuntimeAgent 模块定义（位于系统 classloader），
+     * 转发到 {@link RuntimeSpy#onIntercept(String, String, String, String) onIntercept} /
+     * {@link RuntimeSpy#onException(String, String, Throwable) onException}。
+     * 这样 HTTP/Socket 等 bootstrap classloader 加载的 JDK 类
+     * 调用插桩代码时也能命中（避免 NoClassDefFoundError）。</p>
      */
-    private static final String SPY_CLASS = "com/chua/runtime/spy/RuntimeSpy";
+    private static final String DEFAULT_SPY_CLASS = "com/chua/runtime/agent/Bootstrap";
+
+    /**
+     * Bootstrap 类内部名（可注入，覆盖为 com/chua/runtime/spy/RuntimeSpy 直接调用 RuntimeSpy）。
+     */
+    private String spyClass = DEFAULT_SPY_CLASS;
 
     /**
      * onIntercept 方法描述符：固定为 4 个 String 参数返回 void
@@ -343,7 +355,7 @@ public class SpyTransformer implements ClassFileTransformer {
             if (points.isEmpty()) {
                 return mv;
             }
-            return new SpyMethodVisitor(ASM_API, mv, targetClass, name, descriptor, points, exact);
+            return new SpyMethodVisitor(ASM_API, mv, targetClass, name, descriptor, points, exact, spyClass);
         }
     }
 
@@ -378,6 +390,11 @@ public class SpyTransformer implements ClassFileTransformer {
         private final boolean exact;
 
         /**
+         * Bootstrap 类内部名（RuntimeSpy 或 com.chua.runtime.agent.Bootstrap）。
+         */
+        private final String spyClass;
+
+        /**
          * 方法体起始标签（try 范围起点）
          */
         private Label tryStart;
@@ -394,13 +411,14 @@ public class SpyTransformer implements ClassFileTransformer {
 
         SpyMethodVisitor(int api, MethodVisitor mv, String targetClass,
                          String methodName, String descriptor,
-                         Set<InterceptPoint> points, boolean exact) {
+                         Set<InterceptPoint> points, boolean exact, String spyClass) {
             super(api, mv, 0, methodName, descriptor);
             this.targetClass = targetClass;
             this.methodName = methodName;
             this.methodDescriptor = descriptor;
             this.points = points;
             this.exact = exact;
+            this.spyClass = spyClass;
             this.tryStart = new Label();
             this.tryEnd = new Label();
             this.exceptionLabel = new Label();
@@ -444,7 +462,7 @@ public class SpyTransformer implements ClassFileTransformer {
                 mv.visitLdcInsn(targetClass);
                 mv.visitLdcInsn(methodName);
                 mv.visitInsn(Opcodes.DUP);
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, SPY_CLASS, "onException",
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, spyClass, "onException",
                         EXCEPTION_DESC, false);
                 mv.visitInsn(Opcodes.ATHROW);
             }
@@ -465,8 +483,8 @@ public class SpyTransformer implements ClassFileTransformer {
             mv.visitLdcInsn(methodDescriptor);
             // 压入 pointKey
             mv.visitLdcInsn(point.getKey());
-            // 调用 RuntimeSpy.onIntercept
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, SPY_CLASS, "onIntercept",
+            // 调用 Bootstrap.onIntercept
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, spyClass, "onIntercept",
                     INTERCEPT_DESC, false);
         }
 
@@ -507,6 +525,30 @@ public class SpyTransformer implements ClassFileTransformer {
      */
     public int getTransformedClassCount() {
         return transformedClasses.size();
+    }
+
+    /**
+     * 设置 Bootstrap 类内部名（用于字节码 INVOKESTATIC 目标）。
+     *
+     * <p>调用方负责 Bootstrap 类的实际存在 —— 默认是
+     * "com/chua/runtime/agent/Bootstrap"（RuntimeAgent 模块，system classloader 加载）。
+     * 设为 "com/chua/runtime/spy/RuntimeSpy" 则直接调用 RuntimeSpy（测试用）。</p>
+     *
+     * @param spyClass Bootstrap 类内部名（含斜杠分隔符）
+     */
+    public void setSpyClass(String spyClass) {
+        if (spyClass != null && !spyClass.isEmpty()) {
+            this.spyClass = spyClass;
+        }
+    }
+
+    /**
+     * 获取当前 Bootstrap 类内部名。
+     *
+     * @return Bootstrap 类内部名
+     */
+    public String getSpyClass() {
+        return spyClass;
     }
 
     /**

@@ -3,12 +3,12 @@ package com.chua.common.support.lang.datasource.kv;
 import java.time.Duration;
 
 /**
- * 键级链式操作器，由 {@link KvTemplate#key(String)} 创建并绑定到单个键。
+ * 键级链式操作器，由 {@link KvEngine#key(String)} 创建并绑定到单个键。
  *
  * <p>支持在单次链式调用中完成「设值 + 过期」的组合操作，
- * 例如 {@code template.key("user:1").expire(3600).set("张三")}。</p>
+ * 例如 {@code engine.key("user:1").expire(3600).set("张三")}。</p>
  *
- * <p>所有写操作在调用 {@link #set(String)} 时才真正提交到底层 {@link KvOperations}，
+ * <p>所有写操作在调用 {@link #set(String)} 时才真正提交到底层 {@link KvEngine}，
  * 此前通过 {@link #expire(long)} / {@link #expire(Duration)} 累积的过期时间仅作为待提交参数。</p>
  *
  * @author CH
@@ -17,9 +17,9 @@ import java.time.Duration;
 public class KvKeyOps {
 
     /**
-     * 底层 KV 存储实现
+     * 底层 KV 引擎实现
      */
-    private final KvOperations delegate;
+    private final KvEngine engine;
 
     /**
      * 当前绑定的键
@@ -32,13 +32,13 @@ public class KvKeyOps {
     private Duration pendingTtl;
 
     /**
-     * 根据底层实现与键构造键级操作器。
+     * 根据底层引擎与键构造键级操作器。
      *
-     * @param delegate 底层 KV 存储实现，不可为 null
-     * @param key      绑定的键，不可为 null
+     * @param engine 底层 KV 引擎实现，不可为 null
+     * @param key    绑定的键，不可为 null
      */
-    KvKeyOps(KvOperations delegate, String key) {
-        this.delegate = delegate;
+    KvKeyOps(KvEngine engine, String key) {
+        this.engine = engine;
         this.key = key;
     }
 
@@ -72,9 +72,9 @@ public class KvKeyOps {
      */
     public KvKeyOps set(String value) {
         if (pendingTtl != null) {
-            delegate.put(key, value, pendingTtl);
+            engine.put(key, value, pendingTtl);
         } else {
-            delegate.put(key, value);
+            engine.put(key, value);
         }
         return this;
     }
@@ -85,7 +85,7 @@ public class KvKeyOps {
      * @return 当前键的值，不存在返回 null
      */
     public String get() {
-        return delegate.get(key);
+        return engine.get(key);
     }
 
     /**
@@ -94,7 +94,7 @@ public class KvKeyOps {
      * @return 存在返回 true，否则返回 false
      */
     public boolean exists() {
-        return delegate.containsKey(key);
+        return engine.containsKey(key);
     }
 
     /**
@@ -103,7 +103,7 @@ public class KvKeyOps {
      * @return 删除成功返回 true，否则返回 false
      */
     public boolean delete() {
-        return delegate.delete(key);
+        return engine.delete(key);
     }
 
     /**
@@ -112,7 +112,7 @@ public class KvKeyOps {
      * @return 剩余秒数；键不存在返回 -2，无过期返回 -1
      */
     public long ttl() {
-        return delegate.ttl(key);
+        return engine.ttl(key);
     }
 
     /**
@@ -121,6 +121,6 @@ public class KvKeyOps {
      * @return 递增后的最新值
      */
     public long incr() {
-        return delegate.incr(key);
+        return engine.incr(key);
     }
 }

@@ -12,18 +12,13 @@
     <artifactId>utils-support-gateway-parent</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>utils-support-remote-starter</module>
-        <module>utils-support-remote-agent-starter</module>
-        <module>utils-support-remote-desktop-agent-starter</module>
-        <module>utils-support-remote-rustdesktop-agent-starter</module>
-        <module>utils-support-remote-ssh-agent-starter</module>
-        <module>utils-support-remote-socks5-agent-starter</module>
-        <module>utils-support-remote-rustdesk-agent-starter</module>
-        <module>utils-support-remote-control-starter</module>
+        <module>utils-support-gateway-controller-starter</module>
+        <module>utils-support-gateway-server-starter</module>
+        <module>utils-support-gateway-agent-starter</module>
     </modules>
     <build>
         <plugins>
-            
+
         </plugins>
     </build>
 </project>

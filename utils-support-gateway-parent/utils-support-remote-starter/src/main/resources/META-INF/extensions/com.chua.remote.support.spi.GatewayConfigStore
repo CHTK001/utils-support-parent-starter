@@ -1,2 +1,0 @@
-datasource=com.chua.remote.support.gateway.config.DatasourceConfigStore
-file=com.chua.remote.support.gateway.config.FileConfigStore
