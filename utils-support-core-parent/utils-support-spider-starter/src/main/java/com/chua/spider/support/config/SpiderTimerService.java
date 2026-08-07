@@ -71,12 +71,13 @@ public class SpiderTimerService {
     private ScheduledFuture<?> scanFuture;
 
     public SpiderTimerService(SpiderDefinitionStore definitionStore) {
-        this(Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE,
+        this.scheduler = Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE,
                 r -> {
                     Thread t = new Thread(r, "spider-timer");
                     t.setDaemon(true);
                     return t;
-                }), definitionStore);
+                });
+        this.definitionStore = definitionStore;
     }
 
     /**
