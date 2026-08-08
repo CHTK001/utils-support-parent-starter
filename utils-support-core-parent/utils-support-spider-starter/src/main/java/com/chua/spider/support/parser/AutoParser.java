@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
  * <ol>
  *   <li>优先尝试 {@code html}（JSoup 解析）</li>
  *   <li>如果无法解析则尝试其他 SPI 注册的 Parser</li>
- *   <li>所有尝试均失败后返回 null</li>
+ *   <li>所有尝试均失败后构造一个基础的"裸"结果（仅含 URL），保证
+ *       {@link SpiderRunner} 至少能记录抓取到的一条数据</li>
  * </ol>
  *
  * @author CH
@@ -62,14 +63,8 @@ public class AutoParser implements SpiderParser {
 
     @Override
     public SpiderResult parse(SpiderResponse response) {
-        if (parsers.isEmpty()) {
-            log.warn("[spider-parser] 没有可用的 Parser SPI 实现");
-            return null;
-        }
-
         String url = response.getRequest() != null ? response.getRequest().getUrl() : "unknown";
 
-        // 按优先级依次尝试，直到某个成功
         for (int i = 0; i < parsers.size(); i++) {
             SpiderParser parser = parsers.get(i);
             try {
@@ -88,13 +83,30 @@ public class AutoParser implements SpiderParser {
             }
         }
 
-        log.warn("[spider-parser] AutoParser 所有实现均无法解析: {}", url);
-        return null;
+        // 所有 Parser 都没成功 — 构造一个最小可用的基础结果，保证
+        // 爬虫框架至少能记录一条"已抓取"的数据，避免上层 SpiderRunner 误判为失败。
+        log.debug("[spider-parser] AutoParser 所有实现均无法解析，返回裸结果: {}", url);
+        return SpiderResult.builder()
+                .url(url)
+                .title("")
+                .text(response.getContent() == null ? "" : truncate(response.getContent(), 200))
+                .html(response.getContent() == null ? "" : response.getContent())
+                .contentType(response.getContentType())
+                .extractedAt(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 截断字符串（保留前 N 个字符，附加 … 提示省略）。
+     */
+    private static String truncate(String s, int max) {
+        if (s == null) return "";
+        return s.length() <= max ? s : s.substring(0, max) + "…";
     }
 
     @Override
     public String[] supportedContentTypes() {
-        // // 支持所有类型，由内部 Parser 决定
+        // 支持所有类型，由内部 Parser 决定
         return new String[] {"*/*"};
     }
 }

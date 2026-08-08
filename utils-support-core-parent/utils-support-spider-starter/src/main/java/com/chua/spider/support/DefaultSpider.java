@@ -160,7 +160,9 @@ public class DefaultSpider implements Spider {
             shutdownPipelines();
             running.set(false);
         }
-        return getResults();
+        var resultList = getResults();
+        log.info("[runSync] 完成后 resultCount={}", resultList.size());
+        return resultList;
     }
 
     @Override

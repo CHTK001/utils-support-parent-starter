@@ -1,10 +1,8 @@
 package com.chua.gateway.server;
 
 import com.chua.gateway.server.artifact.GatewayArtifact;
-import com.chua.gateway.server.artifact.GuacdArtifact;
 import com.chua.gateway.server.config.GatewayProperties;
 import com.chua.gateway.server.server.GatewayServerBootstrap;
-import com.chua.runtime.starter.GuacamoleArtifact;
 import com.chua.runtime.starter.RuntimeBoot;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,15 +11,14 @@ import lombok.extern.slf4j.Slf4j;
  *
  * <p>启动流程：</p>
  * <ol>
- *   <li>{@link RuntimeBoot#install()} 同步安装 artifact
- *       <ul>
- *         <li>{@code GatewayArtifact} — 本服务的描述符（不下载，仅注册）</li>
- *         <li>{@link GuacamoleArtifact#createDefault()} 委托 runtime-starter 的封装版本（按需下载 guacd）</li>
- *       </ul>
- *   </li>
- *   <li>{@code RuntimeBoot.startAsService()} 启动 guacd 子进程（后台）</li>
- *   <li>{@link GatewayServerBootstrap#start()} 启动 HTTP server</li>
+ *   <li>{@link RuntimeBoot#install()} 安装 GatewayArtifact（仅注册，不下载）</li>
+ *   <li>{@link GatewayServerBootstrap#start()} 启动 HTTP server（含 WS 端点）</li>
  * </ol>
+ *
+ * <p>控制端在左侧 {@code ConnectionForm} 输入 key 或 custom (protocol/host/port/user/pass)，
+ * 后端通过 {@code /api/connections/authenticate} 创建 Tunnel 并返回 wsUrl，
+ * 右侧 {@code VncViewer/SshViewer/RdpViewer} 通过 wsUrl 连接到后端 WS 端点
+ * 透传 noVNC/xterm.js/guacamole-common-js 数据流。</p>
  *
  * <p>关闭流程由 JVM shutdown hook 驱动。</p>
  *
@@ -51,48 +48,23 @@ public final class GatewayServerApplication {
         log.info("[gateway-server] ===========================================");
         log.info("[gateway-server] Gateway Server 启动中");
         log.info("[gateway-server] HTTP 端口: {}", GatewayProperties.httpPort());
-        log.info("[gateway-server] guacd 端口: {}", GatewayProperties.guacdPort());
         log.info("[gateway-server] artifact 目录: {}", GatewayProperties.artifactDir());
         log.info("[gateway-server] local-override: {}", GatewayProperties.localOverrideDir());
         log.info("[gateway-server] ===========================================");
 
-        // 1. RuntimeBoot 安装（同步阻塞：完成所有 download/install）
-        //    guacd 为 Linux 二进制，仅用于 RDP（guacamole）场景；在 Windows 上无法运行，需跳过。
-        if (isWindows()) {
-            RuntimeBoot.create()
-                    .withArtifact(GatewayArtifact.create())
-                    .install();
-            log.info("[gateway-server] RuntimeBoot install 完成（当前为 Windows，跳过 guacd）");
-        } else {
-            RuntimeBoot.create()
-                    .withArtifact(GatewayArtifact.create())
-                    .withArtifact(GuacdArtifact.createDefault())
-                    .install();
-            log.info("[gateway-server] RuntimeBoot install 完成");
+        // 1. RuntimeBoot 安装 GatewayArtifact（仅注册，不下载）
+        RuntimeBoot.create()
+                .withArtifact(GatewayArtifact.create())
+                .install();
+        log.info("[gateway-server] RuntimeBoot install 完成");
 
-            // 2. 启动 guacd 子进程（detached）
-            RuntimeBoot.create()
-                    .withArtifact(GuacdArtifact.createDefault())
-                    .startAsService();
-            log.info("[gateway-server] guacd 子进程启动: 端口 {}", GatewayProperties.guacdPort());
-        }
-
-        // 3. 启动 HTTP server + WS endpoint
+        // 2. 启动 HTTP server（含 WS 端点）
         GatewayServerBootstrap bootstrap = new GatewayServerBootstrap();
         bootstrap.start();
         log.info("[gateway-server] HTTP 服务已监听: http://{}:{}", "0.0.0.0", GatewayProperties.httpPort());
 
-        // 4. shutdown hook
+        // 3. shutdown hook
         Runtime.getRuntime().addShutdownHook(
                 new Thread(bootstrap::stop, SHUTDOWN_HOOK_NAME));
-    }
-
-    /**
-     * 判断当前是否为 Windows 平台。
-     *
-     * @return {@code true} 表示 Windows
-     */
-    private static boolean isWindows() {
-        return System.getProperty("os.name", "").toLowerCase().contains("win");
     }
 }
