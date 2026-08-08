@@ -4,7 +4,6 @@ import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.gateway.server.api.AuthRequest;
-import com.chua.gateway.server.api.AuthResponse;
 import com.chua.gateway.server.api.ProtocolScanner;
 import com.chua.gateway.server.store.Connection;
 import com.chua.gateway.server.store.ConnectionStore;
@@ -12,7 +11,9 @@ import com.chua.gateway.server.tunnel.TunnelRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 手工注册路由（绕过 common-starter 的反射扫描 bug）。
@@ -46,9 +47,9 @@ final class RouteRegistrar {
         filter.route("/api/connections/keys", HttpMethod.GET, (req, resp) -> {
             try {
                 List<String> keys = store.listKeys();
-                writeJson(resp, 200, JSON.writeValueAsString(keys));
+                writeOk(resp, keys);
             } catch (Exception e) {
-                writeJson(resp, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+                writeError(resp, 500, e.getMessage());
             }
         });
 
@@ -56,9 +57,9 @@ final class RouteRegistrar {
         filter.route("/api/connections/list", HttpMethod.GET, (req, resp) -> {
             try {
                 List<String> protocols = scanner.listProtocols();
-                writeJson(resp, 200, JSON.writeValueAsString(protocols));
+                writeOk(resp, protocols);
             } catch (Exception e) {
-                writeJson(resp, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+                writeError(resp, 500, e.getMessage());
             }
         });
 
@@ -66,17 +67,22 @@ final class RouteRegistrar {
         filter.route("/api/connections/authenticate", HttpMethod.POST, (req, resp) -> {
             try {
                 AuthRequest payload = JSON.readValue(req.getBody(), AuthRequest.class);
-                com.chua.gateway.server.store.Connection conn = resolveConnection(store, payload);
+                Connection conn = resolveConnection(store, payload);
                 if (conn == null) {
-                    writeJson(resp, 401, "{\"error\":\"invalid credentials\"}");
+                    writeError(resp, 401, "invalid credentials");
                     return;
                 }
                 String tunnelId = registry.open(conn);
                 String wsUrl = "/ws/" + conn.protocol() + "/" + tunnelId;
-                AuthResponse out = new AuthResponse(tunnelId, wsUrl, conn.protocol(), conn.host(), conn.port());
-                writeJson(resp, 200, JSON.writeValueAsString(out));
+                Map<String, Object> out = new LinkedHashMap<>();
+                out.put("tunnelId", tunnelId);
+                out.put("wsUrl", wsUrl);
+                out.put("protocol", conn.protocol());
+                out.put("host", conn.host());
+                out.put("port", conn.port());
+                writeOk(resp, out);
             } catch (Exception e) {
-                writeJson(resp, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+                writeError(resp, 500, e.getMessage());
             }
         });
     }
@@ -104,13 +110,35 @@ final class RouteRegistrar {
         return null;
     }
 
-    private static void writeJson(ServerResponse resp, int status, String body) {
+    /**
+     * 写成功响应（包裹为前端期望的 { status: 0, data: ... } 格式）。
+     */
+    private static void writeOk(ServerResponse resp, Object data) {
         try {
+            Map<String, Object> wrapper = new LinkedHashMap<>();
+            wrapper.put("status", 0);
+            wrapper.put("data", data);
             resp.setContentType("application/json; charset=utf-8");
-            resp.setStatus(status);
-            resp.end(body);
+            resp.setStatus(200);
+            resp.end(JSON.writeValueAsString(wrapper));
         } catch (Exception e) {
-            log.warn("[gateway-server] writeJson 失败: {}", e.getMessage());
+            log.warn("[gateway-server] writeOk 失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 写错误响应。
+     */
+    private static void writeError(ServerResponse resp, int httpStatus, String msg) {
+        try {
+            Map<String, Object> wrapper = new LinkedHashMap<>();
+            wrapper.put("status", httpStatus);
+            wrapper.put("msg", msg);
+            resp.setContentType("application/json; charset=utf-8");
+            resp.setStatus(httpStatus);
+            resp.end(JSON.writeValueAsString(wrapper));
+        } catch (Exception e) {
+            log.warn("[gateway-server] writeError 失败: {}", e.getMessage());
         }
     }
 }
