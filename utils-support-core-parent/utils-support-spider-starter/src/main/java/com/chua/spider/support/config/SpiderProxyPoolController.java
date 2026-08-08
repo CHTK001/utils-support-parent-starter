@@ -28,8 +28,14 @@ public class SpiderProxyPoolController {
      */
     private final SpiderProxyPoolStore store;
 
-    public SpiderProxyPoolController() {
-        this.store = new SpiderProxyPoolStore();
+    /**
+     * 代理节点连通性测试器
+     */
+    private final SpiderProxyTester tester;
+
+    public SpiderProxyPoolController(SpiderProxyPoolStore store, SpiderProxyTester tester) {
+        this.store = store;
+        this.tester = tester;
     }
 
     @GetMapping("/page")
@@ -69,5 +75,16 @@ public class SpiderProxyPoolController {
             result.put("updated", false);
         }
         return result;
+    }
+
+    /**
+     * 测试代理池所有节点连通性。
+     *
+     * @param poolCode 代理池编码
+     * @return 每个节点的测试结果 + 汇总
+     */
+    @PostMapping("/test")
+    public Map<String, Object> test(@RequestParam String poolCode) {
+        return tester.testPool(poolCode);
     }
 }

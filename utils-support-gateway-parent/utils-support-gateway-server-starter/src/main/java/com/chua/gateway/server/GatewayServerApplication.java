@@ -57,17 +57,25 @@ public final class GatewayServerApplication {
         log.info("[gateway-server] ===========================================");
 
         // 1. RuntimeBoot 安装（同步阻塞：完成所有 download/install）
-        RuntimeBoot.create()
-                .withArtifact(GatewayArtifact.create())
-                .withArtifact(GuacdArtifact.createDefault())
-                .install();
-        log.info("[gateway-server] RuntimeBoot install 完成");
+        //    guacd 为 Linux 二进制，仅用于 RDP（guacamole）场景；在 Windows 上无法运行，需跳过。
+        if (isWindows()) {
+            RuntimeBoot.create()
+                    .withArtifact(GatewayArtifact.create())
+                    .install();
+            log.info("[gateway-server] RuntimeBoot install 完成（当前为 Windows，跳过 guacd）");
+        } else {
+            RuntimeBoot.create()
+                    .withArtifact(GatewayArtifact.create())
+                    .withArtifact(GuacdArtifact.createDefault())
+                    .install();
+            log.info("[gateway-server] RuntimeBoot install 完成");
 
-        // 2. 启动 guacd 子进程（detached）
-        RuntimeBoot.create()
-                .withArtifact(GuacdArtifact.createDefault())
-                .startAsService();
-        log.info("[gateway-server] guacd 子进程启动: 端口 {}", GatewayProperties.guacdPort());
+            // 2. 启动 guacd 子进程（detached）
+            RuntimeBoot.create()
+                    .withArtifact(GuacdArtifact.createDefault())
+                    .startAsService();
+            log.info("[gateway-server] guacd 子进程启动: 端口 {}", GatewayProperties.guacdPort());
+        }
 
         // 3. 启动 HTTP server + WS endpoint
         GatewayServerBootstrap bootstrap = new GatewayServerBootstrap();
@@ -77,5 +85,14 @@ public final class GatewayServerApplication {
         // 4. shutdown hook
         Runtime.getRuntime().addShutdownHook(
                 new Thread(bootstrap::stop, SHUTDOWN_HOOK_NAME));
+    }
+
+    /**
+     * 判断当前是否为 Windows 平台。
+     *
+     * @return {@code true} 表示 Windows
+     */
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "").toLowerCase().contains("win");
     }
 }
