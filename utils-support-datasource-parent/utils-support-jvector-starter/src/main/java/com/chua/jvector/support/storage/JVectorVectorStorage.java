@@ -22,6 +22,7 @@ import io.github.jbellis.jvector.vector.VectorSimilarityFunction;
 import io.github.jbellis.jvector.vector.VectorizationProvider;
 import io.github.jbellis.jvector.vector.types.VectorFloat;
 import io.github.jbellis.jvector.vector.types.VectorTypeSupport;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -39,35 +40,50 @@ import java.util.concurrent.ForkJoinPool;
 /**
  * JVector 向量存储门面，根据 {@link JVectorStorageProperties} 的 mode 选择底层策略。
  *
- * <p>基于 jvector 4.0.0-rc.9，支持三种存储模式：</p>
- * <ul>
- *   <li>MEMORY: 纯内存图，适合小规模数据集</li>
- *   <li>ON_DISK: 磁盘持久化图，支持大数据集</li>
- *   <li>LARGER_THAN_MEMORY: PQ 压缩向量 + 磁盘存储，支持超大规模数据集</li>
- * </ul>
- *
- * <p>注意：jvector 图构建与搜索必须使用同一度量，因此这里只依据算法{@code name()}映射到
- * jvector 的 {@link VectorSimilarityFunction}（COSINE → COSINE、DOT → DOT_PRODUCT、其余 → EUCLIDEAN），
- * 自定义 {@link VectorCompareAlgorithm#compare(float[], float[])} 实现不参与打分。</p>
- *
- * <p>三种策略均继承 {@link AbstractIdOrdinalStorage}，统一复用 id→序数去重守卫、双向映射与
- * swap-remove 逻辑，避免各策略重复实现 {@code idToOrd.containsKey} 守卫。</p>
- *
  * @author CH
+ * @since 2025/01/15
  */
+@Slf4j
 public class JVectorVectorStorage extends AbstractVectorStorage {
 
+    /**
+     * JVector 向量类型支持实例
+     */
     private static final VectorTypeSupport VTS =
             VectorizationProvider.getInstance().getVectorTypeSupport();
 
+    /**
+     * 存储配置
+     */
     private final JVectorStorageProperties properties;
+
+    /**
+     * jvector 相似度函数
+     */
     private final VectorSimilarityFunction similarity;
+
+    /**
+     * 当前存储策略
+     */
     private StorageStrategy delegate;
 
+    /**
+     * 默认构造。
+     *
+     * @param dimension 向量维度
+     * @param algorithm 相似度算法
+     */
     public JVectorVectorStorage(int dimension, VectorCompareAlgorithm algorithm) {
         this(dimension, algorithm, null);
     }
 
+    /**
+     * 全参数构造。
+     *
+     * @param dimension 向量维度
+     * @param algorithm 相似度算法
+     * @param properties 存储配置
+     */
     public JVectorVectorStorage(int dimension,
                                 VectorCompareAlgorithm algorithm,
                                 JVectorStorageProperties properties) {
@@ -77,6 +93,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         this.delegate = createStrategy();
     }
 
+    /**
+     * 创建当前模式对应的存储策略。
+     *
+     * @return 存储策略实例
+     */
     private StorageStrategy createStrategy() {
         return switch (properties.getMode()) {
             case MEMORY -> new EagerMemoryStrategy(dimension(), similarity, properties);
@@ -340,7 +361,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             try {
                 diskGraph = OnDiskGraphIndex.load(new SimpleMappedReader.Supplier(indexPath));
             } catch (Exception e) {
-                System.err.printf("[WARN] JVector 磁盘索引加载失败，将在下次搜索时重建: path=%s, err=%s%n",
+                log.warn("[jvector-storage] 磁盘索引加载失败，将在下次搜索时重建: path={}, err={}",
                         indexPath, e.getMessage());
                 diskGraph = null;
             }
@@ -370,7 +391,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 }
                 vectorsDirty = false;
             } catch (Exception e) {
-                System.err.printf("[WARN] JVector 磁盘向量数据加载失败: path=%s, err=%s%n",
+                log.warn("[jvector-storage] 磁盘向量数据加载失败: path={}, err={}",
                         vectorDataPath, e.getMessage());
             }
         }
@@ -396,7 +417,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 }
                 vectorsDirty = false;
             } catch (Exception e) {
-                System.err.printf("[WARN] JVector 磁盘向量数据保存失败: path=%s, err=%s%n",
+                log.warn("[jvector-storage] 磁盘向量数据保存失败: path={}, err={}",
                         vectorDataPath, e.getMessage());
             }
         }

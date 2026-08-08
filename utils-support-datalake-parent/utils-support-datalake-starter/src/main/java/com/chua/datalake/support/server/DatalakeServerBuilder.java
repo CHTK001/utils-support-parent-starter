@@ -70,6 +70,9 @@ public class DatalakeServerBuilder {
      */
     private Server apiServer;
 
+    /**
+     * 私有构造，强制使用 {@link #builder()} 创建。
+     */
     private DatalakeServerBuilder() {
     }
 
@@ -84,6 +87,9 @@ public class DatalakeServerBuilder {
 
     /**
      * 设置管线管理器
+     *
+     * @param pipelineManager 管线管理器实例
+     * @return 当前构建器
      */
     public DatalakeServerBuilder pipelineManager(PipelineManager pipelineManager) {
         this.pipelineManager = pipelineManager;
@@ -92,6 +98,9 @@ public class DatalakeServerBuilder {
 
     /**
      * 注册单个 sink
+     *
+     * @param sink 待注册的 sink
+     * @return 当前构建器
      */
     public DatalakeServerBuilder registerSink(DataSink sink) {
         this.sinkRegistry.put(sink.type(), sink);
@@ -100,6 +109,9 @@ public class DatalakeServerBuilder {
 
     /**
      * 批量注册 sink
+     *
+     * @param sinks sink 集合
+     * @return 当前构建器
      */
     public DatalakeServerBuilder sinks(Map<String, DataSink> sinks) {
         this.sinkRegistry.putAll(sinks);
@@ -108,6 +120,9 @@ public class DatalakeServerBuilder {
 
     /**
      * 注入 DataSyncServer
+     *
+     * @param dataSyncServer DataSyncServer 实例
+     * @return 当前构建器
      */
     public DatalakeServerBuilder dataSyncServer(DataSyncServer dataSyncServer) {
         this.dataSyncServer = dataSyncServer;
@@ -116,6 +131,9 @@ public class DatalakeServerBuilder {
 
     /**
      * 设置 Chronicle 共享目录
+     *
+     * @param dataPath 数据路径
+     * @return 当前构建器
      */
     public DatalakeServerBuilder dataPath(String dataPath) {
         this.dataPath = dataPath;
@@ -124,6 +142,9 @@ public class DatalakeServerBuilder {
 
     /**
      * 注入自定义 API Server
+     *
+     * @param apiServer API Server 实例
+     * @return 当前构建器
      */
     public DatalakeServerBuilder apiServer(Server apiServer) {
         this.apiServer = apiServer;
@@ -157,24 +178,24 @@ public class DatalakeServerBuilder {
         SinkManager sinkManager = new SinkManager(sinkRegistry);
         SubscriberManager subscriberManager = new SubscriberManager();
 
-if (dataSyncServer instanceof DefaultDataSyncServer) {
-                DefaultDataSyncServer defaultServer = (DefaultDataSyncServer) dataSyncServer;
-                DatalakeExecutorManager execMgr = new DatalakeExecutorManager();
-                execMgr.setPipelineEngine(null, pipelineEngine, sinkRegistry);
-                execMgr.setDispatcherProvider(dispatcher);
-                defaultServer.setExecutorManager(execMgr);
-                log.info("Injected DatalakeExecutorManager to DataSyncServer with shared DispatcherProvider");
-            }
-
-    ServiceProvider<DataSink> sinkProvider = ServiceProvider.of(DataSink.class);
-    for (String ext : sinkProvider.getExtensions()) {
-        DataSink sink = sinkProvider.getNewExtension(ext);
-        if (sink != null) {
-            sinkRegistry.putIfAbsent(sink.type(), sink);
+        if (dataSyncServer instanceof DefaultDataSyncServer) {
+            DefaultDataSyncServer defaultServer = (DefaultDataSyncServer) dataSyncServer;
+            DatalakeExecutorManager execMgr = new DatalakeExecutorManager();
+            execMgr.setPipelineEngine(null, pipelineEngine, sinkRegistry);
+            execMgr.setDispatcherProvider(dispatcher);
+            defaultServer.setExecutorManager(execMgr);
+            log.info("[datalake-server] 已注入 DatalakeExecutorManager 到 DataSyncServer，共享 DispatcherProvider");
         }
-    }
 
-    if (apiServer == null) {
+        ServiceProvider<DataSink> sinkProvider = ServiceProvider.of(DataSink.class);
+        for (String ext : sinkProvider.getExtensions()) {
+            DataSink sink = sinkProvider.getNewExtension(ext);
+            if (sink != null) {
+                sinkRegistry.putIfAbsent(sink.type(), sink);
+            }
+        }
+
+        if (apiServer == null) {
             ServerSetting setting = ServerSetting.defaults();
             setting.setPort(8700);
             apiServer = new JdkHttpServer(setting);

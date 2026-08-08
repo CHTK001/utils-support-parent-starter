@@ -48,7 +48,7 @@ public class AutoFetcher implements SpiderFetcher {
         this.fetchers = provider.collectNew().stream()
                 .filter(f -> !(f instanceof AutoFetcher))
                 .collect(Collectors.toList());
-        log.info("AutoFetcher 加载了 {} 个 Fetcher 实现", fetchers.size());
+        log.info("[spider-fetcher] AutoFetcher 加载了 {} 个 Fetcher 实现", fetchers.size());
     }
 
     @Override
@@ -66,22 +66,22 @@ public class AutoFetcher implements SpiderFetcher {
         for (int i = 0; i < fetchers.size(); i++) {
             SpiderFetcher fetcher = fetchers.get(i);
             try {
-                log.debug("AutoFetcher 尝试第 {} 个实现 ({}): {}",
+                log.debug("[spider-fetcher] AutoFetcher 尝试第 {} 个实现 ({}): {}",
                         i + 1, fetcher.getClass().getSimpleName(), request.getUrl());
                 SpiderResponse response = fetcher.fetch(request);
                 lastResponse = response;
 
                 if (response.isSuccess()) {
-                    log.info("AutoFetcher 第 {} 个实现 ({}) 成功: {} ({}ms)",
+                    log.info("[spider-fetcher] AutoFetcher 第 {} 个实现 ({}) 成功: {} ({}ms)",
                             i + 1, fetcher.getClass().getSimpleName(),
                             request.getUrl(), response.getFetchTimeMs());
                     return response;
                 }
-                log.warn("AutoFetcher 第 {} 个实现 ({}) 失败: {} - {}",
+                log.warn("[spider-fetcher] AutoFetcher 第 {} 个实现 ({}) 失败: {} - {}",
                         i + 1, fetcher.getClass().getSimpleName(),
                         request.getUrl(), response.getError());
             } catch (Exception e) {
-                log.warn("AutoFetcher 第 {} 个实现 ({}) 异常: {} - {}",
+                log.warn("[spider-fetcher] AutoFetcher 第 {} 个实现 ({}) 异常: {} - {}",
                         i + 1, fetcher.getClass().getSimpleName(),
                         request.getUrl(), e.getMessage());
                 lastResponse = SpiderResponse.builder()
@@ -93,7 +93,7 @@ public class AutoFetcher implements SpiderFetcher {
         }
 
         // 所有实现都失败，返回最后一次失败的响应
-        log.warn("AutoFetcher 所有实现均失败: {}", request.getUrl());
+        log.warn("[spider-fetcher] AutoFetcher 所有实现均失败: {}", request.getUrl());
         return lastResponse;
     }
 }

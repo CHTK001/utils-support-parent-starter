@@ -52,13 +52,24 @@ import java.util.stream.StreamSupport;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class CalciteDataTableAdapter extends AbstractTable implements FilterableTable {
 
+    /**
+     * 被适配的底层 {@link DataTable}
+     */
     protected final DataTable dataTable;
+
+    /**
+     * 是否启用条件下推（仅 SourceDataTable 启用）
+     */
     private final boolean filterable;
 
+    /**
+     * 已构建的 Calcite 行类型（懒加载）
+     */
     private RelDataType rowType;
 
     /**
@@ -101,7 +112,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     public Enumerable<Object[]> scan(DataContext root, List<RexNode> filters) {
         if (filterable && filters != null && !filters.isEmpty()) {
             SourceDataTable source = (SourceDataTable) dataTable;
-            log.debug("FilterableTable [{}] 收到 {} 个过滤条件, 注入 Engine 原生查询",
+            log.debug("[calcite] FilterableTable [{}] 收到 {} 个过滤条件, 注入 Engine 原生查询",
                     dataTable.getName(), filters.size());
 
             try {
@@ -115,12 +126,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
                         wrapper.getConditions().add(c);
                     }
                     List<?> results = wrapper.list();
-                    log.debug("FilterableTable [{}] 原生下推查询完成: {} 行",
+                    log.debug("[calcite] FilterableTable [{}] 原生下推查询完成: {} 行",
                             dataTable.getName(), results.size());
                     return Linq4j.asEnumerable(toObjectArrays(results, columnNames));
                 }
             } catch (Exception e) {
-                log.warn("FilterableTable [{}] 条件下推失败, 回退全量扫描: {}",
+                log.warn("[calcite] FilterableTable [{}] 条件下推失败, 回退全量扫描: {}",
                         dataTable.getName(), e.getMessage());
             }
         }
@@ -136,7 +147,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         List<Object[]> rows = dataTable.getData().stream()
                 .map(this::rowToArray)
                 .collect(Collectors.toList());
-        log.debug("全量扫描表 [{}] 共 {} 行", dataTable.getName(), rows.size());
+        log.debug("[calcite] 全量扫描表 [{}] 共 {} 行", dataTable.getName(), rows.size());
         return Linq4j.asEnumerable(rows);
     }
 

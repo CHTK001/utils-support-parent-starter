@@ -67,10 +67,10 @@ final class SpringObjectContextBridge {
             bd.setScope(org.springframework.beans.factory.config.BeanDefinition.SCOPE_SINGLETON);
             bd.setAutowireCandidate(true);
             factory.registerBeanDefinition(beanName, bd);
-            log.debug("[SpringObjectContextBridge] 已同步注册到 Spring: {}", beanName);
+            log.debug("[springboot-context] 已同步注册到 Spring: {}", beanName);
         } catch (Exception e) {
             REGISTERED.remove(beanName);
-            log.trace("[SpringObjectContextBridge] 注册失败: {}", beanName, e);
+            log.trace("[springboot-context] 注册失败: {}", beanName, e);
         }
     }
 

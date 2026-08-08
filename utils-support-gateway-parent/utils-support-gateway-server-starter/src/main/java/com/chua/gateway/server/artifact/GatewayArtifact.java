@@ -22,15 +22,18 @@ public final class GatewayArtifact {
     private static final String ARTIFACT_ID = "gateway-server";
 
     /**
-     * artifact 版本
-     */
-    private static final String VERSION = "4.0.0.42";
-
-    /**
      * artifact 名称
      */
     private static final String NAME = "Gateway Server";
 
+    /**
+     * 启动超时（毫秒）
+     */
+    private static final long STARTUP_TIMEOUT_MS = 60_000L;
+
+    /**
+     * 私有构造，禁止实例化。
+     */
     private GatewayArtifact() {
     }
 
@@ -43,11 +46,10 @@ public final class GatewayArtifact {
         return RuntimeArtifact.builder()
                 .id(ARTIFACT_ID)
                 .name(NAME)
-                .version(VERSION)
                 .type(RuntimeType.JAR)
                 .workDir(new java.io.File(GatewayProperties.artifactDir()).toPath())
                 .autoRestart(false)
-                .startupTimeoutMs(60_000L)
+                .startupTimeoutMs(STARTUP_TIMEOUT_MS)
                 .build();
     }
 }

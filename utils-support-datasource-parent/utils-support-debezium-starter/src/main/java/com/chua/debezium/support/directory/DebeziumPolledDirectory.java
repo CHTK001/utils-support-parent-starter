@@ -27,28 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Debezium CDC 目录轮询实现，基于 Debezium Engine。
- * <p>
- * 启动时通过 SPI 查找对应的 {@link DebeziumConnectorConfig} 实现，
- * 自动将环境配置映射为 Debezium Properties，无需手动硬编码。
- * </p>
- * 环境配置属性：
- * <ul>
- *   <li>{@code debezium.connector.type} — 连接器类型：mysql / postgres / oracle / sqlserver / mongodb / mariadb</li>
- *   <li>{@code debezium.connector.name} — 连接器实例名（必填）</li>
- *   <li>{@code db.host} — 数据库主机地址（关系型必填，MongoDB 可选）</li>
- *   <li>{@code db.port} — 数据库端口（默认由连接器 SPI 决定）</li>
- *   <li>{@code db.username} — 数据库用户名（关系型必填）</li>
- *   <li>{@code db.password} — 数据库密码</li>
- *   <li>{@code db.name} — 数据库名</li>
- *   <li>{@code connector.class} — 连接器全类名（可选，优先级高于 {@code debezium.connector.type}）</li>
- *   <li>{@code offset.storage.file.filename} — offset 文件路径（默认 debezium-offset.dat）</li>
- *   <li>{@code slot.name} — PostgreSQL 复制槽名（仅 postgres）</li>
- *   <li>{@code plugin.name} — PostgreSQL 解码插件名（仅 postgres，默认 pgoutput）</li>
- *   <li>{@code database.*} — 透传给 Debezium 的全部 database 属性</li>
- *   <li>{@code snapshot.*} — 透传给 Debezium 的全部 snapshot 属性</li>
- *   <li>{@code offset.*} — 透传给 Debezium 的全部 offset 属性</li>
- *   <li>{@code heartbeat.*} — 透传给 Debezium 的全部 heartbeat 属性</li>
- * </ul>
  *
  * @author CH
  * @since 2024/12/12
@@ -56,11 +34,29 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class DebeziumPolledDirectory implements PolledDirectory {
 
+    /**
+     * 逻辑监听路径（数据库名或表名）
+     */
     private final String listenPath;
+
+    /**
+     * 目录轮询环境
+     */
     private final DirectoryPollerEnvironment environment;
+
+    /**
+     * 已注册的监听器列表
+     */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
+    /**
+     * Debezium Engine 实例
+     */
     private DebeziumEngine<ChangeEvent<String, String>> engine;
+
+    /**
+     * Debezium 执行线程池
+     */
     private ExecutorService executor;
 
     /**
@@ -91,20 +87,20 @@ public class DebeziumPolledDirectory implements PolledDirectory {
                     .getExtension(connectorType);
             if (setup != null) {
                 try {
-                    log.info("Debezium 环境检测: type={}", connectorType);
+                    log.info("[debezium-cdc] 环境检测: type={}", connectorType);
                     if (!setup.isReady(environment)) {
-                        log.warn("Debezium 环境未就绪，尝试自动配置: type={}", connectorType);
+                        log.warn("[debezium-cdc] 环境未就绪，尝试自动配置: type={}", connectorType);
                         setup.setup(environment);
                         if (!setup.isReady(environment)) {
-                            log.warn("Debezium 环境自动配置后仍未就绪，部分功能可能不可用: type={}", connectorType);
+                            log.warn("[debezium-cdc] 环境自动配置后仍未就绪，部分功能可能不可用: type={}", connectorType);
                         } else {
-                            log.info("Debezium 环境自动配置成功: type={}", connectorType);
+                            log.info("[debezium-cdc] 环境自动配置成功: type={}", connectorType);
                         }
                     } else {
-                        log.info("Debezium 环境已就绪: type={}", connectorType);
+                        log.info("[debezium-cdc] 环境已就绪: type={}", connectorType);
                     }
                 } catch (Exception e) {
-                    log.error("Debezium 环境设置失败: type={}, msg={}", connectorType, e.getMessage(), e);
+                    log.error("[debezium-cdc] 环境设置失败: type={}, msg={}", connectorType, e.getMessage(), e);
                 }
             }
         }
@@ -127,7 +123,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
             if (config != null) {
                 connectorClass = config.connectorClass();
                 config.configure(props, environment);
-                log.info("Debezium 连接器 SPI 自动配置: type={}, class={}", connectorType, connectorClass);
+                log.info("[debezium-cdc] 连接器 SPI 自动配置: type={}, class={}", connectorType, connectorClass);
             }
         }
 
@@ -167,7 +163,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
                 new ThreadFactoryBuilder().setNameFormat("debezium-" + listenPath + "-%d").setDaemon(true).build());
         executor.execute(engine);
 
-        log.info("Debezium CDC 已启动: listenPath={}, connectorClass={}", listenPath, connectorClass);
+        log.info("[debezium-cdc] CDC 已启动: listenPath={}, connectorClass={}", listenPath, connectorClass);
     }
 
     private void dispatch(String value) {
@@ -189,10 +185,10 @@ public class DebeziumPolledDirectory implements PolledDirectory {
                     case "c" -> l.onCreate(WatcherEvent.CREATE, observer);
                     case "u" -> l.onModify(WatcherEvent.MODIFY, observer);
                     case "d" -> l.onDelete(WatcherEvent.DELETE, observer);
-                    default -> log.warn("未知 CDC 操作类型: {}", op);
+                    default -> log.warn("[debezium-cdc] 未知 CDC 操作类型: {}", op);
                 }
             } catch (Exception e) {
-                log.error("监听器处理异常", e);
+                log.error("[debezium-cdc] 监听器处理异常", e);
             }
         }
     }
@@ -228,7 +224,10 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     @Override
     public void close() {
         if (engine != null) {
-            try { engine.close(); } catch (IOException ignored) {}
+            try {
+                engine.close();
+            } catch (IOException ignored) {
+            }
         }
         if (executor != null) {
             executor.shutdownNow();

@@ -27,21 +27,21 @@ public class LogSink implements AccessSink {
 
     @Override
     public void start() {
-        log.info("LogSink started");
+        log.info("[datalake-sink] LogSink 启动");
     }
 
     @Override
     public void stop() {
-        log.info("LogSink stopped");
+        log.info("[datalake-sink] LogSink 停止");
     }
 
     @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (envelope == null) {
-            log.warn("LogSink received null envelope");
+            log.warn("[datalake-sink] LogSink 接收到空 envelope");
             return false;
         }
-        log.info("[SINK:log] pipelineId={}, traceId={}, data={}",
+        log.info("[datalake-sink] 写入数据: pipelineId={}, traceId={}, data={}",
                 envelope.getPipelineId(),
                 envelope.getTraceId(),
                 envelope.getParsed());

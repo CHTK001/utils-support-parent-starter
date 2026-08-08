@@ -17,16 +17,43 @@ import java.util.*;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SourceDataTable extends MutableDataTable {
 
+    /**
+     * 底层引擎实例
+     */
     private final Engine engine;
+
+    /**
+     * 实体类型
+     */
     private final Class<?> entityClass;
+
+    /**
+     * 解析到的 getter 方法列表
+     */
     private final List<Method> getters;
+
+    /**
+     * 列类型列表
+     */
     private final List<Class<?>> columnTypes;
+
+    /**
+     * 解析到的 setter 方法列表
+     */
     private final List<Method> setters;
 
+    /**
+     * 构造实体数据表。
+     *
+     * @param name        表名
+     * @param engine      引擎实例
+     * @param entityClass 实体类型
+     */
     public SourceDataTable(String name, Engine engine, Class<?> entityClass) {
         super(name);
         this.engine = engine;
@@ -99,7 +126,7 @@ public class SourceDataTable extends MutableDataTable {
             }
             return rows;
         } catch (Exception e) {
-            log.warn("SourceDataTable [{}] 查询失败: {}", getName(), e.getMessage());
+            log.warn("[calcite] SourceDataTable [{}] 查询失败: {}", getName(), e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -123,7 +150,7 @@ public class SourceDataTable extends MutableDataTable {
                 fileEngine.save(getName());
             }
         }
-        log.debug("SourceDataTable [{}] 写回 {} 行 -> {}", getName(), entities.size(), storeName);
+        log.debug("[calcite] SourceDataTable [{}] 写回 {} 行 -> {}", getName(), entities.size(), storeName);
     }
 
     private String resolveStoreName() {

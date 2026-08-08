@@ -123,7 +123,7 @@ public class HibernateDdlManager implements DslManager {
                     // 兼容 jdbc:mysql:// 和 jdbc:h2:<path> 两种格式
                     String protocolKey = extractJdbcProtocol(dialectUrl);
                     if (protocolKey != null && url.startsWith(protocolKey)) {
-                        log.debug("自动检测到方言: {}", entry.getKey());
+                        log.debug("[hibernate-ddl] 自动检测到方言: {}", entry.getKey());
                         this.dialect = entry.getValue();
                         return this.dialect;
                     }
@@ -131,9 +131,9 @@ public class HibernateDdlManager implements DslManager {
                     // 单个方言解析失败不影响其他
                 }
             }
-            log.warn("未找到匹配的方言，URL: {}", url);
+            log.warn("[hibernate-ddl] 未找到匹配的方言, URL: {}", url);
         } catch (SQLException e) {
-            log.warn("自动检测方言失败", e);
+            log.warn("[hibernate-ddl] 自动检测方言失败", e);
         }
         return null;
     }

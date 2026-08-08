@@ -26,15 +26,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DubboRpcClient implements RpcClient {
 
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
-    private final ApplicationConfig applicationConfig = new ApplicationConfig();
+    private final ApplicationConfig applicationConfig;
     private final ConsumerConfig consumerConfig;
     private final RpcConsumerConfig rpcConsumerConfig;
     private final Map<Class<?>, ReferenceConfig<?>> referenceCache = new ConcurrentHashMap<>();
 
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;
-        applicationConfig.setName(name);
-        applicationConfig.setQosEnable(false);
+        applicationConfig = DubboConfigs.application(name);
         for (RpcRegistryConfig cfg : rpcRegistryConfigs) {
             RegistryConfig item = new RegistryConfig();
             item.setAddress(cfg.getAddress());

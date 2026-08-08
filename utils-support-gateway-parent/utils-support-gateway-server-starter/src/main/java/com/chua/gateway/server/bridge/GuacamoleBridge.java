@@ -67,12 +67,12 @@ public class GuacamoleBridge implements RemoteBridge {
         if (socket != null && !socket.isClosed()) {
             return;
         }
-        log.info("Guacamole 连接: guacd={}:{} target={}:{}",
+        log.info("[gateway-server] Guacamole 连接: guacd={}:{} target={}:{}",
                 guacdHost, guacdPort, connection.host(), connection.port());
         socket = new Socket(guacdHost, guacdPort);
         socket.setTcpNoDelay(true);
         socket.setSoTimeout(GUACD_READ_TIMEOUT_MS);
-        log.info("Guacamole socket 建立: id={}", tunnel.id());
+        log.info("[gateway-server] Guacamole socket 建立: target={}:{}", connection.host(), connection.port());
     }
 
     @Override
@@ -81,7 +81,7 @@ public class GuacamoleBridge implements RemoteBridge {
             try {
                 socket.close();
             } catch (Exception e) {
-                log.warn("Guacamole socket 关闭失败: {}", e.getMessage());
+                log.warn("[gateway-server] Guacamole socket 关闭失败: {}", e.getMessage());
             }
         }
         socket = null;

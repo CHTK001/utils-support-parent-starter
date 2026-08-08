@@ -1,4 +1,7 @@
 package com.chua.payment.support;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +14,9 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/19
  */
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 public class PaymentResponse {

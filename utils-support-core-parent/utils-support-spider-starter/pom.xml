@@ -49,49 +49,50 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- HTML 解析与链接提取 -->
+        <!-- HTML 解析与链接提取（运行时调用 Jsoup.parse） -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
-        <!-- HTTP 抓取备选（核心实现使用 JDK HttpClient） -->
+        <!-- HTTP 抓取备选（核心实现使用 JDK HttpClient），未在代码中直接 import -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- JSON 序列化 -->
+        <!-- JSON 序列化（运行时 new ObjectMapper） -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.databind.version}</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
-        <!-- Spring Boot 自动配置 -->
+        <!-- Spring Boot 自动配置（运行时反射 @AutoConfiguration/@ConditionalOnClass） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>${spring.boot.version}</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
-        <!-- Spring Web 注解（RestController 等） -->
+        <!-- Spring Web 注解（运行时 MVC 反射 @RestController） -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
+        <!-- Spring Context（运行时反射 @Configuration/@Bean） -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
         <!-- 完整 Spring Boot starter（保证 spring-core 版本一致） -->
@@ -99,14 +100,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>3.2.0</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
-        <!-- Jakarta 注解（@PostConstruct / @PreDestroy） -->
+        <!-- Jakarta 注解（@PostConstruct / @PreDestroy 运行时反射） -->
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

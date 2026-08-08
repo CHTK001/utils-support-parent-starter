@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
  * 用于封装 Calcite 的数据集结构，包含方案名称和多个数据表。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class CalciteDataScheme implements DataScheme {
 

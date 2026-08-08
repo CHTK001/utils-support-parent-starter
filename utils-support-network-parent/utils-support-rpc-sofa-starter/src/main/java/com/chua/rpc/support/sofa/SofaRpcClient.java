@@ -34,12 +34,18 @@ public class SofaRpcClient implements RpcClient {
         applicationConfig.setAppName(name);
         for (RpcRegistryConfig config : rpcRegistryConfigs) {
             RegistryConfig item = new RegistryConfig();
-            item.setProtocol(config.getProtocol());
-            item.setAddress(config.getAddress());
-            item.setTimeout(config.getTimeout());
+            if (config.getProtocol() != null) { item.setProtocol(config.getProtocol()); }
+            if (config.getAddress() != null)  { item.setAddress(config.getAddress()); }
+            if (config.getTimeout() != null)  { item.setTimeout(config.getTimeout()); }
+            if ("local".equals(config.getProtocol())) {
+                // 与 SofaRpcServer 使用同一注册文件路径（按应用名），保证同机跨进程也能互相发现
+                item.setFile(SofaRpcServer.localRegistryFile(name));
+            }
             registryConfigs.add(item);
         }
     }
+
+
 
     @Override
     @SuppressWarnings("unchecked")

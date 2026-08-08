@@ -91,10 +91,20 @@ public class NativeRpcClient implements RpcClient {
                 Discovery d = serviceDiscovery.getService(path);
                 if (d != null) { targets.add(0, d.getHost() + ":" + d.getPort()); }
             }
+            Exception last = null;
             for (String addr : targets) {
-                try { return call(addr, req); } catch (Exception e) {
+                try {
+                    return call(addr, req);
+                } catch (Exception e) {
                     log.warn("NativeRPC failed: {}, error: {}", addr, e.toString());
+                    last = e;
                 }
+            }
+            // 不能吞掉真正的远程异常：全部端点失败时保留最后一个失败原因（含原始消息），
+            // 否则客户端会把服务端业务异常（如 fail() 的 RuntimeException）替换成无信息的
+            // "unreachable"，异常传播语义被破坏。
+            if (last != null) {
+                throw new IllegalStateException("All native RPC endpoints unreachable: " + last, last);
             }
             throw new IllegalStateException("All native RPC endpoints unreachable");
         }

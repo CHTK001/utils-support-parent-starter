@@ -36,6 +36,9 @@ public final class GatewayServerApplication {
      */
     private static final String SHUTDOWN_HOOK_NAME = "gateway-server-shutdown";
 
+    /**
+     * 私有构造，禁止实例化。
+     */
     private GatewayServerApplication() {
     }
 
@@ -45,31 +48,31 @@ public final class GatewayServerApplication {
      * @param args 命令行参数（暂无作用，全通过 Properties 配置）
      */
     public static void main(String[] args) {
-        log.info("===========================================");
-        log.info("Gateway Server 启动中");
-        log.info("HTTP 端口: {}", GatewayProperties.httpPort());
-        log.info("guacd 端口: {}", GatewayProperties.guacdPort());
-        log.info("artifact 目录: {}", GatewayProperties.artifactDir());
-        log.info("local-override: {}", GatewayProperties.localOverrideDir());
-        log.info("===========================================");
+        log.info("[gateway-server] ===========================================");
+        log.info("[gateway-server] Gateway Server 启动中");
+        log.info("[gateway-server] HTTP 端口: {}", GatewayProperties.httpPort());
+        log.info("[gateway-server] guacd 端口: {}", GatewayProperties.guacdPort());
+        log.info("[gateway-server] artifact 目录: {}", GatewayProperties.artifactDir());
+        log.info("[gateway-server] local-override: {}", GatewayProperties.localOverrideDir());
+        log.info("[gateway-server] ===========================================");
 
         // 1. RuntimeBoot 安装（同步阻塞：完成所有 download/install）
         RuntimeBoot.create()
                 .withArtifact(GatewayArtifact.create())
                 .withArtifact(GuacdArtifact.createDefault())
                 .install();
-        log.info("RuntimeBoot install 完成");
+        log.info("[gateway-server] RuntimeBoot install 完成");
 
         // 2. 启动 guacd 子进程（detached）
         RuntimeBoot.create()
                 .withArtifact(GuacdArtifact.createDefault())
                 .startAsService();
-        log.info("guacd 子进程启动: 端口 {}", GatewayProperties.guacdPort());
+        log.info("[gateway-server] guacd 子进程启动: 端口 {}", GatewayProperties.guacdPort());
 
         // 3. 启动 HTTP server + WS endpoint
         GatewayServerBootstrap bootstrap = new GatewayServerBootstrap();
         bootstrap.start();
-        log.info("HTTP 服务已监听: http://{}:{}", "0.0.0.0", GatewayProperties.httpPort());
+        log.info("[gateway-server] HTTP 服务已监听: http://{}:{}", "0.0.0.0", GatewayProperties.httpPort());
 
         // 4. shutdown hook
         Runtime.getRuntime().addShutdownHook(

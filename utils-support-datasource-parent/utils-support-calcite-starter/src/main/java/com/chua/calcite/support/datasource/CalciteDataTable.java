@@ -14,6 +14,7 @@ import java.util.Map;
  * 用于封装 Calcite 查询结果或构建内存中的虚拟表结构。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @RequiredArgsConstructor
 @Accessors(fluent = true)

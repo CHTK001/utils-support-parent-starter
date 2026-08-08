@@ -197,7 +197,7 @@ public class SpringServerHandlerAnnotationParser
                     try {
                         result.add(HttpMethod.valueOf(m.name()));
                     } catch (IllegalArgumentException e) {
-                        log.warn("忽略非法 HTTP 方法 [{}]", m.name());
+                        log.warn("[spring-network] 忽略非法 HTTP 方法 [{}]", m.name());
                     }
                 }
                 if (!result.isEmpty()) {

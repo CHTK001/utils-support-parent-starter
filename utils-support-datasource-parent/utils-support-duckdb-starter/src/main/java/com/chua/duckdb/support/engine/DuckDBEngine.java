@@ -11,16 +11,17 @@ import java.util.List;
 
 /**
  * DuckDB 引擎实现，基于内存数据过滤。
- * <p>
- * 支持通过 {@link #store} 注入数据，利用 {@link MemoryWhereParser}
- * 解析 SQL WHERE 条件进行内存过滤，并支持基于内存的 UPDATE/DELETE 操作。
- * </p>
  *
  * @author CH
  * @since 2024/12/12
  */
 @Spi("duckdb")
 public class DuckDBEngine extends AbstractEngine {
+
+    /**
+     * 默认存储名称
+     */
+    private static final String DEFAULT_NAME = "default";
 
     /**
      * 将数据按名称存储到引擎中。
@@ -46,7 +47,7 @@ public class DuckDBEngine extends AbstractEngine {
      * @return 当前引擎实例
      */
     public <T> DuckDBEngine store(List<T> data) {
-        return store("default", data);
+        return store(DEFAULT_NAME, data);
     }
 
     @Override

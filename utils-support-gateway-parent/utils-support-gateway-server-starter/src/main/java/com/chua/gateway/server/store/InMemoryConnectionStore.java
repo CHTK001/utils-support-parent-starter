@@ -48,7 +48,7 @@ public final class InMemoryConnectionStore implements ConnectionStore {
         }
         Connection conn = new Connection(protocol, host, port, user, password, null);
         byTarget.put(tkey, conn);
-        log.info("InMemory 新建连接: {}", tkey);
+        log.info("[gateway-server] InMemory 新建连接: {}", tkey);
         return conn;
     }
 
@@ -60,7 +60,7 @@ public final class InMemoryConnectionStore implements ConnectionStore {
     @Override
     public void init() {
         // 内存存储无需初始化
-        log.info("InMemoryConnectionStore 初始化完成");
+        log.info("[gateway-server] InMemoryConnectionStore 初始化完成");
     }
 
     /**

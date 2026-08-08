@@ -11,10 +11,16 @@ import com.chua.milvus.support.storage.MilvusVectorStorage;
  * Milvus 向量存储 SPI 实现。
  *
  * @author CH
+ * @since 2025/01/15
  */
 @Spi(value = "milvus", order = 100)
 public class MilvusVectorStorageProvider implements VectorStorageProvider {
 
+    /**
+     * SPI 名称。
+     *
+     * @return "milvus"
+     */
     @Override
     public String name() {
         return "milvus";

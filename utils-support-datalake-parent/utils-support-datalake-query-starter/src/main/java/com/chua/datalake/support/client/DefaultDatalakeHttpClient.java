@@ -1,5 +1,6 @@
 package com.chua.datalake.support.client;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +15,14 @@ public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
         super(baseUrl);
     }
 
-    public java.util.List<Map<String, Object>> queryAsList(String sql, Object... args) {
+    /**
+     * 解析响应为对象列表。
+     *
+     * @param sql  SQL 字符串
+     * @param args 参数列表
+     * @return 结果列表（默认空列表）
+     */
+    public List<Map<String, Object>> queryAsList(String sql, Object... args) {
         return java.util.Collections.emptyList();
     }
 }

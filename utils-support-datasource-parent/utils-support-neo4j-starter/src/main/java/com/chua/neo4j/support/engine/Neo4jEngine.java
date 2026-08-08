@@ -86,10 +86,10 @@ public class Neo4jEngine implements Engine {
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
                 var result = tx.run("RETURN 1 AS n");
-                System.out.println("[NEO4J CONNECT] verify ok, server=" + result.single().get("n").asInt());
+                log.info("[neo4j-engine] 连接验证成功: server={}", result.single().get("n").asInt());
             }
         }
-        System.out.println("[NEO4J CONNECT] driver ready, uri=" + uri);
+        log.info("[neo4j-engine] 驱动就绪: uri={}", uri);
         return this;
     }
 
@@ -132,14 +132,12 @@ public class Neo4jEngine implements Engine {
                     first = false;
                 }
                 cypher.append("})");
-                System.out.println("[NEO4J STORE] cypher=" + cypher + ", params=" + props);
+                log.info("[neo4j-engine] 执行 Cypher: cypher={}, params={}", cypher, props);
                 session.run(cypher.toString(), props);
-                System.out.println("[NEO4J STORE] entity=" + entityClass.getSimpleName() + " stored");
+                log.info("[neo4j-engine] 实体已写入: entity={}", entityClass.getSimpleName());
             }
         } catch (Exception e) {
-            System.err.println("[NEO4J STORE ERROR] " + e.getMessage());
-            e.printStackTrace(System.err);
-            log.error("Neo4j 存储失败: {}", e.getMessage());
+            log.error("[neo4j-engine] 存储失败: {}", e.getMessage(), e);
         }
         return this;
     }
@@ -292,7 +290,7 @@ public class Neo4jEngine implements Engine {
     @SuppressWarnings("unchecked")
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {
         if (driver == null) {
-            log.warn("Neo4j 驱动未初始化，无法执行查询");
+            log.warn("[neo4j-engine] 驱动未初始化，无法执行查询");
             return Collections.emptyList();
         }
         String label = entityClass.getSimpleName();

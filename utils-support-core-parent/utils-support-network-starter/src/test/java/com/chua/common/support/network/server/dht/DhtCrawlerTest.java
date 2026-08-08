@@ -12,6 +12,8 @@ import java.util.Set;
  * 被动发现 infohash 后会主动向最近节点查询 BT peer，
  * 并通过 BEP 9 尝试下载种子名。
  * </p>
+ *
+ * @author CH
  */
 class DhtCrawlerTest {
 

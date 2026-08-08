@@ -69,7 +69,7 @@ public class SpringBeanDefinitionMethodInjector implements BeanDefinitionMethodI
             ClassUtils.setAccessible(method);
             method.invoke(instance, args);
         } catch (Exception e) {
-            log.error("方法注入失败: {}.{}", instance.getClass().getName(), method.getName(), e);
+            log.error("[spring-impl] 方法注入失败: {}.{}", instance.getClass().getName(), method.getName(), e);
         }
     }
 }

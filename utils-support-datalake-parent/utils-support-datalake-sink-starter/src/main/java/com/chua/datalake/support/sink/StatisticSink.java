@@ -25,12 +25,12 @@ public class StatisticSink implements AccessSink {
 
     @Override
     public void start() {
-        log.info("StatisticSink started");
+        log.info("[datalake-sink] StatisticSink 启动");
     }
 
     @Override
     public void stop() {
-        log.info("StatisticSink stopped");
+        log.info("[datalake-sink] StatisticSink 停止");
     }
 
     @Override
@@ -38,7 +38,7 @@ public class StatisticSink implements AccessSink {
         if (envelope == null) {
             return false;
         }
-        log.info("[SINK:statistic] pipelineId={}, timestamp={}",
+        log.info("[datalake-sink] 统计记录: pipelineId={}, timestamp={}",
                 envelope.getPipelineId(), envelope.getTimestamp());
         return true;
     }

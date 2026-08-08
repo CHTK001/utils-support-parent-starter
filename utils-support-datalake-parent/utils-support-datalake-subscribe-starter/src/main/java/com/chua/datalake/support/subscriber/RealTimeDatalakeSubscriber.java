@@ -40,7 +40,7 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
 
     @Override
     public void subscribe() {
-        log.info("RealTimeDatalakeSubscriber subscribed: subscriberId={}, offset={}",
+        log.info("[datalake-subscribe] 订阅器已订阅: subscriberId={}, offset={}",
                 subscriberId, currentOffset());
     }
 
@@ -67,6 +67,9 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
 
     /**
      * 批量推送。
+     *
+     * @param envelopes envelope 数据流
+     * @return 表示批量推送完成的 {@link Mono}
      */
     public Mono<Void> pushBatch(Flux<DataEnvelope> envelopes) {
         if (envelopes == null) {

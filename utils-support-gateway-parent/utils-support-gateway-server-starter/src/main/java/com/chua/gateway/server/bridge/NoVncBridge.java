@@ -51,11 +51,11 @@ public class NoVncBridge implements RemoteBridge {
             return;
         }
         int port = connection.port() > 0 ? connection.port() : DEFAULT_VNC_PORT;
-        log.info("VNC 连接: target={}:{}", connection.host(), port);
+        log.info("[gateway-server] VNC 连接: target={}:{}", connection.host(), port);
         socket = new Socket(connection.host(), port);
         socket.setTcpNoDelay(true);
         socket.setKeepAlive(true);
-        log.info("VNC 连接建立");
+        log.info("[gateway-server] VNC 连接建立");
     }
 
     @Override
@@ -64,7 +64,7 @@ public class NoVncBridge implements RemoteBridge {
             try {
                 socket.close();
             } catch (IOException e) {
-                log.warn("VNC 关闭失败: {}", e.getMessage());
+                log.warn("[gateway-server] VNC 关闭失败: {}", e.getMessage());
             }
         }
         socket = null;

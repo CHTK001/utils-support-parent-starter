@@ -87,7 +87,7 @@ public class DuckDbLogSink implements DataSink {
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute(TABLE_DDL);
             }
-            log.info("[DuckDbLogSink] connected: {}", jdbcUrl);
+            log.info("[duckdb-sink] 已连接: {}", jdbcUrl);
         } catch (Exception e) {
             throw new RuntimeException("DuckDbLogSink start failed: " + e.getMessage(), e);
         }
@@ -99,7 +99,7 @@ public class DuckDbLogSink implements DataSink {
             try {
                 connection.close();
             } catch (Exception e) {
-                log.warn("[DuckDbLogSink] close error", e);
+                log.warn("[duckdb-sink] 关闭连接异常", e);
             }
         }
     }
@@ -107,7 +107,7 @@ public class DuckDbLogSink implements DataSink {
     @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (connection == null) {
-            log.warn("[DuckDbLogSink] not connected");
+            log.warn("[duckdb-sink] 未连接，无法写入");
             return false;
         }
         try {
@@ -132,7 +132,7 @@ public class DuckDbLogSink implements DataSink {
             }
             return true;
         } catch (Exception e) {
-            log.error("[DuckDbLogSink] write error", e);
+            log.error("[duckdb-sink] 写入异常", e);
             return false;
         }
     }

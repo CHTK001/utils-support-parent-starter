@@ -125,7 +125,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
             stmt.execute(CREATE_TABLE_SQL);
             ensureColumn(conn, SQL_CHECK_USER_COLUMN, SQL_ALTER_USER);
             ensureColumn(conn, SQL_CHECK_PASSWORD_COLUMN, SQL_ALTER_PASSWORD);
-            log.info("SqliteConnectionStore 初始化完成: {}", jdbcUrl);
+            log.info("[gateway-server] SqliteConnectionStore 初始化完成: {}", jdbcUrl);
         } catch (SQLException e) {
             throw new IllegalStateException("初始化连接存储失败: " + jdbcUrl, e);
         }
@@ -146,7 +146,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
                 return;
             }
             stmt.execute(alterSql);
-            log.info("已添加列: {}", alterSql);
+            log.info("[gateway-server] 已添加列: {}", alterSql);
         }
     }
 
@@ -195,7 +195,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
             }
             return Optional.empty();
         } catch (SQLException e) {
-            log.warn("按 key 查找连接失败: key={} err={}", key, e.getMessage());
+            log.warn("[gateway-server] 按 key 查找连接失败: key={} err={}", key, e.getMessage());
             return Optional.empty();
         }
     }
@@ -215,9 +215,9 @@ public final class SqliteConnectionStore implements ConnectionStore {
             ps.setString(5, user);
             ps.setString(6, password);
             ps.executeUpdate();
-            log.info("新建连接: protocol={} host={} port={}", protocol, host, port);
+            log.info("[gateway-server] 新建连接: protocol={} host={} port={}", protocol, host, port);
         } catch (SQLException e) {
-            log.warn("写入连接失败: protocol={} host={} port={} err={}",
+            log.warn("[gateway-server] 写入连接失败: protocol={} host={} port={} err={}",
                     protocol, host, port, e.getMessage());
         }
         Connection persisted = findByTarget(protocol, host, port);
@@ -247,7 +247,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
                 }
             }
         } catch (SQLException e) {
-            log.warn("按 target 查找连接失败: {}://{}:{} err={}", protocol, host, port, e.getMessage());
+            log.warn("[gateway-server] 按 target 查找连接失败: {}://{}:{} err={}", protocol, host, port, e.getMessage());
         }
         return null;
     }
@@ -262,7 +262,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
                 keys.add(rs.getString(1));
             }
         } catch (SQLException e) {
-            log.warn("列出预配置 key 失败: {}", e.getMessage());
+            log.warn("[gateway-server] 列出预配置 key 失败: {}", e.getMessage());
         }
         return keys;
     }

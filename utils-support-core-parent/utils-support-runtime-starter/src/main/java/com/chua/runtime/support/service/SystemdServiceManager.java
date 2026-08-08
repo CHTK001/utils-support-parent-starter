@@ -53,7 +53,7 @@ public class SystemdServiceManager implements ServiceManager {
 
     @Override
     public CmdResult install(ManagedService service) {
-        log.info("正在安装 systemd 服务[{}]: {}", service.getServiceName(), service.getDisplayName());
+        log.info("[runtime-service] 正在安装 systemd 服务[{}]: {}", service.getServiceName(), service.getDisplayName());
 
         try {
             String serviceContent = generateServiceFile(service);
@@ -68,7 +68,7 @@ public class SystemdServiceManager implements ServiceManager {
                     CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
             if (!copyResult.isSuccess()) {
-                log.error("复制 service 文件失败: {}", copyResult.getStderr());
+                log.error("[runtime-service] 复制 service 文件失败: {}", copyResult.getStderr());
                 // 尝试用 sudo
                 copyResult = CmdExecutors.execute(
                         "sudo cp " + tempFile + " " + servicePath.toString(),
@@ -94,7 +94,7 @@ public class SystemdServiceManager implements ServiceManager {
                 enable(service.getServiceName());
             }
 
-            log.info("systemd 服务[{}] 安装成功", service.getServiceName());
+            log.info("[runtime-service] systemd 服务[{}] 安装成功", service.getServiceName());
             return CmdResult.builder()
                     .exitCode(0)
                     .stdout("systemd 服务[" + service.getServiceName() + "] 安装成功")
@@ -102,7 +102,7 @@ public class SystemdServiceManager implements ServiceManager {
                     .build();
 
         } catch (IOException e) {
-            log.error("生成 service 文件失败", e);
+            log.error("[runtime-service] 生成 service 文件失败", e);
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr("生成 service 文件失败: " + e.getMessage())
@@ -114,7 +114,7 @@ public class SystemdServiceManager implements ServiceManager {
 
     @Override
     public CmdResult uninstall(String serviceName) {
-        log.info("正在卸载 systemd 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在卸载 systemd 服务[{}]", serviceName);
 
         // 先停止服务
         stop(serviceName);
@@ -137,27 +137,27 @@ public class SystemdServiceManager implements ServiceManager {
         // 重新加载 systemd
         CmdExecutors.execute("systemctl daemon-reload", CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-        log.info("systemd 服务[{}] 卸载完成", serviceName);
+        log.info("[runtime-service] systemd 服务[{}] 卸载完成", serviceName);
         return result;
     }
 
     @Override
     public CmdResult start(String serviceName) {
-        log.info("正在启动 systemd 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在启动 systemd 服务[{}]", serviceName);
         String cmd = "systemctl start \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public CmdResult stop(String serviceName) {
-        log.info("正在停止 systemd 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在停止 systemd 服务[{}]", serviceName);
         String cmd = "systemctl stop \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public CmdResult restart(String serviceName) {
-        log.info("正在重启 systemd 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在重启 systemd 服务[{}]", serviceName);
         String cmd = "systemctl restart \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
@@ -170,14 +170,14 @@ public class SystemdServiceManager implements ServiceManager {
 
     @Override
     public CmdResult enable(String serviceName) {
-        log.info("设置 systemd 服务[{}] 开机自启", serviceName);
+        log.info("[runtime-service] 设置 systemd 服务[{}] 开机自启", serviceName);
         String cmd = "systemctl enable \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public CmdResult disable(String serviceName) {
-        log.info("禁用 systemd 服务[{}] 开机自启", serviceName);
+        log.info("[runtime-service] 禁用 systemd 服务[{}] 开机自启", serviceName);
         String cmd = "systemctl disable \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }

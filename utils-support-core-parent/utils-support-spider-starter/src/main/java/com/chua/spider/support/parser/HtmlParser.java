@@ -68,7 +68,7 @@ public class HtmlParser implements SpiderParser {
                     .build();
 
         } catch (Exception e) {
-            log.warn("HTML 解析失败: {}", response.getRequest() != null ?
+            log.warn("[spider-parser] HTML 解析失败: {}", response.getRequest() != null ?
                     response.getRequest().getUrl() : "unknown", e);
             return null;
         }

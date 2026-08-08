@@ -143,7 +143,7 @@ public class AgentInjector {
      * @return 注入结果
      */
     public CmdResult inject() {
-        log.info("开始注入 Agent 到 PID[{}]...", pid);
+        log.info("[runtime-javaagent] 开始注入 Agent 到 PID[{}]...", pid);
 
         if (pid == null) {
             return CmdResult.builder()
@@ -175,15 +175,15 @@ public class AgentInjector {
             }
 
             if (result.isSuccess()) {
-                log.info("Agent 注入成功: PID[{}]", pid);
+                log.info("[runtime-javaagent] Agent 注入成功: PID[{}]", pid);
             } else {
-                log.error("Agent 注入失败: PID[{}], 错误: {}", pid, result.getStderr());
+                log.error("[runtime-javaagent] Agent 注入失败: PID[{}], 错误: {}", pid, result.getStderr());
             }
 
             return result;
 
         } catch (Exception e) {
-            log.error("Agent 注入异常", e);
+            log.error("[runtime-javaagent] Agent 注入异常", e);
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr("注入异常: " + e.getMessage())
@@ -280,7 +280,7 @@ public class AgentInjector {
                     .build();
 
         } catch (Exception e) {
-            log.warn("VirtualMachine 注入失败，尝试其他方式", e);
+            log.warn("[runtime-javaagent] VirtualMachine 注入失败，尝试其他方式", e);
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr("VirtualMachine 注入失败: " + e.getMessage())

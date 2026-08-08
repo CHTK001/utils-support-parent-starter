@@ -87,11 +87,11 @@ public class DatalakeServer {
         if (!running.compareAndSet(false, true)) {
             return;
         }
-        log.info("DatalakeServer starting");
+        log.info("[datalake-server] DatalakeServer 启动中");
         sinkManager.start();
         subscriberManager.start();
         apiServer.start();
-        log.info("DatalakeServer started");
+        log.info("[datalake-server] DatalakeServer 启动完成");
     }
 
     /**
@@ -101,7 +101,7 @@ public class DatalakeServer {
         if (!running.compareAndSet(true, false)) {
             return;
         }
-        log.info("DatalakeServer stopping");
+        log.info("[datalake-server] DatalakeServer 停止中");
         apiServer.stop();
         subscriberManager.stop();
         sinkManager.stop();
@@ -111,7 +111,7 @@ public class DatalakeServer {
         if (offsetFlow != null) {
             offsetFlow.close();
         }
-        log.info("DatalakeServer stopped");
+        log.info("[datalake-server] DatalakeServer 已停止");
     }
 
     /**

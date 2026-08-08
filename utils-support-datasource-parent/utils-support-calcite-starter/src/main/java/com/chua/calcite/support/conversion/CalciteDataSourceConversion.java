@@ -3,7 +3,6 @@ package com.chua.calcite.support.conversion;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.DataSourceConversion;
 import com.chua.datasource.support.engine.DataSourceEnvironment;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.calcite.adapter.jdbc.JdbcSchema;
 import org.apache.calcite.jdbc.CalciteConnection;
 import org.apache.calcite.schema.SchemaPlus;
@@ -18,13 +17,28 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
- * Calcite数据源转换器实现类。
+ * Calcite 数据源转换器实现类。
  *
  * @author CH
+ * @since 4.0.0.42
  */
-@Slf4j
 @Spi("CALCITE")
 public class CalciteDataSourceConversion implements DataSourceConversion {
+
+    /**
+     * Calcite 连接 URL
+     */
+    private static final String CALCITE_URL = "jdbc:calcite:";
+
+    /**
+     * Calcite lex 属性键
+     */
+    private static final String CALCITE_LEX = "lex";
+
+    /**
+     * Calcite lex 属性值（MYSQL 方言）
+     */
+    private static final String CALCITE_LEX_MYSQL = "MYSQL";
 
     @Override
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment environment) {
@@ -44,8 +58,16 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
      */
     private static class CalciteDataSource implements DataSource {
 
+        /**
+         * 被聚合的数据源列表
+         */
         private final List<DataSource> delegates;
 
+        /**
+         * 构造内部 Calcite 数据源。
+         *
+         * @param delegates 被聚合的数据源列表
+         */
         CalciteDataSource(List<DataSource> delegates) {
             this.delegates = delegates;
         }
@@ -53,8 +75,8 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         @Override
         public Connection getConnection() throws SQLException {
             Properties info = new Properties();
-            info.put("lex", "MYSQL");
-            Connection connection = DriverManager.getConnection("jdbc:calcite:", info);
+            info.put(CALCITE_LEX, CALCITE_LEX_MYSQL);
+            Connection connection = DriverManager.getConnection(CALCITE_URL, info);
             CalciteConnection calciteConn = connection.unwrap(CalciteConnection.class);
             SchemaPlus rootSchema = calciteConn.getRootSchema();
 

@@ -1,6 +1,10 @@
 package com.chua.datasource.support.engine;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 /**
  * 数据源环境配置。
@@ -12,6 +16,8 @@ import lombok.Data;
  * @since 4.0.0.42
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DataSourceEnvironment {
 
     /**
@@ -32,5 +38,5 @@ public class DataSourceEnvironment {
     /**
      * 额外属性
      */
-    private java.util.Map<String, Object> properties;
+    private Map<String, Object> properties;
 }

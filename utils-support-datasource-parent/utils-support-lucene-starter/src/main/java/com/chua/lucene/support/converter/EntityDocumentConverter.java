@@ -14,50 +14,47 @@ import java.util.*;
 
 /**
  * 实体对象与 Lucene Document 之间的转换器。
- * <p>
- * 负责将 Java 实体对象序列化为 Lucene {@link Document}，
- * 以及从 {@link Document} 反序列化为实体对象。
- * </p>
- * <h3>字段映射规则</h3>
- * <ul>
- *   <li>String → StringField（精确匹配）/ TextField（全文检索）</li>
- *   <li>Long/Integer/Short/Byte → LongPoint/IntPoint</li>
- *   <li>Float/Double → FloatPoint/DoublePoint</li>
- *   <li>Boolean → StoredField("boolean")</li>
- *   <li>Date/LocalDate/LocalDateTime → LongPoint（时间戳）</li>
- *   <li>BigDecimal → DoublePoint</li>
- *   <li>所有字段都标记为 {@link org.apache.lucene.document.Field.Store#YES}</li>
- * </ul>
+ *
+ * <p>负责将 Java 实体对象序列化为 Lucene {@link Document}，
+ * 以及从 {@link Document} 反序列化为实体对象。</p>
  *
  * @author CH
  * @since 2026/07/18
  */
 public final class EntityDocumentConverter {
 
-    private EntityDocumentConverter() {}
+    /**
+     * 私有构造。
+     */
+    private EntityDocumentConverter() {
+    }
 
     /**
-      * 反射获取对象字段值。
-      */
-     private static Object getFieldValue(Object entity, String fieldName) {
-         if (entity == null || fieldName == null) {
-             return null;
-         }
-         try {
-             Field field = entity.getClass().getDeclaredField(fieldName);
-             field.setAccessible(true);
-             return field.get(entity);
-         } catch (Exception e) {
-             return null;
-         }
-     }
- 
-     /**
-      * 将实体对象转换为 Lucene Document。
-      *
-      * @param entity 实体对象
-      * @return Lucene Document
-      */
+     * 反射获取对象字段值。
+     *
+     * @param entity   实体对象
+     * @param fieldName 字段名
+     * @return 字段值
+     */
+    private static Object getFieldValue(Object entity, String fieldName) {
+        if (entity == null || fieldName == null) {
+            return null;
+        }
+        try {
+            Field field = entity.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(entity);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 将实体对象转换为 Lucene Document。
+     *
+     * @param entity 实体对象
+     * @return Lucene Document
+     */
     @SuppressWarnings("unchecked")
     public static Document toDocument(Object entity) {
         if (entity == null) {
@@ -95,9 +92,9 @@ public final class EntityDocumentConverter {
     /**
      * 将 Lucene Document 转换为实体对象。
      *
-     * @param doc       Lucene Document
+     * @param doc        Lucene Document
      * @param entityClass 实体类
-     * @param <T>       实体类型
+     * @param <T>        实体类型
      * @return 实体对象
      */
     @SuppressWarnings("unchecked")
@@ -122,9 +119,13 @@ public final class EntityDocumentConverter {
     }
 
     /**
-      * 向 Document 添加字段。
-      */
-     private static void addField(Document doc, String fieldName, Object value) {
+     * 向 Document 添加字段。
+     *
+     * @param doc       Lucene Document
+     * @param fieldName 字段名
+     * @param value     字段值
+     */
+    private static void addField(Document doc, String fieldName, Object value) {
         if (value instanceof String str) {
             doc.add(new StringField(fieldName, str, org.apache.lucene.document.Field.Store.YES));
             doc.add(new TextField(fieldName + "_text", str, org.apache.lucene.document.Field.Store.NO));
@@ -170,6 +171,11 @@ public final class EntityDocumentConverter {
 
     /**
      * 设置字段值。
+     *
+     * @param entity   实体对象
+     * @param field    字段
+     * @param valueStr 字符串值
+     * @param fieldType 字段类型
      */
     private static void setFieldValue(Object entity, Field field, String valueStr, Class<?> fieldType) {
         try {

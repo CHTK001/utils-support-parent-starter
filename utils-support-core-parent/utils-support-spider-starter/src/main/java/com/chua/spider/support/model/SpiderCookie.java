@@ -1,7 +1,9 @@
 package com.chua.spider.support.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 单条 Cookie。
@@ -9,6 +11,9 @@ import lombok.Data;
  * @author CH
  * @since 4.0.0.42
  */
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder(toBuilder = true)
 public class SpiderCookie {

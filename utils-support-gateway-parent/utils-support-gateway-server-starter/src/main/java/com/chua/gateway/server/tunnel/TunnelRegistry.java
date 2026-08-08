@@ -92,7 +92,7 @@ public final class TunnelRegistry {
                 .orElseThrow(() -> new IllegalStateException("协议未注册: " + connection.protocol()));
         GatewayTunnel tunnel = factory.createTunnel(connection, tunnelId);
         tunnels.put(tunnelId, tunnel);
-        log.info("Tunnel 已注册: id={} protocol={}", tunnelId, connection.protocol());
+        log.info("[gateway-server] Tunnel 已注册: id={} protocol={}", tunnelId, connection.protocol());
         return tunnelId;
     }
 
@@ -115,7 +115,7 @@ public final class TunnelRegistry {
         GatewayTunnel tunnel = tunnels.remove(tunnelId);
         if (tunnel != null) {
             tunnel.close();
-            log.info("Tunnel 已注销: id={}", tunnelId);
+            log.info("[gateway-server] Tunnel 已注销: id={}", tunnelId);
         }
     }
 

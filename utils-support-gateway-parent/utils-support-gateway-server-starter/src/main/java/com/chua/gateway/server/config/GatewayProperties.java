@@ -72,6 +72,9 @@ public final class GatewayProperties {
         loadUserOverride();
     }
 
+    /**
+     * 私有构造，禁止实例化。
+     */
     private GatewayProperties() {
     }
 
@@ -82,10 +85,10 @@ public final class GatewayProperties {
         try (InputStream is = GatewayProperties.class.getResourceAsStream("/gateway.properties")) {
             if (is != null) {
                 PROPS.load(is);
-                log.info("已加载默认配置 gateway.properties");
+                log.info("[gateway-server] 已加载默认配置 gateway.properties");
             }
         } catch (IOException e) {
-            log.warn("加载默认配置失败，使用代码内默认值: {}", e.getMessage());
+            log.warn("[gateway-server] 加载默认配置失败，使用代码内默认值: {}", e.getMessage());
         }
     }
 
@@ -98,9 +101,9 @@ public final class GatewayProperties {
         }
         try (InputStream is = Files.newInputStream(USER_PROPERTIES_PATH)) {
             PROPS.load(is);
-            log.info("已加载用户自定义配置: {}", USER_PROPERTIES_PATH);
+            log.info("[gateway-server] 已加载用户自定义配置: {}", USER_PROPERTIES_PATH);
         } catch (IOException e) {
-            log.warn("加载用户自定义配置失败: {}", e.getMessage());
+            log.warn("[gateway-server] 加载用户自定义配置失败: {}", e.getMessage());
         }
     }
 
@@ -138,9 +141,18 @@ public final class GatewayProperties {
     /**
      * HTTP 服务端口。
      *
+     * <p>优先级：System property {@code gateway.http.port} &gt; properties 文件 &gt; 默认 8080。</p>
+     *
      * @return 端口号
      */
     public static int httpPort() {
+        String sysPort = System.getProperty("gateway.http.port");
+        if (sysPort != null && !sysPort.trim().isEmpty()) {
+            try {
+                return Integer.parseInt(sysPort.trim());
+            } catch (NumberFormatException ignored) {
+            }
+        }
         return getIntOrDefault("gateway.http.port", DEFAULT_HTTP_PORT);
     }
 

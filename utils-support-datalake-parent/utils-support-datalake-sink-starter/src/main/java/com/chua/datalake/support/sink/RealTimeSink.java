@@ -28,12 +28,12 @@ public class RealTimeSink implements AccessSink {
 
     @Override
     public void start() {
-        log.info("RealTimeSink started");
+        log.info("[datalake-sink] RealTimeSink 启动");
     }
 
     @Override
     public void stop() {
-        log.info("RealTimeSink stopped");
+        log.info("[datalake-sink] RealTimeSink 停止");
     }
 
     @Override
@@ -42,10 +42,10 @@ public class RealTimeSink implements AccessSink {
             return false;
         }
         if (envelope.isLog()) {
-            log.debug("[SINK:realtime] skip log envelope: traceId={}", envelope.getTraceId());
+            log.debug("[datalake-sink] 跳过日志型 envelope: traceId={}", envelope.getTraceId());
             return true;
         }
-        log.info("[SINK:realtime] pipelineId={} timestamp={}, data={}",
+        log.info("[datalake-sink] 实时推送: pipelineId={}, timestamp={}, data={}",
                 envelope.getPipelineId(),
                 envelope.getTimestamp(),
                 envelope.getParsed());

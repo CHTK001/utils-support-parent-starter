@@ -62,7 +62,7 @@ public class LocalTimeFormatter implements Formatter<LocalTime> {
         try {
             return LocalTime.parse(source, formatter);
         } catch (Exception e) {
-            log.warn("无法将字符串 [{}] 解析为 LocalTime，使用格式: {}", source, formatter);
+            log.warn("[spring-convert] 无法将字符串 [{}] 解析为 LocalTime，使用格式: {}", source, formatter);
             throw new IllegalArgumentException("无法将字符串解析为 LocalTime: " + source, e);
         }
     }

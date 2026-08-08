@@ -36,12 +36,16 @@
             <artifactId>commons-compress</artifactId>
             <version>${commons.compress.version}</version>
         </dependency>
-         <!-- optional: Rust native 实现（更高性能） -->
+         <!-- optional: Rust native 实现（更高性能）。
+              类 com.chua.filestorage.support.bridge.RustFileStorageBridge 由 native-filestorage 提供，
+              NativeFileStorageFilterSetting/NativeFileStorageFileSetting 通过 isInitialized() 守卫调用。
+              当前 native-filestorage 源码模块未检出，保持 provided 避免编译期拉取；
+              运行时若需启用 Rust 加速，请显式引入 utils-support-native-filestorage。 -->
          <dependency>
              <groupId>com.chua</groupId>
              <artifactId>utils-support-native-filestorage</artifactId>
              <version>${project.version}</version>
-             <optional>true</optional>
+             <scope>provided</scope>
          </dependency>
      </dependencies>
 </project>

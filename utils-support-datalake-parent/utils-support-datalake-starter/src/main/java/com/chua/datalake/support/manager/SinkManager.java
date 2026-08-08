@@ -35,7 +35,7 @@ public class SinkManager {
      * 启动所有已注册 sink
      */
     public void start() {
-        log.info("SinkManager starting {} sinks", sinkMap.size());
+        log.info("[datalake-server] SinkManager 启动 {} 个 sink", sinkMap.size());
         for (DataSink sink : sinkMap.values()) {
             sink.start();
         }
@@ -65,7 +65,9 @@ public class SinkManager {
         return result;
     }
 
-    // 内部标记类型（避免导入此包外的AccessSink常量）
+    /**
+     * 内部标记型接口，用于在包内识别 {@link AccessSink} 类型而避免外部依赖。
+     */
     private interface SinkAccessSink extends com.chua.datalake.support.spi.sink.AccessSink {
     }
 }

@@ -1,7 +1,11 @@
 package com.chua.datalake.support.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +29,10 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.43
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DataEnvelope {
 
     /**
@@ -63,135 +71,12 @@ public class DataEnvelope {
     private final List<String> trace = new ArrayList<>();
 
     /**
-     * 创建空 DataEnvelope
-     */
-    public DataEnvelope() {
-    }
-
-    /**
      * 以指定业务数据创建 Envelope
      *
      * @param parsed 当前业务数据（非空）
      */
     public DataEnvelope(Map<String, Object> parsed) {
         this.parsed = parsed;
-    }
-
-    /**
-     * 返回当前业务数据
-     *
-     * @return 已解析的业务数据
-     */
-    public Map<String, Object> getParsed() {
-        return parsed;
-    }
-
-    /**
-     * 设置当前业务数据
-     *
-     * @param parsed 新的业务数据
-     */
-    public void setParsed(Map<String, Object> parsed) {
-        this.parsed = parsed;
-    }
-
-    /**
-     * 返回所属管线 ID
-     *
-     * @return pipelineId
-     */
-    public String getPipelineId() {
-        return pipelineId;
-    }
-
-    /**
-     * 设置所属管线 ID
-     *
-     * @param pipelineId 管线 ID
-     */
-    public void setPipelineId(String pipelineId) {
-        this.pipelineId = pipelineId;
-    }
-
-    /**
-     * 返回当前枚举管线阶段
-     *
-     * @return PipelineState
-     */
-    public PipelineState getState() {
-        return state;
-    }
-
-    /**
-     * 设定当前阶段
-     *
-     * @param state 枚举值
-     */
-    public void setState(PipelineState state) {
-        this.state = state;
-    }
-
-    /**
-     * 返回采集的时间戳
-     *
-     * @return epoch millis
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * 设置时间戳
-     *
-     * @param timestamp 采集/接收时间戳
-     */
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * 返回追踪 ID
-     *
-     * @return traceId
-     */
-    public String getTraceId() {
-        return traceId;
-    }
-
-    /**
-     * 设定追踪 ID
-     *
-     * @param traceId 追踪标识
-     */
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
-    }
-
-    /**
-     * 获取已记录的迹信息
-     *
-     * @return 迹信息列表（不可变视图）
-     */
-    public List<String> getTrace() {
-        return trace;
-    }
-
-    /**
-     * 返回数据所属主题列表
-     *
-     * @return 主题集合（可能为 null）
-     */
-    public Set<String> getTopics() {
-        return topics;
-    }
-
-    /**
-     * 设置数据所属主题列表
-     *
-     * @param topics 主题集合
-     */
-    public void setTopics(Set<String> topics) {
-        this.topics = topics;
     }
 
     /**

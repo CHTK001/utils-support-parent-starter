@@ -1,4 +1,7 @@
 package com.chua.filesystem.support.restore;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +21,9 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2024/12/25
  */
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 public class RestoreResult {

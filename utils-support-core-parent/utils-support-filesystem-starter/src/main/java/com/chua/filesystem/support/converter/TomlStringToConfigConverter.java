@@ -28,7 +28,7 @@ public class TomlStringToConfigConverter implements StringToConfigConverter {
             ObjectMapper mapper = new ObjectMapper(new TomlFactory());
             return mapper.readValue(value, Map.class);
         } catch (Exception e) {
-            log.error("TOML 配置文件解析失败", e);
+            log.error("[filesystem-converter] TOML 配置文件解析失败", e);
             throw new RuntimeException("TOML 配置文件解析失败: " + e.getMessage(), e);
         }
     }

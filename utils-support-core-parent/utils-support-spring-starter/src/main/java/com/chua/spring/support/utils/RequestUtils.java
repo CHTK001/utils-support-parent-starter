@@ -56,7 +56,7 @@ public class RequestUtils {
         try {
             inet = InetAddress.getLocalHost();
         } catch (Exception e) {
-            log.error("获取本机IP地址失败", e);
+            log.error("[spring-utils] 获取本机IP地址失败", e);
         }
         if (inet != null) {
             LOCAL = inet.getHostAddress();

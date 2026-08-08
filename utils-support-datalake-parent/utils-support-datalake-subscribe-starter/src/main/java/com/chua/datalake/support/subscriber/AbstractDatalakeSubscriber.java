@@ -36,6 +36,8 @@ public abstract class AbstractDatalakeSubscriber {
 
     /**
      * 返回订阅器 ID
+     *
+     * @return 订阅器唯一标识
      */
     public String subscriberId() {
         return subscriberId;
@@ -43,6 +45,8 @@ public abstract class AbstractDatalakeSubscriber {
 
     /**
      * 当前已推送的最大 offset
+     *
+     * @return offset 数值
      */
     public long currentOffset() {
         return offsetFlow.current(subscriberId);

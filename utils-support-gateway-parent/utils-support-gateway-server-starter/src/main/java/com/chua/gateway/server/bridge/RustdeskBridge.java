@@ -45,7 +45,7 @@ public class RustdeskBridge implements RemoteBridge {
     @Override
     public void connect() throws Exception {
         // 预留：后续接入 RustDesk hbbs/hbbr 协议
-        log.warn("RustdeskBridge 连接尚未实现，预留给后续 Phase E");
+        log.warn("[gateway-server] RustdeskBridge 连接尚未实现，预留给后续 Phase E");
         connected = true;
     }
 

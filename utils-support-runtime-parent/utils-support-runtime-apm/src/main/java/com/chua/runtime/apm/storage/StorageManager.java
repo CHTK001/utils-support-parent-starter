@@ -108,8 +108,12 @@ public final class StorageManager {
             return explicit;
         }
 
-        // 2. SPI 扫描
-        for (ApmStorage s : ServiceLoader.load(ApmStorage.class)) {
+        // 2. SPI 扫描（优先 context CL，回退 system CL，确保 agent bootstrap CL 也能加载）
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = ClassLoader.getSystemClassLoader();
+        }
+        for (ApmStorage s : ServiceLoader.load(ApmStorage.class, cl)) {
             REGISTERED.put(s.name(), s);
             if (type.equals(s.name())) {
                 return s;

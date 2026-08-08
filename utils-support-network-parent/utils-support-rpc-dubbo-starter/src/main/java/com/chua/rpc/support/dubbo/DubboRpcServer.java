@@ -11,9 +11,7 @@ import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,13 +28,10 @@ public class DubboRpcServer implements RpcServer {
     private final List<ProtocolConfig> protocolConfigs = new ArrayList<>();
     private final List<ServiceConfig<?>> serviceConfigs = new ArrayList<>();
     private final AtomicBoolean state = new AtomicBoolean(false);
-    private final ApplicationConfig applicationConfig = new ApplicationConfig();
+    private final ApplicationConfig applicationConfig;
 
     public DubboRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
-        applicationConfig.setName(name);
-        Map<String, String> params = new LinkedHashMap<>();
-        params.put("qos.enable", "false");
-        applicationConfig.setParameters(params);
+        applicationConfig = DubboConfigs.application(name);
         initRegistries(rpcRegistryConfigs);
         initProtocol(protocolConfig);
     }

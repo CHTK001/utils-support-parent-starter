@@ -1,8 +1,14 @@
 package com.chua.runtime.support.service;
 
 import com.chua.runtime.support.model.RuntimeArtifact;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 系统服务描述 — 将 {@link RuntimeArtifact} 注册为操作系统级服务时的配置。
@@ -13,6 +19,8 @@ import lombok.Data;
  * @since 4.0.0.42
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ManagedService {
 
@@ -49,7 +57,7 @@ public class ManagedService {
     /**
      * 启动参数
      */
-    private java.util.List<String> args;
+    private List<String> args;
 
     /**
      * 工作目录
@@ -59,7 +67,7 @@ public class ManagedService {
     /**
      * 环境变量
      */
-    private java.util.Map<String, String> env;
+    private Map<String, String> env;
 
     /**
      * 启动类型（auto / manual / disabled）
@@ -76,7 +84,7 @@ public class ManagedService {
      * 服务依赖（其他服务名，如 "network.target"）
      */
     @Builder.Default
-    private java.util.List<String> dependencies = new java.util.ArrayList<>();
+    private List<String> dependencies = new ArrayList<>();
 
     /**
      * 是否在崩溃后自动重启

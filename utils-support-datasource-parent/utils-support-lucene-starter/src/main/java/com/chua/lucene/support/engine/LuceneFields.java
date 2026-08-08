@@ -6,11 +6,26 @@ package com.chua.lucene.support.engine;
  * @author CH
  * @since 2026-07-22
  */
-public class LuceneFields {
+public final class LuceneFields {
 
-    private LuceneFields() {}
-
+    /**
+     * 文档 id 字段名
+     */
     public static final String ID = "id";
+
+    /**
+     * Lucene 内部版本字段
+     */
     public static final String VERSION = "_version_";
+
+    /**
+     * 全文检索默认字段
+     */
     public static final String CONTENT = "content";
+
+    /**
+     * 私有构造。
+     */
+    private LuceneFields() {
+    }
 }

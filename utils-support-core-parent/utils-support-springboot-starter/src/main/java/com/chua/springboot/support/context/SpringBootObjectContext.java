@@ -95,7 +95,7 @@ public class SpringBootObjectContext implements ObjectContext {
             scan(config.getScanPackages());
         }
 
-        log.info("[SpringBootObjectContext] 初始化完成，Spring Bean: {}",
+        log.info("[springboot-context] 初始化完成，Spring Bean: {}",
                 applicationContext.getBeanDefinitionCount());
     }
 
@@ -109,7 +109,7 @@ public class SpringBootObjectContext implements ObjectContext {
                 return applicationContext.getBean(name, type);
             }
         } catch (Exception e) {
-            log.trace("[SpringBootObjectContext] Spring getBean('{}') failed: {}", name, e.getMessage());
+            log.trace("[springboot-context] Spring getBean('{}') failed: {}", name, e.getMessage());
         }
 
         // 2. 按类型从 Spring 查找（name 可能不匹配 Spring Bean 名称）
@@ -125,7 +125,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             return localRegistry.getBean(name, type);
         } catch (Exception e) {
-            log.trace("[SpringBootObjectContext] localRegistry getBean('{}') failed: {}", name, e.getMessage());
+            log.trace("[springboot-context] localRegistry getBean('{}') failed: {}", name, e.getMessage());
         }
 
         // 4. SPI 作为最后兜底
@@ -165,7 +165,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             return getBeanOfType(type);
         } catch (Exception e) {
-            log.trace("[SpringBootObjectContext] getBeanOfTypeSafely({}) failed: {}", type.getSimpleName(), e.getMessage());
+            log.trace("[springboot-context] getBeanOfTypeSafely({}) failed: {}", type.getSimpleName(), e.getMessage());
             return null;
         }
     }
@@ -263,7 +263,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
         } catch (Exception e) {
-            log.trace("[SpringBootObjectContext] autowire failed: {}", e.getMessage());
+            log.trace("[springboot-context] autowire failed: {}", e.getMessage());
         }
     }
 
@@ -344,7 +344,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             applicationContext.publishEvent(event);
         } catch (Exception e) {
-            log.trace("[SpringBootObjectContext] Spring publishEvent failed: {}", e.getMessage());
+            log.trace("[springboot-context] Spring publishEvent failed: {}", e.getMessage());
         }
         // 同时触发自有监听器
         return eventPublisher.publish(event);
@@ -369,7 +369,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             SpringObjectContextBridge.registerIfAbsent(applicationContext, bean);
         } catch (Exception e) {
-            log.trace("[SpringBootObjectContext] 同步到 Spring 失败: {}", e.getMessage());
+            log.trace("[springboot-context] 同步到 Spring 失败: {}", e.getMessage());
         }
     }
 
@@ -442,12 +442,12 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             localRegistry.clear();
         } catch (Exception e) {
-            log.warn("[SpringBootObjectContext] 清理本地注册表失败: {}", e.getMessage());
+            log.warn("[springboot-context] 清理本地注册表失败: {}", e.getMessage());
         }
 
         // 调用接口默认实现清理 CONFIG_HOLDER / REGISTRY_HOLDER
         ObjectContext.super.close();
-        log.info("[SpringBootObjectContext] 已关闭");
+        log.info("[springboot-context] 已关闭");
     }
 
     @Override

@@ -82,7 +82,7 @@ public class ReverseProxyServerFilter implements ServerFilter {
                 .executor(asyncExecutor)
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
-        log.info("ReverseProxyServerFilter 初始化完成, timeout={}s, async=true", timeoutSeconds);
+        log.info("[network-proxy] ReverseProxyServerFilter 初始化完成, timeout={}s, async=true", timeoutSeconds);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ReverseProxyServerFilter implements ServerFilter {
         String scheme = discovery.getProtocol();
 
         if (host == null || port <= 0) {
-            log.warn("后端地址无效: {}:{}", host, port);
+            log.warn("[network-proxy] 后端地址无效: {}:{}", host, port);
             chain.doFilter(request, response);
             return;
         }
@@ -131,7 +131,7 @@ public class ReverseProxyServerFilter implements ServerFilter {
         String query = extractQuery(request.getUri());
         String backendUrl = scheme + "://" + host + ":" + port + path + (query != null ? "?" + query : "");
 
-        log.debug("HTTP 代理: {} {} -> {}", request.getMethod(), request.getPath(), backendUrl);
+        log.debug("[network-proxy] HTTP 代理: {} {} -> {}", request.getMethod(), request.getPath(), backendUrl);
 
         HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(backendUrl))
@@ -192,11 +192,11 @@ public class ReverseProxyServerFilter implements ServerFilter {
                             response.end();
                         }
                     } catch (Exception e) {
-                        log.warn("响应回写失败: {}", e.getMessage());
+                        log.warn("[network-proxy] 响应回写失败: {}", e.getMessage());
                     }
                 })
                 .exceptionally(ex -> {
-                    log.warn("HTTP 反向代理失败: {}: {}", backendUrl, ex.getMessage());
+                    log.warn("[network-proxy] HTTP 反向代理失败: {}: {}", backendUrl, ex.getMessage());
                     if (!response.isEnded()) {
                         response.setStatus(502);
                         response.setBody("Bad Gateway".getBytes(StandardCharsets.UTF_8));

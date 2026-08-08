@@ -63,7 +63,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
 
     @Override
     public CmdResult inspectJvm(int pid) {
-        log.info("检查 JVM[{}] 的运行时信息", pid);
+        log.info("[runtime-javaagent] 检查 JVM[{}] 的运行时信息", pid);
 
         try {
             Class<?> vmClass = Class.forName("com.sun.tools.attach.VirtualMachine");
@@ -91,7 +91,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
                     .build();
 
         } catch (Exception e) {
-            log.error("检查 JVM[{}] 失败", pid, e);
+            log.error("[runtime-javaagent] 检查 JVM[{}] 失败", pid, e);
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr("检查失败: " + e.getMessage())
@@ -119,7 +119,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
 
     @Override
     public CmdResult detach(int pid) {
-        log.warn("JDK 不支持 detach，无法直接从目标 JVM 卸载 Agent");
+        log.warn("[runtime-javaagent] JDK 不支持 detach，无法直接从目标 JVM 卸载 Agent");
         return CmdResult.builder()
                 .exitCode(1)
                 .stderr("JDK 不支持 detach，请重启目标 JVM 或使用目标 JVM 中已注册的卸载接口")

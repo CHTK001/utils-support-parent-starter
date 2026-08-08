@@ -92,7 +92,7 @@ public class ApiResponseEncodeRegister implements Upgrade<ApiResponseEncodeConfi
             byte[] noisy = addNoise(encrypted, noiseLevel);
             return new CodecResult(Base64.getEncoder().encodeToString(key), noisy, noiseLevel);
         } catch (Exception e) {
-            log.error("[CodecFactory] 数据加密失败", e);
+            log.error("[springboot-encode] 数据加密失败", e);
             return new CodecResult("", data.getBytes(java.nio.charset.StandardCharsets.UTF_8), 0);
         }
     }

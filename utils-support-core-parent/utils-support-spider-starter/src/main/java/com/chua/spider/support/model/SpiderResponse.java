@@ -1,4 +1,7 @@
 package com.chua.spider.support.model;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +19,9 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/17
  */
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder(toBuilder = true)
 public class SpiderResponse {

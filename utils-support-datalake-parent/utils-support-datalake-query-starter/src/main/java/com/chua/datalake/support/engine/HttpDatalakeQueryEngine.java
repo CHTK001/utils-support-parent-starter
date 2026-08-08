@@ -81,17 +81,17 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
 
     @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
-        throw new UnsupportedOperationException("HttpDatalakeQueryEngine 不支持 Lambda 查询，请使用 getExecutor()");
+        throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 查询，请使用 getExecutor()");
     }
 
     @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
-        throw new UnsupportedOperationException("HttpDatalakeQueryEngine 不支持 Lambda 更新");
+        throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 更新");
     }
 
     @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
-        throw new UnsupportedOperationException("HttpDatalakeQueryEngine 不支持 Lambda 删除");
+        throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 删除");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
 
     @Override
     public MetaData meta() {
-        throw new UnsupportedOperationException("HttpDatalakeQueryEngine 不支持元数据操作");
+        throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持元数据操作");
     }
 
     @Override
@@ -123,17 +123,17 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
         public List<Map<String, Object>> query(String sql, Object... params) {
             try {
                 String body = client.query(sql);
-                log.info("HttpDatalakeQueryEngine query: sql={}, body={}", sql, body);
+                log.info("[datalake-query] 查询执行: sql={}, body={}", sql, body);
                 return List.of();
             } catch (Exception e) {
-                log.error("HttpDatalakeQueryEngine query failed: sql={}", sql, e);
+                log.error("[datalake-query] 查询执行失败: sql={}", sql, e);
                 return List.of();
             }
         }
 
         @Override
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
-            log.warn("HttpDatalakeQueryEngine 不支持类型映射查询，请用 query(sql, params)");
+            log.warn("[datalake-query] 不支持类型映射查询，请改用 query(sql, params)");
             return List.of();
         }
 
@@ -148,7 +148,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
                 client.query(sql);
                 return 0;
             } catch (Exception e) {
-                log.error("HttpDatalakeQueryEngine execute failed: sql={}", sql, e);
+                log.error("[datalake-query] 执行失败: sql={}", sql, e);
                 return 0;
             }
         }

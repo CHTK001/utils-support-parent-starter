@@ -140,7 +140,7 @@ public class UdpProxyServerFilter implements ServerFilter {
             try (DatagramSocket socket = new DatagramSocket(listenPort)) {
                 socket.setSoTimeout(timeoutMs);
                 running.set(true);
-                log.info("UDP 代理启动: port={}", listenPort);
+                log.info("[network-proxy] UDP 代理启动: port={}", listenPort);
 
                 byte[] buffer = new byte[65535];
                 while (running.get()) {
@@ -158,16 +158,16 @@ public class UdpProxyServerFilter implements ServerFilter {
                             InetSocketAddress backend = new InetSocketAddress(discovery.getHost(), discovery.getPort());
                             proxyPool.submit(() -> forwardUdp(socket, data, sender, backend));
                         } else {
-                            log.warn("无法解析后端地址");
+                            log.warn("[network-proxy] 无法解析后端地址");
                         }
                     } catch (Exception e) {
                         if (running.get()) {
-                            log.debug("UDP 代理接收异常: {}", e.getMessage());
+                            log.debug("[network-proxy] UDP 代理接收异常: {}", e.getMessage());
                         }
                     }
                 }
             } catch (Exception e) {
-                log.error("UDP 代理启动失败: port={}", listenPort, e);
+                log.error("[network-proxy] UDP 代理启动失败: port={}", listenPort, e);
             }
         });
     }
@@ -200,9 +200,9 @@ public class UdpProxyServerFilter implements ServerFilter {
             DatagramPacket replyPacket = new DatagramPacket(responseData, responseData.length, sender);
             socket.send(replyPacket);
 
-            log.debug("UDP 代理: {} bytes {} -> {} -> {}", data.length, sender, backend, responseData.length);
+            log.debug("[network-proxy] UDP 代理: {} bytes {} -> {} -> {}", data.length, sender, backend, responseData.length);
         } catch (Exception e) {
-            log.debug("UDP 代理转发异常: {}", e.getMessage());
+            log.debug("[network-proxy] UDP 代理转发异常: {}", e.getMessage());
         }
     }
 
@@ -212,6 +212,6 @@ public class UdpProxyServerFilter implements ServerFilter {
     public void stopProxy() {
         running.set(false);
         proxyPool.shutdownNow();
-        log.info("UDP 代理停止");
+        log.info("[network-proxy] UDP 代理停止");
     }
 }

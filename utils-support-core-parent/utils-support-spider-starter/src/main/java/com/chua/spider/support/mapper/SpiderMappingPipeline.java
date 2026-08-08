@@ -87,14 +87,14 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
         }
         T instance = mapper.map(result, targetClass);
         if (instance == null) {
-            log.warn("POJO 映射失败: {}", targetClass.getName());
+            log.warn("[spider-mapper] POJO 映射失败: {}", targetClass.getName());
             return;
         }
 
         try {
             consumer.accept(instance);
         } catch (Exception e) {
-            log.error("映射回调异常: {}", targetClass.getName(), e);
+            log.error("[spider-mapper] 映射回调异常: {}", targetClass.getName(), e);
         }
     }
 }

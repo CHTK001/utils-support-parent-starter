@@ -162,14 +162,4 @@ public class MysqlDialect extends AbstractDialect {
             sql.append(" AND ").append(columnName).append(" = '").append(escape(schema)).append("'");
         }
     }
-
-    /**
-     * 转义 SQL 字符串中的单引号。
-     *
-     * @param value 原始值
-     * @return 转义后的值
-     */
-    private static String escape(String value) {
-        return value == null ? null : value.replace("'", "''");
-    }
 }

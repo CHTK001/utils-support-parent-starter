@@ -51,7 +51,7 @@ public class ZipExtractor implements Extractor {
      */
     public boolean extract(File sourceFile, File targetDir, String password) {
         if (sourceFile == null || !sourceFile.exists()) {
-            log.error("源文件不存在: {}", sourceFile);
+            log.error("[filesystem-extractor] 源文件不存在: {}", sourceFile);
             return false;
         }
 
@@ -59,13 +59,13 @@ public class ZipExtractor implements Extractor {
         try {
             Files.createDirectories(targetPath);
         } catch (IOException e) {
-            log.error("创建目标目录失败: {}", targetDir, e);
+            log.error("[filesystem-extractor] 创建目标目录失败: {}", targetDir, e);
             return false;
         }
 
         try (net.lingala.zip4j.ZipFile zipFile = new net.lingala.zip4j.ZipFile(sourceFile)) {
             if (zipFile.isEncrypted() && password == null) {
-                log.error("ZIP 文件已加密但未提供密码: {}", sourceFile.getName());
+                log.error("[filesystem-extractor] ZIP 文件已加密但未提供密码: {}", sourceFile.getName());
                 return false;
             }
 
@@ -80,17 +80,17 @@ public class ZipExtractor implements Extractor {
                 if (!header.isDirectory()) {
                     Path entryPath = targetPath.resolve(header.getFileName());
                     if (!entryPath.startsWith(targetPath)) {
-                        log.warn("条目路径超出目标目录: {}", header.getFileName());
+                        log.warn("[filesystem-extractor] 条目路径超出目标目录: {}", header.getFileName());
                         continue;
                     }
-                    log.debug("Extracted: {}", header.getFileName());
+                    log.debug("[filesystem-extractor] Extracted: {}", header.getFileName());
                 }
             }
 
-            log.info("ZIP 解压完成: {} -> {}", sourceFile.getName(), targetDir.getAbsolutePath());
+            log.info("[filesystem-extractor] ZIP 解压完成: {} -> {}", sourceFile.getName(), targetDir.getAbsolutePath());
             return true;
         } catch (IOException e) {
-            log.error("ZIP 解压失败: {}", sourceFile.getName(), e);
+            log.error("[filesystem-extractor] ZIP 解压失败: {}", sourceFile.getName(), e);
             return false;
         }
     }

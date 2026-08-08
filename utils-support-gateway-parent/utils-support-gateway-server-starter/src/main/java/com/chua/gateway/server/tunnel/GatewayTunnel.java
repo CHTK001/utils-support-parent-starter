@@ -101,11 +101,11 @@ public class GatewayTunnel implements Tunnel {
         try {
             bridge.connect();
             updateStatus(TunnelStatus.OPEN);
-            log.info("Tunnel 启动: id={} protocol={} target={}:{}",
+            log.info("[gateway-server] Tunnel 启动: id={} protocol={} target={}:{}",
                     id, connection.protocol(), connection.host(), connection.port());
             return 0;
         } catch (Exception e) {
-            log.error("Tunnel 启动失败: id={} err={}", id, e.getMessage());
+            log.error("[gateway-server] Tunnel 启动失败: id={} err={}", id, e.getMessage());
             updateStatus(TunnelStatus.CLOSED);
             throw new RuntimeException("Tunnel 启动失败", e);
         }
@@ -115,9 +115,9 @@ public class GatewayTunnel implements Tunnel {
     public void close() {
         try {
             bridge.disconnect();
-            log.info("Tunnel 关闭: id={}", id);
+            log.info("[gateway-server] Tunnel 关闭: id={}", id);
         } catch (Exception e) {
-            log.warn("Tunnel 关闭异常: id={} err={}", id, e.getMessage());
+            log.warn("[gateway-server] Tunnel 关闭异常: id={} err={}", id, e.getMessage());
         } finally {
             updateStatus(TunnelStatus.CLOSED);
         }
@@ -157,7 +157,7 @@ public class GatewayTunnel implements Tunnel {
             try {
                 cb.accept(info);
             } catch (Exception e) {
-                log.warn("Tunnel 状态回调失败: {}", e.getMessage());
+                log.warn("[gateway-server] Tunnel 状态回调失败: {}", e.getMessage());
             }
         }
     }

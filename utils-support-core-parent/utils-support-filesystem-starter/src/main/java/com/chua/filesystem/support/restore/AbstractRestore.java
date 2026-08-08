@@ -40,7 +40,7 @@ public abstract class AbstractRestore implements Restore {
     public AbstractRestore(DataSourceOptions databaseOptions, RestoreSetting restoreSetting) {
         this.databaseOptions = databaseOptions;
         this.restoreSetting = restoreSetting;
-        log.info("初始化数据恢复实例");
+        log.info("[filesystem-restore] 初始化数据恢复实例");
     }
 
     @Override
@@ -137,7 +137,7 @@ public abstract class AbstractRestore implements Restore {
     @Override
     public void upgrade(RestoreSetting restoreSetting) {
         this.restoreSetting = restoreSetting;
-        log.info("升级恢复设置");
+        log.info("[filesystem-restore] 升级恢复设置");
     }
 
     /**

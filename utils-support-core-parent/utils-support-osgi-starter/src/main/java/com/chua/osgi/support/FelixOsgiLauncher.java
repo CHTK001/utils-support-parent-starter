@@ -45,7 +45,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     @Override
     public void start(Map<String, String> config) {
         if (framework != null && framework.getState() == Bundle.ACTIVE) {
-            log.warn("OSGI framework is already active");
+            log.warn("[osgi] OSGI framework is already active");
             return;
         }
 
@@ -62,9 +62,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             framework.start();
             OsgiLauncherHolder.setInstance(this);
             notifyApplications();
-            log.info("OSGI framework started successfully");
+            log.info("[osgi] OSGI framework started successfully");
         } catch (Exception e) {
-            log.error("Failed to start OSGI framework", e);
+            log.error("[osgi] Failed to start OSGI framework", e);
             throw new RuntimeException("Failed to start OSGI framework", e);
         }
     }
@@ -76,9 +76,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             try {
                 app.onBundleStart(ctx);
                 applications.add(app);
-                log.debug("BundleApplication notified: {}", app.getClass().getName());
+                log.debug("[osgi] BundleApplication notified: {}", app.getClass().getName());
             } catch (Exception e) {
-                log.warn("BundleApplication start failed: {}", app.getClass().getName(), e);
+                log.warn("[osgi] BundleApplication start failed: {}", app.getClass().getName(), e);
             }
         });
     }
@@ -134,16 +134,16 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
                 try {
                     app.onBundleStop(ctx);
                 } catch (Exception e) {
-                    log.warn("BundleApplication stop failed: {}", app.getClass().getName(), e);
+                    log.warn("[osgi] BundleApplication stop failed: {}", app.getClass().getName(), e);
                 }
             }
             applications.clear();
             framework.stop();
             framework.waitForStop(5000);
             OsgiLauncherHolder.clear();
-            log.info("OSGI framework stopped");
+            log.info("[osgi] OSGI framework stopped");
         } catch (Exception e) {
-            log.error("Failed to stop OSGI framework", e);
+            log.error("[osgi] Failed to stop OSGI framework", e);
         }
     }
 
@@ -171,7 +171,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to get OSGI services for type: {}", type.getName(), e);
+            log.warn("[osgi] Failed to get OSGI services for type: {}", type.getName(), e);
         }
         return result;
     }
@@ -205,13 +205,13 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             Bundle bundle = context.installBundle(url);
             String symbolicName = bundle.getSymbolicName();
             fireBundleInstalled(symbolicName);
-            log.info("Bundle installed: {} ({})", symbolicName, url);
+            log.info("[osgi] Bundle installed: {} ({})", symbolicName, url);
             if (autoStartInstalledBundles) {
                 try {
                     bundle.start();
                     fireBundleStarted(symbolicName);
                 } catch (Exception e) {
-                    log.warn("Failed to auto-start bundle: {}", symbolicName, e);
+                    log.warn("[osgi] Failed to auto-start bundle: {}", symbolicName, e);
                 }
             }
             return new FelixOsgiBundle(bundle);
@@ -236,14 +236,14 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
                     }
                     bundle.uninstall();
                     fireBundleUninstalled(bundleSymbolicName);
-                    log.info("Bundle uninstalled: {}", bundleSymbolicName);
+                    log.info("[osgi] Bundle uninstalled: {}", bundleSymbolicName);
                     return;
                 } catch (Exception e) {
                     throw new RuntimeException("Failed to uninstall bundle: " + bundleSymbolicName, e);
                 }
             }
         }
-        log.warn("Bundle not found: {}", bundleSymbolicName);
+        log.warn("[osgi] Bundle not found: {}", bundleSymbolicName);
     }
 
     public OsgiBundle getBundle(String symbolicName) {

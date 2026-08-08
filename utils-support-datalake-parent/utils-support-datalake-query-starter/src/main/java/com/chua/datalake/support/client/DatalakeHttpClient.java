@@ -1,7 +1,5 @@
 package com.chua.datalake.support.client;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -16,9 +14,7 @@ import java.time.Duration;
  * @author CH
  * @since 4.0.0.43
  */
-@Slf4j
 public class DatalakeHttpClient {
-
     /**
      * 默认查询路径
      */

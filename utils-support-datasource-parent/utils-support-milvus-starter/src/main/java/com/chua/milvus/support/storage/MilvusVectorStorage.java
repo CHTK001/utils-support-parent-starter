@@ -36,13 +36,33 @@ import java.util.Map;
  * 搜索前需确保 collection 已加载。</p>
  *
  * @author CH
+ * @since 2025/01/15
  */
 public class MilvusVectorStorage extends AbstractVectorStorage {
 
+    /**
+     * Milvus 客户端
+     */
     private final MilvusClientV2 client;
+
+    /**
+     * Collection 名称
+     */
     private final String collectionName;
+
+    /**
+     * 距离度量类型
+     */
     private final IndexParam.MetricType algorithmName;
+
+    /**
+     * 认证令牌
+     */
     private final String token;
+
+    /**
+     * 是否已释放资源
+     */
     private boolean released;
 
     /**
