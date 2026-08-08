@@ -1,5 +1,10 @@
 package com.chua.datalake.support.subscriber;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Map;
 
 /**
@@ -8,6 +13,10 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.43
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PushPayload {
 
     /**
@@ -24,37 +33,4 @@ public class PushPayload {
      * 业务数据
      */
     private Map<String, Object> data;
-
-    public PushPayload() {
-    }
-
-    public PushPayload(String subscriberId, long offset, Map<String, Object> data) {
-        this.subscriberId = subscriberId;
-        this.offset = offset;
-        this.data = data;
-    }
-
-    public String getSubscriberId() {
-        return subscriberId;
-    }
-
-    public void setSubscriberId(String subscriberId) {
-        this.subscriberId = subscriberId;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
-    public Map<String, Object> getData() {
-        return data;
-    }
-
-    public void setData(Map<String, Object> data) {
-        this.data = data;
-    }
 }

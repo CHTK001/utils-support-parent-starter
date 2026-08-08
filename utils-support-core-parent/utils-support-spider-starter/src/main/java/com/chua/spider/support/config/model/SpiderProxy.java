@@ -1,4 +1,7 @@
 package com.chua.spider.support.config.model;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 
 import lombok.Data;
 
@@ -8,6 +11,9 @@ import lombok.Data;
  * @author CH
  * @since 4.0.0.42
  */
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class SpiderProxy {
 

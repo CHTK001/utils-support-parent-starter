@@ -1,0 +1,2 @@
+http=com.chua.common.support.network.sync.impl.HttpSyncClient
+websocket=com.chua.common.support.network.sync.impl.WebSocketSyncClient

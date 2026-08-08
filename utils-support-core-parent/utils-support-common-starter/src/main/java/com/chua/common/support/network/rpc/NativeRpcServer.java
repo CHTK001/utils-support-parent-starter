@@ -201,8 +201,12 @@ public class NativeRpcServer implements RpcServer {
             response.setSuccess(true);
             response.setResult(result);
         } catch (Exception e) {
+            // method.invoke 会把业务方法抛出的异常包装成 InvocationTargetException（其 getMessage 为 null，
+            // toString 只显示包装类名），必须解包根因，否则客户端拿到的远程错误消息丢失原始信息。
+            Throwable cause = (e instanceof java.lang.reflect.InvocationTargetException ite && ite.getCause() != null)
+                    ? ite.getCause() : e;
             response.setSuccess(false);
-            response.setError(e.getMessage() != null ? e.getMessage() : e.toString());
+            response.setError(cause.getMessage() != null ? cause.getMessage() : cause.toString());
         }
         return response;
     }

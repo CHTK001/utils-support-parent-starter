@@ -10,6 +10,7 @@ import com.chua.common.support.network.rpc.RpcRegistryConfig;
 import com.chua.common.support.network.rpc.RpcServer;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,9 +38,24 @@ public class SofaRpcServer implements RpcServer {
             if (config.getProtocol() != null) { item.setProtocol(config.getProtocol()); }
             if (config.getAddress() != null)  { item.setAddress(config.getAddress()); }
             if (config.getTimeout() != null)  { item.setTimeout(config.getTimeout()); }
+            if ("local".equals(config.getProtocol())) {
+                // SOFA LocalRegistry 的 regFile 为 null 时抛 RPC-010060017，必须显式指定本地注册文件路径
+                item.setFile(localRegistryFile(name));
+            }
             registryConfigs.add(item);
         }
         initProtocol(protocolConfig);
+    }
+
+    /**
+     * 计算 local 注册中心使用的本地注册文件路径（server 与 client 必须同名才能互相发现）。
+     *
+     * @param appName 应用名（{@code null} / 空串时退化为 {@code default}）
+     * @return 注册文件绝对路径，位于系统临时目录下
+     */
+    static String localRegistryFile(String appName) {
+        String safe = (appName == null || appName.isEmpty()) ? "default" : appName;
+        return Paths.get(System.getProperty("java.io.tmpdir", "."), "sofa-rpc-local-" + safe + ".data").toString();
     }
 
     private void initProtocol(RpcProtocolConfig config) {

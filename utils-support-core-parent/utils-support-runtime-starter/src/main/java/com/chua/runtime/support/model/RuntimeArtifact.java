@@ -1,11 +1,15 @@
 package com.chua.runtime.support.model;
 
 import com.chua.common.support.lang.cmd.RuntimeType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +21,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class RuntimeArtifact {
 
@@ -59,7 +65,7 @@ public class RuntimeArtifact {
      * 启动参数列表
      */
     @Builder.Default
-    private java.util.List<String> args = new java.util.ArrayList<>();
+    private List<String> args = new ArrayList<>();
 
     /**
      * 环境变量

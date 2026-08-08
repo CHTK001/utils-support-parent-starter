@@ -14,7 +14,6 @@
     <modules>
         <module>utils-support-gateway-controller-starter</module>
         <module>utils-support-gateway-server-starter</module>
-        <module>utils-support-gateway-agent-starter</module>
     </modules>
     <build>
         <plugins>

@@ -166,7 +166,7 @@ public class DefaultSpider implements Spider {
     @Override
     public void run() {
         if (!running.compareAndSet(false, true)) {
-            log.warn("爬虫已在运行中");
+            log.warn("[spider] 爬虫已在运行中");
             return;
         }
 
@@ -224,7 +224,7 @@ public class DefaultSpider implements Spider {
             try {
                 pipeline.init();
             } catch (Exception e) {
-                log.warn("Pipeline 初始化失败", e);
+                log.warn("[spider] Pipeline 初始化失败", e);
             }
         }
     }
@@ -280,7 +280,7 @@ public class DefaultSpider implements Spider {
             try {
                 pipeline.destroy();
             } catch (Exception e) {
-                log.warn("Pipeline 销毁失败", e);
+                log.warn("[spider] Pipeline 销毁失败", e);
             }
         }
 
@@ -295,7 +295,7 @@ public class DefaultSpider implements Spider {
         }
 
         running.set(false);
-        log.info("爬虫结束，共处理 {} 个页面", results.size());
+        log.info("[spider] 爬虫结束，共处理 {} 个页面", results.size());
     }
 
     @Override
@@ -313,7 +313,7 @@ public class DefaultSpider implements Spider {
             try {
                 pipeline.destroy();
             } catch (Exception e) {
-                log.warn("Pipeline 销毁失败", e);
+                log.warn("[spider] Pipeline 销毁失败", e);
             }
         }
     }
@@ -337,7 +337,7 @@ public class DefaultSpider implements Spider {
     private void processRequestWithRetry(SpiderRequest request) {
         for (int i = 0; i <= retryTimes; i++) {
             if (i > 0) {
-                log.info("重试 ({}/{}) {}", i, retryTimes, request.getUrl());
+                log.info("[spider] 重试 ({}/{}) {}", i, retryTimes, request.getUrl());
                 try {
                     Thread.sleep(1000L * i);
                 } catch (InterruptedException e) {
@@ -351,7 +351,7 @@ public class DefaultSpider implements Spider {
             }
         }
 
-        log.warn("请求失败（已重试 {} 次）: {}", retryTimes, request.getUrl());
+        log.warn("[spider] 请求失败（已重试 {} 次）: {}", retryTimes, request.getUrl());
     }
 
     /**
@@ -364,13 +364,13 @@ public class DefaultSpider implements Spider {
         try {
             SpiderResponse response = fetcher.fetch(request);
             if (!response.isSuccess()) {
-                log.warn("抓取失败: {} - {}", request.getUrl(), response.getError());
+                log.warn("[spider] 抓取失败: {} - {}", request.getUrl(), response.getError());
                 return false;
             }
 
             SpiderResult result = parser.parse(response);
             if (result == null) {
-                log.debug("解析器无法处理: {} - {}", request.getUrl(), response.getContentType());
+                log.debug("[spider] 解析器无法处理: {} - {}", request.getUrl(), response.getContentType());
                 return false;
             }
 
@@ -382,7 +382,7 @@ public class DefaultSpider implements Spider {
             extractAndEnqueueLinks(response, request);
             return true;
         } catch (Exception e) {
-            log.warn("处理请求异常: {} - {}", request.getUrl(), e.getMessage());
+            log.warn("[spider] 处理请求异常: {} - {}", request.getUrl(), e.getMessage());
             return false;
         }
     }
@@ -404,7 +404,7 @@ public class DefaultSpider implements Spider {
                 result.getMetadata().put("aiSummary", summary);
             }
         } catch (Exception e) {
-            log.warn("AI 解析失败: {}", request.getUrl(), e);
+            log.warn("[spider] AI 解析失败: {}", request.getUrl(), e);
         }
     }
 
@@ -419,7 +419,7 @@ public class DefaultSpider implements Spider {
             try {
                 pipeline.process(result);
             } catch (Exception e) {
-                log.warn("Pipeline 异常: {}", request.getUrl(), e);
+                log.warn("[spider] Pipeline 异常: {}", request.getUrl(), e);
             }
         }
     }
@@ -544,7 +544,7 @@ public class DefaultSpider implements Spider {
         public Builder fetcher(String name) {
             this.fetcher = ServiceProvider.of(SpiderFetcher.class).getNewExtension(name);
             if (this.fetcher == null) {
-                log.warn("未找到 Fetcher SPI: {}", name);
+                log.warn("[spider] 未找到 Fetcher SPI: {}", name);
             }
             return this;
         }
@@ -559,7 +559,7 @@ public class DefaultSpider implements Spider {
         public Builder parser(String name) {
             this.parser = ServiceProvider.of(SpiderParser.class).getNewExtension(name);
             if (this.parser == null) {
-                log.warn("未找到 Parser SPI: {}", name);
+                log.warn("[spider] 未找到 Parser SPI: {}", name);
             }
             return this;
         }
@@ -600,7 +600,7 @@ public class DefaultSpider implements Spider {
         public Builder aiParser(String name, String apiKey) {
             this.aiParser = ServiceProvider.of(SpiderAiParser.class).getNewExtension(name, apiKey);
             if (this.aiParser == null) {
-                log.warn("未找到 AiParser SPI: {}", name);
+                log.warn("[spider] 未找到 AiParser SPI: {}", name);
             }
             return this;
         }
@@ -619,7 +619,7 @@ public class DefaultSpider implements Spider {
             if (p != null) {
                 this.pipelines.add(p);
             } else {
-                log.warn("未找到 Pipeline SPI: {}", name);
+                log.warn("[spider] 未找到 Pipeline SPI: {}", name);
             }
             return this;
         }
@@ -639,7 +639,7 @@ public class DefaultSpider implements Spider {
                     Class.forName("org.jsoup.Jsoup");
                     this.pipelines.add(SpiderMappingPipeline.of(targetClass, consumer));
                 } catch (ClassNotFoundException e) {
-                    log.warn("jsoup 不在类路径，无法使用 POJO 映射");
+                    log.warn("[spider] jsoup 不在类路径，无法使用 POJO 映射");
                 }
             }
             return this;
@@ -654,7 +654,7 @@ public class DefaultSpider implements Spider {
                     this.pipelines.add(SpiderMappingPipeline.of(
                             targetClass, consumer, aiProvider, aiApiKey));
                 } catch (ClassNotFoundException e) {
-                    log.warn("jsoup 不在类路径，无法使用 POJO 映射");
+                    log.warn("[spider] jsoup 不在类路径，无法使用 POJO 映射");
                 }
             }
             return this;

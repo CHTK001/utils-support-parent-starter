@@ -40,7 +40,7 @@ public class WindowsServiceManager implements ServiceManager {
 
     @Override
     public CmdResult install(ManagedService service) {
-        log.info("正在安装 Windows 服务[{}]: {}", service.getServiceName(), service.getDisplayName());
+        log.info("[runtime-service] 正在安装 Windows 服务[{}]: {}", service.getServiceName(), service.getDisplayName());
 
         String executable = service.getExecutable();
         String args = service.getArgs() != null && !service.getArgs().isEmpty()
@@ -61,7 +61,7 @@ public class WindowsServiceManager implements ServiceManager {
         CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         if (result.isSuccess()) {
-            log.info("Windows 服务[{}] 安装成功", service.getServiceName());
+            log.info("[runtime-service] Windows 服务[{}] 安装成功", service.getServiceName());
 
             // 设置服务描述
             if (service.getDescription() != null && !service.getDescription().isBlank()) {
@@ -70,7 +70,7 @@ public class WindowsServiceManager implements ServiceManager {
                 CmdExecutors.execute(descCmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             }
         } else {
-            log.error("Windows 服务[{}] 安装失败: {}", service.getServiceName(), result.getStderr());
+            log.error("[runtime-service] Windows 服务[{}] 安装失败: {}", service.getServiceName(), result.getStderr());
         }
 
         return result;
@@ -78,14 +78,14 @@ public class WindowsServiceManager implements ServiceManager {
 
     @Override
     public CmdResult uninstall(String serviceName) {
-        log.info("正在卸载 Windows 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在卸载 Windows 服务[{}]", serviceName);
         String cmd = "sc delete \"" + serviceName + "\"";
         CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         if (result.isSuccess()) {
-            log.info("Windows 服务[{}] 卸载成功", serviceName);
+            log.info("[runtime-service] Windows 服务[{}] 卸载成功", serviceName);
         } else {
-            log.error("Windows 服务[{}] 卸载失败: {}", serviceName, result.getStderr());
+            log.error("[runtime-service] Windows 服务[{}] 卸载失败: {}", serviceName, result.getStderr());
         }
 
         return result;
@@ -93,24 +93,24 @@ public class WindowsServiceManager implements ServiceManager {
 
     @Override
     public CmdResult start(String serviceName) {
-        log.info("正在启动 Windows 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在启动 Windows 服务[{}]", serviceName);
         String cmd = "sc start \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public CmdResult stop(String serviceName) {
-        log.info("正在停止 Windows 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在停止 Windows 服务[{}]", serviceName);
         String cmd = "sc stop \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public CmdResult restart(String serviceName) {
-        log.info("正在重启 Windows 服务[{}]", serviceName);
+        log.info("[runtime-service] 正在重启 Windows 服务[{}]", serviceName);
         CmdResult stopResult = stop(serviceName);
         if (!stopResult.isSuccess()) {
-            log.warn("Windows 服务[{}] 停止异常，继续尝试启动", serviceName);
+            log.warn("[runtime-service] Windows 服务[{}] 停止异常，继续尝试启动", serviceName);
         }
         try {
             Thread.sleep(2000);
@@ -128,14 +128,14 @@ public class WindowsServiceManager implements ServiceManager {
 
     @Override
     public CmdResult enable(String serviceName) {
-        log.info("设置 Windows 服务[{}] 开机自启", serviceName);
+        log.info("[runtime-service] 设置 Windows 服务[{}] 开机自启", serviceName);
         String cmd = "sc config \"" + serviceName + "\" start= auto";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public CmdResult disable(String serviceName) {
-        log.info("禁用 Windows 服务[{}] 开机自启", serviceName);
+        log.info("[runtime-service] 禁用 Windows 服务[{}] 开机自启", serviceName);
         String cmd = "sc config \"" + serviceName + "\" start= disabled";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }

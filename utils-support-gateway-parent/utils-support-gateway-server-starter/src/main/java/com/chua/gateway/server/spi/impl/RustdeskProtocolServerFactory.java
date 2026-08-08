@@ -37,7 +37,7 @@ public final class RustdeskProtocolServerFactory implements ProtocolServerFactor
         RustdeskBridge bridge = new RustdeskBridge(connection);
         GatewayTunnel tunnel = GatewayTunnel.of(tunnelId, connection, bridge);
         tunnel.open();
-        log.warn("Rustdesk Tunnel 已占位（尚未实现），id={}", tunnelId);
+        log.warn("[gateway-server] Rustdesk Tunnel 已占位（尚未实现），id={}", tunnelId);
         return tunnel;
     }
 }

@@ -139,7 +139,7 @@ Version apiVersionValue = Version.of(currentApiVersion.value());
         try {
             return Version.of(versionStr);
         } catch (Exception e) {
-            log.warn("无法解析版本号: {}", versionStr);
+            log.warn("[springboot-control] 无法解析版本号: {}", versionStr);
             return Version.of("1.0.0");
         }
     }

@@ -91,14 +91,14 @@ public class RuntimeAgent {
      * @param inst        Instrumentation 实例
      */
     public static void premain(String agentArgs, Instrumentation inst) {
-        log.info("RuntimeAgent premain 加载，参数: {}", agentArgs);
+        log.info("[runtime-javaagent] RuntimeAgent premain 加载，参数: {}", agentArgs);
         try {
             RuntimeManager manager = createRuntimeManager(agentArgs);
             // 注册到 ThreadLocal 供应用随时获取
             RuntimeContextHolder.setManager(manager);
-            log.info("RuntimeAgent premain 初始化完成");
+            log.info("[runtime-javaagent] RuntimeAgent premain 初始化完成");
         } catch (Exception e) {
-            log.error("RuntimeAgent premain 初始化失败", e);
+            log.error("[runtime-javaagent] RuntimeAgent premain 初始化失败", e);
         }
     }
 
@@ -111,22 +111,22 @@ public class RuntimeAgent {
      * @param inst        Instrumentation 实例
      */
     public static void agentmain(String agentArgs, Instrumentation inst) {
-        log.info("RuntimeAgent agentmain 注入，参数: {}", agentArgs);
+        log.info("[runtime-javaagent] RuntimeAgent agentmain 注入，参数: {}", agentArgs);
         try {
             RuntimeManager manager = createRuntimeManager(agentArgs);
             RuntimeContextHolder.setManager(manager);
-            log.info("RuntimeAgent agentmain 注入完成");
+            log.info("[runtime-javaagent] RuntimeAgent agentmain 注入完成");
 
             // 尝试执行健康检查
             if (inst != null) {
                 // 记录已加载的类信息
-                String[] loadedClasses = inst.getAllLoadedClasses().length > 0
-                        ? String.valueOf(inst.getAllLoadedClasses().length) + " classes"
+                String loadedClassesCount = inst.getAllLoadedClasses().length > 0
+                        ? inst.getAllLoadedClasses().length + " classes"
                         : "no classes";
-                log.info("注入的 JVM 已加载类数: {}", loadedClasses);
+                log.info("[runtime-javaagent] 注入的 JVM 已加载类数: {}", loadedClassesCount);
             }
         } catch (Exception e) {
-            log.error("RuntimeAgent agentmain 注入失败", e);
+            log.error("[runtime-javaagent] RuntimeAgent agentmain 注入失败", e);
         }
     }
 
@@ -142,7 +142,7 @@ public class RuntimeAgent {
         AgentParams params = parseAgentArgs(agentArgs);
 
         RuntimeManager manager = new DefaultRuntimeManager();
-        log.info("RuntimeManager 创建完成，启动超时: {}ms，健康检查间隔: {}s",
+        log.info("[runtime-javaagent] RuntimeManager 创建完成，启动超时: {}ms，健康检查间隔: {}s",
                 params.startupTimeoutMs, params.healthCheckIntervalSec);
         return manager;
     }
@@ -169,7 +169,7 @@ public class RuntimeAgent {
                 switch (kv[0].trim().toLowerCase()) {
                     case OPT_LOG_LEVEL -> {
                         // 日志级别暂不处理，留给 SLF4J 配置
-                        log.info("设置日志级别: {}", kv[1]);
+                        log.info("[runtime-javaagent] 设置日志级别: {}", kv[1]);
                     }
                     case OPT_STARTUP_TIMEOUT -> {
                         startupTimeout = Integer.parseInt(kv[1].trim());
@@ -177,7 +177,7 @@ public class RuntimeAgent {
                     case OPT_HEALTH_CHECK_INTERVAL -> {
                         healthCheckInterval = Integer.parseInt(kv[1].trim());
                     }
-                    default -> log.warn("未知参数: {}", kv[0]);
+                    default -> log.warn("[runtime-javaagent] 未知参数: {}", kv[0]);
                 }
             }
         }

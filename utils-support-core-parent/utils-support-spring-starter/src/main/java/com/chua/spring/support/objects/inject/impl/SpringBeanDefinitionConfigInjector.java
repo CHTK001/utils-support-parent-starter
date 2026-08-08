@@ -138,7 +138,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
             }
             return Converter.convertIfNecessary(resolved, targetType);
         } catch (Exception e) {
-            log.warn("解析 @Value 失败: {}", expression, e);
+            log.warn("[spring-impl] 解析 @Value 失败: {}", expression, e);
             return null;
         }
     }

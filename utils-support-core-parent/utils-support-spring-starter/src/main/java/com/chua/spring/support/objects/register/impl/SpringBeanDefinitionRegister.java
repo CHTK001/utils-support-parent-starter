@@ -87,7 +87,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
             }
             return new FrameworkBeanDefinition(beanName, type, bean);
         } catch (Exception e) {
-            log.debug("获取 Spring Bean 失败: {}", beanName, e);
+            log.debug("[spring-impl] 获取 Spring Bean 失败: {}", beanName, e);
             return null;
         }
     }

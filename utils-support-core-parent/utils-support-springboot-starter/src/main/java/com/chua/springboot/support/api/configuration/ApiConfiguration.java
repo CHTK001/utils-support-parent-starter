@@ -59,48 +59,48 @@ public class ApiConfiguration implements WebMvcRegistrations, EnvironmentAware  
     @Override
     public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
         if (apiProperties.isControlEnabled()) {
-            log.info("[API控制] [注册开始]");
+            log.info("[springboot-configuration] [注册开始]");
             logControlStatus();
-            log.info("[API控制] [注册完成]");
+            log.info("[springboot-configuration] [注册完成]");
             return new ApiVersionRequestMappingHandlerMapping(apiProperties, environment);
         }
-        log.debug("[API控制] 未开启版本/平台控制，使用默认 RequestMappingHandlerMapping");
+        log.debug("[springboot-configuration] 未开启版本/平台控制，使用默认 RequestMappingHandlerMapping");
         return new RequestMappingHandlerMapping();
     }
 
     private void logControlStatus() {
         ApiProperties.Version version = apiProperties.getVersion();
         if (version != null && version.isEnable()) {
-            log.info("[API控制] [@ApiVersion] [版本控制] [{}开启{}]", ANSI_GREEN, ANSI_RESET);
+            log.info("[springboot-configuration] [@ApiVersion] [版本控制] [{}开启{}]", ANSI_GREEN, ANSI_RESET);
         } else {
-            log.info("[API控制] [@ApiVersion] [版本控制] [{}关闭{}]", ANSI_RED, ANSI_RESET);
+            log.info("[springboot-configuration] [@ApiVersion] [版本控制] [{}关闭{}]", ANSI_RED, ANSI_RESET);
         }
         ApiProperties.Platform platform = apiProperties.getPlatform();
         if (platform != null && platform.isEnable()) {
-            log.info("[API控制] [@ApiPlatform] [平台控制] [{}开启{}] [平台: {}]", ANSI_GREEN, ANSI_RESET, platform.getPlatformName());
+            log.info("[springboot-configuration] [@ApiPlatform] [平台控制] [{}开启{}] [平台: {}]", ANSI_GREEN, ANSI_RESET, platform.getPlatformName());
         } else {
-            log.info("[API控制] [@ApiPlatform] [平台控制] [{}关闭{}]", ANSI_RED, ANSI_RESET);
+            log.info("[springboot-configuration] [@ApiPlatform] [平台控制] [{}关闭{}]", ANSI_RED, ANSI_RESET);
         }
-        log.info("[API控制] [@ApiProfile] [环境控制] [{}开启{}]", ANSI_GREEN, ANSI_RESET);
+        log.info("[springboot-configuration] [@ApiProfile] [环境控制] [{}开启{}]", ANSI_GREEN, ANSI_RESET);
         ApiProperties.DeprecatedConfig deprecated = apiProperties.getDeprecated();
-        log.info("[API控制] [@ApiDeprecated] [废弃提示] [{}{}{}]",
+        log.info("[springboot-configuration] [@ApiDeprecated] [废弃提示] [{}{}{}]",
                 deprecated != null && deprecated.isEnable() ? ANSI_GREEN : ANSI_RED,
                 deprecated != null && deprecated.isEnable() ? "开启" : "关闭", ANSI_RESET);
         ApiProperties.FeatureConfig feature = apiProperties.getFeature();
-        log.info("[API控制] [@ApiFeature] [功能开关] [{}{}{}]",
+        log.info("[springboot-configuration] [@ApiFeature] [功能开关] [{}{}{}]",
                 feature != null && feature.isEnable() ? ANSI_GREEN : ANSI_RED,
                 feature != null && feature.isEnable() ? "开启" : "关闭", ANSI_RESET);
         ApiProperties.InternalConfig internal = apiProperties.getInternal();
-        log.info("[API控制] [@ApiInternal] [内部接口] [{}{}{}]",
+        log.info("[springboot-configuration] [@ApiInternal] [内部接口] [{}{}{}]",
                 internal != null && internal.isEnable() ? ANSI_GREEN : ANSI_RED,
                 internal != null && internal.isEnable() ? "开启" : "关闭", ANSI_RESET);
         ApiProperties.MockConfig mock = apiProperties.getMock();
-        log.info("[API控制] [@ApiMock] [Mock模式] [{}{}{}]{}",
+        log.info("[springboot-configuration] [@ApiMock] [Mock模式] [{}{}{}]{}",
                 mock != null && mock.isEnable() ? ANSI_GREEN : ANSI_RED,
                 mock != null && mock.isEnable() ? "开启" : "关闭", ANSI_RESET,
                 mock != null && mock.isEnable() ? " [环境: " + mock.getProfiles() + "]" : "");
         ApiProperties.GrayConfig gray = apiProperties.getGray();
-        log.info("[API控制] [@ApiGray] [灰度发布] [{}{}{}]",
+        log.info("[springboot-configuration] [@ApiGray] [灰度发布] [{}{}{}]",
                 gray != null && gray.isEnable() ? ANSI_GREEN : ANSI_RED,
                 gray != null && gray.isEnable() ? "开启" : "关闭", ANSI_RESET);
     }

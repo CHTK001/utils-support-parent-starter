@@ -100,7 +100,7 @@ public class ApiResponseEncodeResponseBodyAdvice implements ResponseBodyAdvice<O
         byte[] responseBytes = codecResult.getData();
         headers.setContentLength(responseBytes.length);
 
-        log.debug("[CodecResponse] 响应加密完成，数据长度: {}, 冗余等级: {}",
+        log.debug("[springboot-encode] 响应加密完成，数据长度: {}, 冗余等级: {}",
                 responseBytes.length, codecResult.getNoiseLevel());
         return ResponseEntity.<byte[]>ok()
                 .headers(headers)

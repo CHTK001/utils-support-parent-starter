@@ -60,7 +60,7 @@ public class SshBridge implements RemoteBridge {
         int port = connection.port() > 0 ? connection.port() : DEFAULT_SSH_PORT;
         String user = connection.user() == null ? "" : connection.user();
         String pass = connection.password() == null ? "" : connection.password();
-        log.info("SSH 连接: user={} target={}:{}", user, connection.host(), port);
+        log.info("[gateway-server] SSH 连接: user={} target={}:{}", user, connection.host(), port);
         JSch jsch = new JSch();
         session = jsch.getSession(user, connection.host(), port);
         session.setPassword(pass);
@@ -68,7 +68,7 @@ public class SshBridge implements RemoteBridge {
         session.connect(SESSION_TIMEOUT_MS);
         channel = (ChannelShell) session.openChannel("shell");
         channel.setPtyType("xterm");
-        log.info("SSH 连接 + shell 通道建立");
+        log.info("[gateway-server] SSH 连接 + shell 通道建立");
     }
 
     @Override

@@ -126,7 +126,7 @@ public final class WsEndpointHandler {
         ActiveSession s = sessions.remove(sessionId);
         if (s != null) {
             s.closed = true;
-            log.info("WS 客户端断开: sessionId={}", sessionId);
+            log.info("[gateway-server] WS 客户端断开: sessionId={}", sessionId);
         }
     }
 
@@ -147,7 +147,7 @@ public final class WsEndpointHandler {
             bridge.writeToVncServer(payload);
             pumpVncToClient(bridge, session);
         } catch (IOException e) {
-            log.warn("VNC 写失败: {}", e.getMessage());
+            log.warn("[gateway-server] VNC 写失败: {}", e.getMessage());
         }
     }
 
@@ -167,9 +167,9 @@ public final class WsEndpointHandler {
             // 实际写回客户端由 common-starter Server / ServerResponse 完成
             // 由于 common-starter 的 WS API 是内部依赖，此处空实现
             // 完整实现在 Phase C（前端直接 raw socket 或升级到 Netty）
-            log.debug("VNC → 客户端: {} bytes (占位)", read.length);
+            log.debug("[gateway-server] VNC → 客户端: {} bytes (占位)", read.length);
         } catch (IOException e) {
-            log.debug("VNC 读结束: sessionId={} err={}", session.sessionId, e.getMessage());
+            log.debug("[gateway-server] VNC 读结束: sessionId={} err={}", session.sessionId, e.getMessage());
         }
     }
 
@@ -195,7 +195,7 @@ public final class WsEndpointHandler {
             out.write(text.getBytes(StandardCharsets.UTF_8));
             out.flush();
         } catch (IOException e) {
-            log.warn("SSH 写失败: {}", e.getMessage());
+            log.warn("[gateway-server] SSH 写失败: {}", e.getMessage());
         }
     }
 
@@ -229,7 +229,7 @@ public final class WsEndpointHandler {
             baos.write(buf, 0, n);
             return baos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
-            log.debug("SSH 读结束: {}", e.getMessage());
+            log.debug("[gateway-server] SSH 读结束: {}", e.getMessage());
             return null;
         }
     }
@@ -253,7 +253,7 @@ public final class WsEndpointHandler {
             out.write(payload);
             out.flush();
         } catch (IOException e) {
-            log.warn("Guacamole 写失败: {}", e.getMessage());
+            log.warn("[gateway-server] Guacamole 写失败: {}", e.getMessage());
         }
     }
 

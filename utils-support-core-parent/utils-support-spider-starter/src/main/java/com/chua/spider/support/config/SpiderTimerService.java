@@ -57,7 +57,7 @@ public class SpiderTimerService {
      */
     private Consumer<SpiderDefinition> taskHandler = def -> {
         // 默认空实现，由调用方通过 setTaskHandler 注入
-        log.info("[Timer] 到期: spiderCode={}", def.getSpiderCode());
+        log.info("[spider-config] 到期: spiderCode={}", def.getSpiderCode());
     };
 
     /**
@@ -100,7 +100,7 @@ public class SpiderTimerService {
         scanFuture = scheduler.scheduleWithFixedDelay(
                 this::rescheduleAll,
                 0, SCAN_INTERVAL_SECONDS, TimeUnit.SECONDS);
-        log.info("SpiderTimerService 启动完成");
+        log.info("[spider-config] SpiderTimerService 启动完成");
     }
 
     /**
@@ -115,7 +115,7 @@ public class SpiderTimerService {
         futures.values().forEach(f -> f.cancel(false));
         futures.clear();
         scheduler.shutdownNow();
-        log.info("SpiderTimerService 已停止");
+        log.info("[spider-config] SpiderTimerService 已停止");
     }
 
     /**
@@ -138,7 +138,7 @@ public class SpiderTimerService {
                 }
             }
         } catch (Exception e) {
-            log.error("重排调度任务失败", e);
+            log.error("[spider-config] 重排调度任务失败", e);
         }
     }
 
@@ -152,7 +152,7 @@ public class SpiderTimerService {
             CronExpression cron = new CronExpression(def.getSpiderScheduleCron());
             LocalDateTime next = cron.nextAfter(LocalDateTime.now());
             if (next == null) {
-                log.warn("[Timer] 无法计算下次触发时间: spiderCode={}", def.getSpiderCode());
+                log.warn("[spider-config] 无法计算下次触发时间: spiderCode={}", def.getSpiderCode());
                 return;
             }
             long delay = Duration.between(LocalDateTime.now(), next).getSeconds();
@@ -163,16 +163,16 @@ public class SpiderTimerService {
                         try {
                             taskHandler.accept(def);
                         } catch (Exception e) {
-                            log.error("[Timer] 执行爬虫任务失败: spiderCode={}", def.getSpiderCode(), e);
+                            log.error("[spider-config] 执行爬虫任务失败: spiderCode={}", def.getSpiderCode(), e);
                         }
                     },
                     Math.max(delay, 0), TimeUnit.SECONDS);
             futures.put(def.getSpiderCode(), future);
             if (log.isDebugEnabled()) {
-                log.debug("[Timer] 注册任务 spiderCode={} 下次触发={}", def.getSpiderCode(), next);
+                log.debug("[spider-config] 注册任务 spiderCode={} 下次触发={}", def.getSpiderCode(), next);
             }
         } catch (Exception e) {
-            log.error("[Timer] 解析 cron 失败: spiderCode={} cron={}",
+            log.error("[spider-config] 解析 cron 失败: spiderCode={} cron={}",
                     def.getSpiderCode(), def.getSpiderScheduleCron(), e);
         }
     }

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class EngineDataSchema implements DataScheme {
@@ -69,7 +70,7 @@ public class EngineDataSchema implements DataScheme {
     public EngineDataSchema addEntity(String tableName, Class<?> entityClass) {
         String key = tableName != null ? tableName : entityClass.getSimpleName();
         tables.add(new SourceDataTable(key, engine, entityClass));
-        log.debug("EngineDataSchema [{}] 注册表: {} -> {}", name, key, entityClass.getSimpleName());
+        log.debug("[calcite] EngineDataSchema [{}] 注册表: {} -> {}", name, key, entityClass.getSimpleName());
         return this;
     }
 

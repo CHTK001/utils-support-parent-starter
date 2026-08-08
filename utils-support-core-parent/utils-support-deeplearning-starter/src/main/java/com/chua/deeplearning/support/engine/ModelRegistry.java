@@ -192,7 +192,7 @@ public final class ModelRegistry {
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath) {
         REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, false, null));
-        log.debug("ModelRegistry register: {} -> {}", modelId, translatorClassName);
+        log.debug("[deeplearning-engine] ModelRegistry register: {} -> {}", modelId, translatorClassName);
     }
 
     /**
@@ -213,7 +213,7 @@ public final class ModelRegistry {
                                 Class<?> capabilityInterface, String relativePath,
                                 String downloadUrl, boolean compress, String downloadFileName) {
         REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, downloadUrl, compress, downloadFileName));
-        log.debug("ModelRegistry register: {} -> {} (downloadUrl={})", modelId, translatorClassName, downloadUrl);
+        log.debug("[deeplearning-engine] ModelRegistry register: {} -> {} (downloadUrl={})", modelId, translatorClassName, downloadUrl);
     }
 
     /**
@@ -404,12 +404,12 @@ public final class ModelRegistry {
 
         try {
             if (Files.exists(target) && Files.size(target) > 0) {
-                log.info("模型已存在缓存，跳过下载: {} -> {}", modelId, target);
+                log.info("[deeplearning-engine] 模型已存在缓存，跳过下载: {} -> {}", modelId, target);
             } else {
-                log.info("开始下载模型: {} -> {}", modelId, url);
+                log.info("[deeplearning-engine] 开始下载模型: {} -> {}", modelId, url);
                 Files.createDirectories(downloadDir);
                 target = downloader.download(url, target);
-                log.info("模型下载完成: {} -> {}", modelId, target);
+                log.info("[deeplearning-engine] 模型下载完成: {} -> {}", modelId, target);
             }
 
             // ONNX .onnx 可能附带同名 .extra_file（权重张量），自动下载
@@ -418,11 +418,11 @@ public final class ModelRegistry {
                 if (!Files.exists(extraFile) || Files.size(extraFile) == 0) {
                     String extraUrl = url + ONNX_EXTRA_FILE_SUFFIX;
                     try {
-                        log.info("开始下载 ONNX 附加文件: {} -> {}", modelId, extraUrl);
+                        log.info("[deeplearning-engine] 开始下载 ONNX 附加文件: {} -> {}", modelId, extraUrl);
                         downloader.download(extraUrl, extraFile);
-                        log.info("ONNX 附加文件下载完成: {} -> {}", modelId, extraFile);
+                        log.info("[deeplearning-engine] ONNX 附加文件下载完成: {} -> {}", modelId, extraFile);
                     } catch (Exception e) {
-                        log.warn("下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl, e.getMessage());
+                        log.warn("[deeplearning-engine] 下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl, e.getMessage());
                     }
                 }
             }
@@ -433,11 +433,11 @@ public final class ModelRegistry {
                 if (!Files.exists(indexFile) || Files.size(indexFile) == 0) {
                     String indexUrl = url + SAFETENSORS_INDEX_SUFFIX;
                     try {
-                        log.info("开始下载 Safetensors 索引文件: {} -> {}", modelId, indexUrl);
+                        log.info("[deeplearning-engine] 开始下载 Safetensors 索引文件: {} -> {}", modelId, indexUrl);
                         downloader.download(indexUrl, indexFile);
-                        log.info("Safetensors 索引文件下载完成: {} -> {}", modelId, indexFile);
+                        log.info("[deeplearning-engine] Safetensors 索引文件下载完成: {} -> {}", modelId, indexFile);
                     } catch (Exception e) {
-                        log.debug("下载 Safetensors 索引文件失败（单文件模型无索引）: {} -> {}: {}", modelId, indexUrl, e.getMessage());
+                        log.debug("[deeplearning-engine] 下载 Safetensors 索引文件失败（单文件模型无索引）: {} -> {}: {}", modelId, indexUrl, e.getMessage());
                     }
                 }
             }
@@ -445,11 +445,11 @@ public final class ModelRegistry {
             if (entry.compress() && target.toString().toLowerCase().endsWith(".zip")) {
                 Path unzipDir = downloadDir.resolve(modelId + "_unzipped");
                 if (Files.exists(unzipDir)) {
-                    log.info("解压目录已存在，跳过解压: {}", unzipDir);
+                    log.info("[deeplearning-engine] 解压目录已存在，跳过解压: {}", unzipDir);
                 } else {
-                    log.info("开始解压模型: {} -> {}", target, unzipDir);
+                    log.info("[deeplearning-engine] 开始解压模型: {} -> {}", target, unzipDir);
                     unzip(target, unzipDir);
-                    log.info("模型解压完成: {}", unzipDir);
+                    log.info("[deeplearning-engine] 模型解压完成: {}", unzipDir);
                 }
                 if (entry.downloadFileName() != null && !entry.downloadFileName().isBlank()) {
                     Path resolved = unzipDir.resolve(entry.downloadFileName());
@@ -462,7 +462,7 @@ public final class ModelRegistry {
 
             return target;
         } catch (Exception e) {
-            log.warn("远程下载模型失败: {} -> {}: {}", modelId, url, e.getMessage());
+            log.warn("[deeplearning-engine] 远程下载模型失败: {} -> {}: {}", modelId, url, e.getMessage());
             return null;
         }
     }
@@ -577,7 +577,7 @@ public final class ModelRegistry {
             CLASSPATH_CACHE.put(normalized, extracted);
             return extracted;
         } catch (Exception ex) {
-            log.warn("classpath 模型解析失败: {} -> {}", normalized, ex.getMessage());
+            log.warn("[deeplearning-engine] classpath 模型解析失败: {} -> {}", normalized, ex.getMessage());
             return null;
         }
     }
@@ -601,7 +601,7 @@ public final class ModelRegistry {
                 throw ex;
             }
         }
-        log.info("classpath 模型已解压: {} -> {}", resourcePath, target);
+        log.info("[deeplearning-engine] classpath 模型已解压: {} -> {}", resourcePath, target);
         return target;
     }
 
@@ -644,14 +644,14 @@ public final class ModelRegistry {
                             Class.forName(className, true, loader);
                             count++;
                         } catch (Throwable ex) {
-                            log.warn("ModelRegistrar load failed: {} -> {}", className, ex.getMessage());
+                            log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage());
                         }
                     }
                 }
             }
-            log.info("ModelRegistry SPI loaded {} registrar class(es), entries={}", count, REGISTRY.size());
+            log.info("[deeplearning-engine] ModelRegistry SPI loaded {} registrar class(es), entries={}", count, REGISTRY.size());
         } catch (Exception e) {
-            log.warn("ModelRegistrar discover error: {}", e.getMessage());
+            log.warn("[deeplearning-engine] ModelRegistrar discover error: {}", e.getMessage());
         }
     }
 

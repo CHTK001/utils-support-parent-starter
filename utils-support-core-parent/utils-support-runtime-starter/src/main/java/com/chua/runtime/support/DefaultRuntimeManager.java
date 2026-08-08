@@ -70,7 +70,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
             throw new IllegalArgumentException("工件已存在: " + id);
         }
         artifactMap.put(id, artifact);
-        log.info("注册工件[{}]: {}", id, artifact.getName());
+        log.info("[runtime] 注册工件[{}]: {}", id, artifact.getName());
         return artifact;
     }
 
@@ -82,12 +82,12 @@ public class DefaultRuntimeManager implements RuntimeManager {
             try {
                 oldInstance.close();
             } catch (Exception e) {
-                log.warn("关闭旧实例[{}] 异常", id, e);
+                log.warn("[runtime] 关闭旧实例[{}] 异常", id, e);
             }
             instanceMap.remove(id);
         }
         artifactMap.put(id, artifact);
-        log.info("注册/替换工件[{}]: {}", id, artifact.getName());
+        log.info("[runtime] 注册/替换工件[{}]: {}", id, artifact.getName());
         return artifact;
     }
 
@@ -98,13 +98,13 @@ public class DefaultRuntimeManager implements RuntimeManager {
             try {
                 instance.close();
             } catch (Exception e) {
-                log.warn("关闭实例[{}] 异常", id, e);
+                log.warn("[runtime] 关闭实例[{}] 异常", id, e);
             }
             instanceMap.remove(id);
         }
         RuntimeArtifact removed = artifactMap.remove(id);
         if (removed != null) {
-            log.info("注销工件[{}]: {}", id, removed.getName());
+            log.info("[runtime] 注销工件[{}]: {}", id, removed.getName());
             return true;
         }
         return false;
@@ -199,7 +199,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
                 return true;
 
             } catch (Exception e) {
-                log.error("下载工件[{}] 失败", id, e);
+                log.error("[runtime] 下载工件[{}] 失败", id, e);
                 if (callback != null) {
                     callback.onError("download", e);
                 }
@@ -226,7 +226,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
         if (instance != null) {
             instance.stop();
         } else {
-            log.warn("工件[{}] 未在运行，无需停止", id);
+            log.warn("[runtime] 工件[{}] 未在运行，无需停止", id);
         }
         return instance;
     }
@@ -441,26 +441,26 @@ public class DefaultRuntimeManager implements RuntimeManager {
         java.util.Map<String, ServiceManager> managers = ServiceProvider.of(ServiceManager.class).list();
         for (ServiceManager sm : managers.values()) {
             if (sm.isSupported()) {
-                log.info("使用系统服务管理器: {}", sm.name());
+                log.info("[runtime] 使用系统服务管理器: {}", sm.name());
                 return sm;
             }
         }
-        log.warn("未找到当前平台支持的系统服务管理器");
+        log.warn("[runtime] 未找到当前平台支持的系统服务管理器");
         return null;
     }
 
     @Override
     public void close() throws Exception {
-        log.info("关闭运行时管理器，停止所有实例...");
+        log.info("[runtime] 关闭运行时管理器，停止所有实例...");
         for (RuntimeInstance instance : instanceMap.values()) {
             try {
                 instance.close();
             } catch (Exception e) {
-                log.warn("关闭实例异常", e);
+                log.warn("[runtime] 关闭实例异常", e);
             }
         }
         instanceMap.clear();
         artifactMap.clear();
-        log.info("运行时管理器已关闭");
+        log.info("[runtime] 运行时管理器已关闭");
     }
 }

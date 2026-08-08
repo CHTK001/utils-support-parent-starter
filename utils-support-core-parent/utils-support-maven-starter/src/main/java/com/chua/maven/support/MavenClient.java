@@ -448,7 +448,7 @@ public class MavenClient implements AutoCloseable {
             }
         }
 
-        log.warn("未找到 Maven 安装路径，请设置 MAVEN_HOME 环境变量或 maven.home 系统属性");
+        log.warn("[maven] 未找到 Maven 安装路径，请设置 MAVEN_HOME 环境变量或 maven.home 系统属性");
         return null;
     }
 
@@ -462,9 +462,9 @@ public class MavenClient implements AutoCloseable {
      */
     private void logResult(boolean success, String output, long duration, int exitCode) {
         if (success) {
-            log.info("Maven 编译成功 [{}] 耗时: {}ms", projectPath, duration);
+            log.info("[maven] Maven 编译成功 [{}] 耗时: {}ms", projectPath, duration);
         } else {
-            log.error("Maven 编译失败 [{}] exitCode: {} 耗时: {}ms", projectPath, exitCode, duration);
+            log.error("[maven] Maven 编译失败 [{}] exitCode: {} 耗时: {}ms", projectPath, exitCode, duration);
             // 输出 ERROR 行到日志
             String[] lines = output.split("\n");
             for (String line : lines) {
@@ -487,7 +487,7 @@ public class MavenClient implements AutoCloseable {
             try {
                 compilerCallback.onStart(projectPath);
             } catch (Exception e) {
-                log.warn("开始回调异常: {}", e.getMessage());
+                log.warn("[maven] 开始回调异常: {}", e.getMessage());
             }
         }
     }
@@ -503,7 +503,7 @@ public class MavenClient implements AutoCloseable {
             try {
                 progressCallback.onProgress(message, percent);
             } catch (Exception e) {
-                log.warn("进度回调异常: {}", e.getMessage());
+                log.warn("[maven] 进度回调异常: {}", e.getMessage());
             }
         }
     }
@@ -518,7 +518,7 @@ public class MavenClient implements AutoCloseable {
             try {
                 compilerCallback.onComplete(result);
             } catch (Exception e) {
-                log.warn("完成回调异常: {}", e.getMessage());
+                log.warn("[maven] 完成回调异常: {}", e.getMessage());
             }
         }
     }
@@ -533,7 +533,7 @@ public class MavenClient implements AutoCloseable {
             try {
                 compilerCallback.onSuccess(result);
             } catch (Exception e) {
-                log.warn("成功回调异常: {}", e.getMessage());
+                log.warn("[maven] 成功回调异常: {}", e.getMessage());
             }
         }
     }
@@ -548,7 +548,7 @@ public class MavenClient implements AutoCloseable {
             try {
                 compilerCallback.onFailure(result);
             } catch (Exception e) {
-                log.warn("失败回调异常: {}", e.getMessage());
+                log.warn("[maven] 失败回调异常: {}", e.getMessage());
             }
         }
     }

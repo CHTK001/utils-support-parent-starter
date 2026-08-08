@@ -14,6 +14,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.datasource.support.engine.MemoryWhereParser;
 import com.chua.lucene.support.converter.EntityDocumentConverter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -69,9 +70,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see IndexSearcher
  */
  @Spi("lucene")
+ @Slf4j
   public class LuceneEngine extends AbstractEngine implements FulltextSearch {
-
-     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LuceneEngine.class);
 
      /**
       * Lucene 索引目录映射表，键为表名，值为 Directory 实例。
@@ -1064,7 +1064,7 @@ import java.util.concurrent.ConcurrentHashMap;
             super.executeUpdate(sql);
             return matchedDocs.size();
         } catch (Exception e) {
-            log.warn("Lucene 更新失败: " + e.getMessage(), e);
+            log.warn("[lucene-engine] 更新失败: {}", e.getMessage(), e);
             return 0;
         }
     }
@@ -1097,7 +1097,7 @@ import java.util.concurrent.ConcurrentHashMap;
             super.executeDelete(sql);
             return count;
         } catch (Exception e) {
-            log.warn("Lucene 删除失败: " + e.getMessage(), e);
+            log.warn("[lucene-engine] 删除失败: {}", e.getMessage(), e);
             return 0;
         }
     }

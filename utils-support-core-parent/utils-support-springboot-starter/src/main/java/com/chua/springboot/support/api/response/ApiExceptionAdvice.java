@@ -222,7 +222,7 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
     @ExceptionHandler(JsonProcessingException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public <T> ReturnResult<T> handleJsonProcessingException(JsonProcessingException e) {
-        log.warn("JSON处理异常: {}", e.getMessage());
+        log.warn("[springboot-response] JSON处理异常: {}", e.getMessage());
         if (e instanceof JsonParseException) {
             return ReturnResult.error("JSON语法错误：" + e.getOriginalMessage());
         } else if (e instanceof InvalidFormatException invalidFormatException) {
@@ -743,7 +743,7 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
     private void logWarn(String message, Throwable e) {
         String uri = getRequestUri();
         String traceId = getOrCreateTraceId();
-        log.warn("[{}] {} - URI: {}, 错误: {}", traceId, message, uri, e.getMessage());
+        log.warn("[springboot-response] {} - URI: {}, 错误: {}", traceId, message, uri, e.getMessage());
     }
 
     /**
@@ -752,7 +752,7 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
     private void logError(String message, Throwable e) {
         String uri = getRequestUri();
         String traceId = getOrCreateTraceId();
-        log.error("[{}] {} - URI: {}, 错误: {}", traceId, message, uri, e.getMessage(), e);
+        log.error("[springboot-response] {} - URI: {}, 错误: {}", traceId, message, uri, e.getMessage(), e);
     }
 
     /**

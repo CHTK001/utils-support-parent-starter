@@ -57,13 +57,13 @@ public class AutoParser implements SpiderParser {
                 .map(definition -> (SpiderParser) definition.<SpiderParser>newInstance(provider.getServiceAutowire()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        log.info("AutoParser 加载了 {} 个 Parser 实现", parsers.size());
+        log.info("[spider-parser] AutoParser 加载了 {} 个 Parser 实现", parsers.size());
     }
 
     @Override
     public SpiderResult parse(SpiderResponse response) {
         if (parsers.isEmpty()) {
-            log.warn("没有可用的 Parser SPI 实现");
+            log.warn("[spider-parser] 没有可用的 Parser SPI 实现");
             return null;
         }
 
@@ -73,22 +73,22 @@ public class AutoParser implements SpiderParser {
         for (int i = 0; i < parsers.size(); i++) {
             SpiderParser parser = parsers.get(i);
             try {
-                log.debug("AutoParser 尝试第 {} 个实现 ({}): {}",
+                log.debug("[spider-parser] AutoParser 尝试第 {} 个实现 ({}): {}",
                         i + 1, parser.getClass().getSimpleName(), url);
                 SpiderResult result = parser.parse(response);
 
                 if (result != null) {
-                    log.info("AutoParser 第 {} 个实现 ({}) 成功: {}",
+                    log.info("[spider-parser] AutoParser 第 {} 个实现 ({}) 成功: {}",
                             i + 1, parser.getClass().getSimpleName(), url);
                     return result;
                 }
             } catch (Exception e) {
-                log.warn("AutoParser 第 {} 个实现 ({}) 异常: {} - {}",
+                log.warn("[spider-parser] AutoParser 第 {} 个实现 ({}) 异常: {} - {}",
                         i + 1, parser.getClass().getSimpleName(), url, e.getMessage());
             }
         }
 
-        log.warn("AutoParser 所有实现均无法解析: {}", url);
+        log.warn("[spider-parser] AutoParser 所有实现均无法解析: {}", url);
         return null;
     }
 

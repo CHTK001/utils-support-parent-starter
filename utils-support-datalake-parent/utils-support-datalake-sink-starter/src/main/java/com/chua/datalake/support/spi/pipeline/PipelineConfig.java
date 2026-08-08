@@ -1,5 +1,10 @@
 package com.chua.datalake.support.spi.pipeline;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +33,10 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.43
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PipelineConfig {
 
     /**
@@ -41,40 +50,6 @@ public class PipelineConfig {
     private Map<String, PipelineStageConfig> stages = new HashMap<>();
 
     /**
-     * 空参构造
-     */
-    public PipelineConfig() {
-    }
-
-    /**
-     * 返回管线 ID
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * 设置管线 ID
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
-     * 获取所有 stage 配置
-     */
-    public Map<String, PipelineStageConfig> getStages() {
-        return stages;
-    }
-
-    /**
-     * 设置 stage 配置
-     */
-    public void setStages(Map<String, PipelineStageConfig> stages) {
-        this.stages = stages;
-    }
-
-    /**
      * 返回无信息时的空配置
      */
     public static PipelineConfig empty() {
@@ -86,6 +61,10 @@ public class PipelineConfig {
     /**
      * 单阶段配置 = {"filter": [], "parser": [], "cleaner": [], "standardizer": [], "sink": []}
      */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PipelineStageConfig {
 
         /**
@@ -109,48 +88,8 @@ public class PipelineConfig {
         private List<Map<String, Object>> standardizer = Collections.emptyList();
 
         /**
-         * 下sink列表
+         * 下沉 sink 列表
          */
         private List<Map<String, Object>> sink = Collections.emptyList();
-
-        public List<Map<String, Object>> getFilter() {
-            return filter;
-        }
-
-        public void setFilter(List<Map<String, Object>> filter) {
-            this.filter = filter;
-        }
-
-        public List<Map<String, Object>> getParser() {
-            return parser;
-        }
-
-        public void setParser(List<Map<String, Object>> parser) {
-            this.parser = parser;
-        }
-
-        public List<Map<String, Object>> getCleaner() {
-            return cleaner;
-        }
-
-        public void setCleaner(List<Map<String, Object>> cleaner) {
-            this.cleaner = cleaner;
-        }
-
-        public List<Map<String, Object>> getStandardizer() {
-            return standardizer;
-        }
-
-        public void setStandardizer(List<Map<String, Object>> standardizer) {
-            this.standardizer = standardizer;
-        }
-
-        public List<Map<String, Object>> getSink() {
-            return sink;
-        }
-
-        public void setSink(List<Map<String, Object>> sink) {
-            this.sink = sink;
-        }
     }
 }

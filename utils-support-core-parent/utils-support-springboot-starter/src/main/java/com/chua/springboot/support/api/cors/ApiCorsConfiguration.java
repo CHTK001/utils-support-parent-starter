@@ -95,7 +95,7 @@ public class ApiCorsConfiguration  {
         }
 
         // 3. 返回新的 CorsFilter
-        log.info("[ApiCors] 开启跨域处理");
+        log.info("[springboot-cors] 开启跨域处理");
         CorsFilter corsFilter = new CorsFilter(corsConfigurationSource);
         FilterRegistrationBean<CorsFilter> filterRegistrationBean = new FilterRegistrationBean<>(corsFilter);
         filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);

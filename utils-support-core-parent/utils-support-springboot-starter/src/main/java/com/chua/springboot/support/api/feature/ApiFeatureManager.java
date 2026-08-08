@@ -68,7 +68,7 @@ public class ApiFeatureManager {
                 .build();
 
         featureInfoMap.put(featureId, info);
-        log.debug("注册功能开关: {} -> {} (默认: {})", featureId, info.getPatterns(), apiFeature.defaultEnabled());
+        log.debug("[springboot-feature] 注册功能开关: {} -> {} (默认: {})", featureId, info.getPatterns(), apiFeature.defaultEnabled());
     }
 
     /**
@@ -90,7 +90,7 @@ public class ApiFeatureManager {
      */
     public boolean setEnabled(String featureId, boolean enabled) {
         if (!featureInfoMap.containsKey(featureId)) {
-            log.warn("功能开关不存在: {}", featureId);
+            log.warn("[springboot-feature] 功能开关不存在: {}", featureId);
             return false;
         }
         featureStates.put(featureId, enabled);
@@ -99,7 +99,7 @@ public class ApiFeatureManager {
         if (info != null) {
             featureInfoMap.put(featureId, info.toBuilder().enabled(enabled).build());
         }
-        log.info("功能开关状态已更新: {} -> {}", featureId, enabled);
+        log.info("[springboot-feature] 功能开关状态已更新: {} -> {}", featureId, enabled);
         return true;
     }
 

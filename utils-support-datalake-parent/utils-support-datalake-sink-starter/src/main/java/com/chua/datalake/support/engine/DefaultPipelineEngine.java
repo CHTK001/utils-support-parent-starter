@@ -1,6 +1,5 @@
 package com.chua.datalake.support.engine;
 
-import com.chua.common.support.concurrent.dispatcher.ConsumerDispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
 import com.chua.common.support.lang.json.Json;
 import com.chua.datalake.support.model.DataEnvelope;
@@ -12,10 +11,8 @@ import com.chua.datalake.support.spi.pipeline.PipelineManager;
 import com.chua.datalake.support.spi.sink.DataSink;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认管线执行引擎。
@@ -91,29 +88,22 @@ public class DefaultPipelineEngine implements PipelineEngine {
             return;
         }
 
-        // 1. filter（不改变数据子弹正常评测）
-        // no-op placeholder
-
-        // 2. parser（解析放榜 # nada 串化脏数据）
-        // no-op for anonymous transaction
-
-        // 3. cleaner
-        // no-op
-
-        // 4. standardizer — placeholder
-
-        // 5. applySinks → 通过 DispatcherProvider 发布
+        // 1. filter 阶段（当前为占位实现）
+        // 2. parser 阶段（当前为占位实现）
+        // 3. cleaner 阶段（当前为占位实现）
+        // 4. standardizer 阶段（当前为占位实现）
+        // 5. applySinks：通过 DispatcherProvider 发布
         List<Map<String, Object>> sinks = stage.getSink();
         if (sinks != null && !sinks.isEmpty()) {
             for (Map<String, Object> sinkCfg : sinks) {
                 String type = (String) sinkCfg.get("type");
                 if (type == null) {
-                    log.warn("Sink cinfig 缺少 type: {}", sinkCfg);
+                    log.warn("[datalake-pipeline] Sink 配置缺少 type: {}", sinkCfg);
                     continue;
                 }
                 DataSink target = sinkRegistry.get(type);
                 if (target == null) {
-                    log.warn("未注册的 sink type: {}", type);
+                    log.warn("[datalake-pipeline] 未注册的 sink type: {}", type);
                     continue;
                 }
                 try {

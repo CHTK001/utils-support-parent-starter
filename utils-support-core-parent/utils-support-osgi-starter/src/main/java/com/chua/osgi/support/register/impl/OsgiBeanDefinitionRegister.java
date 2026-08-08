@@ -101,7 +101,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
             }
             return new FrameworkBeanDefinition(beanName, type, instance);
         } catch (ClassNotFoundException e) {
-            log.debug("OSGi 服务类型不存在: {}", beanName, e);
+            log.debug("[osgi-impl] OSGi 服务类型不存在: {}", beanName, e);
             return null;
         }
     }

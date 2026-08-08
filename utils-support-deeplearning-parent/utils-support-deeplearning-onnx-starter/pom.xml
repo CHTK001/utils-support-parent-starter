@@ -27,6 +27,27 @@
             <artifactId>utils-support-deeplearning-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- FacePlugin ONNX 模型资源（detect / landmark / feature），模型权重随 jar 一起分发。
+             使用 provided：编译期可见（translators 引用其 classpath 路径），但不会传递到下游，
+             调用方需要在运行时显式引入对应 model 模块。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-faceplugin-detect</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-faceplugin-landmark</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-faceplugin-feature</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- MiniMind 鍐呯疆 ONNX 妯″瀷璧勬簮锛坢odel.onnx + tokenizer.json锛夊凡闅?utils-support-minimind-onnx
              妯″潡涓嬬嚎锛涙ā鍨嬭祫婧愭敼涓轰粠 classpath 涓?models/minimind/ 鐩綍鍔ㄦ€佸姞杞斤紝
              鏈墦鍖呮ā鍨嬭祫婧愭椂浠呰緭鍑?debug 鏃ュ織锛屼笉褰卞搷缂栬瘧銆?-->

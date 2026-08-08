@@ -73,7 +73,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
             dir.mkdirs();
         }
         ready = true;
-        log.info("本地部署目标就绪: {}", rootDir);
+        log.info("[maven] 本地部署目标就绪: {}", rootDir);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
                 Files.createDirectories(parent);
             }
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-            log.info("本地部署: {} -> {}", localPath, target.toAbsolutePath());
+            log.info("[maven] 本地部署: {} -> {}", localPath, target.toAbsolutePath());
         } catch (IOException e) {
             throw new MavenDeployException("本地部署失败: " + localPath + " -> " + targetPath, e);
         }
@@ -100,7 +100,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        log.info("创建目录: {}", dir.getAbsolutePath());
+        log.info("[maven] 创建目录: {}", dir.getAbsolutePath());
     }
 
     @Override
@@ -114,7 +114,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
         if (file.exists()) {
             try {
                 Files.delete(file.toPath());
-                log.info("删除文件: {}", file.getAbsolutePath());
+                log.info("[maven] 删除文件: {}", file.getAbsolutePath());
             } catch (IOException e) {
                 throw new MavenDeployException("删除文件失败: " + file.getAbsolutePath(), e);
             }

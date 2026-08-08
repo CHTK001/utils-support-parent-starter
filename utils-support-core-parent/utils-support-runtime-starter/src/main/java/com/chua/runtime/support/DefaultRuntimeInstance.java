@@ -121,7 +121,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     @Override
     public synchronized CmdResult start() {
         if (status.get() == RuntimeStatus.RUNNING) {
-            log.warn("工件[{}] 已在运行中，跳过启动", artifact.getId());
+            log.warn("[runtime] 工件[{}] 已在运行中，跳过启动", artifact.getId());
             return CmdResult.builder()
                     .exitCode(0)
                     .command(artifact.getName() + " 已在运行")
@@ -129,7 +129,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
 
         status.set(RuntimeStatus.STARTING);
-        log.info("正在启动工件[{}]: {}", artifact.getId(), artifact.getName());
+        log.info("[runtime] 正在启动工件[{}]: {}", artifact.getId(), artifact.getName());
 
         Path executable = artifact.getExecutable();
         if (executable != null && !Files.exists(executable)) {
@@ -145,7 +145,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
         try {
             List<String> cmd = buildCommand();
-            log.debug("执行命令: {}", cmd);
+            log.debug("[runtime] 执行命令: {}", cmd);
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             if (artifact.getWorkDir() != null) {
@@ -171,7 +171,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                 if (started) {
                     int exitCode = process.exitValue();
                     status.set(RuntimeStatus.CRASHED);
-                    log.error("工件[{}] 启动失败，进程已退出，退出码: {}", artifact.getId(), exitCode);
+                    log.error("[runtime] 工件[{}] 启动失败，进程已退出，退出码: {}", artifact.getId(), exitCode);
                     return CmdResult.builder()
                             .exitCode(exitCode)
                             .stderr("进程启动后立即退出，退出码: " + exitCode)
@@ -182,7 +182,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
             status.set(RuntimeStatus.RUNNING);
             startTime = System.currentTimeMillis();
-            log.info("工件[{}] 启动成功，PID: {}", artifact.getId(), process.pid());
+            log.info("[runtime] 工件[{}] 启动成功，PID: {}", artifact.getId(), process.pid());
 
             CmdResult result = CmdResult.builder()
                     .exitCode(0)
@@ -198,7 +198,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
             if (hasHealthCheck()) {
                 CmdResult healthResult = healthCheck();
                 if (!healthResult.isSuccess()) {
-                    log.warn("工件[{}] 启动后健康检查未通过", artifact.getId());
+                    log.warn("[runtime] 工件[{}] 启动后健康检查未通过", artifact.getId());
                 }
             }
 
@@ -206,7 +206,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
         } catch (Exception e) {
             status.set(RuntimeStatus.CRASHED);
-            log.error("启动工件[{}] 异常", artifact.getId(), e);
+            log.error("[runtime] 启动工件[{}] 异常", artifact.getId(), e);
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr(e.getMessage())
@@ -228,14 +228,14 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
 
         status.set(RuntimeStatus.STOPPING);
-        log.info("正在停止工件[{}]: {}", artifact.getId(), artifact.getName());
+        log.info("[runtime] 正在停止工件[{}]: {}", artifact.getId(), artifact.getName());
 
         try {
             process.destroy();
             boolean terminated = process.waitFor(GRACEFUL_STOP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
             if (!terminated) {
-                log.warn("工件[{}] 优雅停止超时，强制终止", artifact.getId());
+                log.warn("[runtime] 工件[{}] 优雅停止超时，强制终止", artifact.getId());
                 process.destroyForcibly();
                 terminated = process.waitFor(FORCE_STOP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             }
@@ -258,7 +258,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             status.set(RuntimeStatus.UNKNOWN);
-            log.error("停止工件[{}] 被中断", artifact.getId(), e);
+            log.error("[runtime] 停止工件[{}] 被中断", artifact.getId(), e);
             return CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .stderr(e.getMessage())
@@ -270,7 +270,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
     @Override
     public synchronized CmdResult restart() {
-        log.info("正在重启工件[{}]: {}", artifact.getId(), artifact.getName());
+        log.info("[runtime] 正在重启工件[{}]: {}", artifact.getId(), artifact.getName());
         CmdResult stopResult = stop();
         if (!stopResult.isSuccess() && status.get() != RuntimeStatus.STOPPED) {
             return stopResult;
@@ -427,7 +427,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                 }
             } catch (IOException e) {
                 if (status.get() == RuntimeStatus.RUNNING) {
-                    log.warn("工件[{}] 日志读取异常", artifact.getId(), e);
+                    log.warn("[runtime] 工件[{}] 日志读取异常", artifact.getId(), e);
                 }
             }
         }, "runtime-log-" + artifact.getId());
@@ -458,7 +458,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                 int exitCode = process.waitFor();
                 if (status.get() == RuntimeStatus.RUNNING) {
                     status.set(RuntimeStatus.CRASHED);
-                    log.warn("工件[{}] 进程意外退出，退出码: {}", artifact.getId(), exitCode);
+                    log.warn("[runtime] 工件[{}] 进程意外退出，退出码: {}", artifact.getId(), exitCode);
                 }
                 CmdResult result = CmdResult.builder()
                         .exitCode(exitCode)

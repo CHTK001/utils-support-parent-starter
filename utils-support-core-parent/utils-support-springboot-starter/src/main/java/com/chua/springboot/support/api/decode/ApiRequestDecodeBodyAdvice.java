@@ -52,13 +52,13 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
         if (!decodeRegister.requestDecodeOpen()) {
-            log.debug("[RequestSign] 签名校验未启用，跳过处理");
+            log.debug("[springboot-decode] 签名校验未启用，跳过处理");
             return inputMessage;
         }
 
         String requestPath = getRequestPath();
         if (decodeRegister.isWhiteListed(requestPath)) {
-            log.debug("[RequestSign] 请求路径 {} 在白名单中，跳过校验", requestPath);
+            log.debug("[springboot-decode] 请求路径 {} 在白名单中，跳过校验", requestPath);
             return inputMessage;
         }
 
@@ -69,22 +69,22 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
 
         String userAgent = inputMessage.getHeaders().getFirst("user-agent");
         if (UserAgent.isCrawler(userAgent)) {
-            log.warn("[RequestSign] 检测到爬虫请求，拒绝处理： {}", userAgent);
+            log.warn("[springboot-decode] 检测到爬虫请求，拒绝处理： {}", userAgent);
             return EmptyHttpInputMessage.getInstance();
         }
 
         if (!NonceUtils.hasSignHeaders(request)) {
-            log.debug("[RequestSign] 未携带完整签名头，跳过校验");
+            log.debug("[springboot-decode] 未携带完整签名头，跳过校验");
         } else {
             if (Boolean.TRUE.equals(
                     request.getAttribute(NonceUtils.REQUEST_SIGN_VALIDATED_ATTRIBUTE))) {
-                log.debug("[RequestSign] 前置过滤器已完成校验 uri={}", request.getRequestURI());
+                log.debug("[springboot-decode] 前置过滤器已完成校验 uri={}", request.getRequestURI());
             } else if (!NonceUtils.validateXhrRequest(request)) {
-                log.error("[RequestSign] x-sign 校验失败 uri={}", request.getRequestURI());
+                log.error("[springboot-decode] x-sign 校验失败 uri={}", request.getRequestURI());
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "请求校验失败，请勿重放请求");
             } else {
                 request.setAttribute(NonceUtils.REQUEST_SIGN_VALIDATED_ATTRIBUTE, Boolean.TRUE);
-                log.debug("[RequestSign] x-sign 校验通过 uri={}", request.getRequestURI());
+                log.debug("[springboot-decode] x-sign 校验通过 uri={}", request.getRequestURI());
             }
         }
 
@@ -130,7 +130,7 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
             if (decodeRegister.isRejectOnDecodeFailure()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 请求体为空");
             }
-            log.debug("[RequestCodec] 请求体为空，跳过解密 uri={}", request.getRequestURI());
+            log.debug("[springboot-decode] 请求体为空，跳过解密 uri={}", request.getRequestURI());
             return inputMessage;
         }
 
@@ -141,20 +141,20 @@ public class ApiRequestDecodeBodyAdvice implements RequestBodyAdvice  {
                 if (decodeRegister.isRejectOnDecodeFailure()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败: 解密结果为空");
                 }
-                log.debug("[RequestCodec] 解密结果为空，跳过解密 uri={}", request.getRequestURI());
+                log.debug("[springboot-decode] 解密结果为空，跳过解密 uri={}", request.getRequestURI());
                 return inputMessage;
             }
 
-            log.debug("[RequestCodec] 请求解密成功 uri={}, size={} -> {}", request.getRequestURI(), bodyBytes.length, decodedBytes.length);
+            log.debug("[springboot-decode] 请求解密成功 uri={}, size={} -> {}", request.getRequestURI(), bodyBytes.length, decodedBytes.length);
             return new DecodedHttpInputMessage(inputMessage.getHeaders(), decodedBytes);
         } catch (ResponseStatusException ex) {
             throw ex;
         } catch (Exception ex) {
-            log.error("[RequestCodec] 请求解密失败 uri={}", request.getRequestURI(), ex);
+            log.error("[springboot-decode] 请求解密失败 uri={}", request.getRequestURI(), ex);
             if (decodeRegister.isRejectOnDecodeFailure()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请求解密失败");
             }
-            log.debug("[RequestCodec] 解密失败，按配置跳过解密，返回原始请求体 uri={}", request.getRequestURI());
+            log.debug("[springboot-decode] 解密失败，按配置跳过解密，返回原始请求体 uri={}", request.getRequestURI());
             return inputMessage;
         }
     }

@@ -42,7 +42,7 @@ public final class VncProtocolServerFactory implements ProtocolServerFactory {
         // 调用 bridge.connect() 通过隧道
         bridge.connect();
         tunnel.open();
-        log.info("VNC Tunnel 创建: id={} target={}:{}", tunnelId, connection.host(), connection.port());
+        log.info("[gateway-server] VNC Tunnel 创建: id={} target={}:{}", tunnelId, connection.host(), connection.port());
         return tunnel;
     }
 }

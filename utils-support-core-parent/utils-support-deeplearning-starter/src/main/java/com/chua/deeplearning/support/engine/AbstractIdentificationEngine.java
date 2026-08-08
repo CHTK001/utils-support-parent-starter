@@ -96,18 +96,18 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                             .build();
                     register(def);
                 } catch (Exception e) {
-                    log.warn("加载模型 [{}] 失败: {}", entry.modelId(), e.getMessage());
+                    log.warn("[deeplearning-engine] 加载模型 [{}] 失败: {}", entry.modelId(), e.getMessage());
                 }
             }
         } catch (Exception e) {
-            log.warn("ModelRegistry 发现失败: {}", e.getMessage());
+            log.warn("[deeplearning-engine] ModelRegistry 发现失败: {}", e.getMessage());
         }
 
         try {
             ServiceProvider<ModelProvider> provider = ServiceProvider.of(ModelProvider.class);
-            log.debug("ModelProvider classloader: {}", ModelProvider.class.getClassLoader());
+            log.debug("[deeplearning-engine] ModelProvider classloader: {}", ModelProvider.class.getClassLoader());
             Set<String> names = provider.getExtensions();
-            log.debug("ModelProvider names: {}", names);
+            log.debug("[deeplearning-engine] ModelProvider names: {}", names);
             if (names != null) {
                 for (String name : names) {
                     try {
@@ -130,16 +130,16 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                             }
                         }
                     } catch (Exception e) {
-                        log.debug("load provider [{}] failed: {}", name, e.getMessage());
-                        log.warn("加载模型提供者 [{}] 失败: {}", name, e.getMessage());
+                        log.debug("[deeplearning-engine] load provider [{}] failed: {}", name, e.getMessage());
+                        log.warn("[deeplearning-engine] 加载模型提供者 [{}] 失败: {}", name, e.getMessage());
                     }
                 }
             }
-            log.debug("modelMap size after discovery: {}", modelMap.size());
-            log.info("识别引擎自动发现 {} 个模型", modelMap.size());
+            log.debug("[deeplearning-engine] modelMap size after discovery: {}", modelMap.size());
+            log.info("[deeplearning-engine] 识别引擎自动发现 {} 个模型", modelMap.size());
         } catch (Exception e) {
-            log.debug("discovery exception: {}", e.getMessage());
-            log.warn("模型自动发现失败: {}", e.getMessage());
+            log.debug("[deeplearning-engine] discovery exception: {}", e.getMessage());
+            log.warn("[deeplearning-engine] 模型自动发现失败: {}", e.getMessage());
         }
     }
 
@@ -165,11 +165,11 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
             return;
         }
         if (definition.getName() == null) {
-            log.warn("注册的模型定义名称为空，已忽略");
+            log.warn("[deeplearning-engine] 注册的模型定义名称为空，已忽略");
             return;
         }
         modelMap.put(definition.getName(), definition);
-        log.debug("注册模型: {} ({})", definition.getName(), definition.getProvider());
+        log.debug("[deeplearning-engine] 注册模型: {} ({})", definition.getName(), definition.getProvider());
     }
 
     @Override
@@ -213,7 +213,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                         ServiceProvider<IdentificationEngine> provider = ServiceProvider.of(IdentificationEngine.class);
                         INSTANCE = provider.getDefault();
                     } catch (Exception e) {
-                        log.warn("SPI 获取 IdentificationEngine 失败: {}", e.getMessage());
+                        log.warn("[deeplearning-engine] SPI 获取 IdentificationEngine 失败: {}", e.getMessage());
                     }
                     if (INSTANCE == null) {
                         INSTANCE = new AbstractIdentificationEngine() {};
@@ -253,6 +253,6 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     public void close() {
         modelMap.clear();
         INSTANCE = null;
-        log.info("识别引擎已关闭");
+        log.info("[deeplearning-engine] 识别引擎已关闭");
     }
 }

@@ -52,32 +52,32 @@ public class ApiGrayEvaluator {
 
         // 1. 检查用户白名单
         if (matchUserWhitelist(apiGray.users(), username)) {
-            log.debug("灰度命中: 用户白名单匹配 - user={}", username);
+            log.debug("[springboot-gray] 灰度命中: 用户白名单匹配 - user={}", username);
             return true;
         }
 
         // 2. 检查角色白名单
         if (matchRoleWhitelist(apiGray.roles(), roles)) {
-            log.debug("灰度命中: 角色白名单匹配 - roles={}", roles);
+            log.debug("[springboot-gray] 灰度命中: 角色白名单匹配 - roles={}", roles);
             return true;
         }
 
         // 3. 检查IP白名单
         if (matchIpWhitelist(apiGray.ips(), clientIp)) {
-            log.debug("灰度命中: IP白名单匹配 - ip={}", clientIp);
+            log.debug("[springboot-gray] 灰度命中: IP白名单匹配 - ip={}", clientIp);
             return true;
         }
 
         // 4. 检查请求头匹配
         if (matchHeaders(apiGray.headers(), request)) {
-            log.debug("灰度命中: 请求头匹配");
+            log.debug("[springboot-gray] 灰度命中: 请求头匹配");
             return true;
         }
 
         // 5. 检查SpEL规则
         if (StringUtils.isNotBlank(apiGray.rule())) {
             if (evaluateSpelRule(apiGray.rule(), request, userId, username, clientIp, roles)) {
-                log.debug("灰度命中: SpEL规则匹配 - rule={}", apiGray.rule());
+                log.debug("[springboot-gray] 灰度命中: SpEL规则匹配 - rule={}", apiGray.rule());
                 return true;
             }
         }
@@ -85,7 +85,7 @@ public class ApiGrayEvaluator {
         // 6. 检查百分比灰度
         if (apiGray.percentage() > 0) {
             if (matchPercentage(apiGray.percentage(), userId, username, clientIp)) {
-                log.debug("灰度命中: 百分比匹配 - percentage={}%", apiGray.percentage());
+                log.debug("[springboot-gray] 灰度命中: 百分比匹配 - percentage={}%", apiGray.percentage());
                 return true;
             }
         }
@@ -191,7 +191,7 @@ public class ApiGrayEvaluator {
             Boolean result = expression.getValue(context, Boolean.class);
             return Boolean.TRUE.equals(result);
         } catch (Exception e) {
-            log.warn("灰度SpEL表达式评估失败: rule={}, error={}", rule, e.getMessage());
+            log.warn("[springboot-gray] 灰度SpEL表达式评估失败: rule={}, error={}", rule, e.getMessage());
             return false;
         }
     }
@@ -220,7 +220,7 @@ public class ApiGrayEvaluator {
             context.registerFunction("cookie",
                     ApiGrayEvaluator.class.getDeclaredMethod("getCookie", HttpServletRequest.class, String.class));
         } catch (NoSuchMethodException e) {
-            log.warn("注册SpEL函数失败", e);
+            log.warn("[springboot-gray] 注册SpEL函数失败", e);
         }
 
         // 设置根对象为请求，方便直接访问

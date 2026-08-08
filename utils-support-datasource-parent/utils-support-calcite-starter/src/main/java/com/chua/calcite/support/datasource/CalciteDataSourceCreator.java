@@ -51,6 +51,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @SpiDefault
 @Spi("calcite")
@@ -189,9 +190,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                 try {
                     JdbcSchema jdbcSchema = JdbcSchema.create(rootSchema, schemaName, ds, null, null);
                     rootSchema.add(schemaName, jdbcSchema);
-                    log.debug("注册 JDBC Schema: {}", schemaName);
+                    log.debug("[calcite] 注册 JDBC Schema: {}", schemaName);
                 } catch (Exception e) {
-                    log.warn("注册 JDBC Schema [{}] 失败: {}", schemaName, e.getMessage());
+                    log.warn("[calcite] 注册 JDBC Schema [{}] 失败: {}", schemaName, e.getMessage());
                 }
             }
 
@@ -210,7 +211,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                     }
                 }
                 if (tables.isEmpty()) {
-                    log.debug("跳过空的 DataScheme: {}", schemaName);
+                    log.debug("[calcite] 跳过空的 DataScheme: {}", schemaName);
                     continue;
                 }
 
@@ -221,14 +222,14 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                         tableName = "t_" + calciteTableMap.size();
                     }
                     calciteTableMap.put(tableName, CalciteDataTableAdapter.of(table));
-                    log.debug("注册虚拟表: {}.{}", schemaName, tableName);
+                    log.debug("[calcite] 注册虚拟表: {}.{}", schemaName, tableName);
                 }
 
                 rootSchema.add(schemaName, new DataSchemeSchema(calciteTableMap));
-                log.info("注册 DataScheme: {} ({} 表)", schemaName, calciteTableMap.size());
+                log.info("[calcite] 注册 DataScheme: {} ({} 表)", schemaName, calciteTableMap.size());
             }
 
-            log.info("Calcite 统一数据源初始化完成: {} JDBC 源 + {} DataScheme",
+            log.info("[calcite] 统一数据源初始化完成: {} JDBC 源 + {} DataScheme",
                     dataSources.size(), schemes.size());
             return connection;
         }

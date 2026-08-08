@@ -2,7 +2,6 @@ package com.chua.datalake.support.executor;
 
 import com.chua.common.support.concurrent.dispatcher.ConsumerDispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
-import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.datasync.agent.support.executor.ReactorDataSyncExecutor;
 import com.chua.datalake.support.model.DataEnvelope;
@@ -67,7 +66,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     @Override
     public void subscribe(String sinkId, Consumer<List<Map<String, Object>>> consumer) {
         if (chronicleProvider == null) {
-            log.warn("DatalakeReactorExecutor.subscribe 跳过: chronicleProvider 未初始化");
+            log.warn("[datalake-server] ReactorExecutor 订阅跳过: chronicleProvider 未初始化");
             return;
         }
         String topic = "server-" + getAgentId();
@@ -79,7 +78,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                                     try {
                                         pipelineEngine.execute(sinkId, new DataEnvelope(row));
                                     } catch (Exception e) {
-                                        log.error("DatalakeReactorExecutor.subscribe pipeline 异常: sinkId={}, error={}", sinkId, e.getMessage(), e);
+                                        log.error("[datalake-server] 管线处理异常: sinkId={}, error={}", sinkId, e.getMessage(), e);
                                     }
                                 }
                             }
@@ -90,7 +89,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                         List.of(topic)
                 );
         chronicleProvider.subscribe(definition);
-        log.info("DatalakeReactorExecutor 订阅 topic={}", topic);
+        log.info("[datalake-server] ReactorExecutor 订阅 topic={}", topic);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                     sink.write(envelope, new HashMap<>());
                 }
             } catch (Exception e) {
-                log.error("DatalakeReactorExecutor.publish 异常: sinkId={}, error={}", sinkId, e.getMessage(), e);
+                log.error("[datalake-server] 发布异常: sinkId={}, error={}", sinkId, e.getMessage(), e);
             }
         }
     }

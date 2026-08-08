@@ -49,7 +49,7 @@ public final class ProtocolScanner {
                 if (p == null) {
                     p = ServiceProvider.of(ProtocolServerFactory.class);
                     provider = p;
-                    log.info("协议扫描器加载: protocols={}", p.getExtensions());
+                    log.info("[gateway-server] 协议扫描器加载: protocols={}", p.getExtensions());
                 }
             }
         }

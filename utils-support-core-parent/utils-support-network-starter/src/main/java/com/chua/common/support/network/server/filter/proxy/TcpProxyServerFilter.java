@@ -108,7 +108,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     @Override
     public void init(ServerFilterConfig config) throws Exception {
         running.set(true);
-        log.info("TcpProxyServerFilter 初始化完成, connectTimeout={}ms, readTimeout={}ms, virtualThreads=true",
+        log.info("[network-proxy] TcpProxyServerFilter 初始化完成, connectTimeout={}ms, readTimeout={}ms, virtualThreads=true",
                 connectTimeoutMs, readTimeoutMs);
     }
 
@@ -117,7 +117,7 @@ public class TcpProxyServerFilter implements ServerFilter {
         running.set(false);
         stopProxy();
         proxyPool.shutdownNow();
-        log.info("TcpProxyServerFilter 已关闭");
+        log.info("[network-proxy] TcpProxyServerFilter 已关闭");
     }
 
     @Override
@@ -150,26 +150,26 @@ public class TcpProxyServerFilter implements ServerFilter {
             try {
                 int actualBacklog = backlog > 0 ? backlog : 128;
                 serverSocket = new java.net.ServerSocket(listenPort, actualBacklog);
-                log.info("TCP 代理启动: port={}, backlog={}, virtualThreads=true", listenPort, actualBacklog);
+                log.info("[network-proxy] TCP 代理启动: port={}, backlog={}, virtualThreads=true", listenPort, actualBacklog);
                 while (running.get()) {
                     try {
                         Socket clientSocket = serverSocket.accept();
                         InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
                         Discovery discovery = targetResolver.resolve(remote);
                         if (discovery == null) {
-                            log.warn("无法解析后端地址 for remote={}", remote);
+                            log.warn("[network-proxy] 无法解析后端地址 for remote={}", remote);
                             clientSocket.close();
                             continue;
                         }
                         proxyPool.submit(() -> handleConnection(clientSocket, discovery));
                     } catch (Exception e) {
                         if (running.get()) {
-                            log.error("接受连接异常", e);
+                            log.error("[network-proxy] 接受连接异常", e);
                         }
                     }
                 }
             } catch (Exception e) {
-                log.error("TCP 代理启动失败: port={}", listenPort, e);
+                log.error("[network-proxy] TCP 代理启动失败: port={}", listenPort, e);
             } finally {
                 if (serverSocket != null && !serverSocket.isClosed()) {
                     try {
@@ -189,7 +189,7 @@ public class TcpProxyServerFilter implements ServerFilter {
             backendSocket.setSoTimeout(readTimeoutMs);
             clientSocket.setSoTimeout(readTimeoutMs);
 
-            log.debug("TCP 代理连接建立: {} -> {}:{}",
+            log.debug("[network-proxy] TCP 代理连接建立: {} -> {}:{}",
                     clientSocket.getRemoteSocketAddress(),
                     backendAddr.getHostString(), backendAddr.getPort());
 
@@ -199,7 +199,7 @@ public class TcpProxyServerFilter implements ServerFilter {
                         try {
                             forward(clientSocket.getInputStream(), backendSocket.getOutputStream());
                         } catch (IOException e) {
-                            log.debug("TCP 代理 c2b 流获取失败: {}", e.getMessage());
+                            log.debug("[network-proxy] TCP 代理 c2b 流获取失败: {}", e.getMessage());
                         }
                     });
             Thread backendToClient = Thread.ofVirtual()
@@ -208,7 +208,7 @@ public class TcpProxyServerFilter implements ServerFilter {
                         try {
                             forward(backendSocket.getInputStream(), clientSocket.getOutputStream());
                         } catch (IOException e) {
-                            log.debug("TCP 代理 b2c 流获取失败: {}", e.getMessage());
+                            log.debug("[network-proxy] TCP 代理 b2c 流获取失败: {}", e.getMessage());
                         }
                     });
 
@@ -216,7 +216,7 @@ public class TcpProxyServerFilter implements ServerFilter {
             backendToClient.interrupt();
 
         } catch (Exception e) {
-            log.debug("TCP 代理连接异常: {}", e.getMessage());
+            log.debug("[network-proxy] TCP 代理连接异常: {}", e.getMessage());
         } finally {
             try { clientSocket.close(); } catch (IOException ignored) {}
             activeConnections.decrementAndGet();
@@ -233,7 +233,7 @@ public class TcpProxyServerFilter implements ServerFilter {
             }
         } catch (Exception e) {
             if (running.get()) {
-                log.debug("TCP 转发结束: {}", e.getMessage());
+                log.debug("[network-proxy] TCP 转发结束: {}", e.getMessage());
             }
         }
     }

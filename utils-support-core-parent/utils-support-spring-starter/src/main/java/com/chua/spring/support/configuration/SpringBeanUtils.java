@@ -285,7 +285,7 @@ public class SpringBeanUtils {
                     }
                 }
             } catch (Exception e) {
-                log.error("取消注册控制器方法失败: {}", method.getName(), e);
+                log.error("[spring-configuration] 取消注册控制器方法失败: {}", method.getName(), e);
             }
         }, ReflectionUtils.USER_DECLARED_METHODS);
     }

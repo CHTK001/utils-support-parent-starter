@@ -94,7 +94,7 @@ public class HttpFetcher implements SpiderFetcher {
                     .fetchTimeMs(elapsed);
 
             if (log.isDebugEnabled()) {
-                log.debug("HTTP {} {} → {} ({}ms)",
+                log.debug("[spider-fetcher] HTTP {} {} → {} ({}ms)",
                         request.getMethod(), request.getUrl(), response.statusCode(), elapsed);
             }
         } catch (IOException e) {
@@ -102,16 +102,16 @@ public class HttpFetcher implements SpiderFetcher {
             builder.statusCode(0)
                     .error("IO 异常: " + e.getMessage())
                     .fetchTimeMs(elapsed);
-            log.warn("HTTP 抓取失败: {} - {}", request.getUrl(), e.getMessage());
+            log.warn("[spider-fetcher] HTTP 抓取失败: {} - {}", request.getUrl(), e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             builder.statusCode(0)
                     .error("请求被中断: " + e.getMessage());
-            log.warn("HTTP 请求被中断: {}", request.getUrl());
+            log.warn("[spider-fetcher] HTTP 请求被中断: {}", request.getUrl());
         } catch (Exception e) {
             builder.statusCode(0)
                     .error("未知异常: " + e.getMessage());
-            log.error("HTTP 抓取异常: {}", request.getUrl(), e);
+            log.error("[spider-fetcher] HTTP 抓取异常: {}", request.getUrl(), e);
         }
 
         return builder.build();

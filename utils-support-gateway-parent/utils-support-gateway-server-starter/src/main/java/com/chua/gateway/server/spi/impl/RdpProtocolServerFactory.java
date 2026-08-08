@@ -46,7 +46,7 @@ public final class RdpProtocolServerFactory implements ProtocolServerFactory {
         GuacamoleBridge bridge = new GuacamoleBridge(connection, GUACD_HOST, port);
         GatewayTunnel tunnel = GatewayTunnel.of(tunnelId, connection, bridge);
         tunnel.open();
-        log.info("RDP Tunnel 创建: id={} guacd={}:{} target={}:{}",
+        log.info("[gateway-server] RDP Tunnel 创建: id={} guacd={}:{} target={}:{}",
                 tunnelId, GUACD_HOST, port, connection.host(), connection.port());
         return tunnel;
     }

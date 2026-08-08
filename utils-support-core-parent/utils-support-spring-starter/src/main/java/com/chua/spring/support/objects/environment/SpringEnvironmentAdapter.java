@@ -17,9 +17,15 @@ import org.springframework.util.PropertyPlaceholderHelper;
 @RequiredArgsConstructor
 public class SpringEnvironmentAdapter implements org.springframework.core.env.Environment {
 
+    /**
+     * Spring 属性占位符解析器
+     */
     private static final PropertyPlaceholderHelper HELPER =
             new PropertyPlaceholderHelper("${", "}", ":", null, true);
 
+    /**
+     * 被委托的框架环境
+     */
     @Getter
     private final Environment delegate;
 

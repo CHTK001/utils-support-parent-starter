@@ -41,7 +41,7 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
                 result.add(new SpringPropertySourceAdapter(source, priority--));
             }
         } catch (Exception e) {
-            log.debug("Spring 环境不可用，跳过 Spring PropertySource 加载", e);
+            log.debug("[spring-environment] Spring 环境不可用，跳过 Spring PropertySource 加载", e);
         }
         return result;
     }

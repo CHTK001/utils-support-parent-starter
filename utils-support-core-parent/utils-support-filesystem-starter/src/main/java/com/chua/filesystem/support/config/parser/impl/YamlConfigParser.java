@@ -59,9 +59,9 @@ public class YamlConfigParser implements ConfigParser {
         try {
             Yaml yaml = new Yaml();
             result = yaml.load(is);
-            log.debug("解析 YAML 配置成功，共 {} 项", result.size());
+            log.debug("[filesystem-impl] 解析 YAML 配置成功，共 {} 项", result.size());
         } catch (Exception e) {
-            log.warn("解析 YAML 配置失败: {}", urlPath, e);
+            log.warn("[filesystem-impl] 解析 YAML 配置失败: {}", urlPath, e);
         }
         return new MapPropertySource(urlPath, result);
     }

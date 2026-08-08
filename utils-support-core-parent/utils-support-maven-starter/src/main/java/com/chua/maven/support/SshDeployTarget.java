@@ -131,7 +131,7 @@ public class SshDeployTarget implements MavenDeployTarget {
             sftpClient = sftpClientClass.getMethod("connect").invoke(client);
 
             ready = true;
-            log.info("SSH 部署目标连接成功: {}@{}:{} -> {}", username, host, port, remoteRoot);
+            log.info("[maven] SSH 部署目标连接成功: {}@{}:{} -> {}", username, host, port, remoteRoot);
         } catch (ClassNotFoundException e) {
             throw new MavenDeployException(
                     "SSH 部署需要依赖 utils-support-ssh-starter，请添加该依赖到 classpath", e);
@@ -152,7 +152,7 @@ public class SshDeployTarget implements MavenDeployTarget {
             uploadOp.getClass().getMethod("remote", String.class).invoke(uploadOp, remote);
             uploadOp.getClass().getMethod("exec").invoke(uploadOp);
 
-            log.info("SSH 上传: {} -> {}:{}", localPath, host, remote);
+            log.info("[maven] SSH 上传: {} -> {}:{}", localPath, host, remote);
         } catch (Exception e) {
             throw new MavenDeployException(
                     "SSH 文件上传失败: " + localPath + " -> " + host, e);
@@ -173,7 +173,7 @@ public class SshDeployTarget implements MavenDeployTarget {
             mkdirOp.getClass().getMethod("recursive", boolean.class).invoke(mkdirOp, true);
             mkdirOp.getClass().getMethod("exec").invoke(mkdirOp);
         } catch (Exception e) {
-            log.debug("SSH 创建目录异常（可能已存在）: {}", e.getMessage());
+            log.debug("[maven] SSH 创建目录异常（可能已存在）: {}", e.getMessage());
         }
     }
 
@@ -199,7 +199,7 @@ public class SshDeployTarget implements MavenDeployTarget {
             Object rmOp = sftpClient.getClass().getMethod("rm").invoke(sftpClient);
             rmOp.getClass().getMethod("path", String.class).invoke(rmOp, remote);
             rmOp.getClass().getMethod("exec").invoke(rmOp);
-            log.info("SSH 删除: {}", remote);
+            log.info("[maven] SSH 删除: {}", remote);
         } catch (Exception e) {
             throw new MavenDeployException(
                     "SSH 删除失败: " + path + " -> " + host, e);
@@ -212,7 +212,7 @@ public class SshDeployTarget implements MavenDeployTarget {
             try {
                 sftpClient.getClass().getMethod("disconnect").invoke(sftpClient);
             } catch (Exception e) {
-                log.warn("SSH 断开异常: {}", e.getMessage());
+                log.warn("[maven] SSH 断开异常: {}", e.getMessage());
             }
             sftpClient = null;
         }

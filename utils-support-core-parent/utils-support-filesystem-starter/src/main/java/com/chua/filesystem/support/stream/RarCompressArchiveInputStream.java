@@ -68,7 +68,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
                 this.entries = archive.getFileHeaders();
                 this.currentIndex = 0;
             } catch (Exception e) {
-                log.error("[RAR归档][创建]创建RAR归档输入流失败: {}", file.getAbsolutePath(), e);
+                log.error("[filesystem-stream] [创建]创建RAR归档输入流失败: {}", file.getAbsolutePath(), e);
                 throw new IOException("创建RAR归档输入流失败: " + file.getAbsolutePath(), e);
             }
         }
@@ -98,7 +98,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
                         currentEntryStream = new ByteArrayInputStream(bytes);
                         return new RarArchiveEntryAdapter(currentEntry);
                     } catch (Exception e) {
-                        log.warn("[RAR归档][读取]提取文件失败: {}", currentEntry.getFileName(), e);
+                        log.warn("[filesystem-stream] [读取]提取文件失败: {}", currentEntry.getFileName(), e);
                         // 继续下一个条目
                         continue;
                     }
@@ -191,7 +191,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
                 try {
                     archive.close();
                 } catch (Exception e) {
-                    log.warn("[RAR归档][关闭]关闭RAR归档失败", e);
+                    log.warn("[filesystem-stream] [关闭]关闭RAR归档失败", e);
                 }
             }
         }

@@ -89,7 +89,7 @@ public class SpiderRunner {
             record.setEndTime(LocalDateTime.now());
             record.setResultCount(results == null ? 0 : results.size());
         } catch (Exception e) {
-            log.error("[SpiderRunner] 执行失败 spiderCode={}", definition.getSpiderCode(), e);
+            log.error("[spider-config] 执行失败 spiderCode={}", definition.getSpiderCode(), e);
             record.setStatus("FAILED");
             record.setEndTime(LocalDateTime.now());
             record.setErrorMessage(e.getMessage());

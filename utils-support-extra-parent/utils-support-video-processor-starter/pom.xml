@@ -21,22 +21,18 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Rust JNI 桥（运行时必须，JNI 在类加载阶段绑定 native 方法） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-video-processor</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
+        <!-- FFmpeg Rust 备用（代码未直接 import，可选） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-ffmpeg-rust-starter</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
 

@@ -1,7 +1,9 @@
 package com.chua.spider.support.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import java.util.Map;
  * @since 2026/07/17
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder(toBuilder = true)
 public class SpiderSite {
 
@@ -32,8 +36,8 @@ public class SpiderSite {
      * <p>爬取该站点时使用的 User-Agent 字符串，用于模拟浏览器。
      */
     @Builder.Default
-    private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+    private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
     /**
      * 请求间隔。

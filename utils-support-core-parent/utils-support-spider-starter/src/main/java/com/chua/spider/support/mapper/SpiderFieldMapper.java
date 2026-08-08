@@ -111,7 +111,7 @@ public class SpiderFieldMapper {
             return instance;
 
         } catch (Exception e) {
-            log.error("POJO 映射失败: {}", clazz.getName(), e);
+            log.error("[spider-mapper] POJO 映射失败: {}", clazz.getName(), e);
             return null;
         }
     }
@@ -136,7 +136,7 @@ public class SpiderFieldMapper {
                 default: return elements.first().attr(attr);
             }
         } catch (Exception e) {
-            log.warn("CSS 选择器提取失败: {}", annotation.selector(), e);
+            log.warn("[spider-mapper] CSS 选择器提取失败: {}", annotation.selector(), e);
             return null;
         }
     }
@@ -180,7 +180,7 @@ public class SpiderFieldMapper {
             parseJsonResponse(response, results);
 
         } catch (Exception e) {
-            log.warn("AI 提取失败: {}", e.getMessage());
+            log.warn("[spider-mapper] AI 提取失败: {}", e.getMessage());
         }
 
         return results;
@@ -209,7 +209,7 @@ public class SpiderFieldMapper {
             }
             return;
         } catch (Exception e) {
-            log.debug("Jackson 解析失败，使用手动回退解析", e);
+            log.debug("[spider-mapper] Jackson 解析失败，使用手动回退解析", e);
         }
 
         // 回退：手动解析简单 JSON
@@ -232,7 +232,7 @@ public class SpiderFieldMapper {
                 results.put(key, val);
             }
         } catch (Exception e) {
-            log.warn("JSON 手动解析失败", e);
+            log.warn("[spider-mapper] JSON 手动解析失败", e);
         }
     }
 
@@ -256,7 +256,7 @@ public class SpiderFieldMapper {
                 field.set(instance, value);
             }
         } catch (Exception e) {
-            log.warn("字段赋值失败: {}.{}",
+            log.warn("[spider-mapper] 字段赋值失败: {}.{}",
                     field.getDeclaringClass().getSimpleName(), field.getName(), e);
         }
     }

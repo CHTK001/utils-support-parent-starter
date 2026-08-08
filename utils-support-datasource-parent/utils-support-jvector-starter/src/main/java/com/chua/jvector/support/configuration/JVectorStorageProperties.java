@@ -1,5 +1,7 @@
 package com.chua.jvector.support.configuration;
 
+import lombok.Data;
+
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -8,7 +10,38 @@ import java.util.concurrent.ForkJoinPool;
  * @author CH
  * @since 2025/01/15
  */
+@Data
 public class JVectorStorageProperties {
+
+    /**
+     * 默认 PQ 子空间数量
+     */
+    private static final int DEFAULT_PQ_SUBSPACES = 64;
+
+    /**
+     * 默认每个子空间的码本数量
+     */
+    private static final int DEFAULT_PQ_CENTROIDS = 256;
+
+    /**
+     * 默认图最大度数
+     */
+    private static final int DEFAULT_GRAPH_M = 32;
+
+    /**
+     * 默认构建搜索深度
+     */
+    private static final int DEFAULT_GRAPH_EF_CONSTRUCTION = 100;
+
+    /**
+     * 默认搜索倍数
+     */
+    private static final float DEFAULT_SEARCH_OVERQUERY = 2.0f;
+
+    /**
+     * 默认索引文件路径
+     */
+    private static final String DEFAULT_INDEX_PATH = "./jvector-index";
 
     /**
      * 存储模式，默认 Larger-than-Memory。
@@ -18,32 +51,32 @@ public class JVectorStorageProperties {
     /**
      * PQ 子空间数量（仅 LARGER_THAN_MEMORY 模式生效）。
      */
-    private int pqSubspaces = 64;
+    private int pqSubspaces = DEFAULT_PQ_SUBSPACES;
 
     /**
      * 每个子空间的码本数量（仅 LARGER_THAN_MEMORY 模式生效）。
      */
-    private int pqCentroidsPerSubspace = 256;
+    private int pqCentroidsPerSubspace = DEFAULT_PQ_CENTROIDS;
 
     /**
      * 图最大度数 M。
      */
-    private int graphM = 32;
+    private int graphM = DEFAULT_GRAPH_M;
 
     /**
      * 构建时的搜索深度 efConstruction。
      */
-    private int graphEfConstruction = 100;
+    private int graphEfConstruction = DEFAULT_GRAPH_EF_CONSTRUCTION;
 
     /**
      * 搜索时的候选集倍数 overquery。
      */
-    private float searchOverquery = 2.0f;
+    private float searchOverquery = DEFAULT_SEARCH_OVERQUERY;
 
     /**
      * 磁盘索引文件路径（ON_DISK 模式下使用）。
      */
-    private String indexPath = "./jvector-index";
+    private String indexPath = DEFAULT_INDEX_PATH;
 
     /**
      * 是否预构建旋转矩阵和码本。
@@ -54,88 +87,6 @@ public class JVectorStorageProperties {
      * PQ 编码并行度；0 表示使用 {@link ForkJoinPool#commonPool()}。
      */
     private int pqParallelism = 0;
-
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
-
-    public int getPqSubspaces() {
-        return pqSubspaces;
-    }
-
-    public void setPqSubspaces(int pqSubspaces) {
-        this.pqSubspaces = pqSubspaces;
-    }
-
-    public int getPqCentroidsPerSubspace() {
-        return pqCentroidsPerSubspace;
-    }
-
-    public void setPqCentroidsPerSubspace(int pqCentroidsPerSubspace) {
-        this.pqCentroidsPerSubspace = pqCentroidsPerSubspace;
-    }
-
-    public int getGraphM() {
-        return graphM;
-    }
-
-    public void setGraphM(int graphM) {
-        this.graphM = graphM;
-    }
-
-    public int getGraphEfConstruction() {
-        return graphEfConstruction;
-    }
-
-    public void setGraphEfConstruction(int graphEfConstruction) {
-        this.graphEfConstruction = graphEfConstruction;
-    }
-
-    public float getSearchOverquery() {
-        return searchOverquery;
-    }
-
-    public void setSearchOverquery(float searchOverquery) {
-        this.searchOverquery = searchOverquery;
-    }
-
-    public String getIndexPath() {
-        return indexPath;
-    }
-
-    public void setIndexPath(String indexPath) {
-        this.indexPath = indexPath;
-    }
-
-    public boolean isPrepareOnStartup() {
-        return prepareOnStartup;
-    }
-
-    public void setPrepareOnStartup(boolean prepareOnStartup) {
-        this.prepareOnStartup = prepareOnStartup;
-    }
-
-    /**
-     * 获取 PQ 编码并行度；0 表示使用 commonPool。
-     *
-     * @return 并行度
-     */
-    public int getPqParallelism() {
-        return pqParallelism;
-    }
-
-    /**
-     * 设置 PQ 编码并行度；0 表示使用 {@link ForkJoinPool#commonPool()}。
-     *
-     * @param pqParallelism 并行度
-     */
-    public void setPqParallelism(int pqParallelism) {
-        this.pqParallelism = pqParallelism;
-    }
 
     /**
      * JVector 存储模式。

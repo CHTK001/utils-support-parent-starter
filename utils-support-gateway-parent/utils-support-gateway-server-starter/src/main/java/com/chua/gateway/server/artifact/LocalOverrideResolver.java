@@ -30,6 +30,9 @@ import java.nio.file.Paths;
 @Slf4j
 public final class LocalOverrideResolver {
 
+    /**
+     * 私有构造，禁止实例化。
+     */
     private LocalOverrideResolver() {
     }
 
@@ -59,13 +62,13 @@ public final class LocalOverrideResolver {
         Path localOverride = Paths.get(
                 expandUserHome(GatewayProperties.localOverrideDir()), name, version, targetPath);
         if (Files.exists(localOverride)) {
-            log.info("命中 local-override: {}", localOverride);
+            log.info("[gateway-server] 命中 local-override: {}", localOverride);
             return localOverride;
         }
         Path cache = Paths.get(
                 expandUserHome(GatewayProperties.artifactDir()), name, version, targetPath);
         if (Files.exists(cache)) {
-            log.info("命中 cache: {}", cache);
+            log.info("[gateway-server] 命中 cache: {}", cache);
             return cache;
         }
         return null;
@@ -91,7 +94,7 @@ public final class LocalOverrideResolver {
         Path downloadTargetDir = cacheDir.resolve(name).resolve(version);
         Files.createDirectories(downloadTargetDir);
         String urlFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
-        log.info("下载 artifact: {} → {}", downloadUrl, downloadTargetDir.resolve(urlFileName));
+        log.info("[gateway-server] 下载 artifact: {} → {}", downloadUrl, downloadTargetDir.resolve(urlFileName));
         Path downloaded = Downloader.create()
                 .url(downloadUrl)
                 .target(downloadTargetDir)
@@ -99,7 +102,7 @@ public final class LocalOverrideResolver {
                 .showProgress(false)
                 .autoExtract(true)
                 .execute()
-                .file();
+                .getFile();
         // 解压后查询目标路径
         Path target = downloadTargetDir.resolve(targetPath);
         if (!Files.exists(target)) {

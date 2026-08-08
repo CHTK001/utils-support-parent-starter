@@ -18,12 +18,26 @@ import java.util.logging.Logger;
  * 包装统一 Calcite {@link DataSource}：拦截简单 UPDATE 并路由到 Engine。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineAwareDataSource implements DataSource {
 
+    /**
+     * 委托的真实数据源
+     */
     private final DataSource delegate;
+
+    /**
+     * UPDATE 路由执行器
+     */
     private final EngineUpdateSqlExecutor updateExecutor;
 
+    /**
+     * 构造引擎感知数据源。
+     *
+     * @param delegate 真实数据源
+     * @param schemes  引擎方案列表
+     */
     public EngineAwareDataSource(DataSource delegate, List<DataScheme> schemes) {
         this.delegate = delegate;
         this.updateExecutor = new EngineUpdateSqlExecutor(schemes);

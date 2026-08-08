@@ -60,11 +60,11 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("从 {} 提取了 {} 个链接", baseUrl, links.size());
+                log.debug("[spider-extractor] 从 {} 提取了 {} 个链接", baseUrl, links.size());
             }
 
         } catch (Exception e) {
-            log.warn("链接提取失败: {}", response.getRequest() != null ?
+            log.warn("[spider-extractor] 链接提取失败: {}", response.getRequest() != null ?
                     response.getRequest().getUrl() : "unknown", e);
         }
 

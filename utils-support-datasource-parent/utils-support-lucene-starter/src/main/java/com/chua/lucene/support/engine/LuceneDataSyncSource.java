@@ -25,14 +25,45 @@ import java.util.Map;
 @Slf4j
 public class LuceneDataSyncSource implements DataSyncSource {
 
+    /**
+     * 默认批大小
+     */
     private static final int DEFAULT_BATCH = 1000;
 
+    /**
+     * 底层 Lucene 引擎
+     */
     private final LuceneEngine engine;
+
+    /**
+     * 索引表名
+     */
     private final String tableName;
+
+    /**
+     * 源标识
+     */
     private final String sourceId;
+
+    /**
+     * Agent 标识
+     */
     private final String agentId;
+
+    /**
+     * 批大小
+     */
     private final int batchSize;
 
+    /**
+     * 私有构造。
+     *
+     * @param engine    Lucene 引擎
+     * @param tableName 表名
+     * @param sourceId  源标识
+     * @param agentId   Agent 标识
+     * @param batchSize 批大小
+     */
     private LuceneDataSyncSource(LuceneEngine engine, String tableName,
                                  String sourceId, String agentId, int batchSize) {
         this.engine = engine;
@@ -42,11 +73,30 @@ public class LuceneDataSyncSource implements DataSyncSource {
         this.batchSize = batchSize > 0 ? batchSize : DEFAULT_BATCH;
     }
 
+    /**
+     * 默认批大小创建。
+     *
+     * @param engine    Lucene 引擎
+     * @param tableName 表名
+     * @param sourceId  源标识
+     * @param agentId   Agent 标识
+     * @return 实例
+     */
     public static LuceneDataSyncSource output(LuceneEngine engine, String tableName,
                                               String sourceId, String agentId) {
         return new LuceneDataSyncSource(engine, tableName, sourceId, agentId, DEFAULT_BATCH);
     }
 
+    /**
+     * 自定义批大小创建。
+     *
+     * @param engine    Lucene 引擎
+     * @param tableName 表名
+     * @param sourceId  源标识
+     * @param agentId   Agent 标识
+     * @param batchSize 批大小
+     * @return 实例
+     */
     public static LuceneDataSyncSource output(LuceneEngine engine, String tableName,
                                               String sourceId, String agentId, int batchSize) {
         return new LuceneDataSyncSource(engine, tableName, sourceId, agentId, batchSize);

@@ -25,34 +25,54 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public final class EngineUpdateSqlExecutor {
 
+    /**
+     * UPDATE 语句解析正则
+     */
     private static final Pattern UPDATE = Pattern.compile(
             "(?is)^\\s*UPDATE\\s+(?:(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s*\\.\\s*)?(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s+SET\\s+(.+?)(?:\\s+WHERE\\s+(.+))?\\s*$"
     );
 
+    /**
+     * SQL UPDATE 关键字
+     */
+    private static final String SQL_UPDATE_KEYWORD = "UPDATE";
+
+    /**
+     * 已注册的引擎方案列表
+     */
     private final List<DataScheme> schemes;
 
+    /**
+     * 构造路由执行器。
+     *
+     * @param schemes 已注册的引擎方案列表
+     */
     public EngineUpdateSqlExecutor(List<DataScheme> schemes) {
         this.schemes = schemes != null ? schemes : List.of();
     }
 
     /**
      * 若 SQL 为可路由的 UPDATE 则执行并返回影响行数；否则返回 null 交由 Calcite。
+     *
+     * @param sql 原始 SQL
+     * @return 影响行数；不可路由返回 null
      */
     public Integer tryExecute(String sql) {
         if (sql == null) {
             return null;
         }
         String trimmed = sql.trim();
-        if (!trimmed.regionMatches(true, 0, "UPDATE", 0, 6)) {
+        if (!trimmed.regionMatches(true, 0, SQL_UPDATE_KEYWORD, 0, SQL_UPDATE_KEYWORD.length())) {
             return null;
         }
         Matcher m = UPDATE.matcher(trimmed);
         if (!m.matches()) {
-            log.debug("UPDATE 未匹配可路由形态，交由 Calcite: {}", sql);
+            log.debug("[calcite] UPDATE 未匹配可路由形态，交由 Calcite: {}", sql);
             return null;
         }
         String schema = first(m.group(1), m.group(2));
@@ -88,7 +108,7 @@ public final class EngineUpdateSqlExecutor {
             wrapper.eq(e.getKey(), e.getValue());
         }
         int rows = wrapper.update();
-        log.debug("Engine UPDATE {}.{} 影响 {} 行", source.getName(), entityClass.getSimpleName(), rows);
+        log.debug("[calcite] Engine UPDATE {}.{} 影响 {} 行", source.getName(), entityClass.getSimpleName(), rows);
         return rows;
     }
 

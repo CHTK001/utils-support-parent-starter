@@ -66,7 +66,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     public void init(ServerFilterConfig config) throws Exception {
         int threads = Math.max(2, Runtime.getRuntime().availableProcessors());
         this.proxyEventLoopGroup = new NioEventLoopGroup(threads);
-        log.info("HttpReverseProxyFilter 初始化完成, eventLoopThreads={}", threads);
+        log.info("[network-proxy] HttpReverseProxyFilter 初始化完成, eventLoopThreads={}", threads);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
                             @Override
                             public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                                log.warn("HTTP 反向代理后端异常: {}", cause.getMessage());
+                                log.warn("[network-proxy] HTTP 反向代理后端异常: {}", cause.getMessage());
                                 sendError(response, 502, "Bad Gateway");
                                 ctx.close();
                                 if (completionFuture != null) {
@@ -191,7 +191,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
         b.connect(host, port).addListener((ChannelFutureListener) connectFuture -> {
             if (!connectFuture.isSuccess()) {
-                log.warn("HTTP 反向代理连接失败: {}:{}: {}", host, port, connectFuture.cause().getMessage());
+                log.warn("[network-proxy] HTTP 反向代理连接失败: {}:{}: {}", host, port, connectFuture.cause().getMessage());
                 sendError(response, 502, "Bad Gateway: connection failed");
                 if (completionFuture != null) {
                     completionFuture.completeExceptionally(connectFuture.cause());
@@ -223,7 +223,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
             channel.writeAndFlush(proxyReq).addListener((ChannelFutureListener) writeFuture -> {
                 if (!writeFuture.isSuccess()) {
-                    log.warn("HTTP 反向代理写入失败: {}", writeFuture.cause().getMessage());
+                    log.warn("[network-proxy] HTTP 反向代理写入失败: {}", writeFuture.cause().getMessage());
                     sendError(response, 502, "Bad Gateway");
                     channel.close();
                     if (completionFuture != null) {

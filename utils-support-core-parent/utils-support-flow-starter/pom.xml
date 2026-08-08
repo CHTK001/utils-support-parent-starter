@@ -27,25 +27,26 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Spring Boot 自动配置 -->
+        <!-- Spring Boot 自动配置（运行时反射 @Configuration/@Bean） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>${spring.boot.version}</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
-        <!-- Spring Web 注解（RestController 等） -->
+        <!-- Spring Web 注解（运行时 MVC 反射 @RestController 等） -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
+        <!-- Spring Context（运行时反射 @Configuration/@Bean） -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

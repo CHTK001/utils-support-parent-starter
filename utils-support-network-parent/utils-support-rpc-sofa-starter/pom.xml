@@ -23,5 +23,25 @@
             <artifactId>sofa-rpc-all</artifactId>
             <version>5.13.5</version>
         </dependency>
+        <!-- sofa-rpc-all 内嵌 msgpack codec（sofa-rpc-codec-msgpack）在 SerializerFactory 启动时
+             即需旧版 org.msgpack.MessagePack API，缺此依赖抛 NoClassDefFoundError -->
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>msgpack</artifactId>
+            <version>0.6.12</version>
+        </dependency>
+        <!-- sofa-rpc 内嵌 logback space logger（com.alipay.sofa.rpc.log.logback）依赖 logback 1.2.x 的
+             ContextInitializer.configureByResource(URL) API（1.3+ 已移除），且 sofa-common-tools 自身声明
+             slf4j 1.7.x + logback 1.2.x；此处显式对齐，避免被上层项目解析为 slf4j 2.0 + logback 1.5 后 NoSuchMethodError -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.12</version>
+        </dependency>
     </dependencies>
 </project>

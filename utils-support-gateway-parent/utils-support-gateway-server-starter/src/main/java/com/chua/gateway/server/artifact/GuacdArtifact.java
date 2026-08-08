@@ -50,6 +50,40 @@ public final class GuacdArtifact {
      */
     private static final String GUACD_RELATIVE_PATH = "sbin/guacd";
 
+    /**
+     * guacd 启动超时（毫秒）
+     */
+    private static final long STARTUP_TIMEOUT_MS = 30_000L;
+
+    /**
+     * cache 目录模板
+     */
+    private static final String CACHE_DIR_TEMPLATE =
+            "%s/.utils-support-gateway/cache/%s/%s";
+
+    /**
+     * Windows 平台关键字
+     */
+    private static final String OS_WINDOWS = "windows";
+
+    /**
+     * Mac 平台关键字
+     */
+    private static final String OS_MAC = "mac";
+
+    /**
+     * user.home 系统属性名
+     */
+    private static final String USER_HOME = "user.home";
+
+    /**
+     * guacd 默认监听端口占位（实际从 GatewayProperties 读取）
+     */
+    private static final String DEFAULT_PORT_PLACEHOLDER = "${guacd.port}";
+
+    /**
+     * 私有构造，禁止实例化。
+     */
     private GuacdArtifact() {
     }
 
@@ -60,10 +94,10 @@ public final class GuacdArtifact {
      */
     private static String detectGuacdBinary() {
         String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("windows")) {
+        if (os.contains(OS_WINDOWS)) {
             return "guacd-windows-x86_64.exe";
         }
-        if (os.contains("mac")) {
+        if (os.contains(OS_MAC)) {
             return "guacd-macosx";
         }
         return "guacd";
@@ -84,7 +118,7 @@ public final class GuacdArtifact {
      * @return 真实 user.home 路径
      */
     private static String userHome() {
-        return System.getProperty("user.home", "").replace("${user.home}", System.getProperty("user.home", ""));
+        return System.getProperty(USER_HOME, "").replace("${user.home}", System.getProperty(USER_HOME, ""));
     }
 
     /**
@@ -95,8 +129,9 @@ public final class GuacdArtifact {
      * @return RuntimeArtifact
      */
     public static RuntimeArtifact create(String version, String downloadUrl) {
-        log.info("构造 GuacdArtifact: version={} url={}", version, downloadUrl);
-        java.io.File extractDir = new java.io.File(userHome() + "/.utils-support-gateway/cache/" + ARTIFACT_ID + "/" + version);
+        log.info("[gateway-server] 构造 GuacdArtifact: version={} url={}", version, downloadUrl);
+        java.io.File extractDir = new java.io.File(
+                String.format(CACHE_DIR_TEMPLATE, userHome(), ARTIFACT_ID, version));
         return RuntimeArtifact.builder()
                 .id(ARTIFACT_ID + "-" + version)
                 .name("Apache Guacamole guacd " + version)
@@ -105,8 +140,8 @@ public final class GuacdArtifact {
                 .downloadFilename("guacamole-server-" + version + ".tar.gz")
                 .autoExtract(true)
                 .extractTo(extractDir.toPath())
-                .args("-b", "127.0.0.1", "-p", String.valueOf(GatewayProperties.guacdPort()))
-                .startupTimeoutMs(30_000L)
+                .args(java.util.Arrays.asList("-b", "127.0.0.1", "-p", String.valueOf(GatewayProperties.guacdPort())))
+                .startupTimeoutMs(STARTUP_TIMEOUT_MS)
                 .build();
     }
 

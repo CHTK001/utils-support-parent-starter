@@ -129,11 +129,11 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
         }
 
         String clientIp = IpUtils.getClientIp(request);
-        log.debug("内部接口访问检查: uri={}, clientIp={}", request.getRequestURI(), clientIp);
+        log.debug("[springboot-interceptor] 内部接口访问检查: uri={}, clientIp={}", request.getRequestURI(), clientIp);
 
         // 检查是否允许内网IP
         if (apiInternal.allowPrivateNetwork() && IpUtils.isPrivateIp(clientIp)) {
-            log.debug("内网IP访问内部接口: {}", clientIp);
+            log.debug("[springboot-interceptor] 内网IP访问内部接口: {}", clientIp);
             return true;
         }
 
@@ -142,7 +142,7 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
         if (allowedIps.length > 0) {
             for (String allowedIp : allowedIps) {
                 if (IpUtils.matchIp(clientIp, allowedIp)) {
-                    log.debug("白名单IP访问内部接口: {}", clientIp);
+                    log.debug("[springboot-interceptor] 白名单IP访问内部接口: {}", clientIp);
                     return true;
                 }
             }
@@ -155,7 +155,7 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
             if (StringUtils.isNotBlank(serviceName)) {
                 for (String allowedService : allowedServices) {
                     if (allowedService.equalsIgnoreCase(serviceName)) {
-                        log.debug("白名单服务访问内部接口: {}", serviceName);
+                        log.debug("[springboot-interceptor] 白名单服务访问内部接口: {}", serviceName);
                         return true;
                     }
                 }
@@ -164,20 +164,20 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
 
         // 如果配置了白名单但未匹配，拒绝访问
         if (allowedIps.length > 0 || allowedServices.length > 0) {
-            log.warn("非授权访问内部接口: uri={}, clientIp={}", request.getRequestURI(), clientIp);
+            log.warn("[springboot-interceptor] 非授权访问内部接口: uri={}, clientIp={}", request.getRequestURI(), clientIp);
             writeResponse(response, apiInternal.status(), ReturnResult.error(apiInternal.message()));
             return false;
         }
 
         // 默认情况：未开启内网访问且无白名单配置，拒绝访问
         if (!apiInternal.allowPrivateNetwork()) {
-            log.warn("内部接口未配置访问规则: uri={}", request.getRequestURI());
+            log.warn("[springboot-interceptor] 内部接口未配置访问规则: uri={}", request.getRequestURI());
             writeResponse(response, apiInternal.status(), ReturnResult.error(apiInternal.message()));
             return false;
         }
 
         // 非内网IP访问
-        log.warn("非内网IP访问内部接口被拒绝: uri={}, clientIp={}", request.getRequestURI(), clientIp);
+        log.warn("[springboot-interceptor] 非内网IP访问内部接口被拒绝: uri={}, clientIp={}", request.getRequestURI(), clientIp);
         writeResponse(response, apiInternal.status(), ReturnResult.error(apiInternal.message()));
         return false;
     }
@@ -198,7 +198,7 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
 
         String featureId = apiFeature.value();
         if (!featureManager.isEnabled(featureId)) {
-            log.debug("功能开关已关闭: {}", featureId);
+            log.debug("[springboot-interceptor] 功能开关已关闭: {}", featureId);
             writeResponse(response, apiFeature.disabledStatus(),
                     ReturnResult.error(apiFeature.disabledMessage()));
             return false;
@@ -256,7 +256,7 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
             return true;
         }
 
-        log.debug("返回 Mock 数据: {} -> {}", request.getRequestURI(), apiMock.description());
+        log.debug("[springboot-interceptor] 返回 Mock 数据: {} -> {}", request.getRequestURI(), apiMock.description());
         response.setStatus(apiMock.status());
         response.setContentType(apiMock.contentType());
         response.getWriter().write(mockResponse);
@@ -300,7 +300,7 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
 
         // 如果请求版本 >= 移除版本，返回 410 Gone
         if (requestVersion.compareTo(removedVersion) >= 0) {
-            log.warn("接口已移除: {} (removed in {})", request.getRequestURI(), apiDeprecated.removedIn());
+            log.warn("[springboot-interceptor] 接口已移除: {} (removed in {})", request.getRequestURI(), apiDeprecated.removedIn());
             writeResponse(response, 410, ReturnResult.error("此接口已被移除"));
             return false;
         }
@@ -309,12 +309,12 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
         if (requestVersion.compareTo(sinceVersion) >= 0) {
             // 有替代接口，返回提示
             if (StringUtils.isNotBlank(apiDeprecated.replacement())) {
-                log.debug("接口已废弃，建议使用: {}", apiDeprecated.replacement());
+                log.debug("[springboot-interceptor] 接口已废弃，建议使用: {}", apiDeprecated.replacement());
                 // 继续执行，但在响应头中提示
                 return true;
             } else {
                 // 没有替代接口，返回空结果
-                log.debug("接口已废弃，无替代接口，返回空: {}", request.getRequestURI());
+                log.debug("[springboot-interceptor] 接口已废弃，无替代接口，返回空: {}", request.getRequestURI());
                 writeResponse(response, 200, ReturnResult.ok(null));
                 return false;
             }
@@ -360,19 +360,19 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
             String headerName = apiProperties.getGray().getHeaderName();
             response.setHeader(headerName, "true");
             response.setHeader(headerName + "-Version", StringUtils.defaultString(apiGray.value(), "default"));
-            log.debug("灰度命中: uri={}, version={}", request.getRequestURI(), apiGray.value());
+            log.debug("[springboot-interceptor] 灰度命中: uri={}, version={}", request.getRequestURI(), apiGray.value());
             return true;
         }
 
         // 未命中灰度
         if (apiGray.forceGray()) {
             // 强制灰度模式，未命中则拒绝访问
-            log.debug("灰度未命中(强制模式): uri={}", request.getRequestURI());
+            log.debug("[springboot-interceptor] 灰度未命中(强制模式): uri={}", request.getRequestURI());
             
             // 检查是否有降级接口
             if (StringUtils.isNotBlank(apiGray.fallback())) {
                 // 转发到降级接口
-                log.debug("灰度降级: {} -> {}", request.getRequestURI(), apiGray.fallback());
+                log.debug("[springboot-interceptor] 灰度降级: {} -> {}", request.getRequestURI(), apiGray.fallback());
                 try {
                     request.getRequestDispatcher(apiGray.fallback()).forward(request, response);
                 } catch (ServletException e) {
@@ -388,7 +388,7 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
         }
 
         // 非强制灰度模式，未命中则正常执行
-        log.debug("灰度未命中(非强制模式)，继续执行: uri={}", request.getRequestURI());
+        log.debug("[springboot-interceptor] 灰度未命中(非强制模式)，继续执行: uri={}", request.getRequestURI());
         return true;
     }
 
@@ -445,10 +445,10 @@ public class ApiControlInterceptor implements HandlerInterceptor  {
                 if (resource.exists()) {
                     return IoUtils.asString(resource.getInputStream(), StandardCharsets.UTF_8);
                 } else {
-                    log.warn("Mock 文件不存在: {}", apiMock.responseFile());
+                    log.warn("[springboot-interceptor] Mock 文件不存在: {}", apiMock.responseFile());
                 }
             } catch (IOException e) {
-                log.error("读取 Mock 文件失败: {}", apiMock.responseFile(), e);
+                log.error("[springboot-interceptor] 读取 Mock 文件失败: {}", apiMock.responseFile(), e);
             }
         }
 

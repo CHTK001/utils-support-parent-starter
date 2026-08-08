@@ -1,7 +1,9 @@
 package com.chua.filesystem.support.restore;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 数据恢复设置
@@ -14,6 +16,8 @@ import lombok.Data;
  * @since 2024/12/25
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class RestoreSetting {
 

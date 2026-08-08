@@ -142,7 +142,7 @@ public class DjlModelFactory implements AutoCloseable {
                         }
                         predictor = model.newPredictor(translatorFactory.create());
                         initialized = true;
-                        log.info("DJL 模型加载成功: engine={}, name={}, path={}", engine, modelName, modelPath);
+                        log.info("[deeplearning-engine] DJL 模型加载成功: engine={}, name={}, path={}", engine, modelName, modelPath);
                     } catch (Exception e) {
                         throw new RuntimeException("DJL 模型加载失败: " + modelName + " -> " + modelPath, e);
                     }

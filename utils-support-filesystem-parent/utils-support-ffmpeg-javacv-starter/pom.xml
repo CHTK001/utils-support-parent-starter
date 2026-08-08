@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-filesystem-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-ffmpeg-javacv-starter</artifactId>
+    <name>Utils Support FFmpeg JavaCV Starter</name>
+    <description>基于 JavaCV 的 FFmpeg 实现</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ffmpeg-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg-platform</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

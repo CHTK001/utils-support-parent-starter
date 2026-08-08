@@ -130,7 +130,7 @@ public class ApiFilterConfiguration  {
                 return;
             }
             if (!NonceUtils.validateXhrRequest(req)) {
-                log.warn("[Nonce][XHR] 请求校验失败 uri={}", req.getRequestURI());
+                log.warn("[springboot-configuration] [XHR] 请求校验失败 uri={}", req.getRequestURI());
                 resp.setStatus(SC_NONCE_REJECT);
                 resp.setContentType("application/json;charset=UTF-8");
                 resp.getOutputStream().write(REJECT_MSG.getBytes(StandardCharsets.UTF_8));

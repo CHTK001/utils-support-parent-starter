@@ -128,7 +128,7 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
         }
         for (String pattern : whiteList) {
             if (PATH_MATCHER.match(pattern, requestPath)) {
-                log.debug("[RequestDecode] 路径 {} 匹配白名单规则 {}", requestPath, pattern);
+                log.debug("[springboot-decode] 路径 {} 匹配白名单规则 {}", requestPath, pattern);
                 return true;
             }
         }
@@ -205,7 +205,7 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
      */
     public boolean validateAntiReplay(String timestamp, String nonce) {
         if (!StringUtils.hasText(timestamp) || !StringUtils.hasText(nonce)) {
-            log.warn("[AntiReplay] 时间戳或nonce为空");
+            log.warn("[springboot-decode] 时间戳或nonce为空");
             return false;
         }
 
@@ -214,28 +214,28 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
             long currentTime = System.currentTimeMillis();
 
             if (Math.abs(currentTime - requestTime) > REQUEST_TIMESTAMP_TTL_MS) {
-                log.warn("[AntiReplay] 请求时间戳超出有效范围： {}, 当前时间: {}", requestTime, currentTime);
+                log.warn("[springboot-decode] 请求时间戳超出有效范围： {}, 当前时间: {}", requestTime, currentTime);
                 return false;
             }
 
             String requestId = timestamp + "_" + nonce;
 
             if (requestTimestampStore.containsKey(requestId)) {
-                log.warn("[AntiReplay] 检测到重放攻击，请求ID: {}", requestId);
+                log.warn("[springboot-decode] 检测到重放攻击，请求ID: {}", requestId);
                 return false;
             }
 
             requestTimestampStore.put(requestId, currentTime);
             cleanupExpiredRequests();
 
-            log.debug("[AntiReplay] 请求验证通过，请求ID: {}", requestId);
+            log.debug("[springboot-decode] 请求验证通过，请求ID: {}", requestId);
             return true;
 
         } catch (NumberFormatException e) {
-            log.warn("[AntiReplay] 时间戳格式错误： {}", timestamp);
+            log.warn("[springboot-decode] 时间戳格式错误： {}", timestamp);
             return false;
         } catch (Exception e) {
-            log.error("[AntiReplay] 验证请求时发生错误", e);
+            log.error("[springboot-decode] 验证请求时发生错误", e);
             return false;
         }
     }
@@ -295,11 +295,11 @@ public class ApiRequestDecodeRegister implements Upgrade<ApiRequestDecodeSetting
             }
 
             if (removedCount > 0) {
-                log.debug("[AntiReplay-Cleanup] 清理了{} 个过期/多余的请求记录，当前存储: {}",
+                log.debug("[springboot-decode] 清理了{} 个过期/多余的请求记录，当前存储: {}",
                         removedCount, requestTimestampStore.size());
             }
         } catch (Exception e) {
-            log.error("[AntiReplay-Cleanup] 清理请求记录时发生错误", e);
+            log.error("[springboot-decode] 清理请求记录时发生错误", e);
         }
     }
 }

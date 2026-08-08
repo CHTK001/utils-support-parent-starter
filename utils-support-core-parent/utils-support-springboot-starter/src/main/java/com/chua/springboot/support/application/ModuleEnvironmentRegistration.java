@@ -36,7 +36,7 @@ public class ModuleEnvironmentRegistration {
         }
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         globalSettingFactory.register(group, config, enabled);
-        log.info("[环境配置]已注册模块配置, 组: {}, 启用: {}, 类型: {}", group, enabled, config.getClass().getName());
+        log.info("[springboot-application] 已注册模块配置, 组: {}, 启用: {}, 类型: {}", group, enabled, config.getClass().getName());
     }
 }
 

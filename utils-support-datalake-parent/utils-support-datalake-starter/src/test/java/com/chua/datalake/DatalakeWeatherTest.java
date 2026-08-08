@@ -12,6 +12,7 @@ import com.chua.datalake.support.spi.pipeline.PipelineManager;
 import com.chua.datalake.support.spi.storage.DataSink;
 import com.chua.datalake.support.transport.DisruptorMq;
 import com.chua.datalake.support.spi.transport.InternalMq;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * 数据中台完整示例：Weather 实时采集 → Pipeline 处理 → Sink 验证
+ * 数据中台完整示例：Weather 实时采集 → Pipeline 处理 → Sink 验证。
  *
  * <p>演示 InternalMq + PipelineEngine + DataSink 的三层数据流，
  * 通过 DisruptorMq（内存发布订阅）解耦采集与处理阶段。</p>
@@ -33,11 +34,15 @@ import java.util.function.Consumer;
  *
  * <h3>数据流</h3>
  * WeatherCollector／程序模拟 → InternalMq.publish → PipelineEngine.execute → Sink.write
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
+@Slf4j
 public class DatalakeWeatherTest {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("=== 数据中台 Weather 测试开始 ===");
+        log.info("[datalake-server] === 数据中台 Weather 测试开始 ===");
 
         // ===== 1. 初始化内部队列 =====
         // InternalMq SPI 接口，用于 Pipeline 内部各阶段之间的消息发布/订阅
@@ -49,7 +54,10 @@ public class DatalakeWeatherTest {
         List<DataEnvelope> receivedSinkData = new CopyOnWriteArrayList<>();
         DataSink testSink = new LogSink() {
             @Override
-            public String type() { return "test"; }
+            public String type() {
+                return "test";
+            }
+
             @Override
             public boolean write(DataEnvelope envelope, Map<String, Object> config) {
                 receivedSinkData.add(envelope);
@@ -75,54 +83,59 @@ public class DatalakeWeatherTest {
         PipelineEngine engine = new PipelineEngine(
                 pipelineManager,
                 new ConditionRouter(),
-                Collections.emptyMap(),  // filterRegistry
-                Collections.emptyMap(),  // parserRegistry
-                Collections.emptyMap(),  // cleanerRegistry
-                Collections.emptyMap(),  // standardizerRegistry
-                Map.of("test", testSink) // sinkRegistry
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                Map.of("test", testSink)
         );
         engine.start(pipelineId);
 
         // ===== 5. 通过 InternalMq 订阅 =====
         // 当数据发布到 InternalMq 的 "weather" 主题时，自动触发 Pipeline 处理
         mq.subscribe("weather", envelope -> {
-            System.out.println("[MQ] 收到天气数据, topic=weather, traceId=" + envelope.getTraceId());
+            log.info("[datalake-server] [MQ] 收到天气数据, topic=weather, traceId={}", envelope.getTraceId());
             List<DataEnvelope> results = engine.execute(pipelineId, envelope);
-            System.out.println("[MQ] Pipeline 处理完成, 产出 " + results.size() + " 条结果");
+            log.info("[datalake-server] [MQ] Pipeline 处理完成, 产出 {} 条结果", results.size());
         });
 
         // ===== 6. 模拟天气采集数据（WeatherCollector 的实际 payload 格式）=====
         simulateWeatherData(mq);
 
         // ===== 7. 验证 Sink 结果 =====
-        System.out.println("\n=== 验证结果 ===");
-        System.out.println("Sink 收到 " + receivedSinkData.size() + " 条数据");
+        log.info("[datalake-server] === 验证结果 ===");
+        log.info("[datalake-server] Sink 收到 {} 条数据", receivedSinkData.size());
         for (DataEnvelope env : receivedSinkData) {
-            System.out.println("  traceId=" + env.getTraceId()
-                    + ", state=" + env.getState()
-                    + ", parsed=" + env.getParsed());
+            log.info("[datalake-server]   traceId={}, state={}, parsed={}",
+                    env.getTraceId(), env.getState(), env.getParsed());
         }
 
         if (receivedSinkData.isEmpty()) {
-            System.err.println("FAIL: Sink 未收到任何数据");
+            log.error("[datalake-server] FAIL: Sink 未收到任何数据");
         } else {
             boolean allSuccess = receivedSinkData.stream()
                     .allMatch(d -> d.getState() == PipelineState.SINK_OK);
-            System.out.println(allSuccess ? "SUCCESS: 所有数据已成功写入 Sink" : "WARN: 部分数据状态异常");
+            if (allSuccess) {
+                log.info("[datalake-server] SUCCESS: 所有数据已成功写入 Sink");
+            } else {
+                log.warn("[datalake-server] WARN: 部分数据状态异常");
+            }
         }
 
         // ===== 8. 清理 =====
         mq.stop();
         pipelineManager.stop(pipelineId);
-        System.out.println("=== 测试结束 ===");
+        log.info("[datalake-server] === 测试结束 ===");
     }
 
     /**
-     * 模拟天气采集数据发布到 InternalMq
+     * 模拟天气采集数据发布到 InternalMq。
      *
      * <p>实际使用 WeatherCollector 时会调用外部 Open-Meteo API，
      * 这里用模拟数据避免网络依赖。WeatherCollector 收到 API 响应后同样
      * 构建 CollectData → publish 到服务器 → 最终经 InternalMq 流转。</p>
+     *
+     * @param mq 内部队列实例
      */
     private static void simulateWeatherData(InternalMq mq) {
         // 模拟 Open-Meteo API 返回的天气 JSON
@@ -147,7 +160,7 @@ public class DatalakeWeatherTest {
         envelope.setState(PipelineState.RECEIVED);
         envelope.addTrace("Received weather data");
 
-        System.out.println("[模拟] 发布天气数据到 InternalMq: topic=weather");
+        log.info("[datalake-server] [模拟] 发布天气数据到 InternalMq: topic=weather");
         mq.publish("weather", envelope);
     }
 }

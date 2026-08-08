@@ -203,6 +203,13 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // ==================== 图像分类 (EfficientNet / ViT) ====================
         reg("mobilenetv4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.onnx", false, null);
         reg("deepfake-detector", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/deepfake-detector/model.onnx", "https://huggingface.co/onnx-community/Deep-Fake-Detector-v2-Model-ONNX/resolve/main/onnx/model.onnx", false, null);
+
+        // ==================== FacePlugin 人脸检测/关键点/特征 ====================
+        // 模型资源随 utils-support-models-faceplugin-{detect,landmark,feature} 三个 jar 分发，
+        // 通过 ModelRegistry.resolveModelPath() 在运行时从 classpath 解析并解压到 java.io.tmpdir/chua-dl-models/。
+        reg("faceplugin-face-detect-slim", "com.chua.deeplearning.support.onnx.face.FacePluginDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "models/onnx/face/detection/faceplugin/face_detect_slim.onnx");
+        reg("faceplugin-face-landmark", "com.chua.deeplearning.support.onnx.face.FacePluginLandmarkTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/landmark/faceplugin/face_landmark.onnx");
+        reg("faceplugin-face-feature", "com.chua.deeplearning.support.onnx.face.FacePluginFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/feature/faceplugin/face_feature.onnx");
     }
 
     private static void reg(String modelId, String translatorClassName,

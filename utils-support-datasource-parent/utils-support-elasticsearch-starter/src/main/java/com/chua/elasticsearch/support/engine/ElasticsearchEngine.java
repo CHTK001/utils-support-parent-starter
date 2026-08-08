@@ -33,13 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Elasticsearch 搜索引擎实现。
- * <p>
- * 将 {@link Engine} 查询条件（{@link Condition}）原生翻译为 ES Query DSL，
- * 支持 =、!=、&gt;、&gt;=、&lt;、&lt;=、LIKE、IN、NOT IN、IS NULL、IS NOT NULL、BETWEEN
- * 以及 AND / OR / NOT 逻辑嵌套。
- * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("elasticsearch")
@@ -109,7 +105,7 @@ public class ElasticsearchEngine implements Engine {
 
     @Override
     public <T> Engine store(String name, List<T> data) {
-        log.info("ES 引擎暂不支持 store 操作: name={}, size={}", name, data == null ? 0 : data.size());
+        log.info("[elasticsearch-datasource] 引擎暂不支持 store 操作: name={}, size={}", name, data == null ? 0 : data.size());
         return this;
     }
 
@@ -284,7 +280,7 @@ public class ElasticsearchEngine implements Engine {
                     .map(h -> mapToEntity((Map<String, Object>) h.source(), entityClass))
                     .toList();
         } catch (Exception e) {
-            log.warn("ES 查询失败: {}", e.getMessage());
+            log.warn("[elasticsearch-datasource] 查询失败: {}", e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -383,7 +379,7 @@ public class ElasticsearchEngine implements Engine {
                                 .lte(JsonData.of(range[1])))));
             }
             default:
-                log.warn("不支持的 ES 操作符: {}", op);
+                log.warn("[elasticsearch-datasource] 不支持的操作符: {}", op);
                 return Query.of(q -> q.matchAll(m -> m));
         }
     }

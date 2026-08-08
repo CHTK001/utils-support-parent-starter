@@ -17,32 +17,36 @@
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
 
+        <!-- Datalake SPI（运行时反射 DataSink/AccessSink 等） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datalake-sink-starter</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
+        <!-- Datalake 订阅（运行时引用 SubscriberManager） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datalake-subscribe-starter</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
+        <!-- Datalake 查询引擎（运行时引用 PipelineEngine/PipelineManager） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datalake-query-starter</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
+        <!-- DataSync 服务（运行时引用 DataSyncServer/ExecutorManager） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasync-starter</artifactId>
             <version>${project.version}</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -60,7 +64,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-calcite-starter</artifactId>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

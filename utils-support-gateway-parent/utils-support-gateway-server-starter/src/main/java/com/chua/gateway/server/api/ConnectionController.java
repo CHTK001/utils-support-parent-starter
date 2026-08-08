@@ -119,7 +119,7 @@ public final class ConnectionController {
     public void authenticate(ServerRequest request, ServerResponse response) {
         try {
             AuthRequest req = JSON.readValue(request.getBody(), AuthRequest.class);
-            log.info("收到鉴权请求: mode={} key={} protocol={}", req.mode(), req.key(), req.protocol());
+            log.info("[gateway-server] 收到鉴权请求: mode={} key={} protocol={}", req.mode(), req.key(), req.protocol());
             Connection conn = resolveConnection(req);
             if (conn == null) {
                 writeJson(response, 401, "{\"error\":\"invalid credentials\"}");
@@ -135,7 +135,7 @@ public final class ConnectionController {
                     conn.port());
             writeJson(response, 200, JSON.writeValueAsString(out));
         } catch (Exception e) {
-            log.warn("鉴权处理失败: {}", e.getMessage());
+            log.warn("[gateway-server] 鉴权处理失败: {}", e.getMessage());
             writeJson(response, 500, "{\"error\":\"" + e.getMessage() + "\"}");
         }
     }
@@ -152,7 +152,7 @@ public final class ConnectionController {
             List<String> keys = connectionStore.listKeys();
             writeJson(response, 200, JSON.writeValueAsString(keys));
         } catch (Exception e) {
-            log.warn("列出 key 失败: {}", e.getMessage());
+            log.warn("[gateway-server] 列出 key 失败: {}", e.getMessage());
             writeJson(response, 500, "{\"error\":\"" + e.getMessage() + "\"}");
         }
     }
@@ -169,7 +169,7 @@ public final class ConnectionController {
             List<String> protocols = protocolScanner.listProtocols();
             writeJson(response, 200, JSON.writeValueAsString(protocols));
         } catch (Exception e) {
-            log.warn("列出协议失败: {}", e.getMessage());
+            log.warn("[gateway-server] 列出协议失败: {}", e.getMessage());
             writeJson(response, 500, "{\"error\":\"" + e.getMessage() + "\"}");
         }
     }

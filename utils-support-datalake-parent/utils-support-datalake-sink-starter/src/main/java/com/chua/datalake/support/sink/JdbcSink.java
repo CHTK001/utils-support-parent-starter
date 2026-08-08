@@ -28,12 +28,12 @@ public class JdbcSink implements DataSink {
 
     @Override
     public void start() {
-        log.info("JdbcSink started");
+        log.info("[datalake-sink] JdbcSink 启动");
     }
 
     @Override
     public void stop() {
-        log.info("JdbcSink stopped");
+        log.info("[datalake-sink] JdbcSink 停止");
     }
 
     @Override
@@ -41,7 +41,7 @@ public class JdbcSink implements DataSink {
         if (envelope == null) {
             return false;
         }
-        log.info("[SINK:jdbc] pipelineId={} data={}",
+        log.info("[datalake-sink] 写入数据: pipelineId={}, data={}",
                 envelope.getPipelineId(),
                 envelope.getParsed());
         return true;

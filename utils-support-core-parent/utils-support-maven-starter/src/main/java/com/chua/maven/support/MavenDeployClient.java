@@ -149,7 +149,7 @@ public class MavenDeployClient {
                 notifyProgress("已部署: " + sourceFile.getName(), percent);
             }
 
-            log.info("部署成功 [{} 个文件] -> {}", deployed.size(), target.name());
+            log.info("[maven] 部署成功 [{} 个文件] -> {}", deployed.size(), target.name());
             notifySuccess(deployed);
         } catch (Exception e) {
             notifyFailure(e);
@@ -158,7 +158,7 @@ public class MavenDeployClient {
             try {
                 target.disconnect();
             } catch (Exception ex) {
-                log.warn("断开目标连接异常: {}", ex.getMessage());
+                log.warn("[maven] 断开目标连接异常: {}", ex.getMessage());
             }
         }
 
@@ -202,7 +202,7 @@ public class MavenDeployClient {
                 parentDir.mkdirs();
             }
             Files.copy(Path.of(main), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            log.info("文件部署: {} -> {}", main, targetFilePath);
+            log.info("[maven] 文件部署: {} -> {}", main, targetFilePath);
             List<String> paths = List.of(targetFilePath);
             notifySuccess(paths);
             return targetFilePath;
@@ -230,7 +230,7 @@ public class MavenDeployClient {
         File renamedFile = new File(parentDir, newName);
         try {
             Files.move(sourceFile.toPath(), renamedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            log.info("重命名: {} -> {}", sourcePath, renamedFile.getAbsolutePath());
+            log.info("[maven] 重命名: {} -> {}", sourcePath, renamedFile.getAbsolutePath());
             return renamedFile.getAbsolutePath();
         } catch (IOException e) {
             throw new MavenDeployException("重命名失败: " + e.getMessage(), e);
@@ -244,7 +244,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeployStart(info);
             } catch (Exception e) {
-                log.warn("部署开始回调异常: {}", e.getMessage());
+                log.warn("[maven] 部署开始回调异常: {}", e.getMessage());
             }
         }
     }
@@ -254,7 +254,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeployProgress(message, percent);
             } catch (Exception e) {
-                log.warn("部署进度回调异常: {}", e.getMessage());
+                log.warn("[maven] 部署进度回调异常: {}", e.getMessage());
             }
         }
     }
@@ -264,7 +264,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeploySuccess(deployedPaths);
             } catch (Exception e) {
-                log.warn("部署成功回调异常: {}", e.getMessage());
+                log.warn("[maven] 部署成功回调异常: {}", e.getMessage());
             }
         }
     }
@@ -274,7 +274,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeployFailure(exception);
             } catch (Exception ex) {
-                log.warn("部署失败回调异常: {}", ex.getMessage());
+                log.warn("[maven] 部署失败回调异常: {}", ex.getMessage());
             }
         }
     }

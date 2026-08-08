@@ -35,7 +35,7 @@ public final class SshProtocolServerFactory implements ProtocolServerFactory {
         SshBridge bridge = new SshBridge(connection);
         GatewayTunnel tunnel = GatewayTunnel.of(tunnelId, connection, bridge);
         tunnel.open();
-        log.info("SSH Tunnel 创建: id={} target={}@{}:{}",
+        log.info("[gateway-server] SSH Tunnel 创建: id={} target={}@{}:{}",
                 tunnelId, connection.user(), connection.host(), connection.port());
         return tunnel;
     }
