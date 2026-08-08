@@ -1,0 +1,4 @@
+http=com.chua.common.support.network.sync.impl.HttpSyncServer
+websocket=com.chua.common.support.network.sync.impl.WebSocketSyncServer
+tcp=com.chua.common.support.network.sync.impl.TcpSyncServer
+udp=com.chua.common.support.network.sync.impl.UdpSyncServer

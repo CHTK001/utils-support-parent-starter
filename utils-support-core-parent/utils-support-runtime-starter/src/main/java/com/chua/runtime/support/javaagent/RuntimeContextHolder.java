@@ -1,6 +1,7 @@
 package com.chua.runtime.support.javaagent;
 
 import com.chua.runtime.support.RuntimeManager;
+import com.chua.runtime.support.DefaultRuntimeManager;
 import com.chua.runtime.support.model.RuntimeArtifact;
 import com.chua.runtime.support.model.RuntimeStatus;
 
