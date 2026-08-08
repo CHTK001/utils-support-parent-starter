@@ -151,6 +151,23 @@ public class DependencyGraphHandler implements Plugin {
                 .software(software)
                 .build());
         edge.record(duration, isError, error);
+        // 持久化：每次事件单独落盘（不共享 edge 对象，避免 storage 累计覆盖 handler 内存态）
+        try {
+            com.chua.runtime.apm.storage.StorageManager.get().appendDependency(
+                    DependencyEdge.builder()
+                            .source(source)
+                            .target(target)
+                            .protocol(protocol)
+                            .software(software)
+                            .callCount(1L)
+                            .totalDuration(duration)
+                            .errorCount(isError ? 1L : 0L)
+                            .lastError(error)
+                            .lastCallTime(System.currentTimeMillis())
+                            .build());
+        } catch (Exception e) {
+            LOG.log(Level.FINE, "appendDependency 异常: " + e.getMessage());
+        }
         LOG.log(Level.FINE, String.format("[Dependency] %s -> %s (%sms, calls=%s, errors=%s)", source.displayLabel(), target.displayLabel(), duration, edge.getCallCount(), edge.getErrorCount()));
     }
 

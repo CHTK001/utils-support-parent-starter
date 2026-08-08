@@ -1,6 +1,7 @@
 package com.chua.runtime.apm.handler;
 
 import com.chua.runtime.apm.ApmBootstrap;
+import com.chua.runtime.apm.storage.StorageManager;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.protocol.Endpoint;
@@ -346,6 +347,12 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
 
             // 同步到依赖图（DependencyGraphHandler）
             emitToDependencyGraph(record);
+
+            // 持久化（SPI 接入存储层）
+            StorageManager.appendTransmission(record);
+
+            // 持久化（SPI 接入存储层）
+            StorageManager.appendTransmission(record);
 
             LOG.log(Level.FINE, String.format("[Transmission] %s %s -> %s %sms software=%s", record.getProtocol(), record.getOperation(), record.getTarget() != null ? record.getTarget().displayLabel() : "?", record.getDuration(), record.getSoftware()));
         } catch (Exception e) {

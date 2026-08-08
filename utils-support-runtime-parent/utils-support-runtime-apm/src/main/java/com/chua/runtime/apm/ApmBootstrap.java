@@ -10,6 +10,8 @@ import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.apm.handler.ZooKeeperHandler;
+import com.chua.runtime.apm.storage.StorageConfig;
+import com.chua.runtime.apm.storage.StorageManager;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
@@ -17,7 +19,9 @@ import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * APM 启动器 — 程序化启动所有 APM 处理器。
@@ -112,6 +116,20 @@ public class ApmBootstrap {
         if (started) {
             return;
         }
+        // 1. 先启动存储层（Handlers 在 addRecord 时会调用 StorageManager.append）
+        Map<String, String> configMap = new HashMap<>();
+        configMap.put("apm.storage.type", System.getProperty("apm.storage.type", "inmemory"));
+        configMap.put("apm.storage.retention.ms",
+                System.getProperty("apm.storage.retention.ms", String.valueOf(7L * 24 * 60 * 60 * 1000)));
+        configMap.put("apm.storage.capacity",
+                System.getProperty("apm.storage.capacity", "100000"));
+        String storagePath = System.getProperty("apm.storage.path", "");
+        if (!storagePath.isEmpty()) {
+            configMap.put("apm.storage.path", storagePath);
+        }
+        StorageManager.init(new StorageConfig(configMap));
+
+        // 2. 启动所有 Handler
         for (Plugin handler : handlers) {
             try {
                 handler.start();
@@ -136,6 +154,7 @@ public class ApmBootstrap {
                 LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 停止失败", handler.name(), e));
             }
         }
+        StorageManager.shutdown();
         started = false;
     }
 

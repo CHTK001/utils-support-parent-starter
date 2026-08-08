@@ -207,6 +207,27 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         record.setStackTrace(stackTrace);
         record.setClosed(false);
         handles.put(handleId, record);
+        // 持久化：句柄打开
+        try {
+            StringBuilder stack = new StringBuilder();
+            for (StackTraceElement f : stackTrace) {
+                stack.append(f.getClassName()).append('.').append(f.getMethodName())
+                        .append('(').append(f.getFileName()).append(':')
+                        .append(f.getLineNumber()).append(")\n");
+            }
+            com.chua.runtime.apm.storage.StorageManager.get().appendLeak(
+                    com.chua.runtime.apm.storage.LeakRecord.builder()
+                            .handleId(handleId)
+                            .kind(className)
+                            .name(className)
+                            .thread(record.getOwnerThread())
+                            .createdAt(record.getCreatedAt())
+                            .closedAt(0L)
+                            .stackTrace(stack.toString())
+                            .build());
+        } catch (Exception e) {
+            LOG.log(Level.FINE, "appendLeak(open) 异常: " + e.getMessage());
+        }
         LOG.log(Level.FINE, String.format("[Handle] OPEN: kind=%s id=%s thread=%s", kind, handleId, record.getOwnerThread()));
     }
 
@@ -231,6 +252,30 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
             oldest.setClosed(true);
             oldest.setLastUsedAt(System.currentTimeMillis());
             handles.remove(oldest.getHandleId());
+            // 持久化：句柄关闭（更新 closedAt）
+            try {
+                StringBuilder stack = new StringBuilder();
+                StackTraceElement[] stackTrace = oldest.getStackTrace();
+                if (stackTrace != null) {
+                    for (StackTraceElement f : stackTrace) {
+                        stack.append(f.getClassName()).append('.').append(f.getMethodName())
+                                .append('(').append(f.getFileName()).append(':')
+                                .append(f.getLineNumber()).append(")\n");
+                    }
+                }
+                com.chua.runtime.apm.storage.StorageManager.get().appendLeak(
+                        com.chua.runtime.apm.storage.LeakRecord.builder()
+                                .handleId(oldest.getHandleId())
+                                .kind(oldest.getKind() != null ? oldest.getKind().name() : oldest.getName())
+                                .name(oldest.getName())
+                                .thread(oldest.getOwnerThread())
+                                .createdAt(oldest.getCreatedAt())
+                                .closedAt(oldest.getLastUsedAt())
+                                .stackTrace(stack.toString())
+                                .build());
+            } catch (Exception e) {
+                LOG.log(Level.FINE, "appendLeak(close) 异常: " + e.getMessage());
+            }
             LOG.log(Level.FINE, String.format("[Handle] CLOSE: kind=%s id=%s age=%sms", kind, oldest.getHandleId(), oldest.getLastUsedAt() - oldest.getCreatedAt()));
         }
     }
