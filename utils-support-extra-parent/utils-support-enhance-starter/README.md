@@ -32,7 +32,8 @@
 | `QualityProxyPool` | QualityProxyPool (SPI: `quality`) |
 | `SubscriptionProxyFetcher` | SubscriptionProxyFetcher (SPI: `subscription`) |
 | `AuthServerFilter` | 认证过滤器，验证请求是否携带有效的认证凭证。 |
-| ... | 共 19 个类 |
+| `CrawlerServerFilter` | 爬虫过滤器，基于 User-Agent 识别并拦截爬虫请求，并检测客户端的周期性重复请求（仅记录日志）。 |
+| ... | 共 17 个类 |
 
 ---
 
