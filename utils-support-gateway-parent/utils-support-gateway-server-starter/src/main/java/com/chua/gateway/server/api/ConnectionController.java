@@ -13,7 +13,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -122,21 +124,21 @@ public final class ConnectionController {
             log.info("[gateway-server] 收到鉴权请求: mode={} key={} protocol={}", req.mode(), req.key(), req.protocol());
             Connection conn = resolveConnection(req);
             if (conn == null) {
-                writeJson(response, 401, "{\"error\":\"invalid credentials\"}");
+                writeJson(response, 401, "{\"status\":401,\"msg\":\"invalid credentials\"}");
                 return;
             }
             String tunnelId = tunnelRegistry.open(conn);
             String wsUrl = "/ws/" + conn.protocol() + "/" + tunnelId;
-            AuthResponse out = new AuthResponse(
-                    tunnelId,
-                    wsUrl,
-                    conn.protocol(),
-                    conn.host(),
-                    conn.port());
-            writeJson(response, 200, JSON.writeValueAsString(out));
+            Map<String, Object> out = new LinkedHashMap<>();
+            out.put("tunnelId", tunnelId);
+            out.put("wsUrl", wsUrl);
+            out.put("protocol", conn.protocol());
+            out.put("host", conn.host());
+            out.put("port", conn.port());
+            writeJson(response, 200, JSON.writeValueAsString(Map.of("status", 0, "data", out)));
         } catch (Exception e) {
             log.warn("[gateway-server] 鉴权处理失败: {}", e.getMessage());
-            writeJson(response, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+            writeJson(response, 500, "{\"status\":500,\"msg\":\"" + e.getMessage() + "\"}");
         }
     }
 
@@ -150,10 +152,10 @@ public final class ConnectionController {
     public void listKeys(ServerRequest request, ServerResponse response) {
         try {
             List<String> keys = connectionStore.listKeys();
-            writeJson(response, 200, JSON.writeValueAsString(keys));
+            writeJson(response, 200, JSON.writeValueAsString(Map.of("status", 0, "data", keys)));
         } catch (Exception e) {
             log.warn("[gateway-server] 列出 key 失败: {}", e.getMessage());
-            writeJson(response, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+            writeJson(response, 500, "{\"status\":500,\"msg\":\"" + e.getMessage() + "\"}");
         }
     }
 
@@ -167,10 +169,10 @@ public final class ConnectionController {
     public void listProtocols(ServerRequest request, ServerResponse response) {
         try {
             List<String> protocols = protocolScanner.listProtocols();
-            writeJson(response, 200, JSON.writeValueAsString(protocols));
+            writeJson(response, 200, JSON.writeValueAsString(Map.of("status", 0, "data", protocols)));
         } catch (Exception e) {
             log.warn("[gateway-server] 列出协议失败: {}", e.getMessage());
-            writeJson(response, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+            writeJson(response, 500, "{\"status\":500,\"msg\":\"" + e.getMessage() + "\"}");
         }
     }
 
