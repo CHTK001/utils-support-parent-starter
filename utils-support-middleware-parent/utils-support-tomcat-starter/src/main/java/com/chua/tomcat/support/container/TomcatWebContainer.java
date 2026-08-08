@@ -81,26 +81,56 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
     /**
      * 部署 WAR 文件到 Tomcat。
+     * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixDocBase 失败）。
      */
     private void deployWar(String archivePath, String contextPath) throws Exception {
-        File warFile = resolveFile(archivePath);
-        Context ctx;
-
-        if (setting.isUnpackWar() && warFile.exists() && warFile.isFile()) {
-            // 解压部署
-            String baseDir = new File(System.getProperty("java.io.tmpdir"),
-                    "tomcat-" + System.currentTimeMillis()).getAbsolutePath();
-            ctx = tomcat.addWebapp(contextPath, warFile.getAbsolutePath());
-        } else if (warFile.exists() && warFile.isDirectory()) {
-            // 目录部署
-            ctx = tomcat.addWebapp(contextPath, warFile.getAbsolutePath());
-        } else {
-            // 未知格式，尝试以 webapp 方式部署
-            ctx = tomcat.addWebapp(contextPath, warFile.getAbsolutePath());
+        var warFile = resolveFile(archivePath);
+        // 部署目录：使用固定独立路径，避免 docBase 路径解析冲突
+        var deployDir = new File(System.getProperty("java.io.tmpdir"),
+                "guacamole-deploy" + File.separator + contextPath.replace("/", ""));
+        if (!deployDir.exists() && !deployDir.mkdirs()) {
+            log.warn("Tomcat 部署目录创建失败: {}", deployDir);
+        }
+        // 解压 WAR 到部署目录
+        if (warFile.exists() && warFile.isFile()) {
+            try (var zis = new java.util.zip.ZipInputStream(new java.io.FileInputStream(warFile))) {
+                var entry = zis.getNextEntry();
+                while (entry != null) {
+                    var outFile = new File(deployDir, entry.getName());
+                    if (entry.isDirectory()) {
+                        if (!outFile.exists() && !outFile.mkdirs()) {
+                            log.warn("解压目录创建失败: {}", outFile);
+                        }
+                    } else {
+                        var parent = outFile.getParentFile();
+                        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                            log.warn("父目录创建失败: {}", parent);
+                        }
+                        try (var fos = new java.io.FileOutputStream(outFile)) {
+                            zis.transferTo(fos);
+                        }
+                    }
+                    entry = zis.getNextEntry();
+                }
+            }
+            log.info("WAR 已解压到: {}", deployDir);
         }
 
+        // 确保 host 的 appBase 存在
+        var host = tomcat.getHost();
+        if (host != null) {
+            var appBase = new File(host.getAppBase());
+            if (!appBase.exists() && !appBase.mkdirs()) {
+                log.warn("Tomcat appBase 创建失败: {}", appBase);
+            }
+        }
+
+        // 部署解压后的目录（不是 WAR 文件），避免 fixDocBase 失败
+        var ctx = (org.apache.catalina.core.StandardContext) tomcat.addWebapp(contextPath, deployDir.getAbsolutePath());
+        ctx.setDelegate(true);
+        ctx.setParentClassLoader(getClass().getClassLoader());
         contexts.put(contextPath, ctx);
-        log.info("Tomcat 部署完成: contextPath={}, path={}", contextPath, archivePath);
+        log.info("Tomcat 部署完成: contextPath={}, path={}", contextPath, deployDir);
     }
 
     @Override
@@ -122,30 +152,11 @@ public class TomcatWebContainer extends AbstractWebContainer {
             tomcat = new Tomcat();
             configureTomcat();
 
-            // 确保 Engine 和 Host 在部署前创建，否则 CoyoteAdapter 找不到容器
-            org.apache.catalina.Host host = tomcat.getHost();
-            if (host == null) {
-                host = new org.apache.catalina.core.StandardHost();
-                host.setName(setting.getHost());
-                host.setAppBase(System.getProperty("java.io.tmpdir"));
-                tomcat.getEngine().addChild(host);
-            }
+            // 设置父类加载器，使 WAR 能委托找到 javax.servlet 等容器类
+            tomcat.getEngine().setParentClassLoader(getClass().getClassLoader());
 
-            // 部署来自 setting 的配置单元
+            // 部署来自 setting 的配置单元（deployWar 会同时加入 deployedUnits）
             deployPendingUnits();
-
-            // 重新部署通过 deploy() 直接添加但延迟到启动时的单元
-            if (!deployedUnits.isEmpty()) {
-                log.info("Tomcat 重新部署 {} 个延迟的部署单元", deployedUnits.size());
-                for (DeployUnitInfo info : deployedUnits) {
-                    try {
-                        deployWar(info.getPath(), info.getContextPath());
-                    } catch (Exception e) {
-                        log.warn("Tomcat 延迟部署失败: path={}, error={}",
-                                info.getPath(), e.getMessage());
-                    }
-                }
-            }
 
             tomcat.start();
             log.info("Tomcat 引擎已启动");
@@ -178,12 +189,30 @@ public class TomcatWebContainer extends AbstractWebContainer {
         tomcat.setPort(setting.getPort());
 
         // 基础目录
-        String baseDir = new File(System.getProperty("java.io.tmpdir"),
+        var baseDir = new File(System.getProperty("java.io.tmpdir"),
                 "tomcat-" + System.currentTimeMillis()).getAbsolutePath();
         tomcat.setBaseDir(baseDir);
 
+        // 显式设置 catalina.home，并预先创建 appBase/webapps 目录
+        var catalinaHome = new File(baseDir);
+        System.setProperty("catalina.home", catalinaHome.getAbsolutePath());
+        System.setProperty("catalina.base", catalinaHome.getAbsolutePath());
+        var webappsDir = new File(baseDir, "webapps");
+        if (!webappsDir.exists() && !webappsDir.mkdirs()) {
+            log.warn("Tomcat appBase/webapps 目录创建失败: {}", webappsDir);
+        }
+
+        // 显式设置 host 的 appBase（否则默认是 user.dir/webapps）
+        var host = tomcat.getHost();
+        if (host == null) {
+            host = new org.apache.catalina.core.StandardHost();
+            host.setName(setting.getHost());
+            tomcat.getEngine().addChild(host);
+        }
+        host.setAppBase(webappsDir.getAbsolutePath());
+
         // 连接器配置
-        org.apache.catalina.connector.Connector connector = tomcat.getConnector();
+        var connector = tomcat.getConnector();
         if (connector != null) {
             connector.setProperty("maxThreads", String.valueOf(setting.getMaxThreads()));
             connector.setProperty("minSpareThreads", String.valueOf(setting.getMinSpareThreads()));
@@ -197,12 +226,12 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
         // 访问日志
         if (setting.isAccessLogEnabled()) {
-            tomcat.getHost().setAutoDeploy(false);
-            org.apache.catalina.valves.AccessLogValve valve = new org.apache.catalina.valves.AccessLogValve();
+            host.setAutoDeploy(false);
+            var valve = new org.apache.catalina.valves.AccessLogValve();
             valve.setDirectory(setting.getAccessLogDirectory());
             valve.setPattern("common");
             valve.setSuffix(".log");
-            tomcat.getHost().getPipeline().addValve(valve);
+            host.getPipeline().addValve(valve);
         }
     }
 

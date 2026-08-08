@@ -5,10 +5,14 @@ import com.chua.spider.support.config.model.SpiderDefinition;
 import com.chua.spider.support.config.model.SpiderExecutionRecord;
 import com.chua.spider.support.config.store.SpiderDefinitionStore;
 import com.chua.spider.support.config.store.SpiderExecutionStore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 爬虫执行服务。
@@ -57,10 +61,10 @@ public class SpiderRunner {
      * @return 执行记录（状态为 RUNNING）
      */
     public SpiderExecutionRecord start(SpiderDefinition definition) {
-        SpiderExecutionRecord record = newRecord(definition);
+        var record = newRecord(definition);
         executionStore.save(record);
 
-        Thread worker = new Thread(() -> runJob(definition, record),
+        var worker = new Thread(() -> runJob(definition, record),
                 "spider-run-" + record.getExecutionNo());
         worker.setDaemon(true);
         worker.start();
@@ -75,26 +79,62 @@ public class SpiderRunner {
      */
     private void runJob(SpiderDefinition definition, SpiderExecutionRecord record) {
         try {
-            Spider spider = Spider.create()
+            var spider = Spider.create()
                     .fetcher("http")
                     .parser("html")
                     .addRequest(requestFactory.build(definition, definition.getSpiderEntryUrl()))
                     .threads(DEFAULT_THREADS)
                     .pipeline("console")
                     .build();
-            spider.run();
-            List<com.chua.spider.support.model.SpiderResult> results = spider.getResults();
+            var results = spider.runSync();
+            log.info("[SpiderRunner] runSync 完成 spiderCode={} results.size={}",
+                    definition.getSpiderCode(), results == null ? -1 : results.size());
 
             record.setStatus("SUCCESS");
             record.setEndTime(LocalDateTime.now());
             record.setResultCount(results == null ? 0 : results.size());
+            String json = serializeResults(results);
+            record.setResultsJson(json);
+            log.info("[SpiderRunner] setResultsJson={}",
+                    json == null ? "<null>" : json.substring(0, Math.min(100, json.length())));
         } catch (Exception e) {
-            log.error("[spider-config] 执行失败 spiderCode={}", definition.getSpiderCode(), e);
+            log.error("[SpiderRunner] 执行失败 spiderCode={}", definition.getSpiderCode(), e);
             record.setStatus("FAILED");
             record.setEndTime(LocalDateTime.now());
             record.setErrorMessage(e.getMessage());
         } finally {
             executionStore.save(record);
+        }
+    }
+
+    /**
+     * 将 SpiderResult 列表序列化为 JSON 字符串。
+     *
+     * <p>仅保留抓取结果的核心字段（标题/URL/正文/结构化/链接），避免序列化整个
+     * DOM 树等大字段导致内存爆炸。</p>
+     */
+    private String serializeResults(List<com.chua.spider.support.model.SpiderResult> results) {
+        if (results == null || results.isEmpty()) {
+            return "[]";
+        }
+        try {
+            var mapper = new ObjectMapper();
+            var slim = new ArrayList<Map<String, Object>>();
+            for (var r : results) {
+                var item = new LinkedHashMap<String, Object>();
+                item.put("title", r.getTitle());
+                item.put("url", r.getUrl());
+                item.put("depth", r.getDepth());
+                item.put("text", r.getText());
+                item.put("structured", r.getStructured());
+                item.put("links", r.getLinks());
+                item.put("aiSummary", r.getAiSummary());
+                slim.add(item);
+            }
+            return mapper.writeValueAsString(slim);
+        } catch (Exception e) {
+            log.warn("[SpiderRunner] 结果序列化失败", e);
+            return "[]";
         }
     }
 
@@ -105,7 +145,7 @@ public class SpiderRunner {
      * @return 新记录
      */
     private SpiderExecutionRecord newRecord(SpiderDefinition definition) {
-        SpiderExecutionRecord record = new SpiderExecutionRecord();
+        var record = new SpiderExecutionRecord();
         record.setExecutionNo(executionStore.nextExecutionNo());
         record.setSpiderCode(definition.getSpiderCode());
         record.setStatus("RUNNING");
