@@ -450,6 +450,28 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
+    public JavaAgentManager getJavaAgentManager() {
+        if (javaAgentManager == null) {
+            synchronized (this) {
+                if (javaAgentManager == null) {
+                    javaAgentManager = new DefaultJavaAgentManager();
+                }
+            }
+        }
+        return javaAgentManager;
+    }
+
+    @Override
+    public CmdResult attachToJvm(int pid, String options) {
+        return getJavaAgentManager().attach(pid, null, options);
+    }
+
+    @Override
+    public java.util.Map<Integer, String> listJavaProcesses() {
+        return AgentInjector.listJavaProcesses();
+    }
+
+    @Override
     public void close() throws Exception {
         log.info("[runtime] 关闭运行时管理器，停止所有实例...");
         for (RuntimeInstance instance : instanceMap.values()) {

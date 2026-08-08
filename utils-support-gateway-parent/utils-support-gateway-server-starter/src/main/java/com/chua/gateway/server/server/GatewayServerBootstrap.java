@@ -1,9 +1,8 @@
 package com.chua.gateway.server.server;
 
-import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.server.filter.UrlMappingServerFilter;
+import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.objects.DefaultObjectContext;
 import com.chua.common.support.objects.ObjectContextConfig;
 import com.chua.common.support.spi.ServiceProvider;
@@ -138,44 +137,31 @@ public final class GatewayServerBootstrap {
         // 5. register controller（让 @RequestMethod 反射挂在 bean context 上）
         raw.registerBean(controller);
 
-        // 6. 从 AbstractServer 拿内置 urlMappingFilter 并手工注册网关路由
-        // 注意：UrlMappingServerFilter 是 AbstractServer 启动时 initBuiltinFilters() 创建的，
-        //      urlMappingFilter 字段是 protected 不同包无法直接访问，用反射取。
-        UrlMappingServerFilter mappingFilter = null;
+        // 6. 替换内置 urlMappingFilter 为我们自己实现的 GatewayUrlMappingFilter
+        //      common-starter 的 UrlMappingServerFilter 在我们的 SPI 场景下存在 factory 初始化 NPE
+        //      和 path 匹配问题；自实现更可靠。
+        GatewayUrlMappingFilter mappingFilter = new GatewayUrlMappingFilter();
         try {
             java.lang.reflect.Field f = com.chua.common.support.network.server.AbstractServer.class
                     .getDeclaredField("urlMappingFilter");
             f.setAccessible(true);
-            mappingFilter = (UrlMappingServerFilter) f.get(raw);
-        } catch (Exception ex) {
-            log.warn("[gateway-server] 反射 urlMappingFilter 失败: {}", ex.getMessage());
-        }
-        if (mappingFilter != null) {
+            Object oldFilter = f.get(raw);
+            f.set(raw, mappingFilter);
+            // 移除旧 filter 并加入新 filter，触发 mergedCache 重建
+            if (oldFilter != null && oldFilter instanceof ServerFilter) {
+                raw.removeFilter((ServerFilter) oldFilter);
+            }
+            raw.addFilter(mappingFilter);
+            raw.refreshFilters();
             RouteRegistrar.register(mappingFilter, connectionStore, protocolScanner, tunnelRegistry);
             log.info("[gateway-server] 路由已注册: count={}", mappingFilter.routeCount());
-            // 调试：打印已注册路径与方法
-            try {
-                java.lang.reflect.Field f = mappingFilter.getClass().getDeclaredField("factory");
-                f.setAccessible(true);
-                Object factory = f.get(mappingFilter);
-                java.lang.reflect.Method getRoutes = factory.getClass().getMethod("getRoutes");
-                Object routesMap = getRoutes.invoke(factory);
-                log.info("[gateway-server] 已注册路由表: {}", routesMap);
-            } catch (Exception ex) {
-                log.warn("[gateway-server] 反射 routes 失败: {}", ex.getMessage());
-            }
-        } else {
-            log.warn("[gateway-server] 未找到 UrlMappingServerFilter，注册失败（fallback: 仅依赖 @RequestMethod 反射）");
+            log.info("[gateway-server] 当前 routes: {}", mappingFilter.getRoutes());
+        } catch (Exception ex) {
+            log.warn("[gateway-server] 注册 urlMappingFilter 失败: {}", ex.getMessage(), ex);
         }
 
         // 7. 启动 server
         raw.start();
-        // 调试：打印 server 当前所有 filters
-        try {
-            log.info("[gateway-server] 当前 filters: {}", raw.getFilters());
-        } catch (Exception ex) {
-            log.warn("[gateway-server] 打印 filters 失败: {}", ex.getMessage());
-        }
         log.info("[gateway-server] Gateway 服务端启动完成: port={} type={}", setting.getPort(), raw.getProtocol());
     }
 

@@ -1,7 +1,6 @@
 package com.chua.gateway.server.server;
 
 import com.chua.common.support.network.http.HttpMethod;
-import com.chua.common.support.network.server.filter.UrlMappingServerFilter;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.gateway.server.api.AuthRequest;
@@ -38,25 +37,13 @@ final class RouteRegistrar {
     /**
      * 注册全部端点
      */
-    static void register(UrlMappingServerFilter filter,
+    static void register(GatewayUrlMappingFilter filter,
                          ConnectionStore store,
                          ProtocolScanner scanner,
                          TunnelRegistry registry) {
 
-        log.info("[DEBUG] RouteRegistrar 开始注册，filter={} count={}",
-                filter.getClass().getSimpleName(), filter.routeCount());
-
-        // 用 anyMethod 探测所有进入请求的实际 path/method
-        filter.route("/__debug__", (req, resp) -> {
-            log.info("[DEBUG-ANY] method={} path={} uri={}",
-                    req.getMethod(), req.getPath(), req.getUri());
-            writeJson(resp, 200, "{\"ok\":true}");
-        });
-
         // GET /api/connections/keys
         filter.route("/api/connections/keys", HttpMethod.GET, (req, resp) -> {
-            log.info("[DEBUG-HIT] /api/connections/keys 被访问 method={} path={}",
-                    req.getMethod(), req.getPath());
             try {
                 List<String> keys = store.listKeys();
                 writeJson(resp, 200, JSON.writeValueAsString(keys));
@@ -64,7 +51,6 @@ final class RouteRegistrar {
                 writeJson(resp, 500, "{\"error\":\"" + e.getMessage() + "\"}");
             }
         });
-        log.info("[DEBUG] keys 注册完成 count={}", filter.routeCount());
 
         // GET /api/connections/list
         filter.route("/api/connections/list", HttpMethod.GET, (req, resp) -> {

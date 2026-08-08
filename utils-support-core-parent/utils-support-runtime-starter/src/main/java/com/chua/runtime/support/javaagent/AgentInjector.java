@@ -529,6 +529,17 @@ public class AgentInjector {
         }
 
         /**
+         * 指定注入超时时间（毫秒）。
+         *
+         * @param timeoutMs 超时值（毫秒）
+         * @return 构建器自身
+         */
+        public AgentInjectorBuilder timeout(long timeoutMs) {
+            this.timeoutMs = timeoutMs;
+            return this;
+        }
+
+        /**
          * 指定注入超时时间。
          *
          * @param timeout 超时值

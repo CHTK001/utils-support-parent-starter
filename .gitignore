@@ -156,6 +156,9 @@ utils-support-extra-parent/utils-support-example-starter/lib/
 utils-support-extra-parent/utils-support-example-starter/*-on-disk
 utils-support-extra-parent/utils-support-example-starter/*-on_disk
 utils-support-extra-parent/utils-support-example-starter/DedupProbe.java
+utils-support-extra-parent/utils-support-example-starter/RpcProbe.java
+utils-support-extra-parent/utils-support-example-starter/*.args
+utils-support-extra-parent/utils-support-example-starter/overlay/
 utils-support-extra-parent/utils-support-example-starter/hs_err_pid*.log
 
 # 空配置文件（SpotBugs等）
