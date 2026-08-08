@@ -192,10 +192,14 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         for (String method : SOCKET_METHODS) {
             RuntimeSpy.registerInterceptor(SOCKET, method, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(SOCKET, method, "", InterceptPoint.EXIT, this);
+            // EXCEPTION 拦截 JDK 核心类（java/net/Socket 等）会触发 VerifyError，
+            // 因为 AdviceAdapter 的 onMethodExit 与 try/catch 包装产生 frame 冲突。
+            // Socket.connect 抛 ConnectException 的场景由 NetHandler.NET_CONNECT_POST 捕获即可。
         }
         for (String method : SERVER_SOCKET_METHODS) {
             RuntimeSpy.registerInterceptor(SERVER_SOCKET, method, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(SERVER_SOCKET, method, "", InterceptPoint.EXIT, this);
+            // 同上：EXCEPTION 注册会在 ServerSocket.accept 等热点方法触发 VerifyError
         }
         for (String method : DATAGRAM_METHODS) {
             RuntimeSpy.registerInterceptor(DATAGRAM_SOCKET, method, "", InterceptPoint.ENTRY, this);
@@ -220,6 +224,24 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /**
+     * 本地网络身份缓存 — 避免在 handleEntry 阶段重复解析 InetAddress.getLocalHost()
+     */
+    private static volatile String LOCAL_HOST;
+    private static volatile int LOCAL_PORT_HINT = -1;
+
+    private static String resolveLocalHost() {
+        if (LOCAL_HOST != null) {
+            return LOCAL_HOST;
+        }
+        try {
+            LOCAL_HOST = java.net.InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            LOCAL_HOST = "localhost";
+        }
+        return LOCAL_HOST;
+    }
+
     private void handleEntry(InterceptContext ctx) {
         try {
             String className = ctx.getClassName();
@@ -238,12 +260,56 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             Protocol protocol = inferProtocolFromStackAndClass(software, className);
             record.setProtocol(protocol);
 
-            // 端点角色：Socket 客户端=CLIENT，ServerSocket=DIRECT_SERVER
+            // 端点角色 + 源端点：
+            //   - ServerSocket.accept → SERVER（接收端）
+            //   - Socket/HttpURLConnection → CLIENT（发起端）
             Object instance = ctx.getUserData();
             if (SERVER_SOCKET.equals(className)) {
                 record.setSource(Endpoint.builder().kind(EndpointKind.SERVER).build());
+            } else if (HTTP_URL_CONNECTION.equals(className) && instance != null) {
+                // 反射提取 HTTP URL 推算 source host:port
+                String url = SoftwareDetector.extractHttpUrl(instance);
+                String sourceHost = resolveLocalHost();
+                int sourcePort = LOCAL_PORT_HINT;
+                try {
+                    java.net.URL u = new java.net.URL(url);
+                    sourcePort = u.getDefaultPort(); // 客户端连接的对端端口不影响本地端口
+                } catch (Exception ignore) {
+                    // url 解析失败，使用兜底值
+                }
+                record.setSource(Endpoint.builder()
+                        .kind(EndpointKind.CLIENT)
+                        .protocol(protocol)
+                        .software(software)
+                        .host(sourceHost)
+                        .port(sourcePort >= 0 ? sourcePort : 0)
+                        .path("/")
+                        .build());
+            } else if (SOCKET.equals(className) && instance != null) {
+                String sourceHost = resolveLocalHost();
+                int sourcePort = 0;
+                try {
+                    java.net.InetSocketAddress local = (java.net.InetSocketAddress) instance.getClass()
+                            .getMethod("getLocalSocketAddress").invoke(instance);
+                    if (local != null) {
+                        sourcePort = local.getPort();
+                    }
+                } catch (Exception ignore) {
+                    // socket 未连接或访问异常
+                }
+                record.setSource(Endpoint.builder()
+                        .kind(EndpointKind.CLIENT)
+                        .protocol(protocol)
+                        .software(software)
+                        .host(sourceHost)
+                        .port(sourcePort)
+                        .path("/")
+                        .build());
             } else {
-                record.setSource(Endpoint.builder().kind(EndpointKind.CLIENT).software(software).build());
+                record.setSource(Endpoint.builder()
+                        .kind(EndpointKind.CLIENT)
+                        .software(software)
+                        .build());
             }
 
             TRANSMISSION_HOLDER.set(record);
@@ -289,6 +355,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 把单次传输事件同步到 DependencyGraphHandler，生成 source → target 边。
+     *
+     * @param record 传输记录
      */
     private void emitToDependencyGraph(TransmissionRecord record) {
         try {

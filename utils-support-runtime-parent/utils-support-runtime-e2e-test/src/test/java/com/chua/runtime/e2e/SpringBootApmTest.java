@@ -4,11 +4,14 @@ import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
+import com.chua.runtime.apm.handler.JedisHandler;
+import com.chua.runtime.apm.handler.KafkaHandler;
 import com.chua.runtime.apm.handler.LogEntry;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
+import com.chua.runtime.apm.handler.ZooKeeperHandler;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.protocol.DependencyEdge;
@@ -74,7 +77,7 @@ public class SpringBootApmTest {
         assertNotNull(apmBootstrap);
         assertTrue(apmBootstrap.isStarted());
         List<Plugin> handlers = apmBootstrap.getHandlers();
-        assertEquals(7, handlers.size());
+        assertEquals(10, handlers.size());
         assertNotNull(apmBootstrap.getHandler(LogHandler.class));
         assertNotNull(apmBootstrap.getHandler(NetHandler.class));
         assertNotNull(apmBootstrap.getHandler(FileHandler.class));
@@ -82,6 +85,9 @@ public class SpringBootApmTest {
         assertNotNull(apmBootstrap.getHandler(TransmissionHandler.class));
         assertNotNull(apmBootstrap.getHandler(DependencyGraphHandler.class));
         assertNotNull(apmBootstrap.getHandler(HandleLeakHandler.class));
+        assertNotNull(apmBootstrap.getHandler(ZooKeeperHandler.class));
+        assertNotNull(apmBootstrap.getHandler(JedisHandler.class));
+        assertNotNull(apmBootstrap.getHandler(KafkaHandler.class));
     }
 
     @Test
