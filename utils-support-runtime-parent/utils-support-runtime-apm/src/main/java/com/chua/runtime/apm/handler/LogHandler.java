@@ -386,6 +386,21 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
             logEntries.remove(0);
         }
         logEntries.add(entry);
+        // 持久化：日志事件
+        try {
+            com.chua.runtime.apm.storage.StorageManager.get().appendLog(
+                    com.chua.runtime.apm.storage.LogRecord.builder()
+                            .timestamp(entry.getTimestamp())
+                            .level(entry.getLevel())
+                            .logger(entry.getLogger())
+                            .className(entry.getClassName())
+                            .methodName(entry.getMethodName())
+                            .message(entry.getMessage())
+                            .traceId(null)
+                            .build());
+        } catch (Exception e) {
+            LOG.log(Level.FINE, "appendLog 异常: " + e.getMessage());
+        }
     }
 
     /**

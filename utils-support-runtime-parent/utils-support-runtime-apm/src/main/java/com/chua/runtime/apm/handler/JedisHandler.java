@@ -247,6 +247,10 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         records.add(record);
         try {
+            com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
+        } catch (Exception ignore) {
+        }
+        try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
             if (handler == null) {
                 return;
