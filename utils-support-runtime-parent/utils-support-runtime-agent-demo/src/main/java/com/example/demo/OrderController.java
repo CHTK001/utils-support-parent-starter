@@ -1,8 +1,11 @@
 package com.example.demo;
 
+import com.chua.runtime.protocol.TraceContextPropagator;
+import com.chua.runtime.protocol.W3CTraceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -91,8 +94,11 @@ public class OrderController {
     /**
      * 触发外部 HTTP 连接 — 用于验证 TransmissionHandler + SoftwareDetector 识别客户端栈帧。
      *
-     * <p>调用本服务自身的 {@code /ping} 端点，确保 Socket/HTTP 连接真实建立。
-     * 这样 ENTRY + EXIT 都会被触发，TransmissionHandler 能记录完整传输链路。</p>
+     * <p>同时演示 W3C traceparent 注入：</p>
+     * <ul>
+     *   <li>通过 {@link TraceContextPropagator#inject(Map)} 生成当前追踪上下文的 traceparent</li>
+     *   <li>作为自定义 header（{@code X-Traceparent}）写入 HttpURLConnection</li>
+     * </ul>
      *
      * @param orderId 订单 ID
      */
@@ -103,17 +109,54 @@ public class OrderController {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(2000);
             conn.setReadTimeout(2000);
+
+            // W3C traceparent 注入（写到自定义 header，避免污染标准 header）
+            Map<String, String> headers = TraceContextPropagator.newOutgoingHeaders();
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                conn.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+            // 同时写到 X-Traceparent 便于本地观察
+            String traceparent = headers.get(W3CTraceContext.HEADER_TRACEPARENT);
+            if (traceparent != null) {
+                conn.setRequestProperty("X-Traceparent", traceparent);
+            }
+
             try {
                 int code = conn.getResponseCode();
-                LOG.info("外部 notify 状态码: {}", code);
+                LOG.info("外部 notify 状态码: {} traceparent={}", code, traceparent);
             } catch (IOException e) {
-                LOG.info("外部 notify IO 异常: {}", e.getMessage());
+                LOG.info("外部 notify IO 异常: {} traceparent={}", e.getMessage(), traceparent);
             } finally {
                 conn.disconnect();
             }
         } catch (Throwable e) {
             LOG.warn("外部通知框架异常: {}/{}", e.getClass().getSimpleName(), e.getMessage());
         }
+    }
+
+    /**
+     * 接收 W3C traceparent — 演示 Extract。
+     *
+     * <p>GET /trace/inbound，携带 {@code traceparent} header 后，
+     * 调用 {@link TraceContextPropagator#extract(Map)} 把上游 traceId 应用到当前线程追踪栈，
+     * 后续 RuntimeSpy 拦截的 span 自动作为上游 span 的子 Span。</p>
+     *
+     * @param traceparent 上游传入的 traceparent header（可空）
+     * @return 回显当前追踪上下文
+     */
+    @GetMapping("/trace/inbound")
+    public Map<String, Object> inbound(@RequestHeader(value = "traceparent", required = false) String traceparent) {
+        Map<String, String> headers = new HashMap<>();
+        if (traceparent != null && !traceparent.isEmpty()) {
+            headers.put(W3CTraceContext.HEADER_TRACEPARENT, traceparent);
+        }
+        boolean restored = TraceContextPropagator.extract(headers);
+        Map<String, Object> result = new HashMap<>();
+        result.put("restored", restored);
+        result.put("receivedTraceparent", traceparent);
+        result.put("currentTraceId", com.chua.runtime.spy.RuntimeSpy.getCurrentTraceId());
+        result.put("currentSpanId", com.chua.runtime.spy.RuntimeSpy.getCurrentSpanId());
+        return result;
     }
 
     /**

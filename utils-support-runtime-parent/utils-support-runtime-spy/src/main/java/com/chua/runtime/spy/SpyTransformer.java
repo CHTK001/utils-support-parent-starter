@@ -190,6 +190,18 @@ public class SpyTransformer implements ClassFileTransformer {
     }
 
     /**
+     * 获取某类某方法的精确插桩点 — 关键修复：避免 classRules 全集污染未注册的方法。
+     *
+     * @param className  目标类名
+     * @param methodName 方法名
+     * @return 仅包含针对该方法的插桩点；空表示不需要插桩
+     */
+    private Set<InterceptPoint> pointsOf(String className, String methodName) {
+        Set<InterceptPoint> rule = methodRules.get(className + "#" + methodName);
+        return rule != null ? rule : EnumSet.noneOf(InterceptPoint.class);
+    }
+
+    /**
      * 是否有针对该类的任何插桩需求。
      *
      * @param className 目标类名
@@ -225,7 +237,7 @@ public class SpyTransformer implements ClassFileTransformer {
             return transformClass(className, classfileBuffer);
 
         } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("插桩失败: %s", className, e));
+            LOG.log(Level.WARNING, String.format("插桩失败: %s — %s: %s", className, e.getClass().getName(), e.getMessage()), e);
             return null;
         }
     }
@@ -239,6 +251,7 @@ public class SpyTransformer implements ClassFileTransformer {
      */
     private byte[] transformClass(String className, byte[] classfileBuffer) {
         ClassReader reader = new ClassReader(classfileBuffer);
+        // COMPUTE_FRAMES + EXPAND_FRAMES 是 AdviceAdapter（继承 LocalVariablesSorter）的标准配置
         ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES
                 | ClassWriter.COMPUTE_MAXS);
         ClassVisitor visitor = new SpyClassVisitor(writer, className);
@@ -346,7 +359,9 @@ public class SpyTransformer implements ClassFileTransformer {
             if (mv == null) {
                 return null;
             }
-            Set<InterceptPoint> points = classRules;
+            // 关键修复：从 classRules 中取出**仅匹配当前方法**的插桩点
+            // 否则 classRules 包含该类任意方法注册的规则，会污染其他无关方法
+            Set<InterceptPoint> points = pointsOf(targetClass, name);
             boolean exact = !points.isEmpty();
             // 跳过构造器与静态块（除非有针对 <init>/<clinit> 的精确插桩规则）
             boolean isInitLike = name.equals("<init>") || name.equals("<clinit>");
@@ -362,12 +377,15 @@ public class SpyTransformer implements ClassFileTransformer {
                 return mv;
             }
             boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
-            return new SpyMethodVisitor(ASM_API, mv, targetClass, name, descriptor, points, exact, spyClass, isStatic);
+            return new SpyMethodVisitor(ASM_API, mv, access, targetClass, name, descriptor, points, exact, spyClass, isStatic);
         }
     }
 
     /**
      * 插桩 MethodVisitor — 在方法入口/出口/异常出口插入字节码。
+     *
+     * <p>继承 {@link AdviceAdapter} 利用其自动管理 local 索引重写 + frame 合并逻辑，
+     * 避免手工维护 StackMapTable 带来的复杂性。</p>
      */
     private static class SpyMethodVisitor extends AdviceAdapter {
 
@@ -421,11 +439,11 @@ public class SpyTransformer implements ClassFileTransformer {
          */
         private Label exceptionLabel;
 
-        SpyMethodVisitor(int api, MethodVisitor mv, String targetClass,
+        SpyMethodVisitor(int api, MethodVisitor mv, int access, String targetClass,
                          String methodName, String descriptor,
                          Set<InterceptPoint> points, boolean exact, String spyClass,
                          boolean isStatic) {
-            super(api, mv, 0, methodName, descriptor);
+            super(api, mv, access, methodName, descriptor);
             this.targetClass = targetClass;
             this.methodName = methodName;
             this.methodDescriptor = descriptor;
@@ -433,15 +451,13 @@ public class SpyTransformer implements ClassFileTransformer {
             this.exact = exact;
             this.spyClass = spyClass;
             this.isStatic = isStatic;
-            this.tryStart = new Label();
-            this.tryEnd = new Label();
-            this.exceptionLabel = new Label();
         }
 
         @Override
         protected void onMethodEnter() {
             // 标记 try 范围起点（异常插桩需要）
             if (points.contains(InterceptPoint.EXCEPTION)) {
+                tryStart = new Label();
                 mv.visitLabel(tryStart);
             }
             // 插入所有 pre 系插桩点（方法入口）
@@ -462,6 +478,7 @@ public class SpyTransformer implements ClassFileTransformer {
             }
             // 标记 try 范围终点（异常插桩需要）
             if (points.contains(InterceptPoint.EXCEPTION)) {
+                tryEnd = new Label();
                 mv.visitLabel(tryEnd);
             }
         }
@@ -470,12 +487,19 @@ public class SpyTransformer implements ClassFileTransformer {
         public void visitMaxs(int maxStack, int maxLocals) {
             // 异常处理：插入 EXCEPTION 插桩后重新抛出
             if (points.contains(InterceptPoint.EXCEPTION)) {
+                if (tryEnd == null) {
+                    tryEnd = new Label();
+                    mv.visitLabel(tryEnd);
+                }
+                exceptionLabel = new Label();
                 mv.visitTryCatchBlock(tryStart, tryEnd, exceptionLabel, null);
                 mv.visitLabel(exceptionLabel);
-                // 栈顶为异常对象，压入类名与方法名后 DUP 一份用于插桩
+                // 栈顶为异常对象 — 调用 onException(className, methodName, throwable) V
+                // onException 签名 (String, String, Throwable) V — 入参顺序从栈顶往下
+                // 因此先 DUP Throwable，再 LDC 2 个 String，让 Throwable 落在入参底部
+                mv.visitInsn(Opcodes.DUP);
                 mv.visitLdcInsn(targetClass);
                 mv.visitLdcInsn(methodName);
-                mv.visitInsn(Opcodes.DUP);
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, spyClass, "onException",
                         EXCEPTION_DESC, false);
                 mv.visitInsn(Opcodes.ATHROW);

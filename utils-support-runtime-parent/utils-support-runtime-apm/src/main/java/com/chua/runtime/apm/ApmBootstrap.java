@@ -3,10 +3,13 @@ package com.chua.runtime.apm;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
+import com.chua.runtime.apm.handler.JedisHandler;
+import com.chua.runtime.apm.handler.KafkaHandler;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
+import com.chua.runtime.apm.handler.ZooKeeperHandler;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
@@ -59,7 +62,7 @@ public class ApmBootstrap {
     }
 
     /**
-     * 注册默认的四个处理器。
+     * 注册默认的处理器。
      *
      * @param pluginDir 插件目录
      */
@@ -72,6 +75,9 @@ public class ApmBootstrap {
         handlers.add(new TransmissionHandler());
         handlers.add(new DependencyGraphHandler());
         handlers.add(new HandleLeakHandler());
+        handlers.add(new ZooKeeperHandler());
+        handlers.add(new JedisHandler());
+        handlers.add(new KafkaHandler());
         try {
             for (Plugin handler : handlers) {
                 handler.init(context);

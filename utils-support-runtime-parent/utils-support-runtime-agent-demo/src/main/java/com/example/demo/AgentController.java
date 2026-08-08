@@ -5,13 +5,18 @@ import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
+import com.chua.runtime.apm.handler.JedisHandler;
+import com.chua.runtime.apm.handler.KafkaHandler;
 import com.chua.runtime.apm.handler.LogEntry;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
+import com.chua.runtime.apm.handler.ZooKeeperHandler;
 import com.chua.runtime.protocol.DependencyEdge;
+import com.chua.runtime.protocol.TraceContextPropagator;
 import com.chua.runtime.protocol.TransmissionRecord;
+import com.chua.runtime.protocol.W3CTraceContext;
 import com.chua.runtime.spy.RuntimeSpy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -241,5 +246,101 @@ public class AgentController {
         }
         result.put("leaks", leakList);
         return result;
+    }
+
+    /**
+     * 应用层 Handler — ZooKeeper 调用记录。
+     */
+    @GetMapping("/agent/zk")
+    public List<Map<String, Object>> zk() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        ZooKeeperHandler handler = ApmBootstrap.getGlobalHandler(ZooKeeperHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (TransmissionRecord record : handler.getRecords()) {
+            result.add(toTransmissionMap(record));
+        }
+        return result;
+    }
+
+    /**
+     * 应用层 Handler — Jedis 调用记录。
+     */
+    @GetMapping("/agent/jedis")
+    public List<Map<String, Object>> jedis() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        JedisHandler handler = ApmBootstrap.getGlobalHandler(JedisHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (TransmissionRecord record : handler.getRecords()) {
+            result.add(toTransmissionMap(record));
+        }
+        return result;
+    }
+
+    /**
+     * 应用层 Handler — Kafka 调用记录。
+     */
+    @GetMapping("/agent/kafka")
+    public List<Map<String, Object>> kafka() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        KafkaHandler handler = ApmBootstrap.getGlobalHandler(KafkaHandler.class);
+        if (handler == null) {
+            return result;
+        }
+        for (TransmissionRecord record : handler.getRecords()) {
+            result.add(toTransmissionMap(record));
+        }
+        return result;
+    }
+
+    /**
+     * 把 TransmissionRecord 序列化为 Map。
+     */
+    private Map<String, Object> toTransmissionMap(TransmissionRecord record) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("traceId", record.getTraceId());
+        m.put("spanId", record.getSpanId());
+        m.put("source", record.getSource() == null ? null : record.getSource().nodeId());
+        m.put("target", record.getTarget() == null ? null : record.getTarget().nodeId());
+        m.put("protocol", record.getProtocol() == null ? null : record.getProtocol().name());
+        m.put("software", record.getSoftware() == null ? null : record.getSoftware().name());
+        m.put("operation", record.getOperation());
+        m.put("status", record.getStatus() == null ? null : record.getStatus().name());
+        m.put("duration", record.getDuration());
+        m.put("errorType", record.getErrorType());
+        m.put("errorMessage", record.getErrorMessage());
+        return m;
+    }
+
+    /**
+     * 生成当前线程追踪上下文的 W3C traceparent header — 用于测试分布式追踪传播。
+     */
+    @GetMapping("/agent/traceparent")
+    public Map<String, Object> traceparent() {
+        Map<String, Object> result = new HashMap<>();
+        String header = W3CTraceContext.inject();
+        result.put("traceparent", header);
+        if (header != null) {
+            W3CTraceContext ctx = W3CTraceContext.extract(header);
+            if (ctx != null) {
+                result.put("traceId", ctx.getTraceId());
+                result.put("spanId", ctx.getSpanId());
+                result.put("sampled", ctx.isSampled());
+            }
+        }
+        result.put("currentTraceId", RuntimeSpy.getCurrentTraceId());
+        result.put("currentSpanId", RuntimeSpy.getCurrentSpanId());
+        return result;
+    }
+
+    /**
+     * 创建带 traceparent 的出站 header 集合 — 用于手动注入 HTTP 客户端。
+     */
+    @GetMapping("/agent/outgoing-headers")
+    public Map<String, String> outgoingHeaders() {
+        return TraceContextPropagator.newOutgoingHeaders();
     }
 }
