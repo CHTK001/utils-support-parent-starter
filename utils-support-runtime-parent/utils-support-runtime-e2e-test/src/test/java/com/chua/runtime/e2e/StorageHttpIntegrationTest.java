@@ -200,7 +200,7 @@ class StorageHttpIntegrationTest {
         rec.setErrorMessage("boom");
         TransmissionEvent e = TransmissionEvent.fromRecord(rec);
         assertEquals("abc123", e.getTraceId());
-        assertEquals(Protocol.GRPC, e.getProtocol());
+        assertEquals("GRPC", e.getProtocol());
         assertEquals(StatusCode.ERROR, e.getStatus());
         assertEquals("RuntimeException", e.getErrorType());
         assertEquals("boom", e.getErrorMessage());
