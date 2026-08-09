@@ -8,7 +8,7 @@ import com.chua.springboot.support.api.encode.ApiResponseEncodeResponseBodyAdvic
 import com.chua.springboot.support.api.properties.ApiProperties;
 import com.chua.springboot.support.api.response.ApiExceptionAdvice;
 import com.chua.springboot.support.api.response.ApiUniformResponseBodyAdvice;
-import com.chua.springboot.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.springboot.support.application.ModuleEnvironmentRegistration;
 import jakarta.annotation.Priority;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

@@ -8,6 +8,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,14 +21,34 @@ import java.util.Map;
  * 支持表格格式 {@code [[header,...],[val,...],...]}（首行为表头）及传统对象格式。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("json")
 public class JsonFileSystem implements FileSystem {
 
+    /**
+     * JSON 文件类型标识
+     */
+    private static final String TYPE_JSON = "json";
+
+    /**
+     * 表头为空时的占位符
+     */
+    private static final String EMPTY_HEADER_PLACEHOLDER = "";
+
+    /**
+     * 写入完成行数（单对象写入）
+     */
+    private static final int SINGLE_OBJECT_ROW_COUNT = 1;
+
+    /**
+     * 表格行数（无数据）
+     */
+    private static final int EMPTY_RESULT_ROW_COUNT = 0;
+
     @Override
     public String getType() {
-        return "json";
+        return TYPE_JSON;
     }
 
     @Override
@@ -43,8 +64,8 @@ public class JsonFileSystem implements FileSystem {
     /**
      * JSON 文件读取构建器。
      *
- * @author CH
-     * @since 1.0.0
+     * @author CH
+     * @since 4.0.0.42
      */
     public static class JsonReadBuilder extends ReadBuilder {
 
@@ -63,15 +84,15 @@ public class JsonFileSystem implements FileSystem {
          *
          * @return Map 行数据列表
          */
-@SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             try {
-                String content = new String(java.nio.file.Files.readAllBytes(file.toPath()));
+                String content = new String(Files.readAllBytes(file.toPath()));
                 List<?> raw = Json.toList(content);
                 if (raw == null || raw.isEmpty()) {
                     if (callback != null) {
-                        callback.onComplete(0);
+                        callback.onComplete(EMPTY_RESULT_ROW_COUNT);
                     }
                     return result;
                 }
@@ -79,7 +100,7 @@ public class JsonFileSystem implements FileSystem {
                 List<Object> headerRow = (List<Object>) raw.get(0);
                 List<String> headers = new ArrayList<>();
                 for (Object h : headerRow) {
-                    headers.add(h == null ? "" : h.toString());
+                    headers.add(h == null ? EMPTY_HEADER_PLACEHOLDER : h.toString());
                 }
                 if (callback != null) {
                     callback.onHeader(headers);
@@ -104,7 +125,7 @@ public class JsonFileSystem implements FileSystem {
                 }
             } catch (Exception e) {
                 if (callback != null) {
-                    callback.onComplete(0);
+                    callback.onComplete(EMPTY_RESULT_ROW_COUNT);
                 }
             }
             // 应用行过滤 + 行数据转换
@@ -120,11 +141,11 @@ public class JsonFileSystem implements FileSystem {
          */
         public Map<String, Object> toMap() {
             try {
-                String content = new String(java.nio.file.Files.readAllBytes(file.toPath()));
+                String content = new String(Files.readAllBytes(file.toPath()));
                 Map<String, Object> result = Json.fromJson(content);
                 if (callback != null) {
                     callback.onBody(result);
-                    callback.onComplete(1);
+                    callback.onComplete(SINGLE_OBJECT_ROW_COUNT);
                 }
                 return result;
             } catch (IOException e) {
@@ -141,11 +162,11 @@ public class JsonFileSystem implements FileSystem {
          */
         public <T> T toObject(Class<T> clazz) {
             try {
-                String content = new String(java.nio.file.Files.readAllBytes(file.toPath()));
+                String content = new String(Files.readAllBytes(file.toPath()));
                 T result = Json.fromJson(content, clazz);
                 if (callback != null) {
                     callback.onBody(result);
-                    callback.onComplete(1);
+                    callback.onComplete(SINGLE_OBJECT_ROW_COUNT);
                 }
                 return result;
             } catch (IOException e) {
@@ -162,17 +183,25 @@ public class JsonFileSystem implements FileSystem {
     /**
      * JSON 文件写入构建器。
      *
- * @author CH
-     * @since 1.0.0
+     * @author CH
+     * @since 4.0.0.42
      */
     public static class JsonWriteBuilder extends WriteBuilder {
 
+        /**
+         * 是否使用美化格式输出
+         */
         private boolean pretty;
 
         JsonWriteBuilder(File file) {
             super(file);
         }
 
+        /**
+         * 启用美化格式输出。
+         *
+         * @return 当前构建器
+         */
         public JsonWriteBuilder withPretty() {
             this.pretty = true;
             return this;
@@ -194,6 +223,11 @@ public class JsonFileSystem implements FileSystem {
             return this;
         }
 
+        /**
+         * 立即写入数据并刷新。
+         *
+         * @param object 待写入对象
+         */
         public void writeAndFlush(Object object) {
             callback.onStart();
             callback.onBeginWrite();
@@ -201,7 +235,7 @@ public class JsonFileSystem implements FileSystem {
                 Object data = (object instanceof List) ? toTableData((List<Object>) object) : object;
                 String json = toJsonString(data);
                 byte[] bytes = json.getBytes(charset);
-                java.nio.file.Files.write(file.toPath(), bytes);
+                Files.write(file.toPath(), bytes);
                 callback.onProgress(bytes.length, bytes.length);
                 callback.onComplete(true);
             } catch (IOException e) {
@@ -226,7 +260,7 @@ public class JsonFileSystem implements FileSystem {
                 }
                 String json = toJsonString(data);
                 byte[] bytes = json.getBytes(charset);
-                java.nio.file.Files.write(file.toPath(), bytes);
+                Files.write(file.toPath(), bytes);
                 callback.onProgress(bytes.length, bytes.length);
                 callback.onComplete(true);
             } catch (IOException e) {
@@ -234,6 +268,12 @@ public class JsonFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * 将列表转为表格格式。
+         *
+         * @param list 待转换的列表
+         * @return 表格数据（二维列表）
+         */
         private Object toTableData(List<Object> list) {
             if (list.isEmpty()) {
                 return list;
@@ -248,7 +288,9 @@ public class JsonFileSystem implements FileSystem {
                 } else if (item instanceof Map) {
                     Map<String, Object> map = (Map<String, Object>) item;
                     // 写入行过滤
-                    if (!testRow(map)) continue;
+                    if (!testRow(map)) {
+                        continue;
+                    }
                     if (headers == null) {
                         headers = new ArrayList<>(map.keySet());
                         List<Object> headerRow = new ArrayList<>(headers);
@@ -267,6 +309,12 @@ public class JsonFileSystem implements FileSystem {
             return table;
         }
 
+        /**
+         * 将对象转为 JSON 字符串。
+         *
+         * @param data 待序列化对象
+         * @return JSON 字符串
+         */
         private String toJsonString(Object data) {
             if (pretty) {
                 return Json.prettyFormat(data);

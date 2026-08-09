@@ -1,27 +1,31 @@
 package com.chua.common.support.config.source;
 
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.utils.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
-
 /**
- * 属性源接口定义
- * <p>
- * 支持多种格式的键名解析
+ * 属性源接口定义。
+ *
+ * <p>支持多种格式的键名解析：</p>
  * <ul>
- *     <li>dotted.key.name: xx.xx.xx</li>
- *     <li>indexed.key[0]: xx.xx[0]</li>
- *     <li>UPPER_SNAKE_CASE: SERVER_PORT</li>
- *     <li>kebab-case: server-port</li>
- *     <li>camelCase: serverPort</li>
+ *     <li>dotted.key.name：xx.xx.xx</li>
+ *     <li>indexed.key[0]：xx.xx[0]</li>
+ *     <li>UPPER_SNAKE_CASE：SERVER_PORT</li>
+ *     <li>kebab-case：server-port</li>
+ *     <li>camelCase：serverPort</li>
  * </ul>
  *
  * @author CH
- * @since 2023-08-01
+ * @since 4.0.0.42
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public interface PropertySource {
@@ -32,12 +36,27 @@ public interface PropertySource {
     PropertySource EMPTY = new EmptyPropertySource();
 
     /**
-     * 驼峰命名正则匹配模式
+     * 驼峰命名正则匹配模式（小写字母后跟大写字母）
      */
     Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z])");
 
     /**
-     * 根据指定键获取属性值
+     * 下划线分隔符
+     */
+    String UNDERSCORE = "_";
+
+    /**
+     * 双下划线片段
+     */
+    String DOUBLE_UNDERSCORE = "__";
+
+    /**
+     * 连字符
+     */
+    char HYPHEN = '-';
+
+    /**
+     * 根据指定键获取属性值。
      *
      * @param key 属性键，例如 "database.url" 或 "server.port"
      * @return 属性值，如果不存在则返回 null
@@ -45,14 +64,14 @@ public interface PropertySource {
     Object getProperty(String key);
 
     /**
-     * 获取属性源名称
+     * 获取属性源名称。
      *
      * @return 属性源名称
      */
     String getName();
 
     /**
-     * 根据指定键获取属性值，若不存在则返回默认值
+     * 根据指定键获取属性值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -67,7 +86,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取字符串类型的属性值
+     * 获取字符串类型的属性值。
      *
      * @param key 属性键
      * @return 字符串类型的属性值
@@ -77,7 +96,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取字符串类型的属性值，若不存在则返回默认值
+     * 获取字符串类型的属性值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -92,7 +111,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取整数类型的属性值
+     * 获取整数类型的属性值。
      *
      * @param key 属性键
      * @return 整数类型的属性值
@@ -102,7 +121,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取整数类型的属性值，若不存在则返回默认值
+     * 获取整数类型的属性值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -117,7 +136,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取长整型属性的值
+     * 获取长整型属性的值。
      *
      * @param key 属性键
      * @return 长整型属性的值
@@ -127,7 +146,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取长整型属性的值，若不存在则返回默认值
+     * 获取长整型属性的值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -142,7 +161,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取双精度浮点型属性的值
+     * 获取双精度浮点型属性的值。
      *
      * @param key 属性键
      * @return 双精度浮点型属性的值
@@ -152,7 +171,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取双精度浮点型属性的值，若不存在则返回默认值
+     * 获取双精度浮点型属性的值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -167,7 +186,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取布尔型属性的值
+     * 获取布尔型属性的值。
      *
      * @param key 属性键
      * @return 布尔型属性的值
@@ -177,7 +196,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取布尔型属性的值，若不存在则返回默认值
+     * 获取布尔型属性的值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -192,7 +211,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取 BigDecimal 类型的属性值
+     * 获取 BigDecimal 类型的属性值。
      *
      * @param key 属性键
      * @return BigDecimal 类型的属性值
@@ -202,7 +221,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取 BigDecimal 类型的属性值，若不存在则返回默认值
+     * 获取 BigDecimal 类型的属性值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -217,7 +236,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取 BigInteger 类型的属性值
+     * 获取 BigInteger 类型的属性值。
      *
      * @param key 属性键
      * @return BigInteger 类型的属性值
@@ -227,7 +246,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取 BigInteger 类型的属性值，若不存在则返回默认值
+     * 获取 BigInteger 类型的属性值，若不存在则返回默认值。
      *
      * @param key          属性键
      * @param defaultValue 默认值
@@ -242,7 +261,7 @@ public interface PropertySource {
     }
 
     /**
-     * 获取字符串列表类型的属性值
+     * 获取字符串列表类型的属性值。
      *
      * @param key 属性键
      * @return 字符串列表类型的属性值
@@ -256,21 +275,25 @@ public interface PropertySource {
     }
 
     /**
-     * 将当前属性源转换为 Map 格式
-     * <p>
-     * 支持多种实现类型转换：
-     * - MapPropertySource 直接提取底层 Map
-     * - PropertiesPropertySource 提取 Properties 内容
-     * - PropertiesMutiPropertySource 遍历多个 Map 合并
-     * - SystemPropertySource 提取系统属性
-     * - SystemEnvironmentPropertySource 提取环境变量
+     * 将当前属性源转换为 Map 格式。
+     *
+     * <p>支持多种实现类型转换：</p>
+     * <ul>
+     *     <li>MapPropertySource：直接提取底层 Map</li>
+     *     <li>PropertiesPropertySource：提取 Properties 内容</li>
+     *     <li>PropertiesMutiPropertySource：遍历多个 Map 合并</li>
+     *     <li>SystemPropertySource：提取系统属性</li>
+     *     <li>SystemEnvironmentPropertySource：提取环境变量</li>
+     * </ul>
      *
      * @return 转换后的 Map，如果为空则返回空 Map
      */
     default Map<String, Object> toMap() {
-        if (this == EMPTY) { return Map.of(); }
+        if (this == EMPTY) {
+            return Map.of();
+        }
 
-        // MapPropertySource: 直接返回内部 LiteRawMap（无拷贝）
+        // MapPropertySource：直接返回内部 Map（无拷贝）
         if (this instanceof MapPropertySource mps) {
             return mps.getProperties();
         }
@@ -278,7 +301,9 @@ public interface PropertySource {
         // PropertiesPropertySource
         if (this instanceof PropertiesPropertySource pps) {
             Properties props = pps.getProperties();
-            if (props == null || props.isEmpty()) return Map.of();
+            if (props == null || props.isEmpty()) {
+                return Map.of();
+            }
             Map<String, Object> result = new HashMap<>(props.size());
             for (String name : props.stringPropertyNames()) {
                 result.put(name, props.getProperty(name));
@@ -289,12 +314,13 @@ public interface PropertySource {
         // PropertiesMutiPropertySource
         if (this instanceof PropertiesMutiPropertySource mps) {
             Iterable<?> iterable = mps.getProperties();
-            if (iterable == null) return Map.of();
+            if (iterable == null) {
+                return Map.of();
+            }
             Map<String, Object> result = new LinkedHashMap<>();
             for (Object item : iterable) {
                 if (item instanceof Map map) {
-                    for (Object entryObj : map.entrySet()) {
-                        Map.Entry entry = (Map.Entry) entryObj;
+                    for (Map.Entry entry : (Iterable<Map.Entry>) map.entrySet()) {
                         if (entry.getKey() != null) {
                             result.put(String.valueOf(entry.getKey()), entry.getValue());
                         }
@@ -307,7 +333,9 @@ public interface PropertySource {
         // SystemPropertySource
         if (this instanceof SystemPropertySource) {
             Properties props = System.getProperties();
-            if (props == null || props.isEmpty()) return Map.of();
+            if (props == null || props.isEmpty()) {
+                return Map.of();
+            }
             Map<String, Object> result = new HashMap<>(props.size());
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 if (entry.getKey() != null) {
@@ -320,63 +348,68 @@ public interface PropertySource {
         // SystemEnvironmentPropertySource
         if (this instanceof SystemEnvironmentPropertySource) {
             Map<String, String> env = System.getenv();
-            return env != null ? new HashMap<>(env) : Map.of();
+            if (env == null) {
+                return Map.of();
+            }
+            return new HashMap<>(env);
         }
 
         return Map.of();
     }
 
     /**
-     * 规范化键名
-     * <p>
-     * 将不同格式的键名统一转换为下划线分隔的小写形式
+     * 规范化键名。
+     *
+     * <p>将不同格式的键名统一转换为下划线分隔的小写形式：</p>
      * <ul>
-     *     <li>SERVER_PORT -> server_port</li>
-     *     <li>server-port -> server_port</li>
-     *     <li>serverPort -> server_port</li>
+     *     <li>SERVER_PORT -&gt; server_port</li>
+     *     <li>server-port -&gt; server_port</li>
+     *     <li>serverPort -&gt; server_port</li>
      * </ul>
      *
      * @param key 原始键名
      * @return 规范化后的键名
      */
     static String normalizeKey(String key) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return key;
         }
-        // 1. 处理驼峰命名：serverPort -> server_Port
+        // 处理驼峰命名：serverPort -> server_Port
         String normalized = CAMEL_CASE_PATTERN.matcher(key).replaceAll("$1_$2");
-        // 2. 转换为小写并将连字符替换为下划线
-        normalized = normalized.toLowerCase().replace('-', '_');
-        // 3. 去除连续的下划线
-        while (normalized.contains("__")) {
-            normalized = normalized.replace("__", "_");
+        // 转换为小写并将连字符替换为下划线
+        normalized = normalized.toLowerCase().replace(HYPHEN, '_');
+        // 去除连续的下划线
+        while (normalized.contains(DOUBLE_UNDERSCORE)) {
+            normalized = normalized.replace(DOUBLE_UNDERSCORE, UNDERSCORE);
         }
         return normalized;
     }
 
     /**
-     * 生成键名的所有变体
-     * <p>
-     * 基于规范化后的键名生成多种格式：
-     * - 原始键名
-     * - snake_case
-     * - kebab-case
-     * - UPPER_SNAKE_CASE
-     * - camelCase
+     * 生成键名的所有变体。
+     *
+     * <p>基于规范化后的键名生成多种格式：</p>
+     * <ul>
+     *     <li>原始键名</li>
+     *     <li>snake_case</li>
+     *     <li>kebab-case</li>
+     *     <li>UPPER_SNAKE_CASE</li>
+     *     <li>camelCase</li>
+     * </ul>
      *
      * @param key 原始键名
      * @return 包含所有变体的字符串数组
      */
     static String[] generateKeyVariants(String key) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return new String[]{key};
         }
 
         // 首先规范化键名
         String normalized = normalizeKey(key);
-        String[] parts = normalized.split("_");
+        String[] parts = normalized.split(UNDERSCORE);
 
-        // 初始化用于构建不同格式 StringBuilder
+        // 初始化用于构建不同格式的容器
         StringBuilder kebabCase = new StringBuilder();
         StringBuilder snakeCase = new StringBuilder();
         StringBuilder camelCase = new StringBuilder();
@@ -388,7 +421,7 @@ public interface PropertySource {
                 continue;
             }
             if (i > 0 || !kebabCase.isEmpty()) {
-                kebabCase.append('-');
+                kebabCase.append(HYPHEN);
                 snakeCase.append('_');
                 upperSnakeCase.append('_');
             }
@@ -416,18 +449,17 @@ public interface PropertySource {
     }
 
     /**
-     * 获取属性源的优先级
+     * 获取属性源的优先级。
      *
      * @return 优先级数值
      */
-    default int getPriority(){
+    default int getPriority() {
         return 0;
     }
 
     /**
-     * 刷新属性源
+     * 刷新属性源，默认空实现。
      */
     default void refresh() {
-
     }
 }

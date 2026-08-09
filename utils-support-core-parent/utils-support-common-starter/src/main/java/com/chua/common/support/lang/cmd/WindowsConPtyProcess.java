@@ -3,7 +3,13 @@ package com.chua.common.support.lang.cmd;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.foreign.*;
+import java.lang.foreign.Arena;
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.Linker;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SymbolLookup;
+import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -16,7 +22,7 @@ import java.util.Map;
  * </p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public final class WindowsConPtyProcess implements Closeable {
 
@@ -195,6 +201,51 @@ public final class WindowsConPtyProcess implements Closeable {
     private static final long STARTUPINFOEX_SIZE;
 
     // endregion
+
+    /**
+     * WaitForSingleObject 使用的无限等待常量（-1）
+     */
+    private static final int INFINITE = -1;
+
+    /**
+     * PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE 属性值
+     */
+    private static final long PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE = 0x00020016L;
+
+    /**
+     * EXTENDED_STARTUPINFO_PRESENT 标志位
+     */
+    private static final int EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
+
+    /**
+     * CREATE_UNICODE_ENVIRONMENT 标志位
+     */
+    private static final int CREATE_UNICODE_ENVIRONMENT = 0x00000400;
+
+    /**
+     * 伪控制台默认列宽
+     */
+    private static final short CONSOLE_WIDTH = 80;
+
+    /**
+     * 伪控制台默认行高
+     */
+    private static final short CONSOLE_HEIGHT = 300;
+
+    /**
+     * 句柄继承标志（TRUE）
+     */
+    private static final int INHERIT_HANDLES = 1;
+
+    /**
+     * 属性列表数量
+     */
+    private static final int ATTRIBUTE_COUNT = 1;
+
+    /**
+     * 管道缓冲区大小（0 表示使用默认）
+     */
+    private static final int PIPE_BUFFER_SIZE = 0;
 
     static {
         long siExSize;
@@ -383,7 +434,9 @@ public final class WindowsConPtyProcess implements Closeable {
      * @return true 表示关闭成功
      */
     private static boolean closeHandle(MemorySegment handle) {
-        if (handle == null) return false;
+        if (handle == null) {
+            return false;
+        }
         try {
             return (int) CloseHandle.invokeExact(handle) != 0;
         } catch (Throwable t) {
@@ -391,46 +444,25 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
-    /**
-     * WaitForSingleObject 使用的无限等待常量（-1）
-     */
-    private static final int INFINITE = -1;
-
-    /**
-     * PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE 属性值
-     */
-    private static final long PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE = 0x00020016L;
-
-    /**
-     * EXTENDED_STARTUPINFO_PRESENT 标志位
-     */
-    private static final int EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
-
-    /**
-     * CREATE_UNICODE_ENVIRONMENT 标志位
-     */
-    private static final int CREATE_UNICODE_ENVIRONMENT = 0x00000400;
-
     public static WindowsConPtyProcess start(String[] cmdArray, String workDir) throws IOException {
         if (!AVAILABLE) {
             throw new UnsupportedOperationException("ConPTY is not available on this system");
         }
 
         try (var arena = Arena.ofConfined()) {
-            // 第 1 步：构造 SECURITY_ATTRIBUTES，句柄设为可继承
+            // 构造 SECURITY_ATTRIBUTES，句柄设为可继承
             MemorySegment sa = arena.allocate(SECURITY_ATTRIBUTES_LAYOUT);
             sa.set(ValueLayout.JAVA_INT, 0, (int) SECURITY_ATTRIBUTES_LAYOUT.byteSize());
             sa.set(ValueLayout.ADDRESS, 4, MemorySegment.NULL);
-            sa.set(ValueLayout.JAVA_INT, 12, 1);
-            // bInheritHandle = TRUE
+            sa.set(ValueLayout.JAVA_INT, 12, INHERIT_HANDLES);
 
-            // 第 2 步：创建子进程输出管道
+            // 创建子进程输出管道
             MemorySegment outReadRef = arena.allocate(ValueLayout.ADDRESS.byteSize());
             MemorySegment outWriteRef = arena.allocate(ValueLayout.ADDRESS.byteSize());
             int ret;
             try {
                 ret = (int) CreatePipe.invokeExact(
-                        outReadRef, outWriteRef, sa, 0);
+                        outReadRef, outWriteRef, sa, PIPE_BUFFER_SIZE);
             } catch (Throwable t) {
                 throw new IOException("CreatePipe (output) failed", t);
             }
@@ -440,12 +472,12 @@ public final class WindowsConPtyProcess implements Closeable {
             MemorySegment outRead = outReadRef.get(ValueLayout.ADDRESS, 0);
             MemorySegment outWrite = outWriteRef.get(ValueLayout.ADDRESS, 0);
 
-            // 第 3 步：创建子进程输入管道
+            // 创建子进程输入管道
             MemorySegment inReadRef = arena.allocate(ValueLayout.ADDRESS.byteSize());
             MemorySegment inWriteRef = arena.allocate(ValueLayout.ADDRESS.byteSize());
             try {
                 ret = (int) CreatePipe.invokeExact(
-                        inReadRef, inWriteRef, sa, 0);
+                        inReadRef, inWriteRef, sa, PIPE_BUFFER_SIZE);
             } catch (Throwable t) {
                 closeHandle(outRead);
                 closeHandle(outWrite);
@@ -460,10 +492,10 @@ public final class WindowsConPtyProcess implements Closeable {
             MemorySegment inWrite = inWriteRef.get(ValueLayout.ADDRESS, 0);
 
             try {
-                // 第 4 步：创建伪控制台 (ConPTY)
+                // 创建伪控制台 (ConPTY)
                 MemorySegment coord = arena.allocate(COORD_LAYOUT);
-                coord.set(ValueLayout.JAVA_SHORT, 0, (short) 80);
-                coord.set(ValueLayout.JAVA_SHORT, 2, (short) 300);
+                coord.set(ValueLayout.JAVA_SHORT, 0, CONSOLE_WIDTH);
+                coord.set(ValueLayout.JAVA_SHORT, 2, CONSOLE_HEIGHT);
 
                 MemorySegment hpcSeg = arena.allocate(ValueLayout.ADDRESS.byteSize());
                 int hr;
@@ -478,26 +510,26 @@ public final class WindowsConPtyProcess implements Closeable {
                 }
                 MemorySegment hPC = hpcSeg.get(ValueLayout.ADDRESS, 0);
 
-                // 第 5 步：关闭 ConPTY 已复制走的两端句柄
+                // 关闭 ConPTY 已复制走的两端句柄
                 closeHandle(inRead);
                 closeHandle(outWrite);
 
-                // 第 6 步：查询属性列表所需大小
+                // 查询属性列表所需大小
                 MemorySegment attrSizeSeg = arena.allocate(ValueLayout.JAVA_LONG.byteSize());
                 try {
                     InitializeProcThreadAttributeList.invokeExact(
-                            MemorySegment.NULL, 1, 0, attrSizeSeg);
+                            MemorySegment.NULL, ATTRIBUTE_COUNT, 0, attrSizeSeg);
                 } catch (Throwable ignored) {
                 }
                 long attrListSize = attrSizeSeg.get(ValueLayout.JAVA_LONG, 0);
 
-                // 第 7 步：分配属性列表内存
+                // 分配属性列表内存
                 MemorySegment attrListMem = arena.allocate(attrListSize);
 
-                // 第 8 步：正式初始化属性列表
+                // 正式初始化属性列表
                 try {
                     ret = (int) InitializeProcThreadAttributeList.invokeExact(
-                            attrListMem, 1, 0, attrSizeSeg);
+                            attrListMem, ATTRIBUTE_COUNT, 0, attrSizeSeg);
                 } catch (Throwable t) {
                     throw new IOException("InitializeProcThreadAttributeList failed", t);
                 }
@@ -505,7 +537,7 @@ public final class WindowsConPtyProcess implements Closeable {
                     throw new IOException("InitializeProcThreadAttributeList failed, error=" + getLastError());
                 }
 
-                // 第 9 步：把 ConPTY 句柄写入属性列表
+                // 把 ConPTY 句柄写入属性列表
                 try {
                     ret = (int) UpdateProcThreadAttribute.invokeExact(
                             attrListMem, 0,
@@ -521,10 +553,13 @@ public final class WindowsConPtyProcess implements Closeable {
                     throw new IOException("UpdateProcThreadAttribute failed, error=" + getLastError());
                 }
 
-                // 第 10 步：拼接命令行，按需为含空格的参数加引号
+                // 拼接命令行，按需为含空格的参数加引号
+                // 注意：此处保留 StringBuilder 显式拼接，避免 StringUtils.join 改变引号转义行为
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < cmdArray.length; i++) {
-                    if (i > 0) sb.append(' ');
+                    if (i > 0) {
+                        sb.append(' ');
+                    }
                     String part = cmdArray[i];
                     if (part.contains(" ") || part.contains("\t")) {
                         sb.append('"').append(part.replace("\"", "\\\"")).append('"');
@@ -534,44 +569,33 @@ public final class WindowsConPtyProcess implements Closeable {
                 }
                 MemorySegment cmdLineMem = toWideString(arena, sb.toString());
 
-                // 第 11 步：构造 STARTUPINFOEX (STARTUPINFO + lpAttributeList)
+                // 构造 STARTUPINFOEX (STARTUPINFO + lpAttributeList)
                 MemorySegment siEx = arena.allocate(STARTUPINFOEX_SIZE);
                 siEx.set(ValueLayout.JAVA_INT, 0, (int) STARTUPINFOEX_SIZE);
-                // cb
                 siEx.set(ValueLayout.ADDRESS, STARTUPINFO_SIZE, attrListMem);
-                // lpAttributeList
 
-                // 第 12 步：工作目录（UTF-16LE 宽字符串）
+                // 工作目录（UTF-16LE 宽字符串）
                 MemorySegment workDirSeg = workDir != null
                         ? toWideString(arena, workDir)
                         : MemorySegment.NULL;
 
-                // 第 13 步：进程信息结构
+                // 进程信息结构
                 MemorySegment pi = arena.allocate(PROCESS_INFORMATION_LAYOUT);
 
-                // 第 14 步：构造环境块并执行 CreateProcessW
+                // 构造环境块并执行 CreateProcessW
                 MemorySegment envBlock = buildEnvBlock(arena);
                 try {
                     ret = (int) CreateProcessW.invokeExact(
                             MemorySegment.NULL,
-                            // lpApplicationName
                             cmdLineMem,
-                            // lpCommandLine
                             MemorySegment.NULL,
-                            // lpProcessAttributes
                             MemorySegment.NULL,
-                            // lpThreadAttributes
-                            1,
-                            // bInheritHandles = TRUE
+                            INHERIT_HANDLES,
                             EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT,
                             envBlock,
-                            // lpEnvironment
                             workDirSeg,
-                            // lpCurrentDirectory
                             siEx,
-                            // lpStartupInfo
                             pi
-                            // lpProcessInformation
                     );
                 } catch (Throwable t) {
                     try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
@@ -587,23 +611,31 @@ public final class WindowsConPtyProcess implements Closeable {
                 MemorySegment hProc = pi.get(ValueLayout.ADDRESS, 0);
                 MemorySegment hThr = pi.get(ValueLayout.ADDRESS, 8);
 
-                // 第 15 步：清理属性列表资源
+                // 清理属性列表资源
                 try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
 
-                // 第 16 步：关闭输入管道写端
+                // 关闭输入管道写端
                 closeHandle(inWrite);
                 inWrite = null;
 
-                // 第 17 步：包装 ReadFile 为标准 InputStream
+                // 包装 ReadFile 为标准 InputStream
                 ConPtyInputStream is = new ConPtyInputStream(outRead);
 
                 return new WindowsConPtyProcess(hPC, null, outRead, hProc, hThr, is);
 
             } catch (Exception e) {
-                if (inRead != null && inRead != MemorySegment.NULL) closeHandle(inRead);
-                if (inWrite != null && inWrite != MemorySegment.NULL) closeHandle(inWrite);
-                if (outRead != null && outRead != MemorySegment.NULL) closeHandle(outRead);
-                if (outWrite != null && outWrite != MemorySegment.NULL) closeHandle(outWrite);
+                if (inRead != null && inRead != MemorySegment.NULL) {
+                    closeHandle(inRead);
+                }
+                if (inWrite != null && inWrite != MemorySegment.NULL) {
+                    closeHandle(inWrite);
+                }
+                if (outRead != null && outRead != MemorySegment.NULL) {
+                    closeHandle(outRead);
+                }
+                if (outWrite != null && outWrite != MemorySegment.NULL) {
+                    closeHandle(outWrite);
+                }
                 throw e instanceof IOException ? (IOException) e : new IOException(e);
             }
         }
@@ -614,13 +646,19 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     public int waitFor() throws InterruptedException {
-        if (hProcess == null) return -1;
+        if (hProcess == null) {
+            return -1;
+        }
         try {
             int waitRet = (int) WaitForSingleObject.invokeExact(hProcess, INFINITE);
-            if (waitRet != 0) return -1;
+            if (waitRet != 0) {
+                return -1;
+            }
             MemorySegment exitCodeSeg = Arena.ofAuto().allocate(ValueLayout.JAVA_INT.byteSize());
             boolean ok = (int) GetExitCodeProcess.invokeExact(hProcess, exitCodeSeg) != 0;
-            if (!ok) return -1;
+            if (!ok) {
+                return -1;
+            }
             return exitCodeSeg.get(ValueLayout.JAVA_INT, 0);
         } catch (Throwable t) {
             return -1;
@@ -628,7 +666,9 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     public boolean waitFor(long timeout) throws InterruptedException {
-        if (hProcess == null) return true;
+        if (hProcess == null) {
+            return true;
+        }
         try {
             return (int) WaitForSingleObject.invokeExact(hProcess, (int) timeout) == 0;
         } catch (Throwable t) {
@@ -731,8 +771,12 @@ public final class WindowsConPtyProcess implements Closeable {
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
-            if (len == 0) return 0;
-            if (handle == null) return -1;
+            if (len == 0) {
+                return 0;
+            }
+            if (handle == null) {
+                return -1;
+            }
             try (var arena = Arena.ofConfined()) {
                 MemorySegment bufSeg = arena.allocate(len);
                 MemorySegment bytesReadSeg = arena.allocate(ValueLayout.JAVA_INT.byteSize());
@@ -745,11 +789,15 @@ public final class WindowsConPtyProcess implements Closeable {
                 }
                 if (ret == 0) {
                     int err = getLastError();
-                    if (err == 0x6D || err == 0xE8) return -1;
+                    if (err == 0x6D || err == 0xE8) {
+                        return -1;
+                    }
                     return -1;
                 }
                 int cb = bytesReadSeg.get(ValueLayout.JAVA_INT, 0);
-                if (cb == 0) return -1;
+                if (cb == 0) {
+                    return -1;
+                }
                 for (int i = 0; i < cb; i++) {
                     b[off + i] = bufSeg.get(ValueLayout.JAVA_BYTE, i);
                 }

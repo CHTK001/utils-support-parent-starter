@@ -381,7 +381,8 @@ public class DefaultSpider implements Spider {
             enrichWithAi(result, request);
             processWithPipelines(result, request);
             results.add(result);
-            extractAndEnqueueLinks(response, request);
+            List<String> extractedLinks = extractAndEnqueueLinks(response, request);
+            result.setLinks(extractedLinks);
             return true;
         } catch (Exception e) {
             log.warn("[spider] 处理请求异常: {} - {}", request.getUrl(), e.getMessage());
@@ -432,15 +433,16 @@ public class DefaultSpider implements Spider {
      * @param response 抓取响应
      * @param request  当前请求
      */
-    private void extractAndEnqueueLinks(SpiderResponse response, SpiderRequest request) {
+    private List<String> extractAndEnqueueLinks(SpiderResponse response, SpiderRequest request) {
         if (linkExtractor == null) {
-            return;
+            return java.util.Collections.emptyList();
         }
 
         List<String> links = linkExtractor.extract(response);
         for (String link : links) {
             enqueueUrl(link, request.getDepth() + 1, request.getUrl());
         }
+        return links;
     }
 
     /**
@@ -456,6 +458,15 @@ public class DefaultSpider implements Spider {
                 .depth(depth)
                 .referUrl(referUrl)
                 .build();
+
+        // 将站点级 UA/超时透传到请求，供 Fetcher 使用（若请求未单独指定）
+        if (site != null && site.getUserAgent() != null
+                && !request.getAttributes().containsKey("userAgent")) {
+            request.getAttributes().put("userAgent", site.getUserAgent());
+        }
+        if (site != null && !request.getAttributes().containsKey("timeoutMs")) {
+            request.getAttributes().put("timeoutMs", site.getTimeout());
+        }
 
         for (SpiderUrlFilter filter : urlFilters) {
             if (!filter.accept(request)) {
