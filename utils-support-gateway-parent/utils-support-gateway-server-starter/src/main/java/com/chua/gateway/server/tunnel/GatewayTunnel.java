@@ -98,6 +98,12 @@ public class GatewayTunnel implements Tunnel {
 
     @Override
     public int open() {
+        if (bridge == null) {
+            updateStatus(TunnelStatus.OPEN);
+            log.info("[gateway-server] Tunnel 暂存（无桥接器）: id={} target={}:{}",
+                    id, connection.host(), connection.port());
+            return 0;
+        }
         try {
             bridge.connect();
             updateStatus(TunnelStatus.OPEN);
@@ -113,6 +119,7 @@ public class GatewayTunnel implements Tunnel {
 
     @Override
     public void close() {
+        if (bridge == null) return;
         try {
             bridge.disconnect();
             log.info("[gateway-server] Tunnel 关闭: id={}", id);

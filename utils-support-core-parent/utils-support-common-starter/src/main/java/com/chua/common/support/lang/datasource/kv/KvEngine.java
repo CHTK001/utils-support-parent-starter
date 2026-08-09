@@ -40,6 +40,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@SuppressWarnings("removal")
 public interface KvEngine extends KvOperations {
 
     // ==================== 核心 KV 操作 ====================

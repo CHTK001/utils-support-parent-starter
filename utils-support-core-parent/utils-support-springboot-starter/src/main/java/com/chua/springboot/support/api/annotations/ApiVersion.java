@@ -1,7 +1,11 @@
 package com.chua.springboot.support.api.annotations;
 import com.chua.common.support.lang.version.Version;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * API 版本控制注解

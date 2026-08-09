@@ -69,12 +69,17 @@ public final class SqliteConnectionStore implements ConnectionStore {
                     "WHERE protocol = ? AND host = ? AND port = ? LIMIT 1";
 
     /**
-     * 插入或更新
+     * 插入（存在则忽略，避免唯一约束冲突）
      */
-    private static final String SQL_UPSERT =
-            "INSERT INTO connections (key,protocol,host,port,user,password) VALUES (?,?,?,?,?,?) " +
-                    "ON CONFLICT(protocol,host,port) DO UPDATE SET " +
-                    "user=excluded.user, password=excluded.password, updated_at=strftime('%s','now')";
+    private static final String SQL_INSERT_IGNORE =
+            "INSERT OR IGNORE INTO connections (key,protocol,host,port,user,password) VALUES (?,?,?,?,?,?)";
+
+    /**
+     * 更新目标连接的 user/password
+     */
+    private static final String SQL_UPDATE_TARGET =
+            "UPDATE connections SET user=?, password=?, updated_at=strftime('%s','now') " +
+                    "WHERE protocol=? AND host=? AND port=?";
 
     /**
      * 列出全部 key
@@ -206,15 +211,24 @@ public final class SqliteConnectionStore implements ConnectionStore {
         if (existing != null) {
             return existing;
         }
-        try (java.sql.Connection conn = openConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_UPSERT)) {
-            ps.setString(1, null);
-            ps.setString(2, protocol);
-            ps.setString(3, host);
-            ps.setInt(4, port);
-            ps.setString(5, user);
-            ps.setString(6, password);
-            ps.executeUpdate();
+        try (java.sql.Connection conn = openConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(SQL_INSERT_IGNORE)) {
+                ps.setString(1, null);
+                ps.setString(2, protocol);
+                ps.setString(3, host);
+                ps.setInt(4, port);
+                ps.setString(5, user);
+                ps.setString(6, password);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_TARGET)) {
+                ps.setString(1, user);
+                ps.setString(2, password);
+                ps.setString(3, protocol);
+                ps.setString(4, host);
+                ps.setInt(5, port);
+                ps.executeUpdate();
+            }
             log.info("[gateway-server] 新建连接: protocol={} host={} port={}", protocol, host, port);
         } catch (SQLException e) {
             log.warn("[gateway-server] 写入连接失败: protocol={} host={} port={} err={}",

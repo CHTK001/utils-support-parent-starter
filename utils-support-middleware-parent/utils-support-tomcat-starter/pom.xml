@@ -18,6 +18,11 @@
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
             <version>9.0.93</version>

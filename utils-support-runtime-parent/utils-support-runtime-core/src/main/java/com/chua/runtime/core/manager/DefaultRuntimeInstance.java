@@ -121,6 +121,14 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                     .build();
         }
 
+        // 优先通过 SPI RuntimeLauncher 启动
+        RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
+        if (launcher != null) {
+            CmdResult result = launcher.start(artifact);
+            status.set(result.getExitCode() == 0 ? RuntimeStatus.RUNNING : RuntimeStatus.CRASHED);
+            return result;
+        }
+
         Path executable = artifact.getExecutable();
         if (executable != null && !Files.exists(executable)) {
             status.set(RuntimeStatus.CRASHED);
@@ -192,6 +200,14 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
     @Override
     public synchronized CmdResult stop() {
+        // 优先通过 SPI RuntimeLauncher 停止
+        RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
+        if (launcher != null) {
+            CmdResult result = launcher.stop(artifact);
+            status.set(RuntimeStatus.STOPPED);
+            return result;
+        }
+
         Process p = processRef.get();
         if (p == null || !p.isAlive()) {
             status.set(RuntimeStatus.STOPPED);

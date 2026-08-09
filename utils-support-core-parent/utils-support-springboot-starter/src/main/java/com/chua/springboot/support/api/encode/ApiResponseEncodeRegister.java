@@ -2,7 +2,7 @@ package com.chua.springboot.support.api.encode;
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.matcher.PathMatcher;
 import com.chua.springboot.support.api.properties.ApiProperties;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
 import lombok.Getter;
 import org.springframework.context.ApplicationListener;
 

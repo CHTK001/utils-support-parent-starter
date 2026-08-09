@@ -52,7 +52,8 @@ public class NoVncBridge implements RemoteBridge {
         }
         int port = connection.port() > 0 ? connection.port() : DEFAULT_VNC_PORT;
         log.info("[gateway-server] VNC 连接: target={}:{}", connection.host(), port);
-        socket = new Socket(connection.host(), port);
+        socket = new Socket();
+        socket.connect(new java.net.InetSocketAddress(connection.host(), port), 5000);
         socket.setTcpNoDelay(true);
         socket.setKeepAlive(true);
         log.info("[gateway-server] VNC 连接建立");

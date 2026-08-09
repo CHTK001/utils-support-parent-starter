@@ -3,17 +3,30 @@ package com.chua.spider.support.config;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 
 /**
- * Cron expression parser (simplified).
+ * Cron 表达式解析器（Quartz 兼容）。
  *
- * <p>Supports: minute hour day month weekday (5 fields).</p>
+ * <p>支持 5 字段或 6 字段（Quartz 格式，含秒）：
+ * <pre>
+ *   6 字段: seconds  minutes  hours  day-of-month  month  day-of-week
+ *   5 字段:            minutes  hours  day-of-month  month  day-of-week
+ * </pre>
+ * 各字段支持：
  * <ul>
- *   <li>{@code *} - any value</li>
- *   <li>{@code N} - fixed value</li>
- *   <li>{@code step} ({@code 0/N} syntax) - step interval</li>
- *   <li>{@code a,b,c} - list</li>
+ *   <li>{@code *} - 任意值</li>
+ *   <li>{@code ?} - 不指定（Quartz 用法，仅 DOM/DOW 有效）</li>
+ *   <li>{@code N} - 固定值</li>
+ *   <li>{@code a,b,c} - 列表</li>
+ *   <li>{@code a/b} - 步进（{@code 0/5} 表示从 0 开始每 5 单位）</li>
+ *   <li>{@code STAR/b} - 步进（从 min 开始每 b 单位，等价于 {@code min/b}）</li>
  * </ul>
+ *
+ * <p>DOM 与 DOW 遵循 Quartz OR 语义：
+ * 两者都不是 {@code *} 时任一匹配即触发；
+ * 其中一个是 {@code *} 时只看另一个。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -21,54 +34,42 @@ import java.time.ZonedDateTime;
 public class CronExpression {
 
     /**
-     * Field delimiter regex
+     * 字段分隔符正则。
      */
     private static final String FIELD_DELIMITER = "\\s+";
 
     /**
-     * List delimiter
+     * 列表分隔符。
      */
     private static final String LIST_DELIMITER = ",";
 
     /**
-     * Step prefix
+     * 是否使用 6 字段 Quartz 格式（含秒）。
      */
-    private static final String STEP_PREFIX = "*/";
+    private final boolean hasSeconds;
 
     /**
-     * Cron expression text
+     * Cron 表达式原文。
      */
     private final String expression;
 
-    /**
-     * Minute field (0-59)
-     */
+    private final Field seconds;
     private final Field minutes;
-
-    /**
-     * Hour field (0-23)
-     */
     private final Field hours;
-
-    /**
-     * Day-of-month field (1-31)
-     */
     private final Field daysOfMonth;
-
-    /**
-     * Month field (1-12)
-     */
     private final Field months;
-
-    /**
-     * Day-of-week field (1-7, Mon=1, Sun=7), nullable
-     */
     private final Field daysOfWeek;
 
     /**
-     * Parse cron expression.
+     * DOM / DOW 是否为通配（影响 OR / AND 语义判定）。
+     */
+    private final boolean domIsAny;
+    private final boolean dowIsAny;
+
+    /**
+     * 构造并解析 cron 表达式。
      *
-     * @param expression cron text
+     * @param expression cron 文本
      */
     public CronExpression(String expression) {
         if (expression == null || expression.isEmpty()) {
@@ -79,69 +80,125 @@ public class CronExpression {
         if (parts.length < 5 || parts.length > 6) {
             throw new IllegalArgumentException("cron expression must have 5-6 fields, got " + parts.length);
         }
-        this.minutes = parseField(parts[0], 0, 59);
-        this.hours = parseField(parts[1], 0, 23);
-        this.daysOfMonth = parseField(parts[2], 1, 31);
-        this.months = parseField(parts[3], 1, 12);
-        this.daysOfWeek = parts.length == 6 ? parseField(parts[4], 1, 7) : null;
+        this.hasSeconds = parts.length == 6;
+        if (hasSeconds) {
+            this.seconds = parseField(parts[0], 0, 59);
+            this.minutes = parseField(parts[1], 0, 59);
+            this.hours = parseField(parts[2], 0, 23);
+            this.daysOfMonth = parseField(parts[3], 1, 31);
+            this.months = parseField(parts[4], 1, 12);
+            this.daysOfWeek = parseField(parts[5], 1, 7);
+            this.domIsAny = isWildcard(parts[3]);
+            this.dowIsAny = isWildcard(parts[5]);
+        } else {
+            this.seconds = Field.any(0, 59);
+            this.minutes = parseField(parts[0], 0, 59);
+            this.hours = parseField(parts[1], 0, 23);
+            this.daysOfMonth = parseField(parts[2], 1, 31);
+            this.months = parseField(parts[3], 1, 12);
+            this.daysOfWeek = parseField(parts[4], 1, 7);
+            this.domIsAny = isWildcard(parts[2]);
+            this.dowIsAny = isWildcard(parts[4]);
+        }
     }
 
     /**
-     * Compute next trigger time after given base time.
+     * 判定字段是否为通配（{@code *} 或 {@code ?}）。
+     */
+    private static boolean isWildcard(String field) {
+        if (field == null || field.isEmpty()) {
+            return true;
+        }
+        return field.equals("*") || field.equals("?");
+    }
+
+    /**
+     * 计算从基准时间之后的下一次触发时间。
      *
-     * @param base base time (exclusive)
-     * @return next trigger time, or null if not found within 1 year
+     * <p>6 字段 Quartz 模式按秒步进，5 字段模式按分钟步进。
+     * 最坏情况扫描一年（5 字段 31.5 万分钟，6 字段扫描过大会更慢，调用方应控制）。</p>
+     *
+     * @param base 基准时间（不含本次）
+     * @return 下次触发时间；找不到返回 null
      */
     public LocalDateTime nextAfter(LocalDateTime base) {
-        ZonedDateTime cursor = base.atZone(ZoneId.systemDefault()).plusMinutes(1)
-                .withSecond(0).withNano(0);
-        for (int i = 0; i < 366 * 24 * 60; i++) {
+        ZonedDateTime cursor = base.atZone(ZoneId.systemDefault());
+        if (hasSeconds) {
+            cursor = cursor.plusSeconds(1).withNano(0);
+        } else {
+            cursor = cursor.plusMinutes(1).withSecond(0).withNano(0);
+        }
+        long maxIter = hasSeconds ? 366L * 24 * 60 * 60 : 366L * 24 * 60;
+        ChronoUnit unit = hasSeconds ? ChronoUnit.SECONDS : ChronoUnit.MINUTES;
+        for (long i = 0; i < maxIter; i++) {
             if (matches(cursor)) {
                 return cursor.toLocalDateTime();
             }
-            cursor = cursor.plusMinutes(1);
+            cursor = cursor.plus(1, unit);
         }
         return null;
     }
 
     /**
-     * Test if given time matches cron expression.
+     * 判断给定时间是否匹配 cron 表达式。
      *
-     * @param zdt time to test
-     * @return true if match
+     * <p>DOM / DOW 遵循 Quartz OR 语义。</p>
+     *
+     * @param zdt 待测试时间
+     * @return 是否匹配
      */
     public boolean matches(ZonedDateTime zdt) {
         if (!months.contains(zdt.getMonthValue())) {
             return false;
         }
-        if (daysOfWeek != null) {
-            int dow = zdt.getDayOfWeek().getValue();
-            if (!daysOfWeek.contains(dow)) {
-                return false;
-            }
-            return minutes.contains(zdt.getMinute()) && hours.contains(zdt.getHour());
-        }
-        if (!daysOfMonth.contains(zdt.getDayOfMonth())) {
+        if (hasSeconds && !seconds.contains(zdt.getSecond())) {
             return false;
         }
-        return minutes.contains(zdt.getMinute()) && hours.contains(zdt.getHour());
+        if (!minutes.contains(zdt.getMinute())) {
+            return false;
+        }
+        if (!hours.contains(zdt.getHour())) {
+            return false;
+        }
+        int dom = zdt.getDayOfMonth();
+        int dow = zdt.getDayOfWeek().getValue();
+        boolean domMatch = daysOfMonth.contains(dom);
+        boolean dowMatch = daysOfWeek.contains(dow);
+        boolean dayMatch;
+        if (domIsAny && dowIsAny) {
+            dayMatch = true;
+        } else if (domIsAny) {
+            dayMatch = dowMatch;
+        } else if (dowIsAny) {
+            dayMatch = domMatch;
+        } else {
+            dayMatch = domMatch || dowMatch;
+        }
+        return dayMatch;
     }
 
     /**
-     * Parse a single cron field.
-     *
-     * @param expr field text
-     * @param min  minimum value
-     * @param max  maximum value
-     * @return Field instance
+     * 解析单个 cron 字段。
      */
     private Field parseField(String expr, int min, int max) {
-        if ("*".equals(expr)) {
+        if ("*".equals(expr) || "?".equals(expr)) {
             return Field.any(min, max);
         }
-        if (expr.startsWith(STEP_PREFIX)) {
-            int step = Integer.parseInt(expr.substring(STEP_PREFIX.length()));
-            return Field.step(min, max, step);
+        int slash = expr.indexOf('/');
+        if (slash >= 0) {
+            int step = Integer.parseInt(expr.substring(slash + 1));
+            String startPart = expr.substring(0, slash);
+            int start;
+            if ("*".equals(startPart) || startPart.isEmpty()) {
+                start = min;
+            } else {
+                start = Integer.parseInt(startPart);
+                if (start < min || start > max) {
+                    throw new IllegalArgumentException(
+                            "step start " + start + " out of range [" + min + "," + max + "]");
+                }
+            }
+            return Field.step(start, max, step);
         }
         if (expr.contains(LIST_DELIMITER)) {
             String[] items = expr.split(LIST_DELIMITER);
@@ -164,23 +221,12 @@ public class CronExpression {
     }
 
     /**
-     * Cron field.
+     * Cron 字段（位图表示）。
      */
     private static final class Field {
 
-        /**
-         * Minimum value
-         */
         private final int min;
-
-        /**
-         * Maximum value
-         */
         private final int max;
-
-        /**
-         * Hit value bitset
-         */
         private final boolean[] bits;
 
         private Field(int min, int max) {
@@ -189,31 +235,20 @@ public class CronExpression {
             this.bits = new boolean[max - min + 1];
         }
 
-        /**
-         * Any value ({@code *})
-         */
         static Field any(int min, int max) {
             Field f = new Field(min, max);
-            for (int i = 0; i < f.bits.length; i++) {
-                f.bits[i] = true;
+            Arrays.fill(f.bits, true);
+            return f;
+        }
+
+        static Field step(int start, int max, int step) {
+            Field f = new Field(0, max);
+            for (int v = start; v <= max; v += step) {
+                f.bits[v] = true;
             }
             return f;
         }
 
-        /**
-         * Step interval (e.g. 0/5 means every 5 units)
-         */
-        static Field step(int min, int max, int step) {
-            Field f = new Field(min, max);
-            for (int v = min; v <= max; v += step) {
-                f.bits[v - min] = true;
-            }
-            return f;
-        }
-
-        /**
-         * List ({@code a,b,c})
-         */
         static Field list(int min, int max, int[] values) {
             Field f = new Field(min, max);
             for (int v : values) {
@@ -225,26 +260,18 @@ public class CronExpression {
             return f;
         }
 
-        /**
-         * Fixed value
-         */
         static Field fixed(int min, int max, int value) {
             Field f = new Field(min, max);
             f.bits[value - min] = true;
             return f;
         }
 
-        /**
-         * Test if value is hit.
-         *
-         * @param value value to test
-         * @return true if hit
-         */
         boolean contains(int value) {
-            if (value < min || value > max) {
+            int idx = value - min;
+            if (idx < 0 || idx >= bits.length) {
                 return false;
             }
-            return bits[value - min];
+            return bits[idx];
         }
     }
 }

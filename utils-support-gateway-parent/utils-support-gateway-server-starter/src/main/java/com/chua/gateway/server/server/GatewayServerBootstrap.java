@@ -140,27 +140,26 @@ public final class GatewayServerBootstrap {
         // 6. 启动 server（让 common-starter 完成 initBuiltinFilters / initFilters）
         raw.start();
 
-        // 7. 启动后替换内置 urlMappingFilter 为自实现的 GatewayUrlMappingFilter
-        //    必须在 start() 之后，避免 initFilters 把旧 urlMappingFilter 重新拉回来。
+        // 7. 注册自定义 UrlMappingFilter 和路由（必须在 start() 之后，避免 initFilters 把旧 filter 重新拉回来）
         GatewayUrlMappingFilter mappingFilter = new GatewayUrlMappingFilter();
+        RouteRegistrar.register(mappingFilter, connectionStore, protocolScanner, tunnelRegistry);
+        log.info("[gateway-server] 路由已注册: count={}", mappingFilter.routeCount());
+        log.info("[gateway-server] 当前 routes: {}", mappingFilter.getRoutes());
+        // 移除旧 UrlMappingServerFilter 并加入自定义 filter
         try {
             java.lang.reflect.Field f = com.chua.common.support.network.server.AbstractServer.class
                     .getDeclaredField("urlMappingFilter");
             f.setAccessible(true);
-            com.chua.common.support.network.server.filter.UrlMappingServerFilter oldFilter =
-                    (com.chua.common.support.network.server.filter.UrlMappingServerFilter) f.get(raw);
-            f.set(raw, mappingFilter);
-            if (oldFilter != null) {
-                raw.removeFilter(oldFilter);
+            Object oldFilter = f.get(raw);
+            if (oldFilter != null && oldFilter instanceof ServerFilter) {
+                raw.removeFilter((ServerFilter) oldFilter);
             }
-            raw.addFilter(mappingFilter);
-            raw.refreshFilters();
-            RouteRegistrar.register(mappingFilter, connectionStore, protocolScanner, tunnelRegistry);
-            log.info("[gateway-server] 路由已注册: count={}", mappingFilter.routeCount());
-            log.info("[gateway-server] 当前 routes: {}", mappingFilter.getRoutes());
+            f.set(raw, mappingFilter);
         } catch (Exception ex) {
-            log.warn("[gateway-server] 注册 urlMappingFilter 失败: {}", ex.getMessage(), ex);
+            log.warn("[gateway-server] 移除旧 urlMappingFilter 失败: {}", ex.getMessage());
         }
+        raw.addFilter(mappingFilter);
+        raw.refreshFilters();
 
         log.info("[gateway-server] Gateway 服务端启动完成: port={} type={}", setting.getPort(), raw.getProtocol());
     }
@@ -188,7 +187,7 @@ public final class GatewayServerBootstrap {
     }
 
     /**
-     * 获取活跃 Tunnel Registry（外部调用，如监控）。
+     * 获取活跃 Tunnel Registry（外部调用，如监控和 WS 桥接）。
      *
      * @return TunnelRegistry
      */
