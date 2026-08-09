@@ -605,7 +605,9 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
      * 获取类型的友好名称
      */
     private String getSimpleTypeName(Class<?> type) {
-        if (type == null) return "有效值";
+        if (type == null) {
+            return "有效值";
+        }
         return switch (type.getSimpleName()) {
             case "Integer", "int" -> "整数";
             case "Long", "long" -> "整数";
@@ -626,7 +628,9 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
      * 获取参数类型的友好名称
      */
     private String getSimpleTypeName(String typeName) {
-        if (typeName == null) return "有效值";
+        if (typeName == null) {
+            return "有效值";
+        }
         return switch (typeName) {
             case "int", "Integer" -> "整数";
             case "long", "Long" -> "整数";
@@ -641,7 +645,9 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
      * 提取用户友好的错误信息
      */
     private String extractUserFriendlyMessage(String message) {
-        if (StringUtils.isBlank(message)) return "操作失败";
+        if (StringUtils.isBlank(message)) {
+            return "操作失败";
+        }
         // 如果包含中文，认为是开发者设置的友好消息
         if (Validator.hasChinese(message)) {
             return message;
@@ -667,7 +673,9 @@ public class ApiExceptionAdvice implements org.springframework.context.Environme
      * 提取数据库约束错误的友好信息
      */
     private String extractConstraintMessage(String message) {
-        if (StringUtils.isBlank(message)) return "数据校验失败";
+        if (StringUtils.isBlank(message)) {
+            return "数据校验失败";
+        }
         
         // 唯一约束冲突 - 提取重复的值
         Matcher duplicateMatcher = DUPLICATE_ENTRY_PATTERN.matcher(message);

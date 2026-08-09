@@ -154,7 +154,6 @@ public class AggregateChatClient implements ChatClient {
                 });
             } else {
             }
-            }
         };
     }
 
@@ -228,11 +227,19 @@ public class AggregateChatClient implements ChatClient {
         if (config.isEnableHealthCheck() && autoSwitchEnabled) {
             this.healthChecker = new ModelHealthChecker(config.getHealthCheckIntervalMs(), this::checkClientHealth);
             this.healthFilter = wc -> {
-                if (healthChecker == null) return true;
+                if (healthChecker == null) {
+                    return true;
+                }
                 ModelHealth health = healthChecker.getHealth(wc.client());
-                if (health == null) return true;
-                if (config.isAutoSwitchOnRateLimit() && health.isRateLimited()) return false;
-                if (config.isAutoSwitchOnQuotaExhausted() && health.isQuotaExhausted()) return false;
+                if (health == null) {
+                    return true;
+                }
+                if (config.isAutoSwitchOnRateLimit() && health.isRateLimited()) {
+                    return false;
+                }
+                if (config.isAutoSwitchOnQuotaExhausted() && health.isQuotaExhausted()) {
+                    return false;
+                }
                 return true;
             };
             for (RouterStrategy.WeightedClient wc : allClients) {
@@ -727,7 +734,7 @@ public class AggregateChatClient implements ChatClient {
      * @return 路由策略实例
      */
     private static RouterStrategy buildRouter(String strategyName, AllParsed parsed,
-                                               Predicate<RouterStrategy.WeightedClient> healthFilter) {
+                                                Predicate<RouterStrategy.WeightedClient> healthFilter) {
         if ("hybrid".equalsIgnoreCase(strategyName)) {
             return new HybridStrategy(parsed.groupRouters, healthFilter);
         }

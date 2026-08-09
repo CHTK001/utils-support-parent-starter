@@ -127,6 +127,7 @@ public class GlobalSettingFactory {
         CONFIG.put(PREFIX + group + name, CommonConstant.SYMBOL_EMPTY);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized <T> void set(String group, Map<String, Object> params) {
         if (MapUtils.isEmpty(params)) {
             return;
@@ -138,11 +139,12 @@ public class GlobalSettingFactory {
         for (T t : ts) {
             params.forEach((name, value) -> FieldStation.of(t).setIgnoreNameValue(name, value));
             if (t instanceof Upgrade<?>) {
-                ((Upgrade<?>) t).upgrade(t);
+                ((Upgrade) t).upgrade(t);
             }
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized <T> void set(String group, String name, Object value) {
         List<T> ts = get(group);
         if (null == ts) {
@@ -151,12 +153,12 @@ public class GlobalSettingFactory {
         for (T t : ts) {
             FieldStation.of(t).setIgnoreNameValue(name, value);
             if (t instanceof Upgrade<?>) {
-                ((Upgrade<?>) t).upgrade(t);
+                ((Upgrade) t).upgrade(t);
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized <T> void set(String group, Class<T> type, String name, Object value) {
         T t = get(group, type);
         if (null == t) {
@@ -164,7 +166,7 @@ public class GlobalSettingFactory {
         }
         FieldStation.of(t).setIgnoreNameValue(name, value);
         if (t instanceof Upgrade<?>) {
-            ((Upgrade<?>) t).upgrade(t);
+            ((Upgrade) t).upgrade(t);
         }
     }
 

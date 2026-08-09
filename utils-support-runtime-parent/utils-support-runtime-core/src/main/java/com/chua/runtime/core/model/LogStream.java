@@ -51,7 +51,9 @@ public class LogStream implements LineCallback, AutoCloseable {
 
     @Override
     public synchronized void onLine(String line) {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         buffer.addLast(line);
         if (buffer.size() > maxLines) {
             buffer.removeFirst();
@@ -63,7 +65,9 @@ public class LogStream implements LineCallback, AutoCloseable {
 
     @Override
     public synchronized void onComplete(int exitCode) {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         for (LineCallback sub : subscribers) {
             sub.onComplete(exitCode);
         }
@@ -71,7 +75,9 @@ public class LogStream implements LineCallback, AutoCloseable {
 
     @Override
     public synchronized void onError(String command, Throwable throwable) {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         for (LineCallback sub : subscribers) {
             sub.onError(command, throwable);
         }
@@ -93,7 +99,9 @@ public class LogStream implements LineCallback, AutoCloseable {
 
     public synchronized List<String> tail(int n) {
         int size = buffer.size();
-        if (n >= size) return getBuffer();
+        if (n >= size) {
+            return getBuffer();
+        }
         return new LinkedList<>(buffer.subList(size - n, size));
     }
 
