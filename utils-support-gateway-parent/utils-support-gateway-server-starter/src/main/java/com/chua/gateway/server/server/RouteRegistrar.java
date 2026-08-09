@@ -44,7 +44,7 @@ final class RouteRegistrar {
                          TunnelRegistry registry) {
 
         // GET /api/connections/keys
-        filter.route("/api/connections/keys", HttpMethod.GET, (req, resp) -> {
+        filter.route("/api/connections/keys", HttpMethod.GET, (java.util.function.BiConsumer<ServerRequest, ServerResponse>) (req, resp) -> {
             try {
                 List<String> keys = store.listKeys();
                 writeOk(resp, keys);
@@ -54,7 +54,7 @@ final class RouteRegistrar {
         });
 
         // GET /api/connections/list
-        filter.route("/api/connections/list", HttpMethod.GET, (req, resp) -> {
+        filter.route("/api/connections/list", HttpMethod.GET, (java.util.function.BiConsumer<ServerRequest, ServerResponse>) (req, resp) -> {
             try {
                 List<String> protocols = scanner.listProtocols();
                 writeOk(resp, protocols);
@@ -64,7 +64,7 @@ final class RouteRegistrar {
         });
 
         // POST /api/connections/authenticate
-        filter.route("/api/connections/authenticate", HttpMethod.POST, (req, resp) -> {
+        filter.route("/api/connections/authenticate", HttpMethod.POST, (java.util.function.BiConsumer<ServerRequest, ServerResponse>) (req, resp) -> {
             try {
                 AuthRequest payload = JSON.readValue(req.getBody(), AuthRequest.class);
                 Connection conn = resolveConnection(store, payload);
