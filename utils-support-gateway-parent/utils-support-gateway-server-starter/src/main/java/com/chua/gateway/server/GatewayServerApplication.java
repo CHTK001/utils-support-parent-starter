@@ -3,6 +3,7 @@ package com.chua.gateway.server;
 import com.chua.gateway.server.artifact.GatewayArtifact;
 import com.chua.gateway.server.config.GatewayProperties;
 import com.chua.gateway.server.server.GatewayServerBootstrap;
+import com.chua.gateway.server.server.WsBridgeServer;
 import com.chua.runtime.starter.RuntimeBoot;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,13 +59,26 @@ public final class GatewayServerApplication {
                 .install();
         log.info("[gateway-server] RuntimeBoot install 完成");
 
-        // 2. 启动 HTTP server（含 WS 端点）
+        // 2. 启动 HTTP server
         GatewayServerBootstrap bootstrap = new GatewayServerBootstrap();
         bootstrap.start();
         log.info("[gateway-server] HTTP 服务已监听: http://{}:{}", "0.0.0.0", GatewayProperties.httpPort());
 
-        // 3. shutdown hook
+        // 3. 启动 WS 桥接服务器（端口 8091，独立于 common-starter）
+        var wsBridge = new WsBridgeServer(bootstrap.tunnelRegistry());
+        try {
+            wsBridge.start();
+            log.info("[gateway-server] WS 桥接服务器已启动: port=8091");
+        } catch (Exception e) {
+            log.warn("[gateway-server] WS 桥接服务器启动失败: {}", e.getMessage());
+        }
+
+        // 4. shutdown hook
+        var ws = wsBridge;
         Runtime.getRuntime().addShutdownHook(
-                new Thread(bootstrap::stop, SHUTDOWN_HOOK_NAME));
+                new Thread(() -> {
+                    ws.stop();
+                    bootstrap.stop();
+                }, SHUTDOWN_HOOK_NAME));
     }
 }
