@@ -62,6 +62,11 @@ public class NettyTcpSyncClient implements SyncClient {
     private volatile boolean connected;
 
     /**
+     * 是否已注册成功
+     */
+    private volatile boolean registered;
+
+    /**
      * 订阅的主题映射（topic -> handler）
      */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
@@ -114,6 +119,7 @@ public class NettyTcpSyncClient implements SyncClient {
             channel = future.channel();
             connected = true;
             sendLine("register:" + clientId);
+            waitRegistered();
             notifyListeners(SyncFlowListener::onStart);
         } catch (Exception e) {
             connected = false;
@@ -186,6 +192,21 @@ public class NettyTcpSyncClient implements SyncClient {
     @Override
     public void close() {
         disconnect();
+    }
+
+    /**
+     * 等待服务端注册确认, 保证 connect() 返回后已可收发。
+     */
+    private void waitRegistered() {
+        long deadline = System.currentTimeMillis() + 3000L;
+        while (!registered && System.currentTimeMillis() < deadline) {
+            try {
+                Thread.sleep(10L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
     }
 
     /**
@@ -284,6 +305,10 @@ public class NettyTcpSyncClient implements SyncClient {
             int colon = line.indexOf(':');
             String topic = colon > 0 ? line.substring(0, colon) : line;
             String payload = colon > 0 ? line.substring(colon + 1) : line;
+            if ("registered".equals(topic)) {
+                registered = true;
+                return;
+            }
             SyncMessageHandler handler = subscriptions.get(topic);
             if (handler != null) {
                 handler.handle(topic, payload);

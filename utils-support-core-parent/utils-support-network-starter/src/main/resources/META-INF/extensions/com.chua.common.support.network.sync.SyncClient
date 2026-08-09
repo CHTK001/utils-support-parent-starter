@@ -1,0 +1,2 @@
+netty-tcp=com.chua.common.support.network.sync.netty.NettyTcpSyncClient
+netty-udp=com.chua.common.support.network.sync.netty.NettyUdpSyncClient

@@ -266,6 +266,7 @@ public class NettyTcpSyncServer extends com.chua.common.support.network.server.A
                 Map<String, Object> meta = new HashMap<>();
                 meta.put("clientId", payload);
                 meta.put("channel", ctx.channel().remoteAddress().toString());
+                writeFrame(ctx.channel(), "registered:" + payload);
                 notifyListener(l -> l.onClientConnected(payload, meta));
             } else {
                 notifyListener(l -> l.onMessage(clientId, topic, payload));

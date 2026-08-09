@@ -264,6 +264,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                 clientId = payload;
                 metadata.put("clientId", payload);
                 clients.put(payload, this);
+                write("registered:" + payload);
                 notifyListener(l -> l.onClientConnected(payload, metadata));
             } else {
                 notifyListener(l -> l.onMessage(clientId, topic, payload));
