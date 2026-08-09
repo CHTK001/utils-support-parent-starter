@@ -10,12 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,16 @@ public class HttpFetcher implements SpiderFetcher {
      * 默认请求超时时间，30 秒
      */
     private static final int DEFAULT_TIMEOUT = 30_000;
+
+    /**
+     * 请求属性键：超时时间（毫秒）。可写整数。
+     */
+    private static final String ATTR_TIMEOUT = "timeoutMs";
+
+    /**
+     * 请求属性键：User-Agent。
+     */
+    private static final String ATTR_USER_AGENT = "userAgent";
 
     /**
      * 默认 User-Agent
@@ -124,10 +136,21 @@ public class HttpFetcher implements SpiderFetcher {
      * @return JDK 请求构造器
      */
     private HttpRequest.Builder buildHttpRequest(SpiderRequest request) {
+        Map<String, Object> attributes = request.getAttributes() != null
+                ? request.getAttributes() : java.util.Collections.emptyMap();
+        Object timeoutObj = attributes.get(ATTR_TIMEOUT);
+        long timeoutMs = timeoutObj instanceof Number
+                ? ((Number) timeoutObj).longValue() : DEFAULT_TIMEOUT;
+        if (timeoutMs <= 0) {
+            timeoutMs = DEFAULT_TIMEOUT;
+        }
+        Object uaObj = attributes.get(ATTR_USER_AGENT);
+        String userAgent = uaObj != null ? String.valueOf(uaObj) : DEFAULT_USER_AGENT;
+
         HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(request.getUrl()))
-                .timeout(Duration.ofMillis(DEFAULT_TIMEOUT))
-                .header("User-Agent", DEFAULT_USER_AGENT);
+                .timeout(Duration.ofMillis(timeoutMs))
+                .header("User-Agent", userAgent);
 
         Map<String, String> headers = request.getHeaders();
         if (headers != null && !headers.isEmpty()) {
@@ -176,8 +199,15 @@ public class HttpFetcher implements SpiderFetcher {
         if (proxy == null || proxy.getProxyHost() == null || proxy.getProxyHost().isEmpty()) {
             return httpClient;
         }
+        Object timeoutObj = request.getAttributes() != null
+                ? request.getAttributes().get(ATTR_TIMEOUT) : null;
+        long timeoutMs = timeoutObj instanceof Number
+                ? ((Number) timeoutObj).longValue() : DEFAULT_TIMEOUT;
+        if (timeoutMs <= 0) {
+            timeoutMs = DEFAULT_TIMEOUT;
+        }
         HttpClient.Builder builder = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(DEFAULT_TIMEOUT))
+                .connectTimeout(Duration.ofMillis(timeoutMs))
                 .followRedirects(HttpClient.Redirect.NORMAL);
         builder.proxy(buildProxySelector(proxy));
         return builder.build();
@@ -186,18 +216,32 @@ public class HttpFetcher implements SpiderFetcher {
     /**
      * 根据代理配置构建 JDK ProxySelector。
      *
-     * <p>JDK 17 中 {@code ProxySelector.of(InetSocketAddress)} 是带默认值的便捷方法。
-     * 本方法直接返回该实例，HttpClient 会自动应用代理。</p>
+     * <p>根据 {@link SpiderProxyConfig#getProxyProtocol()} 选择代理类型：
+     * SOCKS/SOCKS5 使用 {@link Proxy.Type#SOCKS}，其余（HTTP/HTTPS）使用
+     * {@link Proxy.Type#HTTP}。通过可配置的地址实现代理转发。</p>
      *
      * @param proxy 代理配置
      * @return ProxySelector 实例
      */
     private ProxySelector buildProxySelector(SpiderProxyConfig proxy) {
         InetSocketAddress address = new InetSocketAddress(proxy.getProxyHost(), proxy.getProxyPort());
-        // 注：ProxySelector.of(InetSocketAddress) 构造的是"该地址作为所有 URI 的默认代理"的 selector。
-        // HTTP/HTTPS 协议的代理直接返回此地址即可；SOCKS 协议 JDK HttpClient 暂不支持，
-        // 这里仍按 HTTP 代理地址传递（JDK 21+ HttpClient 自动处理）。
-        return ProxySelector.of(address);
+        String protocol = proxy.getProxyProtocol() != null
+                ? proxy.getProxyProtocol().toUpperCase() : "HTTP";
+        boolean socks = "SOCKS".equals(protocol) || "SOCKS5".equals(protocol);
+        Proxy proxyConfig = socks
+                ? new Proxy(Proxy.Type.SOCKS, address)
+                : new Proxy(Proxy.Type.HTTP, address);
+        return new ProxySelector() {
+            @Override
+            public java.util.List<Proxy> select(URI uri) {
+                return java.util.Collections.singletonList(proxyConfig);
+            }
+
+            @Override
+            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
+                log.warn("[spider-fetcher] 代理连接失败: {} - {}", uri, ioe.getMessage());
+            }
+        };
     }
 
     /**

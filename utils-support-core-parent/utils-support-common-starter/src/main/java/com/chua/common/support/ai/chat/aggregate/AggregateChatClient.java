@@ -152,6 +152,8 @@ public class AggregateChatClient implements ChatClient {
                         log.warn("[Aggregate] async persist usage failed: {}", t.getMessage());
                     }
                 });
+            } else {
+            }
             }
         };
     }

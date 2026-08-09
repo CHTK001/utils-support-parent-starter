@@ -5,16 +5,23 @@ import com.chua.common.support.spi.annotations.SpiDefault;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 基于 {@link ProcessBuilder} 的默认命令执行器实现。
  *
  * <p>作为 SPI 的默认实现（{@code @Spi("process")}, {@code @SpiDefault}），
- * 通过 Java 原生 {@link ProcessBuilder} 和 {@link Runtime} 机制执行系统命令。
+ * 通过 Java 原生 {@link ProcessBuilder} 与 {@link Runtime} 机制执行系统命令。</p>
  *
  * <h3>特性：</h3>
  * <ul>
@@ -23,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>支持异步执行（内部线程池）</li>
  *   <li>支持通过 {@link #setCharset(Charset)} 指定输出编码</li>
  *   <li>支持通过 {@link #setWorkDirectory(File)} 指定工作目录</li>
+ *   <li>支持实时逐行输出（Windows 下优先 ConPTY，失败回退 ProcessBuilder）</li>
  * </ul>
  *
  * <h3>使用示例：</h3>
@@ -33,27 +41,105 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @SpiDefault
 @Spi("process")
 public class ProcessCmdExecutor implements CmdExecutor {
 
-    /** 默认的异步执行线程池核心线程数 */
+    /**
+     * 默认的异步执行线程池核心线程数
+     */
     private static final int DEFAULT_CORE_POOL_SIZE = 4;
-    /** 默认的异步执行线程池最大线程数 */
+
+    /**
+     * 默认的异步执行线程池最大线程数
+     */
     private static final int DEFAULT_MAX_POOL_SIZE = 8;
-    /** 默认的异步执行线程池空闲线程存活时间（秒） */
+
+    /**
+     * 默认的异步执行线程池空闲线程存活时间（秒）
+     */
     private static final long DEFAULT_KEEP_ALIVE_SECONDS = 60L;
 
-    /** 异步执行线程池 */
-    private final ExecutorService executorService;
-    /** 输出编码 */
     /**
-     * 字符集
+     * 关闭线程池时的等待时间（秒）
+     */
+    private static final long SHUTDOWN_WAIT_SECONDS = 5L;
+
+    /**
+     * 超时阈值：小于等于该值视为不超时
+     */
+    private static final long NO_TIMEOUT = 0L;
+
+    /**
+     * 初始退出码占位值
+     */
+    private static final int INITIAL_EXIT_CODE = -1;
+
+    /**
+     * 执行器 SPI 名称
+     */
+    private static final String EXECUTOR_NAME = "process";
+
+    /**
+     * 异步执行线程池线程名前缀
+     */
+    private static final String THREAD_NAME_PREFIX = "cmd-executor-";
+
+    /**
+     * 命令非空校验失败的异常消息
+     */
+    private static final String ERR_INVALID_COMMAND = "Command must not be null or empty";
+
+    /**
+     * 系统属性名：操作系统名称
+     */
+    private static final String OS_NAME_PROPERTY = "os.name";
+
+    /**
+     * 操作系统名称中包含的 Windows 关键字
+     */
+    private static final String OS_NAME_WIN_KEYWORD = "win";
+
+    /**
+     * Windows 命令解释器路径
+     */
+    private static final String CMD_EXE = "cmd.exe";
+
+    /**
+     * cmd.exe 的 /c 参数：执行后退出
+     */
+    private static final String CMD_C_FLAG = "/c";
+
+    /**
+     * Unix Shell 路径
+     */
+    private static final String SH_PATH = "/bin/sh";
+
+    /**
+     * Shell 的 -c 参数：执行命令字符串
+     */
+    private static final String SH_C_FLAG = "-c";
+
+    /**
+     * 实时输出流读取异常时的错误上下文标识
+     */
+    private static final String STREAM_ERROR_CONTEXT = "stream";
+
+    /**
+     * 异步执行线程池
+     */
+    private final ExecutorService executorService;
+
+    /**
+     * 输出编码
      */
     private Charset charset;
-    /** 工作目录 */
+
+    /**
+     * 工作目录
+     */
     private File workDirectory;
 
     /**
@@ -89,9 +175,10 @@ public class ProcessCmdExecutor implements CmdExecutor {
                 new LinkedBlockingQueue<>(),
                 new ThreadFactory() {
                     private final AtomicBoolean daemon = new AtomicBoolean(true);
+
                     @Override
                     public Thread newThread(Runnable r) {
-                        Thread t = new Thread(r, "cmd-executor-" + daemon.getAndSet(true));
+                        Thread t = new Thread(r, THREAD_NAME_PREFIX + daemon.getAndSet(true));
                         t.setDaemon(true);
                         return t;
                     }
@@ -120,14 +207,14 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
     @Override
     public String getName() {
-        return "process";
+        return EXECUTOR_NAME;
     }
 
     // ==================== 同步执行 ====================
 
     @Override
     public CmdResult execute(String command) {
-        return doExecute(command, 0, null);
+        return doExecute(command, NO_TIMEOUT, null);
     }
 
     @Override
@@ -152,15 +239,15 @@ public class ProcessCmdExecutor implements CmdExecutor {
                     .command(command)
                     .startTime(startTime)
                     .endTime(System.currentTimeMillis())
-                    .throwable(new IllegalArgumentException("Command must not be null or empty"))
+                    .throwable(new IllegalArgumentException(ERR_INVALID_COMMAND))
                     .build();
         }
 
         try {
-            // 解析命令
+            // 解析命令为参数数组
             String[] cmdArray = parseCommand(command);
 
-            // 创建 ProcessBuilder
+            // 构建 ProcessBuilder 并设置工作目录与流合并策略
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             if (workDirectory != null) {
                 pb.directory(workDirectory);
@@ -170,7 +257,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
             // 启动进程
             Process process = pb.start();
 
-            // 异步读取输出流
+            // 异步读取标准输出与错误输出
             StreamGobbler stdoutGobbler = new StreamGobbler(process.getInputStream(), charset);
             StreamGobbler stderrGobbler = new StreamGobbler(process.getErrorStream(), charset);
             stdoutGobbler.start();
@@ -178,18 +265,18 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
             boolean timedOut = false;
 
-            if (timeout > 0 && unit != null) {
-                // 带超时等待
+            if (timeout > NO_TIMEOUT && unit != null) {
+                // 带超时等待进程结束
                 timedOut = !process.waitFor(timeout, unit);
                 if (timedOut) {
                     process.destroyForcibly();
                 }
             } else {
-                // 无限等待
+                // 无限等待进程结束
                 process.waitFor();
             }
 
-            // 等待流读取完成（进程已结束，流会迅速读完）
+            // 等待输出流读取完成
             stdoutGobbler.join();
             stderrGobbler.join();
 
@@ -230,7 +317,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
     @Override
     public void executeAsync(String command, CmdCallback callback) {
-        doExecuteAsync(command, 0, null, callback);
+        doExecuteAsync(command, NO_TIMEOUT, null, callback);
     }
 
     @Override
@@ -240,12 +327,19 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
     /**
      * 异步执行逻辑
+     *
+     * @param command  待执行命令
+     * @param timeout  超时值（≤0 表示不超时）
+     * @param unit     超时单位
+     * @param callback 执行回调，允许为空
      */
     private void doExecuteAsync(String command, long timeout, TimeUnit unit, CmdCallback callback) {
         if (callback == null) {
             callback = new CmdCallback() {
                 @Override
-                public void onComplete(CmdResult result) {}
+                public void onComplete(CmdResult result) {
+                    // 空操作：未指定回调时静默完成
+                }
             };
         }
 
@@ -276,22 +370,23 @@ public class ProcessCmdExecutor implements CmdExecutor {
                     .command(command)
                     .startTime(startTime)
                     .endTime(System.currentTimeMillis())
-                    .throwable(new IllegalArgumentException("Command must not be null or empty"))
+                    .throwable(new IllegalArgumentException(ERR_INVALID_COMMAND))
                     .build();
             callback.onError(command, result.getThrowable());
             return result;
         }
 
         try {
+            // 解析命令为参数数组
             String[] cmdArray = parseCommand(command);
 
-            // 尝试使用 ConPTY（Windows 10 1809+ 上支持进度条）
+            // 优先使用 ConPTY（Windows 10 1809+ 支持进度条与 ANSI 转义）
             if (WindowsConPtyProcess.isAvailable() && WindowsConPtyProcess.isWindows()) {
                 return doExecuteWithOutputConPty(cmdArray, command, workDirectory,
                         charset, timeout, unit, callback, startTime);
             }
 
-            // 回退到 ProcessBuilder
+            // 回退到标准 ProcessBuilder
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             if (workDirectory != null) {
                 pb.directory(workDirectory);
@@ -304,12 +399,14 @@ public class ProcessCmdExecutor implements CmdExecutor {
             outputGobbler.start();
 
             boolean timedOut = false;
-            if (timeout > 0 && unit != null) {
+            if (timeout > NO_TIMEOUT && unit != null) {
+                // 带超时等待进程结束
                 timedOut = !process.waitFor(timeout, unit);
                 if (timedOut) {
                     process.destroyForcibly();
                 }
             } else {
+                // 无限等待进程结束
                 process.waitFor();
             }
 
@@ -346,7 +443,17 @@ public class ProcessCmdExecutor implements CmdExecutor {
     // ==================== ConPTY 执行 ====================
 
     /**
-     * 使用 Windows ConPTY 执行命令（支持进度条和 ANSI 转义）
+     * 使用 Windows ConPTY 执行命令，支持进度条与 ANSI 转义序列
+     *
+     * @param cmdArray   命令参数数组
+     * @param command    原始命令字符串
+     * @param workDir    工作目录
+     * @param charset    输出编码
+     * @param timeout    超时值（≤0 表示不超时）
+     * @param unit       超时单位
+     * @param callback   逐行回调
+     * @param startTime  起始时间戳
+     * @return 执行结果
      */
     private CmdResult doExecuteWithOutputConPty(
             String[] cmdArray, String command, File workDir,
@@ -362,9 +469,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
             outputGobbler.start();
 
             boolean timedOut = false;
-            int exitCode = -1;
+            int exitCode = INITIAL_EXIT_CODE;
             try {
-                if (timeout > 0 && unit != null) {
+                if (timeout > NO_TIMEOUT && unit != null) {
                     long timeoutMs = unit.toMillis(timeout);
                     timedOut = !conPty.waitFor(timeoutMs);
                 }
@@ -407,7 +514,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
             return result;
 
         } catch (Exception e) {
-            // ConPTY 失败时回退到 ProcessBuilder
+            // ConPTY 启动失败时回调错误并返回错误结果
             CmdResult result = CmdResult.builder()
                     .exitCode(CmdResult.EXIT_CODE_ERROR)
                     .command(command)
@@ -426,7 +533,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     public void close() throws Exception {
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(SHUTDOWN_WAIT_SECONDS, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
@@ -440,18 +547,21 @@ public class ProcessCmdExecutor implements CmdExecutor {
     /**
      * 解析命令字符串为字符串数组
      *
-     * <p>在 Windows 上使用 {@code cmd.exe /c}，在 Unix 上使用 {@code /bin/sh -c}。
+     * <p>在 Windows 上使用 {@code cmd.exe /c}，在 Unix 上使用 {@code /bin/sh -c}。</p>
+     *
+     * @param command 命令字符串
+     * @return 命令参数数组
      */
     static String[] parseCommand(String command) {
-        if (command == null || command.isEmpty()) {
+        if (StringUtils.isNullOrEmpty(command)) {
             return new String[0];
         }
 
-        String osName = System.getProperty("os.name", "").toLowerCase();
-        if (osName.contains("win")) {
-            return new String[]{"cmd.exe", "/c", command};
+        String osName = System.getProperty(OS_NAME_PROPERTY, "").toLowerCase();
+        if (osName.contains(OS_NAME_WIN_KEYWORD)) {
+            return new String[]{CMD_EXE, CMD_C_FLAG, command};
         } else {
-            return new String[]{"/bin/sh", "-c", command};
+            return new String[]{SH_PATH, SH_C_FLAG, command};
         }
     }
 
@@ -459,13 +569,18 @@ public class ProcessCmdExecutor implements CmdExecutor {
      * 流读取线程，用于异步读取进程的标准输出或错误输出
      */
     static class StreamGobbler extends Thread {
-        private final InputStream inputStream;
         /**
-         * 字符集
+         * 待读取的输入流
+         */
+        private final InputStream inputStream;
+
+        /**
+         * 输出字符集
          */
         private final Charset charset;
+
         /**
-         * 内容
+         * 已读取并拼接的完整内容
          */
         private volatile String content;
 
@@ -493,17 +608,26 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     /**
-     * 逐行读取流并回调的线程，用于实时输出
+     * 逐行读取流并回调的线程，用于实时输出场景
      */
     static class LineStreamGobbler extends Thread {
-        private final InputStream inputStream;
         /**
-         * 字符集
+         * 待读取的输入流
+         */
+        private final InputStream inputStream;
+
+        /**
+         * 输出字符集
          */
         private final Charset charset;
-        private final LineCallback callback;
+
         /**
-         * 内容
+         * 逐行回调
+         */
+        private final LineCallback callback;
+
+        /**
+         * 已读取并拼接的完整内容
          */
         private final StringBuilder content;
 
@@ -525,7 +649,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
                     if (ch == '\r') {
                         cursor = 0;
                     } else if (ch == '\b') {
-                        if (cursor > 0) cursor--;
+                        if (cursor > 0) {
+                            cursor--;
+                        }
                     } else if (ch == '\n') {
                         String line = buf.toString();
                         content.append(line).append('\n');
@@ -547,7 +673,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
                     callback.onLine(line);
                 }
             } catch (Exception e) {
-                callback.onError("stream", e);
+                callback.onError(STREAM_ERROR_CONTEXT, e);
             } finally {
                 IoUtils.closeQuietly(inputStream);
             }

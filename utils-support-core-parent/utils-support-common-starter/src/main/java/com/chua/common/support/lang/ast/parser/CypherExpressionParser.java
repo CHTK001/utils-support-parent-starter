@@ -3,26 +3,26 @@ package com.chua.common.support.lang.ast.parser;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Neo4j Cypher 表达式解析器
  *
- * <p>支持 Neo4j Cypher 查询中 WHERE 子句的条件表达式解析和生成。
+ * <p>支持 Neo4j Cypher 查询中 WHERE 子句的条件表达式解析和生成。</p>
  *
  * <h3>支持的语法</h3>
  * <pre>
- *   n.age > 18 AND n.status = 'active'
+ *   n.age &gt; 18 AND n.status = 'active'
  *   n.name CONTAINS 'test'
  *   n.id IN [1, 2, 3]
- *   n.age >= 10 AND n.age <= 60
+ *   n.age &gt;= 10 AND n.age &lt;= 60
  *   n.deleted IS NULL
  *   n.name STARTS WITH 'John'
  *   n.name ENDS WITH 'son'
  *   n.name =~ '.*test.*'
- *   (n.age > 18 OR n.role = 'admin') AND n.deleted IS NULL
+ *   (n.age &gt; 18 OR n.role = 'admin') AND n.deleted IS NULL
  *   n.prop.subprop = 'deep'
  * </pre>
  *
@@ -50,15 +50,145 @@ import java.util.List;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("cypher")
 public class CypherExpressionParser implements ExpressionParser {
 
     /**
-     * 类型
+     * 解析器类型标识
      */
     private static final String TYPE = "cypher";
+
+    /**
+     * 空表达式错误消息
+     */
+    private static final String MSG_EXPRESSION_EMPTY = "Cypher 表达式不能为空";
+
+    /**
+     * 表达式解析不完整错误消息前缀
+     */
+    private static final String MSG_EXPRESSION_INCOMPLETE_PREFIX = "Cypher 表达式解析不完整，剩余: ";
+
+    /**
+     * 意外的字符错误消息前缀
+     */
+    private static final String MSG_UNEXPECTED_CHAR_PREFIX = "意外的字符: ";
+
+    /**
+     * 输入结束哨兵
+     */
+    private static final String EOF_MARKER = "EOF";
+
+    /**
+     * IS NULL 运算符
+     */
+    private static final String OP_IS_NULL = "IS NULL";
+
+    /**
+     * IS NOT NULL 运算符
+     */
+    private static final String OP_IS_NOT_NULL = "IS NOT NULL";
+
+    /**
+     * CONTAINS 运算符
+     */
+    private static final String OP_CONTAINS = "CONTAINS";
+
+    /**
+     * STARTS WITH 运算符
+     */
+    private static final String OP_STARTS_WITH = "STARTS WITH";
+
+    /**
+     * ENDS WITH 运算符
+     */
+    private static final String OP_ENDS_WITH = "ENDS WITH";
+
+    /**
+     * 正则匹配运算符
+     */
+    private static final String OP_REGEX_MATCH = "=~";
+
+    /**
+     * BETWEEN 运算符
+     */
+    private static final String OP_BETWEEN = "BETWEEN";
+
+    /**
+     * IN 运算符
+     */
+    private static final String OP_IN = "IN";
+
+    /**
+     * IS 关键字
+     */
+    private static final String KW_IS = "IS";
+
+    /**
+     * NOT 关键字
+     */
+    private static final String KW_NOT = "NOT";
+
+    /**
+     * NULL 关键字
+     */
+    private static final String KW_NULL = "NULL";
+
+    /**
+     * AND 关键字
+     */
+    private static final String KW_AND = "AND";
+
+    /**
+     * OR 关键字
+     */
+    private static final String KW_OR = "OR";
+
+    /**
+     * TRUE 关键字
+     */
+    private static final String KW_TRUE = "TRUE";
+
+    /**
+     * FALSE 关键字
+     */
+    private static final String KW_FALSE = "FALSE";
+
+    /**
+     * LIKE 关键字
+     */
+    private static final String KW_LIKE = "LIKE";
+
+    /**
+     * STARTS 关键字
+     */
+    private static final String KW_STARTS = "STARTS";
+
+    /**
+     * ENDS 关键字
+     */
+    private static final String KW_ENDS = "ENDS";
+
+    /**
+     * WITH 关键字
+     */
+    private static final String KW_WITH = "WITH";
+
+    /**
+     * 空列表占位符
+     */
+    private static final String EMPTY_LIST_PLACEHOLDER = "()";
+
+    /**
+     * 不等号别名
+     */
+    private static final String OP_NOT_EQUAL = "!=";
+
+    /**
+     * 等号
+     */
+    private static final String OP_EQUAL = "=";
 
     @Override
     public String type() {
@@ -67,13 +197,14 @@ public class CypherExpressionParser implements ExpressionParser {
 
     @Override
     public BTreeNode parse(String expression) {
-        if (expression == null || expression.isBlank()) {
-            throw new IllegalArgumentException("Cypher 表达式不能为空");
+        if (StringUtils.isEmpty(expression) || expression.isBlank()) {
+            throw new IllegalArgumentException(MSG_EXPRESSION_EMPTY);
         }
         CypherParser parser = new CypherParser(expression.trim());
         BTreeNode result = parser.parseOr();
         if (!parser.isEnd()) {
-            throw new IllegalArgumentException("Cypher 表达式解析不完整，剩余: " + parser.remaining());
+            throw new IllegalArgumentException(
+                    MSG_EXPRESSION_INCOMPLETE_PREFIX + parser.remaining());
         }
         return result;
     }
@@ -95,31 +226,31 @@ public class CypherExpressionParser implements ExpressionParser {
                 String op = tree.getOperator();
                 String right = generate(tree.getRight());
 
-                if ("IS NULL".equals(op)) {
-                    yield left + " IS NULL";
+                if (OP_IS_NULL.equals(op)) {
+                    yield left + " " + OP_IS_NULL;
                 }
-                if ("IS NOT NULL".equals(op)) {
-                    yield left + " IS NOT NULL";
+                if (OP_IS_NOT_NULL.equals(op)) {
+                    yield left + " " + OP_IS_NOT_NULL;
                 }
-                if ("CONTAINS".equalsIgnoreCase(op)
-                        || "STARTS WITH".equalsIgnoreCase(op)
-                        || "ENDS WITH".equalsIgnoreCase(op)) {
+                if (OP_CONTAINS.equalsIgnoreCase(op)
+                        || OP_STARTS_WITH.equalsIgnoreCase(op)
+                        || OP_ENDS_WITH.equalsIgnoreCase(op)) {
                     yield left + " " + op.toUpperCase() + " " + right;
                 }
-                if ("=~".equals(op)) {
-                    yield left + " =~ " + right;
+                if (OP_REGEX_MATCH.equals(op)) {
+                    yield left + " " + OP_REGEX_MATCH + " " + right;
                 }
-                if ("BETWEEN".equalsIgnoreCase(op)) {
+                if (OP_BETWEEN.equalsIgnoreCase(op)) {
                     String low = generate(tree.getRight().getLeft());
                     String high = generate(tree.getRight().getRight());
-                    yield left + " " + op + " " + low + " AND " + high;
+                    yield left + " " + op + " " + low + " " + KW_AND + " " + high;
                 }
-                if ("IN".equalsIgnoreCase(op)) {
-                    // Access raw value directly, bypass VALUE node's quote-wrapping
+                if (OP_IN.equalsIgnoreCase(op)) {
+                    // 直接访问原始值，绕过 VALUE 节点的引号包裹
                     BTreeNode listNode = tree.getRight();
                     String list = listNode != null && listNode.getValue() != null
-                            ? listNode.getValue().toString() : "()";
-                    // Convert (1, 2, 3) back to [1, 2, 3]
+                            ? listNode.getValue().toString() : EMPTY_LIST_PLACEHOLDER;
+                    // 将 (1, 2, 3) 还原为 [1, 2, 3]
                     if (list.startsWith("(") && list.endsWith(")")) {
                         list = "[" + list.substring(1, list.length() - 1) + "]";
                     }
@@ -133,13 +264,16 @@ public class CypherExpressionParser implements ExpressionParser {
                 if (v instanceof String s) {
                     yield "'" + s + "'";
                 }
-                yield v == null ? "NULL" : String.valueOf(v);
+                yield v == null ? KW_NULL : String.valueOf(v);
             }
             case FUNCTION -> {
                 StringBuilder sb = new StringBuilder(tree.getOperator()).append("(");
-                for (int i = 0; i < tree.getChildren().size(); i++) {
-                    if (i > 0) sb.append(", ");
-                    sb.append(generate(tree.getChildren().get(i)));
+                List<BTreeNode> children = tree.getChildren();
+                for (int i = 0; i < children.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append(generate(children.get(i)));
                 }
                 sb.append(")");
                 yield sb.toString();
@@ -153,7 +287,7 @@ public class CypherExpressionParser implements ExpressionParser {
     /**
      * Cypher 表达式递归下降解析器
      *
-     * <p>解析优先级：OR &lt; AND &lt; NOT &lt; 比较 &lt; 原子
+     * <p>解析优先级：OR &lt; AND &lt; NOT &lt; 比较 &lt; 原子</p>
      *
      * <p>与 DefaultExpressionParser 的区别：
      * <ul>
@@ -161,6 +295,9 @@ public class CypherExpressionParser implements ExpressionParser {
      *   <li>支持 CONTAINS、STARTS WITH、ENDS WITH、=~ 运算符</li>
      *   <li>支持方括号列表语法 [1, 2, 3] 用于 IN 表达式</li>
      * </ul>
+     *
+     * @author CH
+     * @since 4.0.0.42
      */
     private static class CypherParser {
 
@@ -181,10 +318,12 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 解析 OR 表达式（最低优先级）
+         *
+         * @return OR 表达式节点
          */
         BTreeNode parseOr() {
             BTreeNode left = parseAnd();
-            while (matchKeyword("OR") || matchSymbol("||")) {
+            while (matchKeyword(KW_OR) || matchSymbol("||")) {
                 BTreeNode right = parseAnd();
                 left = BTreeNode.or(left, right);
             }
@@ -193,10 +332,12 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 解析 AND 表达式
+         *
+         * @return AND 表达式节点
          */
         BTreeNode parseAnd() {
             BTreeNode left = parseNot();
-            while (matchKeyword("AND") || matchSymbol("&&")) {
+            while (matchKeyword(KW_AND) || matchSymbol("&&")) {
                 BTreeNode right = parseNot();
                 left = BTreeNode.and(left, right);
             }
@@ -205,9 +346,11 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 解析 NOT 表达式
+         *
+         * @return NOT 表达式节点
          */
         BTreeNode parseNot() {
-            if (matchKeyword("NOT") || matchSymbol("!")) {
+            if (matchKeyword(KW_NOT) || matchSymbol("!")) {
                 BTreeNode child = parseNot();
                 return BTreeNode.not(child);
             }
@@ -216,39 +359,41 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 解析比较表达式
+         *
+         * @return 比较表达式节点
          */
         BTreeNode parseComparison() {
             BTreeNode left = parseAtom();
             String op = matchCompareOp();
             if (op != null) {
-                if ("IS".equalsIgnoreCase(op)) {
-                    if (matchKeyword("NOT")) {
-                        matchKeyword("NULL");
-                        return BTreeNode.compare("IS NOT NULL", left, null);
+                if (KW_IS.equalsIgnoreCase(op)) {
+                    if (matchKeyword(KW_NOT)) {
+                        matchKeyword(KW_NULL);
+                        return BTreeNode.compare(OP_IS_NOT_NULL, left, null);
                     }
-                    matchKeyword("NULL");
-                    return BTreeNode.compare("IS NULL", left, null);
+                    matchKeyword(KW_NULL);
+                    return BTreeNode.compare(OP_IS_NULL, left, null);
                 }
-                if ("IN".equalsIgnoreCase(op)) {
+                if (OP_IN.equalsIgnoreCase(op)) {
                     BTreeNode right = parseInList();
-                    return BTreeNode.compare("IN", left, right);
+                    return BTreeNode.compare(OP_IN, left, right);
                 }
-                if ("BETWEEN".equalsIgnoreCase(op)) {
+                if (OP_BETWEEN.equalsIgnoreCase(op)) {
                     BTreeNode low = parseAtom();
-                    matchKeyword("AND");
+                    matchKeyword(KW_AND);
                     BTreeNode high = parseAtom();
-                    return BTreeNode.compare("BETWEEN", left,
-                            BTreeNode.compare("AND", low, high));
+                    return BTreeNode.compare(OP_BETWEEN, left,
+                            BTreeNode.compare(KW_AND, low, high));
                 }
-                if ("CONTAINS".equalsIgnoreCase(op)
-                        || "STARTS WITH".equalsIgnoreCase(op)
-                        || "ENDS WITH".equalsIgnoreCase(op)) {
+                if (OP_CONTAINS.equalsIgnoreCase(op)
+                        || OP_STARTS_WITH.equalsIgnoreCase(op)
+                        || OP_ENDS_WITH.equalsIgnoreCase(op)) {
                     BTreeNode right = parseAtom();
                     return BTreeNode.compare(op.toUpperCase(), left, right);
                 }
-                if ("=~".equals(op)) {
+                if (OP_REGEX_MATCH.equals(op)) {
                     BTreeNode right = parseAtom();
-                    return BTreeNode.compare("=~", left, right);
+                    return BTreeNode.compare(OP_REGEX_MATCH, left, right);
                 }
                 BTreeNode right = parseAtom();
                 return BTreeNode.compare(op, left, right);
@@ -259,7 +404,9 @@ public class CypherExpressionParser implements ExpressionParser {
         /**
          * 解析 IN 列表
          *
-         * <p>支持 Cypher 方括号语法 [1, 2, 3] 和标准圆括号语法 (1, 2, 3)
+         * <p>支持 Cypher 方括号语法 [1, 2, 3] 和标准圆括号语法 (1, 2, 3)</p>
+         *
+         * @return IN 列表节点
          */
         BTreeNode parseInList() {
             if (match('[')) {
@@ -300,7 +447,9 @@ public class CypherExpressionParser implements ExpressionParser {
         /**
          * 解析原子表达式
          *
-         * <p>支持括号分组、函数调用、列名和常量值
+         * <p>支持括号分组、函数调用、列名和常量值</p>
+         *
+         * @return 原子表达式节点
          */
         BTreeNode parseAtom() {
             skipWhitespace();
@@ -317,11 +466,13 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 解析函数调用
+         *
+         * @return 函数调用节点
          */
         BTreeNode parseFunction() {
             String name = readIdentifier();
             expect('(');
-            List<BTreeNode> args = new ArrayList<>();
+            List<BTreeNode> args = new java.util.ArrayList<>(4);
             skipWhitespace();
             if (!match(')')) {
                 do {
@@ -337,7 +488,9 @@ public class CypherExpressionParser implements ExpressionParser {
         /**
          * 解析列名或常量值
          *
-         * <p>Cypher 特有：支持点号属性路径（如 n.name、a.b.c）
+         * <p>Cypher 特有：支持点号属性路径（如 n.name、a.b.c）</p>
+         *
+         * @return 列引用或常量值节点
          */
         BTreeNode parseColumnOrValue() {
             skipWhitespace();
@@ -351,19 +504,19 @@ public class CypherExpressionParser implements ExpressionParser {
                     && input.charAt(pos + 1) <= '9')) {
                 return BTreeNode.value(readNumber());
             }
-            if (matchKeyword("TRUE")) {
+            if (matchKeyword(KW_TRUE)) {
                 return BTreeNode.value(Boolean.TRUE);
             }
-            if (matchKeyword("FALSE")) {
+            if (matchKeyword(KW_FALSE)) {
                 return BTreeNode.value(Boolean.FALSE);
             }
-            if (matchKeyword("NULL")) {
+            if (matchKeyword(KW_NULL)) {
                 return BTreeNode.value((Object) null);
             }
             String identifier = readPropertyPath();
-            if (identifier.isEmpty()) {
-                throw new IllegalArgumentException("意外的字符: "
-                        + (pos < input.length() ? input.charAt(pos) : "EOF"));
+            if (StringUtils.isEmpty(identifier)) {
+                throw new IllegalArgumentException(MSG_UNEXPECTED_CHAR_PREFIX
+                        + (pos < input.length() ? input.charAt(pos) : EOF_MARKER));
             }
             return BTreeNode.column(identifier);
         }
@@ -380,42 +533,44 @@ public class CypherExpressionParser implements ExpressionParser {
          *   <li>ENDS WITH（双词）</li>
          *   <li>=~（正则匹配）</li>
          * </ul>
+         *
+         * @return 比较运算符字符串，无匹配返回 null
          */
         String matchCompareOp() {
             skipWhitespace();
 
             // 双词运算符：使用预检避免部分消费
-            if (peekKeyword("STARTS") && peekNextKeyword("WITH")) {
-                matchKeyword("STARTS");
-                matchKeyword("WITH");
-                return "STARTS WITH";
+            if (peekKeyword(KW_STARTS) && peekNextKeyword(KW_WITH)) {
+                matchKeyword(KW_STARTS);
+                matchKeyword(KW_WITH);
+                return OP_STARTS_WITH;
             }
-            if (peekKeyword("ENDS") && peekNextKeyword("WITH")) {
-                matchKeyword("ENDS");
-                matchKeyword("WITH");
-                return "ENDS WITH";
+            if (peekKeyword(KW_ENDS) && peekNextKeyword(KW_WITH)) {
+                matchKeyword(KW_ENDS);
+                matchKeyword(KW_WITH);
+                return OP_ENDS_WITH;
             }
 
             // 单词运算符
-            if (matchKeyword("CONTAINS")) {
-                return "CONTAINS";
+            if (matchKeyword(OP_CONTAINS)) {
+                return OP_CONTAINS;
             }
-            if (matchKeyword("LIKE")) {
-                return "LIKE";
+            if (matchKeyword(KW_LIKE)) {
+                return KW_LIKE;
             }
-            if (matchKeyword("IN")) {
-                return "IN";
+            if (matchKeyword(OP_IN)) {
+                return OP_IN;
             }
-            if (matchKeyword("BETWEEN")) {
-                return "BETWEEN";
+            if (matchKeyword(OP_BETWEEN)) {
+                return OP_BETWEEN;
             }
-            if (matchKeyword("IS")) {
-                return "IS";
+            if (matchKeyword(KW_IS)) {
+                return KW_IS;
             }
 
             // 符号运算符
-            if (matchSymbol("=~")) {
-                return "=~";
+            if (matchSymbol(OP_REGEX_MATCH)) {
+                return OP_REGEX_MATCH;
             }
             if (matchSymbol(">=")) {
                 return ">=";
@@ -424,16 +579,16 @@ public class CypherExpressionParser implements ExpressionParser {
                 return "<=";
             }
             if (matchSymbol("<>")) {
-                return "!=";
+                return OP_NOT_EQUAL;
             }
-            if (matchSymbol("!=")) {
-                return "!=";
+            if (matchSymbol(OP_NOT_EQUAL)) {
+                return OP_NOT_EQUAL;
             }
             if (matchSymbol("==")) {
-                return "=";
+                return OP_EQUAL;
             }
-            if (matchSymbol("=")) {
-                return "=";
+            if (matchSymbol(OP_EQUAL)) {
+                return OP_EQUAL;
             }
             if (matchSymbol(">")) {
                 return ">";
@@ -458,7 +613,7 @@ public class CypherExpressionParser implements ExpressionParser {
          */
         String readPropertyPath() {
             String first = readIdentifier();
-            if (first.isEmpty()) {
+            if (StringUtils.isEmpty(first)) {
                 return "";
             }
             // 检查点号属性访问
@@ -466,7 +621,7 @@ public class CypherExpressionParser implements ExpressionParser {
             if (match('.')) {
                 skipWhitespace();
                 String second = readIdentifier();
-                if (!second.isEmpty()) {
+                if (StringUtils.isNotEmpty(second)) {
                     StringBuilder path = new StringBuilder(first)
                             .append('.').append(second);
                     // 支持链式属性访问 a.b.c
@@ -474,7 +629,7 @@ public class CypherExpressionParser implements ExpressionParser {
                     while (match('.')) {
                         skipWhitespace();
                         String next = readIdentifier();
-                        if (next.isEmpty()) {
+                        if (StringUtils.isEmpty(next)) {
                             break;
                         }
                         path.append('.').append(next);
@@ -490,6 +645,9 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 预检关键字（不消费输入）
+         *
+         * @param keyword 要预检的关键字
+         * @return 匹配返回 true
          */
         boolean peekKeyword(String keyword) {
             int saved = pos;
@@ -502,7 +660,10 @@ public class CypherExpressionParser implements ExpressionParser {
          * 预检下一个关键字（不消费输入）
          *
          * <p>跳过当前单词和空白，检查下一个位置的单词是否匹配关键字。
-         * 用于处理 STARTS WITH / ENDS WITH 这样的双词运算符预检。
+         * 用于处理 STARTS WITH / ENDS WITH 这样的双词运算符预检。</p>
+         *
+         * @param keyword 要预检的关键字
+         * @return 匹配返回 true
          */
         boolean peekNextKeyword(String keyword) {
             int saved = pos;
@@ -541,6 +702,9 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 尝试匹配符号字符串
+         *
+         * @param symbol 要匹配的符号
+         * @return 匹配成功则消费并返回 true
          */
         boolean matchSymbol(String symbol) {
             skipWhitespace();
@@ -555,6 +719,9 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 尝试匹配单个字符
+         *
+         * @param c 要匹配的字符
+         * @return 匹配成功则消费并返回 true
          */
         boolean match(char c) {
             skipWhitespace();
@@ -567,6 +734,8 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 期望匹配指定字符，失败则抛出异常
+         *
+         * @param c 期望匹配的字符
          */
         void expect(char c) {
             if (!match(c)) {
@@ -587,6 +756,8 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 读取标识符（字母、数字、下划线）
+         *
+         * @return 标识符字符串
          */
         String readIdentifier() {
             int start = pos;
@@ -600,6 +771,8 @@ public class CypherExpressionParser implements ExpressionParser {
 
         /**
          * 读取值文本（用于 IN 列表）
+         *
+         * @return 值文本字符串
          */
         String readValue() {
             skipWhitespace();
@@ -610,14 +783,14 @@ public class CypherExpressionParser implements ExpressionParser {
             if (peekIsDigit() || (peekIs('-'))) {
                 return String.valueOf(readNumber());
             }
-            if (matchKeyword("TRUE")) {
-                return "TRUE";
+            if (matchKeyword(KW_TRUE)) {
+                return KW_TRUE;
             }
-            if (matchKeyword("FALSE")) {
-                return "FALSE";
+            if (matchKeyword(KW_FALSE)) {
+                return KW_FALSE;
             }
-            if (matchKeyword("NULL")) {
-                return "NULL";
+            if (matchKeyword(KW_NULL)) {
+                return KW_NULL;
             }
             return readIdentifier();
         }
@@ -667,34 +840,68 @@ public class CypherExpressionParser implements ExpressionParser {
                 }
             }
             String numStr = input.substring(start, pos);
-            return isDecimal ? Double.parseDouble(numStr)
-                    : Integer.parseInt(numStr);
+            if (isDecimal) {
+                return Double.parseDouble(numStr);
+            }
+            return Integer.parseInt(numStr);
         }
 
+        /**
+         * 检查当前字符是否为字母
+         *
+         * @return 是字母返回 true
+         */
         boolean peekIsLetter() {
             return pos < input.length()
                     && Character.isLetter(input.charAt(pos));
         }
 
+        /**
+         * 检查当前字符是否为数字
+         *
+         * @return 是数字返回 true
+         */
         boolean peekIsDigit() {
             return pos < input.length()
                     && Character.isDigit(input.charAt(pos));
         }
 
+        /**
+         * 检查当前字符是否等于指定字符
+         *
+         * @param c 要比较的字符
+         * @return 相等返回 true
+         */
         boolean peekIs(char c) {
             return pos < input.length() && input.charAt(pos) == c;
         }
 
+        /**
+         * 检查下一个字符是否等于指定字符
+         *
+         * @param c 要比较的字符
+         * @return 相等返回 true
+         */
         boolean peekNextIs(char c) {
             return pos + 1 < input.length()
                     && input.charAt(pos + 1) == c;
         }
 
+        /**
+         * 是否已到达输入末尾
+         *
+         * @return 已到末尾返回 true
+         */
         boolean isEnd() {
             skipWhitespace();
             return pos >= input.length();
         }
 
+        /**
+         * 获取剩余未解析的输入片段
+         *
+         * @return 剩余字符串
+         */
         String remaining() {
             return pos < input.length() ? input.substring(pos) : "";
         }
