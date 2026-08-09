@@ -60,6 +60,13 @@ public class NettyUdpSyncServer extends com.chua.common.support.network.server.A
     private Channel channel;
 
     /**
+     * 创建 Netty UDP 同步服务端 (默认配置)。
+     */
+    public NettyUdpSyncServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * 创建 Netty UDP 同步服务端。
      *
      * @param setting 服务端配置
