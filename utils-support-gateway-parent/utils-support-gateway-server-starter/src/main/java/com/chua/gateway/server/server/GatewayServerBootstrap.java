@@ -137,19 +137,21 @@ public final class GatewayServerBootstrap {
         // 5. register controller（让 @RequestMethod 反射挂在 bean context 上）
         raw.registerBean(controller);
 
-        // 6. 替换内置 urlMappingFilter 为我们自己实现的 GatewayUrlMappingFilter
-        //      common-starter 的 UrlMappingServerFilter 在我们的 SPI 场景下存在 factory 初始化 NPE
-        //      和 path 匹配问题；自实现更可靠。
+        // 6. 启动 server（让 common-starter 完成 initBuiltinFilters / initFilters）
+        raw.start();
+
+        // 7. 启动后替换内置 urlMappingFilter 为自实现的 GatewayUrlMappingFilter
+        //    必须在 start() 之后，避免 initFilters 把旧 urlMappingFilter 重新拉回来。
         GatewayUrlMappingFilter mappingFilter = new GatewayUrlMappingFilter();
         try {
             java.lang.reflect.Field f = com.chua.common.support.network.server.AbstractServer.class
                     .getDeclaredField("urlMappingFilter");
             f.setAccessible(true);
-            Object oldFilter = f.get(raw);
+            com.chua.common.support.network.server.filter.UrlMappingServerFilter oldFilter =
+                    (com.chua.common.support.network.server.filter.UrlMappingServerFilter) f.get(raw);
             f.set(raw, mappingFilter);
-            // 移除旧 filter 并加入新 filter，触发 mergedCache 重建
-            if (oldFilter != null && oldFilter instanceof ServerFilter) {
-                raw.removeFilter((ServerFilter) oldFilter);
+            if (oldFilter != null) {
+                raw.removeFilter(oldFilter);
             }
             raw.addFilter(mappingFilter);
             raw.refreshFilters();
@@ -160,8 +162,6 @@ public final class GatewayServerBootstrap {
             log.warn("[gateway-server] 注册 urlMappingFilter 失败: {}", ex.getMessage(), ex);
         }
 
-        // 7. 启动 server
-        raw.start();
         log.info("[gateway-server] Gateway 服务端启动完成: port={} type={}", setting.getPort(), raw.getProtocol());
     }
 
