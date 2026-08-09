@@ -1,6 +1,10 @@
 package com.chua.common.support.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 标记注解，用于指示数据库列在自动建表/同步时被忽略。

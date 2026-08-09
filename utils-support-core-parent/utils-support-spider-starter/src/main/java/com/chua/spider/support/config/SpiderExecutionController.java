@@ -4,12 +4,14 @@ import com.chua.spider.support.config.model.SpiderDefinition;
 import com.chua.spider.support.config.model.SpiderExecutionRecord;
 import com.chua.spider.support.config.store.SpiderDefinitionStore;
 import com.chua.spider.support.config.store.SpiderExecutionStore;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,9 +20,16 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @RestController
 @RequestMapping("/spider/executions")
 public class SpiderExecutionController {
+
+    /**
+     * 测试态：SpiderRunner 在保存前回调通知，记录 hash 与 json 长度。
+     */
+    private volatile int lastSavedHash = 0;
+    private volatile String lastSavedResultsJson = null;
 
     /**
      * 执行记录存储
@@ -43,19 +52,54 @@ public class SpiderExecutionController {
         this.executionStore = executionStore;
         this.definitionStore = definitionStore;
         this.runner = runner;
+        // 把自己引用回填给 SpiderRunner 用于 noteSaveState 回调
+        runner.setController(this);
+    }
+
+    /**
+     * SpiderRunner 在 finally 调用，记录保存前 record 的 hash 与 resultsJson。
+     */
+    public void noteSaveState(SpiderExecutionRecord r) {
+        this.lastSavedHash = System.identityHashCode(r);
+        this.lastSavedResultsJson = r.getResultsJson();
+        log.info("[debug-save] hash={} resultsJsonLen={}",
+                lastSavedHash, lastSavedResultsJson == null ? -1 : lastSavedResultsJson.length());
+    }
+
+    /**
+     * 调试接口：返回最近一次保存前的 hash 与 json 长度。
+     */
+    @GetMapping("/debug/last-save")
+    public Map<String, Object> debugLastSave() {
+        var ctrlRef = runner.getControllerRefForDebug();
+        return Map.of(
+                "hash", lastSavedHash,
+                "resultsJson", lastSavedResultsJson == null ? "<null>" : lastSavedResultsJson.substring(0, Math.min(100, lastSavedResultsJson.length())),
+                "resultsJsonLen", lastSavedResultsJson == null ? 0 : lastSavedResultsJson.length(),
+                "ctrlRefNull", ctrlRef == null
+        );
     }
 
     /**
      * 触发爬虫执行（异步）。
      *
+     * <p>仅当爬虫状态为 1（启用）时才会真正启动；禁用状态返回 4xx 友好的错误对象。</p>
+     *
      * @param spiderCode 爬虫编码
-     * @return 执行记录（状态 RUNNING）
+     * @return 执行记录（状态 RUNNING），或包含 {@code error} 字段的错误对象
      */
     @PostMapping("/run")
     public Map<String, Object> run(@RequestParam String spiderCode) {
         SpiderDefinition definition = definitionStore.get(spiderCode);
         if (definition == null) {
             return Map.of("error", "spiderCode 不存在: " + spiderCode);
+        }
+        if (!Integer.valueOf(1).equals(definition.getSpiderStatus())) {
+            return Map.of(
+                    "error", "爬虫已禁用，无法执行",
+                    "spiderCode", spiderCode,
+                    "spiderStatus", definition.getSpiderStatus()
+            );
         }
         SpiderExecutionRecord record = runner.start(definition);
         return Map.of(
@@ -91,5 +135,39 @@ public class SpiderExecutionController {
             @RequestParam(defaultValue = "20") int pageSize,
             @RequestParam(required = false) String spiderCode) {
         return executionStore.page(pageNo, pageSize, spiderCode);
+    }
+
+    /**
+     * 调试接口：返回所有执行记录的内存快照（含 resultsJson 实际值）。
+     */
+    @GetMapping("/debug/list-all")
+    public List<Map<String, Object>> debugListAll() {
+        return executionStore.listByCode(null).stream()
+                .map(r -> {
+                    var map = new java.util.LinkedHashMap<String, Object>();
+                    map.put("executionNo", r.getExecutionNo());
+                    map.put("hashCode", System.identityHashCode(r));
+                    map.put("spiderCode", r.getSpiderCode());
+                    map.put("status", r.getStatus());
+                    map.put("resultCount", r.getResultCount());
+                    map.put("resultsJsonLen", r.getResultsJson() == null ? 0 : r.getResultsJson().length());
+                    map.put("resultsJson", r.getResultsJson());
+                    // 反射读取字段值（绕过 getter 缓存）
+                    Object rawResults = readField(r, "resultsJson");
+                    map.put("rawResultsJsonLen", rawResults == null ? "NULL" : ((String) rawResults).length());
+                    map.put("rawResultsJson", rawResults);
+                    return (Map<String, Object>) map;
+                })
+                .toList();
+    }
+
+    private Object readField(Object target, String name) {
+        try {
+            var f = target.getClass().getDeclaredField(name);
+            f.setAccessible(true);
+            return f.get(target);
+        } catch (Exception e) {
+            return "<err:" + e.getMessage() + ">";
+        }
     }
 }

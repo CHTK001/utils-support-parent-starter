@@ -35,6 +35,14 @@ public class SpiderAutoConfiguration {
     }
 
     /**
+     * 代理节点连通性测试器。
+     */
+    @Bean
+    public SpiderProxyTester spiderProxyTester(SpiderProxyPoolStore poolStore) {
+        return new SpiderProxyTester(poolStore);
+    }
+
+    /**
      * 代理池内存存储（单例 Bean，可注入到 SpiderRequestFactory）。
      */
     @Bean
@@ -77,8 +85,9 @@ public class SpiderAutoConfiguration {
     }
 
     @Bean
-    public SpiderProxyPoolController spiderProxyPoolController() {
-        return new SpiderProxyPoolController();
+    public SpiderProxyPoolController spiderProxyPoolController(
+            SpiderProxyPoolStore poolStore, SpiderProxyTester poolTester) {
+        return new SpiderProxyPoolController(poolStore, poolTester);
     }
 
     @Bean

@@ -205,8 +205,12 @@ public class DefaultRuntimeManager implements RuntimeManager {
     @Override
     public RuntimeStatus status(String id) {
         RuntimeInstance inst = instanceMap.get(id);
-        if (inst != null) return inst.status();
-        if (artifactMap.containsKey(id)) return RuntimeStatus.STOPPED;
+        if (inst != null) {
+            return inst.status();
+        }
+        if (artifactMap.containsKey(id)) {
+            return RuntimeStatus.STOPPED;
+        }
         return RuntimeStatus.UNKNOWN;
     }
 
@@ -301,49 +305,63 @@ public class DefaultRuntimeManager implements RuntimeManager {
     @Override
     public CmdResult uninstallService(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.uninstall(serviceName);
     }
 
     @Override
     public CmdResult startService(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.start(serviceName);
     }
 
     @Override
     public CmdResult stopService(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.stop(serviceName);
     }
 
     @Override
     public CmdResult restartService(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.restart(serviceName);
     }
 
     @Override
     public CmdResult serviceStatus(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.status(serviceName);
     }
 
     @Override
     public CmdResult enableService(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.enable(serviceName);
     }
 
     @Override
     public CmdResult disableService(String serviceName) {
         ServiceManager sm = getServiceManager();
-        if (sm == null) return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        if (sm == null) {
+            return CmdResult.builder().exitCode(1).stderr("无服务管理器").build();
+        }
         return sm.disable(serviceName);
     }
 

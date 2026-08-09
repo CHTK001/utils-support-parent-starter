@@ -39,7 +39,9 @@ public class SystemdServiceManager implements ServiceManager {
     @Override
     public boolean isSupported() {
         String os = System.getProperty("os.name", "").toLowerCase();
-        if (!os.contains("nix") && !os.contains("nux")) return false;
+        if (!os.contains("nix") && !os.contains("nux")) {
+            return false;
+        }
         return CmdExecutors.execute("which systemctl", 5, TimeUnit.SECONDS).isSuccess();
     }
 

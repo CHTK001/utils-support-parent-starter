@@ -53,4 +53,9 @@ public class SpiderExecutionRecord {
      * 抓取到的条目数
      */
     private Integer resultCount;
+
+    /**
+     * 抓取结果 JSON 字符串（SpiderResult 列表序列化）
+     */
+    private String resultsJson;
 }

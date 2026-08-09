@@ -102,7 +102,9 @@ public class WindowsServiceManager implements ServiceManager {
     @Override
     public boolean isEnabled(String serviceName) {
         CmdResult r = status(serviceName);
-        if (!r.isSuccess()) return false;
+        if (!r.isSuccess()) {
+            return false;
+        }
         String s = r.getStdout().toLowerCase();
         return s.contains("auto") || s.contains("delayed-auto");
     }
@@ -113,7 +115,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     private String mapStartup(String type) {
-        if (type == null) return "auto";
+        if (type == null) {
+            return "auto";
+        }
         return switch (type.toLowerCase()) {
             case "manual" -> "demand";
             case "disabled" -> "disabled";
