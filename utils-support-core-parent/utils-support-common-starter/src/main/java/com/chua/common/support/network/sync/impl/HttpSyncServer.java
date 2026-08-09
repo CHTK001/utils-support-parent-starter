@@ -63,6 +63,13 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     private com.sun.net.httpserver.HttpServer server;
 
     /**
+     * 创建 HTTP 同步服务端 (默认配置)。
+     */
+    public HttpSyncServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * 创建 HTTP 同步服务端。
      *
      * @param setting 服务端配置

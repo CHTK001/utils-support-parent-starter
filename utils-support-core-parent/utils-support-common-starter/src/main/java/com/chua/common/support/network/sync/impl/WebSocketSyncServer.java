@@ -81,6 +81,13 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
+     * 创建 WebSocket 同步服务端 (默认配置)。
+     */
+    public WebSocketSyncServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * 创建 WebSocket 同步服务端。
      *
      * @param setting 服务端配置

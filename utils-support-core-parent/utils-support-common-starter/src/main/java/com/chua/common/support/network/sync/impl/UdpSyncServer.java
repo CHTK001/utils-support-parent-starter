@@ -55,6 +55,13 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     private Thread receiveThread;
 
     /**
+     * 创建 UDP 同步服务端 (默认配置)。
+     */
+    public UdpSyncServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * 创建 UDP 同步服务端。
      *
      * @param setting 服务端配置
