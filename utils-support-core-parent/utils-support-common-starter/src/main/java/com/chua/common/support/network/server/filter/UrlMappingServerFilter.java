@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.handler.ReactiveServerHandler;
 import com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.objects.DefaultObjectContext;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
@@ -54,6 +55,13 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
      * 过滤器标识
      */
     private static final String FILTER_ID = "UrlMappingServerFilter";
+
+    /**
+     * 无参构造器，使用默认对象上下文。
+     */
+    public UrlMappingServerFilter() {
+        this(new DefaultObjectContext());
+    }
 
     /**
      * 构造并传入 {@link ObjectContext}，自动扫描所有注解解析器注册路由。
