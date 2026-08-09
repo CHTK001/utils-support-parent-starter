@@ -185,7 +185,7 @@ public final class GatewayServerBootstrap {
     }
 
     /**
-     * 获取活跃 Tunnel Registry（外部调用，如监控）。
+     * 获取活跃 Tunnel Registry（外部调用，如监控和 WS 桥接）。
      *
      * @return TunnelRegistry
      */
