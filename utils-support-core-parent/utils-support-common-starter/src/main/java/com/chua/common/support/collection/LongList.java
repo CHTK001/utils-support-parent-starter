@@ -1,6 +1,14 @@
 package com.chua.common.support.collection;
 
-import java.util.*;
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.RandomAccess;
 
 /**
  * 基于 {@code long[]} 的长整数列表，避免 {@link Long} 装箱开销。
