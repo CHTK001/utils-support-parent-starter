@@ -49,6 +49,11 @@ public class MessageProtocol {
     public static final byte TYPE_ACK = 5;
 
     /**
+     * 消息类型：探测（UDP 广播发现）
+     */
+    public static final byte TYPE_PROBE = 6;
+
+    /**
      * 协议头长度（魔数 4 + 类型 1 + 长度 4 = 9 字节）
      */
     public static final int HEADER_SIZE = 9;

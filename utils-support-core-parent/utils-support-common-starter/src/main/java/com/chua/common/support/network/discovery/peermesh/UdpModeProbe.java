@@ -1,16 +1,22 @@
 package com.chua.common.support.network.discovery.peermesh;
 
 import com.chua.common.support.lang.json.Json;
-import com.chua.common.support.network.discovery.Discovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * UDP 模式探针：广播发现对等节点。
+ * UDP 模式探针：通过广播探测发现对等节点。
+ * <p>
+ * 探测消息与响应统一使用 {@link MessageProtocol} 编码，向广播地址发送 TYPE_PROBE，
+ * 接收对端回复的 TYPE_PONG（携带节点条目列表）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,25 +48,23 @@ public class UdpModeProbe implements ProbeStrategy {
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.setBroadcast(true);
             socket.setSoTimeout(RECEIVE_TIMEOUT_MS);
-            // 构造探测消息
-            String probeMsg = "{\"type\":\"probe\"}";
-            byte[] data = probeMsg.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+
+            MessageProtocol.PeerMeshMessage probe = new MessageProtocol.PeerMeshMessage(
+                    MessageProtocol.TYPE_PROBE, "");
+            byte[] data = MessageProtocol.encode(probe);
             InetAddress broadcastAddr = InetAddress.getByName("255.255.255.255");
             DatagramPacket sendPacket = new DatagramPacket(data, data.length, broadcastAddr, port);
             socket.send(sendPacket);
             log.debug("UDP 探测已发送至广播地址:{}:{}", broadcastAddr.getHostAddress(), port);
-            // 接收响应
+
             byte[] buf = new byte[65507];
             DatagramPacket recvPacket = new DatagramPacket(buf, buf.length);
             long deadline = System.currentTimeMillis() + RECEIVE_TIMEOUT_MS;
             while (!stopped && System.currentTimeMillis() < deadline) {
                 try {
                     socket.receive(recvPacket);
-                    String msg = new String(recvPacket.getData(), recvPacket.getOffset(),
-                            recvPacket.getLength(), java.nio.charset.StandardCharsets.UTF_8);
-                    handleResponse(msg);
+                    handleResponse(recvPacket);
                 } catch (SocketTimeoutException e) {
-                    // 正常超时退出
                     break;
                 }
             }
@@ -80,16 +84,30 @@ public class UdpModeProbe implements ProbeStrategy {
     }
 
     /**
-     * 处理收到的响应消息。
+     * 处理收到的 UDP 响应包。
      *
-     * @param msg 响应内容
+     * @param packet 数据包
      */
-    private void handleResponse(String msg) {
+    private void handleResponse(DatagramPacket packet) {
         try {
-            Discovery d = Json.fromJson(msg, Discovery.class);
-            if (d != null && d.getServerId() != null && !d.getServerId().equals(localServerId)) {
-                discovered.add(new NodeTable.NodeEntry(d, System.currentTimeMillis(), 0));
-                log.debug("UDP 发现节点: {}", d.getServerId());
+            ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
+            MessageProtocol.PeerMeshMessage msg = MessageProtocol.decode(buf);
+            if (msg == null || msg.type() != MessageProtocol.TYPE_PONG) {
+                return;
+            }
+            List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
+            if (entries == null) {
+                return;
+            }
+            for (NodeTable.NodeEntry entry : entries) {
+                if (entry == null || entry.getDiscovery() == null) {
+                    continue;
+                }
+                if (localServerId.equals(entry.getDiscovery().getServerId())) {
+                    continue;
+                }
+                discovered.add(entry);
+                log.debug("UDP 发现节点: {}", entry.getDiscovery().getServerId());
             }
         } catch (Exception e) {
             log.debug("解析 UDP 响应失败: {}", e.getMessage());
