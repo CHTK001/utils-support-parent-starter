@@ -18,6 +18,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -107,11 +108,6 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     private EvictionManager evictionManager;
 
     /**
-     * 是否为 UDP 模式
-     */
-    private volatile boolean udpMode;
-
-    /**
      * 运行状态标志
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -164,14 +160,6 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
         bindPort();
 
-        startAcceptor();
-
-        startScheduler();
-
-        if ("udp".equalsIgnoreCase(config.getMode())) {
-            startUdpServer();
-        }
-
         self = Discovery.builder()
                 .serverId(serverId)
                 .host(localIp)
@@ -179,6 +167,14 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                 .protocol(config.getMode())
                 .build();
         nodeTable.upsert(serverId, self, 0, System.currentTimeMillis());
+
+        startAcceptor();
+
+        startScheduler();
+
+        if ("udp".equalsIgnoreCase(config.getMode())) {
+            startUdpServer();
+        }
 
         BootstrapProbe probe = new BootstrapProbe(config, nodeTable, selector, serverId, localPort, diskStore, localIp);
         probe.run();
@@ -251,7 +247,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         });
 
         membershipPropagation = new MembershipPropagation(config, nodeTable, serverId, this);
-        evictionManager = new EvictionManager(config, nodeTable, this);
+        evictionManager = new EvictionManager(config, nodeTable, serverId, this);
 
         int interval = Math.max(1, config.getHeartbeatInterval());
         scheduler.scheduleAtFixedRate(() -> {
@@ -341,6 +337,20 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                     sendUdpResponse(packet.getAddress(), packet.getPort(),
                             new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_ACK, ""));
                 }
+                case MessageProtocol.TYPE_PROBE -> {
+                    List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
+                    sendUdpResponse(packet.getAddress(), packet.getPort(),
+                            new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_PONG, Json.toJson(known)));
+                }
+                case MessageProtocol.TYPE_PONG -> {
+                    List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
+                    if (entries != null) {
+                        long now = System.currentTimeMillis();
+                        for (NodeTable.NodeEntry entry : entries) {
+                            mergeNodeEntry(entry, now);
+                        }
+                    }
+                }
                 default -> log.debug("UDP 未知消息类型: {}", msg.type());
             }
         } catch (Exception e) {
@@ -363,6 +373,27 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
             udpSocket.send(response);
         } catch (IOException e) {
             log.debug("UDP 发送失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 通过 UDP 向目标节点发送一条消息（UDP 模式下心跳/成员传播使用）。
+     * 响应由 UDP 服务器线程统一接收处理。
+     *
+     * @param target 目标节点
+     * @param msg    消息体
+     */
+    public void sendUdpMessage(Discovery target, MessageProtocol.PeerMeshMessage msg) {
+        if (udpSocket == null || udpSocket.isClosed() || target == null) {
+            return;
+        }
+        try {
+            byte[] data = MessageProtocol.encode(msg);
+            DatagramPacket packet = new DatagramPacket(data, data.length,
+                    InetAddress.getByName(target.getHost()), target.getPort());
+            udpSocket.send(packet);
+        } catch (IOException e) {
+            log.debug("UDP 发送失败至 {}: {}", target.getServerId(), e.getMessage());
         }
     }
 
@@ -630,22 +661,6 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
         if (entry != null && !serverId.equals(entry.getDiscovery().getServerId())) {
             mergeNodeEntry(entry, System.currentTimeMillis());
-        }
-    }
-
-    /**
-     * 处理响应消息。
-     *
-     * @param msg 响应消息
-     */
-    private void processResponse(MessageProtocol.PeerMeshMessage msg) {
-        switch (msg.type()) {
-            case MessageProtocol.TYPE_PONG -> handlePong(msg);
-            case MessageProtocol.TYPE_NEW_PEER -> handleNewPeerResponse(msg);
-            case MessageProtocol.TYPE_ACK -> {
-                // 确认消息，无需处理
-            }
-            default -> log.debug("收到未知响应类型: {}", msg.type());
         }
     }
 

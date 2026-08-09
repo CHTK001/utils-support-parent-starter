@@ -1,9 +1,13 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.Discovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -93,6 +97,23 @@ public class CModeProbe implements ProbeStrategy {
         }
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(host, port), CONNECT_TIMEOUT_MS);
+            socket.setSoTimeout(3000);
+            DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            // 握手读取对端 NEW_PEER，获取真实 serverId
+            try {
+                MessageProtocol.PeerMeshMessage msg = MessageProtocol.read(in);
+                if (msg != null && msg.type() == MessageProtocol.TYPE_NEW_PEER) {
+                    NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
+                    if (entry != null && entry.getDiscovery() != null
+                            && !localServerId.equals(entry.getDiscovery().getServerId())) {
+                        discovered.add(new NodeTable.NodeEntry(entry.getDiscovery(),
+                                System.currentTimeMillis(), entry.getEpoch()));
+                        return;
+                    }
+                }
+            } catch (IOException ignored) {
+                // 对端非 PeerMesh 节点，回退到 host:port 构造
+            }
             String serverId = host + ":" + port;
             if (serverId.equals(localServerId)) {
                 return;
