@@ -141,7 +141,10 @@ class GatewayServerIntegrationTest {
     @Test
     void shouldListKeysEndpoint() throws Exception {
         String body = httpGet("/api/connections/keys");
-        List<?> keys = JSON.readValue(body, List.class);
+        // server 端 wrap 为 {status:0, data:[...]}，前端期望解包
+        @SuppressWarnings("unchecked")
+        Map<String, Object> wrap = JSON.readValue(body, Map.class);
+        List<?> keys = (List<?>) wrap.get("data");
         assertNotNull(keys);
         assertEquals(0, keys.size(), "初始应无预配置 key");
     }
@@ -149,7 +152,9 @@ class GatewayServerIntegrationTest {
     @Test
     void shouldListProtocolsEndpoint() throws Exception {
         String body = httpGet("/api/connections/list");
-        List<?> protocols = JSON.readValue(body, List.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> wrap = JSON.readValue(body, Map.class);
+        List<?> protocols = (List<?>) wrap.get("data");
         assertNotNull(protocols);
         assertEquals(4, protocols.size(), "应发现 4 个 SPI 协议");
     }
@@ -165,7 +170,9 @@ class GatewayServerIntegrationTest {
                 "password", "");
         String body = httpPost("/api/connections/authenticate", JSON.writeValueAsString(req));
         @SuppressWarnings("unchecked")
-        Map<String, Object> resp = JSON.readValue(body, Map.class);
+        Map<String, Object> wrap = JSON.readValue(body, Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> resp = (Map<String, Object>) wrap.get("data");
 
         assertNotNull(resp.get("tunnelId"), "tunnelId 不能为空");
         assertNotNull(resp.get("wsUrl"), "wsUrl 不能为空");
