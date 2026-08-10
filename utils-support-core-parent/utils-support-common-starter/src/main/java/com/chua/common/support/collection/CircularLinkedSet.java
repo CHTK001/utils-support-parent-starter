@@ -71,9 +71,11 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     private final boolean accessOrder;
 
     /**
-     * 最近一次被淘汰的元素
+     * 最近一次因容量满而被淘汰的元素
+     * <p>仅在 {@link #add(Object)} 真正触发淘汰时设置，其余情况为 null，
+     * 便于调用方区分"本次 add 是否淘汰了元素"，避免读到陈旧淘汰值。</p>
      */
-    private E lastEvicted;
+    private volatile E lastEvicted;
 
     /**
      * 使用指定容量创建环状集合，默认按插入顺序排序，默认策略为删除最早。
@@ -233,6 +235,8 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
 
     @Override
     public boolean add(E e) {
+        // 每次 add 前重置淘汰记录，仅本次触发淘汰时更新
+        lastEvicted = null;
         // 元素已存在
         if (contains(e)) {
             if (accessOrder) {
