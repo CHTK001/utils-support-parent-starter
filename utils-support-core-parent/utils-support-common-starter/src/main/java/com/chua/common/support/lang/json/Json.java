@@ -311,8 +311,8 @@ public class Json {
  }
 
  try {
- // 构建针对 List 的读取器并读取所有值
- return (List<T>) getMapper().readerForListOf(targetType).readValues(json).readAll();
+ // 将 JSON 数组字符串反序列化为 List（readValues 仅适用于流式多顶层值，标准数组需用 readValue）
+ return (List<T>) getMapper().readerForListOf(targetType).readValue(json);
  } catch (Exception e) {
  throw new RuntimeException(e);
  }
