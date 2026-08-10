@@ -44,19 +44,43 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
      */
     private final int capacity;
 
-    /**
+/**
      * 是否按访问顺序排序（true）或插入顺序排序（false）。
      * <p>true 时，最近访问的元素排在最前面，peekEldest() 返回最久未被访问的元素。</p>
      */
     private final boolean accessOrder;
 
     /**
-     * 使用指定容量创建环状集合，默认按插入顺序排序。
+     * 是否拒绝溢出（true 时满后拒绝新元素，false 时满后淘汰最旧元素）。
+     */
+    private final boolean rejectOnFull;
+
+    /**
+     * 最近一次被淘汰的元素（因溢出策略移除）。
+     */
+    private volatile E lastEvicted;
+
+    /**
+     * 创建一个具有指定容量和溢出策略的环状集合。
      *
-     * @param capacity 集合容量，必须大于 0
+     * <p>当 {@code policy} 为 {@link OverflowPolicy#REJECT} 时，集合满后拒绝新元素；
+     * 为 {@link OverflowPolicy#EVICT_ELDEST} 时，集合满后淘汰最旧元素再添加新元素。</p>
+     *
+     * @param capacity 集合容量
+     * @param policy   溢出策略
      * @param <E>      元素类型
-     * @return 环状集合实例
-     * @throws IllegalArgumentException 如果 capacity 小于等于 0
+     * @return 新创建的环状集合
+     */
+    public static <E> CircularLinkedSet<E> of(int capacity, OverflowPolicy policy) {
+        return new CircularLinkedSet<>(capacity, false, policy == OverflowPolicy.REJECT);
+    }
+
+    /**
+     * 创建一个具有指定容量的空环状集合（按插入顺序淘汰）。
+     *
+     * @param capacity 集合容量
+     * @param <E>      元素类型
+     * @return 新创建的环状集合
      */
     public static <E> CircularLinkedSet<E> of(int capacity) {
         return new CircularLinkedSet<>(capacity);
@@ -95,18 +119,43 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
      * @param accessOrder 是否按访问顺序排序
      */
     public CircularLinkedSet(int capacity, boolean accessOrder) {
+        this(capacity, accessOrder, false);
+    }
+
+    /**
+     * 构造方法。
+     *
+     * @param capacity     集合容量
+     * @param accessOrder  是否按访问顺序排序
+     * @param rejectOnFull 是否拒绝溢出（true 时满后拒绝新元素）
+     */
+    public CircularLinkedSet(int capacity, boolean accessOrder, boolean rejectOnFull) {
         super();
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
         }
         this.capacity = capacity;
         this.accessOrder = accessOrder;
+        this.rejectOnFull = rejectOnFull;
         this.delegate = new LinkedHashMap<E, Object>(capacity, 0.75f, accessOrder) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<E, Object> eldest) {
-                return size() > CircularLinkedSet.this.capacity;
+                // 拒绝溢出模式下不自动淘汰，由 add() 拦截
+                if (rejectOnFull) {
+                    return false;
+                }
+                if (size() > CircularLinkedSet.this.capacity) {
+                    CircularLinkedSet.this.lastEvicted = eldest.getKey();
+                    return true;
+                }
+                return false;
             }
         };
+    }
+
+    @Override
+    public E lastEvicted() {
+        return lastEvicted;
     }
 
     @Override
@@ -155,6 +204,10 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
 
     @Override
     public boolean add(E e) {
+        // 拒绝溢出模式下，满后直接拒绝
+        if (rejectOnFull && size() >= capacity) {
+            return false;
+        }
         if (contains(e)) {
             if (accessOrder) {
                 delegate.remove(e);

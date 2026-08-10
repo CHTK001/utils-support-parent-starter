@@ -26,7 +26,7 @@ public class SshBridge implements RemoteBridge {
     /**
      * SSH JSch 会话超时（毫秒）
      */
-    private static final int SESSION_TIMEOUT_MS = 10_000;
+    private static final int SESSION_TIMEOUT_MS = 3_000;
 
     /**
      * 底层连接

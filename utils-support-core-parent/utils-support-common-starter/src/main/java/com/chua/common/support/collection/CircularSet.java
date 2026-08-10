@@ -38,4 +38,13 @@ public interface CircularSet<E> {
      * @return 集合容量
      */
     int capacity();
+
+    /**
+     * 返回最近一次因溢出策略被淘汰的元素。
+     *
+     * <p>若无淘汰记录或从未触发淘汰，返回 {@code null}。</p>
+     *
+     * @return 最近被淘汰的元素，或 {@code null}
+     */
+    E lastEvicted();
 }
