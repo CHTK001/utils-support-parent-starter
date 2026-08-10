@@ -18,12 +18,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -107,11 +110,6 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     private EvictionManager evictionManager;
 
     /**
-     * 是否为 UDP 模式
-     */
-    private volatile boolean udpMode;
-
-    /**
      * 运行状态标志
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -164,14 +162,6 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
         bindPort();
 
-        startAcceptor();
-
-        startScheduler();
-
-        if ("udp".equalsIgnoreCase(config.getMode())) {
-            startUdpServer();
-        }
-
         self = Discovery.builder()
                 .serverId(serverId)
                 .host(localIp)
@@ -179,6 +169,14 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                 .protocol(config.getMode())
                 .build();
         nodeTable.upsert(serverId, self, 0, System.currentTimeMillis());
+
+        startAcceptor();
+
+        startScheduler();
+
+        if ("udp".equalsIgnoreCase(config.getMode())) {
+            startUdpServer();
+        }
 
         BootstrapProbe probe = new BootstrapProbe(config, nodeTable, selector, serverId, localPort, diskStore, localIp);
         probe.run();
@@ -251,7 +249,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         });
 
         membershipPropagation = new MembershipPropagation(config, nodeTable, serverId, this);
-        evictionManager = new EvictionManager(config, nodeTable, this);
+        evictionManager = new EvictionManager(config, nodeTable, serverId, this);
 
         int interval = Math.max(1, config.getHeartbeatInterval());
         scheduler.scheduleAtFixedRate(() -> {
@@ -341,6 +339,20 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                     sendUdpResponse(packet.getAddress(), packet.getPort(),
                             new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_ACK, ""));
                 }
+                case MessageProtocol.TYPE_PROBE -> {
+                    List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
+                    sendUdpResponse(packet.getAddress(), packet.getPort(),
+                            new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_PONG, Json.toJson(known)));
+                }
+                case MessageProtocol.TYPE_PONG -> {
+                    List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
+                    if (entries != null) {
+                        long now = System.currentTimeMillis();
+                        for (NodeTable.NodeEntry entry : entries) {
+                            mergeNodeEntry(entry, now);
+                        }
+                    }
+                }
                 default -> log.debug("UDP 未知消息类型: {}", msg.type());
             }
         } catch (Exception e) {
@@ -363,6 +375,27 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
             udpSocket.send(response);
         } catch (IOException e) {
             log.debug("UDP 发送失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 通过 UDP 向目标节点发送一条消息（UDP 模式下心跳/成员传播使用）。
+     * 响应由 UDP 服务器线程统一接收处理。
+     *
+     * @param target 目标节点
+     * @param msg    消息体
+     */
+    public void sendUdpMessage(Discovery target, MessageProtocol.PeerMeshMessage msg) {
+        if (udpSocket == null || udpSocket.isClosed() || target == null) {
+            return;
+        }
+        try {
+            byte[] data = MessageProtocol.encode(msg);
+            DatagramPacket packet = new DatagramPacket(data, data.length,
+                    InetAddress.getByName(target.getHost()), target.getPort());
+            udpSocket.send(packet);
+        } catch (IOException e) {
+            log.debug("UDP 发送失败至 {}: {}", target.getServerId(), e.getMessage());
         }
     }
 
@@ -431,7 +464,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
             // 主动发送 NewPeer，宣告自己
             try {
-                com.chua.common.support.network.discovery.peermesh.NodeTable.NodeEntry myEntry = new com.chua.common.support.network.discovery.peermesh.NodeTable.NodeEntry(self, System.currentTimeMillis(), 0);
+                NodeTable.NodeEntry selfEntry = nodeTable.get(serverId);
+                Discovery announce = (selfEntry != null && selfEntry.getDiscovery() != null)
+                        ? selfEntry.getDiscovery() : self;
+                NodeTable.NodeEntry myEntry = new NodeTable.NodeEntry(announce, System.currentTimeMillis(), 0);
                 MessageProtocol.PeerMeshMessage newPeer = new MessageProtocol.PeerMeshMessage(
                         MessageProtocol.TYPE_NEW_PEER, Json.toJson(myEntry));
                 MessageProtocol.write(out, newPeer);
@@ -549,7 +585,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                 path = addClusterPrefix("/");
             }
             removeFromCache(path, sid);
-            addToCache(path, d);
+            addToCache(path, resolveServiceInstance(sid, d));
         }
 
         if (isNew && membershipPropagation != null) {
@@ -558,6 +594,38 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                 membershipPropagation.pushNewPeer(updated);
             }
         }
+    }
+
+    /**
+     * 将远程节点的 discovery 解析为服务实例：若条目通过 metadata 携带了
+     * 服务真实地址（svcHost/svcPort），则用其构造服务实例，保证各节点
+     * 看到的服务实例地址与注册节点本地一致；否则回退使用条目自身地址。
+     *
+     * @param sid 节点 serverId
+     * @param d   远程节点条目
+     * @return 服务实例 discovery
+     */
+    private Discovery resolveServiceInstance(String sid, Discovery d) {
+        Map<String, String> meta = d.getMetadata();
+        if (meta != null && meta.containsKey("svcHost") && meta.containsKey("svcPort")) {
+            try {
+                return Discovery.builder()
+                        .id(d.getId())
+                        .serverId(sid)
+                        .protocol(d.getProtocol())
+                        .timeout(d.getTimeout())
+                        .weight(d.getWeight())
+                        .host(meta.get("svcHost"))
+                        .port(Integer.parseInt(meta.get("svcPort")))
+                        .uriSpec(d.getUriSpec())
+                        .metadata(meta)
+                        .env(d.getEnv())
+                        .build();
+            } catch (NumberFormatException ignored) {
+                // 端口非法时回退条目自身地址
+            }
+        }
+        return d;
     }
 
     // ======================== 对外发送 ========================
@@ -633,22 +701,6 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         }
     }
 
-    /**
-     * 处理响应消息。
-     *
-     * @param msg 响应消息
-     */
-    private void processResponse(MessageProtocol.PeerMeshMessage msg) {
-        switch (msg.type()) {
-            case MessageProtocol.TYPE_PONG -> handlePong(msg);
-            case MessageProtocol.TYPE_NEW_PEER -> handleNewPeerResponse(msg);
-            case MessageProtocol.TYPE_ACK -> {
-                // 确认消息，无需处理
-            }
-            default -> log.debug("收到未知响应类型: {}", msg.type());
-        }
-    }
-
     // ======================== ServiceDiscovery 扩展 ========================
 
     /**
@@ -679,6 +731,33 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         discovery.setUriSpec(prefixed);
         addToCache(prefixed, discovery);
         incrementServiceVersion();
+        if (serverId.equals(discovery.getServerId())) {
+            // 本地服务挂在 self 名下：保留 self 的通信地址（host/port/protocol），
+            // 仅更新 uriSpec 指向服务路径，并将服务真实地址写入 metadata，
+            // 供其他节点解析出与本地一致的服务实例地址。
+            NodeTable.NodeEntry existing = nodeTable.get(serverId);
+            if (existing != null && existing.getDiscovery() != null) {
+                Discovery base = existing.getDiscovery();
+                Map<String, String> meta = discovery.getMetadata() != null
+                        ? new HashMap<>(discovery.getMetadata()) : new HashMap<>();
+                meta.put("svcHost", discovery.getHost());
+                meta.put("svcPort", String.valueOf(discovery.getPort()));
+                Discovery merged = Discovery.builder()
+                        .id(base.getId())
+                        .serverId(serverId)
+                        .protocol(base.getProtocol() != null ? base.getProtocol() : config.getMode())
+                        .timeout(base.getTimeout())
+                        .weight(base.getWeight())
+                        .host(base.getHost())
+                        .port(base.getPort())
+                        .uriSpec(prefixed)
+                        .metadata(meta)
+                        .env(base.getEnv())
+                        .build();
+                nodeTable.upsert(serverId, merged, existing.getEpoch(), System.currentTimeMillis());
+                return this;
+            }
+        }
         nodeTable.upsert(discovery.getServerId(), discovery, 0, System.currentTimeMillis());
         return this;
     }

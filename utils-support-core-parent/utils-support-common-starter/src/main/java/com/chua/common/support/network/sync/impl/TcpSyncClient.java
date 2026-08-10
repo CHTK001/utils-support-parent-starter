@@ -52,6 +52,11 @@ public class TcpSyncClient implements SyncClient {
     private volatile boolean connected;
 
     /**
+     * 是否已注册成功
+     */
+    private volatile boolean registered;
+
+    /**
      * 订阅的主题映射（topic -> handler）
      */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
@@ -95,12 +100,28 @@ public class TcpSyncClient implements SyncClient {
             socket = new Socket();
             socket.connect(parseAddress(serverUrl));
             connected = true;
-            sendLine("register:" + clientId);
             startRead();
+            sendLine("register:" + clientId);
+            waitRegistered();
             notifyListeners(SyncFlowListener::onStart);
         } catch (IOException e) {
             connected = false;
             throw new RuntimeException("TCP SyncClient 连接失败: " + serverUrl, e);
+        }
+    }
+
+    /**
+     * 等待服务端注册确认, 保证 connect() 返回后已可收发。
+     */
+    private void waitRegistered() {
+        long deadline = System.currentTimeMillis() + 3000L;
+        while (!registered && System.currentTimeMillis() < deadline) {
+            try {
+                Thread.sleep(10L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
         }
     }
 
@@ -200,6 +221,10 @@ public class TcpSyncClient implements SyncClient {
         int colon = message.indexOf(':');
         String topic = colon > 0 ? message.substring(0, colon) : message;
         String payload = colon > 0 ? message.substring(colon + 1) : message;
+        if ("registered".equals(topic)) {
+            registered = true;
+            return;
+        }
         SyncMessageHandler handler = subscriptions.get(topic);
         if (handler != null) {
             handler.handle(topic, payload);

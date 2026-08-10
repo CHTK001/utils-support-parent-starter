@@ -68,6 +68,13 @@ public class NettyTcpSyncServer extends com.chua.common.support.network.server.A
     private Channel serverChannel;
 
     /**
+     * 创建 Netty TCP 同步服务端 (默认配置)。
+     */
+    public NettyTcpSyncServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * 创建 Netty TCP 同步服务端。
      *
      * @param setting 服务端配置
@@ -266,6 +273,7 @@ public class NettyTcpSyncServer extends com.chua.common.support.network.server.A
                 Map<String, Object> meta = new HashMap<>();
                 meta.put("clientId", payload);
                 meta.put("channel", ctx.channel().remoteAddress().toString());
+                writeFrame(ctx.channel(), "registered:" + payload);
                 notifyListener(l -> l.onClientConnected(payload, meta));
             } else {
                 notifyListener(l -> l.onMessage(clientId, topic, payload));
