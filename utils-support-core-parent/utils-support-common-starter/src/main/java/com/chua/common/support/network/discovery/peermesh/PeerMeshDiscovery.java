@@ -462,7 +462,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
             // 主动发送 NewPeer，宣告自己
             try {
-                com.chua.common.support.network.discovery.peermesh.NodeTable.NodeEntry myEntry = new com.chua.common.support.network.discovery.peermesh.NodeTable.NodeEntry(self, System.currentTimeMillis(), 0);
+                NodeTable.NodeEntry selfEntry = nodeTable.get(serverId);
+                Discovery announce = (selfEntry != null && selfEntry.getDiscovery() != null)
+                        ? selfEntry.getDiscovery() : self;
+                NodeTable.NodeEntry myEntry = new NodeTable.NodeEntry(announce, System.currentTimeMillis(), 0);
                 MessageProtocol.PeerMeshMessage newPeer = new MessageProtocol.PeerMeshMessage(
                         MessageProtocol.TYPE_NEW_PEER, Json.toJson(myEntry));
                 MessageProtocol.write(out, newPeer);
@@ -694,6 +697,28 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         discovery.setUriSpec(prefixed);
         addToCache(prefixed, discovery);
         incrementServiceVersion();
+        if (serverId.equals(discovery.getServerId())) {
+            // 本地服务挂在 self 名下：保留 self 的通信地址（host/port/protocol），
+            // 仅更新 uriSpec 指向服务路径，避免覆盖导致心跳目标失效。
+            NodeTable.NodeEntry existing = nodeTable.get(serverId);
+            if (existing != null && existing.getDiscovery() != null) {
+                Discovery base = existing.getDiscovery();
+                Discovery merged = Discovery.builder()
+                        .id(base.getId())
+                        .serverId(serverId)
+                        .protocol(base.getProtocol() != null ? base.getProtocol() : config.getMode())
+                        .timeout(base.getTimeout())
+                        .weight(base.getWeight())
+                        .host(base.getHost())
+                        .port(base.getPort())
+                        .uriSpec(prefixed)
+                        .metadata(discovery.getMetadata())
+                        .env(base.getEnv())
+                        .build();
+                nodeTable.upsert(serverId, merged, existing.getEpoch(), System.currentTimeMillis());
+                return this;
+            }
+        }
         nodeTable.upsert(discovery.getServerId(), discovery, 0, System.currentTimeMillis());
         return this;
     }
