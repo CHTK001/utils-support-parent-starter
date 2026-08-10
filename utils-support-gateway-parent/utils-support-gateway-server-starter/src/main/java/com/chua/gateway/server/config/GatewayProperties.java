@@ -36,6 +36,11 @@ public final class GatewayProperties {
     public static final int DEFAULT_GUACD_PORT = 4822;
 
     /**
+     * 默认 WebSocket 桥接端口
+     */
+    public static final int DEFAULT_WS_PORT = 8182;
+
+    /**
      * 默认 artifact 下载目录占位符
      */
     public static final String DEFAULT_ARTIFACT_DIR = "${user.home}/.utils-support-gateway/cache";
@@ -181,6 +186,15 @@ public final class GatewayProperties {
      */
     public static int guacdPort() {
         return getIntOrDefault("gateway.guacd.port", DEFAULT_GUACD_PORT);
+    }
+
+    /**
+     * WebSocket 桥接服务端口（独立于 HTTP server）。
+     *
+     * @return 端口号
+     */
+    public static int wsPort() {
+        return getIntOrDefault("gateway.ws.port", DEFAULT_WS_PORT);
     }
 
     /**

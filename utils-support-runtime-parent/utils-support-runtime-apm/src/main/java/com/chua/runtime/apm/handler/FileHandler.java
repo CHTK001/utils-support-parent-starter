@@ -53,7 +53,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 文件操作记录
      */
-    private final List<FileRecord> records;
+    private final com.chua.runtime.apm.handler.BoundedRecordList<FileRecord> records;
 
     /**
      * 最大记录数
@@ -76,7 +76,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     private final AtomicBoolean started;
 
     public FileHandler() {
-        this.records = Collections.synchronizedList(new ArrayList<>());
+        this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
@@ -223,9 +223,6 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
      * @param record 文件记录
      */
     public void addRecord(FileRecord record) {
-        if (records.size() >= MAX_RECORDS) {
-            records.remove(0);
-        }
         records.add(record);
     }
 
@@ -235,7 +232,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 文件记录列表
      */
     public List<FileRecord> getRecords() {
-        return Collections.unmodifiableList(records);
+        return records.snapshot();
     }
 
     /**
@@ -245,11 +242,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 文件记录列表
      */
     public List<FileRecord> tail(int n) {
-        int size = records.size();
-        if (n >= size) {
-            return getRecords();
-        }
-        return new ArrayList<>(records.subList(size - n, size));
+        return records.tail(n);
     }
 
     /**

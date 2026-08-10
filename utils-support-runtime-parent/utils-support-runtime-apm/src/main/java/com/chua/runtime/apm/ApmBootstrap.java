@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,14 +44,14 @@ public class ApmBootstrap {
     private static volatile ApmBootstrap globalInstance;
 
     /**
-     * 处理器列表
+     * 处理器列表 — CopyOnWriteArrayList 保证并发读(handler 列表)与启动期注册/启动写不冲突。
      */
     private final List<Plugin> handlers;
 
     /**
      * 是否已启动
      */
-    private boolean started;
+    private volatile boolean started;
 
     /**
      * 创建 APM 启动器。
@@ -59,7 +59,7 @@ public class ApmBootstrap {
      * @param pluginDir 插件目录
      */
     public ApmBootstrap(Path pluginDir) {
-        this.handlers = new ArrayList<>();
+        this.handlers = new CopyOnWriteArrayList<>();
         this.started = false;
         registerDefaults(pluginDir);
         globalInstance = this;
@@ -82,12 +82,13 @@ public class ApmBootstrap {
         handlers.add(new ZooKeeperHandler());
         handlers.add(new JedisHandler());
         handlers.add(new KafkaHandler());
-        try {
-            for (Plugin handler : handlers) {
+        // 每个 handler 独立 try/catch,单个失败不阻断其他
+        for (Plugin handler : handlers) {
+            try {
                 handler.init(context);
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, String.format("默认处理器[%s] 初始化失败", handler.name()), e);
             }
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, String.format("APM 处理器初始化失败", e));
         }
     }
 
@@ -99,7 +100,10 @@ public class ApmBootstrap {
      *
      * @param handler 插件处理器
      */
-    public void addHandler(Plugin handler) {
+    public synchronized void addHandler(Plugin handler) {
+        if (handler == null) {
+            return;
+        }
         handlers.add(handler);
         try {
             PluginContext context = new PluginContext(Paths.get(System.getProperty("java.io.tmpdir")));
@@ -112,11 +116,11 @@ public class ApmBootstrap {
     /**
      * 启动所有处理器。
      */
-    public void start() {
+    public synchronized void start() {
         if (started) {
             return;
         }
-        // 1. 先启动存储层（Handlers 在 addRecord 时会调用 StorageManager.append）
+        // 1. 先启动存储层(Handlers 在 addRecord 时会调用 StorageManager.append)
         Map<String, String> configMap = new HashMap<>();
         configMap.put("apm.storage.type", System.getProperty("apm.storage.type", "inmemory"));
         configMap.put("apm.storage.retention.ms",
@@ -127,34 +131,66 @@ public class ApmBootstrap {
         if (!storagePath.isEmpty()) {
             configMap.put("apm.storage.path", storagePath);
         }
-        StorageManager.init(new StorageConfig(configMap));
+        try {
+            StorageManager.init(new StorageConfig(configMap));
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "APM 存储层启动失败, fail-fast", e);
+            throw new RuntimeException("APM 存储层启动失败", e);
+        }
 
-        // 2. 启动所有 Handler
+        // 2. 启动所有 Handler — 失败标记但不阻断(便于排查)
+        int startedCount = 0;
         for (Plugin handler : handlers) {
             try {
                 handler.start();
+                startedCount++;
                 LOG.log(Level.INFO, String.format("APM 处理器[%s] 启动", handler.name()));
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 启动失败", handler.name(), e));
+                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 启动失败", handler.name()), e);
             }
         }
         started = true;
+        if (startedCount == 0) {
+            LOG.log(Level.WARNING, "APM 所有 Handler 启动失败,APM 实际不工作");
+        }
     }
 
     /**
      * 停止所有处理器。
+     *
+     * <p>正确顺序:</p>
+     * <ol>
+     *   <li>每个 handler.stop() — 注销 SpyTransformer 拦截规则(防止新事件入队)</li>
+     *   <li>短暂等待(让 in-flight 事件完成落盘)</li>
+     *   <li>StorageManager.shutdown() — 关闭存储</li>
+     * </ol>
      */
-    public void stop() {
+    public synchronized void stop() {
+        if (!started) {
+            return;
+        }
+        // 1. 逆序停止 handler — 注销拦截规则
         for (int i = handlers.size() - 1; i >= 0; i--) {
             Plugin handler = handlers.get(i);
             try {
                 handler.stop();
                 LOG.log(Level.INFO, String.format("APM 处理器[%s] 停止", handler.name()));
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 停止失败", handler.name(), e));
+                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 停止失败", handler.name()), e);
             }
         }
-        StorageManager.shutdown();
+        // 2. 短暂排空 — 让 in-flight 的事件完成 onIntercept 落盘
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        // 3. 最后关闭存储
+        try {
+            StorageManager.shutdown();
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "StorageManager 关闭失败", e);
+        }
         started = false;
     }
 

@@ -8,10 +8,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 插桩运行时入口 — 被 ASM 字节码修改插入到目标方法中。
@@ -66,6 +68,21 @@ public class RuntimeSpy {
     private static final int ID_LENGTH = 16;
 
     /**
+     * 追踪栈最大深度 — 防止 AOP 死循环或意外递归导致栈帧累积到 OOM
+     */
+    private static final int MAX_TRACE_DEPTH = 256;
+
+    /**
+     * 跨线程追踪上下文最大条目数 — 防止海量 key 导致内存爆炸
+     */
+    private static final int MAX_CROSS_THREAD_TRACES = 10_000;
+
+    /**
+     * 跨线程追踪条目 TTL（毫秒） — 防止未配对 restoreByKey 导致内存泄漏
+     */
+    private static final long CROSS_THREAD_TRACE_TTL_MS = 60L * 60 * 1000;
+
+    /**
      * 插桩上下文（仅 ENTRY/EXIT 之间有效）
      */
     private static final ThreadLocal<SpyContext> CONTEXT = new ThreadLocal<>();
@@ -100,9 +117,13 @@ public class RuntimeSpy {
 
     /**
      * 跨线程追踪上下文存储（key 由用户指定）
+     *
+     * <p>为防止恶意/异常的 key 海量构造导致 OOM,使用 {@link BoundedLocalCache} 限制:
+     * 最多 {@value #MAX_CROSS_THREAD_TRACES} 条,默认 TTL {@value #CROSS_THREAD_TRACE_TTL_MS} ms。
+     * 任何 put 操作都强制校验容量上限 + 过期清理。</p>
      */
-    private static final Map<String, List<TraceStackFrame>> CROSS_THREAD_TRACES =
-            new ConcurrentHashMap<>();
+    private static final BoundedLocalCache<String, TraceEnvelope> CROSS_THREAD_TRACES =
+            new BoundedLocalCache<>(MAX_CROSS_THREAD_TRACES, CROSS_THREAD_TRACE_TTL_MS);
 
     /**
      * MDC 键：traceId（与 SLF4J MDC 桥接）
@@ -304,7 +325,15 @@ public class RuntimeSpy {
                 traceId = generateId();
             }
             String spanId = generateId();
-            TRACE_STACK.get().push(new TraceStackFrame(traceId, spanId));
+            // 栈深度保护 — 超过 MAX_TRACE_DEPTH 强制 reset,防止 AOP 死循环或意外递归
+            Deque<TraceStackFrame> stack = TRACE_STACK.get();
+            if (stack.size() >= MAX_TRACE_DEPTH) {
+                LOG.log(Level.WARNING,
+                        String.format("追踪栈深度超限(%d),强制 reset 防止 OOM,class=%s method=%s",
+                                stack.size(), className, methodName));
+                stack.clear();
+            }
+            stack.push(new TraceStackFrame(traceId, spanId));
             CONTEXT.set(new SpyContext(className, methodName, System.currentTimeMillis()));
             // 保存 thisRef — 供 EXIT 阶段读取
             if (thisRef != null) {
@@ -361,10 +390,12 @@ public class RuntimeSpy {
             if (popped != null && LOG.isLoggable(java.util.logging.Level.FINE)) {
                 LOG.log(Level.FINE, String.format("[Trace] exit span=%s traceId=%s", popped.spanId(), popped.traceId()));
             }
-            // 栈空时清 MDC + 清 thisRef（最外层方法退出）
+            // 无条件清理 ENTRY_THIS — 即使栈未空,当前方法的 thisRef 也应被释放
+            // (防 Socket/File 等大对象引用残留,防止线程池复用时脏数据)
+            ENTRY_THIS.remove();
+            // 栈空时清 MDC（最外层方法退出）
             if (TRACE_STACK.get().isEmpty()) {
                 clearMdc();
-                ENTRY_THIS.remove();
             }
         }
 
@@ -427,7 +458,7 @@ public class RuntimeSpy {
     public static TraceContextSnapshot captureAsKey(String key) {
         TraceContextSnapshot snap = capture();
         if (key != null && !key.isEmpty()) {
-            CROSS_THREAD_TRACES.put(key, snap.frames());
+            CROSS_THREAD_TRACES.put(key, new TraceEnvelope(snap.frames(), System.currentTimeMillis()));
         }
         return snap;
     }
@@ -441,15 +472,14 @@ public class RuntimeSpy {
         if (key == null || key.isEmpty()) {
             return;
         }
-        List<TraceStackFrame> frames = CROSS_THREAD_TRACES.get(key);
-        CROSS_THREAD_TRACES.remove(key);
-        if (frames == null || frames.isEmpty()) {
+        TraceEnvelope env = CROSS_THREAD_TRACES.remove(key);
+        if (env == null || env.frames == null || env.frames.isEmpty()) {
             TRACE_STACK.get().clear();
             return;
         }
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
         stack.clear();
-        TraceStackFrame top = frames.get(frames.size() - 1);
+        TraceStackFrame top = env.frames.get(env.frames.size() - 1);
         String traceId = top.traceId();
         stack.push(new TraceStackFrame(traceId, top.spanId()));
     }
@@ -620,15 +650,28 @@ public class RuntimeSpy {
     }
 
     /**
-     * 清除所有拦截器注册。
+     * 清除所有拦截器注册与当前线程 ThreadLocal。
      */
     public static void clear() {
         INTERCEPTOR_MAP.clear();
         CONTEXT.remove();
         ENTRY_THIS.remove();
         TRANSFORM_COUNT.remove();
+        TRACE_STACK.get().clear();
         clearMdc();
         LOG.log(Level.INFO, "RuntimeSpy 已清除");
+    }
+
+    /**
+     * 仅清理当前线程 ThreadLocal — 不影响全局拦截器注册。
+     * 适用于业务线程进入时兜底清理(防止线程池复用导致跨请求脏数据)。
+     */
+    public static void clearThreadLocal() {
+        CONTEXT.remove();
+        ENTRY_THIS.remove();
+        TRACE_STACK.get().clear();
+        TRANSFORM_COUNT.remove();
+        clearMdc();
     }
 
     /**
@@ -789,6 +832,91 @@ public class RuntimeSpy {
             String traceId,
             List<TraceStackFrame> frames
     ) {
+    }
+
+    /**
+     * 跨线程追踪上下文条目 — 携带过期时间戳,支持 TTL 清理。
+     */
+    private static final class TraceEnvelope {
+        final List<TraceStackFrame> frames;
+        final long createdAt;
+
+        TraceEnvelope(List<TraceStackFrame> frames, long createdAt) {
+            this.frames = frames;
+            this.createdAt = createdAt;
+        }
+    }
+
+    /**
+     * 有界本地缓存 — 限制最大条目数 + 自动过期清理。
+     *
+     * <p>替代裸 ConcurrentHashMap,防止恶意/异常 key 海量构造导致 OOM。</p>
+     *
+     * @param <K> 键类型
+     * @param <V> 值类型
+     */
+    private static final class BoundedLocalCache<K, V> {
+        private final Map<K, V> map = new ConcurrentHashMap<>();
+        private final int maxSize;
+        private final long ttlMs;
+        private final AtomicLong lastCleanup = new AtomicLong();
+
+        BoundedLocalCache(int maxSize, long ttlMs) {
+            this.maxSize = maxSize;
+            this.ttlMs = ttlMs;
+        }
+
+        synchronized V put(K key, V value) {
+            // 容量超限：移除最旧的 10%
+            if (map.size() >= maxSize) {
+                int evict = Math.max(1, map.size() / 10);
+                Iterator<Map.Entry<K, V>> it = map.entrySet().iterator();
+                while (it.hasNext() && evict > 0) {
+                    it.next();
+                    it.remove();
+                    evict--;
+                }
+            }
+            return map.put(key, value);
+        }
+
+        synchronized V get(K key) {
+            // 每 60s 触发一次过期清理
+            long now = System.currentTimeMillis();
+            if (now - lastCleanup.get() > 60_000L) {
+                cleanup(now);
+                lastCleanup.set(now);
+            }
+            V v = map.get(key);
+            if (v instanceof TraceEnvelope) {
+                if (now - ((TraceEnvelope) v).createdAt > ttlMs) {
+                    map.remove(key);
+                    return null;
+                }
+            }
+            return v;
+        }
+
+        synchronized V remove(K key) {
+            return map.remove(key);
+        }
+
+        synchronized void clear() {
+            map.clear();
+        }
+
+        synchronized int size() {
+            return map.size();
+        }
+
+        private void cleanup(long now) {
+            map.entrySet().removeIf(e -> {
+                if (e.getValue() instanceof TraceEnvelope) {
+                    return now - ((TraceEnvelope) e.getValue()).createdAt > ttlMs;
+                }
+                return false;
+            });
+        }
     }
 
     /**

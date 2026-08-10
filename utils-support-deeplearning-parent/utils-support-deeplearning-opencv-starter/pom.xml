@@ -28,6 +28,14 @@
             <artifactId>opencv</artifactId>
             <version>4.9.0-0</version>
         </dependency>
+        <!-- OpenCV Haar/LBP 级联模型资源（人脸/眼睛/微笑/全身/侧脸等）。
+             使用 provided：编译期可见，不传递到下游，调用方运行时需显式引入 utils-support-opencv-cascades。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-opencv-cascades</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

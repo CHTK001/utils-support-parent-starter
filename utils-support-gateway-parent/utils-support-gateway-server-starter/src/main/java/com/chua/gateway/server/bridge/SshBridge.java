@@ -6,6 +6,11 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Objects;
+
 /**
  * SSH 协议桥接器（主进程内，JSCH）。
  *
@@ -95,5 +100,27 @@ public class SshBridge implements RemoteBridge {
      */
     public ChannelShell channel() {
         return channel;
+    }
+
+    @Override
+    public void writeToRemote(byte[] bytes) throws IOException {
+        Objects.requireNonNull(channel, "SSH shell 通道未开启");
+        OutputStream out = channel.getOutputStream();
+        out.write(bytes);
+        out.flush();
+    }
+
+    @Override
+    public byte[] readFromRemote() throws IOException {
+        Objects.requireNonNull(channel, "SSH shell 通道未开启");
+        InputStream in = channel.getInputStream();
+        byte[] buf = new byte[65536];
+        int n = in.read(buf);
+        if (n <= 0) {
+            throw new IOException("SSH 服务器关闭连接");
+        }
+        byte[] out = new byte[n];
+        System.arraycopy(buf, 0, out, 0, n);
+        return out;
     }
 }

@@ -144,7 +144,7 @@ public final class WsEndpointHandler {
             return;
         }
         try {
-            bridge.writeToVncServer(payload);
+            bridge.writeToRemote(payload);
             pumpVncToClient(bridge, session);
         } catch (IOException e) {
             log.warn("[gateway-server] VNC 写失败: {}", e.getMessage());
@@ -163,10 +163,7 @@ public final class WsEndpointHandler {
      */
     private void pumpVncToClient(NoVncBridge bridge, ActiveSession session) {
         try {
-            byte[] read = bridge.readFromVncServer();
-            // 实际写回客户端由 common-starter Server / ServerResponse 完成
-            // 由于 common-starter 的 WS API 是内部依赖，此处空实现
-            // 完整实现在 Phase C（前端直接 raw socket 或升级到 Netty）
+            byte[] read = bridge.readFromRemote();
             log.debug("[gateway-server] VNC → 客户端: {} bytes (占位)", read.length);
         } catch (IOException e) {
             log.debug("[gateway-server] VNC 读结束: sessionId={} err={}", session.sessionId, e.getMessage());

@@ -82,7 +82,8 @@ public class NoVncBridge implements RemoteBridge {
      * @param bytes WebSocket 解码后的二进制帧
      * @throws IOException 写入失败
      */
-    public void writeToVncServer(byte[] bytes) throws IOException {
+    @Override
+    public void writeToRemote(byte[] bytes) throws IOException {
         Objects.requireNonNull(socket, "VNC socket 未连接");
         OutputStream out = socket.getOutputStream();
         out.write(bytes);
@@ -95,7 +96,8 @@ public class NoVncBridge implements RemoteBridge {
      * @return 读取到的字节
      * @throws IOException 读取失败
      */
-    public byte[] readFromVncServer() throws IOException {
+    @Override
+    public byte[] readFromRemote() throws IOException {
         Objects.requireNonNull(socket, "VNC socket 未连接");
         InputStream in = socket.getInputStream();
         byte[] buf = new byte[65536];

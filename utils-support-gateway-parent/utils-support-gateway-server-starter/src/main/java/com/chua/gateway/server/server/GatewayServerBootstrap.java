@@ -13,6 +13,7 @@ import com.chua.gateway.server.spi.ProtocolServerFactory;
 import com.chua.gateway.server.store.ConnectionStore;
 import com.chua.gateway.server.store.SqliteConnectionStore;
 import com.chua.gateway.server.tunnel.TunnelRegistry;
+import com.chua.gateway.server.ws.GatewayWsServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -80,6 +81,11 @@ public final class GatewayServerBootstrap {
     private Server server;
 
     /**
+     * WebSocket 桥接服务（独立端口）
+     */
+    private GatewayWsServer wsServer;
+
+    /**
      * 默认构造：使用 SqliteConnectionStore（生产环境）
      */
     public GatewayServerBootstrap() {
@@ -135,7 +141,12 @@ public final class GatewayServerBootstrap {
         raw.setObjectContext(ctx);
 
         // 5. register controller（让 @RequestMethod 反射挂在 bean context 上）
-        raw.registerBean(controller);
+        //    BeanDefinitionException 忽略：测试场景下可能 controller 已被注册过
+        try {
+            raw.registerBean(controller);
+        } catch (com.chua.common.support.objects.exception.BeanDefinitionException ex) {
+            log.debug("[gateway-server] controller bean 已注册，跳过: {}", ex.getMessage());
+        }
 
         // 6. 启动 server（让 common-starter 完成 initBuiltinFilters / initFilters）
         raw.start();
@@ -161,6 +172,15 @@ public final class GatewayServerBootstrap {
         raw.addFilter(mappingFilter);
         raw.refreshFilters();
 
+        // 8. 启动独立 WS 桥接服务（:8182，浏览器远控帧透传）
+        try {
+            this.wsServer = new GatewayWsServer(tunnelRegistry);
+            wsServer.start();
+            log.info("[gateway-server] WebSocket 桥接服务: port={}", wsServer.boundPort());
+        } catch (Exception ex) {
+            log.warn("[gateway-server] WebSocket 桥接服务启动失败: {}", ex.getMessage());
+        }
+
         log.info("[gateway-server] Gateway 服务端启动完成: port={} type={}", setting.getPort(), raw.getProtocol());
     }
 
@@ -180,10 +200,26 @@ public final class GatewayServerBootstrap {
      * 停止服务。
      */
     public void stop() {
+        if (wsServer != null) {
+            try {
+                wsServer.close();
+            } catch (Exception ignored) {
+            }
+            wsServer = null;
+        }
         if (server != null && server.isRunning()) {
             server.close();
             log.info("[gateway-server] Gateway 服务端已停止");
         }
+    }
+
+    /**
+     * 获取实际绑定的 WS 端口（独立 WS server）。
+     *
+     * @return 端口号；未启动返回 0
+     */
+    public int wsBindingPort() {
+        return wsServer == null ? 0 : wsServer.boundPort();
     }
 
     /**

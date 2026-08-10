@@ -90,17 +90,11 @@ public final class TunnelRegistry {
     public String open(Connection connection, String tunnelId) throws Exception {
         ProtocolServerFactory factory = findFactory(connection.protocol())
                 .orElseThrow(() -> new IllegalStateException("协议未注册: " + connection.protocol()));
-        try {
-            GatewayTunnel tunnel = factory.createTunnel(connection, tunnelId);
-            tunnels.put(tunnelId, tunnel);
-            log.info("[gateway-server] Tunnel 已注册: id={} protocol={}", tunnelId, connection.protocol());
-        } catch (Exception e) {
-            // 目标不可达时仍注册隧道（记录连接信息），由 WS 桥接再建立连接
-            GatewayTunnel stub = GatewayTunnel.of(tunnelId, connection, null);
-            tunnels.put(tunnelId, stub);
-            log.warn("[gateway-server] Tunnel 暂存（目标未连接）: id={} protocol={} err={}",
-                    tunnelId, connection.protocol(), e.getMessage());
-        }
+        // 直接抛异常给 controller（authenticate 失败返回 401）
+        // 不再做 stub 兜底 — bridge 必须能连接，否则该 tunnel 不可用
+        GatewayTunnel tunnel = factory.createTunnel(connection, tunnelId);
+        tunnels.put(tunnelId, tunnel);
+        log.info("[gateway-server] Tunnel 已注册: id={} protocol={}", tunnelId, connection.protocol());
         return tunnelId;
     }
 
