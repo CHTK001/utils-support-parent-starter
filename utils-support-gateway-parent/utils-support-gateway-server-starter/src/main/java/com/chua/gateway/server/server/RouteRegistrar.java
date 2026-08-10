@@ -85,6 +85,25 @@ final class RouteRegistrar {
                 writeError(resp, 500, e.getMessage());
             }
         });
+
+        // POST /api/connections/disconnect
+        java.util.function.BiConsumer<ServerRequest, ServerResponse> disconnectHandler = (req, resp) -> {
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, String> body = JSON.readValue(req.getBody(), Map.class);
+                String tunnelId = body.get("tunnelId");
+                if (tunnelId == null || tunnelId.isBlank()) {
+                    writeError(resp, 400, "tunnelId required");
+                    return;
+                }
+                registry.close(tunnelId);
+                log.info("[gateway-server] 客户端断开: tunnelId={}", tunnelId);
+                writeOk(resp, Map.of("closed", tunnelId));
+            } catch (Exception e) {
+                writeError(resp, 500, e.getMessage());
+            }
+        };
+        filter.route("/api/connections/disconnect", HttpMethod.POST, disconnectHandler);
     }
 
     /**
