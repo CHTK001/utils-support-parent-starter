@@ -11,10 +11,10 @@
     </parent>
 <artifactId>utils-support-deeplearning-onnx-starter</artifactId>
   <name>Utils Support Deep Learning ONNX Starter</name>
-  <description>ONNX 鎺ㄧ悊寮曟搸妯″潡锛歒OLO 妫€娴嬨€佸浘鍍忓垎绫荤瓑妯″瀷鎺ㄧ悊</description>
+  <description>ONNX 推理引擎模块：YOLO 检测、图像分类等模型推理</description>
   <build>
     <plugins>
-      
+
     </plugins>
   </build>
   <dependencies>
@@ -27,38 +27,55 @@
             <artifactId>utils-support-deeplearning-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- FacePlugin ONNX 模型资源（detect / landmark / feature），模型权重随 jar 一起分发。
-             使用 provided：编译期可见（translators 引用其 classpath 路径），但不会传递到下游，
-             调用方需要在运行时显式引入对应 model 模块。 -->
+        <!-- 离线 ONNX 模型包 - 通过 models-parent (utils-support-models-onnx-*) 加载 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-faceplugin-detect</artifactId>
+            <artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-faceplugin-landmark</artifactId>
+            <artifactId>utils-support-models-onnx-paddleocrv6-medium</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-faceplugin-feature</artifactId>
+            <artifactId>utils-support-models-onnx-whisper</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- MiniMind 内置 ONNX 模型资源（model.onnx + tokenizer.json 等）。
-             使用 provided：编译期可见，不传递到下游，调用方运行时需显式引入 utils-support-minimind-onnx。 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-minimind-onnx</artifactId>
+            <artifactId>utils-support-models-onnx-yolov5-plate</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- MiniMind 鍐呯疆 ONNX 妯″瀷璧勬簮锛坢odel.onnx + tokenizer.json锛夊凡闅?utils-support-minimind-onnx
-             妯″潡涓嬬嚎锛涙ā鍨嬭祫婧愭敼涓轰粠 classpath 涓?models/minimind/ 鐩綍鍔ㄦ€佸姞杞斤紝
-             鏈墦鍖呮ā鍨嬭祫婧愭椂浠呰緭鍑?debug 鏃ュ織锛屼笉褰卞搷缂栬瘧銆?-->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-card-correction</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-efficientnet</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-fer</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-minilm</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.microsoft.onnxruntime</groupId>
             <artifactId>onnxruntime</artifactId>
@@ -94,7 +111,7 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- 娴嬭瘯鐢?SLF4J 瀹炵幇 -->
+        <!-- 测试用 SLF4J 实现 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
