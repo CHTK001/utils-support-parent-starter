@@ -3,7 +3,7 @@ package com.chua.common.support.lang.document;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * 文档生成配置。

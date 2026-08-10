@@ -3,7 +3,8 @@ package com.chua.common.support.lang.document;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 文档生成结果数据。

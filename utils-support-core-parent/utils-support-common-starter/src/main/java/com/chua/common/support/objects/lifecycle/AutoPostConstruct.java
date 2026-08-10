@@ -1,6 +1,10 @@
 package com.chua.common.support.objects.lifecycle;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * PostConstruct 注解，标记初始化方法。

@@ -87,9 +87,7 @@ final class RouteRegistrar {
         });
 
         // POST /api/connections/disconnect
-        filter.route("/api/connections/disconnect", HttpMethod.POST,
-                (com.chua.common.support.network.server.request.ServerRequest req,
-                 com.chua.common.support.network.server.response.ServerResponse resp) -> {
+        java.util.function.BiConsumer<ServerRequest, ServerResponse> disconnectHandler = (req, resp) -> {
             try {
                 @SuppressWarnings("unchecked")
                 Map<String, String> body = JSON.readValue(req.getBody(), Map.class);
@@ -104,7 +102,8 @@ final class RouteRegistrar {
             } catch (Exception e) {
                 writeError(resp, 500, e.getMessage());
             }
-        });
+        };
+        filter.route("/api/connections/disconnect", HttpMethod.POST, disconnectHandler);
     }
 
     /**

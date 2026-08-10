@@ -2,7 +2,8 @@ package com.chua.common.support.lang.cmd;
 
 import com.chua.common.support.spi.ServiceProvider;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 命令执行工具门面类，提供便捷的命令执行入口。
