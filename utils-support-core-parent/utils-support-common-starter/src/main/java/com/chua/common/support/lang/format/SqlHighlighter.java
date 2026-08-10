@@ -1,6 +1,10 @@
 package com.chua.common.support.lang.format;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * SQL关键词高亮工具类。

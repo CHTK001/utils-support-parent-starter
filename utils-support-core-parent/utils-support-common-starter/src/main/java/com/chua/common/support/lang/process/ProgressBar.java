@@ -1,8 +1,18 @@
 package com.chua.common.support.lang.process;
 
-import com.chua.common.support.lang.process.wrapped.*;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedInputStream;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedIterable;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedIterator;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedOutputStream;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedReader;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedSpliterator;
+import com.chua.common.support.lang.process.wrapped.ProgressBarWrappedWriter;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
