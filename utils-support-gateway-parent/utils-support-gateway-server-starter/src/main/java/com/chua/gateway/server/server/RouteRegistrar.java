@@ -87,7 +87,9 @@ final class RouteRegistrar {
         });
 
         // POST /api/connections/disconnect
-        filter.route("/api/connections/disconnect", HttpMethod.POST, (req, resp) -> {
+        filter.route("/api/connections/disconnect", HttpMethod.POST,
+                (com.chua.common.support.network.server.request.ServerRequest req,
+                 com.chua.common.support.network.server.response.ServerResponse resp) -> {
             try {
                 @SuppressWarnings("unchecked")
                 Map<String, String> body = JSON.readValue(req.getBody(), Map.class);

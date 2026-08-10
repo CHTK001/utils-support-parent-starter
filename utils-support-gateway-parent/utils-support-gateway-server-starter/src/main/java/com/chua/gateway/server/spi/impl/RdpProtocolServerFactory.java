@@ -30,11 +30,6 @@ public final class RdpProtocolServerFactory implements ProtocolServerFactory {
      */
     private static final String PROTOCOL_RDP = "rdp";
 
-    /**
-     * guacd 默认主机（本机子进程）
-     */
-    private static final String GUACD_HOST = "127.0.0.1";
-
     @Override
     public String protocol() {
         return PROTOCOL_RDP;
@@ -42,12 +37,13 @@ public final class RdpProtocolServerFactory implements ProtocolServerFactory {
 
     @Override
     public GatewayTunnel createTunnel(Connection connection, String tunnelId) throws Exception {
+        String host = GatewayProperties.guacdHost();
         int port = GatewayProperties.guacdPort();
-        GuacamoleBridge bridge = new GuacamoleBridge(connection, GUACD_HOST, port);
+        GuacamoleBridge bridge = new GuacamoleBridge(connection, host, port);
         GatewayTunnel tunnel = GatewayTunnel.of(tunnelId, connection, bridge);
         tunnel.open();
         log.info("[gateway-server] RDP Tunnel 创建: id={} guacd={}:{} target={}:{}",
-                tunnelId, GUACD_HOST, port, connection.host(), connection.port());
+                tunnelId, host, port, connection.host(), connection.port());
         return tunnel;
     }
 }
