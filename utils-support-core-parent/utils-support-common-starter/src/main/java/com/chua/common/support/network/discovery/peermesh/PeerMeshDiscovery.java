@@ -24,7 +24,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -583,7 +585,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                 path = addClusterPrefix("/");
             }
             removeFromCache(path, sid);
-            addToCache(path, d);
+            addToCache(path, resolveServiceInstance(sid, d));
         }
 
         if (isNew && membershipPropagation != null) {
@@ -592,6 +594,38 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                 membershipPropagation.pushNewPeer(updated);
             }
         }
+    }
+
+    /**
+     * 将远程节点的 discovery 解析为服务实例：若条目通过 metadata 携带了
+     * 服务真实地址（svcHost/svcPort），则用其构造服务实例，保证各节点
+     * 看到的服务实例地址与注册节点本地一致；否则回退使用条目自身地址。
+     *
+     * @param sid 节点 serverId
+     * @param d   远程节点条目
+     * @return 服务实例 discovery
+     */
+    private Discovery resolveServiceInstance(String sid, Discovery d) {
+        Map<String, String> meta = d.getMetadata();
+        if (meta != null && meta.containsKey("svcHost") && meta.containsKey("svcPort")) {
+            try {
+                return Discovery.builder()
+                        .id(d.getId())
+                        .serverId(sid)
+                        .protocol(d.getProtocol())
+                        .timeout(d.getTimeout())
+                        .weight(d.getWeight())
+                        .host(meta.get("svcHost"))
+                        .port(Integer.parseInt(meta.get("svcPort")))
+                        .uriSpec(d.getUriSpec())
+                        .metadata(meta)
+                        .env(d.getEnv())
+                        .build();
+            } catch (NumberFormatException ignored) {
+                // 端口非法时回退条目自身地址
+            }
+        }
+        return d;
     }
 
     // ======================== 对外发送 ========================
@@ -699,10 +733,15 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         incrementServiceVersion();
         if (serverId.equals(discovery.getServerId())) {
             // 本地服务挂在 self 名下：保留 self 的通信地址（host/port/protocol），
-            // 仅更新 uriSpec 指向服务路径，避免覆盖导致心跳目标失效。
+            // 仅更新 uriSpec 指向服务路径，并将服务真实地址写入 metadata，
+            // 供其他节点解析出与本地一致的服务实例地址。
             NodeTable.NodeEntry existing = nodeTable.get(serverId);
             if (existing != null && existing.getDiscovery() != null) {
                 Discovery base = existing.getDiscovery();
+                Map<String, String> meta = discovery.getMetadata() != null
+                        ? new HashMap<>(discovery.getMetadata()) : new HashMap<>();
+                meta.put("svcHost", discovery.getHost());
+                meta.put("svcPort", String.valueOf(discovery.getPort()));
                 Discovery merged = Discovery.builder()
                         .id(base.getId())
                         .serverId(serverId)
@@ -712,7 +751,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                         .host(base.getHost())
                         .port(base.getPort())
                         .uriSpec(prefixed)
-                        .metadata(discovery.getMetadata())
+                        .metadata(meta)
                         .env(base.getEnv())
                         .build();
                 nodeTable.upsert(serverId, merged, existing.getEpoch(), System.currentTimeMillis());
