@@ -63,8 +63,10 @@ public interface CircularSet<E> extends Set<E> {
 
     /**
      * 返回最近一次因容量满而被淘汰的元素。
+     * <p>仅在最近一次 {@link #add(Object)} 真正触发淘汰时返回被淘汰元素；
+     * 若该次 add 未触发淘汰，则返回 null。适用于调用方判断"本次 add 是否淘汰了元素"。</p>
      *
-     * @return 最近被淘汰的元素，无淘汰记录时返回 null
+     * @return 最近被淘汰的元素，本次 add 未触发淘汰时返回 null
      */
     E lastEvicted();
 }
