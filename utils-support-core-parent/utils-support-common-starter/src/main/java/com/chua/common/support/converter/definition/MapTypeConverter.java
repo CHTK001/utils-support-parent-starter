@@ -3,9 +3,20 @@ package com.chua.common.support.converter.definition;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.MapUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import static com.chua.common.support.constant.CommonConstant.*;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_COLON;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_EQUALS;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_BIG_PARENTHESES;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_BIG_PARENTHESES;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SQUARE_BRACKET;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

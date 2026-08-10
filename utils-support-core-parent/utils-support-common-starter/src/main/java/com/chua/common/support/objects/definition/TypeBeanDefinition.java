@@ -14,7 +14,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 类型 Bean 定义，统一处理单例和原型作用域。

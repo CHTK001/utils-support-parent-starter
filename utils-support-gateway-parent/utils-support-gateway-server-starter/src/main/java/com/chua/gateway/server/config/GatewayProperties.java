@@ -180,6 +180,15 @@ public final class GatewayProperties {
     }
 
     /**
+     * guacd 子进程主机（默认 127.0.0.1，可配置为远程 guacd 地址）
+     *
+     * @return 主机地址
+     */
+    public static String guacdHost() {
+        return PROPS.getProperty("gateway.guacd.host", "127.0.0.1");
+    }
+
+    /**
      * guacd 子进程端口。
      *
      * @return 端口号

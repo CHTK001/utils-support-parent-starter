@@ -5,9 +5,14 @@ import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import static com.chua.common.support.constant.CommonConstant.*;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET;
+import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SQUARE_BRACKET;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
