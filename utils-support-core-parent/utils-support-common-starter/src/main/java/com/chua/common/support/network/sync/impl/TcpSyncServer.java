@@ -57,6 +57,13 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     private Thread acceptThread;
 
     /**
+     * 创建 TCP 同步服务端 (默认配置)。
+     */
+    public TcpSyncServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * 创建 TCP 同步服务端。
      *
      * @param setting 服务端配置
@@ -264,6 +271,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                 clientId = payload;
                 metadata.put("clientId", payload);
                 clients.put(payload, this);
+                write("registered:" + payload);
                 notifyListener(l -> l.onClientConnected(payload, metadata));
             } else {
                 notifyListener(l -> l.onMessage(clientId, topic, payload));

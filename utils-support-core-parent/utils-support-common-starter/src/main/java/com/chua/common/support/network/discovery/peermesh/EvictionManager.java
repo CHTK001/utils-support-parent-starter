@@ -17,6 +17,7 @@ public class EvictionManager {
 
     private final MeshConfig config;
     private final NodeTable nodeTable;
+    private final String localServerId;
     private final PeerMeshDiscovery discovery;
 
     /**
@@ -24,11 +25,14 @@ public class EvictionManager {
      *
      * @param config 配置
      * @param nodeTable 节点表
+     * @param localServerId 本地 serverId（剔除时排除自身）
      * @param discovery PeerMeshDiscovery 实例
      */
-    public EvictionManager(MeshConfig config, NodeTable nodeTable, PeerMeshDiscovery discovery) {
+    public EvictionManager(MeshConfig config, NodeTable nodeTable, String localServerId,
+                           PeerMeshDiscovery discovery) {
         this.config = config;
         this.nodeTable = nodeTable;
+        this.localServerId = localServerId;
         this.discovery = discovery;
     }
 
@@ -40,6 +44,9 @@ public class EvictionManager {
         long timeoutMs = config.getEvictTimeout() * 1000L;
         List<String> toRemove = new ArrayList<>();
         for (Map.Entry<String, NodeTable.NodeEntry> entry : nodeTable.getAllEntries().entrySet()) {
+            if (localServerId.equals(entry.getKey())) {
+                continue;
+            }
             if (now - entry.getValue().getLastSeen() > timeoutMs) {
                 toRemove.add(entry.getKey());
             }

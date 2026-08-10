@@ -9,6 +9,7 @@ import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -57,6 +58,13 @@ public class NettyUdpSyncServer extends com.chua.common.support.network.server.A
      * 服务端 Channel
      */
     private Channel channel;
+
+    /**
+     * 创建 Netty UDP 同步服务端 (默认配置)。
+     */
+    public NettyUdpSyncServer() {
+        this(ServerSetting.defaults());
+    }
 
     /**
      * 创建 Netty UDP 同步服务端。

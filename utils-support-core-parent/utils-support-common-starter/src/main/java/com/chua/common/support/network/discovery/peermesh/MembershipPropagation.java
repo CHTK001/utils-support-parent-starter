@@ -20,6 +20,10 @@ public class MembershipPropagation {
     private final NodeTable nodeTable;
     private final String localServerId;
     private final PeerMeshDiscovery discovery;
+    /**
+     * 是否为 UDP 通信模式
+     */
+    private final boolean udp;
 
     /**
      * 构造函数。
@@ -35,6 +39,7 @@ public class MembershipPropagation {
         this.nodeTable = nodeTable;
         this.localServerId = localServerId;
         this.discovery = discovery;
+        this.udp = "udp".equalsIgnoreCase(config.getMode());
     }
 
     /**
@@ -49,7 +54,11 @@ public class MembershipPropagation {
                 continue;
             }
             try {
-                discovery.sendMessage(entry.getDiscovery(), msg, true);
+                if (udp) {
+                    discovery.sendUdpMessage(entry.getDiscovery(), msg);
+                } else {
+                    discovery.sendMessage(entry.getDiscovery(), msg, true);
+                }
             } catch (Exception e) {
                 log.debug("心跳发送失败至 {}: {}", entry.getDiscovery().getServerId(), e.getMessage());
             }
@@ -72,7 +81,11 @@ public class MembershipPropagation {
                 continue;
             }
             try {
-                discovery.sendMessage(entry.getDiscovery(), msg);
+                if (udp) {
+                    discovery.sendUdpMessage(entry.getDiscovery(), msg);
+                } else {
+                    discovery.sendMessage(entry.getDiscovery(), msg);
+                }
             } catch (Exception e) {
                 log.debug("NEW_PEER 推送失败: {}", e.getMessage());
             }

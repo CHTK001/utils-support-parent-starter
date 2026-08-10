@@ -137,7 +137,10 @@ public final class GatewayServerBootstrap {
         // 5. register controller（让 @RequestMethod 反射挂在 bean context 上）
         raw.registerBean(controller);
 
-        // 6. 注册自定义 UrlMappingFilter 和路由
+        // 6. 启动 server（让 common-starter 完成 initBuiltinFilters / initFilters）
+        raw.start();
+
+        // 7. 注册自定义 UrlMappingFilter 和路由（必须在 start() 之后，避免 initFilters 把旧 filter 重新拉回来）
         GatewayUrlMappingFilter mappingFilter = new GatewayUrlMappingFilter();
         RouteRegistrar.register(mappingFilter, connectionStore, protocolScanner, tunnelRegistry);
         log.info("[gateway-server] 路由已注册: count={}", mappingFilter.routeCount());
@@ -151,14 +154,13 @@ public final class GatewayServerBootstrap {
             if (oldFilter != null && oldFilter instanceof ServerFilter) {
                 raw.removeFilter((ServerFilter) oldFilter);
             }
+            f.set(raw, mappingFilter);
         } catch (Exception ex) {
             log.warn("[gateway-server] 移除旧 urlMappingFilter 失败: {}", ex.getMessage());
         }
         raw.addFilter(mappingFilter);
         raw.refreshFilters();
 
-        // 7. 启动 server
-        raw.start();
         log.info("[gateway-server] Gateway 服务端启动完成: port={} type={}", setting.getPort(), raw.getProtocol());
     }
 

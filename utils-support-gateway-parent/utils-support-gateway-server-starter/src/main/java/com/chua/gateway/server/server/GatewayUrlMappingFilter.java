@@ -1,11 +1,11 @@
 package com.chua.gateway.server.server;
 
-import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.http.HttpMethod;
-import com.chua.common.support.network.server.filter.EndServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
+import com.chua.common.support.network.server.filter.UrlMappingServerFilter;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.objects.DefaultObjectContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Slf4j
-public final class GatewayUrlMappingFilter implements EndServerFilter {
+public final class GatewayUrlMappingFilter extends UrlMappingServerFilter {
 
     /**
      * 路由表：path -> method -> handler
@@ -101,16 +101,6 @@ public final class GatewayUrlMappingFilter implements EndServerFilter {
     public int getOrder() {
         // 高优先级（在大多数业务 filter 之前）
         return Integer.MAX_VALUE - 1000;
-    }
-
-    @Override
-    public String getFilterId() {
-        return "GatewayUrlMappingFilter";
-    }
-
-    @Override
-    public ProtocolType[] supportProtocols() {
-        return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     /**

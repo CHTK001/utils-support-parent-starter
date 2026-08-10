@@ -62,6 +62,10 @@ public class BootstrapProbe {
      * @return ProbeStrategy 实例
      */
     private ProbeStrategy createStrategy() {
+        // UDP 模式统一使用 UDP 广播探针
+        if ("udp".equalsIgnoreCase(config.getMode())) {
+            return new UdpModeProbe(config, localServerId);
+        }
         String discovery = config.getDiscovery();
         if (discovery == null || discovery.isBlank()) {
             discovery = "c-seed";

@@ -355,3 +355,5 @@ public class HttpSyncClient implements SyncClient {
         }
     }
 }
+
+// TcpSyncClientTestMark
