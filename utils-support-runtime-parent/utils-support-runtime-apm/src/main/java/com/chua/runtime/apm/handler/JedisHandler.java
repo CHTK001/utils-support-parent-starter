@@ -59,12 +59,12 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private static final int MAX_RECORDS = 5000;
 
-    private final List<TransmissionRecord> records;
+    private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
     private boolean enabled;
     private final AtomicBoolean started;
 
     public JedisHandler() {
-        this.records = Collections.synchronizedList(new ArrayList<>());
+        this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
@@ -242,9 +242,6 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     private void addAndEmit(TransmissionRecord record, boolean isError) {
-        if (records.size() >= MAX_RECORDS) {
-            records.remove(0);
-        }
         records.add(record);
         try {
             com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
@@ -360,6 +357,6 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     public List<TransmissionRecord> getRecords() {
-        return Collections.unmodifiableList(records);
+        return records.snapshot();
     }
 }

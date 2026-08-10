@@ -107,7 +107,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 收集的日志记录
      */
-    private final List<LogEntry> logEntries;
+    private final BoundedRecordList<LogEntry> logEntries;
 
     /**
      * 最大日志数量
@@ -140,7 +140,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     private PluginContext context;
 
     public LogHandler() {
-        this.logEntries = Collections.synchronizedList(new ArrayList<>());
+        this.logEntries = new com.chua.runtime.apm.handler.BoundedRecordList<>(MAX_LOGS);
         this.streamsHijacked = new AtomicBoolean(false);
     }
 
@@ -382,9 +382,6 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      * @param entry 日志条目
      */
     public void addLogEntry(LogEntry entry) {
-        if (logEntries.size() >= MAX_LOGS) {
-            logEntries.remove(0);
-        }
         logEntries.add(entry);
         // 持久化：日志事件
         try {
@@ -409,7 +406,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 日志记录列表
      */
     public List<LogEntry> getLogEntries() {
-        return Collections.unmodifiableList(logEntries);
+        return logEntries.snapshot();
     }
 
     /**
@@ -419,11 +416,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 日志记录列表
      */
     public List<LogEntry> tail(int n) {
-        int size = logEntries.size();
-        if (n >= size) {
-            return getLogEntries();
-        }
-        return new ArrayList<>(logEntries.subList(size - n, size));
+        return logEntries.tail(n);
     }
 
     /**
@@ -435,7 +428,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     public List<LogEntry> search(String keyword) {
         List<LogEntry> result = new ArrayList<>();
         String kw = keyword.toLowerCase();
-        for (LogEntry entry : logEntries) {
+        for (LogEntry entry : logEntries.iterator()) {
             if (entry.getMessage() != null && entry.getMessage().toLowerCase().contains(kw)) {
                 result.add(entry);
             }
@@ -452,7 +445,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     public List<LogEntry> filterByLevel(String level) {
         List<LogEntry> result = new ArrayList<>();
         String lv = level.toUpperCase();
-        for (LogEntry entry : logEntries) {
+        for (LogEntry entry : logEntries.iterator()) {
             if (entry.getLevel() != null && entry.getLevel().equals(lv)) {
                 result.add(entry);
             }

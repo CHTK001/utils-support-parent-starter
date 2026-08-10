@@ -58,7 +58,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 网络记录列表
      */
-    private final List<NetRecord> records;
+    private final BoundedRecordList<NetRecord> records;
 
     /**
      * 最大记录数
@@ -81,7 +81,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     private final AtomicBoolean started;
 
     public NetHandler() {
-        this.records = Collections.synchronizedList(new ArrayList<>());
+        this.records = new BoundedRecordList<>(MAX_RECORDS);
         this.started = new AtomicBoolean(false);
     }
 

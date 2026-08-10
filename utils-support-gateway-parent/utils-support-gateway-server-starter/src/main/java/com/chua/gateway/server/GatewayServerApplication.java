@@ -1,9 +1,9 @@
 package com.chua.gateway.server;
 
 import com.chua.gateway.server.artifact.GatewayArtifact;
+import com.chua.gateway.server.artifact.GuacdArtifact;
 import com.chua.gateway.server.config.GatewayProperties;
 import com.chua.gateway.server.server.GatewayServerBootstrap;
-import com.chua.gateway.server.server.WsBridgeServer;
 import com.chua.runtime.starter.RuntimeBoot;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
  *
  * <p>启动流程：</p>
  * <ol>
- *   <li>{@link RuntimeBoot#install()} 安装 GatewayArtifact（仅注册，不下载）</li>
- *   <li>{@link GatewayServerBootstrap#start()} 启动 HTTP server（含 WS 端点）</li>
+ *   <li>{@link RuntimeBoot#install()} 安装 GatewayArtifact + GuacdArtifact（仅注册）</li>
+ *   <li>{@link GatewayServerBootstrap#start()} 启动 HTTP server + 独立 WS (:8182)</li>
  * </ol>
  *
  * <p>控制端在左侧 {@code ConnectionForm} 输入 key 或 custom (protocol/host/port/user/pass)，
@@ -49,36 +49,28 @@ public final class GatewayServerApplication {
         log.info("[gateway-server] ===========================================");
         log.info("[gateway-server] Gateway Server 启动中");
         log.info("[gateway-server] HTTP 端口: {}", GatewayProperties.httpPort());
+        log.info("[gateway-server] WS 端口: {}", GatewayProperties.wsPort());
+        log.info("[gateway-server] guacd 端口: {}", GatewayProperties.guacdPort());
         log.info("[gateway-server] artifact 目录: {}", GatewayProperties.artifactDir());
         log.info("[gateway-server] local-override: {}", GatewayProperties.localOverrideDir());
         log.info("[gateway-server] ===========================================");
 
-        // 1. RuntimeBoot 安装 GatewayArtifact（仅注册，不下载）
+        // 1. RuntimeBoot 安装 GatewayArtifact + GuacdArtifact（仅注册，不下载）
+        //    GuacdArtifact 让 RuntimeBoot 知道 guacd 是可选依赖；用户可手动下载到 local-override
         RuntimeBoot.create()
                 .withArtifact(GatewayArtifact.create())
+                .withArtifact(GuacdArtifact.createDefault())
                 .install();
         log.info("[gateway-server] RuntimeBoot install 完成");
 
-        // 2. 启动 HTTP server
+        // 2. 启动 HTTP server（同时启动独立 WS 桥接 :8182）
         GatewayServerBootstrap bootstrap = new GatewayServerBootstrap();
         bootstrap.start();
-        log.info("[gateway-server] HTTP 服务已监听: http://{}:{}", "0.0.0.0", GatewayProperties.httpPort());
+        log.info("[gateway-server] Gateway 已就绪: http://0.0.0.0:{}, ws=0.0.0.0:{}",
+                GatewayProperties.httpPort(), bootstrap.wsBindingPort());
 
-        // 3. 启动 WS 桥接服务器（端口 8091，独立于 common-starter）
-        var wsBridge = new WsBridgeServer(bootstrap.tunnelRegistry());
-        try {
-            wsBridge.start();
-            log.info("[gateway-server] WS 桥接服务器已启动: port=8091");
-        } catch (Exception e) {
-            log.warn("[gateway-server] WS 桥接服务器启动失败: {}", e.getMessage());
-        }
-
-        // 4. shutdown hook
-        var ws = wsBridge;
+        // 3. shutdown hook
         Runtime.getRuntime().addShutdownHook(
-                new Thread(() -> {
-                    ws.stop();
-                    bootstrap.stop();
-                }, SHUTDOWN_HOOK_NAME));
+                new Thread(bootstrap::stop, SHUTDOWN_HOOK_NAME));
     }
 }

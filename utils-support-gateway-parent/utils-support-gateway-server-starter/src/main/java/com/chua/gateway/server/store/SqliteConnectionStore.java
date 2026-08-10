@@ -4,6 +4,9 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.gateway.server.config.GatewayProperties;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -156,7 +159,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
     }
 
     /**
-     * 打开一个 sqlite 连接。
+     * 打开一个 sqlite 连接（自动创建父目录）。
      *
      * @return JDBC 连接
      * @throws SQLException 连接失败
@@ -165,7 +168,32 @@ public final class SqliteConnectionStore implements ConnectionStore {
         if (!jdbcUrl.startsWith(JDBC_PREFIX)) {
             throw new SQLException("不支持的 JDBC URL: " + jdbcUrl);
         }
+        // 自动创建 sqlite 文件所在目录（如 ~/.utils-support-gateway/）
+        ensureParentDirExists();
         return DriverManager.getConnection(jdbcUrl);
+    }
+
+    /**
+     * 从 jdbcUrl 解析 sqlite 文件路径，并确保父目录存在。
+     */
+    private void ensureParentDirExists() {
+        try {
+            String filePath = jdbcUrl.substring(JDBC_PREFIX.length());
+            // 去掉查询参数（如 ?xxx=yyy）
+            int qmark = filePath.indexOf('?');
+            if (qmark > 0) {
+                filePath = filePath.substring(0, qmark);
+            }
+            if (filePath == null || filePath.isEmpty() || ":memory:".equals(filePath)) {
+                return;
+            }
+            Path parent = Paths.get(filePath).getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+        } catch (Exception ex) {
+            log.warn("[gateway-server] 创建 sqlite 父目录失败: {}", ex.getMessage());
+        }
     }
 
     /**

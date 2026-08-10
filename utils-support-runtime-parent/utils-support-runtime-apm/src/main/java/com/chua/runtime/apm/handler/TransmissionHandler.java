@@ -107,7 +107,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 传输记录列表
      */
-    private final List<TransmissionRecord> records;
+    private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
 
     /**
      * host:port → 计数（依赖图数据）
@@ -136,7 +136,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             new ThreadLocal<>();
 
     public TransmissionHandler() {
-        this.records = Collections.synchronizedList(new ArrayList<>());
+        this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.connectionCount = new ConcurrentHashMap<>();
         this.started = new AtomicBoolean(false);
     }
@@ -340,16 +340,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                     : record.getProtocol().name();
             connectionCount.merge(hostPort, 1L, Long::sum);
 
-            if (records.size() >= MAX_RECORDS) {
-                records.remove(0);
-            }
             records.add(record);
 
             // 同步到依赖图（DependencyGraphHandler）
             emitToDependencyGraph(record);
-
-            // 持久化（SPI 接入存储层）
-            StorageManager.appendTransmission(record);
 
             // 持久化（SPI 接入存储层）
             StorageManager.appendTransmission(record);
@@ -527,7 +521,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     public List<TransmissionRecord> getRecords() {
-        return Collections.unmodifiableList(records);
+        return records.snapshot();
     }
 
     public Map<String, Long> getConnectionCount() {

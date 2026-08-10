@@ -419,7 +419,7 @@ public class DefaultObjectContext implements ObjectContext {
 
     @Override
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
-        if (annotationType == null || closed) {
+        if (annotationType == null || closed || registry == null) {
             return Collections.emptyList();
         }
         List<MethodDefinition> result = new ArrayList<>();

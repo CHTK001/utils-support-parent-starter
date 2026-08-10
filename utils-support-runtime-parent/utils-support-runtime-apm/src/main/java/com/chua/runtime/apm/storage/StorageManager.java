@@ -3,7 +3,7 @@ package com.chua.runtime.apm.storage;
 import com.chua.runtime.protocol.TransmissionRecord;
 import lombok.extern.java.Log;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,7 +29,7 @@ import java.util.logging.Level;
 public final class StorageManager {
 
     private static final AtomicReference<ApmStorage> GLOBAL = new AtomicReference<>(new NoopStorage());
-    private static final Map<String, ApmStorage> REGISTERED = new HashMap<>();
+    private static final Map<String, ApmStorage> REGISTERED = new ConcurrentHashMap<>();
 
     private StorageManager() {
     }
@@ -99,6 +99,13 @@ public final class StorageManager {
 
     /**
      * 解析要使用的存储实现。
+     *
+     * <p>查找顺序:</p>
+     * <ol>
+     *   <li>已显式 register() 的 storage</li>
+     *   <li>SPI 加载 + 按 type 精确匹配</li>
+     *   <li>找不到 type 时,使用 NoopStorage(不盲选第一个 SPI 实现,避免配置与实际不一致)</li>
+     * </ol>
      */
     private static ApmStorage resolve(StorageConfig config) {
         // 1. 先按 type 字段精确匹配
@@ -108,7 +115,7 @@ public final class StorageManager {
             return explicit;
         }
 
-        // 2. SPI 扫描（优先 context CL，回退 system CL，确保 agent bootstrap CL 也能加载）
+        // 2. SPI 扫描(优先 context CL,回退 system CL,确保 agent bootstrap CL 也能加载)
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
@@ -120,13 +127,9 @@ public final class StorageManager {
             }
         }
 
-        // 3. SPI 第一个实现作为兜底
-        if (!REGISTERED.isEmpty()) {
-            return REGISTERED.values().iterator().next();
-        }
-
-        // 4. NoopStorage
-        log.warning("未找到 " + type + " 存储实现，使用 NoopStorage");
+        // 3. 找不到指定 type — 不盲选第一个 SPI(避免用户配置 "sqlite" 但实际用 "inmemory"),
+        //    返回 NoopStorage 让 handler 安全退化
+        log.warning("未找到 " + type + " 存储实现,使用 NoopStorage");
         return new NoopStorage();
     }
 }

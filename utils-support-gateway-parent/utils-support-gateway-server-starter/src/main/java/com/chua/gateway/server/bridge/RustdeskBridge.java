@@ -4,6 +4,8 @@ import com.chua.gateway.server.store.Connection;
 import com.chua.gateway.server.tunnel.GatewayTunnel;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+
 /**
  * RustDesk 协议桥接器（占位骨架）。
  *
@@ -57,5 +59,15 @@ public class RustdeskBridge implements RemoteBridge {
     @Override
     public boolean isConnected() {
         return connected;
+    }
+
+    @Override
+    public void writeToRemote(byte[] bytes) throws IOException {
+        throw new IOException("RustdeskBridge 协议尚未实现（Phase E 占位）");
+    }
+
+    @Override
+    public byte[] readFromRemote() throws IOException {
+        throw new IOException("RustdeskBridge 协议尚未实现（Phase E 占位）");
     }
 }

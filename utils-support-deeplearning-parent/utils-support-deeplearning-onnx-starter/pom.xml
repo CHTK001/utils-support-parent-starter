@@ -48,6 +48,14 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- MiniMind 内置 ONNX 模型资源（model.onnx + tokenizer.json 等）。
+             使用 provided：编译期可见，不传递到下游，调用方运行时需显式引入 utils-support-minimind-onnx。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-minimind-onnx</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- MiniMind 鍐呯疆 ONNX 妯″瀷璧勬簮锛坢odel.onnx + tokenizer.json锛夊凡闅?utils-support-minimind-onnx
              妯″潡涓嬬嚎锛涙ā鍨嬭祫婧愭敼涓轰粠 classpath 涓?models/minimind/ 鐩綍鍔ㄦ€佸姞杞斤紝
              鏈墦鍖呮ā鍨嬭祫婧愭椂浠呰緭鍑?debug 鏃ュ織锛屼笉褰卞搷缂栬瘧銆?-->
