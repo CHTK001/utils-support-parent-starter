@@ -9,6 +9,7 @@ import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
@@ -261,7 +262,7 @@ public ChatClient newChat() {
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
-            if (actualSystem != null && !actualSystem.isEmpty()) {
+            if (StringUtils.isNotEmpty(actualSystem)) {
                 messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
             }
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;

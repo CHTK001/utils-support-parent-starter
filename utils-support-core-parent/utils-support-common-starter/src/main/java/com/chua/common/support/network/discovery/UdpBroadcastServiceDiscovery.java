@@ -4,6 +4,7 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -138,11 +138,11 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
         receiveSocket.setSoTimeout(1000);
 
         // 启动接收线程
-        executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "udp-broadcast-recv"));
+        executor = ThreadUtils.newSingleThreadExecutor("udp-broadcast-recv");
         executor.submit(this);
 
         // 启动心跳发送任务
-        scheduler = Executors.newScheduledThreadPool(1, r -> new Thread(r, "udp-broadcast-heartbeat"));
+        scheduler = ThreadUtils.newScheduledThreadPoolExecutor(1, "udp-broadcast-heartbeat");
         scheduler.scheduleAtFixedRate(this::sendHeartbeat, 1, 5, TimeUnit.SECONDS);
 
         // 启动过期清理任务

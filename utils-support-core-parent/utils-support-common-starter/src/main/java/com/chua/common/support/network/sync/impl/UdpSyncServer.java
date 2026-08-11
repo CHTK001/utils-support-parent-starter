@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -90,7 +91,7 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     protected void doStart() {
         try {
             server = new DatagramSocket(new InetSocketAddress(setting.getHost(), setting.getPort()));
-            receiveThread = new Thread(this::receiveLoop, "udp-sync-receive-" + setting.getPort());
+            receiveThread = ThreadUtils.newThread(this::receiveLoop, "udp-sync-receive-" + setting.getPort());
             receiveThread.setDaemon(true);
             receiveThread.start();
         } catch (IOException e) {

@@ -10,6 +10,7 @@ import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -29,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Base64;
 
@@ -55,7 +55,7 @@ public class JdkWebSocketServer extends AbstractServer {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()));
-            executor = Executors.newCachedThreadPool(r -> new Thread(r, "jdk-ws-" + r.hashCode()));
+            executor = ThreadUtils.newCachedThreadPool("jdk-ws");
             executor.submit(this::acceptLoop);
             log.info("JDK WebSocketServer started on {}:{}", setting.getHost(), setting.getPort());
         } catch (IOException e) {

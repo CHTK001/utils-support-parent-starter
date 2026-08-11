@@ -2,6 +2,8 @@ package com.chua.common.support.ai.chat.protocol;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.chua.common.support.utils.ThreadUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -173,7 +175,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     private void startFileWatcher() {
         if (!watching.compareAndSet(false, true)) return;
 
-        watcherThread = new Thread(() -> {
+        watcherThread = ThreadUtils.newThread(() -> {
             try (WatchService watcher = watchDir.getFileSystem().newWatchService()) {
                 watchDir.register(watcher,
                         StandardWatchEventKinds.ENTRY_MODIFY,

@@ -6,6 +6,7 @@ import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +115,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
                 String name = extractJsonValue(trimmed, "name");
                 String version = extractJsonValue(trimmed, "version");
                 String description = extractJsonValue(trimmed, "description");
-                if (name != null && !name.isEmpty()) {
+                if (StringUtils.isNotEmpty(name)) {
                     results.add(new SoftwareInfo(name, version != null ? version : "",
                             NAME, description != null ? description : "", name));
                 }

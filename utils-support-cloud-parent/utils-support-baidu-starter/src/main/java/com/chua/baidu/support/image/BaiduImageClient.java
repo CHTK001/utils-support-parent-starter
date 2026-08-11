@@ -4,6 +4,7 @@ import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -207,7 +208,7 @@ public class BaiduImageClient implements ImageClient {
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
         List<Map<String, Object>> data = (List<Map<String, Object>>) root.get("data");
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             throw new RuntimeException("文心一格返回的图片数据为空");
         }
         String imageUrl = (String) data.get(0).get("url");

@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.scanner;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.config.DirectoryConfigDefinition;
 import com.chua.starter.datasync.config.FileConfigDefinition;
@@ -81,7 +82,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
             }
         }
 
-        if (directoryPath != null && !directoryPath.isEmpty()) {
+        if (StringUtils.isNotEmpty(directoryPath)) {
             return new DefaultDirectoryConfigDefinition(
                     getString(map, "mappingId"),
                     inputId, sourceId, outputId, sinkId,
@@ -89,7 +90,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
             );
         }
 
-        if (filePath != null && !filePath.isEmpty()) {
+        if (StringUtils.isNotEmpty(filePath)) {
             return new DefaultFileConfigDefinition(
                     getString(map, "mappingId"),
                     inputId, sourceId, outputId, sinkId,

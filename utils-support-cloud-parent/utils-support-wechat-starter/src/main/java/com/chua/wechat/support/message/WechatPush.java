@@ -324,7 +324,7 @@ public class WechatPush implements MessagePush {
      */
     private JsonObject buildData(Map<String, String> params) {
         JsonObject data = new JsonObject();
-        if (params == null || params.isEmpty()) {
+        if (MapUtils.isEmpty(params)) {
             return data;
         }
         for (Map.Entry<String, String> entry : params.entrySet()) {

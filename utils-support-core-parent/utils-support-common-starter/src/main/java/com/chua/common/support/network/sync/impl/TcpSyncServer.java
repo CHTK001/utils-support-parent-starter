@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -94,7 +95,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
             server = new ServerSocket();
             server.setReuseAddress(true);
             server.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), setting.getBacklog());
-            acceptThread = new Thread(this::acceptLoop, "tcp-sync-accept-" + setting.getPort());
+            acceptThread = ThreadUtils.newThread(this::acceptLoop, "tcp-sync-accept-" + setting.getPort());
             acceptThread.setDaemon(true);
             acceptThread.start();
         } catch (IOException e) {
@@ -233,7 +234,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
          * 启动接收线程。
          */
         void start() {
-            readThread = new Thread(this::readLoop, "tcp-sync-client-" + socket.getRemoteSocketAddress());
+            readThread = ThreadUtils.newThread(this::readLoop, "tcp-sync-client-" + socket.getRemoteSocketAddress());
             readThread.setDaemon(true);
             readThread.start();
         }

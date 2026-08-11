@@ -1,5 +1,6 @@
 package com.chua.tencent.support.auth;
 
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.datasource.support.engine.FileEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,7 +48,7 @@ public class WechatFileEngine extends FileEngine {
             }
 
             List<?> raw = OBJECT_MAPPER.readValue(content, List.class);
-            if (raw == null || raw.isEmpty()) {
+            if (CollectionUtils.isEmpty(raw)) {
                 return new ArrayList<>();
             }
 

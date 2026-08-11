@@ -12,6 +12,7 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.config.impl.WxMpDefaultConfigImpl;
 import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.auth.spi.LoginChannel;
 import com.chua.auth.support.LoginRequest;
 import com.chua.auth.support.LoginResponse;
@@ -71,7 +72,7 @@ public class WechatLoginProvider implements LoginChannel {
     @Override
     public LoginResponse login(LoginRequest request) {
         String authCode = request.getAuthCode();
-        if (authCode == null || authCode.isEmpty()) {
+        if (StringUtils.isEmpty(authCode)) {
             throw new LoginException("缺少授权码 authCode");
         }
 
@@ -133,7 +134,7 @@ public class WechatLoginProvider implements LoginChannel {
 
     @Override
     public LoginResponse refreshToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
+        if (StringUtils.isEmpty(refreshToken)) {
             throw new LoginException("缺少刷新令牌 refreshToken");
         }
         if (wxMpService == null) {

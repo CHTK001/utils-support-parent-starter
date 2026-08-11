@@ -98,14 +98,14 @@ public class RequestUtils {
 
         // 优先获取 X-Forwarded-For 头中的第一个IP（通常是真实客户端IP）
         String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("WL-Proxy-Client-IP");
         }
         // 如果上述代理头均未设置，则直接获取远程地址
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
             // 如果是本地回环地址，返回实际本机IP
             if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {

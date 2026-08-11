@@ -749,6 +749,72 @@ public class ThreadUtils {
     }
 
     /**
+     * 创建守护线程工厂。
+     * <p>
+     * 使用 NamedThreadFactory 实现，创建的线程均为守护线程。
+     * </p>
+     *
+     * @param name 线程名称前缀
+     * @return 守护线程工厂
+     */
+    public static ThreadFactory newDaemonThreadFactory(final String name) {
+        return new NamedThreadFactory(name, true);
+    }
+
+    /**
+     * 创建带名称的缓存线程池（守护线程）。
+     * <p>
+     * 核心线程 0，最大 Integer.MAX_VALUE，空闲 60s 回收，线程为守护线程。
+     * </p>
+     *
+     * @param name 线程名称前缀
+     * @return 守护型缓存线程池
+     */
+    public static ExecutorService newDaemonCachedThreadPool(final String name) {
+        return newCachedThreadPool(newDaemonThreadFactory(name));
+    }
+
+    /**
+     * 创建固定大小线程池（守护线程）。
+     * <p>
+     * 核心线程数和最大线程数均为 nThreads，线程为守护线程。
+     * </p>
+     *
+     * @param nThreads 线程数
+     * @param name     线程名称前缀
+     * @return 守护型固定大小线程池
+     */
+    public static ExecutorService newDaemonFixedThreadPool(int nThreads, String name) {
+        return newFixedThreadPool(nThreads, newDaemonThreadFactory(name));
+    }
+
+    /**
+     * 创建守护单线程执行器。
+     * <p>
+     * 单工作线程，线程为守护线程。
+     * </p>
+     *
+     * @param name 线程名称前缀
+     * @return 守护型单线程执行器
+     */
+    public static ExecutorService newDaemonSingleThreadExecutor(String name) {
+        return newSingleThreadExecutor(newDaemonThreadFactory(name));
+    }
+
+    /**
+     * 创建守护单线程定时任务执行器。
+     * <p>
+     * 单工作线程，线程为守护线程。
+     * </p>
+     *
+     * @param name 线程名称前缀
+     * @return 守护型单线程定时任务执行器
+     */
+    public static ScheduledExecutorService newDaemonSingleThreadScheduledExecutor(String name) {
+        return newSingleThreadScheduledExecutor(newDaemonThreadFactory(name));
+    }
+
+    /**
      * 获取推荐处理器线程数。
      * <p>
      * 计算公式：availableProcessors × 2 - 1，用于 I/O 密集型场景。

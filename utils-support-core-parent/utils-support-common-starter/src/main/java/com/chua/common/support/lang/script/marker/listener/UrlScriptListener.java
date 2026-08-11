@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.chua.common.support.utils.ThreadUtils;
+
 /**
  * URL 脚本源码监听器。
  *
@@ -150,7 +152,7 @@ public class UrlScriptListener implements Listener {
     private static class UrlScriptThreadFactory implements ThreadFactory {
         @Override
         public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r, "url-script-listener-" + r.hashCode());
+            Thread thread = ThreadUtils.newThread(r, "url-script-listener-" + r.hashCode());
             thread.setDaemon(true);
             return thread;
         }

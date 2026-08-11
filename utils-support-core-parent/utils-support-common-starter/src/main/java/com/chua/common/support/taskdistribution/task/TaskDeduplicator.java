@@ -1,10 +1,10 @@
 package com.chua.common.support.taskdistribution.task;
 
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -54,11 +54,8 @@ public class TaskDeduplicator {
      */
     public TaskDeduplicator(long ttlMillis) {
         this.ttlMillis = ttlMillis > 0 ? ttlMillis : DEFAULT_TTL;
-        this.cleanupScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "task-dedup-cleanup");
-            t.setDaemon(true);
-            return t;
-        });
+        this.cleanupScheduler = ThreadUtils.newSingleThreadScheduledExecutor(
+                ThreadUtils.newThreadFactory("task-dedup-cleanup"));
         this.cleanupScheduler.scheduleAtFixedRate(this::cleanup, ttlMillis, ttlMillis, TimeUnit.MILLISECONDS);
     }
 

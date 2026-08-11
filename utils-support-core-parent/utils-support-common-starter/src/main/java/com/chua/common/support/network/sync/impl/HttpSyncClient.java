@@ -4,6 +4,7 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -201,7 +202,7 @@ public class HttpSyncClient implements SyncClient {
     // ==================== 心跳 ====================
 
     private void startHeartbeat() {
-        heartbeatThread = new Thread(() -> {
+        heartbeatThread = ThreadUtils.newThread(() -> {
             while (connected) {
                 try {
                     Thread.sleep(HEARTBEAT_INTERVAL * 1000L);
@@ -248,7 +249,7 @@ public class HttpSyncClient implements SyncClient {
     // ==================== 拉取 ====================
 
     private void startPull() {
-        pullThread = new Thread(() -> {
+        pullThread = ThreadUtils.newThread(() -> {
             while (connected) {
                 try {
                     pullMessages();

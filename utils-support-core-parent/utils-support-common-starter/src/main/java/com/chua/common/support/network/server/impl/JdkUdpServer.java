@@ -4,6 +4,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.DatagramPacket;
@@ -70,7 +71,7 @@ public class JdkUdpServer extends AbstractServer {
             );
             running = true;
 
-            receiverThread = new Thread(this::receiveLoop, "udp-receiver");
+            receiverThread = ThreadUtils.newThread(this::receiveLoop, "udp-receiver");
             receiverThread.setDaemon(true);
             receiverThread.start();
 

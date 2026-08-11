@@ -5,6 +5,7 @@ import com.chua.common.support.taskdistribution.task.TaskDeduplicator;
 import com.chua.common.support.taskdistribution.task.TaskPriority;
 import com.chua.common.support.taskdistribution.task.TaskResult;
 import com.chua.common.support.taskdistribution.task.TaskStatus;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Comparator;
@@ -219,16 +220,9 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
             return;
         }
         running = true;
-        executor = new ThreadPoolExecutor(
-                consumerThreads, consumerThreads,
-                60, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(),
-                r -> {
-                    Thread t = new Thread(r, "task-dispatcher-consumer");
-                    t.setDaemon(true);
-                    return t;
-                }
-        );
+        executor = (ThreadPoolExecutor) ThreadUtils.newFixedThreadPool(
+                consumerThreads,
+                ThreadUtils.newThreadFactory("task-dispatcher-consumer"));
         for (int i = 0; i < consumerThreads; i++) {
             executor.submit(this::consume);
         }

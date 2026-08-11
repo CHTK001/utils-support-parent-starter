@@ -34,6 +34,7 @@ import com.chua.common.support.ai.bot.BotInboundMessage.Type;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
+import com.chua.common.support.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -198,13 +199,13 @@ public class QqBotClient implements BotClient {
     @Override
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
-        if (token != null && !token.isEmpty()) {
+        if (StringUtils.isNotEmpty(token)) {
             this.appId = token;
         }
-        if (secret != null && !secret.isEmpty()) {
+        if (StringUtils.isNotEmpty(secret)) {
             this.appSecret = secret;
         }
-        if (encodingAesKey != null && !encodingAesKey.isEmpty()) {
+        if (StringUtils.isNotEmpty(encodingAesKey)) {
             this.botToken = encodingAesKey;
         }
         return this;
@@ -230,7 +231,7 @@ public class QqBotClient implements BotClient {
 
     @Override
     public BotClient baseUrl(String baseUrl) {
-        if (baseUrl != null && !baseUrl.isEmpty()) {
+        if (StringUtils.isNotEmpty(baseUrl)) {
             this.baseUrl = baseUrl;
         }
         return this;

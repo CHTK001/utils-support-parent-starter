@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.*;
 import java.net.*;
@@ -101,7 +102,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()));
-            executor = Executors.newCachedThreadPool(r -> new Thread(r, "ws-sync-" + r.hashCode()));
+            executor = ThreadUtils.newCachedThreadPool("ws-sync");
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
             throw new RuntimeException("WebSocket SyncServer 启动失败", e);

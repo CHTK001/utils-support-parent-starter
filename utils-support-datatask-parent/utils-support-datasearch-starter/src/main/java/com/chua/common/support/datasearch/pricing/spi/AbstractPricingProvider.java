@@ -5,6 +5,7 @@ import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.CollectionUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -76,7 +77,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
                 List<ModelDefinition> parsed = Json.fromJson(json,
                         new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
                         });
-                if (parsed != null && !parsed.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(parsed)) {
                     return parsed;
                 }
             }
@@ -162,7 +163,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
             List<ModelDefinition> parsed = Json.fromJson(json,
                     new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
                     });
-            if (parsed != null && !parsed.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(parsed)) {
                 return parsed;
             }
         } catch (Exception e) {

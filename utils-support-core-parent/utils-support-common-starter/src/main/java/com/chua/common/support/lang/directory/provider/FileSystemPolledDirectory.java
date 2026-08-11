@@ -6,6 +6,7 @@ import com.chua.common.support.lang.directory.PolledListener;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -118,7 +119,7 @@ public class FileSystemPolledDirectory implements PolledDirectory {
                     StandardWatchEventKinds.ENTRY_DELETE);
             watchKeys.put(key, dir);
 
-            watchThread = new Thread(this::watchLoop, "FileSystemWatcher-" + path);
+            watchThread = ThreadUtils.newThread(this::watchLoop, "FileSystemWatcher-" + path);
             watchThread.setDaemon(true);
             watchThread.start();
 

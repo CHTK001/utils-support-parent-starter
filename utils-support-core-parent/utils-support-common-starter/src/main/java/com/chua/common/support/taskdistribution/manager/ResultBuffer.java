@@ -2,11 +2,11 @@ package com.chua.common.support.taskdistribution.manager;
 
 import com.chua.common.support.taskdistribution.store.TaskStore;
 import com.chua.common.support.taskdistribution.task.TaskResult;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -61,11 +61,8 @@ public class ResultBuffer {
      */
     public ResultBuffer(long ttlMillis) {
         this.ttlMillis = ttlMillis > 0 ? ttlMillis : Long.MAX_VALUE;
-        this.cleanupScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "result-buffer-cleanup");
-            t.setDaemon(true);
-            return t;
-        });
+        this.cleanupScheduler = ThreadUtils.newSingleThreadScheduledExecutor(
+                ThreadUtils.newThreadFactory("result-buffer-cleanup"));
         this.cleanupScheduler.scheduleAtFixedRate(this::cleanup, 30000, 30000, TimeUnit.MILLISECONDS);
     }
 
