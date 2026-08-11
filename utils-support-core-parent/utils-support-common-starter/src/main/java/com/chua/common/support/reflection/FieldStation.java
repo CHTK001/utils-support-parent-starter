@@ -81,7 +81,7 @@ public final class FieldStation {
     /**
      * 查找字段（含继承链），结果缓存于 {@link #FIELD_CACHE}。
      */
-    private static Field findField(Class<?> type, String name) throws NoSuchFieldException {
+    static Field findField(Class<?> type, String name) throws NoSuchFieldException {
         String cacheKey = type.getName() + "|" + name;
         Field cached = FIELD_CACHE.get(cacheKey);
         if (cached != null) {
@@ -98,5 +98,21 @@ public final class FieldStation {
             }
         }
         throw new NoSuchFieldException("No such field: " + name + " in " + type.getName());
+    }
+
+    /**
+     * 测试钩子：暴露包级访问以便单元测试验证缓存命中行为。
+     * 生产代码请使用 {@link #getValue(String)} 或 {@link #setIgnoreNameValue(String, Object)}。
+     *
+     * @param type 目标类型
+     * @param name 字段名（camelCase）
+     * @return 反射得到的 Field 对象
+     */
+    static Field findFieldForTest(Class<?> type, String name) {
+        try {
+            return findField(type, name);
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError("测试期望字段存在: " + name, e);
+        }
     }
 }
