@@ -1,5 +1,8 @@
 package com.chua.common.support.reflection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 
 /**
@@ -9,6 +12,8 @@ import java.lang.reflect.Field;
  * @since 2024/8/6
  */
 public final class FieldStation {
+
+    private static final Logger log = LoggerFactory.getLogger(FieldStation.class);
 
     private final Object instance;
     private final Class<?> type;
@@ -31,7 +36,15 @@ public final class FieldStation {
             Field field = findField(toCamelCase(name));
             field.setAccessible(true);
             return field.get(instance);
+        } catch (NoSuchFieldException e) {
+            // 字段不存在属于业务正常情况（sys_setting_name 与 Bean 字段未对齐），不记录 ERROR
+            log.debug("[FieldStation] 字段不存在: type={}, name={}", type.getName(), name);
+            return null;
+        } catch (IllegalAccessException e) {
+            log.warn("[FieldStation] 字段访问被拒绝: type={}, name={}", type.getName(), name, e);
+            return null;
         } catch (Exception e) {
+            log.error("[FieldStation] 读取字段失败: type={}, name={}", type.getName(), name, e);
             return null;
         }
     }
@@ -41,7 +54,12 @@ public final class FieldStation {
             Field field = findField(toCamelCase(name));
             field.setAccessible(true);
             field.set(instance, value);
-        } catch (Exception ignored) {
+        } catch (NoSuchFieldException e) {
+            log.debug("[FieldStation] 字段不存在，跳过写入: type={}, name={}", type.getName(), name);
+        } catch (IllegalAccessException e) {
+            log.warn("[FieldStation] 字段写入被拒绝: type={}, name={}", type.getName(), name, e);
+        } catch (Exception e) {
+            log.error("[FieldStation] 写入字段失败: type={}, name={}", type.getName(), name, e);
         }
     }
 
@@ -53,7 +71,7 @@ public final class FieldStation {
         return Character.isUpperCase(first) ? (Character.toLowerCase(first) + name.substring(1)) : name;
     }
 
-    private Field findField(String name) {
+    private Field findField(String name) throws NoSuchFieldException {
         Class<?> current = type;
         while (current != null) {
             try {
@@ -62,6 +80,6 @@ public final class FieldStation {
                 current = current.getSuperclass();
             }
         }
-        throw new IllegalArgumentException("No such field: " + name + " in " + type.getName());
+        throw new NoSuchFieldException("No such field: " + name + " in " + type.getName());
     }
 }
