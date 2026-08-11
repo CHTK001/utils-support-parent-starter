@@ -334,6 +334,7 @@ public class NettyHttpServer extends AbstractServer {
         private final FullHttpRequest request;
         private int status = 200;
         private byte[] body;
+        private Object result;
         private String contentType;
         private final ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         private boolean committed;
@@ -407,6 +408,19 @@ public class NettyHttpServer extends AbstractServer {
         @Override
         public byte[] getBody() {
             return body;
+        }
+
+        @Override
+        public ServerResponse setResult(Object result) {
+            if (!committed) {
+                this.result = result;
+            }
+            return this;
+        }
+
+        @Override
+        public Object getResult() {
+            return result;
         }
 
         @Override
