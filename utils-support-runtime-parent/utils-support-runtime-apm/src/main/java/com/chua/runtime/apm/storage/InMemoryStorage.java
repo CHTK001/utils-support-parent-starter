@@ -68,7 +68,7 @@ public class InMemoryStorage implements ApmStorage {
         if (event.getId() == 0L) {
             event.setId(transmissionSeq.incrementAndGet());
         }
-        enforceCapacity(transmissions);
+        enforceCapacityLong(transmissions);
         transmissions.put(event.getId(), event);
     }
 
@@ -78,21 +78,20 @@ public class InMemoryStorage implements ApmStorage {
             return;
         }
         String edgeId = edge.edgeId();
-        // 同一 source→target 边用 record() 累加
-        DependencyEdge existing = dependencies.get(edgeId);
-        if (existing != null) {
-            existing.setCallCount(existing.getCallCount() + edge.getCallCount());
-            existing.setTotalDuration(existing.getTotalDuration() + edge.getTotalDuration());
-            existing.setErrorCount(existing.getErrorCount() + edge.getErrorCount());
+        // 同一 source→target 边用 merge() 原子累加 — ConcurrentHashMap.merge 对同 key 的
+        // 合并函数在 bin 锁内执行,避免并发 read-modify-write 丢失计数。
+        dependencies.merge(edgeId, edge, (existing, newEdge) -> {
+            existing.setCallCount(existing.getCallCount() + newEdge.getCallCount());
+            existing.setTotalDuration(existing.getTotalDuration() + newEdge.getTotalDuration());
+            existing.setErrorCount(existing.getErrorCount() + newEdge.getErrorCount());
             existing.setLastCallTime(System.currentTimeMillis());
-            if (edge.getLastError() != null) {
-                existing.setLastError(edge.getLastError());
+            if (newEdge.getLastError() != null) {
+                existing.setLastError(newEdge.getLastError());
             }
-            return;
-        }
-        // 新边先 put 再 enforce,避免淘汰时误删刚加入的
-        enforceCapacity(dependencies);
-        dependencies.put(edgeId, edge);
+            return existing;
+        });
+        // 容量保护(新边插入时才可能超限)
+        enforceCapacityStr(dependencies);
     }
 
     @Override
@@ -114,7 +113,7 @@ public class InMemoryStorage implements ApmStorage {
         if (record.getId() == 0L) {
             record.setId(logSeq.incrementAndGet());
         }
-        enforceCapacity(logs);
+        enforceCapacityLong(logs);
         logs.put(record.getId(), record);
     }
 
@@ -181,37 +180,32 @@ public class InMemoryStorage implements ApmStorage {
      */
     private long cleanupInternal(long cutoff) {
         long removed = 0;
-        removed += removeIfOlderThan(transmissions, cutoff, e -> e.getStartTime());
-        removed += removeIfOlderThan(logs, cutoff, e -> e.getTimestamp());
+        removed += doRemoveOlder(transmissions, cutoff, (java.util.function.Function<TransmissionEvent, Long>) e -> e.getStartTime());
+        removed += doRemoveOlder(logs, cutoff, (java.util.function.Function<LogRecord, Long>) e -> e.getTimestamp());
         // leak 只清理已关闭的过期记录,活跃泄漏永远保留
-        removed += removeIfOlderThan(leaks, cutoff, e -> e.getClosedAt() > 0 ? e.getClosedAt() : 0L);
+        removed += removeIfOlderThanLeak(leaks, cutoff, e -> e.getClosedAt() > 0 ? e.getClosedAt() : 0L);
         return removed;
     }
 
-    private static <V> long removeIfOlderThan(Map<Long, V> map, long cutoff, java.util.function.Function<V, Long> tsExtractor) {
-        long count = 0;
-        synchronized (map) {
-            Iterator<Map.Entry<Long, V>> it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<Long, V> e = it.next();
-                Long ts = tsExtractor.apply(e.getValue());
-                if (ts != null && ts > 0 && ts < cutoff) {
-                    it.remove();
-                    count++;
-                }
-            }
-        }
-        return count;
+    private static <V> long removeIfOlderThanLeak(Map<String, LeakRecord> map, long cutoff,
+                                                  java.util.function.Function<LeakRecord, Long> tsExtractor) {
+        return doRemoveOlder(map, cutoff, tsExtractor);
     }
 
-    private static <V> long removeIfOlderThan(Map<String, LeakRecord> map, long cutoff,
-                                              java.util.function.Function<LeakRecord, Long> tsExtractor) {
+    private static <V> long removeIfOlderThanLong(Map<Long, V> map, long cutoff,
+                                                  java.util.function.Function<V, Long> tsExtractor) {
+        return doRemoveOlder(map, cutoff, tsExtractor);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <K, V> long doRemoveOlder(Map<K, V> map, long cutoff,
+                                            java.util.function.Function<? super V, Long> tsExtractor) {
         long count = 0;
         synchronized (map) {
-            Iterator<Map.Entry<String, LeakRecord>> it = map.entrySet().iterator();
+            Iterator<Map.Entry<K, V>> it = map.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry<String, LeakRecord> e = it.next();
-                LeakRecord v = e.getValue();
+                Map.Entry<K, V> e = it.next();
+                V v = e.getValue();
                 if (v == null) {
                     continue;
                 }
@@ -234,7 +228,7 @@ public class InMemoryStorage implements ApmStorage {
      * 容量超限时按主键顺序淘汰最旧 N% 数据。
      * 使用 synchronized 块保证 put/evict 原子性,防止并发越界。
      */
-    private <V> void enforceCapacity(Map<Long, V> map) {
+    private <V> void enforceCapacityLong(Map<Long, V> map) {
         synchronized (map) {
             if (map.size() < capacity) {
                 return;
@@ -252,7 +246,7 @@ public class InMemoryStorage implements ApmStorage {
     /**
      * dependencies Map 的容量淘汰(泛型 key 类型不同,独立方法)
      */
-    private void enforceCapacity(Map<String, DependencyEdge> map) {
+    private void enforceCapacityStr(Map<String, DependencyEdge> map) {
         synchronized (map) {
             if (map.size() < capacity) {
                 return;
