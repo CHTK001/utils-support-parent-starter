@@ -428,7 +428,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     public List<LogEntry> search(String keyword) {
         List<LogEntry> result = new ArrayList<>();
         String kw = keyword.toLowerCase();
-        for (LogEntry entry : logEntries.iterator()) {
+        for (LogEntry entry : logEntries) {
             if (entry.getMessage() != null && entry.getMessage().toLowerCase().contains(kw)) {
                 result.add(entry);
             }
@@ -445,7 +445,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     public List<LogEntry> filterByLevel(String level) {
         List<LogEntry> result = new ArrayList<>();
         String lv = level.toUpperCase();
-        for (LogEntry entry : logEntries.iterator()) {
+        for (LogEntry entry : logEntries) {
             if (entry.getLevel() != null && entry.getLevel().equals(lv)) {
                 result.add(entry);
             }

@@ -207,10 +207,14 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      * @param action 更新动作
      */
     private void updateLast(InterceptContext ctx, UpdateAction action) {
-        if (records.isEmpty()) {
+        if (records.size() == 0) {
             return;
         }
-        NetRecord record = records.get(records.size() - 1);
+        java.util.List<NetRecord> tail = records.tail(1);
+        if (tail.isEmpty()) {
+            return;
+        }
+        NetRecord record = tail.get(0);
         action.apply(record);
         LOG.log(Level.FINE, String.format("[Net] %s %s 字节计数更新", ctx.getReadableClassName(), ctx.getMethodName()));
     }
@@ -273,9 +277,6 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      * @param record 网络记录
      */
     public void addRecord(NetRecord record) {
-        if (records.size() >= MAX_RECORDS) {
-            records.remove(0);
-        }
         records.add(record);
     }
 
@@ -285,7 +286,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 网络记录列表
      */
     public List<NetRecord> getRecords() {
-        return Collections.unmodifiableList(records);
+        return records.snapshot();
     }
 
     /**
@@ -295,11 +296,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 网络记录列表
      */
     public List<NetRecord> tail(int n) {
-        int size = records.size();
-        if (n >= size) {
-            return getRecords();
-        }
-        return new ArrayList<>(records.subList(size - n, size));
+        return records.tail(n);
     }
 
     /**

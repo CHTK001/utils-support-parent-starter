@@ -494,6 +494,27 @@ public class RuntimeSpy {
     }
 
     /**
+     * 测试辅助 — 生成一个新的 traceId/spanId。
+     * 仅用于 e2e 测试断言,生产代码应通过插桩调用。
+     */
+    public static String generateIdForTest() {
+        return generateId();
+    }
+
+    /**
+     * 测试辅助 — 模拟业务调用 ENTRY 后栈状态。
+     * 仅用于 e2e 测试断言隔离性,实际由 SpyTransformer 字节码调用 onIntercept 推入。
+     */
+    public static void pushTraceForTest(String traceId) {
+        Deque<TraceStackFrame> stack = TRACE_STACK.get();
+        if (stack.size() >= MAX_TRACE_DEPTH) {
+            stack.clear();
+        }
+        stack.push(new TraceStackFrame(traceId, generateId()));
+        CONTEXT.set(new SpyContext("test", "method", System.currentTimeMillis()));
+    }
+
+    /**
      * 方法入口插桩 — 直接入口。
      *
      * @param className  类名

@@ -18,7 +18,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public class BoundedRecordList<T> {
+public class BoundedRecordList<T> implements Iterable<T> {
 
     private final ArrayList<T> delegate;
     private final int maxSize;
@@ -77,6 +77,7 @@ public class BoundedRecordList<T> {
     /**
      * 不可变迭代器(基于快照)。
      */
+    @Override
     public Iterator<T> iterator() {
         return snapshot().iterator();
     }
