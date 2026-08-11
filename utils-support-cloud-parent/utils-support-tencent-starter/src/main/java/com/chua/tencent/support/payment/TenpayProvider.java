@@ -9,6 +9,7 @@ import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.github.binarywang.wxpay.service.impl.WxPayServiceImpl;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.BeanUtils;
 import com.chua.payment.spi.PaymentChannel;
 import com.chua.payment.support.PaymentRequest;
 import com.chua.payment.support.PaymentResponse;
@@ -65,12 +66,7 @@ public class TenpayProvider implements PaymentChannel {
             return null;
         }
         WxPayConfig payConfig = new WxPayConfig();
-        payConfig.setAppId(config.getAppId());
-        payConfig.setMchId(config.getMchId());
-        payConfig.setMchKey(config.getMchKey());
-        payConfig.setSubAppId(config.getSubAppId());
-        payConfig.setSubMchId(config.getSubMchId());
-        payConfig.setNotifyUrl(config.getNotifyUrl());
+        BeanUtils.copyProperties(config, payConfig);
         if (config.getCertPath() != null) {
             payConfig.setKeyPath(config.getCertPath());
         }

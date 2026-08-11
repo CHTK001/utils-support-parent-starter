@@ -1,6 +1,8 @@
 package com.chua.spider.support.pipeline;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.SpiderPipeline;
 import com.chua.spider.support.model.SpiderResult;
 
@@ -30,21 +32,21 @@ public class ConsolePipeline implements SpiderPipeline {
         sb.append("  标题: ").append(nullToEmpty(result.getTitle())).append("\n");
         sb.append("  类型: ").append(nullToEmpty(result.getContentType())).append("\n");
 
-        if (result.getAiSummary() != null && !result.getAiSummary().isEmpty()) {
+        if (StringUtils.isNotEmpty(result.getAiSummary())) {
             sb.append("  AI 总结: ").append(result.getAiSummary()).append("\n");
         }
 
-        if (result.getAiCategory() != null && !result.getAiCategory().isEmpty()) {
+        if (StringUtils.isNotEmpty(result.getAiCategory())) {
             sb.append("  分类: ").append(result.getAiCategory()).append("\n");
         }
 
-        if (result.getStructured() != null && !result.getStructured().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(result.getStructured())) {
             sb.append("  结构化字段:\n");
             result.getStructured().forEach((key, value) ->
                     sb.append("    - ").append(key).append(": ").append(value).append("\n"));
         }
 
-        if (result.getText() != null && !result.getText().isEmpty()) {
+        if (StringUtils.isNotEmpty(result.getText())) {
             String preview = result.getText().length() > 200 ?
                     result.getText().substring(0, 200) + "..." :
                     result.getText();

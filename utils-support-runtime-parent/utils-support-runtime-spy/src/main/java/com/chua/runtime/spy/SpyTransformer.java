@@ -1,5 +1,6 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.loader.PluginManager;
 import java.util.logging.Level;
@@ -584,7 +585,7 @@ public class SpyTransformer implements ClassFileTransformer {
      * @param spyClass Bootstrap 类内部名（含斜杠分隔符）
      */
     public void setSpyClass(String spyClass) {
-        if (spyClass != null && !spyClass.isEmpty()) {
+        if (StringUtils.isNotEmpty(spyClass)) {
             this.spyClass = spyClass;
         }
     }

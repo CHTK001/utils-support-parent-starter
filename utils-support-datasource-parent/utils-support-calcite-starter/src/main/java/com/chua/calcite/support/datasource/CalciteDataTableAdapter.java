@@ -34,6 +34,7 @@ import org.apache.calcite.linq4j.Queryable;
 import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.schema.impl.AbstractTableQueryable;
 
+import com.chua.common.support.utils.CollectionUtils;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -110,7 +111,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Enumerable<Object[]> scan(DataContext root, List<RexNode> filters) {
-        if (filterable && filters != null && !filters.isEmpty()) {
+        if (filterable && CollectionUtils.isNotEmpty(filters)) {
             SourceDataTable source = (SourceDataTable) dataTable;
             log.debug("[calcite] FilterableTable [{}] 收到 {} 个过滤条件, 注入 Engine 原生查询",
                     dataTable.getName(), filters.size());
@@ -118,7 +119,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             try {
                 List<String> columnNames = dataTable.getColumnNames();
                 List<Condition> conditions = translateRexNodes(filters, columnNames);
-                if (conditions != null && !conditions.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(conditions)) {
                     Engine engine = source.getEngine();
                     Class<?> entityClass = source.getEntityClass();
                     LambdaQueryWrapper wrapper = (LambdaQueryWrapper) engine.query(entityClass);
@@ -372,7 +373,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     // ---------------------------------------------------------------
 
     private static List<Object[]> toObjectArrays(List<?> entities, List<String> columnNames) {
-        if (entities == null || entities.isEmpty()) {
+        if (CollectionUtils.isEmpty(entities)) {
             return Collections.emptyList();
         }
         List<Method> getters = resolveGetters(entities.get(0).getClass());
@@ -697,7 +698,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      * 从已有行数据推断各列类型。
      */
     private static List<Class<?>> inferColumnTypes(List<Map<String, Object>> data) {
-        if (data == null || data.isEmpty()) {
+        if (CollectionUtils.isEmpty(data)) {
             return Collections.emptyList();
         }
         Map<String, Object> first = data.get(0);

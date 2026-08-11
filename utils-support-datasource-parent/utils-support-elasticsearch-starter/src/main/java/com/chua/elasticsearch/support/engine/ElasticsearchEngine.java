@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
+import com.chua.common.support.utils.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -268,7 +269,7 @@ public class ElasticsearchEngine implements Engine {
         try {
             String indexName = entityClass.getSimpleName().toLowerCase();
             Query query;
-            if (conditions == null || conditions.isEmpty()) {
+            if (CollectionUtils.isEmpty(conditions)) {
                 query = Query.of(q -> q.matchAll(m -> m));
             } else {
                 query = buildQuery(conditions);
@@ -296,7 +297,7 @@ public class ElasticsearchEngine implements Engine {
      * @return ES Query
      */
     static Query buildQuery(List<Condition> conditions) {
-        if (conditions == null || conditions.isEmpty()) {
+        if (CollectionUtils.isEmpty(conditions)) {
             return Query.of(q -> q.matchAll(m -> m));
         }
         if (conditions.size() == 1) {
@@ -319,7 +320,7 @@ public class ElasticsearchEngine implements Engine {
     static Query buildConditionQuery(Condition c) {
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
-            if (nested == null || nested.isEmpty()) {
+            if (CollectionUtils.isEmpty(nested)) {
                 return Query.of(q -> q.matchAll(m -> m));
             }
             List<Query> subQueries = new ArrayList<>(nested.size());
@@ -392,7 +393,7 @@ public class ElasticsearchEngine implements Engine {
      * @return ES Query
      */
     static Query buildInQuery(String field, Collection<?> values) {
-        if (values == null || values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return Query.of(q -> q.matchNone(m -> m));
         }
         List<FieldValue> fieldValues = new ArrayList<>(values.size());
@@ -411,7 +412,7 @@ public class ElasticsearchEngine implements Engine {
      * @return ES Query
      */
     static Query buildNotInQuery(String field, Collection<?> values) {
-        if (values == null || values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return Query.of(q -> q.matchAll(m -> m));
         }
         List<FieldValue> fieldValues = new ArrayList<>(values.size());

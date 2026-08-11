@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -125,10 +126,9 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      * @param response 响应对象
      */
     private void handleHealth(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(6);
+        BeanUtils.copyProperties(metrics, body);
         body.put("status", "UP");
-        body.put("uptime", metrics.getUptime());
-        body.put("activeRequests", metrics.getActiveRequests());
         body.put("timestamp", System.currentTimeMillis());
         String json = Json.toJson(body);
         response.setStatus(200);
@@ -143,15 +143,8 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      * @param response 响应对象
      */
     private void handleMetrics(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("totalRequests", metrics.getTotalRequests());
-        body.put("activeRequests", metrics.getActiveRequests());
-        body.put("errorCount", metrics.getErrorCount());
-        body.put("averageLatencyMillis", metrics.getAverageLatencyMillis());
-        body.put("maxLatencyMillis", metrics.getMaxLatencyMillis());
-        body.put("latencyHistogram", metrics.getLatencyHistogram());
-        body.put("uptime", metrics.getUptime());
-        body.put("startTime", metrics.getStartTime());
+        Map<String, Object> body = new LinkedHashMap<>(12);
+        BeanUtils.copyProperties(metrics, body);
         long lastErrorTime = metrics.getLastErrorTime();
         if (lastErrorTime > 0) {
             body.put("lastErrorTime", lastErrorTime);

@@ -145,4 +145,51 @@ public class ScatterGatherSetting {
      * 是否启用心跳，默认 true
      */
     private boolean heartbeatEnabled = true;
+
+    // ======================== 新增配置项 ========================
+
+    /**
+     * 传输协议：tcp / udp，默认 tcp
+     */
+    private String transportProtocol = "tcp";
+
+    /**
+     * UDP 是否广播模式，默认 false
+     */
+    private boolean udpBroadcast = false;
+
+    /**
+     * UDP 广播地址，默认 255.255.255.255
+     */
+    private String udpBroadcastAddress = "255.255.255.255";
+
+    /**
+     * 是否启用 UDP 降级 TCP 回退，默认 true
+     */
+    private boolean udpFallbackToTcp = true;
+
+    /**
+     * TCP 模式：seed / auto，默认 auto
+     */
+    private String tcpMode = "auto";
+
+    /**
+     * Seed 节点地址列表（host:port 格式），默认空
+     */
+    private java.util.List<String> seedAddresses = new java.util.ArrayList<>();
+
+    /**
+     * 默认全局端口，当 seed 地址未指定端口时使用，默认 19001
+     */
+    private int defaultPort = 19001;
+
+    /**
+     * 是否在关闭时清除资源，默认 true
+     */
+    private boolean cleanupOnClose = true;
+
+    /**
+     * 自动检索间隔（毫秒），默认 60秒
+     */
+    private long autoDiscoveryIntervalMillis = 60_000L;
 }

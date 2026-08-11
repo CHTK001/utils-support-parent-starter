@@ -1,14 +1,19 @@
 package com.chua.common.support.taskdistribution.scattergather;
 
 import com.chua.common.support.network.sync.SyncClient;
+import com.chua.common.support.scattergather.ConnectionPool;
 import com.chua.common.support.scattergather.ScatterGatherContext;
 import com.chua.common.support.scattergather.ScatterGatherNode;
 import com.chua.common.support.scattergather.ScatterGatherRemoteClient;
 import com.chua.common.support.scattergather.ScatterGatherResult;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.scattergather.ScatterGatherResultWithRequestId;
+import com.chua.common.support.scattergather.ScatterGatherSetting;
+import com.chua.common.support.scattergather.SeedAddress;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * TCP 实现 ScatterGatherRemoteClient。
@@ -28,14 +33,54 @@ public class TcpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
     private static final long DEFAULT_RESPONSE_TIMEOUT = 10000;
 
     /**
+     * 默认最大连接数
+     */
+    private static final int DEFAULT_MAX_CONNECTIONS = 100;
+
+    /**
+     * 默认空闲超时（毫秒）
+     */
+    private static final long DEFAULT_IDLE_TIMEOUT = 60_000L;
+
+    /**
      * 响应缓存：requestId -> CompletableFuture
      */
     private final ConcurrentHashMap<String, CompletableFuture<ScatterGatherResult<Object>>> pendingResponses = new ConcurrentHashMap<>();
 
     /**
-     * SyncClient 实例缓存：serverUrl -> SyncClient
+     * 连接池
      */
-    private final ConcurrentHashMap<String, SyncClient> clientCache = new ConcurrentHashMap<>();
+    private final ConnectionPool connectionPool;
+
+    /**
+     * 节点配置
+     */
+    private final ScatterGatherSetting setting;
+
+    /**
+     * 默认构造，使用默认配置。
+     */
+    public TcpScatterGatherRemoteClient() {
+        this(new ScatterGatherSetting());
+    }
+
+    /**
+     * 带配置构造。
+     *
+     * @param setting 节点配置
+     */
+    public TcpScatterGatherRemoteClient(ScatterGatherSetting setting) {
+        this.setting = setting == null ? new ScatterGatherSetting() : setting;
+        this.connectionPool = new ConnectionPool("tcp", DEFAULT_MAX_CONNECTIONS, DEFAULT_IDLE_TIMEOUT, true,
+                client -> client.subscribe("sync/response", (topic, message) -> {
+                    if (message instanceof ScatterGatherResultWithRequestId wrapper) {
+                        CompletableFuture<ScatterGatherResult<Object>> future = pendingResponses.remove(wrapper.requestId());
+                        if (future != null) {
+                            future.complete(wrapper.result());
+                        }
+                    }
+                }));
+    }
 
     /**
      * 获取或创建到目标节点的连接。
@@ -44,23 +89,40 @@ public class TcpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
      * @return SyncClient 实例
      */
     private SyncClient getOrCreateClient(ScatterGatherNode node) {
-        String serverUrl = "tcp://" + node.getHost() + ":" + node.getPort();
-        return clientCache.computeIfAbsent(serverUrl, url -> {
-            SyncClient client = ServiceProvider.of(SyncClient.class).getNewExtension("tcp", url);
-            if (client != null) {
-                client.subscribe("sync/response", (topic, message) -> {
-                    if (message instanceof ScatterGatherResultWithRequestId wrapper) {
-                        CompletableFuture<ScatterGatherResult<Object>> future = pendingResponses.remove(wrapper.requestId());
-                        if (future != null) {
-                            future.complete(wrapper.result());
-                        }
-                    }
-                });
-                client.connect();
-                log.debug("TCP 客户端已连接到: {}", url);
-            }
-            return client;
-        });
+        return connectionPool.acquireConnected(node.getHost(), node.getPort());
+    }
+
+    /**
+     * 解析 seed 地址列表，支持 host:port 格式，未指定端口时使用默认全局端口。
+     *
+     * @return 节点列表
+     */
+    public List<ScatterGatherNode> resolveSeedNodes() {
+        if (setting.getSeedAddresses() == null || setting.getSeedAddresses().isEmpty()) {
+            return List.of();
+        }
+        return setting.getSeedAddresses().stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(this::parseSeedAddress)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 解析单个 seed 地址。
+     *
+     * @param address 地址，格式 host 或 host:port 或 [ipv6]:port
+     * @return 节点
+     */
+    private ScatterGatherNode parseSeedAddress(String address) {
+        SeedAddress seed = SeedAddress.parse(address);
+        if (seed == null) {
+            log.warn("seed 地址格式无效: {}", address);
+            return null;
+        }
+        int port = seed.effectivePort(setting.getDefaultPort());
+        return new ScatterGatherNode(seed.nodeId(setting.getDefaultPort()), seed.getHost(), port, "tcp", null, Map.of());
     }
 
     @Override
@@ -102,25 +164,7 @@ public class TcpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
      * 关闭所有连接。
      */
     public void closeAll() {
-        for (SyncClient client : clientCache.values()) {
-            try {
-                client.disconnect();
-            } catch (Exception e) {
-                log.warn("关闭客户端连接异常: {}", e.getMessage());
-            }
-        }
-        clientCache.clear();
+        connectionPool.closeAll();
         pendingResponses.clear();
-    }
-
-    /**
-     * 带请求 ID 的响应包装。
-     *
-     * @param requestId 请求 ID
-     * @param result    执行结果
-     * @author CH
-     * @since 4.0.0.42
-     */
-    public record ScatterGatherResultWithRequestId(String requestId, ScatterGatherResult<Object> result) {
     }
 }

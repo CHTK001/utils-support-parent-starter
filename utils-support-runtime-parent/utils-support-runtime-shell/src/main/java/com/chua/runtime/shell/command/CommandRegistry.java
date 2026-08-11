@@ -1,5 +1,6 @@
 package com.chua.runtime.shell.command;
 
+import com.chua.common.support.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -51,7 +52,7 @@ public class CommandRegistry {
      * @return 命令实例，不存在返回 null
      */
     public Command find(String name) {
-        if (name == null || name.isEmpty()) {
+        if (StringUtils.isEmpty(name)) {
             return null;
         }
         String key = name.toLowerCase();
@@ -90,7 +91,7 @@ public class CommandRegistry {
      * @return 补全候选
      */
     public List<String> complete(String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
+        if (StringUtils.isEmpty(prefix)) {
             return allNames();
         }
         String lower = prefix.toLowerCase();

@@ -8,6 +8,7 @@ import com.chua.common.support.task.deduplicate.MemoryDeduplicator;
 import com.chua.common.support.task.scheduler.JdkSchedulerProvider;
 import com.chua.common.support.task.scheduler.ScheduledTask;
 import com.chua.common.support.task.scheduler.Trigger;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.extractor.HtmlLinkExtractor;
 import com.chua.spider.support.fetcher.HttpFetcher;
 import com.chua.spider.support.mapper.SpiderMappingPipeline;
@@ -403,7 +404,7 @@ public class DefaultSpider implements Spider {
 
         try {
             String summary = aiParser.summarize(result);
-            if (summary != null && !summary.isEmpty()) {
+            if (StringUtils.isNotEmpty(summary)) {
                 result.getMetadata().put("aiSummary", summary);
             }
         } catch (Exception e) {
@@ -683,7 +684,7 @@ public class DefaultSpider implements Spider {
 
         @Override
         public Builder addUrl(String url) {
-            if (url != null && !url.isEmpty()) {
+            if (StringUtils.isNotEmpty(url)) {
                 this.seedUrls.add(url);
             }
             return this;

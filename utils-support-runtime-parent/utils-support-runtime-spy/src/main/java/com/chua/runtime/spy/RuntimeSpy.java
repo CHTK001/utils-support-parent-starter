@@ -1,5 +1,7 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import java.lang.instrument.Instrumentation;
 import java.util.logging.Level;
@@ -422,7 +424,7 @@ public class RuntimeSpy {
      */
     public static TraceContextSnapshot capture() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
-        if (stack.isEmpty()) {
+        if (CollectionUtils.isEmpty(stack)) {
             return new TraceContextSnapshot(null, Collections.emptyList());
         }
         TraceStackFrame top = stack.peek();
@@ -438,7 +440,7 @@ public class RuntimeSpy {
      * @param snapshot 之前调用 capture() 获得的快照
      */
     public static void restore(TraceContextSnapshot snapshot) {
-        if (snapshot == null || snapshot.frames().isEmpty()) {
+        if (snapshot == null || CollectionUtils.isEmpty(snapshot.frames())) {
             TRACE_STACK.get().clear();
             return;
         }
@@ -457,7 +459,7 @@ public class RuntimeSpy {
      */
     public static TraceContextSnapshot captureAsKey(String key) {
         TraceContextSnapshot snap = capture();
-        if (key != null && !key.isEmpty()) {
+        if (StringUtils.isNotEmpty(key)) {
             CROSS_THREAD_TRACES.put(key, new TraceEnvelope(snap.frames(), System.currentTimeMillis()));
         }
         return snap;
@@ -469,11 +471,11 @@ public class RuntimeSpy {
      * @param key 标识键
      */
     public static void restoreByKey(String key) {
-        if (key == null || key.isEmpty()) {
+        if (StringUtils.isEmpty(key)) {
             return;
         }
         TraceEnvelope env = CROSS_THREAD_TRACES.remove(key);
-        if (env == null || env.frames == null || env.frames.isEmpty()) {
+        if (env == null || CollectionUtils.isEmpty(env.frames)) {
             TRACE_STACK.get().clear();
             return;
         }
@@ -702,7 +704,7 @@ public class RuntimeSpy {
      */
     public static String getCurrentTraceId() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
-        if (stack == null || stack.isEmpty()) {
+        if (CollectionUtils.isEmpty(stack)) {
             return null;
         }
         return stack.peek().traceId();
@@ -715,7 +717,7 @@ public class RuntimeSpy {
      */
     public static String getCurrentSpanId() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
-        if (stack == null || stack.isEmpty()) {
+        if (CollectionUtils.isEmpty(stack)) {
             return null;
         }
         return stack.peek().spanId();

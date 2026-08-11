@@ -2,6 +2,8 @@ package com.chua.runtime.core.service;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.core.model.ManagedService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +39,7 @@ public class WindowsServiceManager implements ServiceManager {
     public CmdResult install(ManagedService service) {
         LOG.log(Level.INFO, String.format("正在安装 Windows 服务[%s]", service.getServiceName()));
         String exec = service.getExecutable();
-        String args = service.getArgs() != null && !service.getArgs().isEmpty()
+        String args = CollectionUtils.isNotEmpty(service.getArgs())
                 ? " " + String.join(" ", service.getArgs()) : "";
         String startup = mapStartup(service.getStartupType());
         String cmd = String.format("sc create \"%s\" binPath= \"%s%s\" start= %s DisplayName= \"%s\"",

@@ -1,5 +1,7 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,14 +75,14 @@ public final class TraceContextPropagator {
      * @return 是否成功提取（true 表示恢复成功）
      */
     public static boolean extract(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return false;
         }
         String traceparent = null;
         for (Map.Entry<String, String> e : headers.entrySet()) {
             if (e.getKey() != null
                     && e.getKey().equalsIgnoreCase(W3CTraceContext.HEADER_TRACEPARENT)
-                    && e.getValue() != null && !e.getValue().isEmpty()) {
+                    && StringUtils.isNotEmpty(e.getValue())) {
                 traceparent = e.getValue();
                 break;
             }
@@ -98,13 +100,13 @@ public final class TraceContextPropagator {
      * @return 解析后的 W3CTraceContext，无有效 header 时返回 null
      */
     public static W3CTraceContext peek(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
+        if (CollectionUtils.isEmpty(headers)) {
             return null;
         }
         for (Map.Entry<String, String> e : headers.entrySet()) {
             if (e.getKey() != null
                     && e.getKey().equalsIgnoreCase(W3CTraceContext.HEADER_TRACEPARENT)
-                    && e.getValue() != null && !e.getValue().isEmpty()) {
+                    && StringUtils.isNotEmpty(e.getValue())) {
                 return W3CTraceContext.extract(e.getValue());
             }
         }

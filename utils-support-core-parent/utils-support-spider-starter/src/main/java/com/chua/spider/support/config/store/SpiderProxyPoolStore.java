@@ -1,5 +1,7 @@
 package com.chua.spider.support.config.store;
 
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.config.model.SpiderProxy;
 import com.chua.spider.support.config.model.SpiderProxyPool;
 
@@ -39,7 +41,7 @@ public class SpiderProxyPoolStore {
      */
     public PageResult<SpiderProxyPool> page(int pageNo, int pageSize, String keyword) {
         List<SpiderProxyPool> all = new ArrayList<>(storage.values());
-        if (keyword != null && !keyword.isEmpty()) {
+        if (StringUtils.isNotEmpty(keyword)) {
             String kw = keyword.toLowerCase();
             all.removeIf(p -> !(p.getPoolCode() != null && p.getPoolCode().toLowerCase().contains(kw))
                     && !(p.getPoolName() != null && p.getPoolName().toLowerCase().contains(kw)));
@@ -88,7 +90,7 @@ public class SpiderProxyPoolStore {
      */
     public SpiderProxy nextProxy(String poolCode) {
         SpiderProxyPool pool = storage.get(poolCode);
-        if (pool == null || pool.getProxies() == null || pool.getProxies().isEmpty()) {
+        if (pool == null || CollectionUtils.isEmpty(pool.getProxies())) {
             return null;
         }
         List<SpiderProxy> proxies = pool.getProxies();

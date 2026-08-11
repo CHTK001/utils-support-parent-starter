@@ -2,6 +2,7 @@ package com.chua.spider.support.extractor;
 
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.SpiderLinkExtractor;
 import com.chua.spider.support.model.SpiderResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     public List<String> extract(SpiderResponse response) {
         List<String> links = new ArrayList<>();
         String content = response.getContent();
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return links;
         }
 
@@ -83,7 +84,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
      * @return true 表示有效链接
      */
     private boolean isValidLink(String href) {
-        if (href == null || href.isEmpty()) {
+        if (StringUtils.isEmpty(href)) {
             return false;
         }
 

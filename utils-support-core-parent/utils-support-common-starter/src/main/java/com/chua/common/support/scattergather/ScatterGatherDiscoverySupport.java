@@ -4,6 +4,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.Event;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.network.discovery.ServiceDiscoveryListener;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -105,11 +106,8 @@ public class ScatterGatherDiscoverySupport {
             return;
         }
         isStart.set(true);
-        heartbeatExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "scatter-gather-heartbeat");
-            t.setDaemon(true);
-            return t;
-        });
+        heartbeatExecutor = ThreadUtils.newSingleThreadScheduledExecutor(
+                ThreadUtils.newThreadFactory("scatter-gather-heartbeat"));
         heartbeatExecutor.scheduleAtFixedRate(this::sendHeartbeat,
                 setting.getHeartbeatIntervalMillis(),
                 setting.getHeartbeatIntervalMillis(),

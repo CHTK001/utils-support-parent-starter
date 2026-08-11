@@ -1,5 +1,6 @@
 package com.chua.common.support.scattergather;
 
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -39,11 +40,8 @@ public class ScatterGatherDeduplicator {
      */
     public ScatterGatherDeduplicator(long ttlMillis) {
         this.ttlMillis = ttlMillis;
-        this.cleanupExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "scatter-gather-dedup-cleanup");
-            t.setDaemon(true);
-            return t;
-        });
+        this.cleanupExecutor = ThreadUtils.newSingleThreadScheduledExecutor(
+                ThreadUtils.newThreadFactory("scatter-gather-dedup-cleanup"));
         this.cleanupExecutor.scheduleAtFixedRate(this::cleanup, ttlMillis, ttlMillis, TimeUnit.MILLISECONDS);
     }
 

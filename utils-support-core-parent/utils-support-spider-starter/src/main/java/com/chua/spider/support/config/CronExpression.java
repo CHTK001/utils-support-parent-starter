@@ -1,5 +1,7 @@
 package com.chua.spider.support.config;
 
+import com.chua.common.support.utils.StringUtils;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -72,7 +74,7 @@ public class CronExpression {
      * @param expression cron 文本
      */
     public CronExpression(String expression) {
-        if (expression == null || expression.isEmpty()) {
+        if (StringUtils.isEmpty(expression)) {
             throw new IllegalArgumentException("cron expression must not be empty");
         }
         this.expression = expression.trim();
@@ -106,7 +108,7 @@ public class CronExpression {
      * 判定字段是否为通配（{@code *} 或 {@code ?}）。
      */
     private static boolean isWildcard(String field) {
-        if (field == null || field.isEmpty()) {
+        if (StringUtils.isEmpty(field)) {
             return true;
         }
         return field.equals("*") || field.equals("?");

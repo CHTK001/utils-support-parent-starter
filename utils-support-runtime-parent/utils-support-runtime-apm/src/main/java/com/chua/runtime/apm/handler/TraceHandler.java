@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -226,7 +227,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         try {
             String xff = (String) requestObj.getClass()
                     .getMethod("getHeader", String.class).invoke(requestObj, "X-Forwarded-For");
-            if (xff != null && !xff.isEmpty()) {
+            if (StringUtils.isNotEmpty(xff)) {
                 return xff.split(",")[0].trim();
             }
             return (String) requestObj.getClass()

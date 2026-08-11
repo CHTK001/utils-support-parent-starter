@@ -2,6 +2,7 @@ package com.chua.spider.support.parser;
 
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.SpiderParser;
 import com.chua.spider.support.model.SpiderResponse;
 import com.chua.spider.support.model.SpiderResult;
@@ -37,7 +38,7 @@ public class HtmlParser implements SpiderParser {
     @Override
     public SpiderResult parse(SpiderResponse response) {
         String content = response.getContent();
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isEmpty(content)) {
             return null;
         }
 
@@ -89,7 +90,7 @@ public class HtmlParser implements SpiderParser {
      */
     private String extractTitle(Document doc) {
         String title = doc.title();
-        if (title != null && !title.isEmpty()) {
+        if (StringUtils.isNotEmpty(title)) {
             return title.trim();
         }
         Element h1 = doc.selectFirst("h1");

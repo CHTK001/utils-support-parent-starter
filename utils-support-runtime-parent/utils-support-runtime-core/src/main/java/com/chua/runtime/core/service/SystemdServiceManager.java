@@ -2,6 +2,7 @@ package com.chua.runtime.core.service;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.runtime.core.model.ManagedService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -157,7 +158,7 @@ public class SystemdServiceManager implements ServiceManager {
         }
         sb.append("\n[Service]\nType=simple\n");
         sb.append("ExecStart=").append(service.getExecutable());
-        if (service.getArgs() != null && !service.getArgs().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(service.getArgs())) {
             sb.append(" ").append(String.join(" ", service.getArgs()));
         }
         sb.append("\n");
@@ -170,7 +171,7 @@ public class SystemdServiceManager implements ServiceManager {
         if (service.isAutoRestart()) {
             sb.append("Restart=on-failure\nRestartSec=").append(service.getRestartSec()).append("\n");
         }
-        if (service.getEnv() != null && !service.getEnv().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(service.getEnv())) {
             service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));
         }
         sb.append("\n[Install]\nWantedBy=multi-user.target\n");
