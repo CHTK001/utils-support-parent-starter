@@ -38,6 +38,11 @@ public class NodeTable {
     private final AtomicInteger roundRobinCounter = new AtomicInteger(0);
 
     /**
+     * 轮询掩码（防止溢出）
+     */
+    private static final int ROUND_ROBIN_MASK = Integer.MAX_VALUE;
+
+    /**
      * 心跳检测定时器
      */
     private final ScheduledExecutorService heartbeatScheduler;
@@ -224,10 +229,8 @@ public class NodeTable {
      * 轮询选择。
      */
     private NodeMeta roundRobinSelect(List<NodeMeta> candidates) {
-        int index = roundRobinCounter.getAndIncrement() % candidates.size();
-        if (index < 0) {
-            index = 0;
-        }
+        int index = roundRobinCounter.getAndIncrement() & ROUND_ROBIN_MASK;
+        index = index % candidates.size();
         return candidates.get(index);
     }
 

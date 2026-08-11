@@ -47,7 +47,12 @@ private TaskStore store;
 /**
  * 超时检测定时器
  */
-    private final ScheduledExecutorService timeoutScheduler;
+private final ScheduledExecutorService timeoutScheduler;
+
+/**
+ * 已完成任务清理过期时间（毫秒），默认 60 秒
+ */
+private long cleanExpireMs = 60000;
 
     /**
      * 默认超时检测间隔（毫秒）
@@ -390,9 +395,8 @@ private TaskStore store;
      */
     public void cleanCompleted() {
         long now = System.currentTimeMillis();
-        long expireMs = 60000;
         tasks.values().removeIf(holder -> {
-            if (holder.completedAt > 0 && now - holder.completedAt > expireMs) {
+            if (holder.completedAt > 0 && now - holder.completedAt > cleanExpireMs) {
                 return true;
             }
             return false;
