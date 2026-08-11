@@ -127,7 +127,6 @@ public class GlobalSettingFactory {
         CONFIG.put(PREFIX + group + name, CommonConstant.SYMBOL_EMPTY);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized <T> void set(String group, Map<String, Object> params) {
         if (MapUtils.isEmpty(params)) {
             return;
@@ -137,7 +136,13 @@ public class GlobalSettingFactory {
             return;
         }
         for (T t : ts) {
-            params.forEach((name, value) -> FieldStation.of(t).setIgnoreNameValue(name, value));
+            params.forEach((name, value) -> {
+                if (value == null) {
+                    // 显式 null：同时清空 CONFIG 标记，允许后续重新 set
+                    CONFIG.remove(PREFIX + group + name);
+                }
+                FieldStation.of(t).setIgnoreNameValue(name, value);
+            });
             if (t instanceof Upgrade<?>) {
                 ((Upgrade) t).upgrade(t);
             }
@@ -151,6 +156,9 @@ public class GlobalSettingFactory {
             return;
         }
         for (T t : ts) {
+            if (value == null) {
+                CONFIG.remove(PREFIX + group + name);
+            }
             FieldStation.of(t).setIgnoreNameValue(name, value);
             if (t instanceof Upgrade<?>) {
                 ((Upgrade) t).upgrade(t);
