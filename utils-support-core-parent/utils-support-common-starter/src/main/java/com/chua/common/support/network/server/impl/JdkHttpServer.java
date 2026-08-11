@@ -52,6 +52,8 @@ public class JdkHttpServer extends AbstractServer {
                 int backlog = Math.max(setting.getBacklog(), 8192);
                 server = HttpServer.create(addr, backlog);
             }
+            // 回填实际端口（port=0 时由系统分配）
+            setting.setPort(server.getAddress().getPort());
             executor = Executors.newVirtualThreadPerTaskExecutor();
             server.setExecutor(executor);
             server.createContext(setting.getContextPath(), this::handleExchange);

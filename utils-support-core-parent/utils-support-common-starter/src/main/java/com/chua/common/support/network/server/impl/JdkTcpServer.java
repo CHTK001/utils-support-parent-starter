@@ -179,6 +179,8 @@ public class JdkTcpServer extends AbstractServer {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket = new ServerSocket();
             serverSocket.bind(addr, setting.getBacklog());
+            // 回填实际端口（port=0 时由系统分配）
+            setting.setPort(serverSocket.getLocalPort());
             workerPool = new ThreadPoolExecutor(
                     Math.max(8, setting.getWorkerThreads()),
                     setting.getWorkerThreads(),

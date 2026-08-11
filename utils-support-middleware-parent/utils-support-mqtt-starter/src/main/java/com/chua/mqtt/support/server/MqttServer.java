@@ -114,6 +114,8 @@ public class MqttServer extends AbstractServer {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket = new ServerSocket();
             serverSocket.bind(addr, setting.getBacklog());
+            // 回填实际端口（port=0 时由系统分配）
+            setting.setPort(serverSocket.getLocalPort());
             bossPool = Executors.newFixedThreadPool(setting.getBossThreads());
             workerPool = Executors.newFixedThreadPool(setting.getWorkerThreads());
             running = true;

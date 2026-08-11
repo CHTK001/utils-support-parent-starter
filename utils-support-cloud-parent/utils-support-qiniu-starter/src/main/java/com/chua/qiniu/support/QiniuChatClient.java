@@ -4,6 +4,7 @@ import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatMessage;
+import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +28,26 @@ public class QiniuChatClient implements ChatClient {
      */
     private static final String NOT_SUPPORTED_MSG = "七牛云暂不支持 AI 对话";
 
+    /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
+
     @Override
     public ChatClient model(String model) {
         return this;
@@ -44,6 +65,30 @@ public class QiniuChatClient implements ChatClient {
 
     @Override
     public ChatClient system(String system) {
+        return this;
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
         return this;
     }
 

@@ -2,6 +2,8 @@ package com.chua.openai.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
@@ -14,6 +16,7 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.JsonValue;
 import com.openai.core.http.StreamResponse;
 import com.openai.models.FunctionDefinition;
+import com.openai.models.ReasoningEffort;
 import com.openai.models.FunctionParameters;
 import com.openai.models.ResponseFormatJsonObject;
 import com.openai.models.ResponseFormatText;
@@ -150,6 +153,26 @@ public class OpenAiChatClient implements ChatClient {
      * 额外请求体参数
      */
     private Map<String, Object> extraBody = new HashMap<>();
+
+    /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
 
     /**
      * 图片附件 URL 列表
@@ -315,6 +338,30 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
+        return this;
+    }
+
+    @Override
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         StringBuilder reasoning = new StringBuilder();
@@ -354,9 +401,13 @@ public class OpenAiChatClient implements ChatClient {
                 .temperature(temperature != null ? temperature : 0.3)
                 .maxTokens(maxTokens != null ? (long) maxTokens : 2048L);
 
-        // 添加系统提示词
-        if (system != null && !system.isEmpty()) {
-            paramsBuilder.addSystemMessage(system);
+        // 技能注入系统提示词
+        String actualSystem = system;
+        if (skillManager != null) {
+            actualSystem = SkillPrompt.inject(system, skillManager);
+        }
+        if (actualSystem != null && !actualSystem.isEmpty()) {
+            paramsBuilder.addSystemMessage(actualSystem);
         }
 
         // 添加对话历史（优先使用外部传入的历史）
@@ -406,6 +457,21 @@ public class OpenAiChatClient implements ChatClient {
         }
         applyResponseFormat(paramsBuilder, responseFormat);
         applyExtraBody(paramsBuilder, extraBody);
+
+        // 思考模式与联网搜索
+        if (thinking) {
+            String effort = thinkingEffort != null ? thinkingEffort : "high";
+            paramsBuilder.reasoningEffort(switch (effort) {
+                case "low" -> ReasoningEffort.LOW;
+                case "medium" -> ReasoningEffort.MEDIUM;
+                default -> ReasoningEffort.HIGH;
+            });
+        }
+        if (smartSearch) {
+            paramsBuilder.webSearchOptions(ChatCompletionCreateParams.WebSearchOptions.builder()
+                    .searchContextSize(ChatCompletionCreateParams.WebSearchOptions.SearchContextSize.MEDIUM)
+                    .build());
+        }
 
         ChatCompletionCreateParams params = paramsBuilder.build();
 

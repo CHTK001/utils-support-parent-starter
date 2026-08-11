@@ -2,6 +2,8 @@ package com.chua.baidu.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -93,6 +95,26 @@ public class BaiduChatClient implements ChatClient {
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
+
+    /**
      * 缓存的 Access Token
      */
     private String accessToken;
@@ -134,6 +156,30 @@ public class BaiduChatClient implements ChatClient {
     @Override
     public ChatClient system(String system) {
         this.system = system;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
         return this;
     }
 
@@ -228,15 +274,24 @@ public class BaiduChatClient implements ChatClient {
             messagesJson.append("{\"role\":\"user\",\"content\":\"").append(escapeJson(prompt)).append("\"}");
             messagesJson.append("]");
 
-            String systemStr = "";
-            if (system != null && !system.isEmpty()) {
-                systemStr = ",\"system\":\"" + escapeJson(system) + "\"";
+            String actualSystem = system;
+            if (skillManager != null) {
+                actualSystem = SkillPrompt.inject(system, skillManager);
             }
+            String systemStr = "";
+            if (actualSystem != null && !actualSystem.isEmpty()) {
+                systemStr = ",\"system\":\"" + escapeJson(actualSystem) + "\"";
+            }
+
+            StringBuilder extraFlags = new StringBuilder();
+            if (thinking) { extraFlags.append(",\"thinking\":true"); }
+            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
 
             String requestBody = "{\"messages\":" + messagesJson
                     + systemStr
                     + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048) + "}";
+                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
+                    + extraFlags.toString() + "}";
 
             String actualModel = model != null ? model : "ernie-3.5-8k";
             String url = normalizeBaseUrl() + "/" + actualModel + "?access_token=" + token;

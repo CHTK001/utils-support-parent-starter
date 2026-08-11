@@ -1,8 +1,15 @@
 package com.chua.common.support.ai.chat;
 
 import com.chua.common.support.ai.chat.usage.UsagePersistChatClient;
+import com.chua.common.support.ai.generation.ImageGenerationResult;
+import com.chua.common.support.ai.generation.ImageGenerationSpec;
+import com.chua.common.support.ai.generation.VideoGenerationResult;
+import com.chua.common.support.ai.generation.VideoGenerationSpec;
 import com.chua.common.support.ai.probe.ProbeProgress;
 import com.chua.common.support.ai.probe.ProbeReport;
+import com.chua.common.support.ai.skill.DefaultSkillManager;
+import com.chua.common.support.ai.skill.SkillDefinition;
+import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -208,6 +215,97 @@ public interface ChatClient extends AutoCloseable {
      */
     default ChatClient tools(List<ChatTool> tools) {
         return this;
+    }
+
+    /**
+     * 设置是否启用深度思考模式
+     *
+     * <p>启用后模型会输出推理过程（思维链），
+     * {@link ChatResponse#getReasoningContent()} 可获得思考内容。
+     * 仅支持思考模式的模型有效，其他模型忽略此参数。
+     *
+     * @param thinking true 启用深度思考
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient thinking(boolean thinking) {
+        return this;
+    }
+
+    /**
+     * 设置深度思考强度
+     *
+     * <p>独立于 {@link #thinking(boolean)}，用于控制思考模式的强度级别。
+     * 取值约定：{@code low} / {@code medium} / {@code high}。
+     *
+     * <ul>
+     *   <li>OpenAI：映射 {@code reasoning_effort}</li>
+     *   <li>Claude：映射 {@code budget_tokens}（不足时忽略）</li>
+     *   <li>Gemini：映射 {@code thinkingBudget}</li>
+     *   <li>其他：视服务商支持情况，不支持时忽略</li>
+     * </ul>
+     *
+     * @param effort 思考强度级别（low / medium / high）
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient thinkingEffort(String effort) {
+        return this;
+    }
+
+    /**
+     * 设置是否启用智能搜索
+     *
+     * <p>启用后模型在需要时可自动联网搜索实时信息。
+     * 仅支持搜索能力的模型有效，其他模型忽略此参数。
+     *
+     * @param smartSearch true 启用智能搜索
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient smartSearch(boolean smartSearch) {
+        return this;
+    }
+
+    /**
+     * 设置技能管理器
+     *
+     * <p>将注册的技能说明注入系统提示词，使模型感知可用技能。
+     * 技能通过 {@link SkillPrompt#inject(String, SkillManager)} 拼入 system prompt，
+     * 不依赖 function calling 能力，适用于不支持工具调用的模型。
+     *
+     * <p>使用示例：
+     * <pre>{@code
+     * SkillManager sm = new DefaultSkillManager()
+     *     .register(SkillDefinition.skill("get_weather",
+     *         "获取天气", args, handler)));
+     * client.skill(sm).chatSync("今天天气如何？");
+     * }</pre>
+     *
+     * @param skillManager 技能管理器
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient skill(SkillManager skillManager) {
+        return this;
+    }
+
+    /**
+     * 设置单个技能定义
+     *
+     * <p>将单个技能包装进内部 {@link SkillManager}，与 {@link #skill(SkillManager)}
+     * 效果一致，适用于只注入一个技能的简洁场景。
+     *
+     * <p>使用示例（直接传文本内容）：
+     * <pre>{@code
+     * client.skill(SkillDefinition.text("get_weather", "获取天气",
+     *     "# 天气技能\n当用户询问天气时返回晴天。"));
+     * }</pre>
+     *
+     * @param skillDefinition 技能定义
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient skill(SkillDefinition skillDefinition) {
+        if (skillDefinition == null) {
+            return this;
+        }
+        return skill(new DefaultSkillManager().register(skillDefinition));
     }
 
     /**
@@ -530,5 +628,107 @@ public interface ChatClient extends AutoCloseable {
      */
     default ProbeReport probe() {
         throw new UnsupportedOperationException("当前 ChatClient 实现不支持探测功能");
+    }
+
+    /**
+     * 生成图像。
+     *
+     * <p>根据文本描述生成图像。各服务商实现应映射到自身的图像生成 API。
+     * 不支持的实现应保持默认抛出 {@link UnsupportedOperationException}。
+     *
+     * @param prompt       图像描述文本
+     * @param ratio        宽高比（如 "1:1", "16:9", "9:16"），部分服务商支持
+     * @param n            生成数量（部分服务商支持，如 OpenAI DALL-E 支持 n=1~10）
+     * @param width        输出宽度（部分服务商支持）
+     * @param height       输出高度（部分服务商支持）
+     * @param quality      质量（"standard" / "hd"），部分服务商支持
+     * @param refImageKey  参考图标识（如豆包图生图），不支持时忽略
+     * @return 图像生成结果
+     * @throws UnsupportedOperationException 当前实现不支持图像生成
+     */
+    default ImageGenerationResult generateImage(String prompt, String ratio, int n,
+                                                int width, int height, String quality,
+                                                String refImageKey) {
+        throw new UnsupportedOperationException("当前 ChatClient 实现不支持图像生成");
+    }
+
+    /**
+     * 生成图像（简化参数）。
+     *
+     * @param prompt 图像描述文本
+     * @param ratio  宽高比，可为空
+     * @return 图像生成结果
+     * @see #generateImage(String, String, int, int, int, String, String)
+     */
+    default ImageGenerationResult generateImage(String prompt, String ratio) {
+        return generateImage(prompt, ratio, 1, 0, 0, null, null);
+    }
+
+    /**
+     * 创建图像生成参数构建器（链式调用）。
+     *
+     * <p>用法：
+     * <pre>{@code
+     * ImageGenerationResult result = client.generateImage()
+     *     .prompt("一只柴犬在樱花树下")
+     *     .ratio("16:9")
+     *     .n(3)
+     *     .generate();
+     * }</pre>
+     *
+     * @return 图像生成参数构建器
+     */
+    default ImageGenerationSpec generateImage() {
+        return new ImageGenerationSpec(this);
+    }
+
+    /**
+     * 生成视频。
+     *
+     * <p>根据文本描述生成视频。各服务商实现应映射到自身的视频生成 API。
+     * 不支持的实现应保持默认抛出 {@link UnsupportedOperationException}。
+     *
+     * @param prompt         视频描述文本
+     * @param ratio          宽高比，可为空
+     * @param cameraMovement 镜头运动描述，可为空
+     * @param refImageKey    参考图标识，可为空
+     * @param timeoutSeconds 超时秒数（用于异步轮询场景）
+     * @return 视频生成结果
+     * @throws UnsupportedOperationException 当前实现不支持视频生成
+     */
+    default VideoGenerationResult generateVideo(String prompt, String ratio,
+                                                String cameraMovement, String refImageKey,
+                                                int timeoutSeconds) {
+        throw new UnsupportedOperationException("当前 ChatClient 实现不支持视频生成");
+    }
+
+    /**
+     * 生成视频（简化参数）。
+     *
+     * @param prompt 视频描述文本
+     * @param ratio  宽高比，可为空
+     * @return 视频生成结果
+     * @see #generateVideo(String, String, String, String, int)
+     */
+    default VideoGenerationResult generateVideo(String prompt, String ratio) {
+        return generateVideo(prompt, ratio, null, null, 300);
+    }
+
+    /**
+     * 创建视频生成参数构建器（链式调用）。
+     *
+     * <p>用法：
+     * <pre>{@code
+     * VideoGenerationResult result = client.generateVideo()
+     *     .prompt("一只柴犬在雪地里奔跑")
+     *     .ratio("16:9")
+     *     .cameraMovement("推进")
+     *     .generate();
+     * }</pre>
+     *
+     * @return 视频生成参数构建器
+     */
+    default VideoGenerationSpec generateVideo() {
+        return new VideoGenerationSpec(this);
     }
 }

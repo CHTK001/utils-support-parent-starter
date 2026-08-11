@@ -2,6 +2,8 @@ package com.chua.claude.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -88,6 +90,26 @@ public class ClaudeChatClient implements ChatClient {
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
+
+    /**
      * 构造 Claude 对话客户端
      *
      * @param setting 客户端配置
@@ -124,6 +146,30 @@ public class ClaudeChatClient implements ChatClient {
     @Override
     public ChatClient system(String system) {
         this.system = system;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
         return this;
     }
 
@@ -219,16 +265,27 @@ public ChatClient newChat() {
                     .append(escapeJson(prompt)).append("\"}");
             messagesJson.append("]");
 
+            String actualSystem = system;
+            if (skillManager != null) {
+                actualSystem = SkillPrompt.inject(system, skillManager);
+            }
             String systemStr = "";
-            if (system != null && !system.isEmpty()) {
-                systemStr = ",\"system\":\"" + escapeJson(system) + "\"";
+            if (actualSystem != null && !actualSystem.isEmpty()) {
+                systemStr = ",\"system\":\"" + escapeJson(actualSystem) + "\"";
+            }
+
+            StringBuilder extraFlags = new StringBuilder();
+            if (thinking) {
+                int budget = "low".equals(thinkingEffort) ? 512 : "high".equals(thinkingEffort) ? 2048 : 1024;
+                extraFlags.append(",\"thinking\":{\"type\":\"enabled\",\"budget_tokens\":").append(budget).append("}");
             }
 
             String requestBody = "{\"model\":\"" + (model != null ? model : "claude-3-sonnet-20240229")
                     + "\",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
                     + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
                     + ",\"messages\":" + messagesJson
-                    + systemStr + "}";
+                    + systemStr
+                    + extraFlags.toString() + "}";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(actualBaseUrl + "/messages"))

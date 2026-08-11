@@ -237,7 +237,21 @@ public final class SqliteConnectionStore implements ConnectionStore {
     public Connection upsertByTarget(String protocol, String host, int port, String user, String password) {
         Connection existing = findByTarget(protocol, host, port);
         if (existing != null) {
-            return existing;
+            // Update user/password/key to latest request (custom mode may change between requests)
+            try (java.sql.Connection conn = openConnection()) {
+                try (PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_TARGET)) {
+                    ps.setString(1, user);
+                    ps.setString(2, password);
+                    ps.setString(3, protocol);
+                    ps.setString(4, host);
+                    ps.setInt(5, port);
+                    ps.executeUpdate();
+                }
+            } catch (SQLException e) {
+                log.warn("[gateway-server] 更新连接失败: protocol={} host={} port={} err={}",
+                        protocol, host, port, e.getMessage());
+            }
+            return findByTarget(protocol, host, port);
         }
         try (java.sql.Connection conn = openConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(SQL_INSERT_IGNORE)) {

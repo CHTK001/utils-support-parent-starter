@@ -2,6 +2,8 @@ package com.chua.google.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -91,6 +93,26 @@ public class GoogleChatClient implements ChatClient {
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
+
+    /**
      * 构造 Google Gemini 对话客户端
      *
      * @param setting 客户端配置
@@ -127,6 +149,30 @@ public class GoogleChatClient implements ChatClient {
     @Override
     public ChatClient system(String system) {
         this.system = system;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
         return this;
     }
 
@@ -231,15 +277,27 @@ public ChatClient newChat() {
                     .append(escapeJson(prompt)).append("\"}]}");
             contentsJson.append("]");
 
-            String systemStr = "";
-            if (system != null && !system.isEmpty()) {
-                systemStr = ",\"systemInstruction\":{\"parts\":[{\"text\":\"" + escapeJson(system) + "\"}]}";
+            String actualSystem = system;
+            if (skillManager != null) {
+                actualSystem = SkillPrompt.inject(system, skillManager);
             }
+            String systemStr = "";
+            if (actualSystem != null && !actualSystem.isEmpty()) {
+                systemStr = ",\"systemInstruction\":{\"parts\":[{\"text\":\"" + escapeJson(actualSystem) + "\"}]}";
+            }
+
+            StringBuilder extraFlags = new StringBuilder();
+            if (thinking) {
+                int budget = "low".equals(thinkingEffort) ? 1 : "medium".equals(thinkingEffort) ? 2 : 3;
+                extraFlags.append(",\"thinkingConfig\":{\"thinkingBudget\":").append(budget).append("}");
+            }
+            if (smartSearch) { extraFlags.append(",\"tools\":[{\"googleSearch\":{}}]"); }
 
             String requestBody = "{\"contents\":" + contentsJson
                     + systemStr
                     + ",\"generationConfig\":{\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"maxOutputTokens\":" + (maxTokens != null ? maxTokens : 2048) + "}}";
+                    + ",\"maxOutputTokens\":" + (maxTokens != null ? maxTokens : 2048) + "}"
+                    + extraFlags.toString() + "}";
 
             String actualModel = model != null ? model : "gemini-1.5-pro";
             // 使用 streamGenerateContent SSE 端点实现流式输出

@@ -71,6 +71,19 @@ public class SkillDefinition {
     }
 
     /**
+     * 从文本内容创建技能定义
+     *
+     * @param name        技能名称
+     * @param description 技能描述
+     * @param content     技能文本内容（SKILL.md 形式）
+     * @return 技能定义
+     */
+    public static SkillDefinition text(String name, String description, String content) {
+        SkillHandler handler = args -> SkillResult.success(content);
+        return new SkillDefinition(name, description, null, handler);
+    }
+
+    /**
      * 从 SKILL.md 文件路径创建技能定义
      *
      * @param name        技能名称

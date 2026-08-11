@@ -83,6 +83,20 @@ public class TcpProxyServer extends AbstractServer {
     protected ServerSocket serverSocket;
 
     /**
+     * 构造 TCP 代理服务器（SPI 工厂使用）。
+     * <p>注意：通过 SPI 加载时 {@link ProxyTargetResolver} 未提供，
+     * 会拒绝所有连接（{@code resolve} 返回 null），调用方需自行注入。</p>
+     *
+     * @param setting 服务器配置
+     */
+    public TcpProxyServer(ServerSetting setting) {
+        super(setting);
+        this.targetResolver = remote -> null;
+        this.connectTimeoutMs = setting.getReadTimeout();
+        this.readTimeoutMs = setting.getWriteTimeout();
+    }
+
+    /**
      * 构造 TCP 代理服务器。
      *
      * @param setting        服务器配置
