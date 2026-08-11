@@ -4,13 +4,17 @@ import com.chua.common.support.application.GlobalSettingFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,7 +27,7 @@ import java.util.Set;
  * @author CH
  * @since 2024/8/13
  */
-@Component
+@AutoConfiguration(after = GlobalSettingFactoryAutoConfiguration.class)
 public class GlobalSettingAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalSettingAutoConfiguration.class);
@@ -49,13 +53,29 @@ public class GlobalSettingAutoConfiguration {
                 new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(GlobalSettingGroup.class));
 
-        // 默认扫描基包：SpringBootApplication 所在包
-        String basePackage = getBasePackage();
-        if (basePackage == null) {
+        List<String> basePackages = getBasePackages();
+        if (basePackages.isEmpty()) {
             log.debug("[GlobalSettingAutoConfiguration] 未找到基础包，跳过扫描");
             return;
         }
 
+        log.info("[GlobalSettingAutoConfiguration] 扫描基础包: {}", basePackages);
+        for (String basePackage : basePackages) {
+            try {
+                scanAndRegister(factory, scanner, basePackage);
+            } catch (Exception e) {
+                log.warn("[GlobalSettingAutoConfiguration] 扫描包失败: package={}, error={}",
+                        basePackage, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 扫描单个基础包下的所有 @GlobalSettingGroup 注解类。
+     */
+    private void scanAndRegister(GlobalSettingFactory factory,
+                                  ClassPathScanningCandidateComponentProvider scanner,
+                                  String basePackage) {
         Set<BeanDefinition> candidates = scanner.findCandidateComponents(basePackage);
         for (BeanDefinition def : candidates) {
             try {
@@ -67,7 +87,7 @@ public class GlobalSettingAutoConfiguration {
                 Object bean;
                 String[] beanNames = applicationContext.getBeanNamesForType(clazz);
                 if (beanNames.length > 0) {
-                    // Bean 已注册到 Spring 容器，优先复用
+                    // Bean 已注册到 Spring 容器，优先复用（单例）
                     bean = applicationContext.getBean(beanNames[0]);
                 } else {
                     // Bean 未注册到 Spring 容器（无 @Component），通过反射实例化
@@ -83,23 +103,40 @@ public class GlobalSettingAutoConfiguration {
         }
     }
 
-    private String getBasePackage() {
+    /**
+     * 获取扫描的基础包列表。
+     * <p>
+     * 优先级：{@code @SpringBootApplication} 注解所在包 > {@code spring.components} 配置。
+     * 使用 Spring Boot 标准的 {@link AutoConfigurationPackages} 获取主应用基包，
+     * 而非遍历所有 Bean（之前的方法会拿到第一个 Bean 的包名，导致跨包扫描失败）。
+     * </p>
+     */
+    private List<String> getBasePackages() {
         try {
-            String[] names = applicationContext.getBeanDefinitionNames();
-            for (String name : names) {
-                try {
-                    Object bean = applicationContext.getBean(name);
-                    String pkg = bean.getClass().getPackageName();
-                    if (pkg != null && !pkg.isEmpty() && !pkg.startsWith("org.springframework")) {
-                        return pkg;
-                    }
-                } catch (Exception ignored) {
-                    // 非单例/抽象 Bean 跳过
+            List<String> packages = AutoConfigurationPackages.get(applicationContext);
+            if (!packages.isEmpty()) {
+                return packages;
+            }
+        } catch (Exception e) {
+            log.debug("[GlobalSettingAutoConfiguration] AutoConfigurationPackages 获取失败，回退到 @SpringBootApplication 扫描: {}",
+                    e.getMessage());
+        }
+
+        // 回退方案：从 @SpringBootApplication 注解推断基础包
+        try {
+            Map<String, Object> beans = applicationContext.getBeansWithAnnotation(
+                    org.springframework.boot.autoconfigure.SpringBootApplication.class);
+            if (!beans.isEmpty()) {
+                Object app = beans.values().iterator().next();
+                String pkg = app.getClass().getPackageName();
+                if (pkg != null && !pkg.isEmpty()) {
+                    return Collections.singletonList(pkg);
                 }
             }
         } catch (Exception e) {
-            log.debug("[GlobalSettingAutoConfiguration] 获取基础包失败: {}", e.getMessage());
+            log.debug("[GlobalSettingAutoConfiguration] @SpringBootApplication 回退失败: {}", e.getMessage());
         }
-        return null;
+
+        return Collections.emptyList();
     }
 }
