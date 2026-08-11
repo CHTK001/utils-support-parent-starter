@@ -4,9 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 字段访问工具，通过反射按字段名读写对象属性。
+ * <p>
+ * 字段查找结果通过 {@link ConcurrentMap} 缓存，避免重复反射开销。
  *
  * @author CH
  * @since 2024/8/6
@@ -14,6 +18,9 @@ import java.lang.reflect.Field;
 public final class FieldStation {
 
     private static final Logger log = LoggerFactory.getLogger(FieldStation.class);
+
+    /** 类级字段缓存：key = className + "|" + fieldName */
+    private static final ConcurrentMap<String, Field> FIELD_CACHE = new ConcurrentHashMap<>(256);
 
     private final Object instance;
     private final Class<?> type;
@@ -33,7 +40,7 @@ public final class FieldStation {
 
     public Object getValue(String name) {
         try {
-            Field field = findField(toCamelCase(name));
+            Field field = findField(type, toCamelCase(name));
             field.setAccessible(true);
             return field.get(instance);
         } catch (NoSuchFieldException e) {
@@ -51,7 +58,7 @@ public final class FieldStation {
 
     public void setIgnoreNameValue(String name, Object value) {
         try {
-            Field field = findField(toCamelCase(name));
+            Field field = findField(type, toCamelCase(name));
             field.setAccessible(true);
             field.set(instance, value);
         } catch (NoSuchFieldException e) {
@@ -71,11 +78,21 @@ public final class FieldStation {
         return Character.isUpperCase(first) ? (Character.toLowerCase(first) + name.substring(1)) : name;
     }
 
-    private Field findField(String name) throws NoSuchFieldException {
+    /**
+     * 查找字段（含继承链），结果缓存于 {@link #FIELD_CACHE}。
+     */
+    private static Field findField(Class<?> type, String name) throws NoSuchFieldException {
+        String cacheKey = type.getName() + "|" + name;
+        Field cached = FIELD_CACHE.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
         Class<?> current = type;
         while (current != null) {
             try {
-                return current.getDeclaredField(name);
+                Field field = current.getDeclaredField(name);
+                FIELD_CACHE.putIfAbsent(cacheKey, field);
+                return field;
             } catch (NoSuchFieldException e) {
                 current = current.getSuperclass();
             }
