@@ -16,6 +16,7 @@ import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
+import com.chua.common.support.utils.CollectionUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.invoke.SerializedLambda;
@@ -368,14 +369,14 @@ public class TablesawEngine implements Engine {
 
         // 应用条件过滤
         List<Condition> conditions = wrapper.getConditions();
-        if (conditions != null && !conditions.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(conditions)) {
             Predicate<T> predicate = conditionsToPredicate(conditions);
             all = all.stream().filter(predicate).collect(Collectors.toList());
         }
 
         // 应用排序
         List<String> orderBys = wrapper.getOrderBys();
-        if (orderBys != null && !orderBys.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(orderBys)) {
             all.sort((a, b) -> compareOrdered(a, b, orderBys));
         }
 
@@ -432,7 +433,7 @@ public class TablesawEngine implements Engine {
      * @return 组合后的 Predicate
      */
     private <T> Predicate<T> conditionsToPredicate(List<Condition> conditions) {
-        if (conditions == null || conditions.isEmpty()) {
+        if (CollectionUtils.isEmpty(conditions)) {
             return t -> true;
         }
         List<Predicate<T>> predicates = new ArrayList<>();

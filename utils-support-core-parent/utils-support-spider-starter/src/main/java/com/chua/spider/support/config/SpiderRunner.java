@@ -1,5 +1,7 @@
 package com.chua.spider.support.config;
 
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.Spider;
 import com.chua.spider.support.config.model.SpiderDefinition;
 import com.chua.spider.support.config.model.SpiderExecutionRecord;
@@ -154,7 +156,7 @@ public class SpiderRunner {
             String json = serializeResults(results);
             // 防御：保证 resultsJson 与 resultCount 一致。如果 resultsJson 解析失败或为空但 count>0，
             // 至少把空数组写进去，避免前端看到 null。
-            if (json == null || json.isEmpty()) {
+            if (StringUtils.isEmpty(json)) {
                 json = "[]";
                 log.warn("[SpiderRunner] resultsJson 为空，spiderCode={} count={}",
                         definition.getSpiderCode(), count);
@@ -193,7 +195,7 @@ public class SpiderRunner {
      * DOM 树等大字段导致内存爆炸。</p>
      */
     private String serializeResults(List<com.chua.spider.support.model.SpiderResult> results) {
-        if (results == null || results.isEmpty()) {
+        if (CollectionUtils.isEmpty(results)) {
             return "[]";
         }
         try {

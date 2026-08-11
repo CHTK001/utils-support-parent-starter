@@ -19,6 +19,7 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
+import com.chua.common.support.utils.CollectionUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -101,7 +102,7 @@ public class Neo4jEngine implements Engine {
 
     @Override
     public <T> Engine store(String name, List<T> data) {
-        if (driver == null || data == null || data.isEmpty()) {
+        if (driver == null || CollectionUtils.isEmpty(data)) {
             return this;
         }
         Class<T> entityClass = (Class<T>) data.get(0).getClass();
@@ -323,7 +324,7 @@ public class Neo4jEngine implements Engine {
             Class<T> entityClass,
             List<Condition> conditions,
             Map<String, Object> setValues) {
-        if (driver == null || setValues == null || setValues.isEmpty()) {
+        if (driver == null || CollectionUtils.isEmpty(setValues)) {
             return 0;
         }
         String label = entityClass.getSimpleName();
@@ -402,7 +403,7 @@ public class Neo4jEngine implements Engine {
             List<Condition> conditions,
             Map<String, Object> params,
             String alias) {
-        if (conditions == null || conditions.isEmpty()) {
+        if (CollectionUtils.isEmpty(conditions)) {
             return "";
         }
         StringBuilder sb = new StringBuilder();

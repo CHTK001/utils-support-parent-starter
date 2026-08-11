@@ -24,6 +24,7 @@ import io.milvus.v2.service.vector.response.SearchResp;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 
+import com.chua.common.support.utils.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +205,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                 .collectionName(collectionName)
                 .ids(List.of(id))
                 .build());
-        if (query == null || query.getQueryResults() == null || query.getQueryResults().isEmpty()) {
+        if (query == null || CollectionUtils.isEmpty(query.getQueryResults())) {
             return false;
         }
         com.google.gson.JsonObject entity = new com.google.gson.JsonObject();

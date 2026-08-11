@@ -3,6 +3,7 @@ package com.chua.spider.support.mapper;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.annotation.SpiderAi;
 import com.chua.spider.support.annotation.SpiderField;
 import com.chua.spider.support.model.SpiderResult;
@@ -120,7 +121,7 @@ public class SpiderFieldMapper {
      * 通过 CSS 选择器从 HTML 中提取值。
      */
     private String extractBySelector(String html, SpiderField annotation) {
-        if (html == null || html.isEmpty()) {
+        if (StringUtils.isEmpty(html)) {
             return null;
         }
         try {
@@ -153,7 +154,7 @@ public class SpiderFieldMapper {
             SpiderAi classAi = clazz.getAnnotation(SpiderAi.class);
             StringBuilder prompt = new StringBuilder();
 
-            if (classAi != null && !classAi.value().isEmpty()) {
+            if (classAi != null && StringUtils.isNotEmpty(classAi.value())) {
                 prompt.append(classAi.value()).append("\n\n");
             }
             prompt.append("从以下文本中提取信息，返回 JSON 格式：\n");
@@ -170,10 +171,10 @@ public class SpiderFieldMapper {
             }
 
             String response = chatClient.system(prompt.toString()).model(
-                    classAi != null && !classAi.model().isEmpty() ?
+                    classAi != null && StringUtils.isNotEmpty(classAi.model()) ?
                             classAi.model() : "").chatSync(text);
 
-            if (response == null || response.isEmpty()) {
+            if (StringUtils.isEmpty(response)) {
                 return results;
             }
             // 优先使用 Jackson 解析 JSON

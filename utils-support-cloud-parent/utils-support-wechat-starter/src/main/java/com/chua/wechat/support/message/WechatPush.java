@@ -15,6 +15,7 @@ import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.common.support.task.message.TemplateInfo;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -356,12 +357,12 @@ public class WechatPush implements MessagePush {
             ClientResponse response = httpClient.execute(request);
             String responseBody = response.getBodyString();
             JsonObject json = Json.getJsonObject(responseBody);
-            int errCode = getInt(json, "errcode", -1);
+            int errCode = MapUtils.getNumber(json, "errcode", -1).intValue();
             if (errCode != 0) {
                 throw new IllegalStateException("获取 access_token 失败: " + responseBody);
             }
-            String token = getString(json, "access_token");
-            long expiresIn = getLong(json, "expires_in", 7200);
+            String token = MapUtils.getString(json, "access_token");
+            long expiresIn = MapUtils.getNumber(json, "expires_in", 7200).longValue();
             long expireAt = now + (expiresIn * 1000L) - TOKEN_EXPIRE_MARGIN_MILLIS;
             TOKEN_CACHE.put(cacheKey, new TokenCache(token, expireAt));
             return token;
@@ -403,71 +404,15 @@ public class WechatPush implements MessagePush {
         }
         try {
             JsonObject json = Json.getJsonObject(responseBody);
-            int errCode = getInt(json, "errcode", -1);
+            int errCode = MapUtils.getNumber(json, "errcode", -1).intValue();
             if (errCode == 0) {
-                return MessageResponse.success(String.valueOf(getLong(json, "msgid", 0)));
+                return MessageResponse.success(String.valueOf(MapUtils.getNumber(json, "msgid", 0).longValue()));
             }
-            String errMsg = getString(json, "errmsg");
+            String errMsg = MapUtils.getString(json, "errmsg");
             return MessageResponse.failure(bizName + "发送失败: " + errCode + " - " + errMsg);
         } catch (Exception e) {
             return MessageResponse.failure(bizName + "返回解析失败: " + responseBody);
         }
-    }
-
-    /**
-     * 从 JSON 中读取整数值
-     *
-     * @param json         JSON 对象
-     * @param key          字段名
-     * @param defaultValue 默认值
-     * @return 整数值
-     */
-    private int getInt(JsonObject json, String key, int defaultValue) {
-        Object value = json.get(key);
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        if (value != null) {
-            try {
-                return Integer.parseInt(String.valueOf(value));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return defaultValue;
-    }
-
-    /**
-     * 从 JSON 中读取长整数值
-     *
-     * @param json         JSON 对象
-     * @param key          字段名
-     * @param defaultValue 默认值
-     * @return 长整数值
-     */
-    private long getLong(JsonObject json, String key, long defaultValue) {
-        Object value = json.get(key);
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        if (value != null) {
-            try {
-                return Long.parseLong(String.valueOf(value));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return defaultValue;
-    }
-
-    /**
-     * 从 JSON 中读取字符串值
-     *
-     * @param json JSON 对象
-     * @param key  字段名
-     * @return 字符串值，不存在返回 null
-     */
-    private String getString(JsonObject json, String key) {
-        Object value = json.get(key);
-        return value == null ? null : String.valueOf(value);
     }
 
     @Override

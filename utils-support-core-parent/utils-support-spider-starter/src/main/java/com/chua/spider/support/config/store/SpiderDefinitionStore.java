@@ -1,5 +1,6 @@
 package com.chua.spider.support.config.store;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.config.model.SpiderDefinition;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class SpiderDefinitionStore {
     public PageResult<SpiderDefinition> page(int pageNo, int pageSize, String keyword) {
         List<SpiderDefinition> all = new ArrayList<>(storage.values());
         // 关键字过滤
-        if (keyword != null && !keyword.isEmpty()) {
+        if (StringUtils.isNotEmpty(keyword)) {
             String kw = keyword.toLowerCase();
             all.removeIf(d -> !d.getSpiderCode().toLowerCase().contains(kw)
                     && !d.getSpiderName().toLowerCase().contains(kw));

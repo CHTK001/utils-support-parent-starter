@@ -1,5 +1,6 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.utils.StringUtils;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -149,8 +150,8 @@ public final class W3CTraceContext {
      * @return traceparent 字符串
      */
     public static String inject(String traceId, String spanId, byte flags) {
-        String t = (traceId == null || traceId.isEmpty()) ? generateTraceId() : traceId;
-        String s = (spanId == null || spanId.isEmpty()) ? generateSpanId() : spanId;
+        String t = StringUtils.isEmpty(traceId) ? generateTraceId() : traceId;
+        String s = StringUtils.isEmpty(spanId) ? generateSpanId() : spanId;
         return String.format("%s-%s-%s-%02x", VERSION, t, s, flags & 0xff);
     }
 

@@ -1,6 +1,8 @@
 package com.chua.spider.support.fetcher;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.SpiderFetcher;
 import com.chua.spider.support.model.SpiderCookie;
 import com.chua.spider.support.model.SpiderProxyConfig;
@@ -153,7 +155,7 @@ public class HttpFetcher implements SpiderFetcher {
                 .header("User-Agent", userAgent);
 
         Map<String, String> headers = request.getHeaders();
-        if (headers != null && !headers.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(headers)) {
             headers.forEach(reqBuilder::header);
         }
 
@@ -196,7 +198,7 @@ public class HttpFetcher implements SpiderFetcher {
      */
     private HttpClient chooseClient(SpiderRequest request) {
         SpiderProxyConfig proxy = request.getProxy();
-        if (proxy == null || proxy.getProxyHost() == null || proxy.getProxyHost().isEmpty()) {
+        if (proxy == null || StringUtils.isEmpty(proxy.getProxyHost())) {
             return httpClient;
         }
         Object timeoutObj = request.getAttributes() != null
@@ -253,11 +255,11 @@ public class HttpFetcher implements SpiderFetcher {
     private String buildCookieHeader(SpiderRequest request) {
         StringBuilder builder = new StringBuilder();
         String raw = request.getCookies();
-        if (raw != null && !raw.isEmpty()) {
+        if (StringUtils.isNotEmpty(raw)) {
             builder.append(raw);
         }
         List<SpiderCookie> list = request.getCookieList();
-        if (list != null && !list.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(list)) {
             for (SpiderCookie cookie : list) {
                 if (cookie == null || cookie.getName() == null || cookie.getValue() == null) {
                     continue;

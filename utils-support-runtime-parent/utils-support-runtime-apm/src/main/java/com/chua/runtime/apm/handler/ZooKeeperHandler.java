@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
@@ -305,7 +306,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
             if (f != null) {
                 f.setAccessible(true);
                 Object v = f.get(zk);
-                if (v != null && !v.toString().isEmpty()) {
+                if (StringUtils.isNotEmpty(v.toString())) {
                     return v.toString();
                 }
             }

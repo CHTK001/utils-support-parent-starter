@@ -1,5 +1,6 @@
 package com.chua.spider.support.config;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.config.model.SpiderDefinition;
 import com.chua.spider.support.config.model.SpiderProxy;
 import com.chua.spider.support.config.store.SpiderProxyPoolStore;
@@ -55,12 +56,12 @@ public class SpiderRequestFactory {
      */
     public SpiderRequest build(SpiderDefinition definition, String url, String body) {
         Map<String, String> headers = new HashMap<>();
-        if (definition.getSpiderHeaders() != null && !definition.getSpiderHeaders().isEmpty()) {
+        if (StringUtils.isNotEmpty(definition.getSpiderHeaders())) {
             headers.putAll(deserializeHeaders(definition.getSpiderHeaders()));
         }
 
         List<SpiderCookie> cookies = new ArrayList<>();
-        if (definition.getSpiderCookies() != null && !definition.getSpiderCookies().isEmpty()) {
+        if (StringUtils.isNotEmpty(definition.getSpiderCookies())) {
             cookies.addAll(deserializeCookies(definition.getSpiderCookies()));
         }
 

@@ -3,6 +3,7 @@ package com.chua.runtime.core.manager;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.core.model.LogStream;
 import com.chua.runtime.core.model.RuntimeArtifact;
@@ -147,7 +148,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
             if (artifact.getWorkDir() != null) {
                 pb.directory(artifact.getWorkDir().toFile());
             }
-            if (artifact.getEnv() != null && !artifact.getEnv().isEmpty()) {
+            if (CollectionUtils.isNotEmpty(artifact.getEnv())) {
                 pb.environment().putAll(artifact.getEnv());
             }
             pb.redirectErrorStream(true);

@@ -1,5 +1,6 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -111,7 +112,7 @@ public class Endpoint {
         if (host != null) {
             sb.append(host).append(':').append(port);
         }
-        if (path != null && !path.isEmpty()) {
+        if (StringUtils.isNotEmpty(path)) {
             sb.append(path);
         }
         return sb.toString();

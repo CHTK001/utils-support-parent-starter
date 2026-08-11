@@ -31,6 +31,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
+import com.chua.common.support.utils.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -454,7 +455,7 @@ public class SolrEngine extends AbstractEngine {
             return Collections.emptyList();
         }
         List<BucketJsonFacet> buckets = bucketBased.getBuckets();
-        if (buckets == null || buckets.isEmpty()) {
+        if (CollectionUtils.isEmpty(buckets)) {
             return Collections.emptyList();
         }
         List<Map<String, Object>> result = new ArrayList<>(buckets.size());
@@ -466,7 +467,7 @@ public class SolrEngine extends AbstractEngine {
                 row.put("count", bucket.getCount());
             } else {
                 List<Map<String, Object>> children = parseFacetResponse(bucket, groupByCols, depth + 1);
-                if (children != null && !children.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(children)) {
                     row.put("children", children);
                 }
             }
@@ -646,7 +647,7 @@ public class SolrEngine extends AbstractEngine {
     }
 
     static String buildSolrQuery(List<Condition> conditions) {
-        if (conditions == null || conditions.isEmpty()) {
+        if (CollectionUtils.isEmpty(conditions)) {
             return "*:*";
         }
         StringBuilder sb = new StringBuilder();
@@ -663,7 +664,7 @@ public class SolrEngine extends AbstractEngine {
     static String buildConditionQuery(Condition c) {
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
-            if (nested == null || nested.isEmpty()) {
+            if (CollectionUtils.isEmpty(nested)) {
                 return "*:*";
             }
             StringBuilder sb = new StringBuilder("(");
@@ -726,7 +727,7 @@ public class SolrEngine extends AbstractEngine {
             }
             case "IN": {
                 Collection<?> values = (Collection<?>) val;
-                if (values == null || values.isEmpty()) {
+                if (CollectionUtils.isEmpty(values)) {
                     return "*:*";
                 }
                 StringBuilder sb = new StringBuilder();
@@ -743,7 +744,7 @@ public class SolrEngine extends AbstractEngine {
             }
             case "NOT IN": {
                 Collection<?> values = (Collection<?>) val;
-                if (values == null || values.isEmpty()) {
+                if (CollectionUtils.isEmpty(values)) {
                     return "*:*";
                 }
                 StringBuilder sb = new StringBuilder();
