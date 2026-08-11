@@ -22,7 +22,7 @@ public class TaskIdGenerator {
     /**
      * 默认节点 ID
      */
-    private static String DEFAULT_NODE_ID = "node";
+    private static volatile String DEFAULT_NODE_ID = "node";
 
     /**
      * 设置默认节点 ID（应用启动时调用）

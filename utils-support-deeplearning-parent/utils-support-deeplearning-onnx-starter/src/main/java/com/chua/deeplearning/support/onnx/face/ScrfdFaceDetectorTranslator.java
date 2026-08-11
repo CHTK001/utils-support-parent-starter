@@ -136,9 +136,8 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     private NDArray squeezeBatch(NDArray array) {
-        if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
-            return array.squeeze(0);
-        }
+        // ONNX 引擎无 alternative NDArray 引擎，NDArrayAdapter.squeeze 会无限递归。
+        // decodeStride 通过 toFloatArray() 读取线性数据，形状不影响结果，故跳过 squeeze。
         return array;
     }
 
