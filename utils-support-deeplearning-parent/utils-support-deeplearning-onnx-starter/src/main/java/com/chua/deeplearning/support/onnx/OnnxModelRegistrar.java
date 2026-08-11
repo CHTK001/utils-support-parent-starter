@@ -210,6 +210,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("faceplugin-face-detect-slim", "com.chua.deeplearning.support.onnx.face.FacePluginDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "models/onnx/face/detection/faceplugin/face_detect_slim.onnx");
         reg("faceplugin-face-landmark", "com.chua.deeplearning.support.onnx.face.FacePluginLandmarkTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/landmark/faceplugin/face_landmark.onnx");
         reg("faceplugin-face-feature", "com.chua.deeplearning.support.onnx.face.FacePluginFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/feature/faceplugin/face_feature.onnx");
+
+        // ==================== models-parent (utils-support-models-onnx-*) 离线 ONNX ====================
+        // 这些模型来自 utils-support-models-parent（CHTK001/utils-support-models-parent），
+        // 通过 classpath 加载（无需网络下载），按 modelId 直接解析路径。
+        // 注意：jar 内资源路径直接以 "vision/..." 开头，不要带 "models/onnx/" 前缀（ModelRegistry.resolveConfiguredPath 会自动加多个前缀尝试）
+        reg("efficientnet-b1-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/efficientnet/efficientnet-lite4-11.onnx");
+        reg("fer-plus", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/expression/FER/FER.onnx");
+        reg("minilm-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm/MiniLM.onnx");
+        reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "cv/card_correction/card_detection.onnx");
+        reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
+        reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
+        reg("paddleocrv6-det", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/PP-OCRv6/tiny/det_infer/inference.onnx");
+        reg("paddleocrv6-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/PP-OCRv6/tiny/rec_infer/inference.onnx");
     }
 
     private static void reg(String modelId, String translatorClassName,
