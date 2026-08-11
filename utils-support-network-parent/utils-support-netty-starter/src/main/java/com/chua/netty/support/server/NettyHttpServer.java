@@ -111,6 +111,10 @@ public class NettyHttpServer extends AbstractServer {
 
             ChannelFuture future = b.bind(addr).sync();
             serverChannel = future.channel();
+            // 回填实际端口（port=0 时由系统分配）
+            if (setting.getPort() == 0) {
+                setting.setPort(((InetSocketAddress) serverChannel.localAddress()).getPort());
+            }
             log.info("Netty HTTP Server started on {}:{} (epoll={}, backlog={}, bossThreads={}, workerThreads={})",
                     setting.getHost(), setting.getPort(), useEpoll, backlog, bossThreads, workerThreads);
         } catch (Exception e) {

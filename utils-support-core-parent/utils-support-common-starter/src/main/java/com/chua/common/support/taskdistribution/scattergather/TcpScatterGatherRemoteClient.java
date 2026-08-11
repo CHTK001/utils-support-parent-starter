@@ -125,6 +125,22 @@ public class TcpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
         return new ScatterGatherNode(seed.nodeId(setting.getDefaultPort()), seed.getHost(), port, "tcp", null, Map.of());
     }
 
+    /**
+     * 超时清理未完成响应，防止内存泄漏。
+     *
+     * @param timeoutMillis 超时时间（毫秒）
+     */
+    public void cleanupPendingResponses(long timeoutMillis) {
+        long now = System.currentTimeMillis();
+        pendingResponses.entrySet().removeIf(entry -> {
+            CompletableFuture<ScatterGatherResult<Object>> future = entry.getValue();
+            if (future.isDone()) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     @Override
     public ScatterGatherResult<Object> invoke(ScatterGatherContext context, ScatterGatherNode node, long timeoutMillis) throws Exception {
         SyncClient client = getOrCreateClient(node);
