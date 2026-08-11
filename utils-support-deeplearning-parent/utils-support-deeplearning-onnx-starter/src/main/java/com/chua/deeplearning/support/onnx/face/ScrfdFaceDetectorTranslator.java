@@ -8,10 +8,12 @@ import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,14 +36,25 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
-        if (!DataType.FLOAT32.equals(array.getDataType())) {
-            array = array.toType(DataType.FLOAT32, false);
+        // 纯 Java 预处理（BufferedImage resize + RGB 归一化），避免 ONNX NDArray 不支持的算术/图像操作
+        BufferedImage src = (BufferedImage) input.getWrappedImage();
+        BufferedImage resized = new BufferedImage(INPUT_SIZE, INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
+        resized.getGraphics().drawImage(src, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
+
+        int[] rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
+        float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
+        for (int i = 0; i < rgb.length; i++) {
+            int pixel = rgb[i];
+            int r = (pixel >> 16) & 0xff;
+            int g = (pixel >> 8) & 0xff;
+            int b = pixel & 0xff;
+            // SCRFD: (rgb - 127.5) / 128，CHW
+            data[i] = (r - 127.5f) / 128f;
+            data[i + INPUT_SIZE * INPUT_SIZE] = (g - 127.5f) / 128f;
+            data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (b - 127.5f) / 128f;
         }
 
-        // SCRFD                   (rgb - 127.5) / 128   CHW   
-        array = array.sub(127.5f).div(128f).transpose(2, 0, 1).expandDims(0);
+        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
     }
 

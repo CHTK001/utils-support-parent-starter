@@ -2,6 +2,8 @@ package com.chua.alibaba.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -100,6 +102,26 @@ public class AlibabaChatClient implements ChatClient {
     private final List<String> imageUrls = new ArrayList<>(4);
 
     /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
+
+    /**
      * 构造阿里云通义千问对话客户端
      *
      * @param setting 客户端配置
@@ -136,6 +158,30 @@ public class AlibabaChatClient implements ChatClient {
     @Override
     public ChatClient system(String system) {
         this.system = system;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
         return this;
     }
 
@@ -222,8 +268,12 @@ public class AlibabaChatClient implements ChatClient {
             // 构建 DashScope 请求体
             StringBuilder messagesJson = new StringBuilder();
             messagesJson.append("[");
-            if (system != null && !system.isEmpty()) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(system)).append("\"},");
+            String actualSystem = system;
+            if (skillManager != null) {
+                actualSystem = SkillPrompt.inject(system, skillManager);
+            }
+            if (actualSystem != null && !actualSystem.isEmpty()) {
+                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
             }
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
             for (ChatMessage msg : messages) {
@@ -233,10 +283,15 @@ public class AlibabaChatClient implements ChatClient {
             messagesJson.append("{\"role\":\"").append(ROLE_USER).append("\",\"content\":\"").append(escapeJson(prompt)).append("\"}");
             messagesJson.append("]");
 
+            StringBuilder extraFlags = new StringBuilder();
+            if (thinking) { extraFlags.append(",\"enable_thinking\":true"); }
+            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+
             String requestBody = "{\"model\":\"" + (model != null ? model : DEFAULT_MODEL)
                     + "\",\"input\":{\"messages\":" + messagesJson
                     + "},\"parameters\":{\"temperature\":" + (temperature != null ? temperature : DEFAULT_TEMPERATURE)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : DEFAULT_MAX_TOKENS) + "}}";
+                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : DEFAULT_MAX_TOKENS)
+                    + extraFlags.toString() + "}}";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(actualBaseUrl))

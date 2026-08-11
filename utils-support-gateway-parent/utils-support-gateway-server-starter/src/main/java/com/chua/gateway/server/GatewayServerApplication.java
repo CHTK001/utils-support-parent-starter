@@ -1,28 +1,23 @@
 package com.chua.gateway.server;
 
-import com.chua.common.support.lang.cmd.CmdResult;
-import com.chua.common.support.lang.cmd.RuntimeType;
 import com.chua.gateway.server.artifact.GatewayArtifact;
-import com.chua.gateway.server.artifact.GuacdArtifact;
+import com.chua.gateway.server.artifact.GuacdBootstrapper;
 import com.chua.gateway.server.config.GatewayProperties;
 import com.chua.gateway.server.server.GatewayServerBootstrap;
-import com.chua.gateway.server.server.WsBridgeServer;
-import com.chua.runtime.core.manager.RuntimeLauncher;
-import com.chua.runtime.core.model.RuntimeArtifact;
-import com.chua.runtime.starter.GuacamoleArtifact;
 import com.chua.runtime.starter.RuntimeBoot;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Gateway Server 主入口（main）。
  *
- * <p>启动流程：</p>
+ * <p>一键启动流程（依赖本地 / classpath / 包管理器自动获取 guacd）：</p>
  * <ol>
- *   <li>{@link RuntimeBoot#install()} 下载 guacd + Guacamole WAR</li>
- *   <li>启动 guacd 子进程（NATIVE 类型）</li>
- *   <li>通过 {@code RuntimeLauncher(TOMCAT)} SPI 内嵌 Tomcat 部署 Guacamole WAR</li>
- *   <li>{@link GatewayServerBootstrap#start()} 启动 HTTP API + WS 桥接</li>
+ *   <li>{@link GuacdBootstrapper#bootstrapAndStart()} — 检测 + 启动 guacd（独立于 gateway 主进程）</li>
+ *   <li>{@link GatewayServerBootstrap#start()} — 启动 HTTP API + 独立 WS 桥接 (:8182)</li>
  * </ol>
+ *
+ * <p>用户只需执行 {@code run-gateway.bat}（Windows）或 {@code start-gateway.sh}（Linux），
+ * gateway 自动处理 guacd 缺失场景。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -30,79 +25,56 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class GatewayServerApplication {
 
+    /**
+     * JVM shutdown hook 名称
+     */
     private static final String SHUTDOWN_HOOK_NAME = "gateway-server-shutdown";
 
+    /**
+     * 私有构造。
+     */
     private GatewayServerApplication() {
     }
 
+    /**
+     * 程序入口。
+     *
+     * @param args 命令行参数（暂无作用，全通过 Properties 配置）
+     */
     public static void main(String[] args) {
         log.info("[gateway-server] ===========================================");
         log.info("[gateway-server] Gateway Server 启动中");
         log.info("[gateway-server] HTTP 端口: {}", GatewayProperties.httpPort());
+        log.info("[gateway-server] WS 端口: {}", GatewayProperties.wsPort());
         log.info("[gateway-server] guacd 端口: {}", GatewayProperties.guacdPort());
         log.info("[gateway-server] artifact 目录: {}", GatewayProperties.artifactDir());
+        log.info("[gateway-server] local-override: {}", GatewayProperties.localOverrideDir());
         log.info("[gateway-server] ===========================================");
 
-        // 1. RuntimeBoot 下载 guacd + Guacamole WAR
-        RuntimeBoot boot = RuntimeBoot.create()
-                .withArtifact(GatewayArtifact.create());
-        // Linux 上启动 guacd + Guacamole WAR
-        var guacdArtifact = GuacdArtifact.createDefault();
-        var guacamoleArtifact = GuacamoleArtifact.createWeb();
-        boot.withArtifact(guacdArtifact);
-        boot.withArtifact(guacamoleArtifact);
-        boot.install();
+        // 1. RuntimeBoot 安装 GatewayArtifact（仅注册元数据，不下载）
+        RuntimeBoot.create()
+                .withArtifact(GatewayArtifact.create())
+                .install();
         log.info("[gateway-server] RuntimeBoot install 完成");
 
-        // 2. 启动 guacd 子进程
-        RuntimeBoot.create()
-                .withArtifact(guacdArtifact)
-                .startAsService();
-        log.info("[gateway-server] guacd 子进程启动: 端口 {}", GatewayProperties.guacdPort());
-
-        // 3. 通过 RuntimeLauncher(TOMCAT) SPI 启动内嵌 Tomcat 部署 Guacamole WAR
-        String warPath = guacamoleArtifact.getExecutable().toString();
-        RuntimeArtifact warArtifact = RuntimeArtifact.builder()
-                .id("guacamole-web")
-                .name("Apache Guacamole Web")
-                .type(RuntimeType.TOMCAT)
-                .executable(java.nio.file.Paths.get(warPath))
-                .args(java.util.Arrays.asList("/guacamole", "8080", "tomcat"))
-                .autoRestart(true)
-                .build();
-        RuntimeLauncher launcher = RuntimeLauncher.find("TOMCAT");
-        if (launcher != null) {
-            CmdResult result = launcher.start(warArtifact);
-            if (result.getExitCode() == 0) {
-                log.info("[gateway-server] Guacamole 内嵌容器已启动: http://0.0.0.0:8080/guacamole");
-            } else {
-                log.warn("[gateway-server] Guacamole 内嵌容器启动失败: {}", result.getStderr());
-            }
+        // 2. 一键引导 guacd（local-override → classpath jar → Linux 包管理器）
+        //    失败时仅警告，不阻塞 gateway（SSH / WS 协议仍可用）
+        GuacdBootstrapper.GuacdHandle handle = GuacdBootstrapper.bootstrapAndStart();
+        if (handle != null) {
+            log.info("[gateway-server] ✓ guacd 子进程运行中: pid={} port={} source={}",
+                    handle.process().pid(), handle.port(), handle.source());
         } else {
-            log.warn("[gateway-server] 未找到 RuntimeLauncher SPI: TOMCAT");
+            log.warn("[gateway-server] guacd 未启动 —— RDP/VNC 协议不可用，SSH 仍可用");
         }
 
-        // 4. 启动 HTTP API
+        // 3. 启动 HTTP API + WS 桥接
         GatewayServerBootstrap bootstrap = new GatewayServerBootstrap();
         bootstrap.start();
-        log.info("[gateway-server] HTTP 服务已监听: http://{}:{}", "0.0.0.0", GatewayProperties.httpPort());
+        log.info("[gateway-server] Gateway 已就绪: http://0.0.0.0:{}, ws=0.0.0.0:{}",
+                GatewayProperties.httpPort(), bootstrap.wsBindingPort());
 
-        // 5. 启动 WS 桥接
-        var wsBridge = new WsBridgeServer(bootstrap.tunnelRegistry());
-        try {
-            wsBridge.start();
-            log.info("[gateway-server] WS 桥接服务器已启动: port=8092");
-        } catch (Exception e) {
-            log.warn("[gateway-server] WS 桥接服务器启动失败: {}", e.getMessage());
-        }
-
-        // 6. shutdown hook
-        var ws = wsBridge;
+        // 4. shutdown hook（包含 guacd 子进程关闭）
         Runtime.getRuntime().addShutdownHook(
-                new Thread(() -> {
-                    ws.stop();
-                    bootstrap.stop();
-                    if (launcher != null) launcher.stop(warArtifact);
-                }, SHUTDOWN_HOOK_NAME));
+                new Thread(bootstrap::stop, SHUTDOWN_HOOK_NAME));
     }
 }

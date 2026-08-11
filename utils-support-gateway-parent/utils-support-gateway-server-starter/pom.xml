@@ -29,11 +29,18 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- SSH client -->
+        <!-- guacd 二进制资源包（提供 Windows zip；Linux 走包管理器） -->
         <dependency>
-            <groupId>com.jcraft</groupId>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-guacd-resource-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- SSH client (mwiede fork: supports modern RSA/OpenSSH key formats) -->
+        <dependency>
+            <groupId>com.github.mwiede</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.55</version>
+            <version>0.2.24</version>
         </dependency>
 
         <!-- Apache Guacamole Java 公共 API（RDP/VNC/SSH 抽象） -->
@@ -161,6 +168,16 @@
                                     <mainClass>com.chua.gateway.server.GatewayServerApplication</mainClass>
                                 </transformer>
                             </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>

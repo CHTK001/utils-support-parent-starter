@@ -2,6 +2,8 @@ package com.chua.xunfei.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatMessage;
@@ -88,6 +90,26 @@ public class XunfeiChatClient implements ChatClient {
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
+     * 是否启用深度思考
+     */
+    private boolean thinking;
+
+    /**
+     * 深度思考力度
+     */
+    private String thinkingEffort;
+
+    /**
+     * 是否启用智能搜索
+     */
+    private boolean smartSearch;
+
+    /**
+     * 技能管理器
+     */
+    private SkillManager skillManager;
+
+    /**
      * 构造讯飞星火对话客户端
      *
      * @param setting 客户端配置
@@ -124,6 +146,30 @@ public class XunfeiChatClient implements ChatClient {
     @Override
     public ChatClient system(String system) {
         this.system = system;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        this.thinking = thinking;
+        return this;
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        this.thinkingEffort = effort;
+        return this;
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        this.smartSearch = smartSearch;
+        return this;
+    }
+
+    @Override
+    public ChatClient skill(SkillManager skillManager) {
+        this.skillManager = skillManager;
         return this;
     }
 
@@ -211,8 +257,12 @@ public ChatClient newChat() {
             // 构建讯飞星火请求体
             StringBuilder messagesJson = new StringBuilder();
             messagesJson.append("[");
-            if (system != null && !system.isEmpty()) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(system)).append("\"},");
+            String actualSystem = system;
+            if (skillManager != null) {
+                actualSystem = SkillPrompt.inject(system, skillManager);
+            }
+            if (actualSystem != null && !actualSystem.isEmpty()) {
+                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
             }
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
             for (ChatMessage msg : messages) {
@@ -223,10 +273,15 @@ public ChatClient newChat() {
                     .append(escapeJson(prompt)).append("\"}");
             messagesJson.append("]");
 
+            StringBuilder extraFlags = new StringBuilder();
+            if (thinking) { extraFlags.append(",\"thinking\":true"); }
+            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+
             String requestBody = "{\"model\":\"" + (model != null ? model : "spark-3.5")
                     + "\",\"messages\":" + messagesJson
                     + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048) + "}";
+                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
+                    + extraFlags.toString() + "}";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(actualBaseUrl))

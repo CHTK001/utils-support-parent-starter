@@ -260,9 +260,9 @@ public class Socks5ProxyServer extends AbstractServer {
     @Override
     protected void doStart() {
         try {
-            InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(setting.isSoReuseAddr());
+            InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket.bind(addr, setting.getBacklog());
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());

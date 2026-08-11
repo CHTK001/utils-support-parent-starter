@@ -376,6 +376,23 @@ public class MqttClientWrapper implements AutoCloseable {
                 throw new MqttClientException("异步发布失败: " + topic, e);
             }
         }
+
+        /**
+         * 同步发布：等待 PUBACK（QoS>0）或发送完成（QoS 0）。性能压测使用，避免丢消息。
+         *
+         * @param timeoutMs 最大等待毫秒
+         */
+        public void sendAndWait(long timeoutMs) {
+            try {
+                MqttMessage msg = new MqttMessage(payload);
+                msg.setQos(qos);
+                msg.setRetained(retained);
+                org.eclipse.paho.client.mqttv3.MqttDeliveryToken token = client.mqttClient.getTopic(topic).publish(msg);
+                token.waitForCompletion(timeoutMs);
+            } catch (MqttException e) {
+                throw new MqttClientException("同步发布失败: " + topic, e);
+            }
+        }
     }
 
     // ==================== 内部方法 ====================

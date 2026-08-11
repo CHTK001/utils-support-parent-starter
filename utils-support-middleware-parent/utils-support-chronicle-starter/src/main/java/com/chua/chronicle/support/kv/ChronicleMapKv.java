@@ -38,7 +38,7 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.42
  */
-@Api
+@Spi("chronicle")
 public class ChronicleMapKv implements KvEngine {
 
     /**

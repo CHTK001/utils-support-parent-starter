@@ -67,10 +67,29 @@ public class SshBridge implements RemoteBridge {
         String pass = connection.password() == null ? "" : connection.password();
         log.info("[gateway-server] SSH 连接: user={} target={}:{}", user, connection.host(), port);
         JSch jsch = new JSch();
+        // If password looks like a PEM private key, use it for key auth
+        if (pass.startsWith("-----BEGIN") && pass.contains("PRIVATE KEY-----")) {
+            // Normalize line endings (JSON often sends \n as literal "\\n")
+            String normalized = pass.replace("\\r", "").replace("\\n", "\n");
+            byte[] privateKey = normalized.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            log.info("[gateway-server] SSH 使用私钥认证, normalized size={} starts={}",
+                privateKey.length, new String(privateKey, 0, Math.min(40, privateKey.length)));
+            // Use byte[] overload of addIdentity (more lenient than file path)
+            jsch.addIdentity("inline", privateKey, null, null);
+        }
         session = jsch.getSession(user, connection.host(), port);
-        session.setPassword(pass);
+        if (!pass.startsWith("-----BEGIN")) {
+            session.setPassword(pass);
+        }
         session.setConfig("StrictHostKeyChecking", "no");
-        session.connect(SESSION_TIMEOUT_MS);
+        try {
+            session.connect(SESSION_TIMEOUT_MS);
+        } catch (Exception e) {
+            log.error("[gateway-server] SSH connect 失败: host={}:{} user={} err={} stack={}",
+                connection.host(), port, user, e.getMessage(),
+                java.util.Arrays.toString(e.getStackTrace()).replace(',', '\n'));
+            throw e;
+        }
         channel = (ChannelShell) session.openChannel("shell");
         channel.setPtyType("xterm");
         log.info("[gateway-server] SSH 连接 + shell 通道建立");
