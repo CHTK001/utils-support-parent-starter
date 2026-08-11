@@ -1,6 +1,7 @@
 package com.chua.common.support.setting;
 
 import com.chua.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -84,15 +85,7 @@ public class GlobalSettingAutoConfiguration {
                 if (annotation == null) {
                     continue;
                 }
-                Object bean;
-                String[] beanNames = applicationContext.getBeanNamesForType(clazz);
-                if (beanNames.length > 0) {
-                    // Bean 已注册到 Spring 容器，优先复用（单例）
-                    bean = applicationContext.getBean(beanNames[0]);
-                } else {
-                    // Bean 未注册到 Spring 容器（无 @Component），通过反射实例化
-                    bean = clazz.getDeclaredConstructor().newInstance();
-                }
+                Object bean = obtainBean(clazz);
                 factory.register(annotation.value(), bean, annotation.enabled());
                 log.info("[GlobalSettingAutoConfiguration] 注册配置分组: group={}, bean={}",
                         annotation.value(), clazz.getSimpleName());
@@ -101,6 +94,19 @@ public class GlobalSettingAutoConfiguration {
                         def.getBeanClassName(), e.getMessage());
             }
         }
+    }
+
+    /**
+     * 获取 Bean 实例：优先从 Spring 容器取，无则用 {@link ClassUtils#forObject} 反射实例化。
+     */
+    private Object obtainBean(Class<?> clazz) {
+        String[] beanNames = applicationContext.getBeanNamesForType(clazz);
+        if (beanNames.length > 0) {
+            // Spring 容器已有（如 @Component 标注），优先复用
+            return applicationContext.getBean(beanNames[0]);
+        }
+        // 无 Spring 托管，使用 ClassUtils 反射实例化（支持构造参数推断）
+        return ClassUtils.forObject(clazz);
     }
 
     /**
