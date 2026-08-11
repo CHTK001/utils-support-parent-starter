@@ -15,6 +15,7 @@ import com.chua.common.support.datasearch.video.spi.DownloadLinkProvider;
 import com.chua.common.support.datasearch.video.spi.ResourceProvider;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -746,7 +747,7 @@ public class AgentEditorProvider {
             current = current.getParent();
         }
         // 2. 额外指定的路径
-        if (workspacePaths != null && !workspacePaths.isEmpty()) {
+        if (StringUtils.isNotEmpty(workspacePaths)) {
             for (String p : workspacePaths.split(",")) {
                 Path ws = Paths.get(p.trim()).toAbsolutePath();
                 Path cbDir = ws.resolve(CODEBUDDY_DIR);

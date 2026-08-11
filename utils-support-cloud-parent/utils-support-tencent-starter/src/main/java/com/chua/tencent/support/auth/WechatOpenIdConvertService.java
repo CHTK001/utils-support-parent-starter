@@ -6,6 +6,7 @@ import me.chanjar.weixin.open.api.WxOpenService;
 import me.chanjar.weixin.open.api.impl.WxOpenInMemoryConfigStorage;
 import me.chanjar.weixin.open.api.impl.WxOpenServiceImpl;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -53,16 +54,16 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
 
     @Override
     public String convertToOfficialOpenId(String miniAppId, String officialAppId, String miniAppOpenId) {
-        if (miniAppId == null || miniAppId.isEmpty()) {
+        if (StringUtils.isEmpty(miniAppId)) {
             miniAppId = defaultMiniAppId;
         }
-        if (miniAppId == null || miniAppId.isEmpty()) {
+        if (StringUtils.isEmpty(miniAppId)) {
             throw new IllegalArgumentException("缺少小程序appId，请配置 plugin.tencent.mini-app.app-id 或传入 miniAppId 参数");
         }
-        if (officialAppId == null || officialAppId.isEmpty()) {
+        if (StringUtils.isEmpty(officialAppId)) {
             throw new IllegalArgumentException("公众号appId不能为空");
         }
-        if (miniAppOpenId == null || miniAppOpenId.isEmpty()) {
+        if (StringUtils.isEmpty(miniAppOpenId)) {
             throw new IllegalArgumentException("小程序openid不能为空");
         }
 
@@ -86,7 +87,7 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
             }
 
             String officialOpenId = (String) response.get("openid");
-            if (officialOpenId == null || officialOpenId.isEmpty()) {
+            if (StringUtils.isEmpty(officialOpenId)) {
                 throw new RuntimeException("未获取到公众号openid，可能小程序用户未关注公众号");
             }
 

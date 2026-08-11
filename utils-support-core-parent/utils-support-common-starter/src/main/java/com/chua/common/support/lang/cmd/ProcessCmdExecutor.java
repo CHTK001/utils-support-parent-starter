@@ -4,6 +4,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +16,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 基于 {@link ProcessBuilder} 的默认命令执行器实现。
@@ -173,16 +173,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
                 DEFAULT_KEEP_ALIVE_SECONDS,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(),
-                new ThreadFactory() {
-                    private final AtomicBoolean daemon = new AtomicBoolean(true);
-
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        Thread t = new Thread(r, THREAD_NAME_PREFIX + daemon.getAndSet(true));
-                        t.setDaemon(true);
-                        return t;
-                    }
-                },
+                ThreadUtils.newDaemonThreadFactory(THREAD_NAME_PREFIX),
                 new ThreadPoolExecutor.CallerRunsPolicy()
         );
     }

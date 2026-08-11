@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.network.proxy;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ProxyScrapeFetcher implements ProxyFetcher {
                     String ip = (String) proxy.get("ip");
                     Object portObj = proxy.get("port");
                     String port = portObj != null ? portObj.toString() : "";
-                    if (ip != null && !port.isEmpty()) {
+                    if (StringUtils.isNotEmpty(ip)) {
                         proxies.add(ip + ":" + port);
                     }
                 }

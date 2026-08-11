@@ -4,6 +4,7 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -174,7 +175,7 @@ public class UdpSyncClient implements SyncClient {
      * 启动接收线程。
      */
     private void startReceive() {
-        receiveThread = new Thread(() -> {
+        receiveThread = ThreadUtils.newThread(() -> {
             byte[] buffer = new byte[8192];
             while (connected && socket != null && !socket.isClosed()) {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);

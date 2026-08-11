@@ -5,6 +5,7 @@ import me.chanjar.weixin.open.api.WxOpenComponentService;
 import me.chanjar.weixin.open.api.WxOpenService;
 import me.chanjar.weixin.open.api.impl.WxOpenInMemoryConfigStorage;
 import me.chanjar.weixin.open.api.impl.WxOpenServiceImpl;
+import com.chua.common.support.utils.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -103,7 +104,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
 
     @Override
     public List<WechatPlatformUser> getAllOpenIdsByUnionId(String unionId) {
-        if (unionId == null || unionId.isEmpty()) {
+        if (StringUtils.isEmpty(unionId)) {
             return Collections.emptyList();
         }
         List<WechatPlatformUser> users = unionUserMap.get(unionId);
@@ -171,7 +172,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
 
     @Override
     public String convertToOfficialOpenId(String miniAppOpenId) {
-        if (miniAppOpenId == null || miniAppOpenId.isEmpty()) {
+        if (StringUtils.isEmpty(miniAppOpenId)) {
             return null;
         }
 
@@ -186,7 +187,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
 
     @Override
     public String convertToOfficialOpenId(String miniAppId, String miniAppOpenId) {
-        if (miniAppId == null || miniAppId.isEmpty() || miniAppOpenId == null || miniAppOpenId.isEmpty()) {
+        if (StringUtils.isEmpty(miniAppId) || StringUtils.isEmpty(miniAppOpenId)) {
             return null;
         }
 

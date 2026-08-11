@@ -2,6 +2,7 @@ package com.chua.common.support.taskdistribution.node;
 
 import com.chua.common.support.taskdistribution.task.Task;
 import com.chua.common.support.taskdistribution.strategy.DispatchStrategy;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -66,11 +66,8 @@ public class NodeTable {
      */
     public NodeTable(boolean enableHeartbeat) {
         if (enableHeartbeat) {
-            heartbeatScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "node-table-heartbeat");
-                t.setDaemon(true);
-                return t;
-            });
+            heartbeatScheduler = ThreadUtils.newSingleThreadScheduledExecutor(
+                    ThreadUtils.newThreadFactory("node-table-heartbeat"));
             heartbeatScheduler.scheduleAtFixedRate(this::checkHeartbeats,
                     HEARTBEAT_CHECK_INTERVAL, HEARTBEAT_CHECK_INTERVAL, TimeUnit.MILLISECONDS);
         } else {

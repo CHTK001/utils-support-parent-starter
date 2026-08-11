@@ -1,6 +1,7 @@
 package com.chua.common.support.network.container;
 
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -198,7 +199,7 @@ public abstract class AbstractWebContainer implements WebContainer {
             String[] args = StringUtils.isEmpty(contextPath)
                     ? new String[0]
                     : new String[]{CONTEXT_PATH_ARG_PREFIX + contextPath};
-            Thread thread = new Thread(() -> {
+            Thread thread = ThreadUtils.newThread(() -> {
                 try {
                     mainMethod.invoke(null, (Object) args);
                 } catch (Exception e) {

@@ -5,6 +5,7 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipaySystemOauthTokenRequest;
 import com.alipay.api.response.AlipaySystemOauthTokenResponse;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.auth.spi.LoginChannel;
 import com.chua.auth.support.LoginException;
 import com.chua.auth.support.LoginRequest;
@@ -43,7 +44,7 @@ public class AlipayLoginProvider implements LoginChannel {
     @Override
     public LoginResponse login(LoginRequest request) {
         String authCode = request.getAuthCode();
-        if (authCode == null || authCode.isEmpty()) {
+        if (StringUtils.isEmpty(authCode)) {
             throw new LoginException("缺少授权码 authCode");
         }
 
@@ -76,7 +77,7 @@ public class AlipayLoginProvider implements LoginChannel {
 
     @Override
     public LoginResponse refreshToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
+        if (StringUtils.isEmpty(refreshToken)) {
             throw new LoginException("缺少刷新令牌 refreshToken");
         }
 

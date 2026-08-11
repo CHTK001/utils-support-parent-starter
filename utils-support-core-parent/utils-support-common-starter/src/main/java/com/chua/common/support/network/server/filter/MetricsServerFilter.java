@@ -2,13 +2,13 @@ package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -144,11 +144,7 @@ public class MetricsServerFilter implements ServerFilter {
 
     @Override
     public void init(ServerFilterConfig config) throws Exception {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "metrics-scheduler");
-            t.setDaemon(true);
-            return t;
-        });
+        ScheduledExecutorService scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("metrics-scheduler");
         scheduledFuture = scheduler.scheduleAtFixedRate(
                 this::computeAndCallback, 0, periodSeconds, TimeUnit.SECONDS);
     }

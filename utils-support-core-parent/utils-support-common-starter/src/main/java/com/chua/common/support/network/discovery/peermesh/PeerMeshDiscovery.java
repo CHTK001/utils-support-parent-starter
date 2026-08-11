@@ -8,6 +8,7 @@ import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiOrder;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -219,11 +220,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
      * 启动连接接受线程。
      */
     private void startAcceptor() {
-        executor = Executors.newThreadPerTaskExecutor(r -> {
-            Thread t = new Thread(r, "peer-mesh-acceptor");
-            t.setDaemon(true);
-            return t;
-        });
+        executor = Executors.newThreadPerTaskExecutor(ThreadUtils.newDaemonThreadFactory("peer-mesh-acceptor"));
         executor.submit(() -> {
             while (running.get() && serverSocket != null && !serverSocket.isClosed()) {
                 try {
@@ -242,11 +239,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
      * 启动调度器（心跳 + 剔除）。
      */
     private void startScheduler() {
-        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "peer-mesh-scheduler");
-            t.setDaemon(true);
-            return t;
-        });
+        scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("peer-mesh-scheduler");
 
         membershipPropagation = new MembershipPropagation(config, nodeTable, serverId, this);
         evictionManager = new EvictionManager(config, nodeTable, serverId, this);
@@ -281,11 +274,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         udpSocket.setReuseAddress(true);
         udpSocket.bind(new InetSocketAddress(localIp, localPort));
         udpSocket.setSoTimeout(1000);
-        udpExecutor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "peer-mesh-udp");
-            t.setDaemon(true);
-            return t;
-        });
+        udpExecutor = ThreadUtils.newDaemonSingleThreadExecutor("peer-mesh-udp");
         udpExecutor.submit(() -> {
             byte[] buf = new byte[65507];
             DatagramPacket packet = new DatagramPacket(buf, buf.length);

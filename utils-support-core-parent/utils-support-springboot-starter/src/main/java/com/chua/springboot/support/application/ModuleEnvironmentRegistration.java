@@ -1,6 +1,7 @@
 package com.chua.springboot.support.application;
 
 import com.chua.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public class ModuleEnvironmentRegistration {
      * @param enabled 是否启用
      */
     public ModuleEnvironmentRegistration(String group, Object config, boolean enabled) {
-        if (config == null || group == null || group.isEmpty()) {
+        if (config == null || StringUtils.isEmpty(group)) {
             return;
         }
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();

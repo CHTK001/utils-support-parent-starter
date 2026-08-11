@@ -1,5 +1,6 @@
 package com.chua.springboot.support.api.configuration;
 import com.chua.common.support.lang.version.Version;
+import com.chua.common.support.utils.StringUtils;
 
 import com.chua.starter.common.support.configuration.resolver.VersionArgumentResolver;
 import com.chua.starter.common.support.utils.NonceUtils;
@@ -105,7 +106,7 @@ public class ApiFilterConfiguration  {
                 throws IOException, ServletException {
             if (versionArgumentResolver != null && response instanceof HttpServletResponse httpServletResponse) {
                 String version = versionArgumentResolver.version();
-                if (version != null && !version.isEmpty()) {
+                if (StringUtils.isNotEmpty(version)) {
                     httpServletResponse.setHeader(X_HEADER_VERSION, version);
                 }
             }

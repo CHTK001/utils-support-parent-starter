@@ -1,4 +1,5 @@
 package com.chua.springboot.support.api.gray;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.springboot.support.api.annotations.ApiGray;
 import com.chua.starter.common.support.utils.IpUtils;
@@ -119,7 +120,7 @@ public class ApiGrayEvaluator {
      * 检查角色白名单
      */
     private boolean matchRoleWhitelist(String[] roles, java.util.Collection<String> userRoles) {
-        if (roles == null || roles.length == 0 || userRoles == null || userRoles.isEmpty()) {
+        if (roles == null || roles.length == 0 || CollectionUtils.isEmpty(userRoles)) {
             return false;
         }
         for (String role : roles) {

@@ -5,6 +5,7 @@ import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -239,7 +240,7 @@ public BufferedImage generate(String prompt) {
     private BufferedImage parseAndDecodeImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
         List<String> images = (List<String>) root.get("images");
-        if (images == null || images.isEmpty()) {
+        if (CollectionUtils.isEmpty(images)) {
             throw new RuntimeException("Amazon Bedrock 返回的图片数据为空");
         }
         String base64Data = images.get(0);

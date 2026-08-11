@@ -5,6 +5,7 @@ import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.objects.inject.BeanDefinitionConfigInjector;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spring.support.objects.environment.SpringEnvironmentAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -123,7 +124,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
             // ${} 占位符或直接值：走 Spring Environment.resolvePlaceholders
             String resolved = springEnv.resolvePlaceholders(expression);
-            if (resolved == null || resolved.isEmpty()) {
+            if (StringUtils.isEmpty(resolved)) {
                 return null;
             }
             // 无法解析的占位符，不注入

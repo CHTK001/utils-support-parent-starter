@@ -1,5 +1,7 @@
 package com.chua.common.support.concurrent.pool;
 
+import com.chua.common.support.utils.ThreadUtils;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -409,7 +411,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
      * 启动空闲检测线程
      */
     private void startEvictionThread() {
-        evictionThread = new Thread(() -> {
+        evictionThread = ThreadUtils.newThread(() -> {
             while (!closed && !Thread.currentThread().isInterrupted()) {
                 try {
                     Thread.sleep(config.getIdleEvictionIntervalMillis());

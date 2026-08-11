@@ -1,5 +1,7 @@
 package com.chua.starter.datasync.mapping;
 
+import com.chua.common.support.utils.CollectionUtils;
+
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +36,7 @@ public interface FieldMappingConverter {
      * @return 转换后的数据记录（只包含成功映射的字段）
      */
     default Map<String, Object> applyMappings(Map<String, Object> record, List<DataSyncFieldMapping> mappings) {
-        if (record == null || mappings == null || mappings.isEmpty()) {
+        if (record == null || CollectionUtils.isEmpty(mappings)) {
             return record;
         }
         Map<String, Object> result = new java.util.LinkedHashMap<>();

@@ -5,6 +5,7 @@ import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -232,7 +233,7 @@ public BufferedImage generate(String prompt) {
     private BufferedImage parseAndDecodeImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
         List<Map<String, Object>> predictions = (List<Map<String, Object>>) root.get("predictions");
-        if (predictions == null || predictions.isEmpty()) {
+        if (CollectionUtils.isEmpty(predictions)) {
             throw new RuntimeException("Google Imagen 返回的预测结果为空");
         }
         String base64Data = (String) predictions.get(0).get("bytesBase64Encoded");

@@ -3,6 +3,7 @@ package com.chua.common.support.network.sync.impl;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.*;
 import java.net.*;
@@ -245,7 +246,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     // ==================== 接收线程 ====================
 
     private void startReceiveThread() {
-        receiveThread = new Thread(() -> {
+        receiveThread = ThreadUtils.newThread(() -> {
             while (connected && socket != null && !socket.isClosed()) {
                 try {
                     readFrames();

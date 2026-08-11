@@ -4,6 +4,7 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -195,7 +196,7 @@ public class TcpSyncClient implements SyncClient {
      * 启动接收线程。
      */
     private void startRead() {
-        readThread = new Thread(() -> {
+        readThread = ThreadUtils.newThread(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while (connected && (line = reader.readLine()) != null) {

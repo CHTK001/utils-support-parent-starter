@@ -4,6 +4,7 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -17,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -102,7 +102,7 @@ public class JdkTelnetServer extends AbstractServer {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), setting.getBacklog());
-            workerPool = Executors.newFixedThreadPool(setting.getWorkerThreads());
+            workerPool = ThreadUtils.newFixedThreadPool(setting.getWorkerThreads());
             running = true;
 
             // 内置命令

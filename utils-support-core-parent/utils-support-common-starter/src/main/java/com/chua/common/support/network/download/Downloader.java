@@ -5,6 +5,7 @@ import com.chua.common.support.lang.process.ProgressBarBuilder;
 import com.chua.common.support.lang.process.ProgressBarStyle;
 import com.chua.common.support.network.download.extractor.Extractor;
 import com.chua.common.support.network.download.extractor.ExtractorFactory;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileOutputStream;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -401,7 +401,7 @@ public class Downloader {
 
             // 分片计算
             long chunkSize = totalSize / concurrency;
-            ExecutorService pool = Executors.newFixedThreadPool(concurrency);
+            ExecutorService pool = ThreadUtils.newFixedThreadPool(concurrency);
             List<Future<?>> futures = new ArrayList<>();
 
             for (int i = 0; i < concurrency; i++) {

@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.process;
 
+import com.chua.common.support.utils.ThreadUtils;
+
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,7 +11,6 @@ import java.io.PrintStream;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
@@ -28,12 +29,7 @@ class Util {
      * <p>
      * 单线程调度池，用于定时刷新进度条显示。
      */
-    static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, runnable -> {
-        Thread thread = Executors.defaultThreadFactory().newThread(runnable);
-        thread.setName("ProgressBar");
-        thread.setDaemon(true);
-        return thread;
-    });
+    static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, ThreadUtils.newDaemonThreadFactory("ProgressBar"));
 
     /**
      *                                                    
