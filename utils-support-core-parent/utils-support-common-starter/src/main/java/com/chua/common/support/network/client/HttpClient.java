@@ -55,6 +55,21 @@ public interface HttpClient extends AutoCloseable {
     ClientResponse execute(ClientRequest request);
 
     /**
+     * 创建请求规格，用于链式配置请求参数。
+     *
+     * <p>与 {@link #get(String)}、{@link #post(String, Object)} 等直接执行的方法不同，
+     * 此方法返回绑定当前客户端的 {@link RequestSpec}，可继续链式设置请求头、
+     * 请求体、超时等参数，最后通过 {@link RequestSpec#execute()} 执行。</p>
+     *
+     * @param url    请求 URL，如 {@code "http://api.example.com/users"}
+     * @param method HTTP 请求方法
+     * @return 链式请求规格 RequestSpec
+     */
+    default RequestSpec request(String url, HttpMethod method) {
+        return new RequestSpec(this, url, method);
+    }
+
+    /**
      * 执行 GET 请求。
      *
      * <p>快速发起 HTTP GET 请求，适用于查询、获取资源等幂等操作。
