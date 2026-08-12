@@ -4,6 +4,35 @@
 
 ---
 
+## 架构总览
+
+```mermaid
+flowchart LR
+    subgraph Publish[发布端]
+        User[用户调用] --> TM[TaskManager]
+        TM --> TS1[TaskStore]
+        TM --> DP[DispatcherProvider]
+    end
+
+    subgraph Work[工作端]
+        DP -->|receive| Pool[ConsumerThreadPool]
+        Pool -->|onTask| TE[TaskExecutor]
+        TE -->|execute| Result[TaskResult]
+    end
+
+    Result -->|receive| DP
+    DP --> TM
+    TM --> Callback[TaskCallback]
+
+    style TM fill:#f9f,stroke:#333
+    style DP fill:#bbf,stroke:#333
+    style TE fill:#bfb,stroke:#333
+```
+
+详细 PlantUML 图见 [docs/architecture.md](docs/architecture.md)。
+
+---
+
 ## 模块定位
 
 | 角色 | 抽象 | 实现 |
@@ -174,26 +203,22 @@ public class ImageGenExecutor implements TaskExecutor<ImageGenRequest> {
 
 ## TaskManager 状态机
 
-```
-            ┌──────────┐
-  addTask() │ PENDING  │ recover()
-   ────────►│          │◄────────
-            └────┬─────┘
-                 │ dispatch()
-                 ▼
-            ┌──────────┐
-            │ RUNNING  │ │ timeoutMs
-            │          │─► TIMEOUT
-            └────┬─────┘
-                 │ execute()
-        ┌────────┴────────┐
-        ▼                 ▼
-   ┌────────┐       ┌────────┐
-   │SUCCESS │       │ FAILED │
-   └────────┘       └────────┘
-                         │ retryCount < maxRetries
-                         ▼
-                   (reschedule)
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING: addTask()
+    PENDING --> RUNNING: dispatch()
+    PENDING --> TIMEOUT: now - createdAt > timeoutMs
+    PENDING --> CANCELLED: cancel()
+    PENDING --> PAUSED: pause()
+    PAUSED --> PENDING: resume()
+    RUNNING --> SUCCESS: execute() OK
+    RUNNING --> FAILED: execute() ERROR
+    RUNNING --> TIMEOUT: timeout
+    SUCCESS --> [*]
+    FAILED --> [*]: retryCount >= maxRetries
+    FAILED --> PENDING: retryCount < maxRetries
+    TIMEOUT --> [*]
+    CANCELLED --> [*]
 ```
 
 ## MdcDecorator
