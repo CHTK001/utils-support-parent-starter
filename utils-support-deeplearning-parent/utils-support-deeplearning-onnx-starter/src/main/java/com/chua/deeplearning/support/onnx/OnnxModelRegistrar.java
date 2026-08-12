@@ -228,6 +228,12 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 模型来自 utils-support-models-onnx-doclaynet (provided 依赖)；
         // 模型文件由云效部署前通过 scripts/fetch-doclaynet.ps1 拉取并打入 jar。
         reg("doc-layout-yolo-imgsz640", "com.chua.deeplearning.support.onnx.layout.doclaynet.DocLayNetYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/layout/doclaynet/model.onnx");
+
+        // ==================== 通用表格检测 (YOLOv8n @ 640, 1 类 table, ~6MB) ====================
+        reg("yolov8n-table-detection", "com.chua.deeplearning.support.onnx.detection.single.TableDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/table/yolov8n/model.onnx");
+
+        // ==================== 中文印章检测 (YOLOv8n @ 640, 1 类 seal, ~6MB) ====================
+        reg("yolov8n-seal-detection", "com.chua.deeplearning.support.onnx.detection.single.SealDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/seal/yolov8n/model.onnx");
     }
 
     private static void reg(String modelId, String translatorClassName,
