@@ -174,6 +174,15 @@ public class ServerMetrics {
     }
 
     /**
+     * 获取峰值活跃请求数。
+     *
+     * @return 峰值活跃请求数
+     */
+    public int getPeakActive() {
+        return 0;
+    }
+
+    /**
      * 获取错误总数。
      *
      * @return 错误总数

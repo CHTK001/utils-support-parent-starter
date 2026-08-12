@@ -2,6 +2,7 @@ package com.chua.common.support.network.client;
 
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpStatus;
+import com.chua.common.support.network.http.HttpVersion;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -90,6 +91,13 @@ public class ClientResponse {
     private String message;
 
     /**
+     * HTTP 协议版本。
+     *
+     * <p>服务端实际使用的 HTTP 协议版本，可能为 null（执行器未填充时）。
+     */
+    private HttpVersion version;
+
+    /**
      * 获取 HTTP 状态码。
      *
      * @return HTTP 状态码，如 200、404、500
@@ -150,6 +158,20 @@ public class ClientResponse {
      * @param message 响应状态消息，如 {@code "OK"}、{@code "Not Found"}
      */
     public void setMessage(String message) { this.message = message; }
+
+    /**
+     * 获取 HTTP 协议版本。
+     *
+     * @return HTTP 协议版本，可能为 null（执行器未填充时）
+     */
+    public HttpVersion getVersion() { return version; }
+
+    /**
+     * 设置 HTTP 协议版本。
+     *
+     * @param version HTTP 协议版本
+     */
+    public void setVersion(HttpVersion version) { this.version = version; }
 
     /**
      * 获取响应体字符串（UTF-8 编码）。

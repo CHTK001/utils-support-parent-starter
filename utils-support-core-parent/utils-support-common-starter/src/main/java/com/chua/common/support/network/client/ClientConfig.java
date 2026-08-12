@@ -356,7 +356,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec get(String url) {
-        return applyTo(client.get(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.GET));
     }
 
     /**
@@ -366,7 +366,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec post(String url) {
-        return applyTo(client.post(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.POST));
     }
 
     /**
@@ -376,7 +376,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec put(String url) {
-        return applyTo(client.put(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.PUT));
     }
 
     /**
@@ -386,7 +386,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec delete(String url) {
-        return applyTo(client.delete(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.DELETE));
     }
 
     /**
@@ -396,7 +396,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec patch(String url) {
-        return applyTo(client.patch(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.PATCH));
     }
 
     /**
@@ -406,7 +406,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec head(String url) {
-        return applyTo(client.head(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.HEAD));
     }
 
     /**
@@ -416,7 +416,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec options(String url) {
-        return applyTo(client.options(url));
+        return applyTo(new RequestSpec(client, url, HttpMethod.OPTIONS));
     }
 
     /**
@@ -427,7 +427,7 @@ public class ClientConfig {
      * @return 预配置好的 RequestSpec
      */
     public RequestSpec method(HttpMethod method, String url) {
-        return applyTo(client.method(method, url));
+        return applyTo(new RequestSpec(client, url, method));
     }
 
     // ==================== 内部方法 ====================

@@ -3,6 +3,8 @@ package com.chua.common.support.network.sse;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.spi.ServiceProvider;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * SSE（Server-Sent Events）客户端接口
  *
@@ -64,6 +66,15 @@ public interface SseClient {
     SseConnection connect(SseRequest request, SseListener listener);
 
     /**
+     * 获取当前客户端的连接句柄。
+     *
+     * @return 当前连接句柄，未建立连接时返回 null
+     */
+    default SseConnection getConnection() {
+        return null;
+    }
+
+    /**
      * 获取默认的 SSE 客户端实现
      *
      * <p>通过 SPI 机制自动发现并返回优先级最高的可用实现。
@@ -73,6 +84,21 @@ public interface SseClient {
      */
     static SseClient create() {
         return ServiceProvider.of(SseClient.class).getExtension();
+    }
+
+    /**
+     * 建立 SSE 连接并返回连接句柄的异步包装。
+     *
+     * <p>使用默认客户端实现发起连接，返回已完成的 {@link CompletableFuture}。
+     *
+     * @param request  SSE 请求参数
+     * @param listener 事件监听器
+     * @return 已完成的连接句柄
+     */
+    static CompletableFuture<SseConnection> connectAsync(SseRequest request, SseListener listener) {
+        SseClient client = create();
+        client.connect(request, listener);
+        return CompletableFuture.completedFuture(client.getConnection());
     }
 
     /**
