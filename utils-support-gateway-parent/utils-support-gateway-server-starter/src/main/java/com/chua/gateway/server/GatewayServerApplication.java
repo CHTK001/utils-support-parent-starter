@@ -1,8 +1,9 @@
 package com.chua.gateway.server;
 
 import com.chua.gateway.server.artifact.GatewayArtifact;
+import com.chua.gateway.server.artifact.GuacdArtifact;
 import com.chua.gateway.server.artifact.GuacdBootstrapper;
-import com.chua.gateway.server.artifact.GuacdContainerBootstrapper;
+import com.chua.gateway.server.artifact.LocalOverrideResolver;
 import com.chua.gateway.server.config.GatewayProperties;
 import com.chua.gateway.server.server.GatewayServerBootstrap;
 import com.chua.runtime.starter.RuntimeBoot;
@@ -11,17 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Gateway Server 主入口（main）。
  *
- * <p>一键启动流程（优先级链）：</p>
+ * <p>一键启动流程（依赖 Apache Guacamole 官方 source tarball 自下载 + 自编译）：</p>
  * <ol>
- *   <li>Docker 路径：{@link GuacdContainerBootstrapper#ensureGuacdContainer()} —
- *       通过 Docker API 自动确保 guacd 容器在跑（推荐，零依赖）</li>
- *   <li>本地子进程：{@link GuacdBootstrapper#bootstrapAndStart()} —
- *       local-override / classpath zip / 包管理器 / 系统路径（兜底）</li>
+ *   <li>{@link GuacdArtifact} + RuntimeBoot.install() — 通过 {@link LocalOverrideResolver}
+ *       把 guacamole-server source tarball 下载到 cache 目录（local-override 优先）</li>
+ *   <li>{@link GuacdBootstrapper#bootstrapAndStart()} — 解压、编译、spawn guacd 子进程</li>
  *   <li>{@link GatewayServerBootstrap#start()} — 启动 HTTP API + 独立 WS 桥接 (:8182)</li>
  * </ol>
  *
  * <p>用户只需执行 {@code run-gateway.bat}（Windows）或 {@code start-gateway.sh}（Linux），
- * gateway 自动确保 guacd 可用。</p>
+ * gateway 自动处理 guacd 缺失场景。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,30 +53,22 @@ public final class GatewayServerApplication {
         log.info("[gateway-server] guacd 端口: {}", GatewayProperties.guacdPort());
         log.info("[gateway-server] artifact 目录: {}", GatewayProperties.artifactDir());
         log.info("[gateway-server] local-override: {}", GatewayProperties.localOverrideDir());
-        log.info("[gateway-server] Docker API: {}", GuacdContainerBootstrapper.resolveDockerApiUrl());
         log.info("[gateway-server] ===========================================");
 
         // 1. RuntimeBoot 安装 GatewayArtifact（仅注册元数据，不下载）
         RuntimeBoot.create()
                 .withArtifact(GatewayArtifact.create())
+                .withArtifact(GuacdArtifact.createDefault())
                 .install();
         log.info("[gateway-server] RuntimeBoot install 完成");
 
-        // 2. 一键确保 guacd 在跑（Docker 路径优先）
-        //    - Docker 可达 → 拉起 guacd 容器（推荐）
-        //    - Docker 不可达 → 兜底走 GuacdBootstrapper（子进程）
-        //    - 都失败 → 仅警告，gateway 仍启动（SSH / WS 协议仍可用）
-        boolean guacdReady = GuacdContainerBootstrapper.ensureGuacdContainer();
-        if (!guacdReady) {
-            log.info("[gateway-server] Docker 路径未就绪，尝试本地子进程...");
-            GuacdBootstrapper.GuacdHandle handle = GuacdBootstrapper.bootstrapAndStart();
-            if (handle != null) {
-                guacdReady = true;
-                log.info("[gateway-server] ✓ guacd 子进程运行中: pid={} port={} source={}",
-                        handle.process().pid(), handle.port(), handle.source());
-            }
-        }
-        if (!guacdReady) {
+        // 2. 一键引导 guacd（local-override → classpath jar → Linux 包管理器）
+        //    失败时仅警告，不阻塞 gateway（SSH / WS 协议仍可用）
+        GuacdBootstrapper.GuacdHandle handle = GuacdBootstrapper.bootstrapAndStart();
+        if (handle != null) {
+            log.info("[gateway-server] ✓ guacd 子进程运行中: pid={} port={} source={}",
+                    handle.process().pid(), handle.port(), handle.source());
+        } else {
             log.warn("[gateway-server] guacd 未启动 —— RDP/VNC 协议不可用，SSH 仍可用");
         }
 

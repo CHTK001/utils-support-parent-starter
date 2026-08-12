@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -125,6 +126,7 @@ public class GoogleChatClient implements ChatClient {
         this.system = setting.getSystem();
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(30))
+                .proxy(proxySelector(setting.getProxy()))
                 .build();
     }
 
@@ -505,6 +507,47 @@ public ChatClient newChat() {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 解析代理地址字符串。
+     *
+     * @param proxyStr 代理地址，支持 http://、socks5:// 格式，可为空
+     * @return Proxy 对象，未配置时返回 no-proxy
+     */
+    private static java.net.ProxySelector proxySelector(String proxyStr) {
+        if (proxyStr == null || proxyStr.isBlank()) {
+            return null;
+        }
+        java.net.Proxy.Type proxyType;
+        String hostPort;
+        if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
+            proxyType = java.net.Proxy.Type.SOCKS;
+            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
+        } else if (proxyStr.startsWith("http://")) {
+            proxyType = java.net.Proxy.Type.HTTP;
+            hostPort = proxyStr.substring(7);
+        } else if (proxyStr.startsWith("https://")) {
+            proxyType = java.net.Proxy.Type.HTTP;
+            hostPort = proxyStr.substring(8);
+        } else {
+            proxyType = java.net.Proxy.Type.HTTP;
+            hostPort = proxyStr;
+        }
+        String[] parts = hostPort.split(":");
+        String host = parts[0];
+        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
+        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
+        return new java.net.ProxySelector() {
+            @Override
+            public java.util.List<java.net.Proxy> select(java.net.URI uri) {
+                return java.util.List.of(proxy);
+            }
+
+            @Override
+            public void connectFailed(java.net.URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
+            }
+        };
     }
 
 }
