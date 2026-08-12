@@ -206,6 +206,7 @@ public class QwenProxyChatClient implements ChatClient {
         this.history.clear();
         this.externalHistory = null;
         this.conversationId = null;
+        session.newChat();
         return this;
     }
 
