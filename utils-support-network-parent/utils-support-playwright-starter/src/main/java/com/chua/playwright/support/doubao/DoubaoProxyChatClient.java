@@ -261,6 +261,7 @@ public class DoubaoProxyChatClient implements ChatClient {
                     + "?aid=" + DoubaoConstants.AID + "&device_platform=" + DoubaoConstants.DEVICE_PLATFORM;
 
             String body = buildRequestBody(prompt, actualModel);
+            history.add(ChatMessage.builder().role("user").content(prompt).build());
 
             DoubaoChatResult result = session.chat(url, body, conversationId, (type, content) -> {
                 ChatResponse.State state = "text".equals(type)
@@ -272,11 +273,12 @@ public class DoubaoProxyChatClient implements ChatClient {
                         .build());
             });
 
-            if (result.isSuccess()) {
+if (result.isSuccess()) {
                 if (result.conversationId() != null && !result.conversationId().isEmpty()) {
                     this.conversationId = result.conversationId();
                 }
                 String fullText = result.text();
+                history.add(ChatMessage.builder().role("assistant").content(fullText).build());
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STOP)
                         .content(fullText)
