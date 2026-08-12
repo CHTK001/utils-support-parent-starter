@@ -1622,6 +1622,9 @@ public class ClassUtils {
      * @return       
      */
     public static <T> Constructor<T> getConstructor(Class<T> tClass, Class<?>[] classes) {
+        if (null == tClass || null == classes) {
+            return null;
+        }
         Constructor<?>[] declaredConstructors = tClass.getDeclaredConstructors();
         Constructor<?> item = null;
         root:
@@ -1633,12 +1636,11 @@ public class ClassUtils {
             for (int i = 0; i < parameterTypes.length; i++) {
                 Class<?> parameterType = parameterTypes[i];
                 Class<?> aClass = classes[i];
-                if (aClass.getTypeName() == parameterType.getTypeName()) {
-                    continue;
-                }
-
-                boolean b = parameterType.isAssignableFrom(aClass) || Void.class.isAssignableFrom(aClass) || void.class.isAssignableFrom(aClass);
-                if (b) {
+                boolean assignable = aClass == parameterType
+                        || parameterType.isAssignableFrom(aClass)
+                        || Void.class.isAssignableFrom(aClass)
+                        || void.class.isAssignableFrom(aClass);
+                if (assignable) {
                     if (i == parameterTypes.length - 1) {
                         item = declaredConstructor;
                         break root;
