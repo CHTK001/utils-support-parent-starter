@@ -238,7 +238,7 @@ public class QwenProxyChatClient implements ChatClient {
                 .build());
 
         try {
-            String actualModel = model != null ? model : "qwen-plus";
+            String actualModel = model != null ? model : "qwen3.8-max";
             String body = buildRequestBody(prompt, actualModel);
 
             QwenChatResult result = session.chat(body, actualModel, (type, content) -> {
