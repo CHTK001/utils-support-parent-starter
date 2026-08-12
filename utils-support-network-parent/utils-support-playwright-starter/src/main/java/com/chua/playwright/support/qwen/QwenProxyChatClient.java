@@ -240,6 +240,17 @@ public class QwenProxyChatClient implements ChatClient {
 
         try {
             String actualModel = model != null ? model : "qwen3.8-max";
+
+            List<ChatMessage> msgs = externalHistory != null ? externalHistory : history;
+            if (!msgs.isEmpty()) {
+                StringBuilder context = new StringBuilder();
+                for (ChatMessage msg : msgs) {
+                    context.append(msg.getRole()).append(": ").append(msg.getContent()).append("\n");
+                }
+                context.append("user: ").append(prompt);
+                prompt = context.toString();
+            }
+
             String body = buildRequestBody(prompt, actualModel);
 
             QwenChatResult result = session.chat(body, actualModel, (type, content) -> {
