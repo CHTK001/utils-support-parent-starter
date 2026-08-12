@@ -223,6 +223,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         reg("paddleocrv6-det", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/PP-OCRv6/tiny/det_infer/inference.onnx");
         reg("paddleocrv6-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/PP-OCRv6/tiny/rec_infer/inference.onnx");
+
+        // ==================== DocLayNet 文档版面分析 (YOLOv8n @ 640, 11 类, ~6MB) ====================
+        // 模型来自 utils-support-models-onnx-doclaynet (provided 依赖)；
+        // 模型文件由云效部署前通过 scripts/fetch-doclaynet.ps1 拉取并打入 jar。
+        reg("doc-layout-yolo-imgsz640", "com.chua.deeplearning.support.onnx.layout.doclaynet.DocLayNetYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/layout/doclaynet/model.onnx");
     }
 
     private static void reg(String modelId, String translatorClassName,
