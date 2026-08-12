@@ -1,33 +1,31 @@
 package com.chua.zai.support;
 
+import ai.z.openapi.ZaiClient;
+import ai.z.openapi.service.chat.ChatService;
+import ai.z.openapi.service.model.ChatCompletionCreateParams;
+import ai.z.openapi.service.model.ChatCompletionResponse;
+import ai.z.openapi.service.model.ChatThinking;
+import ai.z.openapi.service.model.Choice;
+import ai.z.openapi.service.model.Usage;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.ai.chat.ChatMessage;
+import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
-import com.chua.common.support.ai.chat.ChatClientSetting;
-import com.chua.common.support.ai.chat.ChatResponse;
-import com.chua.common.support.ai.chat.ChatMessage;
-import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * Z.AI 大模型对话客户端
  *
- * <p>基于 Z.AI OpenAPI 的 {@link ChatClient} 实现，通过 HTTP 协议
+ * <p>基于 Z.AI OpenAPI 的 {@link ChatClient} 实现，通过 Z.AI SDK
  * 调用 Z.AI 平台的对话接口，支持 Z.AI 系列模型。
  *
  * @author CH
@@ -43,14 +41,19 @@ public class ZaiChatClient implements ChatClient {
     private static final String DEFAULT_URL = "https://api.z.ai/v1";
 
     /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
-
-    /**
      * 客户端配置
      */
     private final ChatClientSetting setting;
+
+    /**
+     * Z.AI SDK 客户端
+     */
+    private final ZaiClient zaiClient;
+
+    /**
+     * 对话服务
+     */
+    private final ChatService chatService;
 
     /**
      * 当前使用的模型名称
@@ -123,10 +126,13 @@ public class ZaiChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
+        applyProxy(setting.getProxy());
+        String url = normalizeBaseUrl();
+        this.zaiClient = ZaiClient.builder()
+                .apiKey(setting.getAppKey())
+                .baseUrl(url)
                 .build();
+        this.chatService = zaiClient.chat();
     }
 
     @Override
@@ -218,7 +224,7 @@ public class ZaiChatClient implements ChatClient {
     }
 
     @Override
-public ChatClient newChat() {
+    public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
         this.externalHistory = null;
@@ -248,82 +254,81 @@ public ChatClient newChat() {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
-        String actualApiKey = setting.getAppKey();
-
         try {
             long startTime = System.currentTimeMillis();
             consumer.accept(ChatResponse.builder()
                     .state(ChatResponse.State.START)
                     .build());
 
-            // 构建 Z.AI 请求体（兼容 OpenAI 格式）
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
+            List<ai.z.openapi.service.model.ChatMessage> sdkMessages = new ArrayList<>();
             String actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
             if (StringUtils.isNotEmpty(actualSystem)) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
+                sdkMessages.add(ai.z.openapi.service.model.ChatMessage.builder()
+                        .role("system")
+                        .content(actualSystem)
+                        .build());
             }
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
             for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
+                sdkMessages.add(ai.z.openapi.service.model.ChatMessage.builder()
+                        .role(msg.getRole())
+                        .content(msg.getContent())
+                        .build());
             }
-            messagesJson.append("{\"role\":\"user\",\"content\":\"")
-                    .append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
+            sdkMessages.add(ai.z.openapi.service.model.ChatMessage.builder()
+                    .role("user")
+                    .content(prompt)
+                    .build());
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+            ChatCompletionCreateParams.ChatCompletionCreateParamsBuilder<?, ?> paramsBuilder =
+                    ChatCompletionCreateParams.builder()
+                            .model(model != null ? model : "zai-1")
+                            .messages(sdkMessages)
+                            .stream(false)
+                            .temperature(temperature != null ? temperature.floatValue() : 0.3f)
+                            .maxTokens(maxTokens != null ? maxTokens : 2048);
 
-            String requestBody = "{\"model\":\"" + (model != null ? model : "zai-1")
-                    + "\",\"messages\":" + messagesJson
-                    + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
-                    + extraFlags.toString() + "}";
+            if (thinking) {
+                paramsBuilder.thinking(ChatThinking.builder().type("enabled").build());
+            }
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl + "/chat/completions"))
-                    .header("Authorization", "Bearer " + actualApiKey)
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
+            ChatCompletionResponse response = chatService.createChatCompletion(paramsBuilder.build());
 
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model != null ? model : "zai-1")
                     .provider("zai")
                     .startTime(startTime)
                     .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("prompt_tokens")))
-                            .outputTokens(toInt(usage.get("completion_tokens")))
-                            .totalTokens(toInt(usage.get("total_tokens")));
-                }
-            } catch (Exception ignored) {
-            }
 
-            if (response.statusCode() == 200) {
+            if (response.isSuccess() && response.getData() != null) {
+                Usage usage = response.getData().getUsage();
+                if (usage != null) {
+                    usageBuilder.inputTokens(usage.getPromptTokens())
+                            .outputTokens(usage.getCompletionTokens())
+                            .totalTokens(usage.getTotalTokens());
+                }
+
+                String content = "";
+                if (response.getData().getChoices() != null && !response.getData().getChoices().isEmpty()) {
+                    Choice choice = response.getData().getChoices().get(0);
+                    if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
+                        content = choice.getMessage().getContent().toString();
+                    }
+                }
+
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
+                        .content(content)
+                        .fullContent(content)
                         .usage(usageBuilder.build())
                         .build());
             } else {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.ERROR)
-                        .errorMessage("Z.AI API 返回错误: " + response.statusCode() + " - " + body)
+                        .errorMessage("Z.AI API 返回错误: " + response.getMsg())
                         .build());
             }
             onComplete.run();
@@ -341,8 +346,6 @@ public ChatClient newChat() {
     /**
      * 规范化 API 基础地址
      *
-     * <p>若未配置地址则使用默认的 Z.AI API 地址。
-     *
      * @return 规范化后的 URL
      */
     private String normalizeBaseUrl() {
@@ -357,57 +360,38 @@ public ChatClient newChat() {
     }
 
     /**
-     * 转义 JSON 字符串中的特殊字符
+     * 通过系统属性配置代理
      *
-     * @param input 原始字符串
-     * @return 转义后的字符串
+     * @param proxyStr 代理字符串
      */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
+    private static void applyProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
-            return null;
+            return;
         }
-        java.net.Proxy.Type proxyType;
         String hostPort;
+        boolean isSocks = false;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
+            isSocks = true;
             hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
-        } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(7);
         } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
             hostPort = proxyStr.substring(8);
+        } else if (proxyStr.startsWith("http://")) {
+            hostPort = proxyStr.substring(7);
         } else {
-            proxyType = java.net.Proxy.Type.HTTP;
             hostPort = proxyStr;
         }
         String[] parts = hostPort.split(":");
         String host = parts[0];
         int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
+        if (isSocks) {
+            System.setProperty("socksProxyHost", host);
+            System.setProperty("socksProxyPort", String.valueOf(port));
+        } else {
+            System.setProperty("http.proxyHost", host);
+            System.setProperty("http.proxyPort", String.valueOf(port));
+            System.setProperty("https.proxyHost", host);
+            System.setProperty("https.proxyPort", String.valueOf(port));
+        }
     }
 
 }

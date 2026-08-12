@@ -2,33 +2,40 @@ package com.chua.xunfei.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.ai.chat.ChatMessage;
+import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
-import com.chua.common.support.ai.chat.ChatClientSetting;
-import com.chua.common.support.ai.chat.ChatResponse;
-import com.chua.common.support.ai.chat.ChatMessage;
-import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
+import com.unfbx.sparkdesk.SparkDeskClient;
+import com.unfbx.sparkdesk.entity.AIChatRequest;
+import com.unfbx.sparkdesk.entity.AIChatResponse;
+import com.unfbx.sparkdesk.entity.Chat;
+import com.unfbx.sparkdesk.entity.InHeader;
+import com.unfbx.sparkdesk.entity.InPayload;
+import com.unfbx.sparkdesk.entity.Message;
+import com.unfbx.sparkdesk.entity.Parameter;
+import com.unfbx.sparkdesk.entity.Text;
+import com.unfbx.sparkdesk.entity.Usage;
+import com.unfbx.sparkdesk.listener.ChatListener;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
 
 import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
  * 讯飞星火大模型对话客户端
  *
- * <p>基于讯飞星火认知大模型 API 的 {@link ChatClient} 实现，通过 HTTP 协议
- * 调用星火大模型的对话接口，支持星火 3.0、4.0 等版本。
+ * <p>基于 SparkDesk-Java SDK 的 {@link ChatClient} 实现，通过 WebSocket
+ * 协议调用星火大模型的对话接口，支持星火 3.0、4.0 等版本。
  *
  * @author CH
  * @since 2026/07/15
@@ -38,14 +45,14 @@ import java.util.function.Consumer;
 public class XunfeiChatClient implements ChatClient {
 
     /**
-     * 讯飞星火默认 API 地址
+     * 默认 API 地址（V3.1）
      */
-    private static final String DEFAULT_URL = "https://spark-api.xf-yun.com/v3.5/chat";
+    private static final String DEFAULT_HOST = "https://spark-api.xf-yun.com/v3.1/chat";
 
     /**
-     * HTTP 客户端
+     * 默认超时时间（秒）
      */
-    private final HttpClient httpClient;
+    private static final long DEFAULT_TIMEOUT_SECONDS = 90;
 
     /**
      * 客户端配置
@@ -123,10 +130,6 @@ public class XunfeiChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
-                .build();
     }
 
     @Override
@@ -218,7 +221,7 @@ public class XunfeiChatClient implements ChatClient {
     }
 
     @Override
-public ChatClient newChat() {
+    public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
         this.externalHistory = null;
@@ -228,12 +231,26 @@ public ChatClient newChat() {
     @Override
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
+        CountDownLatch latch = new CountDownLatch(1);
+        final Throwable[] errorRef = new Throwable[1];
         chat(prompt, response -> {
             if (response.getState() == ChatResponse.State.STREAMING
                     && response.getContent() != null) {
                 result.append(response.getContent());
             }
+        }, latch::countDown, e -> {
+            errorRef[0] = e;
+            latch.countDown();
         });
+        try {
+            latch.await(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("讯飞星火对话被中断", e);
+        }
+        if (errorRef[0] != null) {
+            throw new RuntimeException(errorRef[0]);
+        }
         return result.toString();
     }
 
@@ -248,88 +265,144 @@ public ChatClient newChat() {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
-        String actualApiKey = setting.getAppKey();
-        String actualApiSecret = setting.getAppSecret();
+        String actualHost = resolveHost();
+        String appid = setting.getAppKey();
+        String apiKey = setting.getAppKey();
+        String apiSecret = setting.getAppSecret();
+        String actualDomain = resolveDomain();
+        double actualTemperature = temperature != null ? temperature : 0.3;
+        int actualMaxTokens = maxTokens != null ? maxTokens : 2048;
+        String uid = sessionId != null ? sessionId : "default";
 
-        try {
-            long startTime = System.currentTimeMillis();
-            consumer.accept(ChatResponse.builder()
-                    .state(ChatResponse.State.START)
-                    .build());
+        String actualSystem = system;
+        if (skillManager != null) {
+            actualSystem = SkillPrompt.inject(system, skillManager);
+        }
 
-            // 构建讯飞星火请求体
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
-            String actualSystem = system;
-            if (skillManager != null) {
-                actualSystem = SkillPrompt.inject(system, skillManager);
-            }
-            if (StringUtils.isNotEmpty(actualSystem)) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
-            }
-            List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
-            for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
-            }
-            messagesJson.append("{\"role\":\"user\",\"content\":\"")
-                    .append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
+        long startTime = System.currentTimeMillis();
+        consumer.accept(ChatResponse.builder()
+                .state(ChatResponse.State.START)
+                .build());
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+        // 构建消息列表
+        List<Text> textList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(actualSystem)) {
+            textList.add(Text.builder().role("system").content(actualSystem).build());
+        }
+        List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
+        for (ChatMessage msg : messages) {
+            textList.add(Text.builder().role(msg.getRole()).content(msg.getContent()).build());
+        }
+        textList.add(Text.builder().role("user").content(prompt).build());
 
-            String requestBody = "{\"model\":\"" + (model != null ? model : "spark-3.5")
-                    + "\",\"messages\":" + messagesJson
-                    + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
-                    + extraFlags.toString() + "}";
+        // 构建请求参数
+        AIChatRequest aiChatRequest = AIChatRequest.builder()
+                .header(InHeader.builder().appid(appid).uid(uid).build())
+                .parameter(Parameter.builder()
+                        .chat(Chat.builder()
+                                .domain(actualDomain)
+                                .temperature(actualTemperature)
+                                .maxTokens(actualMaxTokens)
+                                .topK(4)
+                                .build())
+                        .build())
+                .payload(InPayload.builder()
+                        .message(Message.builder().text(textList).build())
+                        .build())
+                .build();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl))
-                    .header("Authorization", "Bearer " + actualApiKey)
-                    .header("X-Request-Id", actualApiKey)
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
+        // 构建 OkHttpClient（支持代理）
+        OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
+        String proxyStr = setting.getProxy();
+        if (StringUtils.isNotEmpty(proxyStr)) {
+            okBuilder.proxy(parseProxy(proxyStr));
+        }
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
+        SparkDeskClient sparkClient = SparkDeskClient.builder()
+                .appid(appid)
+                .apiKey(apiKey)
+                .apiSecret(apiSecret)
+                .host(actualHost)
+                .okHttpClient(okBuilder.build())
+                .build();
 
-            AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
-                    .model(model != null ? model : "spark-3.5")
-                    .provider("xunfei")
-                    .startTime(startTime)
-                    .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("prompt_tokens")))
-                            .outputTokens(toInt(usage.get("completion_tokens")))
-                            .totalTokens(toInt(usage.get("total_tokens")));
+        String resolvedModel = model != null ? model : "spark-3.5";
+        CountDownLatch latch = new CountDownLatch(1);
+        StringBuilder contentBuilder = new StringBuilder();
+
+        ChatListener listener = new ChatListener(aiChatRequest) {
+            @Override
+            public void onChatOutput(AIChatResponse response) {
+                if (response.getPayload() == null
+                        || response.getPayload().getChoices() == null
+                        || response.getPayload().getChoices().getText() == null) {
+                    return;
                 }
-            } catch (Exception ignored) {
+                for (Text text : response.getPayload().getChoices().getText()) {
+                    String content = text.getContent();
+                    if (content != null) {
+                        contentBuilder.append(content);
+                        consumer.accept(ChatResponse.builder()
+                                .state(ChatResponse.State.STREAMING)
+                                .content(content)
+                                .build());
+                    }
+                }
             }
 
-            if (response.statusCode() == 200) {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
-                        .usage(usageBuilder.build())
-                        .build());
-            } else {
+            @Override
+            public void onChatError(AIChatResponse response) {
+                String errorMsg = "讯飞星火返回错误: code=" + response.getHeader().getCode()
+                        + ", message=" + response.getHeader().getMessage();
+                log.error("讯飞星火对话请求失败: {}", errorMsg);
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.ERROR)
-                        .errorMessage("讯飞星火 API 返回错误: " + response.statusCode() + " - " + body)
+                        .errorMessage(errorMsg)
                         .build());
+                onError.accept(new RuntimeException(errorMsg));
+                latch.countDown();
             }
-            onComplete.run();
 
+            @Override
+            public void onChatEnd() {
+                // 不做任何操作，等待 onChatToken 回调
+            }
+
+            @Override
+            public void onChatToken(Usage usage) {
+                AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
+                        .model(resolvedModel)
+                        .provider("xunfei")
+                        .startTime(startTime)
+                        .durationMillis(System.currentTimeMillis() - startTime);
+                if (usage != null && usage.getText() != null) {
+                    usageBuilder.inputTokens(usage.getText().getPromptTokens())
+                            .outputTokens(usage.getText().getCompletionTokens())
+                            .totalTokens(usage.getText().getTotalTokens());
+                }
+
+                consumer.accept(ChatResponse.builder()
+                        .state(ChatResponse.State.STOP)
+                        .fullContent(contentBuilder.toString())
+                        .usage(usageBuilder.build())
+                        .build());
+
+                onComplete.run();
+                latch.countDown();
+            }
+        };
+
+        try {
+            sparkClient.chat(listener);
+            latch.await(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("讯飞星火对话被中断: {}", e.getMessage(), e);
+            consumer.accept(ChatResponse.builder()
+                    .state(ChatResponse.State.ERROR)
+                    .errorMessage("对话被中断: " + e.getMessage())
+                    .build());
+            onError.accept(e);
         } catch (Exception e) {
             log.error("讯飞星火对话请求失败: {}", e.getMessage(), e);
             consumer.accept(ChatResponse.builder()
@@ -341,75 +414,77 @@ public ChatClient newChat() {
     }
 
     /**
-     * 规范化 API 基础地址
+     * 解析 API 主机地址
      *
-     * <p>若未配置地址则使用默认的讯飞星火 API 地址。
+     * <p>优先使用配置的 baseUrl，否则根据模型自动选择。
      *
-     * @return 规范化后的 URL
+     * @return API 主机地址
      */
-    private String normalizeBaseUrl() {
+    private String resolveHost() {
         String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
+        if (StringUtils.isNotEmpty(url)) {
+            return url;
         }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
+        String m = model != null ? model : "spark-3.5";
+        if (m.contains("4.0") || m.contains("v4")) {
+            return "https://spark-api.xf-yun.com/v4.0/chat";
         }
-        return url;
+        if (m.contains("2.0") || m.contains("v2")) {
+            return "https://spark-api.xf-yun.com/v2.1/chat";
+        }
+        if (m.contains("1.5") || m.contains("v1")) {
+            return "https://spark-api.xf-yun.com/v1.1/chat";
+        }
+        return DEFAULT_HOST;
     }
 
     /**
-     * 转义 JSON 字符串中的特殊字符
+     * 解析模型领域参数
      *
-     * @param input 原始字符串
-     * @return 转义后的字符串
+     * @return 领域名称
      */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+    private String resolveDomain() {
+        String m = model != null ? model : "spark-3.5";
+        if (m.contains("4.0") || m.contains("v4")) {
+            return "4.0Ultra";
+        }
+        if (m.contains("2.0") || m.contains("v2")) {
+            return "generalv2";
+        }
+        if (m.contains("1.5") || m.contains("v1")) {
+            return "general";
+        }
+        return "generalv3.5";
     }
 
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
+    /**
+     * 解析代理字符串为 Proxy 对象
+     *
+     * @param proxyStr 代理地址字符串
+     * @return Proxy 对象
+     */
+    private static Proxy parseProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;
         }
-        java.net.Proxy.Type proxyType;
+        Proxy.Type proxyType;
         String hostPort;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
+            proxyType = Proxy.Type.SOCKS;
             hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
         } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
+            proxyType = Proxy.Type.HTTP;
             hostPort = proxyStr.substring(7);
         } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
+            proxyType = Proxy.Type.HTTP;
             hostPort = proxyStr.substring(8);
         } else {
-            proxyType = java.net.Proxy.Type.HTTP;
+            proxyType = Proxy.Type.HTTP;
             hostPort = proxyStr;
         }
         String[] parts = hostPort.split(":");
         String host = parts[0];
         int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
+        return new Proxy(proxyType, new InetSocketAddress(host, port));
     }
-
 }
