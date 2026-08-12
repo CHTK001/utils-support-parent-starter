@@ -234,6 +234,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
         // ==================== 中文印章检测 (YOLOv8n @ 640, 1 类 seal, ~6MB) ====================
         reg("yolov8n-seal-detection", "com.chua.deeplearning.support.onnx.detection.single.SealDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/seal/yolov8n/model.onnx");
+
+        // ==================== 条形码/二维码检测 (YOLOv8s @ 640, 5 类, ~12MB) ====================
+        reg("yolov8n-barcode", "com.chua.deeplearning.support.onnx.detection.multi.BarcodeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/barcode/yolov8n/model.onnx");
+
+        // ==================== 个人防护装备检测 (YOLOv8n @ 640, 3 类, ~6MB) ====================
+        reg("yolov8n-ppe", "com.chua.deeplearning.support.onnx.detection.multi.PpeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
+
+        // ==================== 火灾烟雾检测 (YOLOv8n @ 640, 2 类, ~6MB) ====================
+        reg("yolov8n-fire-smoke", "com.chua.deeplearning.support.onnx.detection.multi.FireSmokeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
     }
 
     private static void reg(String modelId, String translatorClassName,
