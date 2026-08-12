@@ -1,2 +1,3 @@
 com.chua.runtime.apm.storage.NoopStorage
 com.chua.runtime.apm.storage.InMemoryStorage
+com.chua.runtime.apm.storage.SqliteStorage
