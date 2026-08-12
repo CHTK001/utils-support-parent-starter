@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-network-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-kcp-starter</artifactId>
+    <name>Utils Support Kcp Starter</name>
+    <description>KCP 可靠 UDP 传输集成：KcpServer 消息服务器与 KcpSyncServer/KcpSyncClient 同步协议实现</description>
+    <properties>
+        <kcp.netty.version>1.5.2</kcp.netty.version>
+        <netty.kcp.version>4.1.68.Final</netty.kcp.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jpower.kcp</groupId>
+            <artifactId>kcp-netty</artifactId>
+            <version>${kcp.netty.version}</version>
+        </dependency>
+        <!-- kcp-netty 1.5.2 基于 netty 4.1.x 构建，显式声明配套版本避免被父 POM 统一管理为 4.2 -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${netty.kcp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>${netty.kcp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>${netty.kcp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+            <version>${netty.kcp.version}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -51,6 +51,7 @@ public enum ProtocolType {
      */
     TCP(ServerCategory.APPLICATION),
     UDP(ServerCategory.APPLICATION),
+    KCP(ServerCategory.MESSAGE),
     WS(ServerCategory.MESSAGE),
     MQTT(ServerCategory.MESSAGE),
     RSOCKET(ServerCategory.MESSAGE),

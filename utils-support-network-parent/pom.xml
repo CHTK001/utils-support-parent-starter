@@ -39,6 +39,7 @@
         <module>utils-support-smb-starter</module>
         <module>utils-support-ngrok-starter</module>
         <module>utils-support-git-starter</module>
+        <module>utils-support-kcp-starter</module>
         <module>utils-support-webview-starter</module>
         <module>utils-support-webview-jcef-starter</module>
     </modules>
