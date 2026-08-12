@@ -1,6 +1,7 @@
 package com.chua.gateway.server.artifact;
 
 import com.chua.gateway.server.config.GatewayProperties;
+import com.chua.runtime.core.model.RuntimeArtifact;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -90,6 +91,78 @@ public final class GuacdBootstrapper {
     }
 
     /**
+     * 尝试编译 guacd source（适用于源码 tarball 已被下载解压但未编译的场景）。
+     *
+     * @param sourceDir 解压后的源码目录
+     * @return 编译后的 guacd 可执行文件路径
+     */
+    private static Path tryCompileGuacd(Path sourceDir) {
+        if (!Files.isDirectory(sourceDir)) {
+            return null;
+        }
+        // 尝试 1：检查是否已经编译过（configure + make 已运行）
+        Path prebuilt = sourceDir.resolve("sbin").resolve(EXE_LINUX);
+        if (Files.isRegularFile(prebuilt)) {
+            log.info("[guacd-bootstrapper] ✓ 源码目录已有 pre-built guacd: {}", prebuilt);
+            return prebuilt;
+        }
+        // 尝试 2：检测编译器 + 编译依赖
+        String[] compilers = {"gcc", "cc"};
+        boolean hasCompiler = false;
+        for (String c : compilers) {
+            try {
+                Process p = new ProcessBuilder("which", c).start();
+                if (p.waitFor(2, java.util.concurrent.TimeUnit.SECONDS) && p.exitValue() == 0) {
+                    hasCompiler = true;
+                    break;
+                }
+            } catch (Exception ignored) {}
+        }
+        if (!hasCompiler) {
+            log.warn("[guacd-bootstrapper] 容器无 gcc/cc，无法编译 guacd source");
+            return null;
+        }
+        // 尝试 3：自动安装编译依赖（apt-get）
+        log.info("[guacd-bootstrapper] 检测到 gcc，尝试 apt-get install -y gcc make libssh2-dev libvncserver-dev libwebsockets-dev libpango1.0-dev libcairo2-dev...");
+        try {
+            Process install = new ProcessBuilder("bash", "-c",
+                "apt-get update -qq && apt-get install -y --no-install-recommends gcc make libssh2-1-dev libssl-dev libvncserver-dev libwebsockets-dev libpango1.0-dev libcairo2-dev libjpeg-dev libpng-dev libossp-uuid-dev 2>&1 | tail -5")
+                .inheritIO().start();
+            int exit = install.waitFor(180, java.util.concurrent.TimeUnit.SECONDS) ? install.exitValue() : -1;
+            if (exit != 0) {
+                log.warn("[guacd-bootstrapper] apt-get install 失败 exit={}", exit);
+                return null;
+            }
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] apt-get install 异常: {}", ex.getMessage());
+            return null;
+        }
+        // 尝试 4：./configure && make && make install
+        log.info("[guacd-bootstrapper] 编译 guacd source（首次约 5-10 分钟）...");
+        try {
+            Process configure = new ProcessBuilder("bash", "-c",
+                "cd " + sourceDir + " && ./configure --with-systemd-unit-dir=no --disable-guaclog --enable-allow-linux-ipv6 2>&1 | tail -10 && make -j$(nproc) 2>&1 | tail -5 && make install 2>&1 | tail -5")
+                .inheritIO().start();
+            int exit = configure.waitFor(900, java.util.concurrent.TimeUnit.SECONDS) ? configure.exitValue() : -1;
+            if (exit != 0) {
+                log.warn("[guacd-bootstrapper] 编译失败 exit={}", exit);
+                return null;
+            }
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] 编译异常: {}", ex.getMessage());
+            return null;
+        }
+        // 5. 编译后路径
+        Path installed = Paths.get("/usr/local/sbin/guacd");
+        if (Files.isRegularFile(installed)) {
+            log.info("[guacd-bootstrapper] ✓ 编译并安装完成: {}", installed);
+            return installed;
+        }
+        Path localBuild = sourceDir.resolve("sbin").resolve(EXE_LINUX);
+        return Files.isRegularFile(localBuild) ? localBuild : null;
+    }
+
+    /**
      * 一键引导并启动 guacd（如可启动）。
      *
      * @return GuacdHandle 句柄（包含进程 + 文件路径 + 启动方式）
@@ -102,16 +175,61 @@ public final class GuacdBootstrapper {
         boolean isLinux = !isWindows && !isMac && (os.contains("linux") || os.contains("nix"));
 
         log.info("[guacd-bootstrapper] OS 探测: {}", os);
-        log.info("[guacd-bootstrapper] 本地优先级: local-override → classpath jar → package manager");
+        log.info("[guacd-bootstrapper] 引导顺序: LocalOverrideResolver 下载 → local-override → classpath jar → package manager");
 
         Path guacdBin = null;
         String source = null;
 
+        // 0. GuacdArtifact 下载 + 解压（source tarball）
+        try {
+            RuntimeArtifact art = GuacdArtifact.createDefault();
+            if (art.getDownloadUrl() != null) {
+                log.info("[guacd-bootstrapper] 下载 guacd artifact: {} → cache", art.getDownloadUrl());
+                Path downloaded = LocalOverrideResolver.ensure(
+                        "guacd", GuacdArtifact.DEFAULT_VERSION,
+                        GuacdArtifact.binaryRelativePath(),
+                        art.getDownloadUrl());
+                if (Files.exists(downloaded)) {
+                    guacdBin = downloaded;
+                    source = "downloaded-tarball";
+                    log.info("[guacd-bootstrapper] ✓ 下载完成: {}", guacdBin);
+                }
+            }
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] 下载失败: {}（继续走其他路径）", ex.getMessage());
+        }
+
+        // 0.5 尝试编译已下载的 source（如有 gcc + 编译依赖）
+        if (guacdBin == null) {
+            try {
+                Path sourceDir = Paths.get(
+                        LocalOverrideResolver.expandUserHome(GatewayProperties.artifactDir()),
+                        "guacd", GuacdArtifact.DEFAULT_VERSION, "guacd-" + GuacdArtifact.DEFAULT_VERSION);
+                // 实际解压路径可能是 guacamole-server-1.5.5
+                Path altDir = Paths.get(
+                        LocalOverrideResolver.expandUserHome(GatewayProperties.artifactDir()),
+                        "guacd", GuacdArtifact.DEFAULT_VERSION, "guacamole-server-" + GuacdArtifact.DEFAULT_VERSION);
+                Path compileDir = Files.isDirectory(sourceDir) ? sourceDir : altDir;
+                if (Files.isDirectory(compileDir)) {
+                    log.info("[guacd-bootstrapper] 找到源码目录: {}", compileDir);
+                    guacdBin = tryCompileGuacd(compileDir);
+                    if (guacdBin != null) {
+                        source = "compiled-from-source";
+                        log.info("[guacd-bootstrapper] ✓ 编译成功: {}", guacdBin);
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("[guacd-bootstrapper] 编译尝试失败: {}", ex.getMessage());
+            }
+        }
+
         // 1. local-override 已有 guacd？
-        guacdBin = findGuacdInLocalOverride();
-        if (guacdBin != null) {
-            source = "local-override";
-            log.info("[guacd-bootstrapper] ✓ 命中 local-override: {}", guacdBin);
+        if (guacdBin == null) {
+            guacdBin = findGuacdInLocalOverride();
+            if (guacdBin != null) {
+                source = "local-override";
+                log.info("[guacd-bootstrapper] ✓ 命中 local-override: {}", guacdBin);
+            }
         }
 
         // 2. classpath 内嵌 zip？

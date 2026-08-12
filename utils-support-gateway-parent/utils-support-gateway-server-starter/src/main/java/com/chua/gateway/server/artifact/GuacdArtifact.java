@@ -32,13 +32,14 @@ public final class GuacdArtifact {
     /**
      * guacd 默认版本
      */
-    private static final String DEFAULT_VERSION = "1.5.5";
+    public static final String DEFAULT_VERSION = "1.5.5";
 
     /**
-     * 默认下载源（Apache 镜像）
+     * 默认下载源（Apache 官方 source tarball，自行编译）。
+     * 注：Apache 不发布 guacd 预编译二进制，必须 source 编译。
      */
     private static final String DEFAULT_DOWNLOAD_URL =
-            "https://archive.apache.org/dist/guacamole/1.5.5/binary/guacamole-server-1.5.5-linux-x86_64.tar.gz";
+            "https://archive.apache.org/dist/guacamole/1.5.5/source/guacamole-server-1.5.5.tar.gz";
 
     /**
      * guacd 可执行文件名（依据 OS 调整）
