@@ -133,7 +133,6 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
             return;
         }
         connection.write(topic + ":" + message);
-        notifyListener(l -> l.onMessage(clientId, topic, message));
     }
 
     @Override
