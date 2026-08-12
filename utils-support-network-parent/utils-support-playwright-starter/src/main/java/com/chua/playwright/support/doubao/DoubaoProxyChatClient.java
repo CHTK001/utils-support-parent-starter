@@ -309,7 +309,10 @@ if (result.isSuccess()) {
     }
 
     @Override
-    public void close() {
+public void close() {
+        if (conversationId != null && !conversationId.isEmpty()) {
+            session.deleteConversation(conversationId);
+        }
         session.close();
     }
 
