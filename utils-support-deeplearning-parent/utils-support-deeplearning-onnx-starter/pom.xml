@@ -73,6 +73,30 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-table-detect</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-table-detect</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-seal-detect</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-seal-detect</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-fer</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
