@@ -1,5 +1,6 @@
 package com.chua.common.support.taskdistribution.manager;
 
+import com.chua.common.support.taskdistribution.dispatcher.MdcDecorator;
 import com.chua.common.support.taskdistribution.store.TaskStore;
 import com.chua.common.support.taskdistribution.task.Task;
 import com.chua.common.support.taskdistribution.task.TaskCallback;
@@ -7,6 +8,7 @@ import com.chua.common.support.taskdistribution.task.TaskResult;
 import com.chua.common.support.taskdistribution.task.TaskStatus;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +78,7 @@ private long cleanExpireMs = 60000;
             timeoutScheduler = ThreadUtils.newSingleThreadScheduledExecutor(
                     ThreadUtils.newThreadFactory("task-manager-timeout"));
             timeoutScheduler.scheduleAtFixedRate(
-                    this::checkTimeouts,
+                    MdcDecorator.decorate(this::checkTimeouts),
                     TIMEOUT_CHECK_INTERVAL,
                     TIMEOUT_CHECK_INTERVAL,
                     TimeUnit.MILLISECONDS
@@ -339,10 +341,22 @@ private long cleanExpireMs = 60000;
             if (holder.status == TaskStatus.RUNNING || holder.status == TaskStatus.PENDING) {
                 long elapsed = now - holder.createdAt;
                 if (elapsed > holder.task.getTimeoutMs()) {
-                    updateStatus(holder.task.getTaskId(), TaskStatus.TIMEOUT);
-                    log.warn("任务超时: {}, 超时设置: {}ms", holder.task.getTaskId(), holder.task.getTimeoutMs());
-                    if (holder.callback != null) {
-                        holder.callback.onTimeout(holder.task.getTaskId());
+                    String taskId = holder.task.getTaskId();
+                    try {
+                        if (taskId != null) {
+                            MDC.put(MdcDecorator.KEY_TASK_ID, taskId);
+                        }
+                        if (holder.task.getTraceId() != null) {
+                            MDC.put(MdcDecorator.KEY_TRACE_ID, holder.task.getTraceId());
+                        }
+                        updateStatus(taskId, TaskStatus.TIMEOUT);
+                        log.warn("任务超时: {}, 超时设置: {}ms", taskId, holder.task.getTimeoutMs());
+                        if (holder.callback != null) {
+                            holder.callback.onTimeout(taskId);
+                        }
+                    } finally {
+                        MDC.remove(MdcDecorator.KEY_TASK_ID);
+                        MDC.remove(MdcDecorator.KEY_TRACE_ID);
                     }
                 }
             }
