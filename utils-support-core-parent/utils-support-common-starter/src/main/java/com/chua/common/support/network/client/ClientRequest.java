@@ -2,6 +2,7 @@ package com.chua.common.support.network.client;
 
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.http.HttpHeader;
+import com.chua.common.support.network.http.HttpVersion;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -157,6 +158,30 @@ public class ClientRequest {
     private long keepAliveTimeout = 60000;
 
     /**
+     * HTTP 协议版本。
+     *
+     * <p>默认 null 表示由底层执行器选择，可设置为 HTTP/1.1、HTTP/2 或 HTTP/3。</p>
+     */
+    private HttpVersion version;
+
+    /**
+     * 写入超时时间（毫秒）。
+     *
+     * <p>发送请求数据的最大等待时间，默认 0 表示不限制。</p>
+     */
+    private long writeTimeout;
+
+    /**
+     * 响应缓存有效期（毫秒），0 表示不缓存
+     */
+    private long cacheTtl;
+
+    /**
+     * 最大重试次数
+     */
+    private int maxRetries;
+
+    /**
      * 获取请求 URL。
      *
      * @return 完整的请求 URL 字符串
@@ -273,6 +298,62 @@ public class ClientRequest {
      * @param keepAliveTimeout 保活超时时间（毫秒），0 表示不限制
      */
     public void setKeepAliveTimeout(long keepAliveTimeout) { this.keepAliveTimeout = keepAliveTimeout; }
+
+    /**
+     * 获取 HTTP 协议版本。
+     *
+     * @return HTTP 协议版本，可能为 null（由执行器选择）
+     */
+    public HttpVersion getVersion() { return version; }
+
+    /**
+     * 设置 HTTP 协议版本。
+     *
+     * @param version HTTP 协议版本（HTTP_1_1 / HTTP_2 / HTTP_3）
+     */
+    public void setVersion(HttpVersion version) { this.version = version; }
+
+    /**
+     * 获取写入超时时间。
+     *
+     * @return 写入超时时间（毫秒）
+     */
+    public long getWriteTimeout() { return writeTimeout; }
+
+    /**
+     * 设置写入超时时间。
+     *
+     * @param writeTimeout 写入超时时间（毫秒），0 表示不限制
+     */
+    public void setWriteTimeout(long writeTimeout) { this.writeTimeout = writeTimeout; }
+
+    /**
+     * 获取响应缓存有效期。
+     *
+     * @return 缓存有效期（毫秒），0 表示不缓存
+     */
+    public long getCacheTtl() { return cacheTtl; }
+
+    /**
+     * 设置响应缓存有效期。
+     *
+     * @param cacheTtl 缓存有效期（毫秒），0 表示不缓存
+     */
+    public void setCacheTtl(long cacheTtl) { this.cacheTtl = cacheTtl; }
+
+    /**
+     * 获取最大重试次数。
+     *
+     * @return 最大重试次数
+     */
+    public int getMaxRetries() { return maxRetries; }
+
+    /**
+     * 设置最大重试次数。
+     *
+     * @param maxRetries 最大重试次数
+     */
+    public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
 
     /**
      * 判断是否自动跟随 HTTP 重定向。

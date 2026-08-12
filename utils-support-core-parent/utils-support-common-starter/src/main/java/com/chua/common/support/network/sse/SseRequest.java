@@ -92,6 +92,17 @@ public class SseRequest {
     private long readTimeout = 0;
 
     /**
+     * 是否启用自动重连
+     *
+     * <p>连接意外断开时是否自动重连。默认 false。</p>
+     */
+    @Builder.Default
+    /**
+     * 是否启用自动重连
+     */
+    private boolean reconnect = false;
+
+    /**
      * 添加单个请求头
      *
      * <p>便捷方法，用于在构建器之外修改请求头。
