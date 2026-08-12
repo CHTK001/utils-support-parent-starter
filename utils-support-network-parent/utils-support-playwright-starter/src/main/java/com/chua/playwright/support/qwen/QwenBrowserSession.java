@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /**
@@ -64,75 +62,54 @@ public class QwenBrowserSession implements AutoCloseable {
         if (prompt == null) prompt = "hello";
 
         try (var page = context.newPage()) {
-            // 准备响应拦截
-            CompletableFuture<QwenChatResult> future = new CompletableFuture<>();
-
-            page.onResponse(resp -> {
-                String url = resp.url();
-                if (!url.contains("/api/v2/chat/completions")) return;
-                // 异步读取 SSE 流
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        StringBuilder text = new StringBuilder();
-                        StringBuilder thinking = new StringBuilder();
-                        List<Map<String, Object>> rawEvents = new ArrayList<>();
-                        java.io.BufferedReader reader = new java.io.BufferedReader(
-                                new java.io.InputStreamReader(
-                                        new java.io.ByteArrayInputStream(resp.body()),
-                                        java.nio.charset.StandardCharsets.UTF_8));
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            if (line.startsWith("data:")) line = line.substring(5).trim();
-                            if (line.equals("[DONE]") || line.isEmpty()) continue;
-                            try {
-                                Map<String, Object> obj = com.chua.common.support.lang.json.Json.fromJson(line, Map.class);
-                                if (obj == null) continue;
-                                rawEvents.add(obj);
-                                List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
-                                if (choices == null || choices.isEmpty()) continue;
-                                Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
-                                if (delta == null) continue;
-                                String phase = (String) delta.get("phase");
-                                String content = (String) delta.get("content");
-                                if (content == null || content.isEmpty()) continue;
-                                if ("think".equals(phase) || "thinking".equals(phase)) {
-                                    thinking.append(content);
-                                    if (listener != null) listener.accept("thinking", content);
-                                } else {
-                                    text.append(content);
-                                    if (listener != null) listener.accept("text", content);
-                                }
-                            } catch (Exception ignored) {}
-                        }
-                        future.complete(QwenChatResult.ok(text.toString(), thinking.toString(), "", rawEvents));
-                    } catch (Exception e) {
-                        future.completeExceptionally(e);
-                    }
-                });
-            });
-
             // 加载页面
             page.navigate("https://chat.qwen.ai");
             page.waitForLoadState();
             page.waitForTimeout(10000);
 
-            // UI 输入触发发送
+            // UI 输入触发发送（让 bx 自动签名）
             ElementHandle textarea = page.querySelector("textarea.message-input-textarea");
             if (textarea == null) {
                 return QwenChatResult.error("未找到聊天输入框");
             }
+            // UI 输入触发发送，然后等待 chat/completions 响应
             textarea.click();
             page.keyboard().type(prompt);
             page.waitForTimeout(300);
-            page.keyboard().press("Enter");
+            Response resp = page.waitForResponse(
+                    r -> r.url().contains("/api/v2/chat/completions"),
+                    new Page.WaitForResponseOptions().setTimeout(RESPONSE_TIMEOUT_MS),
+                    () -> page.keyboard().press("Enter"));
 
-            // 等待响应完成
-            try {
-                QwenChatResult result = future.get(RESPONSE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-                return result;
-            } catch (java.util.concurrent.TimeoutException e) {
-                return QwenChatResult.error("响应超时");
+            // 读取 SSE 响应体
+            String sse = new String(resp.body(), java.nio.charset.StandardCharsets.UTF_8);
+            StringBuilder text = new StringBuilder();
+            StringBuilder thinking = new StringBuilder();
+            List<Map<String, Object>> rawEvents = new ArrayList<>();
+            for (String line : sse.split("\n")) {
+                if (line.startsWith("data:")) line = line.substring(5).trim();
+                if (line.equals("[DONE]") || line.isEmpty()) continue;
+                try {
+                    Map<String, Object> obj = com.chua.common.support.lang.json.Json.fromJson(line, Map.class);
+                    if (obj == null) continue;
+                    rawEvents.add(obj);
+                    List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
+                    if (choices == null || choices.isEmpty()) continue;
+                    Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
+                    if (delta == null) continue;
+                    String phase = (String) delta.get("phase");
+                    String content = (String) delta.get("content");
+                    if (content == null || content.isEmpty()) continue;
+                    if ("think".equals(phase) || "thinking".equals(phase)) {
+                        thinking.append(content);
+                        if (listener != null) listener.accept("thinking", content);
+                    } else {
+                        text.append(content);
+                        if (listener != null) listener.accept("text", content);
+                    }
+                } catch (Exception ignored) {}
             }
+            return QwenChatResult.ok(text.toString(), thinking.toString(), "", rawEvents);
         } catch (Exception e) {
             log.warn("通义千问聊天请求失败: {}", e.getMessage());
             return QwenChatResult.error(e.getMessage());
