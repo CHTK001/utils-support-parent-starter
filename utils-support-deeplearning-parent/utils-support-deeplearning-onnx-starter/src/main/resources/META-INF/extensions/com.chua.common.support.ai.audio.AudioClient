@@ -1,0 +1,3 @@
+whisper=com.chua.deeplearning.support.onnx.audio.whisper.WhisperAudioClient
+whisper-tiny=com.chua.deeplearning.support.onnx.audio.whisper.WhisperAudioClient
+whisper-onnx=com.chua.deeplearning.support.onnx.audio.whisper.WhisperAudioClient
