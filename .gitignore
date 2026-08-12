@@ -64,6 +64,7 @@ logs/
 !/data/**/*.java
 **/audio/
 !**/support/audio/
+!**/onnx/audio/
 # 模型文件排除
 **/models/**/*.onnx_data
 **/models/**/*.onnx
