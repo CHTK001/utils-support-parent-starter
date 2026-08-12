@@ -6,7 +6,7 @@ import com.chua.runtime.protocol.Endpoint;
 import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 import com.chua.runtime.protocol.StatusCode;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -45,7 +45,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
+@Log
 public class SqliteStorage implements ApmStorage {
 
     /**
@@ -113,7 +113,7 @@ public class SqliteStorage implements ApmStorage {
             try (Connection conn = open()) {
                 createTables(conn);
             }
-            log.info("SqliteStorage 启动: path={}, retentionMs={}, capacity={}", dbPath, retentionMillis, capacity);
+            log.info(String.format("SqliteStorage 启动: path=%s, retentionMs=%d, capacity=%d", dbPath, retentionMillis, capacity));
         } catch (SQLException e) {
             throw new IllegalStateException("SQLite 存储启动失败: " + dbPath, e);
         }
@@ -121,7 +121,7 @@ public class SqliteStorage implements ApmStorage {
 
     @Override
     public void stop() {
-        log.info("SqliteStorage 停止: {}", dbPath);
+        log.info(String.format("SqliteStorage 停止: %s", dbPath));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class SqliteStorage implements ApmStorage {
                 ps.setString(26, toJson(event.getAttributes()));
                 ps.executeUpdate();
             } catch (SQLException e) {
-                log.warn("写入传输记录失败: {}", e.getMessage());
+                log.warning(String.format("写入传输记录失败: %s", e.getMessage()));
             }
         }
     }
@@ -220,7 +220,7 @@ public class SqliteStorage implements ApmStorage {
                     }
                 }
             } catch (SQLException e) {
-                log.warn("写入依赖边失败: {}", e.getMessage());
+                log.warning(String.format("写入依赖边失败: %s", e.getMessage()));
             }
         }
     }
@@ -244,7 +244,7 @@ public class SqliteStorage implements ApmStorage {
                 ps.setString(7, record.getStackTrace());
                 ps.executeUpdate();
             } catch (SQLException e) {
-                log.warn("写入泄漏记录失败: {}", e.getMessage());
+                log.warning(String.format("写入泄漏记录失败: %s", e.getMessage()));
             }
         }
     }
@@ -268,7 +268,7 @@ public class SqliteStorage implements ApmStorage {
                 ps.setString(7, record.getTraceId());
                 ps.executeUpdate();
             } catch (SQLException e) {
-                log.warn("写入日志记录失败: {}", e.getMessage());
+                log.warning(String.format("写入日志记录失败: %s", e.getMessage()));
             }
         }
     }
@@ -307,7 +307,7 @@ public class SqliteStorage implements ApmStorage {
                 }
             }
         } catch (SQLException e) {
-            log.warn("查询传输记录失败: {}", e.getMessage());
+            log.warning(String.format("查询传输记录失败: %s", e.getMessage()));
         }
         return result;
     }
@@ -324,7 +324,7 @@ public class SqliteStorage implements ApmStorage {
                 result.add(mapDependency(rs));
             }
         } catch (SQLException e) {
-            log.warn("查询依赖边失败: {}", e.getMessage());
+            log.warning(String.format("查询依赖边失败: %s", e.getMessage()));
         }
         return result;
     }
@@ -358,7 +358,7 @@ public class SqliteStorage implements ApmStorage {
                 }
             }
         } catch (SQLException e) {
-            log.warn("查询泄漏记录失败: {}", e.getMessage());
+            log.warning(String.format("查询泄漏记录失败: %s", e.getMessage()));
         }
         return result;
     }
@@ -393,7 +393,7 @@ public class SqliteStorage implements ApmStorage {
                 }
             }
         } catch (SQLException e) {
-            log.warn("查询日志记录失败: {}", e.getMessage());
+            log.warning(String.format("查询日志记录失败: %s", e.getMessage()));
         }
         return result;
     }
@@ -407,7 +407,7 @@ public class SqliteStorage implements ApmStorage {
             result.put("leaks", count(conn, "leaks"));
             result.put("logs", count(conn, "logs"));
         } catch (SQLException e) {
-            log.warn("统计失败: {}", e.getMessage());
+            log.warning(String.format("统计失败: %s", e.getMessage()));
         }
         return result;
     }
@@ -422,7 +422,7 @@ public class SqliteStorage implements ApmStorage {
                 removed += deleteOlder(conn, "logs", "timestamp", cutoff);
                 removed += deleteClosedLeaks(conn, cutoff);
             } catch (SQLException e) {
-                log.warn("清理过期数据失败: {}", e.getMessage());
+                log.warning(String.format("清理过期数据失败: %s", e.getMessage()));
             }
         }
         return removed;
@@ -455,7 +455,7 @@ public class SqliteStorage implements ApmStorage {
                 Files.createDirectories(parent);
             }
         } catch (Exception e) {
-            log.warn("创建数据库目录失败: {}", e.getMessage());
+            log.warning(String.format("创建数据库目录失败: %s", e.getMessage()));
         }
     }
 
