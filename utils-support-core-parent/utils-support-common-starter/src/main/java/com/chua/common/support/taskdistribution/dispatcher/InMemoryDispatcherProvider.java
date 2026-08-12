@@ -7,6 +7,7 @@ import com.chua.common.support.taskdistribution.task.TaskResult;
 import com.chua.common.support.taskdistribution.task.TaskStatus;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -280,9 +281,27 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
             if (pausedTasks.contains(task.getTaskId()) || task.isPaused()) {
                 return;
             }
-            listener.onTask(task);
+            try {
+                if (task.getTaskId() != null) {
+                    MDC.put(MdcDecorator.KEY_TASK_ID, task.getTaskId());
+                }
+                if (task.getTraceId() != null) {
+                    MDC.put(MdcDecorator.KEY_TRACE_ID, task.getTraceId());
+                }
+                listener.onTask(task);
+            } finally {
+                MDC.remove(MdcDecorator.KEY_TASK_ID);
+                MDC.remove(MdcDecorator.KEY_TRACE_ID);
+            }
         } else if (data instanceof TaskResult<?> result) {
-            listener.onResult(result);
+            try {
+                if (result.getTaskId() != null) {
+                    MDC.put(MdcDecorator.KEY_TASK_ID, result.getTaskId());
+                }
+                listener.onResult(result);
+            } finally {
+                MDC.remove(MdcDecorator.KEY_TASK_ID);
+            }
         }
     }
 
