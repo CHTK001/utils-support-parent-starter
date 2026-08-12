@@ -2,6 +2,7 @@ package com.chua.common.support.network.client;
 
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.http.HttpHeader;
+import com.chua.common.support.network.http.HttpVersion;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -157,6 +158,35 @@ public class ClientRequest {
     private long keepAliveTimeout = 60000;
 
     /**
+     * 写入超时时间（毫秒）。
+     *
+     * <p>指从发起请求到数据写入完成的最大等待时间。
+     * 默认值：{@code 30000} 毫秒（30 秒）。
+     */
+    private long writeTimeout = 30000;
+
+    /**
+     * HTTP 协议版本。
+     *
+     * <p>指定客户端与服务器通信时使用的 HTTP 版本，null 表示使用执行器默认版本。
+     */
+    private HttpVersion version;
+
+    /**
+     * 缓存有效期（毫秒）。
+     *
+     * <p>响应缓存的有效期，默认值 {@code -1} 表示不启用缓存。
+     */
+    private long cacheTtl = -1;
+
+    /**
+     * 最大重试次数。
+     *
+     * <p>请求失败时的最大重试次数，默认值 {@code 0} 表示不重试。
+     */
+    private int maxRetries = 0;
+
+    /**
      * 获取请求 URL。
      *
      * @return 完整的请求 URL 字符串
@@ -273,6 +303,62 @@ public class ClientRequest {
      * @param keepAliveTimeout 保活超时时间（毫秒），0 表示不限制
      */
     public void setKeepAliveTimeout(long keepAliveTimeout) { this.keepAliveTimeout = keepAliveTimeout; }
+
+    /**
+     * 获取写入超时时间。
+     *
+     * @return 写入超时时间（毫秒）
+     */
+    public long getWriteTimeout() { return writeTimeout; }
+
+    /**
+     * 设置写入超时时间。
+     *
+     * @param writeTimeout 写入超时时间（毫秒）
+     */
+    public void setWriteTimeout(long writeTimeout) { this.writeTimeout = writeTimeout; }
+
+    /**
+     * 获取 HTTP 协议版本。
+     *
+     * @return HTTP 协议版本，null 表示使用执行器默认版本
+     */
+    public HttpVersion getVersion() { return version; }
+
+    /**
+     * 设置 HTTP 协议版本。
+     *
+     * @param version HTTP 协议版本，null 表示使用执行器默认版本
+     */
+    public void setVersion(HttpVersion version) { this.version = version; }
+
+    /**
+     * 获取缓存有效期。
+     *
+     * @return 缓存有效期（毫秒），{@code -1} 表示不启用缓存
+     */
+    public long getCacheTtl() { return cacheTtl; }
+
+    /**
+     * 设置缓存有效期。
+     *
+     * @param cacheTtl 缓存有效期（毫秒），{@code -1} 表示不启用缓存
+     */
+    public void setCacheTtl(long cacheTtl) { this.cacheTtl = cacheTtl; }
+
+    /**
+     * 获取最大重试次数。
+     *
+     * @return 最大重试次数，{@code 0} 表示不重试
+     */
+    public int getMaxRetries() { return maxRetries; }
+
+    /**
+     * 设置最大重试次数。
+     *
+     * @param maxRetries 最大重试次数，{@code 0} 表示不重试
+     */
+    public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
 
     /**
      * 判断是否自动跟随 HTTP 重定向。

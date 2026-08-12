@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Base64;
 
@@ -54,10 +55,14 @@ public class JdkWebSocketServer extends AbstractServer {
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
-            serverSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()));
-            executor = ThreadUtils.newCachedThreadPool("jdk-ws");
+            serverSocket.setReuseAddress(setting.isSoReuseAddr());
+            serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
+            serverSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()),
+                    Math.max(setting.getBacklog(), 2048));
+            executor = Executors.newVirtualThreadPerTaskExecutor();
             executor.submit(this::acceptLoop);
-            log.info("JDK WebSocketServer started on {}:{}", setting.getHost(), setting.getPort());
+            log.info("JDK WebSocketServer started on {}:{} (backlog={}, virtualThreads=true)",
+                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -137,6 +142,7 @@ public class JdkWebSocketServer extends AbstractServer {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
                 Socket socket = serverSocket.accept();
+                socket.setTcpNoDelay(setting.isTcpNoDelay());
                 Connection conn = new Connection(socket);
                 connections.add(conn);
                 executor.submit(() -> handleConnection(conn));
