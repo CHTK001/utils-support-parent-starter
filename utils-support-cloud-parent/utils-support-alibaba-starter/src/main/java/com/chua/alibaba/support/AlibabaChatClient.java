@@ -1,32 +1,35 @@
 package com.chua.alibaba.support;
 
+import com.alibaba.dashscope.aigc.generation.Generation;
+import com.alibaba.dashscope.aigc.generation.GenerationOutput;
+import com.alibaba.dashscope.aigc.generation.GenerationParam;
+import com.alibaba.dashscope.aigc.generation.GenerationResult;
+import com.alibaba.dashscope.aigc.generation.GenerationUsage;
+import com.alibaba.dashscope.common.Message;
+import com.alibaba.dashscope.common.Role;
+import com.alibaba.dashscope.exception.ApiException;
+import com.alibaba.dashscope.exception.InputRequiredException;
+import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.protocol.ConnectionOptions;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
-import com.chua.common.support.ai.skill.SkillManager;
-import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
-import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.spi.annotations.Spi;
+import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * 阿里云通义千问大模型对话客户端
  *
- * <p>基于 DashScope 通义千问 API 的 {@link ChatClient} 实现，通过 HTTP 协议
+ * <p>基于 DashScope SDK 的 {@link ChatClient} 实现，通过 Generation API
  * 调用阿里云模型服务灵积（DashScope）的对话接口。
  *
  * @author CH
@@ -36,108 +39,59 @@ import java.util.function.Consumer;
 @Spi({"alibaba"})
 public class AlibabaChatClient implements ChatClient {
 
-    /**
-     * 通义千问默认 API 地址
-     */
-    private static final String DEFAULT_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation";
-
     private static final String DEFAULT_MODEL = "qwen-turbo";
     private static final double DEFAULT_TEMPERATURE = 0.3;
     private static final int DEFAULT_MAX_TOKENS = 2048;
-    private static final String ROLE_USER = "user";
-    private static final String ROLE_ASSISTANT = "assistant";
-    private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final String TOKEN_PREFIX = "Bearer ";
-    private static final String CONTENT_TYPE_JSON = "application/json";
-    private static final int CONNECT_TIMEOUT_SECONDS = 30;
-    private static final int REQUEST_TIMEOUT_SECONDS = 90;
     private static final int HISTORY_CAPACITY = 16;
 
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
-
-    /**
-     * 客户端配置
-     */
+    private final Generation generation;
     private final ChatClientSetting setting;
-
-    /**
-     * 当前使用的模型名称
-     */
     private String model;
-
-    /**
-     * 当前温度参数
-     */
     private Double temperature;
-
-    /**
-     * 当前最大 Token 数
-     */
     private Integer maxTokens;
-
-    /**
-     * 当前系统提示词
-     */
     private String system;
-
-    /**
-     * 当前会话 ID
-     */
     private String sessionId;
-
-    /**
-     * 对话历史消息列表
-     */
     private final List<ChatMessage> history = new ArrayList<>(HISTORY_CAPACITY);
-
-    /**
-     * 外部传入的完整历史记录
-     */
     private List<ChatMessage> externalHistory;
-
-    /**
-     * 图片附件 URL 列表
-     */
     private final List<String> imageUrls = new ArrayList<>(4);
-
-    /**
-     * 是否启用深度思考
-     */
     private boolean thinking;
-
-    /**
-     * 深度思考力度
-     */
     private String thinkingEffort;
-
-    /**
-     * 是否启用智能搜索
-     */
     private boolean smartSearch;
-
-    /**
-     * 技能管理器
-     */
     private SkillManager skillManager;
 
-    /**
-     * 构造阿里云通义千问对话客户端
-     *
-     * @param setting 客户端配置
-     */
     public AlibabaChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS))
-                .proxy(proxySelector(setting.getProxy()))
-                .build();
+        this.generation = buildGeneration(setting);
+    }
+
+    private static Generation buildGeneration(ChatClientSetting setting) {
+        var proxyStr = setting.getProxy();
+        if (proxyStr == null || proxyStr.isBlank()) {
+            return new Generation(setting.getAppKey());
+        }
+        var connOpts = buildConnectionOptions(proxyStr);
+        return new Generation(setting.getAppKey(), null, connOpts);
+    }
+
+    private static ConnectionOptions buildConnectionOptions(String proxyStr) {
+        String hostPort;
+        if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
+            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
+        } else if (proxyStr.startsWith("http://")) {
+            hostPort = proxyStr.substring(7);
+        } else if (proxyStr.startsWith("https://")) {
+            hostPort = proxyStr.substring(8);
+        } else {
+            hostPort = proxyStr;
+        }
+        var parts = hostPort.split(":");
+        var host = parts[0];
+        var port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
+        return ConnectionOptions.builder().proxyHost(host).proxyPort(port).build();
     }
 
     @Override
@@ -196,13 +150,13 @@ public class AlibabaChatClient implements ChatClient {
 
     @Override
     public ChatClient addUserHistory(String content) {
-        history.add(ChatMessage.builder().role(ROLE_USER).content(content).build());
+        history.add(ChatMessage.builder().role(Role.USER.getValue()).content(content).build());
         return this;
     }
 
     @Override
     public ChatClient addAssistantHistory(String content) {
-        history.add(ChatMessage.builder().role(ROLE_ASSISTANT).content(content).build());
+        history.add(ChatMessage.builder().role(Role.ASSISTANT.getValue()).content(content).build());
         return this;
     }
 
@@ -238,7 +192,7 @@ public class AlibabaChatClient implements ChatClient {
 
     @Override
     public String chatSync(String prompt) {
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         chat(prompt, response -> {
             if (response.getState() == ChatResponse.State.STREAMING
                     && response.getContent() != null) {
@@ -259,87 +213,101 @@ public class AlibabaChatClient implements ChatClient {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
-        String actualApiKey = setting.getAppKey();
-
         try {
-            long startTime = System.currentTimeMillis();
+            var startTime = System.currentTimeMillis();
             consumer.accept(ChatResponse.builder()
                     .state(ChatResponse.State.START)
                     .build());
 
-            // 构建 DashScope 请求体
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
-            String actualSystem = system;
+            var actualModel = model != null ? model : DEFAULT_MODEL;
+            var actualTemperature = (float) (temperature != null ? temperature : DEFAULT_TEMPERATURE);
+            var actualMaxTokens = maxTokens != null ? maxTokens : DEFAULT_MAX_TOKENS;
+
+            var actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
-            if (actualSystem != null && !actualSystem.isEmpty()) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
+
+            var paramBuilder = GenerationParam.builder()
+                    .model(actualModel)
+                    .messages(buildMessages(prompt, actualSystem))
+                    .temperature(actualTemperature)
+                    .maxTokens(actualMaxTokens)
+                    .incrementalOutput(true);
+
+            if (thinking) {
+                paramBuilder.enableThinking(true);
             }
-            List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
-            for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
+            if (smartSearch) {
+                paramBuilder.enableSearch(true);
             }
-            messagesJson.append("{\"role\":\"").append(ROLE_USER).append("\",\"content\":\"").append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"enable_thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
-
-            String requestBody = "{\"model\":\"" + (model != null ? model : DEFAULT_MODEL)
-                    + "\",\"input\":{\"messages\":" + messagesJson
-                    + "},\"parameters\":{\"temperature\":" + (temperature != null ? temperature : DEFAULT_TEMPERATURE)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : DEFAULT_MAX_TOKENS)
-                    + extraFlags.toString() + "}}";
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl))
-                    .header(HEADER_AUTHORIZATION, TOKEN_PREFIX + actualApiKey)
-                    .header("Content-Type", CONTENT_TYPE_JSON)
-                    .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-
-            AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
-                    .model(model != null ? model : DEFAULT_MODEL)
+            var param = paramBuilder.build();
+            var fullContent = new StringBuilder();
+            var reasoningContent = new StringBuilder();
+            var usageBuilder = AiUsage.builder()
+                    .model(actualModel)
                     .provider("alibaba")
-                    .startTime(startTime)
-                    .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("prompt_tokens")))
-                            .outputTokens(toInt(usage.get("completion_tokens")))
-                            .totalTokens(toInt(usage.get("total_tokens")));
-                }
-            } catch (Exception ignored) {
-            }
+                    .startTime(startTime);
+            var firstTokenReceived = new boolean[]{false};
 
-            if (response.statusCode() == 200) {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
-                        .usage(usageBuilder.build())
-                        .build());
-            } else {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.ERROR)
-                        .errorMessage("DashScope API 返回错误: " + response.statusCode() + " - " + body)
-                        .build());
-            }
+            Flowable<GenerationResult> flowable = generation.streamCall(param);
+            flowable.blockingForEach(chunk -> {
+                if (!firstTokenReceived[0]) {
+                    firstTokenReceived[0] = true;
+                    usageBuilder.firstTokenLatencyMillis(System.currentTimeMillis() - startTime);
+                }
+
+                var choices = chunk.getOutput().getChoices();
+                if (choices != null && !choices.isEmpty()) {
+                    var choice = choices.get(0);
+                    var message = choice.getMessage();
+                    if (message != null) {
+                        var content = message.getContent();
+                        if (content != null) {
+                            fullContent.append(content);
+                            consumer.accept(ChatResponse.builder()
+                                    .state(ChatResponse.State.STREAMING)
+                                    .content(content)
+                                    .build());
+                        }
+                        var reasoning = message.getReasoningContent();
+                        if (reasoning != null) {
+                            reasoningContent.append(reasoning);
+                        }
+                    }
+                }
+
+                var usage = chunk.getUsage();
+                if (usage != null) {
+                    usageBuilder.inputTokens(usage.getInputTokens())
+                            .outputTokens(usage.getOutputTokens())
+                            .totalTokens(usage.getTotalTokens());
+                }
+            });
+
+            var fullContentStr = fullContent.toString();
+            var reasoningContentStr = reasoningContent.isEmpty() ? null : reasoningContent.toString();
+            consumer.accept(ChatResponse.builder()
+                    .state(ChatResponse.State.STOP)
+                    .content(fullContentStr)
+                    .fullContent(fullContentStr)
+                    .reasoningContent(reasoningContentStr)
+                    .usage(usageBuilder
+                            .durationMillis(System.currentTimeMillis() - startTime)
+                            .build())
+                    .build());
             onComplete.run();
 
-        } catch (Exception e) {
+        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             log.error("阿里云通义千问对话请求失败: {}", e.getMessage(), e);
+            consumer.accept(ChatResponse.builder()
+                    .state(ChatResponse.State.ERROR)
+                    .errorMessage(e.getMessage())
+                    .build());
+            onError.accept(e);
+        } catch (Exception e) {
+            log.error("阿里云通义千问对话请求异常: {}", e.getMessage(), e);
             consumer.accept(ChatResponse.builder()
                     .state(ChatResponse.State.ERROR)
                     .errorMessage(e.getMessage())
@@ -348,76 +316,26 @@ public class AlibabaChatClient implements ChatClient {
         }
     }
 
-    /**
-     * 规范化 API 基础地址
-     *
-     * <p>若未配置地址则使用默认的 DashScope API 地址。
-     *
-     * @return 规范化后的 URL
-     */
-    private String normalizeBaseUrl() {
-        String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
+    private List<Message> buildMessages(String prompt, String actualSystem) {
+        var messages = new ArrayList<Message>();
+        if (actualSystem != null && !actualSystem.isEmpty()) {
+            messages.add(Message.builder()
+                    .role(Role.SYSTEM.getValue())
+                    .content(actualSystem)
+                    .build());
         }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
+        var source = externalHistory != null ? externalHistory : history;
+        for (var msg : source) {
+            messages.add(Message.builder()
+                    .role(msg.getRole())
+                    .content(msg.getContent())
+                    .build());
         }
-        return url;
-    }
-
-    /**
-     * 转义 JSON 字符串中的特殊字符
-     *
-     * @param input 原始字符串
-     * @return 转义后的字符串
-     */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
-            return null;
-        }
-        java.net.Proxy.Type proxyType;
-        String hostPort;
-        if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
-            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
-        } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(7);
-        } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(8);
-        } else {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr;
-        }
-        String[] parts = hostPort.split(":");
-        String host = parts[0];
-        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
+        messages.add(Message.builder()
+                .role(Role.USER.getValue())
+                .content(prompt)
+                .build());
+        return messages;
     }
 
 }

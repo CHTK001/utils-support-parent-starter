@@ -2,32 +2,31 @@ package com.chua.doubao.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.ai.chat.ChatMessage;
+import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
-import com.chua.common.support.ai.chat.ChatClientSetting;
-import com.chua.common.support.ai.chat.ChatResponse;
-import com.chua.common.support.ai.chat.ChatMessage;
-import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
+import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
+import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionResult;
+import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionChunk;
+import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
+import com.volcengine.ark.runtime.service.ArkService;
+import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
  * 豆包/火山引擎大模型对话客户端
  *
- * <p>基于火山引擎 Ark 大模型 API 的 {@link ChatClient} 实现，通过 HTTP 协议
- * 调用豆包（Doubao）系列模型的对话接口。
+ * <p>基于 Ark SDK 的 {@link ChatClient} 实现，调用豆包系列模型的对话接口。
  *
  * @author CH
  * @since 2026/07/15
@@ -36,96 +35,44 @@ import java.util.function.Consumer;
 @Spi({"doubao", "volcengine"})
 public class DoubaoChatClient implements ChatClient {
 
-    /**
-     * 豆包/火山引擎默认 API 地址
-     */
     private static final String DEFAULT_URL = "https://ark.cn-beijing.volces.com/api/v3";
 
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
-
-    /**
-     * 客户端配置
-     */
+    private final ArkService arkService;
     private final ChatClientSetting setting;
-
-    /**
-     * 当前使用的模型名称
-     */
     private String model;
-
-    /**
-     * 当前温度参数
-     */
     private Double temperature;
-
-    /**
-     * 当前最大 Token 数
-     */
     private Integer maxTokens;
-
-    /**
-     * 当前系统提示词
-     */
     private String system;
-
-    /**
-     * 当前会话 ID
-     */
     private String sessionId;
-
-    /**
-     * 对话历史消息列表
-     */
     private final List<ChatMessage> history = new ArrayList<>();
-
-    /**
-     * 外部传入的完整历史记录
-     */
     private List<ChatMessage> externalHistory;
-
-    /**
-     * 图片附件 URL 列表
-     */
-    private final List<String> imageUrls = new ArrayList<>();
-
-    /**
-     * 是否启用深度思考
-     */
     private boolean thinking;
-
-    /**
-     * 深度思考力度
-     */
     private String thinkingEffort;
-
-    /**
-     * 是否启用智能搜索
-     */
     private boolean smartSearch;
-
-    /**
-     * 技能管理器
-     */
     private SkillManager skillManager;
 
-    /**
-     * 构造豆包对话客户端
-     *
-     * @param setting 客户端配置
-     */
     public DoubaoChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
-                .build();
+
+        ArkService.Builder builder = ArkService.builder()
+                .apiKey(setting.getAppKey())
+                .timeout(Duration.ofSeconds(90))
+                .connectTimeout(Duration.ofSeconds(30));
+        if (setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()) {
+            builder.baseUrl(setting.getBaseUrl());
+        }
+        String proxyStr = setting.getProxy();
+        if (proxyStr != null && !proxyStr.isBlank()) {
+            java.net.Proxy proxy = toProxy(proxyStr);
+            if (proxy != null) {
+                builder.proxy(proxy);
+            }
+        }
+        this.arkService = builder.build();
     }
 
     @Override
@@ -177,12 +124,6 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
-    public ChatClient addImage(String imageUrl) {
-        this.imageUrls.add(imageUrl);
-        return this;
-    }
-
-    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
@@ -207,19 +148,8 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
-    public ChatClient addAttachment(String name, byte[] data, String mimeType) {
-        throw new UnsupportedOperationException("该服务商不支持文件附件");
-    }
-
-    @Override
-    public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
-        throw new UnsupportedOperationException("该服务商不支持远程文件附件");
-    }
-
-    @Override
-public ChatClient newChat() {
+    public ChatClient newChat() {
         this.history.clear();
-        this.imageUrls.clear();
         this.externalHistory = null;
         return this;
     }
@@ -228,8 +158,7 @@ public ChatClient newChat() {
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
-            if (response.getState() == ChatResponse.State.STREAMING
-                    && response.getContent() != null) {
+            if (response.getState() == ChatResponse.State.STREAMING && response.getContent() != null) {
                 result.append(response.getContent());
             }
         });
@@ -238,93 +167,99 @@ public ChatClient newChat() {
 
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
-        chat(prompt, consumer, () -> {
-        }, e -> {
-            throw new RuntimeException(e);
-        });
+        chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
 
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
-        String actualApiKey = setting.getAppKey();
+        long startTime = System.currentTimeMillis();
+        consumer.accept(ChatResponse.builder().state(ChatResponse.State.START).build());
 
         try {
-            long startTime = System.currentTimeMillis();
-            consumer.accept(ChatResponse.builder()
-                    .state(ChatResponse.State.START)
-                    .build());
-
-            // 构建火山引擎 Ark 请求体（兼容 OpenAI 格式）
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
             String actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
+
+            List<com.volcengine.ark.runtime.model.completion.chat.ChatMessage> messages = new ArrayList<>();
             if (actualSystem != null && !actualSystem.isEmpty()) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
+                messages.add(com.volcengine.ark.runtime.model.completion.chat.ChatMessage.builder()
+                        .role(ChatMessageRole.SYSTEM)
+                        .content(actualSystem)
+                        .build());
             }
-            List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
-            for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
+            List<ChatMessage> msgs = externalHistory != null ? externalHistory : history;
+            for (ChatMessage msg : msgs) {
+                messages.add(com.volcengine.ark.runtime.model.completion.chat.ChatMessage.builder()
+                        .role("user".equals(msg.getRole()) ? ChatMessageRole.USER : ChatMessageRole.ASSISTANT)
+                        .content(msg.getContent())
+                        .build());
             }
-            messagesJson.append("{\"role\":\"user\",\"content\":\"")
-                    .append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
+            messages.add(com.volcengine.ark.runtime.model.completion.chat.ChatMessage.builder()
+                    .role(ChatMessageRole.USER)
+                    .content(prompt)
+                    .build());
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":{\"type\":\"enabled\"}"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+            ChatCompletionRequest.Builder requestBuilder = ChatCompletionRequest.builder()
+                    .model(model != null ? model : "doubao-1.5-pro-32k")
+                    .messages(messages)
+                    .temperature(temperature != null ? temperature : 0.3)
+                    .maxTokens(maxTokens != null ? maxTokens : 2048);
 
-            String requestBody = "{\"model\":\"" + (model != null ? model : "doubao-1.5-pro-32k")
-                    + "\",\"messages\":" + messagesJson
-                    + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
-                    + extraFlags.toString() + "}";
+            if (thinking) {
+                requestBuilder.thinking(new com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest.ChatCompletionRequestThinking("enabled"));
+            }
+            if (smartSearch) {
+                requestBuilder.tools(List.of(new com.volcengine.ark.runtime.model.completion.chat.ChatTool("web_search", null)));
+            }
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl + "/chat/completions"))
-                    .header("Authorization", "Bearer " + actualApiKey)
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-
+            Flowable<ChatCompletionChunk> flowable = arkService.streamChatCompletion(requestBuilder.build());
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model != null ? model : "doubao-1.5-pro-32k")
                     .provider("doubao")
-                    .startTime(startTime)
-                    .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("prompt_tokens")))
-                            .outputTokens(toInt(usage.get("completion_tokens")))
-                            .totalTokens(toInt(usage.get("total_tokens")));
-                }
-            } catch (Exception ignored) {
-            }
+                    .startTime(startTime);
 
-            if (response.statusCode() == 200) {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
-                        .usage(usageBuilder.build())
-                        .build());
-            } else {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.ERROR)
-                        .errorMessage("火山引擎 Ark API 返回错误: " + response.statusCode() + " - " + body)
-                        .build());
-            }
+            AtomicBoolean isDone = new AtomicBoolean(false);
+            flowable.blockingForEach(chunk -> {
+                if (chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
+                    var choice = chunk.getChoices().get(0);
+                    String finishReason = choice.getFinishReason();
+                    if ("stop".equals(finishReason)) {
+                        isDone.set(true);
+                        return;
+                    }
+                    var delta = choice.getMessage();
+                    if (delta != null) {
+                        Object contentObj = delta.getContent();
+                        if (contentObj instanceof String content && !content.isEmpty()) {
+                            consumer.accept(ChatResponse.builder()
+                                    .state(ChatResponse.State.STREAMING)
+                                    .content(content)
+                                    .build());
+                        }
+                        String reasoning = delta.getReasoningContent();
+                        if (reasoning != null && !reasoning.isEmpty()) {
+                            consumer.accept(ChatResponse.builder()
+                                    .state(ChatResponse.State.STREAMING)
+                                    .reasoningContent(reasoning)
+                                    .build());
+                        }
+                    }
+                }
+                if (chunk.getUsage() != null) {
+                    var usage = chunk.getUsage();
+                    usageBuilder.inputTokens((int) usage.getPromptTokens())
+                            .outputTokens((int) usage.getCompletionTokens())
+                            .totalTokens((int) usage.getTotalTokens());
+                }
+            });
+
+            usageBuilder.durationMillis(System.currentTimeMillis() - startTime);
+            consumer.accept(ChatResponse.builder()
+                    .state(ChatResponse.State.STOP)
+                    .usage(usageBuilder.build())
+                    .build());
             onComplete.run();
 
         } catch (Exception e) {
@@ -337,76 +272,36 @@ public ChatClient newChat() {
         }
     }
 
-    /**
-     * 规范化 API 基础地址
-     *
-     * <p>若未配置地址则使用默认的火山引擎 Ark API 地址。
-     *
-     * @return 规范化后的 URL
-     */
-    private String normalizeBaseUrl() {
-        String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
+    @Override
+    public void close() {
+        try {
+            arkService.shutdownExecutor();
+        } catch (Exception e) {
+            log.debug("关闭 ArkService 失败", e);
         }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
-        }
-        return url;
     }
 
-    /**
-     * 转义 JSON 字符串中的特殊字符
-     *
-     * @param input 原始字符串
-     * @return 转义后的字符串
-     */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
+    private static java.net.Proxy toProxy(String proxyStr) {
+        try {
+            java.net.Proxy.Type proxyType;
+            String hostPort;
+            if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
+                proxyType = java.net.Proxy.Type.SOCKS;
+                hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
+            } else if (proxyStr.startsWith("http://")) {
+                proxyType = java.net.Proxy.Type.HTTP;
+                hostPort = proxyStr.substring(7);
+            } else if (proxyStr.startsWith("https://")) {
+                proxyType = java.net.Proxy.Type.HTTP;
+                hostPort = proxyStr.substring(8);
+            } else {
+                proxyType = java.net.Proxy.Type.HTTP;
+                hostPort = proxyStr;
+            }
+            String[] parts = hostPort.split(":");
+            return new java.net.Proxy(proxyType, new InetSocketAddress(parts[0], parts.length > 1 ? Integer.parseInt(parts[1]) : 80));
+        } catch (Exception e) {
             return null;
         }
-        java.net.Proxy.Type proxyType;
-        String hostPort;
-        if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
-            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
-        } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(7);
-        } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(8);
-        } else {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr;
-        }
-        String[] parts = hostPort.split(":");
-        String host = parts[0];
-        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
     }
-
 }

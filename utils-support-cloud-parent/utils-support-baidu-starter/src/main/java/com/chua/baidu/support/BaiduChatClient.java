@@ -1,32 +1,27 @@
 package com.chua.baidu.support;
 
+import com.baidubce.qianfan.Qianfan;
+import com.baidubce.qianfan.model.chat.ChatResponse;
+import com.baidubce.qianfan.model.chat.ChatUsage;
+import com.baidubce.qianfan.model.chat.Message;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
-import com.chua.common.support.ai.skill.SkillManager;
-import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
-import com.chua.common.support.ai.chat.ChatResponse;
-import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.ai.chat.ChatResponse.State;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * 百度文心一言大模型对话客户端
  *
- * <p>基于百度千帆大模型平台 API 的 {@link ChatClient} 实现，通过 HTTP 协议
+ * <p>基于百度千帆大模型平台 SDK 的 {@link ChatClient} 实现，通过千帆 SDK
  * 调用文心一言（ERNIE-Bot）的对话接口。
  *
  * @author CH
@@ -37,19 +32,9 @@ import java.util.function.Consumer;
 public class BaiduChatClient implements ChatClient {
 
     /**
-     * 文心一言默认 API 地址
+     * 千帆 SDK 客户端
      */
-    private static final String DEFAULT_URL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat";
-
-    /**
-     * 获取 Access Token 的地址
-     */
-    private static final String TOKEN_URL = "https://aip.baidubce.com/oauth/2.0/token";
-
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
+    private final Qianfan qianfan;
 
     /**
      * 客户端配置
@@ -117,11 +102,6 @@ public class BaiduChatClient implements ChatClient {
     private SkillManager skillManager;
 
     /**
-     * 缓存的 Access Token
-     */
-    private String accessToken;
-
-    /**
      * 构造百度文心一言对话客户端
      *
      * @param setting 客户端配置
@@ -132,10 +112,9 @@ public class BaiduChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
-                .build();
+        configureProxy(setting.getProxy());
+        String baseUrl = normalizeBaseUrl();
+        this.qianfan = new Qianfan(setting.getAppKey(), setting.getAppSecret(), baseUrl);
     }
 
     @Override
@@ -238,7 +217,7 @@ public class BaiduChatClient implements ChatClient {
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
-            if (response.getState() == ChatResponse.State.STREAMING
+            if (response.getState() == State.STREAMING
                     && response.getContent() != null) {
                 result.append(response.getContent());
             }
@@ -247,7 +226,7 @@ public class BaiduChatClient implements ChatClient {
     }
 
     @Override
-    public void chat(String prompt, Consumer<ChatResponse> consumer) {
+    public void chat(String prompt, Consumer<com.chua.common.support.ai.chat.ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
             throw new RuntimeException(e);
@@ -255,131 +234,79 @@ public class BaiduChatClient implements ChatClient {
     }
 
     @Override
-    public void chat(String prompt, Consumer<ChatResponse> consumer,
+    public void chat(String prompt, Consumer<com.chua.common.support.ai.chat.ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
             long startTime = System.currentTimeMillis();
-            consumer.accept(ChatResponse.builder()
-                    .state(ChatResponse.State.START)
+            consumer.accept(com.chua.common.support.ai.chat.ChatResponse.builder()
+                    .state(State.START)
                     .build());
 
-            // 获取 Access Token
-            String token = getAccessToken();
-
-            // 构建文心一言请求体
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
-            List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
-            for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
-            }
-            messagesJson.append("{\"role\":\"user\",\"content\":\"").append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
-
+            String actualModel = model != null ? model : "ernie-3.5-8k";
             String actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
-            String systemStr = "";
+
+            List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
+            List<Message> sdkMessages = new ArrayList<>();
+            for (ChatMessage msg : messages) {
+                sdkMessages.add(new Message()
+                        .setRole(msg.getRole())
+                        .setContent(msg.getContent()));
+            }
+            sdkMessages.add(new Message()
+                    .setRole("user")
+                    .setContent(prompt));
+
+            com.baidubce.qianfan.core.builder.ChatBuilder builder = qianfan.chatCompletion()
+                    .model(actualModel)
+                    .messages(sdkMessages)
+                    .temperature(temperature != null ? temperature : 0.3)
+                    .maxOutputTokens(maxTokens != null ? maxTokens : 2048);
+
             if (actualSystem != null && !actualSystem.isEmpty()) {
-                systemStr = ",\"system\":\"" + escapeJson(actualSystem) + "\"";
+                builder.system(actualSystem);
+            }
+            if (smartSearch) {
+                builder.disableSearch(false);
+            }
+            if (thinking) {
+                builder.addExtraParameter("thinking", true);
             }
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
-
-            String requestBody = "{\"messages\":" + messagesJson
-                    + systemStr
-                    + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
-                    + extraFlags.toString() + "}";
-
-            String actualModel = model != null ? model : "ernie-3.5-8k";
-            String url = normalizeBaseUrl() + "/" + actualModel + "?access_token=" + token;
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
+            ChatResponse response = builder.execute();
+            String result = response.getResult();
 
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
-                    .model(model != null ? model : "ernie-3.5-8k")
+                    .model(actualModel)
                     .provider("baidu")
                     .startTime(startTime)
                     .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("prompt_tokens")))
-                            .outputTokens(toInt(usage.get("completion_tokens")))
-                            .totalTokens(toInt(usage.get("total_tokens")));
-                }
-            } catch (Exception ignored) {
+            ChatUsage usage = response.getUsage();
+            if (usage != null) {
+                usageBuilder.inputTokens(usage.getPromptTokens())
+                        .outputTokens(usage.getCompletionTokens())
+                        .totalTokens(usage.getTotalTokens());
             }
 
-            if (response.statusCode() == 200) {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
-                        .usage(usageBuilder.build())
-                        .build());
-            } else {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.ERROR)
-                        .errorMessage("文心一言 API 返回错误: " + response.statusCode() + " - " + body)
-                        .build());
-            }
+            consumer.accept(com.chua.common.support.ai.chat.ChatResponse.builder()
+                    .state(State.STOP)
+                    .content(result)
+                    .fullContent(result)
+                    .usage(usageBuilder.build())
+                    .build());
+
             onComplete.run();
 
         } catch (Exception e) {
             log.error("百度文心一言对话请求失败: {}", e.getMessage(), e);
-            consumer.accept(ChatResponse.builder()
-                    .state(ChatResponse.State.ERROR)
+            consumer.accept(com.chua.common.support.ai.chat.ChatResponse.builder()
+                    .state(State.ERROR)
                     .errorMessage(e.getMessage())
                     .build());
             onError.accept(e);
         }
-    }
-
-    /**
-     * 获取百度千帆 Access Token
-     *
-     * <p>使用 API Key 和 Secret Key 从百度 OAuth 服务获取访问令牌。
-     *
-     * @return Access Token 字符串
-     * @throws Exception 请求失败时抛出异常
-     */
-    private String getAccessToken() throws Exception {
-        if (accessToken != null) {
-            return accessToken;
-        }
-        String apiKey = setting.getAppKey();
-        String secretKey = setting.getAppSecret();
-        String tokenReqBody = "grant_type=client_credentials&client_id=" + apiKey + "&client_secret=" + secretKey;
-        HttpRequest tokenRequest = HttpRequest.newBuilder()
-                .uri(URI.create(TOKEN_URL))
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .POST(HttpRequest.BodyPublishers.ofString(tokenReqBody))
-                .build();
-        HttpResponse<String> tokenResponse = httpClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
-        // 简单从响应中提取 access_token
-        String tokenBody = tokenResponse.body();
-        String tokenKey = "\"access_token\":\"";
-        int start = tokenBody.indexOf(tokenKey);
-        if (start > 0) {
-            int end = tokenBody.indexOf("\"", start + tokenKey.length());
-            accessToken = tokenBody.substring(start + tokenKey.length(), end);
-        }
-        return accessToken;
     }
 
     /**
@@ -392,7 +319,7 @@ public class BaiduChatClient implements ChatClient {
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
+            url = "https://aip.baidubce.com";
         }
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
@@ -401,57 +328,33 @@ public class BaiduChatClient implements ChatClient {
     }
 
     /**
-     * 转义 JSON 字符串中的特殊字符
+     * 配置代理
      *
-     * @param input 原始字符串
-     * @return 转义后的字符串
+     * <p>设置 JVM 系统属性以启用代理，千帆 SDK 内部 HttpClient 会读取这些属性。
+     *
+     * @param proxyStr 代理地址字符串，如 http://127.0.0.1:8080 或 socks5://127.0.0.1:1080
      */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
+    private static void configureProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
-            return null;
+            return;
         }
-        java.net.Proxy.Type proxyType;
         String hostPort;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
             hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
         } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
             hostPort = proxyStr.substring(7);
         } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
             hostPort = proxyStr.substring(8);
         } else {
-            proxyType = java.net.Proxy.Type.HTTP;
             hostPort = proxyStr;
         }
         String[] parts = hostPort.split(":");
         String host = parts[0];
         int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
+        System.setProperty("http.proxyHost", host);
+        System.setProperty("http.proxyPort", String.valueOf(port));
+        System.setProperty("https.proxyHost", host);
+        System.setProperty("https.proxyPort", String.valueOf(port));
     }
 
 }

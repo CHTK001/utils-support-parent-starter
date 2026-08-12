@@ -7,27 +7,27 @@ import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatMessage;
-import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
+import com.zhipu.oapi.ClientV3;
+import com.zhipu.oapi.Constants;
+import com.zhipu.oapi.service.v3.ModelApiRequest;
+import com.zhipu.oapi.service.v3.ModelApiResponse;
+import com.zhipu.oapi.service.v3.Choice;
+import com.zhipu.oapi.service.v3.Usage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
  * 智谱 GLM 大模型对话客户端
  *
- * <p>基于智谱 AI 开放平台 GLM API 的 {@link ChatClient} 实现，通过 HTTP 协议
+ * <p>基于智谱 AI 开放平台 GLM API 的 {@link ChatClient} 实现，通过官方的 oapi-java-sdk
  * 调用智谱 GLM-4 系列模型的对话接口。
  *
  * @author CH
@@ -43,9 +43,9 @@ public class ZhipuChatClient implements ChatClient {
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
 
     /**
-     * HTTP 客户端
+     * Zhipu SDK 客户端
      */
-    private final HttpClient httpClient;
+    private final ClientV3 client;
 
     /**
      * 客户端配置
@@ -123,9 +123,8 @@ public class ZhipuChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
+        setupProxy(setting.getProxy());
+        this.client = new ClientV3.Builder(setting.getAppKey())
                 .build();
     }
 
@@ -218,7 +217,7 @@ public class ZhipuChatClient implements ChatClient {
     }
 
     @Override
-public ChatClient newChat() {
+    public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
         this.externalHistory = null;
@@ -248,82 +247,85 @@ public ChatClient newChat() {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
-        String actualApiKey = setting.getAppKey();
-
         try {
             long startTime = System.currentTimeMillis();
             consumer.accept(ChatResponse.builder()
                     .state(ChatResponse.State.START)
                     .build());
 
-            // 构建智谱 GLM 请求体
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
+            ModelApiRequest request = new ModelApiRequest();
+            request.setModelId(model != null ? model : "glm-4");
+            request.setInvokeMethod(Constants.invokeMethod);
+            request.setReturnType(Constants.RETURN_TYPE_JSON);
+            request.setTemperature(temperature != null ? temperature.floatValue() : 0.3f);
+            request.setTopP(0.7f);
+            if (maxTokens != null) {
+                request.setMaxTokens(maxTokens);
+            }
+            request.setRequestId(UUID.randomUUID().toString());
+
+            List<ModelApiRequest.Prompt> prompts = new ArrayList<>();
             String actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
             if (StringUtils.isNotEmpty(actualSystem)) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
+                prompts.add(new ModelApiRequest.Prompt("system", actualSystem));
             }
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
             for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
+                prompts.add(new ModelApiRequest.Prompt(msg.getRole(), msg.getContent()));
             }
-            messagesJson.append("{\"role\":\"user\",\"content\":\"")
-                    .append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
+            prompts.add(new ModelApiRequest.Prompt("user", prompt));
+            request.setPrompt(prompts);
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+            Map<String, Object> ref = new HashMap<>();
+            if (thinking) {
+                ref.put("thinking", true);
+            }
+            if (smartSearch) {
+                ref.put("enable_search", true);
+            }
+            if (!ref.isEmpty()) {
+                request.setRef(ref);
+            }
 
-            String requestBody = "{\"model\":\"" + (model != null ? model : "glm-4")
-                    + "\",\"messages\":" + messagesJson
-                    + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
-                    + extraFlags.toString() + "}";
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl + "/chat/completions"))
-                    .header("Authorization", "Bearer " + actualApiKey)
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
+            ModelApiResponse response = client.invokeModelApi(request);
 
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model != null ? model : "glm-4")
                     .provider("zhipu")
                     .startTime(startTime)
                     .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("prompt_tokens")))
-                            .outputTokens(toInt(usage.get("completion_tokens")))
-                            .totalTokens(toInt(usage.get("total_tokens")));
-                }
-            } catch (Exception ignored) {
-            }
 
-            if (response.statusCode() == 200) {
+            if (response.isSuccess() && response.getData() != null) {
+                Usage usage = response.getData().getUsage();
+                if (usage != null) {
+                    usageBuilder.inputTokens(usage.getPromptTokens())
+                            .outputTokens(usage.getCompletionTokens())
+                            .totalTokens(usage.getTotalTokens());
+                }
+
+                StringBuilder content = new StringBuilder();
+                List<Choice> choices = response.getData().getChoices();
+                if (choices != null) {
+                    for (Choice choice : choices) {
+                        if (choice.getContent() != null) {
+                            content.append(choice.getContent());
+                        }
+                    }
+                }
+
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
+                        .content(content.toString())
+                        .fullContent(content.toString())
                         .usage(usageBuilder.build())
                         .build());
             } else {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.ERROR)
-                        .errorMessage("智谱 GLM API 返回错误: " + response.statusCode() + " - " + body)
+                        .errorMessage("智谱 GLM API 返回错误: " + response.getCode() + " - " + response.getMsg())
                         .build());
             }
             onComplete.run();
@@ -339,75 +341,51 @@ public ChatClient newChat() {
     }
 
     /**
-     * 规范化 API 基础地址
+     * 通过系统属性配置代理
      *
-     * <p>若未配置地址则使用默认的智谱 GLM API 地址。
+     * <p>Zhipu SDK 内部使用 OkHttp，需通过系统属性设置代理。
      *
-     * @return 规范化后的 URL
+     * @param proxyStr 代理字符串，如 http://127.0.0.1:8080
      */
-    private String normalizeBaseUrl() {
-        String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
-        }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
-        }
-        return url;
-    }
-
-    /**
-     * 转义 JSON 字符串中的特殊字符
-     *
-     * @param input 原始字符串
-     * @return 转义后的字符串
-     */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
+    private static void setupProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
-            return null;
+            return;
         }
-        java.net.Proxy.Type proxyType;
-        String hostPort;
+        String host;
+        int port;
+        String scheme;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
-            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
+            scheme = "socks";
+            String hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
+            String[] parts = hostPort.split(":");
+            host = parts[0];
+            port = parts.length > 1 ? Integer.parseInt(parts[1]) : 1080;
         } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(7);
+            scheme = "http";
+            String hostPort = proxyStr.substring(7);
+            String[] parts = hostPort.split(":");
+            host = parts[0];
+            port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
         } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(8);
+            scheme = "https";
+            String hostPort = proxyStr.substring(8);
+            String[] parts = hostPort.split(":");
+            host = parts[0];
+            port = parts.length > 1 ? Integer.parseInt(parts[1]) : 443;
         } else {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr;
+            scheme = "http";
+            String[] parts = proxyStr.split(":");
+            host = parts[0];
+            port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
         }
-        String[] parts = hostPort.split(":");
-        String host = parts[0];
-        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
+        System.setProperty("http.proxyHost", host);
+        System.setProperty("http.proxyPort", String.valueOf(port));
+        System.setProperty("https.proxyHost", host);
+        System.setProperty("https.proxyPort", String.valueOf(port));
+        if ("socks".equals(scheme)) {
+            System.setProperty("socksProxyHost", host);
+            System.setProperty("socksProxyPort", String.valueOf(port));
+        }
     }
 
 }

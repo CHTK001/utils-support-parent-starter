@@ -2,32 +2,31 @@ package com.chua.hunyuan.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
-import com.chua.common.support.ai.skill.SkillManager;
-import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
-import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.spi.annotations.Spi;
+import com.tencentcloudapi.common.Credential;
+import com.tencentcloudapi.common.profile.ClientProfile;
+import com.tencentcloudapi.common.profile.HttpProfile;
+import com.tencentcloudapi.hunyuan.v20230901.HunyuanClient;
+import com.tencentcloudapi.hunyuan.v20230901.models.ChatCompletionsRequest;
+import com.tencentcloudapi.hunyuan.v20230901.models.ChatCompletionsResponse;
+import com.tencentcloudapi.hunyuan.v20230901.models.Choice;
+import com.tencentcloudapi.hunyuan.v20230901.models.Message;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * 腾讯混元大模型对话客户端
  *
- * <p>基于腾讯混元（Hunyuan）大模型 API 的 {@link ChatClient} 实现，通过 HTTP 协议
- * 调用腾讯混元的对话接口，支持混元 Pro、Standard 等系列模型。
+ * <p>基于腾讯云混元（Hunyuan）大模型 SDK 的 {@link ChatClient} 实现，通过腾讯云
+ * HunyuanClient 调用混元的对话接口，支持混元 Pro、Standard 等系列模型。
  *
  * @author CH
  * @since 2026/07/15
@@ -37,14 +36,14 @@ import java.util.function.Consumer;
 public class TencentHunyuanChatClient implements ChatClient {
 
     /**
-     * 腾讯混元默认 API 地址
+     * 腾讯混元默认地域
      */
-    private static final String DEFAULT_URL = "https://api.hunyuan.cloud.tencent.com/v1";
+    private static final String DEFAULT_REGION = "ap-guangzhou";
 
     /**
-     * HTTP 客户端
+     * 腾讯混元 SDK 客户端
      */
-    private final HttpClient httpClient;
+    private final HunyuanClient client;
 
     /**
      * 客户端配置
@@ -122,10 +121,12 @@ public class TencentHunyuanChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
-                .build();
+        Credential credential = new Credential(setting.getAppKey(), setting.getAppSecret());
+        ClientProfile clientProfile = new ClientProfile();
+        HttpProfile httpProfile = new HttpProfile();
+        applyProxy(httpProfile, setting.getProxy());
+        clientProfile.setHttpProfile(httpProfile);
+        this.client = new HunyuanClient(credential, DEFAULT_REGION, clientProfile);
     }
 
     @Override
@@ -217,7 +218,7 @@ public class TencentHunyuanChatClient implements ChatClient {
     }
 
     @Override
-public ChatClient newChat() {
+    public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
         this.externalHistory = null;
@@ -247,84 +248,53 @@ public ChatClient newChat() {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
-        String actualApiKey = setting.getAppKey();
-
         try {
             long startTime = System.currentTimeMillis();
             consumer.accept(ChatResponse.builder()
                     .state(ChatResponse.State.START)
                     .build());
 
-            // 构建腾讯混元请求体
-            StringBuilder messagesJson = new StringBuilder();
-            messagesJson.append("[");
-            String actualSystem = system;
-            if (skillManager != null) {
-                actualSystem = SkillPrompt.inject(system, skillManager);
-            }
-            if (actualSystem != null && !actualSystem.isEmpty()) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
-            }
-            List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
-            for (ChatMessage msg : messages) {
-                messagesJson.append("{\"role\":\"").append(msg.getRole())
-                        .append("\",\"content\":\"").append(escapeJson(msg.getContent())).append("\"},");
-            }
-            messagesJson.append("{\"role\":\"user\",\"content\":\"")
-                    .append(escapeJson(prompt)).append("\"}");
-            messagesJson.append("]");
+            // 构建腾讯混元请求
+            ChatCompletionsRequest request = new ChatCompletionsRequest();
+            request.setModel(model != null ? model : "hunyuan-pro");
+            request.setMessages(buildMessages(prompt));
+            request.setTemperature(temperature != null ? temperature.floatValue() : 0.3f);
+            request.setTopP(0.7f);
+            request.setStream(false);
+            request.setEnableThinking(thinking);
+            request.setSearchInfo(smartSearch);
 
-            StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
-
-            String requestBody = "{\"model\":\"" + (model != null ? model : "hunyuan-pro")
-                    + "\",\"messages\":" + messagesJson
-                    + ",\"temperature\":" + (temperature != null ? temperature : 0.3)
-                    + ",\"max_tokens\":" + (maxTokens != null ? maxTokens : 2048)
-                    + extraFlags.toString() + "}";
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl + "/chat/completions"))
-                    .header("Authorization", "Bearer " + actualApiKey)
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
+            // 调用腾讯混元对话接口
+            ChatCompletionsResponse response = client.ChatCompletions(request);
 
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model != null ? model : "hunyuan-pro")
                     .provider("tencent-hunyuan")
                     .startTime(startTime)
                     .durationMillis(System.currentTimeMillis() - startTime);
-            try {
-                Map<String, Object> root = Json.fromJson(body);
-                Map<String, Object> usage = (Map<String, Object>) root.get("Usage");
-                if (usage != null) {
-                    usageBuilder.inputTokens(toInt(usage.get("PromptTokens")))
-                            .outputTokens(toInt(usage.get("CompletionTokens")))
-                            .totalTokens(toInt(usage.get("TotalTokens")));
-                }
-            } catch (Exception ignored) {
+            com.tencentcloudapi.hunyuan.v20230901.models.Usage usage = response.getUsage();
+            if (usage != null) {
+                usageBuilder
+                        .inputTokens(usage.getPromptTokens() != null ? usage.getPromptTokens().intValue() : null)
+                        .outputTokens(usage.getCompletionTokens() != null ? usage.getCompletionTokens().intValue() : null)
+                        .totalTokens(usage.getTotalTokens() != null ? usage.getTotalTokens().intValue() : null);
             }
 
-            if (response.statusCode() == 200) {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.STOP)
-                        .content(body)
-                        .fullContent(body)
-                        .usage(usageBuilder.build())
-                        .build());
-            } else {
-                consumer.accept(ChatResponse.builder()
-                        .state(ChatResponse.State.ERROR)
-                        .errorMessage("腾讯混元 API 返回错误: " + response.statusCode() + " - " + body)
-                        .build());
+            StringBuilder fullContent = new StringBuilder();
+            if (response.getChoices() != null) {
+                for (Choice choice : response.getChoices()) {
+                    if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
+                        fullContent.append(choice.getMessage().getContent());
+                    }
+                }
             }
+
+            consumer.accept(ChatResponse.builder()
+                    .state(ChatResponse.State.STOP)
+                    .content(fullContent.toString())
+                    .fullContent(fullContent.toString())
+                    .usage(usageBuilder.build())
+                    .build());
             onComplete.run();
 
         } catch (Exception e) {
@@ -338,75 +308,61 @@ public ChatClient newChat() {
     }
 
     /**
-     * 规范化 API 基础地址
+     * 构建腾讯混元消息数组
      *
-     * <p>若未配置地址则使用默认的腾讯混元 API 地址。
+     * <p>依次放入系统提示词（如有）、对话历史与当前用户消息。
      *
-     * @return 规范化后的 URL
+     * @param prompt 当前用户消息内容
+     * @return 混元 Message 数组
      */
-    private String normalizeBaseUrl() {
-        String url = setting.getBaseUrl();
-        if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
+    private Message[] buildMessages(String prompt) {
+        List<Message> messages = new ArrayList<>();
+        String actualSystem = system;
+        if (skillManager != null) {
+            actualSystem = SkillPrompt.inject(system, skillManager);
         }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
+        if (actualSystem != null && !actualSystem.isEmpty()) {
+            Message systemMessage = new Message();
+            systemMessage.setRole("system");
+            systemMessage.setContent(actualSystem);
+            messages.add(systemMessage);
         }
-        return url;
+        List<ChatMessage> chatMessages = externalHistory != null ? externalHistory : history;
+        for (ChatMessage chatMessage : chatMessages) {
+            Message hunyuanMessage = new Message();
+            hunyuanMessage.setRole(chatMessage.getRole());
+            hunyuanMessage.setContent(chatMessage.getContent());
+            messages.add(hunyuanMessage);
+        }
+        Message userMessage = new Message();
+        userMessage.setRole("user");
+        userMessage.setContent(prompt);
+        messages.add(userMessage);
+        return messages.toArray(new Message[0]);
     }
 
     /**
-     * 转义 JSON 字符串中的特殊字符
+     * 为 SDK 客户端配置代理
      *
-     * @param input 原始字符串
-     * @return 转义后的字符串
+     * <p>解析代理地址，将其应用到腾讯云 SDK 的 HTTP 配置。若未配置代理则忽略。
+     *
+     * @param httpProfile 腾讯云 SDK HTTP 配置
+     * @param proxyStr    代理地址
      */
-    private static String escapeJson(String input) {
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
-        return null;
-    }
-
-    private static ProxySelector proxySelector(String proxyStr) {
+    private static void applyProxy(HttpProfile httpProfile, String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
-            return null;
+            return;
         }
-        java.net.Proxy.Type proxyType;
-        String hostPort;
-        if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
-            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
-        } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(7);
-        } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(8);
-        } else {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr;
+        String hostPort = proxyStr;
+        if (hostPort.startsWith("socks5://") || hostPort.startsWith("socks://")
+                || hostPort.startsWith("http://")) {
+            hostPort = hostPort.substring(hostPort.indexOf("://") + 3);
+        } else if (hostPort.startsWith("https://")) {
+            hostPort = hostPort.substring(8);
         }
         String[] parts = hostPort.split(":");
-        String host = parts[0];
-        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-            }
-        };
+        httpProfile.setProxyHost(parts[0]);
+        httpProfile.setProxyPort(parts.length > 1 ? Integer.parseInt(parts[1]) : 80);
     }
 
 }
