@@ -118,13 +118,28 @@ public class MiniLMTokenizer {
     }
 
     /**
-     * 编码单句为 token ids 序列（[CLS] + tokens + [SEP]），并按 maxLen 右侧填充 [PAD]。
+     * BERT 风格单句编码结果：input_ids / attention_mask / token_type_ids 三个等长数组。
+     */
+    public static final class EncodeResult {
+        public final int[] inputIds;
+        public final int[] attentionMask;
+        public final int[] tokenTypeIds;
+
+        public EncodeResult(int[] inputIds, int[] attentionMask, int[] tokenTypeIds) {
+            this.inputIds = inputIds;
+            this.attentionMask = attentionMask;
+            this.tokenTypeIds = tokenTypeIds;
+        }
+    }
+
+    /**
+     * 编码单句为 [CLS] + tokens + [SEP]，右侧按 [PAD] 补齐到 maxLen。
      *
      * @param text   输入文本
-     * @param maxLen 最大序列长度（包含 [CLS]/[SEP]）
-     * @return 长度为 maxLen 的 inputIds、attentionMask、tokenTypeIds 三个数组
+     * @param maxLen 最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
+     * @return 三个长度均为 maxLen 的 int[] 数组
      */
-    public int[] encodeOne(String text, int maxLen) {
+    public EncodeResult encode(String text, int maxLen) {
         List<Integer> tokenIds = new ArrayList<>();
         tokenIds.add(clsId);
         for (String token : basicTokenize(text)) {
@@ -146,12 +161,14 @@ public class MiniLMTokenizer {
         for (int i = 0; i < tokenIds.size() && i < maxLen; i++) {
             inputIds[i] = tokenIds.get(i);
             attentionMask[i] = 1;
+            tokenTypeIds[i] = 0;
         }
         for (int i = tokenIds.size(); i < maxLen; i++) {
             inputIds[i] = padId;
             attentionMask[i] = 0;
+            tokenTypeIds[i] = 0;
         }
-        return inputIds;
+        return new EncodeResult(inputIds, attentionMask, tokenTypeIds);
     }
 
     /**

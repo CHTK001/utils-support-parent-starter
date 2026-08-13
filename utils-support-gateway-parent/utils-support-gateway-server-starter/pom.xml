@@ -36,13 +36,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- SSH client (mwiede fork: supports modern RSA/OpenSSH key formats) -->
-        <dependency>
-            <groupId>com.github.mwiede</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.2.24</version>
-        </dependency>
-
         <!-- Apache Guacamole Java 公共 API（RDP/VNC/SSH 抽象） -->
         <dependency>
             <groupId>org.apache.guacamole</groupId>

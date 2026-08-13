@@ -115,15 +115,15 @@ public class MiniLMEmbeddingTranslator {
         prepare();
 
         int seqLen = Math.min(maxLen, DEFAULT_MAX_LEN);
-        int[] enc = tokenizer.encodeOne(text, seqLen);
+        MiniLMTokenizer.EncodeResult enc = tokenizer.encode(text, seqLen);
 
         long[] inputIdsArr = new long[seqLen];
         long[] attMaskArr = new long[seqLen];
         long[] tokenTypeArr = new long[seqLen];
         for (int i = 0; i < seqLen; i++) {
-            inputIdsArr[i] = enc[i];
-            attMaskArr[i] = enc[i + seqLen];
-            tokenTypeArr[i] = enc[i + 2 * seqLen];
+            inputIdsArr[i] = enc.inputIds[i];
+            attMaskArr[i] = enc.attentionMask[i];
+            tokenTypeArr[i] = enc.tokenTypeIds[i];
         }
 
         long[] shape = new long[]{1, seqLen};
