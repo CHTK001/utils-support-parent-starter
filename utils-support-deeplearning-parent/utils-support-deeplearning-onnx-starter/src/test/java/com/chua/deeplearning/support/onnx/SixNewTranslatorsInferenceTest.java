@@ -3,7 +3,7 @@ package com.chua.deeplearning.support.onnx;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.djl.modality.cv.output.DetectedObjects;
-import ai.djl.modality.cv.output.DetectedObjects.Detection;
+import ai.djl.modality.cv.output.DetectedObjects.DetectedObject;
 import ai.djl.translate.Translator;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.onnx.detection.multi.AbstractMultiClassYolov8Translator;
@@ -113,13 +113,13 @@ public class SixNewTranslatorsInferenceTest {
                     List<Object> detections = new ArrayList<>();
                     int maxToShow = Math.min(5, numDet);
                     for (int i = 0; i < maxToShow; i++) {
-                        Detection d = (Detection) result.item(i);
+                        DetectedObject d = (DetectedObject) result.item(i);
                         detections.add(new Object[]{d.getClassName(), d.getProbability(), d.getBoundingBox()});
                     }
                     System.out.println(String.format("[OK] %s: load=%dms infer=%dms detections=%d",
                             modelId, loadMs, inferMs, numDet));
                     for (int i = 0; i < Math.min(3, numDet); i++) {
-                        Detection d = (Detection) result.item(i);
+                        DetectedObject d = (DetectedObject) result.item(i);
                         System.out.println(String.format("    #%d class=%s prob=%.4f", i + 1, d.getClassName(), d.getProbability()));
                     }
                     totalOk++;
