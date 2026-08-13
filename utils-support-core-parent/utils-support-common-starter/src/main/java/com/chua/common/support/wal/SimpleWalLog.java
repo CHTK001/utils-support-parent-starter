@@ -156,10 +156,9 @@ public class SimpleWalLog implements WalLog {
 
     private void open() throws IOException {
         // 打开 RandomAccessFile（支持读写 + 追加 + mmap）
+        boolean exists = Files.exists(walFile);
         this.raf = new RandomAccessFile(walFile.toFile(), "rw");
         this.channel = raf.getChannel();
-
-        boolean exists = Files.exists(walFile);
         if (!exists) {
             // 首次创建：写 magic
             if (config.useMemoryMap()) {
@@ -214,6 +213,13 @@ public class SimpleWalLog implements WalLog {
             byte[] magic = config.magic();
             byte[] head = new byte[magic.length];
             in.readFully(head);
+            for (int i = 0; i < magic.length; i++) {
+                if (head[i] != magic[i]) {
+                    this.currentLsn = 0L;
+                    this.recordCount = 0;
+                    return;
+                }
+            }
             long lastLsn = 0L;
             int count = 0;
             try {
@@ -222,8 +228,16 @@ public class SimpleWalLog implements WalLog {
                     in.readFully(header);
                     int lenField = readInt(header, WalConfig.CRC32_BYTES + WalConfig.LSN_BYTES + WalConfig.OP_BYTES);
                     long lsn = readLong(header, WalConfig.CRC32_BYTES);
+                    if (lenField < 0 || lenField > Integer.MAX_VALUE / 2) {
+                        break;
+                    }
                     byte[] payload = new byte[lenField];
                     in.readFully(payload);
+                    byte curOp = header[WalConfig.CRC32_BYTES + WalConfig.LSN_BYTES];
+                    long expectedCrc = readInt(header, 0) & 0xFFFFFFFFL;
+                    if (expectedCrc != crc32(curOp, payload)) {
+                        break;
+                    }
                     lastLsn = lsn;
                     count++;
                 }
