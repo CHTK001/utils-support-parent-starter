@@ -119,6 +119,8 @@ public class Json {
  .enable(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS)
  // 允许非数字字符表示数字 (如 ".5" 或 "inf")
  .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+ // 允许对象和数组末尾存在多余的逗号 (JSON5 风格)
+ .enable(JsonParser.Feature.ALLOW_TRAILING_COMMA)
  // --- 反序列化特性配置 (Deserialization Features) ---
  // 遇到未知属性时不抛出异常，直接忽略
  .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -179,6 +181,47 @@ public class Json {
  }
 
  return objectMapper;
+ }
+
+ /**
+ * 将 JSON 字符串解析为 JsonNode 对象，提供统一的树形遍历 API。
+ *
+ * <p>JsonNode 支持链式导航（{@code get(key)}、{@code get(index)}）、
+ * JSONPath 查询（{@code path("$.store.book[0].title")}）以及类型安全取值
+ * （{@code toIntValue()}、{@code toStringValue()} 等）。</p>
+ *
+ * <p>本方法使用 JSON5 兼容的解析器，支持末尾逗号、单引号、注释等非标准语法。</p>
+ *
+ * @param json JSON 字符串（标准 JSON 或 JSON5 均可）
+ * @return JsonNode 对象，解析失败时返回空 JsonObject 的 JsonNode
+ * @see JsonNode
+ * @see JsonNode#get(String)
+ * @see JsonNode#path(String)
+ */
+ public static JsonNode parse(String json) {
+     if (null == json) {
+         return new JsonNode(new JsonObject());
+     }
+     try {
+         Object value = getMapper().readValue(json, Object.class);
+         return new JsonNode(value);
+     } catch (Exception e) {
+         return new JsonNode(new JsonObject());
+     }
+ }
+
+ /**
+ * 将字节数组形式的 JSON 解析为 JsonNode 对象。
+ *
+ * @param json JSON 字节数组
+ * @return JsonNode 对象
+ * @see #parse(String)
+ */
+ public static JsonNode parse(byte[] json) {
+     if (null == json) {
+         return new JsonNode(new JsonObject());
+     }
+     return parse(new String(json, UTF_8));
  }
 
  /**

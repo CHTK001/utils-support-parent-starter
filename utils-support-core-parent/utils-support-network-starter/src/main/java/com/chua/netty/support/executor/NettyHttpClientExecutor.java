@@ -2,6 +2,7 @@ package com.chua.netty.support.executor;
 
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.MultipartBody;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpVersion;
@@ -48,7 +49,6 @@ import java.util.concurrent.*;
  * <p><b>已知限制：</b></p>
  * <ul>
  *   <li>仅支持 HTTP/1.1（不支持 HTTP/2 和 HTTP/3）</li>
- *   <li>不支持 multipart/form-data（需额外实现）</li>
  * </ul>
  *
  * @author CH
@@ -115,6 +115,7 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
         return 2;
     }
 
+    @Override
     public List<HttpVersion> supportedVersions() {
         return List.of(HttpVersion.HTTP_1_1);
     }
@@ -126,6 +127,14 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
 
     @Override
     public CompletableFuture<ClientResponse> executeAsync(ClientRequest request) {
+        // 版本兼容性检查：Netty HTTP 客户端仅支持 HTTP/1.1
+        HttpVersion version = request.getVersion();
+        if (version != null && !supportedVersions().contains(version)) {
+            CompletableFuture<ClientResponse> failed = new CompletableFuture<>();
+            failed.completeExceptionally(new UnsupportedOperationException(
+                    "Netty HTTP 客户端不支持 " + version + "，仅支持 " + supportedVersions()));
+            return failed;
+        }
         int maxRetries = request.getMaxRetries();
         CompletableFuture<ClientResponse> resultFuture = new CompletableFuture<>();
         executeWithRetry(request, 0, maxRetries, resultFuture);
@@ -299,6 +308,15 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
 
     /**
      * 解析请求体为 ByteBuf。
+     *
+     * <p>支持以下请求体类型：</p>
+     * <ul>
+     *   <li>{@code null} — 空体（GET/DELETE 等无体请求）</li>
+     *   <li>{@code byte[]} — 二进制数据</li>
+     *   <li>{@link String} — 文本数据</li>
+     *   <li>{@link MultipartBody} — multipart/form-data，自动序列化并设置 Content-Type 头</li>
+     *   <li>其他对象 — 调用 {@link Object#toString()} 转为字符串</li>
+     * </ul>
      */
     private ByteBuf resolveBody(ClientRequest request) {
         Object body = request.getBody();
@@ -310,6 +328,13 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
         }
         if (body instanceof String str) {
             return Unpooled.copiedBuffer(str, StandardCharsets.UTF_8);
+        }
+        if (body instanceof MultipartBody multipart) {
+            // 设置 Content-Type 头（含 boundary 分隔符），若尚未设置
+            if (request.getHeaders().get("Content-Type") == null) {
+                request.getHeaders().add("Content-Type", multipart.getContentType());
+            }
+            return Unpooled.wrappedBuffer(multipart.toBytes());
         }
         return Unpooled.copiedBuffer(body.toString(), StandardCharsets.UTF_8);
     }
@@ -356,8 +381,9 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
     }
 
     /**
-     * 关闭并清空连接池
+     * 关闭并清空连接池，释放所有连接资源。
      */
+    @Override
     public void close() {
         // 关闭所有池中的连接
         connectionPool.values().forEach(pool -> {

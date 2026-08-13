@@ -20,7 +20,6 @@
         <module>utils-support-symmetric-starter</module>
         <module>utils-support-vertx-starter</module>
         <module>utils-support-httpclient-starter</module>
-        <module>utils-support-netty-starter</module>
         <module>utils-support-okhttp-starter</module>
         <module>utils-support-dht-starter</module>
         <module>utils-support-webdav-starter</module>
@@ -28,6 +27,7 @@
         <module>utils-support-rpc-json-starter</module>
         <module>utils-support-rpc-dubbo-starter</module>
         <module>utils-support-playwright-starter</module>
+        <module>utils-support-kimi-starter</module>
         <module>utils-support-armeria-starter</module>
         <module>utils-support-sinch-starter</module>
         <module>utils-support-quarkus-starter</module>
