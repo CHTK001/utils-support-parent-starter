@@ -231,6 +231,14 @@ public class Json {
  * @param json JSON 字符串
  * @return JsonObject 对象
  */
+ public static JsonNode build() {
+     return new JsonNode(new JsonObject());
+ }
+
+ public static JsonNode buildArray() {
+     return new JsonNode(new JsonArray());
+ }
+
  public static JsonObject getJsonObject(String json) {
  try {
  return getMapper().readValue(json, JsonObject.class);
