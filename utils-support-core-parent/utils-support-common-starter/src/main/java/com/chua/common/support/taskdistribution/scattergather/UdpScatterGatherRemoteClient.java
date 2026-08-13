@@ -28,6 +28,21 @@ import java.util.concurrent.*;
 public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<Object> {
 
     /**
+     * 传输协议标识：udp
+     */
+    private static final String PROTOCOL_UDP = "udp";
+
+    /**
+     * 同步请求主题
+     */
+    private static final String SYNC_REQUEST_TOPIC = "sync/request";
+
+    /**
+     * 同步响应主题
+     */
+    private static final String SYNC_RESPONSE_TOPIC = "sync/response";
+
+    /**
      * 默认响应超时（毫秒）
      */
     private static final long DEFAULT_RESPONSE_TIMEOUT = 10000;
@@ -41,6 +56,11 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
      * 默认空闲超时（毫秒）
      */
     private static final long DEFAULT_IDLE_TIMEOUT = 60_000L;
+
+    /**
+     * 超时阈值，仅当显式超时大于该值时使用
+     */
+    private static final long TIMEOUT_THRESHOLD = 0L;
 
     /**
      * 响应缓存：requestId -> CompletableFuture
@@ -124,8 +144,8 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
             this.fallbackStrategy = fallbackStrategy;
             this.fallbackCleanup = fallbackCleanup;
         }
-        this.connectionPool = new ConnectionPool("udp", DEFAULT_MAX_CONNECTIONS, DEFAULT_IDLE_TIMEOUT, true,
-                client -> client.subscribe("sync/response", (topic, message) -> {
+        this.connectionPool = new ConnectionPool(PROTOCOL_UDP, DEFAULT_MAX_CONNECTIONS, DEFAULT_IDLE_TIMEOUT, true,
+                client -> client.subscribe(SYNC_RESPONSE_TOPIC, (topic, message) -> {
                     if (message instanceof ScatterGatherResultWithRequestId wrapper) {
                         CompletableFuture<ScatterGatherResult<Object>> future = pendingResponses.remove(wrapper.requestId());
                         if (future != null) {
@@ -163,6 +183,14 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
         return client;
     }
 
+    /**
+     * 向目标节点发起同步调用并等待响应，UDP 不可用时按配置降级到 TCP。
+     *
+     * @param context       查询上下文
+     * @param node          目标节点
+     * @param timeoutMillis 超时时间（毫秒）
+     * @return 查询结果
+     */
     @Override
     public ScatterGatherResult<Object> invoke(ScatterGatherContext context, ScatterGatherNode node, long timeoutMillis) throws Exception {
         // UDP 不可用时降级
@@ -180,7 +208,7 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
             return ScatterGatherResult.failure(node.getNodeId(), "无法连接到节点: " + node.getEndpoint());
         }
 
-        long effectiveTimeout = timeoutMillis > 0 ? timeoutMillis : DEFAULT_RESPONSE_TIMEOUT;
+        long effectiveTimeout = timeoutMillis > TIMEOUT_THRESHOLD ? timeoutMillis : DEFAULT_RESPONSE_TIMEOUT;
         String requestId = context.getRequestId();
         CompletableFuture<ScatterGatherResult<Object>> future = new CompletableFuture<>();
         if (requestId != null) {
@@ -188,7 +216,7 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
         }
 
         try {
-            client.send("sync/request", context);
+            client.send(SYNC_REQUEST_TOPIC, context);
             return future.get(effectiveTimeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
             if (requestId != null) {

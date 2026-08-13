@@ -15,6 +15,11 @@ import java.util.List;
 public class SeedScatterGatherMode implements ScatterGatherMode {
 
     /**
+     * 模式 SPI 标识：seed
+     */
+    private static final String MODE_SEED = "seed";
+
+    /**
      * 节点配置
      */
     private final ScatterGatherSetting setting;
@@ -35,16 +40,32 @@ public class SeedScatterGatherMode implements ScatterGatherMode {
         this.setting = setting == null ? new ScatterGatherSetting() : setting;
     }
 
+    /**
+     * 返回模式 SPI 类型。
+     *
+     * @return 模式类型标识 seed
+     */
     @Override
     public String type() {
-        return "seed";
+        return MODE_SEED;
     }
 
+    /**
+     * 启动种子模式，注册配置的 seed 节点到本地缓存。
+     *
+     * @param discovery 服务发现实例
+     */
     @Override
     public void start(ScatterGatherServiceDiscovery discovery) {
         discovery.registerSeedNodes();
     }
 
+    /**
+     * 解析远程节点列表，从 seed 地址列表解析节点。
+     *
+     * @param discovery 服务发现实例
+     * @return 远程节点列表
+     */
     @Override
     public List<ScatterGatherNode> resolveRemoteNodes(ScatterGatherServiceDiscovery discovery) {
         return discovery.resolveSeedNodes();

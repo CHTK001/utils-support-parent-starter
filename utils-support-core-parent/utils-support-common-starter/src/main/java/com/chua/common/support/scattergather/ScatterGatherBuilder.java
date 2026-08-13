@@ -16,6 +16,11 @@ import java.util.List;
 public class ScatterGatherBuilder<B extends ScatterGatherBuilder<B>> {
 
     /**
+     * 默认传输协议：tcp
+     */
+    private static final String DEFAULT_TRANSPORT_PROTOCOL = "tcp";
+
+    /**
      * 配置对象
      */
     protected final ScatterGatherSetting setting;
@@ -245,7 +250,7 @@ public class ScatterGatherBuilder<B extends ScatterGatherBuilder<B>> {
      */
     private String resolveProtocol() {
         if (setting.getTransportProtocol() == null || setting.getTransportProtocol().trim().isEmpty()) {
-            return "tcp";
+            return DEFAULT_TRANSPORT_PROTOCOL;
         }
         return setting.getTransportProtocol();
     }
