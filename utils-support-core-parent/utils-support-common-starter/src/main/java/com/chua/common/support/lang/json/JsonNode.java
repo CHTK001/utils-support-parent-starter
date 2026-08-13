@@ -586,6 +586,176 @@ public class JsonNode {
         return 0;
     }
 
+    // ==================== 链式构建 ====================
+
+    /**
+     * 向当前对象节点中添加键值对，支持链式调用。
+     *
+     * <p>仅当当前节点为 JSON 对象（{@link #isObject()} 返回 true）时生效，
+     * 否则直接返回自身不做任何修改。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode node = Json.build()
+     *     .put("name", "Alice")
+     *     .put("age", 30)
+     *     .put("active", true);
+     * String json = node.toString(); // {"name":"Alice","age":30,"active":true}
+     * }</pre>
+     *
+     * @param key   键名
+     * @param value 值（可以为 null、String、Number、Boolean、Map、List 等）
+     * @return 当前 JsonNode 实例，支持链式调用
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode put(String key, Object value) {
+        if (this.value instanceof Map) {
+            ((Map<String, Object>) this.value).put(key, value);
+        }
+        return this;
+    }
+
+    /**
+     * 条件性向对象节点添加键值对，仅当条件为 true 时执行添加操作。
+     *
+     * @param condition 执行条件
+     * @param key       键名
+     * @param value     值
+     * @return 当前 JsonNode 实例
+     */
+    public JsonNode put(boolean condition, String key, Object value) {
+        if (condition) {
+            put(key, value);
+        }
+        return this;
+    }
+
+    /**
+     * 批量向对象节点添加键值对。
+     *
+     * @param map 键值对集合
+     * @return 当前 JsonNode 实例
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode putAll(Map<String, ?> map) {
+        if (this.value instanceof Map && map != null) {
+            ((Map<String, Object>) this.value).putAll(map);
+        }
+        return this;
+    }
+
+    /**
+     * 向当前数组节点中添加元素，支持链式调用。
+     *
+     * <p>仅当当前节点为 JSON 数组（{@link #isArray()} 返回 true）时生效，
+     * 否则直接返回自身不做任何修改。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode arr = Json.buildArray()
+     *     .add("apple")
+     *     .add(42)
+     *     .add(true);
+     * String json = arr.toString(); // ["apple",42,true]
+     * }</pre>
+     *
+     * @param element 元素值
+     * @return 当前 JsonNode 实例，支持链式调用
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode add(Object element) {
+        if (this.value instanceof List) {
+            ((List<Object>) this.value).add(element);
+        }
+        return this;
+    }
+
+    /**
+     * 条件性向数组节点添加元素，仅当条件为 true 时执行添加操作。
+     *
+     * @param condition 执行条件
+     * @param element   元素值
+     * @return 当前 JsonNode 实例
+     */
+    public JsonNode add(boolean condition, Object element) {
+        if (condition) {
+            add(element);
+        }
+        return this;
+    }
+
+    /**
+     * 向数组节点指定位置插入元素。
+     *
+     * @param index   插入位置
+     * @param element 元素值
+     * @return 当前 JsonNode 实例
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode add(int index, Object element) {
+        if (this.value instanceof List) {
+            ((List<Object>) this.value).add(index, element);
+        }
+        return this;
+    }
+
+    /**
+     * 批量向数组节点添加元素。
+     *
+     * @param elements 元素集合
+     * @return 当前 JsonNode 实例
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode addAll(Collection<?> elements) {
+        if (this.value instanceof List && elements != null) {
+            ((List<Object>) this.value).addAll(elements);
+        }
+        return this;
+    }
+
+    /**
+     * 从对象节点中移除指定键。
+     *
+     * @param key 键名
+     * @return 当前 JsonNode 实例
+     */
+    public JsonNode remove(String key) {
+        if (this.value instanceof Map) {
+            ((Map<?, ?>) this.value).remove(key);
+        }
+        return this;
+    }
+
+    /**
+     * 从数组节点中移除指定位置的元素。
+     *
+     * @param index 索引
+     * @return 当前 JsonNode 实例
+     */
+    public JsonNode remove(int index) {
+        if (this.value instanceof List) {
+            List<?> list = (List<?>) this.value;
+            if (index >= 0 && index < list.size()) {
+                list.remove(index);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 条件性从对象节点移除指定键。
+     *
+     * @param condition 执行条件
+     * @param key       键名
+     * @return 当前 JsonNode 实例
+     */
+    public JsonNode remove(boolean condition, String key) {
+        if (condition) {
+            remove(key);
+        }
+        return this;
+    }
+
     // ==================== 对象方法 ====================
 
     @Override
