@@ -225,20 +225,38 @@ public class Json {
  }
 
  /**
- * 将 JSON 字符串解析为 JsonObject 对象。
- * 如果解析失败或输入为空，返回空的 JsonObject。
- *
- * @param json JSON 字符串
- * @return JsonObject 对象
- */
+  * 创建一个空的 JSON 对象节点，支持链式构建。
+  *
+  * <p>返回的 JsonNode 包装一个空的 {@link JsonObject}，可通过 {@code put} 方法链式添加键值对：</p>
+  *
+  * @return 包装空 JsonObject 的 JsonNode，支持链式 put 操作
+  * @see JsonNode#put(String, Object)
+  * @see #buildArray()
+  */
  public static JsonNode build() {
      return new JsonNode(new JsonObject());
  }
 
+ /**
+  * 创建一个空的 JSON 数组节点，支持链式构建。
+  *
+  * <p>返回的 JsonNode 包装一个空的 {@link JsonArray}，可通过 {@code add} 方法链式添加元素：</p>
+  *
+  * @return 包装空 JsonArray 的 JsonNode，支持链式 add 操作
+  * @see JsonNode#add(Object)
+  * @see #build()
+  */
  public static JsonNode buildArray() {
      return new JsonNode(new JsonArray());
  }
 
+ /**
+  * 将 JSON 字符串解析为 JsonObject 对象。
+  * 如果解析失败或输入为空，返回空的 JsonObject。
+  *
+  * @param json JSON 字符串
+  * @return JsonObject 对象
+  */
  public static JsonObject getJsonObject(String json) {
  try {
  return getMapper().readValue(json, JsonObject.class);

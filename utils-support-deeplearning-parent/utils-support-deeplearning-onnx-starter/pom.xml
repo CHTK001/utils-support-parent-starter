@@ -139,12 +139,6 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-minilm</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-minimind</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
