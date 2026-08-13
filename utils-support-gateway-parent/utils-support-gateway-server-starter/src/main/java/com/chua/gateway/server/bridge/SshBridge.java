@@ -92,6 +92,8 @@ public class SshBridge implements RemoteBridge {
         }
         channel = (ChannelShell) session.openChannel("shell");
         channel.setPtyType("xterm");
+        channel.setPtySize(120, 30, 480, 640);
+        channel.connect(SESSION_TIMEOUT_MS);
         log.info("[gateway-server] SSH 连接 + shell 通道建立");
     }
 

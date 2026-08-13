@@ -93,7 +93,7 @@ public class ClientResponse {
     /**
      * HTTP 协议版本。
      *
-     * <p>记录响应所使用的 HTTP 协议版本，可能为 null。</p>
+     * <p>服务端实际使用的 HTTP 协议版本，可能为 null（执行器未填充时）。
      */
     private HttpVersion version;
 
@@ -162,7 +162,7 @@ public class ClientResponse {
     /**
      * 获取 HTTP 协议版本。
      *
-     * @return HTTP 协议版本，可能为 null
+     * @return HTTP 协议版本，可能为 null（执行器未填充时）
      */
     public HttpVersion getVersion() { return version; }
 

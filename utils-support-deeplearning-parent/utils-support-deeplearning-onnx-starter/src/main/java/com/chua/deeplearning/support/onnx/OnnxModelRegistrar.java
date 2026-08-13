@@ -217,7 +217,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 注意：jar 内资源路径直接以 "vision/..." 开头，不要带 "models/onnx/" 前缀（ModelRegistry.resolveConfiguredPath 会自动加多个前缀尝试）
         reg("efficientnet-b1-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/efficientnet/efficientnet-lite4-11.onnx");
         reg("fer-plus", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/expression/FER/FER.onnx");
-        reg("minilm-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm/MiniLM.onnx");
+        reg("minilm-embedding", "com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm/model_quantized.onnx");
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "cv/card_correction/card_detection.onnx");
         reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
@@ -234,6 +234,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
         // ==================== 中文印章检测 (YOLOv8n @ 640, 1 类 seal, ~6MB) ====================
         reg("yolov8n-seal-detection", "com.chua.deeplearning.support.onnx.detection.single.SealDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/seal/yolov8n/model.onnx");
+
+        // ==================== 条形码/二维码检测 (YOLOv8s @ 640, 5 类, ~12MB) ====================
+        reg("yolov8n-barcode", "com.chua.deeplearning.support.onnx.detection.multi.BarcodeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/barcode/yolov8n/model.onnx");
+
+        // ==================== 个人防护装备检测 (YOLOv8n @ 640, 3 类, ~6MB) ====================
+        reg("yolov8n-ppe", "com.chua.deeplearning.support.onnx.detection.multi.PpeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
+
+        // ==================== 火灾烟雾检测 (YOLOv8n @ 640, 2 类, ~6MB) ====================
+        reg("yolov8n-fire-smoke", "com.chua.deeplearning.support.onnx.detection.multi.FireSmokeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
     }
 
     private static void reg(String modelId, String translatorClassName,

@@ -185,6 +185,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
                 .setViewportSize(1280, 720)
                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"));
         this.context.setDefaultNavigationTimeout(NAV_TIMEOUT.toMillis());
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     /**
@@ -251,8 +252,31 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     }
 
     /**
-     * 释放浏览器资源。
+     * 删除指定会话（清理豆包侧边栏）。
+     *
+     * @param conversationId 会话 ID
+     * @return true 表示删除成功
      */
+    public boolean deleteConversation(String conversationId) {
+        if (conversationId == null || conversationId.isEmpty() || "0".equals(conversationId)) {
+            return false;
+        }
+        try (var page = context.newPage()) {
+            String csrf = cookies.getOrDefault("passport_csrf_token", "");
+            String script = "async (id) => {"
+                    + " try { const r = await fetch('https://www.doubao.com/samantha/thread/delete', {"
+                    + "   method: 'POST', headers: { 'Content-Type': 'application/json', 'a-csrf-token': '" + csrf + "' },"
+                    + "   credentials: 'include', body: JSON.stringify({ thread_id: id }) });"
+                    + " const d = await r.json(); return r.ok && d.code === 0; }"
+                    + " catch(e) { return false; } }";
+            Object result = page.evaluate(script, conversationId);
+            return result instanceof Boolean && (Boolean) result;
+        } catch (Exception e) {
+            log.warn("删除会话失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
     @Override
     public void close() {
         Exception ex = null;

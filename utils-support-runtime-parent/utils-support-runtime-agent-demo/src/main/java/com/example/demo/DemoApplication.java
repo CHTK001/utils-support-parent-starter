@@ -53,11 +53,17 @@ public class DemoApplication {
      *
      * <p>注意：agent 的 premain 会在 bootstrap classloader 中初始化存储，
      * 该 classloader 无法访问 {@code java.sql} 与 sqlite-jdbc，因此 premain
-     * 阶段必须使用 inmemory（安全回退）。本方法在应用 classloader（含
-     * sqlite-jdbc）中强制切换为 sqlite，实现本地落盘。</p>
+     * 阶段必须使用 inmemory（安全回退）。若 agent 已初始化（inmemory 且
+     * 独立于本应用的初始化），则保留其存储用于实时采集；否则本方法在
+     * 应用 classloader（含 sqlite-jdbc）中切换到 sqlite，实现本地落盘。</p>
      */
     private static void initStorage() {
         try {
+            String current = StorageManager.get().name();
+            if (!"noop".equals(current)) {
+                System.out.println("[DemoApplication] 存储已初始化: " + current + "，跳过 SQLite 切换（agent 采集保留）");
+                return;
+            }
             StorageConfig config = new StorageConfig();
             config.put("apm.storage.type", "sqlite");
             config.put("apm.storage.path", System.getProperty("apm.storage.path", "./apm.db"));
@@ -65,8 +71,9 @@ public class DemoApplication {
                     System.getProperty("apm.storage.retention.ms", String.valueOf(7L * 24 * 60 * 60 * 1000)));
             config.put("apm.storage.capacity", System.getProperty("apm.storage.capacity", "100000"));
             StorageManager.init(config);
-        } catch (Exception e) {
-            System.err.println("[DemoApplication] 存储初始化失败: " + e.getMessage());
+            System.out.println("[DemoApplication] SQLite 存储已初始化: " + StorageManager.get().name());
+        } catch (Throwable t) {
+            System.err.println("[DemoApplication] 存储初始化失败: " + t.getMessage());
         }
     }
 }

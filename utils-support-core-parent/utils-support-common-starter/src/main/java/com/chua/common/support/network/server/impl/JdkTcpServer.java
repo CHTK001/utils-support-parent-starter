@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 /**
  * 基于 JDK ServerSocket 的 TCP 服务器实现。
@@ -178,19 +177,17 @@ public class JdkTcpServer extends AbstractServer {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket = new ServerSocket();
-            serverSocket.bind(addr, setting.getBacklog());
+            serverSocket.setReuseAddress(setting.isSoReuseAddr());
+            serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
+            serverSocket.bind(addr, Math.max(setting.getBacklog(), 2048));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
-            workerPool = new ThreadPoolExecutor(
-                    Math.max(8, setting.getWorkerThreads()),
-                    setting.getWorkerThreads(),
-                    60L, TimeUnit.SECONDS,
-                    new java.util.concurrent.SynchronousQueue<>()
-            );
+            workerPool = Executors.newVirtualThreadPerTaskExecutor();
             running = true;
 
             workerPool.submit(this::acceptLoop);
-            log.info("JDK TcpServer started on {}:{}", setting.getHost(), setting.getPort());
+            log.info("JDK TcpServer started on {}:{} (backlog={}, virtualThreads=true)",
+                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048));
         } catch (IOException e) {
             throw new RuntimeException("TCP 服务器启动失败", e);
         }
@@ -204,15 +201,7 @@ public class JdkTcpServer extends AbstractServer {
             log.info("JDK TcpServer stopped");
         }
         if (workerPool != null) {
-            workerPool.shutdown();
-            try {
-                if (!workerPool.awaitTermination(setting.getShutdownQuietPeriod(), TimeUnit.SECONDS)) {
-                    workerPool.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                workerPool.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
+            workerPool.shutdownNow();
         }
     }
 
@@ -225,6 +214,7 @@ public class JdkTcpServer extends AbstractServer {
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
+                socket.setTcpNoDelay(setting.isTcpNoDelay());
                 try {
                     workerPool.submit(() -> handleConnection(socket));
                 } catch (Exception e) {

@@ -5,10 +5,14 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.chua.common.support.ai.generation.ImageGenerationResult;
+import com.chua.common.support.ai.generation.VideoGenerationResult;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.lang.json.JsonArray;
 import com.chua.common.support.lang.json.JsonObject;
+import com.chua.common.support.ai.chat.Attachment;
+import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +92,15 @@ public class QwenProxyChatClient implements ChatClient {
      * 额外请求体参数。
      */
     private Map<String, Object> extraBody;
+
+    private Double topP;
+    private List<String> stop;
+    private Long seed;
+    private String responseFormat;
+    private final List<String> imageUrls = new ArrayList<>();
+    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<ChatTool> tools = new ArrayList<>();
+    private String toolChoice;
 
     /**
      * 是否启用深度思考。
@@ -178,6 +191,55 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
+    public ChatClient topP(Double topP) { this.topP = topP; return this; }
+
+    @Override
+    public ChatClient stop(List<String> stop) { this.stop = stop; return this; }
+
+    @Override
+    public ChatClient seed(Long seed) { this.seed = seed; return this; }
+
+    @Override
+    public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
+
+    @Override
+    public ChatClient addImage(String imageUrl) {
+        this.imageUrls.add(imageUrl);
+        return this;
+    }
+
+    @Override
+    public ChatClient addAttachment(String name, byte[] data, String mimeType) {
+        this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
+        return this;
+    }
+
+    @Override
+    public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
+        this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
+        return this;
+    }
+
+    @Override
+    public ChatClient tools(List<ChatTool> tools) {
+        this.tools.clear();
+        if (tools != null) this.tools.addAll(tools);
+        return this;
+    }
+
+    @Override
+    public ChatClient tool(ChatTool tool) {
+        if (tool != null) this.tools.add(tool);
+        return this;
+    }
+
+    @Override
+    public ChatClient toolChoice(String toolChoice) {
+        this.toolChoice = toolChoice;
+        return this;
+    }
+
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
@@ -206,6 +268,10 @@ public class QwenProxyChatClient implements ChatClient {
         this.history.clear();
         this.externalHistory = null;
         this.conversationId = null;
+        this.imageUrls.clear();
+        this.attachments.clear();
+        this.tools.clear();
+        session.newChat();
         return this;
     }
 
@@ -239,6 +305,17 @@ public class QwenProxyChatClient implements ChatClient {
 
         try {
             String actualModel = model != null ? model : "qwen3.8-max";
+
+            List<ChatMessage> msgs = externalHistory != null ? externalHistory : history;
+            if (!msgs.isEmpty()) {
+                StringBuilder context = new StringBuilder();
+                for (ChatMessage msg : msgs) {
+                    context.append(msg.getRole()).append(": ").append(msg.getContent()).append("\n");
+                }
+                context.append("user: ").append(prompt);
+                prompt = context.toString();
+            }
+
             String body = buildRequestBody(prompt, actualModel);
 
             QwenChatResult result = session.chat(body, actualModel, (type, content) -> {
@@ -281,6 +358,93 @@ public class QwenProxyChatClient implements ChatClient {
                     .build());
             onError.accept(e);
         }
+    }
+
+    @Override
+    public ImageGenerationResult generateImage(String prompt, String ratio, int n,
+                                               int width, int height, String quality,
+                                               String refImageKey) {
+        String fullPrompt = prompt;
+        if (ratio != null) fullPrompt = "生成图片，比例" + ratio + "：" + prompt;
+        else fullPrompt = "生成图片：" + prompt;
+
+        QwenChatResult result = session.chat("{\"messages\":[{\"role\":\"user\",\"content\":\"" + fullPrompt + "\"}]}",
+                "qwen3.8-max", null);
+        if (!result.isSuccess()) {
+            throw new RuntimeException("Qwen 图像生成失败: " + result.errorMessage());
+        }
+
+        // 从 rawEvents 中提取 image_list
+        List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
+        List<Map<String, Object>> rawEvents = result.rawEvents();
+        if (rawEvents != null) {
+            for (Map<String, Object> event : rawEvents) {
+                try {
+                    List<Map<String, Object>> choices = (List<Map<String, Object>>) event.get("choices");
+                    if (choices == null || choices.isEmpty()) continue;
+                    Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
+                    if (delta == null) continue;
+                    Map<String, Object> extra = (Map<String, Object>) delta.get("extra");
+                    if (extra == null) continue;
+                    List<Map<String, Object>> imageList = (List<Map<String, Object>>) extra.get("image_list");
+                    if (imageList == null) continue;
+                    for (Map<String, Object> img : imageList) {
+                        String url = (String) img.get("image");
+                        if (url != null && !url.isEmpty()) {
+                            images.add(new ImageGenerationResult.GeneratedImage("", url, url, "", 0, 0, ""));
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+
+        // 也尝试从文本中提取 markdown 图片
+        if (images.isEmpty() && result.text() != null) {
+            images.addAll(extractImagesFromText(result.text(), prompt));
+        }
+
+        return new ImageGenerationResult(images, prompt);
+    }
+
+    @Override
+    public VideoGenerationResult generateVideo(String prompt, String ratio,
+                                               String cameraMovement, String refImageKey,
+                                               int timeoutSeconds) {
+        String fullPrompt = "生成视频：" + prompt;
+        if (ratio != null) fullPrompt = "生成视频，比例" + ratio + "：" + prompt;
+
+        QwenChatResult result = session.chat("{\"messages\":[{\"role\":\"user\",\"content\":\"" + fullPrompt + "\"}]}",
+                "qwen3.8-max", null);
+        List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
+        if (result.isSuccess() && result.text() != null) {
+            // 从文本中提取视频 URL
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                    "https?://[^\\s)\"'<>]+(?:\\.(?:mp4|webm|ogg))(?:\\?[^\\s)\"'<>]*)?"
+            ).matcher(result.text());
+            while (m.find()) {
+                videos.add(new VideoGenerationResult.GeneratedVideo(m.group(), "", 0, 0, 0));
+            }
+        }
+        return new VideoGenerationResult(videos, prompt);
+    }
+
+    /**
+     * 从回答文本中提取图片 URL。
+     */
+    private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
+        List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
+        if (text == null || text.isEmpty()) return images;
+        // 匹配 Markdown 图片 ![alt](url) 或直接 URL
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|gif))(?:\\?[^\\s)\"'<>]*)?"
+        ).matcher(text);
+        int idx = 0;
+        while (m.find() && idx < 10) {
+            String url = m.group(1) != null ? m.group(1) : m.group(0);
+            images.add(new ImageGenerationResult.GeneratedImage("", url, url, "", 0, 0, ""));
+            idx++;
+        }
+        return images;
     }
 
     @Override

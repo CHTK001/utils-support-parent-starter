@@ -111,6 +111,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
     @Override
     public int getOrder() { return 0; }
 
+    @Override
     public void close() {
         client.dispatcher().executorService().shutdown();
         client.connectionPool().evictAll();

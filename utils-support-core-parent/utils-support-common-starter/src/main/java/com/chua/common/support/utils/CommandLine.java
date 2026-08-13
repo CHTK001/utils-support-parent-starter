@@ -256,17 +256,19 @@ public class CommandLine {
  }
  }
 
- private int consumeValue(int index, String token) {
- String value = null;
- int eq = token.indexOf('=');
- if (eq > 0) {
- value = token.substring(eq + 1);
- } else if (index + 1 < args.length && !args[index + 1].startsWith("-")) {
- value = args[++index];
- }
- options.put(token, value);
- return ++index;
- }
+private int consumeValue(int index, String token) {
+  String value = null;
+  String key = token;
+  int eq = token.indexOf('=');
+  if (eq > 0) {
+  value = token.substring(eq + 1);
+  key = token.substring(0, eq);
+  } else if (index + 1 < args.length && !args[index + 1].startsWith("-")) {
+  value = args[++index];
+  }
+  options.put(key, value);
+  return ++index;
+  }
 
  private void registerLong(String token) {
  String base = token.substring(2);
@@ -274,7 +276,7 @@ public class CommandLine {
  if (eq > 0) {
  base = base.substring(0, eq);
  }
- longToBase.put(token, base);
+ longToBase.put(base, base);
  }
 
  private void registerShort(String token) {
@@ -283,7 +285,7 @@ public class CommandLine {
  if (eq > 0) {
  base = base.substring(0, eq);
  }
- shortToBase.put(token, base);
+ shortToBase.put(base, base);
  }
 
  private String resolve(String name) {

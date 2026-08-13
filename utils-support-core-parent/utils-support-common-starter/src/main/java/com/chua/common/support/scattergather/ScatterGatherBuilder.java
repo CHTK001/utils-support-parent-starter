@@ -1,9 +1,6 @@
 package com.chua.common.support.scattergather;
 
-import com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherRemoteClient;
-import com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherNodeServer;
-import com.chua.common.support.taskdistribution.scattergather.UdpScatterGatherRemoteClient;
-import com.chua.common.support.taskdistribution.scattergather.UdpScatterGatherNodeServer;
+import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +14,11 @@ import java.util.List;
  */
 @SuppressWarnings("unchecked")
 public class ScatterGatherBuilder<B extends ScatterGatherBuilder<B>> {
+
+    /**
+     * 默认传输协议：tcp
+     */
+    private static final String DEFAULT_TRANSPORT_PROTOCOL = "tcp";
 
     /**
      * 配置对象
@@ -223,26 +225,33 @@ public class ScatterGatherBuilder<B extends ScatterGatherBuilder<B>> {
 
     /**
      * 构建远程客户端。
+     * <p>按传输协议通过 SPI 创建对应的协议实现，后续新增协议（如 kcp）无需改动本类。</p>
      *
      * @return 远程客户端
      */
     public ScatterGatherRemoteClient<Object> buildClient() {
-        if ("udp".equalsIgnoreCase(setting.getTransportProtocol())) {
-            TcpScatterGatherRemoteClient tcpClient = new TcpScatterGatherRemoteClient(setting);
-            return new UdpScatterGatherRemoteClient(setting, tcpClient::invoke, tcpClient::closeAll);
-        }
-        return new TcpScatterGatherRemoteClient(setting);
+        return ServiceProvider.of(ScatterGatherRemoteClient.class).getNewExtension(resolveProtocol(), setting);
     }
 
     /**
      * 构建节点服务。
+     * <p>按传输协议通过 SPI 创建对应的协议实现，后续新增协议（如 kcp）无需改动本类。</p>
      *
      * @return 节点服务
      */
     public ScatterGatherNodeServer buildNodeServer() {
-        if ("udp".equalsIgnoreCase(setting.getTransportProtocol())) {
-            return new UdpScatterGatherNodeServer(setting.getHost(), setting.getTcpPort());
+        return ServiceProvider.of(ScatterGatherNodeServer.class).getNewExtension(resolveProtocol(), setting);
+    }
+
+    /**
+     * 解析传输协议，为空时使用默认 tcp。
+     *
+     * @return 协议名称
+     */
+    private String resolveProtocol() {
+        if (setting.getTransportProtocol() == null || setting.getTransportProtocol().trim().isEmpty()) {
+            return DEFAULT_TRANSPORT_PROTOCOL;
         }
-        return new TcpScatterGatherNodeServer(setting.getHost(), setting.getTcpPort());
+        return setting.getTransportProtocol();
     }
 }

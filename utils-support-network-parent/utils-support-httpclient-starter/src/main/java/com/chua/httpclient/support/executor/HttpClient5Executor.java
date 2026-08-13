@@ -126,6 +126,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
     @Override
     public int getOrder() { return 1; }
 
+    @Override
     public void close() {
         if (client != null) {
             try { client.close(); } catch (Exception ignored) {}

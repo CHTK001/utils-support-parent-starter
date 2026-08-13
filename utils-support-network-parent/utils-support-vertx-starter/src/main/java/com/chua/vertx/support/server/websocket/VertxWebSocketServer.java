@@ -11,6 +11,7 @@ import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
 import com.chua.common.support.spi.annotations.Spi;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.http.ServerWebSocket;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,8 +39,25 @@ public class VertxWebSocketServer extends AbstractServer {
 
     @Override
     protected void doStart() {
-        vertx = Vertx.vertx();
-        server = vertx.createHttpServer();
+        int eventLoopPoolSize = Math.max(setting.getBossThreads(), 2);
+        int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);
+
+        VertxOptions opts = new VertxOptions()
+                .setEventLoopPoolSize(eventLoopPoolSize)
+                .setWorkerPoolSize(workerPoolSize)
+                .setPreferNativeTransport(true);
+        vertx = Vertx.vertx(opts);
+
+        io.vertx.core.http.HttpServerOptions httpOpts = new io.vertx.core.http.HttpServerOptions()
+                .setHost(setting.getHost())
+                .setPort(setting.getPort())
+                .setAcceptBacklog(Math.max(setting.getBacklog(), 2048))
+                .setTcpFastOpen(true)
+                .setTcpNoDelay(setting.isTcpNoDelay())
+                .setReusePort(setting.isSoReuseAddr())
+                .setMaxWebSocketFrameSize(setting.getMaxFrameSize())
+                .setMaxWebSocketMessageSize(setting.getMaxFrameSize() * 4);
+        server = vertx.createHttpServer(httpOpts);
         server.webSocketHandler(ws -> {
             connections.add(ws);
             invokeAnnotatedMethods(OnOpen.class);

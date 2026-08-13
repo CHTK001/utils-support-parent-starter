@@ -92,14 +92,11 @@ public class SseRequest {
     private long readTimeout = 0;
 
     /**
-     * 是否启用自动重连
+     * 是否自动重连。
      *
-     * <p>连接意外断开时是否自动重连。默认 false。</p>
+     * <p>SSE 连接断开后是否自动重新建立连接。默认 false。
      */
     @Builder.Default
-    /**
-     * 是否启用自动重连
-     */
     private boolean reconnect = false;
 
     /**
