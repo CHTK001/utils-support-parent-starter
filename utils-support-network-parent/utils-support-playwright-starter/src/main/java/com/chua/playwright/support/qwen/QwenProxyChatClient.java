@@ -9,6 +9,8 @@ import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.lang.json.JsonArray;
 import com.chua.common.support.lang.json.JsonObject;
+import com.chua.common.support.ai.chat.Attachment;
+import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +90,15 @@ public class QwenProxyChatClient implements ChatClient {
      * 额外请求体参数。
      */
     private Map<String, Object> extraBody;
+
+    private Double topP;
+    private List<String> stop;
+    private Long seed;
+    private String responseFormat;
+    private final List<String> imageUrls = new ArrayList<>();
+    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<ChatTool> tools = new ArrayList<>();
+    private String toolChoice;
 
     /**
      * 是否启用深度思考。
@@ -178,6 +189,55 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
+    public ChatClient topP(Double topP) { this.topP = topP; return this; }
+
+    @Override
+    public ChatClient stop(List<String> stop) { this.stop = stop; return this; }
+
+    @Override
+    public ChatClient seed(Long seed) { this.seed = seed; return this; }
+
+    @Override
+    public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
+
+    @Override
+    public ChatClient addImage(String imageUrl) {
+        this.imageUrls.add(imageUrl);
+        return this;
+    }
+
+    @Override
+    public ChatClient addAttachment(String name, byte[] data, String mimeType) {
+        this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
+        return this;
+    }
+
+    @Override
+    public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
+        this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
+        return this;
+    }
+
+    @Override
+    public ChatClient tools(List<ChatTool> tools) {
+        this.tools.clear();
+        if (tools != null) this.tools.addAll(tools);
+        return this;
+    }
+
+    @Override
+    public ChatClient tool(ChatTool tool) {
+        if (tool != null) this.tools.add(tool);
+        return this;
+    }
+
+    @Override
+    public ChatClient toolChoice(String toolChoice) {
+        this.toolChoice = toolChoice;
+        return this;
+    }
+
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
@@ -206,6 +266,9 @@ public class QwenProxyChatClient implements ChatClient {
         this.history.clear();
         this.externalHistory = null;
         this.conversationId = null;
+        this.imageUrls.clear();
+        this.attachments.clear();
+        this.tools.clear();
         session.newChat();
         return this;
     }

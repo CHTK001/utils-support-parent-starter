@@ -13,6 +13,8 @@ import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.lang.json.JsonArray;
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.ai.chat.Attachment;
+import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -89,10 +91,19 @@ public class DoubaoProxyChatClient implements ChatClient {
      */
     private String conversationId;
 
-    /**
+/**
      * 额外请求体参数。
      */
     private Map<String, Object> extraBody;
+
+    private Double topP;
+    private List<String> stop;
+    private Long seed;
+    private String responseFormat;
+    private final List<String> imageUrls = new ArrayList<>();
+    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<ChatTool> tools = new ArrayList<>();
+    private String toolChoice;
 
     /**
      * 是否启用深度思考。
@@ -187,9 +198,58 @@ public class DoubaoProxyChatClient implements ChatClient {
         return this;
     }
 
-    @Override
+@Override
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
+        return this;
+    }
+
+    @Override
+    public ChatClient topP(Double topP) { this.topP = topP; return this; }
+
+    @Override
+    public ChatClient stop(List<String> stop) { this.stop = stop; return this; }
+
+    @Override
+    public ChatClient seed(Long seed) { this.seed = seed; return this; }
+
+    @Override
+    public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
+
+    @Override
+    public ChatClient addImage(String imageUrl) {
+        this.imageUrls.add(imageUrl);
+        return this;
+    }
+
+    @Override
+    public ChatClient addAttachment(String name, byte[] data, String mimeType) {
+        this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
+        return this;
+    }
+
+    @Override
+    public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
+        this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
+        return this;
+    }
+
+    @Override
+    public ChatClient tools(List<ChatTool> tools) {
+        this.tools.clear();
+        if (tools != null) this.tools.addAll(tools);
+        return this;
+    }
+
+    @Override
+    public ChatClient tool(ChatTool tool) {
+        if (tool != null) this.tools.add(tool);
+        return this;
+    }
+
+    @Override
+    public ChatClient toolChoice(String toolChoice) {
+        this.toolChoice = toolChoice;
         return this;
     }
 
@@ -217,11 +277,14 @@ public class DoubaoProxyChatClient implements ChatClient {
         return this;
     }
 
-    @Override
+@Override
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
         this.conversationId = null;
+        this.imageUrls.clear();
+        this.attachments.clear();
+        this.tools.clear();
         return this;
     }
 
@@ -259,6 +322,21 @@ public class DoubaoProxyChatClient implements ChatClient {
                     ? setting.getBaseUrl() : DEFAULT_BASE_URL;
             String url = baseUrl + DoubaoConstants.CHAT_COMPLETION_PATH
                     + "?aid=" + DoubaoConstants.AID + "&device_platform=" + DoubaoConstants.DEVICE_PLATFORM;
+
+            if (tools != null && !tools.isEmpty()) {
+                StringBuilder toolPrompt = new StringBuilder();
+                toolPrompt.append("可用的工具：\n");
+                for (ChatTool tool : tools) {
+                    toolPrompt.append("- ").append(tool.getName()).append(": ").append(tool.getDescription()).append("\n");
+                    if (tool.getParameters() != null) {
+                        toolPrompt.append("  参数：").append(Json.toJson(tool.getParameters())).append("\n");
+                    }
+                }
+                if (toolChoice != null) {
+                    toolPrompt.append("请使用工具：").append(toolChoice).append("\n");
+                }
+                prompt = toolPrompt.toString() + "\n" + prompt;
+            }
 
             String body = buildRequestBody(prompt, actualModel);
             history.add(ChatMessage.builder().role("user").content(prompt).build());
@@ -349,7 +427,16 @@ public void close() {
                 .fluent("use_auto_cot", useAutoCot)
                 .fluent("enable_web_search", smartSearch)
                 .fluent("resend_for_regen", false)
-                .fluent("enable_commerce_credit", false);
+.fluent("enable_commerce_credit", false);
+
+        if (topP != null) completionOption.fluent("top_p", topP);
+        if (stop != null && !stop.isEmpty()) {
+            JsonArray stopArr = new JsonArray();
+            for (String s : stop) { stopArr.add(s); }
+            completionOption.fluent("stop", stopArr);
+        }
+        if (seed != null) completionOption.fluent("seed", seed);
+        if (responseFormat != null) completionOption.fluent("response_format", responseFormat);
 
         if (extraBody != null && !extraBody.isEmpty()) {
             Object dt = extraBody.get("use_deep_think");
@@ -368,11 +455,25 @@ public void close() {
         }
 
         String actualSystemText = actualSystem;
-        JsonObject content = JsonObject.of("text", prompt);
+JsonObject content = JsonObject.of("text", prompt);
+        JsonArray attachments = new JsonArray();
+        for (String imgUrl : imageUrls) {
+            attachments.add(JsonObject.create()
+                .fluent("type", 1)
+                .fluent("image", JsonObject.of("url", imgUrl)));
+        }
+        for (Attachment att : this.attachments) {
+            JsonObject file = JsonObject.create()
+                .fluent("type", 3)
+                .fluent("file", JsonObject.create()
+                    .fluent("name", att.name())
+                    .fluent("uri", att.url() != null ? att.url() : ""));
+            attachments.add(file);
+        }
         JsonObject message = JsonObject.create()
                 .fluent("content", Json.toJson(content))
                 .fluent("content_type", 2001)
-                .fluent("attachments", new JsonArray())
+                .fluent("attachments", attachments)
                 .fluent("references", new JsonArray());
 
         if (actualSystemText != null && !actualSystemText.isEmpty()) {
