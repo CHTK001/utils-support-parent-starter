@@ -41,6 +41,7 @@
         <module>utils-support-git-starter</module>
         <module>utils-support-webview-starter</module>
         <module>utils-support-webview-jcef-starter</module>
+        <module>utils-support-kcp-starter</module>
     </modules>
     <properties>
         <sshd.version>2.15.0</sshd.version>
@@ -49,6 +50,7 @@
         <smb.server.version>0.4.0</smb.server.version>
         <smb.jna.version>0.14.0</smb.jna.version>
         <ngrok.version>1.1.1</ngrok.version>
+        <kcp.version>1.6.0</kcp.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -123,6 +125,11 @@
                 <groupId>com.ngrok</groupId>
                 <artifactId>ngrok-java-native</artifactId>
                 <version>${ngrok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.kcp-jvm</groupId>
+                <artifactId>kcp-jvm</artifactId>
+                <version>${kcp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
