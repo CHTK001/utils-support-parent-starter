@@ -9,7 +9,7 @@ import com.chua.common.support.scattergather.ScatterGatherResult;
 import com.chua.common.support.scattergather.ScatterGatherResultWithRequestId;
 import com.chua.common.support.scattergather.ScatterGatherSetting;
 import com.chua.common.support.scattergather.TransportFallbackStrategy;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.*;
@@ -24,6 +24,7 @@ import java.util.concurrent.*;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("udp")
 public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<Object> {
 
     /**
@@ -67,6 +68,11 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
     private final Runnable fallbackCleanup;
 
     /**
+     * 降级到 TCP 时使用的 TCP 客户端
+     */
+    private final ScatterGatherRemoteClient<Object> fallbackClient;
+
+    /**
      * UDP 是否可用
      */
     private boolean udpAvailable = true;
@@ -79,7 +85,8 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
     }
 
     /**
-     * 带配置构造，无降级。
+     * 带配置构造。
+     * <p>当配置启用 UDP 降级 TCP 时，自动创建 TCP 客户端作为降级出口。</p>
      *
      * @param setting 节点配置
      */
@@ -107,8 +114,16 @@ public class UdpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
     public UdpScatterGatherRemoteClient(ScatterGatherSetting setting, TransportFallbackStrategy fallbackStrategy,
                                         Runnable fallbackCleanup) {
         this.setting = setting == null ? new ScatterGatherSetting() : setting;
-        this.fallbackStrategy = fallbackStrategy;
-        this.fallbackCleanup = fallbackCleanup;
+        if (fallbackStrategy == null && this.setting.isUdpFallbackToTcp()) {
+            // 配置启用 UDP 降级 TCP 且未显式指定降级策略时，自动创建 TCP 客户端
+            this.fallbackClient = new TcpScatterGatherRemoteClient(this.setting);
+            this.fallbackStrategy = this.fallbackClient::invoke;
+            this.fallbackCleanup = this.fallbackClient::closeAll;
+        } else {
+            this.fallbackClient = null;
+            this.fallbackStrategy = fallbackStrategy;
+            this.fallbackCleanup = fallbackCleanup;
+        }
         this.connectionPool = new ConnectionPool("udp", DEFAULT_MAX_CONNECTIONS, DEFAULT_IDLE_TIMEOUT, true,
                 client -> client.subscribe("sync/response", (topic, message) -> {
                     if (message instanceof ScatterGatherResultWithRequestId wrapper) {

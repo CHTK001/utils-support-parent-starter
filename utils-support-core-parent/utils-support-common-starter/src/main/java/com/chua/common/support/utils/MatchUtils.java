@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-
 /**
  * 匹配工具类，提供通配符、正则、自动等多种匹配方式。
  *

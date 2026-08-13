@@ -75,16 +75,24 @@ public class QuarkusHttpServer extends AbstractServer {
     @Override
     protected void doStart() {
         this.reactive = setting.isReactor();
-        VertxOptions opts = new VertxOptions();
-        if (!reactive) {
-            opts.setWorkerPoolSize(setting.getWorkerThreads());
-        }
+        int eventLoopPoolSize = Math.max(setting.getBossThreads(), 2);
+        int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);
+
+        VertxOptions opts = new VertxOptions()
+                .setEventLoopPoolSize(eventLoopPoolSize)
+                .setWorkerPoolSize(workerPoolSize)
+                .setPreferNativeTransport(true);
         vertx = Vertx.vertx(opts);
 
         HttpServerOptions httpOpts = new HttpServerOptions()
                 .setHost(setting.getHost())
                 .setPort(setting.getPort())
-                .setMaxHeaderSize((int) setting.getMaxRequestSize());
+                .setMaxHeaderSize((int) setting.getMaxRequestSize())
+                .setAcceptBacklog(Math.max(setting.getBacklog(), 2048))
+                .setTcpFastOpen(true)
+                .setTcpNoDelay(setting.isTcpNoDelay())
+                .setReusePort(setting.isSoReuseAddr())
+                .setLogActivity(false);
 
         if (setting.getSsl() != null && setting.getSsl().isEnabled()) {
             httpOpts.setSsl(true);
