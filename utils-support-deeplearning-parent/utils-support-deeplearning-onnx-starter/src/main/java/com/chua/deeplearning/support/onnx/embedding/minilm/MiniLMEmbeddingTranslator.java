@@ -68,7 +68,7 @@ public class MiniLMEmbeddingTranslator {
         Path modelDir = tmpDir.resolve("minilm");
         Files.createDirectories(modelDir);
 
-        boolean extracted = NativeLoader.of("minilm")
+        NativeLoader.of("minilm")
                 .from(MiniLMEmbeddingTranslator.class.getClassLoader())
                 .basePath(RESOURCE_BASE)
                 .toTarget(modelDir)
@@ -77,8 +77,8 @@ public class MiniLMEmbeddingTranslator {
                 .extractOnly(true)
                 .load();
 
-        if (!extracted) {
-            log.warn("[MiniLM] NativeLoader 报告未提取，尝试直接 lookup...");
+        if (!Files.isDirectory(modelDir)) {
+            log.warn("[MiniLM] 模型目录未生成，尝试直接 lookup...");
         }
 
         Path modelPath = modelDir.resolve(MODEL_FILE);

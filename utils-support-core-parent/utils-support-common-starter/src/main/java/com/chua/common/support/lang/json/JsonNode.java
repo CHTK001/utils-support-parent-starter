@@ -57,16 +57,24 @@ public class JsonNode {
      */
     private final boolean missing;
 
+    /**
+     * 父级节点引用，用于链式构建时通过 {@link #end()} 返回父级。
+     * 仅在 {@link #putObject(String)} 和 {@link #putArray(String)} 创建的子节点上设置，
+     * 根节点和解析产生的节点此字段为 null。
+     */
+    private final JsonNode parent;
+
     // ==================== 构造方法 ====================
 
     /**
-     * 使用原始值构造 JsonNode。
+     * 使用原始值构造 JsonNode（无父级引用）。
      *
      * @param value 原始 JSON 值
      */
     JsonNode(Object value) {
         this.value = value;
         this.missing = false;
+        this.parent = null;
     }
 
     /**
@@ -78,6 +86,19 @@ public class JsonNode {
     private JsonNode(Object value, boolean missing) {
         this.value = value;
         this.missing = missing;
+        this.parent = null;
+    }
+
+    /**
+     * 链式构建用构造方法，指定父级节点。
+     *
+     * @param value  原始值
+     * @param parent 父级 JsonNode
+     */
+    private JsonNode(Object value, JsonNode parent) {
+        this.value = value;
+        this.missing = false;
+        this.parent = parent;
     }
 
     // ==================== 静态工厂 ====================
@@ -642,6 +663,162 @@ public class JsonNode {
             ((Map<String, Object>) this.value).putAll(map);
         }
         return this;
+    }
+
+    /**
+     * 向对象节点添加一个数组属性，并直接填充元素，支持链式调用。
+     *
+     * <p>等价于 {@code put(key, Json.buildArray().add(elements...))}，但更简洁。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode node = Json.build()
+     *     .put("name", "Alice")
+     *     .putArray("scores", 90, 85, 92);
+     * // {"name":"Alice","scores":[90,85,92]}
+     * }</pre>
+     *
+     * @param key      键名
+     * @param elements 数组元素
+     * @return 当前 JsonNode 实例，支持链式调用
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode putArray(String key, Object... elements) {
+        if (this.value instanceof Map) {
+            JsonArray array = new JsonArray();
+            if (elements != null) {
+                for (Object e : elements) {
+                    array.add(e);
+                }
+            }
+            ((Map<String, Object>) this.value).put(key, array);
+        }
+        return this;
+    }
+
+    /**
+     * 进入嵌套对象构建，在当前对象节点下添加一个子对象属性，并返回子对象的 JsonNode。
+     *
+     * <p>返回的 JsonNode 包装新创建的嵌套 JsonObject，可在其上继续调用 {@code put} 等方法；
+     * 构建完嵌套对象后，通过 {@link #end()} 返回父级继续链式调用。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode node = Json.build()
+     *     .put("name", "Alice")
+     *     .startObject("address")
+     *         .put("city", "Beijing")
+     *         .put("zip", "100000")
+     *         .endObject()
+     *     .put("age", 30);
+     * // {"name":"Alice","address":{"city":"Beijing","zip":"100000"},"age":30}
+     * }</pre>
+     *
+     * @param key 键名
+     * @return 嵌套对象的 JsonNode，支持继续链式构建
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode startObject(String key) {
+        if (this.value instanceof Map) {
+            JsonObject obj = new JsonObject();
+            ((Map<String, Object>) this.value).put(key, obj);
+            return new JsonNode(obj, this);
+        }
+        return this;
+    }
+
+    /**
+     * 进入嵌套数组构建，在当前对象节点下添加一个子数组属性，并返回子数组的 JsonNode。
+     *
+     * <p>返回的 JsonNode 包装新创建的嵌套 JsonArray，可在其上继续调用 {@code add} 等方法；
+     * 构建完嵌套数组后，通过 {@link #end()} 返回父级继续链式调用。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode node = Json.build()
+     *     .put("name", "Alice")
+     *     .startArray("scores")
+     *         .add(90).add(85).add(92)
+     *         .endArray()
+     *     .put("age", 30);
+     * // {"name":"Alice","scores":[90,85,92],"age":30}
+     * }</pre>
+     *
+     * @param key 键名
+     * @return 嵌套数组的 JsonNode，支持继续链式构建
+     */
+    @SuppressWarnings("unchecked")
+    public JsonNode startArray(String key) {
+        if (this.value instanceof Map) {
+            JsonArray array = new JsonArray();
+            ((Map<String, Object>) this.value).put(key, array);
+            return new JsonNode(array, this);
+        }
+        return this;
+    }
+
+    /**
+     * 结束当前嵌套构建，返回父级节点。
+     *
+     * <p>用于在 {@link #startObject(String)} 或 {@link #startArray(String)} 之后，
+     * 将构建上下文切回父级节点继续链式调用。也可使用语义更明确的
+     * {@link #endObject()} 或 {@link #endArray()}。</p>
+     *
+     * @return 父级 JsonNode，若无父级则返回自身
+     * @see #startObject(String)
+     * @see #startArray(String)
+     * @see #endObject()
+     * @see #endArray()
+     */
+    public JsonNode end() {
+        return parent != null ? parent : this;
+    }
+
+    /**
+     * 结束嵌套对象构建，返回父级节点。
+     *
+     * <p>语义等同于 {@link #end()}，但更具可读性，明确表示结束的是一个对象层级。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode node = Json.build()
+     *     .put("name", "Alice")
+     *     .startObject("address")
+     *         .put("city", "Beijing")
+     *         .put("zip", "100000")
+     *         .endObject()
+     *     .put("age", 30);
+     * // {"name":"Alice","address":{"city":"Beijing","zip":"100000"},"age":30}
+     * }</pre>
+     *
+     * @return 父级 JsonNode，若无父级则返回自身
+     * @see #startObject(String)
+     */
+    public JsonNode endObject() {
+        return end();
+    }
+
+    /**
+     * 结束嵌套数组构建，返回父级节点。
+     *
+     * <p>语义等同于 {@link #end()}，但更具可读性，明确表示结束的是一个数组层级。</p>
+     *
+     * <h3>使用示例：</h3>
+     * <pre>{@code
+     * JsonNode node = Json.build()
+     *     .put("name", "Alice")
+     *     .startArray("scores")
+     *         .add(90).add(85).add(92)
+     *         .endArray()
+     *     .put("age", 30);
+     * // {"name":"Alice","scores":[90,85,92],"age":30}
+     * }</pre>
+     *
+     * @return 父级 JsonNode，若无父级则返回自身
+     * @see #startArray(String)
+     */
+    public JsonNode endArray() {
+        return end();
     }
 
     /**
