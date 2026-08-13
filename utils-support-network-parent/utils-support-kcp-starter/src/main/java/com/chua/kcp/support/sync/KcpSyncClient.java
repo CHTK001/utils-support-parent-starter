@@ -293,7 +293,7 @@ public class KcpSyncClient implements SyncClient {
      */
     private void shutdownGroup() {
         if (group != null) {
-            group.shutdownGracefully();
+            group.shutdownGracefully().syncUninterruptibly();
             group = null;
         }
     }
