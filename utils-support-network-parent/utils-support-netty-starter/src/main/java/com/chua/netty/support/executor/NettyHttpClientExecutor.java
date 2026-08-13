@@ -115,7 +115,6 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
         return 2;
     }
 
-    @Override
     public List<HttpVersion> supportedVersions() {
         return List.of(HttpVersion.HTTP_1_1);
     }
@@ -337,20 +336,28 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
      * 将通道归还连接池。
      */
     private void returnToPool(String host, int port, Channel channel) {
+        // 检查通道是否处于活跃状态，若不活跃则直接返回，不进行归还操作
         if (!channel.isActive()) {
             return;
         }
+        // 拼接主机和端口作为连接池的唯一标识键
         String key = host + ":" + port;
+        // 根据键获取对应的连接池，若不存在则创建一个新的并发双端队列并放入Map中
         ConcurrentLinkedDeque<Channel> pool = connectionPool.computeIfAbsent(key,
                 k -> new ConcurrentLinkedDeque<>());
+        // 判断当前连接池大小是否小于每个主机允许的最大连接数
         if (pool.size() < MAX_POOL_SIZE_PER_HOST) {
+            // 若未达到上限，将通道添加到连接池的末尾以供复用
             pool.offerLast(channel);
         } else {
+            // 若已达到上限，则关闭该通道释放资源
             channel.close();
         }
     }
 
-    @Override
+    /**
+     * 关闭并清空连接池
+     */
     public void close() {
         // 关闭所有池中的连接
         connectionPool.values().forEach(pool -> {
@@ -388,6 +395,9 @@ public class NettyHttpClientExecutor implements HttpClientExecutor {
             this.connectionPool = pool;
         }
 
+        /**
+         * 重置响应Future和请求对象
+         */
         void reset(CompletableFuture<ClientResponse> newFuture, ClientRequest newRequest) {
             this.responseFuture = newFuture;
             this.request = newRequest;
