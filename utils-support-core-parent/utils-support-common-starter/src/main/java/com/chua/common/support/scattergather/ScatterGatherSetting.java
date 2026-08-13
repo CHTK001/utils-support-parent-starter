@@ -169,9 +169,15 @@ public class ScatterGatherSetting {
     private boolean udpFallbackToTcp = true;
 
     /**
-     * TCP 模式：seed / auto，默认 auto
+     * TCP 模式：seed / auto / bootstrap，默认 auto
      */
     private String tcpMode = "auto";
+
+    /**
+     * Bootstrap 引导节点地址（host 或 host:port），默认空。
+     * <p>bootstrap 模式下各节点与引导节点一次性交换 hash，用于节点互认。</p>
+     */
+    private String bootstrapNode;
 
     /**
      * Seed 节点地址列表（host:port 格式），默认空

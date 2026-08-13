@@ -113,15 +113,18 @@ public class MqttServer extends AbstractServer {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             serverSocket = new ServerSocket();
-            serverSocket.bind(addr, setting.getBacklog());
+            serverSocket.setReuseAddress(setting.isSoReuseAddr());
+            serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
+            serverSocket.bind(addr, Math.max(setting.getBacklog(), 2048));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
-            bossPool = Executors.newFixedThreadPool(setting.getBossThreads());
-            workerPool = Executors.newFixedThreadPool(setting.getWorkerThreads());
+            bossPool = Executors.newVirtualThreadPerTaskExecutor();
+            workerPool = Executors.newVirtualThreadPerTaskExecutor();
             running = true;
 
             bossPool.submit(this::acceptLoop);
-            log.info("MQTT 服务器启动: {}:{}", setting.getHost(), setting.getPort());
+            log.info("MQTT 服务器启动: {}:{} (backlog={}, virtualThreads=true)",
+                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048));
         } catch (IOException e) {
             throw new RuntimeException("MQTT 服务器启动失败", e);
         }
@@ -340,6 +343,7 @@ public class MqttServer extends AbstractServer {
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
+                socket.setTcpNoDelay(setting.isTcpNoDelay());
                 String clientId = "client-" + socket.hashCode();
                 ClientSession session = new ClientSession(clientId, socket);
                 clients.put(clientId, session);

@@ -2,6 +2,8 @@ package com.chua.common.support.utils;
 
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -690,6 +692,36 @@ public class DigestUtils {
      */
     public static byte[] sm3Bytes(byte[] content) {
         return hash(SM3, content);
+    }
+
+    // ==================== HMAC-SHA256 算法 ====================
+
+    /**
+     * 计算 HMAC-SHA256 消息认证码（字符串输入 + 字符串密钥）
+     *
+     * @param data 待计算的数据
+     * @param key  HMAC 密钥
+     * @return 64 位小写十六进制字符串
+     */
+    public static String hmacSha256(String data, String key) {
+        return hmacSha256(data.getBytes(UTF_8), key.getBytes(UTF_8));
+    }
+
+    /**
+     * 计算 HMAC-SHA256 消息认证码（字节数组输入 + 字节数组密钥）
+     *
+     * @param data 待计算的数据
+     * @param key  HMAC 密钥
+     * @return 64 位小写十六进制字符串
+     */
+    public static String hmacSha256(byte[] data, byte[] key) {
+        try {
+            Mac mac = Mac.getInstance(HMAC_SHA256);
+            mac.init(new SecretKeySpec(key, HMAC_SHA256));
+            return StringUtils.bytes2string(mac.doFinal(data));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("HMAC-SHA256 计算失败", e);
+        }
     }
 
     // ==================== 内部工具方法 ====================

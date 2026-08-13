@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.scattergather.ScatterGatherNodeServer;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("udp")
 public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
 
     /**
@@ -53,6 +55,16 @@ public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
         this.setting.setPort(port);
         this.setting.setProtocol("udp");
         this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension("udp", setting);
+    }
+
+    /**
+     * 构建 UDP ScatterGather 节点服务器。
+     * <p>按配置对象构造，配置中 host、port、protocol 字段会被正确应用。</p>
+     *
+     * @param setting 节点配置
+     */
+    public UdpScatterGatherNodeServer(com.chua.common.support.scattergather.ScatterGatherSetting setting) {
+        this(setting == null ? null : setting.getHost(), setting == null ? 0 : setting.getTcpPort());
     }
 
     /**

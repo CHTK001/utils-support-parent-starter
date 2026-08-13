@@ -120,13 +120,17 @@ public final class WsEndpointHandler {
             out.flush();
             log.info("[ws] 握手完成 conn={} path={} peer={}", connId, path, socket.getRemoteSocketAddress());
 
-            // 2. 等待 bind 帧（首条 text）
-            Frame bindFrame = readFrame(in);
-            String tunnelId = parseTunnelId(bindFrame);
+            // 2. 解析 tunnelId：优先从 path 读取（/ws/SSH/{tunnelId}），
+            //    兼容 guacamole-common-js / 裸 xterm 客户端；无 path 时回退读首帧 bind JSON。
+            String tunnelId = parseTunnelIdFromPath(path);
             if (tunnelId == null) {
-                sendCloseFrame(out, 1008, "missing tunnelId");
-                socket.close();
-                return;
+                Frame bindFrame = readFrame(in);
+                tunnelId = parseTunnelId(bindFrame);
+                if (tunnelId == null) {
+                    sendCloseFrame(out, 1008, "missing tunnelId");
+                    socket.close();
+                    return;
+                }
             }
             GatewayTunnel tunnel = tunnelRegistry.get(tunnelId).orElse(null);
             if (tunnel == null || tunnel.bridge() == null) {
@@ -161,7 +165,8 @@ public final class WsEndpointHandler {
             log.info("[ws] tunnel 绑定 conn={} id={} protocol={}", connId, tunnelId, tunnel.connection().protocol());
 
             // 3. 启动 server→client 泵线程
-            Thread bridgeReader = new Thread(() -> pumpBridgeToClient(bridge, out, connId, tunnelId),
+            final String boundTunnelId = tunnelId;
+            Thread bridgeReader = new Thread(() -> pumpBridgeToClient(bridge, out, connId, boundTunnelId),
                     "ws-bridge-reader-" + connId);
             bridgeReader.setDaemon(true);
             bridgeReader.start();
@@ -435,6 +440,24 @@ public final class WsEndpointHandler {
             }
         }
         return new Frame(fin, opcode, payload);
+    }
+
+    /**
+     * 从 WS 路径 {@code /ws/<protocol>/<tunnelId>} 解析 tunnelId。
+     *
+     * @param path 请求路径
+     * @return tunnelId；无法解析返回 {@code null}
+     */
+    private static String parseTunnelIdFromPath(String path) {
+        if (path == null || path.isBlank()) {
+            return null;
+        }
+        String[] parts = path.split("/");
+        if (parts.length < 3) {
+            return null;
+        }
+        String candidate = parts[parts.length - 1];
+        return candidate.isEmpty() ? null : candidate;
     }
 
     /**

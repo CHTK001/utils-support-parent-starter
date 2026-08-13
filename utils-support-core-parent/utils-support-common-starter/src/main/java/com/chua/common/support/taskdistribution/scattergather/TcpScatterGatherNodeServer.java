@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.scattergather.ScatterGatherNodeServer;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("tcp")
 public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
 
     /**
@@ -53,6 +55,16 @@ public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
         this.setting.setPort(port);
         this.setting.setProtocol("tcp");
         this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension("tcp", setting);
+    }
+
+    /**
+     * 构建 TCP ScatterGather 节点服务器。
+     * <p>按配置对象构造，配置中 host、port、protocol 字段会被正确应用。</p>
+     *
+     * @param setting 节点配置
+     */
+    public TcpScatterGatherNodeServer(com.chua.common.support.scattergather.ScatterGatherSetting setting) {
+        this(setting == null ? null : setting.getHost(), setting == null ? 0 : setting.getTcpPort());
     }
 
     /**
