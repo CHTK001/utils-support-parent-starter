@@ -22,6 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
 
     /**
+     * 传输协议标识：tcp
+     */
+    private static final String PROTOCOL_TCP = "tcp";
+
+    /**
      * 底层 SyncServer
      */
     private final SyncServer syncServer;
@@ -39,8 +44,8 @@ public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
     public TcpScatterGatherNodeServer(int port) {
         this.setting = ServerSetting.defaults();
         this.setting.setPort(port);
-        this.setting.setProtocol("tcp");
-        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension("tcp", setting);
+        this.setting.setProtocol(PROTOCOL_TCP);
+        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension(PROTOCOL_TCP, setting);
     }
 
     /**
@@ -53,8 +58,8 @@ public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
         this.setting = ServerSetting.defaults();
         this.setting.setHost(host);
         this.setting.setPort(port);
-        this.setting.setProtocol("tcp");
-        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension("tcp", setting);
+        this.setting.setProtocol(PROTOCOL_TCP);
+        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension(PROTOCOL_TCP, setting);
     }
 
     /**
@@ -79,6 +84,11 @@ public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
         }
     }
 
+    /**
+     * 启动节点服务器。
+     *
+     * @throws Exception 启动异常
+     */
     @Override
     public void start() throws Exception {
         if (syncServer != null) {
@@ -87,6 +97,11 @@ public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
         }
     }
 
+    /**
+     * 停止节点服务器。
+     *
+     * @throws Exception 停止异常
+     */
     @Override
     public void stop() throws Exception {
         if (syncServer != null) {
@@ -95,6 +110,11 @@ public class TcpScatterGatherNodeServer implements ScatterGatherNodeServer {
         }
     }
 
+    /**
+     * 关闭节点服务器，委托 stop。
+     *
+     * @throws Exception 关闭异常
+     */
     @Override
     public void close() throws Exception {
         stop();

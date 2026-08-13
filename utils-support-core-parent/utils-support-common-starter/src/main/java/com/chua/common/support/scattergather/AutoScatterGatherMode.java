@@ -15,6 +15,11 @@ import java.util.List;
 public class AutoScatterGatherMode implements ScatterGatherMode {
 
     /**
+     * 模式 SPI 标识：auto
+     */
+    private static final String SCATTER_GATHER_MODE_AUTO = "auto";
+
+    /**
      * 节点配置
      */
     private final ScatterGatherSetting setting;
@@ -35,16 +40,32 @@ public class AutoScatterGatherMode implements ScatterGatherMode {
         this.setting = setting == null ? new ScatterGatherSetting() : setting;
     }
 
+    /**
+     * 返回模式 SPI 类型。
+     *
+     * @return 模式类型标识 auto
+     */
     @Override
     public String type() {
-        return "auto";
+        return SCATTER_GATHER_MODE_AUTO;
     }
 
+    /**
+     * 启动自动发现策略，注册本地节点并启动定时自动检索任务。
+     *
+     * @param discovery 服务发现实例
+     */
     @Override
     public void start(ScatterGatherServiceDiscovery discovery) {
         discovery.startAutoDiscovery();
     }
 
+    /**
+     * 解析远程节点列表，返回本地缓存中已发现的节点。
+     *
+     * @param discovery 服务发现实例
+     * @return 远程节点列表
+     */
     @Override
     public List<ScatterGatherNode> resolveRemoteNodes(ScatterGatherServiceDiscovery discovery) {
         return discovery.resolveCachedRemoteNodes();

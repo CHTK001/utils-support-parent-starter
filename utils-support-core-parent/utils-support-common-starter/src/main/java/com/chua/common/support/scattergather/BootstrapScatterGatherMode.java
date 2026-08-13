@@ -21,6 +21,16 @@ import java.util.Map;
 public class BootstrapScatterGatherMode implements ScatterGatherMode {
 
     /**
+     * 模式 SPI 标识：bootstrap
+     */
+    private static final String SCATTER_GATHER_MODE_BOOTSTRAP = "bootstrap";
+
+    /**
+     * 默认传输协议：tcp
+     */
+    private static final String PROTOCOL_TCP = "tcp";
+
+    /**
      * 节点配置
      */
     private final ScatterGatherSetting setting;
@@ -46,11 +56,21 @@ public class BootstrapScatterGatherMode implements ScatterGatherMode {
         this.setting = setting == null ? new ScatterGatherSetting() : setting;
     }
 
+    /**
+     * 返回模式 SPI 类型。
+     *
+     * @return 模式类型标识 bootstrap
+     */
     @Override
     public String type() {
-        return "bootstrap";
+        return SCATTER_GATHER_MODE_BOOTSTRAP;
     }
 
+    /**
+     * 启动引导模式，注册引导节点并执行一次性 hash 交换。
+     *
+     * @param discovery 服务发现实例
+     */
     @Override
     public void start(ScatterGatherServiceDiscovery discovery) {
         String address = setting.getBootstrapNode();
@@ -65,12 +85,18 @@ public class BootstrapScatterGatherMode implements ScatterGatherMode {
         }
         int port = seed.effectivePort(setting.getDefaultPort());
         ScatterGatherNode node = new ScatterGatherNode(seed.nodeId(setting.getDefaultPort()),
-                seed.getHost(), port, "tcp", setting.getServicePath(), Map.of());
+                seed.getHost(), port, PROTOCOL_TCP, setting.getServicePath(), Map.of());
         bootstrapNodes.add(node);
         discovery.registerBootstrapNode(node);
         discovery.exchangeBootstrapHash(node);
     }
 
+    /**
+     * 解析远程节点列表，本地无远程节点时回落为引导节点列表。
+     *
+     * @param discovery 服务发现实例
+     * @return 远程节点列表
+     */
     @Override
     public List<ScatterGatherNode> resolveRemoteNodes(ScatterGatherServiceDiscovery discovery) {
         List<ScatterGatherNode> nodes = discovery.resolveCachedRemoteNodes();
