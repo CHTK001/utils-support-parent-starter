@@ -164,31 +164,6 @@ public final class AnnotationUtils {
     }
 
     /**
-     * 递归解析构造器定义，包含构造器上的所有注解（含元注解链）。
-     *
-     * @param constructor 目标构造器
-     * @return 构造器定义（复用 {@link MethodDefinition} 表示）
-     */
-    public static MethodDefinition getConstructorDefinition(Constructor<?> constructor) {
-        List<AnnotationDefinition> annotationDefs = getAnnotationsFor(constructor);
-        List<MethodDefinition.ParameterDefinition> paramDefs = new ArrayList<>();
-        java.lang.reflect.Parameter[] params = constructor.getParameters();
-        for (java.lang.reflect.Parameter param : params) {
-            List<AnnotationDefinition> paramAnnos = getAnnotationsFor(param);
-            paramDefs.add(new MethodDefinition.ParameterDefinition(param.getName(), param.getType(), paramAnnos));
-        }
-        return new MethodDefinition(
-                constructor,
-                constructor.getDeclaringClass(),
-                "<init>",
-                void.class,
-                paramDefs,
-                annotationDefs,
-                constructor.getModifiers()
-        );
-    }
-
-    /**
      * 递归解析类定义，包含类上的所有注解、所有方法定义和字段定义。
      *
      * <p>方法定义包含构造器，按声明顺序排列。</p>
@@ -200,9 +175,6 @@ public final class AnnotationUtils {
         List<AnnotationDefinition> annotationDefs = getAnnotationsFor(clazz);
 
         List<MethodDefinition> methodDefs = new ArrayList<>();
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            methodDefs.add(getConstructorDefinition(constructor));
-        }
         for (Method method : clazz.getDeclaredMethods()) {
             methodDefs.add(getMethodDefinition(method));
         }
