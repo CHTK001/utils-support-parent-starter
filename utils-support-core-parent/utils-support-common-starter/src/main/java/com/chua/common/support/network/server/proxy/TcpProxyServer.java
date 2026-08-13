@@ -1,25 +1,20 @@
 package com.chua.common.support.network.server.proxy;
 
 import com.chua.common.support.network.ProtocolType;
-import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 基于原生 JDK {@link ServerSocket} 的 TCP 反向代理服务器。
+ * 基于原生 JDK {@link java.net.ServerSocket} 的 TCP 反向代理服务器。
+ * <p>继承 {@link AbstractProxyServer}，自动获得多 acceptor 并行、Semaphore 连接限流、
+ * TCP_NODELAY、32KB ThreadLocal 转发缓冲、CompletableFuture 双向转发等高并发基础设施。</p>
+ *
  * <p>每个客户端连接使用虚拟线程进行双向转发；后端目标由
  * {@link ProxyTargetResolver} 解析，可对接静态路由、服务发现或自定义策略。</p>
  *
@@ -45,7 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Spi({"tcp-proxy"})
-public class TcpProxyServer extends AbstractServer {
+public class TcpProxyServer extends AbstractProxyServer {
 
     /**
      * 后端连接超时（毫秒）。
@@ -58,29 +53,9 @@ public class TcpProxyServer extends AbstractServer {
     protected final int readTimeoutMs;
 
     /**
-     * 虚拟线程池。
-     */
-    protected final ExecutorService proxyPool = Executors.newVirtualThreadPerTaskExecutor();
-
-    /**
      * 后端目标解析器。
      */
     protected final ProxyTargetResolver<InetSocketAddress> targetResolver;
-
-    /**
-     * 服务运行状态。
-     */
-    protected final AtomicBoolean running = new AtomicBoolean(false);
-
-    /**
-     * 活跃连接计数。
-     */
-    protected final AtomicInteger activeConnections = new AtomicInteger(0);
-
-    /**
-     * JDK 服务端监听套接字。
-     */
-    protected ServerSocket serverSocket;
 
     /**
      * 构造 TCP 代理服务器（SPI 工厂使用）。
@@ -110,10 +85,10 @@ public class TcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 构造 TCP 代理服务器（使用默认超时）。
+     * 构造 TCP 代理服务器（完整参数）。
      *
-     * @param setting        服务器配置
-     * @param targetResolver 后端目标解析器
+     * @param setting          服务器配置
+     * @param targetResolver   后端目标解析器
      * @param connectTimeoutMs 后端连接超时（毫秒）
      * @param readTimeoutMs    IO 读取超时（毫秒）
      */
@@ -130,33 +105,17 @@ public class TcpProxyServer extends AbstractServer {
     /**
      * 构造 TCP 代理服务器（固定后端地址）。
      *
-     * @param setting  服务器配置
-     * @param backend  固定后端地址
+     * @param setting 服务器配置
+     * @param backend 固定后端地址
      */
     public TcpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         this(setting, remote -> backend);
     }
 
-    /**
-     * 注册服务器过滤器。
-     * <p>TCP 代理可叠加 {@link ServerFilter}，如访问日志、限流、ACL 等。</p>
-     *
-     * @param filter 要注册的过滤器
-     * @return 当前服务器实例
-     */
     @Override
     public TcpProxyServer addFilter(ServerFilter filter) {
         super.addFilter(filter);
         return this;
-    }
-
-    /**
-     * 获取当前活跃连接数。
-     *
-     * @return 活跃连接数
-     */
-    public int getActiveConnections() {
-        return activeConnections.get();
     }
 
     @Override
@@ -164,76 +123,22 @@ public class TcpProxyServer extends AbstractServer {
         return ProtocolType.TCP;
     }
 
-    @Override
-    protected void doStart() {
-        try {
-            InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
-            serverSocket = new ServerSocket();
-            serverSocket.setReuseAddress(setting.isSoReuseAddr());
-            serverSocket.bind(addr, setting.getBacklog());
-            // 回填实际端口（port=0 时由系统分配）
-            setting.setPort(serverSocket.getLocalPort());
-            running.set(true);
-            proxyPool.submit(this::acceptLoop);
-            log.info("TcpProxyServer 启动成功：{}://{}:{}", setting.getProtocol(), setting.getHost(), setting.getPort());
-        } catch (IOException e) {
-            throw new RuntimeException("TcpProxyServer 启动失败", e);
-        }
-    }
-
-    @Override
-    protected void doStop() {
-        running.set(false);
-        if (serverSocket != null && !serverSocket.isClosed()) {
-            try {
-                serverSocket.close();
-            } catch (IOException ignored) {
-            }
-        }
-        log.info("TcpProxyServer 已停止：{}://{}:{}", setting.getProtocol(), setting.getHost(), setting.getPort());
-    }
-
     /**
-     * 接受连接循环。
-     */
-    protected void acceptLoop() {
-        while (running.get()) {
-            try {
-                Socket clientSocket = serverSocket.accept();
-                try {
-                    proxyPool.submit(() -> handleConnection(clientSocket));
-                } catch (Exception e) {
-                    log.warn("TCP 代理任务被拒绝: {}", e.getMessage());
-                    try {
-                        clientSocket.close();
-                    } catch (IOException ignored) {
-                    }
-                }
-            } catch (IOException e) {
-                if (running.get()) {
-                    log.error("TCP 代理接受连接异常", e);
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理单个客户端连接。
+     * 处理单个客户端连接：解析后端地址 → 建立后端连接 → 双向转发。
+     * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向数据传输，
+     * 自动获得 TCP_NODELAY、32KB ThreadLocal 缓冲、CompletableFuture 并发转发。</p>
      *
      * @param clientSocket 客户端套接字
      */
+    @Override
     protected void handleConnection(Socket clientSocket) {
         InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
         InetSocketAddress backendAddr = targetResolver.resolve(remote);
         if (backendAddr == null) {
             log.warn("[tcp-proxy] 无法解析后端地址 for remote={}", remote);
-            try {
-                clientSocket.close();
-            } catch (IOException ignored) {
-            }
+            closeQuietly(clientSocket);
             return;
         }
-        activeConnections.incrementAndGet();
         try (Socket backendSocket = new Socket()) {
             backendSocket.connect(backendAddr, connectTimeoutMs);
             backendSocket.setSoTimeout(readTimeoutMs);
@@ -244,65 +149,7 @@ public class TcpProxyServer extends AbstractServer {
         } catch (Exception e) {
             log.debug("[tcp-proxy] 代理连接异常: {}", e.getMessage());
         } finally {
-            try {
-                clientSocket.close();
-            } catch (IOException ignored) {
-            }
-            activeConnections.decrementAndGet();
-        }
-    }
-
-    /**
-     * 双向转发客户端与后端之间的数据。
-     *
-     * @param clientSocket 客户端套接字
-     * @param backendSocket 后端套接字
-     */
-    protected void forwardBidirectional(Socket clientSocket, Socket backendSocket) {
-        Thread c2b = Thread.ofVirtual()
-                .name("tcp-proxy-c2b-" + clientSocket.getPort())
-                .start(() -> {
-                    try {
-                        forward(clientSocket.getInputStream(), backendSocket.getOutputStream());
-                    } catch (IOException e) {
-                        log.debug("[tcp-proxy] 获取 c2b 流失败: {}", e.getMessage());
-                    }
-                });
-        Thread b2c = Thread.ofVirtual()
-                .name("tcp-proxy-b2c-" + clientSocket.getPort())
-                .start(() -> {
-                    try {
-                        forward(backendSocket.getInputStream(), clientSocket.getOutputStream());
-                    } catch (IOException e) {
-                        log.debug("[tcp-proxy] 获取 b2c 流失败: {}", e.getMessage());
-                    }
-                });
-        try {
-            c2b.join();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        b2c.interrupt();
-    }
-
-    /**
-     * 单向数据转发。
-     *
-     * @param in  源输入流
-     * @param out 目标输出流
-     */
-    protected void forward(InputStream in, OutputStream out) {
-        try {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-                out.flush();
-            }
-        } catch (Exception e) {
-            if (running.get()) {
-                log.debug("[tcp-proxy] 转发结束: {}", e.getMessage());
-            }
+            closeQuietly(clientSocket);
         }
     }
 }

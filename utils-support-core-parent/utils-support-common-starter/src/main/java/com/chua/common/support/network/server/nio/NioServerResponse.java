@@ -1,0 +1,383 @@
+package com.chua.common.support.network.server.nio;
+
+import com.chua.common.support.network.http.HttpHeader;
+import com.chua.common.support.network.server.response.ServerResponse;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * 基于 NIO {@link SocketChannel} 的 {@link ServerResponse} 实现。
+ *
+ * <p>采用双模式：
+ * <ul>
+ *   <li><b>缓冲模式</b>（默认）：所有写入先缓存在内存中，通过 {@link #complete()} 统一
+ *       构建 HTTP/1.1 响应报文并写入 channel。支持 keep-alive 连接复用。</li>
+ *   <li><b>流式模式</b>（SSE）：调用 {@link #sse()} 后立即写入 HTTP 头，
+ *       后续使用 chunked transfer encoding 实时写入数据帧。</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/08/12
+ */
+public class NioServerResponse implements ServerResponse {
+
+    private static final byte[] CRLF = {'\r', '\n'};
+    private static final byte[] COLON_SP = {':', ' '};
+    private static final byte[] ZERO_CHUNK = {'0', '\r', '\n', '\r', '\n'};
+
+    private final SocketChannel channel;
+    private int statusCode = 200;
+    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private byte[] body;
+    private boolean ended;
+    private boolean committed;
+    private boolean sent;
+    private boolean sseMode;
+    private boolean channelClosed;
+    private Object result;
+    private ByteArrayOutputStream rawOutput;
+
+    public NioServerResponse(SocketChannel channel) {
+        this.channel = channel;
+    }
+
+    // ─── ServerResponse 接口实现 ─────────────────────────────
+
+    @Override
+    public ServerResponse setStatus(int statusCode) {
+        if (ended) {
+            return this;
+        }
+        this.statusCode = statusCode;
+        return this;
+    }
+
+    @Override
+    public int getStatus() {
+        return statusCode;
+    }
+
+    @Override
+    public ServerResponse setHeader(String name, String value) {
+        if (ended) {
+            return this;
+        }
+        headers.put(name, value);
+        return this;
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return headers.get(name);
+    }
+
+    @Override
+    public HttpHeader getHeaders() {
+        HttpHeader h = HttpHeader.create();
+        headers.forEach(h::add);
+        return h;
+    }
+
+    @Override
+    public ServerResponse setContentType(String contentType) {
+        return setHeader("Content-Type", contentType);
+    }
+
+    @Override
+    public String getContentType() {
+        return getHeader("Content-Type");
+    }
+
+    @Override
+    public ServerResponse setBody(byte[] body) {
+        if (ended) {
+            return this;
+        }
+        this.body = body;
+        return this;
+    }
+
+    @Override
+    public ServerResponse setBody(String body) {
+        if (ended) {
+            return this;
+        }
+        this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : null;
+        return this;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return body;
+    }
+
+    @Override
+    public OutputStream getOutputStream() {
+        if (rawOutput == null) {
+            rawOutput = new ByteArrayOutputStream();
+        }
+        return rawOutput;
+    }
+
+    @Override
+    public ServerResponse sendRedirect(String location) {
+        setHeader("Location", location);
+        setStatus(302);
+        end();
+        return this;
+    }
+
+    @Override
+    public ServerResponse sendError(int statusCode, String message) {
+        setStatus(statusCode);
+        setBody(message);
+        end();
+        return this;
+    }
+
+    @Override
+    public void flush() {
+        if (sseMode) {
+            // SSE 模式下数据已直接写入 channel
+        }
+    }
+
+    @Override
+    public boolean isCommitted() {
+        return committed;
+    }
+
+    @Override
+    public boolean isEnded() {
+        return ended;
+    }
+
+    @Override
+    public ServerResponse setResult(Object result) {
+        this.result = result;
+        return this;
+    }
+
+    @Override
+    public Object getResult() {
+        return result;
+    }
+
+    @Override
+    public ServerResponse reset() {
+        if (ended) {
+            return this;
+        }
+        statusCode = 200;
+        headers.clear();
+        body = null;
+        result = null;
+        if (rawOutput != null) {
+            rawOutput.reset();
+        }
+        return this;
+    }
+
+    @Override
+    public void end() {
+        ended = true;
+    }
+
+    @Override
+    public void writeRaw(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return;
+        }
+        if (sseMode) {
+            writeToChannel(bytes);
+            return;
+        }
+        if (ended) {
+            return;
+        }
+        if (rawOutput == null) {
+            rawOutput = new ByteArrayOutputStream();
+        }
+        rawOutput.writeBytes(bytes);
+    }
+
+    // ─── SSE ──────────────────────────────────────────────
+
+    @Override
+    public ServerResponse sse() {
+        if (committed) {
+            return this;
+        }
+        this.sseMode = true;
+        setContentType("text/event-stream; charset=utf-8");
+        setHeader("Cache-Control", "no-cache");
+        setHeader("Connection", "keep-alive");
+        setHeader("Transfer-Encoding", "chunked");
+        committed = true;
+        // 立即写入 HTTP 响应头
+        writeHeaders(statusCode);
+        return this;
+    }
+
+    @Override
+    public void sseEvent(String event, String data) {
+        if (!sseMode) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        if (event != null) {
+            sb.append("event:").append(event).append('\n');
+        }
+        if (data != null) {
+            sb.append("data:").append(data).append('\n');
+        }
+        sb.append('\n');
+        byte[] frameBytes = sb.toString().getBytes(StandardCharsets.UTF_8);
+        // chunked frame: hex-size CRLF data CRLF
+        writeToChannel((Integer.toHexString(frameBytes.length) + "\r\n").getBytes(StandardCharsets.US_ASCII));
+        writeToChannel(frameBytes);
+        writeToChannel(CRLF);
+    }
+
+    @Override
+    public void sseClose() {
+        if (sseMode && !ended) {
+            writeToChannel(ZERO_CHUNK);
+            ended = true;
+        }
+        channelClosed = true;
+    }
+
+    // ─── 内部方法 ─────────────────────────────────────────
+
+    /**
+     * 完成响应：将缓冲区内容写入到 channel。
+     * <p>SSE 模式下只关闭 channel；缓冲模式下构建完整 HTTP/1.1 响应报文。</p>
+     */
+    void complete() {
+        if (sent) {
+            return;
+        }
+        sent = true;
+        if (sseMode) {
+            // SSE 模式：channel 由 sseClose 关闭
+            return;
+        }
+        if (!ended) {
+            ended = true;
+        }
+        committed = true;
+        try {
+            byte[] data = resolveBody();
+            ByteArrayOutputStream httpResp = new ByteArrayOutputStream(data.length + 256);
+            // Status line
+            httpResp.write(("HTTP/1.1 " + statusCode + " " + reasonPhrase(statusCode) + "\r\n")
+                    .getBytes(StandardCharsets.US_ASCII));
+            // Auto headers
+            if (!headers.containsKey("Content-Type")) {
+                httpResp.write("Content-Type: text/plain; charset=UTF-8\r\n".getBytes(StandardCharsets.US_ASCII));
+            }
+            if (!headers.containsKey("Content-Length")) {
+                httpResp.write(("Content-Length: " + data.length + "\r\n").getBytes(StandardCharsets.US_ASCII));
+            }
+            if (!headers.containsKey("Connection")) {
+                httpResp.write("Connection: keep-alive\r\n".getBytes(StandardCharsets.US_ASCII));
+            }
+            // User headers
+            for (Map.Entry<String, String> e : headers.entrySet()) {
+                httpResp.write(e.getKey().getBytes(StandardCharsets.US_ASCII));
+                httpResp.write(COLON_SP);
+                httpResp.write(e.getValue().getBytes(StandardCharsets.US_ASCII));
+                httpResp.write(CRLF);
+            }
+            httpResp.write(CRLF);
+            // Body
+            if (data.length > 0) {
+                httpResp.write(data);
+            }
+            writeToChannel(httpResp.toByteArray());
+        } catch (Exception e) {
+            // 静默处理写入失败（连接可能已被客户端关闭）
+        }
+    }
+
+    /**
+     * 判断 channel 是否已关闭（SSE close 后）。
+     */
+    boolean isChannelClosed() {
+        return channelClosed;
+    }
+
+    private byte[] resolveBody() {
+        if (body != null) {
+            return body;
+        }
+        if (rawOutput != null && rawOutput.size() > 0) {
+            return rawOutput.toByteArray();
+        }
+        return new byte[0];
+    }
+
+    private void writeHeaders(int status) {
+        try {
+            ByteArrayOutputStream headerBuf = new ByteArrayOutputStream(256);
+            headerBuf.write(("HTTP/1.1 " + status + " " + reasonPhrase(status) + "\r\n")
+                    .getBytes(StandardCharsets.US_ASCII));
+            for (Map.Entry<String, String> e : headers.entrySet()) {
+                headerBuf.write(e.getKey().getBytes(StandardCharsets.US_ASCII));
+                headerBuf.write(COLON_SP);
+                headerBuf.write(e.getValue().getBytes(StandardCharsets.US_ASCII));
+                headerBuf.write(CRLF);
+            }
+            headerBuf.write(CRLF);
+            writeToChannel(headerBuf.toByteArray());
+        } catch (IOException e) {
+            channelClosed = true;
+        }
+    }
+
+    private void writeToChannel(byte[] data) {
+        if (channelClosed) {
+            return;
+        }
+        try {
+            ByteBuffer bb = ByteBuffer.wrap(data);
+            while (bb.hasRemaining()) {
+                int written = channel.write(bb);
+                if (written < 0) {
+                    channelClosed = true;
+                    return;
+                }
+            }
+        } catch (IOException e) {
+            channelClosed = true;
+        }
+    }
+
+    private static String reasonPhrase(int code) {
+        return switch (code) {
+            case 200 -> "OK";
+            case 201 -> "Created";
+            case 204 -> "No Content";
+            case 301 -> "Moved Permanently";
+            case 302 -> "Found";
+            case 304 -> "Not Modified";
+            case 400 -> "Bad Request";
+            case 401 -> "Unauthorized";
+            case 403 -> "Forbidden";
+            case 404 -> "Not Found";
+            case 405 -> "Method Not Allowed";
+            case 500 -> "Internal Server Error";
+            case 502 -> "Bad Gateway";
+            case 503 -> "Service Unavailable";
+            default -> "Unknown";
+        };
+    }
+}

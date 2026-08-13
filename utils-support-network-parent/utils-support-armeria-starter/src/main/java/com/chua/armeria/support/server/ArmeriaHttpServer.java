@@ -61,14 +61,10 @@ public class ArmeriaHttpServer extends AbstractServer {
     }
 
     /**
-     * 请求处理线程池，避免阻塞 event loop
+     * 请求处理线程池，使用虚拟线程避免阻塞 event loop
      */
     private final java.util.concurrent.ExecutorService requestExecutor =
-            java.util.concurrent.Executors.newCachedThreadPool(r -> {
-                Thread t = new Thread(r, "armeria-request-" + System.nanoTime());
-                t.setDaemon(true);
-                return t;
-            });
+            java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
     @Override
     protected void doStart() {

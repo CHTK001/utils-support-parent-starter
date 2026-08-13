@@ -13,8 +13,8 @@ import java.util.function.BiConsumer;
 /**
  * 通义千问浏览器会话。
  *
- * <p>基于 Playwright 注入 Cookie，通过 UI 交互触发发送（让 bx 自动加签名），
- * 再从网络层拦截 SSE 响应流，实现异步非阻塞。
+ * <p>基于 Playwright 注入 Cookie，保持持久页面，在同一会话中连续对话，
+ * 让 Qwen 云端自动维护上下文历史。
  *
  * @author CH
  * @since 2026/08/12
@@ -34,6 +34,8 @@ public class QwenBrowserSession implements AutoCloseable {
     private final Playwright playwright;
     private final Browser browser;
     private final BrowserContext context;
+    private Page page;
+    private boolean pageReady;
 
     public QwenBrowserSession(String cookieString, String userDataDir) {
         this.playwright = Playwright.create();
@@ -44,38 +46,59 @@ public class QwenBrowserSession implements AutoCloseable {
                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"));
         this.context.setDefaultNavigationTimeout(PAGE_LOAD_TIMEOUT_MS);
         injectCookies(cookieString);
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
+    /**
+     * 初始化页面并加载通义千问。
+     */
     public void init() {
-        try (var page = context.newPage()) {
-            page.navigate("https://chat.qwen.ai");
-            log.info("通义千问首页加载完成");
+        page = context.newPage();
+        page.navigate("https://chat.qwen.ai");
+        page.waitForLoadState();
+        page.waitForTimeout(10000);
+        pageReady = true;
+        log.info("通义千问页面已就绪");
+    }
+
+    /**
+     * 开始新会话：导航到千问首页，创建新会话。
+     */
+    public void newChat() {
+        if (page != null) {
+            try {
+                page.navigate("https://chat.qwen.ai");
+                page.waitForLoadState();
+                page.waitForTimeout(5000);
+            } catch (Exception e) {
+                log.warn("新建会话失败: {}", e.getMessage());
+            }
         }
     }
 
     /**
-     * 发送聊天消息。
-     * UI 输入触发发送（让 bx 自动签名），然后拦截网络响应的 SSE 流。
+     * 发送聊天消息并等待回答。
+     * 在持久页面中连续输入，保持 Qwen 云端会话上下文。
      */
     public QwenChatResult chat(String body, String model, BiConsumer<String, String> listener) {
+        if (!pageReady || page == null) {
+            return QwenChatResult.error("页面未初始化");
+        }
+
         String prompt = extractPrompt(body);
         if (prompt == null) prompt = "hello";
 
-        try (var page = context.newPage()) {
-            // 加载页面
-            page.navigate("https://chat.qwen.ai");
-            page.waitForLoadState();
-            page.waitForTimeout(10000);
-
-            // UI 输入触发发送（让 bx 自动签名）
+        try {
+            // 查找输入框并输入
             ElementHandle textarea = page.querySelector("textarea.message-input-textarea");
             if (textarea == null) {
                 return QwenChatResult.error("未找到聊天输入框");
             }
-            // UI 输入触发发送，然后等待 chat/completions 响应
             textarea.click();
             page.keyboard().type(prompt);
             page.waitForTimeout(300);
+
+            // 发送并等待响应
             Response resp = page.waitForResponse(
                     r -> r.url().contains("/api/v2/chat/completions"),
                     new Page.WaitForResponseOptions().setTimeout(RESPONSE_TIMEOUT_MS),
@@ -119,10 +142,11 @@ public class QwenBrowserSession implements AutoCloseable {
     @Override
     public void close() {
         Exception ex = null;
-        try { context.close(); } catch (Exception e) { ex = e; }
+        try { if (page != null) page.close(); } catch (Exception e) { ex = e; }
+        try { context.close(); } catch (Exception e) { if (ex == null) ex = e; }
         try { browser.close(); } catch (Exception e) { if (ex == null) ex = e; }
         try { playwright.close(); } catch (Exception e) { if (ex == null) ex = e; }
-        if (ex != null) log.warn("释放通义千问浏览器会话失败", ex);
+        if (ex != null) log.warn("关闭资源失败", ex);
     }
 
     private void injectCookies(String cookieString) {

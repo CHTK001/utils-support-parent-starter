@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.scattergather.ScatterGatherNodeServer;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,7 +18,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("udp")
 public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
+
+    /**
+     * 传输协议标识：udp
+     */
+    private static final String PROTOCOL_UDP = "udp";
 
     /**
      * 底层 SyncServer
@@ -37,8 +44,8 @@ public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
     public UdpScatterGatherNodeServer(int port) {
         this.setting = ServerSetting.defaults();
         this.setting.setPort(port);
-        this.setting.setProtocol("udp");
-        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension("udp", setting);
+        this.setting.setProtocol(PROTOCOL_UDP);
+        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension(PROTOCOL_UDP, setting);
     }
 
     /**
@@ -51,8 +58,18 @@ public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
         this.setting = ServerSetting.defaults();
         this.setting.setHost(host);
         this.setting.setPort(port);
-        this.setting.setProtocol("udp");
-        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension("udp", setting);
+        this.setting.setProtocol(PROTOCOL_UDP);
+        this.syncServer = ServiceProvider.of(SyncServer.class).getNewExtension(PROTOCOL_UDP, setting);
+    }
+
+    /**
+     * 构建 UDP ScatterGather 节点服务器。
+     * <p>按配置对象构造，配置中 host、port、protocol 字段会被正确应用。</p>
+     *
+     * @param setting 节点配置
+     */
+    public UdpScatterGatherNodeServer(com.chua.common.support.scattergather.ScatterGatherSetting setting) {
+        this(setting == null ? null : setting.getHost(), setting == null ? 0 : setting.getTcpPort());
     }
 
     /**
@@ -67,6 +84,11 @@ public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
         }
     }
 
+    /**
+     * 启动节点服务器。
+     *
+     * @throws Exception 启动异常
+     */
     @Override
     public void start() throws Exception {
         if (syncServer != null) {
@@ -75,6 +97,11 @@ public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
         }
     }
 
+    /**
+     * 停止节点服务器。
+     *
+     * @throws Exception 停止异常
+     */
     @Override
     public void stop() throws Exception {
         if (syncServer != null) {
@@ -83,6 +110,11 @@ public class UdpScatterGatherNodeServer implements ScatterGatherNodeServer {
         }
     }
 
+    /**
+     * 关闭节点服务器，委托 stop。
+     *
+     * @throws Exception 关闭异常
+     */
     @Override
     public void close() throws Exception {
         stop();

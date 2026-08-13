@@ -66,18 +66,12 @@ public interface SseClient {
     SseConnection connect(SseRequest request, SseListener listener);
 
     /**
-     * 异步建立 SSE 连接并开始监听事件。
+     * 获取当前客户端的连接句柄。
      *
-     * <p>在后台线程中调用 {@link #connect(SseRequest, SseListener)}，
-     * 返回的 {@link CompletableFuture} 在连接建立完成后完成，
-     * 适用于不希望阻塞调用线程的场景。</p>
-     *
-     * @param request  SSE 请求参数
-     * @param listener 事件监听器
-     * @return 异步任务，完成时包含 {@link SseConnection}
+     * @return 当前连接句柄，未建立连接时返回 null
      */
-    static CompletableFuture<SseConnection> connectAsync(SseRequest request, SseListener listener) {
-        return CompletableFuture.supplyAsync(() -> create().connect(request, listener));
+    default SseConnection getConnection() {
+        return null;
     }
 
     /**
@@ -90,6 +84,21 @@ public interface SseClient {
      */
     static SseClient create() {
         return ServiceProvider.of(SseClient.class).getExtension();
+    }
+
+    /**
+     * 建立 SSE 连接并返回连接句柄的异步包装。
+     *
+     * <p>使用默认客户端实现发起连接，返回已完成的 {@link CompletableFuture}。
+     *
+     * @param request  SSE 请求参数
+     * @param listener 事件监听器
+     * @return 已完成的连接句柄
+     */
+    static CompletableFuture<SseConnection> connectAsync(SseRequest request, SseListener listener) {
+        SseClient client = create();
+        client.connect(request, listener);
+        return CompletableFuture.completedFuture(client.getConnection());
     }
 
     /**

@@ -20,7 +20,6 @@
         <module>utils-support-symmetric-starter</module>
         <module>utils-support-vertx-starter</module>
         <module>utils-support-httpclient-starter</module>
-        <module>utils-support-netty-starter</module>
         <module>utils-support-okhttp-starter</module>
         <module>utils-support-dht-starter</module>
         <module>utils-support-webdav-starter</module>
@@ -28,6 +27,7 @@
         <module>utils-support-rpc-json-starter</module>
         <module>utils-support-rpc-dubbo-starter</module>
         <module>utils-support-playwright-starter</module>
+        <module>utils-support-kimi-starter</module>
         <module>utils-support-armeria-starter</module>
         <module>utils-support-sinch-starter</module>
         <module>utils-support-quarkus-starter</module>
@@ -42,6 +42,8 @@
         <module>utils-support-kcp-starter</module>
         <module>utils-support-webview-starter</module>
         <module>utils-support-webview-jcef-starter</module>
+        <!-- utils-support-kcp-starter 依赖 io.github.kcp-jvm:kcp-jvm:1.6.0，
+             该外部库已从未在任何 Maven 仓库发布，模块无源码，仅引用不可达依赖，暂从聚合移除。 -->
     </modules>
     <properties>
         <sshd.version>2.15.0</sshd.version>
@@ -50,6 +52,7 @@
         <smb.server.version>0.4.0</smb.server.version>
         <smb.jna.version>0.14.0</smb.jna.version>
         <ngrok.version>1.1.1</ngrok.version>
+        <kcp.version>1.6.0</kcp.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -124,6 +127,11 @@
                 <groupId>com.ngrok</groupId>
                 <artifactId>ngrok-java-native</artifactId>
                 <version>${ngrok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.kcp-jvm</groupId>
+                <artifactId>kcp-jvm</artifactId>
+                <version>${kcp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

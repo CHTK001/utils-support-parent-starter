@@ -158,28 +158,33 @@ public class ClientRequest {
     private long keepAliveTimeout = 60000;
 
     /**
+     * 写入超时时间（毫秒）。
+     *
+     * <p>指从发起请求到数据写入完成的最大等待时间。
+     * 默认值：{@code 30000} 毫秒（30 秒）。
+     */
+    private long writeTimeout = 30000;
+
+    /**
      * HTTP 协议版本。
      *
-     * <p>默认 null 表示由底层执行器选择，可设置为 HTTP/1.1、HTTP/2 或 HTTP/3。</p>
+     * <p>指定客户端与服务器通信时使用的 HTTP 版本，null 表示使用执行器默认版本。
      */
     private HttpVersion version;
 
     /**
-     * 写入超时时间（毫秒）。
+     * 缓存有效期（毫秒）。
      *
-     * <p>发送请求数据的最大等待时间，默认 0 表示不限制。</p>
+     * <p>响应缓存的有效期，默认值 {@code -1} 表示不启用缓存。
      */
-    private long writeTimeout;
+    private long cacheTtl = -1;
 
     /**
-     * 响应缓存有效期（毫秒），0 表示不缓存
+     * 最大重试次数。
+     *
+     * <p>请求失败时的最大重试次数，默认值 {@code 0} 表示不重试。
      */
-    private long cacheTtl;
-
-    /**
-     * 最大重试次数
-     */
-    private int maxRetries;
+    private int maxRetries = 0;
 
     /**
      * 获取请求 URL。
@@ -300,20 +305,6 @@ public class ClientRequest {
     public void setKeepAliveTimeout(long keepAliveTimeout) { this.keepAliveTimeout = keepAliveTimeout; }
 
     /**
-     * 获取 HTTP 协议版本。
-     *
-     * @return HTTP 协议版本，可能为 null（由执行器选择）
-     */
-    public HttpVersion getVersion() { return version; }
-
-    /**
-     * 设置 HTTP 协议版本。
-     *
-     * @param version HTTP 协议版本（HTTP_1_1 / HTTP_2 / HTTP_3）
-     */
-    public void setVersion(HttpVersion version) { this.version = version; }
-
-    /**
      * 获取写入超时时间。
      *
      * @return 写入超时时间（毫秒）
@@ -323,35 +314,49 @@ public class ClientRequest {
     /**
      * 设置写入超时时间。
      *
-     * @param writeTimeout 写入超时时间（毫秒），0 表示不限制
+     * @param writeTimeout 写入超时时间（毫秒）
      */
     public void setWriteTimeout(long writeTimeout) { this.writeTimeout = writeTimeout; }
 
     /**
-     * 获取响应缓存有效期。
+     * 获取 HTTP 协议版本。
      *
-     * @return 缓存有效期（毫秒），0 表示不缓存
+     * @return HTTP 协议版本，null 表示使用执行器默认版本
+     */
+    public HttpVersion getVersion() { return version; }
+
+    /**
+     * 设置 HTTP 协议版本。
+     *
+     * @param version HTTP 协议版本，null 表示使用执行器默认版本
+     */
+    public void setVersion(HttpVersion version) { this.version = version; }
+
+    /**
+     * 获取缓存有效期。
+     *
+     * @return 缓存有效期（毫秒），{@code -1} 表示不启用缓存
      */
     public long getCacheTtl() { return cacheTtl; }
 
     /**
-     * 设置响应缓存有效期。
+     * 设置缓存有效期。
      *
-     * @param cacheTtl 缓存有效期（毫秒），0 表示不缓存
+     * @param cacheTtl 缓存有效期（毫秒），{@code -1} 表示不启用缓存
      */
     public void setCacheTtl(long cacheTtl) { this.cacheTtl = cacheTtl; }
 
     /**
      * 获取最大重试次数。
      *
-     * @return 最大重试次数
+     * @return 最大重试次数，{@code 0} 表示不重试
      */
     public int getMaxRetries() { return maxRetries; }
 
     /**
      * 设置最大重试次数。
      *
-     * @param maxRetries 最大重试次数
+     * @param maxRetries 最大重试次数，{@code 0} 表示不重试
      */
     public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
 

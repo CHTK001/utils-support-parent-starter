@@ -236,7 +236,17 @@ public final class WalConfig {
         /**
          * 分片 + 索引实现
          */
-        SEGMENT
+        SEGMENT,
+
+        /**
+         * 基于 Chronicle Queue 的实现（由 utils-support-chronicle-starter 提供）
+         */
+        CHRONICLE,
+
+        /**
+         * 基于 Kafka 的实现（由 utils-support-kafka-starter 提供）
+         */
+        KAFKA
     }
 
     /**

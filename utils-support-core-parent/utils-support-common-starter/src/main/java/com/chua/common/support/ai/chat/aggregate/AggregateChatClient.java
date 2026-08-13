@@ -15,6 +15,8 @@ import com.chua.common.support.ai.chat.aggregate.strategy.CostRouterStrategy;
 import com.chua.common.support.ai.chat.aggregate.strategy.LatencyRouterStrategy;
 import com.chua.common.support.ai.chat.aggregate.strategy.FailoverRouterStrategy;
 import com.chua.common.support.ai.chat.protocol.AiTokenProvider;
+import com.chua.common.support.ai.chat.protocol.AiProtocolServerFilter;
+import com.chua.common.support.network.server.Server;
 import com.chua.common.support.ai.chat.aggregate.ModelHealthChecker;
 import com.chua.common.support.ai.chat.usage.AiUsageRecord;
 import com.chua.common.support.ai.context.ContextCompressor;
@@ -74,9 +76,9 @@ public class AggregateChatClient implements ChatClient {
     private final RouterStrategy router;
 
     /**
-     * 所有已创建的客户端实例列表
+     * 所有已创建的客户端实例列表（并发安全，支持运行时增删实现热更新）
      */
-    private final List<RouterStrategy.WeightedClient> allClients;
+    private final CopyOnWriteArrayList<RouterStrategy.WeightedClient> allClients;
 
     /**
      * 模型健康检查器
@@ -219,7 +221,7 @@ public class AggregateChatClient implements ChatClient {
         this.compressor = ContextCompressor.create(config.getCompression(), this);
         this.skillManager = buildSkillManager(config, engine);
         AllParsed parsed = parseGroups(config);
-        this.allClients = parsed.allClients;
+        this.allClients = new CopyOnWriteArrayList<>(parsed.allClients);
 
         boolean autoSwitchEnabled = config.isAutoSwitchOnRateLimit() || config.isAutoSwitchOnQuotaExhausted();
         this.autoSwitchEnabled = autoSwitchEnabled;
@@ -603,6 +605,111 @@ public class AggregateChatClient implements ChatClient {
      */
     public AiTokenProvider getTokenProvider() {
         return tokenProvider;
+    }
+
+    // ======================== 协议服务绑定 ========================
+
+    /**
+     * 协议服务过滤器实例（OpenAI/Claude/Gemini 三协议路由）
+     */
+    private AiProtocolServerFilter protocolServerFilter;
+
+    /**
+     * 将聚合 ChatClient 绑定到协议 Server，自动挂载三协议路由与 Token 前置拦截。
+     *
+     * <p>绑定后，通过 {@code Server} 即可对外提供 OpenAI / Claude / Gemini 三类协议端点，
+     * 内部统一走聚合路由。支持运行时重复绑定（幂等）。</p>
+     *
+     * @param server 协议服务实例
+     */
+    public void bindServer(Server server) {
+        if (server == null) {
+            log.warn("[Aggregate] bindServer 忽略空 Server");
+            return;
+        }
+        if (protocolServerFilter != null) {
+            log.debug("[Aggregate] 已绑定过协议过滤器，跳过重复挂载");
+            return;
+        }
+        AiProtocolServerFilter filter = new AiProtocolServerFilter(this);
+        server.addFilter(filter);
+        this.protocolServerFilter = filter;
+        log.info("[Aggregate] 聚合 ChatClient 已绑定协议 Server: {} 三协议路由可用",
+                server.getProtocolType());
+    }
+
+    /**
+     * 解绑协议 Server（移除已挂载的协议过滤器）。
+     *
+     * @param server 协议服务实例
+     */
+    public void unbindServer(Server server) {
+        if (server == null || protocolServerFilter == null) {
+            return;
+        }
+        server.removeFilter(protocolServerFilter);
+        this.protocolServerFilter = null;
+        log.info("[Aggregate] 聚合 ChatClient 已解绑协议 Server");
+    }
+
+
+
+    /**
+     * 动态添加一个底层 ChatClient 到聚合路由中。
+     *
+     * <p>适配数据库（厂商/模型表）变化后的热更新：新增厂商或模型时，
+     * 无需重建聚合客户端，直接加入即可参与路由。</p>
+     *
+     * @param provider 提供商标识
+     * @param model    模型名
+     * @param weight   路由权重
+     * @param client   底层 ChatClient 实例
+     */
+    public void addClient(String provider, String model, int weight, ChatClient client) {
+        if (client == null) {
+            log.warn("[Aggregate] addClient 忽略空客户端: provider={}", provider);
+            return;
+        }
+        String modelName = model != null ? model : "default";
+        allClients.add(new RouterStrategy.WeightedClient(provider, modelName, weight, client));
+        if (healthChecker != null) {
+            healthChecker.register(client, provider, modelName);
+        }
+        log.info("[Aggregate] 已添加聚合客户端: provider={}, model={}", provider, modelName);
+    }
+
+    /**
+     * 按提供商标识动态移除底层 ChatClient，支持热更新。
+     *
+     * @param provider 提供商标识
+     * @return 是否成功移除
+     */
+    public boolean removeClient(String provider) {
+        boolean removed = allClients.removeIf(wc -> provider != null && provider.equals(wc.provider()));
+        if (removed) {
+            log.info("[Aggregate] 已移除聚合客户端: provider={}", provider);
+        } else {
+            log.debug("[Aggregate] 未找到可移除的聚合客户端: provider={}", provider);
+        }
+        return removed;
+    }
+
+    /**
+     * 获取当前全部底层客户端的只读快照。
+     *
+     * @return 客户端列表快照
+     */
+    public List<RouterStrategy.WeightedClient> clients() {
+        return List.copyOf(allClients);
+    }
+
+    /**
+     * 获取当前底层客户端数量。
+     *
+     * @return 客户端数量
+     */
+    public int clientCount() {
+        return allClients.size();
     }
 
     /**

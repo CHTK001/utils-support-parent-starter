@@ -19,4 +19,11 @@ public interface ScatterGatherRemoteClient<T> {
      * @throws Exception 调用异常
      */
     ScatterGatherResult<T> invoke(ScatterGatherContext context, ScatterGatherNode node, long timeoutMillis) throws Exception;
+
+    /**
+     * 关闭所有连接并释放资源。
+     */
+    default void closeAll() {
+        // 默认空实现，子类可覆盖
+    }
 }

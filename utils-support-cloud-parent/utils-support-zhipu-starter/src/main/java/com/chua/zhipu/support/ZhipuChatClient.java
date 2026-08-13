@@ -228,7 +228,8 @@ public class ZhipuChatClient implements ChatClient {
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
-            if (response.getState() == ChatResponse.State.STREAMING
+            if ((response.getState() == ChatResponse.State.STREAMING
+                    || response.getState() == ChatResponse.State.STOP)
                     && response.getContent() != null) {
                 result.append(response.getContent());
             }

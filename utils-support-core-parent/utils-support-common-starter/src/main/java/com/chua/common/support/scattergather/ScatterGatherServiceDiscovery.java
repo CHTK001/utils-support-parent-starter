@@ -4,7 +4,9 @@ import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.Event;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,111 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
+
+    /**
+     * 默认发现模式：seed
+     */
+    private static final String DEFAULT_MODE_SEED = "seed";
+
+    /**
+     * 默认传输协议：tcp
+     */
+    private static final String PROTOCOL_TCP = "tcp";
+
+    /**
+     * 节点元数据键：seed 标记
+     */
+    private static final String METADATA_SEED = "seed";
+
+    /**
+     * 节点元数据键：bootstrap 标记
+     */
+    private static final String METADATA_BOOTSTRAP = "bootstrap";
+
+    /**
+     * 节点元数据键：服务路径
+     */
+    private static final String METADATA_SERVICE_PATH = "servicePath";
+
+    /**
+     * 节点元数据键：节点指纹 hash
+     */
+    private static final String METADATA_HASH = "hash";
+
+    /**
+     * 节点元数据键：节点 ID
+     */
+    private static final String METADATA_NODE_ID = "nodeId";
+
+    /**
+     * 上下文属性键：负载均衡策略
+     */
+    private static final String CONTEXT_BALANCE = "balance";
+
+    /**
+     * 上下文属性键：传输协议
+     */
+    private static final String CONTEXT_PROTOCOL = "protocol";
+
+    /**
+     * 负载均衡策略：weight
+     */
+    private static final String BALANCE_WEIGHT = "weight";
+
+    /**
+     * 负载均衡策略：random
+     */
+    private static final String BALANCE_RANDOM = "random";
+
+    /**
+     * 负载均衡策略：roundrobin
+     */
+    private static final String BALANCE_ROUND_ROBIN = "round-robin";
+
+    /**
+     * 元数据标记值：true
+     */
+    private static final String METADATA_VALUE_TRUE = "true";
+
+    /**
+     * bootstrap hash 交换标记值
+     */
+    private static final String BOOTSTRAP_HASH_EXCHANGE = "hash-exchange";
+
+    /**
+     * 节点默认权重
+     */
+    private static final double DEFAULT_WEIGHT = 1D;
+
+    /**
+     * 最小成功数
+     */
+    private static final int MIN_SUCCESS_COUNT = 1;
+
+    /**
+     * 订阅定时任务初始延迟（秒）
+     */
+    private static final long SUBSCRIBE_INITIAL_DELAY_SECONDS = 0L;
+
+    /**
+     * 订阅定时任务周期（秒）
+     */
+    private static final long SUBSCRIBE_PERIOD_SECONDS = 5L;
+
+    /**
+     * 远程客户端未配置错误信息
+     */
+    private static final String ERROR_REMOTE_CLIENT_NOT_CONFIGURED = "remote client not configured";
+
+    /**
+     * 权重下限，参与负载计算时不允许出现负权重
+     */
+    private static final double MIN_WEIGHT = 0D;
+
+    /**
+     * 超时阈值，仅当配置超时大于该值时使用
+     */
+    private static final long TIMEOUT_THRESHOLD = 0L;
 
     /**
      * 自动检索执行器
@@ -73,7 +180,7 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
      * 远程客户端
      */
     private ScatterGatherRemoteClient<Discovery> remoteClient = (context, node, timeoutMillis) ->
-            ScatterGatherResult.failure(node.getNodeId(), "remote client not configured");
+            ScatterGatherResult.failure(node.getNodeId(), ERROR_REMOTE_CLIENT_NOT_CONFIGURED);
 
     /**
      * 监听器
@@ -105,6 +212,11 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
      * 是否已启动
      */
     private boolean started;
+
+    /**
+     * 发现模式
+     */
+    private ScatterGatherMode mode;
 
     /**
      * 默认构造。
@@ -168,6 +280,7 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         this.setting.setBalance(setting.getBalance());
         this.setting.setTransportProtocol(setting.getTransportProtocol());
         this.setting.setTcpMode(setting.getTcpMode());
+        this.setting.setBootstrapNode(setting.getBootstrapNode());
         this.setting.setSeedAddresses(setting.getSeedAddresses() == null ? null : new ArrayList<>(setting.getSeedAddresses()));
         this.setting.setDefaultPort(setting.getDefaultPort());
         this.setting.setAutoDiscoveryIntervalMillis(setting.getAutoDiscoveryIntervalMillis());
@@ -359,6 +472,11 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
 
     // ======================== 生命周期 ========================
 
+    /**
+     * 启动服务发现，校验配置、初始化线程池与去重器，并按模式 SPI 启动发现策略。
+     *
+     * @throws Exception 启动异常
+     */
     @Override
     public synchronized void start() throws Exception {
         if (started) {
@@ -369,20 +487,36 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         if (setting.isDeduplicationEnabled()) {
             deduplicator = new ScatterGatherDeduplicator(setting.getDeduplicationTtlMillis());
         }
-        // seed 模式：从 seed 地址列表注册种子节点
-        if ("seed".equalsIgnoreCase(setting.getTcpMode()) && setting.getSeedAddresses() != null
-                && !setting.getSeedAddresses().isEmpty()) {
-            registerSeedNodes();
+        // 按 tcpMode 通过模式 SPI 创建并启动发现策略
+        this.mode = ServiceProvider.of(ScatterGatherMode.class).getNewExtension(resolveModeKey(), setting);
+        if (mode == null) {
+            throw new IllegalStateException("未找到对应的 ScatterGatherMode 实现: " + resolveModeKey());
         }
-        // auto 模式：启动自动检索定时任务
-        if ("auto".equalsIgnoreCase(setting.getTcpMode())) {
-            startAutoDiscovery();
-        }
+        mode.start(this);
         started = true;
         listener.onStart(setting);
         log.info("ScatterGatherServiceDiscovery 已启动，节点ID: {}，模式: {}", setting.getNodeId(), setting.getTcpMode());
     }
 
+    /**
+     * 解析发现模式键，为空时使用默认 seed。
+     *
+     * @return 模式键
+     */
+    private String resolveModeKey() {
+        if (StringUtils.isBlank(setting.getTcpMode())) {
+            return DEFAULT_MODE_SEED;
+        }
+        return setting.getTcpMode();
+    }
+
+    /**
+     * 注册服务到本地缓存，并递增服务版本号。
+     *
+     * @param path      服务路径
+     * @param discovery 服务发现数据
+     * @return 当前实例
+     */
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
@@ -392,6 +526,13 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return this;
     }
 
+    /**
+     * 移除指定服务，并递增服务版本号。
+     *
+     * @param path      服务路径
+     * @param discovery 服务发现数据
+     * @return 当前实例
+     */
     @Override
     public ServiceDiscovery unregisterService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
@@ -401,6 +542,13 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return this;
     }
 
+    /**
+     * 按服务器 ID 移除指定服务，并递增服务版本号。
+     *
+     * @param path     服务路径
+     * @param serverId 服务器 ID
+     * @return 当前实例
+     */
     @Override
     public ServiceDiscovery unregisterService(String path, String serverId) {
         String prefixed = addClusterPrefix(path);
@@ -410,6 +558,13 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return this;
     }
 
+    /**
+     * 更新服务信息，存在同服务器 ID 时替换，否则新增。
+     *
+     * @param path      服务路径
+     * @param discovery 服务发现数据
+     * @return 当前实例
+     */
     @Override
     public ServiceDiscovery updateService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
@@ -431,6 +586,14 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return this;
     }
 
+    /**
+     * 获取服务，优先本地缓存，本地无结果时远程查询。
+     *
+     * @param path     服务路径
+     * @param balance  负载均衡策略
+     * @param protocol 传输协议
+     * @return 服务数据，未找到返回 null
+     */
     @Override
     public Discovery getService(String path, String balance, String protocol) {
         String prefixedPath = addClusterPrefix(path);
@@ -446,16 +609,33 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return remoteQuery(normalizedPath, balance, protocol);
     }
 
+    /**
+     * 获取指定路径下的全部服务。
+     *
+     * @param path 服务路径
+     * @return 服务集合
+     */
     @Override
     public Set<Discovery> getServiceAll(String path) {
         return getPath(addClusterPrefix(path));
     }
 
+    /**
+     * 当前实现是否支持订阅。
+     *
+     * @return true
+     */
     @Override
     public boolean isSupportSubscribe() {
         return true;
     }
 
+    /**
+     * 订阅指定服务，定时推送当前服务快照给监听器。
+     *
+     * @param serviceName 服务名称
+     * @param listener    服务发现监听器
+     */
     @Override
     public void subscribe(String serviceName, com.chua.common.support.network.discovery.ServiceDiscoveryListener listener) {
         ScheduledExecutorService scheduler = ThreadUtils.newSingleThreadScheduledExecutor(
@@ -469,9 +649,14 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
                     listener.listen(serviceName, d, Event.ADD);
                 }
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, SUBSCRIBE_INITIAL_DELAY_SECONDS, SUBSCRIBE_PERIOD_SECONDS, TimeUnit.SECONDS);
     }
 
+    /**
+     * 关闭服务，委托 stop。
+     *
+     * @throws Exception 关闭异常
+     */
     @Override
     public void close() throws Exception {
         stop();
@@ -482,7 +667,10 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
     /**
      * 注册 seed 节点到本地缓存。
      */
-    private void registerSeedNodes() {
+    void registerSeedNodes() {
+        if (setting.getSeedAddresses() == null) {
+            return;
+        }
         for (String address : setting.getSeedAddresses()) {
             if (StringUtils.isBlank(address)) {
                 continue;
@@ -497,12 +685,12 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
             Discovery discovery = Discovery.builder()
                     .id(nodeId)
                     .serverId(nodeId)
-                    .protocol("tcp")
+                    .protocol(PROTOCOL_TCP)
                     .host(seed.getHost())
                     .port(port)
                     .timeout((int) setting.getTimeoutMillis())
-                    .weight(1D)
-                    .metadata(Map.of("seed", "true", "servicePath", setting.getServicePath()))
+                    .weight(DEFAULT_WEIGHT)
+                    .metadata(Map.of(METADATA_SEED, METADATA_VALUE_TRUE, METADATA_SERVICE_PATH, setting.getServicePath()))
                     .build();
             registerService(setting.getServicePath(), discovery);
             log.debug("注册 seed 节点: {}:{}", seed.getHost(), port);
@@ -512,7 +700,7 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
     /**
      * 启动自动检索定时任务。
      */
-    private void startAutoDiscovery() {
+    void startAutoDiscovery() {
         if (autoDiscoveryStarted) {
             return;
         }
@@ -527,6 +715,85 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
+     * 解析本地缓存中的远程节点，排除 seed 与 bootstrap 引导节点。
+     *
+     * @return 远程节点列表
+     */
+    List<ScatterGatherNode> resolveCachedRemoteNodes() {
+        Set<Discovery> local = getPath(setting.getServicePath());
+        List<ScatterGatherNode> nodes = new ArrayList<>();
+        if (local != null && !local.isEmpty()) {
+            for (Discovery d : local) {
+                if (METADATA_SEED.equals(d.getMetadata().get(METADATA_SEED))
+                        || METADATA_BOOTSTRAP.equals(d.getMetadata().get(METADATA_BOOTSTRAP))) {
+                    continue;
+                }
+                if (PROTOCOL_TCP.equalsIgnoreCase(d.getProtocol())) {
+                    nodes.add(ScatterGatherNode.from(d));
+                }
+            }
+        }
+        return nodes;
+    }
+
+    /**
+     * 注册 bootstrap 引导节点到本地缓存。
+     *
+     * @param node 引导节点
+     */
+    void registerBootstrapNode(ScatterGatherNode node) {
+        Discovery discovery = Discovery.builder()
+                .id(node.getNodeId())
+                .serverId(node.getNodeId())
+                .protocol(node.getProtocol())
+                .host(node.getHost())
+                .port(node.getPort())
+                .timeout((int) setting.getTimeoutMillis())
+                .weight(DEFAULT_WEIGHT)
+                .metadata(Map.of(METADATA_BOOTSTRAP, METADATA_VALUE_TRUE, METADATA_SERVICE_PATH, setting.getServicePath()))
+                .build();
+        registerService(setting.getServicePath(), discovery);
+        log.debug("注册 bootstrap 引导节点: {}:{}", node.getHost(), node.getPort());
+    }
+
+    /**
+     * 执行 bootstrap 一次性 hash 交换。
+     * <p>向引导节点发送本节点身份指纹，引导节点回传其指纹，用于节点互认。</p>
+     *
+     * @param node 引导节点
+     */
+    void exchangeBootstrapHash(ScatterGatherNode node) {
+        String localHash = computeNodeHash();
+        ScatterGatherContext ctx = new ScatterGatherContext(
+                UUID.randomUUID().toString(),
+                setting.getServicePath(),
+                setting.getTimeoutMillis(),
+                MIN_SUCCESS_COUNT,
+                Map.of(METADATA_BOOTSTRAP, BOOTSTRAP_HASH_EXCHANGE, METADATA_HASH, localHash,
+                        METADATA_NODE_ID, setting.getNodeId()));
+        try {
+            ScatterGatherResult<Discovery> result = remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+            if (result != null && result.isSuccess() && result.getData() != null) {
+                String remoteHash = result.getData().getMetadata() == null ? null : result.getData().getMetadata().get(METADATA_HASH);
+                log.info("bootstrap hash 交换成功，引导节点: {}，远端指纹: {}", node.getNodeId(), remoteHash);
+            } else {
+                log.debug("bootstrap hash 交换无响应: {}", node.getNodeId());
+            }
+        } catch (Exception e) {
+            log.debug("bootstrap hash 交换失败: {}，原因: {}", node.getNodeId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 计算本节点身份指纹 hash。
+     *
+     * @return sha256 摘要
+     */
+    private String computeNodeHash() {
+        return DigestUtils.sha256(setting.getNodeId() + ":" + setting.getHost() + ":" + setting.getTcpPort());
+    }
+
+    /**
      * 自动检索：从远程节点查询服务列表，更新本地缓存。
      */
     private void autoDiscovery() {
@@ -537,15 +804,15 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
             List<ScatterGatherNode> remoteNodes = new ArrayList<>();
             if (local != null && !local.isEmpty()) {
                 for (Discovery d : local) {
-                    if ("seed".equals(d.getMetadata().get("seed"))) {
+                    if (METADATA_SEED.equals(d.getMetadata().get(METADATA_SEED))) {
                         continue;
                     }
                     remoteNodes.add(ScatterGatherNode.from(d));
                 }
             }
-            // 如果本地没有远程节点，尝试从 seed 地址获取
-            if (remoteNodes.isEmpty() && "seed".equalsIgnoreCase(setting.getTcpMode())) {
-                remoteNodes.addAll(resolveSeedNodes());
+            // 如果本地没有远程节点，委托当前模式解析
+            if (remoteNodes.isEmpty() && mode != null) {
+                remoteNodes.addAll(mode.resolveRemoteNodes(this));
             }
             if (remoteNodes.isEmpty()) {
                 return;
@@ -556,7 +823,7 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
                         UUID.randomUUID().toString(),
                         path,
                         setting.getTimeoutMillis(),
-                        1,
+                        MIN_SUCCESS_COUNT,
                         Map.of()
                 );
                 futures.add(CompletableFuture.runAsync(() -> {
@@ -595,6 +862,14 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
 
     // ======================== 远程查询 ========================
 
+    /**
+     * 远程查询指定路径下的服务，将查询散射到多个远程节点后聚合选择。
+     *
+     * @param path     服务路径
+     * @param balance  负载均衡策略
+     * @param protocol 传输协议
+     * @return 服务数据，无可用节点或查询失败返回 null
+     */
     private Discovery remoteQuery(String path, String balance, String protocol) {
         if (remoteClient == null) {
             return null;
@@ -606,7 +881,7 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
             return null;
         }
 
-        long timeout = setting.getTimeoutMillis() > 0 ? setting.getTimeoutMillis() : setting.getRemoteTimeoutMillis();
+        long timeout = setting.getTimeoutMillis() > TIMEOUT_THRESHOLD ? setting.getTimeoutMillis() : setting.getRemoteTimeoutMillis();
         List<CompletableFuture<ScatterGatherResult<Discovery>>> futures = new ArrayList<>();
         int count = 0;
         for (ScatterGatherNode node : nodes) {
@@ -618,8 +893,9 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
                     UUID.randomUUID().toString(),
                     path,
                     timeout,
-                    1,
-                    Map.of("balance", balance == null ? "weight" : balance, "protocol", protocol == null ? "" : protocol)
+                    MIN_SUCCESS_COUNT,
+                    Map.of(CONTEXT_BALANCE, balance == null ? BALANCE_WEIGHT : balance,
+                            CONTEXT_PROTOCOL, protocol == null ? "" : protocol)
             );
             CompletableFuture<ScatterGatherResult<Discovery>> future = CompletableFuture.supplyAsync(
                     () -> invokeRemoteWithRetry(ctx, node, timeout), executorService);
@@ -649,19 +925,25 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return selectService(discoveries, balance, protocol);
     }
 
+    /**
+     * 解析指定路径下的远程节点列表，本地无节点时委托当前模式解析。
+     *
+     * @param path 服务路径
+     * @return 远程节点列表
+     */
     private List<ScatterGatherNode> resolveRemoteNodes(String path) {
         // 从本地缓存中获取已知节点
         Set<Discovery> local = getPath(path);
         List<ScatterGatherNode> nodes = new ArrayList<>();
         if (local != null && !local.isEmpty()) {
             nodes.addAll(local.stream()
-                    .filter(d -> "tcp".equalsIgnoreCase(d.getProtocol()))
+                    .filter(d -> PROTOCOL_TCP.equalsIgnoreCase(d.getProtocol()))
                     .map(ScatterGatherNode::from)
                     .collect(Collectors.toList()));
         }
-        // seed 模式：如果本地无节点，从 seed 地址构建
-        if (nodes.isEmpty() && "seed".equalsIgnoreCase(setting.getTcpMode())) {
-            nodes.addAll(resolveSeedNodes());
+        // 本地无节点时，委托当前模式解析
+        if (nodes.isEmpty() && mode != null) {
+            nodes.addAll(mode.resolveRemoteNodes(this));
         }
         return nodes;
     }
@@ -671,7 +953,7 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
      *
      * @return 节点列表
      */
-    private List<ScatterGatherNode> resolveSeedNodes() {
+    List<ScatterGatherNode> resolveSeedNodes() {
         if (setting.getSeedAddresses() == null || CollectionUtils.isEmpty(setting.getSeedAddresses())) {
             return List.of();
         }
@@ -696,9 +978,17 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
             return null;
         }
         int port = seed.effectivePort(setting.getDefaultPort());
-        return new ScatterGatherNode(seed.nodeId(setting.getDefaultPort()), seed.getHost(), port, "tcp", null, Map.of());
+        return new ScatterGatherNode(seed.nodeId(setting.getDefaultPort()), seed.getHost(), port, PROTOCOL_TCP, null, Map.of());
     }
 
+    /**
+     * 带重试的远程调用，失败时按配置执行重试与降级。
+     *
+     * @param context 查询上下文
+     * @param node    目标节点
+     * @param timeout 超时时间（毫秒）
+     * @return 查询结果
+     */
     private ScatterGatherResult<Discovery> invokeRemoteWithRetry(ScatterGatherContext context, ScatterGatherNode node, long timeout) {
         if (!setting.isRetryEnabled()) {
             return invokeRemote(context, node, timeout);
@@ -734,6 +1024,14 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
                 ScatterGatherResult.failure(node.getNodeId(), "重试次数耗尽"));
     }
 
+    /**
+     * 执行单次远程调用，异常时统一走错误处理。
+     *
+     * @param context 查询上下文
+     * @param node    目标节点
+     * @param timeout 超时时间（毫秒）
+     * @return 查询结果
+     */
     private ScatterGatherResult<Discovery> invokeRemote(ScatterGatherContext context, ScatterGatherNode node, long timeout) {
         log.debug("invokeRemote: node={} host={}:{}", node.getNodeId(), node.getHost(), node.getPort());
         try {
@@ -744,6 +1042,13 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
+    /**
+     * 处理远程调用异常，超时与普通故障按配置执行降级。
+     *
+     * @param node 目标节点
+     * @param e    异常
+     * @return 降级或失败结果
+     */
     private ScatterGatherResult<Discovery> handleError(ScatterGatherNode node, Throwable e) {
         if (e instanceof java.util.concurrent.TimeoutException) {
             if (setting.isEnableFallback()) {
@@ -757,6 +1062,14 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return ScatterGatherResult.failure(node.getNodeId(), e.getMessage());
     }
 
+    /**
+     * 执行降级逻辑，返回降级结果或原结果。
+     *
+     * @param context        查询上下文
+     * @param node           目标节点
+     * @param originalResult 原始结果
+     * @return 降级结果
+     */
     @SuppressWarnings("unchecked")
     private ScatterGatherResult<Discovery> handleFallback(ScatterGatherContext context, ScatterGatherNode node, ScatterGatherResult<Discovery> originalResult) {
         if (!setting.isEnableFallback()) {
@@ -775,6 +1088,13 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return ScatterGatherResult.success(node.getNodeId(), (Discovery) fallbackValue);
     }
 
+    /**
+     * 从异步结果中获取查询结果，异常时走错误处理。
+     *
+     * @param node   目标节点
+     * @param future 异步结果
+     * @return 查询结果
+     */
     private ScatterGatherResult<Discovery> getResult(ScatterGatherNode node, CompletableFuture<ScatterGatherResult<Discovery>> future) {
         try {
             return future.get();
@@ -785,6 +1105,13 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
 
     // ======================== 默认解析/标准化 ========================
 
+    /**
+     * 默认数据解析，支持 Discovery 对象与 JSON 字符串。
+     *
+     * @param context 查询上下文
+     * @param source  原始数据
+     * @return 解析后的 Discovery，不支持的格式返回 null
+     */
     private static Discovery defaultParse(ScatterGatherContext context, Object source) {
         if (source instanceof Discovery discovery) {
             return discovery;
@@ -795,12 +1122,27 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         return null;
     }
 
+    /**
+     * 默认数据标准化，直接返回输入。
+     *
+     * @param context 查询上下文
+     * @param input   待标准化数据
+     * @return 标准化后的数据
+     */
     private static Discovery defaultNormalize(ScatterGatherContext context, Discovery input) {
         return input;
     }
 
     // ======================== 辅助方法 ========================
 
+    /**
+     * 按负载均衡策略从候选服务中选出一个。
+     *
+     * @param discoveries 候选服务列表
+     * @param balance     负载均衡策略
+     * @param protocol    传输协议过滤条件
+     * @return 选中的服务，列表为空返回 null
+     */
     private Discovery selectService(List<Discovery> discoveries, String balance, String protocol) {
         if (discoveries.isEmpty()) {
             return null;
@@ -817,23 +1159,23 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         if (filtered.size() == 1) {
             return filtered.get(0);
         }
-        String strategy = balance != null ? balance.toLowerCase() : "random";
+        String strategy = balance != null ? balance.toLowerCase() : BALANCE_RANDOM;
         return switch (strategy) {
-            case "roundrobin", "round-robin" -> {
+            case "roundrobin", BALANCE_ROUND_ROBIN -> {
                 int idx = roundRobinIndex.getAndIncrement() % filtered.size();
                 yield filtered.get(idx);
             }
-            case "weight" -> {
+            case BALANCE_WEIGHT -> {
                 double totalWeight = filtered.stream()
-                        .mapToDouble(d -> Math.max(0, d.getWeight()))
+                        .mapToDouble(d -> Math.max(MIN_WEIGHT, d.getWeight()))
                         .sum();
-                if (totalWeight <= 0) {
+                if (totalWeight <= MIN_WEIGHT) {
                     yield filtered.get(0);
                 }
                 double r = ThreadLocalRandom.current().nextDouble() * totalWeight;
                 double cumulative = 0;
                 for (Discovery d : filtered) {
-                    cumulative += Math.max(0, d.getWeight());
+                    cumulative += Math.max(MIN_WEIGHT, d.getWeight());
                     if (r <= cumulative) {
                         yield d;
                     }
@@ -844,6 +1186,11 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         };
     }
 
+    /**
+     * 校验运行时必需组件均为非空。
+     *
+     * @throws IllegalStateException 存在空组件时抛出
+     */
     private void validate() {
         if (queryHandler == null) {
             throw new IllegalStateException("queryHandler 不能为空");
@@ -865,6 +1212,9 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
+    /**
+     * 确保线程池运行时存在，已关闭或未初始化时重建。
+     */
     private void ensureRuntime() {
         if (executorService == null || executorService.isShutdown()) {
             executorService = ThreadUtils.newCachedThreadPool("scatter-gather-executor");
