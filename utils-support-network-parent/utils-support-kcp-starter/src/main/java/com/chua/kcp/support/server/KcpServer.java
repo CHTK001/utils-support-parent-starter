@@ -226,6 +226,15 @@ public class KcpServer extends AbstractServer {
 
     @Override
     protected void doStop() {
+        // 先逐个关闭全部会话，避免 kcp-netty 关闭服务端通道时遍历并同时移除子通道集合引发并发修改异常
+        for (KcpSession session : sessions.values()) {
+            try {
+                session.channel.close().sync();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        sessions.clear();
         if (serverChannel != null) {
             try {
                 serverChannel.close().sync();
@@ -234,9 +243,8 @@ public class KcpServer extends AbstractServer {
             }
         }
         if (bossGroup != null) {
-            bossGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully().syncUninterruptibly();
         }
-        sessions.clear();
         topicSubscribers.clear();
         log.info("KCP 服务器停止");
     }

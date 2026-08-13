@@ -607,7 +607,7 @@ public class KcpClient {
      */
     private void shutdownGroup() {
         if (group != null) {
-            group.shutdownGracefully();
+            group.shutdownGracefully().syncUninterruptibly();
             group = null;
         }
     }
