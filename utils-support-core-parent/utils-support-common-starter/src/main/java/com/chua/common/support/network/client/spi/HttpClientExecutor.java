@@ -2,7 +2,9 @@ package com.chua.common.support.network.client.spi;
 
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.http.HttpVersion;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -126,5 +128,40 @@ public interface HttpClientExecutor {
      */
     default int getOrder() {
         return 100;
+    }
+
+    /**
+     * 获取此执行器支持的 HTTP 协议版本列表。
+     *
+     * <p>调用方可通过此方法判断执行器是否支持特定的 HTTP 版本（如 HTTP/2），
+     * 在发送请求前进行版本兼容性检查。若请求指定的版本不在支持列表中，
+     * 执行器应抛出 {@link UnsupportedOperationException}。</p>
+     *
+     * <p><b>各执行器的典型支持情况：</b></p>
+     * <ul>
+     *   <li>JDK HttpClient — HTTP/1.1、HTTP/2</li>
+     *   <li>OkHttp — HTTP/1.1、HTTP/2</li>
+     *   <li>Apache HttpClient5 — HTTP/1.1、HTTP/2</li>
+     *   <li>Netty HttpClient — 仅 HTTP/1.1</li>
+     * </ul>
+     *
+     * @return 支持的 HTTP 版本列表，默认包含 HTTP/1.1 和 HTTP/2
+     * @see HttpVersion
+     */
+    default List<HttpVersion> supportedVersions() {
+        return List.of(HttpVersion.HTTP_1_1, HttpVersion.HTTP_2);
+    }
+
+    /**
+     * 关闭执行器并释放底层资源。
+     *
+     * <p>关闭连接池、线程池、HTTP 客户端等底层资源。调用此方法后，
+     * 执行器不应再被用于发送新的请求。</p>
+     *
+     * <p><b>默认实现：</b>不执行任何操作。持有底层资源的执行器（如 Netty、OkHttp）
+     * 应覆写此方法以正确释放资源。</p>
+     */
+    default void close() {
+        // 默认无操作，由持有资源的实现类覆写
     }
 }

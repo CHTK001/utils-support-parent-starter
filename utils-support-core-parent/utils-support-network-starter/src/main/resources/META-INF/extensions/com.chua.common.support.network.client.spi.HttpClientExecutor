@@ -1,0 +1,1 @@
+netty-httpclient=com.chua.netty.support.executor.NettyHttpClientExecutor
