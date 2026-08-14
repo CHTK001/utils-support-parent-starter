@@ -1,6 +1,7 @@
 package com.chua.common.support.network.server.impl;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
@@ -10,13 +11,9 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.security.KeyStore;
-import java.security.SecureRandom;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,8 +43,9 @@ public class JdkHttpServer extends AbstractServer {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             ServerSetting.SslConfig ssl = setting.getSsl();
-            if (ssl != null && ssl.isEnabled()) {
-                server = createHttpsServer(addr, ssl);
+            SSLContext sslCtx = SslUtils.autoSsl(ssl);
+            if (sslCtx != null) {
+                server = createHttpsServer(addr, sslCtx);
             } else {
                 int backlog = Math.max(setting.getBacklog(), 8192);
                 server = HttpServer.create(addr, backlog);
@@ -65,64 +63,14 @@ public class JdkHttpServer extends AbstractServer {
         }
     }
 
-    private HttpServer createHttpsServer(InetSocketAddress addr, ServerSetting.SslConfig ssl) {
+    private HttpServer createHttpsServer(InetSocketAddress addr, SSLContext sslContext) {
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            KeyStore ks = loadKeyStore(ssl);
-            char[] password = ssl.getKeyStorePassword() != null
-                    ? ssl.getKeyStorePassword().toCharArray() : new char[0];
-            kmf.init(ks, password);
-            sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
             HttpsServer httpsServer = HttpsServer.create(addr, Math.max(setting.getBacklog(), 8192));
             httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
             return httpsServer;
-        } catch (Exception e) {
-            throw new RuntimeException("SSL 配置失败", e);
+        } catch (IOException e) {
+            throw new RuntimeException("创建 HTTPS 服务器失败", e);
         }
-    }
-
-    private KeyStore loadKeyStore(ServerSetting.SslConfig ssl) throws Exception {
-        if (ssl.getKeyStorePath() != null) {
-            String type = ssl.getKeyStorePath().toLowerCase().endsWith(".p12") ? "PKCS12" : "JKS";
-            KeyStore ks = KeyStore.getInstance(type);
-            char[] password = ssl.getKeyStorePassword() != null
-                    ? ssl.getKeyStorePassword().toCharArray() : new char[0];
-            try (FileInputStream in = new FileInputStream(ssl.getKeyStorePath())) {
-                ks.load(in, password);
-            }
-            return ks;
-        }
-        if (ssl.getCertPath() != null && ssl.getKeyPath() != null) {
-            return loadPemKeyStore(ssl);
-        }
-        throw new IllegalArgumentException("SSL 已启用但未配置 KeyStore 或 Cert/Key 文件");
-    }
-
-    private KeyStore loadPemKeyStore(ServerSetting.SslConfig ssl) throws Exception {
-        java.security.cert.CertificateFactory cf =
-                java.security.cert.CertificateFactory.getInstance("X.509");
-        java.security.cert.Certificate cert;
-        try (FileInputStream in = new FileInputStream(ssl.getCertPath())) {
-            cert = cf.generateCertificate(in);
-        }
-        byte[] keyBytes = java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get(ssl.getKeyPath()));
-        String keyContent = new String(keyBytes, java.nio.charset.StandardCharsets.UTF_8);
-        keyContent = keyContent.replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s", "");
-        byte[] decoded = java.util.Base64.getDecoder().decode(keyContent);
-        java.security.spec.PKCS8EncodedKeySpec spec =
-                new java.security.spec.PKCS8EncodedKeySpec(decoded);
-        java.security.KeyFactory kf = java.security.KeyFactory.getInstance("RSA");
-        java.security.PrivateKey privateKey = kf.generatePrivate(spec);
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(null);
-        ks.setKeyEntry("server", privateKey,
-                ssl.getKeyPassword() != null ? ssl.getKeyPassword().toCharArray() : new char[0],
-                new java.security.cert.Certificate[]{cert});
-        return ks;
     }
 
     @Override

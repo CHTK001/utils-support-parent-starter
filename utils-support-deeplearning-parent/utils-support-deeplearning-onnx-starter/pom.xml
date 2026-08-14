@@ -163,13 +163,19 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-minilm</artifactId>
+            <artifactId>utils-support-models-onnx-minilm-l6v2</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-minimind</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-edgesam</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

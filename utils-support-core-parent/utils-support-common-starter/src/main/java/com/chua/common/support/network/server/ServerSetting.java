@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * 服务器配置，协议无关。
  *
@@ -281,6 +283,53 @@ public class ServerSetting {
          */
         @Builder.Default
         private boolean trustAll = false;
+
+        /**
+         * 一键自签 — 启用后自动开启 SSL 并生成自签名证书，无需任何其他配置。
+         *
+         * <p>等效于同时设置 {@code enabled=true} + {@code selfSigned=true}，
+         * 使用默认域名（localhost, 127.0.0.1）和默认有效期（365天）。</p>
+         *
+         * <p>示例：{@code .selfSignedAuto(true)} 即可启动 HTTPS。</p>
+         */
+        @Builder.Default
+        private boolean selfSignedAuto = false;
+
+        /**
+         * 是否启用自签名证书自动生成（开发/测试环境）
+         *
+         * <p>启用后，若未配置 keyStorePath 或 certPath/keyPath，
+         * 将自动使用 JDK keytool 生成自签名证书。</p>
+         */
+        @Builder.Default
+        private boolean selfSigned = false;
+
+        /**
+         * 自签名证书域名列表
+         *
+         * <p>默认包含 localhost 和 127.0.0.1。
+         * 多个域名将作为 SAN（Subject Alternative Name）扩展添加到证书中。</p>
+         */
+        @Builder.Default
+        private List<String> selfSignedDomains = List.of("localhost", "127.0.0.1");
+
+        /**
+         * 自签名证书有效期（天），默认 365 天
+         */
+        @Builder.Default
+        private int selfSignedValidity = 365;
+
+        /**
+         * 自签名证书密钥算法（RSA / EC），默认 RSA
+         */
+        @Builder.Default
+        private String selfSignedKeyAlg = "RSA";
+
+        /**
+         * 自签名证书密钥大小，默认 2048
+         */
+        @Builder.Default
+        private int selfSignedKeySize = 2048;
     }
 
     /**

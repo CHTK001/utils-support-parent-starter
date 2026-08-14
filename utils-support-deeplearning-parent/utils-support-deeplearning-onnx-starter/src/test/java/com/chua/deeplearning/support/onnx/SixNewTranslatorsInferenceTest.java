@@ -60,12 +60,12 @@ public class SixNewTranslatorsInferenceTest {
         System.out.println("合成测试图: " + image.getWidth() + "x" + image.getHeight());
 
         // 6 个新翻译器
-        runTranslator("doclaynet-yolo-imgsz640", null, "DocLayNetYolov8Translator", image);
-        runTranslator("yolov8n-table-detection", "TableDetectionYolov8Translator", null, image);
-        runTranslator("yolov8n-seal-detection", "SealDetectionYolov8Translator", null, image);
-        runTranslator("yolov8n-barcode", "BarcodeDetectionYolov8Translator", null, image);
-        runTranslator("yolov8n-ppe", "PpeDetectionYolov8Translator", null, image);
-        runTranslator("yolov8n-fire-smoke", "FireSmokeDetectionYolov8Translator", null, image);
+        runTranslator("doc-layout-yolo-imgsz640", null, null, image, "layout.doclaynet.DocLayNetYolov8Translator");
+        runTranslator("yolov8n-table-detection", "TableDetectionYolov8Translator", null, image, null);
+        runTranslator("yolov8n-seal-detection", "SealDetectionYolov8Translator", null, image, null);
+        runTranslator("yolov8n-barcode", null, "BarcodeDetectionYolov8Translator", image, null);
+        runTranslator("yolov8n-ppe", null, "PpeDetectionYolov8Translator", image, null);
+        runTranslator("yolov8n-fire-smoke", null, "FireSmokeDetectionYolov8Translator", image, null);
 
         Files.deleteIfExists(tmpPng);
 
@@ -82,7 +82,7 @@ public class SixNewTranslatorsInferenceTest {
         System.exit(totalFail > 0 ? 1 : 0);
     }
 
-    static void runTranslator(String modelId, String singleCls, String multiCls, Image image) {
+    static void runTranslator(String modelId, String singleCls, String multiCls, Image image, String layoutCls) {
         try {
             Path modelPath = ModelRegistry.resolveModelPath(modelId);
             if (modelPath == null || !Files.exists(modelPath)) {
@@ -97,8 +97,10 @@ public class SixNewTranslatorsInferenceTest {
                 translator = createSingleClass(singleCls);
             } else if (multiCls != null) {
                 translator = createMultiClass(multiCls);
+            } else if (layoutCls != null) {
+                translator = createLayoutClass(layoutCls);
             } else {
-                translator = new DocLayNetYolov8Translator();
+                throw new IllegalArgumentException("no translator class specified");
             }
 
             // 用单一 wrapper 跑推理 (走 DJL Model + Predictor)
@@ -142,6 +144,13 @@ public class SixNewTranslatorsInferenceTest {
 
     static Translator<Image, DetectedObjects> createMultiClass(String name) throws Exception {
         Class<?> cls = Class.forName("com.chua.deeplearning.support.onnx.detection.multi." + name);
+        Constructor<?> ctor = cls.getDeclaredConstructor();
+        ctor.setAccessible(true);
+        return (Translator<Image, DetectedObjects>) ctor.newInstance();
+    }
+
+    static Translator<Image, DetectedObjects> createLayoutClass(String name) throws Exception {
+        Class<?> cls = Class.forName("com.chua.deeplearning.support.onnx." + name);
         Constructor<?> ctor = cls.getDeclaredConstructor();
         ctor.setAccessible(true);
         return (Translator<Image, DetectedObjects>) ctor.newInstance();
