@@ -112,10 +112,13 @@ public final class WsEndpointHandler {
                 return;
             }
             String accept = computeAccept(wsKey);
+            // guacamole-common-js 的 WebSocketTunnel 会发 Sec-WebSocket-Protocol: guacamole，
+            // 服务端必须回同值子协议，否则浏览器拒绝握手。
             String handshake = "HTTP/1.1 101 Switching Protocols\r\n"
                     + "Upgrade: websocket\r\n"
                     + "Connection: Upgrade\r\n"
-                    + "Sec-WebSocket-Accept: " + accept + "\r\n\r\n";
+                    + "Sec-WebSocket-Accept: " + accept + "\r\n"
+                    + "Sec-WebSocket-Protocol: guacamole\r\n\r\n";
             out.write(handshake.getBytes(StandardCharsets.US_ASCII));
             out.flush();
             log.info("[ws] 握手完成 conn={} path={} peer={}", connId, path, socket.getRemoteSocketAddress());
@@ -154,6 +157,10 @@ public final class WsEndpointHandler {
             if (bridge instanceof GuacamoleBridge guacBridge) {
                 try {
                     guacBridge.writeSelectInstruction();
+                    // 网关侧自动完成 size+connect 握手（guacamole-common-js 的 Client
+                    // 不自动处理 args，需应用层填参数；这里由网关直接完成，浏览器只需
+                    // client.connect() 建立 WS 并接收 ready 与后续数据流）。
+                    guacBridge.autoConnect();
                 } catch (Exception ex) {
                     sendTextFrame(out, "{\"error\":\"guacd select failed: " + ex.getMessage() + "\"}");
                     sendCloseFrame(out, 1011, "guacd select failed");
@@ -238,8 +245,11 @@ public final class WsEndpointHandler {
                     continue;
                 }
                 synchronized (out) {
-                    // 服务端→客户端帧不能 mask（RFC 6455 §5.1 — 浏览器会拒收 masked 客户端响应）
-                    writeFrame(out, 0x2, frame, false);
+                    // 服务端→客户端必须用文本帧（opcode 0x1）：
+                    // guacamole-common-js 的 WebSocketTunnel.onmessage 直接把 event.data
+                    // 当 string 做 indexOf/substring 解析指令（含 base64 blob 均为 ASCII 文本），
+                    // 若用二进制帧(0x2)浏览器拿到的是 Blob 对象，解析必然失败。
+                    writeFrame(out, 0x1, frame, false);
                 }
             }
         } catch (Exception e) {
@@ -451,6 +461,11 @@ public final class WsEndpointHandler {
     private static String parseTunnelIdFromPath(String path) {
         if (path == null || path.isBlank()) {
             return null;
+        }
+        // 剥离 query string（guacamole-common-js 的 WebSocketTunnel 会在 URL 后拼 ?undefined）
+        int q = path.indexOf('?');
+        if (q >= 0) {
+            path = path.substring(0, q);
         }
         String[] parts = path.split("/");
         if (parts.length < 3) {

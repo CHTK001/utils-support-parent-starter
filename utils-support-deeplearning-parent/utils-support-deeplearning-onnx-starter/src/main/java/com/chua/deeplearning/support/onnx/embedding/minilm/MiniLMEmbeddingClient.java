@@ -106,7 +106,6 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
                         .index(0)
                         .dimensions(v != null ? v.length : 0)
                         .build()))
-                .model(setting.getModel())
                 .build();
     }
 
@@ -124,13 +123,12 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
         }
         return EmbeddingResponse.builder()
                 .embeddings(embs)
-                .model(setting.getModel())
                 .build();
     }
 
     @Override
     public CompletableFuture<float[]> embeddingAsync(String text) {
-        return CompletableFuture.supplyAsync(this::embedding);
+        return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override

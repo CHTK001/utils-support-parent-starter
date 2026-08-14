@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 2024/06/21
  */
+@Configuration
 public class ApiFilterConfiguration  {
     private static final Logger log = LoggerFactory.getLogger(ApiFilterConfiguration.class);
 
