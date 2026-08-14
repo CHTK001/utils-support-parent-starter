@@ -1,6 +1,7 @@
 package com.chua.netty.support.server;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.request.ServerRequest;
@@ -21,11 +22,10 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.net.ssl.KeyManagerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.security.KeyStore;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -77,7 +77,7 @@ public class NettyHttpServer extends AbstractServer {
             }
 
             ServerSetting.SslConfig ssl = setting.getSsl();
-            if (ssl != null && ssl.isEnabled()) {
+            if (SslUtils.autoPrepare(ssl)) {
                 sslContext = createSslContext(ssl);
             }
 
@@ -150,35 +150,16 @@ public class NettyHttpServer extends AbstractServer {
     }
 
     private SslContext createSslContext(ServerSetting.SslConfig ssl) throws Exception {
-        if (ssl.getKeyStorePath() != null) {
-            KeyStore ks = loadKeyStore(ssl);
-            KeyManagerFactory kmf = createKeyManagerFactory(ssl);
-            return SslContextBuilder.forServer(kmf).build();
-        }
+        // PEM 证书：优先使用 Netty 原生 SslContextBuilder.forServer(File, File)
         if (ssl.getCertPath() != null && ssl.getKeyPath() != null) {
             return SslContextBuilder.forServer(
                     new FileInputStream(ssl.getCertPath()),
                     new FileInputStream(ssl.getKeyPath()))
                     .build();
         }
-        throw new IllegalArgumentException("SSL 已启用但未配置 KeyStore 或 Cert/Key 文件");
-    }
-
-    private KeyStore loadKeyStore(ServerSetting.SslConfig ssl) throws Exception {
-        String type = ssl.getKeyStorePath().toLowerCase().endsWith(".p12") ? "PKCS12" : "JKS";
-        KeyStore ks = KeyStore.getInstance(type);
-        char[] password = ssl.getKeyStorePassword() != null ? ssl.getKeyStorePassword().toCharArray() : new char[0];
-        try (FileInputStream in = new FileInputStream(ssl.getKeyStorePath())) {
-            ks.load(in, password);
-        }
-        return ks;
-    }
-
-    private KeyManagerFactory createKeyManagerFactory(ServerSetting.SslConfig ssl) throws Exception {
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        char[] password = ssl.getKeyStorePassword() != null ? ssl.getKeyStorePassword().toCharArray() : new char[0];
-        kmf.init(loadKeyStore(ssl), password);
-        return kmf;
+        // KeyStore 文件或自签名证书：通过 SslUtils 统一加载
+        javax.net.ssl.KeyManagerFactory kmf = SslUtils.createKeyManagerFactory(ssl);
+        return SslContextBuilder.forServer(kmf).build();
     }
 
     private class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {

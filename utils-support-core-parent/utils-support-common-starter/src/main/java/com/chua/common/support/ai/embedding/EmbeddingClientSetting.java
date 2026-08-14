@@ -75,4 +75,12 @@ public class EmbeddingClientSetting {
      * </ul>
      */
     private String proxy;
+
+    /**
+     * 输入最大序列长度（token 数），用于本地嵌入模型（如 MiniLM）。
+     * <p>
+     * 部分本地嵌入模型需要截断输入到指定最大序列长度；为 null 时由实现类决定。
+     * </p>
+     */
+    private Integer maxLen;
 }

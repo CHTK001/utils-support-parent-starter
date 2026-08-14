@@ -1,11 +1,14 @@
 package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
@@ -38,6 +41,7 @@ public class NioHttpServer extends AbstractServer {
 
     private ServerSocketChannel serverChannel;
     private ExecutorService executor;
+    private SSLContext sslContext;
 
     public NioHttpServer(ServerSetting setting) {
         super(setting);
@@ -46,6 +50,12 @@ public class NioHttpServer extends AbstractServer {
     @Override
     protected void doStart() {
         try {
+            ServerSetting.SslConfig ssl = setting.getSsl();
+            sslContext = SslUtils.autoSsl(ssl);
+            if (sslContext != null) {
+                log.info("NIO HttpServer SSL enabled (selfSigned={})", ssl.isSelfSigned());
+            }
+
             serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(true);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
@@ -62,11 +72,14 @@ public class NioHttpServer extends AbstractServer {
 
             log.info("NIO HttpServer started on {}:{} (backlog={}, virtualThreads=true)",
                     setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 4096));
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("NIO HttpServer 启动失败", e);
         }
     }
 
+    /**
+     * 接收连接循环
+     */
     private void acceptLoop() {
         while (running) {
             try {
@@ -86,6 +99,9 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    /**
+     * 处理连接：循环解析请求并响应，支持Keep-Alive，异常或结束则关闭连接
+     */
     private void handleConnection(SocketChannel channel) {
         try {
             NioServerRequest request = new NioServerRequest(channel,
@@ -118,6 +134,9 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    /**
+     * 判断是否保持连接
+     */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         if (response.isChannelClosed()) {
             return false;
@@ -130,6 +149,7 @@ public class NioHttpServer extends AbstractServer {
         return "HTTP/1.1".equalsIgnoreCase(request.getHttpVersion());
     }
 
+    /** 安静关闭SocketChannel */
     private static void closeQuietly(SocketChannel ch) {
         try {
             ch.close();
@@ -164,5 +184,23 @@ public class NioHttpServer extends AbstractServer {
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
+    }
+
+    // ==================== SSL 支持 ====================
+
+    /**
+     * 获取 SSL 引擎（用于 NIO SSL 通道包装）。
+     * 仅在 SSL 启用时有效。
+     *
+     * @return SSLEngine 实例，SSL 未启用时返回 null
+     */
+    SSLEngine createSslEngine() {
+        if (sslContext == null) {
+            return null;
+        }
+        SSLEngine engine = sslContext.createSSLEngine();
+        engine.setUseClientMode(false);
+        engine.setNeedClientAuth(false);
+        return engine;
     }
 }

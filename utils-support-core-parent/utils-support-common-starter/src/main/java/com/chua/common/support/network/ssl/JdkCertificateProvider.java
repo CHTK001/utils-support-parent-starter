@@ -1,4 +1,4 @@
-package com.chua.acme.support;
+package com.chua.common.support.network.ssl;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 JDK keytool 的证书生成提供者实现
+ * 基于 JDK keytool 的证书生成提供者实现。
  *
  * <p>使用 JDK 自带的 keytool 命令行工具生成自签名证书，
  * 无需连接外部 ACME 服务器，适用于开发、测试和内网环境。</p>
@@ -280,7 +280,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     /**
      * 获取密钥库文件路径
      */
-    private String getKeystorePath(String domain) {
+    public String getKeystorePath(String domain) {
         if (keystorePath != null && !keystorePath.isEmpty()) {
             return keystorePath;
         }

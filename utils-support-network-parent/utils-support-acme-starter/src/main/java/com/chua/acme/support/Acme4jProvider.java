@@ -1,5 +1,9 @@
 package com.chua.acme.support;
 
+import com.chua.common.support.network.ssl.AcmeCertificateResult;
+import com.chua.common.support.network.ssl.AcmeConnectionResult;
+import com.chua.common.support.network.ssl.AcmeProvider;
+import com.chua.common.support.network.ssl.AcmeValidationInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.shredzone.acme4j.Account;
 import org.shredzone.acme4j.AccountBuilder;
