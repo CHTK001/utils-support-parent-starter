@@ -781,7 +781,12 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         response.sse();
         String responseId = PREFIX_RESPONSE + UUID.randomUUID().toString().replace("-", "");
         String messageId = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
-        String text = result instanceof Map ? (String) ((Map<?, ?>) result).get(KEY_TEXT) : "";
+        String text = "";
+        if (result instanceof ChatSyncResponse chatSyncResponse) {
+            text = chatSyncResponse.getText();
+        } else if (result instanceof Map<?, ?> map) {
+            text = (String) map.get(KEY_TEXT);
+        }
 
         // 初始 SSE 事件序列
         Map<String, Object> started = buildCcsResponse(responseId, messageId, model, "", STATUS_IN_PROGRESS);
@@ -1306,7 +1311,12 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     private Map<String, Object> buildResponsesResponse(Object result, String model) {
         String responseId = PREFIX_RESPONSE + UUID.randomUUID().toString().replace("-", "");
         String messageId = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
-        String text = result instanceof Map ? (String) ((Map<?, ?>) result).get(KEY_TEXT) : "";
+        String text = "";
+        if (result instanceof ChatSyncResponse chatSyncResponse) {
+            text = chatSyncResponse.getText();
+        } else if (result instanceof Map<?, ?> map) {
+            text = (String) map.get(KEY_TEXT);
+        }
         return buildCcsResponse(responseId, messageId, model, text != null ? text : "", STATUS_COMPLETED);
     }
 
