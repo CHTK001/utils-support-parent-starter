@@ -6,6 +6,7 @@ import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -226,15 +227,37 @@ public class ZhipuChatClient implements ChatClient {
 
     @Override
     public String chatSync(String prompt) {
+        return chatSyncInternal(prompt).getText();
+    }
+
+    @Override
+    public ChatSyncResponse chatSyncWithResponse(String prompt) {
+        return chatSyncInternal(prompt);
+    }
+
+    /**
+     * 同步对话内部实现，同时捕获文本与用量信息。
+     *
+     * @param prompt 用户输入
+     * @return 包含文本与用量的响应
+     */
+    private ChatSyncResponse chatSyncInternal(String prompt) {
         StringBuilder result = new StringBuilder();
+        AiUsage[] usageHolder = new AiUsage[1];
         chat(prompt, response -> {
             if ((response.getState() == ChatResponse.State.STREAMING
                     || response.getState() == ChatResponse.State.STOP)
                     && response.getContent() != null) {
                 result.append(response.getContent());
             }
+            if (response.getUsage() != null) {
+                usageHolder[0] = response.getUsage();
+            }
         });
-        return result.toString();
+        return ChatSyncResponse.builder()
+                .text(result.toString())
+                .usage(usageHolder[0])
+                .build();
     }
 
     @Override
