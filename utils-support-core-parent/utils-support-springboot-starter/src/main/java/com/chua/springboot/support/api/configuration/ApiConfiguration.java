@@ -20,6 +20,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -43,6 +44,7 @@ import java.util.concurrent.Executors;
  * @since 2024/12/07
  * @version 1.0.0
  */
+@Configuration
 @EnableConfigurationProperties(ApiProperties.class)
 @Priority(0)
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)

@@ -1,0 +1,2 @@
+minilm=com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingClient
+bge=com.chua.deeplearning.support.onnx.embedding.bge.BgeEmbeddingClient

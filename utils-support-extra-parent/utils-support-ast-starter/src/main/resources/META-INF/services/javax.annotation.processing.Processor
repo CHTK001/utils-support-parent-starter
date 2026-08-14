@@ -7,3 +7,4 @@ com.chua.ast.support.processor.AutoCloseAstProcessor
 com.chua.ast.support.processor.VirtualAstProcessor
 com.chua.ast.support.processor.TimedAstProcessor
 com.chua.ast.support.processor.TraceAstProcessor
+com.chua.ast.support.processor.SpiExtensionAstProcessor

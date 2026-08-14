@@ -42,6 +42,7 @@
 - `@Trace` — 方法追踪日志
 - `@AutoClose` — 自动 close 资源
 - `@Virtual` — 虚拟线程支持
+- `@SpiExtension` — 编译期自动生成 `META-INF/extensions/` SPI 索引文件，免去手动维护
 
 ## 使用示例
 
@@ -102,6 +103,31 @@ public void process() { ... }
     </configuration>
 </plugin>
 ```
+
+### @SpiExtension — 自动生成 SPI 索引
+
+```java
+// 显式指定 SPI 接口与别名
+@SpiExtension(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "minilm")
+public class MiniLMEmbeddingClient implements EmbeddingClient { ... }
+
+// 省略接口与别名：自动推导实现接口，别名取自 @Spi/@Extension 或类名去掉接口名
+@SpiExtension
+public class BgeEmbeddingClient implements EmbeddingClient { ... }
+```
+
+编译后自动生成（与运行时 `CustomServiceResolver` 解析格式一致）：
+
+```
+META-INF/extensions/com.chua.common.support.ai.embedding.EmbeddingClient
+  minilm=com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingClient
+  bge=com.chua.deeplearning.support.onnx.embedding.bge.BgeEmbeddingClient
+```
+
+规则：
+- 接口：优先 `value` 显式指定；缺省时递归收集实现类及其父类实现的所有非 JDK 接口，每个接口各生成一份索引
+- 别名：优先 `name`；其次读取实现类上的 `@Spi` / `@Extension` 注解 value；最后按「类名去掉接口名」推导
+- 若索引文件已存在（手动维护），跳过生成并警告，避免破坏既有配置
 
 ## Maven
 
