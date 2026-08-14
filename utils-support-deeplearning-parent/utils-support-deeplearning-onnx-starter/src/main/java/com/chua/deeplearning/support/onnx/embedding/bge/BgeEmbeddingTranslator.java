@@ -3,9 +3,7 @@ package com.chua.deeplearning.support.onnx.embedding.bge;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
-import com.chua.deeplearning.support.engine.ModelRegistry;
-import com.chua.deeplearning.support.onnx.OnnxModelRegistrar;
-import com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMTokenizer;
+import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -16,25 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * bge-small-zh-v1.5 Sentence Embedding Translator（文本 → 512 维句向量，中文 + 英文双语）。
+ * BGE 系列文本嵌入 Translator（BGE-small / BGE-M3 通用）。
  *
- * <p>底层 ONNX：{@code BAAI/bge-small-zh-v1.5} 的 {@code model.onnx}（fp16，约 71MB）。
- * 输入：
- * <ul>
- *   <li>{@code input_ids}     : [batch, seq] int64</li>
- *   <li>{@code attention_mask}: [batch, seq] int64</li>
- * </ul>
- * 输出：{@code last_hidden_state} [batch, seq, 512] float32。
- * </p>
+ * <p>BGE（BAAI General Embedding）是中文语义向量模型，输入
+ * {@code input_ids + attention_mask}（int64），输出 {@code embedding}（已池化句向量）。
+ * 与 sentence-transformers 语义一致，可直接用于余弦相似度 / 向量检索。</p>
  *
- * <p>本 Translator 把 last_hidden_state 做 mean-pooling（按 attention_mask
- * 取均值）→ L2 归一化 → 512 维 float[]，与 sentence-transformers 的默认
- * 句向量语义一致，可直接用于余弦相似度 / 向量检索。中文、英文均可嵌入。</p>
- *
- * <p>资源在 jar 内路径：{@code nlp/embedding/bge-small-zh-v1.5/} 下，
- * 由 {@link NativeLoader} 解压到 java.io.tmpdir 后加载。
- * tokenizer 复用 {@link MiniLMTokenizer}（BGE 与 MiniLM 同为 BERT WordPiece 家族）。
- * 单例模型 + 多线程安全（{@code OrtSession} 本身线程安全，但 batch 维度固定 1）。</p>
+ * <p>资源加载：若模型在 jar 内（如 bge-small-zh），由 {@link NativeLoader} 解压到临时目录；
+ * 若为自动下载模型（bge-m3），模型路径由调用方传入（registry 下载后本地路径）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,179 +30,100 @@ import java.util.Map;
 public class BgeEmbeddingTranslator {
 
     /**
-     * 嵌入维度（512 维，与 bge-small-zh-v1.5 一致）
-     */
-    public static final int HIDDEN_SIZE = 512;
-
-    /**
      * 默认最大序列长度（含 [CLS]/[SEP]）
      */
-    public static final int DEFAULT_MAX_LEN = 128;
+    public static final int DEFAULT_MAX_LEN = 512;
 
-    /**
-     * 模型资源目录（jar 内）
-     */
-    private static final String RESOURCE_BASE = "nlp/embedding/bge-small-zh-v1.5/";
-
-    /**
-     * 词表文件名
-     */
-    private static final String VOCAB_FILE = "vocab.txt";
-
-    private MiniLMTokenizer tokenizer;
     private OrtEnvironment ortEnv;
     private OrtSession session;
 
     /**
-     * 懒加载模型：通过 ModelRegistry 从 classpath/jar 解析并解压 → 加载 tokenizer → 创建 ORT Session。
+     * 加载 jar 内打包的 BGE 模型。
+     *
+     * @param basePath   jar 内资源目录（如 nlp/embedding/bge-small-zh-v1.5/）
+     * @param modelFile  模型文件名
+     * @param tokenizerFile tokenizer 文件名
+     * @return tokenizer（HuggingFace tokenizer 由 DJL 加载）
+     * @throws Exception 加载异常
      */
-    private synchronized void prepare() throws Exception {
+    public synchronized Path extractFromClasspath(String basePath, String modelFile, String tokenizerFile) throws Exception {
+        if (session != null) {
+            return null;
+        }
+        Path tmpDir = Files.createTempDirectory("bge-onnx-");
+        tmpDir.toFile().deleteOnExit();
+        Path modelDir = tmpDir.resolve("bge");
+        Files.createDirectories(modelDir);
+
+        NativeLoader.of("bge")
+                .from(BgeEmbeddingTranslator.class.getClassLoader())
+                .basePath(basePath)
+                .toTarget(modelDir)
+                .glob("*")
+                .withMd5(true)
+                .extractOnly(true)
+                .load();
+
+        Path modelPath = modelDir.resolve(modelFile);
+        if (!Files.isRegularFile(modelPath)) {
+            throw new IOException("BGE 模型缺失: " + modelPath);
+        }
+        createSession(modelPath.toString());
+        return modelDir;
+    }
+
+    /**
+     * 从本地路径加载 BGE 模型（自动下载模型用）。
+     *
+     * @param modelPath 本地模型文件路径
+     * @throws Exception 加载异常
+     */
+    public synchronized void loadLocal(String modelPath) throws Exception {
         if (session != null) {
             return;
         }
-
-        OnnxModelRegistrar registrar = new OnnxModelRegistrar();
-        registrar.register(null);
-        ModelRegistry.discoverAll();
-        Path modelPath = ModelRegistry.resolveModelPath("bge-small-zh-embedding");
-        if (modelPath == null || !Files.isRegularFile(modelPath)) {
-            throw new IOException("BGE 模型路径无效: " + modelPath);
+        Path path = Path.of(modelPath);
+        if (!Files.isRegularFile(path)) {
+            throw new IOException("BGE 模型缺失: " + modelPath);
         }
+        createSession(modelPath);
+    }
 
-        // vocab.txt 从 jar classpath 直接读取（ModelRegistry 只解压 .onnx）
-        Path vocabPath = extractVocabFromClasspath();
-        if (vocabPath == null) {
-            throw new IOException("BGE vocab 缺失: " + RESOURCE_BASE + VOCAB_FILE);
-        }
-
-        this.tokenizer = MiniLMTokenizer.load(vocabPath);
-
+    private void createSession(String modelPath) throws IOException {
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
             opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-            this.session = ortEnv.createSession(modelPath.toString(), opts);
-            log.info("[BGE] ONNX loaded: model={} vocab_size={} hidden={}",
-                    modelPath, tokenizer.vocabSize(), HIDDEN_SIZE);
+            this.session = ortEnv.createSession(modelPath, opts);
+            log.info("[BGE] ONNX loaded: {}", modelPath);
         } catch (Exception e) {
             throw new IOException("Failed to create ORT session for BGE: " + e.getMessage(), e);
         }
     }
 
     /**
-     * 从 jar classpath 提取 vocab.txt 到临时目录。
+     * 计算文本句向量（已池化）。
      *
-     * @return vocab.txt 临时路径，提取失败返回 null
+     * @param inputIds      token IDs
+     * @param attentionMask attention mask
+     * @return 句向量 float[]
      */
-    private Path extractVocabFromClasspath() {
-        try (java.io.InputStream in = BgeEmbeddingTranslator.class.getClassLoader()
-                .getResourceAsStream(RESOURCE_BASE + VOCAB_FILE)) {
-            if (in == null) {
-                log.warn("[BGE] classpath 未找到 vocab: {}{}", RESOURCE_BASE, VOCAB_FILE);
-                return null;
-            }
-            Path tmp = Files.createTempFile("bge-vocab-", ".txt");
-            tmp.toFile().deleteOnExit();
-            Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return tmp;
-        } catch (IOException e) {
-            log.warn("[BGE] 提取 vocab 失败: {}", e.getMessage());
-            return null;
+    public float[] embed(long[] inputIds, long[] attentionMask) throws Exception {
+        if (session == null) {
+            throw new IllegalStateException("BGE 模型未初始化");
         }
-    }
-
-    /**
-     * 计算文本的 512 维句向量（已 L2 归一化）。
-     *
-     * @param text   输入文本
-     * @param maxLen 最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
-     * @return 长度 512 的 float 数组
-     */
-    public float[] embed(String text, int maxLen) throws Exception {
-        if (maxLen < 2) {
-            throw new IllegalArgumentException("maxLen 必须 >= 2");
-        }
-        prepare();
-
-        int seqLen = Math.min(maxLen, DEFAULT_MAX_LEN);
-        MiniLMTokenizer.EncodeResult enc = tokenizer.encode(text, seqLen);
-
-        long[] inputIdsArr = new long[seqLen];
-        long[] attMaskArr = new long[seqLen];
-        for (int i = 0; i < seqLen; i++) {
-            inputIdsArr[i] = enc.inputIds[i];
-            attMaskArr[i] = enc.attentionMask[i];
-        }
-
+        int seqLen = inputIds.length;
         long[] shape = new long[]{1, seqLen};
-        Map<String, OnnxTensor> inputs = new HashMap<>();
-        try (OnnxTensor inputIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIdsArr), shape);
-             OnnxTensor attentionMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attMaskArr), shape)) {
-            inputs.put("input_ids", inputIds);
-            inputs.put("attention_mask", attentionMask);
-
+        try (OnnxTensor inputIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), shape);
+             OnnxTensor attMaskTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attentionMask), shape)) {
+            Map<String, OnnxTensor> inputs = new HashMap<>();
+            inputs.put("input_ids", inputIdsTensor);
+            inputs.put("attention_mask", attMaskTensor);
             try (OrtSession.Result result = session.run(inputs)) {
-                Object raw = result.get(0).getValue();
-                float[][] seqVec;
-                if (raw instanceof float[][][]) {
-                    float[][][] hidden = (float[][][]) raw;
-                    if (hidden == null || hidden.length == 0 || hidden[0].length == 0) {
-                        throw new IOException("BGE 输出为空");
-                    }
-                    seqVec = hidden[0];
-                } else if (raw instanceof float[][]) {
-                    seqVec = (float[][]) raw;
-                } else {
-                    throw new IOException("BGE 输出类型异常: " + raw.getClass());
-                }
-                return meanPool(seqVec, attMaskArr, seqLen);
+                float[][] embedding = (float[][]) result.get(0).getValue();
+                return embedding[0];
             }
         }
-    }
-
-    /**
-     * Mean-pooling：对 last_hidden_state 每个非 padding token 取均值，再 L2 归一化。
-     *
-     * @param seqVec       last_hidden_state [seq, 512]
-     * @param attentionMask 每 token 的 attention mask
-     * @param seqLen        序列长度
-     * @return 512 维归一化句向量
-     */
-    private float[] meanPool(float[][] seqVec, long[] attentionMask, int seqLen) {
-        float[] sum = new float[HIDDEN_SIZE];
-        int count = 0;
-        int actualSeq = Math.min(seqLen, seqVec.length);
-        for (int i = 0; i < actualSeq; i++) {
-            if (attentionMask[i] == 0L) {
-                continue;
-            }
-            float[] tokenVec = seqVec[i];
-            if (tokenVec == null) {
-                continue;
-            }
-            int dim = Math.min(HIDDEN_SIZE, tokenVec.length);
-            for (int j = 0; j < dim; j++) {
-                sum[j] += tokenVec[j];
-            }
-            count++;
-        }
-        if (count == 0) {
-            return sum;
-        }
-        float inv = 1.0f / count;
-        float norm = 0.0f;
-        for (int j = 0; j < HIDDEN_SIZE; j++) {
-            sum[j] *= inv;
-            norm += sum[j] * sum[j];
-        }
-        norm = (float) Math.sqrt(norm);
-        if (norm > 0.0f) {
-            float invNorm = 1.0f / norm;
-            for (int j = 0; j < HIDDEN_SIZE; j++) {
-                sum[j] *= invNorm;
-            }
-        }
-        return sum;
     }
 
     /**
@@ -230,6 +138,5 @@ public class BgeEmbeddingTranslator {
         }
         session = null;
         ortEnv = null;
-        tokenizer = null;
     }
 }

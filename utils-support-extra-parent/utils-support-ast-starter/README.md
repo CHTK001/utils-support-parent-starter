@@ -42,7 +42,7 @@
 - `@Trace` — 方法追踪日志
 - `@AutoClose` — 自动 close 资源
 - `@Virtual` — 虚拟线程支持
-- `@SpiExtension` — 编译期自动生成 `META-INF/extensions/` SPI 索引文件，免去手动维护
+- `@AutoSpi` — 编译期自动生成 `META-INF/extensions/` SPI 索引文件，已存在则追加去重，免去手动维护
 
 ## 使用示例
 
@@ -104,15 +104,15 @@ public void process() { ... }
 </plugin>
 ```
 
-### @SpiExtension — 自动生成 SPI 索引
+### @AutoSpi — 自动生成 SPI 索引
 
 ```java
 // 显式指定 SPI 接口与别名
-@SpiExtension(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "minilm")
+@AutoSpi(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "minilm")
 public class MiniLMEmbeddingClient implements EmbeddingClient { ... }
 
 // 省略接口与别名：自动推导实现接口，别名取自 @Spi/@Extension 或类名去掉接口名
-@SpiExtension
+@AutoSpi
 public class BgeEmbeddingClient implements EmbeddingClient { ... }
 ```
 
@@ -127,7 +127,13 @@ META-INF/extensions/com.chua.common.support.ai.embedding.EmbeddingClient
 规则：
 - 接口：优先 `value` 显式指定；缺省时递归收集实现类及其父类实现的所有非 JDK 接口，每个接口各生成一份索引
 - 别名：优先 `name`；其次读取实现类上的 `@Spi` / `@Extension` 注解 value；最后按「类名去掉接口名」推导
-- 若索引文件已存在（手动维护），跳过生成并警告，避免破坏既有配置
+- 若索引文件已存在（手动维护或历史生成），读取已有内容并追加新条目，自动去重（相同行只保留一份），不覆盖已有配置
+
+与 `@Spi` / `@Extension` 共存：
+- 运行时 `ServiceDefinitionUtils` 优先读取类上的 `@Spi`/`@Extension` 注解生成名称，索引行别名仅在类无注解时生效
+- 因此实现类带 `@Spi`/`@Extension` 时，每个接口只生成一条「裸类名」发现行（不再为每个别名各写一行），避免运行时 N×M 重复注册
+- 自动清理历史构建遗留的冗余 `别名=类名` 行（别名属于该类当前 `@Spi`/`@Extension` 声明值时）
+- 若此时仍显式指定 `name`，会给出编译告警（该名称运行时被忽略，注解名优先）
 
 ## Maven
 

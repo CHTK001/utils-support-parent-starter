@@ -168,8 +168,19 @@ public final class WsEndpointHandler {
                     return;
                 }
             }
-            sendTextFrame(out, "{\"action\":\"bound\",\"tunnelId\":\"" + tunnelId + "\"}");
-            log.info("[ws] tunnel 绑定 conn={} id={} protocol={}", connId, tunnelId, tunnel.connection().protocol());
+            // 仅当客户端未声明 guacamole 子协议时才发送 bound JSON。
+            // guacamole-common-js 的 WebSocketTunnel 要求每条 WS 消息都是合法的
+            // guacamole 指令（长度前缀 .value,...），收到不含 "." 的 JSON bound
+            // 会触发 close_tunnel(SERVER_ERROR) 导致连接立即关闭，后续 ready/sync
+            // 全部丢失。浏览器侧由 guacd 直接发 ready 进入数据流。
+            String subprotocol = headers.get("sec-websocket-protocol");
+            boolean isGuacamoleClient = subprotocol != null
+                    && subprotocol.toLowerCase().contains("guacamole");
+            if (!isGuacamoleClient) {
+                sendTextFrame(out, "{\"action\":\"bound\",\"tunnelId\":\"" + tunnelId + "\"}");
+            }
+            log.info("[ws] tunnel 绑定 conn={} id={} protocol={} guacClient={}",
+                    connId, tunnelId, tunnel.connection().protocol(), isGuacamoleClient);
 
             // 3. 启动 server→client 泵线程
             final String boundTunnelId = tunnelId;
