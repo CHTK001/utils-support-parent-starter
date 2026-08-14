@@ -347,6 +347,7 @@ public class ZhipuChatClient implements ChatClient {
                         .usage(usageBuilder.build())
                         .build());
             } else {
+                log.warn("智谱 GLM API 返回失败: code={}, msg={}", response.getCode(), response.getMsg());
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.ERROR)
                         .errorMessage("智谱 GLM API 返回错误: " + response.getCode() + " - " + response.getMsg())
