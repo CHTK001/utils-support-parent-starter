@@ -1,15 +1,15 @@
 package com.chua.test.spi;
 
 /**
- * Test SPI interface (mimics com.chua.common.support.ai.embedding.EmbeddingClient).
+ * Test SPI interface fixture.
  */
 public interface EmbeddingClient {
 
     /**
-     * Embed text to vector.
+     * Embedding.
      *
      * @param text input text
-     * @return vector
+     * @return embedding vector
      */
     float[] embedding(String text);
 }

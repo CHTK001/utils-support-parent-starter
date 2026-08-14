@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * SPI 扩展自动注册注解，编译期自动生成 {@code META-INF/extensions/} 索引文件
  *
- * <p>标注在 SPI 实现类上，编译期由 {@code SpiExtensionAstProcessor} 扫描，
+ * <p>标注在 SPI 实现类上，编译期由 {@code AutoSpiAstProcessor} 扫描，
  * 自动生成 {@code META-INF/extensions/<接口全限定名>} 配置文件，免去手动维护 SPI 索引。
  * 生成的文件格式与运行时 {@code CustomServiceResolver} 的解析格式完全一致：
  * <ul>
@@ -14,15 +14,18 @@ import java.lang.annotation.*;
  * </ul>
  * </p>
  *
+ * <p>若目标索引文件已存在（如仍手动维护的配置），处理器会读取已有内容，
+ * 追加本次生成的新条目并自动去重，不会覆盖已有配置。</p>
+ *
  * <p>使用示例：</p>
  * <pre>{@code
  * // 显式指定 SPI 接口与别名
- * @SpiExtension(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "minilm")
+ * @AutoSpi(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "minilm")
  * public class MiniLMEmbeddingClient implements EmbeddingClient { ... }
  *
  * // 省略接口：自动从实现类推导（递归收集类及其父类实现的所有非 JDK 接口）
  * // 省略别名：优先读取类上的 @Spi / @Extension 注解，否则取「类名去掉接口名」推导
- * @SpiExtension
+ * @AutoSpi
  * public class BgeEmbeddingClient implements EmbeddingClient { ... }
  * }</pre>
  *
@@ -36,7 +39,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface SpiExtension {
+public @interface AutoSpi {
 
     /**
      * SPI 接口全限定名数组
@@ -46,10 +49,10 @@ public @interface SpiExtension {
      * <p>使用示例：</p>
      * <pre>{@code
      * // 显式指定接口
-     * @SpiExtension(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "bge")
+     * @AutoSpi(value = "com.chua.common.support.ai.embedding.EmbeddingClient", name = "bge")
      *
      * // 自动推导实现接口
-     * @SpiExtension
+     * @AutoSpi
      * }</pre>
      *
      * @return SPI 接口全限定名数组
@@ -69,10 +72,10 @@ public @interface SpiExtension {
      * <p>使用示例：</p>
      * <pre>{@code
      * // 指定单个别名
-     * @SpiExtension(name = "minilm")
+     * @AutoSpi(name = "minilm")
      *
      * // 指定多个别名
-     * @SpiExtension(name = {"json", "application/json"})
+     * @AutoSpi(name = {"json", "application/json"})
      * }</pre>
      *
      * @return 扩展名（别名）数组

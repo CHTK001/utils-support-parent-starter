@@ -1,36 +1,27 @@
 package com.chua.deeplearning.support.onnx.embedding.bge;
 
+import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.embedding.EmbeddingClientSetting;
 import com.chua.common.support.ai.embedding.EmbeddingResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * bge-small-zh-v1.5 本地离线嵌入客户端（SPI provider="bge"）。
+ * BGE 文本嵌入客户端（SPI provider="bge"，离线/自动下载通用）。
  *
- * <p>本地基于 BAAI/bge-small-zh-v1.5 的 fp16 ONNX（71MB，~25ms/句，CPU 即可），
- * 文本 → 512 维 L2 归一化句向量。中文、英文均可，与 sentence-transformers
- * bge-small-zh-v1.5 语义一致，可直接用于余弦相似度 / 向量检索 / 聚类。</p>
+ * <p>底层为 BGE 系列（bge-small-zh / bge-m3）ONNX，输入
+ * {@code input_ids + attention_mask}，输出已池化句向量。中英文通用，可直接用于
+ * 余弦相似度 / 向量检索。</p>
  *
- * <p>用法（与云端 EmbeddingClient 完全一致）：
- * <pre>{@code
- *   float[] v = EmbeddingClient.create("bge", "")
- *       .model("bge-small-zh-v1.5")
- *       .embedding("你好世界");
- *
- *   EmbeddingClient client = EmbeddingClient.create(EmbeddingClientSetting.builder()
- *           .provider("bge").model("bge-small-zh-v1.5").build());
- *   float[][] vs = client.embeddingBatch(new String[]{"文档1", "文档2"});
- * }</pre>
- * </p>
- *
- * <p>资源位于 {@code nlp/embedding/bge-small-zh-v1.5/model.onnx} + 配套
- * {@code vocab.txt}，由 jar {@code utils-support-models-onnx-bge-small-zh} 提供。</p>
+ * <p>离线版（jar 内，如 bge-small-zh）由 {@link HuggingFaceTokenizer} + ORT 加载；
+ * 自动下载版（bge-m3）传入本地模型路径。两种都无需联网。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -39,27 +30,47 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
-     * 默认最大序列长度（包含 [CLS]/[SEP]）
+     * 默认最大序列长度
      */
-    private static final int DEFAULT_MAX_LEN = 128;
+    private static final int DEFAULT_MAX_LEN = 512;
 
-    /**
-     * 客户端配置：provider / model 等
-     */
     private final EmbeddingClientSetting setting;
-
-    /**
-     * 底层 translator（懒加载单例）
-     */
     private BgeEmbeddingTranslator translator;
+    private HuggingFaceTokenizer tokenizer;
+    private boolean loaded;
 
     /**
-     * 构造客户端。
-     *
-     * @param setting 客户端配置，含 provider / model
+     * jar 内打包的资源目录（离线版），null 表示自动下载版
      */
+    private String embeddedBase;
+    private final String embeddedModel;
+    private final String embeddedTokenizer;
+
+    /**
+     * 本地模型目录（自动下载版经 registry 解析后传入）
+     */
+    private Path localModelRoot;
+
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
+        this.embeddedModel = "model.onnx";
+        this.embeddedTokenizer = "tokenizer.json";
+        this.embeddedBase = resolveEmbeddedBase(setting.getModel());
+        log.info("[BGE] init model='{}' embeddedBase='{}'", setting.getModel(), this.embeddedBase);
+    }
+
+    private String resolveEmbeddedBase(String model) {
+        if (model == null) {
+            return null;
+        }
+        String m = model.toLowerCase();
+        if (m.contains("bge-small-zh") || m.contains("bge_small_zh")) {
+            return "nlp/embedding/bge-small-zh-v1.5/";
+        }
+        if (m.contains("bge-small-en") || m.contains("bge_small_en")) {
+            return "nlp/embedding/bge-small-en-v1.5/";
+        }
+        return null;
     }
 
     @Override
@@ -71,6 +82,8 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     @Override
     public EmbeddingClient model(String model) {
         setting.setModel(model);
+        this.embeddedBase = resolveEmbeddedBase(model);
+        resetLoaded();
         return this;
     }
 
@@ -80,25 +93,88 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         return this;
     }
 
-    /**
-     * 懒加载 translator 单例。
-     *
-     * @return translator 实例
-     */
-    private synchronized BgeEmbeddingTranslator translator() {
-        if (translator == null) {
-            translator = new BgeEmbeddingTranslator();
+    private void resetLoaded() {
+        loaded = false;
+        translator = null;
+        tokenizer = null;
+        embeddedLocalDir = null;
+    }
+
+    private Path embeddedLocalDir;
+    private Path modelPath;
+
+    private synchronized void prepare() throws Exception {
+        if (loaded) {
+            return;
         }
-        return translator;
+        translateModel();
+        loaded = true;
+    }
+
+    /**
+     * 将 registry 解析到的模型路径适配为本地可加载形式。
+     */
+    private void translateModel() throws Exception {
+        if (embeddedBase != null) {
+            translator = new BgeEmbeddingTranslator();
+            Path dir = translator.extractFromClasspath(embeddedBase, embeddedModel, embeddedTokenizer);
+            embeddedLocalDir = dir;
+            modelPath = dir.resolve(embeddedModel);
+            tokenizer = HuggingFaceTokenizer.builder()
+                    .optTokenizerPath(dir.resolve("tokenizer.json"))
+                    .optPadding(true)
+                    .optMaxLength(DEFAULT_MAX_LEN)
+                    .build();
+        } else if (localModelRoot != null && Files.isDirectory(localModelRoot)) {
+            translator = new BgeEmbeddingTranslator();
+            Path dir = localModelRoot;
+            Path model = dir.resolve("model.onnx");
+            if (Files.isRegularFile(model)) {
+                translator.loadLocal(model.toString());
+            } else {
+                translator.loadLocal(dir.toString());
+            }
+            modelPath = model;
+            Path tk = dir.resolve("tokenizer.json");
+            if (Files.isRegularFile(tk)) {
+                tokenizer = HuggingFaceTokenizer.builder()
+                        .optTokenizerPath(tk)
+                        .optPadding(true)
+                        .optMaxLength(DEFAULT_MAX_LEN)
+                        .build();
+            }
+        } else {
+            throw new IllegalStateException("BGE 模型资源未就绪: model=" + setting.getModel()
+                    + " localModelRoot=" + (localModelRoot == null ? "null" : localModelRoot));
+        }
+    }
+
+    /**
+     * 设置本地模型目录（自动下载版）。
+     *
+     * @param path 模型文件或目录
+     */
+    public void setLocalModel(Path path) {
+        this.localModelRoot = path;
+        resetLoaded();
     }
 
     @Override
     public float[] embedding(String text) {
         try {
-            int maxLen = setting.getMaxLen() != null && setting.getMaxLen() > 0
-                    ? setting.getMaxLen()
-                    : DEFAULT_MAX_LEN;
-            return translator().embed(text, maxLen);
+            if (text == null || text.isBlank()) {
+                throw new IllegalArgumentException("文本不能为空");
+            }
+            prepare();
+            var encoding = tokenizer.encode(text);
+            long[] ids = encoding.getIds();
+            long[] mask = encoding.getAttentionMask();
+            int seqLen = Math.min(ids.length, DEFAULT_MAX_LEN);
+            long[] idsTrim = new long[seqLen];
+            long[] maskTrim = new long[seqLen];
+            System.arraycopy(ids, 0, idsTrim, 0, seqLen);
+            System.arraycopy(mask, 0, maskTrim, 0, seqLen);
+            return translator.embed(idsTrim, maskTrim);
         } catch (Exception e) {
             throw new RuntimeException("[bge-embedding] embedding failed: " + e.getMessage(), e);
         }
@@ -121,10 +197,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
                 .embeddings(List.of(EmbeddingResponse.Embedding.builder()
-                        .vector(v)
-                        .index(0)
-                        .dimensions(v != null ? v.length : 0)
-                        .build()))
+                        .vector(v).index(0).dimensions(v != null ? v.length : 0).build()))
                 .build();
     }
 
@@ -135,14 +208,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         List<EmbeddingResponse.Embedding> embs = new ArrayList<>();
         for (float[] v : vs) {
             embs.add(EmbeddingResponse.Embedding.builder()
-                    .vector(v)
-                    .index(idx.getAndIncrement())
-                    .dimensions(v != null ? v.length : 0)
-                    .build());
+                    .vector(v).index(idx.getAndIncrement()).dimensions(v != null ? v.length : 0).build());
         }
-        return EmbeddingResponse.builder()
-                .embeddings(embs)
-                .build();
+        return EmbeddingResponse.builder().embeddings(embs).build();
     }
 
     @Override
@@ -161,5 +229,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
             translator.close();
             translator = null;
         }
+        tokenizer = null;
+        loaded = false;
     }
 }

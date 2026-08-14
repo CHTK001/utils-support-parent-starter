@@ -1,14 +1,18 @@
 package com.chua.test.spi;
 
 /**
- * Host type holding a nested SPI interface (tests binary-name $ file generation).
+ * Test fixture with a nested interface (binary name com.chua.test.spi.Factory$Handler).
  */
-public class Factory {
+public interface Factory {
 
     /**
-     * Nested SPI interface.
+     * Nested handler interface.
      */
-    public interface Handler {
+    interface Handler {
+
+        /**
+         * Handle.
+         */
         void handle();
     }
 }
