@@ -335,7 +335,7 @@ public class ZhipuChatClient implements ChatClient {
                 if (choices != null) {
                     for (Choice choice : choices) {
                         if (choice.getContent() != null) {
-                            content.append(choice.getContent());
+                            content.append(unquote(choice.getContent()));
                         }
                     }
                 }
@@ -363,6 +363,22 @@ public class ZhipuChatClient implements ChatClient {
                     .build());
             onError.accept(e);
         }
+    }
+
+    /**
+     * 剥离 JSON 字符串外层引号（智谱 SDK 返回的 content 为带引号的 JSON 字面量）。
+     *
+     * @param value 原始内容
+     * @return 去除首尾引号后的内容
+     */
+    private static String unquote(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     /**
