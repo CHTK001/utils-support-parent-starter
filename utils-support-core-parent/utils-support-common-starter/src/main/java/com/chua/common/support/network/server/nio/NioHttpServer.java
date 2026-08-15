@@ -92,18 +92,23 @@ public class NioHttpServer extends AbstractServer {
             serverChannel.configureBlocking(true);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
-            serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
-                    Math.max(setting.getBacklog(), 4096));
+            // 高并发连接接纳：backlog 下限 8192（与 JdkHttpServer 对齐），5000 并发下避免连接被内核拒绝
+            int backlog = Math.max(setting.getBacklog(), 8192);
+            serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), backlog);
 
             // 回填实际端口（port=0 时由系统分配）
             InetSocketAddress bound = (InetSocketAddress) serverChannel.getLocalAddress();
             setting.setPort(bound.getPort());
 
             executor = Executors.newVirtualThreadPerTaskExecutor();
-            executor.submit(this::acceptLoop);
+            // 多 acceptor 并行 accept：bossThreads 控制（默认 1，高并发可设 >1）
+            int acceptors = Math.max(1, setting.getBossThreads());
+            for (int i = 0; i < acceptors; i++) {
+                executor.submit(this::acceptLoop);
+            }
 
-            log.info("NIO HttpServer started on {}:{} (backlog={}, virtualThreads=true)",
-                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 4096));
+            log.info("NIO HttpServer started on {}:{} (backlog={}, acceptors={}, virtualThreads=true)",
+                    setting.getHost(), setting.getPort(), backlog, acceptors);
         } catch (Exception e) {
             throw new RuntimeException("NIO HttpServer 启动失败", e);
         }
