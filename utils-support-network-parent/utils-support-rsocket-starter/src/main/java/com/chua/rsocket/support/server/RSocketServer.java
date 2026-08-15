@@ -96,6 +96,19 @@ public class RSocketServer extends AbstractServer {
                     if (topic != null) {
                         ServerHandler handler = messageHandlers.get(topic);
                         if (handler != null) {
+                            // 优先走主题消息处理器(消息模型)
+                            SimpleServerRequest request = new SimpleServerRequest(topic, data);
+                            SimpleServerResponse response = new SimpleServerResponse();
+                            try {
+                                handler.handle(request, response);
+                                if (response.getResult() != null) {
+                                    responseBody = String.valueOf(response.getResult());
+                                }
+                            } catch (Exception e) {
+                                log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
+                            }
+                        } else {
+                            // 无主题处理器时走统一过滤器链路(URL 路由,兼容 OAuth 认证)
                             SimpleServerRequest request = new SimpleServerRequest(topic, data);
                             SimpleServerResponse response = new SimpleServerResponse();
                             try {
@@ -119,6 +132,15 @@ public class RSocketServer extends AbstractServer {
                     if (topic != null) {
                         ServerHandler handler = messageHandlers.get(topic);
                         if (handler != null) {
+                            SimpleServerRequest request = new SimpleServerRequest(topic, data);
+                            SimpleServerResponse response = new SimpleServerResponse();
+                            try {
+                                handler.handle(request, response);
+                            } catch (Exception e) {
+                                log.error("RSocket fireAndForget 处理异常: topic={}", topic, e);
+                            }
+                        } else {
+                            // 无主题处理器时走统一过滤器链路
                             SimpleServerRequest request = new SimpleServerRequest(topic, data);
                             SimpleServerResponse response = new SimpleServerResponse();
                             try {
@@ -273,6 +295,18 @@ public class RSocketServer extends AbstractServer {
             }
         } catch (Exception ignored) {
             // JSON 解析失败时返回 null
+        }
+        // 兼容从 metadata 中读取 route(oauth client 将路由放在 metadata 中)
+        try {
+            String metadata = payload.getMetadataUtf8();
+            if (metadata != null && !metadata.isEmpty()) {
+                Map<String, Object> metaMap = Json.fromJson(metadata, Map.class);
+                if (metaMap != null && metaMap.containsKey("route")) {
+                    return metaMap.get("route").toString();
+                }
+            }
+        } catch (Exception ignored) {
+            // metadata 解析失败时返回 null
         }
         return null;
     }
