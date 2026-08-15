@@ -119,6 +119,11 @@ public class PipelineBuilder {
     private RouteStrategy routeStrategy;
 
     /**
+     * WAL 持久化目录，null 表示不启用 WAL
+     */
+    private String walDir;
+
+    /**
      * 私有构造器。
      *
      * @param id 流水线唯一标识
@@ -650,6 +655,21 @@ public class PipelineBuilder {
     }
 
     /**
+     * 启用 WAL 持久化，指定 WAL 日志存储目录。
+     * <p>
+     * 启用后，Pipeline 执行过程中的上下文快照将被持久化到 WAL 日志，
+     * 支持通过 {@link Pipeline#resume(Object)} 从断点恢复执行。
+     * </p>
+     *
+     * @param walDir WAL 日志目录
+     * @return this
+     */
+    public PipelineBuilder wal(String walDir) {
+        this.walDir = walDir;
+        return this;
+    }
+
+    /**
      * 添加节点（供其他构建器内部使用）。
      *
      * @param node 节点实例
@@ -748,7 +768,11 @@ public class PipelineBuilder {
         }
 
         RouteStrategy effectiveStrategy = routeStrategy != null ? routeStrategy : RouteStrategy.THROW;
-        return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners, effectiveStrategy);
+        PipelineWal effectiveWal = null;
+        if (walDir != null) {
+            effectiveWal = new PipelineWal(id, walDir);
+        }
+        return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners, effectiveStrategy, effectiveWal);
     }
 
     /**
