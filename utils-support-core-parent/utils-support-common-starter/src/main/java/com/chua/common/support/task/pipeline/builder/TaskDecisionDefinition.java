@@ -9,6 +9,7 @@ import com.chua.common.support.task.pipeline.node.DecisionNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * 判断节点定义 — 类型安全的分支配置构建器。
@@ -85,6 +86,10 @@ public class TaskDecisionDefinition {
     private final Map<String, String> branches = new LinkedHashMap<>();
     private String defaultBranch;
     private boolean endAfterExecute;
+    private Map<String, Object> params;
+    private Map<String, Object> env;
+    private boolean startNode;
+    private Predicate<PipelineContext<?>> condition;
 
     /**
      * 构造判断节点定义。
@@ -116,7 +121,34 @@ public class TaskDecisionDefinition {
         if (defaultBranch != null) {
             node.defaultBranch(defaultBranch);
         }
-        builder.addNodeInternal(node);
+        if (params != null && !params.isEmpty()) {
+            node.setParams(params);
+        }
+        if (env != null && !env.isEmpty()) {
+            node.setEnv(env);
+        }
+        PipelineNode finalNode = node;
+        if (condition != null) {
+            Predicate<PipelineContext<?>> cond = condition;
+            PipelineNode originalNode = finalNode;
+            finalNode = new PipelineNode() {
+                @Override
+                public String execute(PipelineContext<?> context) {
+                    if (cond.test(context)) {
+                        return originalNode.execute(context);
+                    }
+                    return null;
+                }
+                @Override
+                public String getId() {
+                    return id;
+                }
+            };
+        }
+        builder.addNodeInternal(finalNode);
+        if (startNode) {
+            builder.start(id);
+        }
         return builder;
     }
 
@@ -184,6 +216,88 @@ public class TaskDecisionDefinition {
      */
     public TaskDecisionDefinition defaultBranch(String nodeType) {
         this.defaultBranch = nodeType;
+        return this;
+    }
+
+    /**
+     * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）。
+     *
+     * @param params 节点参数映射
+     * @return this
+     */
+    public TaskDecisionDefinition params(Map<String, Object> params) {
+        this.params = params;
+        return this;
+    }
+
+    /**
+     * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
+     *
+     * <p>环境参数与 {@link #params(Map)} 的区别：</p>
+     * <ul>
+     *   <li><strong>params</strong> — 静态参数，注入到 nodeLocalData 根级</li>
+     *   <li><strong>env</strong> — 运行时环境参数，注入到 nodeLocalData 时以 {@code "env."} 前缀隔离，
+     *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
+     * </ul>
+     *
+     * @param env 环境参数映射
+     * @return this
+     */
+    public TaskDecisionDefinition env(Map<String, Object> env) {
+        this.env = env;
+        return this;
+    }
+
+    /**
+     * 设置节点环境参数（单个键值对）。
+     *
+     * <p>等价于先创建 Map 再调用 {@link #env(Map)}，适用于少量参数的场景。</p>
+     *
+     * @param key   参数键
+     * @param value 参数值
+     * @return this
+     */
+    public TaskDecisionDefinition env(String key, Object value) {
+        if (this.env == null) {
+            this.env = new LinkedHashMap<>();
+        }
+        this.env.put(key, value);
+        return this;
+    }
+
+    /**
+     * 便捷方法：标记当前节点为起始节点。
+     *
+     * <p>等价于在 PipelineBuilder 上调用 {@code .start(id)}。</p>
+     *
+     * @return this
+     */
+    public TaskDecisionDefinition start() {
+        this.startNode = true;
+        return this;
+    }
+
+    /**
+     * 条件执行：仅当谓词返回 true 时执行判断逻辑，否则跳过。
+     *
+     * <p>当条件不满足时，判断节点不执行路由逻辑，返回 null 按默认顺序继续。</p>
+     *
+     * @param condition 执行条件谓词
+     * @return this
+     */
+    public TaskDecisionDefinition when(Predicate<PipelineContext<?>> condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    /**
+     * 条件执行：仅当谓词返回 false 时执行判断逻辑，否则跳过。
+     *
+     * @param condition 跳过条件谓词
+     * @return this
+     */
+    public TaskDecisionDefinition whenNot(Predicate<PipelineContext<?>> condition) {
+        this.condition = condition.negate();
         return this;
     }
 

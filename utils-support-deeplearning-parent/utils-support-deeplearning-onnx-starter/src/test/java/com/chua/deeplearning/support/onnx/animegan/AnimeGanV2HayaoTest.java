@@ -72,12 +72,12 @@ public class AnimeGanV2HayaoTest {
 
                 // 合成 512x512 测试图
                 float[] rgb = toRgbFloat(buildSyntheticImage());
-                long[] shape = new long[]{1, 3, INPUT_SIZE, INPUT_SIZE};
+                long[] shape = new long[]{1, INPUT_SIZE, INPUT_SIZE, 3};
                 FloatBuffer buf = FloatBuffer.wrap(rgb);
 
                 long runStart = System.currentTimeMillis();
                 try (OnnxTensor tensor = OnnxTensor.createTensor(env, buf, shape);
-                     OrtSession.Result result = session.run(Map.of("input", tensor))) {
+                     OrtSession.Result result = session.run(Map.of("generator_input:0", tensor))) {
                     long elapsed = System.currentTimeMillis() - runStart;
                     Object value = result.get(0).getValue();
                     String type = value.getClass().getSimpleName();
@@ -85,7 +85,7 @@ public class AnimeGanV2HayaoTest {
                     // 校验输出
                     int[] dims = outputDims(value);
                     boolean ok = value != null && dims.length == 4
-                            && dims[0] == 1 && dims[2] == INPUT_SIZE && dims[3] == INPUT_SIZE;
+                            && dims[0] == 1 && dims[1] == INPUT_SIZE && dims[2] == INPUT_SIZE;
                     log.info("[PASS={}] 推理 {}ms 输出类型={} 形状=" + java.util.Arrays.toString(dims),
                             ok, elapsed, type);
                     return ok;
@@ -137,19 +137,19 @@ public class AnimeGanV2HayaoTest {
     }
 
     /**
-     * BufferedImage → CHW float[]（RGB 归一化 [-1,1]，AnimeGAN 输入范围）。
+     * BufferedImage → NHWC float[]（RGB 归一化 [-1,1]，AnimeGAN 输入范围）。
      */
     private float[] toRgbFloat(BufferedImage img) {
-        float[] out = new float[3 * INPUT_SIZE * INPUT_SIZE];
+        float[] out = new float[INPUT_SIZE * INPUT_SIZE * 3];
         int w = img.getWidth();
         int h = img.getHeight();
+        int idx = 0;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int rgb = img.getRGB(x, y);
-                int idx = y * w + x;
-                out[idx] = (((rgb >>> 16) & 0xFF) / 255.0f) * 2 - 1;
-                out[idx + w * h] = (((rgb >>> 8) & 0xFF) / 255.0f) * 2 - 1;
-                out[idx + w * h * 2] = ((rgb & 0xFF) / 255.0f) * 2 - 1;
+                out[idx++] = (((rgb >>> 16) & 0xFF) / 255.0f) * 2 - 1;
+                out[idx++] = (((rgb >>> 8) & 0xFF) / 255.0f) * 2 - 1;
+                out[idx++] = ((rgb & 0xFF) / 255.0f) * 2 - 1;
             }
         }
         return out;
