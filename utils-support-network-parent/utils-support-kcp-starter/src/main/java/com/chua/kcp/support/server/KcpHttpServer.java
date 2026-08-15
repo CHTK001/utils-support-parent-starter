@@ -169,6 +169,9 @@ public class KcpHttpServer extends AbstractServer {
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) {
+            // conv 需在连接建立时设置，initChannel 阶段设置会导致 UDP 包因 conv 不匹配被丢弃
+            UkcpChannel kcpChannel = (UkcpChannel) ctx.channel();
+            kcpChannel.conv(KCP_CONV);
             log.info("KCP HTTP 连接建立: {}", ctx.channel().remoteAddress());
         }
 
