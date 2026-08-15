@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.onnx.embedding.bge;
 
 import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OnnxValue;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
@@ -114,14 +115,38 @@ public class BgeEmbeddingTranslator {
         }
         int seqLen = inputIds.length;
         long[] shape = new long[]{1, seqLen};
+        long[] typeIds = new long[seqLen];
         try (OnnxTensor inputIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), shape);
-             OnnxTensor attMaskTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attentionMask), shape)) {
+             OnnxTensor attMaskTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attentionMask), shape);
+             OnnxTensor typeIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(typeIds), shape)) {
             Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put("input_ids", inputIdsTensor);
             inputs.put("attention_mask", attMaskTensor);
+            inputs.put("token_type_ids", typeIdsTensor);
             try (OrtSession.Result result = session.run(inputs)) {
-                float[][] embedding = (float[][]) result.get(0).getValue();
-                return embedding[0];
+                // Try sentence_embedding output first, fallback to last_hidden_state with CLS pooling
+                float[][] pooled = null;
+                float[][][] hidden = null;
+                for (Map.Entry<String, OnnxValue> entry : result) {
+                    String name = entry.getKey();
+                    if ("sentence_embedding".equals(name)) {
+                        pooled = (float[][]) entry.getValue().getValue();
+                        break;
+                    }
+                    Object val = entry.getValue().getValue();
+                    if (val instanceof float[][]) {
+                        pooled = (float[][]) val;
+                    } else if (val instanceof float[][][]) {
+                        hidden = (float[][][]) val;
+                    }
+                }
+                if (pooled != null) {
+                    return pooled[0];
+                }
+                if (hidden != null) {
+                    return hidden[0][0]; // CLS token
+                }
+                throw new IOException("BGE 输出格式不识别");
             }
         }
     }

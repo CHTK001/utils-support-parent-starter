@@ -215,7 +215,8 @@ public class HttpServerResponse implements ServerResponse {
         }
         sent = true;
         if (sseMode) {
-            closeSseStream();
+            // SSE 流生命周期完全由 sseClose() 管理：handleBlocking 的 finally 可能先于
+            // 异步流式回调执行 end()（ended=true），若在此关闭流会导致回调写流报 stream closed。
             return;
         }
         if (!ended) {

@@ -2,7 +2,6 @@ package com.chua.deeplearning.support.onnx.matting.translator;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.Shape;
@@ -103,18 +102,43 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         height = input.getHeight();
         originalImage = (BufferedImage) input.getWrappedImage();
 
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        if (width != targetWidth || height != targetHeight) {
-            array = NDImageUtils.resize(array, targetWidth, targetHeight, Image.Interpolation.BILINEAR);
+        // AWT resize (avoids NDImageUtils.resize which ORT engine doesn't support)
+        BufferedImage resized = originalImage;
+        int tw = targetWidth, th = targetHeight;
+        if (width != tw || height != th) {
+            resized = new BufferedImage(tw, th, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = resized.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(originalImage, 0, 0, tw, th, null);
+            g.dispose();
         }
 
-        array = array.div(255.0f);
-        array = array.transpose(2, 0, 1);
+        // Manual pixel normalization
+        float[] data = new float[3 * tw * th];
+        int idx = 0;
+        for (int y = 0; y < th; y++) {
+            for (int x = 0; x < tw; x++) {
+                int rgb = resized.getRGB(x, y);
+                data[idx] = ((rgb >>> 16) & 0xFF) / 255.0f;
+                data[idx + tw * th] = ((rgb >>> 8) & 0xFF) / 255.0f;
+                data[idx + 2 * tw * th] = (rgb & 0xFF) / 255.0f;
+                idx++;
+            }
+        }
 
-        NDArray mean = ctx.getNDManager().create(new float[]{0.485f, 0.456f, 0.406f}, new Shape(3, 1, 1));
-        NDArray std = ctx.getNDManager().create(new float[]{0.229f, 0.224f, 0.225f}, new Shape(3, 1, 1));
-        array = array.sub(mean).div(std);
+        // ImageNet normalize
+        float[] mean = {0.485f, 0.456f, 0.406f};
+        float[] std = {0.229f, 0.224f, 0.225f};
+        int total = tw * th;
+        for (int c = 0; c < 3; c++) {
+            int offset = c * total;
+            float m = mean[c], s = std[c];
+            for (int i = 0; i < total; i++) {
+                data[offset + i] = (data[offset + i] - m) / s;
+            }
+        }
 
+        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, th, tw));
         return new NDList(array);
     }
 
@@ -129,16 +153,46 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray alpha = list.get(0);
 
-        if (alpha.getShape().dimension() == 4) {
-            alpha = alpha.get(0);
-        }
-        if (alpha.getShape().dimension() == 3) {
-            alpha = alpha.get(0);
+        // Flatten to float[] and reconstruct as 2D (avoid NDArray.get which ORT engine doesn't support)
+        Shape shape = alpha.getShape();
+        long[] sh = shape.getShape();
+        int alphaHeight = sh.length >= 2 ? (int) sh[sh.length - 2] : 1;
+        int alphaWidth = sh.length >= 1 ? (int) sh[sh.length - 1] : 1;
+        float[] alphaValues = alpha.toFloatArray();
+
+        // Reject small outputs (e.g. if shape is [1,3,1024,1024] -> actual alpha is 2D)
+        int expected = alphaHeight * alphaWidth;
+        if (alphaValues.length > expected * 2) {
+            // Model output is multi-channel, pick first channel
+            alphaHeight = (int) sh[sh.length - 2];
+            alphaWidth = (int) sh[sh.length - 1];
+            expected = alphaHeight * alphaWidth;
+            float[] single = new float[expected];
+            System.arraycopy(alphaValues, 0, single, 0, expected);
+            alphaValues = single;
         }
 
-        // RMBG-2.0     ONNX                             alpha matte                      min-max          
-        alpha = alpha.clip(0f, 1f);
-        BufferedImage alphaMask = toAlphaMask(alpha);
+        for (int i = 0; i < alphaValues.length; i++) {
+            alphaValues[i] = Math.max(0f, Math.min(1f, alphaValues[i]));
+        }
+
+        BufferedImage alphaMask = new BufferedImage(alphaWidth, alphaHeight, BufferedImage.TYPE_BYTE_GRAY);
+        WritableRaster raster = alphaMask.getRaster();
+        int idx = 0;
+        for (int y = 0; y < alphaHeight; y++) {
+            for (int x = 0; x < alphaWidth; x++) {
+                raster.setSample(x, y, 0, Math.round(alphaValues[idx++] * 255f));
+            }
+        }
+
+        if (alphaWidth != width || alphaHeight != height) {
+            BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+            Graphics2D graphics = resized.createGraphics();
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            graphics.drawImage(alphaMask, 0, 0, width, height, null);
+            graphics.dispose();
+            alphaMask = resized;
+        }
 
         return switch (mode) {
             case ALPHA_ONLY -> createAlphaOnlyImage(alphaMask);
@@ -146,39 +200,6 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
             case RGB_WHITE_BG -> createRgbImage(alphaMask, 255);
             case RGBA -> createRgbaImage(alphaMask);
         };
-    }
-
-    private BufferedImage toAlphaMask(NDArray alpha) {
-        Shape shape = alpha.getShape();
-        int alphaHeight = (int) shape.get(0);
-        int alphaWidth = (int) shape.get(1);
-        float[] alphaValues = alpha.toFloatArray();
-
-        BufferedImage mask = new BufferedImage(alphaWidth, alphaHeight, BufferedImage.TYPE_BYTE_GRAY);
-        WritableRaster raster = mask.getRaster();
-        int index = 0;
-        for (int y = 0; y < alphaHeight; y++) {
-            for (int x = 0; x < alphaWidth; x++) {
-                raster.setSample(x, y, 0, toAlpha255(alphaValues[index++]));
-            }
-        }
-
-        if (alphaWidth == width && alphaHeight == height) {
-            return mask;
-        }
-
-        BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        Graphics2D graphics = resized.createGraphics();
-        try {
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            graphics.drawImage(mask, 0, 0, width, height, null);
-        } finally {
-            graphics.dispose();
-        }
-        return resized;
     }
 
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
@@ -270,6 +291,6 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
      */
     @Override
     public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+        return null;
     }
 }

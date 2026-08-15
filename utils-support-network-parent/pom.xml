@@ -21,6 +21,7 @@
         <module>utils-support-vertx-starter</module>
         <module>utils-support-httpclient-starter</module>
         <module>utils-support-okhttp-starter</module>
+        <module>utils-support-retrofit-starter</module>
         <module>utils-support-dht-starter</module>
         <module>utils-support-webdav-starter</module>
         <module>utils-support-rpc-sofa-starter</module>

@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
+import com.chua.common.support.task.pipeline.core.RouteStrategy;
 import com.chua.common.support.task.pipeline.exception.PipelineException;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
 import com.chua.common.support.task.pipeline.node.EndNode;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  *   <li>节点未指定 nextNodeId 时，按添加顺序自动前进到下一节点</li>
  *   <li>循环检测：节点重复执行时抛出 {@link PipelineException}（REPLAY 动作除外）</li>
  *   <li>执行 {@link EndNode} 或到达终止节点 ID 时结束</li>
+ *   <li>节点异常时：异常存入 ctx.lastError → 触发 onError 回调 → 若返回恢复节点 ID 则路由继续执行，否则终止</li>
  * </ol>
  *
  * @author CH
@@ -73,25 +75,33 @@ public class DefaultPipeline implements Pipeline {
     private final Set<String> decisionTargets;
 
     /**
+     * 路由策略：当目标节点不存在时的处理方式
+     */
+    private final RouteStrategy routeStrategy;
+
+    /**
      * 构造默认流水线。
      *
-     * @param id           流水线 ID
-     * @param startNodeId  起始节点 ID
-     * @param endNodeId    终止节点 ID
-     * @param nodeMap      节点 ID 映射
-     * @param orderedNodes 有序节点列表
-     * @param listeners    全局回调监听器
+     * @param id            流水线 ID
+     * @param startNodeId   起始节点 ID
+     * @param endNodeId     终止节点 ID
+     * @param nodeMap       节点 ID 映射
+     * @param orderedNodes  有序节点列表
+     * @param listeners     全局回调监听器
+     * @param routeStrategy 路由策略：当目标节点不存在时的处理方式
      */
     public DefaultPipeline(String id, String startNodeId, String endNodeId,
                            Map<String, PipelineNode> nodeMap,
                            List<PipelineNode> orderedNodes,
-                           List<PipelineListener> listeners) {
+                           List<PipelineListener> listeners,
+                           RouteStrategy routeStrategy) {
         this.id = id;
         this.startNodeId = startNodeId;
         this.endNodeId = endNodeId;
         this.nodeMap = nodeMap;
         this.orderedNodes = orderedNodes;
         this.listeners = listeners;
+        this.routeStrategy = routeStrategy != null ? routeStrategy : RouteStrategy.THROW;
         this.decisionTargets = new HashSet<>();
         this.flowTree = buildFlowTree();
     }
@@ -151,9 +161,13 @@ public class DefaultPipeline implements Pipeline {
     private <T> void run(PipelineContext<T> ctx) {
         int depth = 0;
         try {
+            // 触发启动回调（仅一次）
+            fireOnStart(ctx);
+
             while (ctx.getAction() != Action.EXIT) {
                 if (++depth > MAX_EXECUTION_DEPTH) {
-                    throw new PipelineException("Execution depth exceeded " + MAX_EXECUTION_DEPTH + ", possible infinite loop");
+                    throw new PipelineException("Execution depth exceeded " + MAX_EXECUTION_DEPTH + ", possible infinite loop",
+                            ctx.getCurrentNodeId(), id, null);
                 }
                 String nodeId = ctx.getNextNodeId();
                 if (nodeId == null) {
@@ -162,11 +176,27 @@ public class DefaultPipeline implements Pipeline {
 
                 PipelineNode node = nodeMap.get(nodeId);
                 if (node == null) {
-                    throw new PipelineException("Node not found: " + nodeId);
+                    // 检查点1：主循环入口 — 目标节点不存在
+                    String nextInOrder = getNextNodeIdInOrder(nodeId);
+                    switch (routeStrategy) {
+                        case EXIT:
+                            ctx.setAction(Action.EXIT);
+                            break;
+                        case NEXT:
+                            ctx.setNextNodeId(nextInOrder);
+                            ctx.setAction(Action.NEXT);
+                            continue;
+                        default:
+                            throw new PipelineException("Node not found: " + nodeId
+                                            + ". Available nodes: " + nodeMap.keySet(),
+                                    nodeId, id, null);
+                    }
+                    break;
                 }
 
                 if (ctx.getAction() != Action.REPLAY && ctx.getHistory().contains(nodeId)) {
-                    throw new PipelineException("Cycle detected, node already executed: " + nodeId);
+                    throw new PipelineException("Cycle detected, node already executed: " + nodeId,
+                            nodeId, id, null);
                 }
 
                 if (ctx.getAction() == Action.REPLAY) {
@@ -175,14 +205,65 @@ public class DefaultPipeline implements Pipeline {
                 }
 
                 ctx.setCurrentNodeId(nodeId);
+                // 注入按顺序的下一个节点 ID（只读，供节点判断逻辑使用）
+                ctx.setNextNodeIdInOrder(getNextNodeIdInOrder(nodeId));
+                // 清空节点本地数据（节点间隔离）
+                ctx.clearNodeLocalData();
+                // 注入节点参数到 nodeLocalData（JSON 构建时的 params 字段）
+                if (node.getParams() != null && !node.getParams().isEmpty()) {
+                    ctx.getNodeLocalData().putAll(node.getParams());
+                }
                 fireBeforeNode(ctx);
                 String prevNextId = ctx.getNextNodeId();
 
                 try {
-                    node.execute(ctx);
+                    String result = node.execute(ctx);
+                    // 处理 execute() 返回值：仅当节点未显式设置其他动作时，返回值才触发 JUMP
+                    // 优先级：显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT
+                    if (result != null && !result.isEmpty() && ctx.getAction() == Action.NEXT) {
+                        // 检查点3：execute()返回值目标不存在
+                        if (!nodeMap.containsKey(result)) {
+                            switch (routeStrategy) {
+                                case EXIT:
+                                    ctx.setAction(Action.EXIT);
+                                    break;
+                                case NEXT:
+                                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+                                    ctx.setAction(Action.NEXT);
+                                    break;
+                                default:
+                                    throw new PipelineException("Execute result target node not found: " + result
+                                            + " (returned from node: " + nodeId + ")"
+                                            + ". Available nodes: " + nodeMap.keySet(),
+                                            nodeId, id, null);
+                            }
+                        } else {
+                            ctx.setNextNodeId(result);
+                            ctx.setAction(Action.JUMP);
+                        }
+                    }
                 } catch (Exception e) {
-                    fireOnError(ctx, e);
-                    throw new PipelineException("Node execution failed: " + nodeId, e);
+                    // 将异常存入上下文，供错误恢复节点判断
+                    ctx.setLastError(e);
+                    // 触发 onError 回调，获取恢复节点 ID
+                    String recoveryNodeId = fireOnError(ctx, e);
+                    if (recoveryNodeId != null && !recoveryNodeId.isEmpty()) {
+                        // 验证恢复节点是否存在
+                        if (!nodeMap.containsKey(recoveryNodeId)) {
+                            throw new PipelineException(
+                                    "Recovery node not found: " + recoveryNodeId
+                                            + " (error from node: " + nodeId + ")",
+                                    nodeId, id, e);
+                        }
+                        // 路由到恢复节点继续执行
+                        ctx.setNextNodeId(recoveryNodeId);
+                        ctx.setAction(Action.NEXT);
+                        ctx.addHistory(nodeId);
+                        fireAfterNode(ctx);
+                        continue;
+                    }
+                    // 无恢复节点，终止流水线
+                    throw new PipelineException("Node execution failed: " + nodeId, nodeId, id, e);
                 }
 
                 ctx.addHistory(nodeId);
@@ -192,11 +273,7 @@ public class DefaultPipeline implements Pipeline {
                     if (ctx.getAction() == Action.WAIT
                             && Objects.equals(prevNextId, ctx.getNextNodeId())) {
                         // 挂起前推进到下一节点，resume 时从下一节点继续执行
-                        if (decisionTargets.contains(nodeId)) {
-                            ctx.setNextNodeId(null);
-                        } else {
-                            ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
-                        }
+                        ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
                     }
                     break;
                 }
@@ -215,14 +292,34 @@ public class DefaultPipeline implements Pipeline {
                         ctx.setNextNodeId(null);
                     }
                 } else if (ctx.getAction() == Action.JUMP) {
+                    // 验证 JUMP 目标节点是否存在
+                    String jumpTarget = ctx.getNextNodeId();
+                    if (jumpTarget != null && !nodeMap.containsKey(jumpTarget)) {
+                        // 检查点2：JUMP目标节点不存在
+                        switch (routeStrategy) {
+                            case EXIT:
+                                ctx.setAction(Action.EXIT);
+                                break;
+                            case NEXT:
+                                ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+                                ctx.setAction(Action.NEXT);
+                                break;
+                            default:
+                                throw new PipelineException("Route target node not found: " + jumpTarget
+                                        + " (routed from node: " + nodeId + ")"
+                                        + ". Available nodes: " + nodeMap.keySet(),
+                                        nodeId, id, null);
+                        }
+                    } else {
+                        ctx.setAction(Action.NEXT);
+                    }
+                } else if (ctx.getAction() == Action.BREAK) {
+                    // 中断当前分支：跳到按顺序的下一个节点继续执行
+                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
                     ctx.setAction(Action.NEXT);
                 } else if (Action.NEXT.equals(ctx.getAction()) && Objects.equals(prevNextId, ctx.getNextNodeId())) {
-                    if (decisionTargets.contains(nodeId)) {
-                        ctx.setNextNodeId(null);
-                    } else {
-                        String nextId = getNextNodeIdInOrder(nodeId);
-                        ctx.setNextNodeId(nextId);
-                    }
+                    // 节点未修改 nextNodeId 且动作为 NEXT，按默认顺序前进
+                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
                 }
 
                 if (endNodeId != null && nodeId.equals(endNodeId)) {
@@ -236,7 +333,7 @@ public class DefaultPipeline implements Pipeline {
             throw e;
         } catch (Exception e) {
             fireOnError(ctx, e);
-            throw new PipelineException("Pipeline execution failed", e);
+            throw new PipelineException("Pipeline execution failed", ctx.getCurrentNodeId(), id, e);
         }
     }
 
@@ -270,22 +367,8 @@ public class DefaultPipeline implements Pipeline {
      * @return 节点 ID
      */
     static String nodeId(PipelineNode node) {
-        if (node instanceof DecisionNode) {
-            return ((DecisionNode) node).getId();
-        }
-        if (node instanceof com.chua.common.support.task.pipeline.node.TaskNode) {
-            return ((com.chua.common.support.task.pipeline.node.TaskNode) node).getId();
-        }
-        if (node instanceof EndNode) {
-            return ((EndNode) node).getId();
-        }
-        if (node instanceof com.chua.common.support.task.pipeline.node.StartNode) {
-            return ((com.chua.common.support.task.pipeline.node.StartNode) node).getId();
-        }
-        if (node instanceof SubPipelineNode) {
-            return ((SubPipelineNode) node).getId();
-        }
-        return node.getClass().getSimpleName();
+        String id = node.getId();
+        return id != null ? id : node.getClass().getSimpleName();
     }
 
     /**
@@ -341,9 +424,9 @@ public class DefaultPipeline implements Pipeline {
 
             if (node instanceof DecisionNode) {
                 DecisionNode dn = (DecisionNode) node;
-                dn.getBranches().forEach((result, nextId) ->
+                dn.getBranches().forEach((label, nextId) ->
                     tree.computeIfAbsent(nid, k -> new ArrayList<>())
-                        .add(new Edge(nid, nextId, result ? "true" : "false")));
+                        .add(new Edge(nid, nextId, label)));
             } else if (node instanceof EndNode) {
                 continue;
             } else if (node instanceof SubPipelineNode) {
@@ -449,15 +532,26 @@ public class DefaultPipeline implements Pipeline {
         }
     }
 
-    private void fireOnError(PipelineContext<?> ctx, Throwable e) {
+    private String fireOnError(PipelineContext<?> ctx, Throwable e) {
+        String recoveryNodeId = null;
         for (PipelineListener listener : listeners) {
-            listener.onError(ctx, e);
+            String result = listener.onError(ctx, e);
+            if (result != null && !result.isEmpty()) {
+                recoveryNodeId = result;
+            }
         }
+        return recoveryNodeId;
     }
 
     private void fireOnComplete(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onComplete(ctx);
+        }
+    }
+
+    private void fireOnStart(PipelineContext<?> ctx) {
+        for (PipelineListener listener : listeners) {
+            listener.onStart(ctx);
         }
     }
 }

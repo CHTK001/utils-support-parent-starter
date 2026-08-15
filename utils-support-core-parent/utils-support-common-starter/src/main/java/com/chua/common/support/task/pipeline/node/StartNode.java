@@ -45,8 +45,13 @@ public class StartNode implements PipelineNode {
     }
 
     @Override
-    public void execute(PipelineContext<?> context) {
+    public String getType() {
+        return "start";
+    }
+
+    @Override
+    public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
-        context.setNextNodeId(nextNodeId);
+        return nextNodeId;
     }
 }

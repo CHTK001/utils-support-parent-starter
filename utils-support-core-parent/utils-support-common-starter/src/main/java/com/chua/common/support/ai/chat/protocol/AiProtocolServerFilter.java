@@ -582,12 +582,14 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         }, () -> {
             response.sseEvent(null, SSE_DONE);
             response.flush();
+            response.sseClose();
             clearTokenGroup();
         }, error -> {
             log.error("{}stream error: {}", LOG_PROTOCOL_PREFIX, error.getMessage());
             response.sseEvent(KEY_ERROR, error.getMessage());
             response.sseEvent(null, SSE_DONE);
             response.flush();
+            response.sseClose();
             clearTokenGroup();
         });
     }
@@ -723,11 +725,13 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             )));
             response.sseEvent("message_stop", Json.toJson(Map.of(KEY_TYPE, "message_stop")));
             response.flush();
+            response.sseClose();
             clearTokenGroup();
         }, error -> {
             log.error("{}claude stream error: {}", LOG_PROTOCOL_PREFIX, error.getMessage());
             response.sseEvent(KEY_ERROR, error.getMessage());
             response.flush();
+            response.sseClose();
             clearTokenGroup();
         });
     }
@@ -838,6 +842,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
                 "response", buildCcsResponse(responseId, messageId, model, text != null ? text : "", STATUS_COMPLETED)
         )));
         response.flush();
+        response.sseClose();
     }
 
     // ==================== Gemini ====================
@@ -875,6 +880,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
                 response.sseEvent(null, Json.toJson(candidate));
                 response.sseEvent(null, SSE_DONE);
                 response.flush();
+                response.sseClose();
                 return;
             }
 

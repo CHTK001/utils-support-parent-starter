@@ -26,6 +26,8 @@
         
         <module>utils-support-metrics-starter</module>
         <module>utils-support-serialize-starter</module>
+        <module>utils-support-fory-starter</module>
+        <module>utils-support-gson-starter</module>
         <module>utils-support-tika-starter</module>
         <module>utils-support-tui-starter</module>
         <module>utils-support-video-processor-starter</module>

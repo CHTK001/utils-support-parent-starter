@@ -19,14 +19,14 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  * <p>用法示例：</p>
  * <pre>{@code
  * Pipeline subPipeline = PipelineBuilder.newBuilder("sub")
- *     .task("subA", ctx -> { })
- *     .task("subB", ctx -> { })
+ *     .task("subA", ctx -> { return null; }).taskEnd()
+ *     .task("subB", ctx -> { return null; }).taskEnd()
  *     .build();
  *
  * Pipeline mainPipeline = PipelineBuilder.newBuilder("main")
- *     .task("mainStart", ctx -> { })
+ *     .task("mainStart", ctx -> { return null; }).taskEnd()
  *     .pipeline("subStep", subPipeline)
- *     .task("mainEnd", ctx -> { })
+ *     .task("mainEnd", ctx -> { return null; }).taskEnd()
  *     .build();
  * }</pre>
  *
@@ -64,6 +64,11 @@ public class SubPipelineNode implements PipelineNode {
         return id;
     }
 
+    @Override
+    public String getType() {
+        return "subPipeline";
+    }
+
     /**
      * 获取子流水线 ID。
      *
@@ -92,7 +97,7 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     @Override
-    public void execute(PipelineContext<?> context) {
+    public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
 
         PipelineContext<Object> subCtx = subPipeline.execute(context.getCurrentData());
@@ -102,5 +107,6 @@ public class SubPipelineNode implements PipelineNode {
         parentCtx.setCurrentData(subCtx.getCurrentData());
         parentCtx.setAttribute("subPipelineContext", subCtx);
         parentCtx.setAttribute("subPipelineHistory", subCtx.getHistory());
+        return null;
     }
 }

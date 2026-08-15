@@ -3,23 +3,37 @@ package com.chua.common.support.task.pipeline.node;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * 判断节点。
  *
  * <p>支持分支逻辑的节点，根据条件判断结果选择不同的执行路径。
- * 通过 {@link #when(boolean, String)} 方法注册 true/false 分支指向的下一节点。</p>
+ * 统一使用 {@link PipelineNode} 回调，返回目标节点 ID 实现路由：</p>
+ * <ul>
+ *   <li><strong>返回节点 ID</strong> — 跳转到指定节点</li>
+ *   <li><strong>返回 null</strong> — 按默认顺序执行</li>
+ * </ul>
  *
- * <p>用法示例：</p>
+ * <p><strong>用法示例：</strong></p>
  * <pre>{@code
- * .decision("check", ctx -> ctx.getCurrentData() != null)
- *     .when(true, "process")
- *     .when(false, "skip")
- *     .then()
+ * // 二路分支
+ * .decision("check", ctx -> ctx.getCurrentData() != null ? "process" : "error")
+ *
+ * // 多路分支
+ * .decision("route", ctx -> {
+ *     String type = ctx.getAttribute("type");
+ *     switch (type) {
+ *         case "A": return "nodeA";
+ *         case "B": return "nodeB";
+ *         default: return "defaultNode";
+ *     }
+ * })
  * }</pre>
+ *
+ * <p>分支映射（可选，用于树打印可视化）可通过 {@link #branches(Map)} 设置。</p>
  *
  * @author CH
  */
@@ -31,25 +45,31 @@ public class DecisionNode implements PipelineNode {
     private final String id;
 
     /**
-     * 条件判断逻辑
+     * 路由处理器（统一回调），返回目标节点 ID
      */
-    private final Predicate<PipelineContext<?>> condition;
+    private final PipelineNode router;
 
     /**
-     * 分支映射：true -&gt; 节点ID，false -&gt; 节点ID
+     * 分支映射（可选，用于树打印可视化）
+     * key 为分支标签（如 "true"/"false" 或自定义名称），value 为目标节点 ID
      */
-    private final Map<Boolean, String> branches;
+    private Map<String, String> branches;
+
+    /**
+     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
+     */
+    private Map<String, Object> params;
 
     /**
      * 构造判断节点。
      *
-     * @param id        节点唯一标识
-     * @param condition 条件判断逻辑
+     * @param id     节点唯一标识
+     * @param router 路由处理器，返回目标节点 ID；返回 null 表示按默认顺序执行
      */
-    public DecisionNode(String id, Predicate<PipelineContext<?>> condition) {
+    public DecisionNode(String id, PipelineNode router) {
         this.id = id;
-        this.condition = condition;
-        this.branches = new LinkedHashMap<>();
+        this.router = router;
+        this.params = Collections.emptyMap();
     }
 
     /**
@@ -62,33 +82,50 @@ public class DecisionNode implements PipelineNode {
     }
 
     /**
-     * 获取分支映射。
+     * 获取分支映射（用于树打印可视化）。
      *
-     * @return true/false -&gt; 下一节点 ID 的映射
+     * @return 分支标签 -> 目标节点 ID 的映射；未设置时返回空 Map
      */
-    public Map<Boolean, String> getBranches() {
-        return branches;
+    public Map<String, String> getBranches() {
+        return branches != null ? branches : Collections.emptyMap();
     }
 
     /**
-     * 注册分支。
+     * 设置分支映射（用于树打印可视化）。
      *
-     * @param result     条件结果（true 或 false）
-     * @param nextNodeId 该结果对应的下一节点 ID
+     * <p>分支映射不影响路由逻辑（路由由 router 回调决定），
+     * 仅用于 {@link com.chua.common.support.task.pipeline.builder.DefaultPipeline#printTree} 等可视化场景。</p>
+     *
+     * @param branches 分支标签 -> 目标节点 ID 的映射
      * @return this
      */
-    public DecisionNode when(boolean result, String nextNodeId) {
-        this.branches.put(result, nextNodeId);
+    public DecisionNode branches(Map<String, String> branches) {
+        this.branches = branches != null ? new LinkedHashMap<>(branches) : null;
         return this;
     }
 
     @Override
-    public void execute(PipelineContext<?> context) {
+    public String getType() {
+        return "decision";
+    }
+
+    /**
+     * 设置节点参数（JSON 构建时调用）。
+     *
+     * @param params 节点参数映射
+     */
+    public void setParams(Map<String, Object> params) {
+        this.params = params != null ? params : Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    @Override
+    public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
-        boolean result = condition.test(context);
-        String nextId = branches.get(result);
-        if (nextId != null) {
-            context.setNextNodeId(nextId);
-        }
+        return router.execute(context);
     }
 }

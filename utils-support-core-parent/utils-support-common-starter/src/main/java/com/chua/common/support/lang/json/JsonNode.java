@@ -69,9 +69,11 @@ public class JsonNode {
     /**
      * 使用原始值构造 JsonNode（无父级引用）。
      *
+     * <p>供各 {@link JsonProvider} 实现（Jackson / Gson / Fory 等）跨包构造节点使用。</p>
+     *
      * @param value 原始 JSON 值
      */
-    JsonNode(Object value) {
+    public JsonNode(Object value) {
         this.value = value;
         this.missing = false;
         this.parent = null;
@@ -114,7 +116,7 @@ public class JsonNode {
      * @param value 原始值
      * @return JsonNode 实例
      */
-    static JsonNode valueOf(Object value) {
+    public static JsonNode valueOf(Object value) {
         if (value == null) {
             return MISSING;
         }

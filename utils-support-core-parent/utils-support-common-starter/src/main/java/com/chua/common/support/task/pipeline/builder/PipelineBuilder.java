@@ -1,34 +1,76 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.task.pipeline.callback.LoggingListener;
 import com.chua.common.support.task.pipeline.callback.PipelineListener;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
+import com.chua.common.support.task.pipeline.core.RouteStrategy;
 import com.chua.common.support.task.pipeline.node.*;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * 流水线构建器。
  *
  * <p>链式 API 构建流水线，支持添加执行节点、判断节点、子流水线节点，以及注册全局回调。</p>
  *
- * <p>用法示例：</p>
+ * <p>所有节点统一使用 {@link PipelineNode} 函数式接口，无需类型强转：</p>
+ * <ul>
+ *   <li>{@code .task("id", ctx -> { doWork(ctx); return null; })} — 顺序执行</li>
+ *   <li>{@code .task("id", ctx -> condition ? "nodeA" : "nodeB")} — 动态路由</li>
+ *   <li>{@code .decision("id", ctx -> ctx.getData() != null ? "yes" : "no")} — 条件分支</li>
+ * </ul>
+ *
+ * <p><strong>用法示例：</strong></p>
  * <pre>{@code
+ * // 顺序执行 + 条件分支
  * Pipeline pipeline = PipelineBuilder.newBuilder("order")
- *     .task("validate", ctx -> validate(ctx.getCurrentData()))
- *     .decision("check", ctx -> ctx.getCurrentData() != null)
- *         .when(true, "process")
- *         .when(false, "error")
- *         .then()
- *     .task("process", ctx -> process(ctx.getCurrentData()))
- *     .task("error", ctx -> log.error("invalid data"))
+ *     .task("validate", ctx -> {
+ *         validate(ctx.getCurrentData());
+ *         return null;  // 按默认顺序执行
+ *     }).taskEnd()
+ *     .decision("check", ctx -> ctx.getCurrentData() != null ? "process" : "error")
+ *     .task("process", ctx -> {
+ *         process(ctx.getCurrentData());
+ *         return null;
+ *     }).taskEnd()
+ *     .task("error", ctx -> {
+ *         log.error("invalid data");
+ *         return null;
+ *     }).taskEnd()
  *     .addListener(new LoggingListener())
  *     .build();
  *
- * PipelineContext<String> ctx = pipeline.execute("orderData");
+ * // 动态路由
+ * Pipeline pipeline = PipelineBuilder.newBuilder("router")
+ *     .task("process", ctx -> {
+ *         doProcess(ctx.getCurrentData());
+ *         return "validate";  // 跳转到 validate 节点
+ *     }).taskEnd()
+ *     .task("validate", ctx -> {
+ *         validate(ctx.getCurrentData());
+ *         return null;
+ *     }).taskEnd()
+ *     .build();
+ *
+ * // 便捷回调
+ * Pipeline pipeline = PipelineBuilder.newBuilder("flow")
+ *     .logging()                          // 启用日志
+ *     .onStart(ctx -> log.info("start"))  // 启动回调
+ *     .onComplete(ctx -> log.info("done"))// 完成回调
+ *     .onError((ctx, e) -> {              // 异常回调（支持错误恢复路由）
+ *         log.error("node {} failed", ctx.getCurrentNodeId(), e);
+ *         return "error-handler";         // 返回恢复节点 ID，null 则终止
+ *     })
+ *     .task("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
+ *     .task("step2", ctx -> { doStep2(ctx); return null; }).taskEnd()
+ *     .build();
+ *
+ * // JSON 构建
+ * Pipeline pipeline = PipelineBuilder.fromJson(jsonString).build();
  * }</pre>
  *
  * @author CH
@@ -51,7 +93,7 @@ public class PipelineBuilder {
     private final List<PipelineListener> listeners;
 
     /**
-     * 节点 ID -&gt; 节点实例的映射
+     * 节点 ID -> 节点实例的映射
      */
     private final Map<String, PipelineNode> nodeMap;
 
@@ -69,6 +111,11 @@ public class PipelineBuilder {
      * 是否已构建，防止重复调用 build()
      */
     private boolean built;
+
+    /**
+     * 路由策略：当目标节点不存在时的处理方式
+     */
+    private RouteStrategy routeStrategy;
 
     /**
      * 私有构造器。
@@ -104,14 +151,107 @@ public class PipelineBuilder {
     }
 
     /**
-     * 添加执行节点。
+     * 从 JSON 字符串解析并创建流水线构建器。
      *
-     * @param id   节点唯一标识
-     * @param task 业务逻辑执行器
+     * <p>JSON 格式详见 {@link PipelineJsonParser} 类注释。</p>
+     *
+     * @param json JSON 字符串
+     * @return PipelineBuilder
+     * @see PipelineJsonParser
+     */
+    public static PipelineBuilder fromJson(String json) {
+        return PipelineJsonParser.parse(json);
+    }
+
+    /**
+     * 添加执行节点（Definition API）。
+     *
+     * <p>返回 {@link TaskDefinition}，支持类型安全的链式配置：</p>
+     * <ul>
+     *   <li>{@code .task("id", handler).taskEnd()} — 等价于旧版 task()，完成定义返回 builder</li>
+     *   <li>{@code .task("id", handler).end().taskEnd()} — 执行后终止流水线</li>
+     *   <li>{@code .task("id", handler).start().taskEnd()} — 标记为起始节点</li>
+     *   <li>{@code .task("id", handler).decision().branch("yes","process").taskEnd()} — 转为判断节点</li>
+     *   <li>{@code .task("id", handler).subPipeline(sub).taskEnd()} — 转为子流水线节点</li>
+     * </ul>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * // 顺序执行
+     * .task("validate", ctx -> {
+     *     validate(ctx.getCurrentData());
+     *     return null;
+     * }).taskEnd()
+     *
+     * // 执行后终止
+     * .task("finalize", ctx -> {
+     *     finalize(ctx.getCurrentData());
+     *     return null;
+     * }).end().taskEnd()
+     *
+     * // 条件分支
+     * .task("check", ctx -> ctx.getData() != null ? "yes" : "no")
+     *     .decision()
+     *     .branch("yes", "process")
+     *     .branch("no", "error")
+     *     .taskEnd()
+     * }</pre>
+     *
+     * @param id      节点唯一标识
+     * @param handler 业务逻辑处理器，返回 null 按默认顺序执行，返回节点 ID 则跳转
+     * @return TaskDefinition 任务节点定义
+     */
+    public TaskDefinition task(String id, PipelineNode handler) {
+        return new TaskDefinition(id, handler, this);
+    }
+
+    /**
+     * 添加执行节点（语义化别名，与 {@link #task(String, PipelineNode)} 一致）。
+     *
+     * <p>语义上表示"开始一个任务定义"，与 {@link TaskDefinition#taskEnd()} 配对使用：</p>
+     * <pre>{@code
+     * .taskStart("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
+     * }</pre>
+     *
+     * @param id      节点唯一标识
+     * @param handler 业务逻辑处理器
+     * @return TaskDefinition 任务节点定义
+     */
+    public TaskDefinition taskStart(String id, PipelineNode handler) {
+        return task(id, handler);
+    }
+
+    /**
+     * 添加判断节点。
+     *
+     * <p>统一使用 {@link PipelineNode} 函数式接口，路由回调返回目标节点 ID：</p>
+     * <ul>
+     *   <li>返回节点 ID — 跳转到指定节点</li>
+     *   <li>返回 {@code null} — 按默认顺序继续执行</li>
+     * </ul>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * // 二路分支
+     * .decision("check", ctx -> ctx.getCurrentData() != null ? "process" : "error")
+     *
+     * // 多路分支
+     * .decision("route", ctx -> {
+     *     String type = ctx.getAttribute("type");
+     *     switch (type) {
+     *         case "A": return "nodeA";
+     *         case "B": return "nodeB";
+     *         default: return "defaultNode";
+     *     }
+     * })
+     * }</pre>
+     *
+     * @param id     节点唯一标识
+     * @param router 路由处理器，返回目标节点 ID；返回 null 表示按默认顺序执行
      * @return this
      */
-    public PipelineBuilder task(String id, Consumer<PipelineContext<?>> task) {
-        TaskNode node = new TaskNode(id, task);
+    public PipelineBuilder decision(String id, PipelineNode router) {
+        DecisionNode node = new DecisionNode(id, router);
         nodes.add(node);
         nodeMap.put(id, node);
         return this;
@@ -132,20 +272,6 @@ public class PipelineBuilder {
     }
 
     /**
-     * 添加判断节点。
-     *
-     * <p>返回 {@link DecisionBuilder} 用于配置分支路径；
-     * 完成后需调用 {@link DecisionBuilder#then()} 返回当前构建器。</p>
-     *
-     * @param id        节点唯一标识
-     * @param condition 条件判断逻辑
-     * @return DecisionBuilder
-     */
-    public DecisionBuilder decision(String id, Predicate<PipelineContext<?>> condition) {
-        return new DecisionBuilder(id, condition, this);
-    }
-
-    /**
      * 注册全局回调监听器。
      *
      * @param listener 监听器实例
@@ -153,6 +279,114 @@ public class PipelineBuilder {
      */
     public PipelineBuilder addListener(PipelineListener listener) {
         this.listeners.add(listener);
+        return this;
+    }
+
+    /**
+     * 启用日志监听器（便捷方法）。
+     *
+     * <p>等价于 {@code addListener(new LoggingListener())}，一行代码启用流水线日志。</p>
+     *
+     * <p>日志级别：节点执行前/后 FINE，完成 INFO，异常 SEVERE。</p>
+     *
+     * @return this
+     */
+    public PipelineBuilder logging() {
+        this.listeners.add(new LoggingListener());
+        return this;
+    }
+
+    /**
+     * 注册流水线启动回调（便捷方法）。
+     *
+     * <p>在第一个节点执行前触发，仅触发一次。</p>
+     *
+     * @param onStart 启动回调
+     * @return this
+     */
+    public PipelineBuilder onStart(Consumer<PipelineContext<?>> onStart) {
+        this.listeners.add(new PipelineListener() {
+            @Override
+            public void onStart(PipelineContext<?> ctx) {
+                onStart.accept(ctx);
+            }
+        });
+        return this;
+    }
+
+    /**
+     * 注册流水线完成回调（便捷方法）。
+     *
+     * <p>流水线正常执行完毕时触发（到达终止节点或 action=EXIT）。</p>
+     *
+     * @param onComplete 完成回调
+     * @return this
+     */
+    public PipelineBuilder onComplete(Consumer<PipelineContext<?>> onComplete) {
+        this.listeners.add(new PipelineListener() {
+            @Override
+            public void onComplete(PipelineContext<?> ctx) {
+                onComplete.accept(ctx);
+            }
+        });
+        return this;
+    }
+
+    /**
+     * 注册节点切换回调（便捷方法）。
+     *
+     * <p>每完成一个节点并确定下一节点时触发，可用于监控执行进度。</p>
+     *
+     * @param onNextStep 回调函数，参数为 (context, currentNodeId, nextNodeId)
+     * @return this
+     */
+    public PipelineBuilder onNextStep(java.util.function.BiConsumer<PipelineContext<?>, String[]> onNextStep) {
+        this.listeners.add(new PipelineListener() {
+            @Override
+            public void afterNode(PipelineContext<?> ctx) {
+                onNextStep.accept(ctx, new String[]{ctx.getCurrentNodeId(), ctx.getNextNodeId()});
+            }
+        });
+        return this;
+    }
+
+    /**
+     * 注册节点异常回调（便捷方法）。
+     *
+     * <p>当节点执行抛出异常时触发。回调返回值决定流水线后续行为：</p>
+     * <ul>
+     *   <li><strong>返回节点 ID</strong> — 引擎路由到该节点继续执行（错误恢复路由），
+     *       异常已存入 {@code ctx.getLastError()}，恢复节点可据此做条件判断</li>
+     *   <li><strong>返回 null</strong> — 终止流水线，抛出 {@link com.chua.common.support.task.pipeline.exception.PipelineException}</li>
+     * </ul>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * Pipeline pipeline = PipelineBuilder.newBuilder("flow")
+     *     .onError((ctx, e) -> {
+     *         log.error("Node {} failed", ctx.getCurrentNodeId(), e);
+     *         return "error-handler";  // 路由到错误处理节点
+     *     })
+     *     .task("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
+     *     .task("error-handler", ctx -> {
+     *         Throwable err = ctx.getLastError();
+     *         // 处理错误...
+     *         ctx.clearLastError();
+     *         return null;
+     *     }).taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param onError 异常回调函数，参数为 (context, exception)，返回恢复节点 ID 或 null
+     * @return this
+     */
+    public PipelineBuilder onError(BiFunction<PipelineContext<?>, Throwable, String> onError) {
+        this.listeners.add(new PipelineListener() {
+            @Override
+            public String onError(PipelineContext<?> ctx, Throwable e) {
+                return onError.apply(ctx, e);
+            }
+        });
         return this;
     }
 
@@ -181,6 +415,37 @@ public class PipelineBuilder {
     }
 
     /**
+     * 配置路由策略：当目标节点不存在时的处理方式。
+     *
+     * <p>默认为 {@link RouteStrategy#THROW}（抛出异常）。</p>
+     *
+     * <p><strong>策略说明：</strong></p>
+     * <ul>
+     *   <li>{@link RouteStrategy#THROW} — 抛出 PipelineException（默认，最安全）</li>
+     *   <li>{@link RouteStrategy#EXIT} — 优雅终止流水线，触发 onComplete 回调</li>
+     *   <li>{@link RouteStrategy#NEXT} — 跳过不存在的节点，按定义顺序继续执行下一个</li>
+     * </ul>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * // 动态路由场景：某些分支可能不存在
+     * Pipeline pipeline = PipelineBuilder.newBuilder("flow")
+     *     .routeStrategy(RouteStrategy.NEXT)
+     *     .decision("route", ctx -> ctx.getAttribute("type"))
+     *     .task("typeA", ctx -> null).taskEnd()
+     *     .task("fallback", ctx -> null).taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param strategy 路由策略
+     * @return this
+     */
+    public PipelineBuilder routeStrategy(RouteStrategy strategy) {
+        this.routeStrategy = strategy;
+        return this;
+    }
+
+    /**
      * 添加节点（供其他构建器内部使用）。
      *
      * @param node 节点实例
@@ -194,10 +459,34 @@ public class PipelineBuilder {
     }
 
     /**
+     * 添加节点（供 Definition 类内部使用）。
+     *
+     * <p>包级私有方法，由 {@link TaskDefinition#taskEnd()}、
+     * {@link TaskDecisionDefinition#taskEnd()}、{@link TaskSubPipelineDefinition#taskEnd()}
+     * 调用，将配置完成的节点添加到流水线。</p>
+     *
+     * @param node 节点实例
+     */
+    void addNodeInternal(PipelineNode node) {
+        String nid = DefaultPipeline.nodeId(node);
+        nodes.add(node);
+        nodeMap.put(nid, node);
+    }
+
+    /**
      * 构建流水线。
      *
+     * <p>构建时执行以下验证：</p>
+     * <ul>
+     *   <li>至少定义一个节点</li>
+     *   <li>起始节点 ID 必须存在于已注册的节点中</li>
+     *   <li>终止节点 ID（如果指定）必须存在于已注册的节点中</li>
+     *   <li>判断节点的分支目标必须存在于已注册的节点中</li>
+     *   <li>子流水线节点的子流水线不能为 null</li>
+     * </ul>
+     *
      * @return 构建完成的 Pipeline 实例
-     * @throws IllegalStateException 当未定义任何节点或重复构建时抛出
+     * @throws IllegalStateException 当验证失败或重复构建时抛出
      */
     public Pipeline build() {
         if (built) {
@@ -209,77 +498,99 @@ public class PipelineBuilder {
             throw new IllegalStateException("No nodes defined");
         }
 
+        // 验证起始节点
         if (startNodeId == null) {
             startNodeId = nodeMap.keySet().iterator().next();
+        } else if (!nodeMap.containsKey(startNodeId)) {
+            throw new IllegalStateException(
+                    "Start node not found: '" + startNodeId
+                            + "'. Available nodes: " + nodeMap.keySet());
         }
 
-        return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners);
+        // 验证终止节点
+        if (endNodeId != null && !nodeMap.containsKey(endNodeId)) {
+            throw new IllegalStateException(
+                    "End node not found: '" + endNodeId
+                            + "'. Available nodes: " + nodeMap.keySet());
+        }
+
+        // 验证节点引用完整性
+        for (PipelineNode node : nodes) {
+            String nid = DefaultPipeline.nodeId(node);
+
+            if (node instanceof DecisionNode) {
+                DecisionNode dn = (DecisionNode) node;
+                Map<String, String> branches = dn.getBranches();
+                for (Map.Entry<String, String> entry : branches.entrySet()) {
+                    String targetId = entry.getValue();
+                    if (targetId != null && !targetId.isEmpty() && !nodeMap.containsKey(targetId)) {
+                        throw new IllegalStateException(
+                                "Decision node '" + nid + "' branch '" + entry.getKey()
+                                        + "' references undefined node: '" + targetId
+                                        + "'. Available nodes: " + nodeMap.keySet());
+                    }
+                }
+            }
+
+            if (node instanceof SubPipelineNode) {
+                SubPipelineNode sn = (SubPipelineNode) node;
+                try {
+                    sn.getSubPipelineId();
+                } catch (NullPointerException e) {
+                    throw new IllegalStateException(
+                            "SubPipeline node '" + nid + "' has null sub-pipeline");
+                }
+            }
+        }
+
+        RouteStrategy effectiveStrategy = routeStrategy != null ? routeStrategy : RouteStrategy.THROW;
+        return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners, effectiveStrategy);
+    }
+
+    // ========== Getter（供 JSON 解析器使用） ==========
+
+    /**
+     * 获取流水线 ID。
+     *
+     * @return 流水线 ID
+     */
+    public String getId() {
+        return id;
     }
 
     /**
-     * 判断分支构建器。
+     * 获取节点映射。
      *
-     * <p>用于 {@link #decision(String, Predicate)} 方法返回的中间构建器；
-     * 通过 {@link #when(boolean, String)} 配置分支路径；
-     * 最后调用 {@link #then()} 返回父构建器。</p>
+     * @return 节点 ID -> 节点实例的映射
      */
-    public class DecisionBuilder {
+    Map<String, PipelineNode> getNodeMap() {
+        return nodeMap;
+    }
 
-        /**
-         * 判断节点 ID
-         */
-        private final String id;
+    /**
+     * 获取按添加顺序排列的节点列表。
+     *
+     * @return 节点列表
+     */
+    List<PipelineNode> getNodes() {
+        return nodes;
+    }
 
-        /**
-         * 条件判断逻辑
-         */
-        private final Predicate<PipelineContext<?>> condition;
+    /**
+     * 获取起始节点 ID。
+     *
+     * @return 起始节点 ID，未指定时返回 null
+     */
+    String getStartNodeId() {
+        return startNodeId;
+    }
 
-        /**
-         * 父构建器引用
-         */
-        private final PipelineBuilder parent;
-
-        /**
-         * 判断节点实例
-         */
-        private final DecisionNode node;
-
-        /**
-         * 构造判断分支构建器。
-         *
-         * @param id        节点 ID
-         * @param condition 条件判断逻辑
-         * @param parent    父构建器
-         */
-        DecisionBuilder(String id, Predicate<PipelineContext<?>> condition, PipelineBuilder parent) {
-            this.id = id;
-            this.condition = condition;
-            this.parent = parent;
-            this.node = new DecisionNode(id, condition);
-        }
-
-        /**
-         * 注册分支。
-         *
-         * @param result     条件结果（true 或 false）
-         * @param nextNodeId 该结果对应的下一节点 ID
-         * @return this
-         */
-        public DecisionBuilder when(boolean result, String nextNodeId) {
-            node.when(result, nextNodeId);
-            return this;
-        }
-
-        /**
-         * 完成分支配置，返回父构建器。
-         *
-         * @return 父构建器
-         */
-        public PipelineBuilder then() {
-            parent.nodes.add(node);
-            parent.nodeMap.put(id, node);
-            return parent;
-        }
+    /**
+     * 获取终止节点 ID。
+     *
+     * @return 终止节点 ID，未指定时返回 null
+     */
+    String getEndNodeId() {
+        return endNodeId;
     }
 }
