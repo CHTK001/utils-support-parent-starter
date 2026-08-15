@@ -1,6 +1,7 @@
 package com.chua.common.support.task.pipeline.core;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 流水线上下文。
@@ -18,6 +19,7 @@ import java.util.*;
  *   <li><strong>history</strong> — 已执行节点 ID 列表，支持追溯和重播</li>
  *   <li><strong>action</strong> — 当前动作，控制引擎下一步行为</li>
  *   <li><strong>attributes</strong> — 扩展属性 Map，节点间共享自定义数据</li>
+ *   <li><strong>nodeOutputs</strong> — 节点输出数据 Map，引擎自动存储每个节点的输出，方便跨节点访问</li>
  *   <li><strong>nodeLocalData</strong> — 当前节点本地数据，节点间隔离，每进入新节点时清空</li>
  *   <li><strong>lastError</strong> — 最近一次节点执行异常，供错误恢复节点判断</li>
  * </ul>
@@ -68,9 +70,38 @@ public class PipelineContext<T> {
     private Action action;
 
     /**
-     * 扩展属性 Map，用于节点间共享自定义数据
+     * 扩展属性 Map，用于节点间共享自定义数据。
+     *
+     * <p>在并行分支中，此 Map 通过引用共享，所有分支读写同一 Map。
+     * 多分支同时写入同一 key 时需调用方保证线程安全。</p>
      */
-    private final Map<String, Object> attributes;
+    private Map<String, Object> attributes;
+
+    /**
+     * 节点输出数据 Map，引擎自动存储每个节点的输出数据。
+     *
+     * <p>每个节点执行完毕后，引擎自动将节点输出存入此 Map，key 为节点 ID。
+     * 后续任意节点可通过 {@link #getNodeOutput(String)} 或 {@link #getData(String)} 获取之前节点的输出。</p>
+     *
+     * <p><strong>存储格式（统一为 nodeId 作为 key）：</strong></p>
+     * <ul>
+     *   <li><strong>普通节点</strong>（TaskNode/DecisionNode/StartNode/EndNode）：
+     *       {@code nodeOutputs["task1"] = data}，值为节点的 currentData</li>
+     *   <li><strong>并行节点</strong>（ParallelNode）：
+     *       {@code nodeOutputs["parallel1"] = ParallelResult}，值为 {@link ParallelResult} 结构化对象，
+     *       内含各分支输出数据和历史</li>
+     *   <li><strong>子流水线节点</strong>（SubPipelineNode）：
+     *       {@code nodeOutputs["subStep"] = SubPipelineResult}，值为 {@link SubPipelineResult} 结构化对象，
+     *       内含子流程输出数据和历史</li>
+     * </ul>
+     *
+     * <p><strong>与 attributes 的区别：</strong></p>
+     * <ul>
+     *   <li><strong>nodeOutputs</strong> — 引擎自动管理，key 为节点ID，存储节点输出数据</li>
+     *   <li><strong>attributes</strong> — 用户手动管理，key 自定义，存储任意共享数据</li>
+     * </ul>
+     */
+    private Map<String, Object> nodeOutputs;
 
     /**
      * 当前节点本地数据，节点间隔离。
@@ -99,6 +130,7 @@ public class PipelineContext<T> {
         this.history = new ArrayList<>();
         this.action = Action.NEXT;
         this.attributes = new LinkedHashMap<>();
+        this.nodeOutputs = new ConcurrentHashMap<>();
     }
 
     /**
@@ -251,6 +283,113 @@ public class PipelineContext<T> {
         return (V) attributes.get(key);
     }
 
+    // ==================== 节点输出数据 ====================
+
+    /**
+     * 获取节点输出数据 Map。
+     *
+     * <p>每个节点执行完毕后，引擎自动将节点输出存入此 Map，key 为节点 ID。</p>
+     *
+     * <p><strong>存储格式：</strong></p>
+     * <ul>
+     *   <li>普通节点：值为 currentData</li>
+     *   <li>并行节点：值为 {@link ParallelResult}（包含各分支输出）</li>
+     *   <li>子流水线节点：值为 {@link SubPipelineResult}（包含子流程输出和历史）</li>
+     * </ul>
+     *
+     * @return 节点输出数据 Map（ConcurrentHashMap，线程安全）
+     */
+    public Map<String, Object> getNodeOutputs() {
+        return nodeOutputs;
+    }
+
+    /**
+     * 存储节点输出数据（由引擎自动调用）。
+     *
+     * <p>节点执行完毕后，引擎调用此方法将节点的 {@link #getCurrentData()} 存入 nodeOutputs。
+     * 用户也可手动调用此方法存储自定义数据。</p>
+     *
+     * @param nodeId 节点 ID
+     * @param data   节点输出数据
+     */
+    public void setNodeOutput(String nodeId, Object data) {
+        this.nodeOutputs.put(nodeId, data);
+    }
+
+    /**
+     * 获取指定节点的输出数据。
+     *
+     * <p>通过节点 ID 获取之前节点的输出数据，方便跨节点访问。</p>
+     *
+     * <p><strong>返回值类型：</strong></p>
+     * <ul>
+     *   <li>普通节点：返回 currentData</li>
+     *   <li>并行节点：返回 {@link ParallelResult}，可通过 {@code getData(nodeId, ParallelResult.class).getBranch("branchA")} 获取分支数据</li>
+     *   <li>子流水线节点：返回 {@link SubPipelineResult}，可通过 {@code getData(nodeId, SubPipelineResult.class).getOutput()} 获取子流程输出</li>
+     * </ul>
+     *
+     * @param nodeId 节点 ID
+     * @param <V>    数据值类型
+     * @return 节点输出数据，不存在时返回 null
+     */
+    @SuppressWarnings("unchecked")
+    public <V> V getNodeOutput(String nodeId) {
+        return (V) nodeOutputs.get(nodeId);
+    }
+
+    /**
+     * 获取指定节点的输出数据（带类型转换）。
+     *
+     * <p>与 {@link #getNodeOutput(String)} 类似，但支持指定目标类型。
+     * 如果节点输出数据不是指定类型，将抛出 ClassCastException。</p>
+     *
+     * @param nodeId 节点 ID
+     * @param type   期望的数据类型
+     * @param <V>    数据值类型
+     * @return 节点输出数据，不存在时返回 null
+     */
+    @SuppressWarnings("unchecked")
+    public <V> V getNodeOutput(String nodeId, Class<V> type) {
+        Object value = nodeOutputs.get(nodeId);
+        return value != null ? (V) type.cast(value) : null;
+    }
+
+    /**
+     * 获取指定节点的输出数据（便捷方法）。
+     *
+     * <p>等价于 {@link #getNodeOutput(String)}，提供更简洁的调用方式。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * // 等价于 ctx.getNodeOutput("validate")
+     * Object data = ctx.getData("validate");
+     *
+     * // 带类型转换
+     * String result = ctx.getData("validate", String.class);
+     * }</pre>
+     *
+     * @param taskId 节点 ID
+     * @param <V>    数据值类型
+     * @return 节点输出数据，不存在时返回 null
+     */
+    public <V> V getData(String taskId) {
+        return getNodeOutput(taskId);
+    }
+
+    /**
+     * 获取指定节点的输出数据（便捷方法，带类型转换）。
+     *
+     * <p>等价于 {@link #getNodeOutput(String, Class)}，提供更简洁的调用方式。</p>
+     *
+     * @param taskId 节点 ID
+     * @param type   期望的数据类型
+     * @param <V>    数据值类型
+     * @return 节点输出数据，不存在时返回 null
+     */
+    public <V> V getData(String taskId, Class<V> type) {
+        return getNodeOutput(taskId, type);
+    }
+
     /**
      * 获取按添加顺序的下一个节点 ID。
      *
@@ -392,20 +531,22 @@ public class PipelineContext<T> {
     // ==================== 并行分支上下文 ====================
 
     /**
-     * 创建并行分支上下文 — 共享数据，隔离控制状态。
+     * 创建并行分支上下文 — 共享只读数据和输出，隔离当前数据和控制状态。
      *
-     * <p>为并行节点（{@link com.chua.common.support.task.pipeline.node.ParallelNode}）创建分支上下文，
-     * 分支间通过引用共享数据，但各自维护独立的执行状态：</p>
+     * <p>为并行节点（{@link com.chua.common.support.task.pipeline.node.ParallelNode}）创建分支上下文。
+     * 各分支独立修改 {@code currentData}，避免并发写入冲突；
+     * 共享 {@code nodeOutputs} 和 {@code attributes}，方便跨分支/跨节点数据访问。</p>
      *
      * <p><strong>共享（引用传递）：</strong></p>
      * <ul>
      *   <li>{@code originalData} — 原始输入数据（只读）</li>
-     *   <li>{@code currentData} — 当前数据（同一对象引用，修改对象本身对所有分支可见）</li>
      *   <li>{@code attributes} — 扩展属性 Map（同一 Map 引用，所有分支读写同一 Map）</li>
+     *   <li>{@code nodeOutputs} — 节点输出数据 Map（同一 ConcurrentHashMap 引用，各分支写入不同 key）</li>
      * </ul>
      *
      * <p><strong>隔离（各自独立）：</strong></p>
      * <ul>
+     *   <li>{@code currentData} — 当前数据（独立副本，各分支修改互不影响，避免并发冲突）</li>
      *   <li>{@code currentNodeId} / {@code nextNodeId} — 当前/下一节点 ID</li>
      *   <li>{@code action} — 执行动作</li>
      *   <li>{@code history} — 执行历史</li>
@@ -413,17 +554,22 @@ public class PipelineContext<T> {
      *   <li>{@code lastError} — 最近异常</li>
      * </ul>
      *
-     * <p><strong>线程安全提示：</strong></p>
-     * <p>并行分支共享 {@code attributes} Map 和 {@code currentData} 对象引用。
-     * 如果多个分支同时写入共享数据，建议使用线程安全的数据结构（如 ConcurrentHashMap 的值、
-     * AtomicReference 等），或通过 {@code attributes} 的不同 key 避免写入冲突。</p>
+     * <p><strong>并发安全说明：</strong></p>
+     * <p>各分支的 {@code currentData} 完全独立，不存在并发写入冲突。
+     * {@code nodeOutputs} 使用 ConcurrentHashMap，并行节点执行完毕后统一以 nodeId 为 key
+     * 写入 {@link ParallelResult} 结构化结果，不存在并发写入冲突。
+     * {@code attributes} 为共享引用，多分支同时写入同一 key 时需调用方保证线程安全。</p>
      *
-     * @return 新的分支上下文，共享数据但控制状态独立
+     * @return 新的分支上下文，共享只读数据和输出，但当前数据和控制状态独立
      */
     public PipelineContext<T> createBranchContext() {
         PipelineContext<T> branch = new PipelineContext<>(this.pipelineId, this.originalData);
+        // currentData 不共享引用 — 各分支独立修改，避免并发冲突
         branch.currentData = this.currentData;
+        // attributes 共享引用 — 跨分支共享自定义数据
         branch.attributes = this.attributes;
+        // nodeOutputs 共享引用 — 各分支通过不同 key 写入，ConcurrentHashMap 保证线程安全
+        branch.nodeOutputs = this.nodeOutputs;
         return branch;
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-middleware-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-resilience4j-starter</artifactId>
+    <name>Utils Support Resilience4j Starter</name>
+    <description>Resilience4j 熔断/限流/重试实现</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-circuitbreaker</artifactId>
+        </dependency>
+    </dependencies>
+</project>

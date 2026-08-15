@@ -140,4 +140,23 @@ public interface PipelineNode {
     default Map<String, Object> getParams() {
         return Collections.emptyMap();
     }
+
+    /**
+     * 获取节点环境参数映射。
+     *
+     * <p>环境参数与 {@link #getParams()} 的区别：</p>
+     * <ul>
+     *   <li><strong>params</strong> — JSON 构建时传入的静态参数，注入到 {@code ctx.nodeLocalData} 的根级</li>
+     *   <li><strong>env</strong> — 节点定义时配置的运行时环境参数（如模型路径、阈值等），
+     *       注入到 {@code ctx.nodeLocalData} 时以 {@code "env."} 前缀隔离，
+     *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
+     * </ul>
+     *
+     * <p>默认返回空 Map。通过 Definition API 的 {@code .env()} 方法设置。</p>
+     *
+     * @return 节点环境参数映射，不可变
+     */
+    default Map<String, Object> getEnv() {
+        return Collections.emptyMap();
+    }
 }

@@ -7,11 +7,14 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.core.RouteStrategy;
 import com.chua.common.support.task.pipeline.exception.PipelineException;
+import com.chua.common.support.task.pipeline.node.AsyncSubPipelineNode;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
 import com.chua.common.support.task.pipeline.node.EndNode;
+import com.chua.common.support.task.pipeline.node.ParallelNode;
 import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 
 import java.util.*;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +36,17 @@ import java.util.stream.Collectors;
  * @author CH
  */
 public class DefaultPipeline implements Pipeline {
+
+    /**
+     * 内部属性键 — StructuredTaskScope 实例，通过 PipelineContext.attributes 传递给异步节点。
+     *
+     * <p>异步子流水线节点（{@link AsyncSubPipelineNode}）通过此键获取 Pipeline 级别的
+     * StructuredTaskScope，将异步任务 fork 进去，确保 Pipeline 返回前所有异步工作完成。</p>
+     *
+     * <p><strong>生命周期：</strong>
+     * executeWith() 创建 scope → 存入 attributes → async 节点 fork → run() 完成 → join + close</p>
+     */
+    static final String ATTR_PIPELINE_SCOPE = "__pipelineScope__";
 
     /**
      * 流水线唯一标识
@@ -122,6 +136,10 @@ public class DefaultPipeline implements Pipeline {
 
     @Override
     public <T> PipelineContext<T> execute(PipelineContext<T> existingContext) {
+        // 若上下文未指定起始节点（如并行分支上下文），自动设置为流水线的起始节点
+        if (existingContext.getNextNodeId() == null && startNodeId != null) {
+            existingContext.setNextNodeId(startNodeId);
+        }
         return executeWith(existingContext);
     }
 
@@ -136,13 +154,38 @@ public class DefaultPipeline implements Pipeline {
      * <p>复用传入的上下文实例，不重建上下文对象，
      * 首次执行时需由调用方设置起始节点 ID。</p>
      *
+     * <p><strong>结构化并发保证：</strong>
+     * 创建 Pipeline 级别的 StructuredTaskScope，通过 {@code ctx.attributes} 传递给异步节点。
+     * 异步子流水线节点（{@link AsyncSubPipelineNode}）将异步任务 fork 进此 scope，
+     * Pipeline 返回前 join 等待所有异步工作完成，确保结构化并发语义。</p>
+     *
      * @param ctx 已存在的上下文实例
      * @param <T> 数据类型
      * @return 执行完成后的上下文
      */
     public <T> PipelineContext<T> executeWith(PipelineContext<T> ctx) {
         ctx.setAction(Action.NEXT);
-        run(ctx);
+
+        // 检查是否已有 Pipeline 级 scope（嵌套 Pipeline 场景：子流水线继承父 scope）
+        @SuppressWarnings("unchecked")
+        StructuredTaskScope<Void> existingScope =
+                (StructuredTaskScope<Void>) ctx.getAttributes().get(ATTR_PIPELINE_SCOPE);
+
+        if (existingScope != null) {
+            // 嵌套场景：复用父 Pipeline 的 scope，不创建新的
+            run(ctx);
+            return ctx;
+        }
+
+        // 顶层 Pipeline：创建 scope，确保所有 fork 的异步任务在返回前完成
+        try (var scope = new StructuredTaskScope<Void>()) {
+            ctx.setAttribute(ATTR_PIPELINE_SCOPE, scope);
+            run(ctx);
+            scope.join();
+        } finally {
+            ctx.getAttributes().remove(ATTR_PIPELINE_SCOPE);
+        }
+
         return ctx;
     }
 
@@ -213,6 +256,13 @@ public class DefaultPipeline implements Pipeline {
                 if (node.getParams() != null && !node.getParams().isEmpty()) {
                     ctx.getNodeLocalData().putAll(node.getParams());
                 }
+                // 注入节点环境参数到 nodeLocalData（以 "env." 前缀隔离）
+                if (node.getEnv() != null && !node.getEnv().isEmpty()) {
+                    Map<String, Object> localData = ctx.getNodeLocalData();
+                    for (Map.Entry<String, Object> entry : node.getEnv().entrySet()) {
+                        localData.put("env." + entry.getKey(), entry.getValue());
+                    }
+                }
                 fireBeforeNode(ctx);
                 String prevNextId = ctx.getNextNodeId();
 
@@ -267,6 +317,8 @@ public class DefaultPipeline implements Pipeline {
                 }
 
                 ctx.addHistory(nodeId);
+                // 自动存储节点输出到 nodeOutputs，方便后续节点跨节点访问
+                ctx.setNodeOutput(nodeId, ctx.getCurrentData());
                 fireAfterNode(ctx);
 
                 if (ctx.getAction() == Action.EXIT || ctx.getAction() == Action.WAIT) {
@@ -360,6 +412,94 @@ public class DefaultPipeline implements Pipeline {
         return null;
     }
 
+    // ==================== ANSI 颜色支持 ====================
+
+    /** ANSI 重置 */
+    private static final String ANSI_RESET = "\u001B[0m";
+    /** ANSI 粗体 */
+    private static final String ANSI_BOLD = "\u001B[1m";
+    /** ANSI 暗色（降低亮度） */
+    private static final String ANSI_DIM = "\u001B[2m";
+    /** ANSI 绿色 — Task 节点 */
+    private static final String ANSI_GREEN = "\u001B[32m";
+    /** ANSI 黄色 — Decision 节点 */
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    /** ANSI 蓝色 — SubPipeline 节点 */
+    private static final String ANSI_BLUE = "\u001B[34m";
+    /** ANSI 青色 — Parallel 节点 */
+    private static final String ANSI_CYAN = "\u001B[36m";
+    /** ANSI 红色 — 错误标记 */
+    private static final String ANSI_RED = "\u001B[31m";
+
+    /** 节点类型图标：Task */
+    private static final String ICON_TASK = "●";
+    /** 节点类型图标：Decision */
+    private static final String ICON_DECISION = "◆";
+    /** 节点类型图标：SubPipeline */
+    private static final String ICON_SUB = "▶";
+    /** 节点类型图标：Parallel */
+    private static final String ICON_PARALLEL = "⋈";
+    /** 节点类型图标：End */
+    private static final String ICON_END = "◉";
+    /** 执行状态标记：已执行 */
+    private static final String MARK_EXECUTED = "✓";
+    /** 执行状态标记：未执行 */
+    private static final String MARK_PENDING = "○";
+    /** 执行状态标记：错误 */
+    private static final String MARK_ERROR = "✗";
+
+    /**
+     * 应用 ANSI 颜色。
+     *
+     * @param text     原始文本
+     * @param colorCode ANSI 颜色码
+     * @return 带颜色标记的文本（颜色禁用时返回原文本）
+     */
+    private static String colorize(String text, String colorCode, boolean colorEnabled) {
+        if (!colorEnabled) {
+            return text;
+        }
+        return colorCode + text + ANSI_RESET;
+    }
+
+    /**
+     * 根据节点类型获取图标。
+     *
+     * @param node 节点实例
+     * @return 类型图标
+     */
+    private static String nodeIcon(PipelineNode node) {
+        if (node instanceof DecisionNode) {
+            return ICON_DECISION;
+        } else if (node instanceof SubPipelineNode) {
+            return ICON_SUB;
+        } else if (node instanceof ParallelNode) {
+            return ICON_PARALLEL;
+        } else if (node instanceof EndNode) {
+            return ICON_END;
+        }
+        return ICON_TASK;
+    }
+
+    /**
+     * 根据节点类型获取 ANSI 颜色码。
+     *
+     * @param node 节点实例
+     * @return ANSI 颜色码
+     */
+    private static String nodeColor(PipelineNode node) {
+        if (node instanceof DecisionNode) {
+            return ANSI_YELLOW;
+        } else if (node instanceof SubPipelineNode) {
+            return ANSI_BLUE;
+        } else if (node instanceof ParallelNode) {
+            return ANSI_CYAN;
+        } else if (node instanceof EndNode) {
+            return ANSI_DIM;
+        }
+        return ANSI_GREEN;
+    }
+
     /**
      * 获取节点 ID。
      *
@@ -439,6 +579,19 @@ public class DefaultPipeline implements Pipeline {
                     tree.computeIfAbsent(subEnd, k -> new ArrayList<>())
                         .add(new Edge(subEnd, defaultNext, ""));
                 }
+            } else if (node instanceof ParallelNode) {
+                ParallelNode pn = (ParallelNode) node;
+                for (Map.Entry<String, Pipeline> entry : pn.getBranches().entrySet()) {
+                    String branchName = entry.getKey();
+                    String branchStartId = "parallel:" + nid + ":" + branchName + ":start";
+                    tree.computeIfAbsent(nid, k -> new ArrayList<>())
+                        .add(new Edge(nid, branchStartId, "branch:" + branchName));
+                }
+                if (defaultNext != null) {
+                    String parallelEndId = "parallel:" + nid + ":end";
+                    tree.computeIfAbsent(parallelEndId, k -> new ArrayList<>())
+                        .add(new Edge(parallelEndId, defaultNext, ""));
+                }
             } else {
                 if (defaultNext != null && !decisionTargets.contains(nid)) {
                     tree.computeIfAbsent(nid, k -> new ArrayList<>())
@@ -455,28 +608,102 @@ public class DefaultPipeline implements Pipeline {
 
     @Override
     public void printTree(List<String> history) {
+        printTree(history, false);
+    }
+
+    @Override
+    public void printTree(List<String> history, boolean colorEnabled) {
         Set<String> executed = history != null ? new HashSet<>(history) : Collections.emptySet();
-        System.out.println("Pipeline: " + id);
-        printNode(startNodeId, "", true, executed);
+        String pipelineLabel = colorEnabled ? colorize(id, ANSI_BOLD + ANSI_CYAN, true) : id;
+        System.out.println("Pipeline: " + pipelineLabel);
+        printNodeTree(startNodeId, "", true, executed, colorEnabled);
     }
 
     /**
-     * 递归打印节点树。
+     * 递归打印节点树（带颜色和图标支持，递归展开子流水线和并行分支）。
      *
-     * @param nodeId   当前节点 ID
-     * @param prefix   行前缀
-     * @param isLast   是否为同级最后一个节点
-     * @param executed 已执行节点 ID 集合
+     * <p>遵循"自己管自己"原则：</p>
+     * <ul>
+     *   <li>SubPipelineNode — 调用子流水线的 printNodeTree 递归展开内部节点</li>
+     *   <li>ParallelNode — 调用每个分支流水线的 printNodeTree 递归展开分支内部节点</li>
+     * </ul>
+     *
+     * @param nodeId       当前节点 ID
+     * @param prefix       行前缀
+     * @param isLast       是否为同级最后一个节点
+     * @param executed     已执行节点 ID 集合
+     * @param colorEnabled 是否启用 ANSI 颜色
      */
-    private void printNode(String nodeId, String prefix, boolean isLast, Set<String> executed) {
+    private void printNodeTree(String nodeId, String prefix, boolean isLast, Set<String> executed, boolean colorEnabled) {
         if (nodeId == null) {
             return;
         }
 
-        String marker = executed.contains(nodeId) ? " *" : "";
+        PipelineNode node = nodeMap.get(nodeId);
         String connector = isLast ? "└── " : "├── ";
-        System.out.println(prefix + connector + nodeId + marker);
 
+        // 构建节点显示行：图标 + nodeId + 状态标记
+        String icon = node != null ? nodeIcon(node) : ICON_TASK;
+        String statusMark;
+        if (executed.contains(nodeId)) {
+            statusMark = colorEnabled ? colorize(MARK_EXECUTED, ANSI_GREEN, true) : MARK_EXECUTED;
+        } else {
+            statusMark = colorEnabled ? colorize(MARK_PENDING, ANSI_DIM, true) : "";
+        }
+
+        String nodeLabel;
+        if (node != null && colorEnabled) {
+            nodeLabel = colorize(icon + " " + nodeId, nodeColor(node), true);
+        } else if (node != null) {
+            nodeLabel = icon + " " + nodeId;
+        } else {
+            nodeLabel = nodeId;
+        }
+
+        System.out.println(prefix + connector + nodeLabel + (statusMark.isEmpty() ? "" : " " + statusMark));
+
+        // 处理子流水线节点 — 递归展开子流水线内部树
+        if (node instanceof SubPipelineNode) {
+            SubPipelineNode sn = (SubPipelineNode) node;
+            String childPrefix = prefix + (isLast ? "    " : "│   ");
+            Pipeline subPipeline = sn.getSubPipeline();
+            if (subPipeline instanceof DefaultPipeline) {
+                ((DefaultPipeline) subPipeline).printNodeTree(
+                        ((DefaultPipeline) subPipeline).startNodeId,
+                        childPrefix, true, executed, colorEnabled);
+            }
+            return;
+        }
+
+        // 处理并行节点 — 递归展开每个分支的内部树
+        if (node instanceof ParallelNode) {
+            ParallelNode pn = (ParallelNode) node;
+            String childPrefix = prefix + (isLast ? "    " : "│   ");
+            Map<String, Pipeline> branches = pn.getBranches();
+            int branchIndex = 0;
+            for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
+                String branchName = entry.getKey();
+                Pipeline branchPipeline = entry.getValue();
+                boolean lastBranch = (branchIndex == branches.size() - 1);
+
+                String branchConn = lastBranch ? "└── " : "├── ";
+                String branchLabel = colorEnabled
+                        ? colorize("[branch] " + branchName, ANSI_CYAN, true)
+                        : "[branch] " + branchName;
+                System.out.println(childPrefix + branchConn + branchLabel);
+
+                String branchChildPrefix = childPrefix + (lastBranch ? "    " : "│   ");
+                if (branchPipeline instanceof DefaultPipeline) {
+                    ((DefaultPipeline) branchPipeline).printNodeTree(
+                            ((DefaultPipeline) branchPipeline).startNodeId,
+                            branchChildPrefix, true, executed, colorEnabled);
+                }
+                branchIndex++;
+            }
+            return;
+        }
+
+        // 普通节点 — 沿 flowTree 边递归打印子节点
         List<Edge> edges = flowTree.get(nodeId);
         if (edges == null || edges.isEmpty()) {
             return;
@@ -486,19 +713,7 @@ public class DefaultPipeline implements Pipeline {
         for (int i = 0; i < edges.size(); i++) {
             Edge edge = edges.get(i);
             boolean lastEdge = (i == edges.size() - 1);
-
-            String mark = executed.contains(edge.to) ? " *" : "";
-
-            PipelineNode childNode = nodeMap.get(edge.to);
-            if (childNode instanceof SubPipelineNode) {
-                String conn = lastEdge ? "└── " : "├── ";
-                System.out.println(childPrefix + conn + edge.to + mark);
-                SubPipelineNode sn = (SubPipelineNode) childNode;
-                String childChildPrefix = childPrefix + (lastEdge ? "    " : "│   ");
-                System.out.println(childChildPrefix + "└── [sub] " + sn.getSubPipelineId());
-            } else {
-                printNode(edge.to, childPrefix, lastEdge, executed);
-            }
+            printNodeTree(edge.to, childPrefix, lastEdge, executed, colorEnabled);
         }
     }
 

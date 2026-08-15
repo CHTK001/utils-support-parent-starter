@@ -76,4 +76,20 @@ public interface Pipeline {
      * @param history 已执行节点 ID 列表，传 null 时不标记
      */
     void printTree(List<String> history);
+
+    /**
+     * 打印流水线 B+ 树拓扑结构，支持颜色和图标标记。
+     *
+     * <p>启用颜色时，不同节点类型使用不同 ANSI 颜色，已执行节点用 ✓ 标记，
+     * 未执行节点用 ○ 标记。禁用颜色时降级为纯文本输出。</p>
+     *
+     * <p>子流水线和并行分支递归展开，遵循"自己管自己"原则 —
+     * 每条 Pipeline 负责打印自己的节点树。</p>
+     *
+     * @param history      已执行节点 ID 列表，传 null 时不标记
+     * @param colorEnabled 是否启用 ANSI 颜色输出
+     */
+    default void printTree(List<String> history, boolean colorEnabled) {
+        printTree(history);
+    }
 }
