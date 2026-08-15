@@ -133,6 +133,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mini-vision-liveness", "com.chua.deeplearning.support.onnx.liveness.MiniVisionLivenessTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/liveness/MiniVision/4_0_0_80x80_MiniFASNetV1SE.onnx");
         // 抠图(U2Net)：通用前景抠图，输出 alpha 通道（RGBA）；适用证件照处理、背景替换、电商抠图
         reg("matting", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/seg_unet_sdk/u2net.onnx", "https://huggingface.co/onnx-community/u2net/resolve/main/onnx/model.onnx", false, null);
+        // 抠图(MODNet)：人像抠图/前景分割（~25MB），嵌入式 jar 版，来自 ModelScope；适用人像抠图、视频会议背景替换
+        reg("modnet", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/matting/modnet/onnx/model.onnx");
         // 抠图(RMBG-2.0)：BRIA 背景移除 v2.0，高质量抠图，需自动下载；适用电商图片、人像抠图
         reg("rmbg20", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-2.0/onnx/model.onnx", "https://huggingface.co/briaai/RMBG-2.0/resolve/main/onnx/model.onnx", false, null);
         // 抠图(RMBG-1.4)：BRIA 背景移除 v1.4，42MB 嵌入式，效果接近 2.0；适用离线抠图、嵌入式设备

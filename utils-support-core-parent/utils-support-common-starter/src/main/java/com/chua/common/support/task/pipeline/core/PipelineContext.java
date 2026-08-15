@@ -87,8 +87,8 @@ public class PipelineContext<T> {
      * <ul>
      *   <li><strong>普通节点</strong>（TaskNode/DecisionNode/StartNode/EndNode）：
      *       {@code nodeOutputs["task1"] = data}，值为节点的 currentData</li>
-     *   <li><strong>并行节点</strong>（ParallelNode）：
-     *       {@code nodeOutputs["parallel1"] = ParallelResult}，值为 {@link ParallelResult} 结构化对象，
+     *   <li><strong>分叉节点</strong>（ForkNode）：
+     *       {@code nodeOutputs["fork1"] = ForkResult}，值为 {@link ForkResult} 结构化对象，
      *       内含各分支输出数据和历史</li>
      *   <li><strong>子流水线节点</strong>（SubPipelineNode）：
      *       {@code nodeOutputs["subStep"] = SubPipelineResult}，值为 {@link SubPipelineResult} 结构化对象，
@@ -293,7 +293,7 @@ public class PipelineContext<T> {
      * <p><strong>存储格式：</strong></p>
      * <ul>
      *   <li>普通节点：值为 currentData</li>
-     *   <li>并行节点：值为 {@link ParallelResult}（包含各分支输出）</li>
+     *   <li>分叉节点：值为 {@link ForkResult}（包含各分支输出）</li>
      *   <li>子流水线节点：值为 {@link SubPipelineResult}（包含子流程输出和历史）</li>
      * </ul>
      *
@@ -324,7 +324,7 @@ public class PipelineContext<T> {
      * <p><strong>返回值类型：</strong></p>
      * <ul>
      *   <li>普通节点：返回 currentData</li>
-     *   <li>并行节点：返回 {@link ParallelResult}，可通过 {@code getData(nodeId, ParallelResult.class).getBranch("branchA")} 获取分支数据</li>
+     *   <li>分叉节点：返回 {@link ForkResult}，可通过 {@code getData(nodeId, ForkResult.class).getBranch("branchA")} 获取分支数据</li>
      *   <li>子流水线节点：返回 {@link SubPipelineResult}，可通过 {@code getData(nodeId, SubPipelineResult.class).getOutput()} 获取子流程输出</li>
      * </ul>
      *
@@ -533,7 +533,7 @@ public class PipelineContext<T> {
     /**
      * 创建并行分支上下文 — 共享只读数据和输出，隔离当前数据和控制状态。
      *
-     * <p>为并行节点（{@link com.chua.common.support.task.pipeline.node.ParallelNode}）创建分支上下文。
+     * <p>为分叉节点（{@link com.chua.common.support.task.pipeline.node.ForkNode}）创建分支上下文。
      * 各分支独立修改 {@code currentData}，避免并发写入冲突；
      * 共享 {@code nodeOutputs} 和 {@code attributes}，方便跨分支/跨节点数据访问。</p>
      *
@@ -557,7 +557,7 @@ public class PipelineContext<T> {
      * <p><strong>并发安全说明：</strong></p>
      * <p>各分支的 {@code currentData} 完全独立，不存在并发写入冲突。
      * {@code nodeOutputs} 使用 ConcurrentHashMap，并行节点执行完毕后统一以 nodeId 为 key
-     * 写入 {@link ParallelResult} 结构化结果，不存在并发写入冲突。
+     * 写入 {@link ForkResult} 结构化结果，不存在并发写入冲突。
      * {@code attributes} 为共享引用，多分支同时写入同一 key 时需调用方保证线程安全。</p>
      *
      * @return 新的分支上下文，共享只读数据和输出，但当前数据和控制状态独立
