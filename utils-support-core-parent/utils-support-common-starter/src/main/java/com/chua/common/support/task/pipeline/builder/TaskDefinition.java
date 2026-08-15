@@ -9,7 +9,6 @@ import com.chua.common.support.task.pipeline.node.TaskNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * 任务节点定义 — 类型安全的流水线节点构建器。
@@ -448,52 +447,6 @@ public class TaskDefinition {
         }
         this.env.put(key, value);
         return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 true 时执行节点，否则跳过。
-     *
-     * <p>当条件不满足时，节点仍被添加到流水线，但执行时自动跳过（返回 null，
-     * 按默认顺序继续下一节点）。适用于运行时动态决定是否执行的场景。</p>
-     *
-     * <p>用法示例：</p>
-     * <pre>{@code
-     * .task("cache", ctx -> { loadCache(ctx); return null; })
-     * .when(ctx -> ctx.getAttribute("cacheEnabled") != null)
-     * .taskEnd()
-     * }</pre>
-     *
-     * @param condition 执行条件谓词，返回 true 时执行，false 时跳过
-     * @return this
-     */
-    public TaskDefinition when(Predicate<PipelineContext<?>> condition) {
-        PipelineNode original = this.handler;
-        this.handler = ctx -> {
-            if (condition.test(ctx)) {
-                return original != null ? original.execute(ctx) : null;
-            }
-            return null; // 条件不满足，跳过
-        };
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 false 时执行节点，否则跳过。
-     *
-     * <p>与 {@link #when(Predicate)} 逻辑相反，适用于排除特定条件的场景。</p>
-     *
-     * <p>用法示例：</p>
-     * <pre>{@code
-     * .task("fallback", ctx -> { handleFallback(ctx); return null; })
-     * .whenNot(ctx -> ctx.getAttribute("hasData") != null)
-     * .taskEnd()
-     * }</pre>
-     *
-     * @param condition 跳过条件谓词，返回 true 时跳过，false 时执行
-     * @return this
-     */
-    public TaskDefinition whenNot(Predicate<PipelineContext<?>> condition) {
-        return when(condition.negate());
     }
 
     /**

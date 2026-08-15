@@ -9,7 +9,6 @@ import com.chua.common.support.task.pipeline.node.DecisionNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * 判断节点定义 — 类型安全的分支配置构建器。
@@ -89,7 +88,6 @@ public class TaskDecisionDefinition {
     private Map<String, Object> params;
     private Map<String, Object> env;
     private boolean startNode;
-    private Predicate<PipelineContext<?>> condition;
 
     /**
      * 构造判断节点定义。
@@ -127,25 +125,7 @@ public class TaskDecisionDefinition {
         if (env != null && !env.isEmpty()) {
             node.setEnv(env);
         }
-        PipelineNode finalNode = node;
-        if (condition != null) {
-            Predicate<PipelineContext<?>> cond = condition;
-            PipelineNode originalNode = finalNode;
-            finalNode = new PipelineNode() {
-                @Override
-                public String execute(PipelineContext<?> context) {
-                    if (cond.test(context)) {
-                        return originalNode.execute(context);
-                    }
-                    return null;
-                }
-                @Override
-                public String getId() {
-                    return id;
-                }
-            };
-        }
-        builder.addNodeInternal(finalNode);
+        builder.addNodeInternal(node);
         if (startNode) {
             builder.start(id);
         }
@@ -274,30 +254,6 @@ public class TaskDecisionDefinition {
      */
     public TaskDecisionDefinition start() {
         this.startNode = true;
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 true 时执行判断逻辑，否则跳过。
-     *
-     * <p>当条件不满足时，判断节点不执行路由逻辑，返回 null 按默认顺序继续。</p>
-     *
-     * @param condition 执行条件谓词
-     * @return this
-     */
-    public TaskDecisionDefinition when(Predicate<PipelineContext<?>> condition) {
-        this.condition = condition;
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 false 时执行判断逻辑，否则跳过。
-     *
-     * @param condition 跳过条件谓词
-     * @return this
-     */
-    public TaskDecisionDefinition whenNot(Predicate<PipelineContext<?>> condition) {
-        this.condition = condition.negate();
         return this;
     }
 
