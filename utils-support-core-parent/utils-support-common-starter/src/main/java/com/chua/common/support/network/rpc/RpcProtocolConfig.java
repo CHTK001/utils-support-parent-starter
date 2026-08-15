@@ -4,6 +4,9 @@ package com.chua.common.support.network.rpc;
 /**
  * RPC 协议配置（Java 14+ Record）。
  *
+ * <p>字段集与各协议实现实际消费项对齐：Dubbo 使用全部字段，SOFA 使用子集，
+ * native/json 仅使用 {@code host}/{@code port}/{@code threads}。</p>
+ *
  * @param name            协议名称（dubbo、http、sofa 等）
  * @param host            监听地址，{@code null} 或 {@code "0.0.0.0"} 表示监听所有网卡
  * @param port            监听端口
@@ -27,9 +30,6 @@ package com.chua.common.support.network.rpc;
  * @param coreThreads     核心业务线程数
  * @param maxThreads      最大业务线程数
  * @param idleTimeout     空闲超时（毫秒）
- * @param queuesSize      业务队列大小
- * @param proxy           代理协议（如 java, javassist）
- * @param contextpath     上下文路径
  *
  * @author CH
  * @since 1.0.0
@@ -41,6 +41,5 @@ public record RpcProtocolConfig(String name, String host, Integer port, Integer 
                                 String dispatcher, String threadpool, Integer heartbeat,
                                 Boolean ssl, Boolean register, String charset,
                                 Boolean keepAlive, Integer coreThreads, Integer maxThreads,
-                                Integer idleTimeout, Integer queuesSize, String proxy,
-                                String contextpath) {
+                                Integer idleTimeout) {
 }

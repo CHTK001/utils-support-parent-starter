@@ -81,4 +81,9 @@ public class RpcConsumerConfig {
     private Class<?> interfaceClass;
     /** 服务接口名 */
     private String interfaceName;
+    /** 服务治理令牌（请求头 X-RPC-Token），服务端 {@code RpcService#token()} 校验时必填 */
+    /**
+     * 令牌
+     */
+    private String token;
 }

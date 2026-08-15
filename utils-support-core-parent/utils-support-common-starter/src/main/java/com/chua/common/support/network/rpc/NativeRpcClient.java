@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -24,6 +27,14 @@ import java.util.function.Function;
 /**
  * 原生 TCP NIO RPC 客户端，纯 JDK 实现。
  *
+ * <p>安全与健壮性约束：</p>
+ * <ul>
+ *   <li>连接与读操作均受 {@link RpcConsumerConfig} 超时约束，避免对端无响应时无限阻塞</li>
+ *   <li>响应报文长度受 {@link #MAX_BODY_SIZE} 上限约束，防止恶意/异常服务端 OOM</li>
+ *   <li>反序列化使用 {@link ObjectInputFilter} 拒绝高危 gadget 类（反序列化攻击防护）</li>
+ *   <li>对端连接断开时立即抛出异常，避免 {@code read} 返回 {@code -1} 后死循环</li>
+ * </ul>
+ *
  * @author CH
  * @since 1.0.0
  */
@@ -34,12 +45,51 @@ public class NativeRpcClient implements RpcClient {
     private static final int HEADER_SIZE = 4;
     private static final int DEFAULT_PORT = 18866;
 
+    /**
+     * 响应报文长度上限（字节），默认 8MB，与协议配置一致
+     */
+    private static final int MAX_BODY_SIZE = 8 * 1024 * 1024;
+
+    /**
+     * 默认连接超时（毫秒），消费者未配置时使用
+     */
+    private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+
+    /**
+     * 默认读超时（毫秒），消费者未配置时使用
+     */
+    private static final int DEFAULT_READ_TIMEOUT = 10000;
+
     private final List<String> addresses = new ArrayList<>();
     private final ServiceDiscovery serviceDiscovery;
     private final String appName;
+
+    /**
+     * 连接超时（毫秒），取自消费者配置
+     */
+    private final int connectTimeout;
+
+    /**
+     * 读超时（毫秒），取自消费者配置
+     */
+    private final int readTimeout;
+
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
+    /**
+     * 负载均衡器（SPI 实例，为空时回退顺序调用）
+     */
+    private final com.chua.common.support.lang.balance.LoadBalance loadBalance;
+
     public NativeRpcClient(List<RpcRegistryConfig> registryConfigs, RpcConsumerConfig consumerConfig, String name) {
+        int configuredTimeout = consumerConfig != null && consumerConfig.getTimeout() != null
+                ? consumerConfig.getTimeout() : DEFAULT_READ_TIMEOUT;
+        this.connectTimeout = configuredTimeout > 0 ? configuredTimeout : DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = configuredTimeout;
+        this.loadBalance = createLoadBalancer(consumerConfig);
+        if (registryConfigs == null) {
+            registryConfigs = new ArrayList<>();
+        }
         this.appName = name;
         ServiceDiscovery sd = null;
         if (registryConfigs != null) {
@@ -92,9 +142,22 @@ public class NativeRpcClient implements RpcClient {
                 if (d != null) { targets.add(0, d.getHost() + ":" + d.getPort()); }
             }
             Exception last = null;
+            // 按负载均衡策略选择第一个尝试端点；无均衡器或选择失败时退化为顺序遍历
+            String first = selectFirst(targets);
+            if (first != null && !first.equals(targets.isEmpty() ? null : targets.get(0))) {
+                targets.remove(first);
+                targets.add(0, first);
+            }
             for (String addr : targets) {
                 try {
                     return call(addr, req);
+                } catch (RpcException e) {
+                    // 业务异常：服务端已成功执行并返回「业务失败」，切换端点重试会放大副作用，直接抛出
+                    if (e.isBusiness()) {
+                        throw e;
+                    }
+                    log.warn("NativeRPC failed: {}, error: {}", addr, e.toString());
+                    last = e;
                 } catch (Exception e) {
                     log.warn("NativeRPC failed: {}, error: {}", addr, e.toString());
                     last = e;
@@ -104,9 +167,9 @@ public class NativeRpcClient implements RpcClient {
             // 否则客户端会把服务端业务异常（如 fail() 的 RuntimeException）替换成无信息的
             // "unreachable"，异常传播语义被破坏。
             if (last != null) {
-                throw new IllegalStateException("All native RPC endpoints unreachable: " + last, last);
+                throw RpcException.transport("All native RPC endpoints unreachable", last);
             }
-            throw new IllegalStateException("All native RPC endpoints unreachable");
+            throw RpcException.transport("All native RPC endpoints unreachable");
         }
 
         private Object call(String addr, RpcRequest req) throws Exception {
@@ -114,25 +177,56 @@ public class NativeRpcClient implements RpcClient {
             int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;
             try (SocketChannel ch = SocketChannel.open()) {
                 ch.configureBlocking(true);
-                ch.connect(new InetSocketAddress(host, port));
+                Socket socket = ch.socket();
+                socket.setSoTimeout(readTimeout);
+                SocketAddress target = new InetSocketAddress(host, port);
+                // 阻塞模式下无法直接给 SocketChannel.connect 传超时，先切非阻塞探测再切回阻塞
+                ch.configureBlocking(false);
+                boolean connected = ch.connect(target);
+                if (!connected) {
+                    long deadline = System.currentTimeMillis() + connectTimeout;
+                    while (!ch.finishConnect()) {
+                        if (System.currentTimeMillis() > deadline) {
+                            throw new SocketTimeoutException("Native RPC connect timeout: " + addr);
+                        }
+                        Thread.sleep(10);
+                    }
+                }
+                ch.configureBlocking(true);
                 byte[] reqData = serialize(req);
                 ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + reqData.length);
                 buf.putInt(reqData.length); buf.put(reqData); buf.flip();
                 ch.write(buf);
                 ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
-                readFully(ch, headerBuf); headerBuf.flip();
+                readFully(ch, headerBuf);
+                headerBuf.flip();
                 int bodyLen = headerBuf.getInt();
+                if (bodyLen <= 0 || bodyLen > MAX_BODY_SIZE) {
+                    throw RpcException.transport("Native RPC response too large: " + bodyLen);
+                }
                 ByteBuffer bodyBuf = ByteBuffer.allocate(bodyLen);
                 readFully(ch, bodyBuf); bodyBuf.flip();
                 byte[] respData = new byte[bodyLen]; bodyBuf.get(respData);
                 RpcResponse resp = deserialize(respData);
-                if (!resp.isSuccess()) { throw new IOException(resp.getError()); }
+                if (!resp.isSuccess()) { throw RpcException.business(resp.getError()); }
                 return resp.getResult();
             }
         }
 
+        /**
+         * 阻塞式完整读取，带读超时；对端断开（{@code read == -1}）时立即抛异常，避免死循环。
+         *
+         * @param ch  套接字通道
+         * @param buf 目标缓冲区
+         * @throws IOException 对端关闭或读取失败时抛出
+         */
         private void readFully(SocketChannel ch, ByteBuffer buf) throws IOException {
-            while (buf.hasRemaining()) { ch.read(buf); }
+            while (buf.hasRemaining()) {
+                int read = ch.read(buf);
+                if (read == -1) {
+                    throw new IOException("Native RPC connection closed by server");
+                }
+            }
         }
     }
 
@@ -140,6 +234,37 @@ public class NativeRpcClient implements RpcClient {
     public void close() {
         proxyCache.clear();
         if (serviceDiscovery != null) { try { serviceDiscovery.close(); } catch (Exception ignored) { } }
+    }
+
+    /**
+     * 创建负载均衡器（SPI 加载，策略名取自消费者配置 {@code loadBalance}，默认随机）。
+     *
+     * @param consumerConfig 消费者配置，可为空
+     * @return 负载均衡器实例，SPI 未找到时返回 {@code null}
+     */
+    private static com.chua.common.support.lang.balance.LoadBalance createLoadBalancer(RpcConsumerConfig consumerConfig) {
+        String type = consumerConfig != null && consumerConfig.getLoadBalance() != null
+                ? consumerConfig.getLoadBalance() : "random";
+        try {
+            return com.chua.common.support.lang.balance.LoadBalance.auto(type,
+                    com.chua.common.support.lang.balance.BalanceConfig.builder().build());
+        } catch (Exception e) {
+            log.warn("Load balance '{}' not available, fallback to sequential: {}", type, e.toString());
+            return null;
+        }
+    }
+
+    /**
+     * 从候选端点列表中按负载均衡策略选择一个起始端点。
+     *
+     * @param targets 候选端点列表
+     * @return 选中的端点，无候选或均衡器不可用时返回 {@code null}
+     */
+    private String selectFirst(List<String> targets) {
+        if (loadBalance == null || targets == null || targets.isEmpty()) {
+            return null;
+        }
+        return loadBalance.select(new ArrayList<>(targets));
     }
 
     static byte[] serialize(Object obj) throws IOException {
@@ -150,7 +275,52 @@ public class NativeRpcClient implements RpcClient {
 
     static <T> T deserialize(byte[] data) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
+            ois.setObjectInputFilter(objectInputFilter());
             return (T) ois.readObject();
         }
     }
+
+    /**
+     * 创建反序列化安全过滤器。
+     *
+     * <p>策略：默认放行普通业务类，但拒绝已知反序列化攻击 gadget 链上的高危类，
+     * 同时限制对象图深度与数组长度，防止 {@link #deserialize(byte[])} 被恶意报文利用。</p>
+     *
+     * @return 对象输入过滤器
+     */
+    static ObjectInputFilter objectInputFilter() {
+        return info -> {
+            Class<?> serialClass = info.serialClass();
+            if (serialClass == null) {
+                return ObjectInputFilter.Status.UNDECIDED;
+            }
+            if (info.depth() > 64) {
+                return ObjectInputFilter.Status.REJECTED;
+            }
+            if (info.arrayLength() >= 0 && info.arrayLength() > 100_000) {
+                return ObjectInputFilter.Status.REJECTED;
+            }
+            String name = serialClass.getName();
+            for (String denied : DENIED_CLASS_PREFIXES) {
+                if (name.startsWith(denied)) {
+                    return ObjectInputFilter.Status.REJECTED;
+                }
+            }
+            return ObjectInputFilter.Status.UNDECIDED;
+        };
+    }
+
+    /**
+     * 高危反序列化 gadget 类前缀黑名单
+     */
+    private static final String[] DENIED_CLASS_PREFIXES = {
+            "com.sun.", "java.rmi.", "javax.naming.", "javax.management.",
+            "org.apache.commons.collections.", "org.apache.commons.beanutils.",
+            "org.apache.commons.fileupload.", "org.apache.xbean.",
+            "org.springframework.beans.factory.", "org.springframework.context.",
+            "org.codehaus.groovy.runtime.", "com.mchange.v2.c3p0.",
+            "com.alibaba.fastjson.", "net.sf.json.", "org.jboss.",
+            "org.python.core.", "org.mozilla.javascript.", "jdk.internal.",
+            "sun.rmi.", "org.apache.dubbo.", "com.caucho."
+    };
 }
