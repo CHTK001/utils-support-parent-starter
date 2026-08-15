@@ -92,6 +92,7 @@ public class RSocketServer extends AbstractServer {
                 public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     String data = payload.getDataUtf8();
+                    String responseBody = "{\"status\":\"ok\"}";
                     if (topic != null) {
                         ServerHandler handler = messageHandlers.get(topic);
                         if (handler != null) {
@@ -99,13 +100,16 @@ public class RSocketServer extends AbstractServer {
                             SimpleServerResponse response = new SimpleServerResponse();
                             try {
                                 handleRequest(request, response);
+                                if (response.getResult() != null) {
+                                    responseBody = String.valueOf(response.getResult());
+                                }
                             } catch (Exception e) {
                                 log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
                             }
                         }
                         publish(topic, data);
                     }
-                    return Mono.just(io.rsocket.util.DefaultPayload.create("{\"status\":\"ok\"}"));
+                    return Mono.just(io.rsocket.util.DefaultPayload.create(responseBody));
                 }
 
                 @Override

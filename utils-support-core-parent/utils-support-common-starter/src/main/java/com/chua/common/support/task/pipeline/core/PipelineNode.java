@@ -4,6 +4,7 @@ import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 流水线节点接口。
@@ -182,5 +183,31 @@ public interface PipelineNode {
      */
     default RetryConfig getRetryConfig() {
         return null;
+    }
+
+    /**
+     * 获取数据依赖声明 — 此节点需要哪些节点的输出数据。
+     *
+     * <p>引擎在执行此节点前，会校验依赖的节点输出是否已存在于 nodeOutputs 中。
+     * 若依赖未满足（某个依赖节点的输出尚未产生），引擎将抛出异常。</p>
+     *
+     * <p>在并行场景中，节点 C 需要节点 A 和节点 B 的数据，可通过 unit 声明式表达：</p>
+     * <pre>{@code
+     * .taskStart("merge")
+     *     .unit("stepA", "stepB")  // 声明依赖 stepA 和 stepB 的输出
+     *     .onStep(ctx -> {
+     *         Object dataA = ctx.getData("stepA");
+     *         Object dataB = ctx.getData("stepB");
+     *         // 合并数据...
+     *     })
+     *     .taskEnd()
+     * }</pre>
+     *
+     * <p>默认返回空集合，表示无数据依赖。通过 Definition API 的 {@code .unit()} 方法设置。</p>
+     *
+     * @return 依赖的节点 ID 集合，空集合表示无依赖
+     */
+    default Set<String> getUnits() {
+        return Collections.emptySet();
     }
 }

@@ -821,6 +821,23 @@ public class FacePipeline {
     }
 
     /**
+     * 特征入库（单独能力，直接写特征）。
+     *
+     * @param id        人脸 ID
+     * @param feature   特征向量
+     * @param metadata  元数据
+     * @param content   附加内容
+     * @return 是否成功
+     */
+    public boolean enroll(String id, float[] feature, Map<String, Object> metadata, String content) {
+        if (vectorStorage == null || feature == null) {
+            return false;
+        }
+        return vectorStorage.add(new com.chua.common.support.vector.Vector(
+                id, feature, metadata == null ? Map.of() : metadata, content));
+    }
+
+    /**
      * 活体检测（辅助能力）。
      *
      * @param faceImage 裁剪人脸图

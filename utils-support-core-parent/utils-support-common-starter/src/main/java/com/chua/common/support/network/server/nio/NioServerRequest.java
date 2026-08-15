@@ -112,13 +112,22 @@ public class NioServerRequest implements ServerRequest {
         int off = 0;
         int retries = 0;
         while (off < n) {
-            int r = readByte();
-            if (r < 0) {
-                if (retries++ < 3) continue;
-                throw new IOException("Unexpected EOF, expected " + (n - off) + " more bytes");
+            if (buf.hasRemaining()) {
+                int toCopy = Math.min(buf.remaining(), n - off);
+                buf.get(data, off, toCopy);
+                off += toCopy;
+            } else {
+                buf.clear();
+                int r = channel.read(buf);
+                if (r == 0 && retries++ < 3) {
+                    continue;
+                }
+                if (r < 0) {
+                    throw new IOException("Unexpected EOF, expected " + (n - off) + " more bytes");
+                }
+                retries = 0;
+                buf.flip();
             }
-            retries = 0;
-            data[off++] = (byte) r;
         }
         return data;
     }
@@ -128,11 +137,53 @@ public class NioServerRequest implements ServerRequest {
     private boolean readLine() throws IOException {
         lineBuf.setLength(0);
         while (true) {
-            int b = readByte();
-            if (b < 0) return lineBuf.length() > 0;
-            if (b == '\r') { int next = readByte(); if (next != '\n' && next >= 0) lineBuf.append((char) next); return true; }
-            if (b == '\n') return true;
-            lineBuf.append((char) b);
+            // 批量扫描缓冲区中的 \n，避免逐字节方法调用
+            int start = buf.position();
+            int limit = buf.limit();
+            boolean found = false;
+            for (int i = start; i < limit; i++) {
+                if (buf.get(i) == (byte) '\n') {
+                    int lineEnd = i;
+                    int contentLen = lineEnd - start;
+                    if (contentLen > 0 && buf.get(lineEnd - 1) == (byte) '\r') {
+                        contentLen--;
+                    }
+                    appendLineBytes(start, contentLen);
+                    buf.position(lineEnd + 1); // 跳过 \n
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                return true;
+            }
+            // 缓冲内无换行：暂存剩余内容后读更多
+            int rem = buf.remaining();
+            if (rem > 0) {
+                appendLineBytes(buf.position(), rem);
+                buf.position(buf.limit());
+            }
+            buf.clear();
+            int n = channel.read(buf);
+            if (n <= 0) {
+                bufHasData = false;
+                return lineBuf.length() > 0;
+            }
+            buf.flip();
+            bufHasData = true;
+        }
+    }
+
+    /**
+     * 将缓冲区 [off, off+len) 追加到行缓冲（ISO-8859-1 字节 → char 1:1 映射）。
+     */
+    private void appendLineBytes(int off, int len) {
+        if (len <= 0) {
+            return;
+        }
+        byte[] arr = buf.array();
+        for (int i = 0; i < len; i++) {
+            lineBuf.append((char) (arr[off + i] & 0xFF));
         }
     }
 

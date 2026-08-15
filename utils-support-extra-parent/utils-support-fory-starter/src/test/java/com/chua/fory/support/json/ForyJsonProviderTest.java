@@ -1,7 +1,9 @@
 package com.chua.fory.support.json;
 
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.lang.json.Json5;
 import com.chua.common.support.lang.json.JsonArray;
+import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.lang.json.JsonProvider;
 import com.chua.common.support.lang.json.annotation.JsonIgnore;
@@ -16,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -179,5 +182,28 @@ class ForyJsonProviderTest {
         assertNotNull(list);
         assertEquals(1, list.size());
         assertEquals("a", list.get(0).get("name"));
+    }
+
+    /**
+     * 验证节点工厂返回 Fory 节点子类（节点类型随实现切换）。
+     */
+    @Test
+    void testNodeFactorySubclasses() {
+        ForyJsonProvider provider = new ForyJsonProvider();
+        Json.setImplementation(provider);
+
+        assertInstanceOf(ForyJsonObject.class, Json.createJsonObject());
+        assertInstanceOf(ForyJsonObject.class, JsonObject.create());
+        assertInstanceOf(ForyJsonObject.class, Json.getJsonObject("{\"a\":1}"));
+        assertInstanceOf(ForyJsonObject.class, Json5.getJsonObject("{\"a\":1}"));
+        assertInstanceOf(ForyJsonArray.class, Json.createJsonArray());
+        assertInstanceOf(ForyJsonArray.class, JsonArray.of());
+        assertInstanceOf(ForyJsonArray.class, Json.getJsonArray("[1,2]"));
+        assertInstanceOf(ForyJsonArray.class, Json5.getJsonArray("[1,2]"));
+        assertInstanceOf(ForyJsonNode.class, Json.createJsonNode("v"));
+        assertInstanceOf(ForyJsonNode.class, JsonNode.valueOf("v"));
+        assertInstanceOf(ForyJsonNode.class, Json.parse("{\"a\":1}"));
+        assertInstanceOf(ForyJsonNode.class, Json.build());
+        assertInstanceOf(ForyJsonNode.class, Json.buildArray());
     }
 }

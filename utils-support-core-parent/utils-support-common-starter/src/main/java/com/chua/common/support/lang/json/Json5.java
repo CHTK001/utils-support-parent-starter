@@ -28,6 +28,12 @@ import java.util.Map;
  * 统一切换：调用 {@link #setImplementation(JsonProvider)} 或 {@link Json#setImplementation(JsonProvider)}
  * 切换实现后，本类行为立即跟随，实现 {@code Json5} 与 {@code Json} 门面的统一 SPI 切换。
  * </p>
+ * <p>
+ * 注意：JSON5 扩展语法（注释、单引号、未加引号键名、尾随逗号等）的解析能力取决于当前
+ * 激活的 {@link JsonProvider} 实现。仅默认的 {@link JacksonJsonProvider} 原生启用全部
+ * JSON5 特性；切换为 Gson / Fory 等实现后，只有注释可经 {@link #preprocessJson5} 移除，
+ * 单引号 / 未加引号键名等仍需调用方自行转换为严格 JSON 语法。
+ * </p>
  *
  * @author CH
  * @since 2024/8/7

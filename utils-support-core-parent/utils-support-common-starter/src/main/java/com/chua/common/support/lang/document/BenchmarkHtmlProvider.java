@@ -152,6 +152,16 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
         String tool = data.getTool() != null ? data.getTool() : "";
         String scenario = data.getScenario() != null ? data.getScenario() : "";
 
+        // KPI 汇总
+        int totalScenarios = rows.size();
+        double avgRate = rows.stream().mapToDouble(BenchmarkDocumentData.BenchmarkRow::successRate).average().orElse(0);
+        double peakRps = rows.stream().mapToDouble(BenchmarkDocumentData.BenchmarkRow::getRps).max().orElse(0);
+        double avgP99 = rows.stream().mapToDouble(BenchmarkDocumentData.BenchmarkRow::getP99).average().orElse(0);
+        String kpiScenarios = totalScenarios + " 场景";
+        String kpiRate = String.format(java.util.Locale.ROOT, "%.2f%%", avgRate);
+        String kpiRps = String.format(java.util.Locale.ROOT, "%.0f req/s", peakRps);
+        String kpiP99 = String.format(java.util.Locale.ROOT, "%.1f ms", avgP99);
+
         return """
                 <!DOCTYPE html>
                 <html lang="zh-CN">
@@ -161,59 +171,80 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
                 <title>%s</title>
                 <script src="%s"></script>
                 <style>
-                  body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; margin: 0; background: #f5f7fa; color: #1f2937; }
-                  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
-                  h1 { text-align: center; color: #111827; }
-                  .meta { text-align: center; color: #6b7280; font-size: 14px; margin-bottom: 24px; line-height: 1.8; }
-                  .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.1); padding: 20px; margin-bottom: 24px; }
-                  .card h2 { margin-top: 0; font-size: 18px; border-left: 4px solid #2563eb; padding-left: 10px; }
-                  table { width: 100%%; border-collapse: collapse; font-size: 14px; }
-                  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; }
-                  th { background: #f9fafb; font-weight: 600; }
-                  .impl-header td { background: #eef2ff; font-weight: 700; text-align: left; }
-                  .ok { color: #16a34a; font-weight: 700; }
-                  .warn { color: #d97706; font-weight: 700; }
-                  .bad { color: #dc2626; font-weight: 700; }
-                  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-                  .chart-box { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.1); padding: 16px; }
-                  .chart-box h3 { font-size: 15px; margin: 0 0 8px; text-align: center; }
-                  .chart-box div { width: 100%%; height: 320px; }
-                  .full { grid-column: 1 / -1; }
-                  @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+                  :root {
+                    --primary:#4f46e5; --primary-soft:#eef2ff; --bg:#f8fafc;
+                    --card:#ffffff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
+                    --ok:#10b981; --warn:#f59e0b; --bad:#ef4444;
+                  }
+                  * { box-sizing: border-box; }
+                  body { font-family:'Inter','Segoe UI','Microsoft YaHei',system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; }
+                  .hero { background:linear-gradient(135deg,#4f46e5 0%%,#7c3aed 100%%); color:#fff; padding:42px 24px 58px; text-align:center; }
+                  .hero h1 { margin:0 0 10px; font-size:28px; font-weight:700; letter-spacing:.5px; }
+                  .hero .meta { font-size:13px; opacity:.88; line-height:1.9; max-width:900px; margin:0 auto; }
+                  .container { max-width:1120px; margin:-34px auto 48px; padding:0 24px; }
+                  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:26px; }
+                  .kpi { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 22px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+                  .kpi .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; font-weight:600; }
+                  .kpi .value { font-size:26px; font-weight:700; margin-top:6px; color:var(--primary); }
+                  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; margin-bottom:26px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+                  .card h2 { margin:0 0 16px; font-size:16px; font-weight:600; display:flex; align-items:center; gap:10px; }
+                  .card h2::before { content:''; width:4px; height:18px; background:var(--primary); border-radius:2px; }
+                  table { width:100%%; border-collapse:collapse; font-size:13.5px; }
+                  th { background:var(--primary-soft); color:var(--text); font-weight:600; padding:10px 12px; text-align:center; border-bottom:2px solid var(--border); }
+                  td { padding:9px 12px; border-bottom:1px solid var(--border); text-align:center; color:#334155; }
+                  tr:hover td { background:#f1f5f9; }
+                  .impl-header td { background:#f8fafc; font-weight:700; text-align:left; color:var(--primary); letter-spacing:.5px; }
+                  .ok { color:var(--ok); font-weight:700; }
+                  .warn { color:var(--warn); font-weight:700; }
+                  .bad { color:var(--bad); font-weight:700; }
+                  .charts { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+                  .chart-box { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; }
+                  .chart-box h3 { font-size:14px; margin:0 0 10px; text-align:center; color:var(--muted); font-weight:600; }
+                  .chart-box div { width:100%%; height:320px; }
+                  .full { grid-column:1/-1; }
+                  footer { text-align:center; color:var(--muted); font-size:12px; margin-top:36px; }
+                  @media (max-width:900px) { .charts { grid-template-columns:1fr; } }
                 </style>
                 </head>
                 <body>
+                <div class="hero">
+                  <h1>📊 %s</h1>
+                  <div class="meta">%s<br>%s<br>%s</div>
+                </div>
                 <div class="container">
-                <h1>📊 %s</h1>
-                <div class="meta">
-                  %s<br>%s<br>%s
-                </div>
-                <div class="card">
-                <h2>并发压测结果明细</h2>
-                <table>
-                <tr><th>并发数</th><th>总请求</th><th>失败</th><th>成功率</th><th>RPS</th><th>p95 (ms)</th><th>p99 (ms)</th></tr>
-                %s
-                </table>
-                </div>
-                <div class="charts">
-                <div class="chart-box full"><h3>各实现成功率对比（%%）</h3><div id="chartRate"></div></div>
-                <div class="chart-box"><h3>p95 延迟对比（ms）</h3><div id="chartP95"></div></div>
-                <div class="chart-box"><h3>p99 延迟对比（ms）</h3><div id="chartP99"></div></div>
-                <div class="chart-box full"><h3>吞吐量对比（RPS）</h3><div id="chartRps"></div></div>
-                </div>
+                  <div class="kpis">
+                    <div class="kpi"><div class="label">并发场景</div><div class="value">%s</div></div>
+                    <div class="kpi"><div class="label">平均成功率</div><div class="value">%s</div></div>
+                    <div class="kpi"><div class="label">峰值吞吐</div><div class="value">%s</div></div>
+                    <div class="kpi"><div class="label">平均 p99</div><div class="value">%s</div></div>
+                  </div>
+                  <div class="card">
+                    <h2>并发压测结果明细</h2>
+                    <table>
+                    <tr><th>并发数</th><th>总请求</th><th>失败</th><th>成功率</th><th>RPS</th><th>p95 (ms)</th><th>p99 (ms)</th></tr>
+                    %s
+                    </table>
+                  </div>
+                  <div class="charts">
+                    <div class="chart-box full"><h3>各实现成功率对比（%%）</h3><div id="chartRate"></div></div>
+                    <div class="chart-box"><h3>p95 延迟对比（ms）</h3><div id="chartP95"></div></div>
+                    <div class="chart-box"><h3>p99 延迟对比（ms）</h3><div id="chartP99"></div></div>
+                    <div class="chart-box full"><h3>吞吐量对比（RPS）</h3><div id="chartRps"></div></div>
+                  </div>
+                  <footer>Generated by utils-support-common-starter · Benchmark Report · ECharts</footer>
                 </div>
                 <script>
                 const IMPLS = [%s];
                 const VUS = [%s];
                 %s
-                const COLORS = { jdk: '#2563eb', nio: '#16a34a', netty: '#dc2626' };
+                const COLORS = { jdk:'#4f46e5', nio:'#10b981', netty:'#ef4444' };
                 const colorOf = (name) => COLORS[name.toLowerCase()] || '#64748b';
                 function mkSeries(map, key, type) {
                   return IMPLS.map(impl => ({
                     name: impl, type: type,
                     data: map[impl.toLowerCase()],
-                    itemStyle: { color: colorOf(impl) },
-                    lineStyle: { color: colorOf(impl) },
+                    itemStyle: { color: colorOf(impl), borderRadius: type === 'bar' ? 4 : 0 },
+                    lineStyle: { color: colorOf(impl), width: 2 },
                     smooth: true,
                   }));
                 }
@@ -226,26 +257,26 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
                 }
                 initChart('chartRate', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
-                  xAxis: { type: 'category', data: VUS },
-                  yAxis: { type: 'value', min: 0, max: 100, name: '成功率 %%' },
+                  xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
+                  yAxis: { type: 'value', min: 0, max: 100, name: '成功率 %%', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(rateData, 'rate', 'bar'),
                 });
                 initChart('chartP95', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
-                  xAxis: { type: 'category', data: VUS },
-                  yAxis: { type: 'value', name: 'ms' },
+                  xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
+                  yAxis: { type: 'value', name: 'ms', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(p95Data, 'p95', 'line'),
                 });
                 initChart('chartP99', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
-                  xAxis: { type: 'category', data: VUS },
-                  yAxis: { type: 'value', name: 'ms' },
+                  xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
+                  yAxis: { type: 'value', name: 'ms', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(p99Data, 'p99', 'line'),
                 });
                 initChart('chartRps', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
-                  xAxis: { type: 'category', data: VUS },
-                  yAxis: { type: 'value', name: 'req/s' },
+                  xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
+                  yAxis: { type: 'value', name: 'req/s', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(rpsData, 'rps', 'bar'),
                 });
                 </script>
@@ -253,6 +284,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
                 </html>
                 """.formatted(escape(title), ECHARTS_CDN, escape(title),
                 escape(env), escape(tool), escape(scenario),
+                kpiScenarios, kpiRate, kpiRps, kpiP99,
                 table, jsImpls, jsVus, dataMap);
     }
 

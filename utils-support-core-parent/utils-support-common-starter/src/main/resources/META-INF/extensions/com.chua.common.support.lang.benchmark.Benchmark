@@ -1,0 +1,2 @@
+k6=com.chua.common.support.lang.benchmark.K6Benchmark
+java=com.chua.common.support.lang.benchmark.JavaBenchmark

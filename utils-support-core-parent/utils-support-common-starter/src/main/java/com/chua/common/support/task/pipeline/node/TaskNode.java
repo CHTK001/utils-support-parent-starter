@@ -4,8 +4,11 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.retry.RetryConfig;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 执行节点。
@@ -64,6 +67,26 @@ public class TaskNode implements PipelineNode {
      * 重试配置，null 表示不重试
      */
     private RetryConfig retryConfig;
+
+    /**
+     * 数据依赖声明 — 声明此节点需要哪些节点的输出数据。
+     *
+     * <p>引擎在执行此节点前，会校验依赖的节点输出是否已存在于 nodeOutputs 中。
+     * 若依赖未满足，根据策略处理（默认抛出异常）。</p>
+     *
+     * <p>在并行场景中，节点 C 需要节点 A 和节点 B 的数据，可通过 unit 声明式表达：</p>
+     * <pre>{@code
+     * .taskStart("merge")
+     *     .unit("stepA", "stepB")  // 声明依赖 stepA 和 stepB 的输出
+     *     .onStep(ctx -> {
+     *         Object dataA = ctx.getData("stepA");
+     *         Object dataB = ctx.getData("stepB");
+     *         // 合并数据...
+     *     })
+     *     .taskEnd()
+     * }</pre>
+     */
+    private Set<String> units;
 
     /**
      * 构造执行节点。
@@ -131,6 +154,20 @@ public class TaskNode implements PipelineNode {
     @Override
     public RetryConfig getRetryConfig() {
         return retryConfig;
+    }
+
+    /**
+     * 设置数据依赖声明。
+     *
+     * @param units 依赖的节点 ID 集合
+     */
+    public void setUnits(Set<String> units) {
+        this.units = units != null ? units : Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getUnits() {
+        return units != null ? units : Collections.emptySet();
     }
 
     @Override
