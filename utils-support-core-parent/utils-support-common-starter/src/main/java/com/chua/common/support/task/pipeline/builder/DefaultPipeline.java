@@ -13,6 +13,10 @@ import com.chua.common.support.task.pipeline.node.ForkNode;
 import com.chua.common.support.task.pipeline.node.ParallelNode;
 import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 
+import com.chua.common.support.task.retry.JdkRetryProvider;
+import com.chua.common.support.task.retry.RetryConfig;
+import com.chua.common.support.task.retry.RetryProvider;
+
 import java.util.*;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
@@ -271,7 +275,14 @@ public class DefaultPipeline implements Pipeline {
                 String prevNextId = ctx.getNextNodeId();
 
                 try {
-                    String result = node.execute(ctx);
+                    // 检查重试配置：有则通过 RetryProvider 执行，无则直接执行
+                    String result;
+                    RetryConfig retryConfig = node.getRetryConfig();
+                    if (retryConfig != null && retryConfig.getMaxRetries() > 0) {
+                        result = RETRY_PROVIDER.execute(() -> node.execute(ctx), retryConfig);
+                    } else {
+                        result = node.execute(ctx);
+                    }
                     // 处理 execute() 返回值：仅当节点未显式设置其他动作时，返回值才触发 JUMP
                     // 优先级：显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT
                     if (result != null && !result.isEmpty() && ctx.getAction() == Action.NEXT) {
@@ -434,6 +445,9 @@ public class DefaultPipeline implements Pipeline {
     private static final String ANSI_CYAN = "\u001B[36m";
     /** ANSI 红色 — 错误标记 */
     private static final String ANSI_RED = "\u001B[31m";
+
+    /** 重试提供者 — 用于节点级重试执行 */
+    private static final RetryProvider RETRY_PROVIDER = new JdkRetryProvider();
 
     /** 节点类型图标：Task */
     private static final String ICON_TASK = "●";

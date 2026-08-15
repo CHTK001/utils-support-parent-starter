@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.onnx;
+package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.engine.ModelRegistrar;
 import com.chua.deeplearning.support.engine.ModelRegistry;
@@ -335,10 +335,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
-        // 翻译(opus-mt-en-zh)：英译中翻译模型，基于 MarianMT，自动下载(来自ModelScope)；适用英中翻译
-        reg("opus-mt-en-zh", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "nlp/translation/opus-mt-en-zh/model.onnx", "https://modelscope.cn/models/Xenova/opus-mt-en-zh/resolve/master/onnx/model.onnx", false, null);
-        // 翻译(opus-mt-zh-en)：中译英翻译模型，自动下载(来自ModelScope)；适用中英翻译
-        reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "nlp/translation/opus-mt-zh-en/model.onnx", "https://modelscope.cn/models/Xenova/opus-mt-zh-en/resolve/master/onnx/model.onnx", false, null);
         // 图像分类(MobileNetV4)：MobileNetV4 1000 类 ImageNet 分类，最新版更快更准；适用移动端通用分类
         reg("mobilenetv4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.onnx", false, null);
         // 深度伪造检测(DeepFake Detector)：检测图片/视频是否为深度伪造；适用反欺诈、虚假内容检测

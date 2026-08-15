@@ -2,6 +2,7 @@ package com.chua.common.support.task.pipeline.node;
 
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
+import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -69,6 +70,11 @@ public class DecisionNode implements PipelineNode {
      * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
      */
     private Map<String, Object> env;
+
+    /**
+     * 重试配置，null 表示不重试
+     */
+    private RetryConfig retryConfig;
 
     /**
      * 构造判断节点。
@@ -167,6 +173,20 @@ public class DecisionNode implements PipelineNode {
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
+    }
+
+    /**
+     * 设置重试配置。
+     *
+     * @param retryConfig 重试配置，null 表示不重试
+     */
+    public void setRetryConfig(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
+    }
+
+    @Override
+    public RetryConfig getRetryConfig() {
+        return retryConfig;
     }
 
     @Override
