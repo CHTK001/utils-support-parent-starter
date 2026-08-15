@@ -50,6 +50,8 @@ public class BgeEmbeddingClient implements EmbeddingClient {
      * 本地模型目录（自动下载版经 registry 解析后传入）
      */
     private Path localModelRoot;
+    private Path embeddedLocalDir;
+    private Path modelPath;
 
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
@@ -99,9 +101,6 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         tokenizer = null;
         embeddedLocalDir = null;
     }
-
-    private Path embeddedLocalDir;
-    private Path modelPath;
 
     private synchronized void prepare() throws Exception {
         if (loaded) {
