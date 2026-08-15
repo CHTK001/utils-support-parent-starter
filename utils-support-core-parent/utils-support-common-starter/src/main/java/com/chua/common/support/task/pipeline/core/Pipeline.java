@@ -11,12 +11,9 @@ import java.util.List;
  * <p>用法示例：</p>
  * <pre>{@code
  * Pipeline pipeline = PipelineBuilder.newBuilder("demo")
- *     .task("step1", ctx -> { })
- *     .decision("check", ctx -> ctx.getCurrentData() != null)
- *         .when(true, "step2")
- *         .when(false, "end")
- *         .then()
- *     .task("step2", ctx -> { })
+ *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
+ *     .decision("check", ctx -> ctx.getCurrentData() != null ? "step2" : "end")
+ *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
  *     .build();
  *
  * PipelineContext<String> ctx = pipeline.execute("input");

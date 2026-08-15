@@ -1,29 +1,93 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.task.pipeline.core.Action;
+import com.chua.common.support.task.pipeline.core.Pipeline;
+import com.chua.common.support.task.pipeline.core.PipelineContext;
+import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
+import com.chua.common.support.vector.VectorStorage;
+import com.chua.deeplearning.support.feature.FeatureExtractor;
+import com.chua.deeplearning.support.image.ImageClassifier;
+import com.chua.deeplearning.support.image.ImageEnhancer;
 import com.chua.deeplearning.support.liveness.LivenessDetector;
+import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.model.FaceQualityInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
- * 人脸检测链路：检测 → 裁剪 →（可选）活体。
+ * 人脸统一能力门面。
+ *
+ * <p>基于 {@link Pipeline} 通用管线框架，聚合人脸识别全量能力：
+ * 检测、裁剪、活体、特征、1:1 比对、1:N 检索、登记、动漫、超分、修复、
+ * 属性、表情、关键点、质量、换脸检测。</p>
+ *
+ * <p>管线能力（detect → crop → liveness → [feature → search]）由通用管线框架编排，
+ * 多人脸场景由外层循环驱动，每张人脸一个独立 {@link PipelineContext}；
+ * 单独能力直接委托底层模型实例，未注入的能力返回安全默认值。</p>
  *
  * <pre>{@code
  * FacePipeline pipeline = FacePipeline.builder()
- *         .detector("opencv-face")
- *         .liveness("face-anti-spoof")  // 可选
+ *         .detector("scrfd-face-detector")
+ *         .feature("r50-face-feature")
+ *         .liveness("face-anti-spoof")
+ *         .anime("anime-face-detector")
+ *         .superResolution("gfpgan-face-super-resolution")
+ *         .restore("codeformer")
+ *         .attribute("age-race-gender")
+ *         .emotion("emotion-ferplus")
+ *         .landmark("faceplugin-face-landmark")
+ *         .deepfake("deepfake-detector")
  *         .requireLive(true)
  *         .build();
- * List&lt;FaceDetectionHit&gt; faces = pipeline.detect(imageBytes);
+ *
+ * List&lt;FaceDetectionHit&gt; faces = pipeline.detectPipeline(imageBytes);
+ * byte[] enhanced = pipeline.superResolution(imageBytes);
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class FacePipeline {
+
+    /**
+     * 节点：裁剪
+     */
+    private static final String NODE_CROP = "crop";
+
+    /**
+     * 节点：活体
+     */
+    private static final String NODE_LIVENESS = "liveness";
+
+    /**
+     * 节点：特征
+     */
+    private static final String NODE_FEATURE = "feature";
+
+    /**
+     * 节点：检索
+     */
+    private static final String NODE_SEARCH = "search";
+
+    /**
+     * 节点：收集检测
+     */
+    private static final String NODE_COLLECT = "collect";
+
+    /**
+     * 节点：收集识别
+     */
+    private static final String NODE_COLLECT_IDENTIFY = "collectIdentify";
+
+    /**
+     * 节点：终止
+     */
+    private static final String NODE_END = "end";
 
     /**
      * 人脸检测器。
@@ -36,31 +100,131 @@ public class FacePipeline {
     private final LivenessDetector liveness;
 
     /**
+     * 特征提取器，可为 null（识别链路需要）。
+     */
+    private final FeatureExtractor featureExtractor;
+
+    /**
+     * 人脸向量库，可为 null（识别链路需要）。
+     */
+    private final VectorStorage vectorStorage;
+
+    /**
+     * 动漫人脸检测器，可为 null。
+     */
+    private final FaceDetector animeDetector;
+
+    /**
+     * 人脸超分器，可为 null。
+     */
+    private final ImageEnhancer superResolution;
+
+    /**
+     * 人脸修复器，可为 null。
+     */
+    private final ImageEnhancer restorer;
+
+    /**
+     * 属性分类器，可为 null。
+     */
+    private final ImageClassifier attributeClassifier;
+
+    /**
+     * 表情分类器，可为 null。
+     */
+    private final ImageClassifier emotionClassifier;
+
+    /**
+     * 关键点提取器，可为 null。
+     */
+    private final FeatureExtractor landmarkExtractor;
+
+    /**
+     * 质量评估器，可为 null。
+     */
+    private final FaceQualityAssessor qualityAssessor;
+
+    /**
+     * 换脸检测分类器，可为 null。
+     */
+    private final ImageClassifier deepfakeClassifier;
+
+    /**
+     * 检索 Top-K。
+     */
+    private final int topK;
+
+    /**
      * 是否要求活体通过才返回（仅 liveness 非空时生效）。
      */
     private final boolean requireLive;
 
     /**
-     * 活体分数阈值（用于 liveScore 判断，若 isLive 可用则优先 isLive）。
+     * 活体分数阈值。
      */
     private final float livenessThreshold;
 
     /**
-     * 构造。
+     * 单张人脸检测管线（裁剪 → 活体 → 收集）。
+     */
+    private final Pipeline detectPipeline;
+
+    /**
+     * 单张人脸识别管线（裁剪 → 活体 → 特征 → 检索 → 收集）。
+     */
+    private final Pipeline identifyPipeline;
+
+    /**
+     * 全量构造。
      *
-     * @param detector           检测器
-     * @param liveness           活体，可为 null
-     * @param requireLive        是否过滤非活体
-     * @param livenessThreshold  活体阈值
+     * @param detector            检测器
+     * @param liveness            活体，可为 null
+     * @param featureExtractor    特征，可为 null
+     * @param vectorStorage       向量库，可为 null
+     * @param animeDetector       动漫检测器，可为 null
+     * @param superResolution     超分器，可为 null
+     * @param restorer            修复器，可为 null
+     * @param attributeClassifier 属性分类器，可为 null
+     * @param emotionClassifier   表情分类器，可为 null
+     * @param landmarkExtractor   关键点提取器，可为 null
+     * @param qualityAssessor     质量评估器，可为 null
+     * @param deepfakeClassifier  换脸分类器，可为 null
+     * @param topK                Top-K
+     * @param requireLive         是否过滤非活体
+     * @param livenessThreshold   活体阈值
      */
     public FacePipeline(FaceDetector detector,
                         LivenessDetector liveness,
+                        FeatureExtractor featureExtractor,
+                        VectorStorage vectorStorage,
+                        FaceDetector animeDetector,
+                        ImageEnhancer superResolution,
+                        ImageEnhancer restorer,
+                        ImageClassifier attributeClassifier,
+                        ImageClassifier emotionClassifier,
+                        FeatureExtractor landmarkExtractor,
+                        FaceQualityAssessor qualityAssessor,
+                        ImageClassifier deepfakeClassifier,
+                        int topK,
                         boolean requireLive,
                         float livenessThreshold) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.liveness = liveness;
+        this.featureExtractor = featureExtractor;
+        this.vectorStorage = vectorStorage;
+        this.animeDetector = animeDetector;
+        this.superResolution = superResolution;
+        this.restorer = restorer;
+        this.attributeClassifier = attributeClassifier;
+        this.emotionClassifier = emotionClassifier;
+        this.landmarkExtractor = landmarkExtractor;
+        this.qualityAssessor = qualityAssessor;
+        this.deepfakeClassifier = deepfakeClassifier;
+        this.topK = Math.max(1, topK);
         this.requireLive = requireLive;
         this.livenessThreshold = livenessThreshold;
+        this.detectPipeline = buildDetectPipeline();
+        this.identifyPipeline = buildIdentifyPipeline();
     }
 
     /**
@@ -82,6 +246,17 @@ public class FacePipeline {
 
         private FaceDetector detector;
         private LivenessDetector liveness;
+        private FeatureExtractor featureExtractor;
+        private VectorStorage vectorStorage;
+        private FaceDetector animeDetector;
+        private ImageEnhancer superResolution;
+        private ImageEnhancer restorer;
+        private ImageClassifier attributeClassifier;
+        private ImageClassifier emotionClassifier;
+        private FeatureExtractor landmarkExtractor;
+        private FaceQualityAssessor qualityAssessor;
+        private ImageClassifier deepfakeClassifier;
+        private int topK = 5;
         private boolean requireLive = true;
         private float livenessThreshold = 0.5f;
 
@@ -130,6 +305,215 @@ public class FacePipeline {
         }
 
         /**
+         * 设置特征提取器。
+         *
+         * @param extractor 特征
+         * @return this
+         */
+        public Builder feature(FeatureExtractor extractor) {
+            this.featureExtractor = extractor;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建特征提取器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder feature(String modelId) {
+            this.featureExtractor = FeatureExtractor.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置人脸向量库。
+         *
+         * @param storage 向量库
+         * @return this
+         */
+        public Builder vectorStorage(VectorStorage storage) {
+            this.vectorStorage = storage;
+            return this;
+        }
+
+        /**
+         * 设置动漫人脸检测器。
+         *
+         * @param detector 检测器
+         * @return this
+         */
+        public Builder anime(FaceDetector detector) {
+            this.animeDetector = detector;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建动漫人脸检测器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder anime(String modelId) {
+            this.animeDetector = FaceDetector.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置人脸超分器。
+         *
+         * @param enhancer 超分器
+         * @return this
+         */
+        public Builder superResolution(ImageEnhancer enhancer) {
+            this.superResolution = enhancer;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建人脸超分器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder superResolution(String modelId) {
+            this.superResolution = ImageEnhancer.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置人脸修复器。
+         *
+         * @param enhancer 修复器
+         * @return this
+         */
+        public Builder restore(ImageEnhancer enhancer) {
+            this.restorer = enhancer;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建人脸修复器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder restore(String modelId) {
+            this.restorer = ImageEnhancer.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置属性分类器。
+         *
+         * @param classifier 分类器
+         * @return this
+         */
+        public Builder attribute(ImageClassifier classifier) {
+            this.attributeClassifier = classifier;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建属性分类器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder attribute(String modelId) {
+            this.attributeClassifier = ImageClassifier.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置表情分类器。
+         *
+         * @param classifier 分类器
+         * @return this
+         */
+        public Builder emotion(ImageClassifier classifier) {
+            this.emotionClassifier = classifier;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建表情分类器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder emotion(String modelId) {
+            this.emotionClassifier = ImageClassifier.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置关键点提取器。
+         *
+         * @param extractor 关键点提取器
+         * @return this
+         */
+        public Builder landmark(FeatureExtractor extractor) {
+            this.landmarkExtractor = extractor;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建关键点提取器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder landmark(String modelId) {
+            this.landmarkExtractor = FeatureExtractor.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置质量评估器。
+         *
+         * @param assessor 质量评估器
+         * @return this
+         */
+        public Builder quality(FaceQualityAssessor assessor) {
+            this.qualityAssessor = assessor;
+            return this;
+        }
+
+        /**
+         * 设置换脸检测分类器。
+         *
+         * @param classifier 分类器
+         * @return this
+         */
+        public Builder deepfake(ImageClassifier classifier) {
+            this.deepfakeClassifier = classifier;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建换脸检测分类器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder deepfake(String modelId) {
+            this.deepfakeClassifier = ImageClassifier.create(modelId);
+            return this;
+        }
+
+        /**
+         * 设置检索 Top-K。
+         *
+         * @param topK 条数
+         * @return this
+         */
+        public Builder topK(int topK) {
+            this.topK = topK;
+            return this;
+        }
+
+        /**
          * 是否要求活体通过才纳入结果。
          *
          * @param requireLive true 过滤假体
@@ -157,31 +541,215 @@ public class FacePipeline {
          * @return FacePipeline
          */
         public FacePipeline build() {
-            return new FacePipeline(detector, liveness, requireLive, livenessThreshold);
+            return new FacePipeline(detector, liveness, featureExtractor, vectorStorage,
+                    animeDetector, superResolution, restorer,
+                    attributeClassifier, emotionClassifier, landmarkExtractor,
+                    qualityAssessor, deepfakeClassifier,
+                    topK, requireLive, livenessThreshold);
         }
     }
 
     /**
-     * 检测链路：全部人脸（可按活体过滤）。
+     * 编排单张人脸检测管线（裁剪 → 活体 → 收集）。
+     *
+     * @return 管线实例
+     */
+    private Pipeline buildDetectPipeline() {
+        return PipelineBuilder.newBuilder("face-detect")
+                .task(NODE_CROP, ctx -> {
+                    FaceContext fc = current(ctx);
+                    if (fc.currentBox() == null) {
+                        return null;
+                    }
+                    fc.currentFace(ImageCropUtils.crop(fc.imageData(), fc.currentBox()));
+                    return null;
+                }).taskEnd()
+                .decision("hasFace", ctx -> current(ctx).currentFace() != null ? NODE_LIVENESS : NODE_END)
+                .task(NODE_LIVENESS, ctx -> {
+                    FaceContext fc = current(ctx);
+                    LivenessResult lr = evaluateLiveness(fc.currentFace());
+                    fc.currentLive(lr.live(), lr.score());
+                    return null;
+                }).taskEnd()
+                .decision("isLive", ctx -> !requireLive || liveness == null || current(ctx).currentLive() ? NODE_COLLECT : NODE_END)
+                .task(NODE_COLLECT, ctx -> {
+                    FaceContext fc = current(ctx);
+                    fc.addDetectionHit(new FaceDetectionHit(
+                            fc.currentBox(), fc.currentFace(),
+                            fc.currentLive(), fc.currentLiveScore()));
+                    return null;
+                }).taskEnd()
+                .task(NODE_END, ctx -> null).end().taskEnd()
+                .end(NODE_END)
+                .build();
+    }
+
+    /**
+     * 编排单张人脸识别管线（裁剪 → 活体 → 特征 → 检索 → 收集）。
+     *
+     * @return 管线实例
+     */
+    private Pipeline buildIdentifyPipeline() {
+        return PipelineBuilder.newBuilder("face-identify")
+                .task(NODE_CROP, ctx -> {
+                    FaceContext fc = current(ctx);
+                    if (fc.currentBox() == null) {
+                        return null;
+                    }
+                    fc.currentFace(ImageCropUtils.crop(fc.imageData(), fc.currentBox()));
+                    return null;
+                }).taskEnd()
+                .decision("hasFace", ctx -> current(ctx).currentFace() != null ? NODE_LIVENESS : NODE_END)
+                .task(NODE_LIVENESS, ctx -> {
+                    FaceContext fc = current(ctx);
+                    LivenessResult lr = evaluateLiveness(fc.currentFace());
+                    fc.currentLive(lr.live(), lr.score());
+                    return null;
+                }).taskEnd()
+                .decision("isLive", ctx -> !requireLive || liveness == null || current(ctx).currentLive() ? NODE_FEATURE : NODE_END)
+                .task(NODE_FEATURE, ctx -> {
+                    FaceContext fc = current(ctx);
+                    if (featureExtractor != null && fc.currentFace() != null) {
+                        fc.currentFeature(featureExtractor.extract(fc.currentFace()));
+                    }
+                    return null;
+                }).taskEnd()
+                .decision("hasFeature", ctx -> current(ctx).currentFeature() != null && vectorStorage != null ? NODE_SEARCH : NODE_COLLECT_IDENTIFY)
+                .task(NODE_SEARCH, ctx -> {
+                    FaceContext fc = current(ctx);
+                    fc.currentHits(searchFeature(fc.currentFeature(), topK));
+                    return null;
+                }).taskEnd()
+                .task(NODE_COLLECT_IDENTIFY, ctx -> {
+                    FaceContext fc = current(ctx);
+                    fc.addIdentifyHit(new FaceIdentifyHit(
+                            fc.currentBox(), fc.currentFeature(),
+                            fc.currentHits(), fc.currentLive(), fc.currentLiveScore()));
+                    return null;
+                }).taskEnd()
+                .task(NODE_END, ctx -> null).end().taskEnd()
+                .end(NODE_END)
+                .build();
+    }
+
+    /**
+     * 从管线上下文提取人脸上下文。
+     *
+     * @param ctx 管线上下文
+     * @return 人脸上下文
+     */
+    @SuppressWarnings("unchecked")
+    private static FaceContext current(PipelineContext<?> ctx) {
+        return (FaceContext) ctx.getAttribute("face");
+    }
+
+    // ==================== 管线能力 ====================
+
+    /**
+     * 检测管线：全部人脸（可按活体过滤）。
+     *
+     * @param imageData 场景图
+     * @return 检测命中
+     */
+    public List<FaceDetectionHit> detectPipeline(byte[] imageData) {
+        return runDetect(imageData).detectionHits();
+    }
+
+    /**
+     * 识别管线：全部人脸（可选活体 + 特征检索）。
+     *
+     * @param imageData 场景图
+     * @return 识别命中
+     */
+    public List<FaceIdentifyHit> identifyPipeline(byte[] imageData) {
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return List.of();
+        }
+        FaceContext fc = new FaceContext(imageData, boxes);
+        while (fc.advance()) {
+            runSingle(fc, identifyPipeline);
+        }
+        return fc.identifyHits();
+    }
+
+    /**
+     * 识别管线：取最大人脸。
+     *
+     * @param imageData 场景图
+     * @return 识别命中，无则 null
+     */
+    public FaceIdentifyHit identifyPipelineLargest(byte[] imageData) {
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return null;
+        }
+        PredictRectangle largest = pickLargest(boxes);
+        FaceContext fc = new FaceContext(imageData, List.of(largest));
+        fc.advance();
+        runSingle(fc, identifyPipeline);
+        return fc.identifyHits().isEmpty() ? null : fc.identifyHits().get(0);
+    }
+
+    /**
+     * 登记管线：取最大人脸 → 特征 → 入库。
+     *
+     * @param id        人脸 ID
+     * @param imageData 场景图
+     * @param metadata  元数据
+     * @return 是否成功
+     */
+    public boolean enrollPipeline(String id, byte[] imageData, Map<String, Object> metadata) {
+        if (featureExtractor == null || vectorStorage == null) {
+            return false;
+        }
+        FaceDetectionHit largest = detectLargest(imageData);
+        if (largest == null || largest.faceImage() == null) {
+            return false;
+        }
+        float[] feature = featureExtractor.extract(largest.faceImage());
+        return vectorStorage.add(new com.chua.common.support.vector.Vector(
+                id, feature, metadata == null ? Map.of() : metadata, id));
+    }
+
+    /**
+     * 运行检测管线，返回填充好的人脸上下文。
+     *
+     * @param imageData 场景图
+     * @return 上下文（含检测命中）
+     */
+    private FaceContext runDetect(byte[] imageData) {
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        FaceContext fc = new FaceContext(imageData, boxes);
+        while (fc.advance()) {
+            runSingle(fc, detectPipeline);
+        }
+        return fc;
+    }
+
+    /**
+     * 对单张人脸执行指定管线。
+     *
+     * @param fc       上下文
+     * @param pipeline 管线
+     */
+    private void runSingle(FaceContext fc, Pipeline pipeline) {
+        PipelineContext<FaceContext> ctx = new PipelineContext<>(pipeline.getId(), fc);
+        ctx.setAttribute("face", fc);
+        ctx.setNextNodeId(NODE_CROP);
+        pipeline.resume(ctx);
+    }
+
+    // ==================== 单独能力 ====================
+
+    /**
+     * 人脸检测（单独能力，返回全部检测框 + 活体）。
      *
      * @param imageData 场景图
      * @return 检测命中
      */
     public List<FaceDetectionHit> detect(byte[] imageData) {
-        List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
-            return List.of();
-        }
-        List<FaceDetectionHit> hits = new ArrayList<>(boxes.size());
-        for (PredictRectangle box : boxes) {
-            byte[] face = ImageCropUtils.crop(imageData, box);
-            LivenessResult lr = evaluateLiveness(face);
-            if (requireLive && liveness != null && !lr.live()) {
-                continue;
-            }
-            hits.add(new FaceDetectionHit(box, face, lr.live(), lr.score()));
-        }
-        return hits;
+        return runDetect(imageData).detectionHits();
     }
 
     /**
@@ -191,8 +759,8 @@ public class FacePipeline {
      * @return 命中，无则 null
      */
     public FaceDetectionHit detectLargest(byte[] imageData) {
-        List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
             return null;
         }
         PredictRectangle largest = pickLargest(boxes);
@@ -215,6 +783,208 @@ public class FacePipeline {
         return boxes == null ? List.of() : boxes;
     }
 
+    /**
+     * 特征提取。
+     *
+     * @param imageData 图片
+     * @return 特征向量，未配置特征模型时返回空数组
+     */
+    public float[] extractFeature(byte[] imageData) {
+        if (featureExtractor == null) {
+            return new float[0];
+        }
+        return featureExtractor.extract(imageData);
+    }
+
+    /**
+     * 1:1 余弦相似度比对。
+     *
+     * @param featureA 特征 A
+     * @param featureB 特征 B
+     * @return 相似度 0~1
+     */
+    public double compareFeature(float[] featureA, float[] featureB) {
+        return cosineSimilarity(featureA, featureB);
+    }
+
+    /**
+     * 特征检索（需向量库）。
+     *
+     * @param feature 查询特征
+     * @return 命中列表
+     */
+    public List<FaceSearchHit> search(float[] feature, int k) {
+        return searchFeature(feature, k);
+    }
+
+    /**
+     * 活体检测（辅助能力）。
+     *
+     * @param faceImage 裁剪人脸图
+     * @return 是否活体，未配置活体时返回 true
+     */
+    public boolean isLive(byte[] faceImage) {
+        if (liveness == null) {
+            return true;
+        }
+        return liveness.isLive(faceImage);
+    }
+
+    /**
+     * 活体分数（辅助能力）。
+     *
+     * @param faceImage 裁剪人脸图
+     * @return 分数，未配置活体时返回 1.0
+     */
+    public float liveScore(byte[] faceImage) {
+        if (liveness == null) {
+            return 1.0f;
+        }
+        try {
+            return liveness.liveScore(faceImage);
+        } catch (Exception e) {
+            return 0.0f;
+        }
+    }
+
+    /**
+     * 动漫人脸检测（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 检测信息，未配置动漫模型时返回空列表
+     */
+    public List<DetectionInfo> animeDetect(byte[] imageData) {
+        if (animeDetector == null) {
+            return List.of();
+        }
+        return animeDetector.detectInfo(imageData);
+    }
+
+    /**
+     * 人脸超分（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 超分后图片，未配置超分模型时原样返回
+     */
+    public byte[] superResolution(byte[] imageData) {
+        if (superResolution == null) {
+            return imageData;
+        }
+        return superResolution.enhance(imageData);
+    }
+
+    /**
+     * 人脸修复（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 修复后图片，未配置修复模型时原样返回
+     */
+    public byte[] restore(byte[] imageData) {
+        if (restorer == null) {
+            return imageData;
+        }
+        return restorer.enhance(imageData);
+    }
+
+    /**
+     * 人脸属性分析（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 属性标签，未配置时返回空串
+     */
+    public String attributes(byte[] imageData) {
+        if (attributeClassifier == null) {
+            return "";
+        }
+        return attributeClassifier.classify(imageData);
+    }
+
+    /**
+     * 人脸表情识别（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 表情标签，未配置时返回空串
+     */
+    public String emotion(byte[] imageData) {
+        if (emotionClassifier == null) {
+            return "";
+        }
+        return emotionClassifier.classify(imageData);
+    }
+
+    /**
+     * 人脸关键点（辅助能力，106 点）。
+     *
+     * @param imageData 图片
+     * @return 关键点坐标，未配置时返回空数组
+     */
+    public float[] landmark(byte[] imageData) {
+        if (landmarkExtractor == null) {
+            return new float[0];
+        }
+        return landmarkExtractor.extract(imageData);
+    }
+
+    /**
+     * 人脸质量评估（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 质量信息，未配置时返回 null
+     */
+    public FaceQualityInfo quality(byte[] imageData) {
+        if (qualityAssessor == null) {
+            return null;
+        }
+        return qualityAssessor.assess(imageData);
+    }
+
+    /**
+     * 换脸检测（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 是否疑似换脸，未配置时返回 false
+     */
+    public boolean isDeepfake(byte[] imageData) {
+        if (deepfakeClassifier == null) {
+            return false;
+        }
+        String result = deepfakeClassifier.classify(imageData);
+        if (result == null || result.isBlank()) {
+            return false;
+        }
+        String lower = result.toLowerCase();
+        return lower.contains("fake") || lower.contains("spoof") || lower.contains("deepfake");
+    }
+
+    /**
+     * 枚举可用模型清单。
+     *
+     * @return 能力分组 → 模型 ID 列表
+     */
+    public Map<String, List<String>> listModels() {
+        return Map.ofEntries(
+                Map.entry("detector", List.of("scrfd-face-detector", "ultra-face", "yolo-face-detector", "yolo-face-person", "faceplugin-face-detect-slim")),
+                Map.entry("animeDetector", List.of("anime-face-detector", "anime-face-yolov8")),
+                Map.entry("feature", List.of("r50-face-feature", "face-feature", "common-face-rec", "arc-face", "ada-face", "faceplugin-face-feature")),
+                Map.entry("liveness", List.of("face-anti-spoof", "mini-vision-liveness", "face-liveness-dinov2", "face-liveness-mobilevit")),
+                Map.entry("superResolution", List.of("gfpgan-face-super-resolution", "real-esrgan")),
+                Map.entry("restore", List.of("codeformer")),
+                Map.entry("attribute", List.of("age-race-gender", "age-gender-onnx", "yolo-face-age")),
+                Map.entry("emotion", List.of("emotion-ferplus", "yolo-face-emotion", "fer-plus")),
+                Map.entry("landmark", List.of("faceplugin-face-landmark")),
+                Map.entry("deepfake", List.of("deepfake-detector")),
+                Map.entry("vectorStorage", List.of("jvector", "memory", "milvus"))
+        );
+    }
+
+    // ==================== 内部 ====================
+
+    /**
+     * 评估活体状态。
+     *
+     * @param faceImage 人脸图
+     * @return 活体结果
+     */
     private LivenessResult evaluateLiveness(byte[] faceImage) {
         if (liveness == null) {
             return new LivenessResult(true, 1.0f);
@@ -227,13 +997,8 @@ public class FacePipeline {
             } catch (Exception e) {
                 score = live ? 1.0f : 0.0f;
             }
-            // 若 isLive 与 threshold 不一致，以 isLive 为准，并用 threshold 兜底分数
-            if (!live && score >= livenessThreshold) {
-                // 模型 isLive 已判死，保留分数
-            }
             return new LivenessResult(live, score);
         } catch (Exception e) {
-            // 部分模型只返回 Float：回退 liveScore
             try {
                 float score = liveness.liveScore(faceImage);
                 return new LivenessResult(score >= livenessThreshold, score);
@@ -241,6 +1006,35 @@ public class FacePipeline {
                 throw new IllegalStateException("活体检测失败: " + e.getMessage(), e);
             }
         }
+    }
+
+    /**
+     * 向量检索。
+     *
+     * @param feature 查询特征
+     * @param k       返回条数
+     * @return 命中列表
+     */
+    private List<FaceSearchHit> searchFeature(float[] feature, int k) {
+        if (feature == null || vectorStorage == null) {
+            return List.of();
+        }
+        List<com.chua.common.support.vector.Vector> vectors = vectorStorage.search(feature, k);
+        if (vectors == null || vectors.isEmpty()) {
+            return List.of();
+        }
+        List<FaceSearchHit> hits = new ArrayList<>(vectors.size());
+        for (com.chua.common.support.vector.Vector v : vectors) {
+            double score = 0d;
+            if (v.metadata() != null && v.metadata().get("score") instanceof Number n) {
+                score = n.doubleValue();
+            }
+            hits.add(new FaceSearchHit(
+                    v.id(), score, v.data(),
+                    v.metadata() == null ? Map.of() : v.metadata(),
+                    v.content()));
+        }
+        return hits;
     }
 
     private static PredictRectangle pickLargest(List<PredictRectangle> boxes) {
@@ -255,6 +1049,24 @@ public class FacePipeline {
             }
         }
         return largest;
+    }
+
+    private static double cosineSimilarity(float[] a, float[] b) {
+        if (a == null || b == null || a.length == 0 || a.length != b.length) {
+            return 0d;
+        }
+        double dot = 0;
+        double normA = 0;
+        double normB = 0;
+        for (int i = 0; i < a.length; i++) {
+            dot += a[i] * b[i];
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
+        }
+        if (normA == 0 || normB == 0) {
+            return 0d;
+        }
+        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
     /**
@@ -273,6 +1085,24 @@ public class FacePipeline {
      */
     public LivenessDetector liveness() {
         return liveness;
+    }
+
+    /**
+     * 特征提取器。
+     *
+     * @return FeatureExtractor 或 null
+     */
+    public FeatureExtractor featureExtractor() {
+        return featureExtractor;
+    }
+
+    /**
+     * 向量库。
+     *
+     * @return VectorStorage 或 null
+     */
+    public VectorStorage vectorStorage() {
+        return vectorStorage;
     }
 
     private record LivenessResult(boolean live, float score) {

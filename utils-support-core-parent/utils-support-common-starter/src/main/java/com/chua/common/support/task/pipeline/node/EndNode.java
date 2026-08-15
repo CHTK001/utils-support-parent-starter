@@ -38,8 +38,14 @@ public class EndNode implements PipelineNode {
     }
 
     @Override
-    public void execute(PipelineContext<?> context) {
+    public String getType() {
+        return "end";
+    }
+
+    @Override
+    public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
         context.setAction(Action.EXIT);
+        return null;
     }
 }

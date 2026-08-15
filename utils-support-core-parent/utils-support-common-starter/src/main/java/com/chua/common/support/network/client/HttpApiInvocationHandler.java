@@ -5,6 +5,7 @@ import com.chua.common.support.lang.placeholder.PlaceholderSupport;
 import com.chua.common.support.lang.placeholder.StringValuePropertyResolver;
 import com.chua.common.support.network.annotations.RequestMethod;
 import com.chua.common.support.network.http.HttpMethod;
+import com.chua.common.support.network.invoker.annotations.RemoteService;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -264,6 +265,10 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         RequestMethod rm = clazz.getAnnotation(RequestMethod.class);
         if (rm != null && !StringUtils.isEmpty(rm.value())) {
             return trimSlash(propertyResolver.resolvePlaceholders(rm.value()));
+        }
+        RemoteService rs = clazz.getAnnotation(RemoteService.class);
+        if (rs != null && !StringUtils.isEmpty(rs.url())) {
+            return trimSlash(propertyResolver.resolvePlaceholders(rs.url()));
         }
         return DEFAULT_BASE_URL;
     }

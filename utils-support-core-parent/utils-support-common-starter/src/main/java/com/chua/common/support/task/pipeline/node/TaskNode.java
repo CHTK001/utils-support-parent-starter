@@ -3,21 +3,35 @@ package com.chua.common.support.task.pipeline.node;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 执行节点。
  *
- * <p>最常用的节点类型，用于执行具体的业务逻辑。
- * 通过 {@link Consumer} 接收 {@link PipelineContext}，可读写当前数据、控制执行动作。</p>
+ * <p>最常用的节点类型，用于执行具体的业务逻辑。统一使用 {@link PipelineNode} 回调：</p>
+ * <ul>
+ *   <li><strong>返回 null</strong> — 按默认顺序继续执行</li>
+ *   <li><strong>返回节点 ID</strong> — 跳转到指定节点（动态路由）</li>
+ * </ul>
  *
- * <p>用法示例：</p>
+ * <p><strong>顺序执行：</strong></p>
  * <pre>{@code
  * .task("validate", ctx -> {
  *     String data = ctx.getCurrentData();
  *     if (data == null) {
  *         ctx.setAction(Action.EXIT);
  *     }
+ *     return null;  // 按默认顺序执行
+ * })
+ * }</pre>
+ *
+ * <p><strong>动态路由：</strong></p>
+ * <pre>{@code
+ * .task("process", ctx -> {
+ *     Object result = doProcess(ctx.getCurrentData());
+ *     ctx.setCurrentData(result);
+ *     return "validate";  // 跳转到 validate 节点
  * })
  * }</pre>
  *
@@ -31,19 +45,25 @@ public class TaskNode implements PipelineNode {
     private final String id;
 
     /**
-     * 业务逻辑执行器
+     * 业务逻辑处理器（统一回调）
      */
-    private final Consumer<PipelineContext<?>> task;
+    private final PipelineNode handler;
+
+    /**
+     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
+     */
+    private Map<String, Object> params;
 
     /**
      * 构造执行节点。
      *
-     * @param id   节点唯一标识
-     * @param task 业务逻辑执行器
+     * @param id      节点唯一标识
+     * @param handler 业务逻辑处理器，返回 null 按默认顺序执行，返回节点 ID 则跳转
      */
-    public TaskNode(String id, Consumer<PipelineContext<?>> task) {
+    public TaskNode(String id, PipelineNode handler) {
         this.id = id;
-        this.task = task;
+        this.handler = handler;
+        this.params = Collections.emptyMap();
     }
 
     /**
@@ -56,8 +76,27 @@ public class TaskNode implements PipelineNode {
     }
 
     @Override
-    public void execute(PipelineContext<?> context) {
+    public String getType() {
+        return "task";
+    }
+
+    /**
+     * 设置节点参数（JSON 构建时调用）。
+     *
+     * @param params 节点参数映射
+     */
+    public void setParams(Map<String, Object> params) {
+        this.params = params != null ? params : Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    @Override
+    public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
-        task.accept(context);
+        return handler.execute(context);
     }
 }
