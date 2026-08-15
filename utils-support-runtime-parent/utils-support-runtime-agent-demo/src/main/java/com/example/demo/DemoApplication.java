@@ -2,6 +2,7 @@ package com.example.demo;
 
 import com.chua.runtime.apm.storage.StorageConfig;
 import com.chua.runtime.apm.storage.StorageManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -35,8 +36,54 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @SpringBootApplication
 public class DemoApplication {
+
+    /**
+     * 存储类型：未初始化（agent 尚未注入存储）
+     */
+    private static final String STORAGE_TYPE_NOOP = "noop";
+
+    /**
+     * 存储类型：SQLite 持久化
+     */
+    private static final String STORAGE_TYPE_SQLITE = "sqlite";
+
+    /**
+     * 配置键：存储类型
+     */
+    private static final String KEY_STORAGE_TYPE = "apm.storage.type";
+
+    /**
+     * 配置键：数据库文件路径
+     */
+    private static final String KEY_STORAGE_PATH = "apm.storage.path";
+
+    /**
+     * 配置键：保留时长（毫秒）
+     */
+    private static final String KEY_STORAGE_RETENTION_MS = "apm.storage.retention.ms";
+
+    /**
+     * 配置键：单表最大行数
+     */
+    private static final String KEY_STORAGE_CAPACITY = "apm.storage.capacity";
+
+    /**
+     * 默认数据库文件路径
+     */
+    private static final String DEFAULT_DB_PATH = "./apm.db";
+
+    /**
+     * 默认保留时长（7 天，毫秒）
+     */
+    private static final long DEFAULT_RETENTION_MS = 7L * 24 * 60 * 60 * 1000;
+
+    /**
+     * 默认单表最大行数
+     */
+    private static final String DEFAULT_CAPACITY = "100000";
 
     /**
      * 启动入口。
@@ -60,20 +107,20 @@ public class DemoApplication {
     private static void initStorage() {
         try {
             String current = StorageManager.get().name();
-            if (!"noop".equals(current)) {
-                System.out.println("[DemoApplication] 存储已初始化: " + current + "，跳过 SQLite 切换（agent 采集保留）");
+            if (!STORAGE_TYPE_NOOP.equals(current)) {
+                log.info("存储已初始化: {}，跳过 SQLite 切换（agent 采集保留）", current);
                 return;
             }
             StorageConfig config = new StorageConfig();
-            config.put("apm.storage.type", "sqlite");
-            config.put("apm.storage.path", System.getProperty("apm.storage.path", "./apm.db"));
-            config.put("apm.storage.retention.ms",
-                    System.getProperty("apm.storage.retention.ms", String.valueOf(7L * 24 * 60 * 60 * 1000)));
-            config.put("apm.storage.capacity", System.getProperty("apm.storage.capacity", "100000"));
+            config.put(KEY_STORAGE_TYPE, STORAGE_TYPE_SQLITE);
+            config.put(KEY_STORAGE_PATH, System.getProperty(KEY_STORAGE_PATH, DEFAULT_DB_PATH));
+            config.put(KEY_STORAGE_RETENTION_MS,
+                    System.getProperty(KEY_STORAGE_RETENTION_MS, String.valueOf(DEFAULT_RETENTION_MS)));
+            config.put(KEY_STORAGE_CAPACITY, System.getProperty(KEY_STORAGE_CAPACITY, DEFAULT_CAPACITY));
             StorageManager.init(config);
-            System.out.println("[DemoApplication] SQLite 存储已初始化: " + StorageManager.get().name());
+            log.info("SQLite 存储已初始化: {}", StorageManager.get().name());
         } catch (Throwable t) {
-            System.err.println("[DemoApplication] 存储初始化失败: " + t.getMessage());
+            log.error("存储初始化失败: {}", t.getMessage());
         }
     }
 }
