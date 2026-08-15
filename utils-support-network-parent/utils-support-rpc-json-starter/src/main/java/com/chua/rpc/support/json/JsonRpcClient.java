@@ -22,6 +22,11 @@ import java.util.function.Function;
 /**
  * JSON-RPC 2.0 客户端实现。
  *
+ * <p>与 {@link JsonRpcServer} 的多服务路由配套：每个目标接口持有独立的
+ * {@link JsonRpcHttpClient}，并在请求体中以 {@code service} 字段携带接口全限定名，
+ * 供服务端路由到对应的 handler。版本 / 分组以请求头 {@code X-RPC-Version} /
+ * {@code X-RPC-Group} 传递，服务端据此做服务治理校验。</p>
+ *
  * @author CH
  * @since 1.0.0
  */
@@ -29,11 +34,29 @@ import java.util.function.Function;
 @Slf4j
 public class JsonRpcClient implements RpcClient {
 
+    /**
+     * 未配置时的默认重试间隔（毫秒）
+     */
     private static final int DEFAULT_RETRY_DELAY = 100;
 
+    /**
+     * 目标服务地址
+     */
     private final URL serviceUrl;
+
+    /**
+     * 消费者全局配置
+     */
     private final RpcConsumerConfig consumerConfig;
-    private volatile JsonRpcHttpClient client;
+
+    /**
+     * 目标接口 → 独立 HTTP 客户端（避免 {@code service} 路由字段跨接口串扰）
+     */
+    private final Map<Class<?>, JsonRpcHttpClient> clientCache = new ConcurrentHashMap<>();
+
+    /**
+     * 目标接口 → 动态代理缓存
+     */
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
     public JsonRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
@@ -54,11 +77,60 @@ public class JsonRpcClient implements RpcClient {
         return (T) proxyCache.computeIfAbsent(targetType, type -> {
             Class<T> t = (Class<T>) type;
             return ProxyUtils.newProxy(t, t.getClassLoader(),
-                    new DelegateMethodIntercept<>(t, new RpcInvoker()));
+                    new DelegateMethodIntercept<>(t, new RpcInvoker(t)));
         });
     }
 
+    /**
+     * 获取（或创建）目标接口对应的独立 HTTP 客户端。
+     *
+     * @param targetType 目标接口
+     * @return 独立客户端实例
+     */
+    private JsonRpcHttpClient ensureClient(Class<?> targetType) {
+        return clientCache.computeIfAbsent(targetType, type -> {
+            JsonRpcHttpClient client = new JsonRpcHttpClient(serviceUrl);
+            client.setConnectionTimeoutMillis(defaultConnectTimeout());
+            client.setReadTimeoutMillis(defaultTimeout());
+            return client;
+        });
+    }
+
+    /**
+     * 读取连接超时（毫秒），未配置时取默认 {@code 3000}。
+     *
+     * @return 连接超时毫秒数
+     */
+    private int defaultConnectTimeout() {
+        return consumerConfig != null && consumerConfig.getConnectTimeout() != null
+                ? consumerConfig.getConnectTimeout() : 3000;
+    }
+
+    /**
+     * 读取调用超时（毫秒），未配置时取默认 {@code 10000}。
+     *
+     * @return 调用超时毫秒数
+     */
+    private int defaultTimeout() {
+        return consumerConfig != null && consumerConfig.getTimeout() != null
+                ? consumerConfig.getTimeout() : 10000;
+    }
+
+    /**
+     * 远程调用实现：携带 {@code service} 路由字段 + 服务治理请求头，
+     * 并按消费者配置进行有限次网络重试。
+     */
     private class RpcInvoker implements Function<ProxyMethod, Object> {
+
+        /**
+         * 目标接口（用于路由与超时配置）
+         */
+        private final Class<?> targetType;
+
+        RpcInvoker(Class<?> targetType) {
+            this.targetType = targetType;
+        }
+
         @Override
         public Object apply(ProxyMethod proxyMethod) {
             int maxRetries = consumerConfig != null && Boolean.FALSE.equals(consumerConfig.getRetryEnabled())
@@ -70,49 +142,80 @@ public class JsonRpcClient implements RpcClient {
                 try {
                     return doInvoke(proxyMethod);
                 } catch (Throwable e) {
+                    Throwable cause = unwrap(e);
+                    // 业务异常：直接抛出，不重试（避免放大非幂等接口副作用）
+                    if (cause instanceof com.googlecode.jsonrpc4j.JsonRpcClientException) {
+                        throw com.chua.common.support.network.rpc.RpcException.business(
+                                "JSON-RPC business failure: " + proxyMethod.getMethod().getName(), e);
+                    }
                     lastError = e;
                     if (attempt < maxRetries) {
                         log.warn("JSON-RPC retry {}/{}, method={}", attempt + 1, maxRetries, proxyMethod.getMethod().getName());
-                        try { Thread.sleep(retryDelay); } catch (InterruptedException ie) {
+                        try {
+                            Thread.sleep(retryDelay);
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                             break;
                         }
                     }
                 }
             }
-            throw new IllegalStateException("JSON-RPC failed: " + proxyMethod.getMethod().getName(), lastError);
+            throw com.chua.common.support.network.rpc.RpcException.transport(
+                    "JSON-RPC failed: " + proxyMethod.getMethod().getName(), lastError);
         }
-    }
 
-    private Object doInvoke(ProxyMethod proxyMethod) throws Throwable {
-        ensureClient();
-        client.setHeaders(buildHeaders());
-        Method method = proxyMethod.getMethod();
-        return client.invoke(method.getName(), proxyMethod.getArgs(), method.getReturnType());
-    }
-
-    private void ensureClient() {
-        if (null == client) {
-            synchronized (this) {
-                if (null == client) {
-                    client = new JsonRpcHttpClient(serviceUrl);
-                }
+        /**
+         * 解包异常链，找到最底层原因（jsonrpc4j 会把业务异常包装为 JsonRpcClientException）。
+         *
+         * @param throwable 原始异常
+         * @return 最底层异常
+         */
+        private Throwable unwrap(Throwable throwable) {
+            Throwable cur = throwable;
+            while (cur.getCause() != null && cur.getCause() != cur) {
+                cur = cur.getCause();
             }
+            return cur;
+        }
+
+        private Object doInvoke(ProxyMethod proxyMethod) throws Throwable {
+            JsonRpcHttpClient client = ensureClient(targetType);
+            Map<String, String> headers = buildHeaders();
+            if (!headers.isEmpty()) {
+                client.setHeaders(headers);
+            }
+            Map<String, Object> additional = new HashMap<>(2);
+            additional.put(JsonRpcServer.SERVICE_FIELD, targetType.getName());
+            client.setAdditionalJsonContent(additional);
+            Method method = proxyMethod.getMethod();
+            return client.invoke(method.getName(), proxyMethod.getArgs(), method.getReturnType());
         }
     }
 
+    /**
+     * 构造服务治理请求头（版本 / 分组 / 令牌）。
+     *
+     * @return 请求头集合，可能为空
+     */
     private Map<String, String> buildHeaders() {
         Map<String, String> headers = new HashMap<>(16);
         if (consumerConfig != null) {
-            if (consumerConfig.getVersion() != null) { headers.put("X-RPC-Version", consumerConfig.getVersion()); }
-            if (consumerConfig.getGroup() != null)   { headers.put("X-RPC-Group", consumerConfig.getGroup()); }
+            if (consumerConfig.getVersion() != null) {
+                headers.put(JsonRpcServer.HEADER_VERSION, consumerConfig.getVersion());
+            }
+            if (consumerConfig.getGroup() != null) {
+                headers.put(JsonRpcServer.HEADER_GROUP, consumerConfig.getGroup());
+            }
+            if (consumerConfig.getToken() != null) {
+                headers.put(JsonRpcServer.HEADER_TOKEN, consumerConfig.getToken());
+            }
         }
         return headers;
     }
 
     @Override
     public void close() {
-        client = null;
+        clientCache.clear();
         proxyCache.clear();
         log.info("JsonRpcClient closed");
     }

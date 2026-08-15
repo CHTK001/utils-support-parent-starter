@@ -33,7 +33,7 @@ public class DubboRpcClient implements RpcClient {
 
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;
-        applicationConfig = DubboConfigs.application(name);
+        applicationConfig = DubboConfigs.get(name);
         for (RpcRegistryConfig cfg : rpcRegistryConfigs) {
             RegistryConfig item = new RegistryConfig();
             item.setAddress(cfg.getAddress());
@@ -108,6 +108,8 @@ public class DubboRpcClient implements RpcClient {
             }
         }
         referenceCache.clear();
+        // 释放共享应用配置引用，避免静态缓存跨应用/反复启停泄漏
+        DubboConfigs.release(applicationConfig.getName());
         log.info("DubboRpcClient closed");
     }
 }

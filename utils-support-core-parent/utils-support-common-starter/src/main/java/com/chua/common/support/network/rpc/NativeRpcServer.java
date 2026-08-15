@@ -39,6 +39,11 @@ public class NativeRpcServer implements RpcServer {
     private static final int DEFAULT_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
+     * 请求报文长度上限（字节），默认 8MB，防止恶意/异常客户端构造超长报文耗尽内存或触发 OOM
+     */
+    private static final int MAX_BODY_SIZE = 8 * 1024 * 1024;
+
+    /**
      * 端口号
      */
     private final int port;
@@ -147,12 +152,19 @@ public class NativeRpcServer implements RpcServer {
 
     private boolean readFrame(SocketChannel sc, Attachment att) throws IOException {
         if (att.state == State.HEADER) {
-            att.headerBuf.clear();
+            // 只在起始位置清空 header，避免半包场景下把已读字节清掉导致数据丢失
+            if (att.headerBuf.position() == 0) {
+                att.headerBuf.clear();
+            }
             int r = sc.read(att.headerBuf);
             if (r == -1) { closeChannel(keyFor(sc)); return false; }
             if (att.headerBuf.position() < HEADER_SIZE) { return false; }
             att.headerBuf.flip();
             att.bodyLen = att.headerBuf.getInt();
+            if (att.bodyLen <= 0 || att.bodyLen > MAX_BODY_SIZE) {
+                closeChannel(keyFor(sc));
+                throw new IOException("Invalid body length: " + att.bodyLen);
+            }
             att.bodyBuf = ByteBuffer.allocate(att.bodyLen);
             att.state = State.BODY;
         }
@@ -169,19 +181,50 @@ public class NativeRpcServer implements RpcServer {
         try {
             RpcRequest request = deserialize(reqData);
             RpcResponse response = invoke(request);
-            byte[] respData = serialize(response);
-            ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + respData.length);
-            buf.putInt(respData.length);
-            buf.put(respData);
-            buf.flip();
-            sc.write(buf);
+            writeResponse(sc, response);
         } catch (Exception e) {
             log.error("Process request error", e);
             RpcResponse err = new RpcResponse();
             err.setSuccess(false);
             err.setError(e.getClass().getName() + ": " + e.getMessage());
-            try { sc.write(ByteBuffer.wrap(serialize(err))); } catch (Exception ignored) {}
+            writeResponse(sc, err);
         }
+    }
+
+    /**
+     * 将响应完整写入通道。通道为非阻塞模式，必须循环写入直至缓冲区耗尽，避免粘包/半包。
+     *
+     * @param sc       目标通道
+     * @param response 响应对象
+     */
+    private void writeResponse(SocketChannel sc, RpcResponse response) {
+        try {
+            byte[] respData = serialize(response);
+            if (respData.length > MAX_BODY_SIZE) {
+                log.warn("Response too large: {}", respData.length);
+                respData = serialize(buildErrorResponse("Response too large"));
+            }
+            ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + respData.length);
+            buf.putInt(respData.length);
+            buf.put(respData);
+            buf.flip();
+            while (buf.hasRemaining()) {
+                int written = sc.write(buf);
+                if (written <= 0) {
+                    // 非阻塞模式下无更多空间，等待下一轮事件；此处由 worker 直接写，短暂让步避免忙等
+                    Thread.yield();
+                }
+            }
+        } catch (Exception e) {
+            log.error("Write response error", e);
+        }
+    }
+
+    private RpcResponse buildErrorResponse(String message) {
+        RpcResponse err = new RpcResponse();
+        err.setSuccess(false);
+        err.setError(message);
+        return err;
     }
 
     private RpcResponse invoke(RpcRequest request) {
@@ -261,6 +304,8 @@ public class NativeRpcServer implements RpcServer {
     @SuppressWarnings("unchecked")
     private static <T> T deserialize(byte[] data) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
+            // 复用客户端包级过滤策略，拒绝已知高危 gadget 类，防止反序列化攻击
+            ois.setObjectInputFilter(NativeRpcClient.objectInputFilter());
             return (T) ois.readObject();
         }
     }
@@ -272,6 +317,10 @@ public class NativeRpcServer implements RpcServer {
         State state = State.HEADER;
         int bodyLen;
         ByteBuffer bodyBuf;
-        void reset() { state = State.HEADER; bodyBuf = null; }
+        void reset() {
+            headerBuf.clear();
+            state = State.HEADER;
+            bodyBuf = null;
+        }
     }
 }
