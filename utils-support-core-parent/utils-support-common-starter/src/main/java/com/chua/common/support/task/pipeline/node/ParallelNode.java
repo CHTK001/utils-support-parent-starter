@@ -1,77 +1,114 @@
 package com.chua.common.support.task.pipeline.node;
 
-import com.chua.common.support.task.pipeline.core.ParallelErrorStrategy;
-import com.chua.common.support.task.pipeline.core.ParallelResult;
+import com.chua.common.support.task.pipeline.core.AsyncResult;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
-import com.chua.common.support.task.pipeline.exception.PipelineException;
 
 import java.util.*;
 import java.util.concurrent.StructuredTaskScope;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 
 /**
- * 并行节点 — 多分支并行执行。
+ * 并行子流水线节点 — 基于结构化并发（StructuredTaskScope）的非阻塞并行执行。
  *
- * <p>将多个 {@link Pipeline} 分支并行执行，各分支通过 {@link PipelineContext#createBranchContext()}
- * 创建独立上下文，{@code currentData} 各分支独立（避免并发冲突），{@code nodeOutputs} 和
- * {@code attributes} 共享引用（方便跨分支/跨节点数据访问）。</p>
- *
- * <p><strong>数据共享模型：</strong></p>
+ * <p>与 {@link SubPipelineNode} 和 {@link ForkNode} 的核心区别：</p>
  * <ul>
- *   <li>{@code nodeOutputs} — 同一 ConcurrentHashMap 引用，各分支通过不同 key 写入各自结果</li>
- *   <li>{@code attributes} — 同一 Map 引用，所有分支读写同一 Map（线程安全需调用方保证）</li>
- *   <li>{@code currentData} — 各分支独立，修改互不影响（避免并发写入冲突）</li>
- *   <li>{@code originalData} — 只读共享</li>
+ *   <li><strong>SubPipelineNode</strong> — 同步执行，主干阻塞等待子流程完成后才继续</li>
+ *   <li><strong>ForkNode</strong> — 分叉+阻塞，多分支并行执行，主干等待所有分支完成</li>
+ *   <li><strong>ParallelNode</strong> — 并行+不阻塞，主干不等待，子流程在后台线程执行</li>
  * </ul>
  *
- * <p><strong>分支结果存储：</strong></p>
- * <p>各分支执行完毕后，结果以 {@link ParallelResult} 结构化对象存入父上下文的 {@code nodeOutputs}，
- * key 为并行节点的 nodeId。后续节点可通过 {@code ctx.getData("parallel1", ParallelResult.class)}
- * 获取完整结果，再通过 {@link ParallelResult#getBranch(String)} 获取指定分支的输出。</p>
+ * <p><strong>执行模型（结构化并发）：</strong></p>
+ * <ol>
+ *   <li>主干到达并行节点 → 创建独立上下文 → 通过 scope.fork() 提交子流程</li>
+ *   <li>主干立即继续执行后续节点（不阻塞等待）</li>
+ *   <li>子流程并行执行完毕 → 完成 AsyncResult → 合并结果到父上下文</li>
+ *   <li>Pipeline 结束前 scope.join() 保证所有 fork 的并行任务完成</li>
+ * </ol>
+ *
+ * <p><strong>结构化并发保证：</strong></p>
+ * <p>并行任务通过 {@link StructuredTaskScope#fork} 提交到 Pipeline 级别的 scope 中，
+ * 由 {@code DefaultPipeline.executeWith()} 统一管理生命周期。
+ * Pipeline 返回前调用 {@code scope.join()} 确保所有并行子流水线完成，
+ * 不会出现孤儿线程或结果丢失。</p>
+ *
+ * <p><strong>结果存储：</strong></p>
+ * <p>并行节点执行时，立即在 {@code nodeOutputs} 中存入初始 {@link AsyncResult}（completed=false），
+ * 后续节点可通过 {@code ctx.getData("parallelStep", AsyncResult.class)} 获取并行结果句柄，
+ * 调用 {@link AsyncResult#await()} 阻塞等待完成，或通过 {@link AsyncResult#isCompleted()} 非阻塞检查。</p>
  *
  * <pre>
- * nodeOutputs["parallel1"] = ParallelResult {
- *     nodeId: "parallel1",
- *     branches: { "branchA": dataA, "branchB": dataB },
- *     histories: { "branchA": ["a1"], "branchB": ["b1"] }
+ * nodeOutputs["parallelStep"] = AsyncResult {
+ *     nodeId: "parallelStep",
+ *     output: data,               // 并行子流水线的最终输出（完成后可用）
+ *     history: ["a1", "a2"],      // 并行子流水线的执行历史
+ *     pipelineId: "parallelSub",  // 并行子流水线 ID
+ *     completed: true,            // 是否已完成
+ *     error: null                 // 异常（如果失败）
  * }
  * </pre>
  *
- * <p><strong>错误处理策略：</strong></p>
+ * <p><strong>结果合并：</strong></p>
+ * <p>并行子流水线执行完毕后，结果自动合并到父上下文：</p>
  * <ul>
- *   <li>{@link ParallelErrorStrategy#WAIT_ALL} — 等待所有分支完成，汇总异常（默认）</li>
- *   <li>{@link ParallelErrorStrategy#FAIL_FAST} — 第一个失败时立即抛出，取消其他分支</li>
+ *   <li>{@code nodeOutputs} 中的 AsyncResult 更新为完成状态</li>
+ *   <li>{@code currentData} 默认更新为并行输出（mergeCurrentData 默认 true）</li>
+ *   <li>触发 {@link #completionHandler}（如果配置）</li>
  * </ul>
  *
  * <p><strong>用法示例：</strong></p>
  * <pre>{@code
- * Pipeline branchA = PipelineBuilder.newBuilder("branchA")
+ * // 方式1：PipelineBuilder 直接构建
+ * Pipeline parallelSub = PipelineBuilder.newBuilder("parallelSub")
  *     .task("a1", ctx -> { doA1(ctx); return null; }).taskEnd()
+ *     .task("a2", ctx -> { doA2(ctx); return null; }).taskEnd()
  *     .build();
  *
- * Pipeline branchB = PipelineBuilder.newBuilder("branchB")
- *     .task("b1", ctx -> { doB1(ctx); return null; }).taskEnd()
- *     .build();
- *
- * Pipeline pipeline = PipelineBuilder.newBuilder("parallel-demo")
+ * Pipeline mainPipeline = PipelineBuilder.newBuilder("main")
  *     .task("init", ctx -> { init(ctx); return null; }).taskEnd()
- *     .parallel("parallel-group")
- *         .branch("a", branchA)
- *         .branch("b", branchB)
- *         .errorStrategy(ParallelErrorStrategy.WAIT_ALL)
- *     .taskEnd()
- *     .task("finalize", ctx -> { finalize(ctx); return null; }).taskEnd()
+ *     .parallel("parallelStep", parallelSub)             // 并行执行，主干不等待
+ *     .task("continue", ctx -> { continue(ctx); return null; }).taskEnd()
  *     .build();
+ *
+ * // 方式2：Definition API
+ * Pipeline mainPipeline = PipelineBuilder.newBuilder("main")
+ *     .task("init", ctx -> { init(ctx); return null; }).taskEnd()
+ *     .task("parallelStep", ctx -> null)
+ *         .parallel(parallelSub)                         // 转为并行子流水线定义
+ *         .onComplete((ctx, result) -> {                 // 完成回调
+ *             log.info("Parallel completed: {}", result.getOutput());
+ *         })
+ *         .taskEnd()
+ *     .task("continue", ctx -> { continue(ctx); return null; }).taskEnd()
+ *     .build();
+ *
+ * // 后续节点获取并行结果
+ * .task("check", ctx -> {
+ *     AsyncResult result = ctx.getData("parallelStep", AsyncResult.class);
+ *     if (result.isCompleted()) {
+ *         Object data = result.getOutput();
+ *     } else {
+ *         result.await();  // 阻塞等待
+ *     }
+ *     return null;
+ * }).taskEnd()
  * }</pre>
  *
  * @author CH
- * @see ParallelErrorStrategy
+ * @see AsyncResult
+ * @see SubPipelineNode
+ * @see ForkNode
  */
 public class ParallelNode implements PipelineNode {
+
+    /**
+     * 内部属性键 — StructuredTaskScope 实例。
+     *
+     * <p>与 {@code DefaultPipeline.ATTR_PIPELINE_SCOPE} 保持一致，
+     * 通过 PipelineContext.attributes 传递 Pipeline 级别的 StructuredTaskScope。</p>
+     */
+    private static final String ATTR_PIPELINE_SCOPE = "__pipelineScope__";
 
     /**
      * 节点唯一标识
@@ -79,17 +116,41 @@ public class ParallelNode implements PipelineNode {
     private final String id;
 
     /**
-     * 并行分支列表：分支名称 -> 子流水线
+     * 并行子流水线实例
      */
-    private final Map<String, Pipeline> branches;
+    private final Pipeline subPipeline;
 
     /**
-     * 错误处理策略，默认 WAIT_ALL
+     * 并行完成后是否将输出合并到父上下文的 currentData，默认 true。
+     *
+     * <p>并行子流程的结果必须合并回主干，否则后续节点无法获取异步执行的结果。
+     * 默认启用合并，确保数据流完整性。</p>
+     *
+     * <p>注意：并行完成时主干可能已在其他节点，合并 currentData 可能覆盖当前节点的数据。
+     * 如需自定义合并逻辑，可通过 completionHandler 手动处理。</p>
      */
-    private final ParallelErrorStrategy errorStrategy;
+    private boolean mergeCurrentData = true;
 
     /**
-     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
+     * 并行完成回调（可选）
+     *
+     * <p>并行子流水线执行完毕后触发，参数为父上下文和异步结果。
+     * 可用于自定义结果合并逻辑、通知、日志等。</p>
+     */
+    private BiConsumer<PipelineContext<?>, AsyncResult> completionHandler;
+
+    /**
+     * 前置处理器（在并行子流水线启动前调用，可选）
+     */
+    private PipelineNode preHandler;
+
+    /**
+     * 子流水线起始节点 ID（覆盖默认起始节点，可选）
+     */
+    private String startNode;
+
+    /**
+     * 子流水线参数（注入到子上下文的 nodeLocalData，可选）
      */
     private Map<String, Object> params;
 
@@ -99,25 +160,14 @@ public class ParallelNode implements PipelineNode {
     private Map<String, Object> env;
 
     /**
-     * 前置处理器（在并行分支执行前调用，可选）。
+     * 构造并行子流水线节点。
      *
-     * <p>前置处理器在所有并行分支启动之前执行，适用于初始化共享数据等场景。
-     * 处理器返回值决定后续路由，返回 null 则继续执行并行分支。</p>
+     * @param id          节点唯一标识
+     * @param subPipeline 并行子流水线实例
      */
-    private PipelineNode preHandler;
-
-    /**
-     * 构造并行节点。
-     *
-     * @param id            节点唯一标识
-     * @param branches      分支名称 -> 子流水线映射
-     * @param errorStrategy 错误处理策略，null 时默认 WAIT_ALL
-     */
-    public ParallelNode(String id, Map<String, Pipeline> branches, ParallelErrorStrategy errorStrategy) {
+    public ParallelNode(String id, Pipeline subPipeline) {
         this.id = id;
-        this.branches = branches != null ? new LinkedHashMap<>(branches) : new LinkedHashMap<>();
-        this.errorStrategy = errorStrategy != null ? errorStrategy : ParallelErrorStrategy.WAIT_ALL;
-        this.params = Collections.emptyMap();
+        this.subPipeline = subPipeline;
     }
 
     /**
@@ -136,55 +186,65 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-     * 获取并行分支映射。
+     * 获取并行子流水线 ID。
      *
-     * @return 分支名称 -> 子流水线的不可变映射
+     * @return 子流水线 ID
      */
-    public Map<String, Pipeline> getBranches() {
-        return Collections.unmodifiableMap(branches);
+    public String getSubPipelineId() {
+        return subPipeline.getId();
     }
 
     /**
-     * 获取错误处理策略。
+     * 获取并行子流水线实例。
      *
-     * @return 错误处理策略
+     * @return 子流水线 Pipeline 实例
      */
-    public ParallelErrorStrategy getErrorStrategy() {
-        return errorStrategy;
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
+    public Pipeline getSubPipeline() {
+        return subPipeline;
     }
 
     /**
-     * 设置节点参数映射。
+     * 设置并行完成后是否合并 currentData。
      *
-     * @param params 参数映射
+     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 currentData
+     * @return this
      */
-    public void setParams(Map<String, Object> params) {
-        this.params = params != null ? params : Collections.emptyMap();
+    public ParallelNode mergeCurrentData(boolean mergeCurrentData) {
+        this.mergeCurrentData = mergeCurrentData;
+        return this;
     }
 
     /**
-     * 设置节点环境参数（定义时调用）。
+     * 获取并行完成后是否合并 currentData。
      *
-     * @param env 环境参数映射
+     * @return true 表示并行完成后将输出写回父上下文的 currentData
      */
-    public void setEnv(Map<String, Object> env) {
-        this.env = env != null ? env : Collections.emptyMap();
+    public boolean isMergeCurrentData() {
+        return mergeCurrentData;
     }
 
-    @Override
-    public Map<String, Object> getEnv() {
-        return env != null ? env : Collections.emptyMap();
+    /**
+     * 设置并行完成回调。
+     *
+     * @param completionHandler 完成回调，参数为 (父上下文, 异步结果)
+     * @return this
+     */
+    public ParallelNode onComplete(BiConsumer<PipelineContext<?>, AsyncResult> completionHandler) {
+        this.completionHandler = completionHandler;
+        return this;
+    }
+
+    /**
+     * 获取并行完成回调。
+     *
+     * @return 完成回调，未设置时返回 null
+     */
+    public BiConsumer<PipelineContext<?>, AsyncResult> getCompletionHandler() {
+        return completionHandler;
     }
 
     /**
      * 设置前置处理器。
-     *
-     * <p>前置处理器在所有并行分支启动之前执行，适用于初始化共享数据等场景。</p>
      *
      * @param preHandler 前置处理器
      * @return this
@@ -204,172 +264,167 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-     * 并行执行所有分支。
+     * 设置子流水线起始节点 ID。
      *
-     * <p>每个分支通过 {@link PipelineContext#createBranchContext()} 创建独立的上下文，
-     * 各分支的 {@code currentData} 独立（避免并发冲突），{@code nodeOutputs} 和
-     * {@code attributes} 共享引用。</p>
+     * @param startNode 起始节点 ID
+     * @return this
+     */
+    public ParallelNode start(String startNode) {
+        this.startNode = startNode;
+        return this;
+    }
+
+    /**
+     * 获取子流水线起始节点 ID。
      *
-     * <p>所有分支执行完毕后，将结果以 {@link ParallelResult} 结构化对象存入父上下文的
-     * {@code nodeOutputs}，key 为本节点的 nodeId。结构化存储使 key 统一为 nodeId，
-     * 调用方不需要知道节点类型即可获取结果。</p>
+     * @return 起始节点 ID，未设置时返回 null
+     */
+    public String getStartNode() {
+        return startNode;
+    }
+
+    /**
+     * 设置子流水线参数。
+     *
+     * @param params 参数映射
+     * @return this
+     */
+    public ParallelNode params(Map<String, Object> params) {
+        this.params = params != null ? new LinkedHashMap<>(params) : null;
+        return this;
+    }
+
+    /**
+     * 获取子流水线参数。
+     *
+     * @return 参数映射，未设置时返回空 Map
+     */
+    public Map<String, Object> getParams() {
+        return params != null ? params : Collections.emptyMap();
+    }
+
+    /**
+     * 设置节点环境参数（定义时调用）。
+     *
+     * @param env 环境参数映射
+     */
+    public void setEnv(Map<String, Object> env) {
+        this.env = env != null ? env : Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Object> getEnv() {
+        return env != null ? env : Collections.emptyMap();
+    }
+
+    /**
+     * 并行执行子流水线（结构化并发版）。
+     *
+     * <p>执行流程：</p>
+     * <ol>
+     *   <li>设置当前节点 ID</li>
+     *   <li>执行前置处理器（如果配置）</li>
+     *   <li>创建独立上下文</li>
+     *   <li>从 PipelineContext.attributes 获取 StructuredTaskScope</li>
+     *   <li>scope.fork() 提交子流水线到结构化并发作用域</li>
+     *   <li>立即在 nodeOutputs 存入初始 AsyncResult（completed=false）</li>
+     *   <li>返回 null，主干继续执行后续节点</li>
+     *   <li>fork 内：执行子流水线 → 完成 AsyncResult → 合并结果到父上下文</li>
+     * </ol>
+     *
+     * <p><strong>降级策略：</strong>若 attributes 中无 StructuredTaskScope（非 Pipeline 级调用），
+     * 则同步执行子流水线，确保功能正确但无并发收益。</p>
      *
      * @param context 父流水线上下文
      * @return null，按默认顺序继续执行下一节点
      */
     @Override
+    @SuppressWarnings("unchecked")
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
 
-        // 执行前置处理器（如果配置）
+        // 1. 执行前置处理器（如果配置）
         if (preHandler != null) {
-            String result = preHandler.execute(context);
-            if (result != null) {
-                return result; // 前置处理器返回非null，跳过并行执行，直接路由
+            preHandler.execute(context);
+        }
+
+        // 2. 创建独立上下文（与 SubPipelineNode 一致）
+        PipelineContext<Object> subCtx;
+        if (startNode != null || (params != null && !params.isEmpty())) {
+            subCtx = new PipelineContext<>(subPipeline.getId(), context.getCurrentData());
+            if (startNode != null) {
+                subCtx.setNextNodeId(startNode);
             }
-        }
-
-        if (branches.isEmpty()) {
-            return null;
-        }
-
-        // 单分支优化：直接同步执行，无需并行开销
-        if (branches.size() == 1) {
-            Map.Entry<String, Pipeline> entry = branches.entrySet().iterator().next();
-            executeBranch(entry.getKey(), entry.getValue(), context);
-            return null;
-        }
-
-        // 并行执行（结构化并发：StructuredTaskScope — Java 25 API）
-        ConcurrentLinkedQueue<BranchResult> results = new ConcurrentLinkedQueue<>();
-
-        if (errorStrategy == ParallelErrorStrategy.FAIL_FAST) {
-            // FAIL_FAST：任一分支失败时取消剩余分支
-            AtomicBoolean failed = new AtomicBoolean(false);
-            try (var scope = StructuredTaskScope.open(
-                    StructuredTaskScope.Joiner.allUntil(subtask -> failed.get()))) {
-                for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
-                    String branchName = entry.getKey();
-                    Pipeline branchPipeline = entry.getValue();
-                    scope.fork(() -> {
-                        PipelineContext<?> branchCtx = context.createBranchContext();
-                        try {
-                            branchPipeline.execute(branchCtx);
-                            results.add(new BranchResult(branchName, branchCtx, null));
-                        } catch (Exception e) {
-                            results.add(new BranchResult(branchName, branchCtx, e));
-                            failed.set(true); // 信号失败，触发 scope 取消
-                        }
-                        return null;
-                    });
-                }
-                scope.join(); // 等待所有分支完成（含被取消的）
-
-                // 检查失败分支
-                for (BranchResult result : results) {
-                    if (result.error != null) {
-                        throw new PipelineException(
-                                "Parallel branch '" + result.branchName + "' failed (FAIL_FAST)",
-                                id, context.getPipelineId(), result.error);
-                    }
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new PipelineException("Parallel execution interrupted",
-                        id, context.getPipelineId(), e);
+            if (params != null && !params.isEmpty()) {
+                Map<String, Object> localData = subCtx.getNodeLocalData();
+                localData.putAll(params);
             }
         } else {
-            // WAIT_ALL：等待所有分支完成，汇总异常
-            try (var scope = StructuredTaskScope.open(
-                    StructuredTaskScope.Joiner.awaitAll())) {
-                for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
-                    String branchName = entry.getKey();
-                    Pipeline branchPipeline = entry.getValue();
-                    scope.fork(() -> {
-                        PipelineContext<?> branchCtx = context.createBranchContext();
-                        try {
-                            branchPipeline.execute(branchCtx);
-                            results.add(new BranchResult(branchName, branchCtx, null));
-                        } catch (Exception e) {
-                            results.add(new BranchResult(branchName, branchCtx, e));
-                        }
-                        return null;
-                    });
-                }
-                scope.join(); // 等待所有分支完成
+            subCtx = new PipelineContext<>(subPipeline.getId(), context.getCurrentData());
+        }
 
-                // 汇总异常
-                List<Exception> errors = new ArrayList<>();
-                for (BranchResult result : results) {
-                    if (result.error != null) {
-                        errors.add(result.error);
-                    }
-                }
+        // 3. 创建 AsyncResult（初始未完成状态）
+        AsyncResult asyncResult = new AsyncResult(id, subPipeline.getId());
+        context.setNodeOutput(id, asyncResult);
 
-                if (!errors.isEmpty()) {
-                    String errorBranches = results.stream()
-                            .filter(r -> r.error != null)
-                            .map(r -> r.branchName)
-                            .collect(Collectors.joining(", "));
-                    throw new PipelineException(
-                            "Parallel branches failed: [" + errorBranches + "] (WAIT_ALL)",
-                            id, context.getPipelineId(), errors.get(0));
+        // 4. 获取 Pipeline 级 StructuredTaskScope（Java 25 API：StructuredTaskScope<Object, Void>）
+        StructuredTaskScope<Object, Void> scope =
+                (StructuredTaskScope<Object, Void>) context.getAttributes().get(ATTR_PIPELINE_SCOPE);
+
+        if (scope != null) {
+            // 结构化并发：fork 到 Pipeline 级 scope
+            final PipelineContext<Object> finalSubCtx = subCtx;
+            scope.fork(() -> {
+                try {
+                    subPipeline.execute(finalSubCtx);
+                    // 正常完成：用子流水线上下文的结果填充 AsyncResult
+                    asyncResult.complete(finalSubCtx.getCurrentData(), finalSubCtx.getHistory());
+                } catch (Exception e) {
+                    // 异常完成
+                    asyncResult.completeWithError(e);
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new PipelineException("Parallel execution interrupted",
-                        id, context.getPipelineId(), e);
+                // 合并结果到父上下文
+                mergeResultToParent(context, asyncResult);
+            });
+        } else {
+            // 降级：无 scope 时同步执行（确保功能正确但无并发收益）
+            try {
+                subPipeline.execute(subCtx);
+                asyncResult.complete(subCtx.getCurrentData(), subCtx.getHistory());
+            } catch (Exception e) {
+                asyncResult.completeWithError(e);
             }
+            mergeResultToParent(context, asyncResult);
         }
 
-        // 将分支结果以 ParallelResult 结构化对象存入父上下文 nodeOutputs
-        Map<String, Object> branchOutputs = new LinkedHashMap<>();
-        Map<String, List<String>> branchHistories = new LinkedHashMap<>();
-        for (BranchResult result : results) {
-            branchOutputs.put(result.branchName, result.context.getCurrentData());
-            branchHistories.put(result.branchName, result.context.getHistory());
-        }
-        ParallelResult parallelResult = new ParallelResult(id, branchOutputs, branchHistories);
-        context.setNodeOutput(id, parallelResult);
-
+        // 5. 主干不等待，继续执行后续节点
         return null;
     }
 
     /**
-     * 同步执行单个分支（单分支优化路径）。
+     * 并行完成后合并结果到父上下文。
      *
-     * <p>结果同样以 {@link ParallelResult} 结构化对象存入 {@code nodeOutputs}，
-     * 与多分支并行路径保持一致的存储格式。</p>
+     * <p>合并操作：</p>
+     * <ul>
+     *   <li>AsyncResult 已在 fork 内完成（output + history）</li>
+     *   <li>如果 mergeCurrentData=true（默认），更新父上下文的 currentData</li>
+     *   <li>触发 completionHandler（如果配置）</li>
+     * </ul>
      *
-     * @param branchName    分支名称
-     * @param branchPipeline 分支流水线
-     * @param parentCtx     父上下文
+     * @param parentCtx   父上下文
+     * @param asyncResult 异步结果（已完成）
      */
-    private void executeBranch(String branchName, Pipeline branchPipeline, PipelineContext<?> parentCtx) {
-        PipelineContext<?> branchCtx = parentCtx.createBranchContext();
-        branchPipeline.execute(branchCtx);
+    @SuppressWarnings("unchecked")
+    private void mergeResultToParent(PipelineContext<?> parentCtx, AsyncResult asyncResult) {
+        // mergeCurrentData：将并行输出写回父上下文的 currentData（默认 true）
+        if (mergeCurrentData && asyncResult.isCompleted() && !asyncResult.isFailed()) {
+            PipelineContext<Object> ctx = (PipelineContext<Object>) parentCtx;
+            ctx.setCurrentData(asyncResult.getOutput());
+        }
 
-        // 以 ParallelResult 结构化存储，与多分支路径格式一致
-        Map<String, Object> branchOutputs = new LinkedHashMap<>();
-        branchOutputs.put(branchName, branchCtx.getCurrentData());
-        Map<String, List<String>> branchHistories = new LinkedHashMap<>();
-        branchHistories.put(branchName, branchCtx.getHistory());
-        ParallelResult parallelResult = new ParallelResult(id, branchOutputs, branchHistories);
-        parentCtx.setNodeOutput(id, parallelResult);
-    }
-
-    /**
-     * 分支执行结果。
-     */
-    private static class BranchResult {
-        final String branchName;
-        final PipelineContext<?> context;
-        final Exception error;
-
-        BranchResult(String branchName, PipelineContext<?> context, Exception error) {
-            this.branchName = branchName;
-            this.context = context;
-            this.error = error;
+        // 触发完成回调
+        if (completionHandler != null) {
+            completionHandler.accept(parentCtx, asyncResult);
         }
     }
 }

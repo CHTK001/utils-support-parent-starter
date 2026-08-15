@@ -4,6 +4,7 @@ import com.chua.common.support.concurrent.timeout.TimeoutFlow;
 import com.chua.common.support.concurrent.timeout.annotation.Timeout;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.annotation.MethodAnnotationIntercept;
+import com.chua.common.support.proxy.intercept.AbstractMethodAnnotationIntercept;
 import com.chua.common.support.proxy.intercept.MethodInvocation;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
