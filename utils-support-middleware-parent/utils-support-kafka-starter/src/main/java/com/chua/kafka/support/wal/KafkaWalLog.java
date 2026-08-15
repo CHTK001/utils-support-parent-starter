@@ -216,9 +216,15 @@ public class KafkaWalLog implements WalLog {
                     WalRecord record = new WalRecord(lsn, op, payload);
                     records.add(record);
                     if (handler != null) {
-                        if (!handler.onRecord(lsn, op, payload)) {
-                            stopped = true;
-                            break;
+                        try {
+                            if (!handler.onRecord(lsn, op, payload)) {
+                                stopped = true;
+                                break;
+                            }
+                        } catch (WalException e) {
+                            throw e;
+                        } catch (Exception e) {
+                            throw new WalException("WAL 回放处理器异常: lsn=" + lsn, e);
                         }
                     }
                 }
@@ -233,28 +239,34 @@ public class KafkaWalLog implements WalLog {
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
         List<WalOp> ops = new ArrayList<>();
-        handler.apply(new WalChain() {
-            @Override
-            public WalChain add(byte op, byte[] payload) {
-                ops.add(new WalOp(op, payload == null ? new byte[0] : payload));
-                return this;
-            }
-            @Override
-            public WalChain add(byte op, String s) {
-                byte[] bytes = s == null ? new byte[0] : s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-                ops.add(new WalOp(op, bytes));
-                return this;
-            }
-            @Override
-            public WalChain add(byte op) {
-                ops.add(new WalOp(op, new byte[0]));
-                return this;
-            }
-            @Override
-            public int size() {
-                return ops.size();
-            }
-        });
+        try {
+            handler.apply(new WalChain() {
+                @Override
+                public WalChain add(byte op, byte[] payload) {
+                    ops.add(new WalOp(op, payload == null ? new byte[0] : payload));
+                    return this;
+                }
+                @Override
+                public WalChain add(byte op, String s) {
+                    byte[] bytes = s == null ? new byte[0] : s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                    ops.add(new WalOp(op, bytes));
+                    return this;
+                }
+                @Override
+                public WalChain add(byte op) {
+                    ops.add(new WalOp(op, new byte[0]));
+                    return this;
+                }
+                @Override
+                public int size() {
+                    return ops.size();
+                }
+            });
+        } catch (WalException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WalException("WAL 链式写入处理器异常", e);
+        }
         long last = currentLsn.get();
         for (WalOp op : ops) {
             last = append(op.op(), op.payload());

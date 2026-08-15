@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
+import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,6 +89,7 @@ public class TaskDecisionDefinition {
     private Map<String, Object> params;
     private Map<String, Object> env;
     private boolean startNode;
+    private RetryConfig retryConfig;
 
     /**
      * 构造判断节点定义。
@@ -124,6 +126,9 @@ public class TaskDecisionDefinition {
         }
         if (env != null && !env.isEmpty()) {
             node.setEnv(env);
+        }
+        if (retryConfig != null) {
+            node.setRetryConfig(retryConfig);
         }
         builder.addNodeInternal(node);
         if (startNode) {
@@ -299,6 +304,29 @@ public class TaskDecisionDefinition {
      */
     public TaskDecisionDefinition exit() {
         this.endAfterExecute = true;
+        return this;
+    }
+
+    /**
+     * 设置重试配置。
+     *
+     * <p>当判断节点执行抛出异常时，引擎根据重试配置自动重试，而非直接触发错误恢复或终止。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * .taskStart("checkRoute", ctx -> condition ? "yes" : "no")
+     *     .decision()
+     *     .retry(new RetryConfig().setMaxRetries(3).setDelay(500))
+     *     .branch("yes", "processNode")
+     *     .taskEnd()
+     * }</pre>
+     *
+     * @param retryConfig 重试配置，null 表示不重试
+     * @return this
+     * @see com.chua.common.support.task.retry.RetryConfig
+     */
+    public TaskDecisionDefinition retry(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
         return this;
     }
 

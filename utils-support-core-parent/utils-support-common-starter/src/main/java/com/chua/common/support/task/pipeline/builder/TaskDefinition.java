@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.TaskNode;
+import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -110,6 +111,7 @@ public class TaskDefinition {
     private boolean endAfterExecute;
     private boolean startNode;
     private Map<String, Object> env;
+    private RetryConfig retryConfig;
 
     /**
      * 构造任务定义。
@@ -137,6 +139,9 @@ public class TaskDefinition {
         TaskNode node = new TaskNode(id, effectiveHandler);
         if (env != null && !env.isEmpty()) {
             node.setEnv(env);
+        }
+        if (retryConfig != null) {
+            node.setRetryConfig(retryConfig);
         }
         builder.addNodeInternal(node);
         if (startNode) {
@@ -260,6 +265,36 @@ public class TaskDefinition {
      */
     public TaskDefinition exit() {
         this.endAfterExecute = true;
+        return this;
+    }
+
+    /**
+     * 设置重试配置。
+     *
+     * <p>当节点执行抛出异常时，引擎根据重试配置自动重试，而非直接触发错误恢复或终止。</p>
+     *
+     * <p>重试配置支持：</p>
+     * <ul>
+     *   <li>最大重试次数</li>
+     *   <li>重试延迟与退避策略（固定/指数/斐波那契）</li>
+     *   <li>异常过滤（仅对指定类型异常重试）</li>
+     *   <li>重试监听回调</li>
+     * </ul>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * .taskStart("callApi", ctx -> { ... })
+     *     .retry(new RetryConfig().setMaxRetries(3).setDelay(1000))
+     *     .taskEnd()
+     * }</pre>
+     *
+     * @param retryConfig 重试配置，null 表示不重试
+     * @return this
+     * @see com.chua.common.support.task.retry.RetryConfig
+     * @see com.chua.common.support.task.retry.RetryFlow
+     */
+    public TaskDefinition retry(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
         return this;
     }
 
