@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.callback.PipelineListener;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
+import com.chua.common.support.task.pipeline.core.PipelineWal;
 import com.chua.common.support.task.pipeline.core.RouteStrategy;
 import com.chua.common.support.task.pipeline.node.*;
 

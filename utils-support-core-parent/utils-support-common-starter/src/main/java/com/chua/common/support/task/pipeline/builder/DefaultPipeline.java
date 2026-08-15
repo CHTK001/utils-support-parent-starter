@@ -260,6 +260,15 @@ public class DefaultPipeline implements Pipeline {
                     "pipeline", ctx.getPipelineId(), e);
         } finally {
             ctx.getAttributes().remove(ATTR_PIPELINE_SCOPE);
+            // WAL：正常完成时关闭（保留 WAL 文件用于审计）
+            if (pipelineWal != null) {
+                try {
+                    pipelineWal.markCheckpoint();
+                } catch (Exception ignored) {
+                    // checkpoint 失败不影响返回
+                }
+                pipelineWal.close();
+            }
         }
 
         return ctx;
@@ -421,6 +430,14 @@ public class DefaultPipeline implements Pipeline {
                 ctx.addHistory(nodeId);
                 // 自动存储节点输出到 nodeOutputs，方便后续节点跨节点访问
                 ctx.setNodeOutput(nodeId, ctx.getCurrentData());
+                // WAL：记录节点完成事件
+                if (pipelineWal != null) {
+                    try {
+                        pipelineWal.appendNodeComplete(ctx);
+                    } catch (Exception ignored) {
+                        // WAL 记录失败不影响流水线执行
+                    }
+                }
                 fireAfterNode(ctx);
 
                 if (ctx.getAction() == Action.EXIT || ctx.getAction() == Action.WAIT) {
