@@ -55,6 +55,11 @@ public class TaskNode implements PipelineNode {
     private Map<String, Object> params;
 
     /**
+     * 节点环境参数映射（定义时配置，执行时以 "env." 前缀注入到 ctx.nodeLocalData）
+     */
+    private Map<String, Object> env;
+
+    /**
      * 构造执行节点。
      *
      * @param id      节点唯一标识
@@ -92,6 +97,20 @@ public class TaskNode implements PipelineNode {
     @Override
     public Map<String, Object> getParams() {
         return params;
+    }
+
+    /**
+     * 设置节点环境参数（定义时调用）。
+     *
+     * @param env 环境参数映射
+     */
+    public void setEnv(Map<String, Object> env) {
+        this.env = env != null ? env : Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Object> getEnv() {
+        return env != null ? env : Collections.emptyMap();
     }
 
     @Override

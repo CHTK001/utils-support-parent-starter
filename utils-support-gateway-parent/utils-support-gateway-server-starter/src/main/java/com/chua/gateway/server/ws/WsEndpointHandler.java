@@ -238,14 +238,16 @@ public final class WsEndpointHandler {
      */
     private void pumpBridgeToClient(RemoteBridge bridge, OutputStream out, long connId, String tunnelId) {
         log.debug("[ws] pump 启动 conn={} id={}", connId, tunnelId);
+        System.out.println("[ws-pump] started conn=" + connId + " id=" + tunnelId);
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 byte[] frame;
                 try {
                     frame = bridge.readFromRemote();
-                    log.debug("[ws] pump got {} bytes conn={} id={}", frame == null ? -1 : frame.length, connId, tunnelId);
+                    System.out.println("[ws-pump] read " + (frame == null ? "null" : frame.length + " bytes") + " conn=" + connId);
                 } catch (Exception ex) {
                     log.info("[ws] bridge EOF conn={} id={}: {}", connId, tunnelId, ex.getMessage());
+                    System.out.println("[ws-pump] bridge EOF conn=" + connId + " ex=" + ex.getMessage());
                     try {
                         sendCloseFrame(out, 1001, "bridge closed");
                     } catch (Exception ignored) {
@@ -265,6 +267,7 @@ public final class WsEndpointHandler {
             }
         } catch (Exception e) {
             log.debug("[ws] pumpBridgeToClient conn={} 结束: {}", connId, e.getMessage());
+            System.out.println("[ws-pump] exit conn=" + connId + " ex=" + e.getMessage());
         }
     }
 

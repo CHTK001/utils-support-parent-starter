@@ -26,6 +26,7 @@
         <module>utils-support-minio-starter</module>
         <module>utils-support-docker-starter</module>
         <module>utils-support-sentinel-starter</module>
+        <module>utils-support-resilience4j-starter</module>
         <module>utils-support-prometheus-starter</module>
         <module>utils-support-tomcat-starter</module>
         <module>utils-support-undertow-starter</module>

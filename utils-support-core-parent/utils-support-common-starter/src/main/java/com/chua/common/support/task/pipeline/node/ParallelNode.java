@@ -1,29 +1,44 @@
 package com.chua.common.support.task.pipeline.node;
 
 import com.chua.common.support.task.pipeline.core.ParallelErrorStrategy;
+import com.chua.common.support.task.pipeline.core.ParallelResult;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.exception.PipelineException;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * 并行节点 — 多分支并行执行。
  *
- * <p>将多个 {@link Pipeline} 分支并行执行，所有分支共享父上下文的数据
- * （{@code attributes} 和 {@code currentData}），但各自维护独立的执行状态
- * （{@code currentNodeId}、{@code action}、{@code history} 等）。</p>
+ * <p>将多个 {@link Pipeline} 分支并行执行，各分支通过 {@link PipelineContext#createBranchContext()}
+ * 创建独立上下文，{@code currentData} 各分支独立（避免并发冲突），{@code nodeOutputs} 和
+ * {@code attributes} 共享引用（方便跨分支/跨节点数据访问）。</p>
  *
  * <p><strong>数据共享模型：</strong></p>
  * <ul>
- *   <li>{@code attributes} Map — 同一引用，所有分支读写同一 Map（线程安全需调用方保证）</li>
- *   <li>{@code currentData} — 同一对象引用，修改对象本身对所有分支可见</li>
+ *   <li>{@code nodeOutputs} — 同一 ConcurrentHashMap 引用，各分支通过不同 key 写入各自结果</li>
+ *   <li>{@code attributes} — 同一 Map 引用，所有分支读写同一 Map（线程安全需调用方保证）</li>
+ *   <li>{@code currentData} — 各分支独立，修改互不影响（避免并发写入冲突）</li>
  *   <li>{@code originalData} — 只读共享</li>
  * </ul>
+ *
+ * <p><strong>分支结果存储：</strong></p>
+ * <p>各分支执行完毕后，结果以 {@link ParallelResult} 结构化对象存入父上下文的 {@code nodeOutputs}，
+ * key 为并行节点的 nodeId。后续节点可通过 {@code ctx.getData("parallel1", ParallelResult.class)}
+ * 获取完整结果，再通过 {@link ParallelResult#getBranch(String)} 获取指定分支的输出。</p>
+ *
+ * <pre>
+ * nodeOutputs["parallel1"] = ParallelResult {
+ *     nodeId: "parallel1",
+ *     branches: { "branchA": dataA, "branchB": dataB },
+ *     histories: { "branchA": ["a1"], "branchB": ["b1"] }
+ * }
+ * </pre>
  *
  * <p><strong>错误处理策略：</strong></p>
  * <ul>
@@ -76,6 +91,14 @@ public class ParallelNode implements PipelineNode {
      * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
      */
     private Map<String, Object> params;
+
+    /**
+     * 前置处理器（在并行分支执行前调用，可选）。
+     *
+     * <p>前置处理器在所有并行分支启动之前执行，适用于初始化共享数据等场景。
+     * 处理器返回值决定后续路由，返回 null 则继续执行并行分支。</p>
+     */
+    private PipelineNode preHandler;
 
     /**
      * 构造并行节点。
@@ -139,16 +162,37 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
+     * 设置前置处理器。
+     *
+     * <p>前置处理器在所有并行分支启动之前执行，适用于初始化共享数据等场景。</p>
+     *
+     * @param preHandler 前置处理器
+     * @return this
+     */
+    public ParallelNode preHandler(PipelineNode preHandler) {
+        this.preHandler = preHandler;
+        return this;
+    }
+
+    /**
+     * 获取前置处理器。
+     *
+     * @return 前置处理器，未设置时返回 null
+     */
+    public PipelineNode getPreHandler() {
+        return preHandler;
+    }
+
+    /**
      * 并行执行所有分支。
      *
      * <p>每个分支通过 {@link PipelineContext#createBranchContext()} 创建独立的上下文，
-     * 共享 {@code attributes} 和 {@code currentData}（引用传递），但控制状态独立。</p>
+     * 各分支的 {@code currentData} 独立（避免并发冲突），{@code nodeOutputs} 和
+     * {@code attributes} 共享引用。</p>
      *
-     * <p>所有分支执行完毕后，将各分支的执行上下文和历史存入父上下文的 attributes：</p>
-     * <ul>
-     *   <li>{@code parallel:{nodeId}:context:{branchName}} — 分支上下文</li>
-     *   <li>{@code parallel:{nodeId}:history:{branchName}} — 分支执行历史</li>
-     * </ul>
+     * <p>所有分支执行完毕后，将结果以 {@link ParallelResult} 结构化对象存入父上下文的
+     * {@code nodeOutputs}，key 为本节点的 nodeId。结构化存储使 key 统一为 nodeId，
+     * 调用方不需要知道节点类型即可获取结果。</p>
      *
      * @param context 父流水线上下文
      * @return null，按默认顺序继续执行下一节点
@@ -156,6 +200,14 @@ public class ParallelNode implements PipelineNode {
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
+
+        // 执行前置处理器（如果配置）
+        if (preHandler != null) {
+            String result = preHandler.execute(context);
+            if (result != null) {
+                return result; // 前置处理器返回非null，跳过并行执行，直接路由
+            }
+        }
 
         if (branches.isEmpty()) {
             return null;
@@ -168,80 +220,89 @@ public class ParallelNode implements PipelineNode {
             return null;
         }
 
-        // 并行执行
-        AtomicBoolean failed = new AtomicBoolean(false);
+        // 并行执行（结构化并发：StructuredTaskScope）
         ConcurrentLinkedQueue<BranchResult> results = new ConcurrentLinkedQueue<>();
 
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
-            String branchName = entry.getKey();
-            Pipeline branchPipeline = entry.getValue();
+        try (var scope = errorStrategy == ParallelErrorStrategy.FAIL_FAST
+                ? new StructuredTaskScope.ShutdownOnFailure()
+                : new StructuredTaskScope<Void>()) {
 
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                // FAIL_FAST: 已有分支失败，跳过此分支
-                if (errorStrategy == ParallelErrorStrategy.FAIL_FAST && failed.get()) {
-                    return;
-                }
+            for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
+                String branchName = entry.getKey();
+                Pipeline branchPipeline = entry.getValue();
 
-                PipelineContext<?> branchCtx = context.createBranchContext();
+                scope.fork(() -> {
+                    PipelineContext<?> branchCtx = context.createBranchContext();
+                    try {
+                        branchPipeline.execute(branchCtx);
+                        results.add(new BranchResult(branchName, branchCtx, null));
+                    } catch (Exception e) {
+                        results.add(new BranchResult(branchName, branchCtx, e));
+                    }
+                    return null;
+                });
+            }
+
+            // 等待所有分支完成
+            scope.join();
+
+            if (errorStrategy == ParallelErrorStrategy.FAIL_FAST) {
+                // ShutdownOnFailure: 任一失败时已自动取消其他分支
                 try {
-                    branchPipeline.execute(branchCtx);
-                    results.add(new BranchResult(branchName, branchCtx, null));
+                    scope.throwIfFailed();
                 } catch (Exception e) {
-                    failed.set(true);
-                    results.add(new BranchResult(branchName, branchCtx, e));
-                }
-            });
-
-            futures.add(future);
-        }
-
-        // 等待所有分支完成
-        if (errorStrategy == ParallelErrorStrategy.FAIL_FAST) {
-            // FAIL_FAST: 任一失败时立即传播异常
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            for (BranchResult result : results) {
-                if (result.error != null) {
+                    // 找到第一个失败的分支，抛出带分支名的异常
+                    for (BranchResult result : results) {
+                        if (result.error != null) {
+                            throw new PipelineException(
+                                    "Parallel branch '" + result.branchName + "' failed (FAIL_FAST)",
+                                    id, context.getPipelineId(), result.error);
+                        }
+                    }
+                    // scope.throwIfFailed() 抛出但 results 中无错误记录（不应发生）
                     throw new PipelineException(
-                            "Parallel branch '" + result.branchName + "' failed (FAIL_FAST)",
-                            id, context.getPipelineId(), result.error);
+                            "Parallel execution failed (FAIL_FAST)",
+                            id, context.getPipelineId(), e);
                 }
-            }
-        } else {
-            // WAIT_ALL: 等待所有分支完成，汇总异常
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-            List<Exception> errors = new ArrayList<>();
-            for (BranchResult result : results) {
-                if (result.error != null) {
-                    errors.add(result.error);
+            } else {
+                // WAIT_ALL: 所有分支执行完毕，汇总异常
+                List<Exception> errors = new ArrayList<>();
+                for (BranchResult result : results) {
+                    if (result.error != null) {
+                        errors.add(result.error);
+                    }
                 }
-            }
 
-            if (!errors.isEmpty()) {
-                String errorBranches = results.stream()
-                        .filter(r -> r.error != null)
-                        .map(r -> r.branchName)
-                        .collect(Collectors.joining(", "));
-                throw new PipelineException(
-                        "Parallel branches failed: [" + errorBranches + "] (WAIT_ALL)",
-                        id, context.getPipelineId(), errors.get(0));
+                if (!errors.isEmpty()) {
+                    String errorBranches = results.stream()
+                            .filter(r -> r.error != null)
+                            .map(r -> r.branchName)
+                            .collect(Collectors.joining(", "));
+                    throw new PipelineException(
+                            "Parallel branches failed: [" + errorBranches + "] (WAIT_ALL)",
+                            id, context.getPipelineId(), errors.get(0));
+                }
             }
         }
 
-        // 将分支结果存入父上下文 attributes
-        @SuppressWarnings("unchecked")
-        PipelineContext<Object> parentCtx = (PipelineContext<Object>) context;
+        // 将分支结果以 ParallelResult 结构化对象存入父上下文 nodeOutputs
+        Map<String, Object> branchOutputs = new LinkedHashMap<>();
+        Map<String, List<String>> branchHistories = new LinkedHashMap<>();
         for (BranchResult result : results) {
-            parentCtx.setAttribute("parallel:" + id + ":context:" + result.branchName, result.context);
-            parentCtx.setAttribute("parallel:" + id + ":history:" + result.branchName, result.context.getHistory());
+            branchOutputs.put(result.branchName, result.context.getCurrentData());
+            branchHistories.put(result.branchName, result.context.getHistory());
         }
+        ParallelResult parallelResult = new ParallelResult(id, branchOutputs, branchHistories);
+        context.setNodeOutput(id, parallelResult);
 
         return null;
     }
 
     /**
      * 同步执行单个分支（单分支优化路径）。
+     *
+     * <p>结果同样以 {@link ParallelResult} 结构化对象存入 {@code nodeOutputs}，
+     * 与多分支并行路径保持一致的存储格式。</p>
      *
      * @param branchName    分支名称
      * @param branchPipeline 分支流水线
@@ -251,10 +312,13 @@ public class ParallelNode implements PipelineNode {
         PipelineContext<?> branchCtx = parentCtx.createBranchContext();
         branchPipeline.execute(branchCtx);
 
-        @SuppressWarnings("unchecked")
-        PipelineContext<Object> ctx = (PipelineContext<Object>) parentCtx;
-        ctx.setAttribute("parallel:" + id + ":context:" + branchName, branchCtx);
-        ctx.setAttribute("parallel:" + id + ":history:" + branchName, branchCtx.getHistory());
+        // 以 ParallelResult 结构化存储，与多分支路径格式一致
+        Map<String, Object> branchOutputs = new LinkedHashMap<>();
+        branchOutputs.put(branchName, branchCtx.getCurrentData());
+        Map<String, List<String>> branchHistories = new LinkedHashMap<>();
+        branchHistories.put(branchName, branchCtx.getHistory());
+        ParallelResult parallelResult = new ParallelResult(id, branchOutputs, branchHistories);
+        parentCtx.setNodeOutput(id, parallelResult);
     }
 
     /**

@@ -56,6 +56,11 @@ public class DecisionNode implements PipelineNode {
     private Map<String, String> branches;
 
     /**
+     * 默认分支目标节点 ID（可选，当 handler 返回值不匹配任何分支时使用）
+     */
+    private String defaultBranch;
+
+    /**
      * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
      */
     private Map<String, Object> params;
@@ -101,6 +106,28 @@ public class DecisionNode implements PipelineNode {
      */
     public DecisionNode branches(Map<String, String> branches) {
         this.branches = branches != null ? new LinkedHashMap<>(branches) : null;
+        return this;
+    }
+
+    /**
+     * 获取默认分支目标节点 ID。
+     *
+     * @return 默认分支目标节点 ID，未设置时返回 null
+     */
+    public String getDefaultBranch() {
+        return defaultBranch;
+    }
+
+    /**
+     * 设置默认分支目标节点 ID。
+     *
+     * <p>当 handler 返回值不匹配任何已配置的分支时，路由到默认节点。</p>
+     *
+     * @param defaultBranch 默认目标节点 ID
+     * @return this
+     */
+    public DecisionNode defaultBranch(String defaultBranch) {
+        this.defaultBranch = defaultBranch;
         return this;
     }
 

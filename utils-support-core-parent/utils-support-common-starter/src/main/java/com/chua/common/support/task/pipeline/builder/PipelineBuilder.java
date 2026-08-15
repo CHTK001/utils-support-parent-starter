@@ -222,6 +222,36 @@ public class PipelineBuilder {
     }
 
     /**
+     * 添加执行节点（无 handler 模式，配合 onStep/step 使用）。
+     *
+     * <p>创建一个空 handler 的任务定义，后续通过 {@link TaskDefinition#onStep}、
+     * {@link TaskDefinition#step} 等便捷方法设置业务逻辑：</p>
+     * <pre>{@code
+     * // 使用 onStep（无返回值）
+     * .taskStart("init")
+     * .onStep(ctx -> init(ctx))
+     * .taskEnd()
+     *
+     * // 使用 step（有返回值，可路由）
+     * .taskStart("route")
+     * .step(ctx -> condition ? "nodeA" : "nodeB")
+     * .taskEnd()
+     *
+     * // 使用 ext（执行后终止）
+     * .taskStart("finalize")
+     * .onStep(ctx -> cleanup(ctx))
+     * .ext()
+     * .taskEnd()
+     * }</pre>
+     *
+     * @param id 节点唯一标识
+     * @return TaskDefinition 任务节点定义（handler 为空实现）
+     */
+    public TaskDefinition taskStart(String id) {
+        return new TaskDefinition(id, ctx -> null, this);
+    }
+
+    /**
      * 添加判断节点。
      *
      * <p>统一使用 {@link PipelineNode} 函数式接口，路由回调返回目标节点 ID：</p>
@@ -269,6 +299,54 @@ public class PipelineBuilder {
         nodes.add(node);
         nodeMap.put(id, node);
         return this;
+    }
+
+    /**
+     * 添加并行节点（Definition API）。
+     *
+     * <p>返回 {@link TaskParallelDefinition}，支持类型安全的并行分支配置。</p>
+     *
+     * <p>并行节点对外是一个同步节点 — 父流水线阻塞等待所有分支完成后才继续。
+     * 各分支通过独立上下文并发执行，结果存入 {@code nodeOutputs}。</p>
+     *
+     * <p><strong>方式1：内联定义分支（推荐）</strong></p>
+     * <pre>{@code
+     * Pipeline pipeline = PipelineBuilder.newBuilder("main")
+     *     .parallel("group")                        // 开始并行定义
+     *         .startParallel("a")                   // 内联定义分支 "a"
+     *             .step("a1", ctx -> { doA1(ctx); return null; })
+     *             .step("a2", ctx -> { doA2(ctx); return null; })
+     *         .endParallel()                        // 结束分支 "a"
+     *         .startParallel("b")                   // 内联定义分支 "b"
+     *             .step("b1", ctx -> { doB1(ctx); return null; })
+     *         .endParallel()                        // 结束分支 "b"
+     *     .taskEnd()                                // 结束并行定义
+     *     .build();
+     * }</pre>
+     *
+     * <p><strong>方式2：预构建 Pipeline 传入</strong></p>
+     * <pre>{@code
+     * Pipeline branchA = PipelineBuilder.newBuilder("branchA")
+     *     .task("a1", ctx -> { doA1(ctx); return null; }).taskEnd()
+     *     .build();
+     *
+     * Pipeline pipeline = PipelineBuilder.newBuilder("main")
+     *     .parallel("group")
+     *         .branch("a", branchA)
+     *         .branch("b", branchB)
+     *     .taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param id 节点唯一标识
+     * @return TaskParallelDefinition 并行节点定义
+     * @see TaskParallelDefinition#startParallel(String)
+     * @see TaskParallelDefinition#endParallel()
+     * @see ParallelBranchBuilder
+     * @see com.chua.common.support.task.pipeline.node.ParallelNode
+     */
+    public TaskParallelDefinition parallel(String id) {
+        return new TaskParallelDefinition(id, this);
     }
 
     /**
@@ -545,6 +623,29 @@ public class PipelineBuilder {
 
         RouteStrategy effectiveStrategy = routeStrategy != null ? routeStrategy : RouteStrategy.THROW;
         return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners, effectiveStrategy);
+    }
+
+    /**
+     * 构建流水线（语义化别名）。
+     *
+     * <p>等价于 {@link #build()}，提供更语义化的命名，与 Definition 类的
+     * {@code pipelineEnd()} 配对使用，使流水线定义的结束更加清晰。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * // 方式1：Definition 的 pipelineEnd()（推荐，一步完成）
+     * .taskStart("done", handler).pipelineEnd()
+     *
+     * // 方式2：Builder 的 pipelineEnd()
+     * .taskStart("done", handler).taskEnd()
+     * .pipelineEnd()
+     * }</pre>
+     *
+     * @return 构建完成的 Pipeline 实例
+     * @throws IllegalStateException 当验证失败或重复构建时抛出
+     */
+    public Pipeline pipelineEnd() {
+        return build();
     }
 
     // ========== Getter（供 JSON 解析器使用） ==========

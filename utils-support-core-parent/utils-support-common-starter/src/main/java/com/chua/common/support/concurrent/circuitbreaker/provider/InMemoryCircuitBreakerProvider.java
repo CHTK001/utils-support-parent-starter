@@ -5,22 +5,25 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 基于内存状态机的熔断器默认实现。
  *
- * <p>三种状态：</p>
- * <ul>
- *   <li>CLOSED（关闭）— 正常调用，失败计数</li>
- *   <li>OPEN（打开）— 拒绝调用，等待超时后进入半开</li>
- *   <li>HALF_OPEN（半开）— 允许少量调用试探，成功阈值达到后关闭</li>
- * </ul>
+ * <p>三态流转：CLOSED → OPEN（失败达阈值）→ HALF_OPEN（等待超时）→ CLOSED（成功达阈值）</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Spi("default")
 public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
+
+    /**
+     * 熔断器状态
+     */
+    private enum State {
+        CLOSED, OPEN, HALF_OPEN
+    }
 
     /**
      * 熔断器名称
@@ -58,9 +61,9 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     private final AtomicLong openTimestamp = new AtomicLong(0);
 
     /**
-     * 当前状态：true=打开，false=关闭
+     * 当前状态
      */
-    private volatile boolean open;
+    private final AtomicReference<State> state = new AtomicReference<>(State.CLOSED);
 
     public InMemoryCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         this.name = name;
@@ -71,45 +74,66 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
 
     @Override
     public boolean tryAcquire() {
-        if (!open) {
+        State current = state.get();
+        if (current == State.CLOSED) {
             return true;
         }
-        long elapsed = System.currentTimeMillis() - openTimestamp.get();
-        if (elapsed >= waitDuration) {
-            open = false;
-            successCount.set(0);
-            return true;
+        if (current == State.OPEN) {
+            long elapsed = System.currentTimeMillis() - openTimestamp.get();
+            if (elapsed >= waitDuration) {
+                // 等待超时，进入半开状态
+                if (state.compareAndSet(State.OPEN, State.HALF_OPEN)) {
+                    successCount.set(0);
+                }
+                return true;
+            }
+            return false;
         }
-        return false;
+        // HALF_OPEN：放行试探请求
+        return true;
     }
 
     @Override
     public void recordSuccess() {
-        if (open) {
+        State current = state.get();
+        if (current == State.OPEN) {
             return;
         }
         failureCount.set(0);
-        if (successCount.incrementAndGet() >= successThreshold) {
-            open = false;
-            successCount.set(0);
-            failureCount.set(0);
+        if (current == State.HALF_OPEN) {
+            // 半开状态：成功计数，达阈值后关闭
+            if (successCount.incrementAndGet() >= successThreshold) {
+                if (state.compareAndSet(State.HALF_OPEN, State.CLOSED)) {
+                    successCount.set(0);
+                    failureCount.set(0);
+                }
+            }
         }
     }
 
     @Override
     public void recordFailure() {
-        if (open) {
+        State current = state.get();
+        if (current == State.OPEN) {
             return;
         }
+        if (current == State.HALF_OPEN) {
+            // 半开状态：失败一次立即回到打开
+            state.set(State.OPEN);
+            openTimestamp.set(System.currentTimeMillis());
+            failureCount.set(0);
+            return;
+        }
+        // CLOSED：失败计数，达阈值后打开
         if (failureCount.incrementAndGet() >= failureThreshold) {
-            open = true;
+            state.set(State.OPEN);
             openTimestamp.set(System.currentTimeMillis());
         }
     }
 
     @Override
     public void reset() {
-        open = false;
+        state.set(State.CLOSED);
         failureCount.set(0);
         successCount.set(0);
         openTimestamp.set(0);
@@ -117,7 +141,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
 
     @Override
     public boolean isOpen() {
-        return open;
+        return state.get() == State.OPEN;
     }
 
     @Override
