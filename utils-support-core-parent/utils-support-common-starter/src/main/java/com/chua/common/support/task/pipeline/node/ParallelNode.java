@@ -94,6 +94,11 @@ public class ParallelNode implements PipelineNode {
     private Map<String, Object> params;
 
     /**
+     * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
+     */
+    private Map<String, Object> env;
+
+    /**
      * 前置处理器（在并行分支执行前调用，可选）。
      *
      * <p>前置处理器在所有并行分支启动之前执行，适用于初始化共享数据等场景。
@@ -160,6 +165,20 @@ public class ParallelNode implements PipelineNode {
      */
     public void setParams(Map<String, Object> params) {
         this.params = params != null ? params : Collections.emptyMap();
+    }
+
+    /**
+     * 设置节点环境参数（定义时调用）。
+     *
+     * @param env 环境参数映射
+     */
+    public void setEnv(Map<String, Object> env) {
+        this.env = env != null ? env : Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Object> getEnv() {
+        return env != null ? env : Collections.emptyMap();
     }
 
     /**

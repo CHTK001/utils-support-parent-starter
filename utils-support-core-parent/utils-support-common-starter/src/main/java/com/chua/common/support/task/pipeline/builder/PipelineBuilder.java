@@ -317,6 +317,36 @@ public class PipelineBuilder {
     }
 
     /**
+     * 添加判断节点（Definition API，无 handler 模式）。
+     *
+     * <p>返回 {@link TaskDefinition}，配合 {@link TaskDefinition#onStep}、
+     * {@link TaskDefinition#step} 等便捷方法使用：</p>
+     * <pre>{@code
+     * // 无 handler 模式 + step（有返回值，可路由）
+     * .decision("check")
+     *     .step(ctx -> condition ? "yes" : "no")
+     *     .decision()
+     *     .branch("yes", "processNode")
+     *     .branch("no", "errorNode")
+     *     .taskEnd()
+     *
+     * // 无 handler 模式 + onStep（无返回值，需在 onStep 内路由）
+     * .decision("route")
+     *     .onStep(ctx -> {
+     *         String target = determineTarget(ctx);
+     *         ctx.setNextNodeId(target);
+     *     })
+     *     .taskEnd()
+     * }</pre>
+     *
+     * @param id 节点唯一标识
+     * @return TaskDefinition 任务节点定义（handler 为空实现，需配合 step/onStep 使用）
+     */
+    public TaskDefinition decision(String id) {
+        return new TaskDefinition(id, ctx -> null, this);
+    }
+
+    /**
      * 添加子流水线节点。
      *
      * @param id          节点唯一标识
@@ -328,6 +358,73 @@ public class PipelineBuilder {
         nodes.add(node);
         nodeMap.put(id, node);
         return this;
+    }
+
+    /**
+     * 添加子流水线节点（Definition API）。
+     *
+     * <p>返回 {@link TaskSubPipelineDefinition}，支持类型安全的子流水线配置。
+     * 与 {@link #pipeline(String, Pipeline)} 的区别：</p>
+     * <ul>
+     *   <li>{@link #pipeline(String, Pipeline)} — 直接添加节点，返回 builder（简单场景）</li>
+     *   <li>{@link #subPipeline(String, Pipeline)} — 返回 Definition，支持链式配置 start/params/env 等</li>
+     * </ul>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * Pipeline sub = PipelineBuilder.newBuilder("subFlow")
+     *     .task("s1", ctx -> { ...; return null; }).taskEnd()
+     *     .build();
+     *
+     * PipelineBuilder.newBuilder("mainFlow")
+     *     .subPipeline("process", sub)      // Definition API
+     *         .start("s1")                  // 指定子流水线起始节点
+     *         .params(Map.of("key", "val")) // 设置参数
+     *         .env("modelPath", "/models")  // 设置环境参数
+     *     .taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param id          节点唯一标识
+     * @param subPipeline 子流水线实例
+     * @return TaskSubPipelineDefinition 子流水线节点定义
+     * @see TaskSubPipelineDefinition
+     */
+    public TaskSubPipelineDefinition subPipeline(String id, Pipeline subPipeline) {
+        return new TaskSubPipelineDefinition(id, this, subPipeline);
+    }
+
+    /**
+     * 添加异步子流水线节点（Definition API）。
+     *
+     * <p>返回 {@link TaskAsyncDefinition}，支持类型安全的异步子流水线配置。
+     * 异步子流水线在后台线程执行，不阻塞主流水线。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * Pipeline asyncSub = PipelineBuilder.newBuilder("asyncSub")
+     *     .task("a1", ctx -> { ...; return null; }).taskEnd()
+     *     .build();
+     *
+     * PipelineBuilder.newBuilder("mainFlow")
+     *     .async("bgTask", asyncSub)           // Definition API
+     *         .mergeCurrentData(true)          // 完成后回写 currentData
+     *         .onComplete((ctx, result) -> {   // 完成回调
+     *             log.info("Async completed: {}", result.getOutput());
+     *         })
+     *         .env("modelPath", "/models")     // 设置环境参数
+     *     .taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param id          节点唯一标识
+     * @param subPipeline 异步子流水线实例
+     * @return TaskAsyncDefinition 异步子流水线节点定义
+     * @see TaskAsyncDefinition
+     * @see com.chua.common.support.task.pipeline.node.AsyncSubPipelineNode
+     */
+    public TaskAsyncDefinition async(String id, Pipeline subPipeline) {
+        return new TaskAsyncDefinition(id, this, subPipeline);
     }
 
     /**

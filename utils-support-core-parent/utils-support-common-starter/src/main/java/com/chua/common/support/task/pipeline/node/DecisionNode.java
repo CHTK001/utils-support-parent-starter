@@ -66,6 +66,11 @@ public class DecisionNode implements PipelineNode {
     private Map<String, Object> params;
 
     /**
+     * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
+     */
+    private Map<String, Object> env;
+
+    /**
      * 构造判断节点。
      *
      * @param id     节点唯一标识
@@ -148,6 +153,20 @@ public class DecisionNode implements PipelineNode {
     @Override
     public Map<String, Object> getParams() {
         return params;
+    }
+
+    /**
+     * 设置节点环境参数（定义时调用）。
+     *
+     * @param env 环境参数映射
+     */
+    public void setEnv(Map<String, Object> env) {
+        this.env = env != null ? env : Collections.emptyMap();
+    }
+
+    @Override
+    public Map<String, Object> getEnv() {
+        return env != null ? env : Collections.emptyMap();
     }
 
     @Override

@@ -6,8 +6,10 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * 子流水线节点定义 — 类型安全的子流水线配置构建器。
@@ -91,6 +93,8 @@ public class TaskSubPipelineDefinition {
     private boolean endAfterExecute;
     private String startNode;
     private Map<String, Object> params;
+    private Map<String, Object> env;
+    private Predicate<PipelineContext<?>> condition;
 
     /**
      * 构造子流水线定义。
@@ -125,7 +129,28 @@ public class TaskSubPipelineDefinition {
         if (params != null && !params.isEmpty()) {
             node.params(params);
         }
-        builder.addNodeInternal(node);
+        if (env != null && !env.isEmpty()) {
+            node.setEnv(env);
+        }
+        PipelineNode finalNode = node;
+        if (condition != null) {
+            Predicate<PipelineContext<?>> cond = condition;
+            PipelineNode originalNode = finalNode;
+            finalNode = new PipelineNode() {
+                @Override
+                public String execute(PipelineContext<?> context) {
+                    if (cond.test(context)) {
+                        return originalNode.execute(context);
+                    }
+                    return null;
+                }
+                @Override
+                public String getId() {
+                    return id;
+                }
+            };
+        }
+        builder.addNodeInternal(finalNode);
         return builder;
     }
 
@@ -183,6 +208,65 @@ public class TaskSubPipelineDefinition {
      */
     public TaskSubPipelineDefinition params(Map<String, Object> params) {
         this.params = params;
+        return this;
+    }
+
+    /**
+     * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
+     *
+     * <p>环境参数与 {@link #params(Map)} 的区别：</p>
+     * <ul>
+     *   <li><strong>params</strong> — 静态参数，注入到子上下文的 nodeLocalData 根级</li>
+     *   <li><strong>env</strong> — 运行时环境参数，注入到 nodeLocalData 时以 {@code "env."} 前缀隔离，
+     *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
+     * </ul>
+     *
+     * @param env 环境参数映射
+     * @return this
+     */
+    public TaskSubPipelineDefinition env(Map<String, Object> env) {
+        this.env = env;
+        return this;
+    }
+
+    /**
+     * 设置节点环境参数（单个键值对）。
+     *
+     * <p>等价于先创建 Map 再调用 {@link #env(Map)}，适用于少量参数的场景。</p>
+     *
+     * @param key   参数键
+     * @param value 参数值
+     * @return this
+     */
+    public TaskSubPipelineDefinition env(String key, Object value) {
+        if (this.env == null) {
+            this.env = new LinkedHashMap<>();
+        }
+        this.env.put(key, value);
+        return this;
+    }
+
+    /**
+     * 条件执行：仅当谓词返回 true 时执行子流水线，否则跳过。
+     *
+     * <p>当条件不满足时，子流水线不执行，节点返回 null 按默认顺序继续。</p>
+     *
+     * @param condition 执行条件谓词
+     * @return this
+     */
+    public TaskSubPipelineDefinition when(Predicate<PipelineContext<?>> condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    /**
+     * 条件执行：仅当谓词返回 false 时执行子流水线，否则跳过。
+     *
+     * @param condition 跳过条件谓词
+     * @return this
+     */
+    public TaskSubPipelineDefinition whenNot(Predicate<PipelineContext<?>> condition) {
+        this.condition = condition.negate();
         return this;
     }
 
