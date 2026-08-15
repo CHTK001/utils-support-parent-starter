@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.vector.VectorStorage;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.image.ImageEnhancer;
@@ -13,6 +14,7 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.FaceQualityInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,7 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class FacePipeline {
 
     /**
@@ -959,22 +962,102 @@ public class FacePipeline {
     /**
      * 枚举可用模型清单。
      *
+     * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按能力接口（capabilityInterface）
+     * 与模型名称约定归类，不再硬编码模型 ID 清单；新增模型注册后自动出现在对应分组。</p>
+     *
      * @return 能力分组 → 模型 ID 列表
      */
     public Map<String, List<String>> listModels() {
-        return Map.ofEntries(
-                Map.entry("detector", List.of("scrfd-face-detector", "ultra-face", "yolo-face-detector", "yolo-face-person", "faceplugin-face-detect-slim")),
-                Map.entry("animeDetector", List.of("anime-face-detector", "anime-face-yolov8")),
-                Map.entry("feature", List.of("r50-face-feature", "face-feature", "common-face-rec", "arc-face", "ada-face", "faceplugin-face-feature")),
-                Map.entry("liveness", List.of("face-anti-spoof", "mini-vision-liveness", "face-liveness-dinov2", "face-liveness-mobilevit")),
-                Map.entry("superResolution", List.of("gfpgan-face-super-resolution", "real-esrgan")),
-                Map.entry("restore", List.of("codeformer")),
-                Map.entry("attribute", List.of("age-race-gender", "age-gender-onnx", "yolo-face-age")),
-                Map.entry("emotion", List.of("emotion-ferplus", "yolo-face-emotion", "fer-plus")),
-                Map.entry("landmark", List.of("faceplugin-face-landmark")),
-                Map.entry("deepfake", List.of("deepfake-detector")),
-                Map.entry("vectorStorage", List.of("jvector", "memory", "milvus"))
-        );
+        try {
+            ModelRegistry.discoverAll();
+        } catch (Exception e) {
+            log.warn("模型注册表发现失败: {}", e.getMessage());
+        }
+        Map<String, java.util.LinkedHashSet<String>> grouped = new java.util.LinkedHashMap<>();
+        for (ModelRegistry.Entry e : ModelRegistry.getAll()) {
+            String group = groupOf(e);
+            if (group != null) {
+                grouped.computeIfAbsent(group, k -> new java.util.LinkedHashSet<>()).add(e.modelId());
+            }
+        }
+        // 向量库非模型，属存储后端枚举
+        grouped.computeIfAbsent("vectorStorage", k -> new java.util.LinkedHashSet<>())
+                .addAll(List.of("jvector", "memory", "milvus"));
+        Map<String, List<String>> result = new java.util.LinkedHashMap<>();
+        for (Map.Entry<String, java.util.LinkedHashSet<String>> entry : grouped.entrySet()) {
+            result.put(entry.getKey(), List.copyOf(entry.getValue()));
+        }
+        return result;
+    }
+
+    /**
+     * 按能力接口与名称约定归类模型。
+     *
+     * @param entry 注册表条目
+     * @return 能力分组；无法识别时返回 null
+     */
+    private static String groupOf(ModelRegistry.Entry entry) {
+        String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
+        Class<?> cap = entry.capabilityInterface();
+        if (cap == com.chua.deeplearning.support.face.FaceDetector.class) {
+            return name.contains("anime") ? "animeDetector" : "detector";
+        }
+        if (cap == com.chua.deeplearning.support.feature.FeatureExtractor.class) {
+            if (name.contains("landmark")) {
+                return "landmark";
+            }
+            // 仅人脸特征模型，通用特征（clip/reid/hand-pose 等）不属于人脸能力
+            return nameContains(name, "face-feature", "face_feature", "arc-face", "ada-face", "face-rec", "faceplugin-face-feature", "r50-face") ? "feature" : null;
+        }
+        if (cap == com.chua.deeplearning.support.liveness.LivenessDetector.class) {
+            return "liveness";
+        }
+        if (cap == com.chua.deeplearning.support.image.ImageEnhancer.class) {
+            return name.contains("codeformer") || name.contains("restore") ? "restore" : "superResolution";
+        }
+        if (cap == com.chua.deeplearning.support.image.ImageClassifier.class) {
+            // 部分活体模型注册为 ImageClassifier，按名称关键字识别
+            if (nameContains(name, "spoof", "liveness")) {
+                return "liveness";
+            }
+            // 仅人脸属性分类模型归入 attribute，其它分类模型（通用/情感/动物/语言等）不属于人脸能力
+            if (nameContains(name, "age-", "age-recognition", "gender", "race-", "race_gender")
+                    && !name.contains("language")) {
+                return "attribute";
+            }
+            return null;
+        }
+        if (cap == com.chua.deeplearning.support.face.FaceQualityAssessor.class) {
+            return "quality";
+        }
+        // 能力接口未声明时的名称约定回退
+        return nameContains(name, "anime-face") ? "animeDetector"
+                : nameContains(name, "spoof", "liveness") ? "liveness"
+                : nameContains(name, "face-detect", "face_detect", "scrfd", "ultra-face", "yolo-face-det", "faceplugin-face-detect") ? "detector"
+                : nameContains(name, "face-feature", "face_feature", "arc-face", "ada-face", "face-rec", "faceplugin-face-feature", "r50-face", "face-feature") ? "feature"
+                : nameContains(name, "gfpgan", "esrgan", "super-res") ? "superResolution"
+                : nameContains(name, "codeformer", "restoreformer", "face-enhance") ? "restore"
+                : nameContains(name, "emotion-fer", "fer-plus", "ferplus", "yolo-face-emotion") ? "emotion"
+                : nameContains(name, "age-gender", "age-recognition", "race-gender") ? "attribute"
+                : nameContains(name, "face-landmark", "landmark") ? "landmark"
+                : nameContains(name, "deepfake") ? "deepfake"
+                : null;
+    }
+
+    /**
+     * 名称是否包含任一关键字。
+     *
+     * @param name 名称（小写）
+     * @param keys 关键字
+     * @return 命中任一返回 true
+     */
+    private static boolean nameContains(String name, String... keys) {
+        for (String key : keys) {
+            if (name.contains(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ==================== 内部 ====================

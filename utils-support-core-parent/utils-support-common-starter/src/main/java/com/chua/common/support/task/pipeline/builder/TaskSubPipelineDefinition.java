@@ -35,8 +35,8 @@ import java.util.function.Consumer;
  * <ul>
  *   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式）</li>
  *   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式）</li>
- *   <li>{@link #ext()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
- *   <li>{@link #end()} — 同 {@link #ext()}，执行后终止流水线</li>
+ *   <li>{@link #exit()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
+ *   <li>{@link #end()} — 同 {@link #exit()}，执行后终止流水线</li>
  *   <li>{@link #start()} — 设置子流水线起始节点 ID</li>
  *   <li>{@link #params(Map)} — 设置子流水线参数</li>
  * </ul>
@@ -75,7 +75,7 @@ import java.util.function.Consumer;
  * PipelineBuilder.newBuilder("mainFlow")
  *     .task("finalStep", ctx -> null)
  *     .subPipeline(sub)
- *     .ext()
+ *     .exit()
  *     .taskEnd()
  *     .build();
  * }</pre>
@@ -270,7 +270,7 @@ public class TaskSubPipelineDefinition {
      *
      * @return this
      */
-    public TaskSubPipelineDefinition ext() {
+    public TaskSubPipelineDefinition exit() {
         this.endAfterExecute = true;
         return this;
     }
@@ -278,7 +278,7 @@ public class TaskSubPipelineDefinition {
     /**
      * 便捷方法：执行后自动终止流水线。
      *
-     * <p>与 {@link #ext()} 完全等价。</p>
+     * <p>与 {@link #exit()} 完全等价。</p>
      *
      * @return this
      */

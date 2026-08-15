@@ -43,7 +43,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *         .builder()                                        // 获取内部 PipelineBuilder
  *             .taskStart("b1")
  *                 .onStep(ctx -> init(ctx))
- *                 .ext()                                    // 执行后终止分支
+ *                 .exit()                                    // 执行后终止分支
  *             .taskEnd()
  *             .fork("inner-fork")                           // 分支内嵌套分叉！
  *                 .startFork("b2a")
@@ -157,7 +157,7 @@ public class ForkBranchBuilder {
      * <p><strong>设计原则：主干管外层，分支自己嵌套自己处理。</strong></p>
      * <p>通过 builder() 可以做任何 PipelineBuilder 支持的操作：</p>
      * <ul>
-     *   <li>{@code .builder().taskStart(id).onStep(...).ext().taskEnd()} — Definition API</li>
+     *   <li>{@code .builder().taskStart(id).onStep(...).exit().taskEnd()} — Definition API</li>
      *   <li>{@code .builder().fork(id).startFork(...)...} — 嵌套分叉</li>
      *   <li>{@code .builder().addListener(...)} — 添加监听器</li>
      *   <li>{@code .builder().routeStrategy(...)} — 配置路由策略</li>
@@ -172,7 +172,7 @@ public class ForkBranchBuilder {
      *     .builder()                              // 获取内部 builder
      *         .taskStart("a2")
      *             .onStep(ctx -> init(ctx))
-     *             .ext()
+     *             .exit()
      *         .taskEnd()
      *         .fork("inner-fork")                 // 嵌套分叉
      *             .startFork("a3a")

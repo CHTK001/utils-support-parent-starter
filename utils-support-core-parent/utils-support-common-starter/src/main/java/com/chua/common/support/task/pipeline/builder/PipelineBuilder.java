@@ -240,7 +240,7 @@ public class PipelineBuilder {
      * // 使用 ext（执行后终止）
      * .taskStart("finalize")
      * .onStep(ctx -> cleanup(ctx))
-     * .ext()
+     * .exit()
      * .taskEnd()
      * }</pre>
      *
@@ -269,7 +269,7 @@ public class PipelineBuilder {
      * // task(id) + onStep + ext（执行后终止）
      * .task("finalize")
      * .onStep(ctx -> cleanup(ctx))
-     * .ext()
+     * .exit()
      * .taskEnd()
      * }</pre>
      *

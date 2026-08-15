@@ -29,8 +29,8 @@ import java.util.function.Consumer;
  * <ul>
  *   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式）</li>
  *   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式）</li>
- *   <li>{@link #ext()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
- *   <li>{@link #end()} — 同 {@link #ext()}，执行后终止流水线</li>
+ *   <li>{@link #exit()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
+ *   <li>{@link #end()} — 同 {@link #exit()}，执行后终止流水线</li>
  * </ul>
  *
  * <p><strong>用法示例：</strong></p>
@@ -69,7 +69,7 @@ import java.util.function.Consumer;
  *     .decision()
  *     .branch("ok", "doneNode")
  *     .branch("fail", "errorNode")
- *     .ext()
+ *     .exit()
  *     .taskEnd()
  *     .build();
  * }</pre>
@@ -297,7 +297,7 @@ public class TaskDecisionDefinition {
      *
      * @return this
      */
-    public TaskDecisionDefinition ext() {
+    public TaskDecisionDefinition exit() {
         this.endAfterExecute = true;
         return this;
     }
@@ -305,7 +305,7 @@ public class TaskDecisionDefinition {
     /**
      * 便捷方法：执行后自动终止流水线。
      *
-     * <p>与 {@link #ext()} 完全等价。</p>
+     * <p>与 {@link #exit()} 完全等价。</p>
      *
      * @return this
      */

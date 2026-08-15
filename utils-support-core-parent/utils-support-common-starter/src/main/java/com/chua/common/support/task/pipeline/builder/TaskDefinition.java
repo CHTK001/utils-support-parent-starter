@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * <pre>{@code
  * .taskStart("name", handler)   // 开始定义
  *     .onStep(...)              // 配置步骤
- *     .ext()                    // 便捷方法
+ *     .exit()                    // 便捷方法
  *     .taskEnd()                // 结束定义，返回 builder
  * }</pre>
  *
@@ -84,7 +84,7 @@ import java.util.function.Consumer;
  *     .start()       // 标记为起始节点
  *     .taskEnd()
  *     .task("done", ctx -> { cleanup(ctx); return null; })
- *     .ext()         // 执行后终止流水线
+ *     .exit()         // 执行后终止流水线
  *     .taskEnd()
  *     .build();
  *
@@ -258,7 +258,7 @@ public class TaskDefinition {
      *
      * @return this
      */
-    public TaskDefinition ext() {
+    public TaskDefinition exit() {
         this.endAfterExecute = true;
         return this;
     }

@@ -442,7 +442,7 @@ public class DefaultPipeline implements Pipeline {
     /** 节点类型图标：SubPipeline */
     private static final String ICON_SUB = "▶";
     /** 节点类型图标：Fork */
-    private static final String ICON_PARALLEL = "⋈";
+    private static final String ICON_FORK = "⋈";
     /** 节点类型图标：End */
     private static final String ICON_END = "◉";
     /** 执行状态标记：已执行 */
@@ -478,7 +478,7 @@ public class DefaultPipeline implements Pipeline {
         } else if (node instanceof SubPipelineNode) {
             return ICON_SUB;
         } else if (node instanceof ForkNode) {
-            return ICON_PARALLEL;
+            return ICON_FORK;
         } else if (node instanceof EndNode) {
             return ICON_END;
         }
@@ -584,17 +584,17 @@ public class DefaultPipeline implements Pipeline {
                         .add(new Edge(subEnd, defaultNext, ""));
                 }
             } else if (node instanceof ForkNode) {
-                ParallelNode pn = (ParallelNode) node;
+                ForkNode pn = (ForkNode) node;
                 for (Map.Entry<String, Pipeline> entry : pn.getBranches().entrySet()) {
                     String branchName = entry.getKey();
-                    String branchStartId = "parallel:" + nid + ":" + branchName + ":start";
+                    String branchStartId = "fork:" + nid + ":" + branchName + ":start";
                     tree.computeIfAbsent(nid, k -> new ArrayList<>())
                         .add(new Edge(nid, branchStartId, "branch:" + branchName));
                 }
                 if (defaultNext != null) {
-                    String parallelEndId = "parallel:" + nid + ":end";
-                    tree.computeIfAbsent(parallelEndId, k -> new ArrayList<>())
-                        .add(new Edge(parallelEndId, defaultNext, ""));
+                    String forkEndId = "fork:" + nid + ":end";
+                    tree.computeIfAbsent(forkEndId, k -> new ArrayList<>())
+                        .add(new Edge(forkEndId, defaultNext, ""));
                 }
             } else {
                 if (defaultNext != null && !decisionTargets.contains(nid)) {
@@ -629,7 +629,7 @@ public class DefaultPipeline implements Pipeline {
      * <p>遵循"自己管自己"原则：</p>
      * <ul>
      *   <li>SubPipelineNode — 调用子流水线的 printNodeTree 递归展开内部节点</li>
-     *   <li>ParallelNode — 调用每个分支流水线的 printNodeTree 递归展开分支内部节点</li>
+     *   <li>ForkNode — 调用每个分支流水线的 printNodeTree 递归展开分支内部节点</li>
      * </ul>
      *
      * @param nodeId       当前节点 ID
@@ -680,8 +680,8 @@ public class DefaultPipeline implements Pipeline {
         }
 
         // 处理并行节点 — 递归展开每个分支的内部树
-        if (node instanceof ParallelNode) {
-            ParallelNode pn = (ParallelNode) node;
+        if (node instanceof ForkNode) {
+            ForkNode pn = (ForkNode) node;
             String childPrefix = prefix + (isLast ? "    " : "│   ");
             Map<String, Pipeline> branches = pn.getBranches();
             int branchIndex = 0;

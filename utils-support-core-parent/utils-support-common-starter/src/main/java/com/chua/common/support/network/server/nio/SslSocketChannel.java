@@ -299,6 +299,12 @@ public class SslSocketChannel extends SocketChannel {
     // ==================== SocketChannel 委托 ====================
 
     @Override
+    public SocketChannel bind(SocketAddress local) throws IOException {
+        delegate.bind(local);
+        return this;
+    }
+
+    @Override
     public SocketAddress getLocalAddress() throws IOException {
         return delegate.getLocalAddress();
     }
@@ -359,6 +365,11 @@ public class SslSocketChannel extends SocketChannel {
     @Override
     public Set<SocketOption<?>> supportedOptions() {
         return delegate.supportedOptions();
+    }
+
+    @Override
+    protected void implConfigureBlocking(boolean block) throws IOException {
+        delegate.configureBlocking(block);
     }
 
     @Override
