@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -168,45 +169,70 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     @Override
+    public JsonObject createJsonObject() {
+        return new GsonJsonObject();
+    }
+
+    @Override
+    public JsonObject createJsonObject(Map map) {
+        return new GsonJsonObject(map);
+    }
+
+    @Override
+    public JsonArray createJsonArray() {
+        return new GsonJsonArray();
+    }
+
+    @Override
+    public JsonArray createJsonArray(Collection collection) {
+        return new GsonJsonArray(collection);
+    }
+
+    @Override
+    public JsonNode createJsonNode(Object value) {
+        return new GsonJsonNode(value);
+    }
+
+    @Override
     public JsonNode parse(String json) {
         if (null == json) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
         try {
             Object value = gson.fromJson(json, Object.class);
-            return new JsonNode(value);
+            return createJsonNode(value);
         } catch (JsonSyntaxException e) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
     }
 
     @Override
     public JsonNode parse(byte[] json) {
         if (null == json) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
         return parse(new String(json, UTF_8));
     }
 
     @Override
     public JsonNode build() {
-        return new JsonNode(new JsonObject());
+        return createJsonNode(createJsonObject());
     }
 
     @Override
     public JsonNode buildArray() {
-        return new JsonNode(new JsonArray());
+        return createJsonNode(createJsonArray());
     }
 
     @Override
     public JsonObject getJsonObject(String json) {
         if (null == json) {
-            return new JsonObject();
+            return createJsonObject();
         }
         try {
-            return gson.fromJson(json, JsonObject.class);
+            return createJsonObject(gson.fromJson(json, Map.class));
         } catch (JsonSyntaxException e) {
-            return new JsonObject();
+            return createJsonObject();
         }
     }
 
@@ -218,7 +244,7 @@ public class GsonJsonProvider implements JsonProvider {
     @Override
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
-            return new JsonArray();
+            return createJsonArray();
         }
         return getJsonArray(new String(jsonArray, UTF_8));
     }
@@ -226,19 +252,19 @@ public class GsonJsonProvider implements JsonProvider {
     @Override
     public JsonArray getJsonArray(String json) {
         if (null == json) {
-            return new JsonArray();
+            return createJsonArray();
         }
         try {
-            return gson.fromJson(json, JsonArray.class);
+            return createJsonArray(gson.fromJson(json, List.class));
         } catch (JsonSyntaxException e) {
-            return new JsonArray();
+            return createJsonArray();
         }
     }
 
     @Override
     public JsonObject getJsonObject(byte[] bytes) {
         try {
-            return gson.fromJson(new String(bytes, UTF_8), JsonObject.class);
+            return createJsonObject(gson.fromJson(new String(bytes, UTF_8), Map.class));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -247,7 +273,7 @@ public class GsonJsonProvider implements JsonProvider {
     @Override
     public JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         try {
-            return gson.fromJson(inputStreamReader, JsonObject.class);
+            return createJsonObject(gson.fromJson(inputStreamReader, Map.class));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -305,7 +331,7 @@ public class GsonJsonProvider implements JsonProvider {
 
     @Override
     public JsonObject fromJson(byte[] bytes, Charset charset) {
-        return fromJson(new String(bytes, charset), JsonObject.class);
+        return createJsonObject(gson.fromJson(new String(bytes, charset), Map.class));
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.chua.gson.support.json;
 
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.lang.json.Json5;
 import com.chua.common.support.lang.json.JsonArray;
+import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.lang.json.JsonProvider;
 import com.chua.common.support.lang.json.annotation.JsonIgnore;
@@ -22,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -188,5 +191,28 @@ class GsonJsonProviderTest {
         Writer writer = new java.io.StringWriter();
         provider.toJson(new User("chua", "secret", 18), writer);
         assertTrue(writer.toString().contains("user_name"));
+    }
+
+    /**
+     * 验证节点工厂返回 Gson 节点子类（节点类型随实现切换）。
+     */
+    @Test
+    void testNodeFactorySubclasses() {
+        GsonJsonProvider provider = new GsonJsonProvider();
+        Json.setImplementation(provider);
+
+        assertInstanceOf(GsonJsonObject.class, Json.createJsonObject());
+        assertInstanceOf(GsonJsonObject.class, JsonObject.create());
+        assertInstanceOf(GsonJsonObject.class, Json.getJsonObject("{\"a\":1}"));
+        assertInstanceOf(GsonJsonObject.class, Json5.getJsonObject("{\"a\":1}"));
+        assertInstanceOf(GsonJsonArray.class, Json.createJsonArray());
+        assertInstanceOf(GsonJsonArray.class, JsonArray.of());
+        assertInstanceOf(GsonJsonArray.class, Json.getJsonArray("[1,2]"));
+        assertInstanceOf(GsonJsonArray.class, Json5.getJsonArray("[1,2]"));
+        assertInstanceOf(GsonJsonNode.class, Json.createJsonNode("v"));
+        assertInstanceOf(GsonJsonNode.class, JsonNode.valueOf("v"));
+        assertInstanceOf(GsonJsonNode.class, Json.parse("{\"a\":1}"));
+        assertInstanceOf(GsonJsonNode.class, Json.build());
+        assertInstanceOf(GsonJsonNode.class, Json.buildArray());
     }
 }

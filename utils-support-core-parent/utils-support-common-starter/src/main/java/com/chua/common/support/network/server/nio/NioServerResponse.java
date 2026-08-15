@@ -276,36 +276,37 @@ public class NioServerResponse implements ServerResponse {
         committed = true;
         try {
             byte[] data = resolveBody();
-            ByteArrayOutputStream httpResp = new ByteArrayOutputStream(data.length + 256);
-            // Status line
-            httpResp.write(("HTTP/1.1 " + statusCode + " " + reasonPhrase(statusCode) + "\r\n")
-                    .getBytes(StandardCharsets.US_ASCII));
-            // Auto headers
-            if (!headers.containsKey("Content-Type")) {
-                httpResp.write("Content-Type: text/plain; charset=UTF-8\r\n".getBytes(StandardCharsets.US_ASCII));
-            }
-            if (!headers.containsKey("Content-Length")) {
-                httpResp.write(("Content-Length: " + data.length + "\r\n").getBytes(StandardCharsets.US_ASCII));
-            }
-            if (!headers.containsKey("Connection")) {
-                httpResp.write("Connection: keep-alive\r\n".getBytes(StandardCharsets.US_ASCII));
-            }
-            // User headers
-            for (Map.Entry<String, String> e : headers.entrySet()) {
-                httpResp.write(e.getKey().getBytes(StandardCharsets.US_ASCII));
-                httpResp.write(COLON_SP);
-                httpResp.write(e.getValue().getBytes(StandardCharsets.US_ASCII));
-                httpResp.write(CRLF);
-            }
-            httpResp.write(CRLF);
-            // Body
-            if (data.length > 0) {
-                httpResp.write(data);
-            }
-            writeToChannel(httpResp.toByteArray());
+            // 响应头与响应体分别包装为 ByteBuffer，gather write 一次写出，避免拼接拷贝
+            ByteBuffer headerBuf = ByteBuffer.wrap(buildHttpHeaders(data.length));
+            ByteBuffer bodyBuf = ByteBuffer.wrap(data);
+            writeToChannel(headerBuf, bodyBuf);
         } catch (Exception e) {
             // 静默处理写入失败（连接可能已被客户端关闭）
         }
+    }
+
+    /**
+     * 构建 HTTP 响应头字节（状态行 + 自动头 + 用户头 + 空行）。
+     */
+    private byte[] buildHttpHeaders(int bodyLength) {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("HTTP/1.1 ").append(statusCode).append(' ').append(reasonPhrase(statusCode)).append("\r\n");
+        // Auto headers
+        if (!headers.containsKey("Content-Type")) {
+            sb.append("Content-Type: text/plain; charset=UTF-8\r\n");
+        }
+        if (!headers.containsKey("Content-Length")) {
+            sb.append("Content-Length: ").append(bodyLength).append("\r\n");
+        }
+        if (!headers.containsKey("Connection")) {
+            sb.append("Connection: keep-alive\r\n");
+        }
+        // User headers
+        for (Map.Entry<String, String> e : headers.entrySet()) {
+            sb.append(e.getKey()).append(": ").append(e.getValue()).append("\r\n");
+        }
+        sb.append("\r\n");
+        return sb.toString().getBytes(StandardCharsets.US_ASCII);
     }
 
     /**
@@ -353,6 +354,34 @@ public class NioServerResponse implements ServerResponse {
                 int written = channel.write(bb);
                 if (written < 0) {
                     channelClosed = true;
+                    return;
+                }
+            }
+        } catch (IOException e) {
+            channelClosed = true;
+        }
+    }
+
+    /**
+     * gather write：将多个 ByteBuffer 一次性写出（zero copy，避免中间拼接）。
+     */
+    private void writeToChannel(ByteBuffer... buffers) {
+        if (channelClosed) {
+            return;
+        }
+        try {
+            // 过滤空缓冲，全部写完为止（阻塞通道 write 通常一次完成，循环兜底部分写入）
+            while (true) {
+                boolean allDone = true;
+                for (ByteBuffer bb : buffers) {
+                    if (bb.hasRemaining()) {
+                        channel.write(bb);
+                        if (bb.hasRemaining()) {
+                            allDone = false;
+                        }
+                    }
+                }
+                if (allDone) {
                     return;
                 }
             }

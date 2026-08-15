@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.face;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
+import com.chua.deeplearning.support.search.SearchPipeline;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +13,9 @@ import java.util.Objects;
 
 /**
  * 人脸检索：{@link FeatureExtractor} 提特征 + {@link VectorStorage} 检索。
+ *
+ * <p>检索流程由 {@link SearchPipeline} 通用管线编排（提取特征 → 向量检索），
+ * 取代手写顺序调用。</p>
  *
  * <pre>{@code
  * FaceSearcher searcher = FaceSearcher.builder()
@@ -38,6 +42,11 @@ public class FaceSearcher {
     private final VectorStorage vectorStorage;
 
     /**
+     * 检索管线。
+     */
+    private final SearchPipeline searchPipeline;
+
+    /**
      * 构造。
      *
      * @param featureExtractor 特征提取器
@@ -46,6 +55,7 @@ public class FaceSearcher {
     public FaceSearcher(FeatureExtractor featureExtractor, VectorStorage vectorStorage) {
         this.featureExtractor = Objects.requireNonNull(featureExtractor, "featureExtractor");
         this.vectorStorage = Objects.requireNonNull(vectorStorage, "vectorStorage");
+        this.searchPipeline = new SearchPipeline(featureExtractor, vectorStorage);
     }
 
     /**
@@ -176,7 +186,24 @@ public class FaceSearcher {
      * @return 命中列表
      */
     public List<FaceSearchHit> search(byte[] imageData, int topK) {
-        return search(extract(imageData), topK);
+        List<Vector> vectors = searchPipeline.search(imageData, topK);
+        if (vectors == null || vectors.isEmpty()) {
+            return List.of();
+        }
+        List<FaceSearchHit> hits = new ArrayList<>(vectors.size());
+        for (Vector v : vectors) {
+            double score = 0d;
+            if (v.metadata() != null && v.metadata().get("score") instanceof Number n) {
+                score = n.doubleValue();
+            }
+            hits.add(new FaceSearchHit(
+                    v.id(),
+                    score,
+                    v.data(),
+                    v.metadata() == null ? Collections.emptyMap() : v.metadata(),
+                    v.content()));
+        }
+        return hits;
     }
 
     /**

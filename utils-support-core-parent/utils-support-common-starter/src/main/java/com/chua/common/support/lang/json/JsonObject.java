@@ -134,20 +134,18 @@ public class JsonObject extends LinkedHashMap<String, Object> {
  Object object = get(name);
  if (null == object) {
  return EMPTY;
- }
+ }    if (object instanceof Map) {
+        return Json.createJsonObject((Map) object);
+    }
+    if (object instanceof JsonObject) {
+        return (JsonObject) object;
+    }
 
- if (object instanceof Map) {
- return new JsonObject((Map) object);
- }
- if (object instanceof JsonObject) {
- return (JsonObject) object;
- }
-
- if (object instanceof String) {
- return Json.getJsonObject((String) object);
- }
- return EMPTY;
- }
+    if (object instanceof String) {
+        return Json.getJsonObject((String) object);
+    }
+    return EMPTY;
+    }
 
  /**
  * 从指定名称的数组中获取索引位置的 JsonObject。
@@ -176,24 +174,23 @@ public class JsonObject extends LinkedHashMap<String, Object> {
  *
  * @param item 数组的键名
  * @return 对应的 JsonArray
- */
- public JsonArray getJsonArray(String item) {
- Object object = Optional.ofNullable(get(item)).orElse(Collections.emptyList());
- if (object instanceof Collection) {
- return new JsonArray((Collection) object);
- }
+ */    public JsonArray getJsonArray(String item) {
+        Object object = Optional.ofNullable(get(item)).orElse(Collections.emptyList());
+        if (object instanceof Collection) {
+            return Json.createJsonArray((Collection) object);
+        }
 
- if (object instanceof String) {
- if (object.toString().startsWith("[")) {
- return Json.getJsonArray(object.toString());
- }
- if (object.toString().startsWith("{")) {
- return new JsonArray(Collections.singletonList(Json.getJsonObject(object.toString())));
- }
- }
+        if (object instanceof String) {
+            if (object.toString().startsWith("[")) {
+                return Json.getJsonArray(object.toString());
+            }
+            if (object.toString().startsWith("{")) {
+                return Json.createJsonArray(Collections.singletonList(Json.getJsonObject(object.toString())));
+            }
+        }
 
- return new JsonArray(Collections.singletonList(object));
- }
+        return Json.createJsonArray(Collections.singletonList(object));
+    }
 
  /**
  * 获取指定类型的值，如果获取失败或为空，则返回默认值。
@@ -218,26 +215,27 @@ public class JsonObject extends LinkedHashMap<String, Object> {
  */
  public <E> E getObject(String name, Class<E> type) {
  return Converter.convertIfNecessary(MapUtils.getObject(this, name), type);
- }
+ }    /**
+     * 创建一个空的 JsonObject（走当前 {@link JsonProvider} SPI 节点工厂）。
+     *
+     * <p>节点类型随当前实现切换：默认返回通用 {@link JsonObject}，
+     * 切换 Gson / Fory 实现后返回其各自的节点子类。</p>
+     *
+     * @return 新的 JsonObject 实例
+     */
+    public static JsonObject create() {
+        return Json.createJsonObject();
+    }
 
- /**
- * 创建一个空的 JsonObject。
- *
- * @return 新的 JsonObject 实例
- */
- public static JsonObject create() {
- return new JsonObject();
- }
-
- /**
- * 将一个 Java Bean 对象转换为 JsonObject。
- *
- * @param bean 源 Bean 对象
- * @return 转换后的 JsonObject
- */
- public static JsonObject create(Object bean) {
- return new JsonObject(BeanUtils.objectToMap(bean));
- }
+    /**
+     * 将一个 Java Bean 对象转换为 JsonObject（走当前 {@link JsonProvider} SPI 节点工厂）。
+     *
+     * @param bean 源 Bean 对象
+     * @return 转换后的 JsonObject
+     */
+    public static JsonObject create(Object bean) {
+        return Json.createJsonObject(BeanUtils.objectToMap(bean));
+    }
 
  /**
  * 将 JsonObject 中的所有值转换为字符串，生成一个新的 Map。
@@ -339,26 +337,25 @@ public class JsonObject extends LinkedHashMap<String, Object> {
  * 将 Collection 转换为 JsonArray，确保回调函数接收到的都是统一的 JSON 类型对象。
  *
  * @param action 要执行的消费操作
- */
- @Override
- public void forEach(BiConsumer<? super String, ? super Object> action) {
- super.forEach(new BiConsumer<String, Object>() {
- @Override
- public void accept(String s, Object o) {
- if (o instanceof Map) {
- action.accept(s, new JsonObject((Map) o));
- return;
- }
+ */    @Override
+    public void forEach(BiConsumer<? super String, ? super Object> action) {
+        super.forEach(new BiConsumer<String, Object>() {
+            @Override
+            public void accept(String s, Object o) {
+                if (o instanceof Map) {
+                    action.accept(s, Json.createJsonObject((Map) o));
+                    return;
+                }
 
- if (o instanceof Collection) {
- action.accept(s, new JsonArray((Collection) o));
- return;
- }
+                if (o instanceof Collection) {
+                    action.accept(s, Json.createJsonArray((Collection) o));
+                    return;
+                }
 
- action.accept(s, o);
- }
- });
- }
+                action.accept(s, o);
+            }
+        });
+    }
 
  /**
  * 将当前的 JsonObject 序列化为 JSON 字符串后，反序列化为指定的 Java 类型对象。

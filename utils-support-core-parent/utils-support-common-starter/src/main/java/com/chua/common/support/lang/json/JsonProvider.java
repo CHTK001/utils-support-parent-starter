@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,71 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 public interface JsonProvider {
+
+    /**
+     * 创建一个空的 {@link JsonObject} 节点（门户节点工厂）。
+     *
+     * <p>各实现可覆写本方法返回自己的节点子类（如 GsonJsonObject、ForyJsonObject），
+     * 使 {@link Json#createJsonObject()} / {@link JsonObject#create()} 等创建路径的
+     * 节点类型随当前 SPI 实现切换。默认返回通用 {@link JsonObject}。</p>
+     *
+     * @return 空 JsonObject 节点
+     * @since 4.0.0.42
+     */
+    default JsonObject createJsonObject() {
+        return new JsonObject();
+    }
+
+    /**
+     * 基于已有 Map 创建 {@link JsonObject} 节点（门户节点工厂）。
+     *
+     * @param map 源数据 Map，可为 null（此时返回空节点）
+     * @return 包含源数据的 JsonObject 节点
+     * @since 4.0.0.42
+     */
+    default JsonObject createJsonObject(Map map) {
+        return new JsonObject(map);
+    }
+
+    /**
+     * 创建一个空的 {@link JsonArray} 节点（门户节点工厂）。
+     *
+     * <p>各实现可覆写本方法返回自己的节点子类（如 GsonJsonArray、ForyJsonArray），
+     * 使 {@link Json#createJsonArray()} / {@link JsonArray#of()} 等创建路径的
+     * 节点类型随当前 SPI 实现切换。默认返回通用 {@link JsonArray}。</p>
+     *
+     * @return 空 JsonArray 节点
+     * @since 4.0.0.42
+     */
+    default JsonArray createJsonArray() {
+        return new JsonArray();
+    }
+
+    /**
+     * 基于已有 Collection 创建 {@link JsonArray} 节点（门户节点工厂）。
+     *
+     * @param collection 源集合，可为 null（此时返回空节点）
+     * @return 包含源元素的 JsonArray 节点
+     * @since 4.0.0.42
+     */
+    default JsonArray createJsonArray(Collection collection) {
+        return new JsonArray(collection);
+    }
+
+    /**
+     * 基于原始值创建 {@link JsonNode} 节点（门户节点工厂）。
+     *
+     * <p>各实现可覆写本方法返回自己的节点子类（如 GsonJsonNode、ForyJsonNode），
+     * 使 {@link Json#createJsonNode(Object)} / {@link JsonNode#valueOf(Object)} 等
+     * 创建路径的节点类型随当前 SPI 实现切换。默认返回通用 {@link JsonNode}。</p>
+     *
+     * @param value 原始 JSON 值（Map、List、String、Number、Boolean 或 null）
+     * @return JsonNode 节点
+     * @since 4.0.0.42
+     */
+    default JsonNode createJsonNode(Object value) {
+        return new JsonNode(value);
+    }
 
     /**
      * 将 JSON 字符串解析为 JsonNode 对象，提供统一的树形遍历 API。

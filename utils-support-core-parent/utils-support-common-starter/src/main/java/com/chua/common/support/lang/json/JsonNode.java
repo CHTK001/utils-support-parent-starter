@@ -106,11 +106,11 @@ public class JsonNode {
     // ==================== 静态工厂 ====================
 
     /**
-     * 将原始值包装为 JsonNode。
+     * 将原始值包装为 JsonNode（走当前 {@link JsonProvider} SPI 节点工厂）。
      * <ul>
      *   <li>如果值为 null，返回 {@link #MISSING}</li>
      *   <li>如果值已经是 JsonNode，直接返回</li>
-     *   <li>否则创建新的 JsonNode</li>
+     *   <li>否则通过 {@link Json#createJsonNode(Object)} 创建节点，类型随当前实现切换</li>
      * </ul>
      *
      * @param value 原始值
@@ -123,7 +123,7 @@ public class JsonNode {
         if (value instanceof JsonNode) {
             return (JsonNode) value;
         }
-        return new JsonNode(value);
+        return Json.createJsonNode(value);
     }
 
     // ==================== 节点导航 ====================
@@ -568,7 +568,7 @@ public class JsonNode {
             return (JsonObject) value;
         }
         if (value instanceof Map) {
-            return new JsonObject((Map) value);
+            return Json.createJsonObject((Map) value);
         }
         return JsonObject.empty();
     }
@@ -586,7 +586,7 @@ public class JsonNode {
             return (JsonArray) value;
         }
         if (value instanceof Collection) {
-            return new JsonArray((Collection) value);
+            return Json.createJsonArray((Collection) value);
         }
         return JsonArray.empty();
     }
@@ -687,7 +687,7 @@ public class JsonNode {
     @SuppressWarnings("unchecked")
     public JsonNode putArray(String key, Object... elements) {
         if (this.value instanceof Map) {
-            JsonArray array = new JsonArray();
+            JsonArray array = Json.createJsonArray();
             if (elements != null) {
                 for (Object e : elements) {
                     array.add(e);
@@ -722,7 +722,7 @@ public class JsonNode {
     @SuppressWarnings("unchecked")
     public JsonNode startObject(String key) {
         if (this.value instanceof Map) {
-            JsonObject obj = new JsonObject();
+            JsonObject obj = Json.createJsonObject();
             ((Map<String, Object>) this.value).put(key, obj);
             return new JsonNode(obj, this);
         }
@@ -752,7 +752,7 @@ public class JsonNode {
     @SuppressWarnings("unchecked")
     public JsonNode startArray(String key) {
         if (this.value instanceof Map) {
-            JsonArray array = new JsonArray();
+            JsonArray array = Json.createJsonArray();
             ((Map<String, Object>) this.value).put(key, array);
             return new JsonNode(array, this);
         }

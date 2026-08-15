@@ -211,40 +211,40 @@ public class JacksonJsonProvider implements JsonProvider {
     @Override
     public JsonNode parse(String json) {
         if (null == json) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
         try {
             Object value = getMapper().readValue(json, Object.class);
-            return new JsonNode(value);
+            return createJsonNode(value);
         } catch (Exception e) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
     }
 
     @Override
     public JsonNode parse(byte[] json) {
         if (null == json) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
         return parse(new String(json, UTF_8));
     }
 
     @Override
     public JsonNode build() {
-        return new JsonNode(new JsonObject());
+        return createJsonNode(createJsonObject());
     }
 
     @Override
     public JsonNode buildArray() {
-        return new JsonNode(new JsonArray());
+        return createJsonNode(createJsonArray());
     }
 
     @Override
     public JsonObject getJsonObject(String json) {
         try {
-            return getMapper().readValue(json, JsonObject.class);
+            return createJsonObject(getMapper().readValue(json, Map.class));
         } catch (Exception e) {
-            return new JsonObject();
+            return createJsonObject();
         }
     }
 
@@ -256,7 +256,7 @@ public class JacksonJsonProvider implements JsonProvider {
     @Override
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
-            return new JsonArray();
+            return createJsonArray();
         }
         return getJsonArray(new String(jsonArray, UTF_8));
     }
@@ -264,19 +264,19 @@ public class JacksonJsonProvider implements JsonProvider {
     @Override
     public JsonArray getJsonArray(String json) {
         if (null == json) {
-            return new JsonArray();
+            return createJsonArray();
         }
         try {
-            return getMapper().readValue(json, JsonArray.class);
+            return createJsonArray(getMapper().readValue(json, List.class));
         } catch (JsonProcessingException e) {
-            return new JsonArray();
+            return createJsonArray();
         }
     }
 
     @Override
     public JsonObject getJsonObject(byte[] bytes) {
         try {
-            return getMapper().readValue(bytes, JsonObject.class);
+            return createJsonObject(getMapper().readValue(bytes, Map.class));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -285,7 +285,7 @@ public class JacksonJsonProvider implements JsonProvider {
     @Override
     public JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         try {
-            return getMapper().readValue(inputStreamReader, JsonObject.class);
+            return createJsonObject(getMapper().readValue(inputStreamReader, Map.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -344,7 +344,11 @@ public class JacksonJsonProvider implements JsonProvider {
 
     @Override
     public JsonObject fromJson(byte[] bytes, Charset charset) {
-        return fromJson(new String(bytes, charset), JsonObject.class);
+        try {
+            return createJsonObject(getMapper().readValue(new String(bytes, charset), Map.class));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

@@ -2,8 +2,10 @@ package com.chua.common.support.lang.json;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +57,24 @@ class Json5Test {
     }
 
     /**
-     * 每个用例结束后恢复默认实现，避免影响其他测试。
+     * 测试开始前的 SPI 默认实现，用于 {@link #restoreDefault()} 精确还原。
+     */
+    private JsonProvider originalImplementation;
+
+    /**
+     * 记录测试前的 SPI 实现，便于用例结束后精确还原。
+     */
+    @BeforeEach
+    void captureDefault() {
+        originalImplementation = Json.getImplementation();
+    }
+
+    /**
+     * 每个用例结束后恢复测试前的实现，避免影响其他测试。
      */
     @AfterEach
     void restoreDefault() {
-        Json.setImplementation(new JacksonJsonProvider());
+        Json.setImplementation(originalImplementation);
     }
 
     /**

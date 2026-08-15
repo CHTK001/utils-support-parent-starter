@@ -1,20 +1,51 @@
 package com.chua.deeplearning.support.plate;
 
-import com.chua.deeplearning.support.utils.ImageCropUtils;
+import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
+import com.chua.common.support.task.pipeline.core.Pipeline;
+import com.chua.common.support.task.pipeline.core.PipelineContext;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.model.PredictRectangle;
-import com.chua.deeplearning.support.plate.PlateResult;
+import com.chua.deeplearning.support.utils.ImageCropUtils;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * 车牌识别流水线，组合车牌检测和车牌识别两个步骤完成端到端识别。
  *
+ * <p>基于 {@link Pipeline} 通用管线框架编排（裁剪 → 识别 → 收集），取代手写循环；
+ * 多车牌场景由外层循环驱动，每个车牌一个独立 {@link PipelineContext}。
+ * 模型清单通过 {@link #listModels()} 动态获取。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class PlatePipeline {
+
+    /**
+     * 节点：裁剪
+     */
+    private static final String NODE_CROP = "crop";
+
+    /**
+     * 节点：识别
+     */
+    private static final String NODE_RECOGNIZE = "recognize";
+
+    /**
+     * 节点：收集
+     */
+    private static final String NODE_COLLECT = "collect";
+
+    /**
+     * 节点：终止
+     */
+    private static final String NODE_END = "end";
 
     /**
      * 车牌检测器。
@@ -27,6 +58,11 @@ public class PlatePipeline {
     private final LicensePlateRecognizer recognizer;
 
     /**
+     * 识别管线实例。
+     */
+    private final Pipeline pipeline;
+
+    /**
      * 构造车牌流水线。
      *
      * @param detector   车牌检测器
@@ -36,6 +72,7 @@ public class PlatePipeline {
                          LicensePlateRecognizer recognizer) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = recognizer;
+        this.pipeline = buildPipeline();
     }
 
     /**
@@ -120,6 +157,45 @@ public class PlatePipeline {
     }
 
     /**
+     * 编排识别管线（裁剪 → 识别 → 收集）。
+     *
+     * @return 管线实例
+     */
+    private Pipeline buildPipeline() {
+        return PipelineBuilder.newBuilder("plate-recognize")
+                .task(NODE_CROP, ctx -> {
+                    PlateContext pc = current(ctx);
+                    if (pc.currentBox() == null) {
+                        return null;
+                    }
+                    pc.currentPlate(ImageCropUtils.crop(pc.imageData(), pc.currentBox()));
+                    return null;
+                }).taskEnd()
+                .task(NODE_RECOGNIZE, ctx -> {
+                    PlateContext pc = current(ctx);
+                    if (pc.currentPlate() == null) {
+                        return null;
+                    }
+                    String plateText = "";
+                    String plateColor = "";
+                    if (recognizer != null) {
+                        PlateResult result = recognizer.recognizePlate(pc.currentPlate());
+                        if (result != null) {
+                            plateText = result.plateNo();
+                            plateColor = result.plateColor();
+                        }
+                    }
+                    pc.addHit(new PlateDetectHit(
+                            pc.currentBox(), pc.currentPlate(), plateText, plateColor));
+                    return null;
+                }).taskEnd()
+                .task(NODE_COLLECT, ctx -> null).end().taskEnd()
+                .task(NODE_END, ctx -> null).end().taskEnd()
+                .end(NODE_END)
+                .build();
+    }
+
+    /**
      * 检测并识别图像中所有车牌。
      *
      * @param imageData 图像数据
@@ -130,21 +206,11 @@ public class PlatePipeline {
         if (boxes == null || boxes.isEmpty()) {
             return List.of();
         }
-        List<PlateDetectHit> hits = new ArrayList<>(boxes.size());
-        for (PredictRectangle box : boxes) {
-            byte[] plate = ImageCropUtils.crop(imageData, box);
-            String plateText = "";
-            String plateColor = "";
-            if (recognizer != null) {
-                PlateResult result = recognizer.recognizePlate(plate);
-                if (result != null) {
-                    plateText = result.plateNo();
-                    plateColor = result.plateColor();
-                }
-            }
-            hits.add(new PlateDetectHit(box, plate, plateText, plateColor));
+        PlateContext pc = new PlateContext(imageData, boxes);
+        while (pc.advance()) {
+            runSingle(pc);
         }
-        return hits;
+        return pc.hits();
     }
 
     /**
@@ -156,6 +222,77 @@ public class PlatePipeline {
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
         return boxes == null ? List.of() : boxes;
+    }
+
+    /**
+     * 对单个车牌执行识别管线。
+     *
+     * @param pc 上下文
+     */
+    private void runSingle(PlateContext pc) {
+        PipelineContext<PlateContext> ctx = new PipelineContext<>(pipeline.getId(), pc);
+        ctx.setAttribute("plate", pc);
+        ctx.setNextNodeId(NODE_CROP);
+        pipeline.resume(ctx);
+    }
+
+    /**
+     * 从管线上下文提取车牌上下文。
+     *
+     * @param ctx 管线上下文
+     * @return 车牌上下文
+     */
+    @SuppressWarnings("unchecked")
+    private static PlateContext current(PipelineContext<?> ctx) {
+        return (PlateContext) ctx.getAttribute("plate");
+    }
+
+    /**
+     * 枚举可用模型清单。
+     *
+     * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按模型名称约定归类
+     * （车牌检测 / 车牌识别）。新增模型注册后自动出现在对应分组。</p>
+     *
+     * @return 能力分组 → 模型 ID 列表
+     */
+    public Map<String, List<String>> listModels() {
+        try {
+            ModelRegistry.discoverAll();
+        } catch (Exception e) {
+            log.warn("模型注册表发现失败: {}", e.getMessage());
+        }
+        Map<String, LinkedHashSet<String>> grouped = new LinkedHashMap<>();
+        for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {
+            String group = groupOf(entry);
+            if (group != null) {
+                grouped.computeIfAbsent(group, k -> new LinkedHashSet<>()).add(entry.modelId());
+            }
+        }
+        Map<String, List<String>> result = new LinkedHashMap<>();
+        for (Map.Entry<String, LinkedHashSet<String>> entry : grouped.entrySet()) {
+            result.put(entry.getKey(), List.copyOf(entry.getValue()));
+        }
+        return result;
+    }
+
+    /**
+     * 按模型名称约定归类车牌模型。
+     *
+     * @param entry 注册表条目
+     * @return 能力分组；无法识别时返回 null
+     */
+    private static String groupOf(ModelRegistry.Entry entry) {
+        String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
+        if (name.contains("plate") && name.contains("det")) {
+            return "detector";
+        }
+        if (name.contains("plate") && name.contains("rec")) {
+            return "recognizer";
+        }
+        if (name.contains("plate")) {
+            return name.contains("rec") ? "recognizer" : "detector";
+        }
+        return null;
     }
 
     /**

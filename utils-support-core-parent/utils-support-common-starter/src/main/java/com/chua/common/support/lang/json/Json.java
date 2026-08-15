@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -103,6 +104,68 @@ public class Json {
         }
         throw new UnsupportedOperationException(
                 "当前 Json 实现不支持获取 Jackson ObjectMapper: " + current.getClass().getName());
+    }
+
+    /**
+     * 创建一个空的 {@link JsonObject} 节点（委托当前 SPI 实现的节点工厂）。
+     *
+     * <p>节点类型随当前实现切换：默认 {@link JacksonJsonProvider} 返回通用 {@link JsonObject}，
+     * 切换 Gson / Fory 实现后返回其各自的节点子类（如 GsonJsonObject）。</p>
+     *
+     * @return 空 JsonObject 节点
+     * @since 4.0.0.42
+     */
+    public static JsonObject createJsonObject() {
+        return implementation.createJsonObject();
+    }
+
+    /**
+     * 基于已有 Map 创建 {@link JsonObject} 节点（委托当前 SPI 实现的节点工厂）。
+     *
+     * @param map 源数据 Map，可为 null
+     * @return 包含源数据的 JsonObject 节点
+     * @since 4.0.0.42
+     */
+    public static JsonObject createJsonObject(Map map) {
+        return implementation.createJsonObject(map);
+    }
+
+    /**
+     * 创建一个空的 {@link JsonArray} 节点（委托当前 SPI 实现的节点工厂）。
+     *
+     * <p>节点类型随当前实现切换：默认 {@link JacksonJsonProvider} 返回通用 {@link JsonArray}，
+     * 切换 Gson / Fory 实现后返回其各自的节点子类（如 GsonJsonArray）。</p>
+     *
+     * @return 空 JsonArray 节点
+     * @since 4.0.0.42
+     */
+    public static JsonArray createJsonArray() {
+        return implementation.createJsonArray();
+    }
+
+    /**
+     * 基于已有 Collection 创建 {@link JsonArray} 节点（委托当前 SPI 实现的节点工厂）。
+     *
+     * @param collection 源集合，可为 null
+     * @return 包含源元素的 JsonArray 节点
+     * @since 4.0.0.42
+     */
+    public static JsonArray createJsonArray(Collection collection) {
+        return implementation.createJsonArray(collection);
+    }
+
+    /**
+     * 基于原始值创建 {@link JsonNode} 节点（委托当前 SPI 实现的节点工厂）。
+     *
+     * <p>节点类型随当前实现切换：默认 {@link JacksonJsonProvider} 返回通用 {@link JsonNode}，
+     * 切换 Gson / Fory 实现后返回其各自的节点子类（如 GsonJsonNode）。</p>
+     *
+     * @param value 原始 JSON 值（Map、List、String、Number、Boolean 或 null）
+     * @return JsonNode 节点
+     * @since 4.0.0.42
+     */
+    public static JsonNode createJsonNode(Object value) {
+        return implementation.createJsonNode(value);
     }
 
     /**

@@ -94,16 +94,17 @@ public class JsonArray extends LinkedList<Object> {
  */
  public static JsonArray empty() {
  return INSTANCE;
- }
-
- /**
- * 创建一个全新的空 JsonArray 实例。
- *
- * @return 新的空 JsonArray 实例
- */
- public static JsonArray of() {
- return new JsonArray();
- }
+ }    /**
+     * 创建一个全新的空 JsonArray 实例（走当前 {@link JsonProvider} SPI 节点工厂）。
+     *
+     * <p>节点类型随当前实现切换：默认返回通用 {@link JsonArray}，
+     * 切换 Gson / Fory 实现后返回其各自的节点子类。</p>
+     *
+     * @return 新的空 JsonArray 实例
+     */
+    public static JsonArray of() {
+        return Json.createJsonArray();
+    }
 
  /**
  * 解析 JSON 字符串并返回对应的 JsonArray 对象。
@@ -113,18 +114,16 @@ public class JsonArray extends LinkedList<Object> {
  */
  public static JsonArray parse(String json) {
  return Json.getJsonArray(json);
- }
-
- /**
- * 获取指定索引处的元素，并将其包装为 JsonObject 返回。
- *
- * @param i 元素索引
- * @return 对应索引处的 JsonObject
- */
- public JsonObject getJsonObject(int i) {
- Map raw = getJSONObject(i);
- return new JsonObject(raw);
- }
+ }    /**
+     * 获取指定索引处的元素，并将其包装为 JsonObject 返回（走当前 SPI 节点工厂）。
+     *
+     * @param i 元素索引
+     * @return 对应索引处的 JsonObject
+     */
+    public JsonObject getJsonObject(int i) {
+        Map raw = getJSONObject(i);
+        return Json.createJsonObject(raw);
+    }
 
  /**
  * 获取指定索引处的原始 Map 对象（内部实现方法）。
@@ -134,17 +133,15 @@ public class JsonArray extends LinkedList<Object> {
  */
  private Map getJSONObject(int i) {
  return (Map) get(i);
- }
-
- /**
- * 获取指定索引处的元素，并将其包装为 JsonArray 返回。
- *
- * @param i 元素索引
- * @return 对应索引处的 JsonArray
- */
- public JsonArray getJsonArray(int i) {
- return new JsonArray((Iterable) getJSONArray(i));
- }
+ }    /**
+     * 获取指定索引处的元素，并将其包装为 JsonArray 返回（走当前 SPI 节点工厂）。
+     *
+     * @param i 元素索引
+     * @return 对应索引处的 JsonArray
+     */
+    public JsonArray getJsonArray(int i) {
+        return Json.createJsonArray(getJSONArray(i));
+    }
 
  /**
  * 获取指定索引处的原始 Collection 对象（内部实现方法）。
@@ -161,26 +158,25 @@ public class JsonArray extends LinkedList<Object> {
  * 将 Collection 转换为 JsonArray，以便使用者直接获得强类型的对象。
  *
  * @param action 要执行的操作
- */
- @Override
- public void forEach(Consumer<? super Object> action) {
- super.forEach(new SafeConsumer<Object>() {
- @Override
- public void safeAccept(Object o) throws Throwable {
- if (o instanceof Map) {
- action.accept(new JsonObject((Map) o));
- return;
- }
+ */    @Override
+    public void forEach(Consumer<? super Object> action) {
+        super.forEach(new SafeConsumer<Object>() {
+            @Override
+            public void safeAccept(Object o) throws Throwable {
+                if (o instanceof Map) {
+                    action.accept(Json.createJsonObject((Map) o));
+                    return;
+                }
 
- if (o instanceof Collection) {
- action.accept(new JsonArray((Collection) o));
- return;
- }
+                if (o instanceof Collection) {
+                    action.accept(Json.createJsonArray((Collection) o));
+                    return;
+                }
 
- action.accept(o);
- }
- });
- }
+                action.accept(o);
+            }
+        });
+    }
 
  /**
  * 以指定类型消费数组中的每个元素，并在消费前尝试进行类型转换。

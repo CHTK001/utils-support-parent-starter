@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,48 +59,73 @@ public class ForyJsonProvider implements JsonProvider {
     private static final ForyJson FORY_JSON = ForyJson.builder().build();
 
     @Override
+    public JsonObject createJsonObject() {
+        return new ForyJsonObject();
+    }
+
+    @Override
+    public JsonObject createJsonObject(Map map) {
+        return new ForyJsonObject(map);
+    }
+
+    @Override
+    public JsonArray createJsonArray() {
+        return new ForyJsonArray();
+    }
+
+    @Override
+    public JsonArray createJsonArray(Collection collection) {
+        return new ForyJsonArray(collection);
+    }
+
+    @Override
+    public JsonNode createJsonNode(Object value) {
+        return new ForyJsonNode(value);
+    }
+
+    @Override
     public JsonNode parse(String json) {
         if (null == json) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
         try {
             String trimmed = json.trim();
             if (trimmed.startsWith("[")) {
-                return new JsonNode(new JsonArray(FORY_JSON.fromJson(json, List.class)));
+                return createJsonNode(createJsonArray(FORY_JSON.fromJson(json, List.class)));
             }
-            return new JsonNode(new JsonObject(FORY_JSON.fromJson(json, Map.class)));
+            return createJsonNode(createJsonObject(FORY_JSON.fromJson(json, Map.class)));
         } catch (Exception e) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
     }
 
     @Override
     public JsonNode parse(byte[] json) {
         if (null == json) {
-            return new JsonNode(new JsonObject());
+            return createJsonNode(createJsonObject());
         }
         return parse(new String(json, UTF_8));
     }
 
     @Override
     public JsonNode build() {
-        return new JsonNode(new JsonObject());
+        return createJsonNode(createJsonObject());
     }
 
     @Override
     public JsonNode buildArray() {
-        return new JsonNode(new JsonArray());
+        return createJsonNode(createJsonArray());
     }
 
     @Override
     public JsonObject getJsonObject(String json) {
         if (null == json) {
-            return new JsonObject();
+            return createJsonObject();
         }
         try {
-            return new JsonObject(FORY_JSON.fromJson(json, Map.class));
+            return createJsonObject(FORY_JSON.fromJson(json, Map.class));
         } catch (Exception e) {
-            return new JsonObject();
+            return createJsonObject();
         }
     }
 
@@ -111,7 +137,7 @@ public class ForyJsonProvider implements JsonProvider {
     @Override
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
-            return new JsonArray();
+            return createJsonArray();
         }
         return getJsonArray(new String(jsonArray, UTF_8));
     }
@@ -119,19 +145,19 @@ public class ForyJsonProvider implements JsonProvider {
     @Override
     public JsonArray getJsonArray(String json) {
         if (null == json) {
-            return new JsonArray();
+            return createJsonArray();
         }
         try {
-            return new JsonArray(FORY_JSON.fromJson(json, List.class));
+            return createJsonArray(FORY_JSON.fromJson(json, List.class));
         } catch (Exception e) {
-            return new JsonArray();
+            return createJsonArray();
         }
     }
 
     @Override
     public JsonObject getJsonObject(byte[] bytes) {
         try {
-            return new JsonObject(FORY_JSON.fromJson(new String(bytes, UTF_8), Map.class));
+            return createJsonObject(FORY_JSON.fromJson(new String(bytes, UTF_8), Map.class));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -194,7 +220,7 @@ public class ForyJsonProvider implements JsonProvider {
 
     @Override
     public JsonObject fromJson(byte[] bytes, Charset charset) {
-        return getJsonObject(new String(bytes, charset));
+        return createJsonObject(FORY_JSON.fromJson(new String(bytes, charset), Map.class));
     }
 
     @Override
