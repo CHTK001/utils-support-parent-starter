@@ -10,6 +10,7 @@ import com.chua.common.support.task.pipeline.exception.PipelineException;
 import java.util.*;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -220,52 +221,65 @@ public class ParallelNode implements PipelineNode {
             return null;
         }
 
-        // 并行执行（结构化并发：StructuredTaskScope）
+        // 并行执行（结构化并发：StructuredTaskScope — Java 25 API）
         ConcurrentLinkedQueue<BranchResult> results = new ConcurrentLinkedQueue<>();
 
-        try (var scope = errorStrategy == ParallelErrorStrategy.FAIL_FAST
-                ? new StructuredTaskScope.ShutdownOnFailure()
-                : new StructuredTaskScope<Void>()) {
-
-            for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
-                String branchName = entry.getKey();
-                Pipeline branchPipeline = entry.getValue();
-
-                scope.fork(() -> {
-                    PipelineContext<?> branchCtx = context.createBranchContext();
-                    try {
-                        branchPipeline.execute(branchCtx);
-                        results.add(new BranchResult(branchName, branchCtx, null));
-                    } catch (Exception e) {
-                        results.add(new BranchResult(branchName, branchCtx, e));
-                    }
-                    return null;
-                });
-            }
-
-            // 等待所有分支完成
-            scope.join();
-
-            if (errorStrategy == ParallelErrorStrategy.FAIL_FAST) {
-                // ShutdownOnFailure: 任一失败时已自动取消其他分支
-                try {
-                    scope.throwIfFailed();
-                } catch (Exception e) {
-                    // 找到第一个失败的分支，抛出带分支名的异常
-                    for (BranchResult result : results) {
-                        if (result.error != null) {
-                            throw new PipelineException(
-                                    "Parallel branch '" + result.branchName + "' failed (FAIL_FAST)",
-                                    id, context.getPipelineId(), result.error);
+        if (errorStrategy == ParallelErrorStrategy.FAIL_FAST) {
+            // FAIL_FAST：任一分支失败时取消剩余分支
+            AtomicBoolean failed = new AtomicBoolean(false);
+            try (var scope = StructuredTaskScope.open(
+                    StructuredTaskScope.Joiner.allUntil(subtask -> failed.get()))) {
+                for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
+                    String branchName = entry.getKey();
+                    Pipeline branchPipeline = entry.getValue();
+                    scope.fork(() -> {
+                        PipelineContext<?> branchCtx = context.createBranchContext();
+                        try {
+                            branchPipeline.execute(branchCtx);
+                            results.add(new BranchResult(branchName, branchCtx, null));
+                        } catch (Exception e) {
+                            results.add(new BranchResult(branchName, branchCtx, e));
+                            failed.set(true); // 信号失败，触发 scope 取消
                         }
-                    }
-                    // scope.throwIfFailed() 抛出但 results 中无错误记录（不应发生）
-                    throw new PipelineException(
-                            "Parallel execution failed (FAIL_FAST)",
-                            id, context.getPipelineId(), e);
+                        return null;
+                    });
                 }
-            } else {
-                // WAIT_ALL: 所有分支执行完毕，汇总异常
+                scope.join(); // 等待所有分支完成（含被取消的）
+
+                // 检查失败分支
+                for (BranchResult result : results) {
+                    if (result.error != null) {
+                        throw new PipelineException(
+                                "Parallel branch '" + result.branchName + "' failed (FAIL_FAST)",
+                                id, context.getPipelineId(), result.error);
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new PipelineException("Parallel execution interrupted",
+                        id, context.getPipelineId(), e);
+            }
+        } else {
+            // WAIT_ALL：等待所有分支完成，汇总异常
+            try (var scope = StructuredTaskScope.open(
+                    StructuredTaskScope.Joiner.awaitAll())) {
+                for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
+                    String branchName = entry.getKey();
+                    Pipeline branchPipeline = entry.getValue();
+                    scope.fork(() -> {
+                        PipelineContext<?> branchCtx = context.createBranchContext();
+                        try {
+                            branchPipeline.execute(branchCtx);
+                            results.add(new BranchResult(branchName, branchCtx, null));
+                        } catch (Exception e) {
+                            results.add(new BranchResult(branchName, branchCtx, e));
+                        }
+                        return null;
+                    });
+                }
+                scope.join(); // 等待所有分支完成
+
+                // 汇总异常
                 List<Exception> errors = new ArrayList<>();
                 for (BranchResult result : results) {
                     if (result.error != null) {
@@ -282,6 +296,10 @@ public class ParallelNode implements PipelineNode {
                             "Parallel branches failed: [" + errorBranches + "] (WAIT_ALL)",
                             id, context.getPipelineId(), errors.get(0));
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new PipelineException("Parallel execution interrupted",
+                        id, context.getPipelineId(), e);
             }
         }
 

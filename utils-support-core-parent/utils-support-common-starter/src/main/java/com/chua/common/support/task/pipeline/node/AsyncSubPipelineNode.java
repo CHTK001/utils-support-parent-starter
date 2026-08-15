@@ -6,25 +6,31 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.function.BiConsumer;
 
 /**
- * 异步子流水线节点 — 非阻塞异步执行子 Pipeline。
+ * 异步子流水线节点 — 基于结构化并发（StructuredTaskScope）的非阻塞异步执行。
  *
  * <p>与 {@link SubPipelineNode} 的核心区别：</p>
  * <ul>
  *   <li><strong>SubPipelineNode</strong> — 同步执行，主干阻塞等待子流程完成后才继续</li>
- *   <li><strong>AsyncSubPipelineNode</strong> — 异步执行，主干不等待，子流程在后台线程执行</li>
+ *   <li><strong>AsyncSubPipelineNode</strong> — 异步执行，主干不等待，子流程通过 scope.fork() 提交</li>
  * </ul>
  *
- * <p><strong>执行模型：</strong></p>
+ * <p><strong>执行模型（结构化并发）：</strong></p>
  * <ol>
- *   <li>主干到达异步节点 → 创建独立上下文 → 提交子流程到异步线程</li>
+ *   <li>主干到达异步节点 → 创建独立上下文 → 通过 scope.fork() 提交子流程</li>
  *   <li>主干立即继续执行后续节点（不阻塞等待）</li>
- *   <li>子流程异步执行完毕 → 回调合并结果到父上下文</li>
+ *   <li>子流程异步执行完毕 → 完成 AsyncResult → 合并结果到父上下文</li>
+ *   <li>Pipeline 结束前 scope.join() 保证所有 fork 的异步任务完成</li>
  * </ol>
+ *
+ * <p><strong>结构化并发保证：</strong></p>
+ * <p>异步任务通过 {@link StructuredTaskScope#fork} 提交到 Pipeline 级别的 scope 中，
+ * 由 {@code DefaultPipeline.executeWith()} 统一管理生命周期。
+ * Pipeline 返回前调用 {@code scope.join()} 确保所有异步子流水线完成，
+ * 不会出现孤儿线程或结果丢失。</p>
  *
  * <p><strong>结果存储：</strong></p>
  * <p>异步节点执行时，立即在 {@code nodeOutputs} 中存入初始 {@link AsyncResult}（completed=false），
@@ -96,6 +102,14 @@ import java.util.function.BiConsumer;
 public class AsyncSubPipelineNode implements PipelineNode {
 
     /**
+     * 内部属性键 — StructuredTaskScope 实例。
+     *
+     * <p>与 {@code DefaultPipeline.ATTR_PIPELINE_SCOPE} 保持一致，
+     * 通过 PipelineContext.attributes 传递 Pipeline 级别的 StructuredTaskScope。</p>
+     */
+    private static final String ATTR_PIPELINE_SCOPE = "__pipelineScope__";
+
+    /**
      * 节点唯一标识
      */
     private final String id;
@@ -104,11 +118,6 @@ public class AsyncSubPipelineNode implements PipelineNode {
      * 异步子流水线实例
      */
     private final Pipeline subPipeline;
-
-    /**
-     * 自定义线程池（可选，null 时使用 ForkJoinPool.commonPool()）
-     */
-    private final Executor executor;
 
     /**
      * 异步完成后是否将输出合并到父上下文的 currentData，默认 false
@@ -142,26 +151,14 @@ public class AsyncSubPipelineNode implements PipelineNode {
     private Map<String, Object> params;
 
     /**
-     * 构造异步子流水线节点（使用默认线程池）。
+     * 构造异步子流水线节点。
      *
      * @param id          节点唯一标识
      * @param subPipeline 异步子流水线实例
      */
     public AsyncSubPipelineNode(String id, Pipeline subPipeline) {
-        this(id, subPipeline, null);
-    }
-
-    /**
-     * 构造异步子流水线节点（自定义线程池）。
-     *
-     * @param id          节点唯一标识
-     * @param subPipeline 异步子流水线实例
-     * @param executor    自定义线程池，null 时使用 ForkJoinPool.commonPool()
-     */
-    public AsyncSubPipelineNode(String id, Pipeline subPipeline, Executor executor) {
         this.id = id;
         this.subPipeline = subPipeline;
-        this.executor = executor;
         this.mergeCurrentData = false;
     }
 
@@ -196,15 +193,6 @@ public class AsyncSubPipelineNode implements PipelineNode {
      */
     public Pipeline getSubPipeline() {
         return subPipeline;
-    }
-
-    /**
-     * 获取自定义线程池。
-     *
-     * @return 线程池，null 表示使用默认 ForkJoinPool.commonPool()
-     */
-    public Executor getExecutor() {
-        return executor;
     }
 
     /**
@@ -308,23 +296,28 @@ public class AsyncSubPipelineNode implements PipelineNode {
     }
 
     /**
-     * 异步执行子流水线。
+     * 异步执行子流水线（结构化并发版）。
      *
      * <p>执行流程：</p>
      * <ol>
      *   <li>设置当前节点 ID</li>
      *   <li>执行前置处理器（如果配置）</li>
      *   <li>创建独立上下文</li>
-     *   <li>提交子流水线到异步线程</li>
+     *   <li>从 PipelineContext.attributes 获取 StructuredTaskScope</li>
+     *   <li>scope.fork() 提交子流水线到结构化并发作用域</li>
      *   <li>立即在 nodeOutputs 存入初始 AsyncResult（completed=false）</li>
      *   <li>返回 null，主干继续执行后续节点</li>
-     *   <li>异步完成后回调合并结果</li>
+     *   <li>fork 内：执行子流水线 → 完成 AsyncResult → 合并结果到父上下文</li>
      * </ol>
+     *
+     * <p><strong>降级策略：</strong>若 attributes 中无 StructuredTaskScope（非 Pipeline 级调用），
+     * 则同步执行子流水线，确保功能正确但无并发收益。</p>
      *
      * @param context 父流水线上下文
      * @return null，按默认顺序继续执行下一节点
      */
     @Override
+    @SuppressWarnings("unchecked")
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
 
@@ -348,50 +341,42 @@ public class AsyncSubPipelineNode implements PipelineNode {
             subCtx = new PipelineContext<>(subPipeline.getId(), context.getCurrentData());
         }
 
-        // 3. 提交异步执行
-        final PipelineContext<Object> finalSubCtx = subCtx;
-        CompletableFuture<Void> future;
-        if (executor != null) {
-            future = CompletableFuture.runAsync(() -> executeSubPipeline(finalSubCtx), executor);
-        } else {
-            future = CompletableFuture.runAsync(() -> executeSubPipeline(finalSubCtx));
-        }
-
-        // 4. 立即存入初始 AsyncResult（completed=false）
-        AsyncResult asyncResult = new AsyncResult(id, subPipeline.getId(), future);
+        // 3. 创建 AsyncResult（初始未完成状态）
+        AsyncResult asyncResult = new AsyncResult(id, subPipeline.getId());
         context.setNodeOutput(id, asyncResult);
 
-        // 5. 注册完成回调：异步完成后合并结果到父上下文
-        //    注意：使用 finalSubCtx（子流水线上下文）获取异步执行结果
-        future.whenComplete((v, throwable) -> {
-            if (throwable != null) {
-                // 异步执行异常
-                Throwable cause = throwable instanceof java.util.concurrent.CompletionException
-                        ? throwable.getCause() : throwable;
-                asyncResult.completeWithError(cause);
-            } else {
-                // 正常完成：用子流水线上下文的结果填充 AsyncResult
-                asyncResult.complete(finalSubCtx.getCurrentData(), finalSubCtx.getHistory());
+        // 4. 获取 Pipeline 级 StructuredTaskScope（Java 25 API：StructuredTaskScope<Object, Void>）
+        StructuredTaskScope<Object, Void> scope =
+                (StructuredTaskScope<Object, Void>) context.getAttributes().get(ATTR_PIPELINE_SCOPE);
+
+        if (scope != null) {
+            // 结构化并发：fork 到 Pipeline 级 scope
+            final PipelineContext<Object> finalSubCtx = subCtx;
+            scope.fork(() -> {
+                try {
+                    subPipeline.execute(finalSubCtx);
+                    // 正常完成：用子流水线上下文的结果填充 AsyncResult
+                    asyncResult.complete(finalSubCtx.getCurrentData(), finalSubCtx.getHistory());
+                } catch (Exception e) {
+                    // 异常完成
+                    asyncResult.completeWithError(e);
+                }
+                // 合并结果到父上下文
+                mergeResultToParent(context, asyncResult);
+            });
+        } else {
+            // 降级：无 scope 时同步执行（确保功能正确但无并发收益）
+            try {
+                subPipeline.execute(subCtx);
+                asyncResult.complete(subCtx.getCurrentData(), subCtx.getHistory());
+            } catch (Exception e) {
+                asyncResult.completeWithError(e);
             }
-            // 合并结果到父上下文
             mergeResultToParent(context, asyncResult);
-        });
-
-        // 6. 主干不等待，继续执行后续节点
-        return null;
-    }
-
-    /**
-     * 在异步线程中执行子流水线。
-     *
-     * @param subCtx 子流水线上下文
-     */
-    private void executeSubPipeline(PipelineContext<Object> subCtx) {
-        try {
-            subPipeline.execute(subCtx);
-        } catch (Exception e) {
-            throw e;
         }
+
+        // 5. 主干不等待，继续执行后续节点
+        return null;
     }
 
     /**
@@ -399,7 +384,7 @@ public class AsyncSubPipelineNode implements PipelineNode {
      *
      * <p>合并操作：</p>
      * <ul>
-     *   <li>AsyncResult 已在 whenComplete 回调中完成（output + history）</li>
+     *   <li>AsyncResult 已在 fork 内完成（output + history）</li>
      *   <li>如果 mergeCurrentData=true，更新父上下文的 currentData</li>
      *   <li>触发 completionHandler（如果配置）</li>
      * </ul>
@@ -411,7 +396,6 @@ public class AsyncSubPipelineNode implements PipelineNode {
     private void mergeResultToParent(PipelineContext<?> parentCtx, AsyncResult asyncResult) {
         // mergeCurrentData：将异步输出写回父上下文的 currentData
         if (mergeCurrentData && asyncResult.isCompleted() && !asyncResult.isFailed()) {
-            @SuppressWarnings("unchecked")
             PipelineContext<Object> ctx = (PipelineContext<Object>) parentCtx;
             ctx.setCurrentData(asyncResult.getOutput());
         }
