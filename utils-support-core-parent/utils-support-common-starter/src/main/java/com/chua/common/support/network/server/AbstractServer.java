@@ -10,6 +10,7 @@ import com.chua.common.support.network.server.resolver.HandlerMethodArgumentReso
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.objects.DefaultObjectContext;
 import com.chua.common.support.objects.ObjectContext;
+import com.chua.common.support.objects.ObjectContextConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,7 +90,8 @@ public abstract class AbstractServer implements ConfigServer {
 
         // 默认创建一个轻量 ObjectContext，使 registerBean() / @AutoInject 等能力开箱即用
         if (this.objectContext == null) {
-            this.objectContext = new DefaultObjectContext();
+            this.objectContext = new DefaultObjectContext(ObjectContextConfig.defaults());
+            this.objectContext.init();
         }
         setObjectContext(objectContext);
         initBuiltinFilters();
