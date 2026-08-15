@@ -252,6 +252,35 @@ public class PipelineBuilder {
     }
 
     /**
+     * 添加执行节点（无 handler 模式，配合 onStep/step 使用）。
+     *
+     * <p>等价于 {@link #taskStart(String)}，提供更简洁的调用方式：</p>
+     * <pre>{@code
+     * // task(id) + onStep（无返回值）
+     * .task("init")
+     * .onStep(ctx -> init(ctx))
+     * .taskEnd()
+     *
+     * // task(id) + step（有返回值，可路由）
+     * .task("route")
+     * .step(ctx -> condition ? "nodeA" : "nodeB")
+     * .taskEnd()
+     *
+     * // task(id) + onStep + ext（执行后终止）
+     * .task("finalize")
+     * .onStep(ctx -> cleanup(ctx))
+     * .ext()
+     * .taskEnd()
+     * }</pre>
+     *
+     * @param id 节点唯一标识
+     * @return TaskDefinition 任务节点定义（handler 为空实现）
+     */
+    public TaskDefinition task(String id) {
+        return taskStart(id);
+    }
+
+    /**
      * 添加判断节点。
      *
      * <p>统一使用 {@link PipelineNode} 函数式接口，路由回调返回目标节点 ID：</p>

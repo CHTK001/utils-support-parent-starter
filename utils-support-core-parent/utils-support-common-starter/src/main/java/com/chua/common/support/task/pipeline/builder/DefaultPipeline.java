@@ -168,8 +168,8 @@ public class DefaultPipeline implements Pipeline {
 
         // 检查是否已有 Pipeline 级 scope（嵌套 Pipeline 场景：子流水线继承父 scope）
         @SuppressWarnings("unchecked")
-        StructuredTaskScope<Void> existingScope =
-                (StructuredTaskScope<Void>) ctx.getAttributes().get(ATTR_PIPELINE_SCOPE);
+        StructuredTaskScope<Object, Void> existingScope =
+                (StructuredTaskScope<Object, Void>) ctx.getAttributes().get(ATTR_PIPELINE_SCOPE);
 
         if (existingScope != null) {
             // 嵌套场景：复用父 Pipeline 的 scope，不创建新的
@@ -178,10 +178,14 @@ public class DefaultPipeline implements Pipeline {
         }
 
         // 顶层 Pipeline：创建 scope，确保所有 fork 的异步任务在返回前完成
-        try (var scope = new StructuredTaskScope<Void>()) {
+        try (var scope = StructuredTaskScope.open()) {
             ctx.setAttribute(ATTR_PIPELINE_SCOPE, scope);
             run(ctx);
             scope.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new PipelineException("Pipeline execution interrupted",
+                    "pipeline", ctx.getPipelineId(), e);
         } finally {
             ctx.getAttributes().remove(ATTR_PIPELINE_SCOPE);
         }

@@ -8,7 +8,6 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.AsyncSubPipelineNode;
 
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -52,7 +51,6 @@ import java.util.function.Consumer;
  *   <li>{@link #params(Map)} — 设置子流水线参数</li>
  *   <li>{@link #mergeCurrentData(boolean)} — 完成后是否回写 currentData</li>
  *   <li>{@link #onComplete(BiConsumer)} — 异步完成回调</li>
- *   <li>{@link #executor(Executor)} — 自定义线程池</li>
  * </ul>
  *
  * @author CH
@@ -71,7 +69,6 @@ public class TaskAsyncDefinition {
     private Map<String, Object> params;
     private boolean mergeCurrentData;
     private BiConsumer<PipelineContext<?>, AsyncResult> completionHandler;
-    private Executor executor;
 
     /**
      * 构造异步子流水线定义。
@@ -96,7 +93,7 @@ public class TaskAsyncDefinition {
      */
     public PipelineBuilder taskEnd() {
         PipelineNode effectivePreHandler = endAfterExecute ? wrapWithEnd(preHandler) : preHandler;
-        AsyncSubPipelineNode node = new AsyncSubPipelineNode(id, subPipeline, executor);
+        AsyncSubPipelineNode node = new AsyncSubPipelineNode(id, subPipeline);
         if (effectivePreHandler != null) {
             node.preHandler(effectivePreHandler);
         }
@@ -191,19 +188,6 @@ public class TaskAsyncDefinition {
      */
     public TaskAsyncDefinition onComplete(BiConsumer<PipelineContext<?>, AsyncResult> completionHandler) {
         this.completionHandler = completionHandler;
-        return this;
-    }
-
-    /**
-     * 设置自定义线程池。
-     *
-     * <p>不设置时使用 ForkJoinPool.commonPool()。</p>
-     *
-     * @param executor 线程池
-     * @return this
-     */
-    public TaskAsyncDefinition executor(Executor executor) {
-        this.executor = executor;
         return this;
     }
 
