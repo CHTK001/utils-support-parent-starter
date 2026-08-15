@@ -1,5 +1,7 @@
 package com.chua.common.support.task.pipeline.core;
 
+import com.chua.common.support.task.retry.RetryConfig;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -158,5 +160,27 @@ public interface PipelineNode {
      */
     default Map<String, Object> getEnv() {
         return Collections.emptyMap();
+    }
+
+    /**
+     * 获取节点重试配置。
+     *
+     * <p>当节点配置了重试策略时，引擎在执行节点遇到异常会自动重试，
+     * 而非直接触发错误恢复或终止流水线。</p>
+     *
+     * <p>重试使用 {@link RetryConfig} 配置，支持：</p>
+     * <ul>
+     *   <li>最大重试次数</li>
+     *   <li>重试延迟与退避策略（固定/指数/斐波那契）</li>
+     *   <li>异常过滤（仅对指定类型异常重试）</li>
+     *   <li>重试监听回调</li>
+     * </ul>
+     *
+     * <p>默认返回 null，表示不重试。通过 Definition API 的 {@code .retry()} 方法设置。</p>
+     *
+     * @return 重试配置，null 表示不重试
+     */
+    default RetryConfig getRetryConfig() {
+        return null;
     }
 }

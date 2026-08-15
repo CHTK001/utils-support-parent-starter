@@ -2,6 +2,7 @@ package com.chua.common.support.task.pipeline.node;
 
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
+import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.Collections;
 import java.util.Map;
@@ -60,6 +61,11 @@ public class TaskNode implements PipelineNode {
     private Map<String, Object> env;
 
     /**
+     * 重试配置，null 表示不重试
+     */
+    private RetryConfig retryConfig;
+
+    /**
      * 构造执行节点。
      *
      * @param id      节点唯一标识
@@ -111,6 +117,20 @@ public class TaskNode implements PipelineNode {
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
+    }
+
+    /**
+     * 设置重试配置。
+     *
+     * @param retryConfig 重试配置，null 表示不重试
+     */
+    public void setRetryConfig(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
+    }
+
+    @Override
+    public RetryConfig getRetryConfig() {
+        return retryConfig;
     }
 
     @Override
