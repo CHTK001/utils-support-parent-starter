@@ -42,6 +42,12 @@ import java.util.Map;
  * <p>线程安全：所有写操作使用 {@code synchronized} 串行化，避免 SQLite 单写者限制；
  * 读操作使用独立连接，互不阻塞。</p>
  *
+ * <p>日志说明：本类使用 Lombok {@code @Log}（java.util.logging）而非 {@code @Slf4j}，
+ * 这是刻意为之 —— 本类随 agent.jar 通过 {@code -Xbootclasspath/a} 进入 bootstrap
+ * classloader，该 classloader 无法解析 slf4j-api（由 agent shade relocation 到
+ * {@code com.chua.runtime.shaded.slf4j}），故使用 JDK 自带 JUL；Log 记录相应采用
+ * {@code String.format} 而非 SLF4J {@code {}} 占位符，为对 {@code @Log} 的合理适配。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
