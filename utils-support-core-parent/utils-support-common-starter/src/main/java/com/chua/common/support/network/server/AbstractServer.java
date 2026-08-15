@@ -91,7 +91,6 @@ public abstract class AbstractServer implements ConfigServer {
         // 默认创建一个轻量 ObjectContext，使 registerBean() / @AutoInject 等能力开箱即用
         if (this.objectContext == null) {
             this.objectContext = new DefaultObjectContext(ObjectContextConfig.defaults());
-            this.objectContext.init();
         }
         setObjectContext(objectContext);
         initBuiltinFilters();

@@ -114,9 +114,10 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      */
     public ServerHandlerFactory<T> route(String path, HttpMethod method, ServerHandler handler) {
         validateRoute(path, handler);
+        var normalized = normalizeRoute(path);
         routeLock.writeLock().lock();
         try {
-            routes.computeIfAbsent(path, k -> new LinkedHashMap<>()).put(method, handler);
+            routes.computeIfAbsent(normalized, k -> new LinkedHashMap<>()).put(method, handler);
         } finally {
             routeLock.writeLock().unlock();
         }
@@ -132,9 +133,10 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      */
     public ServerHandlerFactory<T> route(String path, ServerHandler handler) {
         validateRoute(path, handler);
+        var normalized = normalizeRoute(path);
         routeLock.writeLock().lock();
         try {
-            anyMethodRoutes.put(path, handler);
+            anyMethodRoutes.put(normalized, handler);
         } finally {
             routeLock.writeLock().unlock();
         }
@@ -302,12 +304,22 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @param handler 处理器
      */
     private void validateRoute(String path, ServerHandler handler) {
-        if (path == null || path.isBlank() || !path.startsWith("/")) {
-            throw new IllegalArgumentException("路由路径必须以 / 开头");
+        if (path == null || path.isBlank()) {
+            throw new IllegalArgumentException("路由路径不能为空");
         }
         if (handler == null) {
             throw new IllegalArgumentException("路由处理器不能为空");
         }
+    }
+
+    /**
+     * 规范化路由路径(统一以 / 开头)
+     *
+     * @param path 原始路径
+     * @return 规范化路径
+     */
+    private String normalizeRoute(String path) {
+        return path.startsWith("/") ? path : "/" + path;
     }
 
     /**

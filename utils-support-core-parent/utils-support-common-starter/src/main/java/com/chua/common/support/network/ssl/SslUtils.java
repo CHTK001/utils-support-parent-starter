@@ -275,11 +275,15 @@ public final class SslUtils {
     /**
      * 获取 KeyStore 密码字符数组。
      *
-     * @return 密码字符数组，未设置时返回空数组
+     * <p>未设置时返回默认密码 {@code "changeit"}，
+     * 与 {@link #generateSelfSignedKeyStore} 生成自签名 KeyStore 时使用的默认密码保持一致，
+     * 避免加载后 KeyManagerFactory 解密密钥条目失败（BadPaddingException）。</p>
+     *
+     * @return 密码字符数组
      */
     public static char[] getKeyStorePassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyStorePassword() != null
-                ? ssl.getKeyStorePassword().toCharArray() : new char[0];
+                ? ssl.getKeyStorePassword().toCharArray() : "changeit".toCharArray();
     }
 
     /**

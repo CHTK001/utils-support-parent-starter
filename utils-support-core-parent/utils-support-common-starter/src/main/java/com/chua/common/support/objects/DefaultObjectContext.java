@@ -484,7 +484,7 @@ public class DefaultObjectContext implements ObjectContext {
         if (closed) {
             return Collections.emptyList();
         }
-        return registry.getBeanDefinitionNames();
+        return getRegistry(getConfig().isSpiEnabled()).getBeanDefinitionNames();
     }
 
     @Override
@@ -492,7 +492,7 @@ public class DefaultObjectContext implements ObjectContext {
         if (closed) {
             return 0;
         }
-        return registry.getBeanDefinitionCount();
+        return getRegistry(getConfig().isSpiEnabled()).getBeanDefinitionCount();
     }
 
     @Override
