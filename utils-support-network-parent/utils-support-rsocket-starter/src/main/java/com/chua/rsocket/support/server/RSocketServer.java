@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.annotation.Annotation;
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
@@ -101,8 +102,8 @@ public class RSocketServer extends AbstractServer {
                             SimpleServerResponse response = new SimpleServerResponse();
                             try {
                                 handler.handle(request, response);
-                                if (response.getResult() != null) {
-                                    responseBody = String.valueOf(response.getResult());
+                                if (response.getBody() != null) {
+                                    responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
                                 }
                             } catch (Exception e) {
                                 log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
@@ -113,8 +114,8 @@ public class RSocketServer extends AbstractServer {
                             SimpleServerResponse response = new SimpleServerResponse();
                             try {
                                 handleRequest(request, response);
-                                if (response.getResult() != null) {
-                                    responseBody = String.valueOf(response.getResult());
+                                if (response.getBody() != null) {
+                                    responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
                                 }
                             } catch (Exception e) {
                                 log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
@@ -386,15 +387,19 @@ public class RSocketServer extends AbstractServer {
     /**
      * 轻量 RSocket 请求适配。
      */
-    private static class SimpleServerRequest implements com.chua.common.support.network.server.request.ServerRequest {
+    private static class SimpleServerRequest extends com.chua.common.support.network.server.request.AbstractServerRequest {
 
         private final String topic;
-        private final String body;
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        private final byte[] body;
 
         SimpleServerRequest(String topic, String body) {
             this.topic = topic;
-            this.body = body;
+            this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0];
+        }
+
+        @Override
+        protected byte[] readBody() {
+            return body;
         }
 
         @Override
@@ -423,41 +428,6 @@ public class RSocketServer extends AbstractServer {
         }
 
         @Override
-        public Map<String, String> getParams() {
-            return java.util.Collections.emptyMap();
-        }
-
-        @Override
-        public String getParam(String name) {
-            return null;
-        }
-
-        @Override
-        public String getContentType() {
-            return "application/json";
-        }
-
-        @Override
-        public long getContentLength() {
-            return body != null ? body.getBytes().length : -1;
-        }
-
-        @Override
-        public byte[] getBody() {
-            return body != null ? body.getBytes() : new byte[0];
-        }
-
-        @Override
-        public String getBodyString() {
-            return body;
-        }
-
-        @Override
-        public java.io.InputStream getInputStream() {
-            return new java.io.ByteArrayInputStream(body != null ? body.getBytes() : new byte[0]);
-        }
-
-        @Override
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
@@ -466,85 +436,12 @@ public class RSocketServer extends AbstractServer {
         public int getRemotePort() {
             return 0;
         }
-
-        @Override
-        public Map<String, Object> getAttributes() {
-            return attributes;
-        }
-
-        @Override
-        public Object getAttribute(String name) {
-            return attributes.get(name);
-        }
-
-        @Override
-        public void setAttribute(String name, Object value) {
-            attributes.put(name, value);
-        }
     }
 
     /**
      * 轻量 RSocket 响应适配。
      */
-    private static class SimpleServerResponse implements com.chua.common.support.network.server.response.ServerResponse {
-
-        private volatile boolean ended;
-        private volatile boolean committed;
-        private int status = 200;
-        private Object result;
-
-        @Override
-        public int getStatus() {
-            return status;
-        }
-
-        @Override
-        public ServerResponse setStatus(int status) {
-            this.status = status;
-            return this;
-        }
-
-        @Override
-        public ServerResponse setBody(byte[] body) {
-            this.result = body;
-            return this;
-        }
-
-        @Override
-        public ServerResponse setBody(String body) {
-            this.result = body;
-            return this;
-        }
-
-        @Override
-        public ServerResponse setHeader(String name, String value) {
-            return this;
-        }
-
-        @Override
-        public String getHeader(String name) {
-            return null;
-        }
-
-        @Override
-        public com.chua.common.support.network.http.HttpHeader getHeaders() {
-            return com.chua.common.support.network.http.HttpHeader.create();
-        }
-
-        @Override
-        public String getContentType() {
-            return null;
-        }
-
-        @Override
-        public ServerResponse setContentType(String contentType) {
-            return this;
-        }
-
-        @Override
-        public byte[] getBody() {
-            return result instanceof byte[] ? (byte[]) result : null;
-        }
+    private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
 
         @Override
         public java.io.OutputStream getOutputStream() {
@@ -552,60 +449,8 @@ public class RSocketServer extends AbstractServer {
         }
 
         @Override
-        public ServerResponse sendRedirect(String location) {
-            return this;
-        }
-
-        @Override
-        public ServerResponse sendError(int code, String message) {
-            this.status = code;
-            this.result = message;
-            this.ended = true;
-            return this;
-        }
-
-        @Override
-        public void flush() {
-        }
-
-        @Override
-        public boolean isCommitted() {
-            return committed;
-        }
-
-        @Override
-        public boolean isEnded() {
-            return ended;
-        }
-
-        @Override
-        public void end() {
-            this.ended = true;
-        }
-
-        @Override
-        public ServerResponse reset() {
-            if (!committed) {
-                status = 200;
-                result = null;
-                ended = false;
-            }
-            return this;
-        }
-
-        @Override
         public void writeRaw(byte[] bytes) {
-        }
-
-        @Override
-        public ServerResponse setResult(Object result) {
-            this.result = result;
-            return this;
-        }
-
-        @Override
-        public Object getResult() {
-            return result;
+            this.body = bytes;
         }
     }
 
