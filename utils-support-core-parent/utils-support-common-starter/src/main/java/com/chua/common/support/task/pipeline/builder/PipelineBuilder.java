@@ -395,58 +395,57 @@ public class PipelineBuilder {
     }
 
     /**
-     * 添加异步子流水线节点（Definition API）。
+     * 添加并行子流水线节点（Definition API）。
      *
-     * <p>返回 {@link TaskAsyncDefinition}，支持类型安全的异步子流水线配置。
-     * 异步子流水线在后台线程执行，不阻塞主流水线。</p>
+     * <p>返回 {@link TaskParallelDefinition}，支持类型安全的并行子流水线配置。
+     * 并行子流水线在后台线程执行，不阻塞主流水线。</p>
      *
      * <p>用法示例：</p>
      * <pre>{@code
-     * Pipeline asyncSub = PipelineBuilder.newBuilder("asyncSub")
+     * Pipeline parallelSub = PipelineBuilder.newBuilder("parallelSub")
      *     .task("a1", ctx -> { ...; return null; }).taskEnd()
      *     .build();
      *
      * PipelineBuilder.newBuilder("mainFlow")
-     *     .async("bgTask", asyncSub)           // Definition API
-     *         .mergeCurrentData(true)          // 完成后回写 currentData
-     *         .onComplete((ctx, result) -> {   // 完成回调
-     *             log.info("Async completed: {}", result.getOutput());
+     *     .parallel("bgTask", parallelSub)          // Definition API
+     *         .onComplete((ctx, result) -> {         // 完成回调
+     *             log.info("Parallel completed: {}", result.getOutput());
      *         })
-     *         .env("modelPath", "/models")     // 设置环境参数
+     *         .env("modelPath", "/models")           // 设置环境参数
      *     .taskEnd()
      *     .build();
      * }</pre>
      *
      * @param id          节点唯一标识
-     * @param subPipeline 异步子流水线实例
-     * @return TaskAsyncDefinition 异步子流水线节点定义
-     * @see TaskAsyncDefinition
-     * @see com.chua.common.support.task.pipeline.node.AsyncSubPipelineNode
+     * @param subPipeline 并行子流水线实例
+     * @return TaskParallelDefinition 并行子流水线节点定义
+     * @see TaskParallelDefinition
+     * @see com.chua.common.support.task.pipeline.node.ParallelNode
      */
-    public TaskAsyncDefinition async(String id, Pipeline subPipeline) {
-        return new TaskAsyncDefinition(id, this, subPipeline);
+    public TaskParallelDefinition parallel(String id, Pipeline subPipeline) {
+        return new TaskParallelDefinition(id, this, subPipeline);
     }
 
     /**
-     * 添加并行节点（Definition API）。
+     * 添加分叉节点（Definition API）。
      *
-     * <p>返回 {@link TaskParallelDefinition}，支持类型安全的并行分支配置。</p>
+     * <p>返回 {@link TaskForkDefinition}，支持类型安全的分叉分支配置。</p>
      *
-     * <p>并行节点对外是一个同步节点 — 父流水线阻塞等待所有分支完成后才继续。
+     * <p>分叉节点对外是一个同步节点 — 父流水线阻塞等待所有分支完成后才继续。
      * 各分支通过独立上下文并发执行，结果存入 {@code nodeOutputs}。</p>
      *
      * <p><strong>方式1：内联定义分支（推荐）</strong></p>
      * <pre>{@code
      * Pipeline pipeline = PipelineBuilder.newBuilder("main")
-     *     .parallel("group")                        // 开始并行定义
-     *         .startParallel("a")                   // 内联定义分支 "a"
+     *     .fork("group")                            // 开始分叉定义
+     *         .startFork("a")                       // 内联定义分支 "a"
      *             .step("a1", ctx -> { doA1(ctx); return null; })
      *             .step("a2", ctx -> { doA2(ctx); return null; })
-     *         .endParallel()                        // 结束分支 "a"
-     *         .startParallel("b")                   // 内联定义分支 "b"
+     *         .endFork()                            // 结束分支 "a"
+     *         .startFork("b")                       // 内联定义分支 "b"
      *             .step("b1", ctx -> { doB1(ctx); return null; })
-     *         .endParallel()                        // 结束分支 "b"
-     *     .taskEnd()                                // 结束并行定义
+     *         .endFork()                            // 结束分支 "b"
+     *     .taskEnd()                                // 结束分叉定义
      *     .build();
      * }</pre>
      *
@@ -457,7 +456,7 @@ public class PipelineBuilder {
      *     .build();
      *
      * Pipeline pipeline = PipelineBuilder.newBuilder("main")
-     *     .parallel("group")
+     *     .fork("group")
      *         .branch("a", branchA)
      *         .branch("b", branchB)
      *     .taskEnd()
@@ -465,14 +464,14 @@ public class PipelineBuilder {
      * }</pre>
      *
      * @param id 节点唯一标识
-     * @return TaskParallelDefinition 并行节点定义
-     * @see TaskParallelDefinition#startParallel(String)
-     * @see TaskParallelDefinition#endParallel()
-     * @see ParallelBranchBuilder
-     * @see com.chua.common.support.task.pipeline.node.ParallelNode
+     * @return TaskForkDefinition 分叉节点定义
+     * @see TaskForkDefinition#startFork(String)
+     * @see TaskForkDefinition#endFork()
+     * @see ForkBranchBuilder
+     * @see com.chua.common.support.task.pipeline.node.ForkNode
      */
-    public TaskParallelDefinition parallel(String id) {
-        return new TaskParallelDefinition(id, this);
+    public TaskForkDefinition fork(String id) {
+        return new TaskForkDefinition(id, this);
     }
 
     /**

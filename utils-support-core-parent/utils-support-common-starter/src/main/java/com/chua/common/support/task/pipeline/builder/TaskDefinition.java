@@ -297,12 +297,12 @@ public class TaskDefinition {
     }
 
     /**
-     * 转为并行节点定义。
+     * 转为分叉节点定义。
      *
-     * <p>当前任务的 handler 成为并行节点的前置处理器（在所有并行分支启动前执行），
-     * 可通过 {@link TaskParallelDefinition#branch(String, Pipeline)} 添加并行分支。</p>
+     * <p>当前任务的 handler 成为分叉节点的前置处理器（在所有分叉分支启动前执行），
+     * 可通过 {@link TaskForkDefinition#branch(String, Pipeline)} 添加分叉分支。</p>
      *
-     * <p>并行节点对外是一个同步节点 — 父流水线阻塞等待所有分支完成后才继续。
+     * <p>分叉节点对外是一个同步节点 — 父流水线阻塞等待所有分支完成后才继续。
      * 各分支通过独立上下文并发执行，结果存入 {@code nodeOutputs}。</p>
      *
      * <p>用法示例：</p>
@@ -315,24 +315,53 @@ public class TaskDefinition {
      *     .task("b1", ctx -> { doB1(ctx); return null; }).taskEnd()
      *     .build();
      *
-     * .taskStart("parallel-group")
-     *     .parallel()                           // → TaskParallelDefinition
-     *     .branch("a", branchA)                 // 添加分支
+     * .taskStart("fork-group")
+     *     .fork()                                // → TaskForkDefinition
+     *     .branch("a", branchA)                  // 添加分支
      *     .branch("b", branchB)
-     *     .errorStrategy(ParallelErrorStrategy.WAIT_ALL)
-     * .taskEnd()                                // 完成定义
+     *     .errorStrategy(ForkErrorStrategy.WAIT_ALL)
+     * .taskEnd()                                 // 完成定义
      * }</pre>
      *
-     * @return TaskParallelDefinition
-     * @see TaskParallelDefinition
-     * @see com.chua.common.support.task.pipeline.node.ParallelNode
+     * @return TaskForkDefinition
+     * @see TaskForkDefinition
+     * @see com.chua.common.support.task.pipeline.node.ForkNode
      */
-    public TaskParallelDefinition parallel() {
-        TaskParallelDefinition def = new TaskParallelDefinition(id, builder);
+    public TaskForkDefinition fork() {
+        TaskForkDefinition def = new TaskForkDefinition(id, builder);
         if (handler != null) {
             def.onStep(ctx -> handler.execute(ctx)); // handler 作为前置处理器
         }
         return def;
+    }
+
+    /**
+     * 转为并行子流水线定义。
+     *
+     * <p>当前任务的 handler 被替换为并行子流水线执行逻辑。
+     * 并行子流水线在后台线程执行，不阻塞主流水线。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * Pipeline parallelSub = PipelineBuilder.newBuilder("parallelSub")
+     *     .task("a1", ctx -> { ...; return null; }).taskEnd()
+     *     .build();
+     *
+     * .taskStart("bgTask")
+     *     .parallel(parallelSub)                  // → TaskParallelDefinition
+     *     .onComplete((ctx, result) -> {          // 完成回调
+     *         log.info("Parallel completed: {}", result.getOutput());
+     *     })
+     * .taskEnd()
+     * }</pre>
+     *
+     * @param subPipeline 并行子流水线实例
+     * @return TaskParallelDefinition
+     * @see TaskParallelDefinition
+     * @see com.chua.common.support.task.pipeline.node.ParallelNode
+     */
+    public TaskParallelDefinition parallel(Pipeline subPipeline) {
+        return new TaskParallelDefinition(id, builder, subPipeline);
     }
 
     /**

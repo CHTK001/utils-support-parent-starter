@@ -4,6 +4,7 @@ import com.chua.common.support.concurrent.circuitbreaker.CircuitBreakerFlow;
 import com.chua.common.support.concurrent.circuitbreaker.annotation.CircuitBreaker;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.annotation.MethodAnnotationIntercept;
+import com.chua.common.support.proxy.intercept.AbstractMethodAnnotationIntercept;
 import com.chua.common.support.proxy.intercept.MethodInvocation;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;

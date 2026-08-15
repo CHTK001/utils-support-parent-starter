@@ -7,9 +7,9 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.core.RouteStrategy;
 import com.chua.common.support.task.pipeline.exception.PipelineException;
-import com.chua.common.support.task.pipeline.node.AsyncSubPipelineNode;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
 import com.chua.common.support.task.pipeline.node.EndNode;
+import com.chua.common.support.task.pipeline.node.ForkNode;
 import com.chua.common.support.task.pipeline.node.ParallelNode;
 import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 
@@ -40,7 +40,7 @@ public class DefaultPipeline implements Pipeline {
     /**
      * 内部属性键 — StructuredTaskScope 实例，通过 PipelineContext.attributes 传递给异步节点。
      *
-     * <p>异步子流水线节点（{@link AsyncSubPipelineNode}）通过此键获取 Pipeline 级别的
+     * <p>异步子流水线节点（{@link ParallelNode}）通过此键获取 Pipeline 级别的
      * StructuredTaskScope，将异步任务 fork 进去，确保 Pipeline 返回前所有异步工作完成。</p>
      *
      * <p><strong>生命周期：</strong>
@@ -156,7 +156,7 @@ public class DefaultPipeline implements Pipeline {
      *
      * <p><strong>结构化并发保证：</strong>
      * 创建 Pipeline 级别的 StructuredTaskScope，通过 {@code ctx.attributes} 传递给异步节点。
-     * 异步子流水线节点（{@link AsyncSubPipelineNode}）将异步任务 fork 进此 scope，
+     * 异步子流水线节点（{@link ParallelNode}）将异步任务 fork 进此 scope，
      * Pipeline 返回前 join 等待所有异步工作完成，确保结构化并发语义。</p>
      *
      * @param ctx 已存在的上下文实例
@@ -430,7 +430,7 @@ public class DefaultPipeline implements Pipeline {
     private static final String ANSI_YELLOW = "\u001B[33m";
     /** ANSI 蓝色 — SubPipeline 节点 */
     private static final String ANSI_BLUE = "\u001B[34m";
-    /** ANSI 青色 — Parallel 节点 */
+    /** ANSI 青色 — Fork 节点 */
     private static final String ANSI_CYAN = "\u001B[36m";
     /** ANSI 红色 — 错误标记 */
     private static final String ANSI_RED = "\u001B[31m";
@@ -441,7 +441,7 @@ public class DefaultPipeline implements Pipeline {
     private static final String ICON_DECISION = "◆";
     /** 节点类型图标：SubPipeline */
     private static final String ICON_SUB = "▶";
-    /** 节点类型图标：Parallel */
+    /** 节点类型图标：Fork */
     private static final String ICON_PARALLEL = "⋈";
     /** 节点类型图标：End */
     private static final String ICON_END = "◉";
@@ -477,7 +477,7 @@ public class DefaultPipeline implements Pipeline {
             return ICON_DECISION;
         } else if (node instanceof SubPipelineNode) {
             return ICON_SUB;
-        } else if (node instanceof ParallelNode) {
+        } else if (node instanceof ForkNode) {
             return ICON_PARALLEL;
         } else if (node instanceof EndNode) {
             return ICON_END;
@@ -496,7 +496,7 @@ public class DefaultPipeline implements Pipeline {
             return ANSI_YELLOW;
         } else if (node instanceof SubPipelineNode) {
             return ANSI_BLUE;
-        } else if (node instanceof ParallelNode) {
+        } else if (node instanceof ForkNode) {
             return ANSI_CYAN;
         } else if (node instanceof EndNode) {
             return ANSI_DIM;
@@ -583,7 +583,7 @@ public class DefaultPipeline implements Pipeline {
                     tree.computeIfAbsent(subEnd, k -> new ArrayList<>())
                         .add(new Edge(subEnd, defaultNext, ""));
                 }
-            } else if (node instanceof ParallelNode) {
+            } else if (node instanceof ForkNode) {
                 ParallelNode pn = (ParallelNode) node;
                 for (Map.Entry<String, Pipeline> entry : pn.getBranches().entrySet()) {
                     String branchName = entry.getKey();

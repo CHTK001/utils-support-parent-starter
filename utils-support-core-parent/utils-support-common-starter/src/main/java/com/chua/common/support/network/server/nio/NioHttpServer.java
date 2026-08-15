@@ -8,7 +8,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
@@ -88,6 +87,16 @@ public class NioHttpServer extends AbstractServer {
                     client.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
                     if (setting.getReadTimeout() > 0) {
                         client.socket().setSoTimeout(setting.getReadTimeout());
+                    }
+                    // SSL 启用时包装为 TLS 通道（构造时完成阻塞式握手）
+                    if (sslContext != null) {
+                        try {
+                            client = new SslSocketChannel(client, sslContext.createSSLEngine());
+                        } catch (IOException e) {
+                            log.warn("TLS 握手失败，关闭连接: {}", e.getMessage());
+                            closeQuietly(client);
+                            continue;
+                        }
                     }
                     executor.submit(() -> handleConnection(client));
                 }
@@ -184,23 +193,5 @@ public class NioHttpServer extends AbstractServer {
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
-    }
-
-    // ==================== SSL 支持 ====================
-
-    /**
-     * 获取 SSL 引擎（用于 NIO SSL 通道包装）。
-     * 仅在 SSL 启用时有效。
-     *
-     * @return SSLEngine 实例，SSL 未启用时返回 null
-     */
-    SSLEngine createSslEngine() {
-        if (sslContext == null) {
-            return null;
-        }
-        SSLEngine engine = sslContext.createSSLEngine();
-        engine.setUseClientMode(false);
-        engine.setNeedClientAuth(false);
-        return engine;
     }
 }
