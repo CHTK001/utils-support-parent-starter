@@ -30,6 +30,15 @@
             <artifactId>fastjson</artifactId>
         </dependency>
 
+        <!-- com.alibaba:fastjson 2.0.57 为 fastjson2 的 1.x 兼容层，其类签名引用 fastjson2 核心类；
+             父级 dependencyManagement 将 fastjson2 管理为 android 变体（2.0.57.android8，缺 util.Wrapper），
+             此处显式覆盖为标准版 2.0.57 以保证编译与运行完整 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.57</version>
+        </dependency>
+
         <!-- 仅编译期使用：@AutoSpi 注解 + AutoSpiAstProcessor 自动生成 META-INF/extensions SPI 索引 -->
         <dependency>
             <groupId>com.chua</groupId>

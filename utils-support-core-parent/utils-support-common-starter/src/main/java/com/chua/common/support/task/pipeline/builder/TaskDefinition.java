@@ -147,6 +147,9 @@ public class TaskDefinition {
         if (retryConfig != null) {
             node.setRetryConfig(retryConfig);
         }
+        if (units != null && !units.isEmpty()) {
+            node.setUnits(units);
+        }
         builder.addNodeInternal(node);
         if (startNode) {
             builder.start(id);
@@ -299,6 +302,55 @@ public class TaskDefinition {
      */
     public TaskDefinition retry(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
+        return this;
+    }
+
+    /**
+     * 声明数据依赖 — 指定此节点需要哪些节点的输出数据。
+     *
+     * <p>引擎在执行此节点前，会校验依赖的节点输出是否已存在于 nodeOutputs 中。
+     * 若依赖未满足（某个依赖节点的输出尚未产生），引擎将抛出异常。</p>
+     *
+     * <p><strong>核心价值：</strong></p>
+     * <ul>
+     *   <li>在并行场景中，声明式表达数据依赖关系，避免手动检查 {@code ctx.getData()} 返回 null</li>
+     *   <li>引擎自动校验依赖，提前发现数据缺失问题</li>
+     *   <li>依赖数据自动注入到 nodeLocalData，通过 {@code ctx.getNodeLocalValue("unit:stepA")} 获取</li>
+     * </ul>
+     *
+     * <p><strong>用法示例：</strong></p>
+     * <pre>{@code
+     * // 并行场景：merge 节点需要 stepA 和 stepB 的输出
+     * .fork("parallel")
+     *     .branch("a", branchA)
+     *     .branch("b", branchB)
+     * .taskEnd()
+     * .taskStart("merge")
+     *     .unit("a", "b")          // 声明依赖 fork 分支 a 和 b 的输出
+     *     .onStep(ctx -> {
+     *         Object dataA = ctx.getData("a");   // ForkResult 中分支 a 的数据
+     *         Object dataB = ctx.getData("b");   // ForkResult 中分支 b 的数据
+     *         // 合并处理...
+     *     })
+     *     .taskEnd()
+     *
+     * // 线性场景：validate 节点需要 parse 节点的输出
+     * .taskStart("validate")
+     *     .unit("parse")           // 声明依赖 parse 节点的输出
+     *     .onStep(ctx -> {
+     *         Object parsed = ctx.getData("parse");
+     *         // 校验...
+     *     })
+     *     .taskEnd()
+     * }</pre>
+     *
+     * @param unitIds 依赖的节点 ID 列表
+     * @return this
+     * @see PipelineContext#getData(String)
+     * @see PipelineContext#getNodeOutput(String)
+     */
+    public TaskDefinition unit(String... unitIds) {
+        this.units = new LinkedHashSet<>(Arrays.asList(unitIds));
         return this;
     }
 

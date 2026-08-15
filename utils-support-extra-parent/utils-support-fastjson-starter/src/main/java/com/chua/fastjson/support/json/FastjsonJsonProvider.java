@@ -246,7 +246,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
         if (null != ignores && ignores.length > 0 && mapped instanceof Map) {
             JSONObject tree = new JSONObject(true);
-            tree.putAll((Map<?, ?>) mapped);
+            tree.putAll((Map<? extends String, ?>) mapped);
             for (String ignore : ignores) {
                 tree.remove(ignore);
             }
@@ -257,7 +257,11 @@ public class FastjsonJsonProvider implements JsonProvider {
 
     @Override
     public String prettyFormat(Object object) {
-        return JSON.toJSONString(object, SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat);
+        Object mapped = object;
+        if (null != object && hasUnifiedAnnotations(object.getClass())) {
+            mapped = JsonBeanMapper.toMap(object);
+        }
+        return JSON.toJSONString(mapped, SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat);
     }
 
     @Override
