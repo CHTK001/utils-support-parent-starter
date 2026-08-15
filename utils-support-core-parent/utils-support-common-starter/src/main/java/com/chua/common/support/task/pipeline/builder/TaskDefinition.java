@@ -115,6 +115,7 @@ public class TaskDefinition {
     private boolean startNode;
     private Map<String, Object> env;
     private RetryConfig retryConfig;
+    private Set<String> units;
 
     /**
      * 构造任务定义。
