@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.engine.ModelRegistrar;
 import com.chua.deeplearning.support.engine.ModelRegistry;
@@ -260,7 +260,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 动漫人脸检测(YOLOv8n)：检测动漫/二次元图片中的人脸（YOLOv8n）；适用动漫人脸检测、二次元内容分析
         reg("anime-face-detector", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/anime-face/best.onnx", "https://huggingface.co/g963302/AnimeFace_YOLOv8n/resolve/main/best.onnx", false, null);
         // 零样本分割(CLIPSeg)：用文本描述分割图像（如"分割出汽车"），无需训练；适用零样本语义分割、文本引导分割
-        reg("clipseg-zero-shot", "com.chua.deeplearning.support.onnx.seg.CLIPSegZeroShotSegmentationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/seg/clipseg-rd64-refined/model.onnx", "https://huggingface.co/Xenova/clipseg-rd64-refined/resolve/main/model.onnx", false, null);
+        reg("clipseg-zero-shot", "com.chua.deeplearning.support.onnx.seg.CLIPSegZeroShotSegmentationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/seg/clipseg-rd64-refined/model.onnx", "https://modelscope.cn/models/Xenova/clipseg-rd64-refined/resolve/master/onnx/model.onnx", false, null);
         // 提示分割(EdgeSAM)：SAM 的边缘设备剪枝版（~36MB），用 bbox 或点提示分割物体；适用嵌入式分割、边缘设备
         reg("edgesam", "com.chua.deeplearning.support.onnx.seg.EdgeSamSegmentTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/seg/edge-sam/onnx/edge_sam_encoder.onnx");
         // 提示分割(EfficientSAM)：SAM 的蒸馏高效版（~40MB），用 bbox 或点提示分割物体；适用轻量级分割
@@ -298,7 +298,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本嵌入(BGE-M3)：多语言句向量（1024维），支持中英等多语言，自动下载；适用多语言语义搜索、跨语言检索
         reg("bge-m3-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/bge-m3/model.onnx", "https://huggingface.co/onnx-community/bge-m3-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 零样本分类(CLIP-ViT-B-32)：CLIP 零样本图像分类，任意文本类别（如"猫/狗/车"），自动下载；适用动态分类、开放词汇分类
-        reg("clip-vit-zero-shot", "com.chua.deeplearning.support.onnx.classification.SiglipZeroShotClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/clip-vit-base-patch32/model.onnx", "https://huggingface.co/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/model.onnx", false, null);
+        reg("clip-vit-zero-shot", "com.chua.deeplearning.support.onnx.classification.SiglipZeroShotClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/clip-vit-base-patch32/model.onnx", "https://modelscope.cn/models/Xenova/clip-vit-base-patch32/resolve/master/onnx/model.onnx", false, null);
         // 零样本分类(MobileCLIP-S0)：轻量级 CLIP 零样本图像分类（~50MB），适合移动端；适用移动端开放词汇分类
         reg("mobileclip-zero-shot", "com.chua.deeplearning.support.onnx.classification.SiglipZeroShotClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/mobileclip_s0/model.onnx", "https://huggingface.co/onnx-community/mobileclip_s0-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 动物分类(10类)：识别 10 种常见动物（猫、狗、鸟等）；适用宠物识别、动物分类
@@ -316,7 +316,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 视觉特征提取(DINOv3-ViT-S)：DINOv3 自监督视觉特征（384维），比 DINOv2 更强；适用图像相似度、以图搜图
         reg("dinov3-feature", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov3-vits16/model.onnx", "https://huggingface.co/onnx-community/dinov3-vits16-pretrain-lvd1689m-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 视觉特征提取(ResNet50)：ResNet50 图像特征提取（2048维）；适用图像检索、特征比对
-        reg("resnet50-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/resnet50/model.onnx", "https://huggingface.co/Qdrant/resnet50-onnx/resolve/main/model.onnx", false, null);
+        reg("resnet50-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/resnet50/model.onnx", "https://modelscope.cn/models/Xenova/resnet-50/resolve/master/onnx/model.onnx", false, null);
         // 声纹特征提取(Wespeaker)：说话人识别/声纹特征提取，ResNet34 架构；适用说话人识别、声纹比对
         reg("wespeaker-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/wespeaker-resnet34/model.onnx", "https://huggingface.co/onnx-community/wespeaker-voxceleb-resnet34-LM/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv26n)：YOLOv26 通用检测，最新版；适用通用物体检测
@@ -335,6 +335,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
+        // 翻译(opus-mt-en-zh)：英译中翻译模型，基于 MarianMT，自动下载(来自ModelScope)；适用英中翻译
+        reg("opus-mt-en-zh", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "nlp/translation/opus-mt-en-zh/model.onnx", "https://modelscope.cn/models/Xenova/opus-mt-en-zh/resolve/master/onnx/model.onnx", false, null);
+        // 翻译(opus-mt-zh-en)：中译英翻译模型，自动下载(来自ModelScope)；适用中英翻译
+        reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "nlp/translation/opus-mt-zh-en/model.onnx", "https://modelscope.cn/models/Xenova/opus-mt-zh-en/resolve/master/onnx/model.onnx", false, null);
         // 图像分类(MobileNetV4)：MobileNetV4 1000 类 ImageNet 分类，最新版更快更准；适用移动端通用分类
         reg("mobilenetv4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.onnx", false, null);
         // 深度伪造检测(DeepFake Detector)：检测图片/视频是否为深度伪造；适用反欺诈、虚假内容检测
