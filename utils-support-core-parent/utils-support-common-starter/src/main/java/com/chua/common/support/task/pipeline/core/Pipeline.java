@@ -64,6 +64,37 @@ public interface Pipeline {
     <T> PipelineContext<T> resume(PipelineContext<T> context);
 
     /**
+     * 恢复执行流水线 — 从 WAL 断点继续（无 WAL 数据时等同于 execute）。
+     *
+     * <p>恢复流程：</p>
+     * <ol>
+     *   <li>检查是否存在 WAL 数据</li>
+     *   <li>有 WAL 数据 → 回放恢复上下文，从断点继续执行</li>
+     *   <li>无 WAL 数据 → 等同于 {@link #execute(Object)}，从头开始执行</li>
+     * </ol>
+     *
+     * @param input 输入数据（无 WAL 数据时作为初始输入）
+     * @param <T>   数据类型
+     * @return 执行完成后的上下文
+     */
+    default <T> PipelineContext<T> resume(T input) {
+        throw new UnsupportedOperationException("当前流水线实现不支持 resume 恢复");
+    }
+
+    /**
+     * 终止流水线并销毁 WAL 持久化数据。
+     *
+     * <p>与正常完成的区别：</p>
+     * <ul>
+     *   <li>正常完成 — WAL 文件保留（可用于审计）</li>
+     *   <li>stop — 强制终止 + 删除 WAL 文件（不留痕迹）</li>
+     * </ul>
+     */
+    default void stop() {
+        throw new UnsupportedOperationException("当前流水线实现不支持 stop");
+    }
+
+    /**
      * 打印流水线 B+ 树拓扑结构，不标记已执行节点。
      */
     default void printTree() {

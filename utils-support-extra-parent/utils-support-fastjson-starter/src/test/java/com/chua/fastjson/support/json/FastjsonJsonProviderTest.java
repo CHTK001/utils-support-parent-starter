@@ -120,6 +120,11 @@ class FastjsonJsonProviderTest {
         assertTrue(json.contains("\"age\":18"));
         assertFalse(json.contains("password"), "被 @JsonIgnore 标记的字段不应序列化");
 
+        // prettyFormat 同样应走门户注解桥接（@JsonName / @JsonIgnore）
+        String pretty = Json.prettyFormat(new User("chua", "secret", 18));
+        assertTrue(pretty.contains("user_name"));
+        assertFalse(pretty.contains("password"), "prettyFormat 也应排除 @JsonIgnore 字段");
+
         User user = Json.fromJson("{\"user_name\":\"chua\",\"password\":\"x\",\"age\":18}", User.class);
         assertEquals("chua", user.getName());
         assertEquals(18, user.getAge());

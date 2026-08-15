@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
+import com.chua.common.support.task.pipeline.core.PipelineWal;
 import com.chua.common.support.task.pipeline.core.RouteStrategy;
 import com.chua.common.support.task.pipeline.exception.PipelineException;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
@@ -98,6 +99,11 @@ public class DefaultPipeline implements Pipeline {
     private final RouteStrategy routeStrategy;
 
     /**
+     * WAL 持久化实例，null 表示未启用 WAL
+     */
+    private PipelineWal pipelineWal;
+
+    /**
      * 构造默认流水线。
      *
      * @param id            流水线 ID
@@ -113,6 +119,27 @@ public class DefaultPipeline implements Pipeline {
                            List<PipelineNode> orderedNodes,
                            List<PipelineListener> listeners,
                            RouteStrategy routeStrategy) {
+        this(id, startNodeId, endNodeId, nodeMap, orderedNodes, listeners, routeStrategy, null);
+    }
+
+    /**
+     * 构造默认流水线（带 WAL 持久化）。
+     *
+     * @param id            流水线 ID
+     * @param startNodeId   起始节点 ID
+     * @param endNodeId     终止节点 ID
+     * @param nodeMap       节点 ID 映射
+     * @param orderedNodes  有序节点列表
+     * @param listeners     全局回调监听器
+     * @param routeStrategy 路由策略
+     * @param pipelineWal   WAL 持久化实例，null 表示不启用 WAL
+     */
+    public DefaultPipeline(String id, String startNodeId, String endNodeId,
+                           Map<String, PipelineNode> nodeMap,
+                           List<PipelineNode> orderedNodes,
+                           List<PipelineListener> listeners,
+                           RouteStrategy routeStrategy,
+                           PipelineWal pipelineWal) {
         this.id = id;
         this.startNodeId = startNodeId;
         this.endNodeId = endNodeId;
@@ -120,6 +147,7 @@ public class DefaultPipeline implements Pipeline {
         this.orderedNodes = orderedNodes;
         this.listeners = listeners;
         this.routeStrategy = routeStrategy != null ? routeStrategy : RouteStrategy.THROW;
+        this.pipelineWal = pipelineWal;
         this.decisionTargets = new HashSet<>();
         this.flowTree = buildFlowTree();
     }
@@ -134,6 +162,15 @@ public class DefaultPipeline implements Pipeline {
         PipelineContext<T> ctx = new PipelineContext<>(id, input);
         if (startNodeId != null) {
             ctx.setNextNodeId(startNodeId);
+        }
+        // WAL：记录启动事件
+        if (pipelineWal != null) {
+            try {
+                pipelineWal.open();
+                pipelineWal.appendStart(input);
+            } catch (Exception e) {
+                // WAL 启动失败不影响流水线执行
+            }
         }
         return executeWith(ctx);
     }
@@ -150,6 +187,37 @@ public class DefaultPipeline implements Pipeline {
     @Override
     public <T> PipelineContext<T> resume(PipelineContext<T> ctx) {
         return executeWith(ctx);
+    }
+
+    @Override
+    public <T> PipelineContext<T> resume(T input) {
+        // WAL 恢复：尝试从 WAL 回放恢复上下文
+        if (pipelineWal != null) {
+            try {
+                pipelineWal.open();
+                PipelineContext<T> restored = pipelineWal.replay(input);
+                if (restored != null) {
+                    // 恢复成功：从断点继续执行
+                    // 设置动作为 NEXT，从 nextNodeId 继续执行
+                    restored.setAction(Action.NEXT);
+                    return executeWith(restored);
+                }
+                // 无 WAL 数据：等同 execute
+            } catch (Exception e) {
+                // WAL 恢复失败，回退到普通执行
+            }
+        }
+        // 无 WAL 或恢复失败：等同 execute
+        return execute(input);
+    }
+
+    @Override
+    public void stop() {
+        // 终止执行 + 销毁 WAL
+        if (pipelineWal != null) {
+            pipelineWal.destroy();
+            pipelineWal = null;
+        }
     }
 
     /**
@@ -273,6 +341,25 @@ public class DefaultPipeline implements Pipeline {
                 }
                 fireBeforeNode(ctx);
                 String prevNextId = ctx.getNextNodeId();
+
+                // 校验数据依赖：检查 unit 声明的依赖节点输出是否已存在
+                Set<String> units = node.getUnits();
+                if (units != null && !units.isEmpty()) {
+                    for (String unitId : units) {
+                        if (!ctx.getNodeOutputs().containsKey(unitId)) {
+                            throw new PipelineException(
+                                    "Unit dependency not satisfied: node '" + nodeId
+                                            + "' requires output from '" + unitId
+                                            + "', but it has not been produced yet",
+                                    nodeId, id, null);
+                        }
+                    }
+                    // 将依赖数据注入 nodeLocalData，方便节点通过 getNodeLocalValue("unit:xxx") 获取
+                    Map<String, Object> localData = ctx.getNodeLocalData();
+                    for (String unitId : units) {
+                        localData.put("unit:" + unitId, ctx.getNodeOutputs().get(unitId));
+                    }
+                }
 
                 try {
                     // 检查重试配置：有则通过 RetryProvider 执行，无则直接执行
