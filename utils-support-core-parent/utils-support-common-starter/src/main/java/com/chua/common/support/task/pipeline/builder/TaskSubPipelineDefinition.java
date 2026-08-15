@@ -9,7 +9,6 @@ import com.chua.common.support.task.pipeline.node.SubPipelineNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * 子流水线节点定义 — 类型安全的子流水线配置构建器。
@@ -94,7 +93,6 @@ public class TaskSubPipelineDefinition {
     private String startNode;
     private Map<String, Object> params;
     private Map<String, Object> env;
-    private Predicate<PipelineContext<?>> condition;
 
     /**
      * 构造子流水线定义。
@@ -133,23 +131,6 @@ public class TaskSubPipelineDefinition {
             node.setEnv(env);
         }
         PipelineNode finalNode = node;
-        if (condition != null) {
-            Predicate<PipelineContext<?>> cond = condition;
-            PipelineNode originalNode = finalNode;
-            finalNode = new PipelineNode() {
-                @Override
-                public String execute(PipelineContext<?> context) {
-                    if (cond.test(context)) {
-                        return originalNode.execute(context);
-                    }
-                    return null;
-                }
-                @Override
-                public String getId() {
-                    return id;
-                }
-            };
-        }
         builder.addNodeInternal(finalNode);
         return builder;
     }
@@ -243,30 +224,6 @@ public class TaskSubPipelineDefinition {
             this.env = new LinkedHashMap<>();
         }
         this.env.put(key, value);
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 true 时执行子流水线，否则跳过。
-     *
-     * <p>当条件不满足时，子流水线不执行，节点返回 null 按默认顺序继续。</p>
-     *
-     * @param condition 执行条件谓词
-     * @return this
-     */
-    public TaskSubPipelineDefinition when(Predicate<PipelineContext<?>> condition) {
-        this.condition = condition;
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 false 时执行子流水线，否则跳过。
-     *
-     * @param condition 跳过条件谓词
-     * @return this
-     */
-    public TaskSubPipelineDefinition whenNot(Predicate<PipelineContext<?>> condition) {
-        this.condition = condition.negate();
         return this;
     }
 

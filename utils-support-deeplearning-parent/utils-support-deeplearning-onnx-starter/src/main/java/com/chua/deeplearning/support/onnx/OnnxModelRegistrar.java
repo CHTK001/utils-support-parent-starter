@@ -24,7 +24,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
     private static void registerAll() {
         // 通用动作识别：识别图片中人物动作（跑步、跳跃等），输出动作类别+置信度；适用安防监控、体育分析
-        reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx");
+        reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx", "https://huggingface.co/onnx-community/action-recognition/resolve/main/onnx/model.onnx", false, null);
         // 年龄识别(GoogleNet)：根据人脸图像估算年龄，输出年龄区间；适用人脸属性分析、年龄统计
         reg("google-net-age-recognition", "com.chua.deeplearning.support.onnx.age.GoogleNetAgeRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/enhancement/age/age_googlenet.onnx");
         // 年龄识别(VGG)：VGG 架构的人脸年龄估算，精度更高但计算量更大；适用人脸属性分析
@@ -52,7 +52,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 动漫风格迁移(AnimeGANv2-FacePortrait)：专为人像优化的动漫化模型，人脸细节保留更好；适用人像动漫化、头像制作
         reg("anime-gan-v2-face-portrait", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/face_portrait_v2.onnx");
         // 图像质量评估(NIMA)：对图片美学质量打分（1-10分），评分越高越美观；适用图片筛选、封面推荐、摄影评分
-        reg("nima", "com.chua.deeplearning.support.onnx.assessment.NimaTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/assessment/nima/nima.onnx");
+        reg("nima", "com.chua.deeplearning.support.onnx.assessment.NimaTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/assessment/nima/nima.onnx", "https://huggingface.co/onnx-community/NIMA/resolve/main/onnx/model.onnx", false, null);
         // 动漫/真人分类：判断图片是二次元动漫还是真实照片；适用内容路由、图片分类、预处理过滤
         reg("anime-real-cls", "com.chua.deeplearning.support.onnx.classification.AnimeRealClsTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx");
         // 通用标签分类(CLIP Tagger)：为图片打多个标签（如"猫"、"风景"、"室内"），基于 CLIP 零样本；适用图片归档、标签推荐
@@ -60,7 +60,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 情感分析(DistilBERT)：对文本进行情感二分类（正面/负面），轻量级；适用评论分析、舆情监控、用户反馈
         reg("distil-bert-sentiment", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/distilbert-sst2/model_quantized.onnx");
         // 图像分类(EfficientNet-Lite0)：1000 类 ImageNet 分类，轻量级速度快；适用通用物体识别、图片内容理解
-        reg("efficient-net-lite0-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/efficientnet/efficientnet-lite0-11.onnx");
+        reg("efficient-net-lite0-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/efficientnet/efficientnet-lite0-11.onnx", "https://huggingface.co/onnx-community/efficientnet-lite0-11-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 图像分类(EfficientNet-Lite4)：1000 类 ImageNet 分类，lite4 精度更高但计算量更大；适用需要高精度的通用分类场景
         reg("efficient-net-lite4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite4ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/efficientnet/efficientnet-lite4-11.onnx");
         // 零样本分类(SigLIP)：无需训练，任意文本类别列表即可分类（如"猫/狗/鸟"），基于 SigLIP 视觉语言模型；适用动态类别、开放词汇分类
@@ -74,7 +74,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // CLIP文本特征(CLIP-ViT-B-32)：提取英文 CLIP 文本特征向量（512维），与 CLIP 图像特征比对；适用英文图文检索、跨模态搜索
         reg("clip-text-feature", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/enhancement/CLIP-ViT-B-32-TEXT/model.onnx");
         // 深度估计(MiDaS)：从单张图片估计深度图（灰度图，越亮表示越近）；适用背景虚化、3D 重建、AR 效果
-        reg("midas-depth", "com.chua.deeplearning.support.onnx.depth.MidasDepthTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/depth/midas/midas.onnx");
+        reg("midas-depth", "com.chua.deeplearning.support.onnx.depth.MidasDepthTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/depth/midas/midas.onnx", "https://huggingface.co/onnx-community/MiDaS/resolve/main/onnx/model.onnx", false, null);
         // 视觉特征提取(DINOv2)：提取图像通用特征向量（384维），无需训练，适合图像相似度比对、检索；适用以图搜图、特征匹配
         reg("dino-v2", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2/model.onnx");
         // 视觉特征提取(DINOv2-small emb)：嵌入式版 DINOv2-small（~84MB），FP32，384维特征，jar 内嵌；适用离线以图搜图、特征比对
@@ -84,15 +84,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 情绪识别(FER+)：识别面部表情（开心、难过、生气等 7 种基础情绪）；适用情感分析、用户反馈、安防监控
         reg("emotion-ferplus", "com.chua.deeplearning.support.onnx.emotion.EmotionFerplusTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/expression/FrEmotion/fr_expression.onnx");
         // 人脸识别(ArcFace)：提取人脸特征向量（512维），用于人脸比对/识别/搜索；适用人脸门禁、人脸搜索、身份验证
-        reg("arc-face", "com.chua.deeplearning.support.onnx.face.ArcFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/swap/common/buffalo_l/w600k_r50.onnx");
+        reg("arc-face", "com.chua.deeplearning.support.onnx.face.ArcFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/swap/common/buffalo_l/w600k_r50.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸识别(AdaFace)：高质量人脸特征提取，对低质量/模糊人脸更鲁棒；适用复杂光照条件的人脸识别
         reg("ada-face", "com.chua.deeplearning.support.onnx.face.AdaFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/adaface/adaface_ir101_webface12m.onnx", "https://huggingface.co/miccai/adaface-ir101-webface12m/resolve/main/model.onnx", false, null);
         // 通用人脸识别(CommonFace)：基于 SDK 的人脸特征提取，速度快；适用快速人脸比对
-        reg("common-face-rec", "com.chua.deeplearning.support.onnx.face.CommonFaceRecTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature.onnx");
+        reg("common-face-rec", "com.chua.deeplearning.support.onnx.face.CommonFaceRecTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸特征提取(FaceFeature)：通用人脸特征向量提取；适用人脸识别、人脸聚类
         reg("face-feature", "com.chua.deeplearning.support.onnx.face.FaceFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature.onnx");
         // 人脸特征提取(R50FaceFeature)：ResNet50 架构的人脸特征提取，精度更高；适用高精度人脸识别
-        reg("r50-face-feature", "com.chua.deeplearning.support.onnx.face.R50FaceFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature_r50.onnx");
+        reg("r50-face-feature", "com.chua.deeplearning.support.onnx.face.R50FaceFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature_r50.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸检测(SCRFD)：快速高精度人脸检测，输出人脸框+关键点（5点）；适用人脸检测、face crop 前置
         reg("scrfd-face-detector", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/scrfd/2.5g_bnkps.onnx", "https://huggingface.co/RuteNL/SCRFD-face-detection-ONNX/resolve/main/2.5g_bnkps.onnx", false, null);
         // 人脸检测(UltraFace)：超轻量人脸检测，320x240 输入，适合移动端/边缘设备；适用嵌入式人脸检测
@@ -132,15 +132,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 活体检测(MiniVision)：轻量级活体检测模型，80x80 输入，适合移动端；适用移动端人脸活体验证
         reg("mini-vision-liveness", "com.chua.deeplearning.support.onnx.liveness.MiniVisionLivenessTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/liveness/MiniVision/4_0_0_80x80_MiniFASNetV1SE.onnx");
         // 抠图(U2Net)：通用前景抠图，输出 alpha 通道（RGBA）；适用证件照处理、背景替换、电商抠图
-        reg("matting", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/seg_unet_sdk/u2net.onnx");
+        reg("matting", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/seg_unet_sdk/u2net.onnx", "https://huggingface.co/onnx-community/u2net/resolve/main/onnx/model.onnx", false, null);
         // 抠图(RMBG-2.0)：BRIA 背景移除 v2.0，高质量抠图，需自动下载；适用电商图片、人像抠图
-        reg("rmbg20", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-2.0/onnx/model.onnx");
+        reg("rmbg20", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-2.0/onnx/model.onnx", "https://huggingface.co/briaai/RMBG-2.0/resolve/main/onnx/model.onnx", false, null);
         // 抠图(RMBG-1.4)：BRIA 背景移除 v1.4，42MB 嵌入式，效果接近 2.0；适用离线抠图、嵌入式设备
         reg("rmbg14", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx");
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
-        reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/ppocrv5-cls.onnx");
+        reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/ppocrv5-cls.onnx", "https://huggingface.co/onnx-community/ppocr-cls/resolve/main/onnx/model.onnx", false, null);
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");
         // OCR文字识别(SVTR)：SVTR 架构轻量级文字识别，速度更快；适用快速 OCR
@@ -174,13 +174,13 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 图像去模糊(NAFNet)：去除运动模糊/对焦模糊，恢复清晰图像；适用照片修复、监控图像增强
         reg("naf-net", "com.chua.deeplearning.support.onnx.resolution.NafNetTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/nafnet/nafnet_deblur_gopro.onnx");
         // 超分辨率(Real-ESRGAN)：通用 4x 超分辨率，增强图像细节；适用图片放大、老照片修复
-        reg("real-esrgan", "com.chua.deeplearning.support.onnx.resolution.RealEsrganTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/realesrgan_x4plus.onnx");
+        reg("real-esrgan", "com.chua.deeplearning.support.onnx.resolution.RealEsrganTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/realesrgan_x4plus.onnx", "https://huggingface.co/onnx-community/Real-ESRGAN/resolve/main/onnx/model.onnx", false, null);
         // 文字超分(TextBSR)：文字图片专用超分辨率；适用文档扫描增强
         reg("real-text-image-super-resolution", "com.chua.deeplearning.support.onnx.resolution.RealTextImageSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
         // 文字超分(TextBSR)：文字超分辨率别名；适用文档增强
         reg("text-bsr", "com.chua.deeplearning.support.onnx.resolution.TextBsrTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
         // 动漫超分(Waifu2x)：针对动漫/二次元图片的 2x 超分辨率；适用动漫放大、老旧动漫修复
-        reg("waifu2x", "com.chua.deeplearning.support.onnx.resolution.Waifu2xTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/waifu2x/waifu2x_noise.onnx");
+        reg("waifu2x", "com.chua.deeplearning.support.onnx.resolution.Waifu2xTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/waifu2x/waifu2x_noise.onnx", "https://huggingface.co/onnx-community/waifu2x/resolve/main/onnx/model.onnx", false, null);
         // 文档理解(SmolDocling Combined)：端到端文档理解，输入文档图片输出结构化文本（Markdown）；适用发票、报表、合同解析
         reg("smol-docling-combined", "com.chua.deeplearning.support.onnx.smoldocling.SmolDoclingCombinedTranslator", Object.class, String.class, Object.class, "vision/enhancement/smoldocling/vision_encoder.onnx");
         // 文档理解(SmolDocling Decoder)：解码器组件，用于文本序列生成；适用 SmolDocling 流程中的解码阶段
@@ -210,21 +210,21 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 车牌检测(YOLOv8)：YOLOv8 架构的车牌检测，最新版；适用最新车牌检测场景
         reg("yolo8-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo8PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/license/license-plate-finetune-v1x.onnx", "https://huggingface.co/morsetechlab/yolov11-license-plate-detection/resolve/main/license-plate-finetune-v1x.onnx", false, null);
         // 文档版面检测(YOLOv10-D4LA)：YOLOv10 架构的文档版面分析，检测文档区域类型；适用文档分类、版面分析
-        reg("doc-layout-d4la", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutD4laTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v10/doclayout_yolo_d4la_imgsz1600_docsynth_pretrain.onnx");
+        reg("doc-layout-d4la", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutD4laTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v10/doclayout_yolo_d4la_imgsz1600_docsynth_pretrain.onnx", "https://huggingface.co/onnx-community/yolov10-doclayout-d4la/resolve/main/onnx/model.onnx", false, null);
         // 文档版面检测(YOLOv10-DocStruct)：YOLOv10 文档版面分析，基于 DocStructBench 数据集；适用通用文档版面分析
-        reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v10/doclayout_yolo_docstructbench_imgsz1024.onnx");
+        reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v10/doclayout_yolo_docstructbench_imgsz1024.onnx", "https://huggingface.co/onnx-community/yolov10-doclayout/resolve/main/onnx/model.onnx", false, null);
         // 旋转目标检测(YOLOv11-OBB)：YOLOv11 旋转框检测，检测任意方向物体；适用遥感图像、旋转物体检测
-        reg("yolo11-odd", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11OddTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/obb/yolo11n-obb.onnx");
+        reg("yolo11-odd", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11OddTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/obb/yolo11n-obb.onnx", "https://huggingface.co/onnx-community/yolo11n-obb/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv2-COCO)：YOLOv2 经典 COCO 80 类检测，轻量级；适用通用物体检测
         reg("yolov2-coco", "com.chua.deeplearning.support.onnx.yolo.v2.translator.Yolov2CocoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v2/yolov2-coco-9.onnx");
         // 目标检测(YOLOv2-COCO v2)：YOLOv2 变体版；适用通用物体检测
         reg("yolov2-coco-v2", "com.chua.deeplearning.support.onnx.yolo.v2.Yolov2CocoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, null);
         // 旋转目标检测(YOLOv26-OBB)：YOLOv26 旋转框检测，最新版；适用高精度旋转物体检测
-        reg("yolo26-obb", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx");
+        reg("yolo26-obb", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
 // 版面检测(YOLOv8-Cdla)：YOLOv8 架构的文档版面分析，识别文档区域类型；适用文档分类、版面分析
-        reg("yolo8-cdla-layout", "com.chua.deeplearning.support.onnx.yolo.v8.translator.Yolo8CdlaLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v8/layout_cdla_yolov8m.onnx");
+        reg("yolo8-cdla-layout", "com.chua.deeplearning.support.onnx.yolo.v8.translator.Yolo8CdlaLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v8/layout_cdla_yolov8m.onnx", "https://huggingface.co/onnx-community/yolov8m-cdla-layout/resolve/main/onnx/model.onnx", false, null);
         // 版面检测(YOLOv8-General)：通用版面分析，检测 6 类常见版面区域；适用通用文档版面分析
-        reg("yolo8-general-layout", "com.chua.deeplearning.support.onnx.yolo.v8.translator.Yolo8GeneralLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v8/yolov8n_layout_general6.onnx");
+        reg("yolo8-general-layout", "com.chua.deeplearning.support.onnx.yolo.v8.translator.Yolo8GeneralLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/v8/yolov8n_layout_general6.onnx", "https://huggingface.co/onnx-community/yolov8n-layout-general/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv8s)：YOLOv8s 标准 COCO 80 类检测，速度和精度平衡；适用通用物体检测
         reg("yolov8s", "com.chua.deeplearning.support.onnx.yolo.v8.translator.YoloV8sTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v8/yolov8s.onnx", "https://huggingface.co/lquint/yolov8s-onnx/resolve/main/onnx/model.onnx", false, "yolov8s.onnx");
         // 深度估计(DepthAnything v2)：从单张图片估计深度图，v2 版精度更高、细节更丰富；适用背景虚化、3D 场景理解

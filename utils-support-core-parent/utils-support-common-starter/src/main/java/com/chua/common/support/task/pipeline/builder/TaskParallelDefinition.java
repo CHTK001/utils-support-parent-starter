@@ -10,7 +10,6 @@ import com.chua.common.support.task.pipeline.node.ParallelNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * 并行节点定义 — 类型安全的并行分支配置构建器。
@@ -96,7 +95,6 @@ public class TaskParallelDefinition {
     private boolean endAfterExecute;
     private Map<String, Object> params;
     private Map<String, Object> env;
-    private Predicate<PipelineContext<?>> condition;
 
     /**
      * 构造并行节点定义。
@@ -129,24 +127,6 @@ public class TaskParallelDefinition {
             node.setEnv(env);
         }
         PipelineNode finalNode = node;
-        // 条件执行包装
-        if (condition != null) {
-            Predicate<PipelineContext<?>> cond = condition;
-            PipelineNode originalNode = finalNode;
-            finalNode = new PipelineNode() {
-                @Override
-                public String execute(PipelineContext<?> context) {
-                    if (cond.test(context)) {
-                        return originalNode.execute(context);
-                    }
-                    return null;
-                }
-                @Override
-                public String getId() {
-                    return id;
-                }
-            };
-        }
         // 执行后终止包装
         if (endAfterExecute) {
             PipelineNode originalNode = finalNode;
@@ -314,30 +294,6 @@ public class TaskParallelDefinition {
             this.env = new LinkedHashMap<>();
         }
         this.env.put(key, value);
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 true 时执行并行节点，否则跳过。
-     *
-     * <p>当条件不满足时，所有并行分支均不执行，节点返回 null 按默认顺序继续。</p>
-     *
-     * @param condition 执行条件谓词
-     * @return this
-     */
-    public TaskParallelDefinition when(Predicate<PipelineContext<?>> condition) {
-        this.condition = condition;
-        return this;
-    }
-
-    /**
-     * 条件执行：仅当谓词返回 false 时执行并行节点，否则跳过。
-     *
-     * @param condition 跳过条件谓词
-     * @return this
-     */
-    public TaskParallelDefinition whenNot(Predicate<PipelineContext<?>> condition) {
-        this.condition = condition.negate();
         return this;
     }
 
