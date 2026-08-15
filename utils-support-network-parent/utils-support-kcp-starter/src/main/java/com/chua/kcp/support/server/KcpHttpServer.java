@@ -122,7 +122,6 @@ public class KcpHttpServer extends AbstractServer {
                 .childHandler(new ChannelInitializer<UkcpChannel>() {
                     @Override
                     protected void initChannel(UkcpChannel channel) {
-                        channel.conv(KCP_CONV);
                         ChannelPipeline pipeline = channel.pipeline();
                         pipeline.addLast(new KcpHttpServerHandler());
                     }
