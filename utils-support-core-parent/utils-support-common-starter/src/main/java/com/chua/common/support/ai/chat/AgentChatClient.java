@@ -35,11 +35,22 @@ import java.util.function.Consumer;
  */
 public class AgentChatClient implements ChatClient {
 
+    /** 从模型注册表，键为 Agent 标识 */
     private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>();
+
+    /** 主模型客户端（负责路由决策） */
     private ChatClient masterClient;
+
+    /** 主模型名称 */
     private String masterModel = "default";
+
+    /** 执行模式 */
     private AgentMode mode = AgentMode.ROUTER;
+
+    /** 内部 Agent 实例 */
     private Agent agent;
+
+    /** 是否启用 MCP 工具 */
     private boolean mcp = false;
 
     /**

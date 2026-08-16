@@ -219,7 +219,8 @@ public class HttpServerResponse implements ServerResponse {
         }
         sent = true;
         if (sseMode) {
-            closeSseStream();
+            // SSE 流生命周期由 sseClose() 管理：JdkHttpServer 的 finally 必然调用 complete()，
+            // 若在此关闭流会提前终止异步流式回调，与 NIO 实现语义保持一致。
             return;
         }
         if (!ended) {

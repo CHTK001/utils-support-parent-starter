@@ -142,7 +142,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
-        reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/ppocrv5-cls.onnx", "https://huggingface.co/onnx-community/ppocr-cls/resolve/main/onnx/model.onnx", false, null);
+        reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");
         // OCR文字识别(SVTR)：SVTR 架构轻量级文字识别，速度更快；适用快速 OCR

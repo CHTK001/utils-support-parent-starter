@@ -3,12 +3,21 @@ package com.chua.deeplearning.support.ocr;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
+import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.recognition.TextDirectionPipeline;
+import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -19,15 +28,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * OCR 组合业务：检测 → 排序 → 裁剪 → 识别 → 收集。
+ * OCR 组合业务：检测 → 排序 → 裁剪 → 矫正 → 修复 → 识别 → 收集。
  *
  * <p>基于 {@link Pipeline} 通用管线框架编排，取代手写循环；多人脸/多文本块场景由外层循环驱动，
  * 每个文本块一个独立 {@link PipelineContext}。模型清单通过 {@link #listModels()} 动态获取。</p>
  *
  * <pre>{@code
  * OcrEngine ocr = OcrEngine.builder()
- *         .detector("paddle-ocr-det")
- *         .recognizer("paddle-ocr-rec")
+ *         .detector("paddleocrv6-det")
+ *         .recognizer("paddleocrv6-rec")
+ *         .directionModel("pp-word-rotate")   // 可选：方向矫正（180° 翻转）
+ *         .restorerModel("text-bsr")          // 可选：文字高清修复
  *         .build();
  * List&lt;OcrResult&gt; results = ocr.recognizeDetail(imageBytes);
  * String text = ocr.recognize(imageBytes);
@@ -51,6 +62,16 @@ public class OcrEngine {
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
+     * 节点：矫正
+     */
+    private static final String NODE_ROTATE = "rotate";
+
+    /**
+     * 节点：修复
+     */
+    private static final String NODE_RESTORE = "restore";
+
+    /**
      * 节点：收集
      */
     private static final String NODE_COLLECT = "collect";
@@ -71,6 +92,16 @@ public class OcrEngine {
     private final OcrRecognizer recognizer;
 
     /**
+     * 方向矫正模型（可选，如 pp-word-rotate）。
+     */
+    private final String directionModel;
+
+    /**
+     * 文字修复模型（可选，如 text-bsr）。
+     */
+    private final String restorerModel;
+
+    /**
      * 是否按阅读顺序排序（先 y 后 x）。
      */
     private final boolean sortReadingOrder;
@@ -85,11 +116,16 @@ public class OcrEngine {
      *
      * @param detector         检测
      * @param recognizer       识别
+     * @param directionModel   方向矫正模型（可为 null）
+     * @param restorerModel    文字修复模型（可为 null）
      * @param sortReadingOrder 阅读序
      */
-    public OcrEngine(ImageDetector detector, OcrRecognizer recognizer, boolean sortReadingOrder) {
+    public OcrEngine(ImageDetector detector, OcrRecognizer recognizer,
+                     String directionModel, String restorerModel, boolean sortReadingOrder) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
+        this.directionModel = directionModel;
+        this.restorerModel = restorerModel;
         this.sortReadingOrder = sortReadingOrder;
         this.pipeline = buildPipeline();
     }
@@ -120,6 +156,16 @@ public class OcrEngine {
          * 识别器。
          */
         private OcrRecognizer recognizer;
+
+        /**
+         * 方向矫正模型（可选）。
+         */
+        private String directionModel;
+
+        /**
+         * 文字修复模型（可选）。
+         */
+        private String restorerModel;
 
         /**
          * 是否按阅读顺序排序。
@@ -182,17 +228,39 @@ public class OcrEngine {
         }
 
         /**
+         * 设置方向矫正模型。
+         *
+         * @param model 模型 ID（如 pp-word-rotate）
+         * @return this
+         */
+        public Builder directionModel(String model) {
+            this.directionModel = model;
+            return this;
+        }
+
+        /**
+         * 设置文字修复模型。
+         *
+         * @param model 模型 ID（如 text-bsr）
+         * @return this
+         */
+        public Builder restorerModel(String model) {
+            this.restorerModel = model;
+            return this;
+        }
+
+        /**
          * 构建。
          *
          * @return OcrEngine
          */
         public OcrEngine build() {
-            return new OcrEngine(detector, recognizer, sortReadingOrder);
+            return new OcrEngine(detector, recognizer, directionModel, restorerModel, sortReadingOrder);
         }
     }
 
     /**
-     * 编排识别管线（排序 → 裁剪 → 识别 → 收集）。
+     * 编排识别管线（裁剪 → 矫正 → 修复 → 识别 → 收集）。
      *
      * @return 管线实例
      */
@@ -204,6 +272,22 @@ public class OcrEngine {
                         return null;
                     }
                     oc.currentCrop(ImageCropUtils.crop(oc.imageData(), oc.currentBox()));
+                    return null;
+                }).taskEnd()
+                .task(NODE_ROTATE, ctx -> {
+                    OcrContext oc = current(ctx);
+                    if (oc.currentCrop() == null || directionModel == null) {
+                        return null;
+                    }
+                    oc.currentCrop(rotateImage(oc.currentCrop()));
+                    return null;
+                }).taskEnd()
+                .task(NODE_RESTORE, ctx -> {
+                    OcrContext oc = current(ctx);
+                    if (oc.currentCrop() == null || restorerModel == null) {
+                        return null;
+                    }
+                    oc.currentCrop(restoreImage(oc.currentCrop()));
                     return null;
                 }).taskEnd()
                 .task(NODE_RECOGNIZE, ctx -> {
@@ -272,6 +356,108 @@ public class OcrEngine {
         ctx.setAttribute("ocr", oc);
         ctx.setNextNodeId(NODE_CROP);
         pipeline.resume(ctx);
+    }
+
+    /**
+     * 文字方向矫正：调用方向分类模型（如 pp-word-rotate），检测到 180° 时翻转图像。
+     *
+     * @param crop 文本块图像
+     * @return 矫正后图像；无方向模型或处理失败时原样返回
+     */
+    private byte[] rotateImage(byte[] crop) {
+        try {
+            TextDirectionPipeline direction = TextDirectionPipeline.builder()
+                    .model(directionModel)
+                    .build();
+            Object result = direction.recognizeSingle(crop);
+            // DirectionInfo 在 onnx 模块，此处用反射读取 name 避免模块依赖
+            String name = reflectName(result);
+            if ("180".equalsIgnoreCase(name)) {
+                return rotate180(crop);
+            }
+            return crop;
+        } catch (Exception e) {
+            log.warn("OCR 方向矫正失败（跳过）: {}", e.getMessage());
+            return crop;
+        }
+    }
+
+    /**
+     * 反射读取方向结果名称（兼容 DirectionInfo / Map / String）。
+     *
+     * @param result 方向模型输出
+     * @return 方向名称（如 0 / 180）；无法解析返回 null
+     */
+    private static String reflectName(Object result) {
+        if (result == null) {
+            return null;
+        }
+        try {
+            if (result instanceof String s) {
+                return s;
+            }
+            if (result instanceof Map<?, ?> map) {
+                Object v = map.get("name");
+                return v == null ? null : String.valueOf(v);
+            }
+            java.lang.reflect.Method m = result.getClass().getMethod("getName");
+            Object v = m.invoke(result);
+            return v == null ? null : String.valueOf(v);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 文字修复：调用文字高清模型（如 text-bsr）提升模糊文字清晰度。
+     *
+     * @param crop 文本块图像
+     * @return 修复后图像（PNG）；无修复模型或处理失败时原样返回
+     */
+    private byte[] restoreImage(byte[] crop) {
+        try {
+            ITranslator<Object, Object> translator =
+                    (ITranslator<Object, Object>) AbstractIdentificationEngine.getInstance()
+                            .get(restorerModel, ITranslator.class);
+            if (translator == null) {
+                return crop;
+            }
+            Object out = translator.translate(crop);
+            if (out instanceof java.awt.image.BufferedImage image) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(image, "png", baos);
+                return baos.toByteArray();
+            }
+            return crop;
+        } catch (Exception e) {
+            log.warn("OCR 文字修复失败（跳过）: {}", e.getMessage());
+            return crop;
+        }
+    }
+
+    /**
+     * 将图像旋转 180°。
+     *
+     * @param imageData 图像字节
+     * @return 旋转后图像字节
+     */
+    private static byte[] rotate180(byte[] imageData) {
+        try {
+            BufferedImage src = ImageIO.read(new ByteArrayInputStream(imageData));
+            if (src == null) {
+                return imageData;
+            }
+            BufferedImage out = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = out.createGraphics();
+            g.drawImage(src, new AffineTransform(-1, 0, 0, -1, src.getWidth(), src.getHeight()), null);
+            g.dispose();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(out, "png", baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            log.warn("OCR 图像翻转失败（跳过）: {}", e.getMessage());
+            return imageData;
+        }
     }
 
     /**
