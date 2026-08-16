@@ -50,6 +50,9 @@ public class ClusterSetting {
     /** 请求超时(毫秒) */
     private long timeoutMillis = 3000;
 
+    /** 自动发现(节点检索)间隔毫秒,默认 1000(便于集群快速收敛) */
+    private long autoDiscoveryIntervalMillis = 1000;
+
     /**
      * 转换为 scatter 配置。
      *
@@ -67,6 +70,7 @@ public class ClusterSetting {
         setting.setServicePath(servicePaths.isEmpty() ? "/" : servicePaths.get(0));
         setting.setTimeoutMillis(timeoutMillis);
         setting.setBalance(balance);
+        setting.setAutoDiscoveryIntervalMillis(autoDiscoveryIntervalMillis);
         return setting;
     }
 }

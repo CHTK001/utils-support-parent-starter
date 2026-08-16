@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.image.captioning;
-import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;

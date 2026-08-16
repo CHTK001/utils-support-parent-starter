@@ -77,6 +77,8 @@ public class ClusterNode implements AutoCloseable {
             discoveryFilter.setScatterId(scatterId);
             discoveryFilter.setProtocol("http");
             discoveryFilter.setBalance(clusterSetting.getBalance());
+            // 排除本节点:防止请求被转发回自身代理
+            discoveryFilter.setExcludeServerId(clusterSetting.getNodeId() + "-http");
             httpServer.addFilter(discoveryFilter);
             httpServer.addFilter(new ReverseProxyServerFilter((int) clusterSetting.getTimeoutMillis() / 1000));
             httpServer.start();
@@ -88,7 +90,7 @@ public class ClusterNode implements AutoCloseable {
         if (clusterSetting.isTcpEnabled()) {
             ServerSetting proxySetting = ServerSetting.defaults();
             proxySetting.setHost(clusterSetting.getHost());
-            proxySetting.setPort(clusterSetting.getPort());
+            proxySetting.setPort(clusterSetting.getPort() > 0 ? clusterSetting.getPort() + 1 : 0);
             String servicePath = paths.get(0);
             tcpProxy = new TcpProxyServer(proxySetting,
                     new DiscoveryProxyTargetResolver(discovery, servicePath, scatterId, clusterSetting.getBalance()));

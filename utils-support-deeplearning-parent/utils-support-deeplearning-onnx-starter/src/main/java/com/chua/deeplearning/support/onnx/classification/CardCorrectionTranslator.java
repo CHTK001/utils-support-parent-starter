@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.classification;
-import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;

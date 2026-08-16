@@ -78,6 +78,11 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
     private String scatterId;
 
     /**
+     * 排除的节点 serverId(通常为本节点):路由时避开,防止请求被转发回自身代理
+     */
+    private String excludeServerId;
+
+    /**
      * ServiceDiscovery 实例（延迟初始化）
      */
     private volatile ServiceDiscovery serviceDiscovery;
@@ -139,6 +144,15 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
         this.scatterId = scatterId;
     }
 
+    /**
+     * 设置排除的节点 serverId(通常为本节点)。
+     *
+     * @param excludeServerId 路由时避开的节点 serverId
+     */
+    public void setExcludeServerId(String excludeServerId) {
+        this.excludeServerId = excludeServerId;
+    }
+
     @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 300;
@@ -188,7 +202,20 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
             return;
         }
 
-        Discovery discovery = serviceDiscovery.getService(servicePath, scatterId, balance, protocol);
+        Discovery discovery = null;
+        // 排除自身(通常为本节点):避免请求被转发回自身代理造成死循环/404
+        for (int attempt = 0; attempt < 5; attempt++) {
+            Discovery d = serviceDiscovery.getService(servicePath, scatterId, balance, protocol);
+            if (d == null) {
+                break;
+            }
+            if (excludeServerId == null || excludeServerId.isBlank()
+                    || !d.getServerId().equals(excludeServerId)) {
+                discovery = d;
+                break;
+            }
+            discovery = d; // 全池只剩自身时兜底返回自身
+        }
         if (discovery == null) {
             log.warn("服务未找到: {} (balance={}, protocol={})", servicePath, balance, protocol);
             chain.doFilter(request, response);

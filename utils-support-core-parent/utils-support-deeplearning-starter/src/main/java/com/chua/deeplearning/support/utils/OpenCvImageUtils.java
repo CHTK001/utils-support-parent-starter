@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx.utils;
+package com.chua.deeplearning.support.utils;
 
 import ai.djl.modality.cv.Image;
 import org.opencv.core.Core;

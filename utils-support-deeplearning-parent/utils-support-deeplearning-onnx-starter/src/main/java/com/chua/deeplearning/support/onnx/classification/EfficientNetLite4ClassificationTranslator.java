@@ -39,7 +39,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         // OpenCV 预处理：resize 224 + CHW 归一化 → float[] → create() 喂入 djl-onnx
-        float[] pixels = com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils.toTensor(input, 224);
+        float[] pixels = com.chua.deeplearning.support.utils.OpenCvImageUtils.toTensor(input, 224);
         NDArray array = ctx.getNDManager().create(pixels, new Shape(1, 3, 224, 224));
         array.setName("input");
         return new NDList(array);

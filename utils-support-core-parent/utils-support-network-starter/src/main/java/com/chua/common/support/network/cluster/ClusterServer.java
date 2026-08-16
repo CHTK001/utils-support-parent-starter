@@ -53,10 +53,17 @@ public class ClusterServer implements AutoCloseable {
     }
 
     /**
-     * 集群管理器(路由/视图/故障退避)。
+     * 集群管理器(路由/视图/故障退避;路由排除本节点)。
      */
     public ClusterManager manager() {
-        return new ClusterManager(node.discovery(), clusterSetting.getBalance());
+        return new ClusterManager(node.discovery(), clusterSetting.getBalance(), clusterSetting.getNodeId());
+    }
+
+    /**
+     * 暴露服务发现(注册/查询集群服务)。
+     */
+    public com.chua.common.support.scattergather.ScatterGatherServiceDiscovery discovery() {
+        return node.discovery();
     }
 
     public int getHttpPort() {

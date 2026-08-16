@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.feature;
-import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
