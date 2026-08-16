@@ -195,13 +195,10 @@ public class HttpServerResponse implements ServerResponse {
         if (sseMode) {
             try {
                 if (sseOutputStream == null) {
-                    // JDK 25 的 HttpServer:sendResponseHeaders(code, -1) 会创建 0 长度
-                    // FixedLengthOutputStream,流式写即抛 stream closed;
-                    // 传 0 才能正确按流式(无固定长度)写出 SSE 事件帧。
-                    exchange.sendResponseHeaders(statusCode, 0);
-                    sseOutputStream = exchange.getResponseBody();
+                    throw new IllegalStateException("SSE not initialized, call sse() first");
                 }
                 sseOutputStream.write(bytes);
+                sseOutputStream.flush();
             } catch (IOException e) {
                 throw new RuntimeException("SSE write failed", e);
             }
@@ -222,8 +219,7 @@ public class HttpServerResponse implements ServerResponse {
         }
         sent = true;
         if (sseMode) {
-            // SSE 流生命周期完全由 sseClose() 管理：handleBlocking 的 finally 可能先于
-            // 异步流式回调执行 end()（ended=true），若在此关闭流会导致回调写流报 stream closed。
+            closeSseStream();
             return;
         }
         if (!ended) {
@@ -284,9 +280,8 @@ public class HttpServerResponse implements ServerResponse {
         setHeader("Cache-Control", "no-cache");
         setHeader("Connection", "keep-alive");
         exchange.getResponseHeaders().remove("Content-Length");
-        exchange.getResponseHeaders().set("Transfer-Encoding", "chunked");
         try {
-            exchange.sendResponseHeaders(200, -1);
+            exchange.sendResponseHeaders(200, 0);
             sseOutputStream = exchange.getResponseBody();
         } catch (IOException e) {
             throw new RuntimeException("SSE init failed", e);
