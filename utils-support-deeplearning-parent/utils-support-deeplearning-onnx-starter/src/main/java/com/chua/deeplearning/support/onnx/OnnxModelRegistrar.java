@@ -363,8 +363,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("fer-plus", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/expression/FER/FER.onnx");
         // 文本嵌入(MiniLM-L6-v2)：离线版英文句向量（384维），jar 内嵌，用于语义搜索；适用英文语义搜索、向量检索
         reg("minilm-embedding", "com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm/model_quantized.onnx");
-        // 卡片矫正检测(Card Correction)：检测卡片类图片（身份证、名片等）并进行矫正；适用文档扫描、证件识别
-        reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "cv/card_correction/card_detection.onnx");
+        // 卡片矫正检测(Card Correction)：检测卡片类图片（身份证、名片等）四角点；适用文档扫描、证件识别
+        reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
         // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测；适用停车场、出入口车牌识别
         reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
@@ -377,6 +377,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("paddleocrv6-medium-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetMediumTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/PP-OCRv6/medium/det_infer/inference.onnx");
         // OCR识别(PP-OCRv6-medium)：PaddleOCR v6 中量文字识别，精度更高；适用高精度 OCR
         reg("paddleocrv6-medium-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorMediumTranslator", byte[].class, String.class, Object.class, "ocr/PP-OCRv6/medium/rec_infer/inference.onnx");
+        // 读光OCR(small)：读光中英文文字识别（DBNet检测+LightweightEdge识别，嵌入式），轻量快速；适用通用中英文OCR
+        reg("duguang-ocr-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/small/det_512.onnx");
+        // 读光OCR(large)：读光中英文文字识别（DBNet检测+ConvNeXT识别，嵌入式），精度更高；适用高精度中英文OCR
+        reg("duguang-ocr-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/large/det_512.onnx");
         // 文档版面分析(DocLayNet)：YOLOv8n 文档版面分析，11 类（文本、表格、图片等），约 6MB；适用文档分类、版面分析
         reg("doc-layout-yolo-imgsz640", "com.chua.deeplearning.support.onnx.layout.doclaynet.DocLayNetYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/layout/doclaynet/model.onnx");
         // 表格检测(YOLOv8n)：YOLOv8n 表格检测，1 类 table，约 6MB；适用表格识别、文档分析

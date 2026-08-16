@@ -803,13 +803,12 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
             String path = setting.getServicePath();
             List<ScatterGatherNode> remoteNodes = new ArrayList<>();
             // 仅向 seeds 解析的节点(NodeServer 端口)发起 sync 查询:
-            // local 里注册的是业务节点(HTTP/TCP 代理端口),非 sync server,
-            // 向它们发送 sync/request 只会连接失败(如连接 TCP 代理端口 19012)
-            if (mode != null) {
-                for (ScatterGatherNode node : mode.resolveRemoteNodes(this)) {
-                    if (!remoteNodes.contains(node)) {
-                        remoteNodes.add(node);
-                    }
+            // 直接用 resolveSeedNodes()(seeds 端口,如 19013),不用 mode.resolveRemoteNodes——
+            // 后者可能返回 local 自注册的业务节点(TCP 代理端口 19012),向其发 sync/request
+            // 只会连接 TcpProxyServer(无法解析被丢弃),NodeServer 收不到 → 自动发现不收敛
+            for (ScatterGatherNode node : resolveSeedNodes()) {
+                if (!remoteNodes.contains(node)) {
+                    remoteNodes.add(node);
                 }
             }
             if (remoteNodes.isEmpty()) {
