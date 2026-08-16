@@ -91,7 +91,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     /**
      * 缓存根目录
      */
-    private static final String CACHE_ROOT = "chua-dl-models/vision/captioning/vit-gpt2/";
+    private static final String CACHE_ROOT = "vision/captioning/vit-gpt2/";
 
     private HuggingFaceTokenizer tokenizer;
     private OrtEnvironment ortEnv;
@@ -115,7 +115,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         if (prepared) {
             return;
         }
-        Path modelDir = Path.of(System.getProperty("java.io.tmpdir"), CACHE_ROOT);
+        Path modelDir = Path.of(cacheRoot(), CACHE_ROOT);
         if (!Files.exists(modelDir.resolve(ENCODER_FILE)) || !Files.exists(modelDir.resolve("tokenizer.json"))) {
             NativeLoader.of("vit-gpt2-resources")
                     .from(VitGpt2CaptioningTranslator.class.getClassLoader())
@@ -145,6 +145,17 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
         log.info("[ViT-GPT2] 模型加载完成: encoder={} decoder={}", encoderPath, decoderPath);
         prepared = true;
+    }
+
+    /**
+     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时回落 {@code %TEMP%}。
+     *
+     * @return 缓存根目录
+     */
+    private static String cacheRoot() {
+        String prop = System.getProperty("deeplearning.model.cache-dir");
+        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
