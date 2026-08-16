@@ -53,6 +53,9 @@ public final class ServerAttribute {
     /** 服务发现对象（ServiceDiscoveryServerFilter 存入） */
     public static final String BACKEND_DISCOVERY = "__backend_discovery";
 
+    /** 底层 Vert.x RoutingContext（VertxHttpServer 存入，供 WebSocket 代理升级使用） */
+    public static final String VERTX_ROUTING_CONTEXT = "__vertx_routing_context";
+
     private ServerAttribute() {
     }
 

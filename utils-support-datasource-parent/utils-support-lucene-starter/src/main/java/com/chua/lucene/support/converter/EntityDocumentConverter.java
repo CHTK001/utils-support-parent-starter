@@ -19,7 +19,7 @@ import java.util.*;
  * 以及从 {@link Document} 反序列化为实体对象。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 public final class EntityDocumentConverter {
 

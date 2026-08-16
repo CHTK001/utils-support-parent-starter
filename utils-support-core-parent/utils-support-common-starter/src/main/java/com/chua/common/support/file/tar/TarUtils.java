@@ -8,6 +8,7 @@ import java.util.List;
  * Tar 文件工具类，用于计算 TAR 归档的大小。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class TarUtils {
 
@@ -60,13 +61,16 @@ public class TarUtils {
 	 */
 	private static long entrySize(long fileSize) {
 		long size = 0L;
-		size += TarConstants.HEADER_BLOCK; // 添加文件头大小
-		size += fileSize;                  // 添加文件实际内容大小
+		// 添加文件头大小
+		size += TarConstants.HEADER_BLOCK;
+		// 添加文件实际内容大小
+		size += fileSize;
 
 		long extra = size % TarConstants.DATA_BLOCK;
 
 		if (extra > 0) {
-			size += (TarConstants.DATA_BLOCK - extra); // 补齐到 512 字节对齐
+			// 补齐到 512 字节对齐
+			size += (TarConstants.DATA_BLOCK - extra);
 		}
 
 		return size;

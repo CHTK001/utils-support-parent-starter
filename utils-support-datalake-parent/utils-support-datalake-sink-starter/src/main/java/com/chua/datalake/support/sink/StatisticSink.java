@@ -12,7 +12,7 @@ import java.util.Map;
  * 统计 Sink — 计数 / 聚合快照，后续扩展指标计算。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("statistic")

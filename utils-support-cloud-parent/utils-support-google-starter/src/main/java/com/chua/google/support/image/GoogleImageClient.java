@@ -28,7 +28,7 @@ import java.util.Map;
  * 通过 HTTP 协议调用 Imagen 系列模型的图片生成接口，支持文生图功能。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"google", "gemini"})

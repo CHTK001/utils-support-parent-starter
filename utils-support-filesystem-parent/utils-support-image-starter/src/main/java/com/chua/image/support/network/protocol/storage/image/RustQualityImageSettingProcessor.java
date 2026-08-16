@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * 使用 Rust 实现的高性能图片质量调整
  * 
  * @author CH
- * @since 2024/12/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "quality", order = 0)
@@ -59,8 +59,8 @@ public class RustQualityImageSettingProcessor implements com.chua.common.support
      */
     private int parseQuality(String qualityValue) {
         if (StringUtils.isEmpty(qualityValue)) {
-            // eturn 75; // 默认质量
-           
+            // 默认质量
+            // return 75;
         }
 
         try {

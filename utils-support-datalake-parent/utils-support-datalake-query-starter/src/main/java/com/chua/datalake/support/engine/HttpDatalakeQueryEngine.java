@@ -20,7 +20,7 @@ import java.util.Map;
  * <p>使用时注入 baseUrl 即可，运行时 HTTP 调用。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.datasource.engine.Engine {

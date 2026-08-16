@@ -9,7 +9,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * Sinch 语音电话实现
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Spi("sinch")
 public class SinchVoiceCall implements VoiceCall {

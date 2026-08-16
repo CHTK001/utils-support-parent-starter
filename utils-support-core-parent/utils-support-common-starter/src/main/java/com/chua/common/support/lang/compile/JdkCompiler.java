@@ -22,6 +22,7 @@ import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
  * 利用 Java Compiler API 将字符串形式的 Java 源码编译为 Class 对象
  *
  * @author CHTK
+ * @since 4.0.0.42
  */
 @Slf4j
 public class JdkCompiler implements Compiler {

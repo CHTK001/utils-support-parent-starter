@@ -19,6 +19,7 @@ import java.util.function.Consumer;
  * <p>基于 Playwright 实现 URL 转图片、长截图、页面加载等待等功能。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PlaywrightScreenshot {

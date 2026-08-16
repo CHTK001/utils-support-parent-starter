@@ -294,7 +294,7 @@ public class ExcelFileSystem implements FileSystem {
             java.util.Map<String, Object> cache = new java.util.HashMap<>();
             for (CellRangeAddress region : sheet.getMergedRegions()) {
                 Row firstRow = sheet.getRow(region.getFirstRow());
-                if (firstRow == null) continue;
+                if (firstRow == null) {
                 Cell firstCell = firstRow.getCell(region.getFirstColumn());
                 Object val = firstCell != null ? getCellValue(firstCell) : null;
                 for (int r = region.getFirstRow(); r <= region.getLastRow(); r++) {
@@ -358,8 +358,10 @@ public class ExcelFileSystem implements FileSystem {
 
             /** 解析列名（优先固定表头，否则从首行推断） */
             List<String> resolveHeaders() {
-                if (headerColumns != null) return headerColumns;
-                if (!rows.isEmpty()) return new ArrayList<>(rows.get(0).keySet());
+                if (headerColumns != null) {
+                if (!rows.isEmpty()) {
+                    return new ArrayList<>(rows.get(0).keySet());
+                }
                 return List.of();
             }
         }
@@ -583,7 +585,7 @@ public class ExcelFileSystem implements FileSystem {
 
         @Override
         public void finish() {
-            if (sheets.isEmpty()) return;
+            if (sheets.isEmpty()) {
 
             callback.onStart();
             callback.onBeginWrite();
@@ -595,7 +597,7 @@ public class ExcelFileSystem implements FileSystem {
                 int processed = 0;
                 for (SheetContext ctx : sheets.values()) {
                     // 跳过无数据的 Sheet
-                    if (ctx.rows.isEmpty() && !ctx.withHeader) continue;
+                    if (ctx.rows.isEmpty() && !ctx.withHeader) {
 
                     writeSingleSheet(wb, ctx);
                     callback.onProgress(++processed, totalSheets);
@@ -638,7 +640,7 @@ public class ExcelFileSystem implements FileSystem {
 
             // 写数据行（带行过滤）
             for (Map<String, Object> map : ctx.rows) {
-                if (!testRow(map)) continue;
+                if (!testRow(map)) {
                 Row row = sheet.createRow(rowIdx++);
                 for (int c = 0; c < headers.size(); c++) {
                     Object val = map.get(headers.get(c));

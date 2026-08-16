@@ -9,6 +9,7 @@ package com.chua.common.support.value;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 final class NullValue implements Value<Object> {
 

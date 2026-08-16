@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 
 /**
  * @author CH
- * @since 2024/10/29
+ * @since 4.0.0.42
  */
 /**
  * 图像透明度处理滤镜
@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2024/10/29
+ * @since 4.0.0.42
  */
 @Spi("transparent")
 @SpiDescribe("透明度背景移除滤镜")

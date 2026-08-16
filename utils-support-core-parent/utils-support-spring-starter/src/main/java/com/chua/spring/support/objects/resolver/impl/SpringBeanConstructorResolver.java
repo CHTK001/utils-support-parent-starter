@@ -52,7 +52,9 @@ public class SpringBeanConstructorResolver implements BeanConstructorResolver {
         if (qualifierName != null && nameProvider != null) {
             try {
                 Object result = nameProvider.apply(qualifierName);
-                if (result != null) return result;
+                if (result != null) {
+                    return result;
+                }
             } catch (Exception ignored) {
             }
         }
@@ -60,7 +62,9 @@ public class SpringBeanConstructorResolver implements BeanConstructorResolver {
         if (typeProvider != null) {
             try {
                 Object result = typeProvider.apply(paramType);
-                if (result != null) return result;
+                if (result != null) {
+                    return result;
+                }
             } catch (Exception ignored) {
             }
         }
@@ -68,7 +72,9 @@ public class SpringBeanConstructorResolver implements BeanConstructorResolver {
         if (nameProvider != null) {
             try {
                 Object result = nameProvider.apply(paramName);
-                if (result != null) return result;
+                if (result != null) {
+                    return result;
+                }
             } catch (Exception ignored) {
             }
         }

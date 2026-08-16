@@ -9,6 +9,7 @@ import java.util.List;
  * 支持真实 ACME 服务器（如 Let's Encrypt）和 JDK 自签名证书两种模式。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public interface AcmeProvider {

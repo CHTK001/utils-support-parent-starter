@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * 内置演示音源数据，后续可替换为真实 SPI 实现
  * 
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
 */
 @Spi("demo")
 public class DemoMusicSourceProvider implements MusicSourceProvider {

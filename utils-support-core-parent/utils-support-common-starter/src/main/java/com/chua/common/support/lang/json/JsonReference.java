@@ -12,6 +12,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE
  * 以及直接获取对应的 JsonObject 或 JsonArray 实例的方法。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class JsonReference {
  /**

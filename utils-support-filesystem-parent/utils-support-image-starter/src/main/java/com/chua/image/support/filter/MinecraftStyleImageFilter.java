@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
  * - 饱和度调整：模拟游戏中的色彩风格
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

@@ -58,7 +58,7 @@ import java.util.function.Function;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 /**
  * Redis KV 后端 SPI 名称。

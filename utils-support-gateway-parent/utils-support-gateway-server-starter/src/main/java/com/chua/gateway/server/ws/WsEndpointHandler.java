@@ -445,7 +445,7 @@ public final class WsEndpointHandler {
             mask = new byte[4];
             for (int i = 0; i < 4; i++) {
                 int c = in.read();
-                if (c == -1) throw new IOException("eof in mask");
+                if (c == -1) {
                 mask[i] = (byte) c;
             }
         }
@@ -498,11 +498,11 @@ public final class WsEndpointHandler {
         }
         String s = new String(frame.payload, StandardCharsets.UTF_8);
         int idx = s.indexOf("\"tunnelId\"");
-        if (idx < 0) return null;
+        if (idx < 0) {
         int colon = s.indexOf(':', idx);
         int quote1 = s.indexOf('"', colon + 1);
         int quote2 = s.indexOf('"', quote1 + 1);
-        if (quote1 < 0 || quote2 < 0) return null;
+        if (quote1 < 0 || quote2 < 0) {
         return s.substring(quote1 + 1, quote2);
     }
 

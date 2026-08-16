@@ -12,7 +12,7 @@ import java.util.Date;
  * 将 {@link LocalDate} 转换为 {@link Date}
  *
  * @author CH
- * @since 2026/7/19
+ * @since 4.0.0.42
  */
 @Slf4j
 public class LocalDateToDateConverter implements Converter<LocalDate, Date> {

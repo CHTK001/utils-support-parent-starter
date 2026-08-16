@@ -4,7 +4,7 @@ package com.chua.datalake.support.model;
  * 管线状态枚举。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public enum PipelineState {
 

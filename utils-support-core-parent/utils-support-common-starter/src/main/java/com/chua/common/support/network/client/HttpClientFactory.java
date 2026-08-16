@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>如需强制使用特定执行器，可通过 {@link #getClient(String)} 传入名称。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see HttpClientBuilder
  * @see HttpClientExecutor
  */

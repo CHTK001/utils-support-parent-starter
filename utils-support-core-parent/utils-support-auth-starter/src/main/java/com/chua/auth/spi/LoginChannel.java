@@ -21,7 +21,7 @@ import com.chua.auth.support.LoginResponse;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 @Spi
 public interface LoginChannel {

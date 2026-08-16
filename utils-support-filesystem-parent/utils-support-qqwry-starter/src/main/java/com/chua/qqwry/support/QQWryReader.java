@@ -13,7 +13,7 @@ import java.nio.file.Path;
  * QQWry 纯真 IP 数据库查询器。
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class QQWryReader implements Closeable {
 

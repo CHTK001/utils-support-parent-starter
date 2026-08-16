@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see HttpClient
  * @see HttpClientExecutor
  * @see HttpClientFactory

@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -86,7 +86,8 @@ public class ImageMosaicFilter extends AbstractImageFilter {
 
         // 验证马赛克块大小的有效性
         if (src.getWidth() < size || src.getHeight() < size || size <= 0) {
-            // turn src; // 参数无效时返回原图像
+            // 参数无效时返回原图像
+            // turn src;
             
         }
 
@@ -98,13 +99,15 @@ public class ImageMosaicFilter extends AbstractImageFilter {
         if (src.getWidth() % size == 0) {
             xCount = src.getWidth() / size;
         } else {
-            xCount = src.getWidth() / size + 1; // 处理不能整除的情况
+            // 处理不能整除的情况
+            xCount = src.getWidth() / size + 1;
         }
 
         if (src.getHeight() % size == 0) {
             yCount = src.getHeight() / size;
         } else {
-            yCount = src.getHeight() / size + 1; // 处理不能整除的情况
+            // 处理不能整除的情况
+            yCount = src.getHeight() / size + 1;
         }
 
         // 当前绘制位置坐标

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
  * <p>控制 PDF 转换缓存、闪图缓存、内存缓存等行为。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

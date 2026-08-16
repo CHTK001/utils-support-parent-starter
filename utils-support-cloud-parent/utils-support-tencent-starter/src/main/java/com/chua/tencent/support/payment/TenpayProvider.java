@@ -24,7 +24,7 @@ import java.util.Map;
  * 微信支付渠道实现
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("tenpay")

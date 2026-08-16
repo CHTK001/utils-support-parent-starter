@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </pre>
  *
  * @author CH
- * @since 2026/08/03
+ * @since 4.0.0.42
  */
 @Spi("webhook")
 @SpiDescribe(

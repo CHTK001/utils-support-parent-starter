@@ -118,7 +118,8 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         String percentage = String.format("%.1f%%", progress.getNormalizedProgress() * 100);
         
         //                                  
-        int maxTaskNameLength = Math.max(10, maxLength / 3); //                                  1/3         10         
+        // 任务名最大长度约为进度条长度的 1/3，最小为 10
+        int maxTaskNameLength = Math.max(10, maxLength / 3);         
         if (taskName != null && getStringDisplayLength(taskName) > maxTaskNameLength) {
             //                                     
             taskName = truncateString(taskName, maxTaskNameLength - 3) + "...";
@@ -228,11 +229,11 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         //                                              
         DecimalFormat format;
         if (speed >= 100) {
-            format = new DecimalFormat("#");  //             
+            format = new DecimalFormat("#");             
         } else if (speed >= 10) {
-            format = new DecimalFormat("#.#");  //             
+            format = new DecimalFormat("#.#");             
         } else {
-            format = new DecimalFormat("#.##");  //             
+            format = new DecimalFormat("#.##");             
         }
         
         return format.format(speed) + " " + units[unitIndex] + timeSuffix;
@@ -251,35 +252,35 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         if (progress.indefinite) {
             //                                     
             int pos = (int) (progress.current % length);
-            sb.append("\u001b[95m"); //          
+            sb.append("\u001b[95m");          
             for (int i = 0; i < length; i++) {
                 if (i == pos) {
                     sb.append("   ");
                 } else if (Math.abs(i - pos) <= 2) {
                     sb.append("   ");
                 } else {
-                    sb.append("\u001b[90m   \u001b[95m"); //             
+                    sb.append("\u001b[90m   \u001b[95m");             
                 }
             }
-            sb.append("\u001b[0m"); //             
+            sb.append("\u001b[0m");             
         } else {
             //                                           
             double progressRatio = progress.getNormalizedProgress();
             int filledLength = (int) (length * progressRatio);
             
             //                               
-            sb.append("\u001b[95m"); //          
+            sb.append("\u001b[95m");          
             for (int i = 0; i < filledLength; i++) {
                 sb.append("   ");
             }
             
             //                            
-            sb.append("\u001b[90m"); //       
+            sb.append("\u001b[90m");       
             for (int i = filledLength; i < length; i++) {
                 sb.append("   ");
             }
             
-            sb.append("\u001b[0m"); //             
+            sb.append("\u001b[0m");             
         }
         
         return sb.toString();
@@ -355,7 +356,8 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         String cleaned = str.replaceAll("\\u001b\\[[0-9;]*m", "");
         
         if (cleaned.length() <= maxLength) {
-            return str; //                               ANSI         
+            // 未超出最大长度时直接返回原字符串
+            return str;         
         }
         
         //                

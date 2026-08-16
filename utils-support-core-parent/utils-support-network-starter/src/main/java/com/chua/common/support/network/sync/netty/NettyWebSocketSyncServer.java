@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 基于 Netty 的 WebSocket 同步服务端实现。
  *
  * @author CH
- * @since 2026-07-25
+ * @since 4.0.0.42
  */
 @Spi("netty-websocket")
 public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {

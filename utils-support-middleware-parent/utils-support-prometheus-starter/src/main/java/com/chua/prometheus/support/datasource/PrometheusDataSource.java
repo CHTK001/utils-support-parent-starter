@@ -12,7 +12,7 @@ import com.chua.prometheus.support.client.PrometheusClient;
  * </p>
  *
  * @author CH
- * @since 2026/8/4
+ * @since 4.0.0.42
  */
 public class PrometheusDataSource implements EngineDataSource<PrometheusClient> {
 

@@ -157,10 +157,10 @@ public class GitClient implements AutoCloseable {
      * @throws GitClientException 如果目录不是有效的 Git 仓库
      */
     public GitClient open() {
-        if (git != null) return this;
+        if (git != null) {
         lock.lock();
         try {
-            if (git != null) return this;
+            if (git != null) {
             java.io.File gitDir = new java.io.File(localPath.toFile(), ".git");
             if (gitDir.exists() && gitDir.isDirectory()) {
                 git = Git.open(localPath.toFile());
@@ -192,7 +192,7 @@ public class GitClient implements AutoCloseable {
      * @return JGit Git 对象
      */
     public Git getGit() {
-        if (git == null) open();
+        if (git == null) {
         return git;
     }
 

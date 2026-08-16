@@ -1,1 +1,1 @@
-netty-httpclient=com.chua.netty.support.executor.NettyHttpClientExecutor
+# Netty 已移除：HTTP 客户端执行器由 utils-support-common-starter（jdk）及其他模块（okhttp/httpclient5）提供

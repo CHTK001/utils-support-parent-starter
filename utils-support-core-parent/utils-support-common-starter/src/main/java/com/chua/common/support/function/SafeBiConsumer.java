@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
  * 安全的 BiConsumer，捕获并忽略执行过程中的异常
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public interface SafeBiConsumer<T, U> extends BiConsumer<T, U> {

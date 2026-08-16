@@ -7,7 +7,7 @@ package com.chua.datalake.support.spi.sink;
  * 管线下发的每条数据都会被立即感知处理（无存储落盘行为）。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public interface AccessSink extends DataSink {
 

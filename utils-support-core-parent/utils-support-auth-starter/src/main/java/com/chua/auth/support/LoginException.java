@@ -4,7 +4,7 @@ package com.chua.auth.support;
  * 登录异常
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 public class LoginException extends RuntimeException {
 

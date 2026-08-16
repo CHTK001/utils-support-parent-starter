@@ -51,7 +51,7 @@ public final class WsBridgeServer {
     public void stop() {
         running = false;
         try {
-            if (serverSocket != null) serverSocket.close();
+            if (serverSocket != null) {
         } catch (Exception ignored) {}
     }
 
@@ -166,7 +166,7 @@ public final class WsBridgeServer {
             try {
                 while (true) {
                     var frame = readWsFrame(in);
-                    if (frame == null) break;
+                    if (frame == null) {
                     if (frame.opcode == 0x08) break; // Close
                     if (frame.opcode == 0x09) continue; // Ping
                     if (frame.opcode == 0x0A) continue; // Pong
@@ -195,9 +195,11 @@ public final class WsBridgeServer {
 
     private WsFrame readWsFrame(InputStream in) throws Exception {
         int b0 = in.read();
-        if (b0 < 0) return null;
+        if (b0 < 0) {
         int b1 = in.read();
-        if (b1 < 0) return null;
+        if (b1 < 0) {
+            return null;
+        }
 
         var opcode = (byte) (b0 & 0x0F);
         var masked = (b1 & 0x80) != 0;

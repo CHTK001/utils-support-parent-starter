@@ -11,6 +11,7 @@ import java.util.List;
  *
  * @param <B> 构建器子类型
  * @author CH
+ * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")
 public class ScatterGatherBuilder<B extends ScatterGatherBuilder<B>> {

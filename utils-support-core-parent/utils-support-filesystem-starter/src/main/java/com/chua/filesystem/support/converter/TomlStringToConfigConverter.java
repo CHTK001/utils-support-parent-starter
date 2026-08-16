@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author CH
  * @version 1.0.0
- * @since 2025/11/27
+ * @since 4.0.0.42
  */
 @SuppressWarnings("ALL")
 @Spi({"toml"})

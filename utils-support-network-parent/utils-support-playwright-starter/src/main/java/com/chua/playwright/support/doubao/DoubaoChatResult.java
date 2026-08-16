@@ -15,7 +15,7 @@ import java.util.Map;
  * @param rawEvents       原始 SSE 事件列表（供图像/视频生成等解析）
  * @param done            是否正常结束
  * @author CH
- * @since 2026/08/11
+ * @since 4.0.0.42
  */
 public record DoubaoChatResult(
         String text,

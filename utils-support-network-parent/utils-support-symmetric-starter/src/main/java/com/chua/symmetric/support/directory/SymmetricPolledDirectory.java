@@ -63,7 +63,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/16
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SymmetricPolledDirectory implements PolledDirectory {

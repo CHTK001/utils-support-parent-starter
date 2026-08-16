@@ -56,6 +56,12 @@ public class SamePackageServiceResolver implements ServiceResolver {
     private static final Map<String, Object> CLASS_LOCKS = new ConcurrentHashMap<>(512);
 
     /**
+     * JAR URL 锁缓存：同一 URL 的打开-扫描-关闭必须串行，
+     * 避免一个线程 close 后其他线程访问已关闭的 JarFile 报 zip file closed。
+     */
+    private static final Map<String, Object> JAR_URL_LOCKS = new ConcurrentHashMap<>(64);
+
+    /**
      * 批量加载大小
      */
     private static final int BATCH_SIZE = 100;
@@ -222,6 +228,18 @@ public class SamePackageServiceResolver implements ServiceResolver {
                                   String packageDirName,
                                   Class<?> service,
                                   ClassLoader classLoader) {
+        // 同一 URL 串行打开-扫描-关闭,避免并发 close 导致 zip file closed
+        Object lock = JAR_URL_LOCKS.computeIfAbsent(url.toString(), k -> new Object());
+        synchronized (lock) {
+            doAnalysisJarUrlInner(result, url, packageDirName, service, classLoader);
+        }
+    }
+
+    private void doAnalysisJarUrlInner(Collection<Class<?>> result,
+                                       URL url,
+                                       String packageDirName,
+                                       Class<?> service,
+                                       ClassLoader classLoader) {
         JarFile jarFile = null;
         try {
             JarURLConnection connection = (JarURLConnection) url.openConnection();

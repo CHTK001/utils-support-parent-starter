@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class HttpReflectiveDefaultServerHandler extends DefaultHttpServerHandler implements ReflectiveHttpDefaultServerHandler {
 

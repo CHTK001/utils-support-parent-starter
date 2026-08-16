@@ -10,6 +10,7 @@ import lombok.Data;
  * 支持 builder 模式构建，也支持 SPI 自动注入。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  * 通过事件出站轮询（Outbox）或 Webhook 回调接收用户消息。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FeishuBotClient implements BotClient {

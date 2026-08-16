@@ -1,12 +1,18 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-/**
- * @author CH
- */
 
+/**
+ * Oracle 11g 方言实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class Oracle11gDialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "Oracle 11g";
 
     @Override

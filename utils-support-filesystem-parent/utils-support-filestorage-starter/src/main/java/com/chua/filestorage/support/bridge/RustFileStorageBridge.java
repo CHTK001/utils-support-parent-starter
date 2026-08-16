@@ -113,7 +113,7 @@ public class RustFileStorageBridge {
     private static native boolean nativeIsExcluded0(String path, String extension);
 
     private static List<String> parseList(String s) {
-        if (s == null || s.isBlank()) return Collections.emptyList();
+        if (s == null || s.isBlank()) {
         return java.util.Arrays.stream(s.split(","))
                 .map(String::trim)
                 .filter(t -> !t.isEmpty())
@@ -125,9 +125,11 @@ public class RustFileStorageBridge {
         json = json.replaceAll("[{}\"]", "");
         for (String pair : json.split(",")) {
             String[] kv = pair.split(":", 2);
-            if (kv.length != 2) continue;
+            if (kv.length != 2) {
             String k = kv[0].trim(), v = kv[1].trim();
-            if (v.isEmpty() || "null".equals(v)) continue;
+            if (v.isEmpty() || "null".equals(v)) {
+                continue;
+            }
             switch (k) {
                 case "size" -> b.size(v);
                 case "format" -> b.format(v);
@@ -153,24 +155,29 @@ public class RustFileStorageBridge {
     }
 
     private static List<FileStorageFilterSetting.ImageFilterConfig> parseFilterChainJson(String json) {
-        if (json == null || json.isBlank() || "[]".equals(json.trim())) return Collections.emptyList();
+        if (json == null || json.isBlank() || "[]".equals(json.trim())) {
         java.util.List<FileStorageFilterSetting.ImageFilterConfig> r = new java.util.ArrayList<>();
         String inner = json.trim();
-        if (inner.startsWith("[")) inner = inner.substring(1);
-        if (inner.endsWith("]")) inner = inner.substring(0, inner.length() - 1);
-        if (inner.isBlank()) return r;
+        if (inner.startsWith("[")) {
+        if (inner.endsWith("]")) inner = inner.substring(0, inner.length() {
+            - 1);
+        }
+        if (inner.isBlank()) {
+            return r;
         for (String obj : inner.split("\\}\\s*,\\s*\\{")) {
             obj = obj.replaceAll("[{}\"]", "").trim();
             String id = null;
             var params = new java.util.HashMap<String, Object>();
             for (String pair : obj.split(",")) {
                 String[] kv = pair.split(":", 2);
-                if (kv.length != 2) continue;
+                if (kv.length != 2) {
                 String k = kv[0].trim(), v = kv[1].trim();
-                if (k.equals("id")) id = v;
+                if (k.equals("id")) {
+                    id = v;
+                }
                 else if (k.startsWith("param_")) params.put(k.substring(6), v);
             }
-            if (id != null) r.add(FileStorageFilterSetting.ImageFilterConfig.of(id, params));
+            if (id != null) {
         }
         return r;
     }
@@ -188,7 +195,7 @@ public class RustFileStorageBridge {
     }
 
     private static Boolean boolOrNull(String s) {
-        if (s == null) return null;
+        if (s == null) {
         return "1".equals(s) || "true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s);
     }
 }

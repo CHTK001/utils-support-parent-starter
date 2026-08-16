@@ -9,6 +9,7 @@ import java.util.List;
  * ACME 证书结果。
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 @Data

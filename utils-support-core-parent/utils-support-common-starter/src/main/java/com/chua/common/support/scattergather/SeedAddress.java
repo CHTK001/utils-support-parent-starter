@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  * <p>统一解析 host 或 host:port 格式，支持 IPv4 与 IPv6（如 [::1]:19001）。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class SeedAddress {
 

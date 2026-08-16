@@ -13,7 +13,7 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
  * </p>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public abstract class AbstractDialect implements Dialect {
 

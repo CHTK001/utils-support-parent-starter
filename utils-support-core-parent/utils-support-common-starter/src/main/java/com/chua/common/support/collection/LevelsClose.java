@@ -20,6 +20,7 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_BUFFER_SIZ
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public class LevelsClose implements Levels {

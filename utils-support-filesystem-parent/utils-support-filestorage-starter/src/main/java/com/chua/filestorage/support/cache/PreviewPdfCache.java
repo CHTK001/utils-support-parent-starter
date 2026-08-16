@@ -19,7 +19,7 @@ import java.nio.file.Path;
  * <p>缓存文件命名：{@code <sha256(key + ".pdf")>.pdf}</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PreviewPdfCache {

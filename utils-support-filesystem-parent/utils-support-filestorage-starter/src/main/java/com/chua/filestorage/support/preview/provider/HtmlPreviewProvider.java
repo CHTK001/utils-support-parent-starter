@@ -14,7 +14,7 @@ import java.util.Set;
  * <p>通过 srcdoc 属性实现内联渲染，自动移除危险脚本标签以保障安全</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("preview-html")
 public class HtmlPreviewProvider implements FileStoragePreviewProvider {

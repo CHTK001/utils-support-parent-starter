@@ -20,6 +20,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
  * 服务发现信息模型，用于描述网络服务的元数据。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

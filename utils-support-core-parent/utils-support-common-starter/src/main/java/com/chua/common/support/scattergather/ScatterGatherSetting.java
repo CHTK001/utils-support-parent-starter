@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
  * <p>集中管理节点、发现、容错、重试、心跳等所有配置项。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Setter

@@ -28,7 +28,7 @@ import java.util.Map;
  * 实现中自动识别并处理两种格式。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"tencent-hunyuan", "tencent"})

@@ -23,7 +23,7 @@ import java.util.List;
  * <p>SPI 名称：{@code extractor:html}
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("html")

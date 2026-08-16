@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 @Data

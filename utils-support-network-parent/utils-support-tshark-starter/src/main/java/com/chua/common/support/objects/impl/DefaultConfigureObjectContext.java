@@ -8,7 +8,7 @@ import com.chua.common.support.objects.ObjectContextSetting;
  * <p>用于单元测试或框架未启用任何注册逻辑的场景占位。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public class DefaultConfigureObjectContext implements ConfigureObjectContext {
 

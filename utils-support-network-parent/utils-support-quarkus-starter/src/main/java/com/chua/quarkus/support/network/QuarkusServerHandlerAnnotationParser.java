@@ -31,7 +31,7 @@ import java.util.Set;
  * 注解并生成 HTTP 路由处理器。</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @Spi("quarkus")
 @ConditionalOnClass("jakarta.ws.rs.Path")

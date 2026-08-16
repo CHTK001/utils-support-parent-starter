@@ -9,6 +9,7 @@ import java.util.Locale;
  * PNG 图像写入参数类，继承自 ImageWriteParam，配置 PNG 图像的压缩参数。
  *
  * @author CH
+ * @since 4.0.0.42
 */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -50,14 +51,21 @@ public final class PNGImageWriteParam extends ImageWriteParam {
      */
     PNGImageWriteParam(Locale locale) {
         super();
-        this.canWriteProgressive = true; // 支持渐进式编码
+        // 支持渐进式编码
+        this.canWriteProgressive = true;
         this.locale = locale;
-        this.canWriteCompressed = true; // 支持压缩
-        this.compressionTypes = compressionNames; // 设置压缩方法
-        this.compressionType = compressionNames[0]; // 默认使用 Deflate 压缩方法
-        this.compressionMode = MODE_DEFAULT; // 默认压缩模式
-        this.compressionQuality = DEFAULT_QUALITY; // 默认压缩质量
-        animContainsIDAT = true; // 默认动画 PNG 包含 IDAT 块
+        // 支持压缩
+        this.canWriteCompressed = true;
+        // 设置压缩方法
+        this.compressionTypes = compressionNames;
+        // 默认使用 Deflate 压缩方法
+        this.compressionType = compressionNames[0];
+        // 默认压缩模式
+        this.compressionMode = MODE_DEFAULT;
+        // 默认压缩质量
+        this.compressionQuality = DEFAULT_QUALITY;
+        // 默认动画 PNG 包含 IDAT 块
+        animContainsIDAT = true;
     }
 
     /**
@@ -70,8 +78,10 @@ public final class PNGImageWriteParam extends ImageWriteParam {
     @Override
     public void unsetCompression() {
         super.unsetCompression();
-        this.compressionType = compressionType; // 恢复默认压缩方法
-        this.compressionQuality = DEFAULT_QUALITY; // 恢复默认压缩质量
+        // 恢复默认压缩方法
+        this.compressionType = compressionType;
+        // 恢复默认压缩质量
+        this.compressionQuality = DEFAULT_QUALITY;
     }
 
     /**

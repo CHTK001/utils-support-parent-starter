@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
  * </ol>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class DefaultPipeline implements Pipeline {
 

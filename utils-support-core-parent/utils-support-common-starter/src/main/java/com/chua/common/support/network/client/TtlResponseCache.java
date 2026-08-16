@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.LongAdder;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see DefaultHttpClient
  */
 public class TtlResponseCache {

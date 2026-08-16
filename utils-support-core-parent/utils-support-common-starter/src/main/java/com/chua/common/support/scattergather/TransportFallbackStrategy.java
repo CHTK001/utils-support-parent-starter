@@ -5,6 +5,7 @@ package com.chua.common.support.scattergather;
  * <p>当首选协议（如 UDP）不可用时，通过此接口降级为备用协议（如 TCP）。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @FunctionalInterface
 public interface TransportFallbackStrategy {

@@ -247,20 +247,79 @@ public class FacePipeline {
      */
     public static final class Builder {
 
+        /**
+         * 人脸检测器
+         */
         private FaceDetector detector;
+
+        /**
+         * 活体检测器
+         */
         private LivenessDetector liveness;
+
+        /**
+         * 特征提取器
+         */
         private FeatureExtractor featureExtractor;
+
+        /**
+         * 向量存储
+         */
         private VectorStorage vectorStorage;
+
+        /**
+         * 动漫人脸检测器
+         */
         private FaceDetector animeDetector;
+
+        /**
+         * 超分辨率增强器
+         */
         private ImageEnhancer superResolution;
+
+        /**
+         * 图像修复增强器
+         */
         private ImageEnhancer restorer;
+
+        /**
+         * 属性分类器
+         */
         private ImageClassifier attributeClassifier;
+
+        /**
+         * 情绪分类器
+         */
         private ImageClassifier emotionClassifier;
+
+        /**
+         * 关键点提取器
+         */
         private FeatureExtractor landmarkExtractor;
+
+        /**
+         * 人脸质量评估器
+         */
         private FaceQualityAssessor qualityAssessor;
+
+        /**
+         * 深伪检测分类器
+         */
         private ImageClassifier deepfakeClassifier;
+
+        /**
+         * Top-K 命中数量
+         */
         private int topK = 5;
+
+        /**
+         * 是否要求活体检测通过
+         */
         private boolean requireLive = true;
+
+        /**
+         * 活体检测置信度阈值
+         */
         private float livenessThreshold = 0.5f;
 
         /**
@@ -1137,6 +1196,12 @@ public class FacePipeline {
         return hits;
     }
 
+    /**
+     * 选择面积最大的检测框。
+     *
+     * @param boxes 检测框列表
+     * @return 面积最大的检测框
+     */
     private static PredictRectangle pickLargest(List<PredictRectangle> boxes) {
         PredictRectangle largest = boxes.get(0);
         float maxArea = largest.width() * largest.height();
@@ -1151,6 +1216,13 @@ public class FacePipeline {
         return largest;
     }
 
+    /**
+     * 计算两个特征向量的余弦相似度。
+     *
+     * @param a 特征向量 A
+     * @param b 特征向量 B
+     * @return 余弦相似度，参数非法时返回 0
+     */
     private static double cosineSimilarity(float[] a, float[] b) {
         if (a == null || b == null || a.length == 0 || a.length != b.length) {
             return 0d;

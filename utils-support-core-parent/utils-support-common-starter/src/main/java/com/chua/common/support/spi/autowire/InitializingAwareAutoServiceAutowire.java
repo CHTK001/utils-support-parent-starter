@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
  * 初始化感知自动装配
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
 

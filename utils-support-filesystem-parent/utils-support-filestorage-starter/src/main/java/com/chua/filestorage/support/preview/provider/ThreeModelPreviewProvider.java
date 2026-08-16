@@ -13,7 +13,7 @@ import java.util.Set;
  * <p>SPI 类型：{@code preview-3d}。输出嵌入 OrbitControls 的 three.js 预览页面。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("preview-3d")
 public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {

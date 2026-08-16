@@ -11,7 +11,7 @@ import com.chua.jvector.support.storage.JVectorVectorStorage;
  * JVector 向量存储 SPI 实现。
  *
  * @author CH
- * @since 2025/01/15
+ * @since 4.0.0.42
  */
 @Spi(value = "jvector", order = 100)
 public class JVectorVectorStorageProvider implements VectorStorageProvider {

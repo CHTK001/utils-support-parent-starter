@@ -22,6 +22,7 @@ import java.util.Map;
  * 以及转换为 pdf/html/txt/rtf/epub/odt/xps 等格式。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("aspose-word")

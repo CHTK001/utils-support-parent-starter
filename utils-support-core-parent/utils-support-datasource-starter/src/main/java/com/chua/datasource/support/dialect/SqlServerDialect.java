@@ -1,12 +1,18 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-/**
- * @author CH
- */
 
+/**
+ * SQL Server 2019+ 方言实现（兼容 2016/2017）。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class SqlServerDialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "SQL Server 2019+ (兼容 2016/2017)";
 
     @Override

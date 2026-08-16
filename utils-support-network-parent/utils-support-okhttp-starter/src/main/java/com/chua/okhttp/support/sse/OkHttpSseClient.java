@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * </ul>
  *
  * @author CH
- * @since 2026/07/21
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("okhttp")

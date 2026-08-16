@@ -4,7 +4,7 @@ package com.chua.common.support.status;
  * 服务器运行状态枚举，标记 STARTING / RUNNING / STOPPING / STOPPED / PAUSED / ERROR 六种生命周期阶段。
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public enum ServerStatus {
 

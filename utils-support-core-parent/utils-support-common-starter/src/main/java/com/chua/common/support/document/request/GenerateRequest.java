@@ -7,6 +7,7 @@ package com.chua.common.support.document.request;
  * <p>封装文档生成所需的文件名、内容等参数。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class GenerateRequest {
 

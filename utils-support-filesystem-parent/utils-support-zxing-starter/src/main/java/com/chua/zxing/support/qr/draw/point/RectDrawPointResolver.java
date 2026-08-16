@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * RectDrawPointResolver类，继承自AbstractDrawPointResolver。该类为解决矩形绘制中的点解析问题提供具体的实现。
  *
  * @author CH
- * @since 2024/5/30 表示该类是从2024年5月30日开始提供的。
+ * @since 4.0.0.42
  */
 @Spi("RECTANGLE")
 public class RectDrawPointResolver extends AbstractDrawPointResolver {

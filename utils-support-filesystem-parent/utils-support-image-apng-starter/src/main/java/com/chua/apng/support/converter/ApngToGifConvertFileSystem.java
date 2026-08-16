@@ -31,7 +31,7 @@ import java.util.List;
  * 5. 颜色优化
  *
  * @author CH
- * @since 2024/7/20
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("apng2gif")
@@ -141,11 +141,11 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
         try {
             // 尝试从元数据中获取延迟时间
             javax.imageio.metadata.IIOMetadata metadata = reader.getImageMetadata(frameIndex);
-            if (metadata != null) {
+if (metadata != null) {
                 // 这里可以解析 APNG 特定的元数据
                 // 由于 APNG 元数据解析比较复杂，这里使用默认值
-                // return 100; // 默认 100ms
-            
+                // return 100;
+                // 默认 100ms
             }
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
@@ -153,7 +153,8 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
             }
         }
 
-        return 100; // 默认延迟时间
+        // 默认延迟时间
+        return 100;
     }
 
     /**

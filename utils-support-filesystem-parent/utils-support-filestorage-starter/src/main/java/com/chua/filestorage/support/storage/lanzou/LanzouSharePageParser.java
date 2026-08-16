@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * 直链为 {@code dom + "/file/" + url}。{@code zt != 1} 时 {@code inf} 为错误信息。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 final class LanzouSharePageParser {
 

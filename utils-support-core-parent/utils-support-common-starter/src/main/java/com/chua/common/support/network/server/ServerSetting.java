@@ -31,6 +31,70 @@ public class ServerSetting {
     }
 
     /**
+     * 创建一份按当前系统自动配置最优参数的服务器配置。
+     *
+     * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
+     * 等待队列长度、缓冲区等关键性能参数（等效于 {@code autoConfig()}）。</p>
+     *
+     * @return 自动配置实例
+     */
+    public static ServerSetting auto() {
+        return new ServerSetting().autoConfig();
+    }
+
+    /**
+     * 是否启用按当前系统自动配置最优参数。
+     *
+     * <p>开启后，{@link AbstractServer} 启动前会基于 CPU 核数、JVM 可用堆内存与
+     * 操作系统类型自动调整线程数、连接数、等待队列、缓冲区等性能参数，
+     * 使服务器在各环境中都能获得较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
+     */
+    @Builder.Default
+    private boolean auto = true;
+
+    /**
+     * 按当前系统自动配置最优参数。
+     *
+     * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
+     * 等待队列长度、缓冲区等关键性能参数。返回当前实例，便于链式调用。</p>
+     *
+     * @return 当前配置实例
+     */
+    public ServerSetting autoConfig() {
+        int cpus = Runtime.getRuntime().availableProcessors();
+        long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+        String os = System.getProperty("os.name", "").toLowerCase();
+
+        // 线程模型：Worker 随 CPU 核数伸缩，Boss 保持 1（accept 循环单线程足够）
+        this.workerThreads = Math.max(2, cpus * 2);
+        this.bossThreads = 1;
+
+        // 等待队列：Windows 语义较弱适当收敛，Unix 系可放大
+        this.backlog = os.contains("win")
+                ? Math.min(Math.max(cpus * 64, 128), 1024)
+                : Math.min(Math.max(cpus * 128, 256), 4096);
+
+        // 最大连接数：按可用堆内存分级
+        if (heapMb >= 8192) {
+            this.maxConnections = 100000;
+        } else if (heapMb >= 4096) {
+            this.maxConnections = 50000;
+        } else if (heapMb >= 2048) {
+            this.maxConnections = 20000;
+        } else {
+            this.maxConnections = 10000;
+        }
+
+        // 缓冲区：内存充足时放大，减少系统调用次数
+        this.bufferSize = heapMb >= 4096 ? 16384 : 8192;
+
+        // 响应式处理模式：多核机器默认启用（由具体实现决定是否支持）
+        this.reactor = cpus >= 8;
+
+        return this;
+    }
+
+    /**
      * 主机名
      */
     @Builder.Default

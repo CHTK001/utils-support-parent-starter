@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
  * 水印
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @SpiDescribe("水印")
 @Spi("water")

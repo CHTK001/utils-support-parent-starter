@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
  *
  * @author Kevin Weiner, FM Software
  * @version 1.03 November 2003
- * @since 5.3.8
+ * @since 4.0.0.42
  * @author CH
 */
 public class GifEncoder {

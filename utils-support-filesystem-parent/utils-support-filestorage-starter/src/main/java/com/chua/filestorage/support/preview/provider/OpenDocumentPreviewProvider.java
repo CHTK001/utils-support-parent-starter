@@ -13,7 +13,7 @@ import java.util.Set;
  * <p>实现思路：将 OpenDocument 文件转换为 PDF 后使用浏览器 PDF 预览能力展示</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("preview-opendocument")
 public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {

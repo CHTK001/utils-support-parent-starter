@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 public final class ProxyFetcherFlow {
 

@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  * 以及按关键字删除包含指定水印文本的行。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class HtmlWatermarkRemover {

@@ -9,6 +9,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * 锁释放辅助：同步结果立即释放，响应式/异步结果在完成后再释放。
   * @author CH
+ * @since 4.0.0.42
  */
 public final class LockReleaseSupport {
 

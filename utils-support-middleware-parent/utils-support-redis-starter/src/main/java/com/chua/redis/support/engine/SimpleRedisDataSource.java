@@ -7,6 +7,7 @@ import com.chua.redis.support.client.RedisClient;
 import redis.clients.jedis.JedisPool;
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 
 public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {

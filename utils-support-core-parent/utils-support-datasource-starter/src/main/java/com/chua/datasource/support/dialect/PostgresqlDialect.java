@@ -1,12 +1,18 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-/**
- * @author CH
- */
 
+/**
+ * PostgreSQL 14+ 方言实现（兼容 12/13）。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PostgresqlDialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "PostgreSQL 14+ (兼容 12/13)";
 
     @Override

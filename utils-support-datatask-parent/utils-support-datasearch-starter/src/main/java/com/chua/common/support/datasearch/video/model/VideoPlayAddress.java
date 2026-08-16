@@ -6,7 +6,7 @@ import java.util.List;
  * 在线地址
  *
  * @author CH
- * @since 2025/9/18 09:26
+ * @since 4.0.0.42
  */
 public class VideoPlayAddress {
 

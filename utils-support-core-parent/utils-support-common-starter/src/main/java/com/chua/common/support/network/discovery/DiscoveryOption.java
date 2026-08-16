@@ -9,6 +9,7 @@ import java.util.Map;
  * 服务发现配置选项。
  * 用于配置连接远程服务注册中心或发现服务的参数。
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Accessors(chain = true)

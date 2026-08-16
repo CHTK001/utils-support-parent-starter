@@ -17,7 +17,7 @@ import java.util.function.Function;
  * 从容器按 Named 名称或参数类型查找 Bean。</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @Spi("quarkus")
 public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {

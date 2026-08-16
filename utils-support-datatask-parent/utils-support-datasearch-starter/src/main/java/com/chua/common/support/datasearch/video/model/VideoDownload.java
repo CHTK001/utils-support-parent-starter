@@ -4,7 +4,7 @@ package com.chua.common.support.datasearch.video.model;
  * 视频下载链接
  *
  * @author CH
- * @since 2025/9/18 09:26
+ * @since 4.0.0.42
  */
 public class VideoDownload {
 

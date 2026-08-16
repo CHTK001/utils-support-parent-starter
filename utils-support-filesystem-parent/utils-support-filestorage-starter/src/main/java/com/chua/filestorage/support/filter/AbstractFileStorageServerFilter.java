@@ -70,8 +70,10 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
 
     public FileStorage getFileStorage(String name) {
         FileStorage storage = storageMap.get(name);
-        if (storage != null) return storage;
-        if (!"default".equals(name)) return storageMap.get("default");
+        if (storage != null) {
+        if (!"default".equals(name)) {
+            return storageMap.get("default");
+        }
         return storageMap.isEmpty() ? null : storageMap.values().iterator().next();
     }
 
@@ -86,8 +88,9 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      * @param filterSetting 新的 FileStorageFilterSetting 实例（传 null 保留原值）
      */
     public void upgrade(FileStorageFileSetting fileSetting, FileStorageFilterSetting filterSetting) {
-        if (fileSetting != null) this.fileSetting = fileSetting;
-        if (filterSetting != null) this.filterSetting = filterSetting;
+        if (fileSetting != null) {
+        if (filterSetting != null) {
+            this.filterSetting = filterSetting;
         log.info("[FileStorageFilter] 配置热重载: fileSetting={}, filterSetting={}",
                 fileSetting != null ? fileSetting.getClass().getSimpleName() : "unchanged",
                 filterSetting != null ? filterSetting.getClass().getSimpleName() : "unchanged");
@@ -104,7 +107,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         }
 
         String format = (ops != null && ops.getFormat() != null) ? ops.getFormat() : guessFormat(ext);
-        if (format == null) format = "jpg";
+        if (format == null) {
 
         if (ops != null && ops.getSize() != null && !ops.getSize().isBlank()) {
             String size = ops.getSize();
@@ -128,7 +131,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     private String guessFormat(String ext) {
-        if (ext == null) return "jpg";
+        if (ext == null) {
         return switch (ext) {
             case "png" -> "png";
             case "webp" -> "webp";
@@ -176,10 +179,10 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      */
     protected static String resolveFilepath(ServerRequest request) {
         String path = request.getPath();
-        if (path == null || path.isEmpty() || "/".equals(path)) return null;
+        if (path == null || path.isEmpty() || "/".equals(path)) {
         path = path.startsWith("/") ? path.substring(1) : path;
         int slashIndex = path.indexOf('/');
-        if (slashIndex < 0) return null;
+        if (slashIndex < 0) {
         return path.substring(slashIndex + 1);
     }
 
@@ -192,10 +195,10 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      */
     protected static String resolveBucket(ServerRequest request) {
         String path = request.getPath();
-        if (path == null || path.isEmpty() || "/".equals(path)) return "default";
+        if (path == null || path.isEmpty() || "/".equals(path)) {
         path = path.startsWith("/") ? path.substring(1) : path;
         int slashIndex = path.indexOf('/');
-        if (slashIndex < 0) return "default";
+        if (slashIndex < 0) {
         String bucket = path.substring(0, slashIndex);
         return bucket.isEmpty() ? "default" : bucket;
     }

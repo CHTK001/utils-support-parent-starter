@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
  * <p><b>资源管理：</b>实现 {@link AutoCloseable} 接口，可通过 try-with-resources 自动释放资源。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see HttpClientFactory
  * @see HttpClientBuilder
  * @see DefaultHttpClient

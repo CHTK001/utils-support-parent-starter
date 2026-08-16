@@ -547,22 +547,22 @@ public class H264NvencEncoder implements VideoEncoder {
             int pos = 6;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             for (int i = 0; i < numSPS; i++) {
-                if (pos + 2 > data.length) break;
+                if (pos + 2 > data.length) {
                 int spsLen = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
                 pos += 2;
-                if (pos + spsLen > data.length) break;
+                if (pos + spsLen > data.length) {
                 baos.write(0x00); baos.write(0x00); baos.write(0x00); baos.write(0x01);
                 baos.write(data, pos, spsLen);
                 pos += spsLen;
             }
-            if (pos + 1 > data.length) return;
+            if (pos + 1 > data.length) {
             int numPPS = data[pos] & 0x1f;
             pos += 1;
             for (int i = 0; i < numPPS; i++) {
-                if (pos + 2 > data.length) break;
+                if (pos + 2 > data.length) {
                 int ppsLen = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
                 pos += 2;
-                if (pos + ppsLen > data.length) break;
+                if (pos + ppsLen > data.length) {
                 baos.write(0x00); baos.write(0x00); baos.write(0x00); baos.write(0x01);
                 baos.write(data, pos, ppsLen);
                 pos += ppsLen;

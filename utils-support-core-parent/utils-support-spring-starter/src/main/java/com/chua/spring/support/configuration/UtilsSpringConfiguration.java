@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
  * Spring Boot 环境由 {@code utils-support-springboot-starter} 自动装配。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Configuration
 @EnableAspectJAutoProxy

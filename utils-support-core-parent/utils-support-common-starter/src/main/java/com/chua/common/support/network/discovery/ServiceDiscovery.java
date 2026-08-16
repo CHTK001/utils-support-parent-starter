@@ -7,6 +7,7 @@ import java.util.Set;
  * 该接口用于管理服务的注册、注销、更新和查询操作。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ServiceDiscovery extends AutoCloseable {
 

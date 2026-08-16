@@ -4,7 +4,7 @@ package com.chua.payment.support;
  * 支付异常
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 public class PayException extends RuntimeException {
 

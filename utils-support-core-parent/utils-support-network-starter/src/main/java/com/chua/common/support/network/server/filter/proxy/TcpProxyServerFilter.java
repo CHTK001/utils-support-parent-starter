@@ -7,24 +7,25 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import io.vertx.core.Vertx;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.NetSocket;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * TCP 反向代理过滤器，支持动态后端选择。
  *
- * <p>后端地址由 {@link ProxyTargetResolver} 决定，可以基于静态路由或服务发现。</p>
+ * <p>基于 Vert.x {@link NetServer} / {@link NetClient} 实现，后端地址由
+ * {@link ProxyTargetResolver} 决定，可以基于静态路由或服务发现。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
@@ -54,11 +55,12 @@ public class TcpProxyServerFilter implements ServerFilter {
 
     private final int connectTimeoutMs;
     private final int readTimeoutMs;
-    private final ExecutorService proxyPool;
-    private final AtomicBoolean running = new AtomicBoolean(false);
     private final ProxyTargetResolver targetResolver;
+    private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicInteger activeConnections = new AtomicInteger(0);
-    private java.net.ServerSocket serverSocket;
+    private Vertx vertx;
+    private NetServer netServer;
+    private NetClient netClient;
 
     public TcpProxyServerFilter() {
         this(5000, 30000, null);
@@ -91,8 +93,6 @@ public class TcpProxyServerFilter implements ServerFilter {
         this.connectTimeoutMs = connectTimeoutMs;
         this.readTimeoutMs = readTimeoutMs;
         this.targetResolver = targetResolver != null ? targetResolver : remoteAddr -> null;
-        int poolSize = Math.max(16, Runtime.getRuntime().availableProcessors() * 4);
-        this.proxyPool = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     @Override
@@ -106,9 +106,13 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     @Override
-    public void init(ServerFilterConfig config) throws Exception {
+    public void init(ServerFilterConfig config) {
+        this.vertx = Vertx.vertx();
+        this.netClient = vertx.createNetClient(new NetClientOptions()
+                .setConnectTimeout(connectTimeoutMs)
+                .setTcpNoDelay(true));
         running.set(true);
-        log.info("[network-proxy] TcpProxyServerFilter 初始化完成, connectTimeout={}ms, readTimeout={}ms, virtualThreads=true",
+        log.info("[network-proxy] TcpProxyServerFilter 初始化完成, connectTimeout={}ms, readTimeout={}ms, vertx=true",
                 connectTimeoutMs, readTimeoutMs);
     }
 
@@ -116,7 +120,12 @@ public class TcpProxyServerFilter implements ServerFilter {
     public void destroy() {
         running.set(false);
         stopProxy();
-        proxyPool.shutdownNow();
+        if (netClient != null) {
+            netClient.close();
+        }
+        if (vertx != null) {
+            vertx.close();
+        }
         log.info("[network-proxy] TcpProxyServerFilter 已关闭");
     }
 
@@ -128,11 +137,8 @@ public class TcpProxyServerFilter implements ServerFilter {
 
     public void stopProxy() {
         running.set(false);
-        if (serverSocket != null && !serverSocket.isClosed()) {
-            try {
-                serverSocket.close();
-            } catch (Exception ignored) {
-            }
+        if (netServer != null) {
+            netServer.close();
         }
     }
 
@@ -145,96 +151,54 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     public void startProxy(int listenPort, int backlog) {
-        proxyPool.submit(() -> {
-            running.set(true);
-            try {
-                int actualBacklog = backlog > 0 ? backlog : 128;
-                serverSocket = new java.net.ServerSocket(listenPort, actualBacklog);
-                log.info("[network-proxy] TCP 代理启动: port={}, backlog={}, virtualThreads=true", listenPort, actualBacklog);
-                while (running.get()) {
-                    try {
-                        Socket clientSocket = serverSocket.accept();
-                        InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
-                        Discovery discovery = targetResolver.resolve(remote);
-                        if (discovery == null) {
-                            log.warn("[network-proxy] 无法解析后端地址 for remote={}", remote);
-                            clientSocket.close();
-                            continue;
-                        }
-                        proxyPool.submit(() -> handleConnection(clientSocket, discovery));
-                    } catch (Exception e) {
-                        if (running.get()) {
-                            log.error("[network-proxy] 接受连接异常", e);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("[network-proxy] TCP 代理启动失败: port={}", listenPort, e);
-            } finally {
-                if (serverSocket != null && !serverSocket.isClosed()) {
-                    try {
-                        serverSocket.close();
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-        });
+        if (vertx == null) {
+            this.vertx = Vertx.vertx();
+        }
+        if (netClient == null) {
+            this.netClient = vertx.createNetClient(new NetClientOptions()
+                    .setConnectTimeout(connectTimeoutMs)
+                    .setTcpNoDelay(true));
+        }
+        int actualBacklog = backlog > 0 ? backlog : 128;
+        this.netServer = vertx.createNetServer(new NetServerOptions()
+                .setAcceptBacklog(actualBacklog)
+                .setTcpNoDelay(true));
+        netServer.connectHandler(clientSocket -> handleConnection(clientSocket));
+        running.set(true);
+        netServer.listen(listenPort)
+                .onSuccess(v -> log.info("[network-proxy] TCP 代理启动: port={}, backlog={}, vertx=true",
+                        listenPort, actualBacklog))
+                .onFailure(err -> log.error("[network-proxy] TCP 代理启动失败: port={}", listenPort, err));
     }
 
-    private void handleConnection(Socket clientSocket, Discovery discovery) {
+    private void handleConnection(NetSocket clientSocket) {
+        InetSocketAddress remote = remoteAddress(clientSocket);
+        Discovery discovery = targetResolver.resolve(remote);
+        if (discovery == null) {
+            log.warn("[network-proxy] 无法解析后端地址 for remote={}", remote);
+            clientSocket.close();
+            return;
+        }
         activeConnections.incrementAndGet();
-        InetSocketAddress backendAddr = new InetSocketAddress(discovery.getHost(), discovery.getPort());
-        try (Socket backendSocket = new Socket()) {
-            backendSocket.connect(backendAddr, connectTimeoutMs);
-            backendSocket.setSoTimeout(readTimeoutMs);
-            clientSocket.setSoTimeout(readTimeoutMs);
-
-            log.debug("[network-proxy] TCP 代理连接建立: {} -> {}:{}",
-                    clientSocket.getRemoteSocketAddress(),
-                    backendAddr.getHostString(), backendAddr.getPort());
-
-            Thread clientToBackend = Thread.ofVirtual()
-                    .name("tcp-proxy-c2b-" + clientSocket.getPort())
-                    .start(() -> {
-                        try {
-                            forward(clientSocket.getInputStream(), backendSocket.getOutputStream());
-                        } catch (IOException e) {
-                            log.debug("[network-proxy] TCP 代理 c2b 流获取失败: {}", e.getMessage());
-                        }
-                    });
-            Thread backendToClient = Thread.ofVirtual()
-                    .name("tcp-proxy-b2c-" + clientSocket.getPort())
-                    .start(() -> {
-                        try {
-                            forward(backendSocket.getInputStream(), clientSocket.getOutputStream());
-                        } catch (IOException e) {
-                            log.debug("[network-proxy] TCP 代理 b2c 流获取失败: {}", e.getMessage());
-                        }
-                    });
-
-            clientToBackend.join();
-            backendToClient.interrupt();
-
-        } catch (Exception e) {
-            log.debug("[network-proxy] TCP 代理连接异常: {}", e.getMessage());
-        } finally {
-            try { clientSocket.close(); } catch (IOException ignored) {}
-            activeConnections.decrementAndGet();
-        }
+        netClient.connect(discovery.getPort(), discovery.getHost())
+                .onSuccess(backendSocket -> {
+                    log.debug("[network-proxy] TCP 代理连接建立: {} -> {}:{}",
+                            remote, discovery.getHost(), discovery.getPort());
+                    clientSocket.pipeTo(backendSocket)
+                            .onComplete(r -> backendSocket.close());
+                    backendSocket.pipeTo(clientSocket)
+                            .onComplete(r -> clientSocket.close());
+                })
+                .onFailure(err -> {
+                    log.debug("[network-proxy] TCP 代理连接失败: {} -> {}:{}: {}",
+                            remote, discovery.getHost(), discovery.getPort(), err.getMessage());
+                    clientSocket.close();
+                    activeConnections.decrementAndGet();
+                });
     }
 
-    private void forward(InputStream in, OutputStream out) {
-        try {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-                out.flush();
-            }
-        } catch (Exception e) {
-            if (running.get()) {
-                log.debug("[network-proxy] TCP 转发结束: {}", e.getMessage());
-            }
-        }
+    private static InetSocketAddress remoteAddress(NetSocket socket) {
+        io.vertx.core.net.SocketAddress addr = socket.remoteAddress();
+        return new InetSocketAddress(addr.host(), addr.port());
     }
 }

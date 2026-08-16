@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  * 该接口提供了从源代码字符串中提取包名、类名以及执行编译的核心功能。
  *
  * @author CHTK
+ * @since 4.0.0.42
  */
 public interface Compiler {
 

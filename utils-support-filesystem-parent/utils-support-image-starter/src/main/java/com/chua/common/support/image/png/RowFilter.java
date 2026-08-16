@@ -4,6 +4,7 @@ package com.chua.common.support.image.png;
  * 类RowFilter用于对PNG图像的行数据进行过滤处理，以优化压缩效率
  *
  * @author CH
+ * @since 4.0.0.42
 */
 final class RowFilter {
 

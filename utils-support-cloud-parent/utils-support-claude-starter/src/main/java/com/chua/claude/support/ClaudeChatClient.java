@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * 调用 Claude 模型的对话接口，支持 Claude 3/3.5 系列模型。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"claude"})

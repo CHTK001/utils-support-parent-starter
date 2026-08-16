@@ -3,6 +3,7 @@ package com.chua.common.support.media;
 import java.io.Serializable;
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 
 public class MediaType implements Serializable {

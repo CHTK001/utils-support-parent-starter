@@ -54,7 +54,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2024/10/2
+ * @since 4.0.0.42
  */
 @Spi("laplace")
 @SpiDescribe("拉普拉斯图像锐化滤镜")
@@ -603,7 +603,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
 
         BufferedImage image = this.mathProcess(src);
 
-        // 伽马值 (gamma) = 0.5; // 幂级数
+        // 幂级数
+        // 伽马值 (gamma) = 0.5;
         double gamma = 0.5;
 
         int type = image.getType();

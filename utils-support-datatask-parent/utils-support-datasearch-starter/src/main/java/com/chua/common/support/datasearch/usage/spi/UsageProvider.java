@@ -8,7 +8,7 @@ import java.util.List;
  * AI 用量数据提供者接口
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public interface UsageProvider {
 

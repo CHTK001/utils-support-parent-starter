@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
+import java.util.List;
 
 /**
  * 图像质量评估器。
@@ -24,6 +25,19 @@ public interface ImageQualityAssessor {
     static ImageQualityAssessor create(String name) {
         return new DefaultImageQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
+
+    /**
+     * 查询该能力下全部可用模型。
+     *
+     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+     *
+     * @return 模型 ID 列表
+     */
+    static List<String> listModels() {
+        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageQualityAssessor.class);
+    }
+
 
     /**
      * 创建图像质量评估器。

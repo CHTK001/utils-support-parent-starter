@@ -134,7 +134,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 抠图(U2Net)：通用前景抠图，输出 alpha 通道（RGBA）；适用证件照处理、背景替换、电商抠图
         reg("matting", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/seg_unet_sdk/u2net.onnx", "https://huggingface.co/onnx-community/u2net/resolve/main/onnx/model.onnx", false, null);
         // 抠图(MODNet)：人像抠图/前景分割（~25MB），嵌入式 jar 版，来自 ModelScope；适用人像抠图、视频会议背景替换
-        reg("modnet", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/matting/modnet/onnx/model.onnx");
+        reg("modnet", "com.chua.deeplearning.support.onnx.matting.translator.DjlMattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/matting/modnet/onnx/model.onnx");
         // 抠图(RMBG-2.0)：BRIA 背景移除 v2.0，高质量抠图，需自动下载；适用电商图片、人像抠图
         reg("rmbg20", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-2.0/onnx/model.onnx", "https://huggingface.co/briaai/RMBG-2.0/resolve/main/onnx/model.onnx", false, null);
         // 抠图(RMBG-1.4)：BRIA 背景移除 v1.4，42MB 嵌入式，效果接近 2.0；适用离线抠图、嵌入式设备
@@ -246,7 +246,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本摘要(BART)：BART-large-cnn 文本摘要，输入长文本输出摘要；适用文章摘要、新闻概括
         reg("bart-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "vision/generation/bart-large-cnn/model.onnx", "https://huggingface.co/Xenova/bart-large-cnn/resolve/main/onnx/model.onnx", false, null);
         // 文本摘要(T5)：T5-small 文本摘要/翻译，多任务 seq2seq；适用文本生成、翻译、摘要
-        reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqTranslator", String.class, String.class, Object.class, "vision/generation/t5-small/encoder_model.onnx", "https://huggingface.co/Xenova/t5-small/resolve/main/onnx/encoder_model.onnx", false, null);
+        reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqTranslator", String.class, String.class, Object.class, "vision/generation/t5-small/encoder_model.onnx", "https://modelscope.cn/models/Xenova/t5-small/resolve/master/onnx/encoder_model_int8.onnx", java.util.List.of("https://huggingface.co/Xenova/t5-small/resolve/main/onnx/encoder_model.onnx"), false, null);
         // 文本摘要(Chinese-T5-base)：中文 T5-base 文本摘要，中文优化；适用中文文本摘要、生成
         reg("chinese-t5-base", "com.chua.deeplearning.support.onnx.seq2seq.ChineseT5BaseTranslator", String.class, String.class, Object.class, "nlp/seq2seq/chinese-t5-base/encoder_model.onnx", "https://huggingface.co/hfl/chinese-t5-base/resolve/main/encoder_model.onnx", false, null);
         // 文本摘要(Chinese-BART-base)：中文 BART-base 文本摘要；适用中文文本摘要、文章概括
@@ -286,7 +286,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 人脸年龄识别(YOLOv11n)：YOLOv11n 超轻量人脸年龄识别；适用边缘设备年龄估计
         reg("yolo-face-age", "com.chua.deeplearning.support.onnx.age.GoogleNetAgeRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/attribute/age/yolo11n-face-age.onnx", "https://huggingface.co/AdamCodd/yolo11n-face-age/resolve/main/model.onnx", false, null);
         // 文本嵌入(All-MiniLM-L6-v2)：英文句向量（384维），语义搜索/向量检索；适用英文语义搜索、文本相似度
-        reg("all-MiniLM-L6-v2-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/all-MiniLM-L6-v2/model.onnx", "https://huggingface.co/onnx-community/all-MiniLM-L6-v2-ONNX/resolve/main/onnx/model.onnx", false, null);
+        reg("all-MiniLM-L6-v2-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/all-MiniLM-L6-v2/model.onnx", "https://modelscope.cn/models/Xenova/all-MiniLM-L6-v2/resolve/master/onnx/model_uint8.onnx", java.util.List.of("https://huggingface.co/onnx-community/all-MiniLM-L6-v2-ONNX/resolve/main/onnx/model.onnx"), false, null);
         // 文本嵌入(BGE-small-en)：英文句向量（384维），BGE 系列英文版；适用英文语义搜索
         reg("bge-small-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/bge-small-en-v1.5/model.onnx", "https://huggingface.co/onnx-community/bge-small-en-v1.5-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 文本嵌入(BGE-small-en embedded)：嵌入式版英文句向量（~63MB FP16），jar 内嵌，384维；适用离线英文语义搜索
@@ -373,6 +373,22 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolov8n-ppe", "com.chua.deeplearning.support.onnx.detection.multi.PpeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
         // 火灾烟雾检测(YOLOv8n)：YOLOv8n 火灾/烟雾检测，2 类（fire、smoke），约 6MB；适用消防监控、安防预警
         reg("yolov8n-fire-smoke", "com.chua.deeplearning.support.onnx.detection.multi.FireSmokeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
+
+        // ==================== 语音合成 TTS ====================
+        // MMS-TTS-English（VITS）：英文语音合成，输入文本输出 WAV 音频；适用英文朗读、语音播报。
+        // 模型打包在 utils-support-models-onnx-mms-tts-eng jar 中（audio/tts/mms-tts-eng/），
+        // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
+        reg("mms-tts-eng", null, String.class, byte[].class, Object.class, "audio/tts/mms-tts-eng/model_quantized.onnx");
+
+        // ==================== 图像描述 Image Captioning ====================
+        // ViT-GPT2：图像内容文字描述。encoder 打包在 utils-support-models-onnx-vit-gpt2-captioning jar，
+        // decoder 较大（~151MB）自动下载（modelscope Xenova/vit-gpt2-image-captioning）。
+        reg("vit-gpt2-captioning", "com.chua.deeplearning.support.onnx.image.captioning.VitGpt2CaptioningTranslator",
+                ai.djl.modality.cv.Image.class, String.class, Object.class,
+                "vision/captioning/vit-gpt2/decoder_model_quantized.onnx",
+                "https://modelscope.cn/models/Xenova/vit-gpt2-image-captioning/resolve/master/onnx/decoder_model_quantized.onnx",
+                java.util.List.of("https://huggingface.co/Xenova/vit-gpt2-image-captioning/resolve/main/onnx/decoder_model_quantized.onnx"),
+                false, null);
     }
 
     private static void reg(String modelId, String translatorClassName,
@@ -389,6 +405,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                             String downloadUrl, boolean compress, String downloadFileName) {
         if (ModelRegistry.get(modelId) == null) {
             ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability, relativePath, downloadUrl, compress, downloadFileName);
+        }
+    }
+
+    private static void reg(String modelId, String translatorClassName,
+                            Class<?> inputType, Class<?> outputType,
+                            Class<?> capability, String relativePath,
+                            String downloadUrl, java.util.List<String> downloadMirrors,
+                            boolean compress, String downloadFileName) {
+        if (ModelRegistry.get(modelId) == null) {
+            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
+                    relativePath, downloadUrl, downloadMirrors, compress, downloadFileName);
         }
     }
 }

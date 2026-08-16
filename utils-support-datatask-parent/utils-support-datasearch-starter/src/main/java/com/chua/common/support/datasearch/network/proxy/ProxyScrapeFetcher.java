@@ -13,7 +13,7 @@ import java.util.Map;
  * 从 ProxyScrape API 获取免费代理。
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("proxy-scrape")
 public class ProxyScrapeFetcher implements ProxyFetcher {

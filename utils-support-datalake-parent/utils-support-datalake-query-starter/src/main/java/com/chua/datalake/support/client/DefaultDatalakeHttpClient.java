@@ -7,7 +7,7 @@ import java.util.Map;
  * 默认 HttpClient 实现，基于 JDK HttpClient 调用 ApiServer /query 路由。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
 

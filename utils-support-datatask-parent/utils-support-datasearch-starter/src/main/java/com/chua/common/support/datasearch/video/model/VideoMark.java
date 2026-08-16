@@ -6,7 +6,7 @@ import java.math.BigDecimal;
  * 视频评分
  *
  * @author CH
- * @since 2025/9/18 09:26
+ * @since 4.0.0.42
  */
 public class VideoMark {
 

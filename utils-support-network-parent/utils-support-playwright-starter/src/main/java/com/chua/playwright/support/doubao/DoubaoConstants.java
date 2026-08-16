@@ -15,7 +15,7 @@ package com.chua.playwright.support.doubao;
  * </ul>
  *
  * @author CH
- * @since 2026/08/11
+ * @since 4.0.0.42
  */
 public final class DoubaoConstants {
 

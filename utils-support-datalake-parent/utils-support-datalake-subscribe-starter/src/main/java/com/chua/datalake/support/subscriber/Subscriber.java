@@ -7,7 +7,7 @@ package com.chua.datalake.support.subscriber;
  * 接收方以本地 {@link #onPush(PushPayload)} 抽象推送。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public interface Subscriber {
 

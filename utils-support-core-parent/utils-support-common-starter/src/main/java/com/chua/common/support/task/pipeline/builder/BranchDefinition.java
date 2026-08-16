@@ -40,6 +40,7 @@ package com.chua.common.support.task.pipeline.builder;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see TaskDecisionDefinition#branch(String)
  */
 public class BranchDefinition {

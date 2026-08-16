@@ -17,7 +17,7 @@ import java.util.Map;
  * </p>
  *
  * @author CH
- * @since 2026/8/4
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -57,7 +57,7 @@ public class PrometheusMetric {
      * @param timestamp 时间戳(秒)
      * @param value     值
      * @author CH
-     * @since 2026/8/4
+     * @since 4.0.0.42
      */
     public record Sample(long timestamp, double value) {
     }

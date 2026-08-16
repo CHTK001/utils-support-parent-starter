@@ -12,7 +12,7 @@ import java.util.Locale;
  * 纯文本预览提供者：txt → HTML &lt;pre&gt; 包装。
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Spi("preview-text")
 public class TextPreviewProvider implements FileStoragePreviewProvider {

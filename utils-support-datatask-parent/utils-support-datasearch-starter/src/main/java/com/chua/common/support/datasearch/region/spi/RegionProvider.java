@@ -14,7 +14,7 @@ import java.util.List;
  * <p>各实现通过 SPI 机制注册，例如基于阿里云 DataV GeoAtlas 的在线数据源。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 public interface RegionProvider {
 

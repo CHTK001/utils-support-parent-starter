@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -85,6 +87,10 @@ public abstract class AbstractServer implements ConfigServer {
      */
     protected AbstractServer(ServerSetting setting) {
         this.setting = setting != null ? setting : ServerSetting.defaults();
+        // auto=true 时按当前系统自动调整最优参数（CPU 核数 / 堆内存 / 操作系统）
+        if (this.setting.isAuto()) {
+            this.setting.autoConfig();
+        }
         this.filterManager = new ServerFilterManager(getProtocolType());
         initConcurrencyLimit();
 
@@ -133,6 +139,17 @@ public abstract class AbstractServer implements ConfigServer {
      * @param response 响应对象
      */
     protected void handleRequest(ServerRequest request, ServerResponse response) {
+        handleRequestAsync(request, response);
+    }
+
+    /**
+     * 处理请求,返回异步链完成信号(响应式模式下调用方需等待该信号再真正写出响应)。
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     * @return 请求处理完成信号(阻塞模式下为已完成的 stage)
+     */
+    protected CompletionStage<Void> handleRequestAsync(ServerRequest request, ServerResponse response) {
         metrics.incrementRequests();
         request.setAttribute("_server", this);
         if (concurrencyLimiter != null && !concurrencyLimiter.tryAcquire()) {
@@ -142,15 +159,16 @@ public abstract class AbstractServer implements ConfigServer {
                 response.end();
             }
             metrics.incrementErrors();
-            return;
+            return CompletableFuture.completedFuture(null);
         }
         metrics.incrementActive();
         long start = System.nanoTime();
         try {
             if (supportsReactor() && setting.isReactor()) {
-                handleReactive(request, response);
+                return handleReactive(request, response);
             } else {
                 handleBlocking(request, response);
+                return CompletableFuture.completedFuture(null);
             }
         } finally {
             metrics.recordLatency(System.nanoTime() - start);
@@ -166,14 +184,15 @@ public abstract class AbstractServer implements ConfigServer {
      *
      * @param request  请求
      * @param response 响应
+     * @return 异步链完成信号,供调用方等待响应真正写完
      */
-    protected void handleReactive(ServerRequest request, ServerResponse response) {
+    protected CompletionStage<Void> handleReactive(ServerRequest request, ServerResponse response) {
 @SuppressWarnings("unchecked")
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
 
         DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(
                 filterManager.getMergedReactiveFilters(), DEFAULT_404_HANDLER);
-        reactiveChain.doFilter(request, response).whenComplete((result, ex) -> {
+        return reactiveChain.doFilter(request, response).whenComplete((result, ex) -> {
             if (ex != null) {
                 metrics.incrementErrors();
                 log.warn("响应式请求处理异常: {}", ex.getMessage(), ex);
@@ -216,6 +235,7 @@ public abstract class AbstractServer implements ConfigServer {
     private void handleBlocking(ServerRequest request, ServerResponse response) {
         try {
             List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
+            // getMergedFilters 内部已有 mergedCache(仅 dirty 时重建),此处直接使用缓存引用
             DefaultServerFilterChain chain = new DefaultServerFilterChain(
                     filterManager.getMergedFilters(), DEFAULT_404_HANDLER, listeners);
             chain.doFilter(request, response);
@@ -250,15 +270,31 @@ public abstract class AbstractServer implements ConfigServer {
      * <p>优先走 {@link ResponseConverter} SPI，
      * 找不到则直接 toString()。</p>
      */
+    /**
+     * 响应转换器缓存:SPI 列表在运行期稳定,首次加载后缓存,
+     * 避免每个请求重复 SPI 扫描 + 排序(高并发热点)。
+     */
+    private static volatile java.util.List<ResponseConverter> CONVERTER_CACHE;
+
+    private static java.util.List<ResponseConverter> converters() {
+        java.util.List<ResponseConverter> cached = CONVERTER_CACHE;
+        if (cached != null) {
+            return cached;
+        }
+        java.util.List<ResponseConverter> loaded = com.chua.common.support.spi.ServiceProvider
+                .of(ResponseConverter.class).list().values().stream()
+                .sorted(java.util.Comparator.comparingInt(ResponseConverter::getOrder)).toList();
+        CONVERTER_CACHE = loaded;
+        return loaded;
+    }
+
     private void convertResult(ServerResponse response) {
         Object result = response.getResult();
         if (result == null) {
             return;
         }
-        // SPI 转换器
-        var converters = com.chua.common.support.spi.ServiceProvider.of(ResponseConverter.class).list();
-        for (var converter : converters.values().stream()
-                .sorted(java.util.Comparator.comparingInt(ResponseConverter::getOrder)).toList()) {
+        // SPI 转换器(缓存,避免每请求重复扫描)
+        for (var converter : converters()) {
             if (converter.support(result)) {
                 try {
                     converter.convert(response, result);
@@ -273,6 +309,11 @@ public abstract class AbstractServer implements ConfigServer {
             response.setBody(s);
         } else if (result instanceof byte[] b) {
             response.setBody(b);
+        } else if (result instanceof java.nio.file.Path p) {
+            // zero-copy 发送文件,避免大文件用户态拷贝,提高并发吞吐
+            response.sendFile(p);
+        } else if (result instanceof java.io.File f) {
+            response.sendFile(f.toPath());
         } else {
             response.setBody(result.toString());
         }

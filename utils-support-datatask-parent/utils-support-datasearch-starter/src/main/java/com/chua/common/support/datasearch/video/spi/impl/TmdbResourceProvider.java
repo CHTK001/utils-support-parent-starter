@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * TMDB接口
  *
  * @author CH
- * @since 2025/9/16 16:26
+ * @since 4.0.0.42
  */
 @Spi("tmdb")
 public class TmdbResourceProvider extends AbstractResourceProvider {

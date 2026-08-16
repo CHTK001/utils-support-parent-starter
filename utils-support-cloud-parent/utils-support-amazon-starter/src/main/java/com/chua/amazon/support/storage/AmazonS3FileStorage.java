@@ -31,7 +31,7 @@ import java.util.List;
  * <p>基于 AWS SDK for Java S3 实现 {@link FileStorage} SPI 接口。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Spi({"s3", "amazon"})
 public class AmazonS3FileStorage extends AbstractFileStorage {

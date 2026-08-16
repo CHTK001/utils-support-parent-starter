@@ -4,7 +4,7 @@ package com.chua.lucene.support.engine;
  * Lucene 字段名常量。
  *
  * @author CH
- * @since 2026-07-22
+ * @since 4.0.0.42
  */
 public final class LuceneFields {
 

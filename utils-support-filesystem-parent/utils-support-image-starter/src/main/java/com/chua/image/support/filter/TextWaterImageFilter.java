@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
  * 水印
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @SpiIgnore
 public class TextWaterImageFilter extends AbstractImageFilter {
@@ -81,6 +82,7 @@ public class TextWaterImageFilter extends AbstractImageFilter {
      * @param fontSize 文字大小
      * @return 字符串占用的宽度
      * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
+     * @since 4.0.0.42
      */
     public static int getStrWidth(String str, int fontSize) {
         char[] chars = str.toCharArray();

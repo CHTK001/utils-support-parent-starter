@@ -7,6 +7,7 @@ package com.chua.common.support.scattergather;
  * @param requestId 请求 ID
  * @param result    执行结果
  * @author CH
+ * @since 4.0.0.42
  */
 public record ScatterGatherResultWithRequestId(String requestId, ScatterGatherResult<Object> result) {
 }

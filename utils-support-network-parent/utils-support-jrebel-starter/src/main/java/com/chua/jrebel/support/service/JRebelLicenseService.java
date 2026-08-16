@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  *
  * @author CH
- * @since 2026/7/23
+ * @since 4.0.0.42
  */
 @Slf4j
 public class JRebelLicenseService {

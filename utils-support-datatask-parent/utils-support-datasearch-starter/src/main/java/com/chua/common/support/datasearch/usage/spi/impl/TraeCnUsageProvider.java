@@ -10,7 +10,7 @@ import java.util.List;
  * Trae CN 用量提供者
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("trae-cn")
 public class TraeCnUsageProvider implements UsageProvider {

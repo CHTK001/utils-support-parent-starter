@@ -10,6 +10,7 @@ import java.util.Optional;
  * 该接口定义了用于持久化配置数据的通用操作，包括保存字节数据、加载字节数据以及删除配置项。
  * 同时实现了 Closeable 接口，确保资源在使用完毕后能够被正确关闭。
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ConfigSaveOrLoader extends Closeable {
 

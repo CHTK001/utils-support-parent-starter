@@ -8,6 +8,7 @@ import com.chua.common.support.utils.StringUtils;
  * <p>当执行的操作不被当前环境、实现或配置支持时抛出此异常。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class NotSupportedException extends RuntimeException {
 

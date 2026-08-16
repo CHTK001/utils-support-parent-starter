@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>SPI 类型：{@code groovy}。context 中的 Map 条目会逐个暴露为 Groovy 绑定变量。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("groovy")
 public class GroovyScriptProvider implements ScriptProvider {

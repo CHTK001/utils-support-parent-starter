@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class EngineMemoryStore implements MemoryStore {

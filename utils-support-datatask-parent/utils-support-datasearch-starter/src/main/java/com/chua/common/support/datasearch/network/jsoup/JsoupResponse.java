@@ -18,7 +18,7 @@ import java.util.function.Function;
  * Jsoup 响应封装
  *
  * @author CH
- * @since 2025/9/19 11:43
+ * @since 4.0.0.42
  */
 public class JsoupResponse {
 

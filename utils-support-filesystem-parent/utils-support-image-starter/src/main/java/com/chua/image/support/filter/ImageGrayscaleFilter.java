@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @SpiDescribe("NTSC标准灰度转换滤镜")
 @Spi("grayscale")

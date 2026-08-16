@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author CH
  * @version 1.0
- * @since 2024/12/19
+ * @since 4.0.0.42
  */
 @Spi("pansou")
 public class PanSouResourceProvider extends AbstractResourceProvider {

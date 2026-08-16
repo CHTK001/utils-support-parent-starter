@@ -1,12 +1,18 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-/**
- * @author CH
- */
 
+/**
+ * Apache Derby 10.15+ 方言实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class DerbyDialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "Apache Derby 10.15+";
 
     @Override

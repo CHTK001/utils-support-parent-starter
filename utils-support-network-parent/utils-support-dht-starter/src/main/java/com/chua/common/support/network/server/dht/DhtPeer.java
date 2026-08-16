@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Builder(toBuilder = true)
 public record DhtPeer(

@@ -21,6 +21,7 @@ import java.util.Set;
  * <p>使用 Aspose.HTML 将 EPUB、SVG、MHTML、Markdown 等格式转换为 HTML，并自动删除水印。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("aspose-html")

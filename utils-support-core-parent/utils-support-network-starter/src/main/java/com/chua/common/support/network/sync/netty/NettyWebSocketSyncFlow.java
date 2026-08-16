@@ -12,7 +12,7 @@ import java.util.*;
  * Netty WebSocket 同步流程管理器。
  *
  * @author CH
- * @since 2026-07-25
+ * @since 4.0.0.42
  */
 public class NettyWebSocketSyncFlow implements SyncFlow {
 

@@ -20,6 +20,7 @@ import java.util.List;
  * 支持 doc/docx/xls/xlsx/ppt/pptx 等多种格式转换为 PDF。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("onlyoffice")

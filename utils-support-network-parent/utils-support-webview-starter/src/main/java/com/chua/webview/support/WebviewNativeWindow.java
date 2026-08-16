@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @author CH
- * @since 2025
+ * @since 4.0.0.42
  */
 @ConditionalOnClass("dev.webview.Webview")
 @RequiredArgsConstructor

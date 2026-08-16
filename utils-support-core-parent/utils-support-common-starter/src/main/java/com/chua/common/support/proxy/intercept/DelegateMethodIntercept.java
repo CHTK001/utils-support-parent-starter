@@ -11,6 +11,7 @@ import java.util.function.Function;
  *
  * @param <T> 接口类型
  * @author CH
+ * @since 4.0.0.42
  */
 public class DelegateMethodIntercept<T> implements InvocationHandler {
 

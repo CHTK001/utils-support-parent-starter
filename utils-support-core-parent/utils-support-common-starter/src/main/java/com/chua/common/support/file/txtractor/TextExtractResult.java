@@ -25,6 +25,7 @@ package com.chua.common.support.file.txtractor;
  * @param pageNumber 页码，从 1 开始；无页码信息时为 0
  * @param sourceFile 来源文件路径（相对路径），可为空
  * @author CH
+ * @since 4.0.0.42
  */
 public record TextExtractResult(
         String text,

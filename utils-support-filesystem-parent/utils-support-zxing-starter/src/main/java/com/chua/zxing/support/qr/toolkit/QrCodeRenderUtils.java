@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
  * 二维码渲染辅助类，主要用于绘制背景，logo，定位点，二维码信息
  *
  * @author CH
+ * @since 4.0.0.42
 */
 public class QrCodeRenderUtils {
     /**

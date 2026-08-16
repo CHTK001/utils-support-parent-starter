@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * Debezium CDC 目录轮询实现，基于 Debezium Engine。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DebeziumPolledDirectory implements PolledDirectory {

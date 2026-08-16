@@ -9,7 +9,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  *
  * @author CH
  * @version 1.0.0
- * @since 2020/11/28
+ * @since 4.0.0.42
  */
 public class ApplicationAwareApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 

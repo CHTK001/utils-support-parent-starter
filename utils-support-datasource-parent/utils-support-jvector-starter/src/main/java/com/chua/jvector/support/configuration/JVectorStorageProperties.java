@@ -8,7 +8,7 @@ import java.util.concurrent.ForkJoinPool;
  * JVector 向量存储配置属性。
  *
  * @author CH
- * @since 2025/01/15
+ * @since 4.0.0.42
  */
 @Data
 public class JVectorStorageProperties {

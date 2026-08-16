@@ -25,7 +25,7 @@ import java.util.Map;
  * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class WordWriteBuilder extends WriteBuilder {
     /**

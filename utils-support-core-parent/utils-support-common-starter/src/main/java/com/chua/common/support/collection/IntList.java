@@ -29,6 +29,7 @@ import java.util.RandomAccess;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  * @see LongList
  */

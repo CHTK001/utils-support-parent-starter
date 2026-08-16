@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * 支持小程序授权码登录、H5/APP 授权登录。
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("alipay")

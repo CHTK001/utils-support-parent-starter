@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * NATS 分发器提供者，基于 NATS Core Pub/Sub 实现跨进程的发布订阅。
  *
  * @author CH
- * @since 2026-07-29
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("nats")

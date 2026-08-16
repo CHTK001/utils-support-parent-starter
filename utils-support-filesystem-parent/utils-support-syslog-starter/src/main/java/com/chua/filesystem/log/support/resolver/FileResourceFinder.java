@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
 */
 public class FileResourceFinder implements ResourceFinder {
 

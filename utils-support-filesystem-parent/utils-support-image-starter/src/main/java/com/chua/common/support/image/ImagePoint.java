@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
  * 图像
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

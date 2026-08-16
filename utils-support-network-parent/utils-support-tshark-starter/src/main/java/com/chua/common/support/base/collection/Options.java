@@ -7,7 +7,7 @@ import java.util.List;
  * 字符串选项集合包装，提供静态工厂 {@link #of(String...)} 与下标访问回调。
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public class Options {
 

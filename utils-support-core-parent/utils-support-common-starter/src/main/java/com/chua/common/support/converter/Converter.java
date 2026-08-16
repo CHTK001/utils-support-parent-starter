@@ -237,6 +237,167 @@ public final class Converter {
     }
 
     /**
+     * 将任意对象转换为指定元素类型的 {@link List}。
+     *
+     * <p>支持输入类型：
+     * <ul>
+     *   <li>{@link List} / {@link Collection} — 直接转换元素</li>
+     *   <li>{@link String} — 兼容 JSON 数组格式（{@code [a,b,c]}）与逗号/分号/空格/换行分隔格式</li>
+     *   <li>数组类型 — 通过 {@link ListTypeConverter} 转换</li>
+     * </ul>
+     *
+     * <p>元素类型可省略，省略时按 {@code Object} 处理（返回原始元素）。</p>
+     *
+     * @param value 源对象，可为 null（返回空列表）
+     * @param types 目标元素类型（可选，最多取第一个）
+     * @param <T>   泛型类型
+     * @return 转换后的 List，值为 null 时返回空列表
+     */
+    public static <T> List<T> convertIfListNecessary(Object value, Type... types) {
+        if (value == null) {
+            return Collections.emptyList();
+        }
+        List<?> source = ListTypeConverter.INSTANCE.convert(value);
+        if (source == null) {
+            return Collections.emptyList();
+        }
+        if (types == null || types.length == 0 || types[0] == null) {
+            return (List<T>) source;
+        }
+        Type elementType = types[0];
+        if (elementType instanceof Class<?> elementClass) {
+            return convertList(source, (Class<T>) elementClass);
+        }
+        // 泛型元素类型（如 List<List<String>>）逐元素转换
+        List<Object> result = new ArrayList<>(source.size());
+        for (Object item : source) {
+            result.add(convertIfNecessary(item, elementType));
+        }
+        return (List<T>) result;
+    }
+
+    /**
+     * 将任意对象转换为指定元素类型的 {@link Set}。
+     *
+     * <p>支持输入类型：
+     * <ul>
+     *   <li>{@link Set} / {@link Collection} — 直接转换元素</li>
+     *   <li>{@link String} — 兼容 JSON 数组格式（{@code [a,b,c]}）与逗号分隔格式</li>
+     * </ul>
+     *
+     * @param value 源对象，可为 null（返回空 Set）
+     * @param types 目标元素类型（可选，最多取第一个）
+     * @param <T>   泛型类型
+     * @return 转换后的 Set，值为 null 时返回空 Set
+     */
+    public static <T> Set<T> convertIfSetNecessary(Object value, Type... types) {
+        if (value == null) {
+            return Collections.emptySet();
+        }
+        Set<?> source = SetTypeConverter.INSTANCE.convert(value);
+        if (source == null) {
+            return Collections.emptySet();
+        }
+        if (types == null || types.length == 0 || types[0] == null) {
+            return (Set<T>) source;
+        }
+        Type elementType = types[0];
+        if (elementType instanceof Class<?> elementClass) {
+            return convertSet(source, (Class<T>) elementClass);
+        }
+        Set<Object> result = new LinkedHashSet<>(Math.max(16, source.size()));
+        for (Object item : source) {
+            result.add(convertIfNecessary(item, elementType));
+        }
+        return (Set<T>) result;
+    }
+
+    /**
+     * 将任意对象转换为 {@link Collection}。
+     *
+     * <p>支持输入类型：
+     * <ul>
+     *   <li>{@link Collection} — 直接返回</li>
+     *   <li>{@link String} — 兼容 JSON 数组格式与逗号/分号/空格/换行分隔格式</li>
+     *   <li>数组类型 — 通过 {@link ListTypeConverter} 转换</li>
+     * </ul>
+     *
+     * @param value 源对象，可为 null（返回空集合）
+     * @param <T>   泛型类型
+     * @return 转换后的 Collection，值为 null 时返回空集合
+     */
+    public static <T> Collection<T> convertIfCollectionNecessary(Object value) {
+        if (value == null) {
+            return Collections.emptyList();
+        }
+        List<?> source = ListTypeConverter.INSTANCE.convert(value);
+        if (source == null) {
+            return Collections.emptyList();
+        }
+        return (Collection<T>) source;
+    }
+
+    /**
+     * 将任意对象转换为指定键值类型的 {@link Map}。
+     *
+     * <p>支持输入类型：
+     * <ul>
+     *   <li>{@link Map} / {@link java.util.Dictionary} — 直接转换键值</li>
+     *   <li>{@link String} — 兼容大括号键值对（{@code {k=v,k2=v2}}）与 {@code k=v} / {@code k:v} 分隔格式</li>
+     * </ul>
+     *
+     * @param value 源对象，可为 null（返回空 Map）
+     * @param types 键类型与值类型（可选，最多取前两个；缺省按 Object 处理）
+     * @param <K>   Key 类型
+     * @param <V>   Value 类型
+     * @return 转换后的 Map，值为 null 时返回空 Map
+     */
+    public static <K, V> Map<K, V> convertIfMapNecessary(Object value, Type... types) {
+        if (value == null) {
+            return Collections.emptyMap();
+        }
+        Map<?, ?> source = MAP_TYPE_CONVERTER.convert(value);
+        if (source == null) {
+            return Collections.emptyMap();
+        }
+        if (types == null || types.length == 0 || types[0] == null) {
+            return (Map<K, V>) source;
+        }
+        Type keyType = types[0];
+        Type valueType = types.length > 1 ? types[1] : Object.class;
+        Map<Object, Object> result = new LinkedHashMap<>(Math.max(16, source.size()));
+        for (Map.Entry<?, ?> entry : source.entrySet()) {
+            result.put(
+                    convertIfNecessary(entry.getKey(), keyType),
+                    convertIfNecessary(entry.getValue(), valueType)
+            );
+        }
+        return (Map<K, V>) result;
+    }
+
+    /**
+     * 将任意对象转换为指定元素类型的目标数组。
+     *
+     * <p>支持输入类型：
+     * <ul>
+     *   <li>数组 / {@link Collection} / {@link Map}（取 values）— 逐元素转换后组装</li>
+     *   <li>{@link String} — 兼容 JSON 数组格式与逗号分隔格式</li>
+     *   <li>其它单值 — 包装为单元素数组</li>
+     * </ul>
+     *
+     * @param value 源对象，可为 null（返回空数组）
+     * @param type  目标数组的元素类型
+     * @param <T>   目标元素泛型类型
+     * @return 转换后的目标类型数组，值为 null 时返回空数组
+     */
+    public static <T> T[] convertIfArrayNecessary(Object value, Class<T> type) {
+        if (value == null) {
+            return (T[]) java.lang.reflect.Array.newInstance(type, 0);
+        }
+        return (T[]) OBJECT_ARRAY_CONVERTER.convertFor(value, type);
+    }
+
+    /**
      * 转换 Set 集合中的每个元素为指定类型。
      *
      * @param source 源集合

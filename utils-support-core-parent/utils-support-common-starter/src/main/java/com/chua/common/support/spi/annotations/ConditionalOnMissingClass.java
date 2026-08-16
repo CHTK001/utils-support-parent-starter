@@ -7,6 +7,7 @@ import java.lang.annotation.*;
  * <p>通常用于 SPI 或组件的条件装配，确保在特定依赖缺失时才加载当前组件</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

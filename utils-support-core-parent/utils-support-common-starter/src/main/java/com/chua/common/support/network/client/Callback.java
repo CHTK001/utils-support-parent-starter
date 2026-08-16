@@ -38,6 +38,7 @@ package com.chua.common.support.network.client;
  *
  * @param <T> 回调结果类型，通常为 {@link ClientResponse}
  * @author CH
+ * @since 4.0.0.42
  * @see HttpClient#executeAsync(ClientRequest, Callback)
  * @see HttpClientBuilder
  */

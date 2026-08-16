@@ -356,9 +356,12 @@ public abstract class SqlFormatter implements Formatter {
         }
 
         StringBuilder current = new StringBuilder();
-        int parenDepth = 0;          // 当前括号嵌套深度
-        boolean inSingleQuote = false; // 是否在单引号字符串内
-        boolean inDoubleQuote = false; // 是否在双引号字符串内
+        // 当前括号嵌套深度
+        int parenDepth = 0;
+        // 是否在单引号字符串内
+        boolean inSingleQuote = false;
+        // 是否在双引号字符串内
+        boolean inDoubleQuote = false;
 
         for (char c : text.toCharArray()) {
             // 处理字符串引号（忽略字符串内的逗号）

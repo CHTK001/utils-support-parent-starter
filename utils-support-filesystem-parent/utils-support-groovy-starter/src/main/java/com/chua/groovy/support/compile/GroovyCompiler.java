@@ -39,7 +39,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
  * </ul>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  * @see Compiler
  * @see GroovyClassLoader
  * @see CompilerConfiguration

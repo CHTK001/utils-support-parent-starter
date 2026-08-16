@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 启动时统一拉起所有服务：Datasync（可选）、管线管理、sink 及其订阅器和对外 API。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DatalakeServer {

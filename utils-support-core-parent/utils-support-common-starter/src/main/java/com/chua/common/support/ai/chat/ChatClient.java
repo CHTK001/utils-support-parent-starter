@@ -604,6 +604,24 @@ public interface ChatClient extends AutoCloseable {
     }
 
     /**
+     * 查询当前能力下全部可用模型 ID。
+     *
+     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
+     *
+     * @return 模型 ID 列表
+     */
+    default List<String> listModels() {
+        List<ModelDefinition> defs = models();
+        if (defs == null || defs.isEmpty()) {
+            return List.of();
+        }
+        return defs.stream()
+                .filter(d -> d != null && d.getId() != null && !d.getId().isBlank())
+                .map(ModelDefinition::getId)
+                .toList();
+    }
+
+    /**
      * 获取模型定价信息。
      *
      * <p>返回包含单价信息的模型定义列表，可用于费用估算和成本对比。

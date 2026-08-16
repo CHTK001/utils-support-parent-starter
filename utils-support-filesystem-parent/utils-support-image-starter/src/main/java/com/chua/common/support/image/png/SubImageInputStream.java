@@ -10,6 +10,7 @@ import java.io.IOException;
  * 从父图像流中读取子图像数据。
  *
  * @author CH
+ * @since 4.0.0.42
 */
 final class SubImageInputStream extends ImageInputStreamImpl {
 

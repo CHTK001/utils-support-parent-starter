@@ -37,6 +37,7 @@ import java.util.List;
  * </pre>
  * <p>
  * @author CH
+ * @since 4.0.0.42
  */
 public interface TrainerPureCalibrator extends PureCalibrator {
 

@@ -16,7 +16,7 @@ import java.util.Set;
  * md 已由 MarkdownPreviewProvider 接管，svg 已由 SvgPreviewProvider 接管。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Spi("preview-code")
 public class CodePreviewProvider implements FileStoragePreviewProvider {

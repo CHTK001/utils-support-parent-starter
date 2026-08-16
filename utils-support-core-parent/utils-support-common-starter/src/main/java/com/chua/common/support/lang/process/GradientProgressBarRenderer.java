@@ -123,11 +123,11 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         if (progress.indefinite) {
             //                      
             int pos = (int) (progress.current % length);
-            sb.append(getColorCode(gradientType, 0.5)); //                   
+            sb.append(getColorCode(gradientType, 0.5));                   
             sb.append(Util.repeat(' ', pos));
-            sb.append("\u001b[90m"); //       
+            sb.append("\u001b[90m");       
             sb.append(Util.repeat(' ', length - pos));
-            sb.append("\u001b[0m"); //             
+            sb.append("\u001b[0m");             
         } else {
             //                      
             double progressRatio = (double) progress.current / progress.max;
@@ -142,11 +142,11 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
 
             //                                  
             if (filledLength < length) {
-                sb.append("\u001b[90m"); //       
+                sb.append("\u001b[90m");       
                 sb.append(Util.repeat(' ', length - filledLength));
             }
 
-            sb.append("\u001b[0m"); //             
+            sb.append("\u001b[0m");             
         }
 
         //                
@@ -185,7 +185,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
             case SUNSET:
                 return getSunsetColor(ratio);
             default:
-                return "\u001b[90m"; //             
+                return "\u001b[90m";             
         }
     }
 
@@ -194,13 +194,13 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getGrayToOrangeColor(double ratio) {
         if (ratio < 0.3) {
-            return "\u001b[90m"; //          
+            return "\u001b[90m";          
         } else if (ratio < 0.6) {
-            return "\u001b[37m"; //          
+            return "\u001b[37m";          
         } else if (ratio < 0.8) {
-            return "\u001b[33m"; //       
+            return "\u001b[33m";       
         } else {
-            return "\u001b[38;5;208m"; //       
+            return "\u001b[38;5;208m";       
         }
     }
 
@@ -209,13 +209,13 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getGrayToGreenColor(double ratio) {
         if (ratio < 0.3) {
-            return "\u001b[90m"; //          
+            return "\u001b[90m";          
         } else if (ratio < 0.6) {
-            return "\u001b[37m"; //          
+            return "\u001b[37m";          
         } else if (ratio < 0.8) {
-            return "\u001b[92m"; //          
+            return "\u001b[92m";          
         } else {
-            return "\u001b[32m"; //       
+            return "\u001b[32m";       
         }
     }
 
@@ -224,9 +224,9 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getBlueToCyanColor(double ratio) {
         if (ratio < 0.5) {
-            return "\u001b[34m"; //       
+            return "\u001b[34m";       
         } else {
-            return "\u001b[36m"; //       
+            return "\u001b[36m";       
         }
     }
 
@@ -235,9 +235,9 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getRedToYellowColor(double ratio) {
         if (ratio < 0.5) {
-            return "\u001b[31m"; //       
+            return "\u001b[31m";       
         } else {
-            return "\u001b[33m"; //       
+            return "\u001b[33m";       
         }
     }
 
@@ -246,17 +246,17 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getRainbowColor(double ratio) {
         if (ratio < 0.16) {
-            return "\u001b[31m"; //       
+            return "\u001b[31m";       
         } else if (ratio < 0.33) {
-            return "\u001b[33m"; //       
+            return "\u001b[33m";       
         } else if (ratio < 0.5) {
-            return "\u001b[32m"; //       
+            return "\u001b[32m";       
         } else if (ratio < 0.66) {
-            return "\u001b[36m"; //       
+            return "\u001b[36m";       
         } else if (ratio < 0.83) {
-            return "\u001b[34m"; //       
+            return "\u001b[34m";       
         } else {
-            return "\u001b[35m"; //       
+            return "\u001b[35m";       
         }
     }
 
@@ -265,15 +265,15 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getMatrixColor(double ratio) {
         if (ratio < 0.2) {
-            return "\u001b[30m"; //       
+            return "\u001b[30m";       
         } else if (ratio < 0.4) {
-            return "\u001b[90m"; //          
+            return "\u001b[90m";          
         } else if (ratio < 0.6) {
-            return "\u001b[32m"; //       
+            return "\u001b[32m";       
         } else if (ratio < 0.8) {
-            return "\u001b[92m"; //          
+            return "\u001b[92m";          
         } else {
-            return "\u001b[97;42m"; //                   
+            return "\u001b[97;42m";                   
         }
     }
 
@@ -282,13 +282,13 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getFireColor(double ratio) {
         if (ratio < 0.25) {
-            return "\u001b[31m"; //       
+            return "\u001b[31m";       
         } else if (ratio < 0.5) {
-            return "\u001b[91m"; //          
+            return "\u001b[91m";          
         } else if (ratio < 0.75) {
-            return "\u001b[38;5;208m"; //       
+            return "\u001b[38;5;208m";       
         } else {
-            return "\u001b[93m"; //          
+            return "\u001b[93m";          
         }
     }
 
@@ -297,13 +297,13 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getOceanColor(double ratio) {
         if (ratio < 0.25) {
-            return "\u001b[34m"; //       
+            return "\u001b[34m";       
         } else if (ratio < 0.5) {
-            return "\u001b[94m"; //          
+            return "\u001b[94m";          
         } else if (ratio < 0.75) {
-            return "\u001b[36m"; //       
+            return "\u001b[36m";       
         } else {
-            return "\u001b[96m"; //          
+            return "\u001b[96m";          
         }
     }
 
@@ -312,11 +312,11 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getNeonColor(double ratio) {
         if (ratio < 0.33) {
-            return "\u001b[35m"; //       
+            return "\u001b[35m";       
         } else if (ratio < 0.66) {
-            return "\u001b[95m"; //          
+            return "\u001b[95m";          
         } else {
-            return "\u001b[96m"; //          
+            return "\u001b[96m";          
         }
     }
 
@@ -325,11 +325,11 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      */
     private String getSunsetColor(double ratio) {
         if (ratio < 0.33) {
-            return "\u001b[38;5;208m"; //       
+            return "\u001b[38;5;208m";       
         } else if (ratio < 0.66) {
-            return "\u001b[38;5;203m"; //          
+            return "\u001b[38;5;203m";          
         } else {
-            return "\u001b[95m"; //                      
+            return "\u001b[95m";                      
         }
     }
 

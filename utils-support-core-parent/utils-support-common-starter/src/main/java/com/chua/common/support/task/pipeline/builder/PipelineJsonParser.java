@@ -76,6 +76,7 @@ import java.util.*;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class PipelineJsonParser {
 
@@ -258,7 +259,8 @@ public class PipelineJsonParser {
 
     private static Map<String, Object> parseObject(String json, int[] pos) {
         Map<String, Object> map = new LinkedHashMap<>();
-        pos[0]++; // skip '{'
+        // 跳过 '{'
+        pos[0]++;
         skipWhitespace(json, pos);
         if (pos[0] < json.length() && json.charAt(pos[0]) == '}') {
             pos[0]++;
@@ -284,7 +286,8 @@ public class PipelineJsonParser {
 
     private static List<Object> parseArray(String json, int[] pos) {
         List<Object> list = new ArrayList<>();
-        pos[0]++; // skip '['
+        // 跳过 '['
+        pos[0]++;
         skipWhitespace(json, pos);
         if (pos[0] < json.length() && json.charAt(pos[0]) == ']') {
             pos[0]++;
@@ -308,7 +311,8 @@ public class PipelineJsonParser {
         if (json.charAt(pos[0]) != '"') {
             throw new IllegalArgumentException("Expected '\"' at position " + pos[0]);
         }
-        pos[0]++; // skip opening '"'
+        // 跳过起始双引号
+        pos[0]++;
         StringBuilder sb = new StringBuilder();
         while (pos[0] < json.length()) {
             char c = json.charAt(pos[0]);

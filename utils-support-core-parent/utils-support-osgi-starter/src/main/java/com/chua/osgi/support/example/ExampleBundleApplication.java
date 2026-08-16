@@ -8,7 +8,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * OSGI Bundle 应用示例，演示如何在 Bundle 中注册服务。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Spi("example-bundle")
 public class ExampleBundleApplication implements BundleApplication {

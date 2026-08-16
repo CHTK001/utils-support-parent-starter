@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
  *
  * @param <E> 元素类型
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public interface SortedList<E> extends List<E> {

@@ -65,7 +65,7 @@ public class DbfWriteBuilder extends WriteBuilder {
                         int total = rows.size(), processed = 0;
                         for (Map<String, Object> row : rows) {
                             // 写入行过滤
-                            if (!testRow(row)) continue;
+                            if (!testRow(row)) {
                             Object[] values = new Object[cols.size()];
                             for (int i = 0; i < cols.size(); i++) {
                                 values[i] = String.valueOf(row.getOrDefault(cols.get(i), ""));

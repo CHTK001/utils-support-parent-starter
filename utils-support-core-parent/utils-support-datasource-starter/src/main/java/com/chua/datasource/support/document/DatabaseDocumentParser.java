@@ -24,7 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DatabaseDocumentParser implements DocumentParser {
 
-@Override
+/**
+     * 解析数据库文档。
+     *
+     * @param config 文档配置
+     * @return 文档数据
+     */
+    @Override
     public DocumentData parse(DocumentConfig config) {
         String url = config.getUrl();
         String username = config.getUsername();
@@ -34,7 +40,7 @@ public class DatabaseDocumentParser implements DocumentParser {
         Set<String> schemas = resolveSchemas(config);
         boolean allMode = isAllMode(config);
 
-            if (driverClass != null && !driverClass.isBlank()) {
+        if (driverClass != null && !driverClass.isBlank()) {
             try {
                 Class.forName(driverClass);
             } catch (ClassNotFoundException e) {
@@ -73,8 +79,12 @@ public class DatabaseDocumentParser implements DocumentParser {
                         String tableCatalog = rsTables.getString("TABLE_CAT");
                         String remarks = rsTables.getString("REMARKS");
 
-                        if (tableName == null) continue;
-                        if (!"TABLE".equals(tableType) && !"VIEW".equals(tableType) && !"SYSTEM TABLE".equals(tableType)) continue;
+                        if (tableName == null) {
+                            continue;
+                        }
+                        if (!"TABLE".equals(tableType) && !"VIEW".equals(tableType) && !"SYSTEM TABLE".equals(tableType)) {
+                            continue;
+                        }
 
                         if (tableSchema == null || tableSchema.isBlank()) {
                             tableSchema = tableCatalog;
@@ -83,10 +93,14 @@ public class DatabaseDocumentParser implements DocumentParser {
                             tableSchema = "(unknown)";
                         }
 
-                        if (schemas != null && !schemas.contains(tableSchema)) continue;
+                        if (schemas != null && !schemas.contains(tableSchema)) {
+                            continue;
+                        }
                         if (!allMode && cat != null && !cat.isBlank()
                                 && !cat.equalsIgnoreCase(tableSchema)
-                                && !cat.equalsIgnoreCase(tableCatalog)) continue;
+                                && !cat.equalsIgnoreCase(tableCatalog)) {
+                            continue;
+                        }
                         schemaNames.add(tableSchema);
 
                         TableData.TableDataBuilder builder = TableData.builder()
@@ -102,7 +116,9 @@ public class DatabaseDocumentParser implements DocumentParser {
                                 String typeName = cols.getString("TYPE_NAME");
                                 int colSize = cols.getInt("COLUMN_SIZE");
                                 int decimalDigits = cols.getInt("DECIMAL_DIGITS");
-                                if (cols.wasNull()) decimalDigits = -1;
+                                if (cols.wasNull()) {
+                                decimalDigits = -1;
+                            }
                                 int nullable = cols.getInt("NULLABLE");
                                 String defaultValue = cols.getString("COLUMN_DEF");
                                 String colRemark = cols.getString("REMARKS");
@@ -194,24 +210,50 @@ public class DatabaseDocumentParser implements DocumentParser {
         }
     }
 
+    /**
+     * 判断是否解析全部 schema（配置项 all = true）。
+     *
+     * @param config 文档配置
+     * @return true 表示解析全部 schema
+     */
     private static boolean isAllMode(DocumentConfig config) {
-        if (config.getOptions() == null) return false;
+        if (config.getOptions() == null) {
+            return false;
+        }
         Object raw = config.getOptions().get("all");
-        if (raw == null) return false;
-        if (raw instanceof Boolean) return (Boolean) raw;
+        if (raw == null) {
+            return false;
+        }
+        if (raw instanceof Boolean) {
+            return (Boolean) raw;
+        }
         return "true".equalsIgnoreCase(raw.toString().trim());
     }
 
+    /**
+     * 解析需要导出的 schema 列表，未配置时导出全部。
+     *
+     * @param config 文档配置
+     * @return schema 名称集合，null 表示全部
+     */
     private static Set<String> resolveSchemas(DocumentConfig config) {
-        if (config.getOptions() == null) return null;
+        if (config.getOptions() == null) {
+            return null;
+        }
         Object raw = config.getOptions().get("schemas");
-        if (raw == null) return null;
+        if (raw == null) {
+            return null;
+        }
         String val = raw.toString().trim();
-        if (val.isEmpty() || "*".equals(val)) return null;
+        if (val.isEmpty() || "*".equals(val)) {
+            return null;
+        }
         Set<String> set = new LinkedHashSet<>();
         for (String s : val.split(",")) {
             String t = s.trim();
-            if (!t.isEmpty()) set.add(t);
+            if (!t.isEmpty()) {
+                set.add(t);
+            }
         }
         return set.isEmpty() ? null : set;
     }
@@ -233,6 +275,12 @@ public class DatabaseDocumentParser implements DocumentParser {
         return raw.toString().trim();
     }
 
+    /**
+     * 从 JDBC URL 中提取数据库名。
+     *
+     * @param url JDBC 连接 URL
+     * @return 数据库名，无法提取返回 null
+     */
     private static String extractCatalog(String url) {
         int idx = url.indexOf('?');
         String base = idx > 0 ? url.substring(0, idx) : url;
@@ -246,6 +294,13 @@ public class DatabaseDocumentParser implements DocumentParser {
         return null;
     }
 
+    /**
+     * 生成数据库文档名称。
+     *
+     * @param catalog 数据库目录
+     * @param schemas schema 名称集合
+     * @return 数据库名称
+     */
     private static String buildDbName(String catalog, Set<String> schemas) {
         if (schemas.size() == 1) {
             return schemas.iterator().next();
@@ -256,6 +311,12 @@ public class DatabaseDocumentParser implements DocumentParser {
         return "MULTI";
     }
 
+    /**
+     * 复用已有列数据构建便于修改的 Builder。
+     *
+     * @param c 列数据
+     * @return 列 Builder
+     */
     private static ColumnData.ColumnDataBuilder toBuilder(ColumnData c) {
         return ColumnData.builder()
                 .ordinalPosition(c.getOrdinalPosition())
@@ -269,6 +330,12 @@ public class DatabaseDocumentParser implements DocumentParser {
                 .remark(c.getRemark());
     }
 
+    /**
+     * 将 JDBC 外键动作规则解析为可读文本。
+     *
+     * @param rule JDBC 规则编码
+     * @return 规则文本
+     */
     private static String resolveRule(short rule) {
         return switch (rule) {
             case DatabaseMetaData.importedKeyCascade -> "CASCADE";

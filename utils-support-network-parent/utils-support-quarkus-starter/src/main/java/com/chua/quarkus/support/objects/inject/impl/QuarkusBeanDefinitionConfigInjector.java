@@ -18,7 +18,7 @@ import java.lang.reflect.Parameter;
  * <p>不直接依赖 microprofile-config-api 编译 API，所有注解均通过反射按类名检测。</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")

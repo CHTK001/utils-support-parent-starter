@@ -1,1 +1,1 @@
-com.chua.netty.support.server.NettyHttpServer
+com.chua.vertx.support.server.VertxHttpServer

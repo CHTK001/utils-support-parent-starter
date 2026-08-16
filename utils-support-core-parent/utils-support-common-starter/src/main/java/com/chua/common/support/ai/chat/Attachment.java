@@ -9,6 +9,7 @@ import lombok.Builder;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Builder
 public record Attachment(

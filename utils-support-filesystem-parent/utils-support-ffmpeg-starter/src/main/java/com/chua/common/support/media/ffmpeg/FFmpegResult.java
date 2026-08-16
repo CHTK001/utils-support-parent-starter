@@ -6,7 +6,7 @@ package com.chua.common.support.media.ffmpeg;
  * <p>封装 FFmpeg 进程的执行状态、退出码、标准输出、错误输出和执行时间。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class FFmpegResult {
 

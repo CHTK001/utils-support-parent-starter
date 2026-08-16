@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * <p>解析页面表格中的 IP:PORT 格式，每小时更新一次。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("netvortex")
 public class NetVortexFetcher implements ProxyFetcher {

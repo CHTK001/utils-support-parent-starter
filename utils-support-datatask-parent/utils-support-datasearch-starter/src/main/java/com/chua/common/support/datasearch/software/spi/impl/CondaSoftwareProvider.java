@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * <code>conda remove -y</code>。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("conda")
 public class CondaSoftwareProvider implements SoftwareProvider {

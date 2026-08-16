@@ -47,6 +47,7 @@ import java.util.Random;
  * <p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {

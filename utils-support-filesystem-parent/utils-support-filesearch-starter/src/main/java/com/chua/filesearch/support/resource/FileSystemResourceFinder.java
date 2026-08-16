@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 支持 Ant 风格通配符：{@code *}（单层任意）、{@code **}（多层任意）、{@code ?}（单字符）。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public class FileSystemResourceFinder extends AbstractResourceFinder {
 

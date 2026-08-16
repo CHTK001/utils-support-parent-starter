@@ -22,7 +22,7 @@ import java.util.Locale;
  * SubHD 字幕搜索提供者 — 从 subhd.tv 接口检索真实字幕数据
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("subhd")
 public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {

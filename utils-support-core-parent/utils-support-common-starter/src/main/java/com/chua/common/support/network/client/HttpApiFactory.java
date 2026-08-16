@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentMap;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see HttpApiInvocationHandler
  */
 public class HttpApiFactory {

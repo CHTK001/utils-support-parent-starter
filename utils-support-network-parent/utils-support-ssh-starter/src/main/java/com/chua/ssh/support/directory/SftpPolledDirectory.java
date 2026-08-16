@@ -31,7 +31,7 @@ import java.util.List;
  * </ul>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry> {

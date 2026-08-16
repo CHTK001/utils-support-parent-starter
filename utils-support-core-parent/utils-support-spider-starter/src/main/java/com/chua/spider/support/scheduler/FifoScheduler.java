@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>适用于广度优先爬取场景，先入队的 URL 先被处理。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("fifo")

@@ -16,7 +16,7 @@ import java.util.Locale;
  * 大文件场景建议配合分块加载。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Spi("preview-pdf")
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {

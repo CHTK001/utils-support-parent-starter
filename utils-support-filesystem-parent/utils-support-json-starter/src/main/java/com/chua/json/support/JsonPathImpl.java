@@ -22,6 +22,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("json")
 @SpiDefault

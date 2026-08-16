@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {

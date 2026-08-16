@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
  * GZIP压缩输入流提供者
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("gz")
 public class GzipCompressInputStreamProvider implements CompressInputStream {

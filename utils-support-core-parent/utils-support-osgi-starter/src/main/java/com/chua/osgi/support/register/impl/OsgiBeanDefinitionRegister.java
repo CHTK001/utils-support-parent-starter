@@ -21,7 +21,7 @@ import java.util.*;
  * <p>标记为 {@link SpiIgnore}，不参与 SPI 自动注册。</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @Slf4j
 @SpiIgnore

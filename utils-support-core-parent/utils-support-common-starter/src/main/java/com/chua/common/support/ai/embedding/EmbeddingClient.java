@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.embedding;
 
+import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.ArrayList;
@@ -211,5 +212,32 @@ public interface EmbeddingClient extends AutoCloseable {
      */
     @Override
     default void close() {
+    }
+
+    /**
+     * 获取服务商支持的模型列表。
+     *
+     * @return 可用模型定义列表
+     */
+    default List<ModelDefinition> models() {
+        return List.of();
+    }
+
+    /**
+     * 查询当前能力下全部可用模型 ID。
+     *
+     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
+     *
+     * @return 模型 ID 列表
+     */
+    default List<String> listModels() {
+        List<ModelDefinition> defs = models();
+        if (defs == null || defs.isEmpty()) {
+            return List.of();
+        }
+        return defs.stream()
+                .filter(d -> d != null && d.getId() != null && !d.getId().isBlank())
+                .map(ModelDefinition::getId)
+                .toList();
     }
 }

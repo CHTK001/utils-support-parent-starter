@@ -13,7 +13,7 @@ import java.util.Map;
  * <p>通过系统包管理器（winget/brew/apt 等）搜索和安装软件，以 Skill 形式暴露给 AI 技能系统。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("package-manager")
 public class PackageManagerSkillProvider extends PackageManagerProvider implements SkillProvider {

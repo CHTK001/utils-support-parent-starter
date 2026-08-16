@@ -7,7 +7,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
  *
  * @param <T> 实体类型
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public class LambdaQueryWrapper<T> {
 

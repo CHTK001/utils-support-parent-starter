@@ -6,6 +6,7 @@ import javax.imageio.ImageReadParam;
  * 该类提供了一个特定的功能：强制读取IDAT（图像数据）块，即使它在文件的中间位置
  *
  * @author CH
+ * @since 4.0.0.42
 */
 public final class PNGImageReadParam extends ImageReadParam {
 

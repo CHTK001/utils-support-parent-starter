@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * <code>dotnet tool install/uninstall --global</code>。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("nuget")
 public class NuGetSoftwareProvider implements SoftwareProvider {

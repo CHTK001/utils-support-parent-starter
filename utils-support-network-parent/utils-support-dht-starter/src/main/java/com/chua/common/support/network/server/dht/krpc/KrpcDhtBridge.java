@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class KrpcDhtBridge {
 

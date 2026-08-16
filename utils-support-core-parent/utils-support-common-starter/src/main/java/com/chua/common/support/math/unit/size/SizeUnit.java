@@ -7,6 +7,7 @@ package com.chua.common.support.math.unit.size;
  * <p>支持 B、KB、MB、GB、TB、PB 的表示与换算。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum SizeUnit {
 

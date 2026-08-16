@@ -15,7 +15,7 @@ import java.util.Map;
  * <p>通过 SkillsMP 公开 API 搜索技能市场，以 Skill 形式暴露给 AI 技能系统。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("skillsmp")
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillProvider {

@@ -3,6 +3,7 @@ package com.chua.common.support.image;
 import java.awt.image.BufferedImage;
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 
 public interface Imaging {

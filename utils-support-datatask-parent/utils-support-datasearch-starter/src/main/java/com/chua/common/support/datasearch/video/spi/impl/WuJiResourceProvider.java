@@ -25,7 +25,7 @@ import java.util.Map;
  * 将资源列表转换为 {@link VideoInfoResult} 集合。</p>
  *
  * @author CH
- * @since 2025/9/20 18:32
+ * @since 4.0.0.42
  */
 @Spi("wuji")
 public class WuJiResourceProvider extends AbstractResourceProvider {

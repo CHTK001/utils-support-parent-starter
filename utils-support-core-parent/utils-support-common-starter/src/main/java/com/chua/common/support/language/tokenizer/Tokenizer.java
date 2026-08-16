@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  * </table>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("jieba")
 public interface Tokenizer {

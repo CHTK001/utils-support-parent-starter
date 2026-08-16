@@ -13,7 +13,7 @@ import java.util.List;
  * DuckDB 引擎实现，基于内存数据过滤。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 @Spi("duckdb")
 public class DuckDBEngine extends AbstractEngine {

@@ -14,7 +14,7 @@ import java.util.*;
  * <p>将 {@link Flux}&lt;Map&gt; 批量写入 Solr Collection。</p>
  *
  * @author CH
- * @since 2026-07-22
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SolrDataSyncSource implements DataSyncSource {

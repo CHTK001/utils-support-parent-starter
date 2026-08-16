@@ -25,7 +25,21 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 非阻塞增量 HTTP 请求解析器(真响应式)。
+ *
+ * <p>不再阻塞读取 {@link SocketChannel};由事件循环在 OP_READ 就绪时
+ * 将数据 {@link #feed(ByteBuffer)} 进来,内部状态机推进:
+ * {@code REQUEST_LINE → HEADERS → BODY → COMPLETE}。</p>
+ *
+ * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
+ */
 public class NioServerRequest implements ServerRequest {
+
+    /** 解析状态 */
+    public enum ParseState {
+        REQUEST_LINE, HEADERS, BODY, COMPLETE
+    }
 
     private final SocketChannel channel;
     private final long maxRequestSize;
@@ -41,161 +55,267 @@ public class NioServerRequest implements ServerRequest {
     private boolean bufHasData = true;
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+    {
+        // 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据
+        buf.limit(0);
+    }
+
+    // ==================== 增量解析状态机 ====================
+
+    /** 当前解析状态 */
+    private ParseState parseState = ParseState.REQUEST_LINE;
+    /** 请求体剩余需读取字节数(非 chunked) */
+    private int bodyRemaining = 0;
+    /** 是否 chunked 编码 */
+    private boolean chunked = false;
+    /** chunked:当前 chunk 剩余字节 */
+    private int chunkRemaining = 0;
+    /** chunked:是否正在读 chunk 头部行 */
+    private boolean chunkHeaderPending = false;
+
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {
         this.channel = channel;
         this.maxRequestSize = maxRequestSize;
         this.defaultCharset = Charset.forName(charset);
     }
 
-    boolean parse() {
-        try {
+    /**
+     * 非阻塞增量解析:将新读到的数据并入解析缓冲并推进状态机。
+     *
+     * @param data 事件循环读到的数据(可空,表示无新数据仅推进)
+     * @return 1=完整请求已解析完成;0=需要更多数据;-1=解析错误
+     */
+    int feed(ByteBuffer data) {
+        // BODY 阶段:直接消费 data,不并入行解析缓冲,避免大 body 撑爆 8K 缓冲
+        if (parseState == ParseState.BODY && !chunked) {
+            if (data != null && data.hasRemaining()) {
+                int toCopy = Math.min(data.remaining(), bodyRemaining);
+                if (body == null) {
+                    body = new byte[bodyRemaining];
+                }
+                data.get(body, body.length - bodyRemaining, toCopy);
+                bodyRemaining -= toCopy;
+            }
+            if (bodyRemaining > 0) {
+                return 0;
+            }
+            parseState = ParseState.COMPLETE;
+            return 1;
+        }
+
+        // 行解析阶段(REQUEST_LINE / HEADERS / chunked BODY):并入缓冲
+        if (data != null && data.hasRemaining()) {
+            buf.compact();
+            // 预留空间不足(超长行)则报错,避免 BufferOverflowException
+            if (data.remaining() > buf.remaining()) {
+                return -1;
+            }
+            buf.put(data);
             buf.flip();
-            bufHasData = true;
-            if (!readLine()) return false;
-            parseRequestLine(lineBuf.toString());
-            while (readLine()) {
-                String line = lineBuf.toString();
-                if (line.isEmpty()) break;
-                int colon = line.indexOf(':');
-                if (colon > 0) {
-                    headers.put(line.substring(0, colon).trim(), line.substring(colon + 1).trim());
+        }
+
+        while (true) {
+            switch (parseState) {
+                case REQUEST_LINE -> {
+                    String line = nextLineFromBuf();
+                    if (line == null) {
+                        return 0;
+                    }
+                    parseRequestLine(line);
+                    parseState = ParseState.HEADERS;
+                }
+                case HEADERS -> {
+                    String line = nextLineFromBuf();
+                    if (line == null) {
+                        return 0;
+                    }
+                    if (line.isEmpty()) {
+                        // 头结束,确定请求体读取策略
+                        String te = headers.get("transfer-encoding");
+                        if (te != null && te.toLowerCase().contains("chunked")) {
+                            chunked = true;
+                            chunkHeaderPending = true;
+                            parseState = ParseState.BODY;
+                        } else {
+                            String cl = headers.get("content-length");
+                            bodyRemaining = cl != null ? Integer.parseInt(cl.trim()) : 0;
+                            if (bodyRemaining > maxRequestSize) {
+                                return -1;
+                            }
+                            if (bodyRemaining == 0) {
+                                body = new byte[0];
+                                parseState = ParseState.COMPLETE;
+                                return 1;
+                            }
+                            parseState = ParseState.BODY;
+                            // BODY 阶段直接消费 buf 中已有数据
+                            return feedBufBody();
+                        }
+                    } else {
+                        int colon = line.indexOf(':');
+                        if (colon > 0) {
+                            headers.put(line.substring(0, colon).trim(), line.substring(colon + 1).trim());
+                        }
+                    }
+                }
+                case BODY -> {
+                    if (chunked) {
+                        int r = feedChunked();
+                        if (r == 0) {
+                            return 0;
+                        }
+                        if (r < 0) {
+                            return -1;
+                        }
+                    } else {
+                        int r = feedBufBody();
+                        if (r == 0) {
+                            return 0;
+                        }
+                        if (r < 0) {
+                            return -1;
+                        }
+                    }
+                }
+                case COMPLETE -> {
+                    return 1;
                 }
             }
-            readBody();
-            return true;
-        } catch (Exception e) {
-            return false;
         }
+    }
+
+    /**
+     * 从解析缓冲消费请求体(非 chunked)。返回 0=还需更多;1=完成;-1=错误。
+     */
+    private int feedBufBody() {
+        if (bodyRemaining == 0) {
+            parseState = ParseState.COMPLETE;
+            return 1;
+        }
+        int avail = buf.remaining();
+        if (avail == 0) {
+            return 0;
+        }
+        int toCopy = Math.min(avail, bodyRemaining);
+        if (body == null) {
+            body = new byte[bodyRemaining];
+        }
+        buf.get(body, body.length - bodyRemaining, toCopy);
+        bodyRemaining -= toCopy;
+        if (bodyRemaining > 0) {
+            return 0;
+        }
+        parseState = ParseState.COMPLETE;
+        return 1;
+    }
+
+    /**
+     * 消费 chunked 编码:推进 chunk 头/体,直至终止 chunk(0)。返回 0=还需更多;1=完成;-1=错误。
+     */
+    private int feedChunked() {
+        while (true) {
+            if (chunkHeaderPending) {
+                String line = nextLineFromBuf();
+                if (line == null) {
+                    return 0;
+                }
+                int semi = line.indexOf(';');
+                String sizePart = (semi > 0 ? line.substring(0, semi) : line).trim();
+                try {
+                    chunkRemaining = Integer.parseInt(sizePart, 16);
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+                if (chunkRemaining == 0) {
+                    // 终止 chunk:消费尾部 CRLF
+                    if (nextLineFromBuf() == null) {
+                        return 0;
+                    }
+                    parseState = ParseState.COMPLETE;
+                    return 1;
+                }
+                if (chunkRemaining > maxRequestSize) {
+                    return -1;
+                }
+                chunkHeaderPending = false;
+                if (body == null) {
+                    body = new byte[(int) Math.min(maxRequestSize, 1024 * 1024)];
+                }
+            } else {
+                int avail = buf.remaining();
+                if (avail == 0) {
+                    return 0;
+                }
+                int toCopy = Math.min(avail, chunkRemaining);
+                body = appendBody(buf.array(), buf.arrayOffset() + buf.position(), toCopy);
+                buf.position(buf.position() + toCopy);
+                chunkRemaining -= toCopy;
+                if (chunkRemaining > 0) {
+                    return 0;
+                }
+                // chunk 结束,消费尾部 CRLF,进入下一个 chunk 头
+                chunkHeaderPending = true;
+                if (nextLineFromBuf() == null) {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    private byte[] appendBody(byte[] src, int off, int len) {
+        int newLen = (body != null ? body.length : 0) + len;
+        byte[] out = new byte[newLen];
+        if (body != null) {
+            System.arraycopy(body, 0, out, 0, body.length);
+        }
+        System.arraycopy(src, off, out, newLen - len, len);
+        return out;
+    }
+
+    /**
+     * 从解析缓冲读取一行(以 \n 结尾,剔除 \r)。找不到完整行返回 null(不移除数据)。
+     */
+    private String nextLineFromBuf() {
+        int start = buf.position();
+        int limit = buf.limit();
+        for (int i = start; i < limit; i++) {
+            if (buf.get(i) == (byte) '\n') {
+                int lineEnd = i;
+                int contentLen = lineEnd - start;
+                if (contentLen > 0 && buf.get(lineEnd - 1) == (byte) '\r') {
+                    contentLen--;
+                }
+                String line = new String(buf.array(), buf.arrayOffset() + start, contentLen,
+                        StandardCharsets.ISO_8859_1);
+                buf.position(lineEnd + 1);
+                return line;
+            }
+        }
+        return null;
     }
 
     private void parseRequestLine(String line) {
         int s1 = line.indexOf(' ');
-        if (s1 < 0) throw new IllegalArgumentException("Invalid request line: " + line);
+        if (s1 < 0) {
+            throw new IllegalArgumentException("Invalid request line: " + line);
+        }
         int s2 = line.indexOf(' ', s1 + 1);
         this.method = line.substring(0, s1);
         this.uri = s2 > 0 ? line.substring(s1 + 1, s2) : line.substring(s1 + 1);
         this.httpVersion = s2 > 0 ? line.substring(s2 + 1).trim() : "HTTP/1.1";
         int q = uri.indexOf('?');
-        if (q >= 0) { this.path = uri.substring(0, q); this.queryString = uri.substring(q + 1); }
-        else { this.path = uri; this.queryString = null; }
-    }
-
-    private void readBody() throws IOException {
-        String cl = headers.get("content-length");
-        String te = headers.get("transfer-encoding");
-        if (te != null && te.toLowerCase().contains("chunked")) body = readChunkedBody();
-        else if (cl != null) {
-            int len = Integer.parseInt(cl.trim());
-            if (len > maxRequestSize) throw new IllegalArgumentException("请求体超过最大限制: " + maxRequestSize);
-            body = readExactBytes(len);
-        } else body = new byte[0];
-    }
-
-    private byte[] readChunkedBody() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        while (true) {
-            if (!readLine()) break;
-            int chunkSize;
-            try { chunkSize = Integer.parseInt(lineBuf.toString().trim(), 16); }
-            catch (NumberFormatException e) { break; }
-            if (chunkSize == 0) { readLine(); break; }
-            byte[] chunk = readExactBytes(chunkSize);
-            out.write(chunk);
-            readLine();
-        }
-        return out.toByteArray();
-    }
-
-    private byte[] readExactBytes(int n) throws IOException {
-        if (n == 0) return new byte[0];
-        byte[] data = new byte[n];
-        int off = 0;
-        int retries = 0;
-        while (off < n) {
-            if (buf.hasRemaining()) {
-                int toCopy = Math.min(buf.remaining(), n - off);
-                buf.get(data, off, toCopy);
-                off += toCopy;
-            } else {
-                buf.clear();
-                int r = channel.read(buf);
-                if (r == 0 && retries++ < 3) {
-                    continue;
-                }
-                if (r < 0) {
-                    throw new IOException("Unexpected EOF, expected " + (n - off) + " more bytes");
-                }
-                retries = 0;
-                buf.flip();
-            }
-        }
-        return data;
-    }
-
-    private final StringBuilder lineBuf = new StringBuilder(256);
-
-    private boolean readLine() throws IOException {
-        lineBuf.setLength(0);
-        while (true) {
-            // 批量扫描缓冲区中的 \n，避免逐字节方法调用
-            int start = buf.position();
-            int limit = buf.limit();
-            boolean found = false;
-            for (int i = start; i < limit; i++) {
-                if (buf.get(i) == (byte) '\n') {
-                    int lineEnd = i;
-                    int contentLen = lineEnd - start;
-                    if (contentLen > 0 && buf.get(lineEnd - 1) == (byte) '\r') {
-                        contentLen--;
-                    }
-                    appendLineBytes(start, contentLen);
-                    buf.position(lineEnd + 1); // 跳过 \n
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                return true;
-            }
-            // 缓冲内无换行：暂存剩余内容后读更多
-            int rem = buf.remaining();
-            if (rem > 0) {
-                appendLineBytes(buf.position(), rem);
-                buf.position(buf.limit());
-            }
-            buf.clear();
-            int n = channel.read(buf);
-            if (n <= 0) {
-                bufHasData = false;
-                return lineBuf.length() > 0;
-            }
-            buf.flip();
-            bufHasData = true;
+        if (q >= 0) {
+            this.path = uri.substring(0, q);
+            this.queryString = uri.substring(q + 1);
+        } else {
+            this.path = uri;
+            this.queryString = null;
         }
     }
 
-    /**
-     * 将缓冲区 [off, off+len) 追加到行缓冲（ISO-8859-1 字节 → char 1:1 映射）。
-     */
-    private void appendLineBytes(int off, int len) {
-        if (len <= 0) {
-            return;
-        }
-        byte[] arr = buf.array();
-        for (int i = 0; i < len; i++) {
-            lineBuf.append((char) (arr[off + i] & 0xFF));
-        }
-    }
-
-    private int readByte() throws IOException {
-        if (buf.hasRemaining()) return buf.get() & 0xFF;
-        buf.clear();
-        int n = channel.read(buf);
-        if (n == 0) n = channel.read(buf);
-        if (n <= 0) { bufHasData = false; return -1; }
-        buf.flip();
-        bufHasData = true;
-        return buf.get() & 0xFF;
+    /** 当前解析状态(供事件循环判断) */
+    ParseState parseState() {
+        return parseState;
     }
 
     @Override public String getUri() { return uri; }
@@ -280,6 +400,12 @@ public class NioServerRequest implements ServerRequest {
     void resetForNextRequest() {
         method = null; uri = null; path = null; queryString = null;
         httpVersion = "HTTP/1.1"; headers.clear(); body = null;
-        lineBuf.setLength(0); attributes.clear();
+        attributes.clear();
+        // 重置状态机(保留缓冲中未消费的数据,供 Keep-Alive 下一条请求复用)
+        parseState = ParseState.REQUEST_LINE;
+        bodyRemaining = 0;
+        chunked = false;
+        chunkRemaining = 0;
+        chunkHeaderPending = false;
     }
 }

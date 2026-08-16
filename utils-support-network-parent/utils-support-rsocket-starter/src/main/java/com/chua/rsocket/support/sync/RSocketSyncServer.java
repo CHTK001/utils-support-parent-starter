@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  *
  * @author CH
- * @since 2026-07-25
+ * @since 4.0.0.42
  */
 @Spi("rsocket")
 public class RSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {

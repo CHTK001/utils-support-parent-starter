@@ -31,6 +31,7 @@ import java.util.List;
  * 基于 ACME4J 的 ACME 提供者实现
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 @Slf4j
@@ -149,7 +150,8 @@ public class Acme4jProvider implements AcmeProvider {
 
             X509Certificate x509Cert = certificate.getCertificate();
             String certPem = convertToPem(x509Cert);
-            // certPem; // 简化处理，实际应包含完整链
+            // 简化处理，实际应包含完整链
+            // certPem;
             String chainPem = certPem;
 
             String primaryDomain = domains.get(0);

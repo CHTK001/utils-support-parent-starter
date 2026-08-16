@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * SPI 名称 {@code "jaffree"}，优先级高于其他实现。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("jaffree")
 public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {

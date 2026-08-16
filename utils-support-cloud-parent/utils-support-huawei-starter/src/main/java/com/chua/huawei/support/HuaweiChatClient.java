@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * 调用华为云 ModelArts 盘古大模型的对话接口。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"huawei", "pangu"})

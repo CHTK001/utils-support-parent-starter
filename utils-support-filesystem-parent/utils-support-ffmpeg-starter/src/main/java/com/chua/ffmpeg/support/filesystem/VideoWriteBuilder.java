@@ -12,7 +12,7 @@ import java.io.File;
  * <p>基于 FFmpeg 实现视频格式转换，支持编码器、码率、分辨率、帧率等参数配置。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class VideoWriteBuilder extends WriteBuilder {
 

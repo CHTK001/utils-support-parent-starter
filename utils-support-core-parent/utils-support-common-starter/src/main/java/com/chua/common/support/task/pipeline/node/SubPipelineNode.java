@@ -50,6 +50,7 @@ import java.util.Map;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class SubPipelineNode implements PipelineNode {
 

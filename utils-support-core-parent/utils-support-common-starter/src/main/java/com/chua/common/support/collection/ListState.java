@@ -12,6 +12,7 @@ package com.chua.common.support.collection;
  * </pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  * @see LazyExpiringList
  */

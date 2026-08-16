@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
  * @param dirCount      包含子目录数（仅目录有效，否则为 0）
  * @param allocatedSize 磁盘占用空间（字节），MFT 扫描时来自 $DATA non-resident 分配大小，walkdir 降级时等于 size
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public record FileInfo(
         String name,

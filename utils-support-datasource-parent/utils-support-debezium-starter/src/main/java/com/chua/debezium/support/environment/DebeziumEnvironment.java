@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * }</pre>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public class DebeziumEnvironment {
 

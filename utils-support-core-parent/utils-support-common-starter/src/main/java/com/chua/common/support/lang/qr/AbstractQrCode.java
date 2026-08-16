@@ -6,6 +6,7 @@ import java.io.OutputStream;
  * 二维码生成抽象基类。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractQrCode {
 

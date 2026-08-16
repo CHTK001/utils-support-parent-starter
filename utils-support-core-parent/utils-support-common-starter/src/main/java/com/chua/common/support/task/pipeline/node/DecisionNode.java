@@ -37,6 +37,7 @@ import java.util.Map;
  * <p>分支映射（可选，用于树打印可视化）可通过 {@link #branches(Map)} 设置。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class DecisionNode implements PipelineNode {
 

@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
  * 用于处理图像的绘制逻辑。
  *
  * @author CH
- * @since 2024/5/30 表示该类是从 2024 年 5 月 30 日开始提供的
+ * @since 4.0.0.42
  */
 @Spi("IMAGE_V2")
 public class ImageDrawResolver extends AbstractDrawResolver{

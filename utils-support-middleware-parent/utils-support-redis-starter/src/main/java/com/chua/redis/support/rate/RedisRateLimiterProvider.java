@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * <p>使用 Redisson {@link RRateLimiter} 实现分布式限流，支持 OVERALL 和 PER_CLIENT 两种模式。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("redis")
 public class RedisRateLimiterProvider implements RateLimiterProvider {

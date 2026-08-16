@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @since 2024/7/29
+ * @since 4.0.0.42
  */
 @Data
 @Accessors(chain = true)
@@ -190,7 +190,8 @@ public class LaMaConfiguration {
                 .setModelPath(modelPath)
                 .setUseGpu(true)
                 .setInputSize(512)
-                .setCpuThreads(1); // GPU模式下通常使用较少的CPU线程
+                // GPU模式下通常使用较少的CPU线程
+                .setCpuThreads(1);
     }
 
     /**

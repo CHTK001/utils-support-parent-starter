@@ -28,6 +28,7 @@ package com.chua.common.support.network.client;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see AbstractHttpClient
  */
 public class ClientSetting {

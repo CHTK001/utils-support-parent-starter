@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/16
+ * @since 4.0.0.42
  */
 public class SymmetricEnvironment {
 

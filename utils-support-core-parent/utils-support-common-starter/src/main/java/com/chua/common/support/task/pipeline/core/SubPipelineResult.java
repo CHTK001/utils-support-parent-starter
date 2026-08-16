@@ -40,6 +40,7 @@ import java.util.*;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see com.chua.common.support.task.pipeline.node.SubPipelineNode
  */
 public class SubPipelineResult {

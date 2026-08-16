@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  * <p>管理到远程节点的连接，支持最大连接数、空闲超时回收及断线自动重连。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ConnectionPool {

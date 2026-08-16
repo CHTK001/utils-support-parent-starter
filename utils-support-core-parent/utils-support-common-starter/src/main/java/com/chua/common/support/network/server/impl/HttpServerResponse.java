@@ -192,8 +192,15 @@ public class HttpServerResponse implements ServerResponse {
         if (bytes == null || bytes.length == 0) {
             return;
         }
-        if (sseMode && sseOutputStream != null) {
+        if (sseMode) {
             try {
+                if (sseOutputStream == null) {
+                    // JDK 25 的 HttpServer:sendResponseHeaders(code, -1) 会创建 0 长度
+                    // FixedLengthOutputStream,流式写即抛 stream closed;
+                    // 传 0 才能正确按流式(无固定长度)写出 SSE 事件帧。
+                    exchange.sendResponseHeaders(statusCode, 0);
+                    sseOutputStream = exchange.getResponseBody();
+                }
                 sseOutputStream.write(bytes);
             } catch (IOException e) {
                 throw new RuntimeException("SSE write failed", e);
@@ -233,10 +240,17 @@ public class HttpServerResponse implements ServerResponse {
             } else {
                 data = new byte[0];
             }
-            exchange.sendResponseHeaders(statusCode, data.length);
             if (data.length > 0) {
+                exchange.sendResponseHeaders(statusCode, data.length);
                 responseBody = exchange.getResponseBody();
                 responseBody.write(data);
+            } else {
+                // 空 body 响应(302/201/204 等):JDK HttpServer 在 sendResponseHeaders(code, 0) 后
+                // 若不获取并关闭响应体流,响应不会发送终止信号,客户端会一直挂起直到超时。
+                // 204/304 按规范用 0(无 body),其余用 -1(chunked)并立即关闭流以终止响应。
+                long len = (statusCode == 204 || statusCode == 304) ? 0 : -1;
+                exchange.sendResponseHeaders(statusCode, len);
+                responseBody = exchange.getResponseBody();
             }
         } catch (IOException e) {
             throw new RuntimeException("response complete failed", e);
@@ -270,12 +284,6 @@ public class HttpServerResponse implements ServerResponse {
         setHeader("Cache-Control", "no-cache");
         setHeader("Connection", "keep-alive");
         committed = true;
-        try {
-            exchange.sendResponseHeaders(200, -1);
-            sseOutputStream = exchange.getResponseBody();
-        } catch (IOException e) {
-            throw new RuntimeException("SSE init failed", e);
-        }
         return this;
     }
 

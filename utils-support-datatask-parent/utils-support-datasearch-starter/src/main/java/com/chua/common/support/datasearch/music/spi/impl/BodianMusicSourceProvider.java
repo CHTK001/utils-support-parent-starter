@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * 波点歌单镜像源，歌曲详情复用酷我公开接口
  * 
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
 */
 @Spi("bd")
 public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
  * 视频同步配置
  *
  * @author CH
- * @since 2025/9/18 21:44
+ * @since 4.0.0.42
  */
 public class VideoSyncConfig {
 

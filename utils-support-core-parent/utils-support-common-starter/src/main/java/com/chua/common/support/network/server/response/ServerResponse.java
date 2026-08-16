@@ -227,6 +227,27 @@ public interface ServerResponse {
         return this;
     }
 
+    /**
+     * 以 zero-copy(sendfile) 方式发送文件作为响应体,支持 Path/File 类型响应结果。
+     *
+     * <p>默认实现回退为读取文件字节后调用 {@link #setBody(byte[])} + {@link #end()};
+     * 基于 NIO 的实现(如 {@code NioServerResponse})应覆写为 {@link java.nio.channels.FileChannel#transferTo}
+     * 直接在内核态发送文件,避免用户态拷贝,显著降低大文件/大响应体的 CPU 占用。</p>
+     *
+     * @param file 响应文件
+     * @return 当前响应实例
+     */
+    default ServerResponse sendFile(java.nio.file.Path file) {
+        try {
+            setBody(java.nio.file.Files.readAllBytes(file));
+        } catch (java.io.IOException e) {
+            setStatus(404);
+            setBody("Not Found".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        end();
+        return this;
+    }
+
     // ==================== SSE 支持 ====================
 
     /**
@@ -255,10 +276,10 @@ public interface ServerResponse {
      */
     default void sseEvent(String event, String data) {
         if (event != null) {
-            writeRaw(("event:" + event + "\n").getBytes(StandardCharsets.UTF_8));
+            writeRaw(("event: " + event + "\n").getBytes(StandardCharsets.UTF_8));
         }
         if (data != null) {
-            writeRaw(("data:" + data + "\n").getBytes(StandardCharsets.UTF_8));
+            writeRaw(("data: " + data + "\n").getBytes(StandardCharsets.UTF_8));
         }
         writeRaw("\n".getBytes(StandardCharsets.UTF_8));
         flush();

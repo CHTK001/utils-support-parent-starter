@@ -9,6 +9,7 @@ import java.io.InputStream;
  * 此类实现了InputStream，以便在需要标准InputStream的地方使用ImageInputStream
  *
  * @author CH
+ * @since 4.0.0.42
 */
 final class InputStreamAdapter extends InputStream {
 

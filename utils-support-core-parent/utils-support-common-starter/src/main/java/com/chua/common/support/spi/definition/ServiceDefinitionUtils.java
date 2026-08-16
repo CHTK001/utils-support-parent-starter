@@ -17,6 +17,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * 组装服务名称、描述信息、优先级、默认实现标识以及关联的扩展点信息，供 SPI 解析器统一使用。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class ServiceDefinitionUtils {
 

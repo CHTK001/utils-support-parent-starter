@@ -71,7 +71,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 @Getter

@@ -251,7 +251,8 @@ public final class GuacdBootstrapper {
             try {
                 boolean installed = tryLinuxPackageManager();
                 if (installed) {
-                    guacdBin = findGuacdInLocalOverride(); // 重查 guacd 路径
+                    // 重查 guacd 路径
+                    guacdBin = findGuacdInLocalOverride();
                     if (guacdBin != null) {
                         source = "linux-pkg-manager";
                         log.info("[guacd-bootstrapper] ✓ 包管理器安装: {}", guacdBin);
@@ -403,7 +404,8 @@ public final class GuacdBootstrapper {
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(guacdBin.getParent().getParent().toFile());
-        pb.inheritIO();  // 把 guacd stdout/stderr 透传到 gateway stdout
+        // 把 guacd stdout/stderr 透传到 gateway stdout
+        pb.inheritIO();
         // guacd 是 C 进程不能用 ProcessHandle 直接看 alive；
         // 用 isAlive() 周期性检查
         log.info("[guacd-bootstrapper] 启动 guacd: {} (port={})", String.join(" ", cmd), port);

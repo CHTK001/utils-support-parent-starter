@@ -8,6 +8,7 @@ import lombok.Data;
  * 用于配置二维码中嵌入的Logo图片的相关属性，包括图片本身、透明度、形状样式及边框颜色。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class LogoSetting {

@@ -2,7 +2,6 @@ package com.chua.common.support.network.server.filter.proxy;
 
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.discovery.Discovery;
-import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.ServerAttribute;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
@@ -11,26 +10,26 @@ import com.chua.common.support.network.server.filter.ReactiveServerFilter;
 import com.chua.common.support.network.server.filter.ReactiveFilterChain;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.*;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletionStage;
 
 /**
  * HTTP 反向代理过滤器，将请求转发到后端服务器。
  *
- * <p>后端地址由 {@link ServerAttribute#getBackendDiscovery(ServerRequest)} 决定，
+ * <p>基于 Vert.x {@link HttpClient} 实现异步转发，后端地址由
+ * {@link ServerAttribute#getBackendDiscovery(ServerRequest)} 决定，
  * 通常由 {@link com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter}
- * 在请求进入时设置。</p>
+ * 在请求进入时设置（该过滤器内部使用现有负载均衡体系）。</p>
  *
  * <p>使用示例：</p>
  * <pre>{@code
@@ -45,7 +44,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilter {
 
-    private EventLoopGroup proxyEventLoopGroup;
+    private Vertx vertx;
+    private HttpClient httpClient;
 
     @Override
     public int getOrder() {
@@ -63,16 +63,21 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     @Override
-    public void init(ServerFilterConfig config) throws Exception {
-        int threads = Math.max(2, Runtime.getRuntime().availableProcessors());
-        this.proxyEventLoopGroup = new NioEventLoopGroup(threads);
-        log.info("[network-proxy] HttpReverseProxyFilter 初始化完成, eventLoopThreads={}", threads);
+    public void init(ServerFilterConfig config) {
+        this.vertx = Vertx.vertx();
+        this.httpClient = vertx.createHttpClient(new HttpClientOptions()
+                .setConnectTimeout(5000)
+                .setTcpNoDelay(true));
+        log.info("[network-proxy] HttpReverseProxyFilter 初始化完成, vertx=httpClient");
     }
 
     @Override
     public void destroy() {
-        if (proxyEventLoopGroup != null) {
-            proxyEventLoopGroup.shutdownGracefully(1, 5, TimeUnit.SECONDS);
+        if (httpClient != null) {
+            httpClient.close();
+        }
+        if (vertx != null) {
+            vertx.close();
         }
     }
 
@@ -84,33 +89,98 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
             chain.doFilter(request, response);
             return;
         }
-
-        String host = discovery.getHost();
-        int port = discovery.getPort();
-        String path = extractPath(request);
-
-        byte[] reqBody = request.getBody();
-        proxyAsync(host, port, path, request.getMethod(),
-                request.getHeaders(), reqBody, response);
+        proxyAsync(discovery, request, response, null);
     }
 
     @Override
-    public java.util.concurrent.CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
-                                                               ReactiveFilterChain chain) {
+    public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
+                                          ReactiveFilterChain chain) {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
         if (discovery == null) {
             return chain.doFilter(request, response);
         }
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        proxyAsync(discovery, request, response, future);
+        return future;
+    }
 
+    private void proxyAsync(Discovery discovery, ServerRequest request, ServerResponse response,
+                            CompletableFuture<Void> completionFuture) {
         String host = discovery.getHost();
         int port = discovery.getPort();
         String path = extractPath(request);
-
         byte[] reqBody = request.getBody();
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        proxyAsyncWithFuture(host, port, path, request.getMethod(),
-                request.getHeaders(), reqBody, response, future);
-        return future;
+
+        io.vertx.core.http.HttpMethod method =
+                io.vertx.core.http.HttpMethod.valueOf(request.getMethod().name());
+
+        httpClient.request(method, port, host, path)
+                .onSuccess(req -> {
+                    copyHeaders(request, req);
+                    req.putHeader("Host", host + ":" + port)
+                            .putHeader("Connection", "close");
+
+                    Buffer content = reqBody != null && reqBody.length > 0
+                            ? Buffer.buffer(reqBody) : Buffer.buffer();
+                    req.send(content)
+                            .onSuccess(resp -> handleBackendResponse(resp, response, completionFuture))
+                            .onFailure(err -> {
+                                log.warn("[network-proxy] HTTP 反向代理后端异常: {}", err.getMessage());
+                                sendError(response, 502, "Bad Gateway");
+                                completeExceptionally(completionFuture, err);
+                            });
+                })
+                .onFailure(err -> {
+                    log.warn("[network-proxy] HTTP 反向代理连接失败: {}:{}: {}", host, port, err.getMessage());
+                    sendError(response, 502, "Bad Gateway: connection failed");
+                    completeExceptionally(completionFuture, err);
+                });
+    }
+
+    private void copyHeaders(ServerRequest request, HttpClientRequest req) {
+        if (request.getHeaders() != null) {
+            for (Map.Entry<String, String> entry : request.getHeaders().toMap().entrySet()) {
+                if (entry.getKey() != null && entry.getValue() != null) {
+                    String lower = entry.getKey().toLowerCase();
+                    if (!"host".equals(lower) && !"connection".equals(lower)) {
+                        req.putHeader(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleBackendResponse(HttpClientResponse resp, ServerResponse response,
+                                       CompletableFuture<Void> completionFuture) {
+        if (response.isEnded()) {
+            complete(completionFuture, null);
+            return;
+        }
+        response.setStatus(resp.statusCode());
+        resp.headers().forEach(entry -> {
+            String key = entry.getKey();
+            String lower = key.toLowerCase();
+            if (!"transfer-encoding".equals(lower)
+                    && !"content-encoding".equals(lower)
+                    && !"content-length".equals(lower)) {
+                response.setHeader(key, entry.getValue());
+            }
+        });
+        resp.body()
+                .onSuccess(buf -> {
+                    if (!response.isEnded()) {
+                        if (buf != null && buf.length() > 0) {
+                            response.setBody(buf.getBytes());
+                        }
+                        response.end();
+                    }
+                    complete(completionFuture, null);
+                })
+                .onFailure(err -> {
+                    log.warn("[network-proxy] HTTP 反向代理响应体读取失败: {}", err.getMessage());
+                    sendError(response, 502, "Bad Gateway");
+                    completeExceptionally(completionFuture, err);
+                });
     }
 
     private String extractPath(ServerRequest request) {
@@ -125,120 +195,23 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         return path;
     }
 
-    private void proxyAsync(String host, int port, String uri,
-                            HttpMethod method,
-                            com.chua.common.support.network.http.HttpHeader headers,
-                            byte[] body, ServerResponse response) {
-        proxyAsyncWithFuture(host, port, uri, method, headers, body, response, null);
-    }
-
-    private void proxyAsyncWithFuture(String host, int port, String uri,
-                                      HttpMethod method,
-                                      com.chua.common.support.network.http.HttpHeader headers,
-                                      byte[] body, ServerResponse response,
-                                      CompletableFuture<Void> completionFuture) {
-        Bootstrap b = new Bootstrap();
-        b.group(proxyEventLoopGroup)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ch.pipeline().addLast(new HttpClientCodec());
-                        ch.pipeline().addLast(new HttpObjectAggregator(10 * 1024 * 1024));
-                        ch.pipeline().addLast(new SimpleChannelInboundHandler<FullHttpResponse>() {
-                            @Override
-                            protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
-                                try {
-                                    if (!response.isEnded()) {
-                                        response.setStatus(msg.status().code());
-                                        for (String name : msg.headers().names()) {
-                                            String lower = name.toLowerCase();
-                                            if (!"transfer-encoding".equals(lower)
-                                                    && !"content-encoding".equals(lower)
-                                                    && !"content-length".equals(lower)) {
-                                                response.setHeader(name, msg.headers().get(name));
-                                            }
-                                        }
-                                        ByteBuf contentBuf = msg.content();
-                                        byte[] responseBytes = new byte[contentBuf.readableBytes()];
-                                        contentBuf.getBytes(contentBuf.readerIndex(), responseBytes);
-                                        response.setBody(responseBytes);
-                                        response.end();
-                                    }
-                                } finally {
-                                    msg.release();
-                                    ctx.close();
-                                    if (completionFuture != null) {
-                                        completionFuture.complete(null);
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                                log.warn("[network-proxy] HTTP 反向代理后端异常: {}", cause.getMessage());
-                                sendError(response, 502, "Bad Gateway");
-                                ctx.close();
-                                if (completionFuture != null) {
-                                    completionFuture.completeExceptionally(cause);
-                                }
-                            }
-                        });
-                    }
-                });
-
-        b.connect(host, port).addListener((ChannelFutureListener) connectFuture -> {
-            if (!connectFuture.isSuccess()) {
-                log.warn("[network-proxy] HTTP 反向代理连接失败: {}:{}: {}", host, port, connectFuture.cause().getMessage());
-                sendError(response, 502, "Bad Gateway: connection failed");
-                if (completionFuture != null) {
-                    completionFuture.completeExceptionally(connectFuture.cause());
-                }
-                return;
-            }
-
-            Channel channel = connectFuture.channel();
-            io.netty.handler.codec.http.HttpMethod nettyMethod =
-                    io.netty.handler.codec.http.HttpMethod.valueOf(method.name());
-            ByteBuf content = body != null && body.length > 0
-                    ? Unpooled.wrappedBuffer(body) : Unpooled.EMPTY_BUFFER;
-            DefaultFullHttpRequest proxyReq = new DefaultFullHttpRequest(
-                    HttpVersion.HTTP_1_1, nettyMethod, uri, content);
-            if (headers != null) {
-                for (java.util.Map.Entry<String, String> entry : headers.toMap().entrySet()) {
-                    if (entry.getKey() != null && entry.getValue() != null) {
-                        String lower = entry.getKey().toLowerCase();
-                        if (!"host".equals(lower) && !"connection".equals(lower)) {
-                            proxyReq.headers().set(entry.getKey(), entry.getValue());
-                        }
-                    }
-                }
-            }
-            proxyReq.headers()
-                    .set(HttpHeaderNames.HOST, host + ":" + port)
-                    .setInt(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes())
-                    .set(HttpHeaderNames.CONNECTION, "close");
-
-            channel.writeAndFlush(proxyReq).addListener((ChannelFutureListener) writeFuture -> {
-                if (!writeFuture.isSuccess()) {
-                    log.warn("[network-proxy] HTTP 反向代理写入失败: {}", writeFuture.cause().getMessage());
-                    sendError(response, 502, "Bad Gateway");
-                    channel.close();
-                    if (completionFuture != null) {
-                        completionFuture.completeExceptionally(writeFuture.cause());
-                    }
-                }
-            });
-        });
-    }
-
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);
             response.setBody(msg.getBytes(StandardCharsets.UTF_8));
             response.end();
+        }
+    }
+
+    private static void complete(CompletableFuture<Void> future, Void value) {
+        if (future != null) {
+            future.complete(value);
+        }
+    }
+
+    private static void completeExceptionally(CompletableFuture<Void> future, Throwable cause) {
+        if (future != null) {
+            future.completeExceptionally(cause);
         }
     }
 }

@@ -12,7 +12,7 @@ import java.time.format.DateTimeParseException;
  * 将字符串解析为 {@link LocalDate} 对象
  *
  * @author CH
- * @since 2026/7/19
+ * @since 4.0.0.42
  */
 @Slf4j
 public class StringToLocalDateConverter implements Converter<String, LocalDate> {

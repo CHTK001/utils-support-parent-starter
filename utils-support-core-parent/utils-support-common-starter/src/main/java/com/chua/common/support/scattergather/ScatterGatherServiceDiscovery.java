@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  * <p>将服务发现查询散射到多个节点，聚合结果后返回。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {

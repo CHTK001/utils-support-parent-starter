@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * 支持 AND/OR/NOT/BETWEEN/LIKE/IN/IS NULL/比较运算符等常见 SQL 表达式。</p>
  *
  * @author CH
- * @since 4.0.0.41
+ * @since 4.0.0.42
  */
 public class RediSearchQueryConverter {
 

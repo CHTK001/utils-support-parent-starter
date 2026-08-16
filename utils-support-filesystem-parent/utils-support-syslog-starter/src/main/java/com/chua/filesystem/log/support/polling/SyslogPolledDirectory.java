@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * }</pre>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SyslogPolledDirectory implements PolledDirectory {

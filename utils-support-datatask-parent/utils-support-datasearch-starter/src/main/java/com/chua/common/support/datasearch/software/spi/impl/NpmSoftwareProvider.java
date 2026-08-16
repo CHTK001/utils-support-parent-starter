@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * 支持 <code>npm search</code>、<code>npm install</code>、<code>npm uninstall</code>。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("npm")
 public class NpmSoftwareProvider implements SoftwareProvider {

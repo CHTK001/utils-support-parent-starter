@@ -21,5 +21,6 @@ cors=com.chua.common.support.network.server.filter.CorsFilter
 # ==================== 代理/发现 ====================
 service-discovery=com.chua.common.support.network.server.filter.ServiceDiscoveryServerFilter
 reverse-proxy=com.chua.common.support.network.server.filter.ReverseProxyServerFilter
+ws-proxy=com.chua.common.support.network.server.filter.proxy.VertxWebSocketProxyFilter
 tcp-proxy=com.chua.common.support.network.server.filter.TcpProxyServerFilter
 udp-proxy=com.chua.common.support.network.server.filter.UdpProxyServerFilter

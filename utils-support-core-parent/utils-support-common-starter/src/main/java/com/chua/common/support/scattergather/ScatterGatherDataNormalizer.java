@@ -7,6 +7,7 @@ package com.chua.common.support.scattergather;
  * @param <I> 输入类型
  * @param <O> 输出类型
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ScatterGatherDataNormalizer<I, O> {
 

@@ -23,6 +23,7 @@ import static java.util.concurrent.Executors.newThreadPerTaskExecutor;
  * 以及线程工厂、安全关闭、JVM 钩子注册等辅助功能。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ThreadUtils {

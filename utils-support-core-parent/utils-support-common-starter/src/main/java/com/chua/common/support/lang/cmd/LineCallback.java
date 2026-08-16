@@ -7,6 +7,7 @@ package com.chua.common.support.lang.cmd;
  * <p>用于在命令执行过程中逐行接收输出内容，适用于安装进度、日志跟踪等场景。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface LineCallback {
 

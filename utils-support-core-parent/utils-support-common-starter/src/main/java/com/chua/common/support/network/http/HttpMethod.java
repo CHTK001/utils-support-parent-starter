@@ -5,6 +5,7 @@ package com.chua.common.support.network.http;
  * HTTP 请求方法枚举，定义标准的 RESTful 方法。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum HttpMethod {
 

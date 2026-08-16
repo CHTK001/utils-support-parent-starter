@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  * - 质感添加：模拟黏土的细微粗糙感
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

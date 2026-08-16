@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>SPI 类型 {@code "redis-search"}。默认连接 {@code 127.0.0.1:6379}，可由 setter 覆盖。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis-search")

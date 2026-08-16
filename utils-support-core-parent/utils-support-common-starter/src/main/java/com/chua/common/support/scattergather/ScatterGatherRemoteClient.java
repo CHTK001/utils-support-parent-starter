@@ -6,6 +6,7 @@ package com.chua.common.support.scattergather;
  * <p>负责向远程节点发送查询请求并获取响应。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ScatterGatherRemoteClient<T> {
 

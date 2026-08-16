@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @Slf4j
 @SpiDescribe("灰度化图像滤镜")

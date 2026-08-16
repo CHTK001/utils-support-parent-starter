@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 节点按 adcode 在会话内缓存，重复查询不重复请求。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("alibaba")
 public class AlibabaRegionProvider implements RegionProvider {

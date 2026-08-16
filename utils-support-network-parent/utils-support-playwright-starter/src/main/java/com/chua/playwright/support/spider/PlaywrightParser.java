@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("playwright")

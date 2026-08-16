@@ -13,7 +13,7 @@ import java.util.List;
  * 外部解析请使用 {@link com.chua.common.support.datasearch.usage.spi.UsageParser}。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("opencode")
 public class OpencodeUsageProvider implements UsageProvider {

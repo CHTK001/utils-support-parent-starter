@@ -22,7 +22,7 @@ import java.util.Map;
  * 最后 Sink 会将处理完的数据写入registered Sink list。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DefaultPipelineEngine implements PipelineEngine {

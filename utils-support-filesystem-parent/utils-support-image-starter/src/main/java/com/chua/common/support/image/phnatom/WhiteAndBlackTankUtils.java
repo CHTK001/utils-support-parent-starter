@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
  * 生产黑白幻影坦克图片
  *
  * @author CH
+ * @since 4.0.0.42
 */
 public class WhiteAndBlackTankUtils {
     private static final Logger log = LoggerFactory.getLogger(WhiteAndBlackTankUtils.class);

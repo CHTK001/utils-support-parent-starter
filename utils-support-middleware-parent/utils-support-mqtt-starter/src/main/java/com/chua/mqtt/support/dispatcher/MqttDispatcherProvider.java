@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  *
  * @author CH
- * @since 2025-11-26
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("mqtt")

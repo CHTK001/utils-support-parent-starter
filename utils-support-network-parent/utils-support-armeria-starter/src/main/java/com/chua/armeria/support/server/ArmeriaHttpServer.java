@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Armeria 是一款高性能异步 HTTP 服务器，相比 JDK HttpServer 具备更高的并发能力。</p>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"armeria-http"})

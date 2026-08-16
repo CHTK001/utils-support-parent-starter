@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see com.chua.common.support.network.client.HttpClientFactory
  * @see com.chua.common.support.network.client.DefaultHttpClient
  * @see com.chua.common.support.network.client.JdkHttpClientExecutor

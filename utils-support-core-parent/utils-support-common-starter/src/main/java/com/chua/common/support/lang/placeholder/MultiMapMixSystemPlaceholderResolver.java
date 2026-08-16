@@ -19,6 +19,7 @@ import java.util.Collection;
  * 4. 支持动态添加和移除占位符映射关系。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class MultiMapMixSystemPlaceholderResolver implements PlaceholderResolver, PlaceholderDynamicResolver {
 

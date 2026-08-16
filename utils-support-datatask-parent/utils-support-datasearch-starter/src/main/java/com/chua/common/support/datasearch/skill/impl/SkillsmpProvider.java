@@ -27,7 +27,7 @@ import java.util.Map;
  * API 地址：{@code https://skillsmp.com/api/skills}
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 public class SkillsmpProvider {
 

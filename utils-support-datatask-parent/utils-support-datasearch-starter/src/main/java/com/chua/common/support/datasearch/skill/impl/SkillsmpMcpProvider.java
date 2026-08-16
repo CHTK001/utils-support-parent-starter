@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>通过 SkillsMP 公开 API 搜索技能市场，以 MCP 工具形式暴露给 AI 客户端。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("skillsmp")
 public class SkillsmpMcpProvider extends SkillsmpProvider implements McpProvider {

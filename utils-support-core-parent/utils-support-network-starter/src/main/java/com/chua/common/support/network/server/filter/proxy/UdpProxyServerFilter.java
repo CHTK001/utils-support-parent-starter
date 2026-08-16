@@ -4,23 +4,23 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
+import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import io.vertx.core.Vertx;
+import io.vertx.core.datagram.DatagramSocket;
+import io.vertx.core.datagram.DatagramSocketOptions;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * UDP 反向代理过滤器，支持静态路由和动态 {@link ProxyTargetResolver}。
  *
- * <p>监听 UDP 端口，将数据包转发到后端服务并返回响应。</p>
+ * <p>基于 Vert.x {@link DatagramSocket} 实现，监听 UDP 端口，将数据包转发到后端服务并返回响应。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
@@ -50,11 +50,6 @@ public class UdpProxyServerFilter implements ServerFilter {
     private final int timeoutMs;
 
     /**
-     * 代理工作线程池
-     */
-    private final ExecutorService proxyPool;
-
-    /**
      * 是否运行中
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -63,6 +58,16 @@ public class UdpProxyServerFilter implements ServerFilter {
      * 后端地址解析器
      */
     private final ProxyTargetResolver targetResolver;
+
+    /**
+     * Vert.x 实例
+     */
+    private Vertx vertx;
+
+    /**
+     * 主监听 Socket
+     */
+    private DatagramSocket serverSocket;
 
     public UdpProxyServerFilter() {
         this(5000, null);
@@ -106,11 +111,6 @@ public class UdpProxyServerFilter implements ServerFilter {
     public UdpProxyServerFilter(int timeoutMs, ProxyTargetResolver targetResolver) {
         this.timeoutMs = timeoutMs;
         this.targetResolver = targetResolver != null ? targetResolver : remoteAddr -> null;
-        this.proxyPool = Executors.newCachedThreadPool(r -> {
-            Thread t = new Thread(r, "udp-proxy");
-            t.setDaemon(true);
-            return t;
-        });
     }
 
     @Override
@@ -121,6 +121,23 @@ public class UdpProxyServerFilter implements ServerFilter {
     @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.UDP};
+    }
+
+    @Override
+    public void init(ServerFilterConfig config) {
+        this.vertx = Vertx.vertx();
+        running.set(true);
+        log.info("[network-proxy] UdpProxyServerFilter 初始化完成, timeout={}ms, vertx=true", timeoutMs);
+    }
+
+    @Override
+    public void destroy() {
+        running.set(false);
+        stopProxy();
+        if (vertx != null) {
+            vertx.close();
+        }
+        log.info("[network-proxy] UdpProxyServerFilter 已关闭");
     }
 
     @Override
@@ -135,75 +152,16 @@ public class UdpProxyServerFilter implements ServerFilter {
      * @param listenPort 监听端口
      */
     public void startProxy(int listenPort) {
-        proxyPool.submit(() -> {
-            running.set(true);
-            try (DatagramSocket socket = new DatagramSocket(listenPort)) {
-                socket.setSoTimeout(timeoutMs);
-                running.set(true);
-                log.info("[network-proxy] UDP 代理启动: port={}", listenPort);
-
-                byte[] buffer = new byte[65535];
-                while (running.get()) {
-                    try {
-                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                        socket.receive(packet);
-
-                        byte[] data = new byte[packet.getLength()];
-                        System.arraycopy(packet.getData(), packet.getOffset(), data, 0, packet.getLength());
-
-                        InetSocketAddress sender = new InetSocketAddress(packet.getAddress(), packet.getPort());
-                        Discovery discovery = targetResolver.resolve(sender);
-
-                        if (discovery != null) {
-                            InetSocketAddress backend = new InetSocketAddress(discovery.getHost(), discovery.getPort());
-                            proxyPool.submit(() -> forwardUdp(socket, data, sender, backend));
-                        } else {
-                            log.warn("[network-proxy] 无法解析后端地址");
-                        }
-                    } catch (Exception e) {
-                        if (running.get()) {
-                            log.debug("[network-proxy] UDP 代理接收异常: {}", e.getMessage());
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("[network-proxy] UDP 代理启动失败: port={}", listenPort, e);
-            }
-        });
-    }
-
-    /**
-     * 转发 UDP 数据包到后端。
-     *
-     * @param socket  本地 Socket
-     * @param data    数据
-     * @param sender  发送方
-     * @param backend 后端地址
-     */
-    private void forwardUdp(DatagramSocket socket, byte[] data, InetSocketAddress sender, InetSocketAddress backend) {
-        try (DatagramSocket forwardSocket = new DatagramSocket()) {
-            forwardSocket.setSoTimeout(timeoutMs);
-
-            // 发送到后端
-            DatagramPacket sendPacket = new DatagramPacket(data, data.length, backend);
-            forwardSocket.send(sendPacket);
-
-            // 接收后端响应
-            byte[] responseBuffer = new byte[65535];
-            DatagramPacket receivePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
-            forwardSocket.receive(receivePacket);
-
-            byte[] responseData = new byte[receivePacket.getLength()];
-            System.arraycopy(receivePacket.getData(), receivePacket.getOffset(), responseData, 0, receivePacket.getLength());
-
-            // 回传给发送方
-            DatagramPacket replyPacket = new DatagramPacket(responseData, responseData.length, sender);
-            socket.send(replyPacket);
-
-            log.debug("[network-proxy] UDP 代理: {} bytes {} -> {} -> {}", data.length, sender, backend, responseData.length);
-        } catch (Exception e) {
-            log.debug("[network-proxy] UDP 代理转发异常: {}", e.getMessage());
+        if (vertx == null) {
+            this.vertx = Vertx.vertx();
         }
+        running.set(true);
+        this.serverSocket = vertx.createDatagramSocket(new DatagramSocketOptions()
+                .setReuseAddress(true));
+        serverSocket.handler(packet -> handlePacket(packet, serverSocket));
+        serverSocket.listen(listenPort, "0.0.0.0")
+                .onSuccess(v -> log.info("[network-proxy] UDP 代理启动: port={}, vertx=true", listenPort))
+                .onFailure(err -> log.error("[network-proxy] UDP 代理启动失败: port={}", listenPort, err));
     }
 
     /**
@@ -211,7 +169,49 @@ public class UdpProxyServerFilter implements ServerFilter {
      */
     public void stopProxy() {
         running.set(false);
-        proxyPool.shutdownNow();
+        if (serverSocket != null) {
+            serverSocket.close();
+            serverSocket = null;
+        }
         log.info("[network-proxy] UDP 代理停止");
+    }
+
+    private void handlePacket(io.vertx.core.datagram.DatagramPacket packet, DatagramSocket mainSocket) {
+        io.vertx.core.net.SocketAddress sender = packet.sender();
+        InetSocketAddress senderAddr = new InetSocketAddress(sender.host(), sender.port());
+        Discovery discovery = targetResolver.resolve(senderAddr);
+        if (discovery == null) {
+            log.warn("[network-proxy] 无法解析后端地址 for remote={}", senderAddr);
+            return;
+        }
+        forwardUdp(mainSocket, packet.data(), sender, discovery);
+    }
+
+    /**
+     * 转发 UDP 数据包到后端。
+     *
+     * @param mainSocket 主监听 Socket（用于回传响应）
+     * @param data       数据
+     * @param sender     发送方地址
+     * @param discovery  后端地址
+     */
+    private void forwardUdp(DatagramSocket mainSocket, io.vertx.core.buffer.Buffer data,
+                            io.vertx.core.net.SocketAddress sender, Discovery discovery) {
+        // 每个请求使用独立临时 Socket 转发并接收后端响应，与后端一问一答
+        vertx.createDatagramSocket(new DatagramSocketOptions().setReuseAddress(true))
+                .listen(0, "0.0.0.0")
+                .onSuccess(tmp -> {
+                    tmp.handler(reply -> {
+                        mainSocket.send(reply.data(), sender.port(), sender.host());
+                        tmp.close();
+                    });
+                    long timerId = vertx.setTimer(timeoutMs, id -> tmp.close());
+                    tmp.send(data, discovery.getPort(), discovery.getHost())
+                            .onFailure(err -> {
+                                log.debug("[network-proxy] UDP 代理转发异常: {}", err.getMessage());
+                                vertx.cancelTimer(timerId);
+                                tmp.close();
+                            });
+                });
     }
 }

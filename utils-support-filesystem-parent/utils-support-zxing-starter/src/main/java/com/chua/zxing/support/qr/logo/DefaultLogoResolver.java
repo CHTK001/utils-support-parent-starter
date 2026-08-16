@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 /**
  * logo解析器
  * @author CH
- * @since 2024/5/8
+ * @since 4.0.0.42
  */
 public class DefaultLogoResolver implements LogoResolver {
 

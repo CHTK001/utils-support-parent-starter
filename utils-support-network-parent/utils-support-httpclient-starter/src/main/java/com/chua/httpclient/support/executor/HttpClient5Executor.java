@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * 基于 Apache HttpClient5 的 HTTP 客户端执行器
  *
  * @author CH
+ * @since 4.0.0.42
 */
 @Spi("httpclient5")
 @ConditionalOnClass("org.apache.hc.client5.http.classic.methods.HttpGet")

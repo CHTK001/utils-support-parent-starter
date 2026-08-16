@@ -7,6 +7,7 @@ import com.chua.common.support.datasearch.network.lang.code.ListReturnResult;
  * 用于定义搜索视频下载链接的标准行为。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface DownloadLinkProvider {
 

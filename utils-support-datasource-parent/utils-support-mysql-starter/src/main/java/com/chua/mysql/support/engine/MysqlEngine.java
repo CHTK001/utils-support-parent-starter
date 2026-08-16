@@ -27,7 +27,7 @@ import javax.sql.DataSource;
  * </p>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 @Spi("mysql")
 public class MysqlEngine extends JdbcEngine {

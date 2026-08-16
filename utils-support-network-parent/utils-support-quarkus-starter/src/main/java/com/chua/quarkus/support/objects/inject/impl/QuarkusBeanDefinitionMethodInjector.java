@@ -15,7 +15,7 @@ import java.util.function.Function;
  * Quarkus (CDI) 方法注入器，处理 {@link Inject} / {@link Named} 注解的 setter 方法。
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")

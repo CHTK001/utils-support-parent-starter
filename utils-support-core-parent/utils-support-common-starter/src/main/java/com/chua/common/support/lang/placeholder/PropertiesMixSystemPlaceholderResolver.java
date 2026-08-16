@@ -15,6 +15,7 @@ import java.util.Properties;
  * 此外，它还支持动态地添加或移除自定义属性。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolver, PlaceholderDynamicResolver {
 

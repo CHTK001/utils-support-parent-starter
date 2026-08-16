@@ -20,7 +20,7 @@ import java.util.Map;
  * <p>将 {@link Flux}&lt;Map&gt; 批量写入 Lucene 索引。</p>
  *
  * @author CH
- * @since 2026-07-22
+ * @since 4.0.0.42
  */
 @Slf4j
 public class LuceneDataSyncSource implements DataSyncSource {

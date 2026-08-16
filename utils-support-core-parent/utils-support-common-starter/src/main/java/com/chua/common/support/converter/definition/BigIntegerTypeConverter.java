@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
  * <p>将各种类型的值转换为 {@link BigInteger}，通过 {@link #transToBigDecimal(Object)} 转为 BigDecimal 后取 longValue 构造 BigInteger。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public class BigIntegerTypeConverter implements TypeConverter<BigInteger> {

@@ -7,7 +7,7 @@ import lombok.Data;
  * 蓝奏云分享页解析结果。
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Data
 @Builder

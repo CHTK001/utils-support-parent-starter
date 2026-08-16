@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
  * 对应示例图（Telegram 风格）：外层为圆角矩形环，内为实心圆
  *
  * @author CH
- * @since 2025/08/09
+ * @since 4.0.0.42
  */
 @Spi("ROUND_RECTANGLE_DOT")
 public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {

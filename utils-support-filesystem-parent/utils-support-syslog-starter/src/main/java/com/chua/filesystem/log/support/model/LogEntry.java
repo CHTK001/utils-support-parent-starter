@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
  * @param rawData   原始数据 (平台特定的原生格式)
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public record LogEntry(
         @Nonnull String timestamp,

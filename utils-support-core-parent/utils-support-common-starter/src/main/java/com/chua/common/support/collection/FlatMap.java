@@ -23,6 +23,7 @@ import java.util.Map;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public interface FlatMap extends Map<String, Object> {

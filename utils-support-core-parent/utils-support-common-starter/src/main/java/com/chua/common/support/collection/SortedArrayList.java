@@ -12,6 +12,7 @@ import java.util.*;
  *
  * @param <E> 元素类型
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {

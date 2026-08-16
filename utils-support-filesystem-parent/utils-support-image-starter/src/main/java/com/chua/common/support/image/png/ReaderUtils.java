@@ -14,6 +14,7 @@ import java.util.List;
  * are universally useful, so for now we will leave them here.
  *
  * @author CH
+ * @since 4.0.0.42
 */
 final class ReaderUtils {
 
@@ -86,7 +87,8 @@ final class ReaderUtils {
             }
 
             if (!gotPixel) {
-                // rstDst = dst; // Record smallest valid pixel
+                // Record smallest valid pixel
+                // rstDst = dst;
                 
                 gotPixel = true;
             } else if (secondDst == -1) {

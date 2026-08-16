@@ -111,7 +111,7 @@ public class SmbClient implements AutoCloseable {
     }
 
     public SmbClient openShare() {
-        if (session == null) login();
+        if (session == null) {
         try {
             diskShare = (DiskShare) session.connectShare(shareName);
         } catch (Exception e) {
@@ -121,8 +121,10 @@ public class SmbClient implements AutoCloseable {
     }
 
     public SmbClient cd(String path) {
-        if (path == null || path.isEmpty()) return this;
-        if (!path.startsWith("/")) path = workPath + "/" + path;
+        if (path == null || path.isEmpty()) {
+        if (!path.startsWith("/")) {
+            path = workPath + "/" + path;
+        }
         workPath = normalize(path);
         return this;
     }
@@ -181,7 +183,7 @@ public class SmbClient implements AutoCloseable {
         try {
             for (FileIdBothDirectoryInformation info : diskShare.list(dirPath)) {
                 String name = info.getFileName();
-                if (".".equals(name) || "..".equals(name)) continue;
+                if (".".equals(name) || "..".equals(name)) {
                 result.add(new SmbFileEntry(
                         name,
                         info.getEndOfFile(),
@@ -227,17 +229,17 @@ public class SmbClient implements AutoCloseable {
     }
 
     private void checkShare() {
-        if (diskShare == null) openShare();
+        if (diskShare == null) {
     }
 
     private void ensureParentPath(String fullPath) throws IOException {
         int lastSep = fullPath.lastIndexOf('/');
-        if (lastSep <= 0) return;
+        if (lastSep <= 0) {
         String parent = fullPath.substring(0, lastSep);
         String[] parts = parent.split("/");
         StringBuilder path = new StringBuilder();
         for (String part : parts) {
-            if (part.isEmpty()) continue;
+            if (part.isEmpty()) {
             path.append("/").append(part);
             if (!diskShare.folderExists(path.toString())) {
                 diskShare.mkdir(path.toString());
@@ -247,8 +249,10 @@ public class SmbClient implements AutoCloseable {
 
     private static String normalize(String p) {
         String s = p.replace('\\', '/');
-        while (s.contains("//")) s = s.replace("//", "/");
-        if (!s.startsWith("/")) s = "/" + s;
+        while (s.contains("//")) {
+        if (!s.startsWith("/")) {
+            s = "/" + s;
+        }
         return s;
     }
 

@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Trae、Augment Code、Continue、Gemini CLI、Cody、CodeBuddy、TRAE-CN
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 @Slf4j
 public class AgentEditorProvider {
@@ -1151,7 +1151,8 @@ public class AgentEditorProvider {
         if (editor.isWorkspaceBased()) {
             List<Path> workspaces = discoverCodebuddyWorkspaces(null);
             if (workspaces.isEmpty()) {
-                return true; // 没有工作区，视为已卸载
+                // 没有工作区，视为已卸载
+                return true;
             }
             boolean allOk = true;
             for (Path ws : workspaces) {

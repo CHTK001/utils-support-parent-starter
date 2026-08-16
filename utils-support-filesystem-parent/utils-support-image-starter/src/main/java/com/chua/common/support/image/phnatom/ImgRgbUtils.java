@@ -1,11 +1,3 @@
-/**
- * 图片 RGB 像素工具类。
- *
- * <p>提供 BufferedImage 与二维像素数组之间的相互转换，
- * 以及图片缩放、亮度调整等常用图像处理操作。</p>
- *
- * @author CH
- */
 package com.chua.common.support.image.phnatom;
 
 import java.awt.*;
@@ -15,6 +7,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
+/**
+ * 图片 RGB 像素工具类。
+ *
+ * <p>提供 BufferedImage 与二维像素数组之间的相互转换，
+ * 以及图片缩放、亮度调整等常用图像处理操作。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class ImgRgbUtils {
 
     /**

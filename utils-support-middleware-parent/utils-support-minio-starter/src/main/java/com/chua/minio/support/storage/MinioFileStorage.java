@@ -51,7 +51,7 @@ import java.util.Objects;
  * }</pre>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Spi({"minio", "minio-s3"})
 public class MinioFileStorage extends AbstractFileStorage {

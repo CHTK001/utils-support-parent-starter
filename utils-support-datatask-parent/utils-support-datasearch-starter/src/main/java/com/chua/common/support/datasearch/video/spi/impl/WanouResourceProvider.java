@@ -25,7 +25,7 @@ import java.util.List;
 
 /**
  * @author CH
- * @since 2025/9/20 18:32
+ * @since 4.0.0.42
  */
 @Spi("Wanou")
 public class WanouResourceProvider extends AbstractResourceProvider {

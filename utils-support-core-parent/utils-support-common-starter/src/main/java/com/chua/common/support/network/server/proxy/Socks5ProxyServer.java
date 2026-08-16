@@ -135,15 +135,22 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     protected boolean negotiateAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
-        if (ver != VERSION) return false;
+        if (ver != VERSION) {
+            return false;
+        }
         int nMethods = in.read();
-        if (nMethods <= 0) return false;
+        if (nMethods <= 0) {
+            return false;
+        }
         byte[] methods = readBytes(in, nMethods);
         boolean authEnabled = username != null && !username.isEmpty();
         if (authEnabled) {
             boolean supports = false;
             for (byte m : methods) {
-                if (m == METHOD_USER_PASS) { supports = true; break; }
+                if (m == METHOD_USER_PASS) {
+                    supports = true;
+                    break;
+                }
             }
             if (!supports) {
                 out.write(new byte[]{VERSION, METHOD_NO_ACCEPTABLE});
@@ -156,7 +163,10 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         }
         boolean supports = false;
         for (byte m : methods) {
-            if (m == METHOD_NO_AUTH) { supports = true; break; }
+            if (m == METHOD_NO_AUTH) {
+                supports = true;
+                break;
+            }
         }
         if (!supports) {
             out.write(new byte[]{VERSION, METHOD_NO_ACCEPTABLE});
@@ -170,12 +180,18 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     protected boolean doUserPassAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
-        if (ver != USER_PASS_VERSION) return false;
+        if (ver != USER_PASS_VERSION) {
+            return false;
+        }
         int ulen = in.read();
-        if (ulen <= 0) return false;
+        if (ulen <= 0) {
+            return false;
+        }
         byte[] uBytes = readBytes(in, ulen);
         int plen = in.read();
-        if (plen <= 0) return false;
+        if (plen <= 0) {
+            return false;
+        }
         byte[] pBytes = readBytes(in, plen);
         String u = new String(uBytes, java.nio.charset.StandardCharsets.UTF_8);
         String p = new String(pBytes, java.nio.charset.StandardCharsets.UTF_8);
@@ -189,7 +205,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         int ver = in.read();
         int cmd = in.read();
         int rsv = in.read();
-        if (ver != VERSION || rsv != 0x00) return null;
+        if (ver != VERSION || rsv != 0x00) {
+            return null;
+        }
         int atyp = in.read();
         InetSocketAddress target;
         switch (atyp) {
@@ -201,7 +219,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
                 break;
             case ATYP_DOMAIN:
                 int len = in.read();
-                if (len <= 0) return null;
+                if (len <= 0) {
+                    return null;
+                }
                 byte[] domainBytes = readBytes(in, len);
                 String domain = new String(domainBytes, java.nio.charset.StandardCharsets.UTF_8);
                 int port2 = readPort(in);
@@ -240,9 +260,13 @@ public class Socks5ProxyServer extends AbstractProxyServer {
             backend.setSoTimeout(readTimeoutMs);
         } catch (IOException e) {
             byte rep;
-            if (e instanceof java.net.ConnectException) rep = REP_REFUSED;
-            else if (e instanceof java.net.NoRouteToHostException) rep = REP_HOST_UNREACHABLE;
-            else rep = REP_NETWORK_UNREACHABLE;
+            if (e instanceof java.net.ConnectException) {
+                rep = REP_REFUSED;
+            } else if (e instanceof java.net.NoRouteToHostException) {
+                rep = REP_HOST_UNREACHABLE;
+            } else {
+                rep = REP_NETWORK_UNREACHABLE;
+            }
             writeReply(out, rep, new InetSocketAddress(0));
             return;
         }

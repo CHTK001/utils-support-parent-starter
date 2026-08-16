@@ -9,7 +9,7 @@ import java.io.OutputStream;
  * FFmpeg 处理器 SPI 接口，定义音视频处理的核心操作。
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public interface FFmpegProcessor {
 

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
  *
  * @param <T> 值类型
  * @author CH
+ * @since 4.0.0.42
  */
 @AllArgsConstructor
 class DefaultValue<T> implements Value<T> {

@@ -17,7 +17,7 @@ import java.util.List;
  * </ul>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 public interface SpiderLinkExtractor {
 

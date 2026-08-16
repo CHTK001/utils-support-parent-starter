@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * 支持传入上下文参数，脚本通过命令行参数或环境变量获取。
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 public class PythonScriptExecutor implements ScriptExecutor {
 

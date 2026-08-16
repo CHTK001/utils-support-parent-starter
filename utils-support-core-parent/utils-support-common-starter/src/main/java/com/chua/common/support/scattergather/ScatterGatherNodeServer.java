@@ -6,6 +6,7 @@ package com.chua.common.support.scattergather;
  * <p>负责启动和停止节点服务。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ScatterGatherNodeServer extends AutoCloseable {
 

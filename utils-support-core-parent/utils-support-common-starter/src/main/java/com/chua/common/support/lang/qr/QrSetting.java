@@ -5,6 +5,7 @@ import lombok.Data;
 /**
  * 二维码配置类
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class QrSetting {

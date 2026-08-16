@@ -49,7 +49,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @SpiDescribe("USM锐化滤镜")
 @Spi("usm")

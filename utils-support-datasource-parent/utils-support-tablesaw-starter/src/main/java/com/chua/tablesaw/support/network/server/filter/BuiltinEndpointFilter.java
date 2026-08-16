@@ -24,7 +24,7 @@ import java.util.Map;
  * <p>/metrics 返回：totalRequests、activeRequests、errorCount、uptime、startTime、lastErrorTime</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 public class BuiltinEndpointFilter implements com.chua.common.support.network.server.filter.ServerFilter {
 

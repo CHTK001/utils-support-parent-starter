@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Dubbo RPC 客户端实现。
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("dubbo")
 @Slf4j

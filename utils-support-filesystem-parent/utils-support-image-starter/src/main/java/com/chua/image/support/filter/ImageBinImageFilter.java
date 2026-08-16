@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
  * 二值化
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("Bin")
 @SpiDescribe("二值化滤镜")

@@ -25,7 +25,7 @@ import java.util.Map;
  * 自动映射到 POJO 对象的字段上。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @ConditionalOnClass({"org.jsoup.Jsoup", "com.fasterxml.jackson.databind.ObjectMapper"})

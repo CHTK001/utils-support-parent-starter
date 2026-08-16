@@ -9,6 +9,7 @@ package com.chua.common.support.exception;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class AuthenticationException extends RuntimeException {
 

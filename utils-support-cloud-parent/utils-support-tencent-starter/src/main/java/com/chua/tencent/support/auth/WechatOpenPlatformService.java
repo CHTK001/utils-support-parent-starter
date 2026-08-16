@@ -8,6 +8,7 @@ import java.util.List;
  * 管理同一开放平台下所有应用的用户openid映射，支持通过unionid查询所有关联的openid。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface WechatOpenPlatformService {
 

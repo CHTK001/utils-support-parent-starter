@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
  * 支持格式: "400x300", "400x", "x300", "400"
  * 
  * @author CH
- * @since 2024/12/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "thumbnail", order = 0)

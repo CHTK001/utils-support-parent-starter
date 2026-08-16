@@ -225,7 +225,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
                 String error = getString(raw, "error");
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> rawEvents = (List<Map<String, Object>>) raw.get("rawEvents");
-                if (rawEvents == null) rawEvents = List.of();
+                if (rawEvents == null) {
                 if (listener != null) {
                     Object events = raw.get("events");
                     if (events instanceof List<?> list) {

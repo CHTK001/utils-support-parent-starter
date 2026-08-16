@@ -23,7 +23,7 @@ import java.util.List;
  * 基于 Apache Commons Compress 提供 7z 格式的读写支持。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("7z")
 public class SevenZFileSystem implements FileSystem {

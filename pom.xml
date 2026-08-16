@@ -25,7 +25,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <java.version>25</java.version>
         <utils.version>4.0.0.42</utils.version>
-        <djl.version>0.27.0</djl.version>
+        <djl.version>0.36.0</djl.version>
 
         <skipTests>true</skipTests>
         <calcite.version>1.41.0</calcite.version>

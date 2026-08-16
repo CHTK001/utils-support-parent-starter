@@ -12,7 +12,7 @@ import java.util.Map;
  * 从 Databay API 获取免费代理。
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("databay")
 public class DatabayFetcher implements ProxyFetcher {

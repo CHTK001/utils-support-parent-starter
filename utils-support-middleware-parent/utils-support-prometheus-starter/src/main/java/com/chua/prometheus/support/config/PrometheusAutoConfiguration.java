@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Bean;
  * </p>
  *
  * @author CH
- * @since 2026/8/4
+ * @since 4.0.0.42
  */
 @Slf4j
 @AutoConfiguration

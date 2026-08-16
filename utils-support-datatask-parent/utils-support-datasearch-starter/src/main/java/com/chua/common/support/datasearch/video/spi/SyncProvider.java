@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
  * 视Ƶͬ步提供者接?
  *
  * @author CH
- * @since 2025-09-16
+ * @since 4.0.0.42
  */
 public interface SyncProvider {
 

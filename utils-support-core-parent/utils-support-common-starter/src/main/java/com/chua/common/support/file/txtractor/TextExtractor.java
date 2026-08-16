@@ -25,6 +25,7 @@ import java.util.Objects;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface TextExtractor {
 

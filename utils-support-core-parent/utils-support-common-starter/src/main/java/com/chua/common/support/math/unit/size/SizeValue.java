@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  *
  * @author Sam Brannen, Stephane Nicoll
  * @author CH
+ * @since 4.0.0.42
  */
 public final class SizeValue implements Comparable<SizeValue> {
 

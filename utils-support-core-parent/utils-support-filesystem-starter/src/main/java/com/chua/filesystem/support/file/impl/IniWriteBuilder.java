@@ -20,16 +20,33 @@ import java.util.*;
  */
 public class IniWriteBuilder extends WriteBuilder {
 
+    /**
+     * 构造函数。
+     *
+     * @param file 目标文件
+     */
     public IniWriteBuilder(File file) {
         super(file);
     }
 
+    /**
+     * 设置字符集。
+     *
+     * @param charset 字符集名称
+     * @return this
+     */
     @Override
     public IniWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
     }
 
+    /**
+     * 追加待写入数据。
+     *
+     * @param data INI 数据（Map 或 List&lt;Map&gt;）
+     * @return this
+     */
     @SuppressWarnings("unchecked")
     @Override
     public IniWriteBuilder write(Object data) {
@@ -37,6 +54,9 @@ public class IniWriteBuilder extends WriteBuilder {
         return this;
     }
 
+    /**
+     * 完成写入并关闭底层输出流。
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void finish() {
@@ -74,7 +94,12 @@ public class IniWriteBuilder extends WriteBuilder {
         callback.onComplete(true);
     }
 
-    /** 判断 Map 是否为嵌套 Section 结构（value 也是 Map） */
+    /**
+     * 判断 Map 是否为嵌套 Section 结构（value 也是 Map）。
+     *
+     * @param map 待判断的 Map
+     * @return true 表示嵌套 Section 结构
+     */
     private boolean isNestedSectionMap(Map<String, Object> map) {
         for (Map.Entry<String, Object> e : map.entrySet()) {
             if (e.getValue() instanceof Map) {
@@ -84,13 +109,20 @@ public class IniWriteBuilder extends WriteBuilder {
         return false;
     }
 
-    /** 写入嵌套 Section 结构（每 Section 做一次行过滤） */
+    /**
+     * 写入嵌套 Section 结构（每 Section 做一次行过滤）。
+     *
+     * @param sb       字符串构建器
+     * @param sections Section 数据
+     */
     private void writeNestedMap(StringBuilder sb, Map<String, Map<String, String>> sections) {
         for (Map.Entry<String, Map<String, String>> section : sections.entrySet()) {
             String sectionName = section.getKey();
             // 将 Section 所有属性转为一行，供 testRow 过滤
             Map<String, Object> sectionRow = new LinkedHashMap<>(section.getValue());
-            if (!testRow(sectionRow)) continue;
+            if (!testRow(sectionRow)) {
+                continue;
+            }
 
             if (sectionName != null && !sectionName.isEmpty()) {
                 sb.append("[").append(sectionName).append("]").append("\n");
@@ -102,21 +134,33 @@ public class IniWriteBuilder extends WriteBuilder {
         }
     }
 
-    /** 写入单层属性（无 Section），每行独立过滤 */
+    /**
+     * 写入单层属性（无 Section），每行独立过滤。
+     *
+     * @param sb   字符串构建器
+     * @param data 单层属性数据
+     */
     private void writeFlatMap(StringBuilder sb, Map<String, Object> data) {
-        if (!testRow(data)) return;
+        if (!testRow(data)) {
+            return;
+        }
         for (Map.Entry<String, Object> e : data.entrySet()) {
             sb.append(e.getKey()).append("=").append(e.getValue()).append("\n");
         }
         sb.append("\n");
     }
 
-
-
-    /** 写入行列表格式（含 __section__） */
+    /**
+     * 写入行列表格式（含 __section__）。
+     *
+     * @param sb   字符串构建器
+     * @param rows 行数据列表
+     */
     private void writeRowList(StringBuilder sb, List<Map<String, Object>> rows) {
         for (Map<String, Object> row : rows) {
-            if (!testRow(row)) continue;
+            if (!testRow(row)) {
+                continue;
+            }
 
             String sectionName = row.containsKey("__section__")
                     ? String.valueOf(row.get("__section__")) : null;
@@ -125,7 +169,9 @@ public class IniWriteBuilder extends WriteBuilder {
                 sb.append("[").append(sectionName).append("]").append("\n");
             }
             for (Map.Entry<String, Object> e : row.entrySet()) {
-                if ("__section__".equals(e.getKey())) continue;
+                if ("__section__".equals(e.getKey())) {
+                    continue;
+                }
                 sb.append(e.getKey()).append("=").append(e.getValue()).append("\n");
             }
             sb.append("\n");

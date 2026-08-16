@@ -59,6 +59,7 @@ import java.util.function.Consumer;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see TaskDefinition#parallel(Pipeline)
  * @see TaskForkDefinition#parallel(Pipeline)
  * @see ParallelNode

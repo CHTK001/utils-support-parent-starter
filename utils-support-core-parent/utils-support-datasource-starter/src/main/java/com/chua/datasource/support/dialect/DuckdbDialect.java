@@ -2,12 +2,18 @@ package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
-/**
- * @author CH
- */
 
+/**
+ * DuckDB 0.8+ 方言实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class DuckdbDialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "DuckDB 0.8+";
 
     @Override

@@ -96,6 +96,7 @@ import java.util.function.BiConsumer;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see AsyncResult
  * @see SubPipelineNode
  * @see ForkNode

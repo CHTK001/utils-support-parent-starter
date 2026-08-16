@@ -16,7 +16,7 @@ import java.util.Map;
  * <p>基于 Apache POI 实现 .docx 文档的文本内容提取。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class WordReadBuilder extends ReadBuilder {
 

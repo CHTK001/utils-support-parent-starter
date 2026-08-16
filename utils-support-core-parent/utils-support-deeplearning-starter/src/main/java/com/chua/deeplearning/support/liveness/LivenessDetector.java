@@ -4,6 +4,7 @@ import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
+import java.util.List;
 
 /**
  * 活体检测器，判断人脸图像是否为真实活体而非照片/视频攻击。
@@ -22,6 +23,19 @@ public interface LivenessDetector {
     static LivenessDetector create(String name) {
         return new DefaultLivenessDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
+
+    /**
+     * 查询该能力下全部可用模型。
+     *
+     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+     *
+     * @return 模型 ID 列表
+     */
+    static List<String> listModels() {
+        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.liveness.LivenessDetector.class);
+    }
+
 
     /**
      * 创建活体检测器。

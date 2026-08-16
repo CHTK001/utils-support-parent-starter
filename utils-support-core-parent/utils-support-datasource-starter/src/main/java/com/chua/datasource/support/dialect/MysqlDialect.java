@@ -1,12 +1,18 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-/**
- * @author CH
- */
 
+/**
+ * MySQL 8.0+ 方言实现（兼容 5.7）。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class MysqlDialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "MySQL 8.0+ (兼容 5.7)";
 
     @Override

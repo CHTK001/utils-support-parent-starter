@@ -63,9 +63,10 @@ public class FlashTokenService {
      * @return true 表示有效
      */
     public boolean validateToken(String token) {
-        if (StringUtils.isEmpty(token)) return false;
+        if (StringUtils.isEmpty(token)) {
         Path marker = flashDir.resolve(token);
-        if (!Files.exists(marker)) return false;
+        if (!Files.exists(marker)) {
+            return false;
         try {
             long lastModified = Files.getLastModifiedTime(marker).toMillis();
             return (System.currentTimeMillis() - lastModified) < expireSeconds * 1000;
@@ -81,7 +82,7 @@ public class FlashTokenService {
      * @return true 表示消费成功（删除成功）
      */
     public boolean consumeToken(String token) {
-        if (StringUtils.isEmpty(token)) return false;
+        if (StringUtils.isEmpty(token)) {
         Path marker = flashDir.resolve(token);
         try {
             if (Files.deleteIfExists(marker)) {

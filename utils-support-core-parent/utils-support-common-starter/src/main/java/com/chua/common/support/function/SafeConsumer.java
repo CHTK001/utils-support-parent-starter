@@ -8,6 +8,7 @@ import java.util.function.Consumer;
  *
  * @param <T> 输入类型
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  * @see Consumer
  */

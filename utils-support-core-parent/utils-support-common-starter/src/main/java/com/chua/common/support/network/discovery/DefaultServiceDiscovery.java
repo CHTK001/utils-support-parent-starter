@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  * 该实现采用本地缓存机制来管理已注册的服务，但不涉及网络层面的服务发现逻辑。
  * </p>
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DefaultServiceDiscovery extends AbstractServiceDiscovery {

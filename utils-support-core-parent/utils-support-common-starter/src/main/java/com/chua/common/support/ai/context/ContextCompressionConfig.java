@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

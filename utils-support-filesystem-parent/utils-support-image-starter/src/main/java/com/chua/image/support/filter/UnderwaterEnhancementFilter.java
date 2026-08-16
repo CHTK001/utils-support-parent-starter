@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  * - 饱和度调整：提升颜色鲜艳度
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

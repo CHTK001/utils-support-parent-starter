@@ -28,7 +28,7 @@ import java.util.function.Function;
  * {@code X-RPC-Group} 传递，服务端据此做服务治理校验。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("json")
 @Slf4j

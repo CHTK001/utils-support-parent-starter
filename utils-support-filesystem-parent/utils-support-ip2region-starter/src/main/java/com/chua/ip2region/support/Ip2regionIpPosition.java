@@ -16,7 +16,7 @@ import java.nio.file.Path;
  * <p>基于 ip2region xdb 数据库文件实现毫秒级 IP 定位。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("ip2region")
 public class Ip2regionIpPosition implements IpPosition {

@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 /**
  * 图片码眼
  * @author CH
- * @since 2024/5/30 表示该类是从2024年5月30日开始提供的。
+ * @since 4.0.0.42
  */
 public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
 

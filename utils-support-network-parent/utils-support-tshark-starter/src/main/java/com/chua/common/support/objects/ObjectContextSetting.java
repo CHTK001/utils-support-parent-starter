@@ -8,7 +8,7 @@ import java.util.List;
  * <p>使用 {@link #builder()} 创建配置实例。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public class ObjectContextSetting {
 

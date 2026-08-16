@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Lambda 解析工具类，将 SFunction 方法引用解析为属性名。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public class LambdaUtils {
 

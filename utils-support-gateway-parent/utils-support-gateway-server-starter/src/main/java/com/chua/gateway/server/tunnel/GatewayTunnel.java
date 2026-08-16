@@ -119,7 +119,7 @@ public class GatewayTunnel implements Tunnel {
 
     @Override
     public void close() {
-        if (bridge == null) return;
+        if (bridge == null) {
         try {
             bridge.disconnect();
             log.info("[gateway-server] Tunnel 关闭: id={}", id);

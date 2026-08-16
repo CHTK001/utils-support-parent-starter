@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  * SingleSidedFilletRectangleDrawEyeResolver类，继承自AbstractDrawEyeResolver。该类为绘制眼睛的一种具体实现方式。
  *
  * @author CH
- * @since 2024/5/30 表示该类是从2024年5月30日开始提供的。
+ * @since 4.0.0.42
  */
 @Spi("SINGLE_SIDED_FILLET")
 public class SingleSidedFilletRectangleDrawEyeResolver extends AbstractDrawEyeResolver {

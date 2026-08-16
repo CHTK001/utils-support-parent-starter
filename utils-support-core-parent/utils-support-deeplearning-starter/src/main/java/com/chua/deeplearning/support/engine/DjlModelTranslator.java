@@ -121,10 +121,10 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     /**
-     * 将 DJL 检测输出适配为框架 {@link List}&lt;{@link PredictRectangle}&gt;。
-     * <p>DJL 检测模型（如 SCRFD/YOLO）返回 {@link DetectedObjects}，而框架的
-     * {@code FaceDetector} 期望 {@code List<PredictRectangle>}，此处统一转换。
-     * DJL 的矩形坐标已归一化（0~1），框架 crop 时按归一化处理。非检测输出原样返回。</p>
+     * 将 DJL 推理输出适配为框架类型。
+     * <p>DJL 检测模型（如 SCRFD/YOLO）返回 {@link DetectedObjects}，适配为
+     * {@code List<PredictRectangle>}；分类模型返回 {@link Classifications}，适配为
+     * 最可能类别名（String）。非这两种输出原样返回。</p>
      *
      * @param result DJL 推理输出
      * @return 适配后的输出
@@ -152,6 +152,16 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
             log.debug("[deeplearning-engine] DJL 模型 {} 检测到 {} 个目标，适配为 List<PredictRectangle>",
                     modelName, boxes.size());
             return boxes;
+        }
+        if (result instanceof ai.djl.modality.Classifications classifications) {
+            // 分类输出 → 最可能类别名（业务接口 ImageClassifier 期望 String）
+            List<ai.djl.modality.Classifications.Classification> items = classifications.items();
+            if (items != null && !items.isEmpty()) {
+                String top = String.valueOf(items.get(0).getClassName());
+                log.debug("[deeplearning-engine] DJL 模型 {} 分类结果: {}", modelName, top);
+                return top;
+            }
+            return "";
         }
         return result;
     }

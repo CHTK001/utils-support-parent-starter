@@ -37,6 +37,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * <p>实现类通过 SPI 机制发现与加载，详见 {@link com.chua.common.support.spi.ServiceProvider}。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see ServiceProvider
  */
 @Spi

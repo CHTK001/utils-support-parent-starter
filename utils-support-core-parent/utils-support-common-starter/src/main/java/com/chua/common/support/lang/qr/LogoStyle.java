@@ -7,6 +7,7 @@ package com.chua.common.support.lang.qr;
  * 定义了二维码中Logo图标的显示风格，支持圆形和圆角矩形两种模式。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum LogoStyle {
 

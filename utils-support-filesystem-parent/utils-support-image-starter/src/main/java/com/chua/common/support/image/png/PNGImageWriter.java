@@ -22,7 +22,7 @@ import java.util.zip.DeflaterOutputStream;
  * </p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public final class PNGImageWriter extends ImageWriter {
     /**
@@ -79,26 +79,34 @@ public final class PNGImageWriter extends ImageWriter {
     // The tables will be designed for use with a set of input but depths
     // given by sampleSize, and an output bit depth given by scalingBitDepth.
     //
-    // ; // Sample size per band, in bits
+    // Sample size per band, in bits
+    // ;
     int[] sampleSize = null;
-    // ; // Output bit depth of the scaling tables
+    // Output bit depth of the scaling tables
+    // ;
     int scalingBitDepth = 0;
 
     // Tables for 1, 2, 4, or 8 bit output
-    // ; // 8 bit table
+    // 8 bit table
+    // ;
     byte[][] scale = null;
-    // ; // equivalent to scale[0]
+    // equivalent to scale[0]
+    // ;
     byte[] scale0 = null;
 
     // Tables for 16 bit output
-    // ; // High bytes of output
+    // High bytes of output
+    // ;
     byte[][] scaleh = null;
-    // ; // Low bytes of output
+    // Low bytes of output
+    // ;
     byte[][] scalel = null;
 
-    // ; // Total number of pixels to be written by write_IDAT and write_fdAT
+    // Total number of pixels to be written by write_IDAT and write_fdAT
+    // ;
     int totalPixels = 0;
-    // ; // Running count of pixels written by write_IDAT and write_fdAT
+    // Running count of pixels written by write_IDAT and write_fdAT
+    // ;
     int pixelsDone = 0;
 
     public PNGImageWriter(ImageWriterSpi originatingProvider) {
@@ -232,7 +240,8 @@ public final class PNGImageWriter extends ImageWriter {
                 throw new IIOException("iCCP profile name is longer than 79");
             }
             cs.writeBytes(metadata.iCCP_profileName);
-            cs.writeByte(0); // null terminator
+            // null terminator
+            cs.writeByte(0);
 
             cs.writeByte(metadata.iCCP_compressionMethod);
             cs.write(metadata.iCCP_compressedProfile);
@@ -424,7 +433,8 @@ public final class PNGImageWriter extends ImageWriter {
                 throw new IIOException("sPLT palette name is longer than 79");
             }
             cs.writeBytes(metadata.sPLT_paletteName);
-            cs.writeByte(0); // null terminator
+            // null terminator
+            cs.writeByte(0);
 
             cs.writeByte(metadata.sPLT_sampleDepth);
             int numEntries = metadata.sPLT_red.length;
@@ -670,7 +680,8 @@ public final class PNGImageWriter extends ImageWriter {
                 }
             }
 
-            // count = bpp; // leave first 'bpp' bytes zero
+            // leave first 'bpp' bytes zero
+            // count = bpp;
             int count = bpp;
             int pos = 0;
             int tmp = 0;

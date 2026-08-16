@@ -18,6 +18,7 @@ import java.util.Set;
  * 注意：此实现主要作为只读模式使用，支持从配置变更中监听服务更新。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("apollo")

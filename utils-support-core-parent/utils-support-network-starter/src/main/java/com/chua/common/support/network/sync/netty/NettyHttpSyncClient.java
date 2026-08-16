@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 基于 Netty 的 HTTP 同步客户端实现。
  *
  * @author CH
- * @since 2026-07-25
+ * @since 4.0.0.42
  */
 public class NettyHttpSyncClient implements com.chua.common.support.network.sync.SyncClient {
 

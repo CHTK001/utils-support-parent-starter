@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  * SSH 隧道实现，支持正反向隧道和动态 SOCKS5 隧道。
  *
  * @author CH
- * @since 2026/07/31
+ * @since 4.0.0.42
  */
 public class SshTunnel implements Tunnel {
 

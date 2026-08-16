@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DhtServiceDiscovery extends AbstractServiceDiscovery {

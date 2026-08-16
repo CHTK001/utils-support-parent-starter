@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  * 通过 WebSocket 接收事件，通过 REST API 发送消息。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 public class QqBotClient implements BotClient {

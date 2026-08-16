@@ -33,7 +33,10 @@ public class DefaultTotpGenerator implements TotpGenerator {
     // 注意：虽然常量名为 HMAC_SHA256，但实际使用的是 "HmacSHA1" 算法，这是 TOTP 标准推荐算法
     private static final String HMAC_SHA1 = "HmacSHA1"; 
     private static final int DEFAULT_OTP_LENGTH = 6;
-    private static final int INTERVAL = 30; // TOTP 时间步长，单位为秒
+    /**
+     * TOTP 时间步长，单位为秒
+     */
+    private static final int INTERVAL = 30;
     private final byte[] secret;
     private final ZoneId zoneId;
 

@@ -23,6 +23,7 @@ import static com.chua.common.support.constant.NumberConstant.NUMBER_2;
  * 文件工具类
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class FileUtils {
 

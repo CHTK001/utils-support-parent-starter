@@ -29,6 +29,7 @@ package com.chua.common.support.task.pipeline.core;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see com.chua.common.support.task.pipeline.node.ForkNode
  */
 public enum ForkErrorStrategy {

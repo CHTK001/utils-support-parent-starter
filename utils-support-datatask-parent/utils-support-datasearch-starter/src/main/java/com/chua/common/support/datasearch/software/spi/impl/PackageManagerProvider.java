@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * 并搜索软件包，安装/卸载软件，实时输出日志。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 public class PackageManagerProvider {
 

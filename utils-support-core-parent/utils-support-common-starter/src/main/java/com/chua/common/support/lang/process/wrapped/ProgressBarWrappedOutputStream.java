@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
  * 一个包装输出流，用于在写入数据时更新进度条。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class ProgressBarWrappedOutputStream extends FilterOutputStream {
 

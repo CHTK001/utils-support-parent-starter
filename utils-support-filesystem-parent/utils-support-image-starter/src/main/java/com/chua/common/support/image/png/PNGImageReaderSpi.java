@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
  * 该类继承自 ImageReaderSpi，描述 PNG 图像格式的读取支持
  *
  * @author CH
+ * @since 4.0.0.42
 */
 public class PNGImageReaderSpi extends ImageReaderSpi {
     // 定义供应商名称

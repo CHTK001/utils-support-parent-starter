@@ -40,11 +40,11 @@ public class DeepSeekPricingProvider extends AbstractPricingProvider {
             List<ModelDefinition> result = new ArrayList<>();
             for (Element row : rows) {
                 Elements cols = row.select("td");
-                if (cols.size() < 3) continue;
+                if (cols.size() < 3) {
                 String model = cols.get(0).text().trim();
                 String inputPriceStr = cols.get(1).text().replace("$", "").trim();
                 String outputPriceStr = cols.get(2).text().replace("$", "").trim();
-                if (model.isEmpty()) continue;
+                if (model.isEmpty()) {
                 try {
                     BigDecimal inputPrice = new BigDecimal(inputPriceStr);
                     BigDecimal outputPrice = new BigDecimal(outputPriceStr);

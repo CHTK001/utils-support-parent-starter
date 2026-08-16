@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * <code>helm install/uninstall</code>（release 名称由包标识派生）。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("helm")
 public class HelmSoftwareProvider implements SoftwareProvider {

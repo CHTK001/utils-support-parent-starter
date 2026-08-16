@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * 调用钉钉 AI 助理能力。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"dingding"})

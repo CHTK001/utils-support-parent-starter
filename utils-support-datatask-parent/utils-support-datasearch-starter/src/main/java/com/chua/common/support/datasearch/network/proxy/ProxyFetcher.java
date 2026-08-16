@@ -8,7 +8,7 @@ import java.util.List;
  * <p>定义从代理源获取代理列表的核心行为，供数据搜索等模块使用。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 public interface ProxyFetcher {
 

@@ -14,7 +14,7 @@ import java.io.*;
  * 支持 .ofd 文件的文本提取与基本读取。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("ofd")
 public class OfdFileSystem implements FileSystem {

@@ -10,6 +10,7 @@ import java.util.Optional;
  * 定义了对配置数据进行保存、加载和删除操作的标准方法。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ConfigSaveOrLoader extends Closeable {
 

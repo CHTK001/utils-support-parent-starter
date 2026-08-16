@@ -18,6 +18,7 @@ import java.util.function.BiConsumer;
  * @param <K> Key 类型
  * @param <V> Value 类型
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializable {
