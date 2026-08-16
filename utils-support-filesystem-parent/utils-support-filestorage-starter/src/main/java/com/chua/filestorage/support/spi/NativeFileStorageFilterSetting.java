@@ -15,7 +15,7 @@ import java.util.Map;
  * 若 Rust 库未初始化，则自动降级到 JDK 实现。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("native")

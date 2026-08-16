@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * 调用文心一言（ERNIE-Bot）的对话接口。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"baidu"})

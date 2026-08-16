@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("semaphore")
 public class SemaphoreLockProvider extends AbstractLockProvider {

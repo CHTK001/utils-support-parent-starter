@@ -6,6 +6,7 @@ import java.lang.annotation.*;
  * SPI 描述注解，用于描述 SPI 实现的功能、类型和详细说明。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

@@ -50,7 +50,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @SpiDescribe("Sobel边缘检测滤镜")
 @Spi("sobel")
@@ -118,16 +118,16 @@ public class ImageSobelFilter extends AbstractImageFilter {
             offset = row * width;
             for (int col = 1; col < width - 1; col++) {
 
-        // 计算红色通道的 Sobel 梯度
-        sr = k0 * (rArr[offset - width + col - 1] & 0xff) // 左上
-                + k1 * (rArr[offset - width + col] & 0xff) // 上
-                + k2 * (rArr[offset - width + col + 1] & 0xff) // 右上
-                + k3 * (rArr[offset + col - 1] & 0xff) // 左
-                + k4 * (rArr[offset + col] & 0xff) // 中心
-                + k5 * (rArr[offset + col + 1] & 0xff) // 右
-                + k6 * (rArr[offset + width + col - 1] & 0xff) // 左下
-                + k7 * (rArr[offset + width + col] & 0xff) // 下
-                + k8 * (rArr[offset + width + col + 1] & 0xff); // 右下
+        // 计算红色通道的 Sobel 梯度，方向顺序：左上、上、右上、左、中心、右、左下、下、右下
+        sr = k0 * (rArr[offset - width + col - 1] & 0xff)
+                + k1 * (rArr[offset - width + col] & 0xff)
+                + k2 * (rArr[offset - width + col + 1] & 0xff)
+                + k3 * (rArr[offset + col - 1] & 0xff)
+                + k4 * (rArr[offset + col] & 0xff)
+                + k5 * (rArr[offset + col + 1] & 0xff)
+                + k6 * (rArr[offset + width + col - 1] & 0xff)
+                + k7 * (rArr[offset + width + col] & 0xff)
+                + k8 * (rArr[offset + width + col + 1] & 0xff);
 
                 // 计算绿色通道的 Sobel 梯度
                 sg = k0 * (gArr[offset - width + col - 1] & 0xff)

@@ -4,7 +4,7 @@ package com.chua.webview.support.webview;
  * WebView 窗口接口定义。
  *
  * @author CH
- * @since 2025
+ * @since 4.0.0.42
  */
 public interface WebViewWindow {
 

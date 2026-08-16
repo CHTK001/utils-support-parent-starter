@@ -392,7 +392,7 @@ public class KcpHttpServer extends AbstractServer {
         @Override public OutputStream getOutputStream() { return new ByteArrayOutputStream(); }
         @Override public ServerResponse sendRedirect(String location) { setStatus(302); headers.put("Location", location); end(); return this; }
         @Override public ServerResponse sendError(int code, String message) {
-            if (ended) return this;
+            if (ended) {
             setStatus(code);
             setBody(message);
             end();
@@ -402,7 +402,7 @@ public class KcpHttpServer extends AbstractServer {
         @Override public boolean isCommitted() { return committed; }
         @Override public boolean isEnded() { return ended; }
         @Override public void end() {
-            if (ended) return;
+            if (ended) {
             ended = true;
             writeResponse();
         }
@@ -419,7 +419,7 @@ public class KcpHttpServer extends AbstractServer {
         }
 
         private void writeResponse() {
-            if (committed) return;
+            if (committed) {
             committed = true;
             byte[] data = body != null ? body : new byte[0];
             StringBuilder sb = new StringBuilder(256);

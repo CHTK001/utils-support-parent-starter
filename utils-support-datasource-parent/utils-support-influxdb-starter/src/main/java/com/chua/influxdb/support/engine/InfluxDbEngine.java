@@ -13,7 +13,7 @@ import java.util.List;
  * InfluxDB 数据源引擎实现，提供基于内存的数据过滤查询能力。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 @Spi("influxdb")
 public class InfluxDbEngine extends AbstractEngine {

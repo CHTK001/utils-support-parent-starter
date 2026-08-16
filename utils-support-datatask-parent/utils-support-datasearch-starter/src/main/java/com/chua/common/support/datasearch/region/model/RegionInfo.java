@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
  * 便于按层级构造与遍历「几级数据」。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 public class RegionInfo {
 

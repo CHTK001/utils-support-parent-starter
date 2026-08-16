@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * 支持 <code>gem search</code>、<code>gem install</code>、<code>gem uninstall</code>。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("gem")
 public class GemSoftwareProvider implements SoftwareProvider {

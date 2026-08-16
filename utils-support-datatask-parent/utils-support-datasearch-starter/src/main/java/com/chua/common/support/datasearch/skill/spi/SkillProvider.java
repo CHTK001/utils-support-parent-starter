@@ -9,6 +9,7 @@ import java.util.List;
  * Skills 技能提供者接口
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface SkillProvider {
 

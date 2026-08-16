@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * 调用阿里云模型服务灵积（DashScope）的对话接口。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"alibaba"})

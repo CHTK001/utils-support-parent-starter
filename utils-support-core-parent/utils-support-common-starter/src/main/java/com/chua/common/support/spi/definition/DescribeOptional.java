@@ -8,6 +8,7 @@ import lombok.Data;
  * 该类主要用于描述服务提供者或配置项的可选参数，便于在 SPI 解析和文档展示场景中统一传递元数据。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class DescribeOptional {

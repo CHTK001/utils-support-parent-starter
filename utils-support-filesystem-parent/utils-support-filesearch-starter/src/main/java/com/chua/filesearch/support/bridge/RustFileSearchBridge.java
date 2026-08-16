@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * 文件搜索原生库桥接 - Java 25 FFM (Panama) 绑定
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public final class RustFileSearchBridge {
 

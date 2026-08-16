@@ -6,6 +6,7 @@ package com.chua.common.support.scattergather;
  * <p>在节点故障标记与恢复时回调。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ScatterGatherFaultHandler {
 

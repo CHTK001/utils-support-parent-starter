@@ -10,6 +10,7 @@ package com.chua.common.support.lang.loader;
  *
  * @param <T> 加载对象的类型
  * @author CH
+ * @since 4.0.0.42
  */
 public abstract class LazyLoader<T> implements InitLoader<T>, Loader<T> {
 

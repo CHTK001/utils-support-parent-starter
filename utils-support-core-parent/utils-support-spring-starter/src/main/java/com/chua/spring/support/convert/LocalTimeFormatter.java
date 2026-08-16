@@ -12,7 +12,7 @@ import java.util.Locale;
  * 用于 Spring MVC 参数绑定，支持 {@link LocalTime} 类型的自动格式化与解析
  *
  * @author CH
- * @since 2026/7/19
+ * @since 4.0.0.42
  */
 @Slf4j
 public class LocalTimeFormatter implements Formatter<LocalTime> {

@@ -34,6 +34,7 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface PipelineListener {
 

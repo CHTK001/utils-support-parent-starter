@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
  * <p>包含开关、缓存配置、水印配置，以及各 SPI 的实现选择。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

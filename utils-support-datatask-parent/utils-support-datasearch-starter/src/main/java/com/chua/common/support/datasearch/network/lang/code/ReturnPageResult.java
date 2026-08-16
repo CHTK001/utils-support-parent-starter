@@ -10,6 +10,7 @@ import java.io.Serializable;
 
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

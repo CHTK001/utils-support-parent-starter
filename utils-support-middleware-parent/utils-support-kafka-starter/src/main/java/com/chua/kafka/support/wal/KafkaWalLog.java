@@ -67,10 +67,10 @@ public class KafkaWalLog implements WalLog {
         long max = 0;
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(200));
-            if (records.isEmpty()) break;
+            if (records.isEmpty()) {
             for (ConsumerRecord<String, byte[]> r : records) {
                 long lsn = extractLsn(r);
-                if (lsn > max) max = lsn;
+                if (lsn > max) {
             }
         }
         consumer.seekToBeginning(consumer.assignment());
@@ -204,12 +204,14 @@ public class KafkaWalLog implements WalLog {
             boolean stopped = false;
             while (!stopped) {
                 ConsumerRecords<String, byte[]> recordsBatch = consumer.poll(Duration.ofMillis(200));
-                if (recordsBatch.isEmpty()) break;
+                if (recordsBatch.isEmpty()) {
                 for (ConsumerRecord<String, byte[]> r : recordsBatch) {
                     long lsn = extractLsn(r);
-                    if (lsn < fromLsn || lsn >= toLsn) continue;
+                    if (lsn < fromLsn || lsn >= toLsn) {
                     byte[] value = r.value();
-                    if (value == null || value.length == 0) continue;
+                    if (value == null || value.length == 0) {
+                        continue;
+                    }
                     byte op = value[0];
                     byte[] payload = new byte[value.length - 1];
                     System.arraycopy(value, 1, payload, 0, payload.length);
@@ -282,7 +284,7 @@ public class KafkaWalLog implements WalLog {
             consumer.seekToBeginning(consumer.assignment());
             while (true) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(200));
-                if (records.isEmpty()) break;
+                if (records.isEmpty()) {
                 for (ConsumerRecord<String, byte[]> r : records) {
                     long cur = extractLsn(r);
                     if (cur == lsn) {
@@ -321,7 +323,7 @@ public class KafkaWalLog implements WalLog {
 
     @Override
     public void close() throws IOException {
-        if (closed) return;
+        if (closed) {
         closed = true;
         try {
             producer.close();
@@ -332,6 +334,6 @@ public class KafkaWalLog implements WalLog {
     }
 
     private void ensureOpen() {
-        if (closed) throw new WalException("WAL closed");
+        if (closed) {
     }
 }

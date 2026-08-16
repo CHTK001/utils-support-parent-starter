@@ -26,6 +26,7 @@ import static com.chua.common.support.utils.MapUtils.DEFAULT_INITIAL_CAPACITY;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 @SuppressWarnings("unchecked")

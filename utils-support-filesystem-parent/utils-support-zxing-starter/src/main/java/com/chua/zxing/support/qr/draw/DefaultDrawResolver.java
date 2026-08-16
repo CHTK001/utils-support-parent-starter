@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  * 它继承自 AbstractDrawResolver，通过实现特定的接口和注解配置，来支持不同的绘图形状解析。
  *
  * @author CH
- * @since 2024/5/30 表示该类是从 2024 年 5 月 30 日开始提供的
+ * @since 4.0.0.42
  */
 @Spi({ "MINI_RECT", "RECT" })
 public class DefaultDrawResolver extends AbstractDrawResolver {

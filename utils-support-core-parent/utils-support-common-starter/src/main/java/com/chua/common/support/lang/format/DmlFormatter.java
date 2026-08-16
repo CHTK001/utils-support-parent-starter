@@ -340,7 +340,8 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         // 提取 SELECT 关键字和后面的列列表
-        String prefix = clause.substring(0, selectIdx + 6); // "SELECT"
+        // 前缀包含 "SELECT" 关键字
+        String prefix = clause.substring(0, selectIdx + 6);
         String rest = clause.substring(selectIdx + 6).trim();
 
         // 如果列列表为空，直接返回
@@ -400,7 +401,8 @@ public class DmlFormatter extends SqlFormatter {
         }
 
         // 提取 FROM 关键字和后面的内容
-        String prefix = clause.substring(0, fromIdx + 4); // "FROM"
+        // 前缀包含 "FROM" 关键字
+        String prefix = clause.substring(0, fromIdx + 4);
         String rest = clause.substring(fromIdx + 4).trim();
 
         return formatKeyword("FROM") + " " + rest;
@@ -562,7 +564,8 @@ public class DmlFormatter extends SqlFormatter {
         int valuesIdx = result.toUpperCase().indexOf("VALUES");
         if (valuesIdx >= 0) {
             // 分割为两部分：VALUES之前 和 VALUES之后
-            String beforeValues = result.substring(0, valuesIdx + 6); // "VALUES"
+            // 此前缀包含 "VALUES" 关键字
+            String beforeValues = result.substring(0, valuesIdx + 6);
             String afterValues = result.substring(valuesIdx + 6).trim();
 
             // 如果VALUES后面有内容

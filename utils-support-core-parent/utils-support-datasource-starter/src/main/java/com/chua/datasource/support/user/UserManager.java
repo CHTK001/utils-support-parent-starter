@@ -6,6 +6,7 @@ import java.util.List;
  * 用户管理器 SPI 接口。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface UserManager {
 

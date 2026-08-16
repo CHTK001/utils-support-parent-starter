@@ -18,7 +18,7 @@ import java.util.Map;
  * Pipeline 组件负责消费此结果。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 
 @NoArgsConstructor

@@ -35,7 +35,7 @@ import java.util.UUID;
  * }</pre>
  *
  * @author CH
- * @since 2026/7/23
+ * @since 4.0.0.42
  */
 @Spi("jrebel")
 @SpiDescribe("JRebel 许可证 HTTP 服务器")

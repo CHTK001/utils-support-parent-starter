@@ -63,7 +63,7 @@ public class MappingBeanDefinitionRegister {
      * @return true 表示命中
      */
     private boolean matchUrl(String mappedUrl, String requestPath, String requestMethod) {
-        if ("/".equals(mappedUrl) && ("/".equals(requestPath) || "".equals(requestPath))) return true;
+        if ("/".equals(mappedUrl) && ("/".equals(requestPath) || "".equals(requestPath))) {
         return mappedUrl.equals(requestPath);
     }
 
@@ -101,7 +101,7 @@ public class MappingBeanDefinitionRegister {
     public void removeMapping(String path) {
         mappings.removeIf(m -> {
             for (String url : m.getUrls()) {
-                if (url.equals(path)) return true;
+                if (url.equals(path)) {
             }
             return false;
         });
@@ -116,7 +116,7 @@ public class MappingBeanDefinitionRegister {
     public void removeMapping(String path, com.chua.common.support.network.http.HttpMethod method) {
         mappings.removeIf(m -> {
             for (String url : m.getUrls()) {
-                if (url.equals(path)) return true;
+                if (url.equals(path)) {
             }
             return false;
         });
@@ -131,7 +131,7 @@ public class MappingBeanDefinitionRegister {
     public boolean hasMapping(String path) {
         return mappings.stream().anyMatch(m -> {
             for (String url : m.getUrls()) {
-                if (url.equals(path)) return true;
+                if (url.equals(path)) {
             }
             return false;
         });

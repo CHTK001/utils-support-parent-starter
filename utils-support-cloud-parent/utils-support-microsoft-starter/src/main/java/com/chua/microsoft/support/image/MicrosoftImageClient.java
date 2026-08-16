@@ -25,7 +25,7 @@ import java.util.Map;
  * 通过 HTTP 协议调用 DALL-E 3 / DALL-E 2 模型进行图片生成，兼容 OpenAI 接口格式。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"microsoft", "azure"})

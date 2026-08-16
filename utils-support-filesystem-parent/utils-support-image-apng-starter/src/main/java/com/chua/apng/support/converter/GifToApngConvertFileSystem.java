@@ -33,7 +33,7 @@ import java.util.List;
  * </p>
  *
  * @author CH
- * @since 2024/7/20
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("gif2apng")
@@ -180,7 +180,8 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
                     if (delayTimeNode != null) {
                         // GIF 延迟时间单位是 1/100 秒，转换为毫秒
                         int delayTime = Integer.parseInt(delayTimeNode.getNodeValue());
-                        return Math.max(10, delayTime * 10); // 最小 10ms
+                        // 最小 10ms
+                        return Math.max(10, delayTime * 10);
                     }
                 }
             }
@@ -190,7 +191,8 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
             }
         }
 
-        return 100; // 默认延迟时间
+        // 默认延迟时间
+        return 100;
     }
 
     /**

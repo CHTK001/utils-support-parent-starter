@@ -43,7 +43,7 @@ import java.util.*;
  * </p>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  * @see DiffPolledDirectory
  * @see com.chua.common.support.lang.directory.PolledDirectory
  */

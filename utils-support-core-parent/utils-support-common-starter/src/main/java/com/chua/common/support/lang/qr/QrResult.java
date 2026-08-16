@@ -10,6 +10,7 @@ import java.util.List;
  * 用于存储二维码解析后的文本内容以及其在图像中的边界框信息。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class QrResult {

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * <p>跟踪每个节点的失败/成功次数，实现故障节点摘除和自动恢复。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ScatterGatherFaultTolerance {

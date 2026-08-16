@@ -24,6 +24,7 @@ import java.util.function.Supplier;
  * 保留静态直接生成、链式构建, 并新增条件分支能力。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Setter

@@ -12,6 +12,7 @@ import com.chua.common.support.network.server.ServerSetting;
  * Filter 可在此获取自定义配置项。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ServerFilterConfig {
 

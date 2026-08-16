@@ -64,7 +64,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  * @see AbstractEngine
  * @see SqlExpressionParser
  * @see IndexSearcher

@@ -103,6 +103,7 @@ import java.util.function.Consumer;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see TaskDecisionDefinition
  * @see TaskSubPipelineDefinition
  */
@@ -421,7 +422,8 @@ public class TaskDefinition {
     public TaskForkDefinition fork() {
         TaskForkDefinition def = new TaskForkDefinition(id, builder);
         if (handler != null) {
-            def.onStep(ctx -> handler.execute(ctx)); // handler 作为前置处理器
+            // handler 作为前置处理器
+            def.onStep(ctx -> handler.execute(ctx));
         }
         return def;
     }

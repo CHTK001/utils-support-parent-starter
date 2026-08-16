@@ -8,6 +8,7 @@ package com.chua.common.support.lang.qr;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum CodeLevel {
     /**

@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * <code>vcpkg remove</code>。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("vcpkg")
 public class VcpkgSoftwareProvider implements SoftwareProvider {

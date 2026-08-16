@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * 卸载为尽力而为（清除已安装的命令二进制）。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("go")
 public class GoSoftwareProvider implements SoftwareProvider {

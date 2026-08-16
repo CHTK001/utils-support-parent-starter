@@ -28,7 +28,7 @@ import java.util.regex.PatternSyntaxException;
  * Windows 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 Event Log API
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("windows")
 @SpiDescribe(value = "windows-event-log", desc = "Windows 系统事件日志提供者", type = "log")

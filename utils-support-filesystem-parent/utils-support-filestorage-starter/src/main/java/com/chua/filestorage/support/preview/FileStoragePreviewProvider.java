@@ -12,7 +12,7 @@ import java.io.IOException;
  * 服务启动后优先尝试 SPI 预览，未命中则回退到插件头或 PDF 转换。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Spi
 public interface FileStoragePreviewProvider {

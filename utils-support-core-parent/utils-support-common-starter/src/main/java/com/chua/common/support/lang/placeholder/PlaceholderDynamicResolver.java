@@ -8,6 +8,7 @@ import java.util.Map;
  * 用于动态添加、移除和解析占位符，支持链式调用。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface PlaceholderDynamicResolver {
     /**

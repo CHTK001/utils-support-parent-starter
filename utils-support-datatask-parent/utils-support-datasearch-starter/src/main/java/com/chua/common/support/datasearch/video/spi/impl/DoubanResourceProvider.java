@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("douban")
 public class DoubanResourceProvider extends AbstractResourceProvider {

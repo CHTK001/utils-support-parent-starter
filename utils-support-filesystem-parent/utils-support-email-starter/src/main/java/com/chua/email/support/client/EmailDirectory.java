@@ -38,7 +38,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 @Getter
@@ -72,7 +72,8 @@ public class EmailDirectory implements PolledDirectory {
 
     @Override
     public boolean isDelegatedOperatingSystem() {
-        return false; // 邮件需要轮询
+        // 邮件需要轮询
+        return false;
     }
 
     @Override

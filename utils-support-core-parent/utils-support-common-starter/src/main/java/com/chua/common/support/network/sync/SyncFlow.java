@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.SyncServer;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface SyncFlow extends AutoCloseable {
 

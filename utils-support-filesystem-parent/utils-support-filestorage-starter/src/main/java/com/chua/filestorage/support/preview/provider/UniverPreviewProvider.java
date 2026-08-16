@@ -12,7 +12,7 @@ import java.util.Set;
  * <p>SPI 类型：{@code preview-univer}。表格走 LuckyExcel，文档走 Univer importDOCXToSnapshotAsync。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("preview-univer")
 public class UniverPreviewProvider implements FileStoragePreviewProvider {

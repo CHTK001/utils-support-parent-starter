@@ -9,6 +9,7 @@ import java.util.Map;
  * 该类实现了动态属性添加和删除功能，支持在运行时修改配置映射。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, PlaceholderDynamicResolver {
 

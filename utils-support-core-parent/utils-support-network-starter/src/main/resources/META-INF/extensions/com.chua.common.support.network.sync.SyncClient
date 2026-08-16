@@ -1,2 +1,1 @@
-netty-tcp=com.chua.common.support.network.sync.netty.NettyTcpSyncClient
-netty-udp=com.chua.common.support.network.sync.netty.NettyUdpSyncClient
+# Netty 已移除：SyncClient 的 tcp/udp/http/websocket 实现由 utils-support-common-starter 提供

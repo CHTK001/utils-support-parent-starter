@@ -12,7 +12,7 @@ import java.util.Map;
  * 支付响应
  *
  * @author CH
- * @since 2026/07/19
+ * @since 4.0.0.42
  */
 
 @NoArgsConstructor

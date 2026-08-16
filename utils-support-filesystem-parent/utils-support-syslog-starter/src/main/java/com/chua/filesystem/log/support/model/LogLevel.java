@@ -4,7 +4,7 @@ package com.chua.filesystem.log.support.model;
  * 系统日志级别枚举
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public enum LogLevel {
 

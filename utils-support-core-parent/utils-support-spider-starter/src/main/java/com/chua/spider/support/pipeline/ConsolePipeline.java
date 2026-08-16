@@ -15,7 +15,7 @@ import com.chua.spider.support.model.SpiderResult;
  * <p>SPI 名称：{@code pipeline:console}
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Spi("console")
 public class ConsolePipeline implements SpiderPipeline {

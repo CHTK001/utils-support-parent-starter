@@ -19,6 +19,7 @@ import java.util.Optional;
  * 项目信息工具类，提供获取当前项目的进程ID、本机地址、JDK版本等运行时环境信息。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class Projects {
 

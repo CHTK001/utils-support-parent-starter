@@ -15,6 +15,7 @@ import java.util.function.Consumer;
  * 它支持将内部存储的 Map 自动转换为 JsonObject，Collection 自动转换为 JsonArray。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonArray extends LinkedList<Object> {

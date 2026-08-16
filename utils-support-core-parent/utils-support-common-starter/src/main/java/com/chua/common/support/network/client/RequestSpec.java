@@ -843,7 +843,8 @@ public class RequestSpec {
                 .headers(headers.toMap())
                 .body(bodyStr)
                 .connectTimeout(connectTimeout)
-                .readTimeout(readTimeout > 0 ? readTimeout : 0) // SSE 长连接通常不超时
+                // SSE 长连接通常不超时
+                .readTimeout(readTimeout > 0 ? readTimeout : 0)
                 .reconnect(reconnect)
                 .build();
     }

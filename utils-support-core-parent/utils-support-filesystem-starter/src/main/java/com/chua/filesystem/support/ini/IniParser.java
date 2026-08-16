@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  * @version 1.0.0
- * @since 2025-11-02
+ * @since 4.0.0.42
  */
 @Slf4j
 public class IniParser {

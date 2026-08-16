@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
  * TAR.GZ格式归档输出流提供者
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"tar.gz", "tgz"})
 public class TarGzArchiveOutputStreamProvider implements CompressArchiveOutputStream {

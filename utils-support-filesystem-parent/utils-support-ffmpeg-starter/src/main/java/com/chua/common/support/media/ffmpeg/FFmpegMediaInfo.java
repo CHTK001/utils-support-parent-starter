@@ -7,7 +7,7 @@ package com.chua.common.support.media.ffmpeg;
  * 以及视频流和音频流的详细编码参数。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class FFmpegMediaInfo {
 
@@ -45,7 +45,7 @@ public class FFmpegMediaInfo {
      * 视频流信息。
      *
  * @author CH
-     * @since 1.0.0
+     * @since 4.0.0.42
      */
     public static class VideoStream {
         /** 流索引 */
@@ -93,7 +93,7 @@ public class FFmpegMediaInfo {
      * 音频流信息。
      *
  * @author CH
-     * @since 1.0.0
+     * @since 4.0.0.42
      */
     public static class AudioStream {
         /** 流索引 */

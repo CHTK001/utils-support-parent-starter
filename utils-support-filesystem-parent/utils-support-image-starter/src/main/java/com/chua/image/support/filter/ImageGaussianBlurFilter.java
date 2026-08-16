@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @Slf4j
 @SpiDescribe("高斯模糊滤镜")
@@ -138,7 +138,8 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         final int size = width * height;
-        // = 3; // RGB三个颜色通道
+        // RGB三个颜色通道
+        // = 3;
         int dims = 3;
 
         // 生成高斯卷积核
@@ -224,7 +225,8 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
             // 精确计算归一化因子
             sum = kernel[0];
             for (int i = 1; i < kRadius; i++) {
-                // * kernel[i]; // 对称性，每个非零项计算两次
+                // 对称性，每个非零项计算两次
+                // * kernel[i];
                 sum += 2 * kernel[i];
             }
         } else {

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * </ul>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("guava-retry")
 public class GuavaRetryProvider extends AbstractRetryProvider {

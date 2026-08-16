@@ -52,7 +52,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2024/10/2
+ * @since 4.0.0.42
  */
 @Spi("nightVision")
 @SpiDescribe("夜视效果滤镜")
@@ -85,7 +85,8 @@ public class NightVisionImageFilter extends AbstractImageFilter{
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int rgb = src.getRGB(x, y);
-int alpha = (rgb >> 24) & 0xff; // 设置完全不透明
+                // 设置完全不透明
+                int alpha = (rgb >> 24) & 0xff;
                 int red, green, blue;
 
                 // 增强饱和度并降低亮度以模拟夜视效果

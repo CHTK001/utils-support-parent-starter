@@ -108,7 +108,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
             int count = 0;
             for (String line : lines) {
                 String trimmed = line.trim();
-                if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                    continue;
+                }
 
                 String[] parts = trimmed.split("\\s+");
                 String token = parts[0];
@@ -173,7 +175,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
      * 启动文件变更监听，文件修改时自动重新加载。
      */
     private void startFileWatcher() {
-        if (!watching.compareAndSet(false, true)) return;
+        if (!watching.compareAndSet(false, true)) {
+            return;
+        }
 
         watcherThread = ThreadUtils.newThread(() -> {
             try (WatchService watcher = watchDir.getFileSystem().newWatchService()) {
@@ -189,7 +193,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
                         Thread.currentThread().interrupt();
                         break;
                     }
-                    if (key == null) continue;
+                    if (key == null) {
+                        continue;
+                    }
 
                     for (WatchEvent<?> event : key.pollEvents()) {
                         Path changed = (Path) event.context();

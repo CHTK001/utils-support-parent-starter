@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>响应式模式（{@link ServerSetting#isReactor()} = true）：过滤器链在 Vert.x EventLoop 线程上执行。</p>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"quarkus-http", "quarkus"})

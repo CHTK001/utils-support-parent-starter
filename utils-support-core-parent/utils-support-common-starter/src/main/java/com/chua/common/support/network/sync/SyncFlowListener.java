@@ -5,6 +5,7 @@ package com.chua.common.support.network.sync;
  * 同步事件监听器，接收 {@link SyncFlow} 的生命周期和数据事件。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface SyncFlowListener {
 

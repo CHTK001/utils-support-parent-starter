@@ -56,6 +56,7 @@ import java.util.stream.Stream;
  *
  * @param <E> 元素类型，必须实现 {@link Serializable}
  * @author CH
+ * @since 4.0.0.42
  * @version 2.0.0
  * @see ListState
  * @see DataStore

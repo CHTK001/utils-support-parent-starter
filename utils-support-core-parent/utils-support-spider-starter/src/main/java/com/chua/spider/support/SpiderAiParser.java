@@ -21,7 +21,7 @@ import java.util.Map;
  * <p>实现类通过 {@code @Spi("ai")} 注册，使用 ChatClient 进行 AI 调用。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 public interface SpiderAiParser {
 

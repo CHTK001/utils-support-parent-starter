@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  * <p>负责节点注册、心跳、故障容忍及服务订阅。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ScatterGatherDiscoverySupport {

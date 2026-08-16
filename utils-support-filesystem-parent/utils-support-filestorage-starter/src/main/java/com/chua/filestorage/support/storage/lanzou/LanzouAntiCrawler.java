@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * 且不含正常业务页面特征时，即判定为挑战页。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 final class LanzouAntiCrawler {
 

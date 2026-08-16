@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  * 从 URL 参数解析生成，传递给处理器执行具体的图片操作。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

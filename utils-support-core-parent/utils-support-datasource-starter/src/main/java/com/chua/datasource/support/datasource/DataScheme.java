@@ -6,7 +6,7 @@ import java.util.List;
  * 数据方案接口，对应数据库中的一个库（Schema）。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public interface DataScheme extends AutoCloseable {
 

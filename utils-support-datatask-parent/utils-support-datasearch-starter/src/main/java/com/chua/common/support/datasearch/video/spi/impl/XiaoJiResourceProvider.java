@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  * @see <a href="https://github.com/fish2018/pansou/blob/main/plugin/xiaoji/html%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.md">pansou xiaoji 解析说明</a>
- * @since 2025/9/19 11:39
+ * @since 4.0.0.42
  */
 @Spi("xiaoji")
 public class XiaoJiResourceProvider extends AbstractResourceProvider implements DownloadLinkProvider {

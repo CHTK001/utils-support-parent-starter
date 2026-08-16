@@ -10,6 +10,7 @@ import java.util.Objects;
  * <p>从 Discovery 转换而来，提供节点访问端点等元数据。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class ScatterGatherNode {
 

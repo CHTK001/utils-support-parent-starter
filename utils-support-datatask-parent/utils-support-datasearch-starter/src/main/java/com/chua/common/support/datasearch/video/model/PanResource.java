@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  *
  * @author CH
  * @version 1.0
- * @since 2024/12/19
+ * @since 4.0.0.42
  */
 public class PanResource {
 

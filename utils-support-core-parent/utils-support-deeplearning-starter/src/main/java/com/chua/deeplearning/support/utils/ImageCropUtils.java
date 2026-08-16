@@ -17,6 +17,9 @@ import java.io.IOException;
  */
 public final class ImageCropUtils {
 
+    /**
+     * 私有构造，防止实例化。
+     */
     private ImageCropUtils() {
     }
 
@@ -96,6 +99,19 @@ public final class ImageCropUtils {
         }
     }
 
+    /**
+     * 按归一化或像素坐标裁剪图片。
+     *
+     * <p>当宽高与坐标均 &lt;= 1.5 时按归一化坐标处理，否则按像素处理。</p>
+     *
+     * @param image  原图
+     * @param x      左边界
+     * @param y      上边界
+     * @param width  宽度
+     * @param height 高度
+     * @return 裁剪后的 PNG 字节
+     * @throws IOException 图片读写异常
+     */
     private static byte[] cropByNormalizedOrPixel(BufferedImage image,
                                                   float x, float y, float width, float height) throws IOException {
         int imgW = image.getWidth();
@@ -124,6 +140,14 @@ public final class ImageCropUtils {
         return out.toByteArray();
     }
 
+    /**
+     * 将数值限定在 [min, max] 区间内。
+     *
+     * @param value 原始数值
+     * @param min   下限
+     * @param max   上限
+     * @return 限定后的数值
+     */
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }

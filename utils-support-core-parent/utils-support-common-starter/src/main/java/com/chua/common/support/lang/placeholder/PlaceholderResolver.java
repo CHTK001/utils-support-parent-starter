@@ -7,6 +7,7 @@ package com.chua.common.support.lang.placeholder;
  * 支持从环境变量、系统属性、配置文件等多种来源获取配置信息。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface PlaceholderResolver {
 

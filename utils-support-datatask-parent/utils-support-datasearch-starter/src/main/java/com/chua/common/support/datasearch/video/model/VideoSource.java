@@ -4,7 +4,7 @@ package com.chua.common.support.datasearch.video.model;
  * 视频来源
  *
  * @author CH
- * @since 2025/9/16 13:46
+ * @since 4.0.0.42
  */
 public class VideoSource {
 

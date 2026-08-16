@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class PeerWireClient implements AutoCloseable {
 

@@ -19,6 +19,7 @@ import java.util.function.Supplier;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")
 public final class LockFlow {

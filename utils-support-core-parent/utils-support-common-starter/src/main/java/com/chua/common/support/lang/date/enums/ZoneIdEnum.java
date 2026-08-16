@@ -6,6 +6,7 @@ import lombok.Getter;
  * 时区短ID枚举，例如: "Asia/Shanghai", "亚洲/上海"。
  *
  * @author CH
+ * @since 4.0.0.42
  * @see java.time.ZoneId#SHORT_IDS
  */
 @Getter

@@ -211,7 +211,8 @@ public class SqlHighlighter {
         boolean inDoubleQuote = false;
         boolean inLineComment = false;
         boolean inBlockComment = false;
-        boolean inIdentifier = false; // 标识符（如 "table_name"）
+        // 标识符状态（如 "table_name"）
+        boolean inIdentifier = false;
 
         for (int i = 0; i < sql.length(); i++) {
             char c = sql.charAt(i);
@@ -228,7 +229,8 @@ public class SqlHighlighter {
                     }
                     inLineComment = true;
                     result.append("--");
-                    i++; // 跳过第二个 -
+                    // 跳过第二个 '-'
+                    i++;
                     continue;
                 }
             }
@@ -242,7 +244,8 @@ public class SqlHighlighter {
                     }
                     inBlockComment = true;
                     result.append("/*");
-                    i++; // 跳过 *
+                    // 跳过 '*'
+                    i++;
                     continue;
                 }
             }
@@ -266,7 +269,8 @@ public class SqlHighlighter {
             if (inBlockComment) {
                 if (c == '*' && i + 1 < sql.length() && sql.charAt(i + 1) == '/') {
                     result.append("*/");
-                    i++; // 跳过 /
+                    // 跳过 '/'
+                    i++;
                     inBlockComment = false;
                     continue;
                 }

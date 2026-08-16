@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * macOS 系统日志提供者 - log show 命令 + /var/log 文件回退
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("macos")
 @SpiDescribe(value = "macos-unified-log", desc = "macOS 系统日志提供者(log show + /var/log)", type = "log")

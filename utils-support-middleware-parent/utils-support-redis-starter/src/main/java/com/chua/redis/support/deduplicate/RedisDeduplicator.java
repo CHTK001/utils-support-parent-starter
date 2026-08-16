@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author CH
- * @since 4.0.0.41
+ * @since 4.0.0.42
  */
 @Spi("redis")
 @SpiDescribe("Redis 分布式去重器")

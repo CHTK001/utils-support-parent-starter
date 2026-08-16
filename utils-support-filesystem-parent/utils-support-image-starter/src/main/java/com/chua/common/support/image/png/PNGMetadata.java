@@ -1,13 +1,3 @@
-/**
- * PNG 图像元数据。
- *
- * <p>继承自 {@link javax.imageio.metadata.IIOMetadata}，封装 PNG 格式的所有元数据，
- * 包括 IHDR、PLTE、tRNS、gAMA、sRGB 等标准 PNG 块信息，以及 APNG 动画相关元数据。
- * 支持元数据的读取、写入和标准 XML 树形结构的转换。</p>
- *
- * @author CH
- * @since 1.0
- */
 package com.chua.common.support.image.png;
 
 import org.w3c.dom.Node;
@@ -34,6 +24,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
+/**
+ * PNG 图像元数据。
+ *
+ * <p>继承自 {@link javax.imageio.metadata.IIOMetadata}，封装 PNG 格式的所有元数据，
+ * 包括 IHDR、PLTE、tRNS、gAMA、sRGB 等标准 PNG 块信息，以及 APNG 动画相关元数据。
+ * 支持元数据的读取、写入和标准 XML 树形结构的转换。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     // package scope
@@ -127,7 +127,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public int IHDR_colorType;
     public int IHDR_compressionMethod;
     public int IHDR_filterMethod;
-        // ; // 0 == none, 1 == adam7
+        // 0 == none, 1 == adam7
+        // ;
         public int IHDR_interlaceMethod;
 
     // PLTE chunk
@@ -147,7 +148,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     // If external (non-PNG sourced) data has red = green = blue,
     // always store it as gray and promote when writing
     public boolean bKGD_present;
-    // ; // PNG_COLOR_GRAY, _RGB, or _PALETTE
+    // PNG_COLOR_GRAY, _RGB, or _PALETTE
+    // ;
     public int bKGD_colorType;
     public int bKGD_index;
     public int bKGD_gray;
@@ -203,12 +205,14 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public boolean pHYs_present;
     public int pHYs_pixelsPerUnitXAxis;
     public int pHYs_pixelsPerUnitYAxis;
-// ; // 0 == unknown, 1 == meter
+        // 0 == unknown, 1 == meter
+        // ;
         public int pHYs_unitSpecifier;
 
     // sBIT chunk
     public boolean sBIT_present;
-// ; // PNG_COLOR_GRAY, _GRAY_ALPHA, _RGB, _RGB_ALPHA
+        // PNG_COLOR_GRAY, _GRAY_ALPHA, _RGB, _RGB_ALPHA
+        // ;
         public int sBIT_colorType;
     public int sBIT_grayBits;
     public int sBIT_redBits;
@@ -218,9 +222,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     // sPLT chunk
     public boolean sPLT_present;
-// ; // 1-79 characters
+        // 1-79 characters
+        // ;
         public String sPLT_paletteName;
-        // ; // 8 or 16
+        // 8 or 16
+        // ;
         public int sPLT_sampleDepth;
     public int[] sPLT_red;
     public int[] sPLT_green;
@@ -233,7 +239,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public int sRGB_renderingIntent;
 
     // tEXt chunk
-    // ; // 1-79 characters
+    // 1-79 characters
+    // ;
     public ArrayList<String> tEXt_keyword = new ArrayList<String>();
     public ArrayList<String> tEXt_text = new ArrayList<String>();
 
@@ -284,10 +291,12 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     // tRNS chunk
     // If external (non-PNG sourced) data has red = green = blue,
     // always store it as gray and promote when writing
-    public boolean tRNS_present;
-    // ; // PNG_COLOR_GRAY, _RGB, or _PALETTE
+public boolean tRNS_present;
+    // PNG_COLOR_GRAY, _RGB, or _PALETTE
+    // ;
     public int tRNS_colorType;
-    // ; // May have fewer entries than PLTE_red, etc.
+    // May have fewer entries than PLTE_red, etc.
+    // ;
     public byte[] tRNS_alpha;
     public int tRNS_gray;
     public int tRNS_red;
@@ -471,7 +480,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
                     byte[] oldRed = PLTE_red;
                     byte[] oldGreen = PLTE_green;
                     byte[] oldBlue = PLTE_blue;
-                    // = oldRed.length; // All have the same length
+                    // All have the same length
+                    // = oldRed.length;
                     int len = oldRed.length;
                     PLTE_red = new byte[len];
                     PLTE_green = new byte[len];
@@ -549,7 +559,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     }
 
     private Node getNativeTree() {
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
         IIOMetadataNode root = new IIOMetadataNode(nativeMetadataFormatName);
 
@@ -950,7 +961,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     public IIOMetadataNode getStandardChromaNode() {
         IIOMetadataNode chroma_node = new IIOMetadataNode("Chroma");
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
 
         node = new IIOMetadataNode("ColorSpaceType");
@@ -1023,7 +1035,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     public IIOMetadataNode getStandardCompressionNode() {
         IIOMetadataNode compression_node = new IIOMetadataNode("Compression");
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
 
         node = new IIOMetadataNode("CompressionTypeName");
@@ -1057,7 +1070,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     public IIOMetadataNode getStandardDataNode() {
         IIOMetadataNode data_node = new IIOMetadataNode("Data");
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
 
         node = new IIOMetadataNode("PlanarConfiguration");
@@ -1103,7 +1117,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     public IIOMetadataNode getStandardDimensionNode() {
         IIOMetadataNode dimension_node = new IIOMetadataNode("Dimension");
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
 
         node = new IIOMetadataNode("PixelAspectRatio");
@@ -1189,7 +1204,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
         }
 
         IIOMetadataNode text_node = new IIOMetadataNode("Text");
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
 
         for (int i = 0; i < tEXt_keyword.size(); i++) {
@@ -1232,7 +1248,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public IIOMetadataNode getStandardTransparencyNode() {
         IIOMetadataNode transparency_node =
             new IIOMetadataNode("Transparency");
-        // null; // scratch node
+        // scratch node
+        // null;
         IIOMetadataNode node = null;
 
         node = new IIOMetadataNode("Alpha");
@@ -1561,7 +1578,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
                 System.arraycopy(blue, 0, PLTE_blue, 0, numEntries);
                 PLTE_present = true;
             } else if (name.equals("bKGD")) {
-                // sent = false; // Guard against partial overwrite
+                // Guard against partial overwrite
+                // sent = false;
                 bKGD_present = true;
                 Node bKGD_node = node.getFirstChild();
                 if (bKGD_node == null) {
@@ -1725,7 +1743,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
                 pHYs_present = true;
             } else if (name.equals("sBIT")) {
-                // sent = false; // Guard against partial overwrite
+                // Guard against partial overwrite
+                // sent = false;
                 sBIT_present = true;
                 Node sBIT_node = node.getFirstChild();
                 if (sBIT_node == null) {
@@ -1856,7 +1875,8 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
                 tIME_present = true;
             } else if (name.equals("tRNS")) {
-                // sent = false; // Guard against partial overwrite
+                // Guard against partial overwrite
+                // sent = false;
                 tRNS_present = true;
                 Node tRNS_node = node.getFirstChild();
                 if (tRNS_node == null) {
@@ -2357,8 +2377,10 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
                             iTXt_compressionFlag.add(Boolean.valueOf(compression.equals("zip")));
                             iTXt_compressionMethod.add(Integer.valueOf(0));
                             iTXt_languageTag.add(language);
-                            // atedKeyword.add(keyword); // fake it
-                            iTXt_translatedKeyword.add(keyword); // fake it
+                            // fake it
+                            // atedKeyword.add(keyword);
+                            // fake it
+                            iTXt_translatedKeyword.add(keyword);
                             iTXt_text.add(value);
                         }
                     }

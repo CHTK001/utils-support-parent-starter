@@ -28,7 +28,7 @@ import java.util.Map;
  * 通过 HTTP 协议调用 Bedrock 上的 Stable Diffusion / Titan 等模型进行图片生成。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"amazon"})

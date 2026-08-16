@@ -6,6 +6,7 @@ import java.lang.annotation.*;
  * 分布式锁注解。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * LetterBox 图像缩放填充工具，将图像等比缩放后填充到目标尺寸，满足 YOLO 等模型输入要求
  *
  * @author CH
- * @since 2025-01-22
+ * @since 4.0.0.42
  */
 public class LetterBoxUtils {
 

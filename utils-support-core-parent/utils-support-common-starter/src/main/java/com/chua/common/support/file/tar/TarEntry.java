@@ -9,6 +9,7 @@ import java.util.Date;
  * Tar 归档条目表示，封装文件/目录及其对应的 TarHeader。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 public class TarEntry {

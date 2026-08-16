@@ -51,7 +51,7 @@ import java.util.List;
  * }</pre>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Spi({"cos", "tencent"})
 public class TencentCosFileStorage extends AbstractFileStorage {

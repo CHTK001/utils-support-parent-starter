@@ -18,6 +18,7 @@ import java.util.function.BiConsumer;
  * 提供了流畅的 API 方法以及便捷的方法来访问嵌套的 JSON 结构（如 JsonObject 和 JsonArray）。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @SuppressWarnings("ALL")
 public class JsonObject extends LinkedHashMap<String, Object> {

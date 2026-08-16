@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * 支持 <code>cargo search</code>、<code>cargo install</code>、<code>cargo uninstall</code>。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("cargo")
 public class CargoSoftwareProvider implements SoftwareProvider {

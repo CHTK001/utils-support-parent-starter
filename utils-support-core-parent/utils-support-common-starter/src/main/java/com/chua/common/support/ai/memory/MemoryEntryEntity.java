@@ -11,6 +11,7 @@ import java.util.Map;
  * 记忆条目可写实体 — 供 {@link EngineMemoryStore} / Engine ORM 使用。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class MemoryEntryEntity {

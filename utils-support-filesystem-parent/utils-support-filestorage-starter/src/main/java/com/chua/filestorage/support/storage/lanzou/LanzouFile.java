@@ -9,7 +9,7 @@ import lombok.Data;
  * <p>同时用于描述文件与文件夹，通过 {@link #directory} 区分。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Data
 @Builder

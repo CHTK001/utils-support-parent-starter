@@ -26,6 +26,7 @@ import java.util.List;
  * B站资源提供者实现
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("bilibili")
 public class BilibiliResourceProvider extends AbstractResourceProvider {

@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Nitrite 文档数据库引擎，基于内存过滤和文件存储。
  *
  * @author CH
- * @since 2026/07/31
+ * @since 4.0.0.42
  */
  @Spi("nitrite")
  public class NitriteEngine extends AbstractEngine implements FulltextSearch, DocumentStore {

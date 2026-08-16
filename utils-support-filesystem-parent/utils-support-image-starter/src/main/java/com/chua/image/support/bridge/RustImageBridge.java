@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
  * 提供 JNI 接口调用 Rust 实现的图像处理功能
  * 
  * @author CH
- * @since 2024/12/17
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RustImageBridge {

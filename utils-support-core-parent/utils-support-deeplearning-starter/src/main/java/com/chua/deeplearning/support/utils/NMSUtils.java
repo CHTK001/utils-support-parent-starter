@@ -14,7 +14,7 @@ import java.util.List;
  * NMS 非极大值抑制工具类，提供基于 NDArray 的 NMS、MTCNN NMS 以及批量 NMS 实现
  *
  * @author CH
- * @since 2025-01-20
+ * @since 4.0.0.42
  */
 public class NMSUtils {
 

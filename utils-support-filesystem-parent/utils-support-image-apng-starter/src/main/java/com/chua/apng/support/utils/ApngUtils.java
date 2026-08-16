@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
  * 5. 图像质量优化
  *
  * @author CH
- * @since 2024/7/20
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ApngUtils {

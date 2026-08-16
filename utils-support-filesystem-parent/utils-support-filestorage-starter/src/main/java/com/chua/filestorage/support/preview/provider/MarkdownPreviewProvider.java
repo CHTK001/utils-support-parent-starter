@@ -15,7 +15,7 @@ import java.util.Locale;
  * 若项目中含 commonmark 等库，替换为更强实现。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Spi("preview-markdown")
 public class MarkdownPreviewProvider implements FileStoragePreviewProvider {

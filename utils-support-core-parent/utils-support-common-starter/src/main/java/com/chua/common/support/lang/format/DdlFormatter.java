@@ -206,12 +206,14 @@ public class DdlFormatter extends SqlFormatter {
         }
 
         // 2. 提取关键信息
-        String tableName = matcher.group(2); // 表名
-        String columnsPart = matcher.group(3); // 列定义和约束定义
+        // 表名
+        String tableName = matcher.group(2);
+        // 列定义和约束定义
+        String columnsPart = matcher.group(3);
 
         // 3. 解析列定义部分
         //    将列定义和约束定义分开存储
-        // );    // 列定义列表
+        // );    列定义列表
         List<String> columnDefs = new ArrayList<>();
         List<String> constraintDefs = new ArrayList<>();
         parseColumnDefinitions(columnsPart, columnDefs, constraintDefs);
@@ -225,7 +227,7 @@ public class DdlFormatter extends SqlFormatter {
                 .append(tableName)
                 .append(" (\n");
 
-        // = 1; // 表体缩进一级
+        // 表体缩进一级
         int indentLevel = 1;
 
 

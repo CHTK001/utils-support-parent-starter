@@ -22,7 +22,7 @@ import java.util.Map;
  * <p>将 Shell 命令请求通过反射转发到目标 Bean 的方法上，支持参数解析、流式输出和视图渲染。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 public class ShellMethodServerHandler implements HttpDefaultServerHandler {
 

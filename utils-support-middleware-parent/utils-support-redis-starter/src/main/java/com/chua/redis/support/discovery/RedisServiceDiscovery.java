@@ -17,7 +17,7 @@ import java.util.*;
  * Redis 服务发现实现。
  *
  * @author CH
- * @since 4.0.0.41
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis")

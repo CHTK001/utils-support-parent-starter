@@ -12,7 +12,7 @@ import java.util.List;
  * <p>通过系统包管理器（winget/brew/apt 等）搜索、安装和卸载软件包。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("package-manager")
 public class PackageManagerSoftwareProvider extends PackageManagerProvider implements SoftwareProvider {

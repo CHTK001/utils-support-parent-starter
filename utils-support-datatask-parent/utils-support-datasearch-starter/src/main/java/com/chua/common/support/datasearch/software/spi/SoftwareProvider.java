@@ -12,7 +12,7 @@ import java.util.List;
  * 软件市场（Chocolatey/npm/pip）等。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 public interface SoftwareProvider {
 

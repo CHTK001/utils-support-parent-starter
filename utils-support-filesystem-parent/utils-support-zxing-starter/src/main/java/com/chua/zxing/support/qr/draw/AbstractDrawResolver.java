@@ -11,7 +11,7 @@ import java.awt.*;
  * 该类为抽象类，不能直接实例化，但提供了基本的框架，以供具体实现时继承和扩展。
  *
  * @author CH
- * @since 2024/5/30 表示是从2024年5月30日开始提供的。
+ * @since 4.0.0.42
  */
 public abstract class AbstractDrawResolver implements DrawResolver {
 

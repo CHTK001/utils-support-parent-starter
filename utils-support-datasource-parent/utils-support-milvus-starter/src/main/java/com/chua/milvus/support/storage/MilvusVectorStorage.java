@@ -37,7 +37,7 @@ import java.util.Map;
  * 搜索前需确保 collection 已加载。</p>
  *
  * @author CH
- * @since 2025/01/15
+ * @since 4.0.0.42
  */
 public class MilvusVectorStorage extends AbstractVectorStorage {
 

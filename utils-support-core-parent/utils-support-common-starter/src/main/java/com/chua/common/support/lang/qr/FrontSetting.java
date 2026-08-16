@@ -7,6 +7,7 @@ import lombok.Data;
  * 用于配置二维码生成时的视觉样式和布局参数。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class FrontSetting {

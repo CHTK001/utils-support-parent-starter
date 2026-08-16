@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  * - 氛围渲染：营造吉卜力特有的梦幻氛围
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -184,7 +184,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
                 int blue = rgb & 0xFF;
 
                 // 色彩分层：将颜色量化到特定层次
-                int layers = (int) (8 + colorLayeringStrength * 8); // 8-16层
+                // 8-16层
+                int layers = (int) (8 + colorLayeringStrength * 8);
                 double factor = 255.0 / (layers - 1);
 
                 red = (int) (Math.round(red / factor) * factor);

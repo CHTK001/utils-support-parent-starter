@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.LongAdder;
  *
  * @param <E> 元素类型，必须实现 {@link Serializable}
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  * @see DataStore
  * @see OnHeapDataStore

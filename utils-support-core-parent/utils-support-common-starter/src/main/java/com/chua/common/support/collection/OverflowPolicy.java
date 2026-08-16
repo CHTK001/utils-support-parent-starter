@@ -13,6 +13,7 @@ package com.chua.common.support.collection;
  * <p>适用于固定容量缓存、滑动窗口、日志环形缓冲等"容量有界、行为可预期"的场景。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  * @see BoundedCollection
  */

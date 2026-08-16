@@ -8,7 +8,9 @@ import java.io.OutputStream;
  * lzw
  *
  * @author K Weiner 12/00
+ * @since 4.0.0.42
  * @author CH
+ * @since 4.0.0.42
 */
 class LzwEncoder {
 

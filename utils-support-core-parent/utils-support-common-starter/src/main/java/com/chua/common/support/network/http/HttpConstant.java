@@ -5,6 +5,7 @@ package com.chua.common.support.network.http;
  * HTTP 相关常量。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class HttpConstant {
 

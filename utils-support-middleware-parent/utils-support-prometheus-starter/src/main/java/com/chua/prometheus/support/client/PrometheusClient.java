@@ -44,7 +44,7 @@ import java.util.Map;
  * }</pre>
  *
  * @author CH
- * @since 2026/8/4
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PrometheusClient implements AutoCloseable {
@@ -555,7 +555,7 @@ public class PrometheusClient implements AutoCloseable {
      * 即时查询操作
      *
      * @author CH
-     * @since 2026/8/4
+     * @since 4.0.0.42
      */
     public class QueryOperation {
 
@@ -613,7 +613,7 @@ public class PrometheusClient implements AutoCloseable {
      * 范围查询操作
      *
      * @author CH
-     * @since 2026/8/4
+     * @since 4.0.0.42
      */
     public class RangeQueryOperation {
 
@@ -697,7 +697,7 @@ public class PrometheusClient implements AutoCloseable {
      * 序列查询操作
      *
      * @author CH
-     * @since 2026/8/4
+     * @since 4.0.0.42
      */
     public class SeriesOperation {
 
@@ -739,7 +739,7 @@ public class PrometheusClient implements AutoCloseable {
      * Builder
      *
      * @author CH
-     * @since 2026/8/4
+     * @since 4.0.0.42
      */
     public static class Builder {
 

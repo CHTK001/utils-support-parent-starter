@@ -8,7 +8,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * QQWry IP 地理位置查询 SPI 实现。
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("qqwry")
 public class QqwryIpPosition implements IpPosition {

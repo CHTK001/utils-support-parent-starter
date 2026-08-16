@@ -13,7 +13,7 @@ import java.util.Map;
  * 支持指定字符集编码。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class YamlReadBuilder extends ReadBuilder {
 

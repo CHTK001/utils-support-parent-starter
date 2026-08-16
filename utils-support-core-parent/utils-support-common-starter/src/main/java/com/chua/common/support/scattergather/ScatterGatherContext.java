@@ -8,6 +8,7 @@ import java.util.Objects;
  * <p>封装单次查询的元数据，包括请求ID、路径、超时、最小成功数及属性。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class ScatterGatherContext {
 

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * 在发布-订阅链路中保持类型一致。</p>
  *
  * @author CH
- * @since 2025-11-26
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("chronicle")

@@ -43,7 +43,7 @@ import java.util.Map;
  * </p>
  *
  * @author CH
- * @since 2025
+ * @since 4.0.0.42
  */
 @SuppressWarnings("unused")
 public class JcefWebviewWindow implements WebViewWindow {

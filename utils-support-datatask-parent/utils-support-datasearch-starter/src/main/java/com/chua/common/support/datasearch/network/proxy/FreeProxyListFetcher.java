@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * 从 free-proxy-list.net 获取免费代理。
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("free-proxy-list")
 public class FreeProxyListFetcher implements ProxyFetcher {

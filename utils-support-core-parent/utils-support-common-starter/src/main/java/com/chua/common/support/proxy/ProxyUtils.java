@@ -33,6 +33,7 @@ import java.lang.reflect.Proxy;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see java.lang.reflect.Proxy
  * @see DelegateMethodIntercept
  * @see InvocationHandler

@@ -19,7 +19,7 @@ import java.util.zip.DeflaterOutputStream;
  * <p>仅作为 ImageOutputStream 的装饰使用，读操作被禁用。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 final class ChunkStream extends ImageOutputStreamImpl {
 
@@ -31,7 +31,8 @@ final class ChunkStream extends ImageOutputStreamImpl {
         this.stream = stream;
         this.startPos = stream.getStreamPosition();
 
-        // (-1); // length, will backpatch
+        // length, will backpatch
+        // (-1);
         stream.writeInt(-1);
 
         writeInt(type);

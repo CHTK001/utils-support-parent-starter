@@ -2,10 +2,9 @@ package com.chua.deeplearning.support.onnx.classification;
 
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
@@ -39,23 +38,17 @@ public class EfficientNetLite0ClassificationTranslator implements Translator<Ima
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        array = NDImageUtils.resize(array, 224, 224);
-        // HWC -> CHW
-        array = array.transpose(2, 0, 1);
-        if (!DataType.FLOAT32.equals(array.getDataType())) {
-            array = array.toType(DataType.FLOAT32, false);
-        }
-        array = array.div(255f).expandDims(0);
+        // OpenCV 预处理：resize 224 + CHW 归一化 → float[] → create() 喂入 djl-onnx
+        float[] pixels = com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils.toTensor(input, 224);
+        NDArray array = ctx.getNDManager().create(pixels, new Shape(1, 3, 224, 224));
+        array.setName("input");
         return new NDList(array);
     }
 
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
-        if (output.getShape().dimension() == 2 && output.getShape().get(0) == 1) {
-            output = output.squeeze(0);
-        }
+        // toFloatArray 已扁平化（[1,1000] → 1000 元素），无需 squeeze
         float[] logits = output.toFloatArray();
         if (logits.length == 0) {
             return new Classifications(List.of(), List.of());

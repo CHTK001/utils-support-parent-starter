@@ -62,7 +62,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2024/7/29
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("lama")
@@ -259,7 +259,8 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
 
     @Override
     public String getImageFormat() {
-        // png"; // LaMa输出通常使用PNG格式以保持质量
+        // LaMa输出通常使用PNG格式以保持质量
+        // png";
         return "png";
     }
 

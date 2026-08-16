@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * }</pre>
  *
  * @author CH
- * @since 2026/08/15
+ * @since 4.0.0.42
  */
 @Slf4j
 public class KcpHttpClient implements AutoCloseable {
@@ -327,7 +327,8 @@ public class KcpHttpClient implements AutoCloseable {
             int headerBlockEnd = headerEnd + 4;
             int total = headerBlockEnd + contentLength;
             if (bytes.length < total) {
-                return null; // body 未到齐（跨包）
+                // body 未到齐（跨包）
+                return null;
             }
             byte[] body = new byte[contentLength];
             System.arraycopy(bytes, headerBlockEnd, body, 0, contentLength);

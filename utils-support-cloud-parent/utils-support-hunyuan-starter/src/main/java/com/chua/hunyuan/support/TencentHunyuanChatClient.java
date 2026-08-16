@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  * HunyuanClient 调用混元的对话接口，支持混元 Pro、Standard 等系列模型。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"tencent-hunyuan", "tencent"})

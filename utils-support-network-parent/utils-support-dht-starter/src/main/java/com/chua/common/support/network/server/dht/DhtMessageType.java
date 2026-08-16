@@ -7,6 +7,7 @@ package com.chua.common.support.network.server.dht;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum DhtMessageType {
 

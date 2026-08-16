@@ -8,6 +8,7 @@ import java.lang.annotation.*;
  * 用于在方法上添加限流控制，支持自定义令牌桶参数、公平锁策略以及拒绝时的回退机制。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

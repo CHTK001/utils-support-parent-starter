@@ -53,6 +53,7 @@ import java.util.concurrent.TimeUnit;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see com.chua.common.support.task.pipeline.node.ParallelNode
  */
 public class AsyncResult {

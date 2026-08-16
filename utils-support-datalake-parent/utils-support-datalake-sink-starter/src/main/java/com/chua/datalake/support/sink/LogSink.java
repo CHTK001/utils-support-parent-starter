@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>实现 {@link AccessSink}，不需要存储 DataSource。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("log")

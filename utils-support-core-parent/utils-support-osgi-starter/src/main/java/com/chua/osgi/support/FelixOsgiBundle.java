@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Felix Bundle 实现，包装 OSGI 的 Bundle 对象。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class FelixOsgiBundle implements OsgiBundle {
 

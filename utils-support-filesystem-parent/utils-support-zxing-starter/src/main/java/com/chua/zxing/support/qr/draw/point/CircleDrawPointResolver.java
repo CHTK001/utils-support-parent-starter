@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  * 继承自AbstractDrawPointResolver，提供具体的绘制点的解析实现。
  *
  * @author CH
- * @since 2024/5/30 表示该类是从2024年5月30日开始提供的。
+ * @since 4.0.0.42
  */
 @Spi("CIRCLE")
 public class CircleDrawPointResolver extends AbstractDrawPointResolver {

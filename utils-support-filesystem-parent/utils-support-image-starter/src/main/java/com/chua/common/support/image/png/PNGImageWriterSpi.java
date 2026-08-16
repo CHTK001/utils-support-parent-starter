@@ -1,11 +1,3 @@
-/**
- * PNG 图像写入器服务提供者接口（SPI）。
- *
- * <p>Image I/O 框架的 SPI 实现，用于发现和实例化 PNGImageWriter。</p>
- *
- * @author CH
- * @since 1.0
- */
 package com.chua.common.support.image.png;
 
 import javax.imageio.ImageTypeSpecifier;
@@ -20,6 +12,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
+/**
+ * PNG 图像写入器服务提供者接口（SPI）。
+ *
+ * <p>Image I/O 框架的 SPI 实现，用于发现和实例化 PNGImageWriter。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PNGImageWriterSpi extends ImageWriterSpi {
     // 定义供应商名称
     private static final String vendorName = "Karstian Lee";

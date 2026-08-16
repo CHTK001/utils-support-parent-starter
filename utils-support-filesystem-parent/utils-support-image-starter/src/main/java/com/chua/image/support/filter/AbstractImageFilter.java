@@ -40,7 +40,7 @@ import java.security.SecureRandom;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 public abstract class AbstractImageFilter implements ImageFilter {
 
@@ -416,13 +416,15 @@ public abstract class AbstractImageFilter implements ImageFilter {
         f2 = tg - tb;
         if (tg > max) {
             max = tg;
-            // = 120.0;  // 绿色主导
+            // 绿色主导
+            // = 120.0;
             f1 = 120.0;
             f2 = tb - tr;
         }
         if (tb > max) {
             max = tb;
-            // = 240.0;  // 蓝色主导
+            // 蓝色主导
+            // = 240.0;
             f1 = 240.0;
             f2 = tr - tg;
         }
@@ -452,9 +454,12 @@ public abstract class AbstractImageFilter implements ImageFilter {
             h -= 360.0;
         }
 
-        hsl1[0] = h;  // 色相 (0-360)
-        hsl1[1] = s;  // 饱和度 (0-255)
-        hsl1[2] = l;  // 亮度 (0-255)
+        // 色相 (0-360)
+        hsl1[0] = h;
+        // 饱和度 (0-255)
+        hsl1[1] = s;
+        // 亮度 (0-255)
+        hsl1[2] = l;
         return hsl1;
     }
 
@@ -469,11 +474,13 @@ public abstract class AbstractImageFilter implements ImageFilter {
      */
     public int[] hsl2Rgb(double[] hsl) {
         double h, s, l;
-        // [0];  // 色相
+        // 色相
+        // [0];
         h = hsl[0];
-        // [1];  // 饱和度
-        s = hsl[1];  // 饱和度 (0-255)
-        l = hsl[2];  // 亮度 (0-255)
+        // 饱和度 (0-255)
+        s = hsl[1];
+        // 亮度 (0-255)
+        l = hsl[2];
         int[] rgb1 = {0, 0, 0};
         double v1, v2, v3, h1;
 
@@ -538,11 +545,14 @@ public abstract class AbstractImageFilter implements ImageFilter {
             }
         }
 
-        // tr;  // 红色分量
+        // 红色分量
+        // tr;
         rgb1[0] = tr;
-        // tg;  // 绿色分量
+        // 绿色分量
+        // tg;
         rgb1[1] = tg;
-        // tb;  // 蓝色分量
+        // 蓝色分量
+        // tb;
         rgb1[2] = tb;
         return rgb1;
     }

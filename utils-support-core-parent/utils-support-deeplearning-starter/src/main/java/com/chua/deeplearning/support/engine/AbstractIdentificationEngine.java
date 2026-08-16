@@ -78,18 +78,21 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
             ModelRegistry.discoverAll();
             for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {
                 try {
-                    // 懒加载：启动只挂定义；真实路径在首次 translate 时再解析（支持 jar/classpath）
-                    Path modelPath = ModelRegistry.resolveModelPath(entry.modelId());
-                    ITranslator<?, ?> translator = ModelRegistry.createTranslator(entry.modelId(), modelPath);
+                    // 懒加载：启动只挂定义，不解析/下载模型路径；
+                    // 真实路径在首次 translate 时再解析（支持 jar/classpath / 远程自动下载）
+                    ITranslator<?, ?> translator = ModelRegistry.createTranslator(entry.modelId(), null);
                     String provider = resolveProvider(entry.relativePath());
-                    String pathText = modelPath != null ? modelPath.toString()
-                            : (entry.relativePath() != null ? entry.relativePath() : "");
+                    String pathText = entry.relativePath() != null ? entry.relativePath() : "";
                     TranslatorModelDefinition def = TranslatorModelDefinition.builder()
                             .modelDefinition(ModelDefinition.builder()
                                     .id(entry.modelId())
                                     .name(entry.modelId())
                                     .provider(provider)
                                     .description(provider.toUpperCase() + ": " + entry.modelId())
+                                    .capabilities(capabilityLabels(entry))
+                                    .downloadUrl(entry.downloadUrl())
+                                    .compress(entry.compress())
+                                    .downloadFileName(entry.downloadFileName())
                                     .build())
                             .translator(translator)
                             .config(Map.of("path", pathText))
@@ -173,6 +176,35 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
+    public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
+        String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(capabilityInterface);
+        if (label != null) {
+            return getModelNamesByCapability(label);
+        }
+        // 能力接口无法映射时，按 ModelRegistry 能力接口查询兜底
+        return ModelRegistry.getModelIdsByCapability(capabilityInterface);
+    }
+
+    @Override
+    public List<String> getModelNamesByCapability(String capability) {
+        if (capability == null || capability.isBlank()) {
+            List<String> all = new ArrayList<>();
+            for (ModelDefinition def : getModels()) {
+                all.add(def.getId());
+            }
+            return all;
+        }
+        List<String> result = new ArrayList<>();
+        for (ModelDefinition def : getModels()) {
+            List<String> caps = def.getCapabilities();
+            if (caps != null && caps.contains(capability)) {
+                result.add(def.getId());
+            }
+        }
+        return result;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
@@ -225,6 +257,52 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     private static volatile IdentificationEngine INSTANCE;
+
+    /**
+     * 根据模型注册条目的能力接口生成能力标签列表。
+     *
+     * <p>优先使用能力接口映射（如 {@code ImageDetector → detect}）；
+     * 未声明能力接口或无法识别时，回退按名称约定识别（OCR/版面/姿态等）。</p>
+     *
+     * @param entry 模型注册条目
+     * @return 能力标签列表（可为空列表）
+     */
+    private static List<String> capabilityLabels(ModelRegistry.Entry entry) {
+        List<String> labels = new ArrayList<>();
+        String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(entry.capabilityInterface());
+        if (label != null) {
+            labels.add(label);
+        }
+        String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
+        // 名称约定回退：OCR / 版面 / 姿态 / 文本嵌入
+        if (label == null || label.isBlank()) {
+            if (nameContains(name, "ocr", "pp-word", "svtr", "paddle-ocr", "table-struct", "pp-structure", "docling")) {
+                labels.add(com.chua.deeplearning.support.capability.ModelCapabilities.OCR);
+            }
+            if (nameContains(name, "layout", "d4la", "docstruct", "cdla", "doclaynet")) {
+                labels.add(com.chua.deeplearning.support.capability.ModelCapabilities.LAYOUT);
+            }
+            if (nameContains(name, "pose", "vit-pose", "yolov8n-pose")) {
+                labels.add(com.chua.deeplearning.support.capability.ModelCapabilities.POSE);
+            }
+            if (nameContains(name, "bge", "minilm", "embedding", "clip-text")) {
+                labels.add(com.chua.deeplearning.support.capability.ModelCapabilities.EMBEDDING);
+            }
+            if (nameContains(name, "translate", "nllb", "opus-mt", "opus_alt")) {
+                labels.add(com.chua.deeplearning.support.capability.ModelCapabilities.TRANSLATE);
+            }
+        }
+        return labels;
+    }
+
+    private static boolean nameContains(String name, String... keywords) {
+        for (String keyword : keywords) {
+            if (name.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static String resolveProvider(String relativePath) {
         if (relativePath == null) {

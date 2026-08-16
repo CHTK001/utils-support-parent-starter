@@ -12,7 +12,7 @@ import java.time.format.DateTimeParseException;
  * 将 {@link LocalTime} 转换为 ISO 格式字符串（HH:mm:ss）
  *
  * @author CH
- * @since 2026/7/19
+ * @since 4.0.0.42
  */
 @Slf4j
 public class LocalTimeToStringConverter implements Converter<LocalTime, String> {

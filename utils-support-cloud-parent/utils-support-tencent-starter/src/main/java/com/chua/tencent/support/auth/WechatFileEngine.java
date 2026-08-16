@@ -17,6 +17,7 @@ import java.util.Map;
  * 通过 Jackson 进行反序列化，确保 Enum 类型正确转换。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class WechatFileEngine extends FileEngine {
 

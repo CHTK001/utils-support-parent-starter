@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  * @see Dialect
  * @see DslManager
  */

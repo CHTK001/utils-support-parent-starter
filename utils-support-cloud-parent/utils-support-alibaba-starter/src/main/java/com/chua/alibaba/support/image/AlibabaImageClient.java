@@ -26,7 +26,7 @@ import java.util.Map;
  * 提交任务后需轮询任务状态直至完成。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"alibaba"})

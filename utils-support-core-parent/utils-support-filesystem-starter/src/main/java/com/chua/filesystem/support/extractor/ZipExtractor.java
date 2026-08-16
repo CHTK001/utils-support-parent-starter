@@ -21,6 +21,7 @@ import java.util.List;
  * <p>使用 zip4j 库实现，支持带密码保护的 ZIP 文件解压。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("zip")

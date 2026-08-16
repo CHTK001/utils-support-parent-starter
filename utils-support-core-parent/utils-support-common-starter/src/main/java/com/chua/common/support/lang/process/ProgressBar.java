@@ -179,7 +179,8 @@ public class ProgressBar implements AutoCloseable {
         boolean back = n < progress.current;
         progress.stepTo(n);
         if (back) {
-            action.forceRefresh();  // fix #124
+            // 回退时强制刷新（修复 #124）
+            action.forceRefresh();
         }
         return this;
     }
@@ -239,7 +240,8 @@ public class ProgressBar implements AutoCloseable {
      */
     public ProgressBar reset() {
         progress.reset();
-        action.forceRefresh();  // force refresh, fixing #124
+        // 强制刷新（修复 #124）
+        action.forceRefresh();
         return this;
     }
 
@@ -404,7 +406,8 @@ public class ProgressBar implements AutoCloseable {
     public static <T> Iterator<T> wrap(Iterator<T> it, String task) {
         return wrap(it,
                 new ProgressBarBuilder().setTaskName(task).setInitialMax(-1)
-        ); // indefinite progress bar
+        // 无限进度条
+        );
     }
 
     /**

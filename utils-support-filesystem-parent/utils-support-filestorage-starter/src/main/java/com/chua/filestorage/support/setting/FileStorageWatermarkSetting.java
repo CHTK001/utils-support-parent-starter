@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
  * <p>支持文字水印和图片水印两种模式。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

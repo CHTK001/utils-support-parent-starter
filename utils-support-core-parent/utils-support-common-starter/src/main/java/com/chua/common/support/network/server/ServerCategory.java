@@ -10,6 +10,7 @@ package com.chua.common.support.network.server;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum ServerCategory {
 

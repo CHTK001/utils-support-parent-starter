@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * 定义后台处理任务的解决策略或机制。
  *
  * @author CH
- * @since 2024/5/8
+ * @since 4.0.0.42
  */
 public interface BackgroundResolver {
 

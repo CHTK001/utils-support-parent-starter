@@ -16,7 +16,7 @@ import java.util.Map;
  * 若 Rust 库未初始化，自动降级到 JDK 实现。</p>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("native")
@@ -48,7 +48,7 @@ public class NativeFileStorageFileSetting implements FileStorageFileSetting {
         StringBuilder sb = new StringBuilder("{");
         params.forEach((k, v) -> {
             if (v != null && !v.isBlank()) {
-                if (sb.length() > 1) sb.append(",");
+                if (sb.length() > 1) {
                 sb.append("\"").append(k).append("\":\"").append(v.replace("\"", "\\\"")).append("\"");
             }
         });

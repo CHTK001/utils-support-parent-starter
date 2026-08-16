@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 使用 FileEngine 存储 openid 映射关系，支持自动持久化到 JSON 文件。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DefaultWechatOpenPlatformService implements WechatOpenPlatformService {

@@ -43,7 +43,7 @@ import okhttp3.Response;
  * <p>支持 Webhook 模式（接收消息通过回调）和发送消息（文本、图片等）。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DingTalkBotClient implements BotClient {

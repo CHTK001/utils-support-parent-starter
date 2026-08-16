@@ -15,8 +15,9 @@ import java.util.Map;
  * 提供技能定义、安装、卸载与安装状态查询能力。
  * </p>
  *
- * @author yemin
- * @since 1.2.0
+* @author yemin
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("datasearch")
 @Slf4j

@@ -26,6 +26,19 @@ public interface PoseEstimator {
     }
 
     /**
+     * 查询该能力下全部可用模型。
+     *
+     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+     *
+     * @return 模型 ID 列表
+     */
+    static List<String> listModels() {
+        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.pose.PoseEstimator.class);
+    }
+
+
+    /**
      * 创建姿态估计器。
      *
      * @param name    模型名称

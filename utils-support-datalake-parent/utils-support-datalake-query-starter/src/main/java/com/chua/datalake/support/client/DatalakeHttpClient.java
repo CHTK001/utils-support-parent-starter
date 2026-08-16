@@ -12,7 +12,7 @@ import java.time.Duration;
  * <p>默认调用 {server}/query?sdl=...；后续可加更多端点。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public class DatalakeHttpClient {
     /**

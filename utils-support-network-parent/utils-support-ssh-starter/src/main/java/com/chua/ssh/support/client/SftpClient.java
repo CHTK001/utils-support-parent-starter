@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * SFTP 链式客户端，基于 Apache MINA SSHD 3.x。
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 @Getter

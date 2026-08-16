@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 跨进程通过文件锁协调多 JVM。
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("chronicle")
 public class ChronicleLockProvider extends AbstractLockProvider {

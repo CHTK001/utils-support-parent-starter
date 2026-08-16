@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  *
  * @author CH
- * @since 2026/8/4
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("prometheus")

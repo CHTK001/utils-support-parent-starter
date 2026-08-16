@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
  * zxing qr码
  *
  * @author CH
- * @since 2023/09/05
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zxing", DEFAULT})

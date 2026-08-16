@@ -26,6 +26,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SQUAR
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public class ListTypeConverter implements TypeConverter<List> {

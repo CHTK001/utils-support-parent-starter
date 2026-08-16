@@ -6,6 +6,7 @@ package com.chua.common.support.function;
  *
  * @param <T> 升级后的类型
  * @author CH
+ * @since 4.0.0.42
  */
 public interface Upgrade<T> {
 

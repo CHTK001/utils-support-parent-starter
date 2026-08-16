@@ -15,7 +15,7 @@ import java.util.Map;
  * User-Agent、Cookie 等。每个域名可配置独立的站点信息。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

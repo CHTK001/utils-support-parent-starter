@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * }</pre>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("redis")
 public class RedissonLockProvider extends AbstractLockProvider {

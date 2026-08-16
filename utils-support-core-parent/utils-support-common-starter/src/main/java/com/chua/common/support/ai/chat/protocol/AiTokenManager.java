@@ -7,6 +7,7 @@ package com.chua.common.support.ai.chat.protocol;
  * 或通过 {@link AggregateChatClient#setTokenProvider(AiTokenProvider)} 设置自定义令牌提供者。
  * 此类将不会包含任何实现，引用此类的代码将无法编译。
   * @author CH
+ * @since 4.0.0.42
  */
 @Deprecated
 public class AiTokenManager {

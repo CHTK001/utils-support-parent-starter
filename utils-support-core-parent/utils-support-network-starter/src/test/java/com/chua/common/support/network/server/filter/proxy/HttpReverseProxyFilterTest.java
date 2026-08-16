@@ -3,19 +3,16 @@ package com.chua.common.support.network.server.filter.proxy;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.server.ServerAttribute;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
-import com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.request.AbstractServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.network.server.response.AbstractServerResponse;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
-import com.chua.common.support.network.http.DefaultHttpHeader;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -36,7 +33,6 @@ public class HttpReverseProxyFilterTest {
 
     private HttpServer backendServer;
     private HttpReverseProxyFilter proxyFilter;
-    private ServiceDiscoveryServerFilter discoveryFilter;
     private int backendPort;
 
     @BeforeEach
@@ -69,13 +65,6 @@ public class HttpReverseProxyFilterTest {
 
         proxyFilter = new HttpReverseProxyFilter();
         proxyFilter.init(mock(ServerFilterConfig.class));
-
-        discoveryFilter = new ServiceDiscoveryServerFilter();
-        discoveryFilter.addRoute("/**", "/");
-        discoveryFilter.setDiscoveryOption(
-                new com.chua.common.support.network.discovery.DiscoveryOption()
-                        .setType("fixed")
-        );
     }
 
     @AfterEach
@@ -101,7 +90,7 @@ public class HttpReverseProxyFilterTest {
 
         CapturingServerResponse response = new CapturingServerResponse();
 
-        proxyFilter.doFilter(request, response, () -> {
+        proxyFilter.doFilter(request, response, (req, res) -> {
             fail("Chain should not be called when backend discovery is set");
         });
 
@@ -117,7 +106,7 @@ public class HttpReverseProxyFilterTest {
         CapturingServerResponse response = new CapturingServerResponse();
         java.util.concurrent.atomic.AtomicBoolean chainCalled = new java.util.concurrent.atomic.AtomicBoolean(false);
 
-        proxyFilter.doFilter(request, response, () -> {
+        proxyFilter.doFilter(request, response, (req, res) -> {
             chainCalled.set(true);
         });
 
@@ -128,7 +117,7 @@ public class HttpReverseProxyFilterTest {
         return new AbstractServerRequest() {
             @Override
             public HttpHeader getHeaders() {
-                return new DefaultHttpHeader();
+                return HttpHeader.create();
             }
 
             @Override
@@ -165,22 +154,6 @@ public class HttpReverseProxyFilterTest {
 
     private static class CapturingServerResponse extends AbstractServerResponse {
         private final CountDownLatch latch = new CountDownLatch(1);
-        private int status;
-        private byte[] body;
-
-        @Override
-        public void setStatus(int code) {
-            this.status = code;
-        }
-
-        @Override
-        public void setBody(byte[] data) {
-            this.body = data;
-        }
-
-        @Override
-        public void setHeader(String name, String value) {
-        }
 
         @Override
         public void end() {
@@ -192,12 +165,13 @@ public class HttpReverseProxyFilterTest {
             return latch.getCount() == 0;
         }
 
-        public int getStatus() {
-            return status;
+        @Override
+        public OutputStream getOutputStream() {
+            return new java.io.ByteArrayOutputStream();
         }
 
-        public byte[] getBody() {
-            return body;
+        @Override
+        public void writeRaw(byte[] bytes) {
         }
 
         public boolean await(long timeout, TimeUnit unit) throws InterruptedException {

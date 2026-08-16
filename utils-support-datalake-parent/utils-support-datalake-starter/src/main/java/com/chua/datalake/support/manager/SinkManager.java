@@ -12,7 +12,7 @@ import java.util.Map;
  * Sink 管理器，负责注册及管理所有 Sink 实例。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SinkManager {

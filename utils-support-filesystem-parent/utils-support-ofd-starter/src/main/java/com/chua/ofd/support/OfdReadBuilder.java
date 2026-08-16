@@ -13,7 +13,7 @@ import java.util.zip.ZipInputStream;
  * 本实现提取其中文档内容 XML 的纯文本部分。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class OfdReadBuilder extends ReadBuilder {
 

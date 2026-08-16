@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <T> 数据类型
  * @author CH
+ * @since 4.0.0.42
  */
 public class PipelineContext<T> {
 

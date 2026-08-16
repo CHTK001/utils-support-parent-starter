@@ -1,12 +1,18 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-/**
- * @author CH
- */
 
+/**
+ * PostgreSQL 9.x 方言实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class Postgresql9Dialect extends AbstractDialect {
 
+    /**
+     * 支持版本
+     */
     public static final String VERSION = "PostgreSQL 9.x";
 
     @Override

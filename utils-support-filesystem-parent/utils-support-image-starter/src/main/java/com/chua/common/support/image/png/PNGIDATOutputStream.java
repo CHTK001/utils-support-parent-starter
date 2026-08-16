@@ -18,7 +18,7 @@ import java.util.zip.DeflaterOutputStream;
  * PNG IDAT chunk（图像数据块）写入流，写入时同步执行 zlib deflate 压缩。
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 final class PNGIDATOutputStream extends PNGImageOutputStream {
 
@@ -36,7 +36,8 @@ final class PNGIDATOutputStream extends PNGImageOutputStream {
     protected void startChunk() throws IOException {
         crc.reset();
         this.startPos = stream.getStreamPosition();
-        // (-1); // length, will backpatch
+        // length, will backpatch
+        // (-1);
         stream.writeInt(-1);
 
         crc.update(chunkType, 0, 4);

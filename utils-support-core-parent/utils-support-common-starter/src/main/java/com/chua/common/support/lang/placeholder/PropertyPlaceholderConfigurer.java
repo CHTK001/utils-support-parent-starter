@@ -11,6 +11,7 @@ package com.chua.common.support.lang.placeholder;
  * 3. 优先检查系统属性，允许系统属性覆盖任何其他属性源。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class PropertyPlaceholderConfigurer extends PlaceholderSupport {
 

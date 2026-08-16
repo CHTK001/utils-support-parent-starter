@@ -8,7 +8,7 @@ import lombok.Setter;
  * Linux 命令执行客户端，兼容 ServerMetricsServiceImpl 调用方式
  *
  * @author CH
- * @since 2026/7/30
+ * @since 4.0.0.42
  */
 @Getter
 @Setter

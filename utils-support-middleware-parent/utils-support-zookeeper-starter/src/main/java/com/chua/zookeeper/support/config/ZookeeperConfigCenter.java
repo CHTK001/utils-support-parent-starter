@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("zookeeper")
 @Slf4j

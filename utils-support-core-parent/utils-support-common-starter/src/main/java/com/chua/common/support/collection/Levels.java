@@ -15,6 +15,7 @@ import java.util.function.Function;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 @FunctionalInterface

@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  * 内部复用 {@link RateLimiterIntercept} 的拦截逻辑。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @RequiredArgsConstructor
 public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {

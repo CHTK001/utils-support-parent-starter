@@ -50,9 +50,10 @@ public final class RustSmbServerBridge {
     // ==================== 生命周期 ====================
 
     public static void loadLibrary() {
-        if (loaded) return;
+        if (loaded) {
         synchronized (LOAD_LOCK) {
-            if (loaded) return;
+            if (loaded) {
+                return;
             try {
                 NativeLoader.of("rust_smb_server")
                         .toTarget(Path.of(LIB_TARGET_DIR))
@@ -150,7 +151,7 @@ public final class RustSmbServerBridge {
      * @param handle smb_server_start 返回的句柄
      */
     public static void stop(long handle) {
-        if (!loaded || handle <= 0) return;
+        if (!loaded || handle <= 0) {
         try {
             int rc = (int) stopHandle.invokeExact(handle);
             if (rc != 0) {

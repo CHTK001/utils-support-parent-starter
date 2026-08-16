@@ -7,7 +7,7 @@ import java.util.Map;
  * 数据表接口，对应数据库中的一张表。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public interface DataTable {
 

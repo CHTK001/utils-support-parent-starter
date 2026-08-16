@@ -1,12 +1,3 @@
-/**
- * PNG 图像读取器。
- *
- * <p>基于 JDK Image I/O 框架实现的 PNG 格式图像读取器，
- * 支持标准 PNG 规范的各项特性，包括透明度、伽马校正、ICC 色彩配置等。</p>
- *
- * @author CH
- * @since 1.0
- */
 package com.chua.common.support.image.png;
 
 import javax.imageio.IIOException;
@@ -42,7 +33,8 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
         throws IOException {
         this.stream = stream;
         this.length = stream.readInt();
-        stream.skipBytes(4); // skip chunk type
+        // skip chunk type
+        stream.skipBytes(4);
         int type = stream.readInt();
         this.fdAT = fdAT;
         if (fdAT) {
@@ -83,6 +75,15 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     }
 }
 
+/**
+ * PNG 图像读取器。
+ *
+ * <p>基于 JDK Image I/O 框架实现的 PNG 格式图像读取器，
+ * 支持标准 PNG 规范的各项特性，包括透明度、伽马校正、ICC 色彩配置等。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PNGImageReader extends ImageReader {
 
     /*
@@ -1756,7 +1757,8 @@ public class PNGImageReader extends ImageReader {
          * supported image types.
          */
         case PNG_COLOR_GRAY:
-            readMetadata(); // Need tRNS chunk
+            // Need tRNS chunk
+            readMetadata();
 
             if (metadata.hasTransparentColor()) {
                 gray = ColorSpace.getInstance(ColorSpace.CS_GRAY);
@@ -1776,7 +1778,8 @@ public class PNGImageReader extends ImageReader {
             break;
 
         case PNG_COLOR_RGB:
-            readMetadata(); // Need tRNS chunk
+            // Need tRNS chunk
+            readMetadata();
 
             if (bitDepth == 8) {
                 if (metadata.hasTransparentColor()) {
@@ -1822,7 +1825,8 @@ public class PNGImageReader extends ImageReader {
             break;
 
         case PNG_COLOR_PALETTE:
-            readMetadata(); // Need tRNS chunk
+            // Need tRNS chunk
+            readMetadata();
 
             /*
              * The PLTE chunk spec says:

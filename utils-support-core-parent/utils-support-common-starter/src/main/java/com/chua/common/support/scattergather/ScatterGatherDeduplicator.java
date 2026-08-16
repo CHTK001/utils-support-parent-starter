@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * <p>基于 requestId 进行去重，防止同一请求重复执行。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ScatterGatherDeduplicator {

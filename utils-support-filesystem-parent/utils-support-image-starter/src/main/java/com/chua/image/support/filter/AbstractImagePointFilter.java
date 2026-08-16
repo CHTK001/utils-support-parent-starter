@@ -25,7 +25,7 @@ import java.awt.image.WritableRaster;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 public abstract class AbstractImagePointFilter extends AbstractImageFilter {
 

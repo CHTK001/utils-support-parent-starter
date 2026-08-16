@@ -20,7 +20,7 @@ import java.util.Set;
  * </ul>
  *
  * @author CH
- * @since 2024/12/28
+ * @since 4.0.0.42
  */
 public final class MimeTypeUtils {
 

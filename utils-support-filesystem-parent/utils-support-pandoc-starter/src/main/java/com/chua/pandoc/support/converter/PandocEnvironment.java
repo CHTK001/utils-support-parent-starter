@@ -26,6 +26,7 @@ import java.util.zip.GZIPInputStream;
  * <p>检测当前系统中是否安装了 Pandoc，若未安装则根据操作系统自动下载并安装。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PandocEnvironment {

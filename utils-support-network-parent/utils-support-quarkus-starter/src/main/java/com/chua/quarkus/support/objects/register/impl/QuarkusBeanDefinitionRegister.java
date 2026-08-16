@@ -19,7 +19,7 @@ import java.util.*;
  * 所有查询直接委派 CDI 容器。Bean 实例由 CDI 容器管理，本注册器仅做桥接。</p>
  *
  * @author CH
- * @since 2024/12/20
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")

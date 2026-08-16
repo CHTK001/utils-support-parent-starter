@@ -26,6 +26,7 @@ import java.util.Map;
  * 前提条件：小程序和公众号均已绑定到同一个微信开放平台第三方平台。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"default", "wechat-openid-convert"})

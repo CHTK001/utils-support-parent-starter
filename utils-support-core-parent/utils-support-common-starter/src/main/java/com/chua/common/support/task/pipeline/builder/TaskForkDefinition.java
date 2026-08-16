@@ -77,6 +77,7 @@ import java.util.function.Consumer;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see TaskDefinition#fork()
  * @see PipelineBuilder#fork(String)
  * @see ForkNode

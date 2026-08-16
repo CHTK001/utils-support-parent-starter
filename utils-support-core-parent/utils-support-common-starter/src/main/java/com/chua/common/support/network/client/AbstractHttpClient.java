@@ -43,6 +43,7 @@ import java.util.concurrent.CompletableFuture;
  * （超时时间、代理设置、重试策略等），无需自行管理配置参数。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see HttpClient
  * @see ClientSetting
  * @see DefaultHttpClient

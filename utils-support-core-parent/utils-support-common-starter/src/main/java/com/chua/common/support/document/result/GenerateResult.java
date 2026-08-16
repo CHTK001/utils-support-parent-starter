@@ -7,6 +7,7 @@ package com.chua.common.support.document.result;
  * <p>封装文档生成后的结果信息，如文件路径、字节内容等。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class GenerateResult {
 

@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
  * <p>支持主流包管理器的自动检测与安装操作，提供同步/异步安装以及实时输出回调。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PackageManager {

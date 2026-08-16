@@ -7,7 +7,7 @@ package com.chua.filestorage.support.storage.lanzou;
  * 或网络请求异常时抛出该异常。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 public class LanzouException extends RuntimeException {
 

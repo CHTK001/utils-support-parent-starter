@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @since 2024/7/29
+ * @since 4.0.0.42
  */
 @Slf4j
 public class LaMaFilterFactory {

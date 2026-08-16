@@ -15,7 +15,7 @@ import java.util.Set;
  * 自适应缩放、居中展示、工具栏、水印叠加等能力</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("preview-svg")
 public class SvgPreviewProvider implements FileStoragePreviewProvider {

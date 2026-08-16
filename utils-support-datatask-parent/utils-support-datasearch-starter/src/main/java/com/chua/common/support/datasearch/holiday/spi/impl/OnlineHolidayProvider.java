@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 保证核心能力可用。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("online")
 public class OnlineHolidayProvider implements HolidayProvider {

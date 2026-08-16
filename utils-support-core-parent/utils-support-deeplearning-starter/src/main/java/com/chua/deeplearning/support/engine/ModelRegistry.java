@@ -17,9 +17,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -169,13 +171,15 @@ public final class ModelRegistry {
      * @param capabilityInterface 能力接口
      * @param relativePath        相对模型根目录 / classpath 路径，可为 null
      * @param downloadUrl         远程下载地址，空表示不下载
+     * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 null
      * @param compress            下载文件是否为压缩包
      * @param downloadFileName    压缩包内目标文件名（compress=true 时生效）
      */
     public record Entry(String modelId, String translatorClassName,
                         Class<?> inputType, Class<?> outputType,
                         Class<?> capabilityInterface, String relativePath,
-                        String downloadUrl, boolean compress, String downloadFileName) {
+                        String downloadUrl, List<String> downloadMirrors,
+                        boolean compress, String downloadFileName) {
     }
 
     /**
@@ -191,7 +195,7 @@ public final class ModelRegistry {
     public static void register(String modelId, String translatorClassName,
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath) {
-        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, false, null));
+        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, false, null));
         log.debug("[deeplearning-engine] ModelRegistry register: {} -> {}", modelId, translatorClassName);
     }
 
@@ -212,8 +216,52 @@ public final class ModelRegistry {
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath,
                                 String downloadUrl, boolean compress, String downloadFileName) {
-        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, downloadUrl, compress, downloadFileName));
-        log.debug("[deeplearning-engine] ModelRegistry register: {} -> {} (downloadUrl={})", modelId, translatorClassName, downloadUrl);
+        register(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath,
+                downloadUrl, null, compress, downloadFileName);
+    }
+
+    /**
+     * 按类名注册模型（含远程下载信息与备用镜像地址）。
+     *
+     * @param modelId             模型标识
+     * @param translatorClassName Translator 全限定类名
+     * @param inputType           输入类型
+     * @param outputType          输出类型
+     * @param capabilityInterface 能力接口
+     * @param relativePath        相对路径或 classpath 路径
+     * @param downloadUrl         远程下载地址
+     * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 null
+     * @param compress            是否压缩包
+     * @param downloadFileName    压缩包内目标文件名
+     */
+    public static void register(String modelId, String translatorClassName,
+                                Class<?> inputType, Class<?> outputType,
+                                Class<?> capabilityInterface, String relativePath,
+                                String downloadUrl, List<String> downloadMirrors,
+                                boolean compress, String downloadFileName) {
+        List<String> mirrors = resolveMirrors(downloadUrl, downloadMirrors);
+        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface,
+                relativePath, downloadUrl, mirrors, compress, downloadFileName));
+        log.debug("[deeplearning-engine] ModelRegistry register: {} -> {} (downloadUrl={}, mirrors={})",
+                modelId, translatorClassName, downloadUrl, mirrors);
+    }
+
+    /**
+     * 解析备用镜像地址列表。
+     *
+     * <p>主地址为 huggingface.co 且未显式提供镜像时，自动追加 hf-mirror.com 备用镜像
+     * （国内可直接访问），保证下载失败时可自动切换。</p>
+     *
+     * @param downloadUrl     主下载地址
+     * @param downloadMirrors 显式备用地址，可为 null
+     * @return 镜像地址列表，可为 null
+     */
+    private static List<String> resolveMirrors(String downloadUrl, List<String> downloadMirrors) {
+        List<String> mirrors = downloadMirrors == null ? new java.util.ArrayList<>() : new java.util.ArrayList<>(downloadMirrors);
+        if (downloadUrl != null && downloadUrl.contains("huggingface.co") && mirrors.stream().noneMatch(m -> m != null && m.contains("hf-mirror.com"))) {
+            mirrors.add(downloadUrl.replace("huggingface.co", "hf-mirror.com"));
+        }
+        return mirrors.isEmpty() ? null : List.copyOf(mirrors);
     }
 
     /**
@@ -264,6 +312,49 @@ public final class ModelRegistry {
      */
     public static Collection<Entry> getAll() {
         return Collections.unmodifiableCollection(REGISTRY.values());
+    }
+
+    /**
+     * 按能力接口查询全部已注册模型。
+     *
+     * <p>capabilityInterface 为模型注册时声明的能力接口（如 {@code ImageDetector.class}、
+     * {@code FeatureExtractor.class}、{@code ImageClassifier.class} 等），
+     * 据此可精确枚举"具备某能力的所有模型"，供统一能力清单与前端展示使用。</p>
+     *
+     * @param capabilityInterface 能力接口（可为 null，返回全部）
+     * @return 匹配的注册条目列表
+     */
+    public static List<Entry> getAllByCapability(Class<?> capabilityInterface) {
+        if (capabilityInterface == null) {
+            return new ArrayList<>(REGISTRY.values());
+        }
+        return REGISTRY.values().stream()
+                .filter(e -> e.capabilityInterface() != null)
+                .filter(e -> capabilityInterface.equals(e.capabilityInterface())
+                        || capabilityInterface.isAssignableFrom(e.capabilityInterface()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * 按能力接口查询全部已注册模型 ID。
+     *
+     * @param capabilityInterface 能力接口
+     * @return 模型 ID 列表
+     */
+    public static List<String> getModelIdsByCapability(Class<?> capabilityInterface) {
+        return getAllByCapability(capabilityInterface).stream()
+                .map(Entry::modelId)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * 判断指定能力接口下是否已注册模型。
+     *
+     * @param capabilityInterface 能力接口
+     * @return true 表示存在
+     */
+    public static boolean hasCapability(Class<?> capabilityInterface) {
+        return !getAllByCapability(capabilityInterface).isEmpty();
     }
 
     /**
@@ -384,6 +475,9 @@ public final class ModelRegistry {
     /**
      * 尝试从 Entry 配置的 downloadUrl 下载模型。
      *
+     * <p>依次尝试主地址与备用镜像地址（{@link Entry#downloadMirrors()}），
+     * 任一地址下载成功即返回，全部失败返回 null。</p>
+     *
      * @param modelId 模型标识
      * @param entry   注册条目
      * @return 下载后的本地路径，下载失败返回 null
@@ -392,11 +486,19 @@ public final class ModelRegistry {
         if (entry == null || entry.downloadUrl() == null || entry.downloadUrl().isBlank()) {
             return null;
         }
-        String url = entry.downloadUrl();
+        List<String> urls = new ArrayList<>();
+        urls.add(entry.downloadUrl());
+        if (entry.downloadMirrors() != null) {
+            for (String mirror : entry.downloadMirrors()) {
+                if (mirror != null && !mirror.isBlank() && !urls.contains(mirror)) {
+                    urls.add(mirror);
+                }
+            }
+        }
         Path downloadDir = extractRoot.resolve(DOWNLOAD_DIR);
         String fileName = entry.downloadFileName() != null && !entry.downloadFileName().isBlank()
                 ? entry.downloadFileName()
-                : url.substring(url.lastIndexOf('/') + 1);
+                : entry.downloadUrl().substring(entry.downloadUrl().lastIndexOf('/') + 1);
         if (fileName.isBlank()) {
             fileName = modelId + MODEL_SUFFIXES[0];
         }
@@ -405,18 +507,47 @@ public final class ModelRegistry {
         try {
             if (Files.exists(target) && Files.size(target) > 0) {
                 log.info("[deeplearning-engine] 模型已存在缓存，跳过下载: {} -> {}", modelId, target);
-            } else {
+                return finishDownload(modelId, entry, urls.get(0), target, downloadDir);
+            }
+        } catch (IOException e) {
+            log.debug("[deeplearning-engine] 模型缓存检查失败: {} -> {}", modelId, e.getMessage());
+        }
+
+        Throwable lastError = null;
+        for (String url : urls) {
+            try {
                 log.info("[deeplearning-engine] 开始下载模型: {} -> {}", modelId, url);
                 Files.createDirectories(downloadDir);
-                target = downloader.download(url, target);
-                log.info("[deeplearning-engine] 模型下载完成: {} -> {}", modelId, target);
+                Path downloaded = downloader.download(url, target);
+                log.info("[deeplearning-engine] 模型下载完成: {} -> {}", modelId, downloaded);
+                return finishDownload(modelId, entry, url, downloaded, downloadDir);
+            } catch (Exception e) {
+                lastError = e;
+                log.warn("[deeplearning-engine] 下载模型失败（将尝试下一个地址）: {} -> {}: {}", modelId, url, e.getMessage());
             }
+        }
+        log.warn("[deeplearning-engine] 远程下载模型全部失败: {} -> {}: {}",
+                modelId, entry.downloadUrl(), lastError == null ? "未知错误" : lastError.getMessage());
+        return null;
+    }
 
+    /**
+     * 完成下载后续处理：附加文件下载、解压等。
+     *
+     * @param modelId    模型标识
+     * @param entry      注册条目
+     * @param baseUrl    实际使用的下载地址
+     * @param target     下载后的文件
+     * @param downloadDir 下载目录
+     * @return 最终可加载路径
+     */
+    private static Path finishDownload(String modelId, Entry entry, String baseUrl, Path target, Path downloadDir) {
+        try {
             // ONNX .onnx 可能附带同名 .extra_file（权重张量），自动下载
             if (target.toString().toLowerCase().endsWith(MODEL_SUFFIXES[0])) {
                 Path extraFile = target.resolveSibling(target.getFileName() + ONNX_EXTRA_FILE_SUFFIX);
                 if (!Files.exists(extraFile) || Files.size(extraFile) == 0) {
-                    String extraUrl = url + ONNX_EXTRA_FILE_SUFFIX;
+                    String extraUrl = baseUrl + ONNX_EXTRA_FILE_SUFFIX;
                     try {
                         log.info("[deeplearning-engine] 开始下载 ONNX 附加文件: {} -> {}", modelId, extraUrl);
                         downloader.download(extraUrl, extraFile);
@@ -431,7 +562,7 @@ public final class ModelRegistry {
             if (target.toString().toLowerCase().endsWith(MODEL_SUFFIXES[5])) {
                 Path indexFile = target.resolveSibling(target.getFileName() + SAFETENSORS_INDEX_SUFFIX);
                 if (!Files.exists(indexFile) || Files.size(indexFile) == 0) {
-                    String indexUrl = url + SAFETENSORS_INDEX_SUFFIX;
+                    String indexUrl = baseUrl + SAFETENSORS_INDEX_SUFFIX;
                     try {
                         log.info("[deeplearning-engine] 开始下载 Safetensors 索引文件: {} -> {}", modelId, indexUrl);
                         downloader.download(indexUrl, indexFile);
@@ -462,8 +593,8 @@ public final class ModelRegistry {
 
             return target;
         } catch (Exception e) {
-            log.warn("[deeplearning-engine] 远程下载模型失败: {} -> {}: {}", modelId, url, e.getMessage());
-            return null;
+            log.warn("[deeplearning-engine] 模型下载后处理失败: {} -> {}: {}", modelId, baseUrl, e.getMessage());
+            return target;
         }
     }
 
@@ -663,7 +794,7 @@ public final class ModelRegistry {
         private final String modelId;
         private final Path modelPath;
         private final String translatorClassName;
-        private volatile DjlModelTranslator delegate;
+        private volatile ITranslator<Object, Object> delegate;
 
         private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName) {
             this.modelId = modelId;
@@ -671,7 +802,7 @@ public final class ModelRegistry {
             this.translatorClassName = translatorClassName;
         }
 
-        private DjlModelTranslator ensure() {
+        private ITranslator<Object, Object> ensure() {
             if (delegate == null) {
                 synchronized (this) {
                     if (delegate == null) {
@@ -679,9 +810,15 @@ public final class ModelRegistry {
                         if (path == null || !Files.exists(path)) {
                             path = resolveModelPath(modelId);
                         }
-                        Translator<?, ?> djlTranslator = newTranslatorInstance(translatorClassName);
-                        String engine = DjlModelFactory.resolveEngine(path);
-                        delegate = new DjlModelTranslator(modelId, path, engine, djlTranslator);
+                        Object translator = newTranslatorInstance(translatorClassName);
+                        if (translator instanceof ITranslator<?, ?> itranslator) {
+                            // 原生 ITranslator：直接包装，不经过 DJL
+                            delegate = new ITranslatorDelegate(modelId, path, itranslator);
+                        } else {
+                            Translator<?, ?> djlTranslator = (Translator<?, ?>) translator;
+                            String engine = DjlModelFactory.resolveEngine(path);
+                            delegate = new DjlModelTranslator(modelId, path, engine, djlTranslator);
+                        }
                     }
                 }
             }
@@ -701,16 +838,21 @@ public final class ModelRegistry {
         @Override
         public void close() {
             if (delegate != null) {
-                delegate.close();
+                if (delegate instanceof AutoCloseable closeable) {
+                    try {
+                        closeable.close();
+                    } catch (Exception ignored) {
+                    }
+                }
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static Translator<?, ?> newTranslatorInstance(String translatorClassName) {
+    private static Object newTranslatorInstance(String translatorClassName) {
         try {
             Class<?> translatorClass = Class.forName(translatorClassName);
-            return (Translator<?, ?>) translatorClass.getDeclaredConstructor().newInstance();
+            return translatorClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException noArgMissing) {
             throw new IllegalStateException(
                     "Translator 缺少无参构造: " + translatorClassName + "，请补充 public XxxTranslator() 或默认参数构造",
@@ -719,6 +861,45 @@ public final class ModelRegistry {
             throw new IllegalStateException("Translator 类不可用: " + translatorClassName, ex);
         } catch (Exception ex) {
             throw new RuntimeException("实例化 Translator 失败: " + translatorClassName, ex);
+        }
+    }
+
+    /**
+     * 原生 {@link ITranslator} 包装器。
+     *
+     * <p>用于将实现自有 {@link ITranslator} 接口的翻译器（不依赖 DJL）适配为
+     * {@link DjlModelTranslator} 兼容的委托。此类与 {@link DjlModelTranslator}
+     * 具有相同的对外形态（name/translate/close），便于 LazyDjlTranslator 统一持有。</p>
+     */
+    private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable {
+
+        private final String modelId;
+        private final ITranslator<?, ?> translator;
+
+        private ITranslatorDelegate(String modelId, Path modelPath, ITranslator<?, ?> translator) {
+            this.modelId = modelId;
+            this.translator = translator;
+        }
+
+        @Override
+        public String name() {
+            return modelId;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Object translate(Object input) {
+            return ((ITranslator<Object, Object>) translator).translate(input);
+        }
+
+        @Override
+        public void close() {
+            if (translator instanceof AutoCloseable closeable) {
+                try {
+                    closeable.close();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 

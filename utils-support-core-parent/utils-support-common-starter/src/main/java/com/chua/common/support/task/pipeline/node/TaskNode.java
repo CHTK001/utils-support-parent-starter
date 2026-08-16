@@ -40,6 +40,7 @@ import java.util.Set;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class TaskNode implements PipelineNode {
 

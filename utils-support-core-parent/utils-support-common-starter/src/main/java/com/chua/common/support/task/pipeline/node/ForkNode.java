@@ -75,6 +75,7 @@ import java.util.stream.Collectors;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see ForkErrorStrategy
  */
 public class ForkNode implements PipelineNode {
@@ -231,7 +232,8 @@ public class ForkNode implements PipelineNode {
         if (preHandler != null) {
             String result = preHandler.execute(context);
             if (result != null) {
-                return result; // 前置处理器返回非null，跳过分叉执行，直接路由
+                // 前置处理器返回非null，跳过分叉执行，直接路由
+                return result;
             }
         }
 
@@ -264,12 +266,14 @@ public class ForkNode implements PipelineNode {
                             results.add(new BranchResult(branchName, branchCtx, null));
                         } catch (Exception e) {
                             results.add(new BranchResult(branchName, branchCtx, e));
-                            failed.set(true); // 信号失败，触发 scope 取消
+                            // 信号失败，触发 scope 取消
+                            failed.set(true);
                         }
                         return null;
                     });
                 }
-                scope.join(); // 等待所有分支完成（含被取消的）
+                // 等待所有分支完成（含被取消的）
+                scope.join();
 
                 // 检查失败分支
                 for (BranchResult result : results) {
@@ -302,7 +306,8 @@ public class ForkNode implements PipelineNode {
                         return null;
                     });
                 }
-                scope.join(); // 等待所有分支完成
+                // 等待所有分支完成
+                scope.join();
 
                 // 汇总异常
                 List<Exception> errors = new ArrayList<>();

@@ -21,6 +21,7 @@ import java.util.List;
  * 支持 doc/docx/xls/xlsx/ppt/pptx/odt/ods/odp 等格式的交叉转换。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("libreoffice")

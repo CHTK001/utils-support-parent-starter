@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 
 public class WriteOption {

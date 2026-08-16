@@ -258,12 +258,18 @@ public class CellStyleConfig {
         Font font = workbook.createFont();
 
         // === 字体 ===
-        if (fontName != null) font.setFontName(fontName);
-        if (fontSize != null) font.setFontHeightInPoints(fontSize);
-        if (bold != null) font.setBold(bold);
-        if (italic != null) font.setItalic(italic);
-        if (strikeout != null) font.setStrikeout(strikeout);
-        if (underline != null) font.setUnderline(underline);
+        if (fontName != null) {
+        if (fontSize != null) {
+            font.setFontHeightInPoints(fontSize);
+        }
+        if (bold != null) {
+            font.setBold(bold);
+        }
+        if (italic != null) {
+        if (strikeout != null) {
+            font.setStrikeout(strikeout);
+        if (underline != null) {
+            font.setUnderline(underline);
         if (fontColor != null) {
             applyFontColor(font, workbook);
         }
@@ -278,27 +284,32 @@ public class CellStyleConfig {
         // === 边框 ===
         if (borderTop != null) {
             style.setBorderTop(borderTop);
-            if (borderColor != null) applyTopBorderColor(style, workbook);
+            if (borderColor != null) {
         }
         if (borderBottom != null) {
             style.setBorderBottom(borderBottom);
-            if (borderColor != null) applyBottomBorderColor(style, workbook);
+            if (borderColor != null) {
         }
         if (borderLeft != null) {
             style.setBorderLeft(borderLeft);
-            if (borderColor != null) applyLeftBorderColor(style, workbook);
+            if (borderColor != null) {
         }
         if (borderRight != null) {
             style.setBorderRight(borderRight);
-            if (borderColor != null) applyRightBorderColor(style, workbook);
+            if (borderColor != null) {
         }
 
         // === 对齐 ===
-        if (horizontalAlignment != null) style.setAlignment(horizontalAlignment);
-        if (verticalAlignment != null) style.setVerticalAlignment(verticalAlignment);
-        if (wrapText != null) style.setWrapText(wrapText);
-        if (indention != null) style.setIndention(indention.shortValue());
-        if (rotation != null) style.setRotation((short) (int) rotation);
+        if (horizontalAlignment != null) {
+        if (verticalAlignment != null) {
+            style.setVerticalAlignment(verticalAlignment);
+        }
+        if (wrapText != null) {
+            style.setWrapText(wrapText);
+        }
+        if (indention != null) {
+        if (rotation != null) style.setRotation((short) (int) {
+            rotation);
 
         // === 数据格式 ===
         if (dataFormat != null) {
@@ -334,7 +345,7 @@ public class CellStyleConfig {
      * 获取 IndexedColors 索引，支持名称或 RGB 十六进制回退。
      */
     private static short indexedColor(String color) {
-        if (color == null || color.isEmpty()) return IndexedColors.BLACK.getIndex();
+        if (color == null || color.isEmpty()) {
         // 先按名称查找
         try {
             return IndexedColors.valueOf(color.toUpperCase()).getIndex();

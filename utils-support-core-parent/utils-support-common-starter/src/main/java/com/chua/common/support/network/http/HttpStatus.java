@@ -32,6 +32,7 @@ package com.chua.common.support.network.http;
  * <p><b>说明：</b>本类为工具类，构造函数私有，禁止实例化，只能通过静态方法调用。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see ClientResponse#isSuccess()
  */
 public class HttpStatus {

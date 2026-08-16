@@ -9,7 +9,7 @@ import java.util.Map;
  * <p>定义脚本执行的能力，支持多种脚本语言（Python/Groovy/JS 等）。
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 public interface ScriptExecutor {
 

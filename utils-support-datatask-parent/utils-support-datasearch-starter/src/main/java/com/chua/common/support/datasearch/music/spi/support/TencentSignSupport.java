@@ -9,7 +9,7 @@ import java.util.Base64;
  * 使用SHA1摘要+位置采样+异或扰码机制为QQ音乐API生成请求签名
  * 
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
 */
 public final class TencentSignSupport {
 

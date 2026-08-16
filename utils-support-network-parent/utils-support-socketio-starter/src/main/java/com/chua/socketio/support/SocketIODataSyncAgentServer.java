@@ -15,7 +15,7 @@ import java.util.Map;
  * <p>运行在 DataSyncServer 侧，通过 SocketIO 管理 Agent 连接，支持事件拉取和推送。</p>
  *
  * @author CH
- * @since 2026-07-20
+ * @since 4.0.0.42
  */
 public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent.DefaultDataSyncAgentServer {
 

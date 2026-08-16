@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
  * <p>支持 .zip 格式的解压。使用 Java 原生 ZipInputStream 实现，包含防 Zip Slip 安全校验。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("zip")

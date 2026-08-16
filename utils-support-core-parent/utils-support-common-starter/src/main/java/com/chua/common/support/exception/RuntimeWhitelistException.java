@@ -8,6 +8,7 @@ package com.chua.common.support.exception;
  * 通常用于权限校验、数据过滤等场景，提示当前请求的资源或用户未被授权访问。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class RuntimeWhitelistException extends RuntimeException {
 

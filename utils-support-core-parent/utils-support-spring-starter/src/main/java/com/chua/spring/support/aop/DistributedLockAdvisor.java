@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * </p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
 

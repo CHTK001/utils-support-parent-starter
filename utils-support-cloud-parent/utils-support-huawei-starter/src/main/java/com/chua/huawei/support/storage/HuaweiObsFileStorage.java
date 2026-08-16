@@ -30,7 +30,7 @@ import java.util.List;
  * <p>基于华为云 OBS SDK 实现 {@link FileStorage} SPI 接口。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Spi({"obs", "huawei"})
 public class HuaweiObsFileStorage extends AbstractFileStorage {

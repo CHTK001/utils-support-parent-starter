@@ -55,6 +55,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see TaskForkDefinition#startFork(String)
  * @see TaskForkDefinition#endFork()
  */

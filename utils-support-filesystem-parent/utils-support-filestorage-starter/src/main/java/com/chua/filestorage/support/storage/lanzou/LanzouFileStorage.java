@@ -61,7 +61,7 @@ import java.util.regex.Pattern;
  * }</pre>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Spi({"lanzou"})
 public class LanzouFileStorage extends AbstractFileStorage {

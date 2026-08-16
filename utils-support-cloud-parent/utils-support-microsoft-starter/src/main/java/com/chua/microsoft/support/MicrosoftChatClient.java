@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * 调用 Azure OpenAI 的对话接口，兼容 OpenAI 的 API 格式。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"microsoft", "azure"})

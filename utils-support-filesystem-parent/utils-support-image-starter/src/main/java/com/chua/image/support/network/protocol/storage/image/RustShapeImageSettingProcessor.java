@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
  * 支持像素化、圆形裁剪、圆角处理
  * 
  * @author CH
- * @since 2024/12/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "shape", order = 0)

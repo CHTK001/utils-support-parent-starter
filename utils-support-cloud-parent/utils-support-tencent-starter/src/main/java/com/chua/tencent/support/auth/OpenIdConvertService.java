@@ -7,6 +7,7 @@ package com.chua.tencent.support.auth;
  * 前提条件：小程序和公众号均已绑定到同一个微信开放平台第三方平台。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface OpenIdConvertService {
 

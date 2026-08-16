@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class ArchiveEntryAdapter implements ArchiveEntry {
 

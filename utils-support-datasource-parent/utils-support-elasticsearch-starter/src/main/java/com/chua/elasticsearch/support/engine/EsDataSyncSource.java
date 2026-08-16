@@ -14,7 +14,7 @@ import java.util.*;
  * <p>将 {@link Flux}&lt;Map&gt; 逐条写入 ES Index，使用文档内 id 保证幂等。</p>
  *
  * @author CH
- * @since 2026-07-22
+ * @since 4.0.0.42
  */
 @Slf4j
 public class EsDataSyncSource implements DataSyncSource {

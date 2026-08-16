@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Getter
 public class WinRmExecClient implements AutoCloseable {

@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * Linux 系统日志提供者 - libsystemd FFM + /var/log 文件回退
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("linux")
 @SpiDescribe(value = "linux-journald", desc = "Linux 系统日志提供者(journald + /var/log)", type = "log")

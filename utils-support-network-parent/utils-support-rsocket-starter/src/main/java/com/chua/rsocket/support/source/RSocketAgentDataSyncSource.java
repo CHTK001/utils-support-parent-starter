@@ -19,7 +19,7 @@ import java.util.Map;
  * <p>Server 侧通过 RSocket request-stream / fire-and-forget 与 Agent 交互。</p>
  *
  * @author CH
- * @since 2026-07-20
+ * @since 4.0.0.42
  */
 public class RSocketAgentDataSyncSource implements DataSyncSource {
 

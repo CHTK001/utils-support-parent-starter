@@ -20,7 +20,7 @@ import java.util.Optional;
  * 作为 {@link ConfigSaveOrLoader} 的 SPI 实现，支持配置的保存、加载和删除操作。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("webdav")

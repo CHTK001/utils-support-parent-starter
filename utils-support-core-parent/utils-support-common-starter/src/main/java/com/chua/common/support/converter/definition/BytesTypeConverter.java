@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public class BytesTypeConverter implements TypeConverter<byte[]> {

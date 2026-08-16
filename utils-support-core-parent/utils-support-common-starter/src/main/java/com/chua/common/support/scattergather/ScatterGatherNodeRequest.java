@@ -7,6 +7,7 @@ import java.util.Map;
  * <p>用于节点间传输查询请求信息，支持与上下文互转。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class ScatterGatherNodeRequest {
 

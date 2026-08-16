@@ -26,6 +26,7 @@ import java.util.Set;
  * 以及实例创建和条件过滤等相关信息，便于 SPI 解析器统一管理服务实现。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class ServiceDefinition implements Comparable<ServiceDefinition> {
 

@@ -18,7 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * 默认使用 ISO 格式，支持通过构造参数自定义日期时间格式。
  *
  * @author CH
- * @since 2026/7/19
+ * @since 4.0.0.42
  */
 @Configuration
 public class FormatterConfiguration implements WebMvcConfigurer {

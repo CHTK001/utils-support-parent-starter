@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
  * 记录同一用户在不同应用下的openid和平台类型
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

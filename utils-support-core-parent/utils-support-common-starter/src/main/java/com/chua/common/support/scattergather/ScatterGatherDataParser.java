@@ -6,6 +6,7 @@ package com.chua.common.support.scattergather;
  *
  * @param <I> 解析后的数据类型
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ScatterGatherDataParser<I> {
 

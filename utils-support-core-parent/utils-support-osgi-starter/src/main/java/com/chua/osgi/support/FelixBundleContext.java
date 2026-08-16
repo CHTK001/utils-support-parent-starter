@@ -8,11 +8,20 @@ import java.util.List;
  * Felix BundleContext 实现，包装 Felix 框架的 BundleContext。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class FelixBundleContext implements com.chua.common.support.osgi.BundleContext {
 
+    /**
+     * 被包装的 OSGI BundleContext
+     */
     private final org.osgi.framework.BundleContext delegate;
 
+    /**
+     * 构造函数。
+     *
+     * @param delegate OSGI BundleContext
+     */
     public FelixBundleContext(org.osgi.framework.BundleContext delegate) {
         this.delegate = delegate;
     }

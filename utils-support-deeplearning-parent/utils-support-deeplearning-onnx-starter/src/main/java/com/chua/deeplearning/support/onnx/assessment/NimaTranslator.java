@@ -3,11 +3,11 @@ package com.chua.deeplearning.support.onnx.assessment;
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -44,44 +44,36 @@ public class NimaTranslator implements Translator<Image, float[]> {
 
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-
-        //                            
-        array = ai.djl.modality.cv.util.NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
-
-        //                       FLOAT32
-        if (!array.getDataType().equals(DataType.FLOAT32)) {
-            array = array.toType(DataType.FLOAT32, false);
-        }
-
-        // HWC     CHW + [0, 1]          
-        array = array.transpose(2, 0, 1).div(255.0f);
-
-        // ImageNet          
-        NDArray mean = ctx.getNDManager().create(IMAGE_MEAN, new Shape(3, 1, 1));
-        NDArray std = ctx.getNDManager().create(IMAGE_STD, new Shape(3, 1, 1));
-        array = array.sub(mean).div(std);
-
-        //                    [C, H, W]     [1, C, H, W]
-        array = array.expandDims(0);
-
+        // OpenCV 预处理：resize 224 + ImageNet 归一化 + CHW → float[] → create() 喂入 djl-onnx
+        float[] pixels = OpenCvImageUtils.toTensor(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false);
+        NDArray array = ctx.getNDManager().create(pixels, new Shape(1, 3, IMAGE_SIZE, IMAGE_SIZE));
+        array.setName("input");
         return new NDList(array);
     }
 
     @Override
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
-
-        //                   
-        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
-            output = output.squeeze(0);
+        float[] logits = output.toFloatArray();
+        if (logits.length == 0) {
+            return new float[0];
         }
-
-        // Softmax                                  
-        NDArray exp = output.exp();
-        NDArray softmax = exp.div(exp.sum());
-
-        return softmax.toFloatArray();
+        // Softmax 纯 Java 实现（djl-onnx 不支持 exp/sum）
+        double[] exp = new double[logits.length];
+        double max = Double.NEGATIVE_INFINITY;
+        for (float v : logits) {
+            max = Math.max(max, v);
+        }
+        double sum = 0.0;
+        for (int i = 0; i < logits.length; i++) {
+            exp[i] = Math.exp(logits[i] - max);
+            sum += exp[i];
+        }
+        float[] softmax = new float[logits.length];
+        for (int i = 0; i < logits.length; i++) {
+            softmax[i] = (float) (exp[i] / sum);
+        }
+        return softmax;
     }
 
     @Override

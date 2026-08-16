@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * 并支持输出为 PDF（需 LaTeX 引擎）和多种幻灯片格式。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("pandoc")

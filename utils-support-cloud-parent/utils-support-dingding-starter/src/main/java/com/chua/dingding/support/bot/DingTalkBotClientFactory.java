@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * 平台名称为 {@code dingtalk}。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DingTalkBotClientFactory implements BotClient.Factory {

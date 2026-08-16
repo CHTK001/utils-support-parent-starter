@@ -26,7 +26,7 @@ import java.util.List;
  * 生产环境快递100已要求鉴权（customer/key），可通过构造参数注入自定义地址模板。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("kuaidi100")
 public class Kuaidi100ExpressProvider implements ExpressProvider {

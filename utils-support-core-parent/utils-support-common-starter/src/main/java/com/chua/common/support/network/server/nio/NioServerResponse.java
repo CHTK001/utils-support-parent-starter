@@ -44,8 +44,19 @@ public class NioServerResponse implements ServerResponse {
     private Object result;
     private ByteArrayOutputStream rawOutput;
 
+    /**
+     * 异步写出回调(真响应式):事件循环设置后,complete() 不再直接写 channel,
+     * 而是把响应头/体字节交给回调,由事件循环通过 OP_WRITE 驱动写出。
+     */
+    private java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter;
+
     public NioServerResponse(SocketChannel channel) {
         this.channel = channel;
+    }
+
+    /** 设置异步写出回调(由事件循环注入)。 */
+    void setAsyncWriter(java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter) {
+        this.asyncWriter = asyncWriter;
     }
 
     // ─── ServerResponse 接口实现 ─────────────────────────────
@@ -279,10 +290,54 @@ public class NioServerResponse implements ServerResponse {
             // 响应头与响应体分别包装为 ByteBuffer，gather write 一次写出，避免拼接拷贝
             ByteBuffer headerBuf = ByteBuffer.wrap(buildHttpHeaders(data.length));
             ByteBuffer bodyBuf = ByteBuffer.wrap(data);
-            writeToChannel(headerBuf, bodyBuf);
+            if (asyncWriter != null) {
+                // 真响应式:字节交给事件循环 OP_WRITE 异步写出
+                asyncWriter.accept(headerBuf, bodyBuf);
+            } else {
+                writeToChannel(headerBuf, bodyBuf);
+            }
         } catch (Exception e) {
             // 静默处理写入失败（连接可能已被客户端关闭）
         }
+    }
+
+    /**
+     * zero-copy(sendfile) 发送文件:响应头走普通写入,文件体通过
+     * {@link java.nio.channels.FileChannel#transferTo} 在内核态直接发送到 SocketChannel,
+     * 避免文件内容经过用户态缓冲拷贝,大文件/大响应体场景显著降低 CPU 占用、提高并发吞吐。
+     */
+    @Override
+    public ServerResponse sendFile(java.nio.file.Path file) {
+        if (sent || ended) {
+            return this;
+        }
+        sent = true;
+        ended = true;
+        committed = true;
+        try (java.nio.channels.FileChannel fileChannel = java.nio.channels.FileChannel.open(file,
+                java.nio.file.StandardOpenOption.READ)) {
+            long fileSize = fileChannel.size();
+            if (!headers.containsKey("Content-Length")) {
+                headers.put("Content-Length", String.valueOf(fileSize));
+            }
+            if (!headers.containsKey("Content-Type")) {
+                headers.put("Content-Type", "application/octet-stream");
+            }
+            // 响应头先写
+            writeToChannel(ByteBuffer.wrap(buildHttpHeaders((int) fileSize)));
+            // 文件体 zero-copy 发送
+            long position = 0;
+            while (position < fileSize) {
+                long transferred = fileChannel.transferTo(position, fileSize - position, channel);
+                if (transferred <= 0) {
+                    break;
+                }
+                position += transferred;
+            }
+        } catch (java.io.IOException e) {
+            channelClosed = true;
+        }
+        return this;
     }
 
     /**

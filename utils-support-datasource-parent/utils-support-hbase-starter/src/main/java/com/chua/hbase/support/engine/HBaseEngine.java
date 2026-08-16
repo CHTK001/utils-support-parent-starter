@@ -13,7 +13,7 @@ import java.util.List;
  * HBase 数据库引擎实现，提供基于内存的数据过滤查询能力。
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 @Spi("hbase")
 public class HBaseEngine extends AbstractEngine {

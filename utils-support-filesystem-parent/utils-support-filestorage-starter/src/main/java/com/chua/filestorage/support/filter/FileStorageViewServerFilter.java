@@ -167,7 +167,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     // ==================== 内部方法 ====================
 
     private boolean isMediaType(String mime) {
-        if (mime == null) return false;
+        if (mime == null) {
         return MimeTypeUtils.isBrowserPreviewSupported(mime)
                 && (mime.startsWith("image/")
                 || mime.startsWith("audio/")
@@ -187,7 +187,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
 
     private byte[] readContent(FileStorage storage, String key) throws Exception {
         var getResult = storage.getObject(key);
-        if (getResult == null || getResult.getInputStream() == null) return null;
+        if (getResult == null || getResult.getInputStream() == null) {
         return getResult.getInputStream().readAllBytes();
     }
 
@@ -199,7 +199,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
                 return Files.readAllBytes(cached);
             }
             var getResult = storage.getObject(key);
-            if (getResult == null || getResult.getInputStream() == null) return null;
+            if (getResult == null || getResult.getInputStream() == null) {
             byte[] originalBytes = getResult.getInputStream().readAllBytes();
             Path tempPdf = Files.createTempFile("preview-", ".pdf");
             try (ByteArrayInputStream bais = new ByteArrayInputStream(originalBytes);
@@ -221,7 +221,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
 
     private FileStoragePreviewProvider findProvider(String ext, String mime) {
         for (FileStoragePreviewProvider p : previewProviders) {
-            if (p.supports(ext, mime)) return p;
+            if (p.supports(ext, mime)) {
         }
         return null;
     }
@@ -259,12 +259,12 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     }
 
     private static String getExt(String key) {
-        if (key == null || !key.contains(".")) return "";
+        if (key == null || !key.contains(".")) {
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(Locale.ENGLISH);
     }
 
     private static String buildOpsSuffix(FileOperationSetting ops) {
-        if (ops == null || !ops.hasOperation()) return "";
+        if (ops == null || !ops.hasOperation()) {
         return "_" + ops.hashCode();
     }
 }

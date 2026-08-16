@@ -223,13 +223,13 @@ public class QwenProxyChatClient implements ChatClient {
     @Override
     public ChatClient tools(List<ChatTool> tools) {
         this.tools.clear();
-        if (tools != null) this.tools.addAll(tools);
+        if (tools != null) {
         return this;
     }
 
     @Override
     public ChatClient tool(ChatTool tool) {
-        if (tool != null) this.tools.add(tool);
+        if (tool != null) {
         return this;
     }
 
@@ -365,7 +365,7 @@ public class QwenProxyChatClient implements ChatClient {
                                                int width, int height, String quality,
                                                String refImageKey) {
         String fullPrompt = prompt;
-        if (ratio != null) fullPrompt = "生成图片，比例" + ratio + "：" + prompt;
+        if (ratio != null) {
         else fullPrompt = "生成图片：" + prompt;
 
         QwenChatResult result = session.chat("{\"messages\":[{\"role\":\"user\",\"content\":\"" + fullPrompt + "\"}]}",
@@ -381,13 +381,15 @@ public class QwenProxyChatClient implements ChatClient {
             for (Map<String, Object> event : rawEvents) {
                 try {
                     List<Map<String, Object>> choices = (List<Map<String, Object>>) event.get("choices");
-                    if (choices == null || choices.isEmpty()) continue;
+                    if (choices == null || choices.isEmpty()) {
                     Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
-                    if (delta == null) continue;
+                    if (delta == null) {
+                        continue;
                     Map<String, Object> extra = (Map<String, Object>) delta.get("extra");
-                    if (extra == null) continue;
+                    if (extra == null) {
                     List<Map<String, Object>> imageList = (List<Map<String, Object>>) extra.get("image_list");
-                    if (imageList == null) continue;
+                    if (imageList == null) {
+                        continue;
                     for (Map<String, Object> img : imageList) {
                         String url = (String) img.get("image");
                         if (url != null && !url.isEmpty()) {
@@ -411,7 +413,7 @@ public class QwenProxyChatClient implements ChatClient {
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
         String fullPrompt = "生成视频：" + prompt;
-        if (ratio != null) fullPrompt = "生成视频，比例" + ratio + "：" + prompt;
+        if (ratio != null) {
 
         QwenChatResult result = session.chat("{\"messages\":[{\"role\":\"user\",\"content\":\"" + fullPrompt + "\"}]}",
                 "qwen3.8-max", null);
@@ -433,7 +435,7 @@ public class QwenProxyChatClient implements ChatClient {
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
-        if (text == null || text.isEmpty()) return images;
+        if (text == null || text.isEmpty()) {
         // 匹配 Markdown 图片 ![alt](url) 或直接 URL
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(
                 "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|gif))(?:\\?[^\\s)\"'<>]*)?"

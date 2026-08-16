@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * {@link ReactorDataSyncExecutor#publish} 公开接口集成。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {

@@ -18,7 +18,7 @@ import com.chua.spider.support.model.SpiderResult;
  * <p>Parser 的输出将传递给 LinkExtractor 和 Pipeline 进行后续处理。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 public interface SpiderParser {
 

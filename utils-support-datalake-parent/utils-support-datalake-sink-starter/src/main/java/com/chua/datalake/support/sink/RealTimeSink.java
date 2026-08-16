@@ -15,7 +15,7 @@ import java.util.Map;
  * 实际分发逻辑与 {@code SubscriberManager} 交互完成。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("realtime")

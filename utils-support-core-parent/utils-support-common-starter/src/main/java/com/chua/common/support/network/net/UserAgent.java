@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
  * 天然线程安全，可安全地在多线程间共享。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see NetAddress
  */
 public class UserAgent implements Serializable {

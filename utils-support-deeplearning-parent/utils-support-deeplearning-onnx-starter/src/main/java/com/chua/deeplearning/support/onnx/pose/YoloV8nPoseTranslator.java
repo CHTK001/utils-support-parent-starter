@@ -1,17 +1,18 @@
 package com.chua.deeplearning.support.onnx.pose;
 
-import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.ImageFactory;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.pose.PoseKeypoint;
+import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,14 +23,14 @@ import java.util.*;
  *
  * <p>输入 {@code [1,3,640,640]}，输出 {@code [1,56,8400]}。
  * 56 = 4(bbox) + 1(cls) + 51(17关键点×3)，8400 个预测。
- * 模型来源：HuggingFace 镜像 {@code Xenova/yolov8n-pose} 的
- * {@code model_quantized.onnx}（约 3.6MB，int8 量化，opset 17）。</p>
+ * 模型来源：modelscope {@code Xenova/yolov8n-pose} 的
+ * {@code model_fp16.onnx}（约 6.5MB，fp16）。OpenCV 预处理，ORT 原生推理。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class YoloV8nPoseTranslator {
+public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypoint>> {
 
     private static final int INPUT_SIZE = 640;
     private static final int NUM_PREDS = 8400;
@@ -39,6 +40,13 @@ public class YoloV8nPoseTranslator {
 
     private static final String RESOURCE_BASE = "vision/pose/yolov8n/onnx/";
     private static final String MODEL_FILE = "model_quantized.onnx";
+
+    private static final String[] KEYPOINT_NAMES = {
+            "nose", "left_eye", "right_eye", "left_ear", "right_ear",
+            "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+            "left_wrist", "right_wrist", "left_hip", "right_hip",
+            "left_knee", "right_knee", "left_ankle", "right_ankle"
+    };
 
     private OrtEnvironment ortEnv;
     private OrtSession session;
@@ -66,7 +74,7 @@ public class YoloV8nPoseTranslator {
                 .withMd5(true)
                 .extractOnly(true).load();
         Path modelPath = modelDir.resolve(MODEL_FILE);
-        if (!Files.isRegularFile(modelPath)) throw new IOException("模型缺失: " + modelPath);
+        if (!Files.isRegularFile(modelPath)) throw new Exception("模型缺失: " + modelPath);
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
@@ -74,41 +82,77 @@ public class YoloV8nPoseTranslator {
             this.session = ortEnv.createSession(modelPath.toString(), opts);
             log.info("[YOLOv8n-pose] ONNX loaded: {}", modelPath.getFileName());
         } catch (Exception e) {
-            throw new IOException("Failed to create ORT session: " + e.getMessage(), e);
+            throw new Exception("Failed to create ORT session: " + e.getMessage(), e);
         }
     }
 
-    public List<PoseResult> detect(Image input) throws Exception {
-        prepare();
-        srcWidth = input.getWidth();
-        srcHeight = input.getHeight();
-        BufferedImage src = toBufferedImage(input);
-        BufferedImage canvas = new BufferedImage(INPUT_SIZE, INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = canvas.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.drawImage(src, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
-        g.dispose();
+    @Override
+    public String name() {
+        return "yolov8n-pose";
+    }
 
-        float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
-        int idx = 0;
-        for (int y = 0; y < INPUT_SIZE; y++) {
-            for (int x = 0; x < INPUT_SIZE; x++) {
-                int rgb = canvas.getRGB(x, y);
-                pixels[idx] = ((rgb >>> 16) & 0xFF) / 255.0f;
-                pixels[idx + INPUT_SIZE * INPUT_SIZE] = ((rgb >>> 8) & 0xFF) / 255.0f;
-                pixels[idx + 2 * INPUT_SIZE * INPUT_SIZE] = (rgb & 0xFF) / 255.0f;
-                idx++;
-            }
+    @Override
+    public List<PoseKeypoint> translate(byte[] imageData) {
+        List<PoseResult> results = detectBytes(imageData);
+        if (results.isEmpty()) {
+            return List.of();
         }
+        PoseResult best = results.get(0);
+        List<PoseKeypoint> keypoints = new ArrayList<>();
+        for (int i = 0; i < NUM_KEYPOINTS; i++) {
+            String name = i < KEYPOINT_NAMES.length ? KEYPOINT_NAMES[i] : "kp_" + i;
+            keypoints.add(new PoseKeypoint(name,
+                    best.keypoints[i][0], best.keypoints[i][1], best.keypointScores[i]));
+        }
+        return keypoints;
+    }
 
-        long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
-        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
-            inputs.put("images", tensor);
-            try (OrtSession.Result result = session.run(inputs)) {
-                float[][][] output = (float[][][]) result.get(0).getValue();
-                return decode(output[0]);
+    /**
+     * 检测图像中的姿态关键点（byte[] 输入，OpenCV 预处理）。
+     *
+     * @param imageData 图像字节
+     * @return 姿态结果列表
+     */
+    public List<PoseResult> detectBytes(byte[] imageData) {
+        try {
+            prepare();
+            nu.pattern.OpenCV.loadLocally();
+            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            if (src == null || src.empty()) {
+                throw new IllegalArgumentException("无法解码图像");
             }
+            try {
+                srcWidth = src.cols();
+                srcHeight = src.rows();
+                Mat resized = new Mat();
+                Imgproc.resize(src, resized, new Size(INPUT_SIZE, INPUT_SIZE), 0, 0, Imgproc.INTER_LINEAR);
+
+                float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
+                for (int y = 0; y < INPUT_SIZE; y++) {
+                    for (int x = 0; x < INPUT_SIZE; x++) {
+                        double[] bgr = resized.get(y, x);
+                        int idx = y * INPUT_SIZE + x;
+                        pixels[idx] = (float) bgr[2] / 255.0f;
+                        pixels[idx + INPUT_SIZE * INPUT_SIZE] = (float) bgr[1] / 255.0f;
+                        pixels[idx + 2 * INPUT_SIZE * INPUT_SIZE] = (float) bgr[0] / 255.0f;
+                    }
+                }
+                resized.release();
+
+                long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
+                try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
+                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    inputs.put("images", tensor);
+                    try (OrtSession.Result result = session.run(inputs)) {
+                        float[][][] output = (float[][][]) result.get(0).getValue();
+                        return decode(output[0]);
+                    }
+                }
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("[yolov8n-pose] 姿态估计失败: " + e.getMessage(), e);
         }
     }
 
@@ -171,12 +215,6 @@ public class YoloV8nPoseTranslator {
         float areaA = (a[2] - a[0]) * (a[3] - a[1]);
         float areaB = (b[2] - b[0]) * (b[3] - b[1]);
         return inter / (areaA + areaB - inter + 1e-9f);
-    }
-
-    private BufferedImage toBufferedImage(Image input) {
-        Object w = input.getWrappedImage();
-        if (w instanceof BufferedImage b) return b;
-        return (BufferedImage) ImageFactory.getInstance().fromImage(input).getWrappedImage();
     }
 
     public synchronized void close() {

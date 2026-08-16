@@ -16,7 +16,7 @@ import java.util.List;
  * <p>注意：WinRM 本身不直接提供文件传输功能，本实现通过 PowerShell 命令模拟文件操作。</p>
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Slf4j
 public class WinRmFileClient implements FileClient {

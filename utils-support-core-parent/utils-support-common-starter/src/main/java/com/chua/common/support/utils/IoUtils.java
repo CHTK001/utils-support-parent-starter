@@ -17,6 +17,7 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_BUFFER_SIZ
  * IO 工具类
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class IoUtils {
 

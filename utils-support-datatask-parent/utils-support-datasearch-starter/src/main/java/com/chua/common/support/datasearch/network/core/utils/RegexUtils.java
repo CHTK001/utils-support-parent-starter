@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 
 public class RegexUtils {

@@ -14,6 +14,7 @@ import java.util.Map;
  * 默认的发布和移除操作实现。子类需实现具体的配置获取逻辑。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Slf4j

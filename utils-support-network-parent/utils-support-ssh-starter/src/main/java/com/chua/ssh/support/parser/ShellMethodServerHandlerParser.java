@@ -21,7 +21,7 @@ import java.util.*;
  * <p>命令名拼接规则：类级前缀与方法级名用 {@code .} 连接，如 {@code @ShellMethod("/api")} + {@code @ShellMethod("user")} → {@code api.user}。</p>
  *
  * @author CH
- * @since 2026/07/18
+ * @since 4.0.0.42
  */
 @Spi("shell-method")
 public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationParser {

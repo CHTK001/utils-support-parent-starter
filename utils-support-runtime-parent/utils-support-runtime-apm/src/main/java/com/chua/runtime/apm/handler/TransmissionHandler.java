@@ -274,7 +274,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 int sourcePort = LOCAL_PORT_HINT;
                 try {
                     java.net.URL u = new java.net.URL(url);
-                    sourcePort = u.getDefaultPort(); // 客户端连接的对端端口不影响本地端口
+                    // 客户端连接的对端端口不影响本地端口
+                    sourcePort = u.getDefaultPort();
                 } catch (Exception ignore) {
                     // url 解析失败，使用兜底值
                 }

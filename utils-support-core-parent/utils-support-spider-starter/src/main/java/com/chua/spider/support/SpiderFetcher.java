@@ -19,7 +19,7 @@ import com.chua.spider.support.model.SpiderResponse;
  * 内置默认实现为 {@code http}（基于 JDK HttpClient，无外部依赖）。
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 public interface SpiderFetcher {
 

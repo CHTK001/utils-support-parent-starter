@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
  * 用于定义配置文件存储路径、字符集、连接超时等参数。
 
  * @author CH
+ * @since 4.0.0.42
  */@Data
 @Builder
 public class ConfigSaveLoadSetting {

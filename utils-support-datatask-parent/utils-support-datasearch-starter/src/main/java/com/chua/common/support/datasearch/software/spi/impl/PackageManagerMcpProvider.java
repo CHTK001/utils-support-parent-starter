@@ -13,7 +13,7 @@ import java.util.Map;
  * <p>通过系统包管理器（winget/brew/apt 等）搜索和安装软件，以 MCP 工具形式暴露给 AI 客户端。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 @Spi("package-manager")
 public class PackageManagerMcpProvider extends PackageManagerProvider implements McpProvider {

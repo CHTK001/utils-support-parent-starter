@@ -1,13 +1,3 @@
-/**
- * PNG 元数据格式定义。
- *
- * <p>继承自 {@link javax.imageio.metadata.IIOMetadataFormatImpl}，
- * 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、tRNS、gAMA 等）以及
- * APNG 动画块（acTL、fcTL、fdAT）的元素和属性约束。</p>
- *
- * @author CH
- * @since 1.0
- */
 package com.chua.common.support.image.png;
 
 import javax.imageio.ImageTypeSpecifier;
@@ -18,6 +8,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
+/**
+ * PNG 元数据格式定义。
+ *
+ * <p>继承自 {@link javax.imageio.metadata.IIOMetadataFormatImpl}，
+ * 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、tRNS、gAMA 等）以及
+ * APNG 动画块（acTL、fcTL、fdAT）的元素和属性约束。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PNGMetadataFormat extends IIOMetadataFormatImpl {
 
     private static IIOMetadataFormat instance = null;
@@ -30,9 +30,11 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     private static final String VALUE_59 = "59";
     private static final String VALUE_60 = "60";
     private static final String VALUE_255 = "255";
-    // ; // 2^16 - 1
+    // 2^16 - 1
+    // ;
     private static final String VALUE_MAX_16 = "65535";
-    // ; // 2^32 - 1
+    // 2^32 - 1
+    // ;
     private static final String VALUE_MAX_32 = "2147483647";
 
     private PNGMetadataFormat() {

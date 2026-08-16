@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>支持自动重连（间隔 3 秒）与按 topic 的事件订阅。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public class SocketIOSyncClient implements SyncClient {
 

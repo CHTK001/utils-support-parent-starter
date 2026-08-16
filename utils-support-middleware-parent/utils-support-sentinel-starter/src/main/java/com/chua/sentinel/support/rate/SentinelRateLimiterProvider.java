@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * <p>使用 Sentinel {@link SphU} 提供企业级流量控制能力。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("sentinel")
 public class SentinelRateLimiterProvider implements RateLimiterProvider {

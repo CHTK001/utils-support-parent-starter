@@ -6,6 +6,7 @@ package com.chua.common.support.lang.qr;
  * 定义了生成二维码时使用的各种点阵形状和附加内容类型。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum CodePointStyle {
     /**

@@ -18,7 +18,6 @@
         <module>utils-support-winrm-starter</module>
         <module>utils-support-ftp-starter</module>
         <module>utils-support-symmetric-starter</module>
-        <module>utils-support-vertx-starter</module>
         <module>utils-support-httpclient-starter</module>
         <module>utils-support-okhttp-starter</module>
         <module>utils-support-retrofit-starter</module>

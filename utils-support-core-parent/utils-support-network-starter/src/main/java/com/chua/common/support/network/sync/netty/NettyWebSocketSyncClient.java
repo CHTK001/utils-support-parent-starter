@@ -14,7 +14,7 @@ import java.util.concurrent.*;
  * 基于 Netty 的 WebSocket 同步客户端实现。
  *
  * @author CH
- * @since 2026-07-25
+ * @since 4.0.0.42
  */
 public class NettyWebSocketSyncClient implements com.chua.common.support.network.sync.SyncClient {
 

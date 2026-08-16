@@ -384,7 +384,8 @@ public final class CommandLine {
             }
         }
 
-        int helpIndent = maxNameWidth + 4; // 2 padding + 2 min space
+        // 缩进宽度 = 2 个 padding + 2 个最小空格
+        int helpIndent = maxNameWidth + 4;
         int consoleWidth = getConsoleWidth();
 
         for (CliOption opt : options) {

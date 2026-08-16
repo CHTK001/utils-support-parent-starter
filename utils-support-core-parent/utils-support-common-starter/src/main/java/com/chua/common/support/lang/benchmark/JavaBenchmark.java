@@ -167,7 +167,8 @@ public class JavaBenchmark implements Benchmark {
                 for (long ns : arr) {
                     total++;
                     if (ns >= 0) {
-                        valid.add(ns / 1_000_000L); // ms
+                        // 纳秒转换为毫秒
+                        valid.add(ns / 1_000_000L);
                     }
                 }
             }

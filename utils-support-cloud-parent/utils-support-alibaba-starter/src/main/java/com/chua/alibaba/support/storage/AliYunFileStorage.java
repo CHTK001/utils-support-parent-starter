@@ -29,7 +29,7 @@ import java.util.List;
  * <p>基于阿里云 OSS SDK 实现 {@link FileStorage} SPI 接口，提供对象存储的上传、下载、删除、列表等操作。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 @Spi("oss")
 public class AliYunFileStorage extends AbstractFileStorage {

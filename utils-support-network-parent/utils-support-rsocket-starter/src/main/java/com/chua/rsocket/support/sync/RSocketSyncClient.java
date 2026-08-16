@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>支持断开后重连（默认无限次）与按 topic 的流订阅。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 public class RSocketSyncClient implements SyncClient {
 

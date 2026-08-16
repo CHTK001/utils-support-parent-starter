@@ -16,6 +16,7 @@ import java.io.RandomAccessFile;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class TarOutputStream extends OutputStream {
 

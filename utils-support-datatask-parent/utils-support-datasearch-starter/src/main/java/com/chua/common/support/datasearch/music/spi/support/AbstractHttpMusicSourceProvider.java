@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * 封装HTTP请求、JSON解析、超时配置等通用能力，各平台实现类通过继承此类减少样板代码
  * 
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
 */
 @Slf4j
 public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProvider {

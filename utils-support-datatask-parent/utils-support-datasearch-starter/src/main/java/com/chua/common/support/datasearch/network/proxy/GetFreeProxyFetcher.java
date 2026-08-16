@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * <p>解析页面表格中的 IP 和端口，每 10 分钟更新一次。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @Spi("getfreeproxy")
 public class GetFreeProxyFetcher implements ProxyFetcher {

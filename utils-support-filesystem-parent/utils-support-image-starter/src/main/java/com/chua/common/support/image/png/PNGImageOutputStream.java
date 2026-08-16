@@ -19,7 +19,7 @@ import java.util.zip.DeflaterOutputStream;
  * <p>子类需实现 {@link #startChunk()}，决定写入哪种 chunk 类型（IDAT / fdAT）。</p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
@@ -41,7 +41,8 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         this.chunkLength = chunkLength;
         this.def = new Deflater(deflaterLevel);
 
-        //startChunk(); // start chunk later
+        // start chunk later
+        //startChunk();
     }
 
     protected abstract void startChunk() throws IOException;

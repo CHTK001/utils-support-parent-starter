@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * 此实现为桩（Stub），调用时返回固定的提示信息。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"qiniu"})

@@ -29,7 +29,7 @@ import java.util.function.Predicate;
  * </p>
  *
  * @author CH
- * @since 4.0.0
+ * @since 4.0.0.42
  */
 @Spi("memory")
 public class InMemoryEngine extends AbstractEngine {
@@ -292,12 +292,24 @@ public class InMemoryEngine extends AbstractEngine {
         if (fieldValue instanceof Number) {
             try {
                 String s = String.valueOf(paramValue).trim();
-                if (fieldValue instanceof Integer) return Integer.valueOf(s);
-                if (fieldValue instanceof Long) return Long.valueOf(s);
-                if (fieldValue instanceof Double) return Double.valueOf(s);
-                if (fieldValue instanceof Float) return Float.valueOf(s);
-                if (fieldValue instanceof Short) return Short.valueOf(s);
-                if (fieldValue instanceof Byte) return Byte.valueOf(s);
+                if (fieldValue instanceof Integer) {
+                    return Integer.valueOf(s);
+                }
+                if (fieldValue instanceof Long) {
+                    return Long.valueOf(s);
+                }
+                if (fieldValue instanceof Double) {
+                    return Double.valueOf(s);
+                }
+                if (fieldValue instanceof Float) {
+                    return Float.valueOf(s);
+                }
+                if (fieldValue instanceof Short) {
+                    return Short.valueOf(s);
+                }
+                if (fieldValue instanceof Byte) {
+                    return Byte.valueOf(s);
+                }
             } catch (NumberFormatException ignored) {
             }
         }

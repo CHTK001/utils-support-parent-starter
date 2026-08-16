@@ -30,6 +30,7 @@ package com.chua.common.support.network.http;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see com.chua.common.support.network.client.ClientRequest
  * @see com.chua.common.support.network.client.HttpClientBuilder
  * @see com.chua.common.support.network.client.ClientSetting

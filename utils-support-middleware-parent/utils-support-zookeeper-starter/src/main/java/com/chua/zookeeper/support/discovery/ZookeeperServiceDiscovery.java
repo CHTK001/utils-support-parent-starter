@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("zookeeper")

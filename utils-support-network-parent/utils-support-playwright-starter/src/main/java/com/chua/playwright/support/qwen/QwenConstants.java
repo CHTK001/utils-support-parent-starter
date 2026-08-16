@@ -10,7 +10,7 @@ package com.chua.playwright.support.qwen;
  * <br>响应：SSE 流式，{@code phase} 字段区分思考/回答
  *
  * @author CH
- * @since 2026/08/12
+ * @since 4.0.0.42
  */
 public final class QwenConstants {
 

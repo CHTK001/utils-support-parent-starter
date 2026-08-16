@@ -53,7 +53,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2024/5/27
+ * @since 4.0.0.42
  */
 @Spi("pixel")
 @SpiDescribe("像素化滤镜")

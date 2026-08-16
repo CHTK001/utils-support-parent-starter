@@ -6,7 +6,7 @@ package com.chua.common.support.media.ffmpeg;
  * <p>控制编解码器、码率、分辨率、帧率、质量等参数。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class FFmpegOptions {
 

@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @since 2024/7/29
+ * @since 4.0.0.42
  */
 @Slf4j
 public class LaMaOnnxInfer implements AutoCloseable {
@@ -250,8 +250,10 @@ public class LaMaOnnxInfer implements AutoCloseable {
         String[] nameArray = (String[]) ClassUtils.invokeMethod(toArrayMethod, inputNames, String[].class);
 
         if (nameArray.length >= 2) {
-            inputs.put(nameArray[0], imageTensor);  // 通常是"image"
-            inputs.put(nameArray[1], maskTensor);   // 通常是"mask"
+            // 通常是"image"
+            inputs.put(nameArray[0], imageTensor);
+            // 通常是"mask"
+            inputs.put(nameArray[1], maskTensor);
         } else {
             // 如果只有一个输入，可能需要合并image和mask
             inputs.put(nameArray[0], imageTensor);
@@ -281,7 +283,8 @@ public class LaMaOnnxInfer implements AutoCloseable {
             float[] outputData;
 if (tensorValue instanceof float[][][]) {
                 float[][][] output3D = (float[][][]) tensorValue;
-                outputData = flatten3DArray(output3D); // 取第一个batch
+                // 取第一个batch
+                outputData = flatten3DArray(output3D);
             } else if (tensorValue instanceof float[][]) {
                 float[][] output2D = (float[][]) tensorValue;
                 outputData = flatten2DArray(output2D);

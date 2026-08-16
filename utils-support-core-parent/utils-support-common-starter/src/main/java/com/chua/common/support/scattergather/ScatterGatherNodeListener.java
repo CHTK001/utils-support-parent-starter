@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>监听本地查询、远程调用、聚合、重试、故障及降级等全链路事件。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ScatterGatherNodeListener<O> {
 

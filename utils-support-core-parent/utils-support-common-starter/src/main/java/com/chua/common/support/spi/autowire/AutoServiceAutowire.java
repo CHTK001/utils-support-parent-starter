@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
  * 支持 Spring 环境下的自动装配以及自定义的装配器链。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class AutoServiceAutowire implements ServiceAutowire {
 

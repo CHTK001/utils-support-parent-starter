@@ -21,7 +21,7 @@ import java.util.Map;
  * <p>运行在 DataSyncServer 侧，通过 RSocket 管理 Agent 连接，支持 request-stream 拉取数据。</p>
  *
  * @author CH
- * @since 2026-07-20
+ * @since 4.0.0.42
  */
 public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.DefaultDataSyncAgentServer {
 

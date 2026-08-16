@@ -14,7 +14,7 @@ import java.util.List;
  * 通过 {@link #info()} 获取编码、分辨率、时长等信息。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 public class VideoReadBuilder extends ReadBuilder {
 

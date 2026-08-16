@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class LoggingListener implements PipelineListener {
 

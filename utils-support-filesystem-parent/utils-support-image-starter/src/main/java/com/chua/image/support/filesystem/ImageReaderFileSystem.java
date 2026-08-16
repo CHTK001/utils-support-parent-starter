@@ -56,6 +56,7 @@ import java.util.Set;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"jpg", "jpeg", "png", "bmp", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})

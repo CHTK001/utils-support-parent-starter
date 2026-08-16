@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 基于 Redisson RTopic 的 Redis 发布订阅分发器提供者
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis")

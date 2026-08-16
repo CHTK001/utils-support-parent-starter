@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * <p>Server 侧通过 SocketIO 事件与 Agent 交互，支持拉取和推送。</p>
  *
  * @author CH
- * @since 2026-07-20
+ * @since 4.0.0.42
  */
 public class SocketIOAgentDataSyncSource implements DataSyncSource {
 

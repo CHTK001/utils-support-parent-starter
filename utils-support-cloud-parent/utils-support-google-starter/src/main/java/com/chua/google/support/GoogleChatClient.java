@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * 调用 Gemini 系列模型的对话接口，支持 Gemini 1.5 Pro/Flash 等模型。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"google", "gemini"})

@@ -13,7 +13,7 @@ import lombok.SneakyThrows;
  *
  * @author CH
  * @version 1.0.0
- * @since 2025-01-01
+ * @since 4.0.0.42
  */
 @Spi("smile")
 public class SmileSerialization implements Serialization {

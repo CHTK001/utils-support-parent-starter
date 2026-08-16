@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  * 基于 OkHttp3 的 HTTP 客户端执行器
  *
  * @author CH
+ * @since 4.0.0.42
 */
 @Spi("okhttp")
 @ConditionalOnClass("okhttp3.OkHttpClient")

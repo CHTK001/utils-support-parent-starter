@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * </pre>
  *
  * @author CH
- * @since 2026/8/4
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PrometheusExample {

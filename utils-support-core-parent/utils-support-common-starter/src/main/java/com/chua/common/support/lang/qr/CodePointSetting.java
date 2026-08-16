@@ -7,6 +7,7 @@ import lombok.Data;
  * 用于定义二维码生成时码点的样式、颜色、缩放、图像及文本等属性。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class CodePointSetting {

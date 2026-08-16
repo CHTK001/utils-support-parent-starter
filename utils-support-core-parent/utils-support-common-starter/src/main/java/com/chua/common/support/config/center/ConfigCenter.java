@@ -11,6 +11,7 @@ import java.util.Map;
  * 配置按 dataId 和 group 进行隔离，每个 dataId 下包含多个配置项（key-value）。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface ConfigCenter extends AutoCloseable {
 

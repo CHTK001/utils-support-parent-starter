@@ -189,7 +189,8 @@ public final class ProgressSimulator {
             return total;
         }
         double step = Math.max(1e-9, baseStep);
-        double t = total > 0 ? (cur / total) : 0.0; //              [0,1]
+        // 归一化进度，取值范围 [0, 1]
+        double t = total > 0 ? (cur / total) : 0.0;
 
         double speedFactor;
         switch (type) {

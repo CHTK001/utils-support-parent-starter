@@ -4,7 +4,7 @@ package com.chua.datalake.support.spi.pipeline;
  * 管线配置管理 SPI，负责管线配置的持久化和查询。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public interface PipelineManager {
 

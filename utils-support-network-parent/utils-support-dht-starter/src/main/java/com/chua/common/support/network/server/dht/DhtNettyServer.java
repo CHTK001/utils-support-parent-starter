@@ -35,6 +35,7 @@ import java.util.function.BiConsumer;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DhtNettyServer {

@@ -40,6 +40,7 @@ import java.util.Properties;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("redis")
 @Slf4j

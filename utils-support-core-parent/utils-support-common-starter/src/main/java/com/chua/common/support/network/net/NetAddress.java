@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 
 /**
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Accessors(chain = true)

@@ -29,7 +29,7 @@ import java.util.zip.InflaterInputStream;
  * <p>本类线程安全：Cookie 存放于 {@link ConcurrentHashMap}。</p>
  *
  * @author CH
- * @since 1.0
+ * @since 4.0.0.42
  */
 class LanzouHttp {
 

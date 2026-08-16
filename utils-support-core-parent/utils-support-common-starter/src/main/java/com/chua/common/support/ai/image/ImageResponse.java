@@ -11,6 +11,7 @@ import lombok.Data;
  * 调用方通过 {@link ImageClient#queryTask(String)} 获取此对象以判断任务进度和获取图片。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

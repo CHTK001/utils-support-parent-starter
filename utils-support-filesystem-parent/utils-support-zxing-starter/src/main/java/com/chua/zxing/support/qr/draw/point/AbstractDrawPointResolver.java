@@ -13,6 +13,7 @@ import static com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.*;
  * DrawPointResolver接口用于定义绘制点的操作。
  * 规定了一个绘制图形的方法，需要由实现类具体实现绘制的逻辑。
  * @author CH
+ * @since 4.0.0.42
 */
 public abstract class AbstractDrawPointResolver implements DrawPointResolver{
 

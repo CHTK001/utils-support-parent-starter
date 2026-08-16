@@ -6,6 +6,7 @@ import lombok.Data;
  * 二维码定位点配置类。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class CodeEyeSetting {

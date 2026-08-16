@@ -36,6 +36,7 @@ import lombok.Setter;
  * .priorPos(0.5).build();
  * double score = cal.calibrate(0.81); // 约35分（靠近负类）
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Setter

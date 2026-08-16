@@ -11,6 +11,7 @@ import java.util.function.Supplier;
  *
  * @param <T> 提供的元素类型
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 public interface SafeSupplier<T> extends Supplier<T> {

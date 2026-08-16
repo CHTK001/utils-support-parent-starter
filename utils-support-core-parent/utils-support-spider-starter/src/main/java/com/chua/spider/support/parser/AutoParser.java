@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * </ol>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("auto")
@@ -100,7 +100,9 @@ public class AutoParser implements SpiderParser {
      * 截断字符串（保留前 N 个字符，附加 … 提示省略）。
      */
     private static String truncate(String s, int max) {
-        if (s == null) return "";
+        if (s == null) {
+            return "";
+        }
         return s.length() <= max ? s : s.substring(0, max) + "…";
     }
 

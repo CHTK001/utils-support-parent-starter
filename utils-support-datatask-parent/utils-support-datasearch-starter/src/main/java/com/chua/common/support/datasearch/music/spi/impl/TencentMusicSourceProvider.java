@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * 实现QQ音乐平台的搜索、歌单、歌曲详情等功能
  * 
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
 */
 @Spi("tx")
 public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider {

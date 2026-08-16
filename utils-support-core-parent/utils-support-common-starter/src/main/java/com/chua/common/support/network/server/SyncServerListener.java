@@ -5,6 +5,7 @@ package com.chua.common.support.network.server;
  * 同步服务端事件监听器，接收客户端连接、断开和消息事件。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface SyncServerListener {
 

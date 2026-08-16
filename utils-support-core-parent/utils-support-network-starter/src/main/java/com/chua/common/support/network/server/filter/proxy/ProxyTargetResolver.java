@@ -11,7 +11,7 @@ import java.net.InetSocketAddress;
  * 实现与路由策略的解耦。</p>
  *
  * @author CH
- * @since 2026/07/24
+ * @since 4.0.0.42
  */
 @FunctionalInterface
 public interface ProxyTargetResolver {

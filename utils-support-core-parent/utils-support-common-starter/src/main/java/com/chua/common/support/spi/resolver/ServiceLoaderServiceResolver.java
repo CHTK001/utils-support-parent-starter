@@ -20,6 +20,7 @@ import java.util.List;
  * 不通过 ServiceLoader 实例化对象（避免无参构造器要求），由 ServiceProvider 统一用构造参数创建实例。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class ServiceLoaderServiceResolver implements ServiceResolver {
 

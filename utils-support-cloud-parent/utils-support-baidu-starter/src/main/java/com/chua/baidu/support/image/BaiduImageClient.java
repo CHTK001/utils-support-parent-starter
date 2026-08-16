@@ -29,7 +29,7 @@ import java.util.Map;
  * 需要先通过 OAuth 2.0 获取 access_token 后再发起图片生成请求。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"baidu"})

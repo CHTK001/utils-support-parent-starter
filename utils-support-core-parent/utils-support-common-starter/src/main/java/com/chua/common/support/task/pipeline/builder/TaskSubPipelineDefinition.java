@@ -81,6 +81,7 @@ import java.util.function.Consumer;
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0.42
  * @see TaskDefinition#subPipeline(Pipeline)
  */
 public class TaskSubPipelineDefinition {

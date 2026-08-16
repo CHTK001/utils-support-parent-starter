@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @SpiDescribe("负片反转滤镜")
 @Spi("negative")

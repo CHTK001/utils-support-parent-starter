@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * Chronicle Queue 是低延迟、持久化的消息队列，适合金融交易等高性能场景。</p>
  *
  * @author CH
- * @since 4.0.0.41
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("chronicle")

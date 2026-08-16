@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
  * 用于在解析占位符时动态注入或修改配置信息。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface EditPlaceholderResolver extends PlaceholderResolver {
 

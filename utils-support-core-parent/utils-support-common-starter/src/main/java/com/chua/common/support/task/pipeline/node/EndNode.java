@@ -11,6 +11,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  * 可通过 {@link com.chua.common.support.task.pipeline.builder.PipelineBuilder#end(String)} 指定。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class EndNode implements PipelineNode {
 

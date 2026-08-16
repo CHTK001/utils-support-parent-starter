@@ -11,6 +11,7 @@ import java.util.Properties;
  * </p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public class PropertyPlaceholderConfigurerResolver implements PlaceholderResolver {
 

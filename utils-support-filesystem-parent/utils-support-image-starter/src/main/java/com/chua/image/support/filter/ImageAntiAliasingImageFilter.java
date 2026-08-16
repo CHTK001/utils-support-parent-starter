@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
  * 抗锯齿
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Spi("AntiAliasing")
 @SpiDescribe("抗锯齿滤镜")

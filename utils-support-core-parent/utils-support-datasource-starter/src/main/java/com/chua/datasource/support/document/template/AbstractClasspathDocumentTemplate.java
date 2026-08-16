@@ -41,6 +41,13 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
      */
     protected abstract String markdownTemplatePath();
 
+    /**
+     * 渲染 HTML 文档。
+     *
+     * @param data   文档数据
+     * @param config 导出配置
+     * @return HTML 文本
+     */
     @Override
     public String renderHtml(DocumentData data, DocumentExportConfig config) {
         if (config != null && config.getCustomHtmlTemplate() != null && !config.getCustomHtmlTemplate().isBlank()) {
@@ -49,13 +56,20 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         return resolve(loadTemplate(htmlTemplatePath()), buildVariables(data, config));
     }
 
+    /**
+     * 渲染 Markdown 文档。
+     *
+     * @param data   文档数据
+     * @param config 导出配置
+     * @return Markdown 文本
+     */
     @Override
     public String renderMarkdown(DocumentData data, DocumentExportConfig config) {
         return resolve(loadTemplate(markdownTemplatePath()), buildVariables(data, config));
     }
 
     /**
-     * 构建模板变量
+     * 构建模板变量。
      *
      * @param data   文档数据
      * @param config 导出配置
@@ -170,7 +184,9 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
                 tables.add(t);
 
                 String schemaName = table.getSchema();
-                if (schemaName == null) schemaName = "";
+                if (schemaName == null) {
+                    schemaName = "";
+                }
                 if (!schemaName.isEmpty()) {
                     dbCount.merge(schemaName, 1, Integer::sum);
                 }

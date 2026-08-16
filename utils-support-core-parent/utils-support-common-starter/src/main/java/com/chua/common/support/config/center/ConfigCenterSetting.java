@@ -11,6 +11,7 @@ import lombok.Data;
  * 包括服务地址、认证信息、超时配置等。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

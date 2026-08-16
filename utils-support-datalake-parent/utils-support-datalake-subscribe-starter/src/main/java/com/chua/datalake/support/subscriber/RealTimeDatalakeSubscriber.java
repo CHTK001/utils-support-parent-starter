@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  * 实时订阅器：基于 Reactor 推背压处理实时数据流。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {

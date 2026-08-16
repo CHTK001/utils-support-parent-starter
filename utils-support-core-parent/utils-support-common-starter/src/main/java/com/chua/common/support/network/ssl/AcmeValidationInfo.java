@@ -6,6 +6,7 @@ import lombok.Data;
  * ACME 域名验证信息。
  *
  * @author CH
+ * @since 4.0.0.42
  * @version 1.0.0
  */
 @Data

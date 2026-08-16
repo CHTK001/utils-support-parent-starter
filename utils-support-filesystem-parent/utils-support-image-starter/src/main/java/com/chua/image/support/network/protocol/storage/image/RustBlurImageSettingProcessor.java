@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * 使用 Rust 实现的高性能图片模糊处理
  * 
  * @author CH
- * @since 2024/12/17
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "blur", order = 0)

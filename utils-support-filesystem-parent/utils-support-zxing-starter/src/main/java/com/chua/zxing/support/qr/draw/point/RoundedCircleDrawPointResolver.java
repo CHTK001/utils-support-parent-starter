@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
  * 流体风格码点：相邻的点会以“胶囊”连接，形成融合效果
  *
  * @author CH
- * @since 2025/08/09
+ * @since 4.0.0.42
  */
 @Spi("ROUND_DOT")
 public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {

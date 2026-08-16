@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  * <p>基于 Ark SDK 的 {@link ChatClient} 实现，调用豆包系列模型的对话接口。
  *
  * @author CH
- * @since 2026/07/15
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"doubao", "volcengine"})

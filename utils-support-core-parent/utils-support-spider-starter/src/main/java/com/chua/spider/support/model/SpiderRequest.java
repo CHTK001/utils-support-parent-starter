@@ -16,7 +16,7 @@ import java.util.Map;
  * 优先级、爬取深度、代理等信息。通过 Builder 模式构建。</p>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 
 @NoArgsConstructor

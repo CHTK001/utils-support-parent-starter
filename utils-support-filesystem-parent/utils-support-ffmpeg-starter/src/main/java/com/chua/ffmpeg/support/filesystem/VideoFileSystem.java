@@ -17,7 +17,7 @@ import java.io.File;
  * 底层通过 {@link FFmpegProcessor} SPI 进行实际的 FFmpeg 操作。</p>
  *
  * @author CH
- * @since 1.0.0
+ * @since 4.0.0.42
  */
 @Spi("video")
 public class VideoFileSystem implements FileSystem {

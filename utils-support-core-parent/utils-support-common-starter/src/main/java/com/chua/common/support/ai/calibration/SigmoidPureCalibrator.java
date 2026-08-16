@@ -27,6 +27,7 @@ import lombok.Setter;
  * PureCalibrator cal = SigmoidPureCalibrator.builder().k(20).t(0.78).build();
  * double score = cal.calibrate(0.85); // 约90.59
  * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Setter

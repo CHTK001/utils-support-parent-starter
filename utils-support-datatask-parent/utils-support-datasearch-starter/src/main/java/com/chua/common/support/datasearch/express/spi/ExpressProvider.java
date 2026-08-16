@@ -12,7 +12,7 @@ import java.util.List;
  * 具体数据源地址与鉴权通过实现类构造参数注入。
  *
  * @author CH
- * @since 2026/07/27
+ * @since 4.0.0.42
  */
 public interface ExpressProvider {
 

@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * Kafka 分发器提供者，基于 Kafka 实现跨进程的发布订阅。
  *
  * @author CH
- * @since 2025-11-26
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("kafka")

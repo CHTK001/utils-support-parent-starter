@@ -6,6 +6,7 @@ package com.chua.common.support.lang.format;
  * 实现类应提供将输入源字符串转换为特定格式的逻辑。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public interface Formatter {
     /**

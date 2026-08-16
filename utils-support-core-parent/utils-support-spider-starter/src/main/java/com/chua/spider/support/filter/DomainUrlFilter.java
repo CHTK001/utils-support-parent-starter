@@ -25,7 +25,7 @@ import java.util.Set;
  * }</pre>
  *
  * @author CH
- * @since 2026/07/17
+ * @since 4.0.0.42
  */
 @Spi("domain")
 public class DomainUrlFilter implements SpiderUrlFilter {

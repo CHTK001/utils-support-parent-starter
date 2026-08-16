@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  *
  * @param <T> 实体类型
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
 
@@ -29,6 +29,12 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
      */
     private final Class<T> entityClass;
 
+    /**
+     * 构造函数。
+     *
+     * @param engine      引擎实例
+     * @param entityClass 实体类类型
+     */
     public EngineQueryWrapper(AbstractEngine engine, Class<T> entityClass) {
         super(entityClass);
         this.engine = engine;

@@ -4,7 +4,7 @@ package com.chua.common.support.datasearch.video.model;
  * 在线地址线路
  *
  * @author CH
- * @since 2025/9/18 17:25
+ * @since 4.0.0.42
  */
 public class VideoPlayAddressChannel {
 

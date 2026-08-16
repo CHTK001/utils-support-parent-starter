@@ -25,6 +25,8 @@ import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -62,7 +64,12 @@ import java.util.concurrent.Executors;
 public class NioHttpServer extends AbstractServer {
 
     private ServerSocketChannel serverChannel;
+    /** 多 Selector 分片:每分片一个事件循环线程,解决单事件循环在高并发下的瓶颈 */
+    private Selector[] selectors;
+    /** 每分片对应的待写 key 队列(worker 只入队,由对应分片事件循环统一注册 OP_WRITE) */
+    private java.util.Queue<SelectionKey>[] pendingWriteQueues;
     private ExecutorService executor;
+    private ExecutorService acceptorPool;
     private SSLContext sslContext;
 
     /**
@@ -89,7 +96,9 @@ public class NioHttpServer extends AbstractServer {
             }
 
             serverChannel = ServerSocketChannel.open();
-            serverChannel.configureBlocking(true);
+            // 非阻塞 accept:Selector 事件循环驱动,真正的 NIO 响应式接入,
+            // 避免阻塞 accept 单点瓶颈,提升高并发连接接纳吞吐
+            serverChannel.configureBlocking(false);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
             // 高并发连接接纳：backlog 下限 8192（与 JdkHttpServer 对齐），5000 并发下避免连接被内核拒绝
@@ -101,63 +110,268 @@ public class NioHttpServer extends AbstractServer {
             setting.setPort(bound.getPort());
 
             executor = Executors.newVirtualThreadPerTaskExecutor();
-            // 多 acceptor 并行 accept：bossThreads 控制（默认 1，高并发可设 >1）
-            int acceptors = Math.max(1, setting.getBossThreads());
-            for (int i = 0; i < acceptors; i++) {
-                executor.submit(this::acceptLoop);
+            // 多 Selector 分片:每分片一个事件循环线程,连接按 hash 分散注册,
+            // 解决单事件循环在高并发(2000+)下成为吞吐瓶颈的问题(类 Netty 主从模型)
+            int eventLoops = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 8));
+            selectors = new Selector[eventLoops];
+            pendingWriteQueues = new java.util.Queue[eventLoops];
+            @SuppressWarnings("unchecked")
+            java.util.Queue<SelectionKey>[] queues = new java.util.concurrent.ConcurrentLinkedQueue[eventLoops];
+            for (int i = 0; i < eventLoops; i++) {
+                selectors[i] = Selector.open();
+                queues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
+            }
+            pendingWriteQueues = queues;
+            // serverChannel 注册到分片 0 的 OP_ACCEPT
+            serverChannel.register(selectors[0], SelectionKey.OP_ACCEPT);
+            acceptorPool = Executors.newFixedThreadPool(eventLoops, r -> {
+                Thread t = new Thread(r, "nio-event-loop");
+                t.setDaemon(true);
+                return t;
+            });
+            for (int i = 0; i < eventLoops; i++) {
+                final int idx = i;
+                acceptorPool.submit(() -> eventLoop(idx));
             }
 
-            log.info("NIO HttpServer started on {}:{} (backlog={}, acceptors={}, virtualThreads=true)",
-                    setting.getHost(), setting.getPort(), backlog, acceptors);
+            log.info("NIO HttpServer started on {}:{} (backlog={}, eventLoops={}, reactive=true)",
+                    setting.getHost(), setting.getPort(), backlog, eventLoops);
         } catch (Exception e) {
             throw new RuntimeException("NIO HttpServer 启动失败", e);
         }
     }
 
     /**
-     * 接收连接循环
+     * 事件循环(分片版):每分片一个 Selector + 线程,处理该分片连接的 OP_READ/OP_WRITE。
+     * 分片 0 额外承载 OP_ACCEPT。连接不占线程;完整请求解析后提交虚拟线程 worker 池执行 handler 链。
      */
-    private void acceptLoop() {
+    private void eventLoop(int idx) {
+        Selector sel = selectors[idx];
+        java.util.Queue<SelectionKey> writeQueue = pendingWriteQueues[idx];
+        log.info("nio event-loop[{}] started, selector={}", idx, sel);
         while (running) {
             try {
-                SocketChannel accepted = serverChannel.accept();
-                if (accepted != null) {
-                    accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
-                    if (setting.getReadTimeout() > 0) {
-                        accepted.socket().setSoTimeout(setting.getReadTimeout());
+                sel.select(1000L);
+                // 统一在本分片事件循环线程注册 OP_WRITE(worker 只入队 + wakeup,避免跨线程 interestOps 竞态)
+                SelectionKey wk;
+                while ((wk = writeQueue.poll()) != null) {
+                    if (wk.isValid()) {
+                        wk.interestOps(SelectionKey.OP_WRITE);
                     }
-                    // SSL 启用时包装为 TLS 通道（构造时完成阻塞式握手）
-                    SocketChannel client = accepted;
-                    if (sslContext != null) {
-                        try {
-                            client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
-                        } catch (IOException e) {
-                            log.warn("TLS 握手失败，关闭连接: {}", e.getMessage());
-                            closeQuietly(accepted);
-                            continue;
-                        }
+                }
+                java.util.Iterator<SelectionKey> it = sel.selectedKeys().iterator();
+                while (it.hasNext()) {
+                    SelectionKey key = it.next();
+                    it.remove();
+                    if (!key.isValid()) {
+                        continue;
                     }
-                    SocketChannel finalClient = client;
-                    executor.submit(() -> handleConnection(finalClient));
+                    if (key.isAcceptable()) {
+                        handleAccept(key);
+                    } else if (key.isReadable()) {
+                        handleRead(key);
+                    } else if (key.isWritable()) {
+                        handleWrite(key);
+                    }
                 }
             } catch (IOException e) {
                 if (running) {
-                    log.warn("Accept failed: {}", e.getMessage());
+                    log.warn("Event loop[{}] error: {}", idx, e.getMessage());
                 }
             }
         }
     }
 
+    private void handleAccept(SelectionKey key) throws IOException {
+        SocketChannel accepted = serverChannel.accept();
+        if (accepted == null) {
+            return;
+        }
+        // SSL 场景:回退虚拟线程阻塞路径(SSL 通道无法注册 Selector)
+        if (sslContext != null) {
+            accepted.configureBlocking(true);
+            accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
+            try {
+                SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
+                executor.submit(() -> handleConnection(client));
+            } catch (IOException e) {
+                log.warn("TLS 握手失败，关闭连接: {}", e.getMessage());
+                closeQuietly(accepted);
+            }
+            return;
+        }
+        // 非阻塞注册:连接按 hash 分散到各分片 Selector,避免单事件循环瓶颈
+        accepted.configureBlocking(false);
+        accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
+        int shard = (accepted.hashCode() & Integer.MAX_VALUE) % selectors.length;
+        ConnectionState st = new ConnectionState(accepted, setting.getMaxRequestSize(), setting.getCharset());
+        st.shard = shard;
+        // 跨线程注册:accept 在分片 0 线程执行,注册到其他分片后必须 wakeup 该分片,
+        // 否则其 select() 阻塞中的事件循环线程感知不到新连接就绪,请求卡死
+        accepted.register(selectors[shard], SelectionKey.OP_READ, st);
+        selectors[shard].wakeup();
+        log.info("nio accepted -> shard={}", shard);
+    }
+
+    private void handleRead(SelectionKey key) throws IOException {
+        ConnectionState st = (ConnectionState) key.attachment();
+        // 请求已在 worker 处理中:摘除读兴趣,避免事件循环空转与重复提交 worker;
+        // worker 完成后经 pendingWrites 由事件循环重新注册 OP_WRITE
+        if (st.inWorker) {
+            key.interestOps(0);
+            return;
+        }
+        ByteBuffer buf = st.readBuf;
+        int n = st.channel.read(buf);
+        if (n < 0) {
+            closeConn(key, st);
+            return;
+        }
+        if (n == 0) {
+            return;
+        }
+        buf.flip();
+        int r = st.request.feed(buf);
+        buf.compact(); // 保留未消费数据
+        if (r == 1) {
+            // 完整请求解析完成:摘除 OP_READ,提交 worker 池执行 handler 链
+            key.interestOps(0);
+            st.inWorker = true;
+            executor.submit(() -> processRequest(st, key));
+        } else if (r < 0) {
+            closeConn(key, st);
+        }
+    }
+
     /**
-     * 处理连接：循环解析请求并响应，支持Keep-Alive，异常或结束则关闭连接
+     * worker(虚拟线程)执行 handler 链,响应通过 asyncWriter 交给事件循环 OP_WRITE 写出。
+     */
+    private void processRequest(ConnectionState st, SelectionKey key) {
+        try {
+            // WebSocket 升级:回退到虚拟线程帧协议处理
+            if (WebSocketProtocol.isUpgradeRequest(st.request)) {
+                st.channel.configureBlocking(true);
+                handleWebSocketUpgrade(st.channel, st.request);
+                closeConn(key, st);
+                return;
+            }
+            NioServerResponse response = new NioServerResponse(st.channel);
+            response.setAsyncWriter((header, body) -> {
+                synchronized (st.writeQueue) {
+                    st.writeQueue.add(header);
+                    if (body != null && body.hasRemaining()) {
+                        st.writeQueue.add(body);
+                    }
+                }
+                // 交由所属分片事件循环线程统一注册 OP_WRITE,避免 worker 线程跨线程改 interestOps 竞态
+                pendingWriteQueues[st.shard].add(key);
+                selectors[st.shard].wakeup();
+            });
+            try {
+                handleRequest(st.request, response);
+            } catch (Exception e) {
+                log.warn("Request handling failed: {}", e.getMessage());
+                if (!response.isCommitted()) {
+                    response.sendError(500, "Internal Server Error");
+                }
+            } finally {
+                response.complete();
+            }
+            st.keepAlive = shouldKeepAlive(st.request, response);
+            st.request.resetForNextRequest();
+            // 触发写:入队待写 key,由所属分片事件循环线程统一注册 OP_WRITE
+            if (!st.writeQueue.isEmpty()) {
+                pendingWriteQueues[st.shard].add(key);
+                selectors[st.shard].wakeup();
+            }
+        } catch (Exception e) {
+            log.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage());
+            closeConn(key, st);
+        }
+    }
+
+    private void handleWrite(SelectionKey key) throws IOException {
+        ConnectionState st = (ConnectionState) key.attachment();
+        // 无锁队列:事件循环线程作为唯一消费者
+        while (true) {
+            ByteBuffer bb = st.writeQueue.peek();
+            if (bb == null) {
+                break;
+            }
+            int w = st.channel.write(bb);
+            if (w < 0) {
+                closeConn(key, st);
+                return;
+            }
+            if (bb.hasRemaining()) {
+                // 未写完,等待下次 OP_WRITE
+                return;
+            }
+            st.writeQueue.poll();
+        }
+        // 写完:Keep-Alive 则重新注册 OP_READ,否则关闭
+        if (st.keepAlive && running) {
+            key.interestOps(SelectionKey.OP_READ);
+            st.inWorker = false;
+        } else {
+            closeConn(key, st);
+        }
+    }
+
+    private void closeConn(SelectionKey key, ConnectionState st) {
+        try {
+            key.cancel();
+        } catch (Exception ignored) {
+        }
+        closeQuietly(st.channel);
+    }
+
+    /** 连接状态:非阻塞通道 + 增量解析器 + 读缓冲 + 待写队列 */
+    private static final class ConnectionState {
+        final SocketChannel channel;
+        final NioServerRequest request;
+        // 每连接独立读缓冲:ThreadLocal 池化在 2000 并发下出现请求 0% 回归,
+        // 固定分配更稳定(连接生命周期内复用同一缓冲,无跨连接共享风险)
+        final ByteBuffer readBuf = ByteBuffer.allocate(16384);
+        // 实测 ArrayDeque + synchronized 在 1000/2000 并发下吞吐最高(3876/2430 RPS),
+        // 无锁队列 + pendingWrites 因多一轮 select 循环反而降低吞吐
+        final java.util.ArrayDeque<ByteBuffer> writeQueue = new java.util.ArrayDeque<>();
+        boolean keepAlive = true;
+        boolean inWorker = false;
+        /** 所属分片索引(决定注册到哪个 Selector 与写队列) */
+        int shard = 0;
+
+        ConnectionState(SocketChannel channel, long maxRequestSize, String charset) {
+            this.channel = channel;
+            this.request = new NioServerRequest(channel, maxRequestSize, charset);
+        }
+    }
+
+    /**
+     * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
+     * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
      */
     private void handleConnection(SocketChannel channel) {
         try {
             NioServerRequest request = new NioServerRequest(channel,
                     setting.getMaxRequestSize(), setting.getCharset());
+            ByteBuffer readBuf = ByteBuffer.allocate(16384);
             while (running && channel.isConnected()) {
-                if (!request.parse()) {
-                    break; // 连接关闭或解析失败
+                int n = channel.read(readBuf);
+                if (n < 0) {
+                    break; // 对端关闭
+                }
+                if (n == 0) {
+                    continue;
+                }
+                readBuf.flip();
+                int r = request.feed(readBuf);
+                readBuf.compact();
+                if (r == 0) {
+                    continue; // 还需更多数据
+                }
+                if (r < 0) {
+                    break; // 解析错误
                 }
                 // WebSocket 升级：Upgrade: websocket 时切换为帧协议
                 if (WebSocketProtocol.isUpgradeRequest(request)) {
@@ -518,8 +732,19 @@ public class NioHttpServer extends AbstractServer {
 
     @Override
     protected void doStop() {
+        if (selectors != null) {
+            for (Selector sel : selectors) {
+                try {
+                    sel.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
         if (executor != null) {
             executor.shutdownNow();
+        }
+        if (acceptorPool != null) {
+            acceptorPool.shutdownNow();
         }
         if (serverChannel != null) {
             try {

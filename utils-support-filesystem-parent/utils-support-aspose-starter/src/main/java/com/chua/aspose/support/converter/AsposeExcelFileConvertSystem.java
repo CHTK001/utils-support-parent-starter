@@ -21,6 +21,7 @@ import java.util.Map;
  * <p>支持 xls/xlsx/xlsm/xlsb 的相互转换，以及转换为 pdf/csv/html/json/markdown 等格式。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("aspose-excel")
