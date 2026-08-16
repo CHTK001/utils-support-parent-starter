@@ -14,11 +14,13 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.FaceQualityInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -652,7 +654,16 @@ public class FacePipeline {
                 .decision("hasFace", ctx -> current(ctx).currentFace() != null ? NODE_LIVENESS : NODE_END)
                 .task(NODE_LIVENESS, ctx -> {
                     FaceContext fc = current(ctx);
-                    LivenessResult lr = evaluateLiveness(fc.currentFace());
+                    // 活体检测用外扩 100% 的头部区域（FLRGB 等需含上下文，紧贴框会误判）
+                    byte[] liveFace = fc.currentFace();
+                    PredictRectangle box = fc.currentBox();
+                    if (liveFace != null && box != null && liveness != null) {
+                        byte[] expanded = expandFaceCrop(fc.imageData(), box);
+                        if (expanded != null) {
+                            liveFace = expanded;
+                        }
+                    }
+                    LivenessResult lr = evaluateLiveness(liveFace);
                     fc.currentLive(lr.live(), lr.score());
                     return null;
                 }).taskEnd()
@@ -1343,6 +1354,45 @@ public class FacePipeline {
             return new Point(x / count, y / count);
         }
         return null;
+    }
+
+    /**
+     * 外扩 100% 裁剪人脸区域（AIAS 同款），供活体检测等需要上下文的能力使用。
+     *
+     * @param imageData 原图
+     * @param box       人脸框（像素）
+     * @return 外扩裁剪图，越界或失败返回 null
+     */
+    private static byte[] expandFaceCrop(byte[] imageData, PredictRectangle box) {
+        if (imageData == null || box == null) {
+            return null;
+        }
+        try {
+            Mat src = OpenCvImageUtils.decode(imageData);
+            if (src == null || src.empty()) {
+                return null;
+            }
+            int iw = src.cols(), ih = src.rows();
+            int x1 = (int) box.x(), y1 = (int) box.y();
+            int x2 = x1 + (int) box.width(), y2 = y1 + (int) box.height();
+            int newX1 = Math.max((int) (x1 + x1 * 0.5f - x2 * 0.5f), 0);
+            int newX2 = Math.min((int) (x2 + x2 * 0.5f - x1 * 0.5f), iw - 1);
+            int newY1 = Math.max((int) (y1 + y1 * 0.5f - y2 * 0.5f), 0);
+            int newY2 = Math.min((int) (y2 + y2 * 0.5f - y1 * 0.5f), ih - 1);
+            int cw = newX2 - newX1, ch = newY2 - newY1;
+            if (cw <= 0 || ch <= 0) {
+                src.release();
+                return null;
+            }
+            Mat sub = new Mat(src, new Rect(newX1, newY1, cw, ch));
+            byte[] result = OpenCvImageUtils.encode(sub);
+            sub.release();
+            src.release();
+            return result;
+        } catch (Exception e) {
+            log.warn("[face-pipeline] 活体外扩裁剪失败: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**

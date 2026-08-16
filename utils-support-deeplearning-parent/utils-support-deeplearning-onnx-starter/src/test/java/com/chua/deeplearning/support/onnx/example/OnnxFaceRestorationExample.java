@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ONNX 人脸链路验证：onnx-retinaface 检测(5点) → 子图外扩 → 5点对齐 → onnx-parsenet 分割 → 逆仿射贴回原图。
+ * ONNX 人脸链路验证：onnx-retinaface 检测(5点) → 子图外扩 → 5点对齐 →
+ * onnx-gfpgan 修复 → onnx-parsenet 分割 → 逆仿射贴回原图。
  *
- * <p>验证 AIAS traced 模型转 ONNX 后与 PT 版本一致性（检测框/关键点/mask）。</p>
+ * <p>全链路 ONNX 引擎（gfpgan 为重写 forward 结构版，规避 double 计算域，无偏色）。</p>
  *
  * <pre>{@code
  *   OnnxFaceRestorationExample G:\images\三个人.jpg
@@ -81,6 +82,7 @@ public final class OnnxFaceRestorationExample {
         System.out.println("[detect] 已输出: " + detectOut);
         draw.release();
 
+        ImageEnhancer gfpgan = ImageEnhancer.create("onnx-gfpgan");
         ImageEnhancer parsenet = ImageEnhancer.create("onnx-parsenet");
 
         for (int i = 0; i < boxes.size(); i++) {
@@ -117,10 +119,19 @@ public final class OnnxFaceRestorationExample {
             Files.write(alignOut, OpenCvImageUtils.encode(aligned));
             System.out.println("[align] #" + i + " 已输出: " + alignOut);
 
-            // onnx parsenet 分割
+            // onnx-gfpgan 修复（重写结构版，无偏色）
             byte[] face = OpenCvImageUtils.encode(aligned);
+            long t1 = System.currentTimeMillis();
+            byte[] restored = gfpgan.enhance(face);
+            Path restoreOut = Path.of(OUT_DIR, "onnx_face" + i + "_restore.png");
+            Files.write(restoreOut, restored);
+            System.out.println("[gfpgan] #" + i + " 模型=onnx-gfpgan 耗时="
+                    + (System.currentTimeMillis() - t1) + "ms 已输出: " + restoreOut);
+            Mat restoredMat = OpenCvImageUtils.decode(restored);
+
+            // onnx parsenet 分割
             long t2 = System.currentTimeMillis();
-            byte[] maskBytes = parsenet.enhance(face);
+            byte[] maskBytes = parsenet.enhance(restored);
             Mat softMask = OpenCvImageUtils.decode(maskBytes);
             if (softMask.channels() > 1) {
                 Mat g = new Mat();
@@ -133,12 +144,13 @@ public final class OnnxFaceRestorationExample {
             System.out.println("[parsenet] #" + i + " 模型=onnx-parsenet 耗时="
                     + (System.currentTimeMillis() - t2) + "ms 已输出: " + maskOut);
 
-            // 贴回（无修复，直接用对齐人脸贴回，验证 mask 逆变换）
-            Mat pasted = OpenCvImageUtils.pasteFace(src, aligned, softMask, affine);
+            // 贴回（修复后人脸 + mask 逆仿射融合）
+            Mat pasted = OpenCvImageUtils.pasteFace(src, restoredMat, softMask, affine);
             Path pasteOut = Path.of(OUT_DIR, "onnx_face" + i + "_pasted.png");
             Files.write(pasteOut, OpenCvImageUtils.encode(pasted));
             System.out.println("[paste] #" + i + " 已输出: " + pasteOut);
 
+            restoredMat.release();
             pasted.release();
             softMask.release();
             aligned.release();
