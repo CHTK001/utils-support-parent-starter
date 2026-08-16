@@ -82,8 +82,16 @@ public class SslSocketChannel extends SocketChannel {
         this.engine = engine;
         // 64KB 缓冲足以容纳任意单条 TLS 记录（最大 16KB + 附加开销）
         this.netIn = ByteBuffer.allocate(64 * 1024);
+        // 关键:初始置为空读模式(limit=0),否则 hasRemaining() 恒为 true,
+        // 握手 NEED_UNWRAP 分支会误以为已有数据而跳过 readNet() 读取真实 ClientHello,
+        // 直接 unwrap 从未填充的全零缓冲 → "Unrecognized SSL message, plaintext connection?"
+        this.netIn.limit(0);
         this.netOut = ByteBuffer.allocate(64 * 1024);
         this.appOut = ByteBuffer.allocate(64 * 1024);
+        // 关键:appOut 同样初始置为空读模式(limit=0),否则 read() 中
+        // "if (appOut.hasRemaining()) return copy(appOut, dst)" 会把空缓冲当解密明文,
+        // 复制 16KB 全零数据 → feed 解析失败 → "HTTP/1.1 header parser received no bytes"
+        this.appOut.limit(0);
         handshake();
     }
 
@@ -136,7 +144,10 @@ public class SslSocketChannel extends SocketChannel {
             if (!netIn.hasRemaining() && !readNet()) {
                 return -1;
             }
+            // appOut 生命周期:clear(可写) → unwrap(写入明文) → flip(可读) → copy 消费
+            appOut.clear();
             SSLEngineResult r = engine.unwrap(netIn, appOut);
+            appOut.flip();
             switch (r.getStatus()) {
                 case OK -> {
                     if (r.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_TASK) {
@@ -157,7 +168,7 @@ public class SslSocketChannel extends SocketChannel {
                     }
                 }
                 case BUFFER_OVERFLOW -> {
-                    // 防御性处理：明文缓冲满时先交付上层
+                    // 明文缓冲已满且未消费:flip 后可读,交付上层
                     if (appOut.hasRemaining()) {
                         return copy(appOut, dst);
                     }

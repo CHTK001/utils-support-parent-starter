@@ -202,13 +202,18 @@ public class NioHttpServer extends AbstractServer {
         if (sslContext != null) {
             accepted.configureBlocking(true);
             accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
-            try {
-                SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
-                executor.submit(() -> handleConnection(client));
-            } catch (IOException e) {
-                log.warn("TLS 握手失败，关闭连接: {}", e.getMessage());
-                closeQuietly(accepted);
-            }
+            // 握手与连接处理整体移入虚拟线程 worker:在事件循环线程内构造 SslSocketChannel
+            // 会执行阻塞握手(readNet 等待 ClientHello),占住事件循环导致偶发/稳定握手失败
+            // (Unrecognized SSL message),且阻塞其他连接的 accept/read 处理
+            executor.submit(() -> {
+                try {
+                    SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
+                    handleConnection(client);
+                } catch (IOException e) {
+                    log.warn("TLS 握手失败，关闭连接: {}", e.getMessage());
+                    closeQuietly(accepted);
+                }
+            });
             return;
         }
         // 非阻塞注册:连接按 hash 分散到各分片 Selector,避免单事件循环瓶颈
