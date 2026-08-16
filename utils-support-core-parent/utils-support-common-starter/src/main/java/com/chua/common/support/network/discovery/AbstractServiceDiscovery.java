@@ -120,8 +120,9 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
      * @param protocol 协议类型
      * @return 组合后的缓存键字符串
      */
-    private String buildCacheKey(String path, String balance, String protocol) {
-        return path + "#" + (balance != null ? balance : "weight") + "#" + (protocol != null ? protocol : "");
+    private String buildCacheKey(String path, String scatterId, String balance, String protocol) {
+        return path + "#" + (scatterId != null ? scatterId : "") + "#"
+                + (balance != null ? balance : "weight") + "#" + (protocol != null ? protocol : "");
     }
 
     // ======================== 子类查询钩子 ========================
@@ -182,7 +183,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
      * @return 选中的服务实例，若无可用服务则返回null
      */
     @Override
-    public Discovery getService(String path, String balance, String protocol) {
+    public Discovery getService(String path, String scatterId, String balance, String protocol) {
         String prefixedPath = addClusterPrefix(path);
         String normalizedPath = StringUtils.startWithAppend(prefixedPath, "/");
         Set<Discovery> services = getPath(normalizedPath);
@@ -194,7 +195,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
             balance = "weight";
         }
 
-        String cacheKey = buildCacheKey(normalizedPath, balance, protocol);
+        String cacheKey = buildCacheKey(normalizedPath, scatterId, balance, protocol);
         long currentVersion = serviceVersion.get();
         CachedLoadBalance cached = loadBalanceCache.get(cacheKey);
         // 如果缓存存在且版本匹配，直接使用缓存的负载均衡器选择节点
@@ -213,6 +214,10 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         for (Discovery d : services) {
             // 如果指定了协议，则只添加匹配协议的服务
             if (StringUtils.isNotBlank(protocol) && !protocol.equalsIgnoreCase(d.getProtocol())) {
+                continue;
+            }
+            // scatterId 业务隔离:仅纳入相同分组的节点
+            if (StringUtils.isNotBlank(scatterId) && !scatterId.equals(d.getScatterId())) {
                 continue;
             }
             Node node = new Node(d);

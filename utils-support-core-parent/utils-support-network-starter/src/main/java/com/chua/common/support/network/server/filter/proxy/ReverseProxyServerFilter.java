@@ -131,7 +131,16 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
             return;
         }
 
-        handleHttpProxyAsync(request, response, host, port, scheme);
+        // 同步链(jdk/nio 阻塞模式):必须阻塞等待异步转发完成,否则链继续执行会立即
+        // end()(ended=true),异步回调中 "if (!response.isEnded())" 跳过 setBody → 响应体丢失
+        try {
+            handleHttpProxyAsync(request, response, host, port, scheme)
+                    .get(timeoutSeconds, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            log.warn("[network-proxy] HTTP 反向代理超时: {}", e.getMessage());
+        } catch (Exception e) {
+            log.warn("[network-proxy] HTTP 反向代理异常: {}", e.getMessage());
+        }
     }
 
     /**
