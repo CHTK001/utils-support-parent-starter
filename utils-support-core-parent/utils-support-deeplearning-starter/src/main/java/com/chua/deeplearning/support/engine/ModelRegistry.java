@@ -55,10 +55,20 @@ public final class ModelRegistry {
      */
     private static final String DEFAULT_MODEL_ROOT_DIR = "models/onnx";
 
+    /**
+     * 系统属性：模型根目录
+     */
+    private static final String PROP_MODEL_ROOT_DIR = "deeplearning.model.root-dir";
+
+    /**
+     * 系统属性：模型下载缓存目录
+     */
+    private static final String PROP_MODEL_CACHE_DIR = "deeplearning.model.cache-dir";
+
     private static final Map<String, Entry> REGISTRY = new ConcurrentHashMap<>();
     private static final Map<String, Path> CLASSPATH_CACHE = new ConcurrentHashMap<>();
-    private static volatile String modelRootDir = DEFAULT_MODEL_ROOT_DIR;
-    private static volatile Path extractRoot = Paths.get(System.getProperty(SYS_TMPDIR), CACHE_DIR_NAME);
+    private static volatile String modelRootDir = initModelRootDir();
+    private static volatile Path extractRoot = initExtractRoot();
     private static volatile ModelDownloader downloader = new DefaultModelDownloader();
 
     /**
@@ -355,6 +365,31 @@ public final class ModelRegistry {
      */
     public static boolean hasCapability(Class<?> capabilityInterface) {
         return !getAllByCapability(capabilityInterface).isEmpty();
+    }
+
+    /**
+     * 初始化模型根目录：优先读系统属性 {@code deeplearning.model.root-dir}，
+     * 未配置时使用默认 {@code models/onnx}（相对当前工作目录）。
+     *
+     * @return 模型根目录
+     */
+    private static String initModelRootDir() {
+        String prop = System.getProperty(PROP_MODEL_ROOT_DIR);
+        return (prop != null && !prop.isBlank()) ? prop.trim() : DEFAULT_MODEL_ROOT_DIR;
+    }
+
+    /**
+     * 初始化模型下载缓存目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时使用 {@code %TEMP%/chua-dl-models}。
+     *
+     * @return 缓存目录
+     */
+    private static Path initExtractRoot() {
+        String prop = System.getProperty(PROP_MODEL_CACHE_DIR);
+        if (prop != null && !prop.isBlank()) {
+            return Paths.get(prop.trim());
+        }
+        return Paths.get(System.getProperty(SYS_TMPDIR), CACHE_DIR_NAME);
     }
 
     /**
