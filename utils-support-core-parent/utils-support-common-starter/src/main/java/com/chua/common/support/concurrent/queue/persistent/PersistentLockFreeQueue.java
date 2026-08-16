@@ -93,6 +93,11 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     private final Path walPath;
 
     /**
+     * meta 文件路径，记录有效写入长度（WAL 之外独立持久化，避免扫描尾部脏数据）
+     */
+    private final Path metaPath;
+
+    /**
      * 是否使用 mmap 模式
      */
     private final boolean useMmap;
@@ -155,6 +160,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         this.useMmap = config.isMmap();
         this.delegate = LockFreeQueueFlow.create(QueueType.UNBOUNDED, 0);
         this.walPath = Path.of(config.getWalDir(), config.getWalFile());
+        this.metaPath = walPath.resolveSibling(walPath.getFileName() + ".meta");
 
         // 创建 WAL 目录
         if (walPath.getParent() != null) {
@@ -399,7 +405,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
                 if (data.length > 0) {
                     mmapBuffer.put(data);
                 }
-                writePosition.set(pos + recordSize);
+                long newPos = pos + recordSize;
+                writePosition.set(newPos);
+                writeMetaLength(newPos);
                 if (config.isSync()) {
                     mmapBuffer.force();
                 }
@@ -412,7 +420,8 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
                 }
                 buf.flip();
                 channel.write(buf);
-                writePosition.addAndGet(recordSize);
+                long newPos = writePosition.addAndGet(recordSize);
+                writeMetaLength(newPos);
                 if (config.isSync()) {
                     channel.force(false);
                 }
@@ -452,5 +461,45 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         }, "wal-flush");
         flushThread.setDaemon(true);
         flushThread.start();
+    }
+
+    /**
+     * 读取 meta 文件中记录的有效写入长度，文件不存在或读取失败时返回 0。
+     *
+     * @return 有效写入长度（字节），无效时返回 0
+     * @throws IOException 读取失败时抛出
+     */
+    private long readMetaLength() throws IOException {
+        if (!Files.exists(metaPath)) {
+            return 0L;
+        }
+        try (FileChannel ch = FileChannel.open(metaPath, StandardOpenOption.READ)) {
+            ByteBuffer buf = ByteBuffer.allocate(Long.BYTES);
+            while (buf.hasRemaining() && ch.read(buf) != -1) {
+                // 循环读取直至读满 8 字节或 EOF
+            }
+            buf.flip();
+            return buf.remaining() == Long.BYTES ? buf.getLong() : 0L;
+        }
+    }
+
+    /**
+     * 写入有效写入长度到 meta 文件（覆盖写入 8 字节 long）。
+     *
+     * @param length 有效写入长度（字节）
+     * @throws IOException 写入失败时抛出
+     */
+    private void writeMetaLength(long length) throws IOException {
+        try (FileChannel ch = FileChannel.open(metaPath,
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ)) {
+            ByteBuffer buf = ByteBuffer.allocate(Long.BYTES);
+            buf.putLong(length);
+            buf.flip();
+            while (buf.hasRemaining()) {
+                ch.write(buf);
+            }
+            ch.truncate(Long.BYTES);
+            ch.force(false);
+        }
     }
 }
