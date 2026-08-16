@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.resolution;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -25,8 +26,11 @@ import java.nio.file.Path;
  * <p>基于 RRDBNet（scale=4）的文字图像盲超分模型，提升模糊文字清晰度，OCR 预处理。
  * 模型 {@code vision/text_restore/textbsr/textbsr.onnx} 由 jar
  * {@code utils-support-models-onnx-textbsr} 提供。输入 {@code input [1,3,H,W]}
- * （OpenCV resize 高 512、归一化 (v/255-0.5)/0.5），输出 {@code output [1,3,H*4,W*4]}
- * 高清图。替代 DJL 版（djl-onnx 不支持 NDArray 张量运算）。</p>
+ * （归一化 (v/255-0.5)/0.5），输出 {@code output [1,3,H*4,W*4]} 高清图。</p>
+ *
+ * <p>模型固定 4x 重建。默认 {@code scale=2}（相对原图 2x）：输入高度按 {@code 原高*2/4} 缩放，
+ * 推理面积约为旧 4x 逻辑的 1/4，速度提升约 4 倍，输出对 OCR 足够清晰。可配置为 4x
+ * 获取更强细节。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,12 +38,54 @@ import java.nio.file.Path;
 @Slf4j
 public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
-    private static final int DETECT_RESOLUTION = 512;
+    /**
+     * 最小输入高度（保底：即使原图很矮，也保证输入不小于该高度，输出至少 4 倍于它，
+     * 避免超分后文字仍模糊）。
+     */
+    private static final int MIN_INPUT_HEIGHT = 24;
 
     /**
-     * resize 后的最大宽度限制（512×2048 输入约需 ~300MB，超宽时整体缩放防内存爆炸）。
+     * 输入宽度上限（超宽文本块按比例整体缩小，防内存爆炸）。
      */
     private static final int MAX_RESIZED_WIDTH = 2048;
+
+    /**
+     * 最终放大倍数（相对原图），默认 2x；可配置为 4x。
+     */
+    private int scale = 2;
+
+    /**
+     * 无参构造（默认 2x）。
+     */
+    public TextBsrTranslator() {
+    }
+
+    /**
+     * 指定放大倍数构造。
+     *
+     * @param scale 放大倍数（1~4）
+     */
+    public TextBsrTranslator(int scale) {
+        this.scale = Math.max(1, Math.min(4, scale));
+    }
+
+    /**
+     * 获取放大倍数。
+     *
+     * @return 放大倍数
+     */
+    public int getScale() {
+        return scale;
+    }
+
+    /**
+     * 设置放大倍数。
+     *
+     * @param scale 放大倍数（1~4）
+     */
+    public void setScale(int scale) {
+        this.scale = Math.max(1, Math.min(4, scale));
+    }
 
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
@@ -94,7 +140,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
     private BufferedImage enhance(byte[] imageData) {
         try {
-            nu.pattern.OpenCV.loadLocally();
+            OpenCvImageUtils.load();
             Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
@@ -102,34 +148,35 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
             try {
                 int srcW = src.cols();
                 int srcH = src.rows();
-                // resize 高到 512，保持比例；限制最大宽度避免超长文本块导致内存爆炸
-                float upScale = (float) DETECT_RESOLUTION / srcH;
-                int resizedW = Math.max(1, (int) (upScale * srcW));
-                if (resizedW > MAX_RESIZED_WIDTH) {
-                    // 超宽时按比例整体缩小（高度随之 < 512），保持内存可控
-                    float shrink = (float) MAX_RESIZED_WIDTH / resizedW;
-                    resizedW = MAX_RESIZED_WIDTH;
-                    upScale = (float) DETECT_RESOLUTION / srcH * shrink;
+                // 模型固定 4x 重建：目标相对原图 scale 倍 → 输入高度 = 原高 * scale / 4。
+                // 例如 scale=2 时输入高度仅原高一半，推理面积降为旧 4x 逻辑的 1/4。
+                int inH = Math.max(MIN_INPUT_HEIGHT, srcH * scale / 4);
+                float inScale = (float) inH / srcH;
+                int inW = Math.max(1, (int) (inScale * srcW));
+                if (inW > MAX_RESIZED_WIDTH) {
+                    // 超宽时按比例整体缩小，保持内存可控
+                    float shrink = (float) MAX_RESIZED_WIDTH / inW;
+                    inW = MAX_RESIZED_WIDTH;
+                    inH = Math.max(1, (int) (inH * shrink));
                 }
-                int targetH = Math.max(1, (int) (upScale * srcH));
 
                 Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(resizedW, targetH), 0, 0, Imgproc.INTER_LINEAR);
+                Imgproc.resize(src, resized, new Size(inW, inH), 0, 0, Imgproc.INTER_LINEAR);
 
-                float[] pixels = new float[3 * targetH * resizedW];
-                for (int y = 0; y < targetH; y++) {
-                    for (int x = 0; x < resizedW; x++) {
+                float[] pixels = new float[3 * inH * inW];
+                for (int y = 0; y < inH; y++) {
+                    for (int x = 0; x < inW; x++) {
                         double[] bgr = resized.get(y, x);
-                        int idx = y * resizedW + x;
+                        int idx = y * inW + x;
                         // RGB 顺序 + 归一化 (v/255 - 0.5) / 0.5
                         pixels[idx] = (((float) bgr[2] / 255.0f) - MEAN[0]) / STD[0];
-                        pixels[idx + targetH * resizedW] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
-                        pixels[idx + 2 * targetH * resizedW] = (((float) bgr[0] / 255.0f) - MEAN[2]) / STD[2];
+                        pixels[idx + inH * inW] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
+                        pixels[idx + 2 * inH * inW] = (((float) bgr[0] / 255.0f) - MEAN[2]) / STD[2];
                     }
                 }
                 resized.release();
 
-                long[] shape = {1, 3, targetH, resizedW};
+                long[] shape = {1, 3, inH, inW};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
                     try (OrtSession.Result result = session.run(java.util.Map.of("input", tensor))) {
                         Object out = result.get(0).getValue();
@@ -143,7 +190,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
                         } else {
                             throw new IllegalArgumentException("TextBSR 输出格式不识别: " + out.getClass());
                         }
-                        return toBufferedImage(output[0], resizedW * 4, targetH * 4);
+                        return toBufferedImage(output[0], inW * 4, inH * 4);
                     }
                 }
             } finally {

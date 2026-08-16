@@ -3,6 +3,8 @@ package com.chua.deeplearning.support.onnx.face;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
+import ai.djl.modality.cv.output.Landmark;
+import ai.djl.modality.cv.output.Point;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
@@ -21,7 +23,10 @@ import java.util.List;
  * SCRFD 2.5G BNKPS              Translator   
  *
  * <p>                            stride   8/16/32       score + bbox + kps   
- *           SCRFD        distance2bbox                          score/bbox                           </p>
+ *           SCRFD        distance2bbox                          score/bbox   </p>
+ *
+ * <p>模型输出 9 个 tensor：score×3 + bbox×3 + kps×3（每点 10 维 = 5 关键点 × 2 坐标），
+ * 关键点用于 5 点仿射对齐（修复/超分/识别前处理）。</p>
  *
  * @author CH
  * @since 2026-04-23
@@ -60,7 +65,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
-        if (list == null || list.size() < 6) {
+        if (list == null || list.size() < 9) {
             return empty();
         }
 
@@ -68,7 +73,8 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         for (int i = 0; i < STRIDES.length; i++) {
             NDArray scoreArray = squeezeBatch(list.get(i));
             NDArray bboxArray = squeezeBatch(list.get(i + STRIDES.length));
-            decodeStride(candidates, scoreArray, bboxArray, STRIDES[i]);
+            NDArray kpsArray = squeezeBatch(list.get(i + STRIDES.length * 2));
+            decodeStride(candidates, scoreArray, bboxArray, kpsArray, STRIDES[i]);
         }
 
         candidates.sort((left, right) -> Double.compare(right.score(), left.score()));
@@ -88,18 +94,20 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
             }
             names.add("face");
             probabilities.add(candidate.score());
-            boxes.add(candidate.rectangle());
+            boxes.add(candidate.landmark());
         }
         return new DetectedObjects(names, probabilities, boxes);
     }
 
-    private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, int stride) {
+    private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray, int stride) {
         float[] scores = scoreArray.toFloatArray();
         float[] boxes = bboxArray.toFloatArray();
+        float[] kps = kpsArray == null ? null : kpsArray.toFloatArray();
         int featureSize = INPUT_SIZE / stride;
         int totalAnchors = featureSize * featureSize * NUM_ANCHORS;
         int scoreLength = Math.min(totalAnchors, scores.length);
         int boxLength = Math.min(totalAnchors, boxes.length / 4);
+        int kpsLength = kps == null ? 0 : Math.min(totalAnchors, kps.length / 10);
         int limit = Math.min(scoreLength, boxLength);
 
         for (int idx = 0; idx < limit; idx++) {
@@ -126,12 +134,20 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
                 continue;
             }
 
-            Rectangle rectangle = new Rectangle(
-                    x1 / INPUT_SIZE,
-                    y1 / INPUT_SIZE,
-                    (x2 - x1) / INPUT_SIZE,
-                    (y2 - y1) / INPUT_SIZE);
-            candidates.add(new Candidate(rectangle, score));
+            // 5 关键点（kps：每点 dx,dy，相对 anchor 中心，10 维）
+            List<Point> points = new ArrayList<>();
+            if (kps != null && idx < kpsLength) {
+                for (int p = 0; p < 5; p++) {
+                    float px = clamp(centerX + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE;
+                    float py = clamp(centerY + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE;
+                    points.add(new Point(px, py));
+                }
+            }
+
+            float nX1 = x1 / INPUT_SIZE, nY1 = y1 / INPUT_SIZE;
+            float nW = (x2 - x1) / INPUT_SIZE, nH = (y2 - y1) / INPUT_SIZE;
+            Landmark landmark = new Landmark(nX1, nY1, nW, nH, points);
+            candidates.add(new Candidate(landmark, score));
         }
     }
 
@@ -154,6 +170,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         return null;
     }
 
-    private record Candidate(Rectangle rectangle, double score) {
+    private record Candidate(Landmark landmark, double score) {
+
+        private Rectangle rectangle() {
+            return landmark;
+        }
     }
 }

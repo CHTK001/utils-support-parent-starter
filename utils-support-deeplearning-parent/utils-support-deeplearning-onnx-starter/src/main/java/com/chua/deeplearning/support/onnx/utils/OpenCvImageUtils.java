@@ -1,8 +1,10 @@
 package com.chua.deeplearning.support.onnx.utils;
 
 import ai.djl.modality.cv.Image;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfDouble;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -22,7 +24,29 @@ import java.io.ByteArrayOutputStream;
  */
 public final class OpenCvImageUtils {
 
+    /**
+     * OpenCV 是否已加载（静态单例，进程内只加载一次）。
+     */
+    private static volatile boolean loaded;
+
     private OpenCvImageUtils() {
+    }
+
+    /**
+     * 确保 OpenCV 已加载（幂等，进程内只加载一次）。
+     *
+     * <p>统一在此管理 {@code nu.pattern.OpenCV.loadLocally()}，
+     * 各 translator 一律调用本方法，避免散落的重复加载。</p>
+     */
+    public static void load() {
+        if (!loaded) {
+            synchronized (OpenCvImageUtils.class) {
+                if (!loaded) {
+                    nu.pattern.OpenCV.loadLocally();
+                    loaded = true;
+                }
+            }
+        }
     }
 
     /**
@@ -60,7 +84,7 @@ public final class OpenCvImageUtils {
      * @return [3, size, size] float 像素
      */
     public static float[] toTensor(Image image, int size, float[] mean, float[] std, boolean centerCrop) {
-        nu.pattern.OpenCV.loadLocally();
+        load();
         BufferedImage buffered = (BufferedImage) image.getWrappedImage();
         if (buffered == null) {
             throw new IllegalStateException("无法获取图像像素: " + image.getClass().getName());
@@ -122,6 +146,148 @@ public final class OpenCvImageUtils {
             return mat;
         } catch (Exception e) {
             throw new IllegalStateException("图像转换失败", e);
+        }
+    }
+
+    /**
+     * 解码 PNG/JPG 字节为 Mat。
+     *
+     * @param imageData 图像字节
+     * @return Mat，解码失败返回 null
+     */
+    public static Mat decode(byte[] imageData) {
+        load();
+        if (imageData == null || imageData.length == 0) {
+            return null;
+        }
+        return org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData),
+                org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+    }
+
+    /**
+     * Mat 编码为 PNG 字节。
+     *
+     * @param mat Mat
+     * @return PNG 字节
+     */
+    public static byte[] encode(Mat mat) {
+        load();
+        MatOfByte mob = new MatOfByte();
+        org.opencv.imgcodecs.Imgcodecs.imencode(".png", mat, mob);
+        return mob.toArray();
+    }
+
+    /**
+     * 图像放大 scale 倍（双线性插值）。
+     *
+     * @param imageData 图像字节
+     * @param scale     缩放倍数
+     * @return 放大后 PNG 字节
+     */
+    public static byte[] upscale(byte[] imageData, double scale) {
+        Mat src = decode(imageData);
+        if (src == null) {
+            return imageData;
+        }
+        Mat out = new Mat();
+        try {
+            Imgproc.resize(src, out, new Size(src.cols() * scale, src.rows() * scale),
+                    0, 0, Imgproc.INTER_CUBIC);
+            return encode(out);
+        } finally {
+            out.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 旋转图像（90/180/270 度）。
+     *
+     * @param imageData 图像字节
+     * @param degree    90/180/270
+     * @return 旋转后 PNG 字节
+     */
+    public static byte[] rotate(byte[] imageData, int degree) {
+        Mat src = decode(imageData);
+        if (src == null) {
+            return imageData;
+        }
+        Mat out = new Mat();
+        try {
+            switch (degree) {
+                case 90 -> Core.rotate(src, out, Core.ROTATE_90_CLOCKWISE);
+                case 270 -> Core.rotate(src, out, Core.ROTATE_90_COUNTERCLOCKWISE);
+                default -> Core.rotate(src, out, Core.ROTATE_180);
+            }
+            return encode(out);
+        } finally {
+            out.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 平均亮度是否低于阈值（深色背景）。
+     *
+     * @param imageData 图像字节
+     * @return true 表示深色背景
+     */
+    public static boolean isDarkBackground(byte[] imageData) {
+        Mat src = decode(imageData);
+        if (src == null) {
+            return false;
+        }
+        Mat gray = new Mat();
+        try {
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+            MatOfDouble mean = new MatOfDouble();
+            MatOfDouble std = new MatOfDouble();
+            try {
+                Core.meanStdDev(gray, mean, std);
+                return mean.get(0, 0)[0] < 128;
+            } finally {
+                mean.release();
+                std.release();
+            }
+        } finally {
+            gray.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 深背景自动反色为白底黑字（提升 OCR 识别率）。
+     *
+     * @param imageData 图像字节
+     * @return 反色后 PNG 字节；浅背景原样返回
+     */
+    public static byte[] invertIfDark(byte[] imageData) {
+        Mat src = decode(imageData);
+        if (src == null) {
+            return imageData;
+        }
+        Mat gray = new Mat();
+        Mat inv = new Mat();
+        try {
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+            MatOfDouble mean = new MatOfDouble();
+            MatOfDouble std = new MatOfDouble();
+            try {
+                Core.meanStdDev(gray, mean, std);
+                double avg = mean.get(0, 0)[0];
+                if (avg >= 128) {
+                    return imageData;
+                }
+                Core.bitwise_not(src, inv);
+                return encode(inv);
+            } finally {
+                mean.release();
+                std.release();
+            }
+        } finally {
+            inv.release();
+            gray.release();
+            src.release();
         }
     }
 }

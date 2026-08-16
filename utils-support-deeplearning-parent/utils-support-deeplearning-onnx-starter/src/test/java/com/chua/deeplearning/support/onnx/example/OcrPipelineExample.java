@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.example;
 
-import com.chua.deeplearning.support.ocr.OcrEngine;
+import com.chua.deeplearning.support.ocr.OcrPipeline;
 import com.chua.deeplearning.support.ocr.OcrResult;
 
 import java.nio.file.Files;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * OCR 完整管线示例（检测 → 矫正 → 修复 → 识别）。
  *
- * <p>验证 {@link OcrEngine} 的完整能力编排：
+ * <p>验证 {@link OcrPipeline} 的完整能力编排：
  * 检测（paddleocrv6-det）→ 方向矫正（pp-word-rotate）→ 文字修复（text-bsr）→ 识别（paddleocrv6-rec）。</p>
  *
  * <pre>{@code
@@ -31,9 +31,9 @@ public final class OcrPipelineExample extends ExampleBase {
         byte[] img = Files.readAllBytes(Path.of(imagePath));
 
         // 完整链路：检测 + 方向矫正 + 识别（medium 精度更高）。
-        // 注：文字修复（restorerModel="text-bsr"）为可选环节，对超长文本块 CPU 推理极慢，
-        // 适合整页/大字模糊场景，逐块实时识别时建议不启用。
-        OcrEngine ocr = OcrEngine.builder()
+        // 注：文字修复（restorerModel="text-bsr"）为可选环节，对裁剪文本块执行 4x 超分，
+        // CPU 逐块推理较慢（21 块约 4 分钟），适合模糊/低清文字场景，实时识别建议不启用。
+        OcrPipeline ocr = OcrPipeline.builder()
                 .detector("paddleocrv6-medium-det")
                 .recognizer("paddleocrv6-medium-rec")
                 .directionModel("pp-word-rotate")

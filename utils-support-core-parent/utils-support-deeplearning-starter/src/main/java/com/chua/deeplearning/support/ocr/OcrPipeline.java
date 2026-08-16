@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * 每个文本块一个独立 {@link PipelineContext}。模型清单通过 {@link #listModels()} 动态获取。</p>
  *
  * <pre>{@code
- * OcrEngine ocr = OcrEngine.builder()
+ * OcrPipeline ocr = OcrPipeline.builder()
  *         .detector("paddleocrv6-det")
  *         .recognizer("paddleocrv6-rec")
  *         .directionModel("pp-word-rotate")   // 可选：方向矫正（180° 翻转）
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * @since 4.0.0.42
  */
 @Slf4j
-public class OcrEngine {
+public class OcrPipeline {
 
     /**
      * 节点：裁剪
@@ -120,7 +120,7 @@ public class OcrEngine {
      * @param restorerModel    文字修复模型（可为 null）
      * @param sortReadingOrder 阅读序
      */
-    public OcrEngine(ImageDetector detector, OcrRecognizer recognizer,
+    public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                      String directionModel, String restorerModel, boolean sortReadingOrder) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
@@ -252,10 +252,10 @@ public class OcrEngine {
         /**
          * 构建。
          *
-         * @return OcrEngine
+         * @return OcrPipeline
          */
-        public OcrEngine build() {
-            return new OcrEngine(detector, recognizer, directionModel, restorerModel, sortReadingOrder);
+        public OcrPipeline build() {
+            return new OcrPipeline(detector, recognizer, directionModel, restorerModel, sortReadingOrder);
         }
     }
 

@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.feature;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
@@ -35,7 +36,7 @@ public class MobileClipImageFeatureTranslator implements Translator<Image, float
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：Image → BufferedImage → Mat → 短边缩放 + 中心裁剪 → CHW 归一化 → float[]
-        nu.pattern.OpenCV.loadLocally();
+        OpenCvImageUtils.load();
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         if (buffered == null) {
             throw new IllegalStateException("无法获取图像像素: " + input.getClass().getName());

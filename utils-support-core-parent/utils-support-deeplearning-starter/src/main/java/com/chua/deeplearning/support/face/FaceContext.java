@@ -76,6 +76,21 @@ public class FaceContext {
     private List<FaceSearchHit> currentHits = List.of();
 
     /**
+     * 当前对齐后人脸图。
+     */
+    private byte[] currentAlignedFace;
+
+    /**
+     * 当前修复后人脸图。
+     */
+    private byte[] currentRestoredFace;
+
+    /**
+     * 当前高清化后人脸图。
+     */
+    private byte[] currentEnhancedFace;
+
+    /**
      * 构造上下文。
      *
      * @param imageData 原始场景图
@@ -128,6 +143,9 @@ public class FaceContext {
         this.currentLiveScore = 1.0f;
         this.currentFeature = null;
         this.currentHits = List.of();
+        this.currentAlignedFace = null;
+        this.currentRestoredFace = null;
+        this.currentEnhancedFace = null;
         return true;
     }
 
@@ -221,6 +239,60 @@ public class FaceContext {
      */
     public List<FaceSearchHit> currentHits() {
         return currentHits;
+    }
+
+    /**
+     * 设置当前对齐后人脸图。
+     *
+     * @param face 对齐人脸图
+     */
+    public void currentAlignedFace(byte[] face) {
+        this.currentAlignedFace = face;
+    }
+
+    /**
+     * 当前对齐后人脸图。
+     *
+     * @return 对齐人脸图
+     */
+    public byte[] currentAlignedFace() {
+        return currentAlignedFace;
+    }
+
+    /**
+     * 设置当前修复后人脸图。
+     *
+     * @param face 修复人脸图
+     */
+    public void currentRestoredFace(byte[] face) {
+        this.currentRestoredFace = face;
+    }
+
+    /**
+     * 当前修复后人脸图。
+     *
+     * @return 修复人脸图
+     */
+    public byte[] currentRestoredFace() {
+        return currentRestoredFace;
+    }
+
+    /**
+     * 设置当前高清化后人脸图。
+     *
+     * @param face 高清人脸图
+     */
+    public void currentEnhancedFace(byte[] face) {
+        this.currentEnhancedFace = face;
+    }
+
+    /**
+     * 当前高清化后人脸图。
+     *
+     * @return 高清人脸图
+     */
+    public byte[] currentEnhancedFace() {
+        return currentEnhancedFace;
     }
 
     /**

@@ -881,6 +881,15 @@ public final class ModelRegistry {
                 }
             }
         }
+
+        /**
+         * 返回内部真实 Translator 实例（初始化后）。
+         *
+         * @return 已初始化的内部 Translator
+         */
+        public ITranslator<Object, Object> unwrap() {
+            return ensure();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -935,6 +944,15 @@ public final class ModelRegistry {
                 } catch (Exception ignored) {
                 }
             }
+        }
+
+        /**
+         * 返回原生 Translator 实例。
+         *
+         * @return 原生 Translator
+         */
+        public ITranslator<?, ?> unwrap() {
+            return translator;
         }
     }
 

@@ -30,6 +30,16 @@ public final class OcrDetDiag {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\车票.png";
         byte[] data = Files.readAllBytes(Path.of(imagePath));
 
+        // 对照 1：ImageDetector 门面（注释掉以隔离状态污染）
+        // try {
+        //     com.chua.deeplearning.support.image.ImageDetector detector =
+        //             com.chua.deeplearning.support.image.ImageDetector.create("paddleocrv6-medium-det");
+        //     java.util.List<com.chua.deeplearning.support.model.DetectionInfo> boxes = detector.detect(data);
+        //     System.out.println("[ImageDetector] 目标数: " + boxes.size());
+        // } catch (Exception e) {
+        //     System.out.println("[ImageDetector] 异常: " + e.getMessage());
+        // }
+
         nu.pattern.OpenCV.loadLocally();
         Mat src = Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.IMREAD_COLOR);
         System.out.println("src: " + src.cols() + "x" + src.rows());
@@ -107,16 +117,31 @@ public final class OcrDetDiag {
                         float[][][] d3 = (float[][][]) out;
                         probs = d3[0];
                     }
+                    float pMax2 = 0;
+                    int over03b = 0;
+                    for (float[] row : probs) {
+                        for (float v : row) {
+                            pMax2 = Math.max(pMax2, v);
+                            if (v > 0.3f) over03b++;
+                        }
+                    }
+                    System.out.println("probs dims=" + probs.length + "x" + probs[0].length
+                            + " max=" + pMax2 + " >0.3=" + over03b + " total=" + (probs.length * probs[0].length));
                     int mapH = probs.length;
                     int mapW = probs[0].length;
                     Mat binary = new Mat(mapH, mapW, org.opencv.core.CvType.CV_8UC1);
+                    byte[] binData = new byte[mapH * mapW];
+                    int white = 0;
                     for (int y = 0; y < mapH; y++) {
                         for (int x = 0; x < mapW; x++) {
                             if (probs[y][x] >= 0.3f) {
-                                binary.put(y, x, (byte) 255);
+                                binData[y * mapW + x] = (byte) 255;
+                                white++;
                             }
                         }
                     }
+                    binary.put(0, 0, binData);
+                    System.out.println("binary white pixels: " + white + " of " + (mapH * mapW));
                     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
                     Mat dilated = new Mat();
                     Imgproc.dilate(binary, dilated, kernel);
