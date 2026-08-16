@@ -188,21 +188,45 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
      */
     private void recover() throws IOException {
         log.info("从 WAL 恢复队列状态: {}", walPath);
+
+        // 检查 meta 文件是否存在，若不存在则视为无有效数据，直接备份并删除 wal
+        if (!Files.exists(metaPath)) {
+            log.warn("meta 文件不存在，跳过恢复，备份 WAL 文件");
+            backupAndCleanup();
+            return;
+        }
+
+        long validLength = readMetaLength();
+        log.info("meta 记录有效长度: {}", validLength);
+        if (validLength <= 0) {
+            log.warn("meta 文件记录有效长度为 0，跳过恢复，备份 WAL 文件并清理 meta");
+            backupAndCleanup();
+            Files.deleteIfExists(metaPath);
+            return;
+        }
+
         try (FileChannel ch = FileChannel.open(walPath, StandardOpenOption.READ)) {
             long fileSize = ch.size();
-            if (fileSize == 0) {
+            if (fileSize == 0 || validLength > fileSize) {
+                log.warn("WAL 文件为空或有效长度超过文件大小，备份并清理");
+                backupAndCleanup();
+                Files.deleteIfExists(metaPath);
                 return;
             }
-            MappedByteBuffer buf = ch.map(FileChannel.MapMode.READ_ONLY, 0, fileSize);
+
+            MappedByteBuffer buf = ch.map(FileChannel.MapMode.READ_ONLY, 0, validLength);
             int recoveredOffers = 0;
             int recoveredPolls = 0;
 
-            while (buf.remaining() >= HEADER_SIZE) {
+            while (buf.position() < validLength) {
+                if (buf.remaining() < HEADER_SIZE) {
+                    break;
+                }
                 int pos = buf.position();
                 byte opType = buf.get();
                 int dataLen = buf.getInt();
 
-                // 数据长度非法或文件截断，停止恢复
+                // 数据长度非法或超出剩余有效区域，停止恢复
                 if (dataLen < 0 || dataLen > buf.remaining()) {
                     buf.position(pos);
                     break;
@@ -227,10 +251,21 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
             log.info("WAL 恢复完成: offer={}, poll={}, 队列剩余={}", recoveredOffers, recoveredPolls, delegate.size());
         }
 
-        // 备份旧日志，避免重复恢复
-        Path backup = walPath.resolveSibling(walPath.getFileName() + ".bak." + System.currentTimeMillis());
-        Files.move(walPath, backup);
-        log.info("旧 WAL 已备份至: {}", backup);
+        backupAndCleanup();
+        Files.deleteIfExists(metaPath);
+    }
+
+    /**
+     * 备份当前 WAL 文件并删除原文件。
+     *
+     * @throws IOException 文件操作失败时抛出
+     */
+    private void backupAndCleanup() throws IOException {
+        if (Files.exists(walPath)) {
+            Path backup = walPath.resolveSibling(walPath.getFileName() + ".bak." + System.currentTimeMillis());
+            Files.move(walPath, backup);
+            log.info("旧 WAL 已备份至: {}", backup);
+        }
     }
 
     /**

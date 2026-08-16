@@ -30,13 +30,16 @@ import java.util.function.Consumer;
 @Slf4j
 public class AgentModelDefinition implements ChatClient {
 
+    /** 默认模型名称 */
     private static final String DEFAULT_MODEL = "router-auto";
 
+    /** 内部 Agent 实例 */
     private final Agent agent;
-    /**
-     * 模型名称
-     */
+
+    /** 模型名称 */
     private String model = DEFAULT_MODEL;
+
+    /** 最近一次 Agent 响应 */
     private AgentResponse lastResponse;
 
     public AgentModelDefinition(Agent agent) {

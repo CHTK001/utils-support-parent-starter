@@ -60,70 +60,47 @@ import java.util.List;
 public class AgentDefinition {
 
     /** Agent 标识 */
-    /**
-     * 标识
-     */
     private final String id;
 
     /** Agent 名称 */
-    /**
-     * 名称
-     */
     private final String name;
 
     /** Agent 描述 */
-    /**
-     * 描述
-     */
     private final String description;
 
     /** Agent 角色 */
-    /**
-     * 角色
-     */
     private final String role;
 
     /** 系统指令（即 system prompt） */
-    /** 系统指令 */
     private final String instruction;
 
     /** 是否允许启用规划 */
-    /** 是否允许规划 */
     private final boolean planning;
 
     /** 是否启用 MCP 工具（默认开启，关闭后 Agent 退化为纯路由模型） */
-    /** 是否启用MCP */
     private final boolean mcp;
 
     /** 是否为主 Agent */
-    /** 是否主Agent */
     private final boolean leader;
 
     /** 已注册的子 Agent 定义列表（仅主 Agent 使用） */
-    /** 子Agent列表 */
     private final List<AgentDefinition> agents;
 
     /** Agent 专属的 MCP 管理器（子 Agent 可独立配置工具集） */
-    /** MCP管理器 */
     private final McpManager mcpManager;
 
     /** Agent 专属的技能管理器（子 Agent 可独立配置技能集） */
-    /** 技能管理器 */
     private final SkillManager skillManager;
 
     /** 自动生成的完整系统提示词（instruction + 子 Agent 路由描述） */
-    /** 完整系统提示词 */
     private final String systemPrompt;
 
     /** 是否启用记忆体（默认开启） */
-    /** 是否启用记忆 */
     private final boolean memory;
 
     /** 记忆体配置 */
-    /** 记忆配置 */
     private final MemoryConfig memoryConfig;
 
-    /** 重试配置 */
     /** 重试配置 */
     private final AgentRetryConfig retryConfig;
 
@@ -136,7 +113,6 @@ public class AgentDefinition {
     private final int maxToolIterations;
 
     /** 上下文压缩配置 */
-    /** 压缩配置 */
     private final AgentCompressionConfig compressionConfig;
 
     /**
@@ -147,11 +123,9 @@ public class AgentDefinition {
     private final int planMaxTask;
 
     /** 调试 Hook */
-    /** 调试Hook */
     private final AgentDebugHook debugHook;
 
     /** 规划 Hook */
-    /** 规划Hook */
     private final AgentPlanHook planHook;
 
     /**
@@ -406,21 +380,69 @@ public class AgentDefinition {
          * 角色
          */
         private String role;
+        /**
+         * 系统指令（即 system prompt）
+         */
         private String instruction;
+        /**
+         * 自动生成的完整系统提示词
+         */
         private String systemPrompt;
+        /**
+         * 是否允许启用规划
+         */
         private boolean planning;
+        /**
+         * 是否启用 MCP 工具
+         */
         private boolean mcp = true;
+        /**
+         * 是否为主 Agent
+         */
         private boolean leader;
+        /**
+         * 已注册的子 Agent 定义列表
+         */
         private final List<AgentDefinition> agents = new ArrayList<>();
+        /**
+         * Agent 专属的 MCP 管理器
+         */
         private McpManager mcpManager;
+        /**
+         * Agent 专属的技能管理器
+         */
         private SkillManager skillManager;
+        /**
+         * 是否启用记忆体
+         */
         private boolean memory = true;
+        /**
+         * 记忆体配置
+         */
         private MemoryConfig memoryConfig;
+        /**
+         * 重试配置
+         */
         private AgentRetryConfig retryConfig;
+        /**
+         * 工具调用最大迭代次数
+         */
         private int maxToolIterations;
+        /**
+         * 上下文压缩配置
+         */
         private AgentCompressionConfig compressionConfig;
+        /**
+         * 规划最大子任务数
+         */
         private int planMaxTask;
+        /**
+         * 调试 Hook
+         */
         private AgentDebugHook debugHook;
+        /**
+         * 规划 Hook
+         */
         private AgentPlanHook planHook;
 
         Builder() {

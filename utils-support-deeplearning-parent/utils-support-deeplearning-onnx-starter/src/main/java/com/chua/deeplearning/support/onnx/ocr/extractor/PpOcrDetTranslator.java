@@ -102,7 +102,37 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         this.session = ortEnv.createSession(modelPath.toString(), opts);
+        // 预热：首次推理初始化 ORT 内部状态，避免首次调用结果异常
+        warmup();
         log.info("[PaddleOCRv6-det] ONNX loaded: {}", modelPath.getFileName());
+    }
+
+    /**
+     * 预热推理（全零小图），确保后续调用稳定。
+     */
+    private void warmup() throws Exception {
+        try {
+            int w = 960;
+            int h = 608;
+            float[] pixels = new float[3 * h * w];
+            long[] shape = {1, 3, h, w};
+            try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
+                Map<String, OnnxTensor> inputs = new HashMap<>();
+                inputs.put("x", tensor);
+                try (OrtSession.Result ignored = session.run(inputs)) {
+                    // warmup 完成
+                }
+                try (OnnxTensor tensor2 = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
+                    Map<String, OnnxTensor> inputs2 = new HashMap<>();
+                    inputs2.put("x", tensor2);
+                    try (OrtSession.Result ignored = session.run(inputs2)) {
+                        // 二次 warmup 确保状态就绪
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("[PaddleOCRv6-det] warmup 跳过: {}", e.getMessage());
+        }
     }
 
     @Override
@@ -111,7 +141,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     @Override
-    public List<DetectionInfo> translate(byte[] imageData) {
+    public synchronized List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();
             return detect(imageData);
@@ -198,7 +228,8 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                             }
                         }
                         log.debug("[PaddleOCRv6-det] probMax={}", pmax);
-                        return boxesFromProbMap(probs, w, h);
+                        // 用概率图实际维度（stride 缩放后），而非输入宽高
+                        return boxesFromProbMap(probs, probs[0].length, probs.length);
                     }
                 }
             } finally {
@@ -233,7 +264,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         List<DetectionInfo> result = new ArrayList<>();
         for (MatOfPoint contour : contours) {
             Rect rect = Imgproc.boundingRect(contour);
-            if (rect.width < 3 || rect.height < 3 || rect.area() < 9) {
+            if (rect.width < 5 || rect.height < 5 || rect.area() < 25) {
                 continue;
             }
             float x1 = rect.x * scaleX;

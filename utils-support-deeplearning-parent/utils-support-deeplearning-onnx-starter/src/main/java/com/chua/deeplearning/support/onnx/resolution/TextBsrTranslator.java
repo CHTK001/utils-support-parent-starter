@@ -35,6 +35,12 @@ import java.nio.file.Path;
 public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
     private static final int DETECT_RESOLUTION = 512;
+
+    /**
+     * resize 后的最大宽度限制（512×2048 输入约需 ~300MB，超宽时整体缩放防内存爆炸）。
+     */
+    private static final int MAX_RESIZED_WIDTH = 2048;
+
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
@@ -96,27 +102,34 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
             try {
                 int srcW = src.cols();
                 int srcH = src.rows();
-                // resize 高到 512，保持比例
+                // resize 高到 512，保持比例；限制最大宽度避免超长文本块导致内存爆炸
                 float upScale = (float) DETECT_RESOLUTION / srcH;
                 int resizedW = Math.max(1, (int) (upScale * srcW));
+                if (resizedW > MAX_RESIZED_WIDTH) {
+                    // 超宽时按比例整体缩小（高度随之 < 512），保持内存可控
+                    float shrink = (float) MAX_RESIZED_WIDTH / resizedW;
+                    resizedW = MAX_RESIZED_WIDTH;
+                    upScale = (float) DETECT_RESOLUTION / srcH * shrink;
+                }
+                int targetH = Math.max(1, (int) (upScale * srcH));
 
                 Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(resizedW, DETECT_RESOLUTION), 0, 0, Imgproc.INTER_LINEAR);
+                Imgproc.resize(src, resized, new Size(resizedW, targetH), 0, 0, Imgproc.INTER_LINEAR);
 
-                float[] pixels = new float[3 * DETECT_RESOLUTION * resizedW];
-                for (int y = 0; y < DETECT_RESOLUTION; y++) {
+                float[] pixels = new float[3 * targetH * resizedW];
+                for (int y = 0; y < targetH; y++) {
                     for (int x = 0; x < resizedW; x++) {
                         double[] bgr = resized.get(y, x);
                         int idx = y * resizedW + x;
                         // RGB 顺序 + 归一化 (v/255 - 0.5) / 0.5
                         pixels[idx] = (((float) bgr[2] / 255.0f) - MEAN[0]) / STD[0];
-                        pixels[idx + DETECT_RESOLUTION * resizedW] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
-                        pixels[idx + 2 * DETECT_RESOLUTION * resizedW] = (((float) bgr[0] / 255.0f) - MEAN[2]) / STD[2];
+                        pixels[idx + targetH * resizedW] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
+                        pixels[idx + 2 * targetH * resizedW] = (((float) bgr[0] / 255.0f) - MEAN[2]) / STD[2];
                     }
                 }
                 resized.release();
 
-                long[] shape = {1, 3, DETECT_RESOLUTION, resizedW};
+                long[] shape = {1, 3, targetH, resizedW};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
                     try (OrtSession.Result result = session.run(java.util.Map.of("input", tensor))) {
                         Object out = result.get(0).getValue();
@@ -130,7 +143,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
                         } else {
                             throw new IllegalArgumentException("TextBSR 输出格式不识别: " + out.getClass());
                         }
-                        return toBufferedImage(output[0], resizedW * 4, DETECT_RESOLUTION * 4);
+                        return toBufferedImage(output[0], resizedW * 4, targetH * 4);
                     }
                 }
             } finally {

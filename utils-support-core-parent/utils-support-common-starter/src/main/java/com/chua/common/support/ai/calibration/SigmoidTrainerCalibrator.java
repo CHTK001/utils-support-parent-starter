@@ -387,8 +387,13 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
      */
     @lombok.Data
     private static class ModelData {
+        /** 算法名称 */
         private String algorithm;
+
+        /** 陡度参数 */
         private double k;
+
+        /** 阈值参数 */
         private double t;
     }
 }

@@ -19,13 +19,28 @@ import com.chua.common.support.ai.chat.ChatClient;
  */
 public class ImageGenerationSpec {
 
+    /** 底层对话客户端 */
     private final ChatClient client;
+
+    /** 生成提示词 */
     private String prompt;
+
+    /** 宽高比 */
     private String ratio;
+
+    /** 生成数量 */
     private int n = 1;
+
+    /** 图像宽度（像素） */
     private int width;
+
+    /** 图像高度（像素） */
     private int height;
+
+    /** 图像质量 */
     private String quality;
+
+    /** 参考图键 */
     private String refImageKey;
 
     public ImageGenerationSpec(ChatClient client) {
