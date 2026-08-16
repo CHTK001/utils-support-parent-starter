@@ -1,150 +1,176 @@
 package com.chua.deeplearning.support.onnx.resolution;
 
-import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.ImageFactory;
-import ai.djl.modality.cv.util.NDImageUtils;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.DataType;
-import ai.djl.ndarray.types.Shape;
-import ai.djl.translate.Batchifier;
-import ai.djl.translate.Translator;
-import ai.djl.translate.TranslatorContext;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtSession;
+import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.nio.FloatBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
- * TextBSR                            
- * <p>
- *                                                             
- *                                                
- * </p>
- * <p>
- *                
- * -                                   
- * -                          
- * -                          
- * </p>
- * <p>
- *                   
- * 1.                                        
- * 2.              [0, 1]
- * 3.           CHW       
- * 4.                
- * </p>
+ * TextBSR 文字超分辨率（ORT 原生 + OpenCV）。
+ *
+ * <p>基于 RRDBNet（scale=4）的文字图像盲超分模型，提升模糊文字清晰度，OCR 预处理。
+ * 模型 {@code vision/text_restore/textbsr/textbsr.onnx} 由 jar
+ * {@code utils-support-models-onnx-textbsr} 提供。输入 {@code input [1,3,H,W]}
+ * （OpenCV resize 高 512、归一化 (v/255-0.5)/0.5），输出 {@code output [1,3,H*4,W*4]}
+ * 高清图。替代 DJL 版（djl-onnx 不支持 NDArray 张量运算）。</p>
  *
  * @author CH
- * @version 4.0.0.32
- * @since 2025/01/26
+ * @since 4.0.0.42
  */
 @Slf4j
-public class TextBsrTranslator implements Translator<Image, Image> {
+public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
-    /**
-     * ND               
-     */
-    private NDManager manager;
+    private static final int DETECT_RESOLUTION = 512;
+    private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
+    private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
-    /**
-     *                
-     */
-    private final int detectResolution = 512;
+    private static final String RESOURCE_BASE = "vision/text_restore/textbsr/";
+    private static final String MODEL_FILE = "textbsr.onnx";
 
-    /**
-     *             
-     *
-     * @param ctx                   
-     */
+    private OrtEnvironment ortEnv;
+    private OrtSession session;
+
+    private synchronized void prepare() throws Exception {
+        if (session != null) {
+            return;
+        }
+        Path tmpDir = Files.createTempDirectory("textbsr-");
+        tmpDir.toFile().deleteOnExit();
+        Path modelDir = tmpDir.resolve("textbsr");
+        Files.createDirectories(modelDir);
+        NativeLoader.of("textbsr")
+                .from(TextBsrTranslator.class.getClassLoader())
+                .basePath(RESOURCE_BASE)
+                .toTarget(modelDir)
+                .glob("*.onnx")
+                .withMd5(true)
+                .extractOnly(true)
+                .load();
+        Path modelPath = modelDir.resolve(MODEL_FILE);
+        if (!Files.isRegularFile(modelPath)) {
+            throw new IllegalArgumentException("TextBSR 模型缺失: " + modelPath);
+        }
+        this.ortEnv = OrtEnvironment.getEnvironment();
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        this.session = ortEnv.createSession(modelPath.toString(), opts);
+        log.info("[TextBSR] ONNX loaded: {}", modelPath.getFileName());
+    }
+
     @Override
-    public void prepare(TranslatorContext ctx) {
-        this.manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch");
-        if (log.isDebugEnabled()) {
-            log.debug("[TextBSR][Translator]               ");
+    public String name() {
+        return "text-bsr";
+    }
+
+    @Override
+    public BufferedImage translate(byte[] imageData) {
+        try {
+            prepare();
+            return enhance(imageData);
+        } catch (Exception e) {
+            throw new RuntimeException("[text-bsr] 文字超分辨率失败: " + e.getMessage(), e);
+        }
+    }
+
+    private BufferedImage enhance(byte[] imageData) {
+        try {
+            nu.pattern.OpenCV.loadLocally();
+            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            if (src == null || src.empty()) {
+                throw new IllegalArgumentException("无法解码图像");
+            }
+            try {
+                int srcW = src.cols();
+                int srcH = src.rows();
+                // resize 高到 512，保持比例
+                float upScale = (float) DETECT_RESOLUTION / srcH;
+                int resizedW = Math.max(1, (int) (upScale * srcW));
+
+                Mat resized = new Mat();
+                Imgproc.resize(src, resized, new Size(resizedW, DETECT_RESOLUTION), 0, 0, Imgproc.INTER_LINEAR);
+
+                float[] pixels = new float[3 * DETECT_RESOLUTION * resizedW];
+                for (int y = 0; y < DETECT_RESOLUTION; y++) {
+                    for (int x = 0; x < resizedW; x++) {
+                        double[] bgr = resized.get(y, x);
+                        int idx = y * resizedW + x;
+                        // RGB 顺序 + 归一化 (v/255 - 0.5) / 0.5
+                        pixels[idx] = (((float) bgr[2] / 255.0f) - MEAN[0]) / STD[0];
+                        pixels[idx + DETECT_RESOLUTION * resizedW] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
+                        pixels[idx + 2 * DETECT_RESOLUTION * resizedW] = (((float) bgr[0] / 255.0f) - MEAN[2]) / STD[2];
+                    }
+                }
+                resized.release();
+
+                long[] shape = {1, 3, DETECT_RESOLUTION, resizedW};
+                try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
+                    try (OrtSession.Result result = session.run(java.util.Map.of("input", tensor))) {
+                        Object out = result.get(0).getValue();
+                        float[][][][] output;
+                        if (out instanceof float[][][][]) {
+                            output = (float[][][][]) out;
+                        } else if (out instanceof float[][][]) {
+                            float[][][] arr = (float[][][]) out;
+                            output = new float[1][][][];
+                            output[0] = arr;
+                        } else {
+                            throw new IllegalArgumentException("TextBSR 输出格式不识别: " + out.getClass());
+                        }
+                        return toBufferedImage(output[0], resizedW * 4, DETECT_RESOLUTION * 4);
+                    }
+                }
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("[text-bsr] 文字超分辨率失败: " + e.getMessage(), e);
         }
     }
 
     /**
-     *                   
-     *
-     * @param ctx                     
-     * @param input             
-     * @return              NDList
+     * 将 ONNX 输出 [3,H*4,W*4]（归一化）转为 BufferedImage。
      */
-    @Override
-    public NDList processInput(TranslatorContext ctx, Image input) {
-        //                   NDArray                        FLOAT32
-        NDArray array = input.toNDArray(this.manager).toType(DataType.FLOAT32, false);
-
-        //                      
-        float upScale = (float) detectResolution / (float) input.getHeight();
-
-        //                                              
-        int resizedWidth = (int) (upScale * input.getWidth());
-
-        //                   
-        array = NDImageUtils.resize(array, resizedWidth, detectResolution);
-
-        //                            0-1      
-        array = array.transpose(2, 0, 1).div(255f);
-
-        //                                  
-        NDArray mean = ctx.getNDManager().create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
-
-        //                                     
-        NDArray std = ctx.getNDManager().create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
-
-        //                         (array - mean) / std
-        array.subi(mean).divi(std);
-
-        if (log.isDebugEnabled()) {
-            log.debug("[TextBSR][Translator]                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+    private BufferedImage toBufferedImage(float[][][] data, int width, int height) {
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float r = (data[0][y][x] * 0.5f + 0.5f) * 255f;
+                float g = (data[1][y][x] * 0.5f + 0.5f) * 255f;
+                float b = (data[2][y][x] * 0.5f + 0.5f) * 255f;
+                int rv = Math.max(0, Math.min(255, Math.round(r)));
+                int gv = Math.max(0, Math.min(255, Math.round(g)));
+                int bv = Math.max(0, Math.min(255, Math.round(b)));
+                img.setRGB(x, y, (rv << 16) | (gv << 8) | bv);
+            }
         }
-
-        return new NDList(array);
-    }
-
-    /**
-     *                   
-     *
-     * @param ctx                    
-     * @param list              NDList
-     * @return                         
-     */
-    @Override
-    public Image processOutput(TranslatorContext ctx, NDList list) {
-        //                         
-        NDArray outputImg = list.singletonOrThrow();
-
-        //                output * 0.5 + 0.5
-        outputImg = outputImg.mul(0.5f).add(0.5f);
-
-        //                   0-1         
-        outputImg = outputImg.clip(0, 1);
-
-        //          0-255                  UINT8      
-        outputImg = outputImg.mul(255.0f).round().toType(DataType.UINT8, false);
-
-        //    NDArray                  
-        Image img = ImageFactory.getInstance().fromNDArray(outputImg);
-
-        //             
-        this.manager.close();
-
-        if (log.isDebugEnabled()) {
-            log.debug("[TextBSR][Translator]                  : width={}, height={}", img.getWidth(), img.getHeight());
-        }
-
         return img;
     }
 
     /**
-     *                   
-     *
-     * @return STACK             
+     * 关闭底层 ONNX Session。
      */
-    @Override
-    public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+    public synchronized void close() {
+        try {
+            if (session != null) {
+                session.close();
+            }
+        } catch (Exception ignore) {
+        }
+        session = null;
+        ortEnv = null;
     }
 }

@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultMcpManager implements McpManager {
 
+    /** MCP 客户端注册表，键为服务端名称 */
     private final Map<String, McpClient> clients = new ConcurrentHashMap<>();
 
     @Override

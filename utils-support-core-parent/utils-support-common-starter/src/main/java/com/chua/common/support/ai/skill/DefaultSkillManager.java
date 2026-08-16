@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultSkillManager implements SkillManager {
 
+    /** 技能注册表，键为技能名称 */
     private final Map<String, SkillDefinition> skills = new ConcurrentHashMap<>();
 
     @Override

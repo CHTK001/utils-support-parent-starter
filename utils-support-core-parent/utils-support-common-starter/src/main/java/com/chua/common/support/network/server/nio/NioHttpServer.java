@@ -261,6 +261,10 @@ public class NioHttpServer extends AbstractServer {
         try {
             // WebSocket 升级:回退到虚拟线程帧协议处理
             if (WebSocketProtocol.isUpgradeRequest(st.request)) {
+                // 通道已注册到 Selector(非阻塞),直接 configureBlocking(true) 会抛
+                // IllegalBlockingModeException(NIO 禁止已注册通道切阻塞模式),导致握手响应写不出、
+                // 客户端报 "HTTP/1.1 header parser received no bytes";先取消注册再切换
+                key.cancel();
                 st.channel.configureBlocking(true);
                 handleWebSocketUpgrade(st.channel, st.request);
                 closeConn(key, st);

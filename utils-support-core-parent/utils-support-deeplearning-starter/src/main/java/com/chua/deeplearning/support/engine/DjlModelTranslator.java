@@ -130,6 +130,20 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
      * @return 适配后的输出
      */
     private Object adaptOutput(Object result) {
+        if (result instanceof ai.djl.modality.cv.Image image) {
+            // 图像输出模型（人脸修复/超分/动漫化等）：转 byte[]（PNG）
+            try {
+                Object wrapped = image.getWrappedImage();
+                if (wrapped instanceof java.awt.image.BufferedImage bufferedImage) {
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                    javax.imageio.ImageIO.write(bufferedImage, "png", baos);
+                    return baos.toByteArray();
+                }
+            } catch (Exception e) {
+                log.warn("[deeplearning-engine] DJL 模型 {} 图像输出转 byte[] 失败: {}", modelName, e.getMessage());
+            }
+            return result;
+        }
         if (result instanceof DetectedObjects detected) {
             List<PredictRectangle> boxes = detected.items().stream()
                     .map(item -> {

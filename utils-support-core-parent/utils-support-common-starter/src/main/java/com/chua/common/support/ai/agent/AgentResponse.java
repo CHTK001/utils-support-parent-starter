@@ -22,12 +22,10 @@ import java.util.Map;
 @Builder
 public class AgentResponse implements Serializable {
 
+    /** 序列化版本号 */
     private static final long serialVersionUID = 1L;
 
     /** Agent 输出文本 */
-    /**
-     * 输出路径
-     */
     private String output;
 
     /** 执行模式 */
