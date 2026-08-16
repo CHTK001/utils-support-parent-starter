@@ -112,7 +112,7 @@ public class NioHttpServer extends AbstractServer {
             executor = Executors.newVirtualThreadPerTaskExecutor();
             // 多 Selector 分片:每分片一个事件循环线程,连接按 hash 分散注册,
             // 解决单事件循环在高并发(2000+)下成为吞吐瓶颈的问题(类 Netty 主从模型)
-            int eventLoops = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 8));
+            int eventLoops = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 2)); // 多分片在快速启停下存在 OP_ACCEPT 感知竞态,上限 2 实测稳定
             selectors = new Selector[eventLoops];
             pendingWriteQueues = new java.util.Queue[eventLoops];
             @SuppressWarnings("unchecked")
@@ -122,8 +122,10 @@ public class NioHttpServer extends AbstractServer {
                 queues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
             }
             pendingWriteQueues = queues;
-            // serverChannel 注册到分片 0 的 OP_ACCEPT
-            serverChannel.register(selectors[0], SelectionKey.OP_ACCEPT);
+            // serverChannel 注册移到事件循环线程 0 内部(eventLoop(0) 启动后自行注册):
+            // 主线程跨线程 register 到 selectors[0] 与事件循环 select() 存在竞态,
+            // 连续启停/快速启停时 OP_ACCEPT 可能不被感知(单 Selector 实验 0 失败证实);
+            // 由事件循环线程自己注册 + select 同线程执行,彻底消除竞态
             acceptorPool = Executors.newFixedThreadPool(eventLoops, r -> {
                 Thread t = new Thread(r, "nio-event-loop");
                 t.setDaemon(true);
@@ -149,6 +151,15 @@ public class NioHttpServer extends AbstractServer {
         Selector sel = selectors[idx];
         java.util.Queue<SelectionKey> writeQueue = pendingWriteQueues[idx];
         log.info("nio event-loop[{}] started, selector={}", idx, sel);
+        // 分片 0 承载 OP_ACCEPT:由本事件循环线程自行注册 serverChannel(与 select 同线程),
+        // 消除主线程跨线程 register 与 select 之间的竞态(连续启停时 OP_ACCEPT 感知不到)
+        if (idx == 0 && serverChannel != null && serverChannel.isOpen()) {
+            try {
+                serverChannel.register(sel, SelectionKey.OP_ACCEPT);
+            } catch (Exception e) {
+                log.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage());
+            }
+        }
         while (running) {
             try {
                 sel.select(1000L);

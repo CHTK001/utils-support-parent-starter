@@ -67,31 +67,26 @@ public final class AgentSystemPromptBuilder {
     /**
      * Markdown 分隔线
      */
-    /** Markdown分隔线 */
     private static final String MD_SEPARATOR = "\n\n---\n";
 
     /**
      * 换行符
      */
-    /** 换行符 */
     private static final String NEW_LINE = "\n";
 
     /**
      * 段标题前缀
      */
-    /** 段标题前缀 */
     private static final String SECTION_PREFIX = "## ";
 
     /**
      * 子标题前缀
      */
-    /** 子标题前缀 */
     private static final String SUB_SECTION_PREFIX = "### ";
 
     /**
      * 技能段标题
      */
-    /** 技能段标题 */
     private static final String SKILLS_HEADER = "## 可用技能";
 
     /**
@@ -103,31 +98,26 @@ public final class AgentSystemPromptBuilder {
     /**
      * 参数表格头
      */
-    /** 参数表格头 */
     private static final String ARG_TABLE_HEADER = "| 参数 | 类型 | 必填 | 说明 |";
 
     /**
      * 参数表格分隔线
      */
-    /** 参数表格分隔线 */
     private static final String ARG_TABLE_SEPARATOR = "|------|------|------|------|";
 
     /**
      * 必填：是
      */
-    /** 必填：是 */
     private static final String REQUIRED_YES = "是";
 
     /**
      * 必填：否
      */
-    /** 必填：否 */
     private static final String REQUIRED_NO = "否";
 
     /**
      * 调用示例前缀
      */
-    /** 调用示例前缀 */
     private static final String CALL_SAMPLE_PREFIX = "**调用示例：**\n```\n";
 
     /**
@@ -177,7 +167,7 @@ public final class AgentSystemPromptBuilder {
     /**
      * 子 Agent 段标题
      */
-    /** 子 Agent 段标题 */\n    private static final String SUB_AGENT_HEADER = "## 可用子 Agent";
+    private static final String SUB_AGENT_HEADER = "## 可用子 Agent";
 
     /**
      * 子 Agent 段说明
@@ -188,44 +178,44 @@ public final class AgentSystemPromptBuilder {
     /**
      * 子 Agent 表格头
      */
-    /** 子 Agent 表格头 */\n    private static final String SUB_AGENT_TABLE_HEADER = "| Agent ID | 名称 | 描述 |";
+    private static final String SUB_AGENT_TABLE_HEADER = "| Agent ID | 名称 | 描述 |";
 
     /**
      * 子 Agent 表格分隔线
      */
-    /** 子 Agent 表格分隔线 */\n    private static final String SUB_AGENT_TABLE_SEPARATOR = "|----------|------|------|";
+    private static final String SUB_AGENT_TABLE_SEPARATOR = "|----------|------|------|";
 
     /**
      * 路由规则标题
      */
-    /** 路由规则标题 */\n    private static final String ROUTE_RULE_HEADER = "## 路由规则";
+    private static final String ROUTE_RULE_HEADER = "## 路由规则";
 
     /**
      * 路由规则条目（按行索引）
      */
-    /** 路由规则1 */\n    private static final String ROUTE_RULE_1 = "1. 分析用户输入，判断最匹配的子 Agent";
-    /** 路由规则2 */\n    private static final String ROUTE_RULE_2 = "2. 在回复中明确输出要使用的 Agent ID";
+    private static final String ROUTE_RULE_1 = "1. 分析用户输入，判断最匹配的子 Agent";
+    private static final String ROUTE_RULE_2 = "2. 在回复中明确输出要使用的 Agent ID";
     private static final String ROUTE_RULE_3 =
             "3. 框架将自动使用该 Agent 的专属 ChatClient、MCP 工具和技能执行任务";
-    /** 路由规则4 */\n    private static final String ROUTE_RULE_4 = "4. 若没有合适的子 Agent，由当前 Agent 直接处理";
+    private static final String ROUTE_RULE_4 = "4. 若没有合适的子 Agent，由当前 Agent 直接处理";
 
     /**
      * 技能调用规则标题
      */
-    /** 技能调用规则标题 */\n    private static final String SKILL_RULE_HEADER = "## 技能调用规则";
+    private static final String SKILL_RULE_HEADER = "## 技能调用规则";
 
     /**
      * 技能调用规则条目（按行索引）
      */
-    /** 技能调用规则1 */\n    private static final String SKILL_RULE_1 = "1. 分析用户请求，判断是否匹配某个技能";
-    /** 技能调用规则2 */\n    private static final String SKILL_RULE_2 = "2. 若匹配，输出 `[SKILL:技能名](参数=值)` 格式的调用指令";
-    /** 技能调用规则3 */\n    private static final String SKILL_RULE_3 = "3. 框架将自动执行对应技能并返回结果";
-    /** 技能调用规则4 */\n    private static final String SKILL_RULE_4 = "4. 若无匹配技能，直接回答用户问题";
+    private static final String SKILL_RULE_1 = "1. 分析用户请求，判断是否匹配某个技能";
+    private static final String SKILL_RULE_2 = "2. 若匹配，输出 `[SKILL:技能名](参数=值)` 格式的调用指令";
+    private static final String SKILL_RULE_3 = "3. 框架将自动执行对应技能并返回结果";
+    private static final String SKILL_RULE_4 = "4. 若无匹配技能，直接回答用户问题";
 
     /**
      * 纯文本模式子 Agent 段说明
      */
-    /** 纯文本子 Agent 说明 */\n    private static final String SUB_AGENT_PLAIN_DESC = "你可以将任务委派给以下子 Agent 执行。";
+    private static final String SUB_AGENT_PLAIN_DESC = "你可以将任务委派给以下子 Agent 执行。";
 
     /**
      * 纯文本路由规则

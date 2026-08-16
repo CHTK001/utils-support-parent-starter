@@ -283,6 +283,14 @@ public class HttpServerResponse implements ServerResponse {
         setContentType("text/event-stream; charset=utf-8");
         setHeader("Cache-Control", "no-cache");
         setHeader("Connection", "keep-alive");
+        exchange.getResponseHeaders().remove("Content-Length");
+        exchange.getResponseHeaders().set("Transfer-Encoding", "chunked");
+        try {
+            exchange.sendResponseHeaders(200, -1);
+            sseOutputStream = exchange.getResponseBody();
+        } catch (IOException e) {
+            throw new RuntimeException("SSE init failed", e);
+        }
         committed = true;
         return this;
     }
