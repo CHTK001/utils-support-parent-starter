@@ -28,6 +28,9 @@ public class ScatterGatherProxyNode implements AutoCloseable {
 
     private final ScatterGatherServiceDiscovery discovery;
     private final TcpProxyServer proxy;
+    private final ScatterGatherSetting setting;
+    private final List<String> servicePaths;
+    private final String scatterId;
 
     public ScatterGatherProxyNode(ScatterGatherSetting setting) throws Exception {
         this(setting, null);
@@ -40,26 +43,17 @@ public class ScatterGatherProxyNode implements AutoCloseable {
      * @param servicePaths 本节点对外提供的服务路径(用于注册到 discovery),可为 null
      */
     public ScatterGatherProxyNode(ScatterGatherSetting setting, List<String> servicePaths) throws Exception {
+        this.setting = setting;
         // ① discovery:hash 交换 + 节点表(无中心化自动发现)
         com.chua.common.support.network.discovery.DiscoveryOption option = new com.chua.common.support.network.discovery.DiscoveryOption();
         option.setAddress(String.join(",", setting.getSeedAddresses()));
         this.discovery = new ScatterGatherServiceDiscovery(option, setting);
         this.discovery.start();
 
-        // ② 注册本节点服务(供集群内其他节点发现)
-        if (servicePaths != null) {
-            for (String path : servicePaths) {
-                Discovery self = Discovery.builder()
-                        .serverId(setting.getNodeId())
-                        .scatterId("default")
-                        .protocol("tcp")
-                        .host(setting.getHost())
-                        .port(setting.getTcpPort())
-                        .weight(1)
-                        .build();
-                this.discovery.registerService(path, self);
-            }
-        }
+        // ② 暂存服务路径与业务分组,self 注册推迟到 start() 后(需实际代理端口)
+        this.servicePaths = servicePaths;
+        this.scatterId = setting.getScatterId() == null || setting.getScatterId().isBlank()
+                ? "default" : setting.getScatterId();
 
         // ③ TCP 代理:按 discovery(scatterId + tcp 协议)解析目标节点并转发
         ServerSetting proxySetting = ServerSetting.defaults();
@@ -68,7 +62,7 @@ public class ScatterGatherProxyNode implements AutoCloseable {
         // 每个服务路径挂一个 resolver;默认解析第一条
         String servicePath = servicePaths == null || servicePaths.isEmpty() ? "/" : servicePaths.get(0);
         this.proxy = new TcpProxyServer(proxySetting,
-                new DiscoveryProxyTargetResolver(this.discovery, servicePath, "default", "weight"));
+                new DiscoveryProxyTargetResolver(this.discovery, servicePath, this.scatterId, "weight"));
     }
 
     /**
@@ -76,6 +70,20 @@ public class ScatterGatherProxyNode implements AutoCloseable {
      */
     public void start() throws Exception {
         proxy.start();
+        // 代理启动后才有实际端口:注册本节点服务(供集群内其他节点发现,按 scatterId 业务分组)
+        if (servicePaths != null) {
+            for (String path : servicePaths) {
+                Discovery self = Discovery.builder()
+                        .serverId(setting.getNodeId())
+                        .scatterId(scatterId)
+                        .protocol("tcp")
+                        .host(setting.getHost())
+                        .port(proxy.getPort())
+                        .weight(1)
+                        .build();
+                this.discovery.registerService(path, self);
+            }
+        }
         log.info("ScatterGatherProxyNode started on {}:{} (discovery + tcp-proxy 共用端口)",
                 proxy.getSetting().getHost(), proxy.getPort());
     }
