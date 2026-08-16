@@ -5,6 +5,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDouble;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -289,5 +290,101 @@ public final class OpenCvImageUtils {
             gray.release();
             src.release();
         }
+    }
+
+    /**
+     * FFHQ 512×512 标准 5 点模板（左眼、右眼、鼻、左嘴角、右嘴角）。
+     */
+    private static final double[][] FACE_TEMPLATE_512 = {
+            {192.98138, 239.94708},
+            {318.90277, 240.1936},
+            {256.63416, 314.01935},
+            {201.26117, 371.41043},
+            {313.08905, 371.15118}
+    };
+
+    /**
+     * 5 点仿射对齐人脸到标准模板（修复/超分前处理，避免拉伸变形）。
+     *
+     * <p>与 AIAS face_restoration_sdk 一致：用 5 点（左眼、右眼、鼻、左嘴角、右嘴角）
+     * 最小二乘估计 2×3 仿射矩阵（SVD 求解超定方程），warpAffine 到 512×512 FFHQ 模板。</p>
+     *
+     * @param src       原图 Mat（BGR）
+     * @param keypoints 源人脸 5 点（像素坐标，顺序：左眼、右眼、鼻、左嘴角、右嘴角）
+     * @param outSize   输出边长（512）
+     * @return 对齐后的 Mat
+     */
+    public static Mat alignFace(Mat src, java.util.List<float[]> keypoints, int outSize) {
+        load();
+        if (keypoints == null || keypoints.size() < 5) {
+            throw new IllegalArgumentException("人脸关键点不足 5 点: " + (keypoints == null ? 0 : keypoints.size()));
+        }
+        Mat affine = estimateAffine5Point(keypoints, FACE_TEMPLATE_512);
+        // 先按 512 模板对齐，再缩放到目标尺寸
+        Mat aligned512 = new Mat();
+        Imgproc.warpAffine(src, aligned512, affine, new Size(512, 512),
+                Imgproc.INTER_CUBIC, 0, new org.opencv.core.Scalar(135, 133, 132));
+        Mat aligned;
+        if (outSize == 512) {
+            aligned = aligned512;
+        } else {
+            aligned = new Mat();
+            Imgproc.resize(aligned512, aligned, new Size(outSize, outSize), 0, 0, Imgproc.INTER_CUBIC);
+            aligned512.release();
+        }
+        affine.release();
+        return aligned;
+    }
+
+    /**
+     * 5 点最小二乘估计仿射矩阵（2×3）。
+     *
+     * <p>仿射模型 y = A·x + t，对 5 点建立超定方程组，用 OpenCV {@code Core.solve}
+     * 求解最小二乘，等价于 AIAS 的 SVD 解法。</p>
+     *
+     * @param srcPoints 源 5 点（像素坐标）
+     * @param dstPoints 目标 5 点（模板坐标）
+     * @return 2×3 仿射矩阵 Mat
+     */
+    public static Mat estimateAffine5Point(java.util.List<float[]> srcPoints, double[][] dstPoints) {
+        // 构造 10 行 × 7 列（6 未知数 + 1 常数）方程
+        Mat a = new Mat(10, 6, org.opencv.core.CvType.CV_64F);
+        Mat b = new Mat(10, 1, org.opencv.core.CvType.CV_64F);
+        for (int i = 0; i < 5; i++) {
+            float sx = srcPoints.get(i)[0];
+            float sy = srcPoints.get(i)[1];
+            double dx = dstPoints[i][0];
+            double dy = dstPoints[i][1];
+            // 行 2i：   a00*sx + a01*sy + a02 = dx
+            a.put(2 * i, 0, sx);
+            a.put(2 * i, 1, sy);
+            a.put(2 * i, 2, 1);
+            a.put(2 * i, 3, 0);
+            a.put(2 * i, 4, 0);
+            a.put(2 * i, 5, 0);
+            b.put(2 * i, 0, dx);
+            // 行 2i+1： a10*sx + a11*sy + a12 = dy
+            a.put(2 * i + 1, 0, 0);
+            a.put(2 * i + 1, 1, 0);
+            a.put(2 * i + 1, 2, 0);
+            a.put(2 * i + 1, 3, sx);
+            a.put(2 * i + 1, 4, sy);
+            a.put(2 * i + 1, 5, 1);
+            b.put(2 * i + 1, 0, dy);
+        }
+        Mat x = new Mat(6, 1, org.opencv.core.CvType.CV_64F);
+        boolean solved = org.opencv.core.Core.solve(a, b, x, org.opencv.core.Core.DECOMP_SVD);
+        if (!solved) {
+            throw new IllegalStateException("仿射矩阵最小二乘求解失败");
+        }
+        double[] xd = new double[6];
+        x.get(0, 0, xd);
+        Mat affine = new Mat(2, 3, org.opencv.core.CvType.CV_64F);
+        affine.put(0, 0, xd[0], xd[1], xd[2]);
+        affine.put(1, 0, xd[3], xd[4], xd[5]);
+        a.release();
+        b.release();
+        x.release();
+        return affine;
     }
 }
