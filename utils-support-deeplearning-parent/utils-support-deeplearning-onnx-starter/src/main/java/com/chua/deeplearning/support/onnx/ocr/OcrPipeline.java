@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr;
-import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;

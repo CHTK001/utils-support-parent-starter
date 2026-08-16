@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.matting.translator;
-import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import ai.djl.modality.cv.BufferedImageFactory;
 import ai.djl.modality.cv.Image;

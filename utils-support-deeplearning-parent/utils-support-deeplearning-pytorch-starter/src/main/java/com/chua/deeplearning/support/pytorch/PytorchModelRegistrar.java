@@ -213,7 +213,7 @@ public class PytorchModelRegistrar implements ModelRegistrar {
         reg("pytorch-gfpgan",
                 "com.chua.deeplearning.support.pytorch.face.resolution.GfpganTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class,
-                ImageEnhancer.class, "face/gfpgan.pt");
+                ImageEnhancer.class, "face/restoration/gfpgan_traced/gfpgan_traced_model.pt");
 
         // 图文超分 / CLIP 图像特征
         reg("pytorch-image-text-sr",
@@ -227,7 +227,7 @@ public class PytorchModelRegistrar implements ModelRegistrar {
 
         // ==================== 人脸检测 ====================
         reg("pytorch-yolo-face", "com.chua.deeplearning.support.pytorch.face.detector.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class, "face/yolo11n-face.pt", "https://huggingface.co/AdamCodd/YOLOv11n-face-detection/resolve/main/model.pt", false, null);
-        reg("pytorch-retinaface", "com.chua.deeplearning.support.pytorch.face.detector.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class, "face/retinaface.pt", "https://huggingface.co/nakamura196/retinaface-r50-onnx/resolve/main/model.pt", false, null);
+        reg("pytorch-retinaface", "com.chua.deeplearning.support.pytorch.face.detector.RetinaFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class, "face/detection/retinaface/retinaface_traced_model.pt");
 
         // ==================== 年龄推算 ====================
         reg("pytorch-age-gender", "com.chua.deeplearning.support.pytorch.face.expression.DenseNetExpressionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "face/age_gender.pt", "https://huggingface.co/onnx-community/age-gender-prediction-ONNX/resolve/main/onnx/model.pt", false, null);

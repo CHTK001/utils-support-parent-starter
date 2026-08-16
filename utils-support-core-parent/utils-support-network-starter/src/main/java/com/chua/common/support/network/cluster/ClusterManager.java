@@ -28,10 +28,16 @@ public class ClusterManager {
 
     private final ScatterGatherServiceDiscovery discovery;
     private final String balance;
+    private final String selfServerId;
 
     public ClusterManager(ScatterGatherServiceDiscovery discovery, String balance) {
+        this(discovery, balance, null);
+    }
+
+    public ClusterManager(ScatterGatherServiceDiscovery discovery, String balance, String selfServerId) {
         this.discovery = discovery;
         this.balance = balance == null || balance.isBlank() ? "weight" : balance;
+        this.selfServerId = selfServerId;
     }
 
     /**
@@ -68,7 +74,24 @@ public class ClusterManager {
      * @return 目标节点,无可用节点返回 null
      */
     public Discovery route(String servicePath, String scatterId, String protocol) {
-        return discovery.getService(servicePath, scatterId, balance, protocol);
+        // 路由排除本节点:避免请求被转发回自身代理造成死循环(404/自旋)。
+        // 本节点注册的 serverId 形如 nodeId-http / nodeId-tcp,故用前缀匹配
+        if (selfServerId == null || selfServerId.isBlank()) {
+            return discovery.getService(servicePath, scatterId, balance, protocol);
+        }
+        Discovery target = null;
+        // 多次尝试,避开本节点
+        for (int attempt = 0; attempt < 5; attempt++) {
+            Discovery d = discovery.getService(servicePath, scatterId, balance, protocol);
+            if (d == null) {
+                return null;
+            }
+            if (!d.getServerId().startsWith(selfServerId)) {
+                return d;
+            }
+            target = d; // 全池只剩自身时,仍返回自身(避免空路由)
+        }
+        return target;
     }
 
     /**
