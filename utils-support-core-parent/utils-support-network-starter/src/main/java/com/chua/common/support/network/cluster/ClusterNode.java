@@ -134,24 +134,40 @@ public class ClusterNode implements AutoCloseable {
         syncServer.addListener(new com.chua.common.support.network.server.SyncServerListener() {
             @Override
             public void onMessage(String clientId, String messageTopic, Object message) {
-                if ("sync/request".equals(messageTopic)
-                        && message instanceof com.chua.common.support.scattergather.ScatterGatherContext ctx) {
-                    try {
-                        java.util.Set<Discovery> services = discovery.getServiceAll(ctx.getPath());
-                        Discovery picked = services.stream().findFirst().orElse(null);
-                        com.chua.common.support.scattergather.ScatterGatherResult<Object> result =
-                                picked != null
-                                        ? com.chua.common.support.scattergather.ScatterGatherResult.success(
-                                                clusterSetting.getNodeId(), picked)
-                                        : com.chua.common.support.scattergather.ScatterGatherResult.failure(
-                                                clusterSetting.getNodeId(), "无服务");
-                        syncServer.send(clientId, "sync/response",
-                                new com.chua.common.support.taskdistribution.scattergather.ScatterGatherResultWithRequestId(
-                                        ctx.getRequestId(), result));
-                        log.debug("ClusterNode 远程查询已响应: {} 服务={}", ctx.getPath(), picked);
-                    } catch (Exception e) {
-                        log.warn("ClusterNode 远程查询处理异常: {}", e.getMessage());
+                if (!"sync/request".equals(messageTopic) || message == null) {
+                    return;
+                }
+                try {
+                    // sync 协议为文本行(topic:payload),payload 是字符串;提取 requestId 与 path
+                    String payload = message.toString();
+                    String requestId = null;
+                    String path = null;
+                    int ri = payload.indexOf("\"requestId\":\"");
+                    if (ri >= 0) {
+                        requestId = payload.substring(ri + 14, payload.indexOf('"', ri + 14));
                     }
+                    int pi = payload.indexOf("\"path\":\"");
+                    if (pi >= 0) {
+                        path = payload.substring(pi + 8, payload.indexOf('"', pi + 8));
+                    }
+                    if (requestId == null || path == null) {
+                        log.warn("ClusterNode 远程查询消息无法解析: {}", payload);
+                        return;
+                    }
+                    java.util.Set<Discovery> services = discovery.getServiceAll(path);
+                    Discovery picked = services.stream().findFirst().orElse(null);
+                    com.chua.common.support.scattergather.ScatterGatherResult<Object> result =
+                            picked != null
+                                    ? com.chua.common.support.scattergather.ScatterGatherResult.success(
+                                            clusterSetting.getNodeId(), picked)
+                                    : com.chua.common.support.scattergather.ScatterGatherResult.failure(
+                                            clusterSetting.getNodeId(), "无服务");
+                    syncServer.send(clientId, "sync/response",
+                            new com.chua.common.support.taskdistribution.scattergather.ScatterGatherResultWithRequestId(
+                                    requestId, result));
+                    log.debug("ClusterNode 远程查询已响应: {} 服务={}", path, picked);
+                } catch (Exception e) {
+                    log.warn("ClusterNode 远程查询处理异常: {}", e.getMessage());
                 }
             }
         });

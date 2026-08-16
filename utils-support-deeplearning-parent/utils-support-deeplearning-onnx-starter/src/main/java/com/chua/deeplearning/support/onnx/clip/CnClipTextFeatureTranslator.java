@@ -47,12 +47,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] inputIds = truncate(encoding.getIds(), TEXT_MAX_LENGTH);
-        long[] attention = new long[inputIds.length];
-        Arrays.fill(attention, 1L);
-        return new NDList(
-                ctx.getNDManager().create(inputIds).expandDims(0),
-                ctx.getNDManager().create(attention).expandDims(0)
-        );
+        return new NDList(ctx.getNDManager().create(inputIds).expandDims(0));
     }
 
     @Override
@@ -85,11 +80,8 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     private static long[] truncate(long[] ids, int maxLen) {
-        if (ids.length <= maxLen) {
-            return ids;
-        }
         long[] out = new long[maxLen];
-        System.arraycopy(ids, 0, out, 0, maxLen);
+        System.arraycopy(ids, 0, out, 0, Math.min(ids.length, maxLen));
         return out;
     }
 }

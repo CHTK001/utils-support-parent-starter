@@ -151,38 +151,37 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             if (!keep) {
                 continue;
             }
-            // 眼睛距离过滤（像素）
-            double eyeDist = Math.sqrt(Math.pow(c.kp[2] - c.kp[0], 2) + Math.pow(c.kp[3] - c.kp[1], 2));
+            // 眼睛距离过滤（关键点归一化，乘图像尺寸转像素）
+            double eyeDist = Math.sqrt(Math.pow(c.kp[2] - c.kp[0], 2) + Math.pow(c.kp[3] - c.kp[1], 2))
+                    * Math.max(width, height);
             if (eyeDist < EYE_DIST_THRESHOLD) {
                 continue;
             }
             List<Point> pts = new ArrayList<>();
             for (int j = 0; j < 5; j++) {
-                pts.add(new Point(c.kp[j * 2] / width, c.kp[j * 2 + 1] / height));
+                pts.add(new Point(c.kp[j * 2], c.kp[j * 2 + 1]));
             }
-            Landmark landmark = new Landmark(c.x / width, c.y / height, c.w / width, c.h / height, pts);
+            // bounds 与关键点均为归一化坐标（adaptOutput 统一乘图像尺寸转像素）
+            Landmark landmark = new Landmark(c.x, c.y, c.w, c.h, pts);
             names.add("face");
             probs.add(c.prob);
             boxes.add(landmark);
         }
-        return new DetectedObjects(names, probs, boxes);
+        DetectedObjects result = new DetectedObjects(names, probs, boxes);
+        return result;
     }
 
     /**
-     * 与原已加入框计算 IoU（像素）。
+     * 与原已加入框计算 IoU（归一化坐标域）。
      */
     private double iouPixels(Candidate c, Rectangle nb) {
-        double nbX = nb.getX() * width;
-        double nbY = nb.getY() * height;
-        double nbW = nb.getWidth() * width;
-        double nbH = nb.getHeight() * height;
         double s1 = c.w * c.h;
-        double s2 = nbW * nbH;
+        double s2 = nb.getWidth() * nb.getHeight();
         double sum = s1 + s2;
-        double left = Math.max(c.x, nbX);
-        double top = Math.max(c.y, nbY);
-        double right = Math.min(c.x + c.w, nbX + nbW);
-        double bottom = Math.min(c.y + c.h, nbY + nbH);
+        double left = Math.max(c.x, nb.getX());
+        double top = Math.max(c.y, nb.getY());
+        double right = Math.min(c.x + c.w, nb.getX() + nb.getWidth());
+        double bottom = Math.min(c.y + c.h, nb.getY() + nb.getHeight());
         if (left >= right || top >= bottom) {
             return 0.0;
         }

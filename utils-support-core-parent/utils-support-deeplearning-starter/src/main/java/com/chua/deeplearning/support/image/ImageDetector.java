@@ -4,6 +4,7 @@ import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
@@ -196,11 +197,29 @@ class DefaultImageDetector implements ImageDetector {
     @Override
     @SuppressWarnings("unchecked")
     public List<DetectionInfo> detect(byte[] imageData) {
-        ITranslator<byte[], List<DetectionInfo>> t =
-                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);
+        ITranslator<byte[], Object> t =
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
-        return t.translate(imageData);
+        Object result = t.translate(imageData);
+        if (result == null) {
+            return List.of();
+        }
+        if (result instanceof List<?> list) {
+            List<DetectionInfo> out = new java.util.ArrayList<>(list.size());
+            for (Object item : list) {
+                if (item instanceof DetectionInfo info) {
+                    out.add(info);
+                } else if (item instanceof PredictRectangle pr) {
+                    out.add(new DetectionInfo(
+                            pr.labelName() == null || pr.labelName().isBlank() ? "detected" : pr.labelName(),
+                            pr.confidence(),
+                            pr.x(), pr.y(), pr.width(), pr.height()));
+                }
+            }
+            return out;
+        }
+        throw new IllegalStateException("模型输出不是检测结果: " + modelName + " -> " + result.getClass());
     }
 }
