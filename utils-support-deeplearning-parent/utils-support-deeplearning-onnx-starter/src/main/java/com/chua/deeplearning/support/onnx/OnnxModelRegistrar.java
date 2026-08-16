@@ -180,7 +180,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文字超分(TextBSR)：文字图片专用超分辨率；适用文档扫描增强
         reg("real-text-image-super-resolution", "com.chua.deeplearning.support.onnx.resolution.RealTextImageSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
         // 文字超分(TextBSR)：文字超分辨率别名；适用文档增强
-        reg("text-bsr", "com.chua.deeplearning.support.onnx.resolution.TextBsrTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
+        reg("text-bsr", "com.chua.deeplearning.support.onnx.resolution.TextBsrTranslator", byte[].class, java.awt.image.BufferedImage.class, Object.class, "vision/text_restore/textbsr/textbsr.onnx");
         // 动漫超分(Waifu2x)：针对动漫/二次元图片的 2x 超分辨率；适用动漫放大、老旧动漫修复
         reg("waifu2x", "com.chua.deeplearning.support.onnx.resolution.Waifu2xTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/waifu2x/waifu2x_noise.onnx", "https://huggingface.co/onnx-community/waifu2x/resolve/main/onnx/model.onnx", false, null);
         // 文档理解(SmolDocling Combined)：端到端文档理解，输入文档图片输出结构化文本（Markdown）；适用发票、报表、合同解析
@@ -358,9 +358,13 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR
-        reg("paddleocrv6-det", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/PP-OCRv6/tiny/det_infer/inference.onnx");
+        reg("paddleocrv6-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/PP-OCRv6/tiny/det_infer/inference.onnx");
         // OCR识别(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字识别；适用移动端 OCR
         reg("paddleocrv6-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/PP-OCRv6/tiny/rec_infer/inference.onnx");
+        // OCR检测(PP-OCRv6-medium)：PaddleOCR v6 中量文字检测，精度更高；适用高精度 OCR
+        reg("paddleocrv6-medium-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetMediumTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/PP-OCRv6/medium/det_infer/inference.onnx");
+        // OCR识别(PP-OCRv6-medium)：PaddleOCR v6 中量文字识别，精度更高；适用高精度 OCR
+        reg("paddleocrv6-medium-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorMediumTranslator", byte[].class, String.class, Object.class, "ocr/PP-OCRv6/medium/rec_infer/inference.onnx");
         // 文档版面分析(DocLayNet)：YOLOv8n 文档版面分析，11 类（文本、表格、图片等），约 6MB；适用文档分类、版面分析
         reg("doc-layout-yolo-imgsz640", "com.chua.deeplearning.support.onnx.layout.doclaynet.DocLayNetYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/layout/doclaynet/model.onnx");
         // 表格检测(YOLOv8n)：YOLOv8n 表格检测，1 类 table，约 6MB；适用表格识别、文档分析
