@@ -37,6 +37,7 @@ public class ClusterNode implements AutoCloseable {
     private final String scatterId;
     private Server httpServer;
     private TcpProxyServer tcpProxy;
+    private com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherNodeServer nodeServer;
     private int httpPort;
     private int tcpPort;
 
@@ -51,6 +52,22 @@ public class ClusterNode implements AutoCloseable {
             option.setAddress(String.join(",", clusterSetting.getSeeds()));
         }
         this.discovery = new ScatterGatherServiceDiscovery(option, clusterSetting.toScatterSetting());
+        // 配置远程客户端:autoDiscovery 依赖它向其他节点拉取服务列表(未配置则默认返回 failure,
+        // 集群节点间服务注册无法互相传播 → 自动发现不收敛)。
+        // TcpScatterGatherRemoteClient 实现 ScatterGatherRemoteClient<Object>,此处适配为 <Discovery>
+        com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherRemoteClient tcpRemote =
+                new com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherRemoteClient(
+                        clusterSetting.toScatterSetting());
+        this.discovery.remoteClient((context, node, timeoutMillis) -> {
+            com.chua.common.support.scattergather.ScatterGatherResult<Object> r =
+                    tcpRemote.invoke(context, node, timeoutMillis);
+            if (r == null || !r.isSuccess() || !(r.getData() instanceof Discovery)) {
+                return com.chua.common.support.scattergather.ScatterGatherResult.failure(
+                        node.getNodeId(), r == null ? "无响应" : r.getErrorMessage());
+            }
+            return com.chua.common.support.scattergather.ScatterGatherResult.success(
+                    node.getNodeId(), (Discovery) r.getData());
+        });
         this.discovery.start();
     }
 
@@ -72,7 +89,9 @@ public class ClusterNode implements AutoCloseable {
                     .port(clusterSetting.getPort()).build();
             ServiceDiscoveryServerFilter discoveryFilter = new ServiceDiscoveryServerFilter(discovery);
             for (String path : paths) {
-                discoveryFilter.addRoute(path + "**", path);
+                // 路由前缀必须带 /**:matchServicePath 仅识别 "/**"/"/*" 结尾或精确前缀
+                // (原 path+"**" 拼出 /api** 永不匹配 → 请求被放行 → 本地无路由 404)
+                discoveryFilter.addRoute(path.endsWith("/") ? path + "**" : path + "/**", path);
             }
             discoveryFilter.setScatterId(scatterId);
             discoveryFilter.setProtocol("http");
@@ -100,6 +119,45 @@ public class ClusterNode implements AutoCloseable {
         }
 
         // ④ 注册本节点服务(HTTP + TCP 双协议,按 scatterId 分组)
+        // ④ 启动 scatter 节点服务:响应其他节点的远程服务拉取(autoDiscovery 的 sync/request),
+        //    否则远程拉取无响应 → 集群节点间服务注册无法互相传播。
+        //    监听端口 = scatterPort(显式)或 port+2,与 HTTP(port)/TCP 代理(port+1)分离
+        int nodeServerPort = clusterSetting.getScatterPort() > 0
+                ? clusterSetting.getScatterPort()
+                : (clusterSetting.getPort() > 0 ? clusterSetting.getPort() + 2 : 0);
+        nodeServer = new com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherNodeServer(
+                clusterSetting.getHost(), nodeServerPort);
+        // 注意:registerHandler 的 SyncMessageListenerAdapter 会丢弃 clientId,无法定向回复;
+        // 需直接用 syncServer.addListener,onMessage 里拿 clientId 回发 ScatterGatherResultWithRequestId
+        // (remoteClient 的 subscribe 回调要求该包装类型,否则 future 永不 complete → invoke 超时)
+        com.chua.common.support.network.server.SyncServer syncServer = nodeServer.getSyncServer();
+        syncServer.addListener(new com.chua.common.support.network.server.SyncServerListener() {
+            @Override
+            public void onMessage(String clientId, String messageTopic, Object message) {
+                if ("sync/request".equals(messageTopic)
+                        && message instanceof com.chua.common.support.scattergather.ScatterGatherContext ctx) {
+                    try {
+                        java.util.Set<Discovery> services = discovery.getServiceAll(ctx.getPath());
+                        Discovery picked = services.stream().findFirst().orElse(null);
+                        com.chua.common.support.scattergather.ScatterGatherResult<Object> result =
+                                picked != null
+                                        ? com.chua.common.support.scattergather.ScatterGatherResult.success(
+                                                clusterSetting.getNodeId(), picked)
+                                        : com.chua.common.support.scattergather.ScatterGatherResult.failure(
+                                                clusterSetting.getNodeId(), "无服务");
+                        syncServer.send(clientId, "sync/response",
+                                new com.chua.common.support.taskdistribution.scattergather.ScatterGatherResultWithRequestId(
+                                        ctx.getRequestId(), result));
+                        log.debug("ClusterNode 远程查询已响应: {} 服务={}", ctx.getPath(), picked);
+                    } catch (Exception e) {
+                        log.warn("ClusterNode 远程查询处理异常: {}", e.getMessage());
+                    }
+                }
+            }
+        });
+        nodeServer.start();
+        log.info("ClusterNode 节点服务启动: {}:{} (scatter 远程查询)", clusterSetting.getHost(), nodeServerPort);
+
         registerSelf(paths);
     }
 
@@ -139,6 +197,12 @@ public class ClusterNode implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        if (nodeServer != null) {
+            try {
+                nodeServer.close();
+            } catch (Exception ignored) {
+            }
+        }
         if (tcpProxy != null) {
             try {
                 tcpProxy.close();

@@ -38,6 +38,9 @@ public class ClusterSetting {
     /** 业务端口(HTTP 与 TCP 共用;0=自动分配) */
     private int port = 0;
 
+    /** scatter 通信端口(NodeServer 监听;0=port+2,与 HTTP/TCP 代理分离) */
+    private int scatterPort = 0;
+
     /** 是否启用 HTTP 代理入口 */
     private boolean httpEnabled = true;
 
@@ -62,7 +65,8 @@ public class ClusterSetting {
         ScatterGatherSetting setting = new ScatterGatherSetting();
         setting.setNodeId(nodeId != null ? nodeId : (host + ":" + port));
         setting.setHost(host);
-        setting.setTcpPort(port);
+        // scatter 通信端口:显式 scatterPort 或默认 port+2,与 HTTP(port)/TCP 代理(port+1)分离
+        setting.setTcpPort(scatterPort > 0 ? scatterPort : (port > 0 ? port + 2 : 0));
         setting.setScatterId(scatterId);
         if (!seeds.isEmpty()) {
             setting.setSeedAddresses(seeds);

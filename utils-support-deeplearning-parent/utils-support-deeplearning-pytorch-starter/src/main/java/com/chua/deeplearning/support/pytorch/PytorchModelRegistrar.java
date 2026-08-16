@@ -214,6 +214,10 @@ public class PytorchModelRegistrar implements ModelRegistrar {
                 "com.chua.deeplearning.support.pytorch.face.resolution.GfpganTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class,
                 ImageEnhancer.class, "face/restoration/gfpgan_traced/gfpgan_traced_model.pt");
+        reg("pytorch-parsenet",
+                "com.chua.deeplearning.support.pytorch.face.seg.FaceSegTranslator",
+                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class,
+                ImageEnhancer.class, "face/segmentation/parsenet_traced_model.pt");
 
         // 图文超分 / CLIP 图像特征
         reg("pytorch-image-text-sr",

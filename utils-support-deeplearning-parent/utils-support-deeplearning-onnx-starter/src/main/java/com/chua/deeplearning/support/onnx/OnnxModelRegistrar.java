@@ -97,6 +97,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("scrfd-face-detector", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/scrfd/2.5g_bnkps.onnx", "https://huggingface.co/RuteNL/SCRFD-face-detection-ONNX/resolve/main/2.5g_bnkps.onnx", false, null);
         // 人脸检测(UltraFace)：超轻量人脸检测，320x240 输入，适合移动端/边缘设备；适用嵌入式人脸检测
         reg("ultra-face", "com.chua.deeplearning.support.onnx.face.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/face_detection_sdk/RFB.onnx", "https://huggingface.co/onnxmodelzoo/version-RFB-320/resolve/main/version-RFB-320.onnx", false, null);
+        // 人脸检测(RetinaFace)：AIAS traced 导出，任意输入尺寸，输出 5 点关键点；适用人脸修复/对齐前置
+        reg("onnx-retinaface", "com.chua.deeplearning.support.onnx.face.OnnxRetinaFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/retinaface/retinaface_v1.onnx");
+        // 人脸分割(ParseNet)：AIAS traced 导出，输出人脸软 mask；适用修复后贴回原图
+        reg("onnx-parsenet", "com.chua.deeplearning.support.onnx.face.OnnxFaceSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "face/segmentation/parsenet/parsenet.onnx");
         // CLIP图像特征(CLIP-ViT-B-32)：提取英文 CLIP 图像特征向量（512维），与 CLIP 文本特征比对；适用图文检索、图像零样本分类
         reg("clip-image-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/enhancement/CLIP-ViT-B-32-IMAGE/CLIP-ViT-B-32-IMAGE.onnx");
         // CLIP图像特征(MobileCLIP-S0)：轻量级 CLIP 图像特征提取（~50MB），适合移动端/边缘设备；适用移动端图文检索

@@ -120,8 +120,6 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
         boundingBoxes = NDArrays.concat(new NDList(bbXY, bbWH), 1);
 
         landms = decodeLandm(landms, boxRecover, scaleXY);
-        System.out.println("[retinaface-debug] width=" + width + " height=" + height
-                + " landms range=" + minMax(landms) + " boxRecover rows=" + boxRecover.getShape());
 
         NDArray cutOff = prob.get(1).gt(CONF_THRESH);
         boundingBoxes = boundingBoxes.transpose().booleanMask(cutOff, 1).transpose();
@@ -144,12 +142,6 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
 
             double[] boxArr = boundingBoxes.get(currMaxLoc).toDoubleArray();
             double[] landmsArr = landms.get(currMaxLoc).toDoubleArray();
-            if (l == 0) {
-                System.out.println("[retinaface-debug] box dim=" + boundingBoxes.getShape()
-                        + " landms dim=" + landms.getShape()
-                        + " boxArr len=" + boxArr.length + " landmsArr len=" + landmsArr.length
-                        + " box[0]=" + boxArr[0] + " landms[0]=" + landmsArr[0]);
-            }
             Rectangle rect = new Rectangle(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
             boolean belowIoU = true;
             for (BoundingBox box : boxes) {
