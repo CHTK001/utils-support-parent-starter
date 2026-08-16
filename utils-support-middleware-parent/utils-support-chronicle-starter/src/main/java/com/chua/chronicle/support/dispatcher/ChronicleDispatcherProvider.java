@@ -1,6 +1,7 @@
 package com.chua.chronicle.support.dispatcher;
 
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
+import com.chua.common.support.concurrent.dispatcher.ConsumerDispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.provider.AbstractDispatcherProvider;
 import com.chua.common.support.spi.annotations.Spi;
@@ -198,24 +199,51 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
      * 通过反射拿到 ConsumerDispatcherDefinition 上的泛型类型 T。
+     * <p>
+     * 泛型 T 在普通实例化时会被擦除，优先使用定义上显式携带的 bodyType；
+     * 未携带时（匿名子类或继承）再退回反射推断。
+     * </p>
      */
     private Class<?> inferType(DispatcherDefinition definition) {
         try {
+            // 优先使用显式指定的消息体类型，避免泛型擦除导致类型丢失
+            if (definition instanceof ConsumerDispatcherDefinition<?> cdd) {
+                Class<?> bodyType = cdd.getBodyType();
+                if (bodyType != null && bodyType != Object.class) {
+                    return bodyType;
+                }
+            }
             // 拿到类上的实际泛型参数 T（来自 ConsumerDispatcherDefinition<T>）
             java.lang.reflect.Type genericSuper = definition.getClass().getGenericSuperclass();
             Class<?> match = extractFirstTypeArg(genericSuper);
             if (match != null) {
                 return match;
             }
-            // fallback：从父类字段类型推断
-            var field = definition.getClass().getSuperclass().getDeclaredField("consumer");
-            field.setAccessible(true);
-            java.lang.reflect.Type fieldGenericType = field.getGenericType();
-            if (fieldGenericType instanceof java.lang.reflect.ParameterizedType pt) {
-                java.lang.reflect.Type[] args = pt.getActualTypeArguments();
-                if (args.length > 0 && args[0] instanceof Class<?> c) {
-                    return c;
+            // fallback：从实例自身到父类链上查找 consumer 字段来推断泛型（ConsumerDispatcherDefinition 的字段在自身）
+            Class<?> current = definition.getClass();
+            while (current != null && current != Object.class) {
+                try {
+                    var field = current.getDeclaredField("consumer");
+                    field.setAccessible(true);
+                    java.lang.reflect.Type fieldGenericType = field.getGenericType();
+                    if (fieldGenericType instanceof java.lang.reflect.ParameterizedType pt) {
+                        java.lang.reflect.Type[] args = pt.getActualTypeArguments();
+                        if (args.length > 0) {
+                            // 直接是 Class（如 List）则直接使用；是嵌套泛型（如 List<Map<..>>）则取其原始类型（List）
+                            if (args[0] instanceof Class<?> c) {
+                                return c;
+                            }
+                            if (args[0] instanceof java.lang.reflect.ParameterizedType pp) {
+                                java.lang.reflect.Type raw = pp.getRawType();
+                                if (raw instanceof Class<?> c) {
+                                    return c;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {
                 }
+                current = current.getSuperclass();
             }
         } catch (Exception ignored) {
         }
