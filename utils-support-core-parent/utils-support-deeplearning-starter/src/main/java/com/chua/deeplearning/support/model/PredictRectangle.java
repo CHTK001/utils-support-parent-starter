@@ -11,6 +11,7 @@ package com.chua.deeplearning.support.model;
  * @param confidence  置信度 0~1
  * @param label       类别编号
  * @param labelName   类别名称
+ * @param keypoints   关键点列表（像素坐标），可为空；每项 [x, y]
  * @author CH
  * @since 4.0.0.42
  */
@@ -21,5 +22,13 @@ public record PredictRectangle(
         float height,
         float confidence,
         int label,
-        String labelName) {
+        String labelName,
+        java.util.List<float[]> keypoints) {
+
+    /**
+     * 兼容无关键点的构造。
+     */
+    public PredictRectangle(float x, float y, float width, float height, float confidence, int label, String labelName) {
+        this(x, y, width, height, confidence, label, labelName, java.util.List.of());
+    }
 }

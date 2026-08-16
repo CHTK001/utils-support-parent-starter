@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -152,7 +153,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     private List<DetectionInfo> detect(byte[] imageData) {
         try {
-            nu.pattern.OpenCV.loadLocally();
+            OpenCvImageUtils.load();
             Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
@@ -243,15 +244,15 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private List<DetectionInfo> boxesFromProbMap(float[][] probs, int mapW, int mapH) {
         float scaleX = (float) srcWidth / mapW;
         float scaleY = (float) srcHeight / mapH;
-        // 概率图 → 二值图
+        // 概率图 → 二值图（一次性写入 byte 数组，避免逐像素 put 的边界问题）
         Mat binary = new Mat(mapH, mapW, org.opencv.core.CvType.CV_8UC1);
+        byte[] binData = new byte[mapH * mapW];
         for (int y = 0; y < mapH; y++) {
             for (int x = 0; x < mapW; x++) {
-                if (probs[y][x] >= THRESHOLD) {
-                    binary.put(y, x, (byte) 255);
-                }
+                binData[y * mapW + x] = (probs[y][x] >= THRESHOLD) ? (byte) 255 : (byte) 0;
             }
         }
+        binary.put(0, 0, binData);
         // 形态学膨胀
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
         Mat dilated = new Mat();

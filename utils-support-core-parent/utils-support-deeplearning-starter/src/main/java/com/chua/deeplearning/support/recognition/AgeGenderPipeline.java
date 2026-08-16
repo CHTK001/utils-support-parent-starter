@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * 年龄 / 性别 / 种族识别管线。
  *
- * <p>基于 {@link Pipeline} 通用管线框架编排，参考 {@code OcrEngine} 模式：
+ * <p>基于 {@link Pipeline} 通用管线框架编排，参考 {@code OcrPipeline} 模式：
  * 支持直接对单图识别，也支持先检测人脸再逐框识别。通过 {@link IdentificationEngine}
  * 调度已注册的年龄 / 性别 / 种族模型（如 age-race-gender、age-gender-onnx、
  * google-net-age-recognition 等），输出统一的 {@link HumanPredictResult}。</p>

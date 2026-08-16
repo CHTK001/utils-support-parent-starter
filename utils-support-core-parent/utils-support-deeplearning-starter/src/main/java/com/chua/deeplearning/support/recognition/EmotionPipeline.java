@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * 情绪识别管线。
  *
- * <p>基于 {@link Pipeline} 通用管线框架编排，参考 {@code OcrEngine} 模式：
+ * <p>基于 {@link Pipeline} 通用管线框架编排，参考 {@code OcrPipeline} 模式：
  * 调度已注册的情绪识别模型（如 emotion-ferplus、yolo-face-emotion 等），
  * 输出统一的 {@link PredictResult}（value 为情绪标签，confidence 为置信度）。</p>
  *

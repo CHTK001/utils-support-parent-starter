@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -15,12 +16,7 @@ import com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfDouble;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -49,7 +45,7 @@ import java.util.Objects;
  *         .detector("paddleocrv6-medium-det")
  *         .recognizer("paddleocrv6-medium-rec")
  *         .direction("pp-word-rotate")
- *         .enhancer("text-bsr")
+ *         .enhancer("text-bsr")        // 文字高清化，默认 2x；可用 "text-bsr:4" 指定 4x
  *         .build();
  *
  * String text = pipeline.recognize(imageBytes);
@@ -125,6 +121,11 @@ public class OcrPipeline {
     private final boolean sortReadingOrder;
 
     /**
+     * 最低识别置信度（过滤背景防伪/噪声文字，如车票 "CR" 水印）。0 表示不过滤。
+     */
+    private final float minConfidence;
+
+    /**
      * 识别管线实例。
      */
     private final Pipeline pipeline;
@@ -142,12 +143,30 @@ public class OcrPipeline {
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                        ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                        boolean enhanceInPipeline, boolean sortReadingOrder) {
+        this(detector, recognizer, direction, enhancer, enhanceInPipeline, sortReadingOrder, 0f);
+    }
+
+    /**
+     * 构造。
+     *
+     * @param detector         检测
+     * @param recognizer       识别
+     * @param direction        方向矫正，可为 null
+     * @param enhancer         文字高清化，可为 null
+     * @param enhanceInPipeline 是否在管线内启用高清化
+     * @param sortReadingOrder 阅读序
+     * @param minConfidence    最低识别置信度（0 不过滤）
+     */
+    public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
+                       ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
+                       boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
         this.direction = direction;
         this.enhancer = enhancer;
         this.enhanceInPipeline = enhanceInPipeline;
         this.sortReadingOrder = sortReadingOrder;
+        this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
         this.pipeline = buildPipeline();
     }
 
@@ -197,6 +216,11 @@ public class OcrPipeline {
          * 是否在识别管线内启用文字高清化。
          */
         private boolean enhanceInPipeline;
+
+        /**
+         * 最低识别置信度（0 不过滤）。
+         */
+        private float minConfidence;
 
         /**
          * 设置检测器。
@@ -256,7 +280,7 @@ public class OcrPipeline {
         /**
          * 按模型 ID 设置文字高清化器。
          *
-         * @param modelId 模型 ID，如 "text-bsr"
+         * @param modelId 模型 ID，如 "text-bsr"（支持带参数 {@code "text-bsr:4"} 指定放大倍数，默认 2x）
          * @return this
          */
         public Builder enhancer(String modelId) {
@@ -287,6 +311,17 @@ public class OcrPipeline {
         }
 
         /**
+         * 设置最低识别置信度（过滤背景防伪/噪声文字）。
+         *
+         * @param minConfidence 0~1，0 不过滤
+         * @return this
+         */
+        public Builder minConfidence(float minConfidence) {
+            this.minConfidence = minConfidence;
+            return this;
+        }
+
+        /**
          * 构建。
          *
          * @return OcrPipeline
@@ -294,11 +329,14 @@ public class OcrPipeline {
         public OcrPipeline build() {
             return new OcrPipeline(detector, recognizer,
                     createTranslator(direction), createTranslator(enhancer),
-                    enhanceInPipeline, sortReadingOrder);
+                    enhanceInPipeline, sortReadingOrder, minConfidence);
         }
 
         /**
          * 按模型 ID 懒创建翻译器。
+         *
+         * <p>支持带参数模型 ID：{@code modelId:scale}（如 {@code text-bsr:4}），
+         * 通过反射对 TextBsrTranslator.setScale 注入放大倍数。</p>
          *
          * @param modelId 模型 ID，可为 null
          * @return 翻译器或 null
@@ -308,28 +346,91 @@ public class OcrPipeline {
             if (modelId == null || modelId.isBlank()) {
                 return null;
             }
-            return (ITranslator<Object, Object>) AbstractIdentificationEngine.getInstance()
-                    .get(modelId, ITranslator.class);
+            String baseId = modelId;
+            Integer scaleArg = null;
+            int colon = modelId.indexOf(':');
+            if (colon > 0) {
+                baseId = modelId.substring(0, colon);
+                try {
+                    scaleArg = Integer.parseInt(modelId.substring(colon + 1));
+                } catch (NumberFormatException ignored) {
+                    // 非数字参数忽略，按默认处理
+                }
+            }
+            ITranslator<Object, Object> translator =
+                    (ITranslator<Object, Object>) AbstractIdentificationEngine.getInstance()
+                            .get(baseId, ITranslator.class);
+            if (translator != null && scaleArg != null) {
+                try {
+                    // 穿透 LazyDjlTranslator/ITranslatorDelegate 包装，对原生 Translator 注入 scale
+                    Object target = translator;
+                    for (int i = 0; i < 4 && target != null; i++) {
+                        try {
+                            java.lang.reflect.Method unwrap = target.getClass().getMethod("unwrap");
+                            Object next = unwrap.invoke(target);
+                            if (next == null || next == target) {
+                                break;
+                            }
+                            target = next;
+                        } catch (NoSuchMethodException e) {
+                            break;
+                        }
+                    }
+                    java.lang.reflect.Method setScale = target.getClass().getMethod("setScale", int.class);
+                    setScale.setAccessible(true);
+                    setScale.invoke(target, scaleArg);
+                    log.debug("[ocr-pipeline] {} scale={}x", baseId, scaleArg);
+                } catch (Exception e) {
+                    log.warn("[ocr-pipeline] 注入 {} scale={} 失败: {}", baseId, scaleArg, e.getMessage());
+                }
+            }
+            return translator;
         }
     }
 
     /**
-     * 编排识别管线（矫正 → 裁剪 → 修复 → 识别 → 收集）。
+     * 编排识别管线（裁剪 → 裁剪块方向矫正 → 修复 → 识别 → 收集）。
+     *
+     * <p>顺序：检测（外层）→ 裁剪 → 对每个文字块方向矫正 → 修复 → 识别。
+     * 方向矫正在裁剪之后对文字块执行，避免整图矫正误判。</p>
      *
      * @return 管线实例
      */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("ocr-recognize")
-                .task(NODE_CORRECT, ctx -> null).taskEnd()
                 .task(NODE_CROP, ctx -> {
                     OcrContext oc = current(ctx);
                     if (oc.currentBox() == null) {
                         return null;
                     }
-                    oc.currentCrop(ImageCropUtils.crop(oc.imageData(), oc.currentBox()));
+                    DetectionInfo box = oc.currentBox();
+                // 检测框四周小幅扩展 2px（仅辅助识别，标注仍用原始框）
+                int px = 2;
+                    byte[] crop = ImageCropUtils.crop(oc.imageData(),
+                            (int) box.x() - px, (int) box.y() - px,
+                            (int) box.width() + px * 2, (int) box.height() + px * 2);
+                    // 裁剪块过小时放大 2 倍，提升 rec 对小字识别率
+                    oc.currentCrop(upscaleIfSmall(crop));
                     return null;
                 }).taskEnd()
-                .decision("hasCrop", ctx -> current(ctx).currentCrop() != null ? NODE_ENHANCE : NODE_END)
+                .decision("hasCrop", ctx -> current(ctx).currentCrop() != null ? NODE_CORRECT : NODE_END)
+                .task(NODE_CORRECT, ctx -> {
+                    // 裁剪块方向矫正（0°/180°），仅当方向模型高置信
+                    OcrContext oc = current(ctx);
+                    byte[] crop = oc.currentCrop();
+                    if (direction != null && crop != null) {
+                        try {
+                            String[] dir = classifyBytesProb(crop);
+                            if ("180".equals(dir[0]) && Float.parseFloat(dir[1]) >= 0.6f) {
+                                byte[] rotated = rotateBytes(crop, 180);
+                                oc.currentCrop(rotated);
+                            }
+                        } catch (Exception e) {
+                            log.debug("[ocr-pipeline] 裁剪块方向矫正跳过: {}", e.getMessage());
+                        }
+                    }
+                    return null;
+                }).taskEnd()
                 .task(NODE_ENHANCE, ctx -> {
                     OcrContext oc = current(ctx);
                     if (!enhanceInPipeline || enhancer == null) {
@@ -382,18 +483,55 @@ public class OcrPipeline {
     }
 
     /**
-     * 详细识别：矫正 + 预处理 + 检测框 + 文本。
+     * 详细识别：矫正择优 + 预处理 + 检测框 + 文本。
+     *
+     * <p>方向模型置信度较低时可能误判（如复杂背景/图表误判 180°），
+     * 此处比较矫正前后两个方向，选择识别出有效文字更多的方向。</p>
      *
      * @param imageData 图片
      * @return 结果列表
      */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
+        return recognizeDetailWithImage(imageData).results();
+    }
+
+    /**
+     * 识别结果（含实际识别使用的图）。
+     *
+     * @param image 实际识别使用的图（矫正或原图）
+     * @param results 识别结果
+     */
+    public record OcrRecognizeResult(byte[] image, List<OcrResult> results) {
+    }
+
+    /**
+     * 详细识别：返回实际识别使用的图 + 结果。
+     *
+     * <p>流程：整图方向矫正 → 检测 → 裁剪 → 裁剪块矫正（0°/180°）→ 修复 → 识别。
+     * 整图矫正处理整体旋转（如车票 90/180/270），小块矫正兜底同图混合角度。</p>
+     *
+     * @param imageData 图片
+     * @return 矫正后图 + 结果
+     */
+    public OcrRecognizeResult recognizeDetailWithImage(byte[] imageData) {
         byte[] corrected = correct(imageData);
-        byte[] prepared = autoInvertIfDark(corrected);
+        List<OcrResult> result = recognizeFrom(corrected);
+        return new OcrRecognizeResult(corrected, result);
+    }
+
+    /**
+     * 对指定图执行完整识别（预处理 → 检测 → 裁剪 → 识别）。
+     *
+     * @param imageData 图片
+     * @return 结果列表
+     */
+    private List<OcrResult> recognizeFrom(byte[] imageData) {
+        byte[] prepared = autoInvertIfDark(imageData);
         List<DetectionInfo> boxes = detector.detect(prepared);
         if (boxes == null || boxes.isEmpty()) {
             return List.of();
         }
+        // 保持原始检测框（不合并，保证几何信息可还原），仅排序
         List<DetectionInfo> ordered = sortReadingOrder
                 ? boxes.stream()
                 .sorted(Comparator
@@ -405,7 +543,43 @@ public class OcrPipeline {
         while (oc.advance()) {
             runSingle(oc);
         }
-        return oc.results();
+        List<OcrResult> results = oc.results();
+        if (minConfidence > 0f) {
+            return results.stream()
+                    .filter(r -> r.confidence() >= minConfidence)
+                    .toList();
+        }
+        return results;
+    }
+
+    /**
+     * 裁剪块过小时放大 2 倍（双线性插值），提升 rec 对小字识别率。
+     *
+     * @param crop 裁剪图
+     * @return 放大后图；无需放大时原样返回
+     */
+    private static byte[] upscaleIfSmall(byte[] crop) {
+        if (crop == null) {
+            return null;
+        }
+        try {
+            Mat src = OpenCvImageUtils.decode(crop);
+            if (src == null || src.empty()) {
+                return crop;
+            }
+            try {
+                int h = src.rows();
+                if (h >= 40) {
+                    return crop;
+                }
+                return OpenCvImageUtils.upscale(crop, 2);
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            log.debug("[ocr-pipeline] 裁剪放大跳过: {}", e.getMessage());
+            return crop;
+        }
     }
 
     /**
@@ -419,31 +593,11 @@ public class OcrPipeline {
      */
     private static byte[] autoInvertIfDark(byte[] imageData) {
         try {
-            nu.pattern.OpenCV.loadLocally();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
-            if (src == null || src.empty()) {
-                return imageData;
+            byte[] result = OpenCvImageUtils.invertIfDark(imageData);
+            if (!java.util.Arrays.equals(result, imageData)) {
+                log.info("[ocr-pipeline] 检测到深色背景，已反色为白底黑字");
             }
-            try {
-                Mat gray = new Mat();
-                Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
-                MatOfDouble mean = new MatOfDouble();
-                MatOfDouble std = new MatOfDouble();
-                Core.meanStdDev(gray, mean, std);
-                double avg = mean.get(0, 0)[0];
-                gray.release();
-                if (avg >= 128) {
-                    return imageData;
-                }
-                Mat inv = new Mat();
-                Core.bitwise_not(src, inv);
-                byte[] result = toBytes(inv);
-                inv.release();
-                log.info("[ocr-pipeline] 检测到深色背景（avg={}），已反色为白底黑字", (int) avg);
-                return result;
-            } finally {
-                src.release();
-            }
+            return result;
         } catch (Exception e) {
             log.debug("[ocr-pipeline] 深背景反色跳过: {}", e.getMessage());
             return imageData;
@@ -464,42 +618,41 @@ public class OcrPipeline {
             return imageData;
         }
         try {
-            nu.pattern.OpenCV.loadLocally();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 return imageData;
             }
             try {
                 int w = src.cols(), h = src.rows();
-                boolean landscape = w > h;
+                // 正方形或横向（宽 >= 高）：方向模型直接判 0°/180°
+                // 仅明显纵向（高显著大于宽，如 1.2 倍以上）才按 90°/270° 处理，
+                // 避免正方形/近似正方形图片被误旋转
+                boolean landscape = w >= h;
+                boolean stronglyPortrait = h > (int) (w * 1.2f);
                 int rotate = 0;
                 if (landscape) {
-                    String dir = classify(src);
-                    if ("180".equals(dir)) {
+                    String[] dir = classifyBytesProb(OpenCvImageUtils.encode(src));
+                    if ("180".equals(dir[0])) {
                         rotate = 180;
                     }
-                } else {
-                    Mat tmp = new Mat();
-                    Core.rotate(src, tmp, Core.ROTATE_90_CLOCKWISE);
-                    String dir = classify(tmp);
-                    tmp.release();
+                } else if (stronglyPortrait) {
+                    byte[] tmp = OpenCvImageUtils.rotate(imageData, 90);
+                    String[] dir = classifyBytesProb(tmp);
                     // 纵向图：旋转90°（顺时针）后判方向
                     // 判 0 → 当前图再顺时针90°即正确（原图是逆时针90°）
                     // 判 180 → 当前图再逆时针90°即正确（原图是顺时针90°）
-                    rotate = "180".equals(dir) ? 270 : 90;
+                    rotate = "180".equals(dir[0]) ? 270 : 90;
+                } else {
+                    // 近似正方形（宽高接近）：直接用方向模型判 0°/180°
+                    String[] dir = classifyBytesProb(OpenCvImageUtils.encode(src));
+                    if ("180".equals(dir[0])) {
+                        rotate = 180;
+                    }
                 }
                 if (rotate == 0) {
                     return imageData;
                 }
-                Mat out = new Mat();
-                switch (rotate) {
-                    case 90 -> Core.rotate(src, out, Core.ROTATE_90_CLOCKWISE);
-                    case 180 -> Core.rotate(src, out, Core.ROTATE_180);
-                    case 270 -> Core.rotate(src, out, Core.ROTATE_90_COUNTERCLOCKWISE);
-                }
-                byte[] result = toBytes(out);
-                out.release();
-                return result;
+                return OpenCvImageUtils.rotate(imageData, rotate);
             } finally {
                 src.release();
             }
@@ -535,24 +688,49 @@ public class OcrPipeline {
     }
 
     /**
-     * 方向分类。
+     * 方向分类（含概率）。
      *
-     * @param mat 图像
-     * @return "0" 或 "180"
+     * @param imageData 图像字节
+     * @return {方向, 概率}
      */
-    private String classify(Mat mat) {
-        MatOfByte mob = new MatOfByte();
-        Imgcodecs.imencode(".png", mat, mob);
-        Object r = direction.translate(mob.toArray());
+    private String[] classifyBytesProb(byte[] imageData) {
+        Object r = direction.translate(imageData);
         if (r instanceof DirectionInfo info) {
-            return info.getName();
+            return new String[]{info.getName(), String.valueOf(info.getProbability())};
         }
         try {
-            java.lang.reflect.Method m = r.getClass().getMethod("getName");
-            Object v = m.invoke(r);
-            return v == null ? "0" : String.valueOf(v);
+            java.lang.reflect.Method gm = r.getClass().getMethod("getName");
+            java.lang.reflect.Method pm = r.getClass().getMethod("getProbability");
+            Object v = gm.invoke(r);
+            Object p = pm.invoke(r);
+            return new String[]{v == null ? "0" : String.valueOf(v), p == null ? "0" : String.valueOf(p)};
         } catch (Exception e) {
-            return "0";
+            return new String[]{"0", "0"};
+        }
+    }
+
+    /**
+     * 对字节图判方向（0°/180°）。
+     *
+     * @param imageData 图像字节
+     * @return "0" 或 "180"
+     */
+    private String classifyBytes(byte[] imageData) {
+        return classifyBytesProb(imageData)[0];
+    }
+
+    /**
+     * 旋转图像字节（90/180/270 度）。
+     *
+     * @param imageData 图像字节
+     * @param degree    旋转角度（90/180/270）
+     * @return 旋转后 PNG 字节
+     */
+    private static byte[] rotateBytes(byte[] imageData, int degree) {
+        try {
+            return OpenCvImageUtils.rotate(imageData, degree);
+        } catch (Exception e) {
+            return imageData;
         }
     }
 
@@ -647,18 +825,6 @@ public class OcrPipeline {
         ctx.setAttribute("ocr", oc);
         ctx.setNextNodeId(NODE_CROP);
         pipeline.resume(ctx);
-    }
-
-    /**
-     * Mat 转 PNG 字节。
-     *
-     * @param mat Mat
-     * @return PNG 字节
-     */
-    private static byte[] toBytes(Mat mat) {
-        MatOfByte mob = new MatOfByte();
-        Imgcodecs.imencode(".png", mat, mob);
-        return mob.toArray();
     }
 
     /**

@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.image.captioning;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
@@ -256,7 +257,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
      */
     private float[] preprocessImage(byte[] imageData) throws Exception {
         // 加载 OpenCV 原生库（openpnp）
-        nu.pattern.OpenCV.loadLocally();
+        OpenCvImageUtils.load();
 
         Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
         if (src == null || src.empty()) {

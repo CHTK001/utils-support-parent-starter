@@ -107,9 +107,14 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     @Override
     public Object translate(Object input) {
         Object result;
+        int imgW = 0;
+        int imgH = 0;
         if (imageInput && input instanceof byte[] bytes) {
             try {
-                result = factory.predict(ImageFactory.getInstance().fromInputStream(new ByteArrayInputStream(bytes)));
+                ai.djl.modality.cv.Image img = ImageFactory.getInstance().fromInputStream(new ByteArrayInputStream(bytes));
+                imgW = img.getWidth();
+                imgH = img.getHeight();
+                result = factory.predict(img);
             } catch (Exception e) {
                 log.error("[deeplearning-engine] DJL 图像转换失败: {}", modelName, e);
                 throw new RuntimeException("DJL 图像转换失败: " + modelName, e);
@@ -117,19 +122,22 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
         } else {
             result = factory.predict(input);
         }
-        return adaptOutput(result);
+        return adaptOutput(result, imgW, imgH);
     }
 
     /**
      * 将 DJL 推理输出适配为框架类型。
      * <p>DJL 检测模型（如 SCRFD/YOLO）返回 {@link DetectedObjects}，适配为
-     * {@code List<PredictRectangle>}；分类模型返回 {@link Classifications}，适配为
-     * 最可能类别名（String）。非这两种输出原样返回。</p>
+     * {@code List<PredictRectangle>}（归一化坐标×图像尺寸转像素）；
+     * 分类模型返回 {@link Classifications}，适配为最可能类别名（String）。
+     * 非这两种输出原样返回。</p>
      *
      * @param result DJL 推理输出
+     * @param imgW   输入图像宽（0 表示未知，按原样返回归一化值）
+     * @param imgH   输入图像高
      * @return 适配后的输出
      */
-    private Object adaptOutput(Object result) {
+    private Object adaptOutput(Object result, int imgW, int imgH) {
         if (result instanceof ai.djl.modality.cv.Image image) {
             // 图像输出模型（人脸修复/超分/动漫化等）：转 byte[]（PNG）
             try {
@@ -150,14 +158,26 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                         if (item instanceof ai.djl.modality.cv.output.DetectedObjects.DetectedObject det) {
                             BoundingBox box = det.getBoundingBox();
                             Rectangle bounds = box.getBounds();
+                            // DJL 的 bounds 为 0~1 归一化坐标，需乘图像尺寸转像素；
+                            // 关键点 path 同样归一化，一并转像素（人脸 5 点，用于对齐）
+                            float scaleX = imgW > 0 ? imgW : 1f;
+                            float scaleY = imgH > 0 ? imgH : 1f;
+                            java.util.List<float[]> keypoints = new java.util.ArrayList<>();
+                            Iterable<ai.djl.modality.cv.output.Point> path = box.getPath();
+                            if (path != null) {
+                                for (ai.djl.modality.cv.output.Point p : path) {
+                                    keypoints.add(new float[]{(float) (p.getX() * scaleX), (float) (p.getY() * scaleY)});
+                                }
+                            }
                             return new PredictRectangle(
-                                    (float) bounds.getX(),
-                                    (float) bounds.getY(),
-                                    (float) bounds.getWidth(),
-                                    (float) bounds.getHeight(),
+                                    (float) (bounds.getX() * scaleX),
+                                    (float) (bounds.getY() * scaleY),
+                                    (float) (bounds.getWidth() * scaleX),
+                                    (float) (bounds.getHeight() * scaleY),
                                     (float) det.getProbability(),
                                     0,
-                                    det.getClassName());
+                                    det.getClassName(),
+                                    keypoints);
                         }
                         return new PredictRectangle(0, 0, 0, 0,
                                 (float) item.getProbability(), 0, String.valueOf(item.getClassName()));

@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
+import com.chua.deeplearning.support.onnx.utils.OpenCvImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -160,7 +161,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     private String recognize(byte[] imageData) {
         try {
-            nu.pattern.OpenCV.loadLocally();
+            OpenCvImageUtils.load();
             Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
