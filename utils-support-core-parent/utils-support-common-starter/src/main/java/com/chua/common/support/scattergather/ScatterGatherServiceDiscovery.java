@@ -856,6 +856,9 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
             }
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                     .get(setting.getTimeoutMillis(), TimeUnit.MILLISECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            // 单次自动检索超时属正常(远程节点未及时响应),降级为 debug,避免周期性告警刷屏
+            log.debug("自动检索超时(部分远程节点未响应)");
         } catch (Exception e) {
             log.warn("自动检索异常: {}", e.getMessage());
         }
