@@ -62,7 +62,22 @@ public interface ServiceDiscovery extends AutoCloseable {
      * @param protocol  服务协议类型（如 "http", "tcp" 等），可为 null。
      * @return 匹配的服务发现信息对象，若未找到则返回 null。
      */
-    Discovery getService(String path, String balance, String protocol);
+    default Discovery getService(String path, String balance, String protocol) {
+        return getService(path, null, balance, protocol);
+    }
+
+    /**
+     * 获取指定路径、业务分组、负载均衡策略和协议的服务发现信息。
+     * <p>scatterId 用于业务隔离:仅在与 {@code scatterId} 相同分组的节点中做负载均衡,
+     * 避免不同业务节点互相污染;为 null 时不过滤(兼容旧行为)。</p>
+     *
+     * @param path      服务路径标识。
+     * @param scatterId 业务分组标识，可为 null(不过滤)。
+     * @param balance   负载均衡策略（如 "weight", "random" 等）。
+     * @param protocol  服务协议类型（如 "http", "tcp" 等），可为 null。
+     * @return 匹配的服务发现信息对象，若未找到则返回 null。
+     */
+    Discovery getService(String path, String scatterId, String balance, String protocol);
 
     /**
      * 获取指定路径和负载均衡策略的服务发现信息。

@@ -72,6 +72,12 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
     private String protocol;
 
     /**
+     * 业务分组标识(scatterId):同一服务路径下按业务隔离,
+     * 仅路由到相同 scatterId 的节点;为 null 时不过滤
+     */
+    private String scatterId;
+
+    /**
      * ServiceDiscovery 实例（延迟初始化）
      */
     private volatile ServiceDiscovery serviceDiscovery;
@@ -124,6 +130,15 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
         this.protocol = protocol;
     }
 
+    /**
+     * 设置业务分组标识(scatterId)。
+     *
+     * @param scatterId 业务分组标识,同一服务路径下仅路由到相同分组的节点
+     */
+    public void setScatterId(String scatterId) {
+        this.scatterId = scatterId;
+    }
+
     @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 300;
@@ -173,7 +188,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
             return;
         }
 
-        Discovery discovery = serviceDiscovery.getService(servicePath, balance, protocol);
+        Discovery discovery = serviceDiscovery.getService(servicePath, scatterId, balance, protocol);
         if (discovery == null) {
             log.warn("服务未找到: {} (balance={}, protocol={})", servicePath, balance, protocol);
             chain.doFilter(request, response);

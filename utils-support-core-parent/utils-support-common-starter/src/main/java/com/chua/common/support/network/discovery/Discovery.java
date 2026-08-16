@@ -40,6 +40,12 @@ public class Discovery implements Serializable {
     private String serverId;
 
     /**
+     * 业务分组标识(scatterId):同一服务路径下按业务隔离,
+     * 仅相同 scatterId 的节点纳入同一负载均衡池,避免不同业务节点互相污染
+     */
+    private String scatterId;
+
+    /**
      * 通信协议 (默认: http)
      */
     @Builder.Default
