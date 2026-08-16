@@ -263,6 +263,8 @@ public class VertxHttpServer extends AbstractServer {
         private final RoutingContext ctx;
         private int status = 200;
         private byte[] body;
+        // getOutputStream() 写入内容保留在此,响应完成(endVertx)时写回,避免临时流丢字节
+        private java.io.ByteArrayOutputStream outStream;
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private String contentType;
         private boolean committed;
@@ -341,7 +343,10 @@ public class VertxHttpServer extends AbstractServer {
 
         @Override
         public OutputStream getOutputStream() {
-            return new java.io.ByteArrayOutputStream();
+            if (outStream == null) {
+                outStream = new java.io.ByteArrayOutputStream();
+            }
+            return outStream;
         }
 
         @Override
@@ -479,8 +484,13 @@ public class VertxHttpServer extends AbstractServer {
             if (contentType != null) {
                 resp.putHeader("Content-Type", contentType);
             }
-            if (body != null) {
-                resp.end(Buffer.buffer(body));
+            byte[] payload = body;
+            if (payload == null && outStream != null && outStream.size() > 0) {
+                // getOutputStream() 写入的字节在此写回,避免 /stream 等场景响应体为空
+                payload = outStream.toByteArray();
+            }
+            if (payload != null) {
+                resp.end(Buffer.buffer(payload));
             } else {
                 resp.end();
             }

@@ -244,10 +244,10 @@ public class NioServerResponse implements ServerResponse {
         }
         StringBuilder sb = new StringBuilder();
         if (event != null) {
-            sb.append("event:").append(event).append('\n');
+            sb.append("event: ").append(event).append('\n');
         }
         if (data != null) {
-            sb.append("data:").append(data).append('\n');
+            sb.append("data: ").append(data).append('\n');
         }
         sb.append('\n');
         byte[] frameBytes = sb.toString().getBytes(StandardCharsets.UTF_8);
