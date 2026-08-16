@@ -337,6 +337,97 @@ public final class OpenCvImageUtils {
     }
 
     /**
+     * 计算 5 点仿射矩阵（源 5 点 → FFHQ 512 模板），供对齐与贴回复用。
+     *
+     * @param keypoints 源人脸 5 点（像素坐标，顺序：左眼、右眼、鼻、左嘴角、右嘴角）
+     * @return 2×3 仿射矩阵 Mat（调用方负责 release）
+     */
+    public static Mat estimateFaceAffine512(java.util.List<float[]> keypoints) {
+        load();
+        if (keypoints == null || keypoints.size() < 5) {
+            throw new IllegalArgumentException("人脸关键点不足 5 点: " + (keypoints == null ? 0 : keypoints.size()));
+        }
+        return estimateAffine5Point(keypoints, FACE_TEMPLATE_512);
+    }
+
+    /**
+     * 将修复后的人脸（对齐 512 空间）通过逆仿射贴回原图，并用软 mask 与背景融合。
+     *
+     * <p>流程（AIAS face_restoration_sdk 同款）：<br>
+     * 1. 逆仿射变换 restoredFace 到原图尺寸；<br>
+     * 2. 逆仿射变换 softMask 到原图尺寸（软 mask，插值后保持边缘渐变）；<br>
+     * 3. 像素级融合：result = mask * restored + (1 - mask) * background。</p>
+     *
+     * @param background  原图 Mat（BGR，不修改）
+     * @param restoredFace 修复后的对齐人脸 Mat（512×512，BGR）
+     * @param softMask     人脸软 mask Mat（512×512，单通道 0~255 灰度）
+     * @param affine       对齐时使用的 2×3 仿射矩阵
+     * @return 融合后的新 Mat（BGR，原图尺寸）
+     */
+    public static Mat pasteFace(Mat background, Mat restoredFace, Mat softMask, Mat affine) {
+        load();
+        int w = background.cols();
+        int h = background.rows();
+
+        // 逆仿射矩阵
+        Mat inverseAffine = new Mat();
+        Imgproc.invertAffineTransform(affine, inverseAffine);
+
+        // 修复人脸逆变换到原图尺寸
+        Mat invRestored = new Mat();
+        Imgproc.warpAffine(restoredFace, invRestored, inverseAffine, new Size(w, h),
+                Imgproc.INTER_LINEAR, org.opencv.core.Core.BORDER_CONSTANT, new org.opencv.core.Scalar(0, 0, 0));
+
+        // 软 mask 逆变换到原图尺寸（保持渐变）
+        Mat invMask = new Mat();
+        Imgproc.warpAffine(softMask, invMask, inverseAffine, new Size(w, h),
+                Imgproc.INTER_LINEAR, org.opencv.core.Core.BORDER_CONSTANT, new org.opencv.core.Scalar(0));
+
+        // 转为 CV_32F 做加权融合
+        Mat bgF = new Mat();
+        Mat reF = new Mat();
+        Mat mkF = new Mat();
+        background.convertTo(bgF, org.opencv.core.CvType.CV_32FC3);
+        invRestored.convertTo(reF, org.opencv.core.CvType.CV_32FC3);
+        invMask.convertTo(mkF, org.opencv.core.CvType.CV_32FC1);
+        // mask 归一化到 [0,1]
+        Mat mkNorm = new Mat();
+        Core.multiply(mkF, new org.opencv.core.Scalar(1.0 / 255.0), mkNorm);
+
+        // result = mask * restored + (1-mask) * background
+        // 单通道 mask 广播到 3 通道（merge 复制三次）
+        Mat mask3 = new Mat();
+        java.util.List<Mat> maskChannels = java.util.List.of(mkNorm, mkNorm, mkNorm);
+        Core.merge(maskChannels, mask3);
+        Mat maskedRestored = new Mat();
+        Mat maskedBg = new Mat();
+        Mat oneMinus = new Mat();
+        Mat ones3 = new Mat(bgF.size(), org.opencv.core.CvType.CV_32FC3, org.opencv.core.Scalar.all(1.0));
+        Core.subtract(ones3, mask3, oneMinus);
+        Core.multiply(mask3, reF, maskedRestored);
+        Core.multiply(oneMinus, bgF, maskedBg);
+        Mat resultF = new Mat();
+        Core.add(maskedRestored, maskedBg, resultF);
+        Mat result = new Mat();
+        resultF.convertTo(result, org.opencv.core.CvType.CV_8UC3);
+
+        inverseAffine.release();
+        invRestored.release();
+        invMask.release();
+        bgF.release();
+        reF.release();
+        mkF.release();
+        mkNorm.release();
+        mask3.release();
+        ones3.release();
+        maskedRestored.release();
+        maskedBg.release();
+        oneMinus.release();
+        resultF.release();
+        return result;
+    }
+
+    /**
      * 5 点最小二乘估计仿射矩阵（2×3）。
      *
      * <p>仿射模型 y = A·x + t，对 5 点建立超定方程组，用 OpenCV {@code Core.solve}

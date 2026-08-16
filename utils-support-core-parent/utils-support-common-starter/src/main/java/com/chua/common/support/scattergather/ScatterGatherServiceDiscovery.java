@@ -811,9 +811,14 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
                     remoteNodes.add(ScatterGatherNode.from(d));
                 }
             }
-            // 如果本地没有远程节点，委托当前模式解析
-            if (remoteNodes.isEmpty() && mode != null) {
-                remoteNodes.addAll(mode.resolveRemoteNodes(this));
+            // 始终并入模式解析的种子节点:若 local 非空就跳过 seeds,
+            // 新节点(B/C)将永远不被发现(本节点只拉取 local 里的旧节点与自身)
+            if (mode != null) {
+                for (ScatterGatherNode node : mode.resolveRemoteNodes(this)) {
+                    if (!remoteNodes.contains(node)) {
+                        remoteNodes.add(node);
+                    }
+                }
             }
             if (remoteNodes.isEmpty()) {
                 return;
