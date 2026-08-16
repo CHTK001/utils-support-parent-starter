@@ -106,11 +106,17 @@ public class NioServerRequest implements ServerRequest {
         // 行解析阶段(REQUEST_LINE / HEADERS / chunked BODY):并入缓冲
         if (data != null && data.hasRemaining()) {
             buf.compact();
-            // 预留空间不足(超长行)则报错,避免 BufferOverflowException
-            if (data.remaining() > buf.remaining()) {
+            // 按需拷贝:只放入 buf 能容纳的部分,剩余留在 data(调用方 compact 保留,下一轮继续 feed)。
+            // 原实现要求 data 全部装入,SSL 路径一次 read 解出 16KB 明文(含 keep-alive 后续数据)
+            // 超过 8KB 行缓冲即误报"超长行"(-1),导致请求解析失败、连接被关闭
+            int toCopy = Math.min(data.remaining(), buf.remaining());
+            if (toCopy == 0) {
+                // buf 已满但仍未解析出完整行 → 真·超长行
                 return -1;
             }
-            buf.put(data);
+            byte[] chunk = new byte[toCopy];
+            data.get(chunk);
+            buf.put(chunk);
             buf.flip();
         }
 
