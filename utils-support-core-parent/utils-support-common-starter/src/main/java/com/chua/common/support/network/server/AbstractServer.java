@@ -164,7 +164,11 @@ public abstract class AbstractServer implements ConfigServer {
         metrics.incrementActive();
         long start = System.nanoTime();
         try {
-            if (supportsReactor() && setting.isReactor()) {
+            // 响应式链仅执行 ReactiveServerFilter(响应式过滤器);若过滤器链只有普通
+            // ServerFilter(如 ReverseProxyServerFilter 反向代理),走 handleBlocking 才能执行它们,
+            // 否则普通过滤器在响应式模式下从不被调用 → 代理等过滤逻辑静默失效
+            boolean hasReactiveFilters = !filterManager.getMergedReactiveFilters().isEmpty();
+            if (supportsReactor() && setting.isReactor() && hasReactiveFilters) {
                 return handleReactive(request, response);
             } else {
                 handleBlocking(request, response);

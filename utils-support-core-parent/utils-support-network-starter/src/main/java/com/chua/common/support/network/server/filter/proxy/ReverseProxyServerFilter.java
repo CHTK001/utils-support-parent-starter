@@ -3,6 +3,8 @@ package com.chua.common.support.network.server.filter.proxy;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.server.ServerAttribute;
+import com.chua.common.support.network.server.filter.ReactiveFilterChain;
+import com.chua.common.support.network.server.filter.ReactiveServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
@@ -49,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  * @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
  */
 @Slf4j
-public class ReverseProxyServerFilter implements ServerFilter {
+public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFilter {
 
     private final int timeoutSeconds;
     private volatile HttpClient httpClient;
@@ -66,6 +68,13 @@ public class ReverseProxyServerFilter implements ServerFilter {
     @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 40;
+    }
+
+    @Override
+    public String supportPath() {
+        // ServerFilter 与 ReactiveServerFilter 均有同名 default 方法,显式覆写消除接口冲突;
+        // 返回 null = Access Filter,每次请求都触发代理判断
+        return null;
     }
 
     @Override
@@ -125,14 +134,36 @@ public class ReverseProxyServerFilter implements ServerFilter {
         handleHttpProxyAsync(request, response, host, port, scheme);
     }
 
-    private void handleHttpProxyAsync(ServerRequest request, ServerResponse response,
-                                      String host, int port, String scheme) {
+    /**
+     * 响应式过滤器入口:适配 vertx-http 等响应式 Server 的过滤器链
+     * (其响应式链仅执行 {@link ReactiveServerFilter})。
+     * 返回转发完成的 stage,供响应式链等待真正写出响应,避免提前 endVertx 空响应。
+     */
+    @Override
+    public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
+                                          ReactiveFilterChain chain) {
+        Discovery discovery = ServerAttribute.getBackendDiscovery(request);
+        if (discovery == null || discovery.getHost() == null || discovery.getPort() <= 0) {
+            return chain.doFilter(request, response);
+        }
+        String upgradeHeader = request.getHeader("Upgrade");
+        if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
+            return handleHttpProxyAsync(request, response,
+                    discovery.getHost(), discovery.getPort(), discovery.getProtocol());
+        }
+        return handleHttpProxyAsync(request, response,
+                discovery.getHost(), discovery.getPort(), discovery.getProtocol());
+    }
+
+    private CompletableFuture<Void> handleHttpProxyAsync(ServerRequest request, ServerResponse response,
+                                                         String host, int port, String scheme) {
         String path = request.getPath();
         String query = extractQuery(request.getUri());
         String backendUrl = scheme + "://" + host + ":" + port + path + (query != null ? "?" + query : "");
 
         log.debug("[network-proxy] HTTP 代理: {} {} -> {}", request.getMethod(), request.getPath(), backendUrl);
 
+        CompletableFuture<Void> done = new CompletableFuture<>();
         HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(backendUrl))
                 .timeout(Duration.ofSeconds(timeoutSeconds));
@@ -193,6 +224,8 @@ public class ReverseProxyServerFilter implements ServerFilter {
                         }
                     } catch (Exception e) {
                         log.warn("[network-proxy] 响应回写失败: {}", e.getMessage());
+                    } finally {
+                        done.complete(null);
                     }
                 })
                 .exceptionally(ex -> {
@@ -202,8 +235,10 @@ public class ReverseProxyServerFilter implements ServerFilter {
                         response.setBody("Bad Gateway".getBytes(StandardCharsets.UTF_8));
                         response.end();
                     }
+                    done.complete(null);
                     return null;
                 });
+        return done;
     }
 
     private void handleHttpProxy(ServerRequest request, ServerResponse response,
