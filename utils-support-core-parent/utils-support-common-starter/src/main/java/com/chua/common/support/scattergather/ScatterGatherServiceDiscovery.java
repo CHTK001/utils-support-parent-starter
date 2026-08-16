@@ -801,18 +801,10 @@ public class ScatterGatherServiceDiscovery extends AbstractServiceDiscovery {
         try {
             ensureRuntime();
             String path = setting.getServicePath();
-            Set<Discovery> local = getPath(path);
             List<ScatterGatherNode> remoteNodes = new ArrayList<>();
-            if (local != null && !local.isEmpty()) {
-                for (Discovery d : local) {
-                    if (METADATA_SEED.equals(d.getMetadata().get(METADATA_SEED))) {
-                        continue;
-                    }
-                    remoteNodes.add(ScatterGatherNode.from(d));
-                }
-            }
-            // 始终并入模式解析的种子节点:若 local 非空就跳过 seeds,
-            // 新节点(B/C)将永远不被发现(本节点只拉取 local 里的旧节点与自身)
+            // 仅向 seeds 解析的节点(NodeServer 端口)发起 sync 查询:
+            // local 里注册的是业务节点(HTTP/TCP 代理端口),非 sync server,
+            // 向它们发送 sync/request 只会连接失败(如连接 TCP 代理端口 19012)
             if (mode != null) {
                 for (ScatterGatherNode node : mode.resolveRemoteNodes(this)) {
                     if (!remoteNodes.contains(node)) {

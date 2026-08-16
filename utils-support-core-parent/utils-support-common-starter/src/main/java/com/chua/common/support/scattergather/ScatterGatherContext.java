@@ -146,4 +146,16 @@ public final class ScatterGatherContext {
     public Object attribute(String name) {
         return attributes.get(name);
     }
+
+    /**
+     * 可解析的序列化形式(sync 文本协议经 topic:payload 传输,需 toString 携带关键信息)。
+     *
+     * @return JSON 风格字符串
+     */
+    @Override
+    public String toString() {
+        return "{\"requestId\":\"" + requestId + "\",\"path\":\"" + path
+                + "\",\"timeoutMillis\":" + timeoutMillis
+                + ",\"minSuccessCount\":" + minSuccessCount + "}";
+    }
 }

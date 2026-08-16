@@ -168,6 +168,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         while (server != null && !server.isClosed()) {
             try {
                 Socket socket = server.accept();
+                // DIAG: 连接建立
+                System.out.println("[sync-srv] accept 连接: " + socket.getRemoteSocketAddress());
                 ClientConnection connection = new ClientConnection(socket);
                 connection.start();
             } catch (IOException e) {
@@ -267,6 +269,9 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
             int colon = message.indexOf(':');
             String topic = colon > 0 ? message.substring(0, colon) : "";
             String payload = colon > 0 ? message.substring(colon + 1) : message;
+            // DIAG: 消息接收
+            System.out.println("[sync-srv] 收到消息 clientId=" + clientId + " topic=" + topic
+                    + " payload前30=" + (payload.length() > 30 ? payload.substring(0, 30) : payload));
             if ("register".equals(topic)) {
                 clientId = payload;
                 metadata.put("clientId", payload);
