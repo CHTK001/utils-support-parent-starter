@@ -95,9 +95,6 @@ public class TcpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
         this.setting = setting == null ? new ScatterGatherSetting() : setting;
         this.connectionPool = new ConnectionPool(PROTOCOL_TCP, DEFAULT_MAX_CONNECTIONS, DEFAULT_IDLE_TIMEOUT, true,
                 client -> client.subscribe(SYNC_RESPONSE_TOPIC, (topic, message) -> {
-                    // DIAG: sync/response 消费端
-                    log.info("[sync-diag] remoteClient 收到响应 topic={} message={}",
-                            topic, message == null ? "null" : message.getClass().getSimpleName());
                     if (message instanceof ScatterGatherResultWithRequestId wrapper) {
                         CompletableFuture<ScatterGatherResult<Object>> future = pendingResponses.remove(wrapper.requestId());
                         if (future != null) {
@@ -189,9 +186,6 @@ public class TcpScatterGatherRemoteClient implements ScatterGatherRemoteClient<O
         }
 
         try {
-            // DIAG: sync/request 发出端
-            log.info("[sync-diag] remoteClient 发出 sync/request node={} requestId={} path={}",
-                    node.getEndpoint(), requestId, context == null ? null : context.getPath());
             client.send(SYNC_REQUEST_TOPIC, context);
             return future.get(effectiveTimeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
