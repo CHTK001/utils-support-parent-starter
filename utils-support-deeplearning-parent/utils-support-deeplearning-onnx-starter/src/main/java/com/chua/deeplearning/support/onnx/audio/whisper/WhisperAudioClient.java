@@ -44,9 +44,9 @@ public class WhisperAudioClient implements AudioClient {
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
-     * 模型缓存根目录
+     * 模型缓存根目录（相对 {@code deeplearning.model.cache-dir} 或 {@code %TEMP%}）
      */
-    private static final String CACHE_ROOT = "chua-dl-models/audio/asr/";
+    private static final String CACHE_ROOT = "audio/asr/";
 
     /**
      * 临时音频文件名前缀
@@ -206,8 +206,7 @@ public class WhisperAudioClient implements AudioClient {
     private void ensurePrepared() {
         try {
             String modelName = model != null ? model : DEFAULT_MODEL;
-            Path modelDir = Path.of(System.getProperty("java.io.tmpdir"),
-                    CACHE_ROOT + modelName);
+            Path modelDir = Path.of(cacheRoot(), CACHE_ROOT + modelName);
             if (!Files.isDirectory(modelDir.resolve("onnx"))) {
                 NativeLoader.of("whisper-resources")
                         .from(WhisperAudioClient.class.getClassLoader())
@@ -223,6 +222,17 @@ public class WhisperAudioClient implements AudioClient {
         } catch (Exception e) {
             throw new RuntimeException("Whisper model prepare failed", e);
         }
+    }
+
+    /**
+     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时回落 {@code %TEMP%}。
+     *
+     * @return 缓存根目录
+     */
+    private static String cacheRoot() {
+        String prop = System.getProperty("deeplearning.model.cache-dir");
+        return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     private Path resolveAudioPath() {
