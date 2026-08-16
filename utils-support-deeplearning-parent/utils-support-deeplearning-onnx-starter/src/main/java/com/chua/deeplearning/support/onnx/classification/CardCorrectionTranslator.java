@@ -52,22 +52,49 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     private int srcWidth;
     private int srcHeight;
 
+    /**
+     * 共享实例（避免多实例重复提取模型 / 创建 session）。
+     */
+    private static volatile CardCorrectionTranslator shared;
+
+    /**
+     * 获取共享实例。
+     *
+     * @return 共享实例
+     */
+    public static CardCorrectionTranslator shared() {
+        if (shared == null) {
+            synchronized (CardCorrectionTranslator.class) {
+                if (shared == null) {
+                    shared = new CardCorrectionTranslator();
+                    try {
+                        shared.prepare();
+                    } catch (Exception e) {
+                        throw new RuntimeException("[card-correction-detector] 模型加载失败: " + e.getMessage(), e);
+                    }
+                }
+            }
+        }
+        return shared;
+    }
+
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
         }
-        Path tmpDir = Files.createTempDirectory("card-correction-");
-        tmpDir.toFile().deleteOnExit();
-        Path modelDir = tmpDir.resolve("card-correction");
-        Files.createDirectories(modelDir);
-        NativeLoader.of("card-correction-detector")
-                .from(CardCorrectionTranslator.class.getClassLoader())
-                .basePath(RESOURCE_BASE)
-                .toTarget(modelDir)
-                .glob("*.onnx")
-                .withMd5(true)
-                .extractOnly(true)
-                .load();
+        // 固定缓存目录（NativeLoader 按 taskId 全局去重，不能用每次新建的临时目录）
+        Path modelDir = Path.of(System.getProperty("java.io.tmpdir"), "chua-models", "card-correction");
+        if (!Files.isDirectory(modelDir) || !Files.exists(modelDir.resolve(MODEL_FILE))) {
+            Files.createDirectories(modelDir);
+            NativeLoader.of("card-correction-detector")
+                    .from(CardCorrectionTranslator.class.getClassLoader())
+                    .basePath(RESOURCE_BASE)
+                    .toTarget(modelDir)
+                    .glob("*.onnx")
+                    .withMd5(true)
+                    .extractOnly(true)
+                    .load();
+        }
         Path modelPath = modelDir.resolve(MODEL_FILE);
         if (!Files.isRegularFile(modelPath)) {
             throw new IllegalArgumentException("卡片矫正模型缺失: " + modelPath);
@@ -88,95 +115,204 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     public List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();
-            return detect(imageData);
+            List<float[][]> quads = detectQuads(imageData);
+            List<DetectionInfo> result = new ArrayList<>(quads.size());
+            for (float[][] quad : quads) {
+                float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE;
+                float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+                for (float[] p : quad) {
+                    minX = Math.min(minX, p[0]);
+                    minY = Math.min(minY, p[1]);
+                    maxX = Math.max(maxX, p[0]);
+                    maxY = Math.max(maxY, p[1]);
+                }
+                result.add(new DetectionInfo("card", 1f,
+                        Math.max(0, minX), Math.max(0, minY),
+                        Math.max(0, maxX - minX), Math.max(0, maxY - minY)));
+            }
+            return result;
         } catch (Exception e) {
             throw new RuntimeException("[card-correction-detector] 卡片矫正检测失败: " + e.getMessage(), e);
         }
     }
 
-    private List<DetectionInfo> detect(byte[] imageData) {
+    /**
+     * 卡片透视矫正：检测卡片四边形并拉平为水平矩形图。
+     *
+     * @param imageData 原图
+     * @return 矫正后的卡片图（PNG），未检测到卡片返回 null
+     */
+    public byte[] correct(byte[] imageData) {
         try {
+            prepare();
             OpenCvImageUtils.load();
             Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
             try {
-                srcWidth = src.cols();
-                srcHeight = src.rows();
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(INPUT_SIZE, INPUT_SIZE), 0, 0, Imgproc.INTER_LINEAR);
-
-                float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
-                for (int y = 0; y < INPUT_SIZE; y++) {
-                    for (int x = 0; x < INPUT_SIZE; x++) {
-                        double[] bgr = resized.get(y, x);
-                        int idx = y * INPUT_SIZE + x;
-                        pixels[idx] = (float) bgr[2] / 255.0f;
-                        pixels[idx + INPUT_SIZE * INPUT_SIZE] = (float) bgr[1] / 255.0f;
-                        pixels[idx + 2 * INPUT_SIZE * INPUT_SIZE] = (float) bgr[0] / 255.0f;
-                    }
+                List<float[][]> quads = detectQuadsOn(src);
+                if (quads.isEmpty()) {
+                    return null;
                 }
-                resized.release();
-
-                long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
-                try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
-                    inputs.put("image", tensor);
-                    try (OrtSession.Result result = session.run(inputs)) {
-                        float[][] hm = toMat2D(result.get("hm").get().getValue());
-                        float[][][] wh = toMat3D(result.get("wh").get().getValue());
-                        float[][][] reg = toMat3D(result.get("reg").get().getValue());
-                        return decode(hm, wh, reg);
-                    }
-                }
+                float[][] quad = quads.get(0);
+                // 4 角点按左上/右上/右下/左下排序（模型输出顺序：0 右下,1 左下,2 左上,3 右上）
+                org.opencv.core.MatOfPoint2f srcPts = new org.opencv.core.MatOfPoint2f(
+                        new org.opencv.core.Point(quad[2][0], quad[2][1]), // 左上
+                        new org.opencv.core.Point(quad[3][0], quad[3][1]), // 右上
+                        new org.opencv.core.Point(quad[0][0], quad[0][1]), // 右下
+                        new org.opencv.core.Point(quad[1][0], quad[1][1])); // 左下
+                double w = Math.max(
+                        Math.sqrt(Math.pow(quad[3][0] - quad[2][0], 2) + Math.pow(quad[3][1] - quad[2][1], 2)),
+                        Math.sqrt(Math.pow(quad[0][0] - quad[1][0], 2) + Math.pow(quad[0][1] - quad[1][1], 2)));
+                double h = Math.max(
+                        Math.sqrt(Math.pow(quad[1][0] - quad[2][0], 2) + Math.pow(quad[1][1] - quad[2][1], 2)),
+                        Math.sqrt(Math.pow(quad[0][0] - quad[3][0], 2) + Math.pow(quad[0][1] - quad[3][1], 2)));
+                int outW = Math.max(1, (int) Math.round(w));
+                int outH = Math.max(1, (int) Math.round(h));
+                org.opencv.core.MatOfPoint2f dstPts = new org.opencv.core.MatOfPoint2f(
+                        new org.opencv.core.Point(0, 0),
+                        new org.opencv.core.Point(outW - 1, 0),
+                        new org.opencv.core.Point(outW - 1, outH - 1),
+                        new org.opencv.core.Point(0, outH - 1));
+                org.opencv.core.Mat perspective = Imgproc.getPerspectiveTransform(srcPts, dstPts);
+                Mat corrected = new Mat();
+                Imgproc.warpPerspective(src, corrected, perspective, new Size(outW, outH), Imgproc.INTER_LINEAR);
+                byte[] result = OpenCvImageUtils.encode(corrected);
+                corrected.release();
+                perspective.release();
+                srcPts.release();
+                dstPts.release();
+                return result;
             } finally {
                 src.release();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("[card-correction-detector] 卡片矫正失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 检测图像中的卡片四边形（原图坐标）。
+     *
+     * @param imageData 原图
+     * @return 四边形列表，每项 4×2（角点 [x,y]），未检测到返回空列表
+     */
+    public List<float[][]> detectQuads(byte[] imageData) {
+        OpenCvImageUtils.load();
+        Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+        if (src == null || src.empty()) {
+            throw new IllegalArgumentException("无法解码图像");
+        }
+        try {
+            return detectQuadsOn(src);
+        } finally {
+            src.release();
+        }
+    }
+
+    /**
+     * 对已解码的 Mat 检测卡片四边形（原图坐标）。
+     */
+    private List<float[][]> detectQuadsOn(Mat src) {
+        try {
+            srcWidth = src.cols();
+            srcHeight = src.rows();
+            Mat resized = new Mat();
+            Imgproc.resize(src, resized, new Size(INPUT_SIZE, INPUT_SIZE), 0, 0, Imgproc.INTER_LINEAR);
+
+            float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
+            for (int y = 0; y < INPUT_SIZE; y++) {
+                for (int x = 0; x < INPUT_SIZE; x++) {
+                    double[] bgr = resized.get(y, x);
+                    int idx = y * INPUT_SIZE + x;
+                    pixels[idx] = (float) bgr[2] / 255.0f;
+                    pixels[idx + INPUT_SIZE * INPUT_SIZE] = (float) bgr[1] / 255.0f;
+                    pixels[idx + 2 * INPUT_SIZE * INPUT_SIZE] = (float) bgr[0] / 255.0f;
+                }
+            }
+            resized.release();
+
+            long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
+            try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
+                Map<String, OnnxTensor> inputs = new HashMap<>();
+                inputs.put("image", tensor);
+                try (OrtSession.Result result = session.run(inputs)) {
+                    float[][] hm = toMat2D(result.get("hm").get().getValue());
+                    float[][][] wh = toMat3D(result.get("wh").get().getValue());
+                    float[][][] reg = toMat3D(result.get("reg").get().getValue());
+                    return decodeCorners(hm, wh, reg);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("[card-correction-detector] 卡片矫正检测失败: " + e.getMessage(), e);
         }
     }
 
-    private List<DetectionInfo> decode(float[][] hm, float[][][] wh, float[][][] reg) {
-        float scaleX = (float) srcWidth / HEAT_SIZE;
-        float scaleY = (float) srcHeight / HEAT_SIZE;
-        List<DetectionInfo> result = new ArrayList<>();
-
-        // hm[192][192]，找 NMS 后的 top-4 峰值
-        for (int corner = 0; corner < NUM_CORNERS; corner++) {
-            float best = 0;
-            int bestY = -1;
-            int bestX = -1;
-            for (int y = 0; y < HEAT_SIZE; y++) {
-                for (int x = 0; x < HEAT_SIZE; x++) {
-                    float v = hm[y][x];
-                    if (v > best && v >= CONF_THRESHOLD && isLocalMax(hm, x, y)) {
-                        best = v;
-                        bestY = y;
-                        bestX = x;
-                    }
-                }
+    /**
+     * 解码卡片四边形角点（原图坐标）。
+     */
+    private List<float[][]> decodeCorners(float[][] hm, float[][][] wh, float[][][] reg) {
+        float scaleX = (float) srcWidth / INPUT_SIZE;
+        float scaleY = (float) srcHeight / INPUT_SIZE;
+        List<float[][]> result = new ArrayList<>();
+        List<int[]> centers = findPeaks(hm, CONF_THRESHOLD);
+        for (int[] c : centers) {
+            int bestY = c[0];
+            int bestX = c[1];
+            float centerX = (bestX + reg[0][bestY][bestX]) * STRIDE;
+            float centerY = (bestY + reg[1][bestY][bestX]) * STRIDE;
+            float[][] corners = new float[NUM_CORNERS][2];
+            for (int corner = 0; corner < NUM_CORNERS; corner++) {
+                corners[corner][0] = (centerX + wh[corner * 2][bestY][bestX] * STRIDE) * scaleX;
+                corners[corner][1] = (centerY + wh[corner * 2 + 1][bestY][bestX] * STRIDE) * scaleY;
             }
-            if (bestY < 0) {
-                continue;
-            }
-            float offsetX = reg[0][bestY][bestX];
-            float offsetY = reg[1][bestY][bestX];
-            float centerX = (bestX + offsetX) * STRIDE;
-            float centerY = (bestY + offsetY) * STRIDE;
-
-            float w = wh[corner * 2][bestY][bestX];
-            float h = wh[corner * 2 + 1][bestY][bestX];
-            float x1 = (centerX - w / 2) * scaleX / STRIDE;
-            float y1 = (centerY - h / 2) * scaleY / STRIDE;
-            float x2 = (centerX + w / 2) * scaleX / STRIDE;
-            float y2 = (centerY + h / 2) * scaleY / STRIDE;
-
-            result.add(new DetectionInfo("corner_" + corner, best,
-                    Math.max(0, x1), Math.max(0, y1), Math.max(0, x2 - x1), Math.max(0, y2 - y1)));
+            result.add(corners);
         }
         return result;
+    }
+
+    /**
+     * 热图峰值检测（局部极大值 + NMS 抑制，支持多卡片）。
+     *
+     * @param hm         热图 [H][W]
+     * @param threshold  置信度阈值
+     * @return 峰值 (y,x) 列表，按置信度降序
+     */
+    private List<int[]> findPeaks(float[][] hm, float threshold) {
+        List<int[]> peaks = new ArrayList<>();
+        List<Float> vals = new ArrayList<>();
+        for (int y = 0; y < HEAT_SIZE; y++) {
+            for (int x = 0; x < HEAT_SIZE; x++) {
+                float v = hm[y][x];
+                if (v >= threshold && isLocalMax(hm, x, y)) {
+                    peaks.add(new int[]{y, x});
+                    vals.add(v);
+                }
+            }
+        }
+        // 按置信度降序
+        Integer[] idx = new Integer[peaks.size()];
+        for (int i = 0; i < idx.length; i++) {
+            idx[i] = i;
+        }
+        java.util.Arrays.sort(idx, (a, b) -> Float.compare(vals.get(b), vals.get(a)));
+        // NMS：抑制距离过近的峰（半径 8 像素）
+        List<int[]> kept = new ArrayList<>();
+        for (int i : idx) {
+            int[] p = peaks.get(i);
+            boolean dup = false;
+            for (int[] k : kept) {
+                if (Math.abs(k[0] - p[0]) <= 8 && Math.abs(k[1] - p[1]) <= 8) {
+                    dup = true;
+                    break;
+                }
+            }
+            if (!dup) {
+                kept.add(p);
+            }
+        }
+        return kept;
     }
 
     private boolean isLocalMax(float[][] hm, int x, int y) {
