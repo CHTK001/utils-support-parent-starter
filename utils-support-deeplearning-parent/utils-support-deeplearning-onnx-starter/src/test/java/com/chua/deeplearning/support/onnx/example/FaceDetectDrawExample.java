@@ -99,7 +99,7 @@ public final class FaceDetectDrawExample extends ExampleBase {
             // 1. 检测 + 画框
             List<FaceDetectionHit> hits = detectAndDraw(pipeline, base, img);
 
-            // 2. 取最大人脸 → 裁剪(对齐)
+            // 2. 取最大人脸 → 关键点 5 点仿射对齐（AIAS 同款：子图外扩裁剪 + 5 点对齐到 512）
             FaceDetectionHit largest = hits.stream()
                     .max((a, b) -> {
                         var wa = a.box().width() * a.box().height();
@@ -107,14 +107,18 @@ public final class FaceDetectDrawExample extends ExampleBase {
                         return Float.compare(wa, wb);
                     })
                     .orElse(null);
-            if (largest == null || largest.faceImage() == null || largest.faceImage().length == 0) {
-                System.out.println("[对齐] 无最大人脸");
+            if (largest == null || largest.box().keypoints() == null || largest.box().keypoints().isEmpty()) {
+                System.out.println("[对齐] 无最大人脸或关键点");
                 continue;
             }
-            byte[] face = largest.faceImage();
+            byte[] face = alignCrop(img, largest);
+            if (face == null) {
+                System.out.println("[对齐] 对齐失败");
+                continue;
+            }
             Path alignOut = Path.of(OUTPUT_DIR, base + "_align.png");
             Files.write(alignOut, face);
-            System.out.println("[对齐] 已输出: " + alignOut + " (" + face.length + "B)");
+            System.out.println("[对齐] 已输出: " + alignOut + " (" + face.length + "B, 子图外扩+5点对齐512)");
 
             // 3. 修复（对裁剪人脸，非整图）
             long t2 = System.currentTimeMillis();
@@ -161,6 +165,14 @@ public final class FaceDetectDrawExample extends ExampleBase {
             var box = hits.get(i).box();
             System.out.println(String.format("[检测]   #%d box=(%.0f,%.0f) %.0fx%.0f conf=%.2f",
                     i, box.x(), box.y(), box.width(), box.height(), box.confidence()));
+            var kps = box.keypoints();
+            if (kps != null && !kps.isEmpty()) {
+                StringBuilder sb = new StringBuilder("[检测]     kps=");
+                for (float[] p : kps) {
+                    sb.append(String.format("(%.0f,%.0f) ", p[0], p[1]));
+                }
+                System.out.println(sb.toString().trim());
+            }
         }
         Mat src = OpenCvImageUtils.decode(img);
         if (src != null) {
@@ -182,5 +194,52 @@ public final class FaceDetectDrawExample extends ExampleBase {
             System.out.println("[检测] 已输出: " + detectOut);
         }
         return hits;
+    }
+
+    /**
+     * AIAS 同款：按检测框外扩 100% 裁剪人脸子图，再对子图内关键点做 5 点仿射对齐到 512。
+     *
+     * @param img  整图字节
+     * @param hit  检测命中（含框与关键点）
+     * @return 对齐后的 PNG 字节；失败返回 null
+     */
+    private static byte[] alignCrop(byte[] img, FaceDetectionHit hit) {
+        try {
+            var box = hit.box();
+            int iw, ih;
+            Mat tmp = OpenCvImageUtils.decode(img);
+            iw = tmp.cols();
+            ih = tmp.rows();
+            tmp.release();
+
+            // getSubImageRect(factor=1.0)：外扩 100%
+            int x1 = (int) box.x(), y1 = (int) box.y();
+            int x2 = x1 + (int) box.width(), y2 = y1 + (int) box.height();
+            int newX1 = Math.max((int) (x1 + x1 * 1.0f / 2 - x2 * 1.0f / 2), 0);
+            int newX2 = Math.min((int) (x2 + x2 * 1.0f / 2 - x1 * 1.0f / 2), iw - 1);
+            int newY1 = Math.max((int) (y1 + y1 * 1.0f / 2 - y2 * 1.0f / 2), 0);
+            int newY2 = Math.min((int) (y2 + y2 * 1.0f / 2 - y1 * 1.0f / 2), ih - 1);
+            int cw = newX2 - newX1, ch = newY2 - newY1;
+            if (cw <= 0 || ch <= 0) {
+                return null;
+            }
+            Mat src = OpenCvImageUtils.decode(img);
+            Mat sub = new Mat(src, new org.opencv.core.Rect(newX1, newY1, cw, ch));
+
+            // 关键点换算到子图坐标系
+            java.util.List<float[]> kps = new java.util.ArrayList<>();
+            for (float[] p : box.keypoints()) {
+                kps.add(new float[]{p[0] - newX1, p[1] - newY1});
+            }
+            Mat aligned = OpenCvImageUtils.alignFace(sub, kps, 512);
+            byte[] out = OpenCvImageUtils.encode(aligned);
+            src.release();
+            sub.release();
+            aligned.release();
+            return out;
+        } catch (Exception e) {
+            System.out.println("[对齐] 异常: " + e.getMessage());
+            return null;
+        }
     }
 }
