@@ -1,185 +1,262 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
 
-import ai.djl.Model;
-import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.util.NDImageUtils;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.index.NDIndex;
-import ai.djl.ndarray.types.DataType;
-import ai.djl.ndarray.types.Shape;
-import ai.djl.translate.Batchifier;
-import ai.djl.translate.Translator;
-import ai.djl.translate.TranslatorContext;
-import ai.djl.util.Utils;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtSession;
+import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import java.nio.FloatBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
- * PP-OCR                    Translator
- * <p>
- *              Translator                                                                                        
- * </p>
+ * PP-OCRv6 文字识别（ORT 原生 + OpenCV）。
+ *
+ * <p>替代 DJL 版（djl-onnx 不支持 NDArray 张量运算）。模型 + dict 由 jar
+ * {@code utils-support-models-onnx-paddleocrv6-tiny} 提供，NativeLoader 解压。
+ * 字符表从 {@code inference.yml} 的 {@code character_dict} 提取（与模型 6906 类对齐，
+ * 而非精简的 dict.txt 6623 行）。输入 {@code x [1,3,48,W]}（OpenCV resize 高 48、
+ * 按宽高比缩放、归一化、pad），输出 {@code fetch_name_0 [1,seq,classes]}，
+ * CTC 解码 → 识别文本。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
-public class PpWordExtractorTranslator implements Translator<Image, String> {
+public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
+
+    private static final int IMG_H = 48;
+    private static final int IMG_W = 320;
+    private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
+    private static final float[] STD = {0.5f, 0.5f, 0.5f};
+
+    private static final String MODEL_FILE = "inference.onnx";
+    private static final String CONFIG_FILE = "inference.yml";
 
     /**
-     *                              
+     * 模型资源目录（tiny / medium 通用）。
      */
-    private List<String> table;
+    private final String resourceBase;
 
     /**
-     *                                             
+     * 模型名称（用于 NativeLoader 缓存隔离）。
      */
-    private final boolean useSpaceChar;
+    private final String modelName;
+
+    private OrtEnvironment ortEnv;
+    private OrtSession session;
+    private List<String> dict;
 
     /**
-     *                       PredictorPool                                     
-     */
-    private final String batchifier;
-
-    /**
-     *              
+     * 默认使用 PP-OCRv6 tiny 资源。
      */
     public PpWordExtractorTranslator() {
-        this(Map.of("use_space_char", true));
+        this("ocr/PP-OCRv6/tiny/rec_infer/", "paddleocrv6-rec");
     }
 
     /**
-     *              
+     * 指定资源目录构造。
      *
-     * @param arguments             
+     * @param resourceBase 模型资源目录（jar 内路径）
+     * @param modelName    模型名称
      */
-    public PpWordExtractorTranslator(Map<String, ?> arguments) {
-        useSpaceChar =
-                arguments.containsKey("use_space_char")
-                        ? Boolean.parseBoolean(arguments.get("use_space_char").toString())
-                        : true;
-        batchifier = arguments.containsKey("batchifier")
-                ? String.valueOf(arguments.get("batchifier"))
-                : "padding";
+    public PpWordExtractorTranslator(String resourceBase, String modelName) {
+        this.resourceBase = resourceBase;
+        this.modelName = modelName;
+    }
+
+    private synchronized void prepare() throws Exception {
+        if (session != null) {
+            return;
+        }
+        Path tmpDir = Files.createTempDirectory("paddleocrv6-rec-");
+        tmpDir.toFile().deleteOnExit();
+        Path modelDir = tmpDir.resolve("rec");
+        Files.createDirectories(modelDir);
+        NativeLoader.of(modelName)
+                .from(PpWordExtractorTranslator.class.getClassLoader())
+                .basePath(resourceBase)
+                .toTarget(modelDir)
+                .glob("*")
+                .withMd5(true)
+                .extractOnly(true)
+                .load();
+        Path modelPath = modelDir.resolve(MODEL_FILE);
+        Path configPath = modelDir.resolve(CONFIG_FILE);
+        if (!Files.isRegularFile(modelPath) || !Files.isRegularFile(configPath)) {
+            throw new IllegalArgumentException("OCR 资源缺失: model=" + modelPath + " config=" + configPath);
+        }
+        dict = loadCharacterDict(configPath);
+        this.ortEnv = OrtEnvironment.getEnvironment();
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        this.session = ortEnv.createSession(modelPath.toString(), opts);
+        log.info("[PaddleOCRv6-rec] ONNX loaded: {} dict_size={}", modelPath.getFileName(), dict.size());
     }
 
     /**
-     *                                                     
+     * 从 inference.yml 的 character_dict 提取完整字符表（含 blank 前缀，与模型类数对齐）。
      *
-     * @param ctx TranslatorContext          
-     * @throws IOException                
+     * @param ymlPath inference.yml 路径
+     * @return 字符表（index 0 为 blank，其余为字符）
      */
-    @Override
-    public void prepare(TranslatorContext ctx) throws IOException {
-        Model model = ctx.getModel();
-        try (InputStream is = model.getArtifact("dict.txt").openStream()) {
-            table = Utils.readLines(is, true);
-            table.add(0, "blank");
-            if (useSpaceChar) {
-                table.add(" ");
-                table.add(" ");
-            } else {
-                table.add("");
-                table.add("");
+    private static List<String> loadCharacterDict(Path ymlPath) throws Exception {
+        List<String> lines = Files.readAllLines(ymlPath);
+        List<String> chars = new ArrayList<>();
+        boolean inDict = false;
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.equals("character_dict:")) {
+                inDict = true;
+                continue;
             }
-        }
-    }
-
-    /**
-     *                                                        
-     *
-     * @param ctx TranslatorContext          
-     * @param list NDList              
-     * @return                       
-     * @throws IOException                
-     */
-    @Override
-    public String processOutput(TranslatorContext ctx, NDList list) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        NDArray tokens = list.singletonOrThrow();
-        if (tokens.getShape().dimension() == 3 && tokens.getShape().get(0) == 1) {
-            tokens = tokens.squeeze(0);
-        }
-
-        long[] indices = tokens.argMax(1).toLongArray();
-        boolean[] selection = new boolean[indices.length];
-        Arrays.fill(selection, true);
-        for (int i = 1; i < indices.length; i++) {
-            if (indices[i] == indices[i - 1]) {
-                selection[i] = false;
-            }
-        }
-
-        //                
-        //        float[] probs = new float[indices.length];
-        //        for (int row = 0; row < indices.length; row++) {
-        //            NDArray value = tokens.get(0).get(new NDIndex(""+ row +":" + (row + 1) +"," + indices[row] +":" + ( indices[row] + 1)));
-        //            probs[row] = value.toFloatArray()[0];
-        //        }
-
-        for (int i = 0; i < indices.length; i++) {
-            if (selection[i] && indices[i] > 0) {
-                int idx = (int) indices[i];
-                if (idx < table.size()) {
-                    sb.append(table.get(idx));
+            if (inDict) {
+                if (trimmed.startsWith("- ")) {
+                    String raw = trimmed.substring(2).trim();
+                    String ch = raw;
+                    if (ch.length() >= 2 && (ch.startsWith("'") || ch.startsWith("\""))) {
+                        ch = ch.substring(1, ch.length() - 1);
+                    }
+                    if (ch.equals("\\")) {
+                        ch = "\\";
+                    }
+                    chars.add(ch);
+                } else if (!trimmed.isEmpty() && !trimmed.startsWith("-")) {
+                    break;
                 }
             }
+        }
+        List<String> table = new ArrayList<>(chars.size() + 1);
+        table.add("blank");
+        table.addAll(chars);
+        return table;
+    }
+
+    @Override
+    public String name() {
+        return modelName;
+    }
+
+    @Override
+    public String translate(byte[] imageData) {
+        try {
+            prepare();
+            return recognize(imageData);
+        } catch (Exception e) {
+            throw new RuntimeException("[paddleocrv6-rec] 文字识别失败: " + e.getMessage(), e);
+        }
+    }
+
+    private String recognize(byte[] imageData) {
+        try {
+            nu.pattern.OpenCV.loadLocally();
+            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            if (src == null || src.empty()) {
+                throw new IllegalArgumentException("无法解码图像");
+            }
+            try {
+                int srcW = src.cols();
+                int srcH = src.rows();
+                float ratio = (float) srcH / IMG_H;
+                int resizeW = Math.max(1, (int) Math.ceil(srcW / ratio));
+                resizeW = Math.max(resizeW, 16);
+                resizeW = Math.min(resizeW, IMG_W);
+
+                Mat resized = new Mat();
+                Imgproc.resize(src, resized, new Size(resizeW, IMG_H), 0, 0, Imgproc.INTER_LINEAR);
+
+                float[] pixels = new float[3 * IMG_H * IMG_W];
+                for (int y = 0; y < IMG_H; y++) {
+                    for (int x = 0; x < resizeW; x++) {
+                        double[] bgr = resized.get(y, x);
+                        int idx = y * IMG_W + x;
+                        // PP-OCR 输入 BGR 顺序（img_mode=BGR），归一化 (v/255 - 0.5) / 0.5
+                        pixels[idx] = (((float) bgr[0] / 255.0f) - MEAN[0]) / STD[0];
+                        pixels[idx + IMG_H * IMG_W] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
+                        pixels[idx + 2 * IMG_H * IMG_W] = (((float) bgr[2] / 255.0f) - MEAN[2]) / STD[2];
+                    }
+                }
+                resized.release();
+
+                long[] shape = {1, 3, IMG_H, IMG_W};
+                try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
+                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    inputs.put("x", tensor);
+                    try (OrtSession.Result result = session.run(inputs)) {
+                        Object out = result.get(0).getValue();
+                        float[][][] probs;
+                        if (out instanceof float[][][]) {
+                            probs = (float[][][]) out;
+                        } else if (out instanceof float[][][][]) {
+                            probs = ((float[][][][]) out)[0];
+                        } else {
+                            throw new IllegalArgumentException("OCR 输出格式不识别: " + out.getClass());
+                        }
+                        return decode(probs[0]);
+                    }
+                }
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("[paddleocrv6-rec] 文字识别失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * CTC 解码：每步取 argmax，去掉连续重复和 blank（index 0）。
+     */
+    private String decode(float[][] seqProbs) {
+        StringBuilder sb = new StringBuilder();
+        int prevIdx = -1;
+        for (float[] step : seqProbs) {
+            int maxIdx = argMax(step);
+            if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
+                String ch = dict.get(maxIdx);
+                if (ch != null && !ch.isBlank()) {
+                    sb.append(ch);
+                }
+            }
+            prevIdx = maxIdx;
         }
         return sb.toString();
     }
 
-    /**
-     *                                        
-     *
-     * @param ctx TranslatorContext          
-     * @param input                       
-     * @return NDList               
-     */
-    @Override
-    public NDList processInput(TranslatorContext ctx, Image input) {
-        NDArray img = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        int imgC = 3;
-        int imgH = 48;
-        int imgW = 320;
-
-        float maxWhRatio = (float) imgW / (float) imgH;
-
-        int h = input.getHeight();
-        int w = input.getWidth();
-        float whRatio = (float) w / (float) h;
-
-        maxWhRatio = Math.max(maxWhRatio, whRatio);
-        imgW = (int) (imgH * maxWhRatio);
-
-        int resizedW;
-        if (Math.ceil(imgH * whRatio) > imgW) {
-            resizedW = imgW;
-        } else {
-            resizedW = (int) (Math.ceil(imgH * whRatio));
+    private int argMax(float[] arr) {
+        int idx = 0;
+        float best = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] > best) {
+                best = arr[i];
+                idx = i;
+            }
         }
-        NDArray resizedImage = NDImageUtils.resize(img, resizedW, imgH);
-        resizedImage = resizedImage.transpose(2, 0, 1).toType(DataType.FLOAT32, false);
-        resizedImage.divi(255f).subi(0.5f).divi(0.5f);
-        NDArray paddingIm = ctx.getNDManager().zeros(new Shape(imgC, imgH, imgW), DataType.FLOAT32);
-        paddingIm.set(new NDIndex(":,:,0:" + resizedW), resizedImage);
-
-        paddingIm = paddingIm.flip(0);
-        return new NDList(paddingIm);
+        return idx;
     }
 
     /**
-     *                           
-     *
-     * @return Batchifier          
+     * 关闭底层 ONNX Session。
      */
-    @Override
-    public Batchifier getBatchifier() {
-        return Batchifier.fromString(batchifier);
+    public synchronized void close() {
+        try {
+            if (session != null) {
+                session.close();
+            }
+        } catch (Exception ignore) {
+        }
+        session = null;
+        ortEnv = null;
+        dict = null;
     }
 }
