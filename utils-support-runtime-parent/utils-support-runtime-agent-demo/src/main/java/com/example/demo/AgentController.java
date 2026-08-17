@@ -59,6 +59,7 @@ public class AgentController {
         result.put("currentTraceId", RuntimeSpy.getCurrentTraceId());
         result.put("currentSpanId", RuntimeSpy.getCurrentSpanId());
         result.put("interceptCount", RuntimeSpy.getInterceptCount());
+        result.put("registeredInterceptors", RuntimeSpy.getRegisteredCount());
         return result;
     }
 
