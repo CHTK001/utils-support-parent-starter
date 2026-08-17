@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxImageSegmenter implements ImageSegmenter {
 
     private String modelName;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxImageSegmenter(String apiKey) {
     }
@@ -22,23 +24,25 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     }
 
     @Override
-    public ImageSegmenter modelPath(String path) {
-        return ImageSegmenter.create(resolveModel()).modelPath(path);
+    public ImageSegmenter modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public ImageSegmenter device(String device) {
-        return ImageSegmenter.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public byte[] segment(byte[] imageData) {
-        return ImageSegmenter.create(resolveModel()).segment(imageData);
+        return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData);
     }
 
     @Override
     public byte[] segment(byte[] imageData, int targetClass) {
-        return ImageSegmenter.create(resolveModel()).segment(imageData, targetClass);
+        return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData, targetClass);
     }
 
 }

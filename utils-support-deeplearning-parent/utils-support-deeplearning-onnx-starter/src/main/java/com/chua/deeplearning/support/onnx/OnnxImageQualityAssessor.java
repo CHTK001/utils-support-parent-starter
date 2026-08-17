@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxImageQualityAssessor implements ImageQualityAssessor {
 
     private String modelName;
+    private double blurThreshold = 100.0;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxImageQualityAssessor(String apiKey) {
     }
@@ -23,23 +26,26 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
-    public ImageQualityAssessor blurThreshold(double threshold) {
-        return ImageQualityAssessor.create(resolveModel()).blurThreshold(threshold);
+    public ImageQualityAssessor blurThreshold(double blurThreshold) {
+        this.blurThreshold = blurThreshold;
+        return this;
     }
 
     @Override
-    public ImageQualityAssessor modelPath(String path) {
-        return ImageQualityAssessor.create(resolveModel()).modelPath(path);
+    public ImageQualityAssessor modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public ImageQualityAssessor device(String device) {
-        return ImageQualityAssessor.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public ImageQualityInfo assess(byte[] imageData) {
-        return ImageQualityAssessor.create(resolveModel()).assess(imageData);
+        return ImageQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).modelPath(modelPath).device(device).assess(imageData);
     }
 
 }

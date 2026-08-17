@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxPedestrianDetector implements PedestrianDetector {
 
     private String modelName;
+    private String device = "cpu";
 
     public OnnxPedestrianDetector(String apiKey) {
     }
@@ -24,8 +25,14 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     }
 
     @Override
+    public PedestrianDetector device(String device) {
+        this.device = device;
+        return this;
+    }
+
+    @Override
     public List<DetectionInfo> detect(byte[] imageData) {
-        return PedestrianDetector.create(resolveModel()).detect(imageData);
+        return PedestrianDetector.create(resolveModel()).device(device).detect(imageData);
     }
 
 }

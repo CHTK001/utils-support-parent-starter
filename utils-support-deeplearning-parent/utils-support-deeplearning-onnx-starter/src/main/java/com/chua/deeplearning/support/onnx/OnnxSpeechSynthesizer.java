@@ -7,6 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
 
     private String modelName;
+    private String lang = "zh";
+    private String modelPath;
+    private float speed = 1.0f;
+    private float pitch = 1.0f;
+    private String device = "cpu";
 
     public OnnxSpeechSynthesizer(String apiKey) {
     }
@@ -23,32 +28,37 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
 
     @Override
     public SpeechSynthesizer lang(String lang) {
-        return SpeechSynthesizer.create(resolveModel()).lang(lang);
+        this.lang = lang;
+        return this;
     }
 
     @Override
-    public SpeechSynthesizer modelPath(String path) {
-        return SpeechSynthesizer.create(resolveModel()).modelPath(path);
-    }
-
-    @Override
-    public SpeechSynthesizer device(String device) {
-        return SpeechSynthesizer.create(resolveModel()).device(device);
+    public SpeechSynthesizer modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public SpeechSynthesizer speed(float speed) {
-        return SpeechSynthesizer.create(resolveModel()).speed(speed);
+        this.speed = speed;
+        return this;
     }
 
     @Override
     public SpeechSynthesizer pitch(float pitch) {
-        return SpeechSynthesizer.create(resolveModel()).pitch(pitch);
+        this.pitch = pitch;
+        return this;
+    }
+
+    @Override
+    public SpeechSynthesizer device(String device) {
+        this.device = device;
+        return this;
     }
 
     @Override
     public byte[] synthesize(String text) {
-        return SpeechSynthesizer.create(resolveModel()).synthesize(text);
+        return SpeechSynthesizer.create(resolveModel()).lang(lang).modelPath(modelPath).speed(speed).pitch(pitch).device(device).synthesize(text);
     }
 
 }

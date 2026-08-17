@@ -10,6 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxLayoutDetector implements LayoutDetector {
 
     private String modelName;
+    private float threshold = 0.5f;
+    private String modelPath;
+    private boolean useGpu = false;
+    private String device = "cpu";
 
     public OnnxLayoutDetector(String apiKey) {
     }
@@ -26,32 +30,36 @@ public class OnnxLayoutDetector implements LayoutDetector {
 
     @Override
     public LayoutDetector threshold(float threshold) {
-        return LayoutDetector.create(resolveModel()).threshold(threshold);
+        this.threshold = threshold;
+        return this;
     }
 
     @Override
-    public LayoutDetector modelPath(String path) {
-        return LayoutDetector.create(resolveModel()).modelPath(path);
-    }
-
-    @Override
-    public LayoutDetector device(String device) {
-        return LayoutDetector.create(resolveModel()).device(device);
+    public LayoutDetector modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public LayoutDetector useGpu(boolean useGpu) {
-        return LayoutDetector.create(resolveModel()).useGpu(useGpu);
+        this.useGpu = useGpu;
+        return this;
+    }
+
+    @Override
+    public LayoutDetector device(String device) {
+        this.device = device;
+        return this;
     }
 
     @Override
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
-        return LayoutDetector.create(resolveModel()).detect(imageData);
+        return LayoutDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).useGpu(useGpu).device(device).detect(imageData);
     }
 
     @Override
     public String parse(byte[] imageData) {
-        return LayoutDetector.create(resolveModel()).parse(imageData);
+        return LayoutDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).useGpu(useGpu).device(device).parse(imageData);
     }
 
 }

@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
     private String modelName;
+    private float threshold = 0.5f;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxLicensePlateRecognizer(String apiKey) {
     }
@@ -26,32 +29,35 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     public LicensePlateRecognizer threshold(float threshold) {
-        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold);
+        this.threshold = threshold;
+        return this;
     }
 
     @Override
-    public LicensePlateRecognizer modelPath(String path) {
-        return LicensePlateRecognizer.create(resolveModel()).modelPath(path);
+    public LicensePlateRecognizer modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public LicensePlateRecognizer device(String device) {
-        return LicensePlateRecognizer.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public String recognize(byte[] imageData) {
-        return LicensePlateRecognizer.create(resolveModel()).recognize(imageData);
+        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognize(imageData);
     }
 
     @Override
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
-        return LicensePlateRecognizer.create(resolveModel()).recognizeDetail(imageData);
+        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognizeDetail(imageData);
     }
 
     @Override
     public PlateResult recognizePlate(byte[] imageData) {
-        return LicensePlateRecognizer.create(resolveModel()).recognizePlate(imageData);
+        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognizePlate(imageData);
     }
 
 }

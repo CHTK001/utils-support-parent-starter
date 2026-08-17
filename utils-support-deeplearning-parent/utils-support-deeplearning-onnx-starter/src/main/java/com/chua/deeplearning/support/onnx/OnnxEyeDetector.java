@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxEyeDetector implements EyeDetector {
 
     private String modelName;
+    private String device = "cpu";
 
     public OnnxEyeDetector(String apiKey) {
     }
@@ -24,8 +25,14 @@ public class OnnxEyeDetector implements EyeDetector {
     }
 
     @Override
+    public EyeDetector device(String device) {
+        this.device = device;
+        return this;
+    }
+
+    @Override
     public List<PredictRectangle> detect(byte[] imageData) {
-        return EyeDetector.create(resolveModel()).detect(imageData);
+        return EyeDetector.create(resolveModel()).device(device).detect(imageData);
     }
 
 }

@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxFaceRecognizer implements FaceRecognizer {
 
     private String modelName;
+    private float threshold = 0.5f;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxFaceRecognizer(String apiKey) {
     }
@@ -25,32 +28,35 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
 
     @Override
     public FaceRecognizer threshold(float threshold) {
-        return FaceRecognizer.create(resolveModel()).threshold(threshold);
+        this.threshold = threshold;
+        return this;
     }
 
     @Override
-    public FaceRecognizer modelPath(String path) {
-        return FaceRecognizer.create(resolveModel()).modelPath(path);
+    public FaceRecognizer modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public FaceRecognizer device(String device) {
-        return FaceRecognizer.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public float[] extractFeature(byte[] imageData) {
-        return FaceRecognizer.create(resolveModel()).extractFeature(imageData);
+        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).extractFeature(imageData);
     }
 
     @Override
     public float compare(float[] feature1, float[] feature2) {
-        return FaceRecognizer.create(resolveModel()).compare(feature1, feature2);
+        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).compare(feature1, feature2);
     }
 
     @Override
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
-        return FaceRecognizer.create(resolveModel()).recognize(imageData, referenceFeatures);
+        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognize(imageData, referenceFeatures);
     }
 
 }
