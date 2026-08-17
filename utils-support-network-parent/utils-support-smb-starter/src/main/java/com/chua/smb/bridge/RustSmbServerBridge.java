@@ -51,9 +51,12 @@ public final class RustSmbServerBridge {
 
     public static void loadLibrary() {
         if (loaded) {
+            return;
+        }
         synchronized (LOAD_LOCK) {
             if (loaded) {
                 return;
+            }
             try {
                 NativeLoader.of("rust_smb_server")
                         .toTarget(Path.of(LIB_TARGET_DIR))
@@ -152,6 +155,8 @@ public final class RustSmbServerBridge {
      */
     public static void stop(long handle) {
         if (!loaded || handle <= 0) {
+            return;
+        }
         try {
             int rc = (int) stopHandle.invokeExact(handle);
             if (rc != 0) {

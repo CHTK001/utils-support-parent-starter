@@ -202,6 +202,8 @@ public class SmbFileStorage extends AbstractFileStorage {
 
     private static String normalizeKey(String key) {
         if (key == null) {
+            return "/";
+        }
         return key.replace('\\', '/').replaceAll("^/+", "/");
     }
 

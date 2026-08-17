@@ -112,6 +112,8 @@ public class SmbClient implements AutoCloseable {
 
     public SmbClient openShare() {
         if (session == null) {
+            throw new IllegalStateException("请先 login()");
+        }
         try {
             diskShare = (DiskShare) session.connectShare(shareName);
         } catch (Exception e) {
@@ -122,6 +124,8 @@ public class SmbClient implements AutoCloseable {
 
     public SmbClient cd(String path) {
         if (path == null || path.isEmpty()) {
+            return this;
+        }
         if (!path.startsWith("/")) {
             path = workPath + "/" + path;
         }
@@ -184,6 +188,8 @@ public class SmbClient implements AutoCloseable {
             for (FileIdBothDirectoryInformation info : diskShare.list(dirPath)) {
                 String name = info.getFileName();
                 if (".".equals(name) || "..".equals(name)) {
+                    continue;
+                }
                 result.add(new SmbFileEntry(
                         name,
                         info.getEndOfFile(),
@@ -230,16 +236,22 @@ public class SmbClient implements AutoCloseable {
 
     private void checkShare() {
         if (diskShare == null) {
+            throw new IllegalStateException("请先 openShare()");
+        }
     }
 
     private void ensureParentPath(String fullPath) throws IOException {
         int lastSep = fullPath.lastIndexOf('/');
         if (lastSep <= 0) {
+            return;
+        }
         String parent = fullPath.substring(0, lastSep);
         String[] parts = parent.split("/");
         StringBuilder path = new StringBuilder();
         for (String part : parts) {
             if (part.isEmpty()) {
+                continue;
+            }
             path.append("/").append(part);
             if (!diskShare.folderExists(path.toString())) {
                 diskShare.mkdir(path.toString());
@@ -250,6 +262,8 @@ public class SmbClient implements AutoCloseable {
     private static String normalize(String p) {
         String s = p.replace('\\', '/');
         while (s.contains("//")) {
+            s = s.replace("//", "/");
+        }
         if (!s.startsWith("/")) {
             s = "/" + s;
         }

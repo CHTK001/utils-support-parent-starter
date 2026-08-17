@@ -426,6 +426,7 @@ public class DefaultPipeline implements Pipeline {
                         ctx.setAction(Action.NEXT);
                         ctx.addHistory(nodeId);
                         fireAfterNode(ctx);
+                        fireOnDraw(ctx);
                         continue;
                     }
                     // 无恢复节点，终止流水线
@@ -448,8 +449,8 @@ public class DefaultPipeline implements Pipeline {
                     }
                 }
                 fireAfterNode(ctx);
-
-                if (ctx.getAction() == Action.EXIT || ctx.getAction() == Action.WAIT) {
+                fireOnDraw(ctx);
+                if (ctx.getAction() == Action.WAIT) {
                     if (ctx.getAction() == Action.WAIT
                             && Objects.equals(prevNextId, ctx.getNextNodeId())) {
                         // 挂起前推进到下一节点，resume 时从下一节点继续执行
@@ -898,6 +899,12 @@ public class DefaultPipeline implements Pipeline {
     private void fireOnStart(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onStart(ctx);
+        }
+    }
+
+    private void fireOnDraw(PipelineContext<?> ctx) {
+        for (PipelineListener listener : listeners) {
+            listener.onDraw(ctx);
         }
     }
 }
