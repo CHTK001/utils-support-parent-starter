@@ -1,0 +1,66 @@
+import subprocess, sys, time, requests, base64, io, os
+from PIL import Image
+
+workdir = os.path.dirname(os.path.abspath(__file__))
+logfile = os.path.join(workdir, "svc.log")
+if os.path.exists(logfile):
+    os.remove(logfile)
+
+print("=== Starting service ===")
+with open(logfile, "w", encoding="utf-8") as f:
+    p = subprocess.Popen(
+        [sys.executable, "safetensor_service.py"],
+        cwd=workdir,
+        stdout=f,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+
+for _ in range(30):
+    try:
+        r = requests.get("http://127.0.0.1:8765/health", timeout=2)
+        if r.status_code == 200:
+            break
+    except Exception:
+        pass
+    time.sleep(1)
+else:
+    print("Service not ready")
+    p.terminate()
+    sys.exit(1)
+
+print("Service ready")
+
+b = io.BytesIO()
+Image.new("RGB", (400, 60), "white").save(b, "PNG")
+img = base64.b64encode(b.getvalue()).decode()
+
+payload = {
+    "model_name": "ovisocr2",
+    "model_type": "document_ocr",
+    "input": {"image": img},
+    "params": {"max_new_tokens": 128, "use_gpu": False},
+}
+
+print("=== Sending inference ===")
+try:
+    r = requests.post("http://127.0.0.1:8765/infer", json=payload, timeout=600)
+    print(f"HTTP {r.status_code}")
+    print(r.text[:1500])
+except Exception as e:
+    print(f"Request error: {e}")
+
+p.terminate()
+try:
+    p.wait(timeout=10)
+except Exception:
+    p.kill()
+
+print("=== Service log tail ===")
+try:
+    with open(logfile, "r", encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+    for line in lines[-60:]:
+        print(line.rstrip())
+except Exception as e:
+    print(f"Read log error: {e}")

@@ -45,7 +45,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
     private volatile boolean chronicleAvailable = true;
     private final Map<String, java.util.concurrent.LinkedBlockingQueue<Object>> fallbackQueueMap = new ConcurrentHashMap<>();
-    private static final int FALLBACK_QUEUE_CAPACITY = 10000;
+    private static final int FALLBACK_QUEUE_CAPACITY = 50000;
 
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
@@ -157,17 +157,14 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
             var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new java.util.concurrent.LinkedBlockingQueue<>(FALLBACK_QUEUE_CAPACITY));
             while (!closed) {
                 try {
-                    var body = fallbackQueue.poll(100, TimeUnit.MILLISECONDS);
-                    if (body != null) {
-                        var definitions = definitionMap.get(topic);
-                        if (definitions != null) {
-                            for (var def : definitions) {
-                                try {
-                                    System.out.println("[FALLBACK-CONSUME] topic=" + topic);
-                                    def.dispatch(body);
-                                } catch (Exception e) {
-                                    log.warn("订阅方法执行异常，主题：{}", topic, e);
-                                }
+                    var body = fallbackQueue.take();
+                    var definitions = definitionMap.get(topic);
+                    if (definitions != null) {
+                        for (var def : definitions) {
+                            try {
+                                def.dispatch(body);
+                            } catch (Exception e) {
+                                log.warn("订阅方法执行异常，主题：{}", topic, e);
                             }
                         }
                     }

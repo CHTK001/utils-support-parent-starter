@@ -83,7 +83,9 @@ public class IonetSyncClient implements SyncClient {
         ClientUserConfigs.closeScanner = true;
 
         var clientRunOne = new ClientRunOne()
-                .setInputCommandRegions(regions);
+                .setInputCommandRegions(regions)
+                .setConnectAddress(host)
+                .setConnectPort(port);
 
         if (clientUser != null) {
             clientRunOne.setClientUser(clientUser);
