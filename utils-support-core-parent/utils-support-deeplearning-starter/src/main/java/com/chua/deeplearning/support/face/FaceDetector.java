@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
@@ -46,6 +47,51 @@ public interface FaceDetector {
      */
     static FaceDetector create(String name) {
         return new DefaultFaceDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+    }
+
+    /**
+     * 通过 SPI 创建人脸检测器（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 检测器
+     */
+    static FaceDetector create(String provider, String apiKey) {
+        return ServiceProvider.of(FaceDetector.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 通过 SPI 创建人脸检测器，带 baseUrl。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥
+     * @param baseUrl  自定义地址
+     * @return 检测器
+     */
+    static FaceDetector create(String provider, String apiKey, String baseUrl) {
+        return ServiceProvider.of(FaceDetector.class)
+                .getNewExtension(provider, apiKey, baseUrl);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default FaceDetector provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default FaceDetector model(String model) {
+        return this;
     }
 
     /**

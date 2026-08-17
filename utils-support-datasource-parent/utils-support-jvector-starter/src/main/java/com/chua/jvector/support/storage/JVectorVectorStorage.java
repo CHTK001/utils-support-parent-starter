@@ -207,6 +207,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
+                return false;
+            }
             rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             if (graph != null) {
@@ -219,8 +221,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
+                return List.of();
+            }
             if (graph == null) {
                 buildGraph();
+            }
             // 必须使用 jvector 内置精确分数（与建图时的 VectorSimilarityFunction 一致）；
             // 自定义负分数会导致 rc.9 的 search 返回 0 结果。
             var queryVec = VTS.createFloatVector(query);
@@ -231,7 +236,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var list = new ArrayList<Vector>();
                 for (var n : result.getNodes()) {
                     var id = idOf(n.node);
-                    if (id == null) {
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
                 }
@@ -245,6 +249,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
+                return false;
+            }
             int last = vectors.size() - 1;
             if (ord != last) {
                 // 把末尾元素移动到被删位置，保持序数紧凑
@@ -271,6 +277,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
+                return false;
+            }
             rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             if (graph != null) {
@@ -428,6 +436,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
+                return false;
+            }
             rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建图
@@ -442,9 +452,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 loadVectors();
             }
             if (vectors.isEmpty()) {
+                return List.of();
+            }
             ensureGraphBuilt();
             if (diskGraph == null) {
                 return List.of();
+            }
 
             // 使用 jvector 内置精确分数（与建图时的 VectorSimilarityFunction 一致）
             var queryVec = VTS.createFloatVector(query);
@@ -457,10 +470,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var list = new ArrayList<Vector>();
                 for (var n : result.getNodes()) {
                     var id = idOf(n.node);
-                    if (id == null) {
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
                     if (list.size() >= topK) {
+                        break;
+                    }
                 }
                 return list;
             } catch (Exception e) {
@@ -472,6 +486,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
+                return false;
+            }
             int last = vectors.size() - 1;
             if (ord != last) {
                 String movedId = idOf(last);
@@ -495,6 +511,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
+                return false;
+            }
             rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             diskGraph = null;
@@ -543,6 +561,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         private void ensureGraphBuilt() {
             if (diskGraph != null) {
+                return;
+            }
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
                     rav, similarity,
@@ -609,6 +629,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
+                return false;
+            }
             rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             // 添加后需要重新构建
@@ -620,9 +642,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
+                return List.of();
+            }
             ensureGraphBuilt();
             if (graph == null || pqVectors == null) {
                 return List.of();
+            }
 
             var queryVec = VTS.createFloatVector(query);
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
@@ -642,7 +667,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var list = new ArrayList<Vector>();
                 for (var n : roughResult.getNodes()) {
                     var id = idOf(n.node);
-                    if (id == null) {
                     float exactSimilarity = exactScore.similarityTo(n.node);
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) exactSimilarity)));
@@ -661,6 +685,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
+                return false;
+            }
             int last = vectors.size() - 1;
             if (ord != last) {
                 String movedId = idOf(last);
@@ -684,6 +710,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
+                return false;
+            }
             rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             graph = null;
@@ -716,6 +744,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         private void ensureGraphBuilt() {
             if (graph != null && pqVectors != null) {
+                return;
+            }
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try {
                 // 防御性钳制：jvector 要求子空间数 ≤ 维度、每个子空间码本数 ≤ 向量条数，

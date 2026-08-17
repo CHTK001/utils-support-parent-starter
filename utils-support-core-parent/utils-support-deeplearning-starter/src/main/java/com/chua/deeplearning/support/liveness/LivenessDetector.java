@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 活体检测器，判断人脸图像是否为真实活体而非照片/视频攻击。
@@ -20,6 +21,39 @@ public interface LivenessDetector {
      * @param name 模型名称
      * @return 检测器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static LivenessDetector create(String provider, String apiKey) {
+        return ServiceProvider.of(LivenessDetector.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default LivenessDetector provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default LivenessDetector model(String model) {
+        return this;
+    }
+
     static LivenessDetector create(String name) {
         return new DefaultLivenessDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

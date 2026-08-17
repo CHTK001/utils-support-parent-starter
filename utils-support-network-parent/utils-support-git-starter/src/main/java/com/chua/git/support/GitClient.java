@@ -158,9 +158,13 @@ public class GitClient implements AutoCloseable {
      */
     public GitClient open() {
         if (git != null) {
+            return this;
+        }
         lock.lock();
         try {
             if (git != null) {
+                return this;
+            }
             java.io.File gitDir = new java.io.File(localPath.toFile(), ".git");
             if (gitDir.exists() && gitDir.isDirectory()) {
                 git = Git.open(localPath.toFile());
@@ -193,6 +197,8 @@ public class GitClient implements AutoCloseable {
      */
     public Git getGit() {
         if (git == null) {
+            open();
+        }
         return git;
     }
 

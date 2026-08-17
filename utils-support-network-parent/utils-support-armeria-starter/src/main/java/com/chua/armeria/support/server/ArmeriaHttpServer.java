@@ -130,8 +130,9 @@ public class ArmeriaHttpServer extends AbstractServer {
      * <p>内部维护响应状态、头、体，最终由 {@link #buildAggregatedResponse()} 生成
      * Armeria 的 {@link AggregatedHttpResponse} 对象。</p>
      *
- * @author CH
+     * @author CH
      */
+    @Slf4j
     static class ArmeriaServerResponse implements ServerResponse {
 
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
@@ -338,6 +339,8 @@ public class ArmeriaHttpServer extends AbstractServer {
                 hdrs.contentType(MediaType.parse(contentType));
             }
             HttpData data = body != null ? HttpData.wrap(body) : HttpData.empty();
+            log.info("[ArmeriaServerResponse] 构建响应: status={}, bodyLen={}, committed={}, ended={}",
+                    status, body != null ? body.length : -1, committed, ended);
             return AggregatedHttpResponse.of(hdrs.build(), data);
         }
     }

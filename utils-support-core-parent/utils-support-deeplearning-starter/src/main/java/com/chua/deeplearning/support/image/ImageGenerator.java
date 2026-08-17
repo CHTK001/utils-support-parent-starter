@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 图像生成器。
@@ -21,6 +22,39 @@ public interface ImageGenerator {
      * @param name 模型名称
      * @return 生成器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static ImageGenerator create(String provider, String apiKey) {
+        return ServiceProvider.of(ImageGenerator.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default ImageGenerator provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default ImageGenerator model(String model) {
+        return this;
+    }
+
     static ImageGenerator create(String name) {
         return new DefaultImageGenerator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

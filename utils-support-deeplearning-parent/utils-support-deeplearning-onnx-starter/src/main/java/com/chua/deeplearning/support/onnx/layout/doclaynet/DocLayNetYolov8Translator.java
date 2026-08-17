@@ -200,9 +200,18 @@ public class DocLayNetYolov8Translator implements Translator<Image, DetectedObje
             log.debug("DocLayNet 输入: {}x{}", imageWidth, imageHeight);
         }
 
-        Image resized = input.resize(inputSize, inputSize, true);
-        NDArray array = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        return new NDList(toNormalizedChw(ctx, array));
+        // 用 BufferedImage + AWT 缩放（规避 DJL input.resize 走 NDArray 不支持的 op）
+        Object wrapped = input.getWrappedImage();
+        java.awt.image.BufferedImage src = wrapped instanceof java.awt.image.BufferedImage b
+                ? b
+                : (java.awt.image.BufferedImage) ai.djl.modality.cv.BufferedImageFactory.getInstance().fromImage(input).getWrappedImage();
+        java.awt.image.BufferedImage resized = new java.awt.image.BufferedImage(inputSize, inputSize, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D g2 = resized.createGraphics();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2.drawImage(src, 0, 0, inputSize, inputSize, null);
+        g2.dispose();
+
+        return new NDList(toNormalizedChw(ctx, resized));
     }
 
     @Override
@@ -351,29 +360,18 @@ public class DocLayNetYolov8Translator implements Translator<Image, DetectedObje
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
-    private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
-        Shape shape = array.getShape();
-        if (shape.dimension() != 3) {
-            throw new IllegalArgumentException("DocLayNet YOLOv8 仅支持 HWC 格式, shape=" + shape);
-        }
-
-        int height = (int) shape.get(0);
-        int width = (int) shape.get(1);
-        int channels = (int) shape.get(2);
-        float[] source = array.toType(DataType.FLOAT32, false).toFloatArray();
-        float[] chw = new float[source.length];
+    private NDArray toNormalizedChw(TranslatorContext ctx, java.awt.image.BufferedImage bi) {
+        int width = bi.getWidth();
+        int height = bi.getHeight();
+        int channels = 3;
+        int[] rgb = bi.getRGB(0, 0, width, height, null, 0, width);
+        float[] chw = new float[channels * height * width];
         int planeSize = height * width;
-
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                int hwOffset = h * width + w;
-                int sourceOffset = hwOffset * channels;
-                for (int c = 0; c < channels; c++) {
-                    chw[c * planeSize + hwOffset] = source[sourceOffset + c] / 255.0f;
-                }
-            }
+        for (int i = 0; i < planeSize; i++) {
+            chw[i] = ((rgb[i] >> 16) & 0xFF) / 255.0f;
+            chw[planeSize + i] = ((rgb[i] >> 8) & 0xFF) / 255.0f;
+            chw[2 * planeSize + i] = (rgb[i] & 0xFF) / 255.0f;
         }
-
         return ctx.getNDManager().create(chw, new Shape(1, channels, height, width));
     }
 }

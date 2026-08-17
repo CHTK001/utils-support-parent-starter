@@ -15,6 +15,10 @@ import java.util.Map;
  * <p>支持流水线嵌套，将另一个 {@link Pipeline} 作为子流程嵌入当前流水线。
  * 子流水线的输入为父上下文的当前数据，执行完毕后将子流程的结果数据写回父上下文。</p>
  *
+ * <p><strong>数据共享：</strong>子流水线上下文通过 {@link PipelineContext#createBranchContext(String, Object)}
+ * 与父上下文共享 {@code attributes} 和 {@code nodeOutputs}（与 {@code ForkNode} 分支一致），
+ * 子流程可直接读写父流程的共享属性。</p>
+ *
  * <p>支持以下可选配置：</p>
  * <ul>
  *   <li>{@link #preHandler(PipelineNode)} — 前置处理器，在子流水线执行前调用</li>
@@ -229,22 +233,17 @@ public class SubPipelineNode implements PipelineNode {
             preHandler.execute(context);
         }
 
-        // 2. 执行子流水线
-        PipelineContext<Object> subCtx;
-        if (startNode != null || (params != null && !params.isEmpty())) {
-            // 需要自定义起始节点或注入参数，使用已有上下文模式
-            subCtx = new PipelineContext<>(subPipeline.getId(), context.getCurrentData());
-            if (startNode != null) {
-                subCtx.setNextNodeId(startNode);
-            }
-            if (params != null && !params.isEmpty()) {
-                Map<String, Object> localData = subCtx.getNodeLocalData();
-                localData.putAll(params);
-            }
-            subCtx = subPipeline.execute(subCtx);
-        } else {
-            subCtx = subPipeline.execute(context.getCurrentData());
+        // 2. 执行子流水线 — 通过 createBranchContext 共享 attributes/nodeOutputs（与 ForkNode 一致）
+        PipelineContext<Object> subCtx =
+                context.createBranchContext(subPipeline.getId(), context.getCurrentData());
+        if (startNode != null) {
+            subCtx.setNextNodeId(startNode);
         }
+        if (params != null && !params.isEmpty()) {
+            Map<String, Object> localData = subCtx.getNodeLocalData();
+            localData.putAll(params);
+        }
+        subCtx = subPipeline.execute(subCtx);
 
         // 3. 将子流程结果以 SubPipelineResult 结构化对象存入父上下文 nodeOutputs
         SubPipelineResult result = new SubPipelineResult(

@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 图像描述（Image Captioning）能力接口。
@@ -27,6 +28,39 @@ public interface ImageCaptioning {
      * @param name 模型名称
      * @return 描述器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static ImageCaptioning create(String provider, String apiKey) {
+        return ServiceProvider.of(ImageCaptioning.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default ImageCaptioning provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default ImageCaptioning model(String model) {
+        return this;
+    }
+
     static ImageCaptioning create(String name) {
         return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

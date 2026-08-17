@@ -302,6 +302,8 @@ public class RustFileSearchHelper {
     private static long[] computeDirTotals(String dirPath, Map<String, List<FileInfo>> children, Map<String, long[]> cache) {
         long[] cached = cache.get(dirPath);
         if (cached != null) {
+            return cached;
+        }
 
         long totalSize = 0, totalFiles = 0, totalDirs = 0;
         List<FileInfo> entries = children.get(dirPath);
@@ -372,6 +374,8 @@ public class RustFileSearchHelper {
 
         static String attributeString(int attrs, boolean isDirectory) {
             if (attrs == 0 && !isDirectory) {
+                return "0x00000000";
+            }
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < MASKS.length; i++) {
                 if ((attrs & MASKS[i]) != 0) {

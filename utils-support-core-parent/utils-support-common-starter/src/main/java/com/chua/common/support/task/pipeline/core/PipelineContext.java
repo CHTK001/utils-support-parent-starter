@@ -314,7 +314,9 @@ public class PipelineContext<T> {
      * @param data   节点输出数据
      */
     public void setNodeOutput(String nodeId, Object data) {
-        this.nodeOutputs.put(nodeId, data);
+        if (data != null) {
+            this.nodeOutputs.put(nodeId, data);
+        }
     }
 
     /**
@@ -570,6 +572,33 @@ public class PipelineContext<T> {
         // attributes 共享引用 — 跨分支共享自定义数据
         branch.attributes = this.attributes;
         // nodeOutputs 共享引用 — 各分支通过不同 key 写入，ConcurrentHashMap 保证线程安全
+        branch.nodeOutputs = this.nodeOutputs;
+        return branch;
+    }
+
+    /**
+     * 创建子流水线/并行分支上下文 — 共享属性与输出，隔离当前数据。
+     *
+     * <p>为子流水线节点（{@link com.chua.common.support.task.pipeline.node.SubPipelineNode}）和
+     * 并行节点（{@link com.chua.common.support.task.pipeline.node.ParallelNode}）创建分支上下文，
+     * 行为与 {@link #createBranchContext()} 一致：{@code attributes} 与 {@code nodeOutputs}
+     * 共享引用，子流程写入的属性和节点输出对父流程可见；
+     * {@code currentData} / {@code originalData} 为子流程的输入数据（独立副本）。</p>
+     *
+     * <p><strong>嵌套结构化并发：</strong>共享 {@code attributes} 意味着子流水线能感知父 Pipeline 的
+     * {@code StructuredTaskScope}（{@code __pipelineScope__}），由 {@code DefaultPipeline.executeWith()}
+     * 的嵌套场景分支直接复用父 scope 运行，与 {@code ForkNode} 分支行为一致。</p>
+     *
+     * @param branchPipelineId 子流水线 ID（用于日志与结果结构化存储）
+     * @param branchData       子流水线的输入数据（作为 originalData 与初始 currentData）
+     * @param <U>              子流水线数据类型
+     * @return 新的子流水线上下文，共享 attributes 与 nodeOutputs
+     */
+    public <U> PipelineContext<U> createBranchContext(String branchPipelineId, U branchData) {
+        PipelineContext<U> branch = new PipelineContext<>(branchPipelineId, branchData);
+        // attributes 共享引用 — 子流程与父流程读写同一 Map
+        branch.attributes = this.attributes;
+        // nodeOutputs 共享引用 — 子流程节点输出对父流程可见（ConcurrentHashMap 保证线程安全）
         branch.nodeOutputs = this.nodeOutputs;
         return branch;
     }

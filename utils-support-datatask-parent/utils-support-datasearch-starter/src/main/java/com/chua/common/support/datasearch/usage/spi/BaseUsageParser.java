@@ -55,6 +55,8 @@ public abstract class BaseUsageParser implements UsageParser {
 
     private String toDay(Long millis) {
         if (millis == null) {
+            return "";
+        }
         return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
                 .toLocalDate().format(DAY_FMT);
     }

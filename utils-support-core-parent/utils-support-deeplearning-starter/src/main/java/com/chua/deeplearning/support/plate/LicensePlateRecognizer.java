@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 车牌识别器，从车牌图像中识别车牌号码和颜色信息。
@@ -22,6 +23,39 @@ public interface LicensePlateRecognizer {
      * @param name 模型名称
      * @return 识别器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static LicensePlateRecognizer create(String provider, String apiKey) {
+        return ServiceProvider.of(LicensePlateRecognizer.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default LicensePlateRecognizer provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default LicensePlateRecognizer model(String model) {
+        return this;
+    }
+
     static LicensePlateRecognizer create(String name) {
         return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

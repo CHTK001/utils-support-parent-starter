@@ -41,11 +41,13 @@ public class TogetherAiPricingProvider extends AbstractPricingProvider {
             for (Element row : rows) {
                 Elements cols = row.select("td");
                 if (cols.size() < 3) {
-                String model = cols.get(0).text().trim();
+                    continue;
+                    }String model = cols.get(0).text().trim();
                 String inputPriceStr = cols.get(1).text().replace("$", "").trim();
                 String outputPriceStr = cols.get(2).text().replace("$", "").trim();
                 if (model.isEmpty()) {
-                try {
+                    continue;
+                    }                try {
                     BigDecimal inputPrice = new BigDecimal(inputPriceStr);
                     BigDecimal outputPrice = new BigDecimal(outputPriceStr);
                     result.add(ModelDefinition.builder()

@@ -6,6 +6,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 图像质量评估器。
@@ -22,6 +23,39 @@ public interface ImageQualityAssessor {
      * @param name 模型名称
      * @return 评估器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static ImageQualityAssessor create(String provider, String apiKey) {
+        return ServiceProvider.of(ImageQualityAssessor.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default ImageQualityAssessor provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default ImageQualityAssessor model(String model) {
+        return this;
+    }
+
     static ImageQualityAssessor create(String name) {
         return new DefaultImageQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

@@ -1,1 +1,1 @@
-onnx=com.chua.deeplearning.support.onnx.OnnxFeatureClient
+onnx=com.chua.deeplearning.support.onnx.feature.OnnxFeatureClient

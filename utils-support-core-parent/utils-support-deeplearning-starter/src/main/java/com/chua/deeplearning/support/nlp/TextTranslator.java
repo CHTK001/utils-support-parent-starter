@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 文本翻译器。
@@ -14,6 +15,39 @@ import java.util.List;
  * @since 4.0.0.42
  */
 public interface TextTranslator {
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static TextTranslator create(String provider, String apiKey) {
+        return com.chua.common.support.spi.ServiceProvider.of(TextTranslator.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default TextTranslator provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default TextTranslator model(String model) {
+        return this;
+    }
+
 
     /**
      * 创建文本翻译器。

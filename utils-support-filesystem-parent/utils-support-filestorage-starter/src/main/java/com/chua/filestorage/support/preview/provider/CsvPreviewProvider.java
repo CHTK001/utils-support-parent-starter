@@ -30,6 +30,8 @@ public class CsvPreviewProvider implements FileStoragePreviewProvider {
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
             if (line.isEmpty()) {
+                continue;
+            }
             String tag = i == 0 ? "th" : "td";
             table.append("<tr>");
             for (String cell : line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1)) {

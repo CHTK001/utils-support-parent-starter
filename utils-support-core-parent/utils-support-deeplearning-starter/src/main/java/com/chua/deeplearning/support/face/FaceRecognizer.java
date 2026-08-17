@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 人脸识别器，提供人脸特征提取、特征比对和识别功能。
@@ -22,6 +23,39 @@ public interface FaceRecognizer {
      * @param name 模型名称
      * @return 识别器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static FaceRecognizer create(String provider, String apiKey) {
+        return ServiceProvider.of(FaceRecognizer.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default FaceRecognizer provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default FaceRecognizer model(String model) {
+        return this;
+    }
+
     static FaceRecognizer create(String name) {
         return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
