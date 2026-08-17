@@ -530,7 +530,7 @@ public final class ModelRegistry {
                 }
             }
         }
-        Path downloadDir = extractRoot.resolve(DOWNLOAD_DIR);
+        Path downloadDir = extractRoot.resolve(DOWNLOAD_DIR).resolve(modelId);
         String fileName = entry.downloadFileName() != null && !entry.downloadFileName().isBlank()
                 ? entry.downloadFileName()
                 : entry.downloadUrl().substring(entry.downloadUrl().lastIndexOf('/') + 1);
