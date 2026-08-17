@@ -1,0 +1,2 @@
+tcp=com.chua.common.support.scatter.TcpScatterNodeServer
+udp=com.chua.common.support.scatter.UdpScatterNodeServer

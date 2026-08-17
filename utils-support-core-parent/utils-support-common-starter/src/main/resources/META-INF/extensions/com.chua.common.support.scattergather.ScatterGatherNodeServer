@@ -1,2 +1,0 @@
-tcp=com.chua.common.support.taskdistribution.scattergather.TcpScatterGatherNodeServer
-udp=com.chua.common.support.taskdistribution.scattergather.UdpScatterGatherNodeServer

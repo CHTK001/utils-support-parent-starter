@@ -2,7 +2,7 @@ package com.chua.common.support.network.cluster;
 
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver;
-import com.chua.common.support.scattergather.ScatterGatherServiceDiscovery;
+import com.chua.common.support.scatter.ScatterServiceDiscovery;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -26,15 +26,15 @@ import java.util.Set;
 @Slf4j
 public class ClusterManager {
 
-    private final ScatterGatherServiceDiscovery discovery;
+    private final ScatterServiceDiscovery discovery;
     private final String balance;
     private final String selfServerId;
 
-    public ClusterManager(ScatterGatherServiceDiscovery discovery, String balance) {
+    public ClusterManager(ScatterServiceDiscovery discovery, String balance) {
         this(discovery, balance, null);
     }
 
-    public ClusterManager(ScatterGatherServiceDiscovery discovery, String balance, String selfServerId) {
+    public ClusterManager(ScatterServiceDiscovery discovery, String balance, String selfServerId) {
         this.discovery = discovery;
         this.balance = balance == null || balance.isBlank() ? "weight" : balance;
         this.selfServerId = selfServerId;
