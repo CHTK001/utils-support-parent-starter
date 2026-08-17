@@ -44,7 +44,8 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
             new ThreadFactoryBuilder().setNameFormat("chronicle-dispatcher-%d").setDaemon(true).build());
     private volatile boolean closed = false;
     private volatile boolean chronicleAvailable = true;
-    private final Map<String, ConcurrentLinkedQueue<Object>> fallbackQueueMap = new ConcurrentHashMap<>();
+    private final Map<String, java.util.concurrent.LinkedBlockingQueue<Object>> fallbackQueueMap = new ConcurrentHashMap<>();
+    private static final int FALLBACK_QUEUE_CAPACITY = 10000;
 
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
@@ -72,8 +73,10 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     public void publish(String topic, Object body) {
         var queue = getOrCreateQueue(topic);
         if (queue == null) {
-            fallbackQueueMap.computeIfAbsent(topic, t -> new ConcurrentLinkedQueue<>()).add(body);
-            log.debug("内存队列已发布消息到主题：{}", topic);
+            var fbq = fallbackQueueMap.computeIfAbsent(topic, t -> new java.util.concurrent.LinkedBlockingQueue<>(FALLBACK_QUEUE_CAPACITY));
+            if (!fbq.offer(body)) {
+                log.warn("内存队列已满，丢弃消息，主题：{}", topic);
+            }
             return;
         }
         try {
@@ -151,28 +154,26 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     private void startFallbackConsumer(String topic) {
         executor.submit(() -> {
-            var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new ConcurrentLinkedQueue<>());
+            var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new java.util.concurrent.LinkedBlockingQueue<>(FALLBACK_QUEUE_CAPACITY));
             while (!closed) {
-                var body = fallbackQueue.poll();
-                if (body != null) {
-                    var definitions = definitionMap.get(topic);
-                    if (definitions != null) {
-                        for (var def : definitions) {
-                            try {
-                                System.out.println("[FALLBACK-CONSUME] topic=" + topic + " body=" + body);
-                                def.dispatch(body);
-                            } catch (Exception e) {
-                                log.warn("订阅方法执行异常，主题：{}", topic, e);
+                try {
+                    var body = fallbackQueue.poll(100, TimeUnit.MILLISECONDS);
+                    if (body != null) {
+                        var definitions = definitionMap.get(topic);
+                        if (definitions != null) {
+                            for (var def : definitions) {
+                                try {
+                                    System.out.println("[FALLBACK-CONSUME] topic=" + topic + " body=" + body);
+                                    def.dispatch(body);
+                                } catch (Exception e) {
+                                    log.warn("订阅方法执行异常，主题：{}", topic, e);
+                                }
                             }
                         }
                     }
-                } else {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
             }
         });
