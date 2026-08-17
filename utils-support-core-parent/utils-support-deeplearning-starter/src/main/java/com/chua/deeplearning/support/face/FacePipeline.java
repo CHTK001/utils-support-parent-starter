@@ -926,7 +926,77 @@ public class FacePipeline {
         if (featureExtractor == null) {
             return new float[0];
         }
-        return featureExtractor.extract(imageData);
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return new float[0];
+        }
+        FaceContext fc = new FaceContext(imageData, boxes);
+        while (fc.advance()) {
+            runSingle(fc, identifyPipeline);
+            if (fc.currentFeature() != null && fc.currentFeature().length > 0) {
+                return fc.currentFeature();
+            }
+        }
+        return new float[0];
+    }
+
+    /**
+     * 人脸对齐管线（最大人脸）：detect → crop → liveness → align。
+     *
+     * <p>未配置关键点模型时 alignedFace 等同于 faceImage（不旋转）。</p>
+     *
+     * @param imageData 场景图
+     * @return 对齐结果，无人脸返回 null
+     */
+    public FaceAlignResult align(byte[] imageData) {
+        long t0 = System.currentTimeMillis();
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return null;
+        }
+        PredictRectangle largest = pickLargest(boxes);
+        FaceContext fc = new FaceContext(imageData, List.of(largest));
+        fc.advance();
+        runSingle(fc, identifyPipeline);
+        byte[] aligned = fc.currentAlignedFace() != null ? fc.currentAlignedFace() : fc.currentFace();
+        return new FaceAlignResult(
+                fc.currentBox(),
+                fc.currentFace(),
+                aligned,
+                fc.currentLive(),
+                fc.currentLiveScore(),
+                System.currentTimeMillis() - t0);
+    }
+
+    /**
+     * 特征提取完整管线（最大人脸）：detect → crop → liveness → align → feature。
+     *
+     * <p>返回检测框、裁剪图、对齐图、活体、特征向量与耗时，活体失败时 feature 为 null。</p>
+     *
+     * @param imageData 场景图
+     * @return 特征管线结果，无人脸返回 null
+     */
+    public FaceFeaturePipelineResult extractFeatureWithMeta(byte[] imageData) {
+        long t0 = System.currentTimeMillis();
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return null;
+        }
+        PredictRectangle largest = pickLargest(boxes);
+        FaceContext fc = new FaceContext(imageData, List.of(largest));
+        fc.advance();
+        runSingle(fc, identifyPipeline);
+        float[] feature = fc.currentFeature();
+        byte[] aligned = fc.currentAlignedFace() != null ? fc.currentAlignedFace() : fc.currentFace();
+        return new FaceFeaturePipelineResult(
+                fc.currentBox(),
+                fc.currentFace(),
+                aligned,
+                fc.currentLive(),
+                fc.currentLiveScore(),
+                feature,
+                feature == null ? 0 : feature.length,
+                System.currentTimeMillis() - t0);
     }
 
     /**
