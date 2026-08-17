@@ -167,6 +167,21 @@ public enum Protocol {
     SHARDING_SPHERE("ShardingSphere", 0, false),
 
     /**
+     * Neo4j 图数据库
+     */
+    NEO4J("Neo4j", 7687, false),
+
+    /**
+     * Hazelcast 分布式缓存
+     */
+    HAZELCAST("Hazelcast", 5701, false),
+
+    /**
+     * Apache Solr 搜索引擎
+     */
+    SOLR("Solr", 8983, false),
+
+    /**
      * InfluxDB（时序数据库）
      */
     INFLUXDB("InfluxDB", 8086, false),
@@ -256,6 +271,9 @@ public enum Protocol {
             case 16020 -> HBASE;
             case 6650 -> PULSAR;
             case 9090 -> THRIFT;
+            case 7687 -> NEO4J;
+            case 5701 -> HAZELCAST;
+            case 8983 -> SOLR;
             case 8086 -> INFLUXDB;
             default -> UNKNOWN;
         };
