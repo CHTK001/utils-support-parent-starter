@@ -29,6 +29,9 @@ public class ClusterSetting {
     /** 业务分组标识:同一服务路径下仅与同 scatterId 节点互通 */
     private String scatterId = "default";
 
+    /** 集群标识:同一集群内 clusterId 与 scatterId 一致,仅对同类服务器使用 scatter 集群能力;为空时回落 scatterId */
+    private String clusterId;
+
     /** 集群种子节点(host:port 列表,引导无中心化发现) */
     private List<String> seeds = new ArrayList<>();
 
@@ -57,6 +60,15 @@ public class ClusterSetting {
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
+     * 获取有效业务分组：clusterId 为空时回落 scatterId。
+     *
+     * @return 分组标识
+     */
+    public String effectiveGroupId() {
+        return clusterId != null && !clusterId.isBlank() ? clusterId : scatterId;
+    }
+
+    /**
      * 转换为 scatter 配置。
      *
      * @return ScatterSetting
@@ -67,7 +79,7 @@ public class ClusterSetting {
         setting.setHost(host);
         // scatter 通信端口:显式 scatterPort 或默认 port+2,与 HTTP(port)/TCP 代理(port+1)分离
         setting.setPort(scatterPort > 0 ? scatterPort : (port > 0 ? port + 2 : 0));
-        setting.setGroupId(scatterId);
+        setting.setGroupId(effectiveGroupId());
         if (!seeds.isEmpty()) {
             setting.setSeeds(seeds);
         }

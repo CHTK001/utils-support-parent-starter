@@ -1,5 +1,6 @@
 package com.chua.common.support.scatter;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
@@ -11,6 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,9 +49,19 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
     private static final double DEFAULT_WEIGHT = 1D;
 
     /**
+     * 周期全量兜底间隔（轮数）：每 N 轮做一次全量探测，保证最终一致
+     */
+    private static final long FULL_PROBE_INTERVAL_ROUNDS = 10L;
+
+    /**
      * 节点配置
      */
     private final ScatterSetting setting;
+
+    /**
+     * 网段探测轮次计数（首启全量，后续随机抽样，每 N 轮全量兜底）
+     */
+    private long probeRound;
 
     /**
      * 远程客户端
@@ -61,11 +73,6 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
      * 自动发现执行器
      */
     private ScheduledExecutorService autoDiscoveryExecutor;
-
-    /**
-     * 心跳执行器
-     */
-    private ScheduledExecutorService heartbeatExecutor;
 
     /**
      * 执行器
@@ -148,29 +155,22 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
         started = true;
         executorService = ThreadUtils.newCachedThreadPool("scatter-executor");
 
-        // ① 注册自身（按 groupId 分组）
+        // ① 加载持久化节点(后续启动无需重新检索,直接进 hash 表)
+        loadPersistedNodes();
+
+        // ② 注册自身（按 groupId 分组）
         registerSelf();
 
-        // ② 注册 seed 引导节点
+        // ③ 注册 seed 引导节点
         registerSeedNodes();
 
-        // ③ 启动 gossip 自动发现
+        // ③ 启动 gossip 自动发现（同步即心跳：动态权重随同步上报，不再单独发心跳）
         autoDiscoveryExecutor = ThreadUtils.newSingleThreadScheduledExecutor(
                 ThreadUtils.newThreadFactory("scatter-auto-discovery"));
         autoDiscoveryExecutor.scheduleAtFixedRate(this::autoDiscovery,
                 setting.getAutoDiscoveryIntervalMillis(),
                 setting.getAutoDiscoveryIntervalMillis(),
                 TimeUnit.MILLISECONDS);
-
-        // ④ 启动动态权重心跳
-        if (setting.isHeartbeatEnabled()) {
-            heartbeatExecutor = ThreadUtils.newSingleThreadScheduledExecutor(
-                    ThreadUtils.newThreadFactory("scatter-heartbeat"));
-            heartbeatExecutor.scheduleAtFixedRate(this::sendHeartbeat,
-                    setting.getHeartbeatIntervalMillis(),
-                    setting.getHeartbeatIntervalMillis(),
-                    TimeUnit.MILLISECONDS);
-        }
         log.info("Scatter 服务发现已启动: node={}, groupId={}, protocol={}",
                 setting.getNodeId(), getGroupId(), setting.getProtocol());
     }
@@ -229,13 +229,43 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
 
     /**
      * gossip 自动发现：向已知节点（seed 或网段）拉取服务列表，合并进本地缓存。
+     * <p>同步即心跳：每次同步前更新自身动态权重，远端拉取时即能拿到最新权重。</p>
+     * <p>网段策略：首启全量探测一次（解决已开启节点没数据），后续随机抽样扩散
+     * （seed 恒在抽样池），每 {@link #FULL_PROBE_INTERVAL_ROUNDS} 轮全量兜底一次保证最终一致。</p>
      */
     private void autoDiscovery() {
         try {
+            // 同步即心跳：更新自身动态权重（远端通过 gossip 拉取到最新权重，替代独立心跳）
+            if (setting.isDynamicWeight()) {
+                updateService(setting.getServicePath(), Discovery.builder()
+                        .id(setting.getNodeId())
+                        .serverId(setting.getNodeId())
+                        .scatterId(getGroupId())
+                        .protocol(setting.getProtocol())
+                        .host(setting.getHost())
+                        .port(setting.getPort())
+                        .timeout((int) setting.getTimeoutMillis())
+                        .weight(computeDynamicWeight())
+                        .metadata(Map.of())
+                        .build());
+            }
             List<ScatterNode> remoteNodes = new ArrayList<>(resolveSeedNodes());
-            // 网段模式：固定相同端口，扫描网段内全部主机
+            // 网段模式：首启全量 / 周期全量兜底 / 随机抽样扩散
             if (setting.getSubnet() != null && !setting.getSubnet().isBlank()) {
-                remoteNodes.addAll(resolveSubnetNodes());
+                List<ScatterNode> subnetNodes = resolveSubnetNodes();
+                if (!subnetNodes.isEmpty()) {
+                    boolean fullProbe = probeRound == 0 || probeRound % FULL_PROBE_INTERVAL_ROUNDS == 0;
+                    if (fullProbe || subnetNodes.size() <= setting.getGossipTargetCount()) {
+                        remoteNodes.addAll(subnetNodes);
+                        log.debug("网段全量探测: {} 台主机 (round={})", subnetNodes.size(), probeRound);
+                    } else {
+                        // 随机抽样扩散：seed 恒在池，网段内随机取 gossipTargetCount 台
+                        Collections.shuffle(subnetNodes);
+                        remoteNodes.addAll(subnetNodes.subList(0, setting.getGossipTargetCount()));
+                        log.debug("网段随机抽样 gossip: {} 台 (round={})", setting.getGossipTargetCount(), probeRound);
+                    }
+                }
+                probeRound++;
             }
             if (remoteNodes.isEmpty()) {
                 return;
@@ -264,30 +294,71 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
             }
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                     .get(setting.getTimeoutMillis(), TimeUnit.MILLISECONDS);
+            // 同步完成:将有效节点定时持久化到本地文件,后续启动直接加载进 hash 表
+            persistNodes();
         } catch (Exception e) {
             log.debug("自动发现异常: {}", e.getMessage());
         }
     }
 
     /**
-     * 心跳：重新注册自身并携带动态权重。
+     * 将本地缓存中的有效节点定时持久化到本地文件。
+     * <p>后续启动时直接加载进 hash 表,无需重新检索。</p>
      */
-    private void sendHeartbeat() {
+    private void persistNodes() {
+        if (!setting.isPersistenceEnabled()) {
+            return;
+        }
         try {
-            Discovery self = Discovery.builder()
-                    .id(setting.getNodeId())
-                    .serverId(setting.getNodeId())
-                    .scatterId(getGroupId())
-                    .protocol(setting.getProtocol())
-                    .host(setting.getHost())
-                    .port(setting.getPort())
-                    .timeout((int) setting.getTimeoutMillis())
-                    .weight(setting.isDynamicWeight() ? computeDynamicWeight() : DEFAULT_WEIGHT)
-                    .metadata(Map.of("lastHeartbeat", String.valueOf(System.currentTimeMillis())))
-                    .build();
-            updateService(setting.getServicePath(), self);
+            List<Discovery> nodes = new ArrayList<>(getServiceAll(setting.getServicePath()));
+            if (nodes.isEmpty()) {
+                return;
+            }
+            java.nio.file.Path path = java.nio.file.Paths.get(setting.getPersistenceFile());
+            if (path.getParent() != null) {
+                java.nio.file.Files.createDirectories(path.getParent());
+            }
+            java.nio.file.Files.write(path, Json.toJson(nodes).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            log.debug("节点持久化完成: {} 个节点 -> {}", nodes.size(), setting.getPersistenceFile());
         } catch (Exception e) {
-            log.warn("心跳发送失败: {}", e.getMessage());
+            log.warn("节点持久化失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 启动时加载持久化节点文件,直接写入本地 hash 表,避免重新检索。
+     */
+    private void loadPersistedNodes() {
+        if (!setting.isPersistenceEnabled()) {
+            return;
+        }
+        try {
+            java.nio.file.Path path = java.nio.file.Paths.get(setting.getPersistenceFile());
+            if (!java.nio.file.Files.exists(path)) {
+                return;
+            }
+            String json = java.nio.file.Files.readString(path, java.nio.charset.StandardCharsets.UTF_8);
+            if (json == null || json.isBlank()) {
+                return;
+            }
+            List<Discovery> nodes = Json.fromJsonToList(json, Discovery.class);
+            int loaded = 0;
+            for (Discovery node : nodes) {
+                if (node == null || node.getHost() == null) {
+                    continue;
+                }
+                // 仅加载同分组节点
+                if (getGroupId().equals(node.getScatterId())) {
+                    addToCache(setting.getServicePath(), node);
+                    loaded++;
+                }
+            }
+            if (loaded > 0) {
+                incrementServiceVersion();
+                log.info("加载持久化节点: {} 个 -> {}", loaded, setting.getPersistenceFile());
+            }
+        } catch (Exception e) {
+            log.warn("加载持久化节点失败: {}", e.getMessage());
         }
     }
 
@@ -450,7 +521,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
     }
 
     /**
-     * 停止发现：关闭自动发现、心跳与执行器，按配置清理缓存。
+     * 停止发现：关闭自动发现与执行器，按配置清理缓存。
      */
     public synchronized void stop() throws Exception {
         if (!started) {
@@ -460,10 +531,6 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
         if (autoDiscoveryExecutor != null) {
             autoDiscoveryExecutor.shutdownNow();
             autoDiscoveryExecutor = null;
-        }
-        if (heartbeatExecutor != null) {
-            heartbeatExecutor.shutdownNow();
-            heartbeatExecutor = null;
         }
         if (executorService != null) {
             executorService.shutdownNow();

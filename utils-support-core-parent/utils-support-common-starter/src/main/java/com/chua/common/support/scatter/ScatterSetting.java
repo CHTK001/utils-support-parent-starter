@@ -141,9 +141,24 @@ public class ScatterSetting {
     private long autoDiscoveryIntervalMillis = DEFAULT_AUTO_DISCOVERY_INTERVAL_MILLIS;
 
     /**
+     * gossip 每轮抽样扩散的目标节点数（网段模式下首启全量探测后，后续随机抽样扩散），默认 3
+     */
+    private int gossipTargetCount = 3;
+
+    /**
      * 动态权重上报(心跳携带 cpu+内存计算)，默认开启
      */
     private boolean dynamicWeight = true;
+
+    /**
+     * 节点持久化：有效节点定时保存到本地文件，后续启动直接加载进 hash 表，无需重新检索，默认开启
+     */
+    private boolean persistenceEnabled = true;
+
+    /**
+     * 节点持久化文件路径，默认 ".scatter-nodes.json"
+     */
+    private String persistenceFile = ".scatter-nodes.json";
 
     /**
      * 是否在关闭时清除资源
