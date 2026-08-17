@@ -17,9 +17,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import kcp.ChannelConfig;
 import kcp.KcpListener;
-import kcp.KcpServer;
 import kcp.Ukcp;
-import lombok.extern.slf4j.Slf4j;
+import kcp.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -45,9 +46,10 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 @Spi("kcp")
 public class KcpServer extends AbstractServer {
+
+    private static final Logger log = LoggerFactory.getLogger(KcpServer.class);
 
     /**
      * KCP 会话标识（conv），两端保持一致
@@ -147,7 +149,7 @@ public class KcpServer extends AbstractServer {
     /**
      * kcp-base 服务器实例
      */
-    private KcpServer kcpBaseServer;
+    private kcp.KcpServer kcpBaseServer;
 
     /**
      * KCP 配置（绑定到 kcp-base ChannelConfig）
@@ -184,7 +186,7 @@ public class KcpServer extends AbstractServer {
         eventLoopGroup = new NioEventLoopGroup(setting.getBossThreads());
         channelConfig.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
 
-        kcpBaseServer = KcpServer.createStarted(channelConfig, new OAuthKcpListener(), setting.getPort());
+        kcpBaseServer = kcp.KcpServer.createStarted(channelConfig, new OAuthKcpListener(), setting.getPort());
         log.info("KCP 服务器启动: {}:{}", setting.getHost(), setting.getPort());
     }
 
@@ -430,8 +432,8 @@ public class KcpServer extends AbstractServer {
 
         @Override
         public void onConnected(Ukcp ukcp) {
-            String initialId = ukcp.remoteAddress() != null
-                    ? ukcp.remoteAddress().toString() : "client-" + ukcp.hashCode();
+            // kcp-base 1.6.2 的 Ukcp 未暴露 remoteAddress()，用 hashCode 兜底，由客户端 register: 重命名
+            String initialId = "client-" + System.nanoTime() + "-" + ukcp.hashCode();
             sessions.put(initialId, ukcp);
             Map<String, Object> meta = new HashMap<>();
             meta.put("clientId", initialId);
@@ -448,12 +450,9 @@ public class KcpServer extends AbstractServer {
 
         @Override
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
-            try {
-                String line = byteBuf.toString(StandardCharsets.UTF_8).trim();
-                handleLine(ukcp, line);
-            } finally {
-                byteBuf.release();
-            }
+            // kcp-base 1.6.2 ReadTask 自行管理 ByteBuf 引用计数，此处不可 release（双重释放会 IllegalReferenceCountException）
+            String line = byteBuf.toString(StandardCharsets.UTF_8).trim();
+            handleLine(ukcp, line);
         }
 
         @Override
@@ -464,8 +463,9 @@ public class KcpServer extends AbstractServer {
 
         @Override
         public void handleClose(Ukcp ukcp) {
-            User user = ukcp.user();
-            String clientId = user != null ? user.getClientId() : null;
+            kcp.User user = ukcp.user();
+            String clientId = user != null && user.getCache() instanceof String
+                    ? (String) user.getCache() : null;
             if (clientId != null) {
                 sessions.remove(clientId);
                 sessionMetadata.remove(clientId);
@@ -557,20 +557,5 @@ public class KcpServer extends AbstractServer {
      * 用 ConcurrentHashMap 包装 topic->handlers（避免再写一个类）。
      */
     private static final class ConcurrentHashMapAliasMap extends java.util.concurrent.ConcurrentHashMap<String, List<BiConsumer<String, String>>> {
-    }
-
-    /**
-     * KCP 会话用户对象，挂在 Ukcp.user() 上。
-     */
-    public static final class User {
-        private final String clientId;
-
-        public User(String clientId) {
-            this.clientId = clientId;
-        }
-
-        public String getClientId() {
-            return clientId;
-        }
     }
 }
