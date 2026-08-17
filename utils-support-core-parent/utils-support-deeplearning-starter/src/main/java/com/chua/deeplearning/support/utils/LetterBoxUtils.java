@@ -111,31 +111,56 @@ public class LetterBoxUtils {
         int newW = Math.round(origW * r);
         int newH = Math.round(origH * r);
 
-        img = resizeWithAwt(ndManager, img, newW, newH);
-
-        var paddingImg = ndManager.zeros(new Shape(targetH, targetW, 3), DataType.FLOAT32);
-        paddingImg = paddingImg.add(114);
-
-        int padW = targetW - newW;
-        int padH = targetH - newH;
-        int top = 0;
-        int left = 0;
-
-        switch (position) {
-            case CENTER -> {
-                left = padW / 2;
-                top = padH / 2;
-            }
-            case LEFT_TOP -> {
-                left = 0;
-                top = 0;
-            }
-            case RIGHT_BOTTOM -> {
-                left = padW;
-                top = padH;
+        // 用 AWT 完成 resize + padding（规避 DJL NDArray 不支持 set/NDIndex）
+        long[] shape = img.getShape().getShape();
+        int oH = (int) shape[0], oW = (int) shape[1];
+        float[] pixels = img.toType(DataType.FLOAT32, false).toFloatArray();
+        int len = oW * oH;
+        BufferedImage bi = new BufferedImage(oW, oH, BufferedImage.TYPE_3BYTE_BGR);
+        for (int y = 0; y < oH; y++) {
+            for (int x = 0; x < oW; x++) {
+                int idx = y * oW + x;
+                int rv = (int) (pixels[idx] * 255f);
+                int gv = (int) (pixels[len + idx] * 255f);
+                int bv = (int) (pixels[2 * len + idx] * 255f);
+                int rgb = (Math.min(255, Math.max(0, rv)) << 16) | (Math.min(255, Math.max(0, gv)) << 8) | Math.min(255, Math.max(0, bv));
+                bi.setRGB(x, y, rgb);
             }
         }
-        paddingImg.set(new NDIndex(String.format("%d:%d,%d:%d", top, top + newH, left, left + newW)), img);
+        // 缩放
+        BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_3BYTE_BGR);
+        java.awt.Graphics2D g2d = resized.createGraphics();
+        g2d.drawImage(bi, 0, 0, newW, newH, null);
+        g2d.dispose();
+        // 填充到目标尺寸
+        BufferedImage padded = new BufferedImage(targetW, targetH, BufferedImage.TYPE_3BYTE_BGR);
+        g2d = padded.createGraphics();
+        int pc = Math.round(padColor);
+        g2d.setColor(new java.awt.Color(pc, pc, pc));
+        g2d.fillRect(0, 0, targetW, targetH);
+        int padW = targetW - newW;
+        int padH = targetH - newH;
+        int top = 0, left = 0;
+        switch (position) {
+            case CENTER -> { left = padW / 2; top = padH / 2; }
+            case LEFT_TOP -> { left = 0; top = 0; }
+            case RIGHT_BOTTOM -> { left = padW; top = padH; }
+        }
+        g2d.drawImage(resized, left, top, null);
+        g2d.dispose();
+        // 转回 NDArray
+        int tLen = targetW * targetH;
+        float[] out = new float[3 * tLen];
+        for (int y = 0; y < targetH; y++) {
+            for (int x = 0; x < targetW; x++) {
+                int rgb = padded.getRGB(x, y);
+                int idx = y * targetW + x;
+                out[idx] = ((rgb >> 16) & 0xFF) / 255f;
+                out[tLen + idx] = ((rgb >> 8) & 0xFF) / 255f;
+                out[2 * tLen + idx] = (rgb & 0xFF) / 255f;
+            }
+        }
+        NDArray paddingImg = ndManager.create(out, new Shape(targetH, targetW, 3));
         var resizeResult = letterboxWithMeta(paddingImg, r, left, top);
         resizeResult.padW = padW;
         resizeResult.padH = padH;
@@ -314,7 +339,7 @@ public class LetterBoxUtils {
         long[] shape = img.getShape().getShape();
         int origH = (int) shape[0];
         int origW = (int) shape[1];
-        float[] pixels = img.toFloatArray();
+        float[] pixels = img.toType(DataType.FLOAT32, false).toFloatArray();
         int len = origW * origH;
         BufferedImage bi = new BufferedImage(origW, origH, BufferedImage.TYPE_3BYTE_BGR);
         for (int y = 0; y < origH; y++) {
