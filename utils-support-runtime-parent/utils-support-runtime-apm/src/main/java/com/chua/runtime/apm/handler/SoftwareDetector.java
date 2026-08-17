@@ -209,6 +209,18 @@ public final class SoftwareDetector {
         // Hibernate
         put("org.hibernate", Software.HIBERNATE);
 
+        // Spring Data JPA
+        put("org.springframework.data.jpa", Software.SPRING_DATA_JPA);
+
+        // Vert.x
+        put("io.vertx", Software.VERTX);
+
+        // Play Framework
+        put("play", Software.PLAY);
+
+        // Reactive Streams
+        put("org.reactivestreams", Software.REACTIVE_STREAMS);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 

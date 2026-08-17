@@ -318,6 +318,26 @@ public enum Software {
     SPRING_CLOUD_STREAM("Spring Cloud Stream"),
 
     /**
+     * Vert.x
+     */
+    VERTX("Vert.x"),
+
+    /**
+     * Play Framework
+     */
+    PLAY("Play Framework"),
+
+    /**
+     * Spring Data JPA
+     */
+    SPRING_DATA_JPA("Spring Data JPA"),
+
+    /**
+     * Reactive Streams
+     */
+    REACTIVE_STREAMS("Reactive Streams"),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");
