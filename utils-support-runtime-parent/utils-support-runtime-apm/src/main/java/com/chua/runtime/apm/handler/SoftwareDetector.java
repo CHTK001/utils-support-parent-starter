@@ -63,6 +63,16 @@ public final class SoftwareDetector {
         put("com.rabbitmq", Software.RABBITMQ_CLIENT);
         put("org.springframework.amqp", Software.RABBITMQ_CLIENT);
 
+        // MQTT (Paho)
+        put("org.eclipse.paho", Software.PAHO_MQTT);
+
+        // OpenFeign
+        put("feign", Software.FEIGN);
+        put("org.springframework.cloud.openfeign", Software.FEIGN);
+
+        // Spring RestTemplate
+        put("org.springframework.web.client", Software.REST_TEMPLATE);
+
         // MongoDB
         put("com.mongodb", Software.MONGODB_DRIVER);
 

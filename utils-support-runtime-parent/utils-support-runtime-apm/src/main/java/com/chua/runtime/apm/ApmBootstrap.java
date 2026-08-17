@@ -7,6 +7,7 @@ import com.chua.runtime.apm.handler.Db2Handler;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.DubboHandler;
 import com.chua.runtime.apm.handler.ElasticsearchHandler;
+import com.chua.runtime.apm.handler.FeignHandler;
 import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.GrpcHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
@@ -19,6 +20,7 @@ import com.chua.runtime.apm.handler.LettuceHandler;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.MemcachedHandler;
 import com.chua.runtime.apm.handler.MongoDbHandler;
+import com.chua.runtime.apm.handler.MqttHandler;
 import com.chua.runtime.apm.handler.MySqlHandler;
 import com.chua.runtime.apm.handler.NacosHandler;
 import com.chua.runtime.apm.handler.NetHandler;
@@ -26,6 +28,7 @@ import com.chua.runtime.apm.handler.OracleHandler;
 import com.chua.runtime.apm.handler.PostgreSqlHandler;
 import com.chua.runtime.apm.handler.RabbitMqHandler;
 import com.chua.runtime.apm.handler.RedissonHandler;
+import com.chua.runtime.apm.handler.RestTemplateHandler;
 import com.chua.runtime.apm.handler.RocketMqHandler;
 import com.chua.runtime.apm.handler.SqlServerHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
@@ -119,11 +122,14 @@ public class ApmBootstrap {
         handlers.add(new MongoDbHandler());
         handlers.add(new MemcachedHandler());
         handlers.add(new RabbitMqHandler());
+        handlers.add(new MqttHandler());
         handlers.add(new ElasticsearchHandler());
         handlers.add(new GrpcHandler());
         handlers.add(new DubboHandler());
         handlers.add(new NacosHandler());
         handlers.add(new HttpClientHandler());
+        handlers.add(new FeignHandler());
+        handlers.add(new RestTemplateHandler());
         // 每个 handler 独立 try/catch,单个失败不阻断其他
         for (Plugin handler : handlers) {
             try {

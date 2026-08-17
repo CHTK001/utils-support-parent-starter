@@ -92,6 +92,11 @@ public enum Protocol {
     RABBITMQ("RabbitMQ", 5672, false),
 
     /**
+     * MQTT（消息队列遥测传输）
+     */
+    MQTT("MQTT", 1883, false),
+
+    /**
      * MongoDB
      */
     MONGODB("MongoDB", 27017, false),
@@ -207,6 +212,7 @@ public enum Protocol {
             case 9200, 9300 -> ELASTICSEARCH;
             case 11211 -> MEMCACHED;
             case 5672, 15672 -> RABBITMQ;
+            case 1883, 8883 -> MQTT;
             case 27017 -> MONGODB;
             case 1521 -> ORACLE;
             case 1433 -> SQLSERVER;
