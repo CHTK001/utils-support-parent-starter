@@ -49,7 +49,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 动漫风格迁移(AnimeGANv2-Paprika)：将照片转换为今敏/Paprika 风格（梦幻、色彩浓郁）；适用艺术创作、特效处理
         reg("anime-gan-v2-paprika", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/paprika.onnx");
         // 动漫风格迁移(AnimeGANv2-FacePortrait)：专为人像优化的动漫化模型，人脸细节保留更好；适用人像动漫化、头像制作
-        reg("anime-gan-v2-face-portrait", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/face_portrait_v2.onnx");
+        reg("anime-gan-v2-face-portrait", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2NchwTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/face_portrait_v2.onnx");
         // 图像质量评估(NIMA)：对图片美学质量打分（1-10分），评分越高越美观；适用图片筛选、封面推荐、摄影评分
         reg("nima", "com.chua.deeplearning.support.onnx.assessment.NimaTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/assessment/nima/nima.onnx", "https://huggingface.co/onnx-community/NIMA/resolve/main/onnx/model.onnx", false, null);
         // 动漫/真人分类：判断图片是二次元动漫还是真实照片；适用内容路由、图片分类、预处理过滤
