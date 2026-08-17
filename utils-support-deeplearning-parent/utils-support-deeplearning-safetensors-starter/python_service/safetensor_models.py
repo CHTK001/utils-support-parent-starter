@@ -393,6 +393,23 @@ class BaseRunner:
         candidates.append(self.model_root / "_hf" / repo_id)
         candidates.append(self.model_root / "_hf" / repo_norm)
         candidates.append(self.model_root / "_hf_local" / repo_norm)
+        # ModelScope 新版缓存结构: {root}/models/{repo_norm}/snapshots/{revision}
+        ms_models = self.model_root / "models" / repo_norm / "snapshots"
+        if ms_models.exists():
+            for child in ms_models.iterdir():
+                if child.is_dir():
+                    candidates.append(child)
+            refs = self.model_root / "models" / repo_norm / "refs"
+            if refs.exists():
+                for ref in ("main", "master"):
+                    ref_file = refs / ref
+                    if ref_file.exists():
+                        try:
+                            snapshot = ms_models / ref_file.read_text(encoding="utf-8").strip()
+                            if snapshot.exists():
+                                candidates.append(snapshot)
+                        except Exception:
+                            pass
         if source == "huggingface" and "/" in repo_id:
             org, name = repo_id.split("/", 1)
             hf_root = self.model_root / "_hf_local" / repo_norm
