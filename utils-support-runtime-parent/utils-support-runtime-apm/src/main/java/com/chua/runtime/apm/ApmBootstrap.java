@@ -1,13 +1,20 @@
 package com.chua.runtime.apm;
 
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
+import com.chua.runtime.apm.handler.ElasticsearchHandler;
 import com.chua.runtime.apm.handler.FileHandler;
+import com.chua.runtime.apm.handler.GrpcHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.JedisHandler;
 import com.chua.runtime.apm.handler.KafkaHandler;
+import com.chua.runtime.apm.handler.LettuceHandler;
 import com.chua.runtime.apm.handler.LogHandler;
+import com.chua.runtime.apm.handler.MongoDbHandler;
+import com.chua.runtime.apm.handler.MySqlHandler;
 import com.chua.runtime.apm.handler.NetHandler;
 import com.chua.runtime.apm.handler.PostgreSqlHandler;
+import com.chua.runtime.apm.handler.RabbitMqHandler;
+import com.chua.runtime.apm.handler.RedissonHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
 import com.chua.runtime.apm.handler.ZooKeeperHandler;
@@ -82,8 +89,15 @@ public class ApmBootstrap {
         handlers.add(new HandleLeakHandler());
         handlers.add(new ZooKeeperHandler());
         handlers.add(new JedisHandler());
+        handlers.add(new LettuceHandler());
+        handlers.add(new RedissonHandler());
         handlers.add(new KafkaHandler());
+        handlers.add(new MySqlHandler());
         handlers.add(new PostgreSqlHandler());
+        handlers.add(new MongoDbHandler());
+        handlers.add(new RabbitMqHandler());
+        handlers.add(new ElasticsearchHandler());
+        handlers.add(new GrpcHandler());
         // 每个 handler 独立 try/catch,单个失败不阻断其他
         for (Plugin handler : handlers) {
             try {
