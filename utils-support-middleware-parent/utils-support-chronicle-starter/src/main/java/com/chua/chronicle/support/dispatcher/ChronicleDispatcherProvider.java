@@ -163,7 +163,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                         if (definitions != null) {
                             for (var def : definitions) {
                                 try {
-                                    System.out.println("[FALLBACK-CONSUME] topic=" + topic + " body=" + body);
+                                    System.out.println("[FALLBACK-CONSUME] topic=" + topic);
                                     def.dispatch(body);
                                 } catch (Exception e) {
                                     log.warn("订阅方法执行异常，主题：{}", topic, e);
