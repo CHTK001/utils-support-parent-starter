@@ -181,6 +181,15 @@ public final class SoftwareDetector {
         // ShardingSphere
         put("org.apache.shardingsphere", Software.SHARDING_SPHERE);
 
+        // Neo4j
+        put("org.neo4j.driver", Software.NEO4J_DRIVER);
+
+        // Hazelcast
+        put("com.hazelcast", Software.HAZELCAST);
+
+        // Solr
+        put("org.apache.solr", Software.SOLR);
+
         // SAP HANA
         put("com.sap.cloud.db", Software.UNKNOWN);
     }};

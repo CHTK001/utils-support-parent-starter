@@ -188,6 +188,21 @@ public enum Software {
     SHARDING_SPHERE("ShardingSphere"),
 
     /**
+     * Neo4j Java Driver
+     */
+    NEO4J_DRIVER("Neo4j Driver"),
+
+    /**
+     * Hazelcast Client
+     */
+    HAZELCAST("Hazelcast"),
+
+    /**
+     * Apache Solr Client
+     */
+    SOLR("Solr"),
+
+    /**
      * InfluxDB Java Client
      */
     INFLUXDB_CLIENT("InfluxDB Client"),

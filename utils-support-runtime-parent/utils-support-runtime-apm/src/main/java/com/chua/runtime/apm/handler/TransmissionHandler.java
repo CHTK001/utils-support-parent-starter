@@ -497,6 +497,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case PULSAR -> { return Protocol.PULSAR; }
             case THRIFT -> { return Protocol.THRIFT; }
             case SHARDING_SPHERE -> { return Protocol.SHARDING_SPHERE; }
+            case NEO4J_DRIVER -> { return Protocol.NEO4J; }
+            case HAZELCAST -> { return Protocol.HAZELCAST; }
+            case SOLR -> { return Protocol.SOLR; }
             case INFLUXDB_CLIENT -> { return Protocol.INFLUXDB; }
             case DB2_DRIVER -> { return Protocol.DB2; }
             case DAMENG_DRIVER -> { return Protocol.DAMENG; }
