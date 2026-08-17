@@ -221,8 +221,13 @@ public enum Protocol {
      */
     INTERNAL("Internal", 0, false),
 
+/**
+     * SQL (generic database protocol)
+     */
+    SQL("SQL", 0, false),
+
     /**
-     * 未知协议
+     * UNKNOWN
      */
     UNKNOWN("Unknown", 0, false);
 
