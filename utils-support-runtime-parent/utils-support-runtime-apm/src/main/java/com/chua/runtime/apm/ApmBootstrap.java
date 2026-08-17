@@ -75,6 +75,7 @@ import com.chua.runtime.apm.handler.SpringMvcHandler;
 import com.chua.runtime.apm.handler.SqlServerHandler;
 import com.chua.runtime.apm.handler.SeataHandler;
 import com.chua.runtime.apm.handler.ThriftHandler;
+import com.chua.runtime.apm.handler.ThreadHandler;
 import com.chua.runtime.apm.handler.TomcatHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
@@ -227,6 +228,7 @@ public class ApmBootstrap {
         handlers.add(new AwsSdkHandler());
         handlers.add(new QuartzHandler());
         handlers.add(new SpringBatchHandler());
+        handlers.add(new ThreadHandler());
         handlers.add(new CuratorHandler());
         handlers.add(new PahoMqttHandler());
         handlers.add(new AsyncHttpClientHandler());
