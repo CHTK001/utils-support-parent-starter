@@ -433,13 +433,15 @@ public class KcpServer extends AbstractServer {
             String initialId = ukcp.remoteAddress() != null
                     ? ukcp.remoteAddress().toString() : "client-" + ukcp.hashCode();
             sessions.put(initialId, ukcp);
-            sessionMetadata.computeIfAbsent(initialId, k -> {
-                Map<String, Object> meta = new HashMap<>();
-                meta.put("clientId", initialId);
-                return meta;
-            });
-            ukcp.user(new User(initialId));
-            notifyListeners(listener -> listener.onClientConnected(initialId, sessionMetadata.get(initialId)));
+            Map<String, Object> meta = new HashMap<>();
+            meta.put("clientId", initialId);
+            sessionMetadata.put(initialId, meta);
+            // 用 kcp-base User 缓存 clientId（不持有 Channel，避免外部 Channel 失效）
+            kcp.User user = ukcp.user();
+            if (user != null) {
+                user.setCache(initialId);
+            }
+            notifyListeners(listener -> listener.onClientConnected(initialId, meta));
             notifyConnectListeners(initialId);
             dispatchAnnotatedMethods(onOpenMethods);
         }
@@ -477,8 +479,9 @@ public class KcpServer extends AbstractServer {
             if (line.isEmpty()) {
                 return;
             }
-            User user = ukcp.user();
-            String clientId = user != null ? user.getClientId() : null;
+            kcp.User user = ukcp.user();
+            String clientId = user != null && user.getCache() instanceof String
+                    ? (String) user.getCache() : null;
             if (clientId == null) {
                 int colon = line.indexOf(':');
                 clientId = colon > 0 ? line.substring(0, colon) : line;
@@ -501,8 +504,9 @@ public class KcpServer extends AbstractServer {
         }
 
         private void handleRegister(Ukcp ukcp, String clientId) {
-            User user = ukcp.user();
-            String oldId = user != null ? user.getClientId() : null;
+            kcp.User user = ukcp.user();
+            String oldId = user != null && user.getCache() instanceof String
+                    ? (String) user.getCache() : null;
             if (clientId.isEmpty() || clientId.equals(oldId)) {
                 sendTo(ukcp, CMD_REGISTERED + (oldId != null ? oldId : "client"));
                 return;
@@ -517,7 +521,9 @@ public class KcpServer extends AbstractServer {
             Map<String, Object> meta = new HashMap<>();
             meta.put("clientId", clientId);
             sessionMetadata.put(clientId, meta);
-            ukcp.user(new User(clientId));
+            if (user != null) {
+                user.setCache(clientId);
+            }
             sendTo(ukcp, CMD_REGISTERED + clientId);
             notifyListeners(listener -> listener.onClientConnected(clientId, meta));
             notifyConnectListeners(clientId);
