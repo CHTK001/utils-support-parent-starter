@@ -95,6 +95,9 @@ public class PipelineContext<T> {
      *   <li><strong>子流水线节点</strong>（SubPipelineNode）：
      *       {@code nodeOutputs["subStep"] = SubPipelineResult}，值为 {@link SubPipelineResult} 结构化对象，
      *       内含子流程输出数据和历史</li>
+     *   <li><strong>并行节点</strong>（ParallelNode）：
+     *       {@code nodeOutputs["parallelStep"] = AsyncResult}，值为 {@link AsyncResult} 结构化对象，
+     *       内含异步执行结果句柄（完成后输出与历史可用）</li>
      * </ul>
      *
      * <p><strong>与 attributes 的区别：</strong></p>
@@ -304,9 +307,16 @@ public class PipelineContext<T> {
      *   <li>普通节点：值为 currentData</li>
      *   <li>分叉节点：值为 {@link ForkResult}（包含各分支输出）</li>
      *   <li>子流水线节点：值为 {@link SubPipelineResult}（包含子流程输出和历史）</li>
+     *   <li>并行节点：值为 {@link AsyncResult}（异步执行结果句柄）</li>
      * </ul>
      *
+     * <p><strong>存储契约：</strong>引擎自动写入遵循
+     * {@link com.chua.common.support.task.pipeline.builder.DefaultPipeline} 类级 Javadoc 定义的
+     * <strong>节点输出存储契约</strong>：{@code currentData} 为 null 时跳过存储；
+     * 节点已自存结构化结果（{@code AsyncResult}/{@code ForkResult}/{@code SubPipelineResult}）时不覆盖。</p>
+     *
      * @return 节点输出数据 Map（ConcurrentHashMap，线程安全）
+     * @see com.chua.common.support.task.pipeline.builder.DefaultPipeline
      */
     public Map<String, Object> getNodeOutputs() {
         return nodeOutputs;
@@ -315,11 +325,17 @@ public class PipelineContext<T> {
     /**
      * 存储节点输出数据（由引擎自动调用）。
      *
-     * <p>节点执行完毕后，引擎调用此方法将节点的 {@link #getCurrentData()} 存入 nodeOutputs。
+     * <p>节点执行完毕后，引擎调用此方法将节点的 {@link #getCurrentData()} 存入 nodeOutputs，
+     * 写入遵循 {@link com.chua.common.support.task.pipeline.builder.DefaultPipeline} 类级 Javadoc 定义的
+     * <strong>节点输出存储契约</strong>（null 输出跳过、节点自存结构化结果不覆盖）。
      * 用户也可手动调用此方法存储自定义数据。</p>
      *
+     * <p><strong>注意：</strong>本方法自身仅忽略 null 值，不执行引擎调用前的"不覆盖"检查；
+     * 手动调用写入已存在的 key 时会覆盖原值（包括已存储的结构化结果）。</p>
+     *
      * @param nodeId 节点 ID
-     * @param data   节点输出数据
+     * @param data   节点输出数据，null 时忽略（nodeOutputs 为 ConcurrentHashMap，不允许 null 值）
+     * @see com.chua.common.support.task.pipeline.builder.DefaultPipeline
      */
     public void setNodeOutput(String nodeId, Object data) {
         if (data != null) {
@@ -337,6 +353,7 @@ public class PipelineContext<T> {
      *   <li>普通节点：返回 currentData</li>
      *   <li>分叉节点：返回 {@link ForkResult}，可通过 {@code getData(nodeId, ForkResult.class).getBranch("branchA")} 获取分支数据</li>
      *   <li>子流水线节点：返回 {@link SubPipelineResult}，可通过 {@code getData(nodeId, SubPipelineResult.class).getOutput()} 获取子流程输出</li>
+     *   <li>并行节点：返回 {@link AsyncResult}，可通过 {@code getData(nodeId, AsyncResult.class).await()} 阻塞等待完成</li>
      * </ul>
      *
      * @param nodeId 节点 ID
