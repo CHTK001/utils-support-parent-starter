@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxSmileDetector implements SmileDetector {
 
     private String modelName;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxSmileDetector(String apiKey) {
     }
@@ -24,18 +26,20 @@ public class OnnxSmileDetector implements SmileDetector {
     }
 
     @Override
-    public SmileDetector modelPath(String path) {
-        return SmileDetector.create(resolveModel()).modelPath(path);
+    public SmileDetector modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public SmileDetector device(String device) {
-        return SmileDetector.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public List<PredictRectangle> detect(byte[] imageData) {
-        return SmileDetector.create(resolveModel()).detect(imageData);
+        return SmileDetector.create(resolveModel()).modelPath(modelPath).device(device).detect(imageData);
     }
 
 }

@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxPoseEstimator implements PoseEstimator {
 
     private String modelName;
+    private float threshold = 0.5f;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxPoseEstimator(String apiKey) {
     }
@@ -25,27 +28,30 @@ public class OnnxPoseEstimator implements PoseEstimator {
 
     @Override
     public PoseEstimator threshold(float threshold) {
-        return PoseEstimator.create(resolveModel()).threshold(threshold);
+        this.threshold = threshold;
+        return this;
     }
 
     @Override
-    public PoseEstimator modelPath(String path) {
-        return PoseEstimator.create(resolveModel()).modelPath(path);
+    public PoseEstimator modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public PoseEstimator device(String device) {
-        return PoseEstimator.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public List<PoseKeypoint> estimate(byte[] imageData) {
-        return PoseEstimator.create(resolveModel()).estimate(imageData);
+        return PoseEstimator.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).estimate(imageData);
     }
 
     @Override
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
-        return PoseEstimator.create(resolveModel()).estimateMulti(imageData);
+        return PoseEstimator.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).estimateMulti(imageData);
     }
 
 }

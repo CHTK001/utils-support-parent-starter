@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxImageDetector implements ImageDetector {
 
     private String modelName;
+    private float threshold = 0.5f;
+    private float nms = 0.4f;
+    private String modelPath;
+    private String device = "cpu";
 
     public OnnxImageDetector(String apiKey) {
     }
@@ -25,27 +29,31 @@ public class OnnxImageDetector implements ImageDetector {
 
     @Override
     public ImageDetector threshold(float threshold) {
-        return ImageDetector.create(resolveModel()).threshold(threshold);
+        this.threshold = threshold;
+        return this;
     }
 
     @Override
     public ImageDetector nms(float nms) {
-        return ImageDetector.create(resolveModel()).nms(nms);
+        this.nms = nms;
+        return this;
     }
 
     @Override
-    public ImageDetector modelPath(String path) {
-        return ImageDetector.create(resolveModel()).modelPath(path);
+    public ImageDetector modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public ImageDetector device(String device) {
-        return ImageDetector.create(resolveModel()).device(device);
+        this.device = device;
+        return this;
     }
 
     @Override
     public List<DetectionInfo> detect(byte[] imageData) {
-        return ImageDetector.create(resolveModel()).detect(imageData);
+        return ImageDetector.create(resolveModel()).threshold(threshold).nms(nms).modelPath(modelPath).device(device).detect(imageData);
     }
 
 }

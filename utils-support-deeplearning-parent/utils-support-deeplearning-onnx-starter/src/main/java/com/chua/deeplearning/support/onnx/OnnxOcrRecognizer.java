@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 public class OnnxOcrRecognizer implements OcrRecognizer {
 
     private String modelName;
+    private String lang = "zh";
+    private String modelPath;
+    private boolean useGpu = false;
+    private String device = "cpu";
 
     public OnnxOcrRecognizer(String apiKey) {
     }
@@ -25,32 +29,36 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
 
     @Override
     public OcrRecognizer lang(String lang) {
-        return OcrRecognizer.create(resolveModel()).lang(lang);
+        this.lang = lang;
+        return this;
     }
 
     @Override
-    public OcrRecognizer modelPath(String path) {
-        return OcrRecognizer.create(resolveModel()).modelPath(path);
-    }
-
-    @Override
-    public OcrRecognizer device(String device) {
-        return OcrRecognizer.create(resolveModel()).device(device);
+    public OcrRecognizer modelPath(String modelPath) {
+        this.modelPath = modelPath;
+        return this;
     }
 
     @Override
     public OcrRecognizer useGpu(boolean useGpu) {
-        return OcrRecognizer.create(resolveModel()).useGpu(useGpu);
+        this.useGpu = useGpu;
+        return this;
+    }
+
+    @Override
+    public OcrRecognizer device(String device) {
+        this.device = device;
+        return this;
     }
 
     @Override
     public String recognize(byte[] imageData) {
-        return OcrRecognizer.create(resolveModel()).recognize(imageData);
+        return OcrRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).useGpu(useGpu).device(device).recognize(imageData);
     }
 
     @Override
     public List<OcrResult> recognizeDetail(byte[] imageData) {
-        return OcrRecognizer.create(resolveModel()).recognizeDetail(imageData);
+        return OcrRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).useGpu(useGpu).device(device).recognizeDetail(imageData);
     }
 
 }
