@@ -8,9 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Needle 对话客户端单元测试。
  *
- * <p>验证 SPI 注册与模型元数据；真实推理依赖 classpath 内置引擎或
- * {@code NEEDLE_LIB_PATH}。</p>
- *
  * @author CH
  * @since 4.0.0.42
  */
@@ -28,5 +25,13 @@ class NeedleChatClientTest {
         var models = client.models();
         assertThat(models).isNotEmpty();
         assertThat(models.get(0).getProvider()).isEqualTo("cactus-compute");
+    }
+
+    @Test
+    void testChat() {
+        NeedleChatClient client = new NeedleChatClient(null);
+        String answer = client.chatSync("你好");
+        System.out.println("Needle 回复: " + answer);
+        assertThat(answer).isNotBlank();
     }
 }
