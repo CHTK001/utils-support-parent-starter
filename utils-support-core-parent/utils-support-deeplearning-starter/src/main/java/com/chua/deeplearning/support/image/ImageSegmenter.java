@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 图像分割器，对图像进行语义分割或实例分割。
@@ -20,6 +21,39 @@ public interface ImageSegmenter {
      * @param name 模型名称
      * @return 分割器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static ImageSegmenter create(String provider, String apiKey) {
+        return ServiceProvider.of(ImageSegmenter.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default ImageSegmenter provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default ImageSegmenter model(String model) {
+        return this;
+    }
+
     static ImageSegmenter create(String name) {
         return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

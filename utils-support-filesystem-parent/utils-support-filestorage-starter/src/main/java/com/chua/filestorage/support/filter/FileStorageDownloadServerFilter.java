@@ -208,27 +208,34 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     private static String resolveFileName(ServerRequest request, String key) {
         String filename = request.getParam("filename");
         if (!StringUtils.isEmpty(filename)) {
-        if (key != null && key.contains("/")) return key.substring(key.lastIndexOf('/') {
-            + 1);
+            return filename;
         }
+        if (key != null && key.contains("/")) return key.substring(key.lastIndexOf('/') + 1);
         return key;
     }
 
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
+            return "";
+        }
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ENGLISH);
     }
 
     private static Range parseRange(String header, long len) {
         String h = header.trim();
         if (!h.startsWith("bytes=")) {
+            return null;
+        }
         String[] parts = h.substring(6).split("-", 2);
         if (parts.length != 2) {
             return null;
+        }
         try {
             long s = Long.parseLong(parts[0]);
             long e = parts[1].isEmpty() ? len - 1 : Long.parseLong(parts[1]);
             if (s > e || e >= len) {
+                return null;
+            }
             return new Range(s, e);
         } catch (NumberFormatException e) {
             return null;

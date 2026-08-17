@@ -79,6 +79,11 @@ public class QwenBrowserSession implements AutoCloseable {
     /**
      * 发送聊天消息并等待回答。
      * 在持久页面中连续输入，保持 Qwen 云端会话上下文。
+     *
+     * @param body     JSON 请求体字符串
+     * @param model    模型名称
+     * @param listener 流式事件监听器，可为空
+     * @return 解析后的聊天结果
      */
     public QwenChatResult chat(String body, String model, BiConsumer<String, String> listener) {
         if (!pageReady || page == null) {
@@ -87,6 +92,8 @@ public class QwenBrowserSession implements AutoCloseable {
 
         String prompt = extractPrompt(body);
         if (prompt == null) {
+            return QwenChatResult.error("无法从请求体解析用户输入");
+        }
 
         try {
             // 查找输入框并输入
@@ -111,29 +118,39 @@ public class QwenBrowserSession implements AutoCloseable {
             List<Map<String, Object>> rawEvents = new ArrayList<>();
             for (String line : sse.split("\n")) {
                 if (line.startsWith("data:")) {
-                if (line.equals("[DONE]") || line.isEmpty()) {
-                    continue;
-                }
-                try {
-                    Map<String, Object> obj = com.chua.common.support.lang.json.Json.fromJson(line, Map.class);
-                    if (obj == null) {
-                    rawEvents.add(obj);
-                    List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
-                    if (choices == null || choices.isEmpty()) {
-                    Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
-                    if (delta == null) {
+                    String data = line.substring(5).trim();
+                    if (data.equals("[DONE]") || data.isEmpty()) {
                         continue;
-                    String phase = (String) delta.get("phase");
-                    String content = (String) delta.get("content");
-                    if (content == null || content.isEmpty()) {
-                    if ("think".equals(phase) || "thinking".equals(phase)) {
-                        thinking.append(content);
-                        if (listener != null) {
-                    } else {
-                        text.append(content);
-                        if (listener != null) {
                     }
-                } catch (Exception ignored) {}
+                    try {
+                        Map<String, Object> obj = com.chua.common.support.lang.json.Json.fromJson(data, Map.class);
+                        if (obj == null) {
+                            continue;
+                        }
+                        rawEvents.add(obj);
+                        List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
+                        if (choices == null || choices.isEmpty()) {
+                            continue;
+                        }
+                        Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
+                        if (delta == null) {
+                            continue;
+                        }
+                        String phase = (String) delta.get("phase");
+                        String content = (String) delta.get("content");
+                        if (content == null || content.isEmpty()) {
+                            continue;
+                        }
+                        if ("think".equals(phase) || "thinking".equals(phase)) {
+                            thinking.append(content);
+                        } else {
+                            text.append(content);
+                        }
+                        if (listener != null) {
+                            listener.accept("think".equals(phase) || "thinking".equals(phase) ? "thinking" : "content", content);
+                        }
+                    } catch (Exception ignored) {}
+                }
             }
             return QwenChatResult.ok(text.toString(), thinking.toString(), "", rawEvents);
         } catch (Exception e) {
@@ -150,6 +167,8 @@ public class QwenBrowserSession implements AutoCloseable {
         try { browser.close(); } catch (Exception e) { if (ex == null) ex = e; }
         try { playwright.close(); } catch (Exception e) { if (ex == null) ex = e; }
         if (ex != null) {
+            log.warn("关闭通义千问浏览器会话异常: {}", ex.getMessage());
+        }
     }
 
     private void injectCookies(String cookieString) {
@@ -165,10 +184,14 @@ public class QwenBrowserSession implements AutoCloseable {
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = new LinkedHashMap<>();
         if (cookieString == null || cookieString.isBlank()) {
+            return map;
+        }
         for (String pair : cookieString.split(";")) {
             String trim = pair.trim();
             int idx = trim.indexOf('=');
             if (idx <= 0) {
+                continue;
+            }
             map.put(trim.substring(0, idx).trim(), trim.substring(idx + 1).trim());
         }
         return map;
@@ -183,6 +206,8 @@ public class QwenBrowserSession implements AutoCloseable {
                 if (last instanceof Map<?, ?> m) {
                     Object content = m.get("content");
                     if (content instanceof String s) {
+                        return s;
+                    }
                 }
             }
         } catch (Exception ignored) {}

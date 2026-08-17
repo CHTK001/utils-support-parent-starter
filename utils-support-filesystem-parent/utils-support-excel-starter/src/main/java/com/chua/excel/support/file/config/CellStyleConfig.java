@@ -259,6 +259,8 @@ public class CellStyleConfig {
 
         // === 字体 ===
         if (fontName != null) {
+            font.setFontName(fontName);
+        }
         if (fontSize != null) {
             font.setFontHeightInPoints(fontSize);
         }
@@ -266,10 +268,14 @@ public class CellStyleConfig {
             font.setBold(bold);
         }
         if (italic != null) {
+            font.setItalic(italic);
+        }
         if (strikeout != null) {
             font.setStrikeout(strikeout);
+        }
         if (underline != null) {
             font.setUnderline(underline);
+        }
         if (fontColor != null) {
             applyFontColor(font, workbook);
         }
@@ -285,22 +291,32 @@ public class CellStyleConfig {
         if (borderTop != null) {
             style.setBorderTop(borderTop);
             if (borderColor != null) {
+                applyTopBorderColor(style, workbook);
+            }
         }
         if (borderBottom != null) {
             style.setBorderBottom(borderBottom);
             if (borderColor != null) {
+                applyBottomBorderColor(style, workbook);
+            }
         }
         if (borderLeft != null) {
             style.setBorderLeft(borderLeft);
             if (borderColor != null) {
+                applyLeftBorderColor(style, workbook);
+            }
         }
         if (borderRight != null) {
             style.setBorderRight(borderRight);
             if (borderColor != null) {
+                applyRightBorderColor(style, workbook);
+            }
         }
 
         // === 对齐 ===
         if (horizontalAlignment != null) {
+            style.setAlignment(horizontalAlignment);
+        }
         if (verticalAlignment != null) {
             style.setVerticalAlignment(verticalAlignment);
         }
@@ -308,8 +324,11 @@ public class CellStyleConfig {
             style.setWrapText(wrapText);
         }
         if (indention != null) {
-        if (rotation != null) style.setRotation((short) (int) {
-            rotation);
+            style.setIndention((short) (int) indention);
+        }
+        if (rotation != null) {
+            style.setRotation((short) (int) rotation);
+        }
 
         // === 数据格式 ===
         if (dataFormat != null) {
@@ -346,6 +365,8 @@ public class CellStyleConfig {
      */
     private static short indexedColor(String color) {
         if (color == null || color.isEmpty()) {
+            return IndexedColors.BLACK.getIndex();
+        }
         // 先按名称查找
         try {
             return IndexedColors.valueOf(color.toUpperCase()).getIndex();

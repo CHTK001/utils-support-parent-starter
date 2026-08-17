@@ -6,6 +6,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 姿态估计器，检测人体关键点或物体姿态信息。
@@ -21,6 +22,39 @@ public interface PoseEstimator {
      * @param name 模型名称
      * @return 估计器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static PoseEstimator create(String provider, String apiKey) {
+        return ServiceProvider.of(PoseEstimator.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default PoseEstimator provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default PoseEstimator model(String model) {
+        return this;
+    }
+
     static PoseEstimator create(String name) {
         return new DefaultPoseEstimator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

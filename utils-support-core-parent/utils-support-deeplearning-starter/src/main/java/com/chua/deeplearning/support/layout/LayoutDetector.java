@@ -8,6 +8,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 版面检测器，检测文档中不同区域的布局（文字、表格、图片等）。
@@ -22,6 +23,39 @@ public interface LayoutDetector {
      *
      * @return 检测器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static LayoutDetector create(String provider, String apiKey) {
+        return ServiceProvider.of(LayoutDetector.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default LayoutDetector provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default LayoutDetector model(String model) {
+        return this;
+    }
+
     static LayoutDetector create() {
         return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), "", ModelSetting.builder().build());
     }

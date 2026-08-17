@@ -349,19 +349,17 @@ public class ParallelNode implements PipelineNode {
             preHandler.execute(context);
         }
 
-        // 2. 创建独立上下文（与 SubPipelineNode 一致）
-        PipelineContext<Object> subCtx;
-        if (startNode != null || (params != null && !params.isEmpty())) {
-            subCtx = new PipelineContext<>(subPipeline.getId(), context.getCurrentData());
-            if (startNode != null) {
-                subCtx.setNextNodeId(startNode);
-            }
-            if (params != null && !params.isEmpty()) {
-                Map<String, Object> localData = subCtx.getNodeLocalData();
-                localData.putAll(params);
-            }
-        } else {
-            subCtx = new PipelineContext<>(subPipeline.getId(), context.getCurrentData());
+        // 2. 创建子上下文 — 通过 createBranchContext 共享 attributes/nodeOutputs（与 ForkNode 一致）
+        //    共享 attributes 使子流水线继承父 Pipeline 的 StructuredTaskScope，
+        //    executeWith 的嵌套场景分支直接复用父 scope 运行，无需创建嵌套 scope
+        PipelineContext<Object> subCtx =
+                context.createBranchContext(subPipeline.getId(), context.getCurrentData());
+        if (startNode != null) {
+            subCtx.setNextNodeId(startNode);
+        }
+        if (params != null && !params.isEmpty()) {
+            Map<String, Object> localData = subCtx.getNodeLocalData();
+            localData.putAll(params);
         }
 
         // 3. 创建 AsyncResult（初始未完成状态）

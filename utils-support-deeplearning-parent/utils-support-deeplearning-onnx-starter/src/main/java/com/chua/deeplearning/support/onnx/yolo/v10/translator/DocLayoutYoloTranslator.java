@@ -180,20 +180,32 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             log.debug("                  : {}x{}", imageWidth, imageHeight);
         }
 
-        //                                        
-        Image resized = input.resize(inputSize, inputSize, true);
+        // 提取 BufferedImage，AWT 缩放至 inputSize（规避 DJL Image.resize 走 NDArray）
+        Object wrapped = input.getWrappedImage();
+        java.awt.image.BufferedImage src = wrapped instanceof java.awt.image.BufferedImage b
+                ? b
+                : (java.awt.image.BufferedImage) ai.djl.modality.cv.BufferedImageFactory.getInstance().fromImage(input).getWrappedImage();
+        java.awt.image.BufferedImage resized = new java.awt.image.BufferedImage(inputSize, inputSize, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D g2 = resized.createGraphics();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2.drawImage(src, 0, 0, inputSize, inputSize, null);
+        g2.dispose();
 
-        //           NDArray             
-        NDArray array = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        // 提取 HWC 像素（RGB [0,255]），手动转 CHW + /255，规避 onnxruntime 不支持的 transpose/div
+        int w = resized.getWidth();
+        int h = resized.getHeight();
+        int[] rgb = resized.getRGB(0, 0, w, h, null, 0, w);
+        float[] chw = new float[3 * h * w];
+        for (int i = 0; i < h * w; i++) {
+            chw[i] = ((rgb[i] >> 16) & 0xFF) / 255f;
+            chw[h * w + i] = ((rgb[i] >> 8) & 0xFF) / 255f;
+            chw[2 * h * w + i] = (rgb[i] & 0xFF) / 255f;
+        }
 
-        //              [0, 1]
-        array = array.div(255.0f);
-
-        //           CHW       
-        array = array.transpose(2, 0, 1);
+        NDArray array = ctx.getNDManager().create(chw, new ai.djl.ndarray.types.Shape(1, 3, h, w));
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("DocLayout-YOLO 输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
         return new NDList(array);
     }
@@ -217,33 +229,27 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             log.debug("             DocLayout-YOLO             ");
         }
 
-        //             
+        // 输出 [1, num_boxes, 6]，用 toFloatArray 手动索引（规避 squeeze/get 不支持）
         NDArray output = list.get(0);
-        log.info("             shape: {}", output.getShape());
+        long[] shape = output.getShape().getShape();
+        int dims = shape.length;
+        long numBoxes = dims >= 3 ? shape[1] : (dims >= 2 ? shape[0] : 1);
+        long numFeatures = shape[dims - 1];
+        float[] flat = output.toFloatArray();
 
-        //        batch       
-        if (output.getShape().dimension() == 3) {
-            output = output.squeeze(0);
-        }
-
-        long numBoxes = output.getShape().get(0);
-        long numFeatures = output.getShape().get(1);
-        log.info("               : {},             : {}", numBoxes, numFeatures);
-
-        //                   
         List<String> classNames = new ArrayList<>();
         List<Double> probabilities = new ArrayList<>();
         List<BoundingBox> boxes = new ArrayList<>();
 
-        //                      
         for (int i = 0; i < numBoxes; i++) {
-            // YOLOv10             : [x1, y1, x2, y2, confidence, class_id]
-            float x1 = output.get(i, 0).getFloat();
-            float y1 = output.get(i, 1).getFloat();
-            float x2 = output.get(i, 2).getFloat();
-            float y2 = output.get(i, 3).getFloat();
-            float confidence = output.get(i, 4).getFloat();
-            int classId = (int) output.get(i, 5).getFloat();
+            int base = i * (int) numFeatures;
+            // YOLOv10 输出: [x1, y1, x2, y2, confidence, class_id]
+            float x1 = flat[base];
+            float y1 = flat[base + 1];
+            float x2 = flat[base + 2];
+            float y2 = flat[base + 3];
+            float confidence = flat[base + 4];
+            int classId = (int) flat[base + 5];
 
             //                      
             if (confidence < threshold) {
@@ -340,7 +346,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
 
     @Override
     public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+        return Batchifier.fromString("none");
     }
 
     /**

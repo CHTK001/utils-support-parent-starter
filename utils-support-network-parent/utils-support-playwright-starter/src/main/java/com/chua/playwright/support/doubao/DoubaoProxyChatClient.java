@@ -238,12 +238,16 @@ public class DoubaoProxyChatClient implements ChatClient {
     public ChatClient tools(List<ChatTool> tools) {
         this.tools.clear();
         if (tools != null) {
+            this.tools.addAll(tools);
+        }
         return this;
     }
 
     @Override
     public ChatClient tool(ChatTool tool) {
         if (tool != null) {
+            this.tools.add(tool);
+        }
         return this;
     }
 
@@ -430,14 +434,19 @@ public void close() {
 .fluent("enable_commerce_credit", false);
 
         if (topP != null) {
+            completionOption.fluent("top_p", topP);
+        }
         if (stop != null && !stop.isEmpty()) {
             JsonArray stopArr = new JsonArray();
             for (String s : stop) { stopArr.add(s); }
             completionOption.fluent("stop", stopArr);
         }
         if (seed != null) {
+            completionOption.fluent("seed", seed);
+        }
         if (responseFormat != null) {
             completionOption.fluent("response_format", responseFormat);
+        }
 
         if (extraBody != null && !extraBody.isEmpty()) {
             Object dt = extraBody.get("use_deep_think");
@@ -669,12 +678,16 @@ return parseImageResult(result, prompt);
     private String extractAsyncTaskId(DoubaoChatResult result) {
         List<Map<String, Object>> rawEvents = result.rawEvents();
         if (rawEvents == null) {
+            return null;
+        }
         for (Map<String, Object> event : rawEvents) {
             Object eventData = event.get("event_data");
             if (eventData instanceof String ed && !ed.isEmpty()) {
                 try {
                     Map<String, Object> parsed = Json.fromJson(ed, Map.class);
                     if (parsed == null) {
+                        continue;
+                    }
                     Object finReason = parsed.get("fin_reason");
                     if (finReason instanceof Map<?, ?> fr) {
                         Object reason = fr.get("reason");
@@ -720,19 +733,28 @@ return parseImageResult(result, prompt);
                 try {
                     Object eventData = event.get("event_data");
                     if (!(eventData instanceof String ed)) {
+                        continue;
+                    }
                     Map<String, Object> parsed = Json.fromJson(ed, Map.class);
                     if (parsed == null) {
                         continue;
+                    }
                     Object msgObj = parsed.get("message");
                     if (!(msgObj instanceof Map<?, ?> msg)) {
+                        continue;
+                    }
                     Number ct = (Number) msg.get("content_type");
                     if (ct == null || ct.intValue() != 2010) {
                         continue;
+                    }
                     Object contentStr = msg.get("content");
                     if (!(contentStr instanceof String cs)) {
+                        continue;
+                    }
                     Map<String, Object> content = Json.fromJson(cs, Map.class);
                     if (content == null) {
                         continue;
+                    }
                     Object dataObj = content.get("data");
                     if (dataObj instanceof List<?> dataList) {
                         for (Object item : dataList) {
@@ -770,19 +792,28 @@ return parseImageResult(result, prompt);
                 try {
                     Object eventData = event.get("event_data");
                     if (!(eventData instanceof String ed)) {
+                        continue;
+                    }
                     Map<String, Object> parsed = Json.fromJson(ed, Map.class);
                     if (parsed == null) {
                         continue;
+                    }
                     Object msgObj = parsed.get("message");
                     if (!(msgObj instanceof Map<?, ?> msg)) {
+                        continue;
+                    }
                     Number ct = (Number) msg.get("content_type");
                     if (ct == null || ct.intValue() != 2021) {
                         continue;
+                    }
                     Object contentStr = msg.get("content");
                     if (!(contentStr instanceof String cs)) {
+                        continue;
+                    }
                     Map<String, Object> content = Json.fromJson(cs, Map.class);
                     if (content == null) {
                         continue;
+                    }
                     Object dataObj = content.get("data");
                     List<?> dataList = dataObj instanceof List<?> dl ? dl : List.of(content);
                     for (Object item : dataList) {
@@ -795,6 +826,8 @@ return parseImageResult(result, prompt);
                             if (coverUrl == null || coverUrl.isEmpty()) {
                                 Map<?, ?> cover = getMap(v, "cover");
                                 if (cover != null) {
+                                    coverUrl = getStr(cover, "url");
+                                }
                             }
                             if (videoUrl != null && !videoUrl.isEmpty()) {
                                 videos.add(new VideoGenerationResult.GeneratedVideo(
@@ -820,9 +853,13 @@ private static JsonArray arrayOf(JsonObject obj) {
 
     private static String getStr(Map<?, ?> map, String... keys) {
         if (map == null) {
+            return null;
+        }
         for (String key : keys) {
             Object val = map.get(key);
             if (val instanceof String s) {
+                return s;
+            }
         }
         return null;
     }
@@ -836,10 +873,14 @@ private static JsonArray arrayOf(JsonObject obj) {
         if (first != null) {
             Object v = first.get(firstKey);
             if (v instanceof Number n) {
+                return n.intValue();
+            }
         }
         if (second != null) {
             Object v = second.get(secondKey);
             if (v instanceof Number n) {
+                return n.intValue();
+            }
         }
         return 0;
     }
@@ -848,10 +889,14 @@ private static JsonArray arrayOf(JsonObject obj) {
         if (first != null) {
             Object v = first.get(firstKey);
             if (v instanceof String s) {
+                return s;
+            }
         }
         if (second != null) {
             Object v = second.get(secondKey);
             if (v instanceof String s) {
+                return s;
+            }
         }
         return null;
     }
@@ -859,12 +904,16 @@ private static JsonArray arrayOf(JsonObject obj) {
     private static int toInt(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
+            return n.intValue();
+        }
         return 0;
     }
 
     private static double toDouble(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
+            return n.doubleValue();
+        }
         return 0.0;
     }
 
@@ -874,6 +923,8 @@ private static JsonArray arrayOf(JsonObject obj) {
             if (vmStr instanceof String vs && !vs.isEmpty()) {
                 Map<?, ?> vm = Json.fromJson(vs, Map.class);
                 if (vm == null) {
+                    return null;
+                }
                 Object vlist = vm.get("video_list");
                 if (vlist instanceof Map<?, ?> vl) {
                     for (Object val : vl.values()) {

@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 微笑检测器，检测图像中是否存在微笑表情。
@@ -15,6 +16,39 @@ import java.util.List;
  * @since 4.0.0.42
  */
 public interface SmileDetector {
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static SmileDetector create(String provider, String apiKey) {
+        return com.chua.common.support.spi.ServiceProvider.of(SmileDetector.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default SmileDetector provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default SmileDetector model(String model) {
+        return this;
+    }
+
 
     /**
      * 创建微笑检测器。

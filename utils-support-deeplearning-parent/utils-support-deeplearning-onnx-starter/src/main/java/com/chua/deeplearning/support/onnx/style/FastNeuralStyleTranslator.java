@@ -2,10 +2,9 @@ package com.chua.deeplearning.support.onnx.style;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
@@ -39,9 +38,9 @@ import lombok.extern.slf4j.Slf4j;
 public class FastNeuralStyleTranslator implements Translator<Image, Image> {
 
     /**
-     * 默认输入尺寸（模型支持任意尺寸输入，但建议不超过 1024）
+     * 输入尺寸（ONNX 官方 fast_neural_style 模型固定 224x224）
      */
-    private static final int DEFAULT_MAX_SIZE = 1024;
+    private static final int INPUT_SIZE = 224;
 
     /**
      * 原始图像宽度
@@ -56,7 +55,7 @@ public class FastNeuralStyleTranslator implements Translator<Image, Image> {
     /**
      * 最大输入尺寸限制（防止内存溢出）
      */
-    private int maxSize = DEFAULT_MAX_SIZE;
+    private int maxSize = 224;
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -67,43 +66,31 @@ public class FastNeuralStyleTranslator implements Translator<Image, Image> {
             log.debug("FastNeuralStyle 输入图像尺寸: {}x{}", originalWidth, originalHeight);
         }
 
-        // 转换为 NDArray (HWC)
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        // 提取 HWC 像素数组（RGB [0,255]），规避 onnxruntime NDArray 不支持的 transpose 操作
+        float[] hwc = hwcPixels(input);
+        int height = originalHeight;
+        int width = originalWidth;
 
-        // 如果图像过大，按比例缩放
-        int maxDim = Math.max(originalWidth, originalHeight);
-        if (maxDim > maxSize) {
-            float scale = (float) maxSize / maxDim;
-            int newWidth = Math.round(originalWidth * scale);
-            int newHeight = Math.round(originalHeight * scale);
-            array = NDImageUtils.resize(array, newWidth, newHeight, Image.Interpolation.BICUBIC);
-            if (log.isDebugEnabled()) {
-                log.debug("缩放图像: {}x{} -> {}x{}", originalWidth, originalHeight, newWidth, newHeight);
+        // ONNX 官方 fast_neural_style 模型固定输入 224x224
+        hwc = resizeHwc(hwc, width, height, INPUT_SIZE, INPUT_SIZE);
+        width = INPUT_SIZE;
+        height = INPUT_SIZE;
+        if (log.isDebugEnabled()) {
+            log.debug("缩放图像: {}x{} -> {}x{}", originalWidth, originalHeight, width, height);
+        }
+
+        // HWC -> CHW（手动重排，规避 transpose）
+        float[] chw = new float[3 * height * width];
+        for (int c = 0; c < 3; c++) {
+            for (int i = 0; i < height * width; i++) {
+                chw[c * height * width + i] = hwc[i * 3 + c];
             }
         }
 
+        NDArray array = ctx.getNDManager().create(chw, new ai.djl.ndarray.types.Shape(1, 3, height, width));
         if (log.isDebugEnabled()) {
-            log.debug("Step 1 - HWC 数组: {}", array.getShape());
+            log.debug("NCHW 数组: {}", array.getShape());
         }
-
-        // HWC -> CHW (transpose)
-        array = array.transpose(2, 0, 1);
-        if (log.isDebugEnabled()) {
-            log.debug("Step 2 - CHW 数组: {}", array.getShape());
-        }
-
-        // 添加 batch 维度: CHW -> NCHW [1, 3, H, W]
-        array = array.expandDims(0);
-        if (log.isDebugEnabled()) {
-            log.debug("Step 3 - NCHW 数组: {}", array.getShape());
-        }
-
-        // 转换为 float32（输入范围 [0, 255]，无需归一化）
-        array = array.toType(DataType.FLOAT32, false);
-        if (log.isDebugEnabled()) {
-            log.debug("Step 4 - float32 NCHW: {}", array.getShape());
-        }
-
         return new NDList(array);
     }
 
@@ -115,49 +102,114 @@ public class FastNeuralStyleTranslator implements Translator<Image, Image> {
             log.debug("FastNeuralStyle 模型输出: {}", output.getShape());
         }
 
-        // NCHW -> CHW: 移除 batch 维度
-        if (output.getShape().dimension() == 4) {
-            output = output.squeeze(0);
-            if (log.isDebugEnabled()) {
-                log.debug("移除 batch 维度后: {}", output.getShape());
+        // 输出 NCHW float，手动重排为 HWC 并 clip，规避 onnxruntime 不支持的 transpose/clip/fromNDArray
+        Shape outShape = output.getShape();
+        int dim = outShape.dimension();
+        int h = dim >= 4 ? (int) outShape.get(2) : (dim == 3 ? (int) outShape.get(1) : (int) outShape.get(0));
+        int w = dim >= 3 ? (int) outShape.get(dim - 1) : (int) outShape.get(0);
+        int total = 3 * h * w;
+        float[] data = output.toFloatArray();
+        if (data.length < total) {
+            total = data.length;
+        }
+
+        // 取 batch 0 的 CHW → HWC，clip 0~255
+        int wh = w * h;
+        int[] rgb = new int[wh];
+        for (int i = 0; i < wh; i++) {
+            float r = data[i];
+            float g = data[wh + i];
+            float b = data[2 * wh + i];
+            rgb[i] = (clip(r) << 16) | (clip(g) << 8) | clip(b);
+        }
+
+        java.awt.image.BufferedImage result = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        result.setRGB(0, 0, w, h, rgb, 0, w);
+
+        // 输出固定 224x224，恢复原始尺寸
+        if (w != originalWidth || h != originalHeight) {
+            result = resizeBuffered(result, originalWidth, originalHeight);
+        }
+        return ImageFactory.getInstance().fromImage(result);
+    }
+
+    /**
+     * clip 到 [0,255]。
+     *
+     * @param v 值
+     * @return 0~255 整数
+     */
+    private static int clip(float v) {
+        return Math.max(0, Math.min(255, Math.round(v)));
+    }
+
+    /**
+     * 提取 HWC 像素数组（RGB [0,255]）。
+     *
+     * @param input DJL 图像
+     * @return HWC float 数组
+     */
+    private static float[] hwcPixels(Image input) {
+        Object wrapped = input.getWrappedImage();
+        if (wrapped instanceof java.awt.image.BufferedImage bi) {
+            int w = bi.getWidth();
+            int h = bi.getHeight();
+            float[] out = new float[w * h * 3];
+            int[] rgb = bi.getRGB(0, 0, w, h, null, 0, w);
+            for (int i = 0; i < rgb.length; i++) {
+                out[i * 3] = (rgb[i] >> 16) & 0xFF;
+                out[i * 3 + 1] = (rgb[i] >> 8) & 0xFF;
+                out[i * 3 + 2] = rgb[i] & 0xFF;
+            }
+            return out;
+        }
+        // 兜底：走 DJL NDArray（可能不支持，仅作回退）
+        throw new IllegalStateException("无法提取 BufferedImage 像素");
+    }
+
+    /**
+     * HWC 双线性缩放。
+     *
+     * @param src  源 HWC 像素
+     * @param sw   源宽
+     * @param sh   源高
+     * @param dw   目标宽
+     * @param dh   目标高
+     * @return 目标 HWC 像素
+     */
+    private static float[] resizeHwc(float[] src, int sw, int sh, int dw, int dh) {
+        float[] out = new float[dw * dh * 3];
+        float xs = (float) sw / dw;
+        float ys = (float) sh / dh;
+        for (int y = 0; y < dh; y++) {
+            int sy = Math.min(sh - 1, (int) (y * ys));
+            for (int x = 0; x < dw; x++) {
+                int sx = Math.min(sw - 1, (int) (x * xs));
+                int si = (sy * sw + sx) * 3;
+                int di = (y * dw + x) * 3;
+                out[di] = src[si];
+                out[di + 1] = src[si + 1];
+                out[di + 2] = src[si + 2];
             }
         }
+        return out;
+    }
 
-        // CHW -> HWC (transpose back)
-        output = output.transpose(1, 2, 0);
-        if (log.isDebugEnabled()) {
-            log.debug("HWC 格式: {}", output.getShape());
-        }
-
-        // clip 到 [0, 255]
-        output = output.clip(0, 255);
-
-        // 转换为 uint8
-        output = output.toType(DataType.UINT8, false);
-
-        // 构建图像
-        Image result = ImageFactory.getInstance().fromNDArray(output);
-
-        // 如果输入被缩放过，恢复原始尺寸
-        int maxDim = Math.max(originalWidth, originalHeight);
-        if (maxDim > maxSize) {
-            if (log.isDebugEnabled()) {
-                log.debug("恢复原始尺寸: {}x{} -> {}x{}", result.getWidth(), result.getHeight(), originalWidth, originalHeight);
-            }
-            NDArray resizedArray = NDImageUtils.resize(
-                    result.toNDArray(ctx.getNDManager()),
-                    originalWidth,
-                    originalHeight,
-                    Image.Interpolation.BICUBIC
-            );
-            result = ImageFactory.getInstance().fromNDArray(resizedArray);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("FastNeuralStyle 输出图像: {}x{}", result.getWidth(), result.getHeight());
-        }
-
-        return result;
+    /**
+     * BufferedImage 缩放。
+     *
+     * @param src 源图
+     * @param dw  目标宽
+     * @param dh  目标高
+     * @return 目标图
+     */
+    private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
+        java.awt.image.BufferedImage out = new java.awt.image.BufferedImage(dw, dh, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D g = out.createGraphics();
+        g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.drawImage(src, 0, 0, dw, dh, null);
+        g.dispose();
+        return out;
     }
 
     @Override

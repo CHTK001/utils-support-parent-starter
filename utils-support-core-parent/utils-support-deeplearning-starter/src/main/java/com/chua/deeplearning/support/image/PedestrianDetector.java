@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 行人检测器。
@@ -15,6 +16,39 @@ import java.util.List;
  * @since 4.0.0.42
  */
 public interface PedestrianDetector {
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static PedestrianDetector create(String provider, String apiKey) {
+        return com.chua.common.support.spi.ServiceProvider.of(PedestrianDetector.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default PedestrianDetector provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default PedestrianDetector model(String model) {
+        return this;
+    }
+
 
     /**
      * 创建行人检测器。

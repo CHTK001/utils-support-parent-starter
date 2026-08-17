@@ -8,6 +8,7 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 图像检测器，检测图像中的目标物体并返回边界框和类别信息。
@@ -23,6 +24,39 @@ public interface ImageDetector {
      * @param name 模型名称
      * @return 检测器
      */
+
+    /**
+     * 通过 SPI 创建实例（provider="onnx" 等）。
+     *
+     * @param provider provider 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
+    static ImageDetector create(String provider, String apiKey) {
+        return ServiceProvider.of(ImageDetector.class)
+                .getNewExtension(provider, apiKey);
+    }
+
+    /**
+     * 设置 provider。
+     *
+     * @param provider provider 名称
+     * @return this
+     */
+    default ImageDetector provider(String provider) {
+        return this;
+    }
+
+    /**
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
+    default ImageDetector model(String model) {
+        return this;
+    }
+
     static ImageDetector create(String name) {
         return new DefaultImageDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }

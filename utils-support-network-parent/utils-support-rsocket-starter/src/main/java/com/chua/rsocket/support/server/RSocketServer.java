@@ -258,6 +258,23 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
+     * 注册主题对应的 {@link ServerHandler} 处理器。
+     *
+     * <p>与 {@link #onSubscribe(String, Consumer)} 不同,此处直接注册请求-响应处理器,
+     * 处理器写入 {@link ServerResponse} 的内容会作为 requestResponse 的响应返回。</p>
+     *
+     * @param topic   主题名称
+     * @param handler 请求-响应处理器
+     * @return 当前服务器实例，支持链式调用
+     */
+    public RSocketServer onRequest(String topic, ServerHandler handler) {
+        if (handler != null) {
+            messageHandlers.put(topic, handler);
+        }
+        return this;
+    }
+
+    /**
      * 向所有订阅了指定主题的客户端推送消息。
      *
      * @param topic   主题名称

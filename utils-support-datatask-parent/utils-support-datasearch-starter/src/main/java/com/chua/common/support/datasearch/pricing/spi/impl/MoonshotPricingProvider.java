@@ -41,10 +41,14 @@ public class MoonshotPricingProvider extends AbstractPricingProvider {
             for (Element row : rows) {
                 Elements cols = row.select("td");
                 if (cols.size() < 3) {
+                    continue;
+                }
                 String model = cols.get(0).text().trim();
                 String inputPriceStr = cols.get(1).text().replace("\u5143", "").replace("$", "").trim();
                 String outputPriceStr = cols.get(2).text().replace("\u5143", "").replace("$", "").trim();
                 if (model.isEmpty()) {
+                    continue;
+                }
                 try {
                     BigDecimal inputPrice = new BigDecimal(inputPriceStr);
                     BigDecimal outputPrice = new BigDecimal(outputPriceStr);
@@ -58,6 +62,7 @@ public class MoonshotPricingProvider extends AbstractPricingProvider {
                             .currency("CNY")
                             .build());
                 } catch (NumberFormatException ignored) {
+                    // 跳过无效行
                 }
             }
             if (!result.isEmpty()) {

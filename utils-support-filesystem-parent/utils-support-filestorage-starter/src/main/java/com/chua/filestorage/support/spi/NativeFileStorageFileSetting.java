@@ -49,6 +49,8 @@ public class NativeFileStorageFileSetting implements FileStorageFileSetting {
         params.forEach((k, v) -> {
             if (v != null && !v.isBlank()) {
                 if (sb.length() > 1) {
+                    sb.append(",");
+                }
                 sb.append("\"").append(k).append("\":\"").append(v.replace("\"", "\\\"")).append("\"");
             }
         });

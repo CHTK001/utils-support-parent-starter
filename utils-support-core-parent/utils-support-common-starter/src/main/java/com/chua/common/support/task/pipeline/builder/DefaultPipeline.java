@@ -187,6 +187,10 @@ public class DefaultPipeline implements Pipeline {
 
     @Override
     public <T> PipelineContext<T> resume(PipelineContext<T> ctx) {
+        // 与 execute(PipelineContext) 一致：上下文未指定起始节点时自动设置为流水线起始节点
+        if (ctx.getNextNodeId() == null && startNodeId != null) {
+            ctx.setNextNodeId(startNodeId);
+        }
         return executeWith(ctx);
     }
 
@@ -329,7 +333,7 @@ public class DefaultPipeline implements Pipeline {
                 }
 
                 if (ctx.getAction() == Action.REPLAY) {
-                    ctx.getHistory().remove(nodeId);
+                    // 重播不删除历史记录：循环检测已由 action==REPLAY 跳过，历史应保留每次执行
                     ctx.setAction(Action.NEXT);
                 }
 
@@ -430,7 +434,11 @@ public class DefaultPipeline implements Pipeline {
 
                 ctx.addHistory(nodeId);
                 // 自动存储节点输出到 nodeOutputs，方便后续节点跨节点访问
-                ctx.setNodeOutput(nodeId, ctx.getCurrentData());
+                // - currentData 为 null 时不存储（nodeOutputs 为 ConcurrentHashMap，null 值会抛 NPE）
+                // - 节点已自行存储结构化结果（AsyncResult/ForkResult/SubPipelineResult）时不覆盖
+                if (ctx.getCurrentData() != null && !ctx.getNodeOutputs().containsKey(nodeId)) {
+                    ctx.setNodeOutput(nodeId, ctx.getCurrentData());
+                }
                 // WAL：记录节点完成事件
                 if (pipelineWal != null) {
                     try {

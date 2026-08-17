@@ -236,6 +236,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
                         }
                     }
                 }
+                }
                 if (error != null && !error.isEmpty()) {
                     return DoubaoChatResult.error(error);
                 }

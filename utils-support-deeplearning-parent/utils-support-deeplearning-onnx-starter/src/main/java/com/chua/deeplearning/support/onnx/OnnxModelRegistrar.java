@@ -26,7 +26,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 通用动作识别：识别图片中人物动作（跑步、跳跃等），输出动作类别+置信度；适用安防监控、体育分析
         reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx", "https://huggingface.co/onnx-community/action-recognition/resolve/main/onnx/model.onnx", false, null);
         // 年龄识别(GoogleNet)：根据人脸图像估算年龄，输出年龄区间；适用人脸属性分析、年龄统计
-        reg("google-net-age-recognition", "com.chua.deeplearning.support.onnx.age.GoogleNetAgeRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/enhancement/age/age_googlenet.onnx");
         // 年龄识别(VGG)：VGG 架构的人脸年龄估算，精度更高但计算量更大；适用人脸属性分析
         reg("vgg-age-recognition", "com.chua.deeplearning.support.onnx.age.VggAgeRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/enhancement/age/vgg_ilsvrc_16_age_imdb_wiki.onnx");
         // 年龄+种族+性别多任务识别：单模型同时输出年龄区间、种族、性别；适用人脸属性综合分析、安防
@@ -108,7 +107,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // CLIP图像特征(MobileCLIP-S0 embedded)：嵌入式版 MobileCLIP-S0 图像特征（~11MB quantized），jar 内嵌；适用离线图文检索
         reg("mobileclip-s0-vision", "com.chua.deeplearning.support.onnx.feature.MobileClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx");
         // 性别识别(GoogleNet)：根据人脸图像识别性别（男/女）；适用人脸属性分析、安防系统
-        reg("google-net-gender-recognition", "com.chua.deeplearning.support.onnx.gender.GoogleNetGenderRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/enhancement/gender/gender_googlenet.onnx");
         // 性别识别(VGG)：VGG 架构的人脸性别识别，精度更高；适用高精度人脸属性分析
         reg("vgg-gender-recognition", "com.chua.deeplearning.support.onnx.gender.VggGenderRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/enhancement/gender/vgg_ilsvrc_16_gender_imdb_wiki.onnx");
         // 图像生成(LCM-LoRA UNet)：潜在一致性模型 UNet，从噪声生成图像；适用文本到图像生成（需配合 VAE 和 text encoder）
@@ -178,7 +176,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 行人重识别(OSNet ReID)：提取行人特征向量，用于行人检索/跨摄像头追踪；适用人员追踪、安防监控
         reg("osnet-reid", "com.chua.deeplearning.support.onnx.reid.OsnetReidTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/reid/osnet_ain_multisource.onnx");
         // 人脸超分(GFPGAN)：人脸修复/增强，修复模糊、低分辨率人脸；适用老照片修复、人脸增强
-        reg("gfpgan-face-super-resolution", "com.chua.deeplearning.support.onnx.resolution.GfpganFaceSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "face/restoration/gfpgan/GFPGANv1.4.onnx");
         // 人脸修复(GFPGAN v1.3 clean)：重写 forward 规避 double 域，onnxruntime 可运行、无偏色；适用人脸修复/贴回
         reg("onnx-gfpgan", "com.chua.deeplearning.support.onnx.resolution.GfpganFaceSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "face/restoration/gfpgan/GFPGANv1.3_clean.onnx");
         // 文字超分(TextBSR)：针对文字图片的超分辨率，增强文字清晰度；适用 OCR 预处理、文檔增强
@@ -296,7 +293,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 年龄+性别识别(ONNX)：基于 ViT 的人脸年龄+性别联合识别；适用人脸属性分析
         reg("age-gender-onnx", "com.chua.deeplearning.support.onnx.agegender.AgeRaceGenderTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/attribute/age_gender/age-gender-vit.onnx", "https://huggingface.co/onnx-community/age-gender-prediction-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 人脸年龄识别(YOLOv11n)：YOLOv11n 超轻量人脸年龄识别；适用边缘设备年龄估计
-        reg("yolo-face-age", "com.chua.deeplearning.support.onnx.age.GoogleNetAgeRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/attribute/age/yolo11n-face-age.onnx", "https://huggingface.co/AdamCodd/yolo11n-face-age/resolve/main/model.onnx", false, null);
         // 文本嵌入(All-MiniLM-L6-v2)：英文句向量（384维），语义搜索/向量检索；适用英文语义搜索、文本相似度
         reg("all-MiniLM-L6-v2-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/all-MiniLM-L6-v2/model.onnx", "https://modelscope.cn/models/Xenova/all-MiniLM-L6-v2/resolve/master/onnx/model_uint8.onnx", java.util.List.of("https://huggingface.co/onnx-community/all-MiniLM-L6-v2-ONNX/resolve/main/onnx/model.onnx"), false, null);
         // 文本嵌入(BGE-small-en)：英文句向量（384维），BGE 系列英文版；适用英文语义搜索

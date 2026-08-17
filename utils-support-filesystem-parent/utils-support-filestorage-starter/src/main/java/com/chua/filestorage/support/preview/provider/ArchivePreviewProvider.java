@@ -51,6 +51,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     @Override
     public boolean supports(String ext, String mime) {
         if (ext == null) {
+            return false;
+        }
         String e = ext.toLowerCase(Locale.ENGLISH);
         return SUPPORTED.contains(e);
     }
@@ -148,7 +150,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                 .append("<div class=\"meta\">共 ").append(entries.size())
                 .append(" 个文件");
         if (dirs > 0) {
-        sb.append("，总计 ").append(formatSize(totalSize)).append("</div></div>");
+            sb.append("，总计 ").append(formatSize(totalSize)).append("</div></div>");
+        }
         sb.append("<table><thead><tr><th>文件名</th><th>大小</th><th>修改日期</th></tr></thead><tbody>");
         for (EntryInfo e : entries) {
             sb.append("<tr><td class=\"name\">");
@@ -172,10 +175,14 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
     private static String formatSize(long bytes) {
         if (bytes < 1024) {
+            return bytes + " B";
+        }
         if (bytes < 1024 * 1024) {
             return String.format("%.1f KB", bytes / 1024.0);
+        }
         if (bytes < 1024 * 1024 * 1024) {
             return String.format("%.1f MB", bytes / (1024.0 * 1024));
+        }
         return String.format("%.1f GB", bytes / (1024.0 * 1024 * 1024));
     }
 
