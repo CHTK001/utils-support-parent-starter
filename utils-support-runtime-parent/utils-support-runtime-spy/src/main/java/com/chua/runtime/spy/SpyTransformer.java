@@ -235,7 +235,7 @@ public class SpyTransformer implements ClassFileTransformer {
                     return null;
                 }
             }
-            return transformClass(className, classfileBuffer);
+            return transformClass(className, classfileBuffer, loader);
 
         } catch (Exception e) {
             LOG.log(Level.WARNING, String.format("插桩失败: %s — %s: %s", className, e.getClass().getName(), e.getMessage()), e);
@@ -248,17 +248,89 @@ public class SpyTransformer implements ClassFileTransformer {
      *
      * @param className       类名（内部名）
      * @param classfileBuffer 原始字节码
+     * @param loader          目标类的类加载器（用于 getCommonSuperClass 解析引用类型）
      * @return 插桩后的字节码
      */
-    private byte[] transformClass(String className, byte[] classfileBuffer) {
+    private byte[] transformClass(String className, byte[] classfileBuffer, ClassLoader loader) {
         ClassReader reader = new ClassReader(classfileBuffer);
         // COMPUTE_FRAMES + EXPAND_FRAMES 是 AdviceAdapter（继承 LocalVariablesSorter）的标准配置
-        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES
-                | ClassWriter.COMPUTE_MAXS);
+        // 自定义 ClassWriter 覆盖 getCommonSuperClass：用目标类自身的 loader 加载引用类型，
+        // 否则三方库（如 mysql-connector）方法签名中引用尚未加载的异常类型时抛 TypeNotPresentException
+        ClassWriter writer = new ResolvingClassWriter(reader, loader,
+                ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         ClassVisitor visitor = new SpyClassVisitor(writer, className);
         reader.accept(visitor, ClassReader.EXPAND_FRAMES);
         transformedClasses.add(className);
         return writer.toByteArray();
+    }
+
+    /**
+     * 可解析引用类型的 ClassWriter — 解决三方库类插桩时 getCommonSuperClass 无法加载异常类型的问题。
+     *
+     * <p>ASM 的 {@link ClassWriter#getCommonSuperClass(String, String)} 默认使用线程上下文类加载器
+     * 或调用方类加载器加载类；当被插桩类（如 mysql-connector 的 ConnectionImpl）的方法签名引用了
+     * 尚未加载的异常/返回值类型时，加载会失败并抛出 {@link TypeNotPresentException}，
+     * 导致整个插桩失败（transform 返回 null）。本类改用目标类自身的类加载器解析，
+     * 从而在加载该三方类时能正确解析其引用的所有类型。</p>
+     */
+    private static final class ResolvingClassWriter extends ClassWriter {
+
+        /**
+         * 目标类加载器（用于解析被插桩类引用的类型）
+         */
+        private final ClassLoader targetLoader;
+
+        /**
+         * 构造器。
+         *
+         * @param reader       类读取器
+         * @param targetLoader 目标类加载器（可为 null 表示 bootstrap）
+         * @param flags        标志位
+         */
+        ResolvingClassWriter(ClassReader reader, ClassLoader targetLoader, int flags) {
+            super(reader, flags);
+            this.targetLoader = targetLoader;
+        }
+
+        @Override
+        protected String getCommonSuperClass(String type1, String type2) {
+            ClassLoader loader = targetLoader != null
+                    ? targetLoader : ClassLoader.getSystemClassLoader();
+            Class<?> c = loadClass(type1, loader);
+            Class<?> d = loadClass(type2, loader);
+            if (c.isAssignableFrom(d)) {
+                return type1;
+            }
+            if (d.isAssignableFrom(c)) {
+                return type2;
+            }
+            if (c.isInterface() || d.isInterface()) {
+                return "java/lang/Object";
+            }
+            do {
+                c = c.getSuperclass();
+            } while (c != null && !c.isAssignableFrom(d));
+            if (c == null) {
+                return "java/lang/Object";
+            }
+            return c.getName().replace('.', '/');
+        }
+
+        /**
+         * 加载类（null 时回退 Object）。
+         *
+         * @param type 内部名
+         * @param loader 类加载器
+         * @return Class 实例
+         */
+        private static Class<?> loadClass(String type, ClassLoader loader) {
+            try {
+                return Class.forName(type.replace('/', '.'), false, loader);
+            } catch (Throwable e) {
+                // 引用类型不可加载时，回退到最安全的上界
+                return Object.class;
+            }
+        }
     }
 
     /**

@@ -13,7 +13,8 @@ import com.chua.runtime.protocol.Software;
  * <ul>
  *   <li>{@code com.mysql.cj.jdbc.ConnectionImpl} — prepareStatement / prepareCall / createStatement</li>
  *   <li>{@code com.mysql.cj.jdbc.StatementImpl} — execute / executeQuery / executeUpdate</li>
- *   <li>{@code com.mysql.cj.jdbc.PreparedStatement} — execute / executeQuery / executeUpdate</li>
+ *   <li>{@code com.mysql.cj.jdbc.ClientPreparedStatement} — execute / executeQuery / executeUpdate（客户端预编译）</li>
+ *   <li>{@code com.mysql.cj.jdbc.ServerPreparedStatement} — execute / executeQuery / executeUpdate（服务端预编译）</li>
  * </ul>
  *
  * <p>采用零编译期依赖策略：MySQL 驱动不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
@@ -34,9 +35,14 @@ public class MySqlHandler extends AbstractAppHandler {
     private static final String MYSQL_STATEMENT_CLASS = "com/mysql/cj/jdbc/StatementImpl";
 
     /**
-     * PreparedStatement 类内部名
+     * ClientPreparedStatement 类内部名
      */
-    private static final String MYSQL_PREPARED_STATEMENT_CLASS = "com/mysql/cj/jdbc/PreparedStatement";
+    private static final String MYSQL_CLIENT_PREPARED_STATEMENT_CLASS = "com/mysql/cj/jdbc/ClientPreparedStatement";
+
+    /**
+     * ServerPreparedStatement 类内部名
+     */
+    private static final String MYSQL_SERVER_PREPARED_STATEMENT_CLASS = "com/mysql/cj/jdbc/ServerPreparedStatement";
 
     /**
      * SQL 执行方法集合（Statement / PreparedStatement 共有）
@@ -71,7 +77,8 @@ public class MySqlHandler extends AbstractAppHandler {
     @Override
     protected void registerInterceptors() {
         registerAll(MYSQL_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(MYSQL_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAll(MYSQL_CLIENT_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAll(MYSQL_SERVER_PREPARED_STATEMENT_CLASS, SQL_METHODS);
         registerAll(MYSQL_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
