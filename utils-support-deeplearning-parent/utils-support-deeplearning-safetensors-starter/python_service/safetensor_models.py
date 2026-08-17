@@ -1659,21 +1659,11 @@ class OvisOcrRunner(BaseRunner):
 
         try:
             from ovis import AutoModelForCausalLM, AutoProcessor
+            log.info(f"[OvisOCR2] ovis 已安装，加载模型: {model_dir}, device={device}")
         except ImportError:
-            # 回退：尝试通过 ModelScope pipeline 加载（如果 ovis 包未安装）
-            log.info("[OvisOCR2] ovis 包未安装，尝试 ModelScope pipeline...")
-            try:
-                self._load_modelscope_pipeline(model_dir)
-                return
-            except ImportError:
-                raise ImportError(
-                    "OvisOCR2 需要 ovis 包:\n"
-                    "  pip install ovis\n\n"
-                    "或通过 ModelScope pipeline 使用，需要安装 modelscope:"
-                    "  pip install modelscope"
-                )
+            from transformers import AutoModelForCausalLM, AutoProcessor
+            log.info(f"[OvisOCR2] ovis 未安装，使用 transformers 加载: {model_dir}, device={device}")
 
-        log.info(f"[OvisOCR2] 加载模型: {model_dir}, device={device}")
         self._processor = AutoProcessor.from_pretrained(model_dir, trust_remote_code=True)
         self._model = AutoModelForCausalLM.from_pretrained(
             model_dir, torch_dtype=dtype, trust_remote_code=True, device_map=None
@@ -1684,15 +1674,21 @@ class OvisOcrRunner(BaseRunner):
     def _load_modelscope_pipeline(self, model_dir: str):
         """通过 ModelScope pipeline 加载（降级路径）"""
         from modelscope.pipelines import pipeline
+        task = "image-text-to-text"
+        log.info(f"[OvisOCR2] 尝试 ModelScope pipeline task={task}")
         try:
-            self._pipe = pipeline("document-ocr", model=model_dir, device=self._device_str())
+            self._pipe = pipeline(task, model=model_dir, device=self._device_str(), trust_remote_code=True)
         except (TypeError, ValueError, Exception) as e:
-            log.warning(f"[OvisOCR2] pipeline(task='document-ocr') 失败: {e}，尝试无 device 参数")
+            log.warning(f"[OvisOCR2] pipeline(task={task}) 失败: {e}，尝试无 device 参数")
             try:
-                self._pipe = pipeline("document-ocr", model=model_dir)
+                self._pipe = pipeline(task, model=model_dir, trust_remote_code=True)
             except Exception as e2:
-                log.warning(f"[OvisOCR2] pipeline 降级也失败: {e2}，尝试通用 'ocr-detection' task")
-                self._pipe = pipeline("ocr-detection", model=model_dir)
+                log.warning(f"[OvisOCR2] pipeline 降级也失败: {e2}")
+                raise RuntimeError(
+                    f"OvisOCR2 ModelScope pipeline 加载失败，请安装 ovis 包:\n"
+                    f"  pip install git+https://github.com/ath-maas/ovis.git\n\n"
+                    f"原错误: {e2}"
+                )
         self._loaded = True
 
     def run(self, inputs: dict, params: dict) -> str:
@@ -1711,11 +1707,26 @@ class OvisOcrRunner(BaseRunner):
 
         # 如果走的是 ModelScope pipeline 降级路径
         if hasattr(self, '_pipe'):
-            import cv2, numpy as np
-            arr = np.frombuffer(base64.b64decode(image_b64), np.uint8)
-            cv_img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-            result = self._pipe(cv_img)
-            return result.get("text", "")
+            prompt = inputs.get("text") or inputs.get("prompt") or ""
+            query = prompt if prompt.strip() else "请将这张文档图片转换为 Markdown 格式。"
+            # Qwen3.5 VLM 需要 chat 格式: [{"role":"user","content":[{"type":"image"},...]}]
+            chat_messages = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": query}]}]
+            max_tokens = int(params.get("max_new_tokens", 2048))
+            result = self._pipe(chat_messages, image, max_new_tokens=max_tokens)
+            # 解析输出
+            if isinstance(result, list):
+                for item in result:
+                    if isinstance(item, dict):
+                        txt = item.get("generated_text") or item.get("text")
+                        if txt:
+                            return txt
+                return str(result)
+            if isinstance(result, dict):
+                txt = result.get("generated_text") or result.get("text")
+                if txt:
+                    return txt
+                return str(result)
+            return str(result)
 
         # Ovis 标准推理路径
         prompt = inputs.get("text") or inputs.get("prompt") or ""

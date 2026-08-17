@@ -357,6 +357,15 @@ public class OcrPipeline {
         if (boxes == null || boxes.isEmpty()) {
             return List.of();
         }
+        // 检测置信度阈值过滤
+        if (minConfidence > 0f) {
+            boxes = boxes.stream()
+                    .filter(b -> b.confidence() >= minConfidence)
+                    .toList();
+            if (boxes.isEmpty()) {
+                return List.of();
+            }
+        }
         List<DetectionInfo> ordered = sortReadingOrder
                 ? boxes.stream()
                 .sorted(Comparator
