@@ -29,6 +29,7 @@ public class ClusterManager {
     private final ScatterServiceDiscovery discovery;
     private final String balance;
     private final String selfServerId;
+    private final String groupId;
 
     public ClusterManager(ScatterServiceDiscovery discovery, String balance) {
         this(discovery, balance, null);
@@ -38,6 +39,62 @@ public class ClusterManager {
         this.discovery = discovery;
         this.balance = balance == null || balance.isBlank() ? "weight" : balance;
         this.selfServerId = selfServerId;
+        this.groupId = discovery.getGroupId() == null ? "default" : discovery.getGroupId();
+    }
+
+    /**
+     * 对外入口:将一台服务器注册进集群(按集群 groupId 分组,进入同一负载均衡池)。
+     * <p>clusterId 与 scatterId 一致(groupId),仅对同类服务器使用 scatter 集群能力;
+     * 注册后由 scatter 自动发现/扩散,无需手动维护节点表。</p>
+     *
+     * @param servicePath 服务路径
+     * @param host        服务器主机
+     * @param port        服务器端口
+     * @param protocol    协议(http/tcp/udp/kcp)
+     * @return 当前实例(链式调用)
+     */
+    public ClusterManager addServer(String servicePath, String host, int port, String protocol) {
+        String serverId = host + ":" + port;
+        Discovery server = Discovery.builder()
+                .id(serverId)
+                .serverId(serverId)
+                .scatterId(groupId)
+                .protocol(protocol == null || protocol.isBlank() ? "http" : protocol)
+                .host(host)
+                .port(port)
+                .weight(1D)
+                .build();
+        discovery.registerService(servicePath, server);
+        log.info("addServer: {} -> {}:{} ({}) 加入集群 {}", servicePath, host, port, protocol, groupId);
+        return this;
+    }
+
+    /**
+     * 对外入口:批量注册多台服务器到集群。
+     *
+     * @param servicePath 服务路径
+     * @param protocol    协议
+     * @param servers     服务器地址列表(host 或 host:port)
+     * @return 当前实例(链式调用)
+     */
+    public ClusterManager addServers(String servicePath, String protocol, String... servers) {
+        if (servers == null) {
+            return this;
+        }
+        for (String server : servers) {
+            if (server == null || server.isBlank()) {
+                continue;
+            }
+            String trimmed = server.trim();
+            int colon = trimmed.lastIndexOf(':');
+            if (colon > 0 && trimmed.indexOf(':') == colon) {
+                addServer(servicePath, trimmed.substring(0, colon),
+                        Integer.parseInt(trimmed.substring(colon + 1)), protocol);
+            } else {
+                addServer(servicePath, trimmed, 0, protocol);
+            }
+        }
+        return this;
     }
 
     /**
