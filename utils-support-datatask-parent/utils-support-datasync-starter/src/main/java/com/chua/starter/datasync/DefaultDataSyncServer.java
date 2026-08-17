@@ -23,51 +23,27 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class DefaultDataSyncServer implements DataSyncServer {
 
-    /**
-     * Agent 服务器管理器
-     */
-    private final AgentServerManager agentServerManager;
-
-    /**
-     * 映射管理器
-     */
-    private DataSyncMappingManager mappingManager;
-
-    /**
-     * 调度器管理器
-     */
-    private final SyncDataSchedulerManager schedulerManager;
-
-    /**
-     * 执行器管理器
-     */
-    private volatile ExecutorManager executorManager;
-
-    /**
-     * Source 注册表
-     */
-    private final Map<String, DataSyncAgentSource> sourceRegistry = new ConcurrentHashMap<>();
-
-    /**
-     * Sink 注册表
-     */
-    private final Map<String, DataSyncAgentSink> sinkRegistry = new ConcurrentHashMap<>();
-
-    /**
-     * Agent 注册表
-     */
-    private final Map<String, DataSyncAgent> agentRegistry = new ConcurrentHashMap<>();
-
-    /**
-     * 默认服务器标识
-     */
     private static final String DEFAULT_SERVER_ID = "default-server";
 
+    private final AgentServerManager agentServerManager;
+    private DataSyncMappingManager mappingManager;
+    private final SyncDataSchedulerManager schedulerManager;
+    private volatile ExecutorManager executorManager;
+
+    private final Map<String, DataSyncAgentSource> sourceRegistry = new ConcurrentHashMap<>();
+    private final Map<String, DataSyncAgentSink> sinkRegistry = new ConcurrentHashMap<>();
+    private final Map<String, DataSyncAgent> agentRegistry = new ConcurrentHashMap<>();
+
     public DefaultDataSyncServer(AgentServerManager agentServerManager) {
+        this(agentServerManager, DefaultSyncDataSchedulerManager.SchedulerConfig.builder().build());
+    }
+
+    public DefaultDataSyncServer(AgentServerManager agentServerManager,
+                                  DefaultSyncDataSchedulerManager.SchedulerConfig schedulerConfig) {
         this.agentServerManager = agentServerManager;
         this.mappingManager = new DefaultDataSyncMappingManager();
         this.executorManager = new DefaultExecutorManager(DEFAULT_SERVER_ID);
-        this.schedulerManager = new DefaultSyncDataSchedulerManager(this);
+        this.schedulerManager = new DefaultSyncDataSchedulerManager(this, schedulerConfig);
     }
 
     /**

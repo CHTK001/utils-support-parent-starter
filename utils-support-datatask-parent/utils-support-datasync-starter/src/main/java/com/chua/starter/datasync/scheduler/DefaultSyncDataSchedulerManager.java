@@ -10,9 +10,14 @@ import com.chua.starter.datasync.mapping.DataSyncFieldMapping;
 import com.chua.starter.datasync.mapping.DefaultFieldMappingConverter;
 import com.chua.starter.datasync.mapping.FieldMappingConverter;
 import com.chua.starter.datasync.model.DataSyncMapping;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +36,9 @@ import java.util.stream.Collectors;
  *
  * <p>每秒轮询一次，检查 Cron 条件并执行字段映射转换。
  * 执行器由 ExecutorManager 池化管理，调度器仅负责发布数据。</p>
+ *
+ * <p>管线默认使用 {@link Schedulers#boundedElastic()} 异步执行，
+ * 避免调度线程被慢 Source 阻塞；支持可配置的背压、重试与并发参数。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,14 +62,14 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     /**
-     * flatMap 并行度
-     */
-    private static final int FLATMAP_PARALLELISM = 10;
-
-    /**
      * 调度线程名前缀
      */
     private static final String SCHEDULER_THREAD_NAME_PREFIX = "datasync-scheduler-";
+
+    /**
+     * 调度器配置
+     */
+    private final SchedulerConfig config;
 
     /**
      * 数据同步服务器
@@ -87,8 +96,62 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
      */
     private final Map<String, Trigger> triggerCache = new ConcurrentHashMap<>();
 
+    /**
+     * 失败重试计数器（mappingId -> 连续失败次数），用于熔断退避
+     */
+    private final Map<String, AtomicInteger> retryCounters = new ConcurrentHashMap<>();
+
+    /**
+     * 调度器配置。
+     */
+    @Data
+    @Builder
+    public static class SchedulerConfig {
+
+        /**
+         * flatMap 并行度（默认 10）
+         */
+        @Builder.Default
+        private int flatMapParallelism = 10;
+
+        /**
+         * 最大 buffer 行数（默认 10000，0 表示无限制）
+         */
+        @Builder.Default
+        private int maxBufferRows = 10000;
+
+        /**
+         * 每秒最大请求数（默认 0 表示无限制，>0 时启用 {@link Flux#limitRate(int)}）
+         */
+        @Builder.Default
+        private int maxRatePerSecond = 0;
+
+        /**
+         * 最大重试次数（默认 2）
+         */
+        @Builder.Default
+        private int retryMaxAttempts = 2;
+
+        /**
+         * 重试初始退避毫秒（默认 500）
+         */
+        @Builder.Default
+        private long retryBackoffMs = 500;
+
+        /**
+         * 熔断阈值：连续失败超过此次数后停止重试（默认 10）
+         */
+        @Builder.Default
+        private int circuitBreakerThreshold = 10;
+    }
+
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer) {
+        this(dataSyncServer, SchedulerConfig.builder().build());
+    }
+
+    public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer, SchedulerConfig config) {
         this.dataSyncServer = dataSyncServer;
+        this.config = config;
         this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, SCHEDULER_THREAD_NAME_PREFIX + r.hashCode());
             t.setDaemon(true);
@@ -262,41 +325,69 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         List<DataSyncFieldMapping> fieldMappings = mapping.mappings() == null ? List.of() : mapping.mappings();
         Map<String, Object> readParams = buildReadParams(mapping, source);
 
-        Flux.just(source)
-                .doOnSubscribe(s -> System.out.println("[SCHED] upstream subscribed"))
+        // 构建响应式管线
+        Flux<Map<String, Object>> sourceFlux = Flux.just(source)
                 .flatMap(s -> s.read(readParams))
-                .buffer(mapping.batch() > 0 ? mapping.batch() : DEFAULT_BATCH_SIZE)
+                .subscribeOn(Schedulers.boundedElastic());
+
+        // 背压控制
+        if (config.getMaxRatePerSecond() > 0) {
+            sourceFlux = sourceFlux.limitRate(config.getMaxRatePerSecond());
+        }
+
+        // 分批处理
+        int batchSize = mapping.batch() > 0 ? mapping.batch() : DEFAULT_BATCH_SIZE;
+        int maxRows = config.getMaxBufferRows() > 0 ? config.getMaxBufferRows() : Integer.MAX_VALUE;
+        Flux<List<Map<String, Object>>> batched = sourceFlux
+                .buffer(batchSize)
+                .take(maxRows / Math.max(1, batchSize));
+
+        // 重试 + 转换 + 发布
+        batched
                 .flatMap(batchData -> {
-                    System.out.println("[SCHED] batchSize=" + batchData.size());
                     List<Map<String, Object>> transformedBatch = applyFieldMappings(batchData, fieldMappings);
-                    System.out.println("[SCHED] transformedBatch size=" + transformedBatch.size());
                     try {
                         executor.publish(outputId, transformedBatch);
-                        System.out.println("[SCHED] publish OK topic=out:" + outputId);
-                        log.trace("已发布批次: mappingId={}, outputId={}, batchSize={}", mapping.mappingId(), outputId, transformedBatch.size());
+                        log.trace("已发布批次: mappingId={}, outputId={}, batchSize={}",
+                                mapping.mappingId(), outputId, transformedBatch.size());
                     } catch (Exception publishEx) {
-                        System.out.println("[SCHED] publish FAIL: " + publishEx);
                         log.error("发布批次异常: mappingId={}, outputId={}, batchSize={}, error={}",
                                 mapping.mappingId(), outputId, transformedBatch.size(), publishEx.getMessage(), publishEx);
                     }
 
-                    // 发布成功后持久化 offset，避免重启后重复消费
                     if (!transformedBatch.isEmpty()) {
                         Object lastOffset = transformedBatch.get(transformedBatch.size() - 1).getOrDefault("id",
                                 transformedBatch.get(transformedBatch.size() - 1).values().stream().findFirst().orElse(null));
                         persistOffset(source, mapping, lastOffset);
                     }
-
                     return Flux.empty();
-                }, FLATMAP_PARALLELISM)
+                }, config.getFlatMapParallelism())
+                .retryWhen(Retry.backoff(config.getRetryMaxAttempts(), Duration.ofMillis(config.getRetryBackoffMs()))
+                        .filter(throwable -> {
+                            // 熔断：连续失败超过阈值不再重试
+                            AtomicInteger counter = retryCounters.computeIfAbsent(
+                                    mapping.mappingId(), k -> new AtomicInteger(0));
+                            int failures = counter.incrementAndGet();
+                            if (failures > config.getCircuitBreakerThreshold()) {
+                                log.error("熔断触发: mappingId={}, 连续失败次数={}", mapping.mappingId(), failures);
+                                return false;
+                            }
+                            return true;
+                        })
+                        .doAfterRetry(rs -> log.warn("重试执行: mappingId={}, 次数={}",
+                                mapping.mappingId(), rs.totalRetries() + 1)))
                 .doOnComplete(() -> {
-                    log.debug("映射执行完成: mappingId={}", mapping.mappingId());
+                    // 成功后重置熔断计数器
+                    AtomicInteger counter = retryCounters.get(mapping.mappingId());
+                    if (counter != null) {
+                        counter.set(0);
+                    }
                 })
                 .subscribe(
-                            null,
-                            error -> log.error("映射执行异常: mappingId={}", mapping.mappingId(), error),
-                            () -> log.debug("映射执行完成: mappingId={}", mapping.mappingId())
-                    );
+                        null,
+                        error -> log.error("映射执行异常: mappingId={}", mapping.mappingId(), error),
+                        () -> log.debug("映射执行完成: mappingId={}", mapping.mappingId())
+                );
         } catch (Exception e) {
             log.error("执行映射失败: mappingId={}", mapping.mappingId(), e);
         }
