@@ -147,6 +147,26 @@ public enum Protocol {
     CASSANDRA("Cassandra", 9042, false),
 
     /**
+     * Apache HBase
+     */
+    HBASE("HBase", 16020, false),
+
+    /**
+     * Apache Pulsar
+     */
+    PULSAR("Pulsar", 6650, false),
+
+    /**
+     * Apache Thrift RPC
+     */
+    THRIFT("Thrift", 9090, false),
+
+    /**
+     * Apache ShardingSphere（分库分表）
+     */
+    SHARDING_SPHERE("ShardingSphere", 0, false),
+
+    /**
      * InfluxDB（时序数据库）
      */
     INFLUXDB("InfluxDB", 8086, false),
@@ -233,6 +253,9 @@ public enum Protocol {
             case 5236 -> DAMENG;
             case 54321 -> KINGBASE;
             case 9042 -> CASSANDRA;
+            case 16020 -> HBASE;
+            case 6650 -> PULSAR;
+            case 9090 -> THRIFT;
             case 8086 -> INFLUXDB;
             default -> UNKNOWN;
         };
