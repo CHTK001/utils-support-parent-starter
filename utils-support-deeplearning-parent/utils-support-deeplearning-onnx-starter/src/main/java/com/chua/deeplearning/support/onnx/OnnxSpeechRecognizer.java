@@ -3,13 +3,41 @@ package com.chua.deeplearning.support.onnx;
 import com.chua.deeplearning.support.speech.SpeechRecognizer;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * ONNX 语音识别引擎（SPI provider="onnx"）。
+ *
+ * <p>注册表中无可用语音识别模型，必须通过 {@code .model("模型ID")} 显式指定
+ * 已注册模型，否则抛出异常。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class OnnxSpeechRecognizer implements SpeechRecognizer {
 
+    /**
+     * 模型名称
+     */
     private String modelName;
+
+    /**
+     * 语言
+     */
     private String lang = "zh";
+
+    /**
+     * 模型路径
+     */
     private String modelPath;
+
+    /**
+     * 采样率
+     */
     private int sampleRate = 16000;
+
+    /**
+     * 运行设备
+     */
     private String device = "cpu";
 
     public OnnxSpeechRecognizer(String apiKey) {
@@ -22,7 +50,10 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "whisper";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + SpeechRecognizer.listModels());
+        }
+        return modelName;
     }
 
     @Override

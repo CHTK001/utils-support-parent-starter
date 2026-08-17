@@ -1,9 +1,16 @@
 package com.chua.kcp.support.server;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.http.HttpHeader;
+import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.server.filter.DefaultServerFilterChain;
+import com.chua.common.support.network.server.request.AbstractServerRequest;
+import com.chua.common.support.network.server.request.ServerRequest;
+import com.chua.common.support.network.server.response.AbstractServerResponse;
+import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
@@ -446,6 +453,14 @@ public class KcpServer extends AbstractServer {
             notifyListeners(listener -> listener.onClientConnected(initialId, meta));
             notifyConnectListeners(initialId);
             dispatchAnnotatedMethods(onOpenMethods);
+            // 连接建立后主动回 registered:initialId，让客户端的 registerFuture 完成
+            // 注意：KCP 是顺序字节流，sendTo 内部会 buffer 直到 conv 建立完成；
+            // 在 onConnected 阶段写一帧 registered: 让客户端收到后能完成 register 握手。
+            try {
+                sendTo(ukcp, "registered:" + initialId);
+            } catch (Exception e) {
+                log.warn("KCP 发送 registered 失败: {}", e.getMessage());
+            }
         }
 
         @Override
@@ -530,6 +545,29 @@ public class KcpServer extends AbstractServer {
         }
 
         private void dispatchMessage(String clientId, String topic, String payload) {
+            // 消息链路接入 ServerFilter 体系：构造协议无关的 request/response，走统一过滤器链，
+            // 链尾执行订阅分发/注解分发/监听器通知
+            KcpServerRequest request = new KcpServerRequest(clientId, topic, payload);
+            KcpServerResponse response = new KcpServerResponse();
+            DefaultServerFilterChain chain = new DefaultServerFilterChain(
+                    filterManager.getMergedFilters(), (req, res) -> {
+                if (res.isEnded()) {
+                    return;
+                }
+                dispatchToHandlers(clientId, topic, payload);
+            });
+            try {
+                chain.doFilter(request, response);
+            } catch (Exception e) {
+                log.error("KCP 过滤器链执行异常: {}", e.getMessage(), e);
+                notifyErrorListeners(e);
+            }
+        }
+
+        /**
+         * 分发消息到订阅者、注解方法与监听器（filter 链尾业务逻辑）。
+         */
+        private void dispatchToHandlers(String clientId, String topic, String payload) {
             for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicSubscribers.entrySet()) {
                 if (matchTopic(entry.getKey(), topic)) {
                     for (BiConsumer<String, String> handler : entry.getValue()) {
@@ -544,6 +582,78 @@ public class KcpServer extends AbstractServer {
             }
             dispatchAnnotatedPublish(topic, payload);
             notifyListeners(listener -> listener.onMessage(clientId, topic, payload));
+        }
+    }
+
+    /**
+     * KCP 消息的协议无关请求视图（topic → path，payload → body，clientId → remote）。
+     */
+    private static final class KcpServerRequest extends AbstractServerRequest {
+
+        private final String clientId;
+        private final String topic;
+        private final byte[] payload;
+
+        KcpServerRequest(String clientId, String topic, String payload) {
+            this.clientId = clientId;
+            this.topic = topic;
+            this.payload = payload.getBytes(StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public HttpHeader getHeaders() {
+            return HttpHeader.create();
+        }
+
+        @Override
+        public String getHeader(String name) {
+            return null;
+        }
+
+        @Override
+        public String getUri() {
+            return topic;
+        }
+
+        @Override
+        public String getPath() {
+            return topic;
+        }
+
+        @Override
+        public HttpMethod getMethod() {
+            return HttpMethod.POST;
+        }
+
+        @Override
+        public String getRemoteAddress() {
+            return clientId;
+        }
+
+        @Override
+        public int getRemotePort() {
+            return 0;
+        }
+
+        @Override
+        protected byte[] readBody() {
+            return payload;
+        }
+    }
+
+    /**
+     * KCP 消息的协议无关响应视图（KCP 无 HTTP 响应体，仅用于 filter 链语义）。
+     */
+    private static final class KcpServerResponse extends AbstractServerResponse {
+
+        @Override
+        public java.io.OutputStream getOutputStream() {
+            return new java.io.ByteArrayOutputStream();
+        }
+
+        @Override
+        public void writeRaw(byte[] bytes) {
+            // KCP 文本协议无原始响应写回，忽略
         }
     }
 

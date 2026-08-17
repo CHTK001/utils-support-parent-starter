@@ -15,8 +15,14 @@ import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -404,12 +410,10 @@ public class OcrPipeline {
                         return null;
                     }
                     DetectionInfo box = oc.currentBox();
-                // 检测框四周小幅扩展 2px（仅辅助识别，标注仍用原始框）
                 int px = 2;
                     byte[] crop = ImageCropUtils.crop(oc.imageData(),
                             (int) box.x() - px, (int) box.y() - px,
                             (int) box.width() + px * 2, (int) box.height() + px * 2);
-                    // 裁剪块过小时放大 2 倍，提升 rec 对小字识别率
                     oc.currentCrop(upscaleIfSmall(crop));
                     return null;
                 }).taskEnd()
@@ -731,6 +735,40 @@ public class OcrPipeline {
             return OpenCvImageUtils.rotate(imageData, degree);
         } catch (Exception e) {
             return imageData;
+        }
+    }
+
+    /**
+     * 对倾斜文字块执行 deskew（通过 OpenCV warpAffine 旋转扶正）。
+     *
+     * @param crop  裁剪块 PNG 字节
+     * @param angle 旋转角度（度），正=顺时针
+     * @return 扶正后 PNG 字节
+     */
+    public static byte[] deskew(byte[] crop, float angle) {
+        try {
+            OpenCvImageUtils.load();
+            Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
+                    new MatOfByte(crop), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+            if (src == null || src.empty()) return crop;
+            try {
+                Point center = new Point(src.cols() / 2.0, src.rows() / 2.0);
+                Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+                Mat dst = new Mat();
+                Imgproc.warpAffine(src, dst, rot, src.size(), Imgproc.INTER_CUBIC, Core.BORDER_CONSTANT,
+                        new Scalar(255, 255, 255));
+                MatOfByte mob = new MatOfByte();
+                org.opencv.imgcodecs.Imgcodecs.imencode(".png", dst, mob);
+                byte[] result = mob.toArray();
+                dst.release();
+                rot.release();
+                return result;
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            log.debug("[ocr-pipeline] deskew 跳过: {}", e.getMessage());
+            return crop;
         }
     }
 

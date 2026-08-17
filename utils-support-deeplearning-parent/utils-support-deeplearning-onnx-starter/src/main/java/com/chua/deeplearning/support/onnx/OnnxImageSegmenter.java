@@ -20,7 +20,7 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "mask-rcnn";
+        return modelName != null ? modelName : "fastsam";
     }
 
     @Override

@@ -22,7 +22,7 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "image-quality";
+        return modelName != null ? modelName : "nima";
     }
 
     @Override

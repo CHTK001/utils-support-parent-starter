@@ -18,7 +18,7 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "image-enhancer";
+        return modelName != null ? modelName : "onnx-gfpgan";
     }
 
     @Override

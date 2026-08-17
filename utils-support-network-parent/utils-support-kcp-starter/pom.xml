@@ -85,5 +85,21 @@
             <artifactId>jctools-core</artifactId>
             <version>3.3.0</version>
         </dependency>
+        <!-- kcp-base 1.6.2(AbstractKcpServer) 静态引用 io.netty.channel.kqueue.KQueue，补齐 netty 4.2 的 kqueue 类 -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-classes-kqueue</artifactId>
+            <version>4.2.15.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

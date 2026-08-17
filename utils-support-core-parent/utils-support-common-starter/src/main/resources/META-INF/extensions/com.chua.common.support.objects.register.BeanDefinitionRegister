@@ -1,0 +1,3 @@
+com.chua.common.support.objects.register.impl.DefaultBeanDefinitionRegister
+com.chua.common.support.objects.register.impl.AnnotationBeanDefinitionRegister
+com.chua.common.support.objects.register.impl.SpiBeanDefinitionRegister

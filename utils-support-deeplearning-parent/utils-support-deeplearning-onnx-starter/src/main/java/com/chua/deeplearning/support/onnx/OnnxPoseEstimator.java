@@ -51,7 +51,8 @@ public class OnnxPoseEstimator implements PoseEstimator {
 
     @Override
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
-        return PoseEstimator.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).estimateMulti(imageData);
+        List<PoseKeypoint> single = estimate(imageData);
+        return single == null ? List.of() : List.of(single);
     }
 
 }

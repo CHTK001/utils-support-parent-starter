@@ -226,11 +226,11 @@ public class DefaultObjectContext implements ObjectContext {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException(
                     "容器已关闭，无法注册 Bean: " + bean.getClass().getName());
         }
-        // 已注册过则跳过，避免重复注册同一实例
+        // registry 延迟初始化：先 getRegistry() 确保容器可用，再判重
+        BeanDefinitionRegistry registry = getRegistry(getConfig().isSpiEnabled());
         if (registry.containsInstance(bean)) {
             return;
         }
-        BeanDefinitionRegistry registry = getRegistry(getConfig().isSpiEnabled());
         List<BeanDefinitionGenerator> generators = ServiceProvider.of(BeanDefinitionGenerator.class)
                 .collect().stream()
                 .sorted(Comparator.comparingInt(BeanDefinitionGenerator::getPriority).reversed())

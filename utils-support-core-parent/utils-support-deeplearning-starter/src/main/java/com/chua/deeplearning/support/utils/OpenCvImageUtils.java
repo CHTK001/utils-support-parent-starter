@@ -6,12 +6,18 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.model.PredictRectangle;
 
 /**
  * OpenCV 图像预处理工具（替代 DJL NDArray / NDImageUtils）。
@@ -477,5 +483,48 @@ public final class OpenCvImageUtils {
         b.release();
         x.release();
         return affine;
+    }
+
+    /**
+     * 在图像上绘制检测框（支持旋转框角度）。
+     *
+     * @param imageData 原图
+     * @param boxes     检测结果
+     * @param drawAngle 是否绘制旋转框
+     * @return 标注后 PNG 字节
+     */
+public static byte[] drawDetections(byte[] imageData, List<DetectionInfo> boxes) {
+        load();
+        Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+        if (src == null) return imageData;
+        try {
+            for (DetectionInfo box : boxes) {
+                if (Math.abs(box.angle()) > 0.5f && box.rw() > 0 && box.rh() > 0) {
+                    // 旋转框：用 rw/rh/angle 计算 4 个角点
+                    double cx = box.x() + box.width() / 2.0;
+                    double cy = box.y() + box.height() / 2.0;
+                    double rad = Math.toRadians(box.angle());
+                    double cos = Math.cos(rad), sin = Math.sin(rad);
+                    double hw = box.rw() / 2.0, hh = box.rh() / 2.0;
+                    Point[] pts = new Point[4];
+                    for (int i = 0; i < 4; i++) {
+                        double lx = (i < 2 ? -hw : hw);
+                        double ly = (i % 2 == 0 ? -hh : hh);
+                        pts[i] = new Point(cx + lx * cos - ly * sin, cy + lx * sin + ly * cos);
+                    }
+                    MatOfPoint poly = new MatOfPoint(pts);
+                    Imgproc.polylines(src, List.of(poly), true, new Scalar(0, 255, 0), 2);
+                    poly.release();
+                } else {
+                    int x = (int) box.x(), y = (int) box.y(), w = (int) box.width(), h = (int) box.height();
+                    Imgproc.rectangle(src, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
+                }
+            }
+            MatOfByte mob = new MatOfByte();
+            org.opencv.imgcodecs.Imgcodecs.imencode(".jpg", src, mob);
+            return mob.toArray();
+        } finally {
+            src.release();
+        }
     }
 }

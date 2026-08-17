@@ -249,6 +249,20 @@ public final class SoftwareDetector {
         // Spring Integration
         put("org.springframework.integration", Software.SPRING_INTEGRATION);
 
+        // Kubernetes
+        put("io.kubernetes", Software.KUBERNETES);
+        put("io.kubernetes.client", Software.KUBERNETES);
+
+        // AWS SDK
+        put("software.amazon.awssdk", Software.AWS_SDK);
+        put("com.amazonaws", Software.AWS_SDK);
+
+        // Quartz
+        put("org.quartz", Software.QUARTZ);
+
+        // Spring Batch
+        put("org.springframework.batch", Software.SPRING_BATCH);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 
