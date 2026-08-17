@@ -297,7 +297,15 @@ class DefaultFaceDetector implements FaceDetector {
 
     @Override
     public List<DetectionInfo> detectInfo(byte[] imageData) {
-        return detect(imageData).stream()
+        List<PredictRectangle> raw = detect(imageData);
+        if (raw == null) {
+            return List.of();
+        }
+        return raw.stream()
+                // 检测置信度阈值过滤
+                .filter(r -> r.confidence() >= threshold)
+                // 最小人脸尺寸过滤（短边像素）
+                .filter(r -> Math.min(r.width(), r.height()) >= minFaceSize)
                 .map(r -> new DetectionInfo(
                         "face",
                         r.confidence(),

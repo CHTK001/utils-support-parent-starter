@@ -21,7 +21,7 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "bge-small-zh";
+        return modelName != null ? modelName : "dino-v2";
     }
 
     @Override

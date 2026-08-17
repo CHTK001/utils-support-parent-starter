@@ -109,16 +109,16 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     public static class SchedulerConfig {
 
         /**
-         * flatMap 并行度（默认 10）
+         * flatMap 并行度
          */
         @Builder.Default
         private int flatMapParallelism = 10;
 
         /**
-         * 最大 buffer 行数（默认 10000，0 表示无限制）
+         * 最大 buffer 行数上限（默认无限制，设置 >0 的数值后启用上限）
          */
         @Builder.Default
-        private int maxBufferRows = 10000;
+        private long maxBufferRows = Long.MAX_VALUE;
 
         /**
          * 每秒最大请求数（默认 0 表示无限制，>0 时启用 {@link Flux#limitRate(int)}）
@@ -127,19 +127,19 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         private int maxRatePerSecond = 0;
 
         /**
-         * 最大重试次数（默认 2）
+         * 最大重试次数
          */
         @Builder.Default
         private int retryMaxAttempts = 2;
 
         /**
-         * 重试初始退避毫秒（默认 500）
+         * 重试初始退避毫秒
          */
         @Builder.Default
         private long retryBackoffMs = 500;
 
         /**
-         * 熔断阈值：连续失败超过此次数后停止重试（默认 10）
+         * 熔断阈值：连续失败超过此次数后停止重试
          */
         @Builder.Default
         private int circuitBreakerThreshold = 10;
@@ -325,7 +325,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         List<DataSyncFieldMapping> fieldMappings = mapping.mappings() == null ? List.of() : mapping.mappings();
         Map<String, Object> readParams = buildReadParams(mapping, source);
 
-        // 构建响应式管线
+        // 构建响应式管线：IO 读（弹性线程池）→ buffer → CPU 处理（parallel 固定线程池）
         Flux<Map<String, Object>> sourceFlux = Flux.just(source)
                 .flatMap(s -> s.read(readParams))
                 .subscribeOn(Schedulers.boundedElastic());
@@ -335,12 +335,13 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             sourceFlux = sourceFlux.limitRate(config.getMaxRatePerSecond());
         }
 
-        // 分批处理
+        // 分批处理（CPU 密集型：字段转换 + 发布，切到 parallel 固定线程池减少切换开销）
         int batchSize = mapping.batch() > 0 ? mapping.batch() : DEFAULT_BATCH_SIZE;
-        int maxRows = config.getMaxBufferRows() > 0 ? config.getMaxBufferRows() : Integer.MAX_VALUE;
+        long maxRows = config.getMaxBufferRows() > 0 ? config.getMaxBufferRows() : Long.MAX_VALUE;
         Flux<List<Map<String, Object>>> batched = sourceFlux
                 .buffer(batchSize)
-                .take(maxRows / Math.max(1, batchSize));
+                .take(maxRows / Math.max(1, batchSize))
+                .publishOn(Schedulers.parallel());
 
         // 重试 + 转换 + 发布
         batched

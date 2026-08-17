@@ -24,7 +24,7 @@ public class OnnxImageDetector implements ImageDetector {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "yolov8";
+        return modelName != null ? modelName : "yolov8s";
     }
 
     @Override

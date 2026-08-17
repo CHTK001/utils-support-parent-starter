@@ -23,7 +23,7 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "arcface";
+        return modelName != null ? modelName : "arc-face";
     }
 
     @Override

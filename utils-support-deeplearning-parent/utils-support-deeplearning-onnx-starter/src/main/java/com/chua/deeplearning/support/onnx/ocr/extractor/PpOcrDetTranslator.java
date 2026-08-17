@@ -8,12 +8,7 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Rect;
-import org.opencv.core.Size;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -264,26 +259,51 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
         List<DetectionInfo> result = new ArrayList<>();
         for (MatOfPoint contour : contours) {
+            // 轴对齐框（保持原有检测精度）
             Rect rect = Imgproc.boundingRect(contour);
             if (rect.width < 5 || rect.height < 5 || rect.area() < 25) {
                 continue;
             }
+            // 旋转框角度（用于绘制倾斜框 + deskew）
+            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
+            RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
+            contour2f.release();
+            float angle = (float) rotatedRect.angle;
+            if (rotatedRect.size.width < rotatedRect.size.height) {
+                angle = 90 + angle;
+            }
+            if (angle > 90) angle -= 180;
+            if (angle < -90) angle += 180;
             float x1 = rect.x * scaleX;
             float y1 = rect.y * scaleY;
             float x2 = (rect.x + rect.width) * scaleX;
             float y2 = (rect.y + rect.height) * scaleY;
-            // 置信度：区域内概率均值
+            // 置信度：旋转框掩码内概率均值（排除轴对齐框中的背景干扰）
+            float conf = 0;
+            Mat mask = new Mat(rect.height, rect.width, org.opencv.core.CvType.CV_8UC1, new org.opencv.core.Scalar(0));
+            Point[] rotPts = new Point[4];
+            rotatedRect.points(rotPts);
+            for (int i = 0; i < 4; i++) {
+                rotPts[i] = new Point(rotPts[i].x - rect.x, rotPts[i].y - rect.y);
+            }
+            MatOfPoint maskPts = new MatOfPoint(rotPts);
+            Imgproc.fillConvexPoly(mask, maskPts, new Scalar(255));
+            maskPts.release();
             double sum = 0;
             int count = 0;
-            for (int y = rect.y; y < rect.y + rect.height; y += 2) {
-                for (int x = rect.x; x < rect.x + rect.width; x += 2) {
-                    sum += probs[y][x];
-                    count++;
+            for (int y = 0; y < rect.height; y += 2) {
+                for (int x = 0; x < rect.width; x += 2) {
+                    if (mask.get(y, x)[0] > 0) {
+                        sum += probs[rect.y + y][rect.x + x];
+                        count++;
+                    }
                 }
             }
-            float conf = count > 0 ? (float) (sum / count) : 0;
+            mask.release();
+            conf = count > 0 ? (float) (sum / count) : 0;
             result.add(new DetectionInfo("text", conf,
-                    Math.max(0, x1), Math.max(0, y1), Math.max(0, x2 - x1), Math.max(0, y2 - y1)));
+                    Math.max(0, x1), Math.max(0, y1), Math.max(0, x2 - x1), Math.max(0, y2 - y1), angle,
+                    rotatedRect.size.width * scaleX, rotatedRect.size.height * scaleY));
         }
         kernel.release();
         dilated.release();

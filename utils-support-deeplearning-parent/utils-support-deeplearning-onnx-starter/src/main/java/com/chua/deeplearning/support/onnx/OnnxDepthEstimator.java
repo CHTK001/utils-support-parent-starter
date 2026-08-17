@@ -18,7 +18,7 @@ public class OnnxDepthEstimator implements DepthEstimator {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "monodepth2";
+        return modelName != null ? modelName : "depth-anything";
     }
 
     @Override

@@ -23,7 +23,7 @@ public class OnnxImageClassifier implements ImageClassifier {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "efficient-net-lite4";
+        return modelName != null ? modelName : "efficient-net-lite4-classification";
     }
 
     @Override

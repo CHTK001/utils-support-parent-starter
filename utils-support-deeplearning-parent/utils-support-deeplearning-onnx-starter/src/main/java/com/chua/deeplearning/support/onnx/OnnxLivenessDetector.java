@@ -21,7 +21,7 @@ public class OnnxLivenessDetector implements LivenessDetector {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "face-liveness";
+        return modelName != null ? modelName : "face-liveness-flrgb";
     }
 
     @Override

@@ -3,13 +3,13 @@ package com.chua.deeplearning.support.utils;
 import ai.djl.modality.cv.output.Landmark;
 import ai.djl.modality.cv.output.Point;
 import ai.djl.modality.cv.output.Rectangle;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 
@@ -108,7 +108,7 @@ public class LetterBoxUtils {
         int newW = Math.round(origW * r);
         int newH = Math.round(origH * r);
 
-        img = NDImageUtils.resize(img, newW, newH);
+        img = resizeWithAwt(ndManager, img, newW, newH);
 
         var paddingImg = ndManager.zeros(new Shape(targetH, targetW, 3), DataType.FLOAT32);
         paddingImg = paddingImg.add(114);
@@ -296,5 +296,50 @@ public class LetterBoxUtils {
         scaledY2 = Math.max(0, Math.min(origH, scaledY2));
 
         return new float[]{scaledX1, scaledY1, scaledX2, scaledY2};
+    }
+
+    /**
+     * 使用 AWT BufferedImage 缩放图像（替代 DJL NDImageUtils.resize，规避 Rust NDArray 不支持 resize 的问题）。
+     *
+     * @param ndManager NDManager
+     * @param img       输入图像 NDArray（HWC float32，值范围 0-1）
+     * @param newW      目标宽度
+     * @param newH      目标高度
+     * @return 缩放后的 NDArray（HWC float32）
+     */
+    public static NDArray resizeWithAwt(NDManager ndManager, NDArray img, int newW, int newH) {
+        long[] shape = img.getShape().getShape();
+        int origH = (int) shape[0];
+        int origW = (int) shape[1];
+        float[] pixels = img.toFloatArray();
+        int len = origW * origH;
+        BufferedImage bi = new BufferedImage(origW, origH, BufferedImage.TYPE_3BYTE_BGR);
+        for (int y = 0; y < origH; y++) {
+            for (int x = 0; x < origW; x++) {
+                int idx = y * origW + x;
+                int r = (int) (pixels[idx] * 255f);
+                int g = (int) (pixels[len + idx] * 255f);
+                int b = (int) (pixels[2 * len + idx] * 255f);
+                int rgb = (r << 16) | (g << 8) | (b);
+                if (rgb < 0) rgb = 0;
+                bi.setRGB(x, y, rgb);
+            }
+        }
+        BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_3BYTE_BGR);
+        java.awt.Graphics2D g2d = resized.createGraphics();
+        g2d.drawImage(bi, 0, 0, newW, newH, null);
+        g2d.dispose();
+        int newLen = newW * newH;
+        float[] out = new float[3 * newLen];
+        for (int y = 0; y < newH; y++) {
+            for (int x = 0; x < newW; x++) {
+                int rgb = resized.getRGB(x, y);
+                int idx = y * newW + x;
+                out[idx] = ((rgb >> 16) & 0xFF) / 255f;
+                out[newLen + idx] = ((rgb >> 8) & 0xFF) / 255f;
+                out[2 * newLen + idx] = (rgb & 0xFF) / 255f;
+            }
+        }
+        return ndManager.create(out, new Shape(newH, newW, 3));
     }
 }

@@ -135,6 +135,31 @@ public class KcpClient {
     private final Map<String, Object> metadata = new HashMap<>();
 
     /**
+     * 已注册的注解 Bean（beanClass -> 实例）
+     */
+    private final Map<Class<?>, Object> annotatedBeans = new ConcurrentHashMap<>();
+
+    /**
+     * OnOpen 注解方法列表
+     */
+    private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
+
+    /**
+     * OnClose 注解方法列表
+     */
+    private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
+
+    /**
+     * OnMessage 注解方法列表
+     */
+    private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
+
+    /**
+     * OnError 注解方法列表
+     */
+    private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
+
+    /**
      * 消息监听器列表
      */
     private final List<BiConsumer<String, String>> messageListeners = new CopyOnWriteArrayList<>();
@@ -292,7 +317,31 @@ public class KcpClient {
     }
 
     public KcpClient registerBean(Object bean) {
-        // 注解分发在 KcpListener 内统一处理
+        if (bean == null) {
+            return this;
+        }
+        Class<?> clazz = bean.getClass();
+        annotatedBeans.put(clazz, bean);
+        for (Method method : clazz.getDeclaredMethods()) {
+            method.setAccessible(true);
+            if (method.isAnnotationPresent(OnOpen.class)) {
+                onOpenMethods.add(new AnnotatedMethod(clazz, method));
+            }
+            if (method.isAnnotationPresent(OnClose.class)) {
+                onCloseMethods.add(new AnnotatedMethod(clazz, method));
+            }
+            if (method.isAnnotationPresent(OnMessage.class)) {
+                OnMessage annotation = method.getAnnotation(OnMessage.class);
+                String topic = annotation.value();
+                if (topic == null || topic.isEmpty()) {
+                    topic = "#";
+                }
+                onMessageMethods.add(new AnnotatedMessage(clazz, method, topic));
+            }
+            if (method.isAnnotationPresent(OnError.class)) {
+                onErrorMethods.add(new AnnotatedMethod(clazz, method));
+            }
+        }
         return this;
     }
 
@@ -332,6 +381,127 @@ public class KcpClient {
     }
 
     /**
+     * 分发无参/带参注解方法（OnOpen/OnClose/OnError）。
+     *
+     * @param methods 注解方法列表
+     * @param args    方法参数（可为空）
+     */
+    private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods, Object... args) {
+        for (AnnotatedMethod entry : methods) {
+            Object bean = annotatedBeans.get(entry.beanClass());
+            if (bean != null) {
+                safeInvoke(bean, entry.method(), args);
+            }
+        }
+    }
+
+    /**
+     * 按主题分发 OnMessage 注解方法。
+     *
+     * @param topic   主题
+     * @param payload 消息内容
+     */
+    private void dispatchAnnotatedPublish(String topic, String payload) {
+        for (AnnotatedMessage entry : onMessageMethods) {
+            if (matchTopic(entry.topic(), topic)) {
+                Object bean = annotatedBeans.get(entry.beanClass());
+                if (bean != null) {
+                    safeInvoke(bean, entry.method(), payload);
+                }
+            }
+        }
+    }
+
+    /**
+     * 主题匹配：支持 # 多级通配、+ / * 单级通配。
+     *
+     * @param pattern 订阅模式
+     * @param topic   实际主题
+     * @return true 表示匹配
+     */
+    private boolean matchTopic(String pattern, String topic) {
+        if ("#".equals(pattern)) {
+            return true;
+        }
+        String[] pp = pattern.split("/");
+        String[] tp = topic.split("/");
+        int p = 0;
+        int t = 0;
+        while (p < pp.length && t < tp.length) {
+            if ("#".equals(pp[p])) {
+                return true;
+            }
+            if ("+".equals(pp[p]) || "*".equals(pp[p])) {
+                p++;
+                t++;
+            } else if (pp[p].equals(tp[t])) {
+                p++;
+                t++;
+            } else {
+                return false;
+            }
+        }
+        return p == pp.length && t == tp.length;
+    }
+
+    /**
+     * 通知错误监听器。
+     *
+     * @param ex 异常
+     */
+    private void notifyError(Throwable ex) {
+        for (Consumer<Throwable> l : errorListeners) {
+            try {
+                l.accept(ex);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * 安全调用注解方法，异常统一走错误监听器。
+     *
+     * @param bean   目标实例
+     * @param method 方法
+     * @param args   参数
+     */
+    private void safeInvoke(Object bean, Method method, Object... args) {
+        try {
+            if (args == null || args.length == 0) {
+                method.invoke(bean);
+            } else {
+                method.invoke(bean, args);
+            }
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            log.error("KCP 客户端注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
+            notifyError(cause);
+        } catch (Exception e) {
+            log.error("KCP 客户端注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), e);
+            notifyError(e);
+        }
+    }
+
+    /**
+     * 注解方法元信息。
+     *
+     * @param beanClass Bean 类型
+     * @param method    注解方法
+     */
+    private record AnnotatedMethod(Class<?> beanClass, Method method) {
+    }
+
+    /**
+     * OnMessage 注解方法元信息。
+     *
+     * @param beanClass Bean 类型
+     * @param method    注解方法
+     * @param topic     订阅主题
+     */
+    private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {
+    }
+
+    /**
      * kcp-base 客户端 KcpListener，把服务端消息分发到订阅者/监听器。
      */
     private final class OAuthKcpListener implements KcpListener {
@@ -342,6 +512,7 @@ public class KcpClient {
             // 这里仅触发连接事件，回写 register: 让服务端把 clientId 绑定
             sendRegister();
             notifyConnect(clientId);
+            dispatchAnnotatedMethods(onOpenMethods);
         }
 
         @Override
@@ -358,11 +529,13 @@ public class KcpClient {
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 客户端异常: {}", ex.getMessage(), ex);
             notifyError(ex);
+            dispatchAnnotatedMethods(onErrorMethods, ex);
         }
 
         @Override
         public void handleClose(Ukcp ukcp) {
             notifyDisconnect(clientId);
+            dispatchAnnotatedMethods(onCloseMethods);
         }
 
         private void sendRegister() {
@@ -428,6 +601,8 @@ public class KcpClient {
                     log.error("KCP 消息监听异常", e);
                 }
             }
+            // @OnMessage 注解分发
+            dispatchAnnotatedPublish(topic, payload);
         }
 
         private boolean matchTopic(String pattern, String topic) {

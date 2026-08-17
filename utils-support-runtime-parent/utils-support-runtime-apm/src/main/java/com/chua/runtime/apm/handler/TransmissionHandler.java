@@ -523,6 +523,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
              case XXL_JOB, SENTINEL, SEATA -> { return Protocol.INTERNAL; }
              case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
              case SPRING_INTEGRATION -> { return Protocol.MESSAGE; }
+             case KUBERNETES, AWS_SDK -> { return Protocol.HTTP; }
+             case QUARTZ, SPRING_BATCH -> { return Protocol.INTERNAL; }
              default -> {
                 // 软件栈未识别 → 用类名兜底
                 return inferProtocolFromClass(className);

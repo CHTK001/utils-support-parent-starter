@@ -1,8 +1,11 @@
 package com.chua.deeplearning.support.onnx;
 
-import com.chua.deeplearning.support.plate.LicensePlateRecognizer;
+import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.plate.LicensePlateRecognizer;
 import com.chua.deeplearning.support.plate.PlateResult;
+import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +27,21 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "yolov5-plate";
+        return modelName != null ? modelName : "yolov5-plate-detect";
+    }
+
+    private String plateDetectModel() {
+        String m = resolveModel();
+        if (m.contains("-detect")) return m;
+        if (m.contains("-recognize")) return m.replace("-recognize", "-detect");
+        return m + "-detect";
+    }
+
+    private String plateRecModel() {
+        String m = resolveModel();
+        if (m.contains("-recognize")) return m;
+        if (m.contains("-detect")) return m.replace("-detect", "-recognize");
+        return "crnn-plate-rec";
     }
 
     @Override
@@ -47,17 +64,27 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     public String recognize(byte[] imageData) {
-        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognize(imageData);
+        PlateResult pr = recognizePlate(imageData);
+        return pr == null ? "" : pr.plateNo();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
-        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognizeDetail(imageData);
+        return ImageDetector.create(plateDetectModel())
+                .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public PlateResult recognizePlate(byte[] imageData) {
-        return LicensePlateRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognizePlate(imageData);
+        ITranslator<byte[], PlateResult> t =
+                (ITranslator<byte[], PlateResult>) AbstractIdentificationEngine.getInstance()
+                        .get(plateRecModel(), ITranslator.class);
+        if (t == null) {
+            throw new IllegalStateException("模型未注册: " + plateRecModel());
+        }
+        return t.translate(imageData);
     }
 
 }

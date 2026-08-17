@@ -31,6 +31,11 @@ _model_runners = {}
 
 # ===== 模型注册表：每种类型提供多个备用模型 =====
 MODEL_REGISTRY = {
+    # ── 文档 OCR ──
+    "document_ocr": [
+        {"id": "ovisocr2", "ms": "ATH-MaaS/OvisOCR2", "runner": "ovis_ocr"},
+        {"id": "unlimited_ocr", "ms": "baidu/Unlimited-OCR", "runner": "unlimited_ocr"},
+    ],
     # ── LLM 文本生成 ──
     "llm": [
         {"id": "facade-text",    "hf": "jingyaogong/MiniMind2-small", "source": "huggingface"},
@@ -1616,11 +1621,22 @@ class PpOcrV6Runner(BaseRunner):
 
 
 class OvisOcrRunner(BaseRunner):
-    """OvisOCR2 端到端文档解析 — 文档图片 → Markdown
+    """
+    OvisOCR2 端到端文档解析 — 将文档图像转换为 Markdown 格式。
 
-    Ovis 架构 (Qwen3.5-0.8B backbone)，单阶段 pipeline 输出结构化 Markdown。
-    来源: https://modelscope.ai/models/ATH-MaaS/OvisOCR2
-    安装依赖: pip install ovis
+    架构基于 Ovis (Qwen3.5-0.8B backbone) 单阶段 pipeline，可直接输出结构化 Markdown，
+    适用于合同、发票、报表等文档图像识别。
+
+    模型来源: https://modelscope.ai/models/ATH-MaaS/OvisOCR2
+    依赖:
+        - 推荐安装 ovis 包: pip install ovis
+        - 若未安装 ovis，自动降级使用 ModelScope pipeline (需 modelscope)
+    输入:
+        image (base64): 文档图像
+        text (可选): 自定义提示词，默认使用“请将这张文档图片转换为 Markdown 格式。”
+    输出:
+        str: 解析后的 Markdown 文本
+    超时建议: 首次加载模型需下载约 2GB 文件，请设置 HTTP 超时 >= 600 秒。
     """
 
     def _load(self):
@@ -1705,14 +1721,23 @@ class OvisOcrRunner(BaseRunner):
 
 
 class UnlimitedOcrRunner(BaseRunner):
-    """百度 Unlimited-OCR 端到端文档解析。
+    """
+    百度 Unlimited-OCR 端到端文档解析 — 支持长文档、多页图像序列。
 
-    基于 R-SWA (Reference Sliding Window Attention) 实现长距离单次文档解析。
-    支持单张图片、多页图片序列，CPU 亦可运行。
+    基于 R-SWA (Reference Sliding Window Attention) 机制，可在单次推理中处理长文档，
+    支持单张图片或连续多页图像序列，CPU 也能流畅运行。
 
     模型: baidu/Unlimited-OCR (3B)
     官网: https://github.com/baidu/Unlimited-OCR
     论文: arXiv:2606.23050
+    输入:
+        image (base64): 文档图像 (若为多页，需拼接为长图或传递多张)
+        text (可选): 自定义提示词，默认 "document parsing."
+    输出:
+        str: 解析后的 Markdown 文本
+    参数 (params):
+        image_mode: "gundam" (单张裁剪，默认) 或 "base" (多页/不裁剪)
+        max_new_tokens: 最大生成 tokens，默认 32768
     """
 
     DEFAULT_PROMPT = "document parsing."

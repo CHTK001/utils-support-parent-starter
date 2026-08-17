@@ -170,6 +170,10 @@ public interface ServerFilter {
             if (t == protocol) {
                 return true;
             }
+            // KCP 底层基于 UDP 传输：声明支持 UDP 的过滤器对 KCP 消息同样生效（KCP 独立分类，但与 UDP 兼容）
+            if (protocol == ProtocolType.KCP && t == ProtocolType.UDP) {
+                return true;
+            }
         }
         return false;
     }

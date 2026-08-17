@@ -27,6 +27,7 @@
         <module>utils-support-metrics-starter</module>
         <module>utils-support-serialize-starter</module>
         <module>utils-support-fory-starter</module>
+        <module>utils-support-protobuf-starter</module>
         <module>utils-support-gson-starter</module>
         <module>utils-support-fastjson-starter</module>
         <module>utils-support-tika-starter</module>

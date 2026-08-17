@@ -383,6 +383,26 @@ public enum Software {
     SPRING_INTEGRATION("Spring Integration"),
 
     /**
+     * Kubernetes Client
+     */
+    KUBERNETES("Kubernetes"),
+
+    /**
+     * AWS SDK
+     */
+    AWS_SDK("AWS SDK"),
+
+    /**
+     * Quartz Scheduler
+     */
+    QUARTZ("Quartz"),
+
+    /**
+     * Spring Batch
+     */
+    SPRING_BATCH("Spring Batch"),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");

@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.ocr.OcrRecognizer;
 import com.chua.deeplearning.support.ocr.OcrResult;
+import com.chua.deeplearning.support.onnx.ocr.OcrPipeline;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +26,18 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
 
     private String resolveModel() {
         return modelName != null ? modelName : "paddleocrv6";
+    }
+
+    private String detectorModel() {
+        String m = resolveModel();
+        return m.contains("-det") ? m : m + "-det";
+    }
+
+    private String recognizerModel() {
+        String m = resolveModel();
+        if (m.contains("-rec")) return m;
+        if (m.contains("-det")) return m.replace("-det", "-rec");
+        return m + "-rec";
     }
 
     @Override
@@ -53,12 +66,20 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
 
     @Override
     public String recognize(byte[] imageData) {
-        return OcrRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).useGpu(useGpu).device(device).recognize(imageData);
+        return OcrPipeline.builder()
+                .detector(detectorModel())
+                .recognizer(recognizerModel())
+                .build()
+                .recognize(imageData);
     }
 
     @Override
     public List<OcrResult> recognizeDetail(byte[] imageData) {
-        return OcrRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).useGpu(useGpu).device(device).recognizeDetail(imageData);
+        return OcrPipeline.builder()
+                .detector(detectorModel())
+                .recognizer(recognizerModel())
+                .build()
+                .recognizeDetail(imageData);
     }
 
 }

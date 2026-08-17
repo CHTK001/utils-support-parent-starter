@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx;
 
+import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.image.PedestrianDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
@@ -21,7 +22,7 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     }
 
     private String resolveModel() {
-        return modelName != null ? modelName : "ppe";
+        return modelName != null ? modelName : "yolov8n-ppe";
     }
 
     @Override
@@ -32,7 +33,7 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
 
     @Override
     public List<DetectionInfo> detect(byte[] imageData) {
-        return PedestrianDetector.create(resolveModel()).device(device).detect(imageData);
+        return ImageDetector.create(resolveModel()).device(device).detect(imageData);
     }
 
 }
