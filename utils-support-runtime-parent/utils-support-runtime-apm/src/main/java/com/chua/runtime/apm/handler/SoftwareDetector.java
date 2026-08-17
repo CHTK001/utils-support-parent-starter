@@ -214,6 +214,13 @@ public final class SoftwareDetector {
         // RSocket
         put("io.rsocket", Software.RSOCKET);
 
+        // NATS
+        put("io.nats", Software.NATS);
+
+        // GraphQL
+        put("graphql.GraphQL", Software.GRAPHQL_JAVA);
+        put("graphql.schema", Software.GRAPHQL_JAVA);
+
         // SAP HANA
         put("com.sap.cloud.db", Software.UNKNOWN);
     }};

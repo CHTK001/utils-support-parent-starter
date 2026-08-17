@@ -228,6 +228,16 @@ public enum Software {
     RSOCKET("RSocket"),
 
     /**
+     * NATS Client
+     */
+    NATS("NATS"),
+
+    /**
+     * GraphQL Java
+     */
+    GRAPHQL_JAVA("GraphQL Java"),
+
+    /**
      * Spring Cloud Gateway
      */
     SPRING_CLOUD_GATEWAY("Spring Cloud Gateway"),

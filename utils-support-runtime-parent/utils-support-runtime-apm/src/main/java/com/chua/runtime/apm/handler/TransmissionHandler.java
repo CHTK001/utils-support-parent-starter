@@ -507,6 +507,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case ETCD -> { return Protocol.ETCD; }
             case IGNITE -> { return Protocol.IGNITE; }
             case RSOCKET -> { return Protocol.RSOCKET; }
+            case NATS -> { return Protocol.NATS; }
+            case GRAPHQL_JAVA -> { return Protocol.HTTP; }
             case INFLUXDB_CLIENT -> { return Protocol.INFLUXDB; }
             case DB2_DRIVER -> { return Protocol.DB2; }
             case DAMENG_DRIVER -> { return Protocol.DAMENG; }
