@@ -1011,6 +1011,24 @@ public class FacePipeline {
     }
 
     /**
+     * 1:1 比对完整管线：两侧都跑 detect→crop→liveness→align→feature，再余弦比对。
+     *
+     * @param imageA 图片 A
+     * @param imageB 图片 B
+     * @return 比对结果（相似度 + A/B 特征管线结果 + 耗时），任一侧无人脸返回 null
+     */
+    public FaceCompareResult compareWithMeta(byte[] imageA, byte[] imageB) {
+        long t0 = System.currentTimeMillis();
+        FaceFeaturePipelineResult a = extractFeatureWithMeta(imageA);
+        FaceFeaturePipelineResult b = extractFeatureWithMeta(imageB);
+        if (a == null || b == null || a.feature() == null || b.feature() == null) {
+            return null;
+        }
+        double score = cosineSimilarity(a.feature(), b.feature());
+        return new FaceCompareResult(score, score >= 0.5, a, b, System.currentTimeMillis() - t0);
+    }
+
+    /**
      * 特征检索（需向量库）。
      *
      * @param feature 查询特征
