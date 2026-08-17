@@ -263,6 +263,9 @@ public final class SoftwareDetector {
         // Spring Batch
         put("org.springframework.batch", Software.SPRING_BATCH);
 
+        // Java 线程
+        put("java.util.concurrent", Software.THREAD);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 

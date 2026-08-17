@@ -521,8 +521,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case VERTX, PLAY, CXF -> { return Protocol.HTTP; }
              case OPENSEARCH -> { return Protocol.ELASTICSEARCH; }
              case XXL_JOB, SENTINEL, SEATA -> { return Protocol.INTERNAL; }
-             case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
-             case SPRING_INTEGRATION -> { return Protocol.MESSAGE; }
+case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
+            case SPRING_INTEGRATION -> { return Protocol.MESSAGE; }
+            case THREAD -> { return Protocol.INTERNAL; }
              case KUBERNETES, AWS_SDK -> { return Protocol.HTTP; }
              case QUARTZ, SPRING_BATCH -> { return Protocol.INTERNAL; }
              default -> {

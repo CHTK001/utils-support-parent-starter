@@ -403,6 +403,11 @@ public enum Software {
     SPRING_BATCH("Spring Batch"),
 
     /**
+     * Java 线程（线程创建 / 任务提交）
+     */
+    THREAD("Java Thread"),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");
