@@ -515,6 +515,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case KINGBASE_DRIVER -> { return Protocol.KINGBASE; }
             case GRPC -> { return Protocol.GRPC; }
             case TOMCAT, JETTY, NETTY, UNDERTOW -> { return Protocol.HTTP; }
+            case WEBSOCKET -> { return Protocol.WEBSOCKET; }
+            case HIBERNATE, MYBATIS -> { return Protocol.SQL; }
+            case SPRING_CLOUD_STREAM -> { return Protocol.MESSAGE; }
             default -> {
                 // 软件栈未识别 → 用类名兜底
                 return inferProtocolFromClass(className);

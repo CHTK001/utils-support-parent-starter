@@ -303,6 +303,21 @@ public enum Software {
     MYBATIS("MyBatis"),
 
     /**
+     * WebSocket
+     */
+    WEBSOCKET("WebSocket"),
+
+    /**
+     * Hibernate ORM
+     */
+    HIBERNATE("Hibernate"),
+
+    /**
+     * Spring Cloud Stream
+     */
+    SPRING_CLOUD_STREAM("Spring Cloud Stream"),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");
