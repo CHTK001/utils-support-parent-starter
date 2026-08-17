@@ -120,6 +120,9 @@ public class GatewayTunnel implements Tunnel {
     @Override
     public void close() {
         if (bridge == null) {
+            updateStatus(TunnelStatus.CLOSED);
+            return;
+        }
         try {
             bridge.disconnect();
             log.info("[gateway-server] Tunnel 关闭: id={}", id);
