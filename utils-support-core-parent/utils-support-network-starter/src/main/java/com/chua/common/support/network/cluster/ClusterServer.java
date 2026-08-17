@@ -62,7 +62,7 @@ public class ClusterServer implements AutoCloseable {
     /**
      * 暴露服务发现(注册/查询集群服务)。
      */
-    public com.chua.common.support.scattergather.ScatterGatherServiceDiscovery discovery() {
+    public com.chua.common.support.scatter.ScatterServiceDiscovery discovery() {
         return node.discovery();
     }
 

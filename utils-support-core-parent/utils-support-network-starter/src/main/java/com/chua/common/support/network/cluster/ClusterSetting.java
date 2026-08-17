@@ -1,6 +1,6 @@
 package com.chua.common.support.network.cluster;
 
-import com.chua.common.support.scattergather.ScatterGatherSetting;
+import com.chua.common.support.scatter.ScatterSetting;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -59,17 +59,17 @@ public class ClusterSetting {
     /**
      * 转换为 scatter 配置。
      *
-     * @return ScatterGatherSetting
+     * @return ScatterSetting
      */
-    public ScatterGatherSetting toScatterSetting() {
-        ScatterGatherSetting setting = new ScatterGatherSetting();
+    public ScatterSetting toScatterSetting() {
+        ScatterSetting setting = new ScatterSetting();
         setting.setNodeId(nodeId != null ? nodeId : (host + ":" + port));
         setting.setHost(host);
         // scatter 通信端口:显式 scatterPort 或默认 port+2,与 HTTP(port)/TCP 代理(port+1)分离
-        setting.setTcpPort(scatterPort > 0 ? scatterPort : (port > 0 ? port + 2 : 0));
-        setting.setScatterId(scatterId);
+        setting.setPort(scatterPort > 0 ? scatterPort : (port > 0 ? port + 2 : 0));
+        setting.setGroupId(scatterId);
         if (!seeds.isEmpty()) {
-            setting.setSeedAddresses(seeds);
+            setting.setSeeds(seeds);
         }
         setting.setServicePath(servicePaths.isEmpty() ? "/" : servicePaths.get(0));
         setting.setTimeoutMillis(timeoutMillis);

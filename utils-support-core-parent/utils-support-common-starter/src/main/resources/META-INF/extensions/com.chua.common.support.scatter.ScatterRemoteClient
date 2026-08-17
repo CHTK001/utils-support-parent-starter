@@ -1,0 +1,2 @@
+tcp=com.chua.common.support.scatter.TcpScatterRemoteClient
+udp=com.chua.common.support.scatter.UdpScatterRemoteClient

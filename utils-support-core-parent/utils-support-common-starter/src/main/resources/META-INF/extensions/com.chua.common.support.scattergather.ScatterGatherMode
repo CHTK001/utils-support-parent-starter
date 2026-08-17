@@ -1,3 +1,0 @@
-seed=com.chua.common.support.scattergather.SeedScatterGatherMode
-auto=com.chua.common.support.scattergather.AutoScatterGatherMode
-bootstrap=com.chua.common.support.scattergather.BootstrapScatterGatherMode

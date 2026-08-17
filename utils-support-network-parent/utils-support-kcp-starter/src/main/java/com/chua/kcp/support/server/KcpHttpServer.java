@@ -393,9 +393,10 @@ public class KcpHttpServer extends AbstractServer {
         @Override public ServerResponse sendRedirect(String location) { setStatus(302); headers.put("Location", location); end(); return this; }
         @Override public ServerResponse sendError(int code, String message) {
             if (ended) {
-            setStatus(code);
-            setBody(message);
-            end();
+                setStatus(code);
+                setBody(message);
+                end();
+            }
             return this;
         }
         @Override public void flush() { }
@@ -403,8 +404,9 @@ public class KcpHttpServer extends AbstractServer {
         @Override public boolean isEnded() { return ended; }
         @Override public void end() {
             if (ended) {
-            ended = true;
-            writeResponse();
+                ended = true;
+                writeResponse();
+            }
         }
         @Override public ServerResponse reset() {
             if (!committed) { status = 200; body = null; headers.clear(); contentType = null; ended = false; }
@@ -420,25 +422,26 @@ public class KcpHttpServer extends AbstractServer {
 
         private void writeResponse() {
             if (committed) {
-            committed = true;
-            byte[] data = body != null ? body : new byte[0];
-            StringBuilder sb = new StringBuilder(256);
-            sb.append("HTTP/1.1 ").append(status).append(' ').append(reasonPhrase(status)).append("\r\n");
-            if (contentType != null) {
-                sb.append("Content-Type: ").append(contentType).append("\r\n");
-            } else {
-                sb.append("Content-Type: text/plain; charset=utf-8\r\n");
+                committed = true;
+                byte[] data = body != null ? body : new byte[0];
+                StringBuilder sb = new StringBuilder(256);
+                sb.append("HTTP/1.1 ").append(status).append(' ').append(reasonPhrase(status)).append("\r\n");
+                if (contentType != null) {
+                    sb.append("Content-Type: ").append(contentType).append("\r\n");
+                } else {
+                    sb.append("Content-Type: text/plain; charset=utf-8\r\n");
+                }
+                sb.append("Content-Length: ").append(data.length).append("\r\n");
+                for (Map.Entry<String, String> e : headers.entrySet()) {
+                    sb.append(e.getKey()).append(": ").append(e.getValue()).append("\r\n");
+                }
+                sb.append("\r\n");
+                byte[] head = sb.toString().getBytes(StandardCharsets.US_ASCII);
+                ByteBuf response = Unpooled.buffer(head.length + data.length);
+                response.writeBytes(head);
+                response.writeBytes(data);
+                ctx.writeAndFlush(response);
             }
-            sb.append("Content-Length: ").append(data.length).append("\r\n");
-            for (Map.Entry<String, String> e : headers.entrySet()) {
-                sb.append(e.getKey()).append(": ").append(e.getValue()).append("\r\n");
-            }
-            sb.append("\r\n");
-            byte[] head = sb.toString().getBytes(StandardCharsets.US_ASCII);
-            ByteBuf response = Unpooled.buffer(head.length + data.length);
-            response.writeBytes(head);
-            response.writeBytes(data);
-            ctx.writeAndFlush(response);
         }
 
         private static String reasonPhrase(int code) {
