@@ -2,11 +2,13 @@ package com.chua.runtime.apm;
 
 import com.chua.runtime.apm.handler.CassandraHandler;
 import com.chua.runtime.apm.handler.ClickHouseHandler;
+import com.chua.runtime.apm.handler.ConsulHandler;
 import com.chua.runtime.apm.handler.DamengHandler;
 import com.chua.runtime.apm.handler.Db2Handler;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.DubboHandler;
 import com.chua.runtime.apm.handler.ElasticsearchHandler;
+import com.chua.runtime.apm.handler.EurekaHandler;
 import com.chua.runtime.apm.handler.FeignHandler;
 import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.GrpcHandler;
@@ -33,6 +35,7 @@ import com.chua.runtime.apm.handler.RocketMqHandler;
 import com.chua.runtime.apm.handler.SqlServerHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
+import com.chua.runtime.apm.handler.WebClientHandler;
 import com.chua.runtime.apm.handler.ZooKeeperHandler;
 import com.chua.runtime.apm.storage.StorageConfig;
 import com.chua.runtime.apm.storage.StorageManager;
@@ -127,9 +130,12 @@ public class ApmBootstrap {
         handlers.add(new GrpcHandler());
         handlers.add(new DubboHandler());
         handlers.add(new NacosHandler());
+        handlers.add(new EurekaHandler());
+        handlers.add(new ConsulHandler());
         handlers.add(new HttpClientHandler());
         handlers.add(new FeignHandler());
         handlers.add(new RestTemplateHandler());
+        handlers.add(new WebClientHandler());
         // 每个 handler 独立 try/catch,单个失败不阻断其他
         for (Plugin handler : handlers) {
             try {
