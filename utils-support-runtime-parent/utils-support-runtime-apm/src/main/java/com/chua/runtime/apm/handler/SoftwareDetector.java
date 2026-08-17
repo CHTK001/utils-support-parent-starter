@@ -236,6 +236,19 @@ public final class SoftwareDetector {
         // OpenSearch
         put("org.opensearch", Software.OPENSEARCH);
 
+        // HDFS
+        put("org.apache.hadoop.hdfs", Software.HDFS);
+        put("org.apache.hadoop.fs", Software.HDFS);
+
+        // Spark
+        put("org.apache.spark", Software.SPARK);
+
+        // Flink
+        put("org.apache.flink", Software.FLINK);
+
+        // Spring Integration
+        put("org.springframework.integration", Software.SPRING_INTEGRATION);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 
