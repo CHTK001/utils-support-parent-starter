@@ -8,14 +8,9 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -141,7 +136,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     private BufferedImage enhance(byte[] imageData) {
         try {
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -160,8 +155,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
                     inH = Math.max(1, (int) (inH * shrink));
                 }
 
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(inW, inH), 0, 0, Imgproc.INTER_LINEAR);
+                Mat resized = OpenCvImageUtils.resize(src, inW, inH, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * inH * inW];
                 for (int y = 0; y < inH; y++) {

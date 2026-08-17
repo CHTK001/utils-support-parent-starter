@@ -1,9 +1,10 @@
 package com.chua.deeplearning.support.safetensors;
 
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,10 +39,8 @@ final class SafeTensorImageUtils {
         }
         try {
             BufferedImage bi = toBufferedImage(input);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bi, "PNG", baos);
-            return Base64.getEncoder().encodeToString(baos.toByteArray());
-        } catch (IOException e) {
+            return Base64.getEncoder().encodeToString(OpenCvImageUtils.encode(OpenCvImageUtils.toMat(bi)));
+        } catch (Exception e) {
             throw new RuntimeException("图像编码失败: " + e.getMessage(), e);
         }
     }
@@ -58,7 +57,7 @@ final class SafeTensorImageUtils {
             return bi;
         }
         if (input instanceof byte[] bytes) {
-            return ImageIO.read(new ByteArrayInputStream(bytes));
+            return OpenCvImageUtils.toBufferedImage(bytes);
         }
         if (input instanceof File file) {
             return ImageIO.read(file);

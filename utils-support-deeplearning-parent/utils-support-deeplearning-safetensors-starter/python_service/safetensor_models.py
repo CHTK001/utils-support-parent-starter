@@ -31,11 +31,6 @@ _model_runners = {}
 
 # ===== 模型注册表：每种类型提供多个备用模型 =====
 MODEL_REGISTRY = {
-    # ── 文档 OCR ──
-    "document_ocr": [
-        {"id": "ovisocr2", "ms": "ATH-MaaS/OvisOCR2", "runner": "ovis_ocr"},
-        {"id": "unlimited_ocr", "ms": "baidu/Unlimited-OCR", "runner": "unlimited_ocr"},
-    ],
     # ── LLM 文本生成 ──
     "llm": [
         {"id": "facade-text",    "hf": "jingyaogong/MiniMind2-small", "source": "huggingface"},
@@ -274,7 +269,7 @@ MODEL_REGISTRY = {
     ],
     # ── 端到端文档解析 (OvisOCR2) ──
     "document_ocr": [
-        {"id": "unlimited-ocr", "hf": "baidu/Unlimited-OCR", "source": "huggingface", "runner": "unlimited_ocr"},
+        {"id": "unlimited_ocr", "hf": "baidu/Unlimited-OCR", "source": "huggingface", "runner": "unlimited_ocr"},
         {"id": "ovisocr2",  "ms": "ATH-MaaS/OvisOCR2", "runner": "ovis_ocr"},
     ],
 }

@@ -1384,8 +1384,8 @@ public class FacePipeline {
             if (Math.abs(angle) < 0.5) {
                 return face;
             }
-            nu.pattern.OpenCV.loadLocally();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(face), Imgcodecs.IMREAD_COLOR);
+            OpenCvImageUtils.load();
+            Mat src = OpenCvImageUtils.decode(face);
             if (src == null || src.empty()) {
                 return face;
             }
@@ -1393,9 +1393,7 @@ public class FacePipeline {
                 Mat out = new Mat();
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(src.cols() / 2.0, src.rows() / 2.0), angle, 1.0);
                 Imgproc.warpAffine(src, out, rot, new Size(src.cols(), src.rows()), Imgproc.INTER_CUBIC, Core.BORDER_REPLICATE);
-                MatOfByte mob = new MatOfByte();
-                Imgcodecs.imencode(".png", out, mob);
-                byte[] result = mob.toArray();
+                byte[] result = OpenCvImageUtils.encode(out);
                 rot.release();
                 out.release();
                 return result;
@@ -1472,7 +1470,7 @@ public class FacePipeline {
                 src.release();
                 return null;
             }
-            Mat sub = new Mat(src, new Rect(newX1, newY1, cw, ch));
+            Mat sub = OpenCvImageUtils.crop(src, newX1, newY1, cw, ch);
             byte[] result = OpenCvImageUtils.encode(sub);
             sub.release();
             src.release();

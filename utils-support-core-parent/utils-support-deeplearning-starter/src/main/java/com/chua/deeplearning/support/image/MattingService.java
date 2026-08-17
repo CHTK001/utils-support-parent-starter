@@ -4,6 +4,7 @@ import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -133,13 +134,7 @@ class DefaultMattingService implements MattingService {
         Object result = t.translate(imageData);
         BufferedImage image = toBufferedImage(result);
         if (image != null) {
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(image, "png", baos);
-                return baos.toByteArray();
-            } catch (Exception e) {
-                throw new RuntimeException("抠图结果编码失败: " + modelName, e);
-            }
+            return OpenCvImageUtils.encode(OpenCvImageUtils.toMat(image));
         }
         throw new IllegalStateException("模型输出不是图像: " + modelName + " -> " + result);
     }

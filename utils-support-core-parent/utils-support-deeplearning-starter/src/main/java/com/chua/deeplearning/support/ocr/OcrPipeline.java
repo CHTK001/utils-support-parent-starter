@@ -10,6 +10,7 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.recognition.TextDirectionPipeline;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -107,6 +108,11 @@ public class OcrPipeline {
     private final boolean sortReadingOrder;
 
     /**
+     * 检测置信度阈值（过滤低置信度检测框）。
+     */
+    private final float minConfidence;
+
+    /**
      * 识别管线实例。
      */
     private final Pipeline pipeline;
@@ -119,14 +125,17 @@ public class OcrPipeline {
      * @param directionModel   方向矫正模型（可为 null）
      * @param restorerModel    文字修复模型（可为 null）
      * @param sortReadingOrder 阅读序
+     * @param minConfidence    检测置信度阈值（过滤低置信度检测框）
      */
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
-                     String directionModel, String restorerModel, boolean sortReadingOrder) {
+                      String directionModel, String restorerModel, boolean sortReadingOrder,
+                      float minConfidence) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
         this.directionModel = directionModel;
         this.restorerModel = restorerModel;
         this.sortReadingOrder = sortReadingOrder;
+        this.minConfidence = minConfidence;
         this.pipeline = buildPipeline();
     }
 
@@ -171,6 +180,11 @@ public class OcrPipeline {
          * 是否按阅读顺序排序。
          */
         private boolean sortReadingOrder = true;
+
+        /**
+         * 检测置信度阈值（默认 0.5）。
+         */
+        private float minConfidence = 0.5f;
 
         /**
          * 设置检测器。
@@ -250,12 +264,23 @@ public class OcrPipeline {
         }
 
         /**
+         * 设置检测置信度阈值（过滤低置信度检测框）。
+         *
+         * @param minConfidence 阈值 0~1
+         * @return this
+         */
+        public Builder minConfidence(float minConfidence) {
+            this.minConfidence = minConfidence;
+            return this;
+        }
+
+        /**
          * 构建。
          *
          * @return OcrPipeline
          */
         public OcrPipeline build() {
-            return new OcrPipeline(detector, recognizer, directionModel, restorerModel, sortReadingOrder);
+            return new OcrPipeline(detector, recognizer, directionModel, restorerModel, sortReadingOrder, minConfidence);
         }
     }
 
@@ -424,9 +449,7 @@ public class OcrPipeline {
             }
             Object out = translator.translate(crop);
             if (out instanceof java.awt.image.BufferedImage image) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(image, "png", baos);
-                return baos.toByteArray();
+                return OpenCvImageUtils.encode(OpenCvImageUtils.toMat(image));
             }
             return crop;
         } catch (Exception e) {
@@ -443,17 +466,7 @@ public class OcrPipeline {
      */
     private static byte[] rotate180(byte[] imageData) {
         try {
-            BufferedImage src = ImageIO.read(new ByteArrayInputStream(imageData));
-            if (src == null) {
-                return imageData;
-            }
-            BufferedImage out = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = out.createGraphics();
-            g.drawImage(src, new AffineTransform(-1, 0, 0, -1, src.getWidth(), src.getHeight()), null);
-            g.dispose();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(out, "png", baos);
-            return baos.toByteArray();
+            return OpenCvImageUtils.rotate(imageData, 180);
         } catch (Exception e) {
             log.warn("OCR 图像翻转失败（跳过）: {}", e.getMessage());
             return imageData;

@@ -8,9 +8,6 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.FloatBuffer;
@@ -90,7 +87,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     private DirectionInfo classify(byte[] imageData) {
         try {
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -102,8 +99,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
                 int resizedW = (int) Math.ceil(RESIZE_HEIGHT * ratio);
                 resizedW = Math.max(1, Math.min(resizedW, RESIZE_WIDTH));
 
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(resizedW, RESIZE_HEIGHT), 0, 0, Imgproc.INTER_LINEAR);
+                Mat resized = OpenCvImageUtils.resize(src, resizedW, RESIZE_HEIGHT, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * RESIZE_HEIGHT * RESIZE_WIDTH];
                 for (int y = 0; y < RESIZE_HEIGHT; y++) {

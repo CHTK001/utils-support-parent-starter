@@ -48,4 +48,16 @@ public interface SyncDataSchedulerManager {
      * 停止调度器。
      */
     void stop();
+
+    /**
+     * 手动触发单个映射立即执行。
+     *
+     * <p>默认实现抛 {@link UnsupportedOperationException}，支持手动触发的实现可覆盖。
+     * 用于一次性任务、NONE 型调度或测试驱动。</p>
+     *
+     * @param mappingId 映射 ID
+     */
+    default void trigger(String mappingId) {
+        throw new UnsupportedOperationException("当前调度器不支持手动触发: " + mappingId);
+    }
 }

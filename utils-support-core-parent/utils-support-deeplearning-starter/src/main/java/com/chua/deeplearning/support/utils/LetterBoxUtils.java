@@ -9,6 +9,9 @@ import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -325,15 +328,20 @@ public class LetterBoxUtils {
                 bi.setRGB(x, y, rgb);
             }
         }
-        BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_3BYTE_BGR);
-        java.awt.Graphics2D g2d = resized.createGraphics();
-        g2d.drawImage(bi, 0, 0, newW, newH, null);
-        g2d.dispose();
+        Mat src = OpenCvImageUtils.toMat(bi);
+        Mat resized;
+        try {
+            resized = OpenCvImageUtils.resize(src, newW, newH, Imgproc.INTER_LINEAR);
+        } finally {
+            src.release();
+        }
+        BufferedImage resizedImage = OpenCvImageUtils.toBufferedImage(resized);
+        resized.release();
         int newLen = newW * newH;
         float[] out = new float[3 * newLen];
         for (int y = 0; y < newH; y++) {
             for (int x = 0; x < newW; x++) {
-                int rgb = resized.getRGB(x, y);
+                int rgb = resizedImage.getRGB(x, y);
                 int idx = y * newW + x;
                 out[idx] = ((rgb >> 16) & 0xFF) / 255f;
                 out[newLen + idx] = ((rgb >> 8) & 0xFF) / 255f;

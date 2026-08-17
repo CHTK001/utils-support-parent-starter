@@ -10,15 +10,11 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 
 /**
  * MODNet 人像抠图 Translator（OpenCV 预处理 + djl-onnx 推理）。
@@ -71,18 +67,13 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
      */
     private float[] preprocess(BufferedImage src) {
         Mat img;
-        MatOfByte mob;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            javax.imageio.ImageIO.write(src, "png", baos);
-            mob = new MatOfByte(baos.toByteArray());
-            img = Imgcodecs.imdecode(mob, Imgcodecs.IMREAD_COLOR);
+            img = OpenCvImageUtils.toMat(src);
         } catch (Exception e) {
             throw new IllegalStateException("图像转换失败", e);
         }
         try {
-            Mat resized = new Mat();
-            Imgproc.resize(img, resized, new Size(TARGET_SIZE, TARGET_SIZE), 0, 0, Imgproc.INTER_LINEAR);
+            Mat resized = OpenCvImageUtils.resize(img, TARGET_SIZE, TARGET_SIZE, Imgproc.INTER_LINEAR);
 
             float[] pixels = new float[3 * TARGET_SIZE * TARGET_SIZE];
             for (int y = 0; y < TARGET_SIZE; y++) {
@@ -98,7 +89,6 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
             return pixels;
         } finally {
             img.release();
-            mob.release();
         }
     }
 

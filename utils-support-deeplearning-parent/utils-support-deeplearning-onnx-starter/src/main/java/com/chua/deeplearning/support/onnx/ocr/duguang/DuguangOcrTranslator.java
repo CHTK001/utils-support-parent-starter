@@ -10,13 +10,10 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Size;import org.opencv.imgproc.Imgproc;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -197,7 +194,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     private List<OcrResult> recognize(byte[] imageData) {
         try {
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -297,8 +294,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         }
         double ratio = (double) w / h;
         int targetW = Math.min(REC_WIDTH, (int) Math.round(REC_HEIGHT * ratio));
-        Mat resized = new Mat();
-        Imgproc.resize(crop, resized, new Size(targetW, REC_HEIGHT), 0, 0, Imgproc.INTER_LINEAR);
+        Mat resized = OpenCvImageUtils.resize(crop, targetW, REC_HEIGHT, Imgproc.INTER_LINEAR);
         Mat padded = Mat.zeros(REC_HEIGHT, REC_WIDTH, crop.type());
         resized.copyTo(padded.submat(0, REC_HEIGHT, 0, targetW));
         resized.release();

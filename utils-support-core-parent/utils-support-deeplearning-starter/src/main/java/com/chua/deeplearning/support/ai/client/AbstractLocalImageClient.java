@@ -7,6 +7,7 @@ import com.chua.common.support.ai.image.ImageResponse;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -153,7 +154,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 image.save(bos, "png");
-                return ImageIO.read(new java.io.ByteArrayInputStream(bos.toByteArray()));
+                return OpenCvImageUtils.toBufferedImage(bos.toByteArray());
             } catch (Exception e) {
                 throw new IllegalStateException("模型图像转换失败: " + modelName, e);
             }

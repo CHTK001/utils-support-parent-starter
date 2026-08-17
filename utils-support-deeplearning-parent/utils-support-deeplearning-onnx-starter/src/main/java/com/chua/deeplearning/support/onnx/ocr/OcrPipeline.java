@@ -1,5 +1,4 @@
 package com.chua.deeplearning.support.onnx.ocr;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -19,14 +18,12 @@ import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -410,7 +407,7 @@ public class OcrPipeline {
                         return null;
                     }
                     DetectionInfo box = oc.currentBox();
-                int px = 2;
+                int px = 6;
                     byte[] crop = ImageCropUtils.crop(oc.imageData(),
                             (int) box.x() - px, (int) box.y() - px,
                             (int) box.width() + px * 2, (int) box.height() + px * 2);
@@ -748,8 +745,7 @@ public class OcrPipeline {
     public static byte[] deskew(byte[] crop, float angle) {
         try {
             OpenCvImageUtils.load();
-            Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
-                    new MatOfByte(crop), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(crop);
             if (src == null || src.empty()) return crop;
             try {
                 Point center = new Point(src.cols() / 2.0, src.rows() / 2.0);
@@ -757,9 +753,7 @@ public class OcrPipeline {
                 Mat dst = new Mat();
                 Imgproc.warpAffine(src, dst, rot, src.size(), Imgproc.INTER_CUBIC, Core.BORDER_CONSTANT,
                         new Scalar(255, 255, 255));
-                MatOfByte mob = new MatOfByte();
-                org.opencv.imgcodecs.Imgcodecs.imencode(".png", dst, mob);
-                byte[] result = mob.toArray();
+                byte[] result = OpenCvImageUtils.encode(dst);
                 dst.release();
                 rot.release();
                 return result;

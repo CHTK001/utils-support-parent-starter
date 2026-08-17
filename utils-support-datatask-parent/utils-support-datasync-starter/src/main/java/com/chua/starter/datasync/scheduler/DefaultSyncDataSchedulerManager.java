@@ -203,6 +203,21 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         log.info("SyncDataSchedulerManager 已停止");
     }
 
+    @Override
+    public void trigger(String mappingId) {
+        if (mappingId == null || mappingId.isBlank()) {
+            log.error("手动触发失败：mappingId 为空");
+            return;
+        }
+        DataSyncMapping mapping = getMapping(mappingId);
+        if (mapping == null) {
+            log.warn("手动触发失败：映射不存在 mappingId={}", mappingId);
+            return;
+        }
+        log.info("手动触发映射: mappingId={}", mappingId);
+        executeMapping(mapping);
+    }
+
     /**
      * 执行待处理的映射。
      */

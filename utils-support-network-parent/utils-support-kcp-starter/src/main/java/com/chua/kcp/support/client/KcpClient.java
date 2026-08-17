@@ -476,9 +476,11 @@ public class KcpClient {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
             log.error("KCP 客户端注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
             notifyError(cause);
+            dispatchAnnotatedMethods(onErrorMethods, cause);
         } catch (Exception e) {
             log.error("KCP 客户端注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), e);
             notifyError(e);
+            dispatchAnnotatedMethods(onErrorMethods, e);
         }
     }
 

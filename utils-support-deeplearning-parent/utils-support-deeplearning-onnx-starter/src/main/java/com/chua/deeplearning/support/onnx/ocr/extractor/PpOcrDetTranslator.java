@@ -9,7 +9,6 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.FloatBuffer;
@@ -149,7 +148,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private List<DetectionInfo> detect(byte[] imageData) {
         try {
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -168,8 +167,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                 w = Math.max(32, (w / 32) * 32);
                 h = Math.max(32, (h / 32) * 32);
 
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(w, h), 0, 0, Imgproc.INTER_LINEAR);
+                Mat resized = OpenCvImageUtils.resize(src, w, h, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * h * w];
                 for (int y = 0; y < h; y++) {
@@ -264,13 +262,19 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
             if (rect.width < 5 || rect.height < 5 || rect.area() < 25) {
                 continue;
             }
-            // 旋转框角度（用于绘制倾斜框 + deskew）
+            // 旋转框角度 + 尺寸（统一为长边=rw, 短边=rh）
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
             RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
             contour2f.release();
-            float angle = (float) rotatedRect.angle;
-            if (rotatedRect.size.width < rotatedRect.size.height) {
-                angle = 90 + angle;
+            float rw = (float)(rotatedRect.size.width * scaleX);
+            float rh = (float)(rotatedRect.size.height * scaleY);
+            float angle;
+            if (rw >= rh) {
+                angle = (float) rotatedRect.angle;
+            } else {
+                // 长边在 height 方向，角度需补偿 90°，同时交换 rw/rh
+                angle = (float) rotatedRect.angle + 90;
+                float tmp = rw; rw = rh; rh = tmp;
             }
             if (angle > 90) angle -= 180;
             if (angle < -90) angle += 180;
@@ -303,7 +307,8 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
             conf = count > 0 ? (float) (sum / count) : 0;
             result.add(new DetectionInfo("text", conf,
                     Math.max(0, x1), Math.max(0, y1), Math.max(0, x2 - x1), Math.max(0, y2 - y1), angle,
-                    rotatedRect.size.width * scaleX, rotatedRect.size.height * scaleY));
+                    rw, rh,
+                    (float)(rotatedRect.center.x * scaleX), (float)(rotatedRect.center.y * scaleY)));
         }
         kernel.release();
         dilated.release();

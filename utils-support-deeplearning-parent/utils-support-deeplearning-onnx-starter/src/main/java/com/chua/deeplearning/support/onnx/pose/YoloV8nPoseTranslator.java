@@ -9,9 +9,6 @@ import com.chua.deeplearning.support.pose.PoseKeypoint;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.FloatBuffer;
@@ -118,15 +115,14 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         try {
             prepare();
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
             try {
                 srcWidth = src.cols();
                 srcHeight = src.rows();
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(INPUT_SIZE, INPUT_SIZE), 0, 0, Imgproc.INTER_LINEAR);
+                Mat resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
                 for (int y = 0; y < INPUT_SIZE; y++) {
