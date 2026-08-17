@@ -6,11 +6,13 @@ import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.lang.json.Json5;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.needle.NeedleNative;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 基于 Needle 推理引擎的本地对话客户端。
@@ -105,9 +107,11 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String chatSync(String prompt, long timeoutMillis) {
         NeedleNative.init(system, "[]", null);
-        return NeedleNative.complete(prompt, maxTokens);
+        String raw = NeedleNative.complete(prompt, maxTokens);
+        return extractText(raw);
     }
 
     @Override
@@ -133,5 +137,50 @@ public class NeedleChatClient implements ChatClient {
                 .capabilities(List.of("chat", "extraction", "json"))
                 .build();
         return List.of(definition);
+    }
+
+    /**
+     * 从引擎 JSON envelope 中提取文本响应。
+     *
+     * <p>引擎返回格式：
+     * <ul>
+     *   <li>{@code type=respond} — 含 {@code text} 字段，直接返回</li>
+     *   <li>{@code type=call} — 工具调用类型，提取 {@code reasoning} 或返回原始 JSON</li>
+     * </ul>
+     *
+     * @param raw 引擎原始输出
+     * @return 用户可读的文本响应
+     */
+    @SuppressWarnings("unchecked")
+    private String extractText(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "";
+        }
+        try {
+            Map<String, Object> envelope = Json5.fromJson(raw);
+            String type = String.valueOf(envelope.get("type"));
+
+            // type=respond：标准文本响应
+            if ("respond".equals(type)) {
+                Object text = envelope.get("text");
+                return text != null ? String.valueOf(text) : raw;
+            }
+
+            // type=call：提取 reasoning 作为回复（无工具声明时引擎以此返回推理内容）
+            if ("call".equals(type)) {
+                Object reasoning = envelope.get("reasoning");
+                if (reasoning != null && !String.valueOf(reasoning).isBlank()) {
+                    return String.valueOf(reasoning);
+                }
+                // 有 function_calls 但无 reasoning，返回原始 JSON
+                return raw;
+            }
+
+            // 未知类型，原样返回
+            return raw;
+        } catch (Exception e) {
+            // 非 JSON 格式，直接作为文本返回
+            return raw;
+        }
     }
 }
