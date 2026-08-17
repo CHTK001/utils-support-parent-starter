@@ -1,6 +1,6 @@
 package com.chua.runtime.apm.handler;
 
-import com.chua.runtime.plugin.InterceptContext;
+import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.protocol.Endpoint;
 import com.chua.runtime.protocol.EndpointKind;
 import com.chua.runtime.protocol.Protocol;
