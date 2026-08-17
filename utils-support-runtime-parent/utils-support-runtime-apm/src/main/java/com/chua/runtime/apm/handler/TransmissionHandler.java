@@ -493,6 +493,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case CONSUL -> { return Protocol.CONSUL; }
             case MONGODB_DRIVER -> { return Protocol.MONGODB; }
             case CASSANDRA_DRIVER -> { return Protocol.CASSANDRA; }
+            case HBASE_CLIENT -> { return Protocol.HBASE; }
+            case PULSAR -> { return Protocol.PULSAR; }
+            case THRIFT -> { return Protocol.THRIFT; }
+            case SHARDING_SPHERE -> { return Protocol.SHARDING_SPHERE; }
             case INFLUXDB_CLIENT -> { return Protocol.INFLUXDB; }
             case DB2_DRIVER -> { return Protocol.DB2; }
             case DAMENG_DRIVER -> { return Protocol.DAMENG; }

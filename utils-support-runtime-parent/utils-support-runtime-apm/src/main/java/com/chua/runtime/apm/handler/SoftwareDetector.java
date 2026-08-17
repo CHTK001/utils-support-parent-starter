@@ -127,9 +127,6 @@ public final class SoftwareDetector {
         // RocketMQ
         put("org.apache.rocketmq", Software.ROCKETMQ_PRODUCER);
 
-        // Pulsar
-        put("org.apache.pulsar", Software.UNKNOWN);
-
         // Memcached
         put("net.spy.memcached", Software.MEMCACHED);
 
@@ -171,6 +168,18 @@ public final class SoftwareDetector {
         // Cassandra
         put("com.datastax.oss.driver", Software.CASSANDRA_DRIVER);
         put("com.datastax.driver", Software.CASSANDRA_DRIVER);
+
+        // HBase
+        put("org.apache.hadoop.hbase", Software.HBASE_CLIENT);
+
+        // Pulsar
+        put("org.apache.pulsar", Software.PULSAR);
+
+        // Thrift
+        put("org.apache.thrift", Software.THRIFT);
+
+        // ShardingSphere
+        put("org.apache.shardingsphere", Software.SHARDING_SPHERE);
 
         // SAP HANA
         put("com.sap.cloud.db", Software.UNKNOWN);

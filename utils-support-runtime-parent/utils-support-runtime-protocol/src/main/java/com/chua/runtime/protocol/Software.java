@@ -168,6 +168,26 @@ public enum Software {
     CASSANDRA_DRIVER("Cassandra Driver"),
 
     /**
+     * Apache HBase Client
+     */
+    HBASE_CLIENT("HBase Client"),
+
+    /**
+     * Apache Pulsar Client
+     */
+    PULSAR("Pulsar"),
+
+    /**
+     * Apache Thrift RPC
+     */
+    THRIFT("Thrift"),
+
+    /**
+     * Apache ShardingSphere
+     */
+    SHARDING_SPHERE("ShardingSphere"),
+
+    /**
      * InfluxDB Java Client
      */
     INFLUXDB_CLIENT("InfluxDB Client"),
