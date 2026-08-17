@@ -1,5 +1,9 @@
 package com.chua.runtime.apm;
 
+import com.chua.runtime.apm.handler.CassandraHandler;
+import com.chua.runtime.apm.handler.ClickHouseHandler;
+import com.chua.runtime.apm.handler.DamengHandler;
+import com.chua.runtime.apm.handler.Db2Handler;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.DubboHandler;
 import com.chua.runtime.apm.handler.ElasticsearchHandler;
@@ -7,8 +11,10 @@ import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.GrpcHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.HttpClientHandler;
+import com.chua.runtime.apm.handler.InfluxDbHandler;
 import com.chua.runtime.apm.handler.JedisHandler;
 import com.chua.runtime.apm.handler.KafkaHandler;
+import com.chua.runtime.apm.handler.KingbaseHandler;
 import com.chua.runtime.apm.handler.LettuceHandler;
 import com.chua.runtime.apm.handler.LogHandler;
 import com.chua.runtime.apm.handler.MemcachedHandler;
@@ -104,6 +110,12 @@ public class ApmBootstrap {
         handlers.add(new PostgreSqlHandler());
         handlers.add(new OracleHandler());
         handlers.add(new SqlServerHandler());
+        handlers.add(new Db2Handler());
+        handlers.add(new ClickHouseHandler());
+        handlers.add(new DamengHandler());
+        handlers.add(new KingbaseHandler());
+        handlers.add(new CassandraHandler());
+        handlers.add(new InfluxDbHandler());
         handlers.add(new MongoDbHandler());
         handlers.add(new MemcachedHandler());
         handlers.add(new RabbitMqHandler());

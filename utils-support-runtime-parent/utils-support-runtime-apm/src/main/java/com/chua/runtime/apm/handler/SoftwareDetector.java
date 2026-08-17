@@ -115,10 +115,10 @@ public final class SoftwareDetector {
         put("org.elasticsearch", Software.ELASTICSEARCH);
 
         // InfluxDB
-        put("org.influxdb", Software.UNKNOWN);
+        put("org.influxdb", Software.INFLUXDB_CLIENT);
 
         // ClickHouse
-        put("com.clickhouse", Software.UNKNOWN);
+        put("com.clickhouse", Software.CLICKHOUSE_DRIVER);
 
         // TiDB
         put("com.pingcap", Software.UNKNOWN);
@@ -127,13 +127,14 @@ public final class SoftwareDetector {
         put("com.oceanbase", Software.UNKNOWN);
 
         // DM 达梦
-        put("dm.jdbc", Software.UNKNOWN);
+        put("dm.jdbc", Software.DAMENG_DRIVER);
 
         // 金仓
-        put("com.kingbase8", Software.UNKNOWN);
+        put("com.kingbase8", Software.KINGBASE_DRIVER);
 
         // 华为高斯
         put("com.huawei.gaussdb", Software.UNKNOWN);
+        put("com.huawei.opengauss", Software.UNKNOWN);
 
         // Snowflake
         put("net.snowflake", Software.UNKNOWN);
@@ -143,7 +144,11 @@ public final class SoftwareDetector {
         put("oracle.ucp", Software.ORACLE_DRIVER);
 
         // IBM DB2
-        put("com.ibm.db2", Software.UNKNOWN);
+        put("com.ibm.db2", Software.DB2_DRIVER);
+
+        // Cassandra
+        put("com.datastax.oss.driver", Software.CASSANDRA_DRIVER);
+        put("com.datastax.driver", Software.CASSANDRA_DRIVER);
 
         // SAP HANA
         put("com.sap.cloud.db", Software.UNKNOWN);

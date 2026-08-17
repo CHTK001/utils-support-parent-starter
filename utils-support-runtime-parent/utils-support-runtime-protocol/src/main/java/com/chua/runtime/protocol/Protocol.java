@@ -107,6 +107,36 @@ public enum Protocol {
     SQLSERVER("SQL Server", 1433, false),
 
     /**
+     * IBM DB2
+     */
+    DB2("DB2", 50000, false),
+
+    /**
+     * ClickHouse（OLAP 列式数据库）
+     */
+    CLICKHOUSE("ClickHouse", 8123, false),
+
+    /**
+     * 达梦数据库（DM，国产关系型数据库）
+     */
+    DAMENG("达梦", 5236, false),
+
+    /**
+     * KingbaseES（金仓，国产关系型数据库）
+     */
+    KINGBASE("金仓", 54321, false),
+
+    /**
+     * Apache Cassandra
+     */
+    CASSANDRA("Cassandra", 9042, false),
+
+    /**
+     * InfluxDB（时序数据库）
+     */
+    INFLUXDB("InfluxDB", 8086, false),
+
+    /**
      * 进程内调用（无网络）
      */
     INTERNAL("Internal", 0, false),
@@ -180,6 +210,12 @@ public enum Protocol {
             case 27017 -> MONGODB;
             case 1521 -> ORACLE;
             case 1433 -> SQLSERVER;
+            case 50000 -> DB2;
+            case 8123, 9000 -> CLICKHOUSE;
+            case 5236 -> DAMENG;
+            case 54321 -> KINGBASE;
+            case 9042 -> CASSANDRA;
+            case 8086 -> INFLUXDB;
             default -> UNKNOWN;
         };
     }
