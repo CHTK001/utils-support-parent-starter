@@ -2,10 +2,8 @@ package com.chua.gateway.server.server;
 
 import com.chua.gateway.server.bridge.GuacamoleBridge;
 import com.chua.gateway.server.bridge.NoVncBridge;
-import com.chua.gateway.server.bridge.SshBridge;
 import com.chua.gateway.server.tunnel.GatewayTunnel;
 import com.chua.gateway.server.tunnel.TunnelRegistry;
-import com.jcraft.jsch.ChannelShell;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -167,67 +165,6 @@ public final class WsEndpointHandler {
             log.debug("[gateway-server] VNC → 客户端: {} bytes (占位)", read.length);
         } catch (IOException e) {
             log.debug("[gateway-server] VNC 读结束: sessionId={} err={}", session.sessionId, e.getMessage());
-        }
-    }
-
-    /**
-     * SSH WS 处理：浏览器侧 xterm.js 终端。
-     * xterm.js 协议：文本模式（input/output UTF-8 文本）。
-     * binary 模式一般不使用。
-     */
-    public void onSshText(ActiveSession session, String text) {
-        if (session.closed) {
-            return;
-        }
-        GatewayTunnel tunnel = session.tunnel;
-        if (!(tunnel.bridge() instanceof SshBridge bridge)) {
-            return;
-        }
-        ChannelShell ch = bridge.channel();
-        if (ch == null) {
-            return;
-        }
-        try {
-            OutputStream out = ch.getOutputStream();
-            out.write(text.getBytes(StandardCharsets.UTF_8));
-            out.flush();
-        } catch (IOException e) {
-            log.warn("[gateway-server] SSH 写失败: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * 读取 SSH 输出（一次抓多字节，UTF-8 解码）。
-     * 本方法为占位实现，实际读循环由后续 Server 内部循环驱动。
-     *
-     * @param session active session
-     * @return 累计读到的文本，超时返回部分结果
-     */
-    public String readSshOutput(ActiveSession session) {
-        if (session.closed) {
-            return null;
-        }
-        GatewayTunnel tunnel = session.tunnel;
-        if (!(tunnel.bridge() instanceof SshBridge bridge)) {
-            return null;
-        }
-        ChannelShell ch = bridge.channel();
-        if (ch == null) {
-            return null;
-        }
-        try {
-            InputStream in = ch.getInputStream();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            byte[] buf = new byte[1024];
-            int n = in.read(buf);
-            if (n <= 0) {
-                return null;
-            }
-            baos.write(buf, 0, n);
-            return baos.toString(StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.debug("[gateway-server] SSH 读结束: {}", e.getMessage());
-            return null;
         }
     }
 

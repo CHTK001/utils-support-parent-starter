@@ -40,12 +40,13 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
 
     @Override
     public void recordSuccess() {
-        circuitBreaker.onResult(null);
+        circuitBreaker.onResult(System.nanoTime(), java.util.concurrent.TimeUnit.NANOSECONDS, null);
     }
 
     @Override
     public void recordFailure() {
-        circuitBreaker.onError(new RuntimeException("circuit breaker failure"));
+        circuitBreaker.onError(System.nanoTime(), java.util.concurrent.TimeUnit.NANOSECONDS,
+                new RuntimeException("circuit breaker failure"));
     }
 
     @Override

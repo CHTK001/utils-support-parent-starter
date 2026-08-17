@@ -24,6 +24,12 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Kafka 实现的无限制 WAL。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Spi("kafka")
 public class KafkaWalLog implements WalLog {
 
@@ -68,9 +74,13 @@ public class KafkaWalLog implements WalLog {
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(200));
             if (records.isEmpty()) {
+                break;
+            }
             for (ConsumerRecord<String, byte[]> r : records) {
                 long lsn = extractLsn(r);
                 if (lsn > max) {
+                    max = lsn;
+                }
             }
         }
         consumer.seekToBeginning(consumer.assignment());
@@ -205,9 +215,13 @@ public class KafkaWalLog implements WalLog {
             while (!stopped) {
                 ConsumerRecords<String, byte[]> recordsBatch = consumer.poll(Duration.ofMillis(200));
                 if (recordsBatch.isEmpty()) {
+                    break;
+                }
                 for (ConsumerRecord<String, byte[]> r : recordsBatch) {
                     long lsn = extractLsn(r);
                     if (lsn < fromLsn || lsn >= toLsn) {
+                        continue;
+                    }
                     byte[] value = r.value();
                     if (value == null || value.length == 0) {
                         continue;
@@ -285,6 +299,8 @@ public class KafkaWalLog implements WalLog {
             while (true) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(200));
                 if (records.isEmpty()) {
+                    break;
+                }
                 for (ConsumerRecord<String, byte[]> r : records) {
                     long cur = extractLsn(r);
                     if (cur == lsn) {
@@ -324,6 +340,8 @@ public class KafkaWalLog implements WalLog {
     @Override
     public void close() throws IOException {
         if (closed) {
+            return;
+        }
         closed = true;
         try {
             producer.close();
@@ -335,5 +353,7 @@ public class KafkaWalLog implements WalLog {
 
     private void ensureOpen() {
         if (closed) {
+            throw new IllegalStateException("WAL 已关闭");
+        }
     }
 }
