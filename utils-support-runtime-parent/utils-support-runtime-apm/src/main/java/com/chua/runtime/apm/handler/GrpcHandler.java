@@ -7,33 +7,17 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * gRPC 应用层 Handler — 拦截 gRPC Java Stub 进出站调用并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code io.grpc.stub.ClientCalls} — unaryCall / serverStreamingCall / clientStreamingCall / bidiStreamingCall</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：gRPC 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+ * gRPC Handler — intercepts gRPC client/server calls.
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class GrpcHandler extends AbstractAppHandler {
 
-    /**
-     * ClientCalls 类内部名
-     */
-    private static final String CLIENT_CALLS = "io/grpc/stub/ClientCalls";
-
-    /**
-     * ClientCalls 方法集合（进出站调用入口）
-     */
-    private static final String[] CALL_METHODS = {
-            "asyncUnaryCall", "asyncServerStreamingCall", "asyncClientStreamingCall",
-            "asyncBidiStreamingCall", "blockingUnaryCall", "blockingServerStreamingCall",
-            "futureUnaryCall"
-    };
+    private static final String CLIENT_CALL = "io/grpc/ClientCall";
+    private static final String SERVER_CALL = "io/grpc/ServerCall";
+    private static final String[] CLIENT_METHODS = {"start", "sendMessage", "request", "halfClose"};
+    private static final String[] SERVER_METHODS = {"sendMessage", "close"};
 
     @Override
     public String name() {
@@ -57,7 +41,8 @@ public class GrpcHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(CLIENT_CALLS, CALL_METHODS);
+        registerAll(CLIENT_CALL, CLIENT_METHODS);
+        registerAll(SERVER_CALL, SERVER_METHODS);
     }
 
     @Override
@@ -67,7 +52,7 @@ public class GrpcHandler extends AbstractAppHandler {
                 .protocol(Protocol.GRPC)
                 .software(Software.GRPC)
                 .host("grpc")
-                .port(0)
+                .port(Protocol.GRPC.defaultPort())
                 .path("/")
                 .build();
     }

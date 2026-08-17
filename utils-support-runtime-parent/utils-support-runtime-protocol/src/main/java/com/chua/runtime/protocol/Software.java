@@ -303,11 +303,6 @@ public enum Software {
     MYBATIS("MyBatis"),
 
     /**
-     * Netty
-     */
-    NETTY("Netty"),
-
-    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");
