@@ -128,6 +128,36 @@ public enum Software {
     SQLSERVER_DRIVER("SQL Server JDBC"),
 
     /**
+     * IBM DB2 JDBC 驱动
+     */
+    DB2_DRIVER("DB2 JDBC"),
+
+    /**
+     * ClickHouse JDBC 驱动
+     */
+    CLICKHOUSE_DRIVER("ClickHouse JDBC"),
+
+    /**
+     * 达梦 JDBC 驱动
+     */
+    DAMENG_DRIVER("达梦 JDBC"),
+
+    /**
+     * KingbaseES JDBC 驱动
+     */
+    KINGBASE_DRIVER("金仓 JDBC"),
+
+    /**
+     * Cassandra Java Driver
+     */
+    CASSANDRA_DRIVER("Cassandra Driver"),
+
+    /**
+     * InfluxDB Java Client
+     */
+    INFLUXDB_CLIENT("InfluxDB Client"),
+
+    /**
      * RabbitMQ Java Client
      */
     RABBITMQ_CLIENT("RabbitMQ Client"),
