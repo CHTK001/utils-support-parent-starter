@@ -8,6 +8,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 基于 Resilience4j 的熔断器实现。
@@ -23,6 +25,11 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
 
     private final CircuitBreaker circuitBreaker;
 
+    /**
+     * 调用开始时间（纳秒），由 {@link #tryAcquire()} 记录。
+     */
+    private final AtomicLong callStartNs = new AtomicLong(-1);
+
     public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold((float) failureThreshold / 100)
@@ -35,17 +42,29 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
 
     @Override
     public boolean tryAcquire() {
-        return circuitBreaker.tryAcquirePermission();
+        boolean acquired = circuitBreaker.tryAcquirePermission();
+        if (acquired) {
+            callStartNs.set(System.nanoTime());
+        }
+        return acquired;
     }
 
     @Override
     public void recordSuccess() {
-        circuitBreaker.onResult(System.nanoTime(), java.util.concurrent.TimeUnit.NANOSECONDS, null);
+        long start = callStartNs.getAndSet(-1);
+        if (start < 0) {
+            return;
+        }
+        circuitBreaker.onSuccess(System.nanoTime() - start, TimeUnit.NANOSECONDS);
     }
 
     @Override
     public void recordFailure() {
-        circuitBreaker.onError(System.nanoTime(), java.util.concurrent.TimeUnit.NANOSECONDS,
+        long start = callStartNs.getAndSet(-1);
+        if (start < 0) {
+            return;
+        }
+        circuitBreaker.onError(System.nanoTime() - start, TimeUnit.NANOSECONDS,
                 new RuntimeException("circuit breaker failure"));
     }
 

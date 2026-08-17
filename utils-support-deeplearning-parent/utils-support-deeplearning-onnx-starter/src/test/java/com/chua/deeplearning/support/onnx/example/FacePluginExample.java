@@ -41,11 +41,20 @@ public final class FacePluginExample extends ExampleBase {
         List<PredictRectangle> boxes = detector.detect(img);
         long tDetect = System.currentTimeMillis() - t0;
         System.out.println("[faceplugin-detect] 模型=faceplugin-face-detect-slim 图片=" + imagePath);
-        System.out.println("       人脸数: " + boxes.size() + " 耗时=" + tDetect + "ms");
+        System.out.println("       人脸数: " + boxes.size() + " 首次耗时(含加载)=" + tDetect + "ms");
         for (PredictRectangle b : boxes) {
             System.out.println(String.format("       box: (%.0f,%.0f) %.0fx%.0f conf=%.2f",
                     b.x(), b.y(), b.width(), b.height(), b.confidence()));
         }
+        // 纯推理耗时（warmup 后连续 5 次，取平均）
+        detector.detect(img);
+        long sum = 0;
+        for (int i = 0; i < 5; i++) {
+            long s = System.currentTimeMillis();
+            detector.detect(img);
+            sum += System.currentTimeMillis() - s;
+        }
+        System.out.println("       纯推理平均耗时=" + (sum / 5) + "ms (warmup 后 5 次)");
         if (boxes.isEmpty()) {
             System.out.println("[faceplugin] 未检测到人脸，终止");
             return;
