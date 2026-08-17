@@ -62,6 +62,21 @@ public enum Protocol {
     KAFKA("Kafka", 9092, false),
 
     /**
+     * Apache RocketMQ
+     */
+    ROCKETMQ("RocketMQ", 9876, false),
+
+    /**
+     * Dubbo RPC（基于 TCP 的自定义协议）
+     */
+    DUBBO("Dubbo", 20880, false),
+
+    /**
+     * Alibaba Nacos（注册/配置中心）
+     */
+    NACOS("Nacos", 8848, false),
+
+    /**
      * Elasticsearch
      */
     ELASTICSEARCH("Elasticsearch", 9200, false),
@@ -80,6 +95,16 @@ public enum Protocol {
      * MongoDB
      */
     MONGODB("MongoDB", 27017, false),
+
+    /**
+     * Oracle Database
+     */
+    ORACLE("Oracle", 1521, false),
+
+    /**
+     * Microsoft SQL Server
+     */
+    SQLSERVER("SQL Server", 1433, false),
 
     /**
      * 进程内调用（无网络）
@@ -146,10 +171,15 @@ public enum Protocol {
             case 3306 -> MYSQL;
             case 5432 -> POSTGRESQL;
             case 9092 -> KAFKA;
+            case 9876 -> ROCKETMQ;
+            case 20880 -> DUBBO;
+            case 8848, 9848 -> NACOS;
             case 9200, 9300 -> ELASTICSEARCH;
             case 11211 -> MEMCACHED;
             case 5672, 15672 -> RABBITMQ;
             case 27017 -> MONGODB;
+            case 1521 -> ORACLE;
+            case 1433 -> SQLSERVER;
             default -> UNKNOWN;
         };
     }

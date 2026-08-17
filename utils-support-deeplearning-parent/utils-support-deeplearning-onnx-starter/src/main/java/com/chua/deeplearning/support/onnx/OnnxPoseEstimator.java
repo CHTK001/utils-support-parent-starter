@@ -23,4 +23,10 @@ public class OnnxPoseEstimator implements PoseEstimator {
     private String resolveModel() {
         return modelName != null ? modelName : "vit-pose";
     }
+
+    @Override
+    public java.util.List<com.chua.deeplearning.support.model.PredictRectangle> estimate(byte[] imageData) {
+        return PoseEstimator.create(resolveModel()).estimate(imageData);
+    }
+
 }

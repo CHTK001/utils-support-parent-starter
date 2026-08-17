@@ -23,4 +23,15 @@ public class OnnxTextTranslator implements TextTranslator {
     private String resolveModel() {
         return modelName != null ? modelName : "t5-seq2seq";
     }
+
+    @Override
+    public String translate(String text) {
+        return TextTranslator.create(resolveModel()).translate(text);
+    }
+
+    @Override
+    public String translate(String text, String sourceLang, String targetLang) {
+        return TextTranslator.create(resolveModel()).translate(text, sourceLang, targetLang);
+    }
+
 }

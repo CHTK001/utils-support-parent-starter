@@ -73,8 +73,9 @@ public class PipelineContext<T> {
     /**
      * 扩展属性 Map，用于节点间共享自定义数据。
      *
-     * <p>在并行分支中，此 Map 通过引用共享，所有分支读写同一 Map。
-     * 多分支同时写入同一 key 时需调用方保证线程安全。</p>
+     * <p>在并行分支/异步并行子流程中，此 Map 通过引用共享，所有分支读写同一 Map。
+     * 使用 ConcurrentHashMap 保证跨线程读写的线程安全（ParallelNode 的主干与异步子流程并发执行）。
+     * 注意：复合操作（如先读后写同一 key）仍由调用方自行保证原子性。</p>
      */
     private Map<String, Object> attributes;
 
@@ -130,7 +131,8 @@ public class PipelineContext<T> {
         this.currentData = originalData;
         this.history = new ArrayList<>();
         this.action = Action.NEXT;
-        this.attributes = new LinkedHashMap<>();
+        // attributes 使用 ConcurrentHashMap：ParallelNode 等异步节点跨线程共享，需保证读写线程安全
+        this.attributes = new ConcurrentHashMap<>();
         this.nodeOutputs = new ConcurrentHashMap<>();
     }
 
@@ -265,11 +267,17 @@ public class PipelineContext<T> {
     /**
      * 设置扩展属性。
      *
+     * <p>attributes 为 ConcurrentHashMap，不允许 null 值；
+     * 传入 null 时忽略（与 {@link #setNodeOutput(String, Object)} 的 null 守卫行为一致）。
+     * 如需清除属性，请使用 {@code getAttributes().remove(key)}。</p>
+     *
      * @param key   属性键
-     * @param value 属性值
+     * @param value 属性值，null 时忽略
      */
     public void setAttribute(String key, Object value) {
-        this.attributes.put(key, value);
+        if (value != null) {
+            this.attributes.put(key, value);
+        }
     }
 
     /**
@@ -559,9 +567,8 @@ public class PipelineContext<T> {
      *
      * <p><strong>并发安全说明：</strong></p>
      * <p>各分支的 {@code currentData} 完全独立，不存在并发写入冲突。
-     * {@code nodeOutputs} 使用 ConcurrentHashMap，并行节点执行完毕后统一以 nodeId 为 key
-     * 写入 {@link ForkResult} 结构化结果，不存在并发写入冲突。
-     * {@code attributes} 为共享引用，多分支同时写入同一 key 时需调用方保证线程安全。</p>
+     * {@code nodeOutputs} 与 {@code attributes} 均为 ConcurrentHashMap，跨线程读写安全；
+     * 但复合操作（如先读后写同一 key）的原子性需调用方自行保证。</p>
      *
      * @return 新的分支上下文，共享只读数据和输出，但当前数据和控制状态独立
      */
@@ -587,7 +594,8 @@ public class PipelineContext<T> {
      *
      * <p><strong>嵌套结构化并发：</strong>共享 {@code attributes} 意味着子流水线能感知父 Pipeline 的
      * {@code StructuredTaskScope}（{@code __pipelineScope__}），由 {@code DefaultPipeline.executeWith()}
-     * 的嵌套场景分支直接复用父 scope 运行，与 {@code ForkNode} 分支行为一致。</p>
+     * 的嵌套场景分支直接复用父 scope 运行，与 {@code ForkNode} 分支行为一致。
+     * {@code attributes} 为 ConcurrentHashMap，支持异步并行场景下主干与子流程的跨线程读写。</p>
      *
      * @param branchPipelineId 子流水线 ID（用于日志与结果结构化存储）
      * @param branchData       子流水线的输入数据（作为 originalData 与初始 currentData）

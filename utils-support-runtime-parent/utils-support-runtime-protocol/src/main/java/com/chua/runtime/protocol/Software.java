@@ -98,6 +98,36 @@ public enum Software {
     KAFKA_CONSUMER("Kafka Consumer"),
 
     /**
+     * Apache RocketMQ Producer
+     */
+    ROCKETMQ_PRODUCER("RocketMQ Producer"),
+
+    /**
+     * Apache RocketMQ Consumer
+     */
+    ROCKETMQ_CONSUMER("RocketMQ Consumer"),
+
+    /**
+     * Apache Dubbo RPC
+     */
+    DUBBO("Dubbo"),
+
+    /**
+     * Alibaba Nacos
+     */
+    NACOS("Nacos"),
+
+    /**
+     * Oracle JDBC 驱动
+     */
+    ORACLE_DRIVER("Oracle JDBC"),
+
+    /**
+     * Microsoft SQL Server JDBC 驱动
+     */
+    SQLSERVER_DRIVER("SQL Server JDBC"),
+
+    /**
      * RabbitMQ Java Client
      */
     RABBITMQ_CLIENT("RabbitMQ Client"),

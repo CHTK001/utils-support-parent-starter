@@ -23,4 +23,10 @@ public class OnnxSmileDetector implements SmileDetector {
     private String resolveModel() {
         return modelName != null ? modelName : "emotion-ferplus";
     }
+
+    @Override
+    public java.util.List<com.chua.deeplearning.support.model.PredictRectangle> detect(byte[] imageData) {
+        return SmileDetector.create(resolveModel()).detect(imageData);
+    }
+
 }

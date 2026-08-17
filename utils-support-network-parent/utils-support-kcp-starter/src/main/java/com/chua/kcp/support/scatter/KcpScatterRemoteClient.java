@@ -1,5 +1,6 @@
 package com.chua.kcp.support.scatter;
 
+import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.scatter.ConnectionPool;
 import com.chua.common.support.scatter.ScatterContext;
@@ -102,7 +103,7 @@ public class KcpScatterRemoteClient implements ScatterRemoteClient<Object> {
                 client -> client.subscribe(SYNC_RESPONSE_TOPIC, (topic, message) -> {
                     // sync 为文本协议(topic:payload)，payload 是 ScatterResultWithRequestId 的线格式字符串
                     String line = message instanceof String s ? s : String.valueOf(message);
-                    ScatterResultWithRequestId<Object> wrapper = ScatterResultWithRequestId.fromLine(line, Discovery.class);
+                    ScatterResultWithRequestId<?> wrapper = ScatterResultWithRequestId.fromLine(line, Discovery.class);
                     if (wrapper == null) {
                         return;
                     }
