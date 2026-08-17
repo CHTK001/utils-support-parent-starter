@@ -161,6 +161,12 @@ public class ScatterSetting {
     private String persistenceFile = ".scatter-nodes.json";
 
     /**
+     * 持久化节点过期时间（毫秒），超过该时长未同步的节点加载时丢弃，
+     * 防止长期离线节点残留，默认 5 分钟
+     */
+    private long persistenceTtlMillis = 5 * 60_000L;
+
+    /**
      * 是否在关闭时清除资源
      */
     private boolean cleanupOnClose = true;

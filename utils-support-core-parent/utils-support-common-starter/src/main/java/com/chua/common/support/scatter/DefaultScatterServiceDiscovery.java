@@ -44,6 +44,11 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
     private static final String METADATA_VALUE_TRUE = "true";
 
     /**
+     * 元数据键：节点最后同步时间（持久化用，加载时过滤过期节点）
+     */
+    private static final String METADATA_LAST_SEEN = "lastSeen";
+
+    /**
      * 默认权重
      */
     private static final double DEFAULT_WEIGHT = 1D;
@@ -303,7 +308,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
 
     /**
      * 将本地缓存中的有效节点定时持久化到本地文件。
-     * <p>后续启动时直接加载进 hash 表,无需重新检索。</p>
+     * <p>为每个节点写入 lastSeen 时间戳，供下次启动过滤过期节点；后续启动直接加载进 hash 表，无需重新检索。</p>
      */
     private void persistNodes() {
         if (!setting.isPersistenceEnabled()) {
@@ -313,6 +318,12 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
             List<Discovery> nodes = new ArrayList<>(getServiceAll(setting.getServicePath()));
             if (nodes.isEmpty()) {
                 return;
+            }
+            long now = System.currentTimeMillis();
+            for (Discovery node : nodes) {
+                Map<String, String> metadata = new java.util.HashMap<>(node.getMetadata() == null ? Map.of() : node.getMetadata());
+                metadata.put(METADATA_LAST_SEEN, String.valueOf(now));
+                node.setMetadata(metadata);
             }
             java.nio.file.Path path = java.nio.file.Paths.get(setting.getPersistenceFile());
             if (path.getParent() != null) {
@@ -327,6 +338,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
 
     /**
      * 启动时加载持久化节点文件,直接写入本地 hash 表,避免重新检索。
+     * <p>仅加载未过期的同分组节点：超过 {@link ScatterSetting#getPersistenceTtlMillis()} 未同步的节点丢弃。</p>
      */
     private void loadPersistedNodes() {
         if (!setting.isPersistenceEnabled()) {
@@ -342,20 +354,39 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                 return;
             }
             List<Discovery> nodes = Json.fromJsonToList(json, Discovery.class);
+            long now = System.currentTimeMillis();
+            long ttl = setting.getPersistenceTtlMillis() > 0 ? setting.getPersistenceTtlMillis() : Long.MAX_VALUE;
             int loaded = 0;
+            int expired = 0;
             for (Discovery node : nodes) {
                 if (node == null || node.getHost() == null) {
                     continue;
                 }
                 // 仅加载同分组节点
-                if (getGroupId().equals(node.getScatterId())) {
-                    addToCache(setting.getServicePath(), node);
-                    loaded++;
+                if (!getGroupId().equals(node.getScatterId())) {
+                    continue;
                 }
+                // 过滤过期节点（无 lastSeen 视为新鲜，兼容旧文件）
+                String lastSeenStr = node.getMetadata() == null ? null : node.getMetadata().get(METADATA_LAST_SEEN);
+                if (lastSeenStr != null) {
+                    try {
+                        long lastSeen = Long.parseLong(lastSeenStr);
+                        if (now - lastSeen > ttl) {
+                            expired++;
+                            continue;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // 时间戳格式异常视为新鲜
+                    }
+                }
+                addToCache(addClusterPrefix(setting.getServicePath()), node);
+                loaded++;
             }
             if (loaded > 0) {
                 incrementServiceVersion();
-                log.info("加载持久化节点: {} 个 -> {}", loaded, setting.getPersistenceFile());
+                log.info("加载持久化节点: {} 个(过期丢弃 {}), 文件 {}", loaded, expired, setting.getPersistenceFile());
+            } else if (expired > 0) {
+                log.info("持久化节点全部过期({} 个), 重新检索", expired);
             }
         } catch (Exception e) {
             log.warn("加载持久化节点失败: {}", e.getMessage());
