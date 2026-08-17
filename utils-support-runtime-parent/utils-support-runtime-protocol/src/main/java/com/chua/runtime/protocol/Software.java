@@ -292,13 +292,23 @@ public enum Software {
      */
     ELASTICSEARCH("Elasticsearch"),
 
-    /**
-     * 进程内直接调用
+/**
+     * Spring MVC
      */
-    PROCESS("Process"),
+    SPRING_MVC("Spring MVC"),
 
     /**
-     * 未知
+     * MyBatis
+     */
+    MYBATIS("MyBatis"),
+
+    /**
+     * Netty
+     */
+    NETTY("Netty"),
+
+    /**
+     * UNKNOWN
      */
     UNKNOWN("Unknown");
 
