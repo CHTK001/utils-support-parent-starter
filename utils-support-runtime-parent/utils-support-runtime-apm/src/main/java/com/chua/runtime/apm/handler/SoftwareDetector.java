@@ -190,6 +190,30 @@ public final class SoftwareDetector {
         // Solr
         put("org.apache.solr", Software.SOLR);
 
+        // JMS
+        put("javax.jms", Software.JMS_CLIENT);
+        put("jakarta.jms", Software.JMS_CLIENT);
+        put("org.apache.activemq", Software.JMS_CLIENT);
+        put("org.apache.activemq.artemis", Software.JMS_CLIENT);
+
+        // Spring Cloud Gateway
+        put("org.springframework.cloud.gateway", Software.SPRING_CLOUD_GATEWAY);
+
+        // AsyncHttpClient
+        put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
+
+        // Couchbase
+        put("com.couchbase.client", Software.COUCHBASE);
+
+        // Etcd
+        put("io.etcd.jetcd", Software.ETCD);
+
+        // Ignite
+        put("org.apache.ignite", Software.IGNITE);
+
+        // RSocket
+        put("io.rsocket", Software.RSOCKET);
+
         // SAP HANA
         put("com.sap.cloud.db", Software.UNKNOWN);
     }};

@@ -182,6 +182,31 @@ public enum Protocol {
     SOLR("Solr", 8983, false),
 
     /**
+     * JMS (ActiveMQ/Artemis etc.)
+     */
+    JMS("JMS", 61616, false),
+
+    /**
+     * Couchbase
+     */
+    COUCHBASE("Couchbase", 8091, false),
+
+    /**
+     * Etcd
+     */
+    ETCD("Etcd", 2379, false),
+
+    /**
+     * Apache Ignite
+     */
+    IGNITE("Ignite", 10800, false),
+
+    /**
+     * RSocket
+     */
+    RSOCKET("RSocket", 7000, false),
+
+    /**
      * InfluxDB（时序数据库）
      */
     INFLUXDB("InfluxDB", 8086, false),
@@ -274,6 +299,11 @@ public enum Protocol {
             case 7687 -> NEO4J;
             case 5701 -> HAZELCAST;
             case 8983 -> SOLR;
+            case 61616 -> JMS;
+            case 8091 -> COUCHBASE;
+            case 2379 -> ETCD;
+            case 10800 -> IGNITE;
+            case 7000 -> RSOCKET;
             case 8086 -> INFLUXDB;
             default -> UNKNOWN;
         };

@@ -1,13 +1,16 @@
 package com.chua.runtime.apm;
 
+import com.chua.runtime.apm.handler.AsyncHttpClientHandler;
 import com.chua.runtime.apm.handler.CassandraHandler;
 import com.chua.runtime.apm.handler.ClickHouseHandler;
 import com.chua.runtime.apm.handler.ConsulHandler;
+import com.chua.runtime.apm.handler.CouchbaseHandler;
 import com.chua.runtime.apm.handler.DamengHandler;
 import com.chua.runtime.apm.handler.Db2Handler;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.DubboHandler;
 import com.chua.runtime.apm.handler.ElasticsearchHandler;
+import com.chua.runtime.apm.handler.EtcdHandler;
 import com.chua.runtime.apm.handler.EurekaHandler;
 import com.chua.runtime.apm.handler.FeignHandler;
 import com.chua.runtime.apm.handler.FileHandler;
@@ -16,8 +19,10 @@ import com.chua.runtime.apm.handler.HBaseHandler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.HazelcastHandler;
 import com.chua.runtime.apm.handler.HttpClientHandler;
+import com.chua.runtime.apm.handler.IgniteHandler;
 import com.chua.runtime.apm.handler.InfluxDbHandler;
 import com.chua.runtime.apm.handler.JedisHandler;
+import com.chua.runtime.apm.handler.JmsHandler;
 import com.chua.runtime.apm.handler.KafkaHandler;
 import com.chua.runtime.apm.handler.KingbaseHandler;
 import com.chua.runtime.apm.handler.LettuceHandler;
@@ -36,14 +41,17 @@ import com.chua.runtime.apm.handler.RabbitMqHandler;
 import com.chua.runtime.apm.handler.RedissonHandler;
 import com.chua.runtime.apm.handler.RestTemplateHandler;
 import com.chua.runtime.apm.handler.RocketMqHandler;
+import com.chua.runtime.apm.handler.RSocketHandler;
 import com.chua.runtime.apm.handler.ShardingSphereHandler;
 import com.chua.runtime.apm.handler.SolrHandler;
+import com.chua.runtime.apm.handler.SpringCloudGatewayHandler;
 import com.chua.runtime.apm.handler.SqlServerHandler;
+import com.chua.runtime.apm.handler.ThriftHandler;
 import com.chua.runtime.apm.handler.TraceHandler;
 import com.chua.runtime.apm.handler.TransmissionHandler;
-import com.chua.runtime.apm.handler.ThriftHandler;
 import com.chua.runtime.apm.handler.WebClientHandler;
 import com.chua.runtime.apm.handler.ZooKeeperHandler;
+import com.chua.runtime.apm.handler.AsyncHttpClientHandler;
 import com.chua.runtime.apm.storage.StorageConfig;
 import com.chua.runtime.apm.storage.StorageManager;
 import com.chua.runtime.plugin.Plugin;
@@ -137,8 +145,13 @@ public class ApmBootstrap {
         handlers.add(new MongoDbHandler());
         handlers.add(new MemcachedHandler());
         handlers.add(new HazelcastHandler());
+        handlers.add(new CouchbaseHandler());
+        handlers.add(new EtcdHandler());
+        handlers.add(new IgniteHandler());
+        handlers.add(new RSocketHandler());
         handlers.add(new RabbitMqHandler());
         handlers.add(new MqttHandler());
+        handlers.add(new JmsHandler());
         handlers.add(new ElasticsearchHandler());
         handlers.add(new SolrHandler());
         handlers.add(new GrpcHandler());
@@ -149,7 +162,9 @@ public class ApmBootstrap {
         handlers.add(new HttpClientHandler());
         handlers.add(new FeignHandler());
         handlers.add(new RestTemplateHandler());
+        handlers.add(new SpringCloudGatewayHandler());
         handlers.add(new WebClientHandler());
+        handlers.add(new AsyncHttpClientHandler());
         // 每个 handler 独立 try/catch,单个失败不阻断其他
         for (Plugin handler : handlers) {
             try {
