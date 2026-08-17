@@ -118,6 +118,21 @@ public enum Software {
     NACOS("Nacos"),
 
     /**
+     * Netflix Eureka
+     */
+    EUREKA("Eureka"),
+
+    /**
+     * HashiCorp Consul
+     */
+    CONSUL("Consul"),
+
+    /**
+     * Spring WebClient（响应式 HTTP 客户端）
+     */
+    WEB_CLIENT("Spring WebClient"),
+
+    /**
      * Oracle JDBC 驱动
      */
     ORACLE_DRIVER("Oracle JDBC"),

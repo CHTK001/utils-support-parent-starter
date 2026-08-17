@@ -189,8 +189,28 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
             clients.put(payload, client);
             notifyListener(l -> l.onClientConnected(payload, client.metadata));
         } else {
-            notifyListener(l -> l.onMessage(null, topic, payload));
+            // UDP 无连接：按来源地址反查已注册的 clientId，保证 send(clientId,...) 能定向回发
+            String clientId = findClientIdByAddress(packet);
+            notifyListener(l -> l.onMessage(clientId, topic, payload));
         }
+    }
+
+    /**
+     * 按数据报来源地址反查已注册的 clientId。
+     *
+     * @param packet 数据报
+     * @return clientId，未注册返回 null
+     */
+    private String findClientIdByAddress(DatagramPacket packet) {
+        for (Map.Entry<String, ClientInfo> entry : clients.entrySet()) {
+            ClientInfo info = entry.getValue();
+            if (info.address != null
+                    && info.address.getAddress().equals(packet.getAddress())
+                    && info.address.getPort() == packet.getPort()) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**

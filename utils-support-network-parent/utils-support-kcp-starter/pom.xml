@@ -11,10 +11,9 @@
     </parent>
     <artifactId>utils-support-kcp-starter</artifactId>
     <name>Utils Support Kcp Starter</name>
-    <description>KCP 可靠 UDP 传输集成：KcpServer 消息服务器与 KcpSyncServer/KcpSyncClient 同步协议实现</description>
+    <description>KCP 可靠 UDP 传输集成：基于 com.github.l42111996:kcp-base (Java KCP over Netty) 实现 KcpServer 消息服务器与 KcpClient 请求-响应客户端。</description>
     <properties>
-        <kcp.netty.version>1.5.2</kcp.netty.version>
-        <netty.kcp.version>4.1.68.Final</netty.kcp.version>
+        <kcp.base.version>1.6.2</kcp.base.version>
     </properties>
     <dependencies>
         <dependency>
@@ -22,31 +21,48 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--
+        kcp-base 1.6.2 内部使用 NioEventLoopGroup, kcp-fec 依赖 netty-all。
+        与项目统一 netty 4.2 共存可能存在 API 差异，
+        故显式 exclusion kcp-fec 的 netty-all, 由 oauth/上游统一注入 netty 4.2 模块。
+        -->
         <dependency>
-            <groupId>io.jpower.kcp</groupId>
-            <artifactId>kcp-netty</artifactId>
-            <version>${kcp.netty.version}</version>
+            <groupId>com.github.l42111996</groupId>
+            <artifactId>kcp-base</artifactId>
+            <version>${kcp.base.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.l42111996</groupId>
+                    <artifactId>kcp-fec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-all</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <!-- kcp-netty 1.5.2 基于 netty 4.1.x 构建，显式声明配套版本避免被父 POM 统一管理为 4.2 -->
+        <!-- 显式声明 kcp-fec (排除 netty-all, 改用项目统一 netty 4.2 模块) -->
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <version>${netty.kcp.version}</version>
+            <groupId>com.github.l42111996</groupId>
+            <artifactId>kcp-fec</artifactId>
+            <version>${kcp.base.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-all</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>${netty.kcp.version}</version>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.4.4</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-            <version>${netty.kcp.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver</artifactId>
-            <version>${netty.kcp.version}</version>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>3.3.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -487,7 +487,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case ROCKETMQ_PRODUCER, ROCKETMQ_CONSUMER -> { return Protocol.ROCKETMQ; }
             case RABBITMQ_CLIENT -> { return Protocol.RABBITMQ; }
             case PAHO_MQTT -> { return Protocol.MQTT; }
-            case FEIGN, REST_TEMPLATE, OKHTTP, APACHE_HTTPCLIENT -> { return Protocol.HTTP; }
+            case FEIGN, REST_TEMPLATE, OKHTTP, APACHE_HTTPCLIENT, WEB_CLIENT -> { return Protocol.HTTP; }
+            case NACOS -> { return Protocol.NACOS; }
+            case EUREKA -> { return Protocol.EUREKA; }
+            case CONSUL -> { return Protocol.CONSUL; }
             case MONGODB_DRIVER -> { return Protocol.MONGODB; }
             case CASSANDRA_DRIVER -> { return Protocol.CASSANDRA; }
             case INFLUXDB_CLIENT -> { return Protocol.INFLUXDB; }
