@@ -519,9 +519,11 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case HIBERNATE, MYBATIS, SPRING_DATA_JPA -> { return Protocol.SQL; }
             case SPRING_CLOUD_STREAM, REACTIVE_STREAMS -> { return Protocol.MESSAGE; }
             case VERTX, PLAY, CXF -> { return Protocol.HTTP; }
-            case OPENSEARCH -> { return Protocol.ELASTICSEARCH; }
-            case XXL_JOB, SENTINEL, SEATA -> { return Protocol.INTERNAL; }
-            default -> {
+             case OPENSEARCH -> { return Protocol.ELASTICSEARCH; }
+             case XXL_JOB, SENTINEL, SEATA -> { return Protocol.INTERNAL; }
+             case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
+             case SPRING_INTEGRATION -> { return Protocol.MESSAGE; }
+             default -> {
                 // 软件栈未识别 → 用类名兜底
                 return inferProtocolFromClass(className);
             }

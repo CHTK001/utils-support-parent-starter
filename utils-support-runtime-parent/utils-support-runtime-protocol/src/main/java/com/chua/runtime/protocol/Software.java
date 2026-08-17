@@ -363,6 +363,26 @@ public enum Software {
     OPENSEARCH("OpenSearch"),
 
     /**
+     * Apache Hadoop HDFS
+     */
+    HDFS("Apache HDFS"),
+
+    /**
+     * Apache Spark
+     */
+    SPARK("Apache Spark"),
+
+    /**
+     * Apache Flink
+     */
+    FLINK("Apache Flink"),
+
+    /**
+     * Spring Integration
+     */
+    SPRING_INTEGRATION("Spring Integration"),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");

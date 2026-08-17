@@ -1,0 +1,56 @@
+package com.chua.runtime.apm.handler;
+
+import com.chua.runtime.spy.InterceptContext;
+import com.chua.runtime.protocol.Endpoint;
+import com.chua.runtime.protocol.EndpointKind;
+import com.chua.runtime.protocol.Protocol;
+import com.chua.runtime.protocol.Software;
+
+/**
+ * Spring Integration Handler — intercepts message channel send operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public class SpringIntegrationHandler extends AbstractAppHandler {
+
+    private static final String MESSAGE_CHANNEL = "org/springframework/integration/channel/AbstractMessageChannel";
+    private static final String[] SEND_METHODS = {"send", "receive"};
+
+    @Override
+    public String name() {
+        return "spring-integration-handler";
+    }
+
+    @Override
+    protected String enabledKey() {
+        return "spring-integration.enabled";
+    }
+
+    @Override
+    protected Software software() {
+        return Software.SPRING_INTEGRATION;
+    }
+
+    @Override
+    protected Protocol protocol() {
+        return Protocol.MESSAGE;
+    }
+
+    @Override
+    protected void registerInterceptors() {
+        registerAll(MESSAGE_CHANNEL, SEND_METHODS);
+    }
+
+    @Override
+    protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
+        return Endpoint.builder()
+                .kind(EndpointKind.SERVER)
+                .protocol(Protocol.MESSAGE)
+                .software(Software.SPRING_INTEGRATION)
+                .host("spring-integration")
+                .port(0)
+                .path("/")
+                .build();
+    }
+}
