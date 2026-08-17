@@ -199,6 +199,16 @@ public final class SoftwareDetector {
         // Spring Cloud Gateway
         put("org.springframework.cloud.gateway", Software.SPRING_CLOUD_GATEWAY);
 
+        // Spring Cloud Stream
+        put("org.springframework.cloud.stream", Software.SPRING_CLOUD_STREAM);
+
+        // WebSocket
+        put("javax.websocket", Software.WEBSOCKET);
+        put("jakarta.websocket", Software.WEBSOCKET);
+
+        // Hibernate
+        put("org.hibernate", Software.HIBERNATE);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 

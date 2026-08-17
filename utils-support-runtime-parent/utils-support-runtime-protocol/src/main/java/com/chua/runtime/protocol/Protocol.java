@@ -227,6 +227,16 @@ public enum Protocol {
     SQL("SQL", 0, false),
 
     /**
+     * WebSocket
+     */
+    WEBSOCKET("WebSocket", 80, false),
+
+    /**
+     * 通用消息（Spring Cloud Stream 等跨协议消息通道）
+     */
+    MESSAGE("Message", 0, false),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown", 0, false);
