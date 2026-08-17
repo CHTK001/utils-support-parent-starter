@@ -484,11 +484,18 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case POSTGRESQL_DRIVER -> { return Protocol.POSTGRESQL; }
             case ZOOKEEPER_NATIVE, CURATOR -> { return Protocol.ZOOKEEPER; }
             case KAFKA_PRODUCER, KAFKA_CONSUMER -> { return Protocol.KAFKA; }
+            case ROCKETMQ_PRODUCER, ROCKETMQ_CONSUMER -> { return Protocol.ROCKETMQ; }
             case RABBITMQ_CLIENT -> { return Protocol.RABBITMQ; }
+            case PAHO_MQTT -> { return Protocol.MQTT; }
+            case FEIGN, REST_TEMPLATE, OKHTTP, APACHE_HTTPCLIENT -> { return Protocol.HTTP; }
             case MONGODB_DRIVER -> { return Protocol.MONGODB; }
+            case CASSANDRA_DRIVER -> { return Protocol.CASSANDRA; }
+            case INFLUXDB_CLIENT -> { return Protocol.INFLUXDB; }
+            case DB2_DRIVER -> { return Protocol.DB2; }
+            case DAMENG_DRIVER -> { return Protocol.DAMENG; }
+            case KINGBASE_DRIVER -> { return Protocol.KINGBASE; }
             case GRPC -> { return Protocol.GRPC; }
             case TOMCAT, JETTY, NETTY, UNDERTOW -> { return Protocol.HTTP; }
-            case OKHTTP, APACHE_HTTPCLIENT -> { return Protocol.HTTP; }
             default -> {
                 // 软件栈未识别 → 用类名兜底
                 return inferProtocolFromClass(className);

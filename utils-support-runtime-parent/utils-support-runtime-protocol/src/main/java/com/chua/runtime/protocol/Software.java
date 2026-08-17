@@ -163,6 +163,21 @@ public enum Software {
     RABBITMQ_CLIENT("RabbitMQ Client"),
 
     /**
+     * Eclipse Paho MQTT 客户端
+     */
+    PAHO_MQTT("Eclipse Paho MQTT"),
+
+    /**
+     * OpenFeign（Spring Cloud 声明式 HTTP 客户端）
+     */
+    FEIGN("OpenFeign"),
+
+    /**
+     * Spring RestTemplate
+     */
+    REST_TEMPLATE("Spring RestTemplate"),
+
+    /**
      * MongoDB Java Driver
      */
     MONGODB_DRIVER("MongoDB Driver"),
