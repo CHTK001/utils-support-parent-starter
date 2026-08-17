@@ -77,6 +77,16 @@ public enum Protocol {
     NACOS("Nacos", 8848, false),
 
     /**
+     * Netflix Eureka（注册中心，HTTP 协议）
+     */
+    EUREKA("Eureka", 8761, false),
+
+    /**
+     * HashiCorp Consul（注册/配置中心，HTTP 协议）
+     */
+    CONSUL("Consul", 8500, false),
+
+    /**
      * Elasticsearch
      */
     ELASTICSEARCH("Elasticsearch", 9200, false),
@@ -209,6 +219,8 @@ public enum Protocol {
             case 9876 -> ROCKETMQ;
             case 20880 -> DUBBO;
             case 8848, 9848 -> NACOS;
+            case 8761 -> EUREKA;
+            case 8500 -> CONSUL;
             case 9200, 9300 -> ELASTICSEARCH;
             case 11211 -> MEMCACHED;
             case 5672, 15672 -> RABBITMQ;

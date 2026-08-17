@@ -10,40 +10,30 @@ import com.chua.common.support.objects.annotation.OnError;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
 import com.chua.common.support.spi.annotations.Spi;
-import io.jpower.kcp.netty.ChannelOptionHelper;
-import io.jpower.kcp.netty.UkcpChannel;
-import io.jpower.kcp.netty.UkcpChannelOption;
-import io.jpower.kcp.netty.UkcpServerChannel;
-import io.netty.bootstrap.UkcpServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.AttributeKey;
-import io.netty.util.ReferenceCountUtil;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import kcp.ChannelConfig;
+import kcp.KcpListener;
+import kcp.KcpServer;
+import kcp.Ukcp;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * 基于 kcp-netty 的 KCP 消息服务器实现（消息型，协议分类与 MQTT 一致）。
+ * 基于 kcp-base 的 KCP 消息服务器实现（消息型，协议分类与 MQTT 一致）。
  *
  * <p>KCP 是基于 UDP 的可靠传输协议，本服务器在 KCP 之上提供主题发布、订阅、
  * 会话管理和消息下行推送能力，实现方式与 {@code TcpServer} 保持一致。</p>
@@ -51,25 +41,6 @@ import java.util.function.Consumer;
  * <p>通过 SPI 以 {@code "kcp"} 类型注册，可通过
  * {@code ServerBuilder.type("kcp")} 创建，消息协议采用 {@code topic:payload} 文本格式，
  * 客户端以 {@code register:clientId} 完成注册。</p>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * ServerSetting setting = ServerSetting.defaults();
- * setting.setPort(19380);
- * KcpServer server = new KcpServer(setting);
- *
- * server.registerBean(new Object() {
- *     &#64;OnOpen
- *     public void onConnect() { }
- *
- *     &#64;OnMessage("order/#")
- *     public void onOrder(String payload) { }
- * });
- *
- * server.start();
- * server.publish("order", "hello");
- * server.stop();
- * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -114,14 +85,14 @@ public class KcpServer extends AbstractServer {
     private static final String TOPIC_WILDCARD = "#";
 
     /**
-     * 会话通道属性键，用于会话与 Channel 关联
-     */
-    private static final AttributeKey<KcpSession> SESSION_ATTR = AttributeKey.valueOf("kcp-session");
-
-    /**
      * 客户端会话集合（clientId -> 会话）
      */
-    private final Map<String, KcpSession> sessions = new ConcurrentHashMap<>();
+    private final Map<String, Ukcp> sessions = new HashMap<>();
+
+    /**
+     * 客户端元数据集合（clientId -> Map）
+     */
+    private final Map<String, Map<String, Object>> sessionMetadata = new HashMap<>();
 
     /**
      * 同步事件监听器列表
@@ -131,7 +102,7 @@ public class KcpServer extends AbstractServer {
     /**
      * 主题订阅处理器集合（topic -> handler 列表）
      */
-    private final Map<String, List<BiConsumer<String, String>>> topicSubscribers = new ConcurrentHashMap<>();
+    private final Map<String, List<BiConsumer<String, String>>> topicSubscribers = new ConcurrentHashMapAliasMap();
 
     /**
      * 连接事件处理器列表
@@ -169,14 +140,19 @@ public class KcpServer extends AbstractServer {
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     /**
-     * Netty 事件循环组
+     * Netty 事件循环组（kcp-base 复用）
      */
-    private EventLoopGroup bossGroup;
+    private EventLoopGroup eventLoopGroup;
 
     /**
-     * KCP 服务端 Channel
+     * kcp-base 服务器实例
      */
-    private Channel serverChannel;
+    private KcpServer kcpBaseServer;
+
+    /**
+     * KCP 配置（绑定到 kcp-base ChannelConfig）
+     */
+    private ChannelConfig channelConfig;
 
     /**
      * 创建 KCP 消息服务器。
@@ -200,52 +176,34 @@ public class KcpServer extends AbstractServer {
     @Override
     protected void doStart() {
         setting.setProtocol("kcp");
-        bossGroup = new NioEventLoopGroup(setting.getBossThreads());
-        UkcpServerBootstrap bootstrap = new UkcpServerBootstrap();
-        bootstrap.group(bossGroup)
-                .channel(UkcpServerChannel.class)
-                .childOption(UkcpChannelOption.UKCP_MTU, KCP_MTU)
-                .childHandler(new ChannelInitializer<UkcpChannel>() {
-                    @Override
-                    protected void initChannel(UkcpChannel channel) {
-                        ChannelPipeline pipeline = channel.pipeline();
-                        pipeline.addLast(new KcpServerHandler());
-                    }
-                });
-        ChannelOptionHelper.nodelay(bootstrap, true, KCP_INTERVAL, KCP_FAST_RESEND, true);
-        try {
-            ChannelFuture future = bootstrap.bind(setting.getHost(), setting.getPort()).sync();
-            setting.setPort(((InetSocketAddress) future.channel().localAddress()).getPort());
-            serverChannel = future.channel();
-            log.info("KCP 服务器启动: {}:{}", setting.getHost(), setting.getPort());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("KCP 服务器启动失败", e);
-        }
+        channelConfig = new ChannelConfig();
+        channelConfig.setMtu(KCP_MTU);
+        channelConfig.setTimeoutMillis(60_000L);
+        channelConfig.nodelay(true, KCP_INTERVAL, KCP_FAST_RESEND, true);
+
+        eventLoopGroup = new NioEventLoopGroup(setting.getBossThreads());
+        channelConfig.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
+
+        kcpBaseServer = KcpServer.createStarted(channelConfig, new OAuthKcpListener(), setting.getPort());
+        log.info("KCP 服务器启动: {}:{}", setting.getHost(), setting.getPort());
     }
 
     @Override
     protected void doStop() {
-        // 先逐个关闭全部会话，避免 kcp-netty 关闭服务端通道时遍历并同时移除子通道集合引发并发修改异常
-        for (KcpSession session : sessions.values()) {
-            try {
-                session.channel.close().sync();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        if (kcpBaseServer != null) {
+            for (Ukcp ukcp : sessions.values()) {
+                try {
+                    ukcp.close();
+                } catch (Exception ignore) {
+                }
             }
+            sessions.clear();
+            sessionMetadata.clear();
+            topicSubscribers.clear();
         }
-        sessions.clear();
-        if (serverChannel != null) {
-            try {
-                serverChannel.close().sync();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        if (eventLoopGroup != null) {
+            eventLoopGroup.shutdownGracefully().syncUninterruptibly();
         }
-        if (bossGroup != null) {
-            bossGroup.shutdownGracefully().syncUninterruptibly();
-        }
-        topicSubscribers.clear();
         log.info("KCP 服务器停止");
     }
 
@@ -256,10 +214,11 @@ public class KcpServer extends AbstractServer {
      * @param message 消息内容
      */
     public void publish(String topic, Object message) {
-        for (KcpSession session : sessions.values()) {
-            session.write(topic + ":" + message);
+        String text = topic + ":" + message;
+        for (Ukcp ukcp : sessions.values()) {
+            sendTo(ukcp, text);
         }
-        notifyListeners(listener -> listener.onMessage("broadcast", topic, message));
+        notifyListeners(listener -> listener.onMessage("broadcast", topic, String.valueOf(message)));
     }
 
     /**
@@ -270,17 +229,24 @@ public class KcpServer extends AbstractServer {
      * @param message  消息内容
      */
     public void send(String clientId, String topic, Object message) {
-        KcpSession session = sessions.get(clientId);
-        if (session == null) {
+        Ukcp ukcp = sessions.get(clientId);
+        if (ukcp == null) {
             return;
         }
-        session.write(topic + ":" + message);
+        sendTo(ukcp, topic + ":" + message);
+    }
+
+    private void sendTo(Ukcp ukcp, String text) {
+        ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
+        try {
+            ukcp.write(buf);
+        } finally {
+            // kcp-base 会在内部 retain/release，调用方不再持有
+        }
     }
 
     /**
      * 获取当前所有已连接的客户端标识列表。
-     *
-     * @return 客户端标识列表
      */
     public List<String> getConnectedClients() {
         return new ArrayList<>(sessions.keySet());
@@ -288,68 +254,36 @@ public class KcpServer extends AbstractServer {
 
     /**
      * 获取指定客户端的元数据。
-     *
-     * @param clientId 客户端标识
-     * @return 元数据映射，不存在时返回空 Map
      */
     public Map<String, Object> getClientMetadata(String clientId) {
-        KcpSession session = sessions.get(clientId);
-        return session != null ? Collections.unmodifiableMap(session.metadata) : Collections.emptyMap();
+        Map<String, Object> meta = sessionMetadata.get(clientId);
+        return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     /**
      * 注册主题订阅处理器。
-     *
-     * @param topic   主题名称，支持通配符 # 和 +
-     * @param handler 消息处理器
-     * @return 当前服务器实例，支持链式调用
      */
     public KcpServer onSubscribe(String topic, BiConsumer<String, String> handler) {
         topicSubscribers.computeIfAbsent(topic, key -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
-    /**
-     * 添加同步事件监听器。
-     *
-     * @param listener 监听器
-     */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
-    /**
-     * 移除同步事件监听器。
-     *
-     * @param listener 监听器
-     */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
-    /**
-     * 注册客户端连接回调。
-     *
-     * @param listener 连接回调
-     */
     public void onConnect(Consumer<String> listener) {
         connectListeners.add(listener);
     }
 
-    /**
-     * 注册客户端断开回调。
-     *
-     * @param listener 断开回调
-     */
     public void onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
     }
 
-    /**
-     * 注册错误回调。
-     *
-     * @param listener 错误回调
-     */
     public void onError(Consumer<Throwable> listener) {
         errorListeners.add(listener);
     }
@@ -384,11 +318,6 @@ public class KcpServer extends AbstractServer {
         return this;
     }
 
-    /**
-     * 通知同步事件监听器。
-     *
-     * @param action 监听器动作
-     */
     private void notifyListeners(Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {
@@ -398,11 +327,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 通知连接回调。
-     *
-     * @param clientId 客户端标识
-     */
     private void notifyConnectListeners(String clientId) {
         for (Consumer<String> listener : connectListeners) {
             try {
@@ -413,11 +337,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 通知断开回调。
-     *
-     * @param clientId 客户端标识
-     */
     private void notifyDisconnectListeners(String clientId) {
         for (Consumer<String> listener : disconnectListeners) {
             try {
@@ -428,11 +347,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 通知错误回调。
-     *
-     * @param cause 异常
-     */
     private void notifyErrorListeners(Throwable cause) {
         for (Consumer<Throwable> listener : errorListeners) {
             try {
@@ -443,11 +357,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 分发无参注解方法。
-     *
-     * @param methods 注解方法列表
-     */
     private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods) {
         ObjectContext context = getObjectContext();
         if (context == null) {
@@ -461,12 +370,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 分发 OnMessage 注解方法。
-     *
-     * @param topic   消息主题
-     * @param payload 消息内容
-     */
     private void dispatchAnnotatedPublish(String topic, String payload) {
         ObjectContext context = getObjectContext();
         if (context == null) {
@@ -482,13 +385,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 安全调用注解方法。
-     *
-     * @param bean    Bean 实例
-     * @param method  方法
-     * @param args    参数
-     */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             method.invoke(bean, args);
@@ -502,13 +398,6 @@ public class KcpServer extends AbstractServer {
         }
     }
 
-    /**
-     * 匹配主题通配符（支持 #、* 和 +）。
-     *
-     * @param pattern 订阅模式
-     * @param topic   实际主题
-     * @return true 表示匹配
-     */
     private static boolean matchTopic(String pattern, String topic) {
         if (TOPIC_WILDCARD.equals(pattern)) {
             return true;
@@ -535,108 +424,106 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-     * KCP 服务端连接处理器。
-     *
-     * @author CH
-     * @since 4.0.0.42
+     * kcp-base 的 KcpListener 实现，把会话与 OAuth 业务绑定。
      */
-    private final class KcpServerHandler extends ChannelInboundHandlerAdapter {
+    private final class OAuthKcpListener implements KcpListener {
 
         @Override
-        public void channelActive(ChannelHandlerContext ctx) {
-            UkcpChannel kcpChannel = (UkcpChannel) ctx.channel();
-            kcpChannel.conv(KCP_CONV);
-            String initialId = kcpChannel.remoteAddress() != null
-                    ? kcpChannel.remoteAddress().toString() : "client-" + kcpChannel.hashCode();
-            KcpSession session = new KcpSession(kcpChannel, initialId);
-            ctx.channel().attr(SESSION_ATTR).set(session);
-            sessions.put(initialId, session);
-            notifyListeners(listener -> listener.onClientConnected(initialId, session.metadata));
+        public void onConnected(Ukcp ukcp) {
+            String initialId = ukcp.remoteAddress() != null
+                    ? ukcp.remoteAddress().toString() : "client-" + ukcp.hashCode();
+            sessions.put(initialId, ukcp);
+            sessionMetadata.computeIfAbsent(initialId, k -> {
+                Map<String, Object> meta = new HashMap<>();
+                meta.put("clientId", initialId);
+                return meta;
+            });
+            ukcp.user(new User(initialId));
+            notifyListeners(listener -> listener.onClientConnected(initialId, sessionMetadata.get(initialId)));
             notifyConnectListeners(initialId);
             dispatchAnnotatedMethods(onOpenMethods);
         }
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) {
-            ByteBuf buffer = (ByteBuf) msg;
+        public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
             try {
-                String line = buffer.toString(StandardCharsets.UTF_8);
-                handleLine(ctx, line.trim());
+                String line = byteBuf.toString(StandardCharsets.UTF_8).trim();
+                handleLine(ukcp, line);
             } finally {
-                ReferenceCountUtil.release(buffer);
+                byteBuf.release();
             }
         }
 
         @Override
-        public void channelInactive(ChannelHandlerContext ctx) {
-            KcpSession session = ctx.channel().attr(SESSION_ATTR).get();
-            if (session != null && session.clientId != null) {
-                sessions.remove(session.clientId);
-                notifyListeners(listener -> listener.onClientDisconnected(session.clientId));
-                notifyDisconnectListeners(session.clientId);
+        public void handleException(Throwable ex, Ukcp ukcp) {
+            log.error("KCP 连接处理异常: {}", ex.getMessage(), ex);
+            notifyErrorListeners(ex);
+        }
+
+        @Override
+        public void handleClose(Ukcp ukcp) {
+            User user = ukcp.user();
+            String clientId = user != null ? user.getClientId() : null;
+            if (clientId != null) {
+                sessions.remove(clientId);
+                sessionMetadata.remove(clientId);
+                notifyListeners(listener -> listener.onClientDisconnected(clientId));
+                notifyDisconnectListeners(clientId);
                 dispatchAnnotatedMethods(onCloseMethods);
             }
         }
 
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-            log.error("KCP 连接处理异常: {}", cause.getMessage(), cause);
-            notifyErrorListeners(cause);
-            ctx.close();
-        }
-
-        /**
-         * 处理一行消息。
-         *
-         * @param ctx  通道上下文
-         * @param line 消息内容
-         */
-        private void handleLine(ChannelHandlerContext ctx, String line) {
+        private void handleLine(Ukcp ukcp, String line) {
             if (line.isEmpty()) {
                 return;
             }
-            KcpSession session = ctx.channel().attr(SESSION_ATTR).get();
-            if (session == null) {
-                return;
+            User user = ukcp.user();
+            String clientId = user != null ? user.getClientId() : null;
+            if (clientId == null) {
+                int colon = line.indexOf(':');
+                clientId = colon > 0 ? line.substring(0, colon) : line;
             }
+            String topic;
+            String payload;
             int colon = line.indexOf(':');
-            String topic = colon > 0 ? line.substring(0, colon) : line;
-            String payload = colon > 0 ? line.substring(colon + 1) : "";
+            if (colon > 0) {
+                topic = line.substring(0, colon);
+                payload = line.substring(colon + 1);
+            } else {
+                topic = line;
+                payload = "";
+            }
             if (CMD_REGISTER.equals(topic)) {
-                handleRegister(session, payload);
+                handleRegister(ukcp, payload);
                 return;
             }
-            dispatchMessage(session, topic, payload);
+            dispatchMessage(clientId, topic, payload);
         }
 
-        /**
-         * 处理客户端注册指令。
-         *
-         * @param session  会话
-         * @param clientId 客户端标识
-         */
-        private void handleRegister(KcpSession session, String clientId) {
-            String oldId = session.clientId;
+        private void handleRegister(Ukcp ukcp, String clientId) {
+            User user = ukcp.user();
+            String oldId = user != null ? user.getClientId() : null;
             if (clientId.isEmpty() || clientId.equals(oldId)) {
-                session.write(CMD_REGISTERED + oldId);
+                sendTo(ukcp, CMD_REGISTERED + (oldId != null ? oldId : "client"));
                 return;
             }
-            sessions.remove(oldId);
-            session.clientId = clientId;
-            session.metadata.put("clientId", clientId);
-            sessions.put(clientId, session);
-            session.write(CMD_REGISTERED + clientId);
-            notifyListeners(listener -> listener.onClientConnected(clientId, session.metadata));
+            if (oldId != null) {
+                sessions.remove(oldId);
+                sessionMetadata.remove(oldId);
+                notifyListeners(listener -> listener.onClientDisconnected(oldId));
+                notifyDisconnectListeners(oldId);
+            }
+            sessions.put(clientId, ukcp);
+            Map<String, Object> meta = new HashMap<>();
+            meta.put("clientId", clientId);
+            sessionMetadata.put(clientId, meta);
+            ukcp.user(new User(clientId));
+            sendTo(ukcp, CMD_REGISTERED + clientId);
+            notifyListeners(listener -> listener.onClientConnected(clientId, meta));
+            notifyConnectListeners(clientId);
         }
 
-        /**
-         * 分发消息：本地订阅处理、注解分发、监听器通知。
-         *
-         * @param session 会话
-         * @param topic   主题
-         * @param payload 消息内容
-         */
-        private void dispatchMessage(KcpSession session, String topic, String payload) {
+        private void dispatchMessage(String clientId, String topic, String payload) {
             for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicSubscribers.entrySet()) {
                 if (matchTopic(entry.getKey(), topic)) {
                     for (BiConsumer<String, String> handler : entry.getValue()) {
@@ -650,75 +537,34 @@ public class KcpServer extends AbstractServer {
                 }
             }
             dispatchAnnotatedPublish(topic, payload);
-            notifyListeners(listener -> listener.onMessage(session.clientId, topic, payload));
+            notifyListeners(listener -> listener.onMessage(clientId, topic, payload));
         }
     }
 
-    /**
-     * KCP 客户端会话。
-     *
-     * @author CH
-     * @since 4.0.0.42
-     */
-    private final class KcpSession {
-
-        /**
-         * 底层 KCP 通道
-         */
-        private final UkcpChannel channel;
-
-        /**
-         * 客户端标识
-         */
-        private volatile String clientId;
-
-        /**
-         * 客户端元数据
-         */
-        private final Map<String, Object> metadata = new HashMap<>();
-
-        /**
-         * 创建会话。
-         *
-         * @param channel  底层 KCP 通道
-         * @param clientId 客户端标识
-         */
-        private KcpSession(UkcpChannel channel, String clientId) {
-            this.channel = channel;
-            this.clientId = clientId;
-            this.metadata.put("clientId", clientId);
-        }
-
-        /**
-         * 发送一条消息。
-         *
-         * @param message 消息内容
-         */
-        private void write(String message) {
-            channel.writeAndFlush(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8));
-        }
-    }
-
-    /**
-     * 注解方法定义。
-     *
-     * @param beanClass Bean 类型
-     * @param method    注解方法
-     * @author CH
-     * @since 4.0.0.42
-     */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {
     }
 
-    /**
-     * OnMessage 注解方法定义。
-     *
-     * @param beanClass Bean 类型
-     * @param method    注解方法
-     * @param topic     订阅主题
-     * @author CH
-     * @since 4.0.0.42
-     */
     private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {
+    }
+
+    /**
+     * 用 ConcurrentHashMap 包装 topic->handlers（避免再写一个类）。
+     */
+    private static final class ConcurrentHashMapAliasMap extends java.util.concurrent.ConcurrentHashMap<String, List<BiConsumer<String, String>>> {
+    }
+
+    /**
+     * KCP 会话用户对象，挂在 Ukcp.user() 上。
+     */
+    public static final class User {
+        private final String clientId;
+
+        public User(String clientId) {
+            this.clientId = clientId;
+        }
+
+        public String getClientId() {
+            return clientId;
+        }
     }
 }

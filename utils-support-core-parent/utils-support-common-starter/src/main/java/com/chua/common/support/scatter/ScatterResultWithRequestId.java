@@ -75,12 +75,13 @@ public record ScatterResultWithRequestId<T>(String requestId, ScatterResult<T> r
             return null;
         }
         int first = line.indexOf(SEP);
-        if (first <= 0 || first + 2 > line.length()) {
+        if (first <= 0 || first + 3 > line.length()) {
             return null;
         }
         String requestId = line.substring(0, first);
         char mark = line.charAt(first + 1);
-        String payload = first + 2 < line.length() ? line.substring(first + 2) : "";
+        // 线格式 requestId|mark|payload：payload 从 first+3 开始（跳过 |mark| 三个字符）
+        String payload = first + 3 < line.length() ? line.substring(first + 3) : "";
         return switch (mark) {
             case SUCCESS -> new ScatterResultWithRequestId<>(requestId,
                     ScatterResult.success(requestId, deserialize(payload, type)));

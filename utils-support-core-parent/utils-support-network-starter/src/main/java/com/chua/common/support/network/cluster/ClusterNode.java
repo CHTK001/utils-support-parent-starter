@@ -136,7 +136,8 @@ public class ClusterNode implements AutoCloseable {
                             String path = null;
                             int ri = payload.indexOf("\"requestId\":\"");
                             if (ri >= 0) {
-                                requestId = payload.substring(ri + 14, payload.indexOf('"', ri + 14));
+                                // 前缀 "requestId":" 为 13 字符，偏移 +13 定位 UUID 起始
+                                requestId = payload.substring(ri + 13, payload.indexOf('"', ri + 13));
                             }
                             int pi = payload.indexOf("\"path\":\"");
                             if (pi >= 0) {

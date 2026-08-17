@@ -1,7 +1,8 @@
 package com.chua.common.support.task.pipeline.core;
 
-import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.lang.json.JacksonJsonProvider;
 import com.chua.common.support.wal.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,6 +46,10 @@ import java.util.*;
  * pipeline.stop();
  * }</pre>
  *
+ * <p><strong>序列化解耦：</strong>WAL 的上下文快照序列化直接使用 Jackson
+ * （{@code JacksonJsonProvider.getMapper()}），不经过 {@code Json} 静态门面，
+ * 因此 WAL 文件格式不受 {@code JsonProvider} SPI 实现切换（Jackson/Gson/fastjson/fory）影响。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  * @see WalLog
@@ -82,6 +87,12 @@ public class PipelineWal implements AutoCloseable {
      * WAL 配置
      */
     private final WalConfig walConfig;
+
+    /**
+     * JSON 序列化使用的 ObjectMapper — 直接复用 {@link JacksonJsonProvider#getMapper()} 的全局配置
+     * （含 java.time 支持、日期格式、统一门户注解适配），线程安全单例。
+     */
+    private static final ObjectMapper MAPPER = JacksonJsonProvider.getMapper();
 
     /**
      * 是否已打开
@@ -394,7 +405,7 @@ public class PipelineWal implements AutoCloseable {
             return new byte[0];
         }
         try {
-            String json = Json.toJson(obj);
+            String json = MAPPER.writeValueAsString(obj);
             return json.getBytes("UTF-8");
         } catch (Exception e) {
             // 序列化失败时返回空数组
@@ -411,7 +422,7 @@ public class PipelineWal implements AutoCloseable {
         }
         try {
             String json = new String(payload, "UTF-8");
-            return Json.fromJson(json, Object.class);
+            return MAPPER.readValue(json, Object.class);
         } catch (Exception e) {
             return null;
         }
@@ -426,7 +437,7 @@ public class PipelineWal implements AutoCloseable {
         }
         try {
             String json = new String(payload, "UTF-8");
-            return Json.fromJson(json, ContextSnapshot.class);
+            return MAPPER.readValue(json, ContextSnapshot.class);
         } catch (Exception e) {
             return null;
         }

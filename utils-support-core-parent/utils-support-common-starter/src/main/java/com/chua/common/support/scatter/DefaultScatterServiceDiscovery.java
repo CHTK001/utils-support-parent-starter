@@ -286,7 +286,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                             Discovery remote = result.getData();
                             // 仅合并同分组节点
                             if (getGroupId().equals(remote.getScatterId())) {
-                                addToCache(setting.getServicePath(), remote);
+                                addToCache(addClusterPrefix(setting.getServicePath()), remote);
                                 incrementServiceVersion();
                                 log.debug("gossip 发现: 从 {} 合并服务 {}:{}", node.getEndpoint(),
                                         remote.getHost(), remote.getPort());

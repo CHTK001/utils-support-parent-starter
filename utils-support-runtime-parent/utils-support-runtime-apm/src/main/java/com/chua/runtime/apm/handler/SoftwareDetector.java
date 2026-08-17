@@ -59,6 +59,18 @@ public final class SoftwareDetector {
         // Nacos
         put("com.alibaba.nacos", Software.NACOS);
 
+        // Eureka
+        put("com.netflix.discovery", Software.EUREKA);
+        put("org.springframework.cloud.netflix.eureka", Software.EUREKA);
+
+        // Consul
+        put("com.ecwid.consul", Software.CONSUL);
+        put("org.springframework.cloud.consul", Software.CONSUL);
+
+        // Spring WebClient (WebFlux)
+        put("org.springframework.web.reactive.function.client", Software.WEB_CLIENT);
+        put("org.springframework.web.reactive", Software.WEB_CLIENT);
+
         // RabbitMQ
         put("com.rabbitmq", Software.RABBITMQ_CLIENT);
         put("org.springframework.amqp", Software.RABBITMQ_CLIENT);
