@@ -14,6 +14,7 @@ import com.chua.runtime.apm.handler.ElasticsearchHandler;
 import com.chua.runtime.apm.handler.EtcdHandler;
 import com.chua.runtime.apm.handler.EurekaHandler;
 import com.chua.runtime.apm.handler.FeignHandler;
+import com.chua.runtime.apm.handler.FeignHandler;
 import com.chua.runtime.apm.handler.FileHandler;
 import com.chua.runtime.apm.handler.GraphQLHandler;
 import com.chua.runtime.apm.handler.GrpcHandler;
@@ -189,6 +190,9 @@ public class ApmBootstrap {
         handlers.add(new NettyHandler());
         handlers.add(new SpringMvcHandler());
         handlers.add(new MyBatisHandler());
+        handlers.add(new GrpcHandler());
+        handlers.add(new FeignHandler());
+        handlers.add(new ShardingSphereHandler());
         handlers.add(new CuratorHandler());
         handlers.add(new PahoMqttHandler());
         handlers.add(new AsyncHttpClientHandler());

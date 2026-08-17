@@ -29,7 +29,7 @@ public class SpringMvcHandler extends AbstractAppHandler {
 
     @Override
     protected Software software() {
-        return Software.WEB_MVC;
+        return Software.SPRING_MVC;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SpringMvcHandler extends AbstractAppHandler {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)
                 .protocol(Protocol.HTTP)
-                .software(Software.WEB_MVC)
+                .software(Software.SPRING_MVC)
                 .host("spring-mvc")
                 .port(8080)
                 .path("/")

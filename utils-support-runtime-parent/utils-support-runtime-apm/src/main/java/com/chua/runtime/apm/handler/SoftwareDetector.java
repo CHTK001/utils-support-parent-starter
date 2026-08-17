@@ -217,6 +217,15 @@ public final class SoftwareDetector {
         // NATS
         put("io.nats", Software.NATS);
 
+        // gRPC
+        put("io.grpc", Software.GRPC);
+
+        // Feign
+        put("feign", Software.FEIGN);
+
+        // ShardingSphere
+        put("org.apache.shardingsphere", Software.SHARDING_SPHERE);
+
         // GraphQL
         put("graphql.GraphQL", Software.GRAPHQL_JAVA);
         put("graphql.schema", Software.GRAPHQL_JAVA);
