@@ -201,13 +201,18 @@ public enum Protocol {
      */
     IGNITE("Ignite", 10800, false),
 
-    /**
+/**
      * RSocket
      */
     RSOCKET("RSocket", 7000, false),
 
     /**
-     * InfluxDB（时序数据库）
+     * NATS
+     */
+    NATS("NATS", 4222, false),
+
+    /**
+     * InfluxDB
      */
     INFLUXDB("InfluxDB", 8086, false),
 
@@ -304,6 +309,7 @@ public enum Protocol {
             case 2379 -> ETCD;
             case 10800 -> IGNITE;
             case 7000 -> RSOCKET;
+            case 4222 -> NATS;
             case 8086 -> INFLUXDB;
             default -> UNKNOWN;
         };
