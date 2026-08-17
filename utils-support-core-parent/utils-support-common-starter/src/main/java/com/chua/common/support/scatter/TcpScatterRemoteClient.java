@@ -92,13 +92,17 @@ public class TcpScatterRemoteClient implements ScatterRemoteClient<Object> {
         this.setting = setting == null ? new ScatterSetting() : setting;
         this.connectionPool = new ConnectionPool(PROTOCOL_TCP, DEFAULT_MAX_CONNECTIONS, DEFAULT_IDLE_TIMEOUT, true,
                 client -> client.subscribe(SYNC_RESPONSE_TOPIC, (topic, message) -> {
-                    if (message instanceof ScatterResultWithRequestId<?> wrapper) {
-                        CompletableFuture<ScatterResult<Object>> future = pendingResponses.remove(wrapper.requestId());
-                        if (future != null) {
-                            @SuppressWarnings("unchecked")
-                            ScatterResult<Object> result = (ScatterResult<Object>) wrapper.result();
-                            future.complete(result);
-                        }
+                    // sync 为文本协议(topic:payload)，payload 是 ScatterResultWithRequestId 的线格式字符串
+                    String line = message instanceof String s ? s : String.valueOf(message);
+                    ScatterResultWithRequestId<Object> wrapper = ScatterResultWithRequestId.fromLine(line, Discovery.class);
+                    if (wrapper == null) {
+                        return;
+                    }
+                    CompletableFuture<ScatterResult<Object>> future = pendingResponses.remove(wrapper.requestId());
+                    if (future != null) {
+                        @SuppressWarnings("unchecked")
+                        ScatterResult<Object> result = (ScatterResult<Object>) wrapper.result();
+                        future.complete(result);
                     }
                 }));
     }

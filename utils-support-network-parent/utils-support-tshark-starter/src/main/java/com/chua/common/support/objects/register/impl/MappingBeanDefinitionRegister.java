@@ -64,6 +64,8 @@ public class MappingBeanDefinitionRegister {
      */
     private boolean matchUrl(String mappedUrl, String requestPath, String requestMethod) {
         if ("/".equals(mappedUrl) && ("/".equals(requestPath) || "".equals(requestPath))) {
+            return true;
+        }
         return mappedUrl.equals(requestPath);
     }
 
@@ -102,6 +104,8 @@ public class MappingBeanDefinitionRegister {
         mappings.removeIf(m -> {
             for (String url : m.getUrls()) {
                 if (url.equals(path)) {
+                    return true;
+                }
             }
             return false;
         });
@@ -117,6 +121,8 @@ public class MappingBeanDefinitionRegister {
         mappings.removeIf(m -> {
             for (String url : m.getUrls()) {
                 if (url.equals(path)) {
+                    return true;
+                }
             }
             return false;
         });
@@ -132,6 +138,8 @@ public class MappingBeanDefinitionRegister {
         return mappings.stream().anyMatch(m -> {
             for (String url : m.getUrls()) {
                 if (url.equals(path)) {
+                    return true;
+                }
             }
             return false;
         });

@@ -93,13 +93,12 @@ public class ArmeriaHttpServer extends AbstractServer {
                     var aggReq = req.aggregate().get();
                     ArmeriaServerRequest request = new ArmeriaServerRequest(ctx, aggReq);
                     ArmeriaServerResponse response = new ArmeriaServerResponse(ctx);
-                    try {
-                        handleRequest(request, response);
-                    } catch (Exception e) {
-                        log.warn("处理请求异常: {}", e.getMessage(), e);
-                    } finally {
-                        response.endArmeria();
+                    var stage = handleRequestWithStage(request, response);
+                    // 等待响应式链路完成(若走了 reactive 链),再构建响应,避免竞态
+                    if (stage != null) {
+                        stage.toCompletableFuture().join();
                     }
+                    response.endArmeria();
                     return response.buildAggregatedResponse().toHttpResponse();
                 } catch (Exception e) {
                     log.warn("请求聚合失败: {}", e.getMessage(), e);
@@ -132,7 +131,6 @@ public class ArmeriaHttpServer extends AbstractServer {
      *
      * @author CH
      */
-    @Slf4j
     static class ArmeriaServerResponse implements ServerResponse {
 
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
@@ -339,8 +337,6 @@ public class ArmeriaHttpServer extends AbstractServer {
                 hdrs.contentType(MediaType.parse(contentType));
             }
             HttpData data = body != null ? HttpData.wrap(body) : HttpData.empty();
-            log.info("[ArmeriaServerResponse] 构建响应: status={}, bodyLen={}, committed={}, ended={}",
-                    status, body != null ? body.length : -1, committed, ended);
             return AggregatedHttpResponse.of(hdrs.build(), data);
         }
     }

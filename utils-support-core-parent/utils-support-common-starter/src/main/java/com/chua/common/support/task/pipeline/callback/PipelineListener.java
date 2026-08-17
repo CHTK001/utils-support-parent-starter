@@ -91,4 +91,33 @@ public interface PipelineListener {
      */
     default void onComplete(PipelineContext<?> context) {
     }
+
+    /**
+     * 节点绘制回调 — 每个节点执行完毕后触发，可用于实时刷新管线拓扑树。
+     *
+     * <p>与 {@link #afterNode} 的区别：</p>
+     * <ul>
+     *   <li>{@code afterNode} — 通用回调，用于监控/日志/指标采集</li>
+     *   <li>{@code onDraw} — 语义明确，专用于可视化绘制，回调内可调用
+     *       {@link Pipeline#printTree(List, boolean)} 实时输出带执行标记的拓扑树</li>
+     * </ul>
+     *
+     * <p>用法示例 — 终端实时刷新管线树：</p>
+     * <pre>{@code
+     * Pipeline pipeline = PipelineBuilder.newBuilder("demo")
+     *     .onDraw(ctx -> {
+     *         // ANSI 清屏 + 光标归位，实现实时刷新
+     *         System.out.print("\033[H\033[2J");
+     *         System.out.flush();
+     *         pipeline.printTree(ctx.getHistory(), true);
+     *     })
+     *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
+     *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param context 当前流水线上下文（含 history 等执行状态）
+     */
+    default void onDraw(PipelineContext<?> context) {
+    }
 }

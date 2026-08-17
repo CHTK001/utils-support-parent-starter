@@ -143,6 +143,20 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     /**
+     * 处理请求并返回完成信号。
+     *
+     * <p>供需要等待响应真正写完的协议实现(如 Armeria)使用,
+     * 避免异步过滤器链(ReactiveServerFilter)导致响应构建早于处理器完成。</p>
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     * @return 请求处理完成信号
+     */
+    public CompletionStage<Void> handleRequestWithStage(ServerRequest request, ServerResponse response) {
+        return handleRequestAsync(request, response);
+    }
+
+    /**
      * 处理请求,返回异步链完成信号(响应式模式下调用方需等待该信号再真正写出响应)。
      *
      * @param request  请求对象

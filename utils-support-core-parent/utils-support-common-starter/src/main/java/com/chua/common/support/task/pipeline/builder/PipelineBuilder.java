@@ -561,6 +561,42 @@ public class PipelineBuilder {
     }
 
     /**
+     * 注册节点绘制回调（便捷方法）。
+     *
+     * <p>每个节点执行完毕后触发，可用于实时刷新管线拓扑树。回调内可调用
+     * {@link Pipeline#printTree(List, boolean)} 输出带执行标记的拓扑树。</p>
+     *
+     * <p>与 {@code .addListener(afterNode)} 的区别：{@code onDraw} 语义明确，
+     * 专用于可视化绘制场景，不与监控/日志等通用回调混用。</p>
+     *
+     * <p>用法示例 — 终端实时刷新管线树：</p>
+     * <pre>{@code
+     * Pipeline pipeline = PipelineBuilder.newBuilder("demo")
+     *     .onDraw(ctx -> {
+     *         // ANSI 清屏 + 光标归位，实现实时刷新
+     *         System.out.print("\033[H\033[2J");
+     *         System.out.flush();
+     *         pipeline.printTree(ctx.getHistory(), true);
+     *     })
+     *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
+     *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * @param onDraw 绘制回调，参数为当前流水线上下文
+     * @return this
+     */
+    public PipelineBuilder onDraw(Consumer<PipelineContext<?>> onDraw) {
+        this.listeners.add(new PipelineListener() {
+            @Override
+            public void onDraw(PipelineContext<?> ctx) {
+                onDraw.accept(ctx);
+            }
+        });
+        return this;
+    }
+
+    /**
      * 注册节点异常回调（便捷方法）。
      *
      * <p>当节点执行抛出异常时触发。回调返回值决定流水线后续行为：</p>

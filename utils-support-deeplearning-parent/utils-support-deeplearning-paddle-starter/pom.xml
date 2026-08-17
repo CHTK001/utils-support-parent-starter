@@ -25,12 +25,12 @@
         <dependency>
             <groupId>ai.djl.paddlepaddle</groupId>
             <artifactId>paddlepaddle-engine</artifactId>
-            <version>${djl.version}</version>
+            <version>0.27.0</version>
         </dependency>
         <dependency>
             <groupId>ai.djl.paddlepaddle</groupId>
             <artifactId>paddlepaddle-model-zoo</artifactId>
-            <version>${djl.version}</version>
+            <version>0.27.0</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
