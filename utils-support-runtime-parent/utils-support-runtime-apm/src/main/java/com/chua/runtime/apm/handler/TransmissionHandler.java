@@ -500,6 +500,13 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             case NEO4J_DRIVER -> { return Protocol.NEO4J; }
             case HAZELCAST -> { return Protocol.HAZELCAST; }
             case SOLR -> { return Protocol.SOLR; }
+            case JMS_CLIENT -> { return Protocol.JMS; }
+            case SPRING_CLOUD_GATEWAY -> { return Protocol.HTTP; }
+            case ASYNC_HTTP_CLIENT -> { return Protocol.HTTP; }
+            case COUCHBASE -> { return Protocol.COUCHBASE; }
+            case ETCD -> { return Protocol.ETCD; }
+            case IGNITE -> { return Protocol.IGNITE; }
+            case RSOCKET -> { return Protocol.RSOCKET; }
             case INFLUXDB_CLIENT -> { return Protocol.INFLUXDB; }
             case DB2_DRIVER -> { return Protocol.DB2; }
             case DAMENG_DRIVER -> { return Protocol.DAMENG; }

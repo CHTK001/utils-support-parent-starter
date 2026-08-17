@@ -203,6 +203,41 @@ public enum Software {
     SOLR("Solr"),
 
     /**
+     * JMS Client (ActiveMQ/Artemis)
+     */
+    JMS_CLIENT("JMS Client"),
+
+    /**
+     * Couchbase Client
+     */
+    COUCHBASE("Couchbase"),
+
+    /**
+     * Etcd Client
+     */
+    ETCD("Etcd"),
+
+    /**
+     * Apache Ignite Client
+     */
+    IGNITE("Ignite"),
+
+    /**
+     * RSocket Client
+     */
+    RSOCKET("RSocket"),
+
+    /**
+     * Spring Cloud Gateway
+     */
+    SPRING_CLOUD_GATEWAY("Spring Cloud Gateway"),
+
+    /**
+     * AsyncHttpClient
+     */
+    ASYNC_HTTP_CLIENT("AsyncHttpClient"),
+
+    /**
      * InfluxDB Java Client
      */
     INFLUXDB_CLIENT("InfluxDB Client"),
