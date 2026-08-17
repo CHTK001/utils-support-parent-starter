@@ -573,10 +573,8 @@ public class PipelineBuilder {
      * <pre>{@code
      * Pipeline pipeline = PipelineBuilder.newBuilder("demo")
      *     .onDraw(ctx -> {
-     *         // ANSI 清屏 + 光标归位，实现实时刷新
-     *         System.out.print("\033[H\033[2J");
-     *         System.out.flush();
-     *         pipeline.printTree(ctx.getHistory(), true);
+     *         // drawTree: 原地刷新模式 — ANSI 上移光标 + 重绘，同一棵树实时更新
+     *         pipeline.drawTree(ctx.getHistory(), true);
      *     })
      *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
      *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()

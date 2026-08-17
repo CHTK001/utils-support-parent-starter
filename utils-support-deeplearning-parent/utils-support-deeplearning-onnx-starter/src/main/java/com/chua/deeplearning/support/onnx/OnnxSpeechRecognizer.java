@@ -23,4 +23,10 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     private String resolveModel() {
         return modelName != null ? modelName : "moonshine-base";
     }
+
+    @Override
+    public String recognize(byte[] audioData, String language) {
+        return SpeechRecognizer.create(resolveModel()).recognize(audioData, language);
+    }
+
 }

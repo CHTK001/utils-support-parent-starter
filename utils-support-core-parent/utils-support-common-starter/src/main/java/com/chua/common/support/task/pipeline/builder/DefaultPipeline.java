@@ -38,6 +38,23 @@ import java.util.stream.Collectors;
  *   <li>节点异常时：异常存入 ctx.lastError → 触发 onError 回调 → 若返回恢复节点 ID 则路由继续执行，否则终止</li>
  * </ol>
  *
+ * <p><strong>节点输出存储契约（{@code nodeOutputs}）：</strong></p>
+ * <ol>
+ *   <li><strong>null 输出跳过</strong> — 节点执行后 {@code currentData} 为 null 时不再写入
+ *       {@code nodeOutputs}（该 Map 为 ConcurrentHashMap，写入 null 值会抛 NPE；
+ *       下游节点对缺失 key 读取到 null，语义比旧版直接崩溃更明确）</li>
+ *   <li><strong>结构化结果不覆盖</strong> — 节点已自行存储结构化结果
+ *       （{@code AsyncResult}/{@code ForkResult}/{@code SubPipelineResult}，key 为本节点 nodeId）时，
+ *       引擎不再用 {@code currentData} 覆盖，保证 {@code ctx.getData(nodeId, XxxResult.class)} 可取回完整结果</li>
+ * </ol>
+ *
+ * <p><strong>恢复执行语义（{@code resume}）：</strong></p>
+ * <ul>
+ *   <li>{@link #resume(PipelineContext)} 与 {@link #execute(PipelineContext)} 一致：
+ *       上下文未指定 {@code nextNodeId}（如新建的上下文）时自动回退到流水线起始节点，避免空转</li>
+ *   <li>WAIT 挂起恢复不受影响：挂起前引擎已将 {@code nextNodeId} 推进到下一节点，恢复时从断点继续</li>
+ * </ul>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -176,6 +193,16 @@ public class DefaultPipeline implements Pipeline {
         return executeWith(ctx);
     }
 
+    /**
+     * 使用已有上下文执行流水线。
+     *
+     * <p>若上下文未指定起始节点（{@code nextNodeId == null}，如并行分支上下文），
+     * 自动设置为流水线的起始节点后执行。</p>
+     *
+     * @param existingContext 已存在的上下文实例
+     * @param <T>             数据类型
+     * @return 执行完成后的上下文
+     */
     @Override
     public <T> PipelineContext<T> execute(PipelineContext<T> existingContext) {
         // 若上下文未指定起始节点（如并行分支上下文），自动设置为流水线的起始节点
@@ -185,6 +212,22 @@ public class DefaultPipeline implements Pipeline {
         return executeWith(existingContext);
     }
 
+    /**
+     * 恢复执行流水线。
+     *
+     * <p>与 {@link #execute(PipelineContext)} 语义一致：上下文未指定起始节点时
+     * （{@code nextNodeId == null}，如新建的上下文），自动设置为流水线起始节点后执行，避免空转。</p>
+     *
+     * <p><strong>典型场景：</strong></p>
+     * <ul>
+     *   <li>WAIT 挂起恢复 — 挂起前引擎已将 {@code nextNodeId} 推进到下一节点，从断点继续执行</li>
+     *   <li>新建上下文直接 resume — 自动回退到起始节点从头执行（与 {@link #execute(PipelineContext)} 等价）</li>
+     * </ul>
+     *
+     * @param ctx 上下文实例
+     * @param <T> 数据类型
+     * @return 执行完成后的上下文
+     */
     @Override
     public <T> PipelineContext<T> resume(PipelineContext<T> ctx) {
         // 与 execute(PipelineContext) 一致：上下文未指定起始节点时自动设置为流水线起始节点
@@ -286,6 +329,10 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 流水线核心执行循环。
+     *
+     * <p>每执行完一个节点，引擎自动将节点输出存入 {@code nodeOutputs}，
+     * 存储遵循类级 Javadoc 中定义的<strong>节点输出存储契约</strong>：
+     * {@code currentData} 为 null 时跳过存储；节点已自存结构化结果时不覆盖。</p>
      *
      * @param ctx 流水线上下文
      * @param <T> 数据类型
@@ -434,9 +481,11 @@ public class DefaultPipeline implements Pipeline {
                 }
 
                 ctx.addHistory(nodeId);
-                // 自动存储节点输出到 nodeOutputs，方便后续节点跨节点访问
-                // - currentData 为 null 时不存储（nodeOutputs 为 ConcurrentHashMap，null 值会抛 NPE）
-                // - 节点已自行存储结构化结果（AsyncResult/ForkResult/SubPipelineResult）时不覆盖
+                // 自动存储节点输出到 nodeOutputs，方便后续节点跨节点访问（存储契约见类级 Javadoc）：
+                // 1. currentData 为 null 时不存储 —— nodeOutputs 为 ConcurrentHashMap，null 值会抛 NPE；
+                //    旧版直接崩溃，新版下游对缺失 key 读取到 null，行为更明确
+                // 2. 节点已自行存储结构化结果（AsyncResult/ForkResult/SubPipelineResult）时不覆盖 ——
+                //    旧版用 currentData 覆盖导致 ClassCastException，新版保留节点自存的结构化结果
                 if (ctx.getCurrentData() != null && !ctx.getNodeOutputs().containsKey(nodeId)) {
                     ctx.setNodeOutput(nodeId, ctx.getCurrentData());
                 }
@@ -738,6 +787,10 @@ public class DefaultPipeline implements Pipeline {
         return tree;
     }
 
+    private transient int lastTreeLineCount = 0;
+    private transient int treeLineCounter = 0;
+    private transient boolean countingTreeLines = false;
+
     @Override
     public void printTree(List<String> history) {
         printTree(history, false);
@@ -747,7 +800,7 @@ public class DefaultPipeline implements Pipeline {
     public void printTree(List<String> history, boolean colorEnabled) {
         Set<String> executed = history != null ? new HashSet<>(history) : Collections.emptySet();
         String pipelineLabel = colorEnabled ? colorize(id, ANSI_BOLD + ANSI_CYAN, true) : id;
-        System.out.println("Pipeline: " + pipelineLabel);
+        treePrintln("Pipeline: " + pipelineLabel);
         printNodeTree(startNodeId, "", true, executed, colorEnabled);
     }
 
@@ -792,7 +845,7 @@ public class DefaultPipeline implements Pipeline {
             nodeLabel = nodeId;
         }
 
-        System.out.println(prefix + connector + nodeLabel + (statusMark.isEmpty() ? "" : " " + statusMark));
+        treePrintln(prefix + connector + nodeLabel + (statusMark.isEmpty() ? "" : " " + statusMark));
 
         // 处理子流水线节点 — 递归展开子流水线内部树
         if (node instanceof SubPipelineNode) {
@@ -822,7 +875,7 @@ public class DefaultPipeline implements Pipeline {
                 String branchLabel = colorEnabled
                         ? colorize("[branch] " + branchName, ANSI_CYAN, true)
                         : "[branch] " + branchName;
-                System.out.println(childPrefix + branchConn + branchLabel);
+                treePrintln(childPrefix + branchConn + branchLabel);
 
                 String branchChildPrefix = childPrefix + (lastBranch ? "    " : "│   ");
                 if (branchPipeline instanceof DefaultPipeline) {
@@ -906,5 +959,40 @@ public class DefaultPipeline implements Pipeline {
         for (PipelineListener listener : listeners) {
             listener.onDraw(ctx);
         }
+    }
+
+    /**
+     * 带行计数的 println — 仅在 drawTree 模式下计数，printTree 正常调用不受影响。
+     */
+    private void treePrintln(String line) {
+        System.out.println(line);
+        if (countingTreeLines) {
+            treeLineCounter++;
+        }
+    }
+
+    /**
+     * 绘制流水线 B+ 树拓扑结构 — 原地刷新模式。
+     *
+     * <p>使用 ANSI 转义序列将光标上移到上次树的位置，清除后重绘，
+     * 视觉上始终只有一棵树在实时更新。</p>
+     *
+     * @param history      已执行节点 ID 列表
+     * @param colorEnabled 是否启用 ANSI 颜色输出
+     */
+    @Override
+    public void drawTree(List<String> history, boolean colorEnabled) {
+        // 上移光标到上次树的位置，清除旧内容
+        if (lastTreeLineCount > 0) {
+            // ANSI: 上移 N 行 + 清除从光标到屏幕底部
+            System.out.print("\033[" + lastTreeLineCount + "A\033[0J");
+        }
+        // 重绘树（带行计数）
+        treeLineCounter = 0;
+        countingTreeLines = true;
+        printTree(history, colorEnabled);
+        countingTreeLines = false;
+        lastTreeLineCount = treeLineCounter;
+        System.out.flush();
     }
 }

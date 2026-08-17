@@ -124,4 +124,32 @@ public interface Pipeline {
     default void printTree(List<String> history, boolean colorEnabled) {
         printTree(history);
     }
+
+    /**
+     * 绘制流水线 B+ 树拓扑结构 — 原地刷新模式，配合 {@code onDraw} 回调使用。
+     *
+     * <p>与 {@link #printTree} 的区别：</p>
+     * <ul>
+     *   <li>{@code printTree} — 每次调用追加打印完整的新树，产生多棵独立树</li>
+     *   <li>{@code drawTree} — 使用 ANSI 转义序列上移光标后重绘，实现原地刷新效果，
+     *       视觉上始终只有一棵树在实时更新</li>
+     * </ul>
+     *
+     * <p>用法示例 — 配合 onDraw 实时刷新：</p>
+     * <pre>{@code
+     * Pipeline pipeline = PipelineBuilder.newBuilder("demo")
+     *     .onDraw(ctx -> pipeline.drawTree(ctx.getHistory(), true))
+     *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
+     *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
+     *     .build();
+     * }</pre>
+     *
+     * <p>终端效果：每个节点执行后，同一棵树原地刷新，已执行节点逐步变为 ✓。</p>
+     *
+     * @param history      已执行节点 ID 列表，传 null 时不标记
+     * @param colorEnabled 是否启用 ANSI 颜色输出
+     */
+    default void drawTree(List<String> history, boolean colorEnabled) {
+        printTree(history, colorEnabled);
+    }
 }

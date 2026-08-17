@@ -23,4 +23,15 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
     private String resolveModel() {
         return modelName != null ? modelName : "gpt2";
     }
+
+    @Override
+    public byte[] synthesize(String text) {
+        return SpeechSynthesizer.create(resolveModel()).synthesize(text);
+    }
+
+    @Override
+    public byte[] synthesize(String text, String voice) {
+        return SpeechSynthesizer.create(resolveModel()).synthesize(text, voice);
+    }
+
 }

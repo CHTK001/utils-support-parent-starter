@@ -49,12 +49,29 @@ public final class SoftwareDetector {
         put("org.apache.kafka.clients.producer", Software.KAFKA_PRODUCER);
         put("org.apache.kafka.clients.consumer", Software.KAFKA_CONSUMER);
 
+        // RocketMQ
+        put("org.apache.rocketmq.client.producer", Software.ROCKETMQ_PRODUCER);
+        put("org.apache.rocketmq.client.consumer", Software.ROCKETMQ_CONSUMER);
+
+        // Dubbo
+        put("org.apache.dubbo", Software.DUBBO);
+
+        // Nacos
+        put("com.alibaba.nacos", Software.NACOS);
+
         // RabbitMQ
         put("com.rabbitmq", Software.RABBITMQ_CLIENT);
         put("org.springframework.amqp", Software.RABBITMQ_CLIENT);
 
         // MongoDB
         put("com.mongodb", Software.MONGODB_DRIVER);
+
+        // Oracle
+        put("oracle.jdbc", Software.ORACLE_DRIVER);
+        put("oracle.ucp", Software.ORACLE_DRIVER);
+
+        // SQL Server
+        put("com.microsoft.sqlserver", Software.SQLSERVER_DRIVER);
 
         // gRPC
         put("io.grpc", Software.GRPC);
@@ -86,7 +103,7 @@ public final class SoftwareDetector {
         put("org.springframework.boot.web.embedded.undertow", Software.UNDERTOW);
 
         // RocketMQ
-        put("org.apache.rocketmq", Software.UNKNOWN);
+        put("org.apache.rocketmq", Software.ROCKETMQ_PRODUCER);
 
         // Pulsar
         put("org.apache.pulsar", Software.UNKNOWN);
@@ -122,8 +139,8 @@ public final class SoftwareDetector {
         put("net.snowflake", Software.UNKNOWN);
 
         // Oracle
-        put("oracle.jdbc", Software.UNKNOWN);
-        put("oracle.ucp", Software.UNKNOWN);
+        put("oracle.jdbc", Software.ORACLE_DRIVER);
+        put("oracle.ucp", Software.ORACLE_DRIVER);
 
         // IBM DB2
         put("com.ibm.db2", Software.UNKNOWN);

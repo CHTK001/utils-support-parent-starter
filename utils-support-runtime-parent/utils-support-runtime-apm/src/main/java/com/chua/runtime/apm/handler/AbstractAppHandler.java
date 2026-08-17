@@ -119,14 +119,14 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
             record.setSpanId(ctx.getSpanId());
             record.setStartTime(System.currentTimeMillis());
             record.setOperation(deriveOperation(ctx));
-            record.setSoftware(software());
+            record.setSoftware(softwareForEntry(ctx));
             record.setProtocol(protocol());
 
             Object instance = ctx.getUserData();
             record.setSource(Endpoint.builder()
-                    .kind(EndpointKind.CLIENT)
+                    .kind(kindForEntry(ctx))
                     .protocol(protocol())
-                    .software(software())
+                    .software(softwareForEntry(ctx))
                     .host(localHost())
                     .port(0)
                     .path("/")
@@ -225,6 +225,30 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         for (String method : methods) {
             register(className, method);
         }
+    }
+
+    /**
+     * 软件栈（默认取 {@link #software()}）。
+     *
+     * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
+     *
+     * @param ctx 插桩上下文
+     * @return 软件栈枚举
+     */
+    protected Software softwareForEntry(InterceptContext ctx) {
+        return software();
+    }
+
+    /**
+     * 端点角色（默认 CLIENT）。
+     *
+     * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
+     *
+     * @param ctx 插桩上下文
+     * @return 端点角色
+     */
+    protected EndpointKind kindForEntry(InterceptContext ctx) {
+        return EndpointKind.CLIENT;
     }
 
     /**
