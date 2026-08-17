@@ -1,16 +1,13 @@
 package com.chua.deeplearning.support.opencv;
 
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +71,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
         if (imageBytes == null || imageBytes.length == 0) {
             throw new IllegalArgumentException("图像字节数组为空");
         }
-        Mat mat = Imgcodecs.imdecode(new MatOfByte(imageBytes), Imgcodecs.IMREAD_COLOR);
+        Mat mat = OpenCvImageUtils.decode(imageBytes);
         if (mat == null || mat.empty()) {
             throw new IllegalArgumentException("无法解析图像字节数组，格式不支持");
         }
@@ -92,10 +89,8 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
             throw new IllegalArgumentException("图像对象为空");
         }
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
-            return bytesToMat(baos.toByteArray());
-        } catch (IOException e) {
+            return OpenCvImageUtils.toMat(image);
+        } catch (Exception e) {
             throw new RuntimeException("BufferedImage 转 Mat 失败", e);
         }
     }
@@ -110,11 +105,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
         if (mat == null || mat.empty()) {
             throw new IllegalArgumentException("Mat 对象为空");
         }
-        MatOfByte buffer = new MatOfByte();
-        if (!Imgcodecs.imencode(".png", mat, buffer)) {
-            throw new RuntimeException("Mat 转字节数组失败");
-        }
-        return buffer.toArray();
+        return OpenCvImageUtils.encode(mat);
     }
 
     /**

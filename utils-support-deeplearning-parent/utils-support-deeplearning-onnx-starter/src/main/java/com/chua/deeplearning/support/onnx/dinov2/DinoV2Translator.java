@@ -11,14 +11,11 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.Rect;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,21 +94,16 @@ public class DinoV2Translator implements Translator<Image, float[]> {
         int rh = Math.round(h * percent);
 
         Mat img;
-        MatOfByte mob;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            javax.imageio.ImageIO.write(src, "png", baos);
-            mob = new MatOfByte(baos.toByteArray());
-            img = org.opencv.imgcodecs.Imgcodecs.imdecode(mob, org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+            img = OpenCvImageUtils.toMat(src);
         } catch (Exception e) {
             throw new IllegalStateException("图像转换失败", e);
         }
         try {
-            Mat resized = new Mat();
-            Imgproc.resize(img, resized, new Size(rw, rh), 0, 0, Imgproc.INTER_CUBIC);
+            Mat resized = OpenCvImageUtils.resize(img, rw, rh, Imgproc.INTER_CUBIC);
             int x0 = (rw - IMAGE_SIZE) / 2;
             int y0 = (rh - IMAGE_SIZE) / 2;
-            Mat crop = new Mat(resized, new Rect(x0, y0, IMAGE_SIZE, IMAGE_SIZE));
+            Mat crop = OpenCvImageUtils.crop(resized, x0, y0, IMAGE_SIZE, IMAGE_SIZE);
 
             float[] pixels = new float[3 * IMAGE_SIZE * IMAGE_SIZE];
             for (int y = 0; y < IMAGE_SIZE; y++) {
@@ -131,7 +123,6 @@ public class DinoV2Translator implements Translator<Image, float[]> {
             return pixels;
         } finally {
             img.release();
-            mob.release();
         }
     }
 

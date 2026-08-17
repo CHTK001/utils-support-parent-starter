@@ -9,12 +9,9 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.FloatBuffer;
@@ -138,7 +135,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
     private List<PredictRectangle> detect(byte[] imageData) {
         try {
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -153,8 +150,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
                     h = Math.max(1, Math.round(h * ratio));
                 }
                 // 统一 resize 到固定 512×512
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(IMG_SIZE, IMG_SIZE), 0, 0, Imgproc.INTER_LINEAR);
+                Mat resized = OpenCvImageUtils.resize(src, IMG_SIZE, IMG_SIZE, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * IMG_SIZE * IMG_SIZE];
                 for (int y = 0; y < IMG_SIZE; y++) {

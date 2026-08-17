@@ -8,6 +8,7 @@ import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.translate.Translator;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
@@ -111,7 +112,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
         int imgH = 0;
         if (imageInput && input instanceof byte[] bytes) {
             try {
-                ai.djl.modality.cv.Image img = ImageFactory.getInstance().fromInputStream(new ByteArrayInputStream(bytes));
+                ai.djl.modality.cv.Image img = ImageFactory.getInstance().fromImage(OpenCvImageUtils.toBufferedImage(bytes));
                 imgW = img.getWidth();
                 imgH = img.getHeight();
                 result = factory.predict(img);
@@ -143,9 +144,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
             try {
                 Object wrapped = image.getWrappedImage();
                 if (wrapped instanceof java.awt.image.BufferedImage bufferedImage) {
-                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                    javax.imageio.ImageIO.write(bufferedImage, "png", baos);
-                    return baos.toByteArray();
+                    return OpenCvImageUtils.encode(OpenCvImageUtils.toMat(bufferedImage));
                 }
             } catch (Exception e) {
                 log.warn("[deeplearning-engine] DJL 模型 {} 图像输出转 byte[] 失败: {}", modelName, e.getMessage());

@@ -51,6 +51,16 @@ public class IonetSyncServer implements SyncServer {
         delegate.addFilter(new MessageNotifyFilter());
     }
 
+    /**
+     * SPI 构造（供 {@code ServiceProvider.of(SyncServer.class).getNewExtension("ionet", setting)}
+     * 反射创建）：delegate 一个默认 IonetServer，端口取自 setting。
+     *
+     * @param setting 服务器配置
+     */
+    public IonetSyncServer(ServerSetting setting) {
+        this(new IonetServer(setting != null ? setting : ServerSetting.defaults()));
+    }
+
     @Override
     public void start() {
         Locale.setDefault(Locale.CHINA);

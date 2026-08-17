@@ -9,11 +9,13 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import com.chua.deeplearning.support.model.DetectionInfo;
@@ -143,7 +145,7 @@ public final class OpenCvImageUtils {
      * @param image 图像
      * @return Mat
      */
-    private static Mat toMat(BufferedImage image) {
+    public static Mat toMat(BufferedImage image) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             javax.imageio.ImageIO.write(image, "png", baos);
@@ -153,6 +155,184 @@ public final class OpenCvImageUtils {
             return mat;
         } catch (Exception e) {
             throw new IllegalStateException("图像转换失败", e);
+        }
+    }
+
+    /**
+     * OpenCV Mat（BGR）→ BufferedImage。
+     *
+     * @param mat Mat（BGR）
+     * @return BufferedImage
+     */
+    public static BufferedImage toBufferedImage(Mat mat) {
+        load();
+        try {
+            MatOfByte mob = new MatOfByte();
+            org.opencv.imgcodecs.Imgcodecs.imencode(".png", mat, mob);
+            BufferedImage image = javax.imageio.ImageIO.read(new ByteArrayInputStream(mob.toArray()));
+            mob.release();
+            return image;
+        } catch (Exception e) {
+            throw new IllegalStateException("图像转换失败", e);
+        }
+    }
+
+    /**
+     * 按指定宽高缩放（返回新 Mat，调用方负责 release）。
+     *
+     * @param src           源 Mat（BGR）
+     * @param width         目标宽
+     * @param height        目标高
+     * @param interpolation 插值方式（Imgproc.INTER_*）
+     * @return 缩放后的新 Mat
+     */
+    public static Mat resize(Mat src, int width, int height, int interpolation) {
+        load();
+        Mat resized = new Mat();
+        Imgproc.resize(src, resized, new Size(width, height), 0, 0, interpolation);
+        return resized;
+    }
+
+    /**
+     * 图像字节按指定宽高缩放（返回 PNG 字节）。
+     *
+     * @param imageData     图像字节
+     * @param width         目标宽
+     * @param height        目标高
+     * @param interpolation 插值方式（Imgproc.INTER_*）
+     * @return 缩放后 PNG 字节
+     */
+    public static byte[] resize(byte[] imageData, int width, int height, int interpolation) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return imageData;
+        }
+        Mat resized = resize(src, width, height, interpolation);
+        try {
+            return encode(resized);
+        } finally {
+            resized.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 按像素矩形裁剪（返回新 Mat，调用方负责 release）。
+     *
+     * @param src    源 Mat（BGR）
+     * @param x      左边界
+     * @param y      上边界
+     * @param width  宽度
+     * @param height 高度
+     * @return 裁剪后的新 Mat
+     */
+    public static Mat crop(Mat src, int x, int y, int width, int height) {
+        load();
+        int left = clamp(x, 0, src.cols() - 1);
+        int top = clamp(y, 0, src.rows() - 1);
+        int w = Math.max(1, Math.min(width, src.cols() - left));
+        int h = Math.max(1, Math.min(height, src.rows() - top));
+        return new Mat(src, new Rect(left, top, w, h));
+    }
+
+    /**
+     * 按像素矩形裁剪（返回 PNG 字节）。
+     *
+     * @param imageData 图像字节
+     * @param x         左边界
+     * @param y         上边界
+     * @param width     宽度
+     * @param height    高度
+     * @return 裁剪后 PNG 字节
+     */
+    public static byte[] crop(byte[] imageData, int x, int y, int width, int height) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return imageData;
+        }
+        Mat sub = crop(src, x, y, width, height);
+        try {
+            return encode(sub);
+        } finally {
+            sub.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 按检测框裁剪（宽高 &lt;= 1.5 视为归一化坐标，否则按像素）。
+     *
+     * @param imageData 图像字节
+     * @param x         左边界
+     * @param y         上边界
+     * @param width     宽度
+     * @param height    高度
+     * @return 裁剪后 PNG 字节
+     */
+    public static byte[] cropNormalizedOrPixel(byte[] imageData, float x, float y, float width, float height) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return imageData;
+        }
+        try {
+            int imgW = src.cols();
+            int imgH = src.rows();
+            boolean normalized = width <= 1.5f && height <= 1.5f && x <= 1.5f && y <= 1.5f;
+            int left;
+            int top;
+            int w;
+            int h;
+            if (normalized) {
+                left = clamp(Math.round(x * imgW), 0, imgW - 1);
+                top = clamp(Math.round(y * imgH), 0, imgH - 1);
+                w = Math.max(1, Math.round(width * imgW));
+                h = Math.max(1, Math.round(height * imgH));
+            } else {
+                left = clamp(Math.round(x), 0, imgW - 1);
+                top = clamp(Math.round(y), 0, imgH - 1);
+                w = Math.max(1, Math.round(width));
+                h = Math.max(1, Math.round(height));
+            }
+            w = Math.min(w, imgW - left);
+            h = Math.min(h, imgH - top);
+            Mat sub = new Mat(src, new Rect(left, top, Math.max(1, w), Math.max(1, h)));
+            try {
+                return encode(sub);
+            } finally {
+                sub.release();
+            }
+        } finally {
+            src.release();
+        }
+    }
+
+    /**
+     * 将数值限定在 [min, max] 区间内。
+     *
+     * @param value 原始数值
+     * @param min   下限
+     * @param max   上限
+     * @return 限定后的数值
+     */
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    /**
+     * 将 byte[] 解码为 BufferedImage。
+     *
+     * @param imageData 图像字节
+     * @return BufferedImage，解码失败返回 null
+     */
+    public static BufferedImage toBufferedImage(byte[] imageData) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return null;
+        }
+        try {
+            return toBufferedImage(src);
+        } finally {
+            src.release();
         }
     }
 
@@ -178,9 +358,20 @@ public final class OpenCvImageUtils {
      * @return PNG 字节
      */
     public static byte[] encode(Mat mat) {
+        return encode(mat, ".png");
+    }
+
+    /**
+     * Mat 编码为指定格式字节。
+     *
+     * @param mat    Mat
+     * @param format 图像格式（.png / .jpg）
+     * @return 图像字节
+     */
+    public static byte[] encode(Mat mat, String format) {
         load();
         MatOfByte mob = new MatOfByte();
-        org.opencv.imgcodecs.Imgcodecs.imencode(".png", mat, mob);
+        org.opencv.imgcodecs.Imgcodecs.imencode(format, mat, mob);
         return mob.toArray();
     }
 
@@ -486,12 +677,95 @@ public final class OpenCvImageUtils {
     }
 
     /**
+     * 在图像上绘制检测框（支持旋转框）+ 中文文本标签。
+     * <p>用 AWT Graphics2D 绘制中文文字（OpenCV putText 不支持中文），
+     * 检测框用 OpenCV polylines（支持旋转框）。</p>
+     *
+     * @param imageData 原图字节
+     * @param boxes     检测结果（含角度/rw/rh/cx/cy）
+     * @param labels    对应每个框的文本标签（可为 null）
+     * @return 标注后 JPEG 字节
+     */
+    public static byte[] drawDetectionsWithLabels(byte[] imageData, List<DetectionInfo> boxes, List<String> labels) {
+        load();
+        Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+        if (src == null) return imageData;
+        try {
+            for (DetectionInfo box : boxes) {
+                if (Math.abs(box.angle()) > 0.5f && box.rw() > 0 && box.rh() > 0) {
+                    RotatedRect rr = new RotatedRect(new Point(box.cx(), box.cy()),
+                            new Size(box.rw(), box.rh()), box.angle());
+                    Point[] pts = new Point[4];
+                    rr.points(pts);
+                    MatOfPoint poly = new MatOfPoint(pts);
+                    Imgproc.polylines(src, List.of(poly), true, new Scalar(0, 255, 0), 2);
+                    poly.release();
+                } else {
+                    int x = (int) box.x(), y = (int) box.y(), w = (int) box.width(), h = (int) box.height();
+                    Imgproc.rectangle(src, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
+                }
+            }
+            try {
+                MatOfByte mob = new MatOfByte();
+                org.opencv.imgcodecs.Imgcodecs.imencode(".png", src, mob);
+                BufferedImage bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(mob.toArray()));
+                if (bi != null) {
+                    java.awt.Graphics2D g = bi.createGraphics();
+                    g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                    g.setFont(new java.awt.Font("Microsoft YaHei", java.awt.Font.PLAIN, 18));
+                    for (int i = 0; i < boxes.size(); i++) {
+                        DetectionInfo box = boxes.get(i);
+                        String label = (labels != null && i < labels.size() && labels.get(i) != null)
+                                ? labels.get(i) : String.format("%.2f", box.confidence());
+                        java.awt.FontMetrics fm = g.getFontMetrics();
+                        int tw = fm.stringWidth(label) + 6;
+                        int th = fm.getHeight();
+                        double angle = box.angle();
+                        if (Math.abs(angle) > 0.5f && box.rw() > 0 && box.rh() > 0) {
+                            // 旋转框：计算框左上角在旋转后的位置，标签贴附在此
+                            double rad = Math.toRadians(angle);
+                            double sin = Math.sin(rad);
+                            double hh = box.rh() / 2.0;
+                            // 标签贴在旋转框顶部中心（紧贴框外沿）
+                            double tx = box.cx() + (-hh) * sin;
+                            double ty = box.cy() + (-hh) * Math.cos(rad);
+                            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                            g2.rotate(rad, tx, ty);
+                            g2.setColor(new java.awt.Color(0, 120, 0, 180));
+                            g2.fillRect((int) tx, (int) ty - th + 4, tw, th);
+                            g2.setColor(java.awt.Color.WHITE);
+                            g2.drawString(label, (int) tx + 3, (int) ty - 2);
+                            g2.dispose();
+                        } else {
+                            int x = (int) box.x(), y = (int) box.y();
+                            g.setColor(new java.awt.Color(0, 120, 0, 180));
+                            g.fillRect(x, y - th + 4, tw, th);
+                            g.setColor(java.awt.Color.WHITE);
+                            g.drawString(label, x + 3, y - 2);
+                        }
+                    }
+                    g.dispose();
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                    javax.imageio.ImageIO.write(bi, "jpg", baos);
+                    return baos.toByteArray();
+                }
+                return mob.toArray();
+            } catch (java.io.IOException e) {
+                MatOfByte mob = new MatOfByte();
+                org.opencv.imgcodecs.Imgcodecs.imencode(".jpg", src, mob);
+                return mob.toArray();
+            }
+        } finally {
+            src.release();
+        }
+    }
+
+    /**
      * 在图像上绘制检测框（支持旋转框角度）。
      *
      * @param imageData 原图
      * @param boxes     检测结果
-     * @param drawAngle 是否绘制旋转框
-     * @return 标注后 PNG 字节
+     * @return 标注后 JPEG 字节
      */
 public static byte[] drawDetections(byte[] imageData, List<DetectionInfo> boxes) {
         load();
@@ -500,18 +774,10 @@ public static byte[] drawDetections(byte[] imageData, List<DetectionInfo> boxes)
         try {
             for (DetectionInfo box : boxes) {
                 if (Math.abs(box.angle()) > 0.5f && box.rw() > 0 && box.rh() > 0) {
-                    // 旋转框：用 rw/rh/angle 计算 4 个角点
-                    double cx = box.x() + box.width() / 2.0;
-                    double cy = box.y() + box.height() / 2.0;
-                    double rad = Math.toRadians(box.angle());
-                    double cos = Math.cos(rad), sin = Math.sin(rad);
-                    double hw = box.rw() / 2.0, hh = box.rh() / 2.0;
+                    RotatedRect rr = new RotatedRect(new Point(box.cx(), box.cy()),
+                            new Size(box.rw(), box.rh()), box.angle());
                     Point[] pts = new Point[4];
-                    for (int i = 0; i < 4; i++) {
-                        double lx = (i < 2 ? -hw : hw);
-                        double ly = (i % 2 == 0 ? -hh : hh);
-                        pts[i] = new Point(cx + lx * cos - ly * sin, cy + lx * sin + ly * cos);
-                    }
+                    rr.points(pts);
                     MatOfPoint poly = new MatOfPoint(pts);
                     Imgproc.polylines(src, List.of(poly), true, new Scalar(0, 255, 0), 2);
                     poly.release();

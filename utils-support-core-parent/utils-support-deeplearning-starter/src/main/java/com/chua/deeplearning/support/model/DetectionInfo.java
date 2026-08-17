@@ -2,17 +2,19 @@ package com.chua.deeplearning.support.model;
 
 /**
  * 检测结果。
- * <p>描述单次检测的标签、置信度和位置。支持旋转框（angle != 0 时用 rw/rh 绘制旋转矩形）。</p>
+ * <p>描述单次检测的标签、置信度和位置。支持旋转框（angle != 0 时用 rw/rh/cx/cy 绘制旋转矩形）。</p>
  *
  * @param label      类别名称
  * @param confidence 置信度
- * @param x          左上角 x
- * @param y          左上角 y
- * @param width      宽度
- * @param height     高度
- * @param angle      旋转角度（度），0 表示正框，非 0 表示倾斜框
- * @param rw         旋转矩形宽度（angle=0 时等于 width）
- * @param rh         旋转矩形高度（angle=0 时等于 height）
+ * @param x          轴对齐框左上角 x
+ * @param y          轴对齐框左上角 y
+ * @param width      轴对齐框宽度
+ * @param height     轴对齐框高度
+ * @param angle      旋转角度（度），0 表示正框
+ * @param rw         旋转矩形宽度
+ * @param rh         旋转矩形高度
+ * @param cx         旋转矩形中心 x
+ * @param cy         旋转矩形中心 y
  * @author CH
  * @since 4.0.0.42
  */
@@ -25,13 +27,15 @@ public record DetectionInfo(
         float height,
         float angle,
         float rw,
-        float rh) {
+        float rh,
+        float cx,
+        float cy) {
 
     public DetectionInfo(String label, float confidence, float x, float y, float width, float height) {
-        this(label, confidence, x, y, width, height, 0f, width, height);
+        this(label, confidence, x, y, width, height, 0f, width, height, x + width / 2f, y + height / 2f);
     }
 
     public DetectionInfo(String label, float confidence, float x, float y, float width, float height, float angle) {
-        this(label, confidence, x, y, width, height, angle, width, height);
+        this(label, confidence, x, y, width, height, angle, width, height, x + width / 2f, y + height / 2f);
     }
 }

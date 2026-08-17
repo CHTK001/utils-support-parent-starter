@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.opencv.pedestrian;
 
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.opencv.OpencvModelTranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
@@ -67,7 +68,8 @@ public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
             double scale = 1.0;
             if (src.cols() > 800) {
                 scale = 800.0 / src.cols();
-                Imgproc.resize(src, resized, new Size(src.cols() * scale, src.rows() * scale));
+                resized = OpenCvImageUtils.resize(src,
+                        (int) (src.cols() * scale), (int) (src.rows() * scale), Imgproc.INTER_LINEAR);
             } else {
                 resized = src;
             }

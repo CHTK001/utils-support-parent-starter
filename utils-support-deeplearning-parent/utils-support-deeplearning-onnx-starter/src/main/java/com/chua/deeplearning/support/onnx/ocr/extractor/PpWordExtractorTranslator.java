@@ -8,9 +8,6 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.FloatBuffer;
@@ -162,7 +159,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private String recognize(byte[] imageData) {
         try {
             OpenCvImageUtils.load();
-            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+            Mat src = OpenCvImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -174,8 +171,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
                 resizeW = Math.max(resizeW, 16);
                 resizeW = Math.min(resizeW, IMG_W);
 
-                Mat resized = new Mat();
-                Imgproc.resize(src, resized, new Size(resizeW, IMG_H), 0, 0, Imgproc.INTER_LINEAR);
+                Mat resized = OpenCvImageUtils.resize(src, resizeW, IMG_H, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * IMG_H * IMG_W];
                 for (int y = 0; y < IMG_H; y++) {

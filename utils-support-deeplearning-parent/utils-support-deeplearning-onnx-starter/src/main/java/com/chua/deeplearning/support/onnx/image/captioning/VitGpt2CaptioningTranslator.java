@@ -9,9 +9,6 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.file.Files;
@@ -259,13 +256,12 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         // 加载 OpenCV 原生库（openpnp）
         OpenCvImageUtils.load();
 
-        Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
+        Mat src = OpenCvImageUtils.decode(imageData);
         if (src == null || src.empty()) {
             throw new IllegalArgumentException("无法解码图像");
         }
         try {
-            Mat resized = new Mat();
-            Imgproc.resize(src, resized, new Size(IMAGE_SIZE, IMAGE_SIZE), 0, 0, Imgproc.INTER_CUBIC);
+            Mat resized = OpenCvImageUtils.resize(src, IMAGE_SIZE, IMAGE_SIZE, Imgproc.INTER_CUBIC);
 
             float[] pixels = new float[3 * IMAGE_SIZE * IMAGE_SIZE];
             for (int y = 0; y < IMAGE_SIZE; y++) {
