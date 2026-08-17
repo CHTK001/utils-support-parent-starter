@@ -407,7 +407,7 @@ public class OcrPipeline {
                         return null;
                     }
                     DetectionInfo box = oc.currentBox();
-                int px = 6;
+                int px = 2;
                     byte[] crop = ImageCropUtils.crop(oc.imageData(),
                             (int) box.x() - px, (int) box.y() - px,
                             (int) box.width() + px * 2, (int) box.height() + px * 2);
