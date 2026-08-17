@@ -338,6 +338,31 @@ public enum Software {
     REACTIVE_STREAMS("Reactive Streams"),
 
     /**
+     * XXL-Job（分布式任务调度）
+     */
+    XXL_JOB("XXL-Job"),
+
+    /**
+     * Alibaba Sentinel（限流熔断）
+     */
+    SENTINEL("Sentinel"),
+
+    /**
+     * Seata（分布式事务）
+     */
+    SEATA("Seata"),
+
+    /**
+     * Apache CXF / JAX-WS WebService
+     */
+    CXF("Apache CXF"),
+
+    /**
+     * OpenSearch
+     */
+    OPENSEARCH("OpenSearch"),
+
+    /**
      * UNKNOWN
      */
     UNKNOWN("Unknown");

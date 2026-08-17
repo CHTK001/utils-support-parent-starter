@@ -221,6 +221,21 @@ public final class SoftwareDetector {
         // Reactive Streams
         put("org.reactivestreams", Software.REACTIVE_STREAMS);
 
+        // XXL-Job
+        put("com.xxl.job", Software.XXL_JOB);
+
+        // Sentinel
+        put("com.alibaba.csp.sentinel", Software.SENTINEL);
+
+        // Seata
+        put("io.seata", Software.SEATA);
+
+        // Apache CXF
+        put("org.apache.cxf", Software.CXF);
+
+        // OpenSearch
+        put("org.opensearch", Software.OPENSEARCH);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 
