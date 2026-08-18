@@ -1,6 +1,8 @@
 package com.chua.common.support.image.processor;
 
 import com.chua.common.support.image.ImageProcessor;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiOrder;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -31,6 +33,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("image-processor")
+@SpiOrder(100)
 public class RustImageProcessor implements ImageProcessor {
 
     /**

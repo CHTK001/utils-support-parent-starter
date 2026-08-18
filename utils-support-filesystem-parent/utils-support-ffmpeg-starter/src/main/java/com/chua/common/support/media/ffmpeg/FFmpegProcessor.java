@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 
 /**
  * FFmpeg 处理器 SPI 接口，定义音视频处理的核心操作。
@@ -61,8 +62,32 @@ public interface FFmpegProcessor {
     /** RTMP 推流 */
     void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException;
 
+    /** RTMP 推流（带帧通知回调，无返回） */
+    default void pushStream(String input, String streamUrl, FFmpegOptions options,
+                            Consumer<FrameInfo> callback) throws IOException {
+        pushStream(input, streamUrl, options);
+    }
+
+    /** RTMP 推流（带帧回调，返回帧数据用于渲染） */
+    default void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
+                                      Consumer<FrameInfo> callback) throws IOException {
+        pushStream(input, streamUrl, options);
+    }
+
     /** 拉流保存 */
     void pullStream(String streamUrl, File output, double duration) throws IOException;
+
+    /** 拉流保存（带帧通知回调，无返回） */
+    default void pullStream(String streamUrl, File output, double duration,
+                            Consumer<FrameInfo> callback) throws IOException {
+        pullStream(streamUrl, output, duration);
+    }
+
+    /** 拉流保存（带帧回调，返回帧数据用于渲染） */
+    default void pullStreamWithFrames(String streamUrl, File output, double duration,
+                                      Consumer<FrameInfo> callback) throws IOException {
+        pullStream(streamUrl, output, duration);
+    }
 
     /** 获取媒体信息 */
     FFmpegMediaInfo getMediaInfo(File input) throws IOException;

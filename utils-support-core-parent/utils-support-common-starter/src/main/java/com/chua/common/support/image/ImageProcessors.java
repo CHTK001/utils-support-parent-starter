@@ -1,19 +1,17 @@
 package com.chua.common.support.image;
 
 import com.chua.common.support.image.processor.JdkImageProcessor;
-import com.chua.common.support.image.processor.RustImageProcessor;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ServiceLoader;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * 图像处理器加载器
  *
- * <p>通过 {@link ServiceLoader} 发现全部 {@link ImageProcessor} 实现，
- * 按优先级排序：OpenCV 优先，Rust 次之，JDK 兜底。
- * 若 SPI 未注册任何实现，则默认创建 {@link JdkImageProcessor}。
+ * <p>基于 {@link ServiceProvider} 发现全部 {@link ImageProcessor} 实现，
+ * 通过 {@code @SpiOrder} 注解声明优先级：Rust 原生实现优先（100），
+ * OpenCV 次之（50），AWT 实现兜底（-100）。</p>
+ *
+ * <p>返回的处理器为按优先级自动降级的代理实现：调用任一方法时依次尝试各实现，
+ * 当前实现失败（异常）时自动降级到下一优先级实现，全部失败则抛出异常。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -21,7 +19,7 @@ import java.util.ServiceLoader;
 public final class ImageProcessors {
 
     /**
-     * 处理器实例缓存
+     * 处理器代理实例缓存
      */
     private static volatile ImageProcessor processor;
 
@@ -32,11 +30,12 @@ public final class ImageProcessors {
     }
 
     /**
-     * 获取图像处理器
+     * 获取按优先级自动降级的图像处理器代理
      *
-     * <p>Rust 原生实现可用时优先返回，否则回退到 AWT 实现。
+     * <p>Rust 原生实现可用时优先，OpenCV 次之，AWT 兜底；
+     * 当前实现执行失败自动降级到下一优先级实现。
      *
-     * @return 图像处理器
+     * @return 图像处理器代理
      */
     public static ImageProcessor getProcessor() {
         if (processor != null) {
@@ -46,28 +45,10 @@ public final class ImageProcessors {
             if (processor != null) {
                 return processor;
             }
-            List<ImageProcessor> processors = new ArrayList<>();
-            ServiceLoader.load(ImageProcessor.class).forEach(processors::add);
-            processor = processors.stream()
-                    .sorted(Comparator.comparingInt(ImageProcessors::priority))
-                    .filter(ImageProcessor::available)
-                    .findFirst()
-                    .orElseGet(JdkImageProcessor::new);
+            ImageProcessor factory = ServiceProvider.of(ImageProcessor.class)
+                    .getExtensionFactory("image-processor");
+            processor = factory != null ? factory : new JdkImageProcessor();
             return processor;
         }
-    }
-
-    /**
-     * 计算处理器优先级（越小越优先）
-     *
-     * @param p 处理器
-     * @return 优先级值
-     */
-    private static int priority(ImageProcessor p) {
-        return switch (p.name()) {
-            case "opencv" -> 0;
-            case "rust" -> 1;
-            default -> 10;
-        };
     }
 }

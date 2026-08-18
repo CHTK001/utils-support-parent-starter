@@ -1,6 +1,8 @@
 package com.chua.deeplearning.support.opencv;
 
 import com.chua.common.support.image.ImageProcessor;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -25,6 +27,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("image-processor")
+@SpiOrder(50)
 @Slf4j
 public class OpenCVImageProcessor implements ImageProcessor {
 
