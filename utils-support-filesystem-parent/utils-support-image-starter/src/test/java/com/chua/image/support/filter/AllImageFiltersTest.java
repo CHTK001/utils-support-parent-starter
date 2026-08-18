@@ -181,7 +181,12 @@ public class AllImageFiltersTest {
         map.put("textWater", new FilterEntry("文本水印", () -> new TextWaterImageFilter("CH")));
         map.put("textImgWater", new FilterEntry("文本+图片水印",
                 () -> {
-                    byte[] logo = readSmallLogo();
+                    byte[] logo;
+                    try {
+                        logo = readSmallLogo();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     return new TextImgWaterImageFilter("CH", logo, com.chua.common.support.constant.Position.RIGHT_BOTTOM);
                 }));
         return map;
