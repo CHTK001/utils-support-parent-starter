@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.direction;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -86,8 +86,8 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
 
     private DirectionInfo classify(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -99,7 +99,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
                 int resizedW = (int) Math.ceil(RESIZE_HEIGHT * ratio);
                 resizedW = Math.max(1, Math.min(resizedW, RESIZE_WIDTH));
 
-                Mat resized = OpenCvImageUtils.resize(src, resizedW, RESIZE_HEIGHT, Imgproc.INTER_LINEAR);
+                Mat resized = ImageUtils.resize(src, resizedW, RESIZE_HEIGHT, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * RESIZE_HEIGHT * RESIZE_WIDTH];
                 for (int y = 0; y < RESIZE_HEIGHT; y++) {

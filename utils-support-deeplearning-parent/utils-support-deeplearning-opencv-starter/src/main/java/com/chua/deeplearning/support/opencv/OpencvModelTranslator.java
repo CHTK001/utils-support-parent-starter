@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.opencv;
 
 import com.chua.deeplearning.support.translator.ITranslator;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -71,7 +71,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
         if (imageBytes == null || imageBytes.length == 0) {
             throw new IllegalArgumentException("图像字节数组为空");
         }
-        Mat mat = OpenCvImageUtils.decode(imageBytes);
+        Mat mat = ImageUtils.decode(imageBytes);
         if (mat == null || mat.empty()) {
             throw new IllegalArgumentException("无法解析图像字节数组，格式不支持");
         }
@@ -89,7 +89,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
             throw new IllegalArgumentException("图像对象为空");
         }
         try {
-            return OpenCvImageUtils.toMat(image);
+            return ImageUtils.toMat(image);
         } catch (Exception e) {
             throw new RuntimeException("BufferedImage 转 Mat 失败", e);
         }
@@ -105,7 +105,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
         if (mat == null || mat.empty()) {
             throw new IllegalArgumentException("Mat 对象为空");
         }
-        return OpenCvImageUtils.encode(mat);
+        return ImageUtils.encode(mat);
     }
 
     /**

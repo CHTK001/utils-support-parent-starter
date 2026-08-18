@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.resolution;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -135,8 +135,8 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
     private BufferedImage enhance(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -155,7 +155,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
                     inH = Math.max(1, (int) (inH * shrink));
                 }
 
-                Mat resized = OpenCvImageUtils.resize(src, inW, inH, Imgproc.INTER_LINEAR);
+                Mat resized = ImageUtils.resize(src, inW, inH, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * inH * inW];
                 for (int y = 0; y < inH; y++) {

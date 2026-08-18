@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.pose;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -114,15 +114,15 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     public List<PoseResult> detectBytes(byte[] imageData) {
         try {
             prepare();
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
             try {
                 srcWidth = src.cols();
                 srcHeight = src.rows();
-                Mat resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
+                Mat resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
                 for (int y = 0; y < INPUT_SIZE; y++) {

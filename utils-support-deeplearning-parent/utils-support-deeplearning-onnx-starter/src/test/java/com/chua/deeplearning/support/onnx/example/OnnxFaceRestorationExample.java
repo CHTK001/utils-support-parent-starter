@@ -3,7 +3,7 @@ package com.chua.deeplearning.support.onnx.example;
 import com.chua.deeplearning.support.face.FaceDetector;
 import com.chua.deeplearning.support.image.ImageEnhancer;
 import com.chua.deeplearning.support.model.PredictRectangle;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -62,7 +62,7 @@ public final class OnnxFaceRestorationExample {
             }
         }
 
-        Mat src = OpenCvImageUtils.decode(img);
+        Mat src = ImageUtils.decode(img);
         int iw = src.cols(), ih = src.rows();
 
         // 画框输出
@@ -78,7 +78,7 @@ public final class OnnxFaceRestorationExample {
             }
         }
         Path detectOut = Path.of(OUT_DIR, "三人_detect_onnx.jpg");
-        Files.write(detectOut, OpenCvImageUtils.encode(draw));
+        Files.write(detectOut, ImageUtils.encode(draw));
         System.out.println("[detect] 已输出: " + detectOut);
         draw.release();
 
@@ -110,29 +110,29 @@ public final class OnnxFaceRestorationExample {
                 sub.release();
                 continue;
             }
-            Mat affine = OpenCvImageUtils.estimateFaceAffine512(kps);
+            Mat affine = ImageUtils.estimateFaceAffine512(kps);
             Mat aligned = new Mat();
             org.opencv.imgproc.Imgproc.warpAffine(sub, aligned, affine,
                     new org.opencv.core.Size(512, 512),
                     org.opencv.imgproc.Imgproc.INTER_CUBIC, 0, new Scalar(135, 133, 132));
             Path alignOut = Path.of(OUT_DIR, "onnx_face" + i + "_align.png");
-            Files.write(alignOut, OpenCvImageUtils.encode(aligned));
+            Files.write(alignOut, ImageUtils.encode(aligned));
             System.out.println("[align] #" + i + " 已输出: " + alignOut);
 
             // onnx-gfpgan 修复（重写结构版，无偏色）
-            byte[] face = OpenCvImageUtils.encode(aligned);
+            byte[] face = ImageUtils.encode(aligned);
             long t1 = System.currentTimeMillis();
             byte[] restored = gfpgan.enhance(face);
             Path restoreOut = Path.of(OUT_DIR, "onnx_face" + i + "_restore.png");
             Files.write(restoreOut, restored);
             System.out.println("[gfpgan] #" + i + " 模型=onnx-gfpgan 耗时="
                     + (System.currentTimeMillis() - t1) + "ms 已输出: " + restoreOut);
-            Mat restoredMat = OpenCvImageUtils.decode(restored);
+            Mat restoredMat = ImageUtils.decode(restored);
 
             // onnx parsenet 分割
             long t2 = System.currentTimeMillis();
             byte[] maskBytes = parsenet.enhance(restored);
-            Mat softMask = OpenCvImageUtils.decode(maskBytes);
+            Mat softMask = ImageUtils.decode(maskBytes);
             if (softMask.channels() > 1) {
                 Mat g = new Mat();
                 org.opencv.imgproc.Imgproc.cvtColor(softMask, g, org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY);
@@ -140,14 +140,14 @@ public final class OnnxFaceRestorationExample {
                 softMask = g;
             }
             Path maskOut = Path.of(OUT_DIR, "onnx_face" + i + "_mask.png");
-            Files.write(maskOut, OpenCvImageUtils.encode(softMask));
+            Files.write(maskOut, ImageUtils.encode(softMask));
             System.out.println("[parsenet] #" + i + " 模型=onnx-parsenet 耗时="
                     + (System.currentTimeMillis() - t2) + "ms 已输出: " + maskOut);
 
             // 贴回（修复后人脸 + mask 逆仿射融合）
-            Mat pasted = OpenCvImageUtils.pasteFace(src, restoredMat, softMask, affine);
+            Mat pasted = ImageUtils.pasteFace(src, restoredMat, softMask, affine);
             Path pasteOut = Path.of(OUT_DIR, "onnx_face" + i + "_pasted.png");
-            Files.write(pasteOut, OpenCvImageUtils.encode(pasted));
+            Files.write(pasteOut, ImageUtils.encode(pasted));
             System.out.println("[paste] #" + i + " 已输出: " + pasteOut);
 
             restoredMat.release();

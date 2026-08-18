@@ -9,7 +9,7 @@ import ai.djl.ndarray.NDList;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -186,7 +186,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
         java.awt.image.BufferedImage src = wrapped instanceof java.awt.image.BufferedImage b
                 ? b
                 : (java.awt.image.BufferedImage) ai.djl.modality.cv.BufferedImageFactory.getInstance().fromImage(input).getWrappedImage();
-        java.awt.image.BufferedImage resized = OpenCvImageUtils.resize(src, inputSize, inputSize, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+        java.awt.image.BufferedImage resized = ImageUtils.resize(src, inputSize, inputSize, org.opencv.imgproc.Imgproc.INTER_CUBIC);
 
         // 提取 HWC 像素（RGB [0,255]），手动转 CHW + /255，规避 onnxruntime 不支持的 transpose/div
         int w = resized.getWidth();

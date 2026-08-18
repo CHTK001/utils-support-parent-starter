@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx.style;
 
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
@@ -158,7 +158,7 @@ public class StyleTransferPipeline {
         for (Map.Entry<String, BufferedImage> entry : results.entrySet()) {
             String fileName = entry.getKey().replace("-", "_") + ".png";
             Path outPath = outputDir.resolve(fileName);
-            Files.write(outPath, OpenCvImageUtils.encode(OpenCvImageUtils.toMat(entry.getValue()), "png"));
+            Files.write(outPath, ImageUtils.encode(ImageUtils.toMat(entry.getValue()), "png"));
             saved.put(entry.getKey(), outPath);
 
             if (log.isDebugEnabled()) {

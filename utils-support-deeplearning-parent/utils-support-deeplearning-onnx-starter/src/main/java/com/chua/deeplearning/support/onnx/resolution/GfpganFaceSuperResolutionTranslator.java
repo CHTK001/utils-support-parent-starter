@@ -10,7 +10,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 
 /**
@@ -58,9 +58,9 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
         NDManager manager = ctx.getNDManager();
 
         // ONNX Runtime 引擎不支持 NDImageUtils.resize（Rs engine 抛 Not implemented），
-        // 改用 OpenCvImageUtils：短边缩放 + 中心裁剪到 512x512 + mean/std(0.5) 归一化，
+        // 改用 ImageUtils：短边缩放 + 中心裁剪到 512x512 + mean/std(0.5) 归一化，
         // 直接产出 [3,512,512] 张量，避免在 ONNX NDArray 上做张量运算。
-        float[] pixels = OpenCvImageUtils.toTensorCenterCrop(input, INPUT_SIZE, MEAN, STD);
+        float[] pixels = ImageUtils.toTensorCenterCrop(input, INPUT_SIZE, MEAN, STD);
         NDArray array = manager.create(pixels, new Shape(3, INPUT_SIZE, INPUT_SIZE));
 
         return new NDList(array);

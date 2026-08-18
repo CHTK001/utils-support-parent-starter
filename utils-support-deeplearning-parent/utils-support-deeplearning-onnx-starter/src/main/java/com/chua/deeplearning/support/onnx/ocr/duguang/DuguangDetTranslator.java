@@ -6,7 +6,7 @@ import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -134,8 +134,8 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
 
     private List<PredictRectangle> detect(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -150,7 +150,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
                     h = Math.max(1, Math.round(h * ratio));
                 }
                 // 统一 resize 到固定 512×512
-                Mat resized = OpenCvImageUtils.resize(src, IMG_SIZE, IMG_SIZE, Imgproc.INTER_LINEAR);
+                Mat resized = ImageUtils.resize(src, IMG_SIZE, IMG_SIZE, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * IMG_SIZE * IMG_SIZE];
                 for (int y = 0; y < IMG_SIZE; y++) {

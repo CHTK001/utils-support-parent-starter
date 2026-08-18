@@ -7,7 +7,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -45,7 +45,7 @@ public class NimaTranslator implements Translator<Image, float[]> {
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：resize 224 + ImageNet 归一化 + CHW → float[] → create() 喂入 djl-onnx
-        float[] pixels = OpenCvImageUtils.toTensor(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false);
+        float[] pixels = ImageUtils.toTensor(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false);
         NDArray array = ctx.getNDManager().create(pixels, new Shape(1, 3, IMAGE_SIZE, IMAGE_SIZE));
         array.setName("input");
         return new NDList(array);

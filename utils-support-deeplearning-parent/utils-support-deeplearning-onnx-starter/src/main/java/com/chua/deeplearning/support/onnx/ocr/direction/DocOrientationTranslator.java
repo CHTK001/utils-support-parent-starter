@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.ocr.direction;
 
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -81,7 +81,7 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
 
     private DirectionInfo classify(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
+            ImageUtils.load();
             Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
                     new org.opencv.core.MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {

@@ -8,7 +8,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
@@ -40,7 +40,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[CHANNELS * INPUT_SIZE * INPUT_SIZE];
         // 单帧 RGB 重复 4 帧构造 12 通道

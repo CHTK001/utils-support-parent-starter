@@ -4,7 +4,7 @@ import com.chua.common.support.ai.feature.FeatureClient;
 import com.chua.common.support.ai.feature.FeatureClientSetting;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +52,7 @@ public class OnnxFeatureClient implements FeatureClient {
     @Override
     public float[] extractImage(byte[] imageData) {
         try {
-            BufferedImage img = OpenCvImageUtils.toBufferedImage(imageData);
+            BufferedImage img = ImageUtils.toBufferedImage(imageData);
             Image input = ImageFactory.getInstance().fromImage(img);
             ITranslator<Object, Object> t = getTranslator();
             float[] result = (float[]) t.translate(input);

@@ -128,7 +128,7 @@ public class LetterBoxUtils {
             }
         }
         // 缩放
-        BufferedImage resized = OpenCvImageUtils.resize(bi, newW, newH, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(bi, newW, newH, org.opencv.imgproc.Imgproc.INTER_LINEAR);
         // 填充到目标尺寸
         BufferedImage padded = new BufferedImage(targetW, targetH, BufferedImage.TYPE_3BYTE_BGR);
         java.awt.Graphics2D g2d = padded.createGraphics();
@@ -350,14 +350,14 @@ public class LetterBoxUtils {
                 bi.setRGB(x, y, rgb);
             }
         }
-        Mat src = OpenCvImageUtils.toMat(bi);
+        Mat src = ImageUtils.toMat(bi);
         Mat resized;
         try {
-            resized = OpenCvImageUtils.resize(src, newW, newH, Imgproc.INTER_LINEAR);
+            resized = ImageUtils.resize(src, newW, newH, Imgproc.INTER_LINEAR);
         } finally {
             src.release();
         }
-        BufferedImage resizedImage = OpenCvImageUtils.toBufferedImage(resized);
+        BufferedImage resizedImage = ImageUtils.toBufferedImage(resized);
         resized.release();
         int newLen = newW * newH;
         float[] out = new float[3 * newLen];

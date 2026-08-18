@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -158,8 +158,8 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     private String recognize(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -171,7 +171,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
                 resizeW = Math.max(resizeW, 16);
                 resizeW = Math.min(resizeW, IMG_W);
 
-                Mat resized = OpenCvImageUtils.resize(src, resizeW, IMG_H, Imgproc.INTER_LINEAR);
+                Mat resized = ImageUtils.resize(src, resizeW, IMG_H, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * IMG_H * IMG_W];
                 for (int y = 0; y < IMG_H; y++) {

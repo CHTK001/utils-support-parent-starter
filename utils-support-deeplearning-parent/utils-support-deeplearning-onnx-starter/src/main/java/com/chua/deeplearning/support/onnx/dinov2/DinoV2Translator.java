@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.dinov2;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
@@ -67,7 +67,7 @@ public class DinoV2Translator implements Translator<Image, float[]> {
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：Image → BufferedImage → Mat → 短边缩放 + 中心裁剪 → CHW 归一化 → float[]
-        OpenCvImageUtils.load();
+        ImageUtils.load();
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         if (buffered == null) {
             throw new IllegalStateException("无法获取图像像素: " + input.getClass().getName());
@@ -95,15 +95,15 @@ public class DinoV2Translator implements Translator<Image, float[]> {
 
         Mat img;
         try {
-            img = OpenCvImageUtils.toMat(src);
+            img = ImageUtils.toMat(src);
         } catch (Exception e) {
             throw new IllegalStateException("图像转换失败", e);
         }
         try {
-            Mat resized = OpenCvImageUtils.resize(img, rw, rh, Imgproc.INTER_CUBIC);
+            Mat resized = ImageUtils.resize(img, rw, rh, Imgproc.INTER_CUBIC);
             int x0 = (rw - IMAGE_SIZE) / 2;
             int y0 = (rh - IMAGE_SIZE) / 2;
-            Mat crop = OpenCvImageUtils.crop(resized, x0, y0, IMAGE_SIZE, IMAGE_SIZE);
+            Mat crop = ImageUtils.crop(resized, x0, y0, IMAGE_SIZE, IMAGE_SIZE);
 
             float[] pixels = new float[3 * IMAGE_SIZE * IMAGE_SIZE];
             for (int y = 0; y < IMAGE_SIZE; y++) {
