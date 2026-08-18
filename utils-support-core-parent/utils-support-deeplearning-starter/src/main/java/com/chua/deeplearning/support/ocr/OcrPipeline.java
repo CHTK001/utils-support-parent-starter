@@ -685,47 +685,10 @@ public class OcrPipeline {
      */
     private static byte[] rotateBytes(byte[] imageData, int degree) {
         try {
-            return OpenCvImageUtils.rotate(imageData, degree);
+            return ImageUtils.rotate(imageData, degree);
         } catch (Exception e) {
             return imageData;
         }
-    }
-
-    /**
-     * 对倾斜文字块执行 deskew（OpenCV warpAffine 旋转扶正）。
-     *
-     * @param crop  裁剪块 PNG 字节
-     * @param angle 旋转角度（度），正=顺时针
-     * @return 扶正后 PNG 字节
-     */
-    public static byte[] deskew(byte[] crop, float angle) {
-        try {
-            OpenCvImageUtils.load();
-            Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
-                    new MatOfByte(crop), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
-            if (src == null || src.empty()) {
-                return crop;
-            }
-            try {
-                Point center = new Point(src.cols() / 2.0, src.rows() / 2.0);
-                Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
-                Mat dst = new Mat();
-                Imgproc.warpAffine(src, dst, rot, src.size(), Imgproc.INTER_CUBIC, Core.BORDER_CONSTANT,
-                        new Scalar(255, 255, 255));
-                MatOfByte mob = new MatOfByte();
-                org.opencv.imgcodecs.Imgcodecs.imencode(".png", dst, mob);
-                byte[] result = mob.toArray();
-                dst.release();
-                rot.release();
-                return result;
-            } finally {
-                src.release();
-            }
-        } catch (Exception e) {
-            log.debug("[ocr-pipeline] deskew 跳过: {}", e.getMessage());
-            return crop;
-        }
-    }
     }
 
     /**

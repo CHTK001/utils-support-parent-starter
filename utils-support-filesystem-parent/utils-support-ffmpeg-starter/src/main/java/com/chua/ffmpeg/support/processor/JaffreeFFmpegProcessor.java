@@ -13,6 +13,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -138,6 +139,31 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    public void pullStream(String streamUrl, File output, double duration,
+                           Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("FFmpeg unavailable: " + loadError);
+        }
+        output.getParentFile().mkdirs();
+        com.github.kokorin.jaffree.ffmpeg.UrlInput input = UrlInput.fromUrl(streamUrl);
+        if (duration > 0) {
+            input.setDuration((long) (duration * 1000));
+        }
+        FFmpeg ffmpeg = FFmpeg.atPath(getBinDir())
+                .addInput(input)
+                .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"));
+        if (callback != null) {
+            ffmpeg.setProgressListener(progress -> {
+                FrameInfo info = new FrameInfo();
+                info.setFrameNumber(progress.getFrame());
+                info.setTimestampMs(progress.getTimeMillis());
+                callback.accept(info);
+            });
+        }
+        ffmpeg.execute();
+    }
+
+    @Override
     public void concat(File[] inputs, File output) throws IOException {
         if (!available || inputs == null || inputs.length == 0) {
             return;
@@ -247,6 +273,34 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    public void pushStream(String input, String streamUrl, FFmpegOptions options,
+                           Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("FFmpeg unavailable: " + loadError);
+        }
+        FFmpeg ffmpeg = FFmpeg.atPath(getBinDir()).addInput(UrlInput.fromUrl(input));
+        com.github.kokorin.jaffree.ffmpeg.UrlOutput out = com.github.kokorin.jaffree.ffmpeg.UrlOutput.toUrl(streamUrl);
+        if (options != null && options.getVideoCodec() != null) {
+            out.addArguments("-c:v", options.getVideoCodec());
+        }
+        if (options != null && options.getAudioCodec() != null) {
+            out.addArguments("-c:a", options.getAudioCodec());
+        }
+        if (streamUrl.startsWith("rtmp://")) {
+            out.setFormat("flv");
+        }
+        if (callback != null) {
+            ffmpeg.setProgressListener(progress -> {
+                FrameInfo info = new FrameInfo();
+                info.setFrameNumber(progress.getFrame());
+                info.setTimestampMs(progress.getTimeMillis());
+                callback.accept(info);
+            });
+        }
+        ffmpeg.addOutput(out).execute();
+    }
+
+    @Override
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -260,6 +314,31 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
                 .addInput(input)
                 .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"))
                 .execute();
+    }
+
+    @Override
+    public void pullStream(String streamUrl, File output, double duration,
+                           Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("FFmpeg unavailable: " + loadError);
+        }
+        output.getParentFile().mkdirs();
+        com.github.kokorin.jaffree.ffmpeg.UrlInput input = UrlInput.fromUrl(streamUrl);
+        if (duration > 0) {
+            input.setDuration((long) (duration * 1000));
+        }
+        FFmpeg ffmpeg = FFmpeg.atPath(getBinDir())
+                .addInput(input)
+                .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"));
+        if (callback != null) {
+            ffmpeg.setProgressListener(progress -> {
+                FrameInfo info = new FrameInfo();
+                info.setFrameNumber(progress.getFrame());
+                info.setTimestampMs(progress.getTimeMillis());
+                callback.accept(info);
+            });
+        }
+        ffmpeg.execute();
     }
 
     @Override
