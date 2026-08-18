@@ -224,59 +224,48 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     }
 
     /**
-     * 四点透视裁剪文本行。
+     * 四点透视裁剪文本行（匹配 Python crop_image 逻辑）。
+     * <p>先按 x 排序四角点，左半/右半各按 y 排序得到 top/bottom，
+     * 再按 left-top/right-top/left-bottom/right-bottom 映射透视变换。</p>
      *
      * @param src 原图
      * @param kp  四个角点 [x,y]
      * @return 裁剪后的行图像
      */
     private Mat perspectiveCrop(Mat src, List<float[]> kp) {
-        Point[] corners = new Point[4];
-        for (int i = 0; i < 4; i++) {
-            float[] p = kp.get(i);
-            corners[i] = new Point(p[0], p[1]);
+        // 按 x 排序
+        float[] sorted = kp.toArray(new float[0][]);
+        java.util.Arrays.sort(sorted, (a, b) -> Float.compare(a[0], b[0]));
+        // 左半 [0],[1]：按 y 排序（小的在上）
+        if (sorted[0][1] > sorted[1][1]) {
+            float[] tmp = sorted[0]; sorted[0] = sorted[1]; sorted[1] = tmp;
         }
-        // 排序：按中心角度（左上、右上、右下、左下）
-        Point[] ordered = orderCorners(corners);
-        double topWidth = Math.hypot(ordered[1].x - ordered[0].x, ordered[1].y - ordered[0].y);
-        double bottomWidth = Math.hypot(ordered[2].x - ordered[3].x, ordered[2].y - ordered[3].y);
-        double leftHeight = Math.hypot(ordered[3].x - ordered[0].x, ordered[3].y - ordered[0].y);
-        double rightHeight = Math.hypot(ordered[2].x - ordered[1].x, ordered[2].y - ordered[1].y);
+        // 右半 [2],[3]：按 y 排序
+        if (sorted[2][1] > sorted[3][1]) {
+            float[] tmp = sorted[2]; sorted[2] = sorted[3]; sorted[3] = tmp;
+        }
+        // sorted[0]=left-top, sorted[1]=left-bottom, sorted[2]=right-top, sorted[3]=right-bottom
+        float[] lt = sorted[0], lb = sorted[1], rt = sorted[2], rb = sorted[3];
+        double topWidth = Math.hypot(rt[0] - lt[0], rt[1] - lt[1]);
+        double bottomWidth = Math.hypot(rb[0] - lb[0], rb[1] - lb[1]);
+        double leftHeight = Math.hypot(lb[0] - lt[0], lb[1] - lt[1]);
+        double rightHeight = Math.hypot(rb[0] - rt[0], rb[1] - rt[1]);
         int w = Math.max(1, (int) Math.round(Math.max(topWidth, bottomWidth)));
         int h = Math.max(1, (int) Math.round(Math.max(leftHeight, rightHeight)));
 
+        Point[] corners = new Point[]{
+            new Point(lt[0], lt[1]), new Point(rt[0], rt[1]),
+            new Point(lb[0], lb[1]), new Point(rb[0], rb[1])};
         Mat dst = new Mat(h, w, src.type());
-        MatOfPoint2f srcPts = new MatOfPoint2f(ordered);
+        MatOfPoint2f srcPts = new MatOfPoint2f(corners);
         MatOfPoint2f dstPts = new MatOfPoint2f(
-                new Point(0, 0), new Point(w - 1, 0), new Point(w - 1, h - 1), new Point(0, h - 1));
+            new Point(0, 0), new Point(w - 1, 0), new Point(0, h - 1), new Point(w - 1, h - 1));
         Mat transform = Imgproc.getPerspectiveTransform(srcPts, dstPts);
         Imgproc.warpPerspective(src, dst, transform, new Size(w, h), Imgproc.INTER_LINEAR, org.opencv.core.Core.BORDER_CONSTANT, Scalar.all(255));
         transform.release();
         srcPts.release();
         dstPts.release();
         return dst;
-    }
-
-    /**
-     * 四角排序（左上、右上、右下、左下）。
-     */
-    private Point[] orderCorners(Point[] corners) {
-        final double cx, cy;
-        double sx = 0, sy = 0;
-        for (Point p : corners) {
-            sx += p.x;
-            sy += p.y;
-        }
-        cx = sx / 4;
-        cy = sy / 4;
-        Point[] sorted = corners.clone();
-        java.util.Arrays.sort(sorted, (a, b) -> {
-            double thetaA = Math.atan2(a.y - cy, a.x - cx);
-            double thetaB = Math.atan2(b.y - cy, b.x - cx);
-            return Double.compare(thetaA, thetaB);
-        });
-        // 排序后是顺时针（从右上开始），调整为左上、右上、右下、左下
-        return new Point[]{sorted[0], sorted[1], sorted[2], sorted[3]};
     }
 
     /**
