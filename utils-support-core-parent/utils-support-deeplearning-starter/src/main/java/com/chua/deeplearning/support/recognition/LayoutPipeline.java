@@ -62,6 +62,11 @@ public class LayoutPipeline {
     private final String model;
 
     /**
+     * 图像预处理管线，可为 null（不预处理）。
+     */
+    private final com.chua.common.support.image.ImagePipeline imagePipeline;
+
+    /**
      * 识别管线实例。
      */
     private final Pipeline pipeline;
@@ -69,11 +74,13 @@ public class LayoutPipeline {
     /**
      * 构造识别管线。
      *
-     * @param model 模型名称
+     * @param model         模型名称
+     * @param imagePipeline 图像预处理管线，可为 null
      */
-    public LayoutPipeline(String model) {
+    public LayoutPipeline(String model, com.chua.common.support.image.ImagePipeline imagePipeline) {
         this.engine = AbstractIdentificationEngine.getInstance();
         this.model = Objects.requireNonNull(model, "model");
+        this.imagePipeline = imagePipeline;
         this.pipeline = buildPipeline();
     }
 

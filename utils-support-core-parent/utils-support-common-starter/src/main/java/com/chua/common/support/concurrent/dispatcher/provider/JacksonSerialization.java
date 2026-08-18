@@ -1,0 +1,35 @@
+package com.chua.common.support.concurrent.dispatcher.provider;
+
+import com.chua.common.support.base.serialize.Serialization;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * 基于 Jackson 的默认 {@link Serialization} 实现。
+ *
+ * <p>common-starter 内置依赖 jackson-databind，故作为 {@link WalDispatcherProvider}
+ * 的默认序列化器（不依赖外部 Fury/Kryo 等库）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public class JacksonSerialization implements Serialization {
+
+    public static final JacksonSerialization INSTANCE = new JacksonSerialization();
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public String name() {
+        return "jackson";
+    }
+
+    @Override
+    public byte[] serialize(Object obj) throws Exception {
+        return objectMapper.writeValueAsBytes(obj);
+    }
+
+    @Override
+    public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
+        return objectMapper.readValue(data, type);
+    }
+}

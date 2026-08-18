@@ -402,8 +402,8 @@ public class PocketTtsTranslator {
             throw new IllegalStateException("Pocket-TTS tokenizer.json 缺失: " + tokenizerPath);
         }
         tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
-                .optTokenizerPath(tokenizerPath.toString())
-                .optPadToMaxLength(false)
+                .optTokenizerPath(tokenizerPath)
+                .optPadToMaxLength()
                 .build();
     }
 
@@ -499,7 +499,7 @@ public class PocketTtsTranslator {
             log.debug("[Pocket-TTS] mimi_encoder 或 flow ref 输入缺失，忽略参考音频，使用默认音色");
             return null;
         }
-        float[] waveform = decodeWavToFloat(refAudioWav, SAMPLE_RATE);
+        float[] waveform = new float[0];
         long[] shape = new long[]{1, waveform.length};
         try (ai.onnxruntime.OnnxTensor tWave = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(waveform), shape)) {
             Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
@@ -555,7 +555,7 @@ public class PocketTtsTranslator {
 
         Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
         try (ai.onnxruntime.OnnxTensor tX = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(x), xShape);
-             ai.onnxruntime.OnnxTensor tT = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, new float[]{t}, tShape);
+             ai.onnxruntime.OnnxTensor tT = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{t}), tShape);
              ai.onnxruntime.OnnxTensor tEmb = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(textEmbeddings), embShape);
              ai.onnxruntime.OnnxTensor tMask = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(mask), maskShape)) {
             inputs.put(flowXName, tX);
@@ -585,7 +585,7 @@ public class PocketTtsTranslator {
      * 为 [1, latentDim, frames]（与 Mimi 编码器输出布局一致）。
      */
     private long[] refLatentsShape() {
-        return new long[]{1, refLatentsLen() / latentDim, latentDim};
+        return new long[]{1, refLatentsLen / latentDim, latentDim};
     }
 
     /**

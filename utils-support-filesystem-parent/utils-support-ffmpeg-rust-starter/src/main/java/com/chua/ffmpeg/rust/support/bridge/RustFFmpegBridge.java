@@ -1,7 +1,11 @@
 package com.chua.ffmpeg.rust.support.bridge;
 
+import com.chua.nativeffmpeg.support.NativeFFmpeg;
 import com.chua.nativevideocodec.support.NativeVideoCodec;
+import com.chua.common.support.media.ffmpeg.FrameInfo;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.function.Consumer;
 
 /**
  * RustFFmpegProcessor / VideoEncoder 与原生 cdylib 之间的轻量桥接。
@@ -178,5 +182,133 @@ public final class RustFFmpegBridge {
         } finally {
             NativeVideoCodec.h266DecoderFree(decoder);
         }
+    }
+
+    // ==================== 推流/拉流桥接 ====================
+
+    /**
+     * 检查 NativeFFmpeg 推流/拉流库是否已加载。
+     *
+     * @return true 表示已加载
+     */
+    public static boolean isStreamLoaded() {
+        return NativeFFmpeg.isLoaded();
+    }
+
+    /**
+     * RTMP 推流（无回调）。
+     *
+     * @param inputUrl   输入 URL 或文件路径
+     * @param streamUrl  推流地址
+     * @param videoCodec 视频编码器名称，null 使用默认
+     * @param audioCodec 音频编码器名称，null 使用默认
+     * @param width      视频宽度，0 使用源
+     * @param height     视频高度，0 使用源
+     * @param fps        帧率，0 使用源
+     * @return 0 表示成功
+     */
+    public static int pushStream(String inputUrl, String streamUrl,
+                                  String videoCodec, String audioCodec,
+                                  int width, int height, int fps) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.pushStream(inputUrl, streamUrl, videoCodec, audioCodec, width, height, fps);
+    }
+
+    /**
+     * RTMP 推流（带帧通知回调）。
+     *
+     * @param inputUrl   输入 URL 或文件路径
+     * @param streamUrl  推流地址
+     * @param videoCodec 视频编码器名称，null 使用默认
+     * @param audioCodec 音频编码器名称，null 使用默认
+     * @param width      视频宽度，0 使用源
+     * @param height     视频高度，0 使用源
+     * @param fps        帧率，0 使用源
+     * @param callback   帧通知回调
+     * @return 0 表示成功
+     */
+    public static int pushStreamWithCallback(String inputUrl, String streamUrl,
+                                              String videoCodec, String audioCodec,
+                                              int width, int height, int fps,
+                                              Consumer<FrameInfo> callback) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        NativeFFmpeg.FrameCallback jniCallback = (frameNumber, timestampMs, w, h, codec, f, keyFrame) -> {
+            if (callback != null) {
+                FrameInfo info = new FrameInfo();
+                info.setFrameNumber(frameNumber);
+                info.setTimestampMs(timestampMs);
+                info.setWidth(w);
+                info.setHeight(h);
+                info.setCodec(codec);
+                info.setFps(f);
+                info.setKeyFrame(keyFrame);
+                callback.accept(info);
+            }
+        };
+        return NativeFFmpeg.pushStreamWithCallback(inputUrl, streamUrl, videoCodec, audioCodec,
+                width, height, fps, jniCallback);
+    }
+
+    /**
+     * RTMP 拉流保存（无回调）。
+     *
+     * @param streamUrl  拉流地址
+     * @param outputPath 输出文件路径
+     * @param duration   拉流时长（秒），0 表示持续拉流
+     * @return 0 表示成功
+     */
+    public static int pullStream(String streamUrl, String outputPath, double duration) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.pullStream(streamUrl, outputPath, duration);
+    }
+
+    /**
+     * RTMP 拉流保存（带帧通知回调）。
+     *
+     * @param streamUrl  拉流地址
+     * @param outputPath 输出文件路径
+     * @param duration   拉流时长（秒），0 表示持续拉流
+     * @param callback   帧通知回调
+     * @return 0 表示成功
+     */
+    public static int pullStreamWithCallback(String streamUrl, String outputPath,
+                                              double duration,
+                                              Consumer<FrameInfo> callback) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        NativeFFmpeg.FrameCallback jniCallback = (frameNumber, timestampMs, w, h, codec, f, keyFrame) -> {
+            if (callback != null) {
+                FrameInfo info = new FrameInfo();
+                info.setFrameNumber(frameNumber);
+                info.setTimestampMs(timestampMs);
+                info.setWidth(w);
+                info.setHeight(h);
+                info.setCodec(codec);
+                info.setFps(f);
+                info.setKeyFrame(keyFrame);
+                callback.accept(info);
+            }
+        };
+        return NativeFFmpeg.pullStreamWithCallback(streamUrl, outputPath, duration, jniCallback);
+    }
+
+    /**
+     * 获取媒体文件时长。
+     *
+     * @param inputUrl 输入 URL 或文件路径
+     * @return 时长（秒），失败返回 -1
+     */
+    public static double getStreamDuration(String inputUrl) {
+        if (!NativeFFmpeg.isLoaded()) {
+            return -1;
+        }
+        return NativeFFmpeg.getDuration(inputUrl);
     }
 }
