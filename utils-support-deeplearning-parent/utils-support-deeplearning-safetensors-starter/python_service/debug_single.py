@@ -22,7 +22,7 @@ for _ in range(30):
         pass
     time.sleep(1)
 
-with open(r"D:\images\document.jpg", "rb") as f:
+with open(r"D:\images\document-html.png", "rb") as f:
     img_b64 = base64.b64encode(f.read()).decode()
 print("image bytes:", len(img_b64))
 
@@ -33,7 +33,7 @@ payload = {
     "params": {"max_new_tokens": 128, "use_gpu": False},
 }
 try:
-    r = requests.post("http://127.0.0.1:8765/infer", json=payload, timeout=120)
+    r = requests.post("http://127.0.0.1:8765/infer", json=payload, timeout=900)
     print("HTTP", r.status_code, r.text[:500])
 except Exception as e:
     print("req error", e)
