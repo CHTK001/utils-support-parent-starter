@@ -12,6 +12,7 @@
     <artifactId>utils-support-gateway-parent</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>utils-support-guacd-resource-starter</module>
         <module>utils-support-gateway-controller-starter</module>
         <module>utils-support-gateway-server-starter</module>
     </modules>

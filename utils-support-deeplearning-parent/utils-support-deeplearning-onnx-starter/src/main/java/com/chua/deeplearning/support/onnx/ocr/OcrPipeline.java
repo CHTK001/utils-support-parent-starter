@@ -866,7 +866,6 @@ public class OcrPipeline {
     private static byte[] toBytes(BufferedImage img) {
         return OpenCvImageUtils.encode(OpenCvImageUtils.toMat(img), "png");
     }
-    }
 
     /**
      * 检测器。

@@ -148,7 +148,6 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         for (String[] pair : methods) {
             RuntimeSpy.registerInterceptor(ZK_CLASS, pair[0], pair[1], InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(ZK_CLASS, pair[0], pair[1], InterceptPoint.EXIT, this);
-            RuntimeSpy.registerInterceptor(ZK_CLASS, pair[0], pair[1], InterceptPoint.EXCEPTION, this);
         }
 
         // Curator 入口：getData / create / delete / setData / getChildren / checkExists
@@ -156,7 +155,6 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         for (String method : curatorMethods) {
             RuntimeSpy.registerInterceptor(CURATOR_CLASS, method, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(CURATOR_CLASS, method, "", InterceptPoint.EXIT, this);
-            RuntimeSpy.registerInterceptor(CURATOR_CLASS, method, "", InterceptPoint.EXCEPTION, this);
         }
     }
 

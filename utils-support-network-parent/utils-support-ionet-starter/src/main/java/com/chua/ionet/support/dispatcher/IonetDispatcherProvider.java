@@ -52,6 +52,13 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
                 .port(port)
                 .scanActionPackage(IonetDispatcherProvider.class)
                 .build();
+        // 服务端监听所有消息，按主题分发到订阅定义（SyncServerListener 为全 default 方法，需匿名类）
+        server.addListener(new com.chua.common.support.network.server.SyncServerListener() {
+            @Override
+            public void onMessage(String clientId, String topic, Object message) {
+                dispatchToDefinitions(topic, message);
+            }
+        });
         server.start();
 
         client = IonetSyncClient.builder()
@@ -69,6 +76,9 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     @Override
     public void publish(String topic, Object body) {
         var definitions = definitionMap.get(topic);
+        System.err.println("[IonetDispatcher] publish topic=" + topic + " definitions="
+                + (definitions == null ? "null" : definitions.size())
+                + " allTopics=" + definitionMap.keySet());
         if (definitions == null || definitions.isEmpty()) {
             return;
         }
@@ -85,12 +95,6 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     public void subscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
-        }
-        // 同步到服务端订阅表：服务端收到消息时回传
-        if (server != null) {
-            for (String topic : definition.getTopics()) {
-                server.subscribe(topic, (t, message) -> dispatchToDefinitions(t, message));
-            }
         }
     }
 

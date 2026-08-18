@@ -133,11 +133,9 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
             // Jedis 主类
             RuntimeSpy.registerInterceptor(JEDIS_CLASS, command, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(JEDIS_CLASS, command, "", InterceptPoint.EXIT, this);
-            RuntimeSpy.registerInterceptor(JEDIS_CLASS, command, "", InterceptPoint.EXCEPTION, this);
             // BinaryJedis 父类（部分方法在父类中）
             RuntimeSpy.registerInterceptor(BINARY_JEDIS_CLASS, command, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(BINARY_JEDIS_CLASS, command, "", InterceptPoint.EXIT, this);
-            RuntimeSpy.registerInterceptor(BINARY_JEDIS_CLASS, command, "", InterceptPoint.EXCEPTION, this);
         }
 
         // JedisCluster — 集群命令（同样的命令名，但内部按 slot 转发）
@@ -145,7 +143,6 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         for (String command : clusterCommands) {
             RuntimeSpy.registerInterceptor(JEDIS_CLUSTER_CLASS, command, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(JEDIS_CLUSTER_CLASS, command, "", InterceptPoint.EXIT, this);
-            RuntimeSpy.registerInterceptor(JEDIS_CLUSTER_CLASS, command, "", InterceptPoint.EXCEPTION, this);
         }
     }
 

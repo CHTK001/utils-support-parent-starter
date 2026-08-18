@@ -135,20 +135,15 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
                         "Ljava/util/concurrent/Future;",
                 InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(PRODUCER_CLASS, "send",
-                "(Lorg/apache/kafka/clients/producer/ProducerRecord;)Ljava/util/concurrent/Future;",
-                InterceptPoint.EXCEPTION, this);
-        RuntimeSpy.registerInterceptor(PRODUCER_CLASS, "send",
                 "(Lorg/apache/kafka/clients/producer/ProducerRecord;Lorg/apache/kafka/clients/producer/Callback;)" +
                         "Ljava/util/concurrent/Future;",
-                InterceptPoint.EXCEPTION, this);
+                InterceptPoint.EXIT, this);
 
         // Consumer: poll(long)
         RuntimeSpy.registerInterceptor(CONSUMER_CLASS, "poll", "(J)Lorg/apache/kafka/clients/consumer/ConsumerRecords;",
                 InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(CONSUMER_CLASS, "poll", "(J)Lorg/apache/kafka/clients/consumer/ConsumerRecords;",
                 InterceptPoint.EXIT, this);
-        RuntimeSpy.registerInterceptor(CONSUMER_CLASS, "poll", "(J)Lorg/apache/kafka/clients/consumer/ConsumerRecords;",
-                InterceptPoint.EXCEPTION, this);
 
         // Consumer: commitSync() / commitAsync()
         RuntimeSpy.registerInterceptor(CONSUMER_CLASS, "commitSync", "()V",
