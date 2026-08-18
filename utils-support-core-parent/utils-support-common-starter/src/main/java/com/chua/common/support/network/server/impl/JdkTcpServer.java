@@ -78,6 +78,12 @@ import java.util.concurrent.Executors;
 @Spi({"jdk-tcp"})
 public class JdkTcpServer extends AbstractServer {
 
+    /**
+     * 回显缓冲（ThreadLocal 复用，避免每连接分配 8KB）
+     */
+    private static final ThreadLocal<byte[]> THREAD_LOCAL_BUFFER =
+            ThreadLocal.withInitial(() -> new byte[8192]);
+
     private ServerSocket serverSocket;
     private ExecutorService workerPool;
     private final Map<String, TcpHandler> handlers = new ConcurrentHashMap<>();
@@ -244,13 +250,13 @@ public class JdkTcpServer extends AbstractServer {
                     handler.handle(in, out);
                 }
             } else {
-                // 默认处理：回显
-                byte[] buffer = new byte[8192];
+                // 默认处理：回显（去 flush + ThreadLocal 缓冲复用，避免每次写刷 OS 缓冲与每连接分配）
+                byte[] buffer = THREAD_LOCAL_BUFFER.get();
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
-                    out.flush();
                 }
+                out.flush();
             }
         } catch (Exception e) {
             log.debug("TCP 连接处理异常: {}", e.getMessage());
