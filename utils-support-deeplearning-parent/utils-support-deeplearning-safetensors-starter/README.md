@@ -18,6 +18,7 @@
 | 目标检测 | `detection` | 车牌/卡片检测 |
 | 人脸检测 | `face_detection` | RetinaFace/MogFace |
 | OCR | `ocr` | 文档文字识别 |
+| 文档 OCR | `document_ocr` | OvisOCR2 / Unlimited-OCR 端到端文档转 Markdown |
 
 ## 已测试模型性能 (CPU)
 
