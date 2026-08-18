@@ -199,11 +199,17 @@ public class KcpServer extends AbstractServer {
         channelConfig.setTimeoutMillis(60_000L);
         channelConfig.nodelay(true, KCP_INTERVAL, KCP_FAST_RESEND, true);
 
-        eventLoopGroup = new NioEventLoopGroup(setting.getBossThreads());
+        // 响应式:虚拟线程执行器 + boss 线程数(bossCore),Netty 4.2 MultiThreadIoEventLoopGroup
+        // 虚拟线程处理 IO 就绪回调,天然适配高并发低阻塞;bossThreads 控制并发处理连接数
+        virtualExecutor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+        eventLoopGroup = new io.netty.channel.MultiThreadIoEventLoopGroup(
+                setting.getBossThreads(),
+                virtualExecutor,
+                io.netty.channel.nio.NioIoHandler.newFactory());
         channelConfig.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
 
         kcpBaseServer = kcp.KcpServer.createStarted(channelConfig, new OAuthKcpListener(), setting.getPort());
-        log.info("KCP 服务器启动: {}:{}", setting.getHost(), setting.getPort());
+        log.info("KCP 服务器启动: {}:{} (响应式, bossCore={}, 虚拟线程)", setting.getHost(), setting.getPort(), setting.getBossThreads());
     }
 
     @Override

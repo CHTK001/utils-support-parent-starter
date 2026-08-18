@@ -139,31 +139,6 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    public void pullStream(String streamUrl, File output, double duration,
-                           Consumer<FrameInfo> callback) throws IOException {
-        if (!available) {
-            throw new IllegalStateException("FFmpeg unavailable: " + loadError);
-        }
-        output.getParentFile().mkdirs();
-        com.github.kokorin.jaffree.ffmpeg.UrlInput input = UrlInput.fromUrl(streamUrl);
-        if (duration > 0) {
-            input.setDuration((long) (duration * 1000));
-        }
-        FFmpeg ffmpeg = FFmpeg.atPath(getBinDir())
-                .addInput(input)
-                .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"));
-        if (callback != null) {
-            ffmpeg.setProgressListener(progress -> {
-                FrameInfo info = new FrameInfo();
-                info.setFrameNumber(progress.getFrame());
-                info.setTimestampMs(progress.getTimeMillis());
-                callback.accept(info);
-            });
-        }
-        ffmpeg.execute();
-    }
-
-    @Override
     public void concat(File[] inputs, File output) throws IOException {
         if (!available || inputs == null || inputs.length == 0) {
             return;
@@ -314,31 +289,6 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
                 .addInput(input)
                 .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"))
                 .execute();
-    }
-
-    @Override
-    public void pullStream(String streamUrl, File output, double duration,
-                           Consumer<FrameInfo> callback) throws IOException {
-        if (!available) {
-            throw new IllegalStateException("FFmpeg unavailable: " + loadError);
-        }
-        output.getParentFile().mkdirs();
-        com.github.kokorin.jaffree.ffmpeg.UrlInput input = UrlInput.fromUrl(streamUrl);
-        if (duration > 0) {
-            input.setDuration((long) (duration * 1000));
-        }
-        FFmpeg ffmpeg = FFmpeg.atPath(getBinDir())
-                .addInput(input)
-                .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"));
-        if (callback != null) {
-            ffmpeg.setProgressListener(progress -> {
-                FrameInfo info = new FrameInfo();
-                info.setFrameNumber(progress.getFrame());
-                info.setTimestampMs(progress.getTimeMillis());
-                callback.accept(info);
-            });
-        }
-        ffmpeg.execute();
     }
 
     @Override
