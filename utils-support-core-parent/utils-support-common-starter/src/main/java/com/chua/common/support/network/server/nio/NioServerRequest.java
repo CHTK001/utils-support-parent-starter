@@ -51,14 +51,11 @@ public class NioServerRequest implements ServerRequest {
     private String httpVersion = "HTTP/1.1";
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private byte[] body;
-    private ByteBuffer buf = ByteBuffer.allocate(8192);
+    /** 行解析缓冲(REQUEST_LINE/HEADERS/chunked 头);懒分配,空闲连接(未收到数据)不占用
+     *  <p>百万级空闲连接场景,每连接省 8KB,整体省数十 GB,是支撑高连接数的关键</p> */
+    private ByteBuffer buf;
     private boolean bufHasData = true;
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-
-    {
-        // 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据
-        buf.limit(0);
-    }
 
     // ==================== 增量解析状态机 ====================
 
@@ -86,6 +83,7 @@ public class NioServerRequest implements ServerRequest {
      * @return 1=完整请求已解析完成;0=需要更多数据;-1=解析错误
      */
     int feed(ByteBuffer data) {
+        ensureBuf();
         // BODY 阶段:直接消费 data,不并入行解析缓冲,避免大 body 撑爆 8K 缓冲
         if (parseState == ParseState.BODY && !chunked) {
             if (data != null && data.hasRemaining()) {
@@ -276,6 +274,17 @@ public class NioServerRequest implements ServerRequest {
         }
         System.arraycopy(src, off, out, newLen - len, len);
         return out;
+    }
+
+    /**
+     * 懒分配行解析缓冲:空闲连接(从未收到数据)不占用 8KB。
+     * 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据。
+     */
+    private void ensureBuf() {
+        if (buf == null) {
+            buf = ByteBuffer.allocate(8192);
+            buf.limit(0);
+        }
     }
 
     /**

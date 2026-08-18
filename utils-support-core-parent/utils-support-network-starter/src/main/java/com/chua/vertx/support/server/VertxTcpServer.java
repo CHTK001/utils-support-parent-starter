@@ -60,8 +60,12 @@ public class VertxTcpServer extends AbstractServer {
                     .setHost(setting.getHost())
                     .setPort(setting.getPort())
                     .setTcpNoDelay(setting.isTcpNoDelay())
-                    .setAcceptBacklog(Math.max(setting.getBacklog(), 2048))
-                    .setReuseAddress(setting.isSoReuseAddr());
+                    // backlog 下限 65536:万级并发连接突发下避免内核 accept 队列溢出
+                    .setAcceptBacklog(Math.max(setting.getBacklog(), 65536))
+                    .setReuseAddress(setting.isSoReuseAddr())
+                    // 收发缓冲放大:与内核窗口对齐,减少小包分片与 ACK 往返,提升高并发吞吐
+                    .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
+                    .setSendBufferSize(Math.max(setting.getBufferSize(), 16384));
             netServer = vertx.createNetServer(options);
             netServer.connectHandler(this::handleSocket);
             // Vert.x 5.x:listen 返回 Future,异步完成;用 latch 等监听就绪并回填端口,
@@ -127,7 +131,9 @@ public class VertxTcpServer extends AbstractServer {
                 }
             });
         } else {
-            // 默认回显:事件循环直接写回(非阻塞,高吞吐)
+            // 默认回显:事件循环直接写回(非阻塞,高吞吐);
+            // 写队列水位放宽到 1MB,避免大报文突发写回时触发背压丢吞吐
+            socket.setWriteQueueMaxSize(1024 * 1024);
             socket.handler(socket::write);
         }
     }

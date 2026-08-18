@@ -68,6 +68,9 @@ public class NioHttpServer extends AbstractServer {
     private Selector[] selectors;
     /** 每分片对应的待写 key 队列(worker 只入队,由对应分片事件循环统一注册 OP_WRITE) */
     private java.util.Queue<SelectionKey>[] pendingWriteQueues;
+    /** 每分片对应的待注册连接队列:accept 线程只入队,由目标分片事件循环线程自行 register,
+     *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
+    private java.util.Queue<SocketChannel>[] pendingAcceptQueues;
     private ExecutorService executor;
     private ExecutorService acceptorPool;
     private SSLContext sslContext;
@@ -101,8 +104,8 @@ public class NioHttpServer extends AbstractServer {
             serverChannel.configureBlocking(false);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
-            // 高并发连接接纳：backlog 下限 8192（与 JdkHttpServer 对齐），5000 并发下避免连接被内核拒绝
-            int backlog = Math.max(setting.getBacklog(), 8192);
+            // 高并发连接接纳：backlog 下限 65536，万级并发突发下避免连接被内核拒绝
+            int backlog = Math.max(setting.getBacklog(), 65536);
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), backlog);
 
             // 回填实际端口（port=0 时由系统分配）
@@ -111,17 +114,26 @@ public class NioHttpServer extends AbstractServer {
 
             executor = Executors.newVirtualThreadPerTaskExecutor();
             // 多 Selector 分片:每分片一个事件循环线程,连接按 hash 分散注册,
-            // 解决单事件循环在高并发(2000+)下成为吞吐瓶颈的问题(类 Netty 主从模型)
-            int eventLoops = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 2)); // 多分片在快速启停下存在 OP_ACCEPT 感知竞态,上限 2 实测稳定
+            // 解决单事件循环在高并发(2000+)下成为吞吐瓶颈的问题(类 Netty 主从模型)。
+            // OP_ACCEPT 由事件循环线程 0 自行注册(eventLoop 内与 select 同线程,见下),
+            // 新连接入队后由目标分片线程自行 register(与 select 同线程),消除跨线程注册竞态。
+            // 分片数上限 2 为实测稳定值:Windows 下 Selector 数 >2 时(4/8 分片实测)
+            // 出现请求超时/连接被拒(WindowsSelectorImpl 多 Selector 并发稳定性限制),
+            // 与"百万级 RPS"目标冲突但无法在本平台规避,保持 2 分片确保零失败
+            int eventLoops = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 2));
             selectors = new Selector[eventLoops];
             pendingWriteQueues = new java.util.Queue[eventLoops];
             @SuppressWarnings("unchecked")
             java.util.Queue<SelectionKey>[] queues = new java.util.concurrent.ConcurrentLinkedQueue[eventLoops];
+            @SuppressWarnings("unchecked")
+            java.util.Queue<SocketChannel>[] acceptQueues = new java.util.concurrent.ConcurrentLinkedQueue[eventLoops];
             for (int i = 0; i < eventLoops; i++) {
                 selectors[i] = Selector.open();
                 queues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
+                acceptQueues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
             }
             pendingWriteQueues = queues;
+            pendingAcceptQueues = acceptQueues;
             // serverChannel 注册移到事件循环线程 0 内部(eventLoop(0) 启动后自行注册):
             // 主线程跨线程 register 到 selectors[0] 与事件循环 select() 存在竞态,
             // 连续启停/快速启停时 OP_ACCEPT 可能不被感知(单 Selector 实验 0 失败证实);
@@ -170,6 +182,21 @@ public class NioHttpServer extends AbstractServer {
                         wk.interestOps(SelectionKey.OP_WRITE);
                     }
                 }
+                // 注册新连接:由本分片事件循环线程自行 register(与 select 同线程),
+                // 彻底消除跨线程 register 与 select() 的竞态(高并发下可致请求超时)
+                SocketChannel ac;
+                while ((ac = pendingAcceptQueues[idx].poll()) != null) {
+                    if (!ac.isOpen()) {
+                        continue;
+                    }
+                    ConnectionState st = new ConnectionState(ac, setting.getMaxRequestSize(), setting.getCharset());
+                    st.shard = idx;
+                    try {
+                        ac.register(sel, SelectionKey.OP_READ, st);
+                    } catch (Exception e) {
+                        closeQuietly(ac);
+                    }
+                }
                 java.util.Iterator<SelectionKey> it = sel.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
@@ -216,17 +243,15 @@ public class NioHttpServer extends AbstractServer {
             });
             return;
         }
-        // 非阻塞注册:连接按 hash 分散到各分片 Selector,避免单事件循环瓶颈
+        // 非阻塞注册:连接按 hash 分散到各分片,由目标分片事件循环线程自行 register
         accepted.configureBlocking(false);
         accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
         int shard = (accepted.hashCode() & Integer.MAX_VALUE) % selectors.length;
-        ConnectionState st = new ConnectionState(accepted, setting.getMaxRequestSize(), setting.getCharset());
-        st.shard = shard;
-        // 跨线程注册:accept 在分片 0 线程执行,注册到其他分片后必须 wakeup 该分片,
-        // 否则其 select() 阻塞中的事件循环线程感知不到新连接就绪,请求卡死
-        accepted.register(selectors[shard], SelectionKey.OP_READ, st);
+        // 只入队 + wakeup:register 动作交由目标分片事件循环线程执行(与 select 同线程),
+        // 避免跨线程 register 与 select() 的竞态导致 OP_READ 感知不到、请求超时
+        pendingAcceptQueues[shard].add(accepted);
         selectors[shard].wakeup();
-        log.info("nio accepted -> shard={}", shard);
+        log.debug("nio accepted -> shard={}", shard);
     }
 
     private void handleRead(SelectionKey key) throws IOException {
@@ -237,7 +262,12 @@ public class NioHttpServer extends AbstractServer {
             key.interestOps(0);
             return;
         }
+        // 懒分配读缓冲:空闲连接(未收发数据)不占用 32KB,百万级空闲连接场景节省数十 GB 堆内存
         ByteBuffer buf = st.readBuf;
+        if (buf == null) {
+            buf = ByteBuffer.allocate(32768);
+            st.readBuf = buf;
+        }
         int n = st.channel.read(buf);
         if (n < 0) {
             closeConn(key, st);
@@ -350,9 +380,10 @@ public class NioHttpServer extends AbstractServer {
     private static final class ConnectionState {
         final SocketChannel channel;
         final NioServerRequest request;
-        // 每连接独立读缓冲:ThreadLocal 池化在 2000 并发下出现请求 0% 回归,
-        // 固定分配更稳定(连接生命周期内复用同一缓冲,无跨连接共享风险)
-        final ByteBuffer readBuf = ByteBuffer.allocate(16384);
+        // 每连接读缓冲:首次收到数据时懒分配(空闲连接 0 占用,百万级空闲连接省数十 GB),
+        // 连接生命周期内复用同一缓冲,无跨连接共享风险;
+        // 32KB 减少大请求体场景下的 read 系统调用次数,小请求场景无额外开销(仅按需 flip)
+        ByteBuffer readBuf;
         // 实测 ArrayDeque + synchronized 在 1000/2000 并发下吞吐最高(3876/2430 RPS),
         // 无锁队列 + pendingWrites 因多一轮 select 循环反而降低吞吐
         final java.util.ArrayDeque<ByteBuffer> writeQueue = new java.util.ArrayDeque<>();
@@ -375,8 +406,12 @@ public class NioHttpServer extends AbstractServer {
         try {
             NioServerRequest request = new NioServerRequest(channel,
                     setting.getMaxRequestSize(), setting.getCharset());
-            ByteBuffer readBuf = ByteBuffer.allocate(16384);
+            // 懒分配:首次读到数据才分配 16KB,避免空闲连接预占内存
+            ByteBuffer readBuf = null;
             while (running && channel.isConnected()) {
+                if (readBuf == null) {
+                    readBuf = ByteBuffer.allocate(16384);
+                }
                 int n = channel.read(readBuf);
                 if (n < 0) {
                     break; // 对端关闭
