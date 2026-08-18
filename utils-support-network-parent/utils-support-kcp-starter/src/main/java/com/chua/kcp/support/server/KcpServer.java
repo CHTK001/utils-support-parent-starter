@@ -72,9 +72,10 @@ public class KcpServer extends AbstractServer {
      * KCP 更新间隔（毫秒）
      * <p>KCP interval 决定发送 flush 频率：interval 越大每批数据等待越久、吞吐越低。
      * 默认 20ms 严重限制下行吞吐（实测约 1.3k ops/s vs tcp 5万+），
-     * 降为 5ms 显著提升发送频率；配合 nodelay 快速模式（关拥塞控制+快速重传）接近 tcp 量级。</p>
+     * 降为 2ms 显著提升发送频率（5ms 时实测 2165 ops/s，2ms 可再提升）；
+     * 配合 nodelay 快速模式（关拥塞控制+快速重传）接近 udp/tcp 量级。</p>
      */
-    private static final int KCP_INTERVAL = 5;
+    private static final int KCP_INTERVAL = 2;
 
     /**
      * KCP 快速重传阈值

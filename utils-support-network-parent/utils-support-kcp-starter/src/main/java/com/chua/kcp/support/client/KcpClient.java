@@ -207,7 +207,7 @@ public class KcpClient {
             ChannelConfig config = new ChannelConfig();
             config.setMtu(512);
             config.setTimeoutMillis(60_000L);
-            config.nodelay(true, 5, 2, true);
+            config.nodelay(true, 2, 2, true);
             eventLoopGroup = new NioEventLoopGroup(1);
             config.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
 

@@ -131,6 +131,16 @@ public class OcrPipeline {
     private final int cropMinHeight;
 
     /**
+     * 检测输出是否应用 sigmoid（部分模型输出 logits 需激活，默认 false）
+     */
+    private final boolean sigDetect;
+
+    /**
+     * 识别输出是否应用 sigmoid（默认 false）
+     */
+    private final boolean sigRecognize;
+
+    /**
      * 识别管线实例
      */
     private final Pipeline pipeline;
@@ -151,7 +161,7 @@ public class OcrPipeline {
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                        ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                        boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
-                       int cropPadding, int cropMinHeight) {
+                       int cropPadding, int cropMinHeight, boolean sigDetect, boolean sigRecognize) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
         this.direction = direction;
@@ -161,6 +171,8 @@ public class OcrPipeline {
         this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
         this.cropPadding = Math.max(0, cropPadding);
         this.cropMinHeight = Math.max(1, cropMinHeight);
+        this.sigDetect = sigDetect;
+        this.sigRecognize = sigRecognize;
         this.pipeline = buildPipeline();
     }
 
@@ -225,6 +237,16 @@ public class OcrPipeline {
          * 裁剪块最小高度，低于此值自动放大 2 倍（默认 40）
          */
         private int cropMinHeight = 40;
+
+        /**
+         * 检测输出是否应用 sigmoid（默认 false）
+         */
+        private boolean sigDetect;
+
+        /**
+         * 识别输出是否应用 sigmoid（默认 false）
+         */
+        private boolean sigRecognize;
 
         /**
          * 设置检测器。
@@ -348,6 +370,28 @@ public class OcrPipeline {
         }
 
         /**
+         * 设置检测输出是否应用 sigmoid。
+         *
+         * @param sigDetect true 应用 sigmoid
+         * @return this
+         */
+        public Builder sigDetect(boolean sigDetect) {
+            this.sigDetect = sigDetect;
+            return this;
+        }
+
+        /**
+         * 设置识别输出是否应用 sigmoid。
+         *
+         * @param sigRecognize true 应用 sigmoid
+         * @return this
+         */
+        public Builder sigRecognize(boolean sigRecognize) {
+            this.sigRecognize = sigRecognize;
+            return this;
+        }
+
+        /**
          * 构建。
          *
          * @return OcrPipeline
@@ -356,7 +400,7 @@ public class OcrPipeline {
             return new OcrPipeline(detector, recognizer,
                     createTranslator(direction), createTranslator(enhancer),
                     enhanceInPipeline, sortReadingOrder, minConfidence,
-                    cropPadding, cropMinHeight);
+                    cropPadding, cropMinHeight, sigDetect, sigRecognize);
         }
 
         /**
@@ -840,5 +884,23 @@ public class OcrPipeline {
      */
     public OcrRecognizer recognizer() {
         return recognizer;
+    }
+
+    /**
+     * 检测输出是否应用 sigmoid。
+     *
+     * @return true 应用
+     */
+    public boolean sigDetect() {
+        return sigDetect;
+    }
+
+    /**
+     * 识别输出是否应用 sigmoid。
+     *
+     * @return true 应用
+     */
+    public boolean sigRecognize() {
+        return sigRecognize;
     }
 }
