@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -100,6 +101,11 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
      * 失败重试计数器（mappingId -> 连续失败次数），用于熔断退避
      */
     private final Map<String, AtomicInteger> retryCounters = new ConcurrentHashMap<>();
+
+    /**
+     * 活跃的订阅引用，防止 Depose 被 GC 回收导致管线取消。
+     */
+    private final java.util.List<reactor.core.Disposable> activeSubscriptions = new CopyOnWriteArrayList<>();
 
     /**
      * 调度器配置。
@@ -359,7 +365,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 .publishOn(Schedulers.parallel());
 
         // 重试 + 转换 + 发布
-        batched
+        reactor.core.Disposable disposable = batched
                 .flatMap(batchData -> {
                     List<Map<String, Object>> transformedBatch = applyFieldMappings(batchData, fieldMappings);
                     try {
@@ -380,7 +386,6 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 }, config.getFlatMapParallelism())
                 .retryWhen(Retry.backoff(config.getRetryMaxAttempts(), Duration.ofMillis(config.getRetryBackoffMs()))
                         .filter(throwable -> {
-                            // 熔断：连续失败超过阈值不再重试
                             AtomicInteger counter = retryCounters.computeIfAbsent(
                                     mapping.mappingId(), k -> new AtomicInteger(0));
                             int failures = counter.incrementAndGet();
@@ -393,7 +398,6 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                         .doAfterRetry(rs -> log.warn("重试执行: mappingId={}, 次数={}",
                                 mapping.mappingId(), rs.totalRetries() + 1)))
                 .doOnComplete(() -> {
-                    // 成功后重置熔断计数器
                     AtomicInteger counter = retryCounters.get(mapping.mappingId());
                     if (counter != null) {
                         counter.set(0);
@@ -404,6 +408,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                         error -> log.error("映射执行异常: mappingId={}", mapping.mappingId(), error),
                         () -> log.debug("映射执行完成: mappingId={}", mapping.mappingId())
                 );
+        // 持有 Disposable 引用，防止被 GC 回收导致管线取消
+        activeSubscriptions.add(disposable);
         } catch (Exception e) {
             log.error("执行映射失败: mappingId={}", mapping.mappingId(), e);
         }

@@ -23,57 +23,46 @@ import java.util.function.Consumer;
 @Slf4j
 public class ReactorDataSyncExecutor {
 
-    /**
-     * 分派器提供器（外部注入或默认 Chronicle）
-     */
     protected DispatcherProvider chronicleProvider;
-
-    /**
-     * Agent 唯一标识
-     */
     private final String agentId;
-
-    /**
-     * 是否为服务端模式（true 则共享一个 topic，否则按 sinkId 隔离）
-     */
     private final boolean serverMode;
 
     /**
-     * @param agentId    Agent 标识
-     * @param serverMode 是否服务端模式
+     * 直连派发模式：同 JVM 内 publish 直接调用 subscriber，绕过 Chronicle 派发层。
      */
+    private volatile boolean directDispatch;
+    private volatile Consumer<List<Map<String, Object>>> directConsumer;
+
     public ReactorDataSyncExecutor(String agentId, boolean serverMode) {
         this.agentId = agentId;
         this.serverMode = serverMode;
     }
 
-    /**
-     * @return Agent 标识
-     */
     public String getAgentId() {
         return agentId;
     }
 
-    /**
-     * @return 是否服务端模式
-     */
     public boolean isServerMode() {
         return serverMode;
     }
 
     /**
-     * 注入自定义分派器。
-     *
-     * @param chronicleProvider DispatcherProvider 实例
+     * 启用直连派发模式（同 JVM 内 publish 直接调用 subscriber，绕过 Chronicle）。
+     * 必须在 {@link #start()} 之前调用。
      */
+    public void setDirectDispatch(boolean directDispatch) {
+        this.directDispatch = directDispatch;
+    }
+
     public void setDispatcherProvider(DispatcherProvider chronicleProvider) {
         this.chronicleProvider = chronicleProvider;
     }
 
-    /**
-     * 启动执行器；未注入分派器时回退到基于 java.io.tmpdir/chronicle-datasync 的本地 Chronicle。
-     */
     public void start() {
+        if (directDispatch) {
+            log.info("直连派发模式已启用 (agentId={})", agentId);
+            return;
+        }
         if (chronicleProvider == null) {
             String path = System.getProperty("java.io.tmpdir") + "/chronicle-datasync";
             chronicleProvider = new ChronicleDispatcherProvider(
@@ -82,10 +71,11 @@ public class ReactorDataSyncExecutor {
         chronicleProvider.start();
     }
 
-    /**
-     * 停止执行器，关闭分派器。
-     */
     public void stop() {
+        if (directDispatch) {
+            directConsumer = null;
+            return;
+        }
         if (chronicleProvider != null) {
             chronicleProvider.close();
         }
@@ -98,6 +88,10 @@ public class ReactorDataSyncExecutor {
      * @param consumer 消息回调
      */
     public void subscribe(String sinkId, Consumer<List<Map<String, Object>>> consumer) {
+        if (directDispatch) {
+            directConsumer = consumer;
+            return;
+        }
         chronicleProvider.subscribe(new ConsumerDispatcherDefinition<>(consumer, List.class, List.of(buildTopic(sinkId))));
     }
 
@@ -108,15 +102,20 @@ public class ReactorDataSyncExecutor {
      * @param data   待发布数据列表
      */
     public void publish(String sinkId, List<Map<String, Object>> data) {
+        if (directDispatch) {
+            var c = directConsumer;
+            if (c != null) {
+                try {
+                    c.accept(data);
+                } catch (Exception e) {
+                    log.error("直连派发异常", e);
+                }
+            }
+            return;
+        }
         chronicleProvider.publish(buildTopic(sinkId), data);
     }
 
-    /**
-     * 构造 topic 名。服务端模式下为 {@code server-{agentId}}，客户端模式下按 sinkId 隔离。
-     *
-     * @param sinkId sink 标识
-     * @return topic 名称
-     */
     private String buildTopic(String sinkId) {
         if (serverMode) {
             return "server-" + agentId;

@@ -119,7 +119,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
             return;
         }
         executor.submit(() -> {
-            ExcerptTailer tailer = queue.createTailer();
+            ExcerptTailer tailer = queue.createTailer().toStart();
             while (!closed) {
                 try (var dc = tailer.readingDocument()) {
                     if (dc.isPresent() && dc.isData()) {

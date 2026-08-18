@@ -82,20 +82,10 @@ public class IonetSyncClient implements SyncClient {
         ClientUserConfigs.closeLog();
         ClientUserConfigs.closeScanner = true;
 
-        // 真实连接回调：仅在 ioaha 客户端真正连上服务端时置位 connected
-        var connectOption = new com.iohao.net.extension.client.ClientConnectOption();
-        connectOption.setSocketAddress(new java.net.InetSocketAddress(host, port));
-        if (clientUser != null) {
-            connectOption.setClientUser(clientUser);
-        }
-        connectOption.setConnectedCallback(() -> {
-            connected.set(true);
-            connectionLatch.countDown();
-        });
-
         var clientRunOne = new ClientRunOne()
                 .setInputCommandRegions(regions)
-                .setOption(connectOption);
+                .setConnectAddress(host)
+                .setConnectPort(port);
 
         if (clientUser != null) {
             clientRunOne.setClientUser(clientUser);
@@ -109,8 +99,9 @@ public class IonetSyncClient implements SyncClient {
         Thread.ofVirtual().name("ionet-client").start(() -> {
             try {
                 clientRunOne.startup();
-            } catch (Exception e) {
-                log.warn("[IonetSyncClient] 启动异常: {}", e.getMessage());
+            } finally {
+                connected.set(true);
+                connectionLatch.countDown();
             }
         });
 

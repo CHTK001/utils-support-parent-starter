@@ -67,6 +67,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
             ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);
+            executor.setDirectDispatch(true);
             if (started.get()) {
                 executor.start();
                 log.debug("懒启动执行器: topic={}", t);
