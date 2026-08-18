@@ -1705,40 +1705,23 @@ class OvisOcrRunner(BaseRunner):
 
         image = Image.open(io.BytesIO(base64.b64decode(image_b64))).convert("RGB")
 
-        # 如果走的是 ModelScope pipeline 降级路径
-        if hasattr(self, '_pipe'):
-            prompt = inputs.get("text") or inputs.get("prompt") or ""
-            query = prompt if prompt.strip() else "请将这张文档图片转换为 Markdown 格式。"
-            # Qwen3.5 VLM 需要 chat 格式: [{"role":"user","content":[{"type":"image"},...]}]
-            chat_messages = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": query}]}]
-            max_tokens = int(params.get("max_new_tokens", 2048))
-            result = self._pipe(chat_messages, image, max_new_tokens=max_tokens)
-            # 解析输出
-            if isinstance(result, list):
-                for item in result:
-                    if isinstance(item, dict):
-                        txt = item.get("generated_text") or item.get("text")
-                        if txt:
-                            return txt
-                return str(result)
-            if isinstance(result, dict):
-                txt = result.get("generated_text") or result.get("text")
-                if txt:
-                    return txt
-                return str(result)
-            return str(result)
-
-        # Ovis 标准推理路径
         prompt = inputs.get("text") or inputs.get("prompt") or ""
         query = prompt if prompt.strip() else "请将这张文档图片转换为 Markdown 格式。"
 
         import torch
+
+        # 使用 processor 构造带 image token 的输入
+        # Qwen3.5 的 processor 接受 text= 和 images= 关键字参数
+        try:
+            inputs_tok = self._processor(text=query, images=image, return_tensors="pt")
+        except TypeError:
+            # 某些版本的 processor 使用位置参数
+            inputs_tok = self._processor(query, image, return_tensors="pt")
+
+        max_tokens = int(params.get("max_new_tokens", 2048))
+
         with torch.no_grad():
-            inputs_ovis = self._processor(query, image, return_tensors="pt")
-            if self.use_gpu:
-                inputs_ovis = {k: v.to(self._device_str()) if hasattr(v, 'to') else v for k, v in inputs_ovis.items()}
-            max_tokens = int(params.get("max_new_tokens", 2048))
-            output = self._model.generate(**inputs_ovis, max_new_tokens=max_tokens)
+            output = self._model.generate(**inputs_tok, max_new_tokens=max_tokens)
 
         return self._processor.decode(output[0], skip_special_tokens=True)
 
