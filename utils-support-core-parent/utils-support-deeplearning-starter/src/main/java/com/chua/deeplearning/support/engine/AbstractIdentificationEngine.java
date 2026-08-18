@@ -4,6 +4,7 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     public AbstractIdentificationEngine() {
+        ImageUtils.load();
         discoverModels();
     }
 

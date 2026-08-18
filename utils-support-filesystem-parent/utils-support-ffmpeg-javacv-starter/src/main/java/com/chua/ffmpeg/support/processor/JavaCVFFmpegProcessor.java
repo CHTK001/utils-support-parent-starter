@@ -615,6 +615,95 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
+    public void pullStream(String streamUrl, File output, double duration,
+                           Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
+        }
+        pullStreamInternal(streamUrl, output, duration, callback, false);
+    }
+
+    @Override
+    public void pullStreamWithFrames(String streamUrl, File output, double duration,
+                                     Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
+        }
+        pullStreamInternal(streamUrl, output, duration, callback, true);
+    }
+
+    private void pullStreamInternal(String streamUrl, File output, double duration,
+                                    Consumer<FrameInfo> callback, boolean withImageData) throws IOException {
+        output.getParentFile().mkdirs();
+
+        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(streamUrl);
+             FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(output, 0)) {
+
+            grabber.start();
+            recorder.setFormat(FileUtils.getSimpleExtension(output.getName()));
+            recorder.setImageWidth(grabber.getImageWidth());
+            recorder.setImageHeight(grabber.getImageHeight());
+            recorder.setFrameRate(grabber.getFrameRate());
+            recorder.setAudioChannels(grabber.getAudioChannels());
+            recorder.setSampleRate(grabber.getSampleRate());
+            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+            recorder.start();
+
+            long startTime = System.currentTimeMillis();
+            long maxDuration = duration > 0 ? (long) (duration * 1000) : Long.MAX_VALUE;
+            long frameCount = 0;
+            Java2DFrameConverter converter = withImageData ? new Java2DFrameConverter() : null;
+
+            Frame frame;
+            while ((frame = grabber.grab()) != null) {
+                if (System.currentTimeMillis() - startTime > maxDuration) {
+                    break;
+                }
+                recorder.record(frame);
+                if (callback != null && frame.image != null) {
+                    FrameInfo info = buildFrameInfo(frame, frameCount, grabber);
+                    if (withImageData && converter != null) {
+                        BufferedImage image = converter.convert(frame);
+                        if (image != null) {
+                            info.setImageData(toJpegBytes(image));
+                        }
+                    }
+                    callback.accept(info);
+                }
+                frameCount++;
+            }
+
+            recorder.stop();
+            grabber.stop();
+        }
+    }
+
+    /**
+     * 构建 FrameInfo 对象
+     */
+    private FrameInfo buildFrameInfo(Frame frame, long frameNumber, FFmpegFrameGrabber grabber) {
+        FrameInfo info = new FrameInfo();
+        info.setFrameNumber(frameNumber);
+        info.setTimestampMs(frame.timestamp > 0 ? frame.timestamp / 1000 : grabber.getTimestamp() / 1000);
+        info.setWidth(grabber.getImageWidth());
+        info.setHeight(grabber.getImageHeight());
+        info.setCodec(grabber.getVideoCodecName());
+        info.setFps(grabber.getFrameRate());
+        info.setKeyFrame(frame.keyFrame);
+        return info;
+    }
+
+    /**
+     * 将 BufferedImage 编码为 JPEG 字节
+     */
+    private byte[] toJpegBytes(BufferedImage image) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", baos);
+        return baos.toByteArray();
+    }
+
+    @Override
     public boolean isAvailable() {
         return available;
     }
