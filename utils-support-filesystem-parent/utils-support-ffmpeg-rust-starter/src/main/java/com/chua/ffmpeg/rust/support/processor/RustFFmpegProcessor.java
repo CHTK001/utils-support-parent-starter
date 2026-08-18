@@ -3,9 +3,12 @@ package com.chua.ffmpeg.rust.support.processor;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
+import com.chua.common.support.media.ffmpeg.FFmpegMediaInfo;
 import com.chua.common.support.media.ffmpeg.FrameInfo;
 import com.chua.ffmpeg.rust.support.bridge.RustFFmpegBridge;
 import com.chua.nativeffmpeg.support.NativeFFmpeg;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -13,10 +16,10 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
- * 基于原生 Rust 视频编码和加密库的 FFmpeg 处理器。
+ * 基于原生 Rust FFmpeg 库的 FFmpeg 处理器。
  *
- * <p>本处理器专注于通过原生 JNI 进行视频编解码操作。
- * 完整的基于文件的转码请使用 javacv-starter 或 jaffree-starter。</p>
+ * <p>本处理器通过 JNI 调用 Rust 原生 FFmpeg 实现，支持推流/拉流、
+ * 文件转码、截帧、拼接、媒体信息查询等功能。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,96 +28,160 @@ import java.util.function.Consumer;
 @Spi(value = {"rust", "native"}, order = 100)
 public class RustFFmpegProcessor implements FFmpegProcessor {
 
-    /**
-     * 不支持的默认错误信息
-     */
-    private static final String UNSUPPORTED_ERROR = "Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for file-based transcoding.";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /**
-     * 仅支持视频编解码的提示
-     */
-    private static final String CODEC_ONLY_ERROR = "Rust FFmpeg processor only supports video codec encode/decode via VideoEncoder/VideoDecoder";
+    private static final String STREAM_UNSUPPORTED = "Rust FFmpeg processor does not support stream-based conversion. Use javacv-starter for stream processing.";
+    private static final String FILTER_UNSUPPORTED = "Rust FFmpeg processor does not support complex filter operations yet. Use javacv-starter for watermark/rotation.";
 
     @Override
     public void convertVideo(File input, File output, String targetFormat) throws IOException {
-        throw new UnsupportedOperationException(UNSUPPORTED_ERROR);
+        convertVideo(input, output, targetFormat, null);
     }
 
     @Override
     public void convertVideo(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
-        throw new UnsupportedOperationException(UNSUPPORTED_ERROR);
+        checkStreamAvailable();
+        String videoCodec = options != null ? options.getVideoCodec() : null;
+        String audioCodec = options != null ? options.getAudioCodec() : null;
+        int width = options != null && options.getWidth() != null ? options.getWidth() : 0;
+        int height = options != null && options.getHeight() != null ? options.getHeight() : 0;
+        int fps = options != null && options.getFps() != null ? options.getFps() : 0;
+        int ret = RustFFmpegBridge.convertFile(input.getAbsolutePath(), output.getAbsolutePath(),
+                videoCodec, audioCodec, width, height, fps, 0, 0, false, false);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg convert video failed with code: " + ret);
+        }
     }
 
     @Override
     public void convertVideo(java.io.InputStream inputStream, java.io.OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
-        throw new UnsupportedOperationException(UNSUPPORTED_ERROR);
+        throw new UnsupportedOperationException(STREAM_UNSUPPORTED);
     }
 
     @Override
     public void convertAudio(File input, File output, String targetFormat) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for audio processing.");
+        convertAudio(input, output, targetFormat, null);
     }
 
     @Override
     public void convertAudio(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for audio processing.");
+        checkStreamAvailable();
+        String audioCodec = options != null ? options.getAudioCodec() : null;
+        int ret = RustFFmpegBridge.convertFile(input.getAbsolutePath(), output.getAbsolutePath(),
+                null, audioCodec, 0, 0, 0, 0, 0, true, false);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg convert audio failed with code: " + ret);
+        }
     }
 
     @Override
     public void extractAudio(File videoInput, File audioOutput, String audioFormat) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for audio extraction.");
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.convertFile(videoInput.getAbsolutePath(), audioOutput.getAbsolutePath(),
+                null, null, 0, 0, 0, 0, 0, true, false);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg extract audio failed with code: " + ret);
+        }
     }
 
     @Override
     public void captureFrame(File videoInput, File imageOutput, double timestamp) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for frame extraction.");
+        checkStreamAvailable();
+        long timestampMs = (long) (timestamp * 1000);
+        int ret = RustFFmpegBridge.captureFrame(videoInput.getAbsolutePath(), timestampMs, imageOutput.getAbsolutePath());
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg capture frame failed with code: " + ret);
+        }
     }
 
     @Override
     public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for frame extraction.");
+        checkStreamAvailable();
+        double duration = getDuration(videoInput);
+        if (duration <= 0) {
+            throw new IOException("Cannot determine video duration for frame capture");
+        }
+        java.util.List<File> frames = new java.util.ArrayList<>();
+        double timestamp = 0;
+        int index = 0;
+        String ext = imageFormat != null ? imageFormat.toLowerCase() : "ppm";
+        while (timestamp < duration) {
+            File outputFile = new File(outputDir, String.format("frame_%06d.%s", index, ext));
+            captureFrame(videoInput, outputFile, timestamp);
+            frames.add(outputFile);
+            timestamp += interval;
+            index++;
+        }
+        return frames.toArray(new File[0]);
     }
 
     @Override
     public void generateThumbnail(File videoInput, File imageOutput, int width, int height) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for thumbnail generation.");
+        captureFrame(videoInput, imageOutput, 0);
     }
 
     @Override
     public void trim(File input, File output, double startTime, double duration) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for video trimming.");
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.convertFile(input.getAbsolutePath(), output.getAbsolutePath(),
+                null, null, 0, 0, 0, startTime, duration, false, false);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg trim failed with code: " + ret);
+        }
     }
 
     @Override
     public void concat(File[] inputs, File output) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for video concatenation.");
+        checkStreamAvailable();
+        if (inputs == null || inputs.length == 0) {
+            throw new IOException("No input files provided for concatenation");
+        }
+        StringBuilder sb = new StringBuilder();
+        for (File f : inputs) {
+            if (sb.length() > 0) sb.append(';');
+            sb.append(f.getAbsolutePath());
+        }
+        int ret = RustFFmpegBridge.concatFiles(sb.toString(), output.getAbsolutePath());
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg concat failed with code: " + ret);
+        }
     }
 
     @Override
     public void resize(File input, File output, int width, int height) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for video resizing.");
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.convertFile(input.getAbsolutePath(), output.getAbsolutePath(),
+                null, null, width, height, 0, 0, 0, false, false);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg resize failed with code: " + ret);
+        }
     }
 
     @Override
     public void rotate(File input, File output, int angle) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for video rotation.");
+        throw new UnsupportedOperationException(FILTER_UNSUPPORTED);
     }
 
     @Override
     public void addWatermark(File videoInput, File watermarkFile, File output, int x, int y) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for watermarking.");
+        throw new UnsupportedOperationException(FILTER_UNSUPPORTED);
     }
 
     @Override
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for GIF creation.");
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.convertFile(videoInput.getAbsolutePath(), gifOutput.getAbsolutePath(),
+                "gif", null, width, 0, fps, startTime, duration, false, true);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg video to GIF failed with code: " + ret);
+        }
     }
 
     @Override
     public void imagesToVideo(File imageDir, File videoOutput, int fps, String imagePattern) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for image-to-video.");
+        throw new UnsupportedOperationException("Rust FFmpeg processor does not support image-to-video conversion yet. Use javacv-starter for this feature.");
     }
 
     @Override
@@ -150,7 +217,6 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     @Override
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
-        // Rust 原生推流不支持帧图像数据返回，回退到普通回调
         pushStream(input, streamUrl, options, callback);
     }
 
@@ -176,13 +242,17 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     @Override
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
-        // Rust 原生拉流不支持帧图像数据返回，回退到普通回调
         pullStream(streamUrl, output, duration, callback);
     }
 
     @Override
-    public com.chua.common.support.media.ffmpeg.FFmpegMediaInfo getMediaInfo(File input) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for media info.");
+    public FFmpegMediaInfo getMediaInfo(File input) throws IOException {
+        checkStreamAvailable();
+        String json = RustFFmpegBridge.getStreamMediaInfo(input.getAbsolutePath());
+        if (json == null || json.isEmpty()) {
+            throw new IOException("Failed to get media info for: " + input.getAbsolutePath());
+        }
+        return parseMediaInfo(json);
     }
 
     @Override
@@ -202,14 +272,49 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
         return RustFFmpegBridge.isLoaded() || RustFFmpegBridge.isStreamLoaded();
     }
 
-    /**
-     * 检查推流/拉流原生库是否可用。
-     */
     private void checkStreamAvailable() throws IOException {
         if (!RustFFmpegBridge.isStreamLoaded()) {
             throw new IOException("Rust FFmpeg stream library not loaded. " +
                     "Ensure ffmpeg-rust native library is available. Error: " + NativeFFmpeg.getLoadError());
         }
+    }
+
+    private FFmpegMediaInfo parseMediaInfo(String json) throws IOException {
+        JsonNode root = OBJECT_MAPPER.readTree(json);
+        FFmpegMediaInfo info = new FFmpegMediaInfo();
+        if (root.has("formatName")) info.setFormatName(root.get("formatName").asText());
+        if (root.has("formatLongName")) info.setFormatLongName(root.get("formatLongName").asText());
+        if (root.has("duration")) info.setDuration(root.get("duration").asDouble());
+        if (root.has("bitrate")) info.setBitrate(root.get("bitrate").asLong());
+
+        if (root.has("videoStream")) {
+            JsonNode vs = root.get("videoStream");
+            FFmpegMediaInfo.VideoStream video = new FFmpegMediaInfo.VideoStream();
+            if (vs.has("index")) video.setIndex(vs.get("index").asInt());
+            if (vs.has("codec")) video.setCodec(vs.get("codec").asText());
+            if (vs.has("codecLongName")) video.setCodecLongName(vs.get("codecLongName").asText());
+            if (vs.has("width")) video.setWidth(vs.get("width").asInt());
+            if (vs.has("height")) video.setHeight(vs.get("height").asInt());
+            if (vs.has("fps")) video.setFps(vs.get("fps").asDouble());
+            if (vs.has("bitrate")) video.setBitrate(vs.get("bitrate").asLong());
+            if (vs.has("duration")) video.setDuration(vs.get("duration").asDouble());
+            info.setVideoStream(video);
+        }
+
+        if (root.has("audioStream")) {
+            JsonNode as = root.get("audioStream");
+            FFmpegMediaInfo.AudioStream audio = new FFmpegMediaInfo.AudioStream();
+            if (as.has("index")) audio.setIndex(as.get("index").asInt());
+            if (as.has("codec")) audio.setCodec(as.get("codec").asText());
+            if (as.has("codecLongName")) audio.setCodecLongName(as.get("codecLongName").asText());
+            if (as.has("sampleRate")) audio.setSampleRate(as.get("sampleRate").asInt());
+            if (as.has("channels")) audio.setChannels(as.get("channels").asInt());
+            if (as.has("bitrate")) audio.setBitrate(as.get("bitrate").asLong());
+            if (as.has("duration")) audio.setDuration(as.get("duration").asDouble());
+            info.setAudioStream(audio);
+        }
+
+        return info;
     }
 
     @Override
@@ -225,7 +330,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
         com.chua.common.support.media.ffmpeg.FFmpegResult result = new com.chua.common.support.media.ffmpeg.FFmpegResult();
         result.setSuccess(false);
         result.setStdout("");
-        result.setStderr(CODEC_ONLY_ERROR);
+        result.setStderr("Rust FFmpeg processor does not support custom command execution. Use javacv-starter or jaffree-starter for CLI-style operations.");
         return result;
     }
 }

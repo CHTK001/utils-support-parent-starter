@@ -89,6 +89,18 @@ public class NativeRpcClient implements RpcClient {
     private final int poolSize;
 
     /**
+     * 写缓冲区（ThreadLocal 复用，避免每请求分配 ByteBuffer）
+     */
+    private static final ThreadLocal<ByteBuffer> WRITE_BUFFER =
+            ThreadLocal.withInitial(() -> ByteBuffer.allocate(1024));
+
+    /**
+     * 4 字节头缓冲区（ThreadLocal 复用）
+     */
+    private static final ThreadLocal<ByteBuffer> HEADER_BUFFER =
+            ThreadLocal.withInitial(() -> ByteBuffer.allocate(HEADER_SIZE));
+
+    /**
      * 端点地址 → 连接池；复用长连接避免高并发下反复建连导致 Windows 临时端口耗尽
      */
     private final Map<String, PooledConnections> pools = new ConcurrentHashMap<>();
@@ -230,20 +242,28 @@ public class NativeRpcClient implements RpcClient {
          */
         private Object exchange(SocketChannel ch, RpcRequest req) throws Exception {
             byte[] reqData = serialize(req);
-            ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + reqData.length);
+            ByteBuffer buf = WRITE_BUFFER.get();
+            int needed = HEADER_SIZE + reqData.length;
+            if (buf.capacity() < needed) {
+                buf = ByteBuffer.allocate(Math.max(needed, needed * 2));
+                WRITE_BUFFER.set(buf);
+            } else {
+                buf.clear();
+            }
             buf.putInt(reqData.length); buf.put(reqData); buf.flip();
             ch.write(buf);
-            ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
+            ByteBuffer headerBuf = HEADER_BUFFER.get();
+            headerBuf.clear();
             readFully(ch, headerBuf);
             headerBuf.flip();
             int bodyLen = headerBuf.getInt();
             if (bodyLen <= 0 || bodyLen > MAX_BODY_SIZE) {
                 throw RpcException.transport("Native RPC response too large: " + bodyLen);
             }
+            // 直接反序列化 bodyBuf 底层数组，避免再拷贝一份 byte[]，减少热路径分配
             ByteBuffer bodyBuf = ByteBuffer.allocate(bodyLen);
-            readFully(ch, bodyBuf); bodyBuf.flip();
-            byte[] respData = new byte[bodyLen]; bodyBuf.get(respData);
-            RpcResponse resp = deserialize(respData);
+            readFully(ch, bodyBuf);
+            RpcResponse resp = deserialize(bodyBuf.array());
             if (!resp.isSuccess()) { throw RpcException.business(resp.getError()); }
             return resp.getResult();
         }
