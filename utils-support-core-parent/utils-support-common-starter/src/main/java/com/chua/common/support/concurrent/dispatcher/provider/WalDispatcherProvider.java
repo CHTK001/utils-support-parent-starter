@@ -21,43 +21,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * WAL（Write-Ahead Log）分发器提供者：基于 append-only 文件日志实现持久化发布订阅。
- *
- * <p>比 Chronicle 更轻量：无 mmap / 无文档帧 / 无 JDK 模块限制（Java 25 可用）。
- * 写入使用 {@link FileChannel} 批量 append + {@link FileLock} 保证多进程安全；
- * 消费线程 tail-follow 日志文件；重启时从起点重放即恢复。
- *
- * <p>帧格式：{@code int length + byte[] payload}（length 为 payload 字节数，大端）。</p>
- *
- * @author CH
- * @since 4.0.0.42
- */
 @Slf4j
 public class WalDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
 
-    /** "WAL1" */
-    /** Magic */
     private static final int MAGIC = 0x57414C31;
 
-    /**
-     * 序列化器：可注入（如 Fury/Kryo），默认 Jackson。
-     */
     private volatile com.chua.common.support.base.serialize.Serialization serializer;
 
-    /** WAL 日志映射 */
     private final Map<String, WalLog> logs = new ConcurrentHashMap<>();
-    /** 分发定义映射 */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
-    /** 消费者线程池 */
-    /** 消费者执行器 */
     private final ExecutorService consumerExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("wal-consumer-", 0).factory());
-    /** 日志目录 */
-    /** 日志目录 */
     private final Path logDir;
-    /** 是否已关闭 */
-    /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public WalDispatcherProvider(DispatcherConfig config) {
@@ -159,9 +134,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         });
     }
 
-    /**
-     * 读一帧并派发；若帧未完成返回 null（调用方等待重试）。
-     */
     private Object readDispatchFrame(RandomAccessFile raf, String topic) throws Exception {
         long pos = raf.getFilePointer();
         long fileLen = raf.length();
@@ -186,12 +158,12 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             return null;
         }
         if (len == 0) {
-            // 空帧(占位)，跳过
+            
             raf.seek(pos + headerSize);
             return null;
         }
         if (fileLen - pos < headerSize + len) {
-            raf.seek(pos); // 帧尚未写完整，等待
+            raf.seek(pos); 
             return null;
         }
         byte[] data = new byte[len];
@@ -217,11 +189,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-/**
-     * 序列化消息体（使用注入序列化器，默认 Jackson）。
-     * synchronized 保证 Fury（非线程安全）在并发 publish 下不抛 Nested 异常。
-     */
-    private synchronized byte[] writeBody(Object body) {
+private byte[] writeBody(Object body) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.serialize(body);
@@ -232,11 +200,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-/**
-     * 反序列化消息体（使用注入序列化器，默认 Jackson）。
-     * synchronized 保证 Fury（非线程安全）在并发 publish/consume 下不抛 Nested 异常。
-     */
-    private synchronized Object readBody(byte[] data) {
+    private Object readBody(byte[] data) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
@@ -252,16 +216,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    /**
-     * 单 topic 的 append-only WAL 日志文件。
-     *
-     * <p>写入通过 Reactor {@code Sinks.Many} 队列异步完成：{@link #appendBytes} 将
-     * 序列化后的字节放入内存队列（有背压），后台 Reactor 订阅者按序写入文件并 {@code force} 落盘。</p>
-     */
     static class WalLog {
         final Path file;
-        final reactor.core.publisher.Sinks.Many<byte[]> sink =
-                reactor.core.publisher.Sinks.many().multicast().onBackpressureBuffer(10000, false);
+        final java.util.concurrent.LinkedBlockingQueue<byte[]> queue = new java.util.concurrent.LinkedBlockingQueue<>(10000);
         private FileChannel channel;
         private java.nio.MappedByteBuffer mappedBuf;
         private long mappedSize = 0;
@@ -270,6 +227,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         private final ByteBuffer header = ByteBuffer.allocate(8);
         private volatile boolean writerStarted = false;
         private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WalLog.class);
+        private int forceCounter = 0;
 
         WalLog(Path file) {
             this.file = file;
@@ -320,33 +278,41 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             synchronized (this) {
                 if (writerStarted) return;
                 writerStarted = true;
-                sink.asFlux()
-                        .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
-                        .flatMap(bytes -> reactor.core.publisher.Mono.fromRunnable(() -> writeFrame(bytes)), 1, 1)
-                        .onErrorContinue((e, o) -> LOG.warn("WAL reactor 写入失败 file={} cause={}", file, e.getMessage()))
-                        .subscribe();
+                Thread.ofVirtual().name("wal-writer-" + file.getFileName()).start(() -> {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        try {
+                            byte[] payload = queue.poll(100, java.util.concurrent.TimeUnit.MILLISECONDS);
+                            if (payload != null) writeFrame(payload);
+                        } catch (InterruptedException e) { break; }
+                    }
+                });
             }
         }
 
         void appendBytes(byte[] payload) {
-            try { sink.tryEmitNext(payload); } catch (Exception e) { LOG.warn("WAL 入队失败 file={}", file, e); }
+            if (!queue.offer(payload)) {
+                LOG.warn("WAL 写入队列已满，丢弃消息 file={}", file);
+            }
         }
 
-        private void writeFrame(byte[] payload) {
+private void writeFrame(byte[] payload) {
             try {
                 int frameSize = 8 + payload.length;
                 if (useMmap && mappedBuf != null) {
                     ensureMmap(frameSize);
                     if (useMmap) {
-                        int pos = mappedBuf.position();
                         mappedBuf.putInt(MAGIC);
                         mappedBuf.putInt(payload.length);
                         mappedBuf.put(payload);
+                        
+                        if (++forceCounter % 1000 == 0) {
+                            
+                        }
                         mappedBuf.force();
                         return;
                     }
                 }
-                // fallback FileChannel I/O
+                
                 header.clear(); header.putInt(MAGIC); header.putInt(payload.length); header.flip();
                 channel.write(header);
                 channel.write(ByteBuffer.wrap(payload));
@@ -356,23 +322,16 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             }
         }
 
-        long initialIndex() {
-            try {
-                return Math.max(0, channel.size());
-            } catch (Exception e) {
-                return 0;
-            }
+long initialIndex() {
+            return 0;
         }
 
-        /**
-         * 如果文件是空文件或新创建的，回填一个 MAGIC 头，保证读端也能解析。
-         */
         void reset() {
             try {
                 if (channel.size() < 8) {
                     header.clear();
                     header.putInt(MAGIC);
-                    header.putInt(0); // length=0 表示"跳过"帧（实际无 payload）
+                    header.putInt(0); 
                     header.flip();
                     channel.write(header);
                     channel.force(false);
@@ -389,4 +348,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 }
+
+
+
+
+
 

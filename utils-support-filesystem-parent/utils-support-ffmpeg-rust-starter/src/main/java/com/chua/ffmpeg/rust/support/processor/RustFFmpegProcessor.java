@@ -30,9 +30,6 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private static final String STREAM_UNSUPPORTED = "Rust FFmpeg processor does not support stream-based conversion. Use javacv-starter for stream processing.";
-    private static final String FILTER_UNSUPPORTED = "Rust FFmpeg processor does not support complex filter operations yet. Use javacv-starter for watermark/rotation.";
-
     @Override
     public void convertVideo(File input, File output, String targetFormat) throws IOException {
         convertVideo(input, output, targetFormat, null);
@@ -56,7 +53,36 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     @Override
     public void convertVideo(java.io.InputStream inputStream, java.io.OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
-        throw new UnsupportedOperationException(STREAM_UNSUPPORTED);
+        checkStreamAvailable();
+        File tempInput = File.createTempFile("ffmpeg_rust_input_", "." + inputFormat);
+        File tempOutput = File.createTempFile("ffmpeg_rust_output_", "." + outputFormat);
+        try {
+            // 将 InputStream 写入临时文件
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempInput)) {
+                byte[] buffer = new byte[8192];
+                int len;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    fos.write(buffer, 0, len);
+                }
+            }
+            // 调用文件转码
+            int ret = RustFFmpegBridge.convertFile(tempInput.getAbsolutePath(), tempOutput.getAbsolutePath(),
+                    null, null, 0, 0, 0, 0, 0, false, false);
+            if (ret != 0) {
+                throw new IOException("Rust FFmpeg stream conversion failed with code: " + ret);
+            }
+            // 将临时输出文件写入 OutputStream
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(tempOutput)) {
+                byte[] buffer = new byte[8192];
+                int len;
+                while ((len = fis.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, len);
+                }
+            }
+        } finally {
+            tempInput.delete();
+            tempOutput.delete();
+        }
     }
 
     @Override
@@ -105,7 +131,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
         java.util.List<File> frames = new java.util.ArrayList<>();
         double timestamp = 0;
         int index = 0;
-        String ext = imageFormat != null ? imageFormat.toLowerCase() : "ppm";
+        String ext = imageFormat != null ? imageFormat.toLowerCase() : "jpg";
         while (timestamp < duration) {
             File outputFile = new File(outputDir, String.format("frame_%06d.%s", index, ext));
             captureFrame(videoInput, outputFile, timestamp);
@@ -160,12 +186,21 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     public void rotate(File input, File output, int angle) throws IOException {
-        throw new UnsupportedOperationException(FILTER_UNSUPPORTED);
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.rotate(input.getAbsolutePath(), output.getAbsolutePath(), angle);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg rotate failed with code: " + ret);
+        }
     }
 
     @Override
     public void addWatermark(File videoInput, File watermarkFile, File output, int x, int y) throws IOException {
-        throw new UnsupportedOperationException(FILTER_UNSUPPORTED);
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.addWatermark(videoInput.getAbsolutePath(), watermarkFile.getAbsolutePath(),
+                output.getAbsolutePath(), x, y);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg add watermark failed with code: " + ret);
+        }
     }
 
     @Override
@@ -181,7 +216,12 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     public void imagesToVideo(File imageDir, File videoOutput, int fps, String imagePattern) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor does not support image-to-video conversion yet. Use javacv-starter for this feature.");
+        checkStreamAvailable();
+        String pattern = imagePattern != null ? imagePattern : "%06d.jpg";
+        int ret = RustFFmpegBridge.imagesToVideo(imageDir.getAbsolutePath(), videoOutput.getAbsolutePath(), fps, pattern);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg images to video failed with code: " + ret);
+        }
     }
 
     @Override
@@ -324,13 +364,15 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     public com.chua.common.support.media.ffmpeg.FFmpegResult execute(String... args) throws IOException {
-        if (!isAvailable()) {
-            throw new UnsupportedOperationException("Rust native libraries not loaded");
-        }
         com.chua.common.support.media.ffmpeg.FFmpegResult result = new com.chua.common.support.media.ffmpeg.FFmpegResult();
+        if (!isAvailable()) {
+            result.setSuccess(false);
+            result.setStderr("Rust native libraries not loaded: " + NativeFFmpeg.getLoadError());
+            return result;
+        }
         result.setSuccess(false);
-        result.setStdout("");
-        result.setStderr("Rust FFmpeg processor does not support custom command execution. Use javacv-starter or jaffree-starter for CLI-style operations.");
+        result.setStderr("Rust FFmpeg processor does not support custom command execution. " +
+                "Use javacv-starter or jaffree-starter for CLI-style operations.");
         return result;
     }
 }

@@ -383,4 +383,60 @@ public final class RustFFmpegBridge {
         }
         return NativeFFmpeg.getMediaInfo(inputUrl);
     }
+
+    // ==================== 视频旋转桥接 ====================
+
+    /**
+     * 视频旋转（90/180/270度）。
+     *
+     * @param inputUrl   输入文件路径
+     * @param outputPath 输出文件路径
+     * @param angle      旋转角度（90/180/270）
+     * @return 0 表示成功
+     */
+    public static int rotate(String inputUrl, String outputPath, int angle) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.rotate(inputUrl, outputPath, angle);
+    }
+
+    // ==================== 添加水印桥接 ====================
+
+    /**
+     * 添加图片水印。
+     *
+     * @param inputUrl      输入视频文件路径
+     * @param watermarkPath 水印图片文件路径
+     * @param outputPath    输出文件路径
+     * @param x             水印 X 坐标
+     * @param y             水印 Y 坐标
+     * @return 0 表示成功
+     */
+    public static int addWatermark(String inputUrl, String watermarkPath,
+                                   String outputPath, int x, int y) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.addWatermark(inputUrl, watermarkPath, outputPath, x, y);
+    }
+
+    // ==================== 图片序列转视频桥接 ====================
+
+    /**
+     * 图片序列转视频。
+     *
+     * @param imageDir     图片目录路径
+     * @param outputPath   输出视频文件路径
+     * @param fps          帧率
+     * @param imagePattern 图片文件名匹配模式（如 "frame_%06d.jpg"）
+     * @return 0 表示成功
+     */
+    public static int imagesToVideo(String imageDir, String outputPath,
+                                    int fps, String imagePattern) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.imagesToVideo(imageDir, outputPath, fps, imagePattern);
+    }
 }
