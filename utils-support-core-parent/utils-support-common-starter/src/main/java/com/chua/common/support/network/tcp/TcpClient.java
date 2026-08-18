@@ -1,7 +1,5 @@
 package com.chua.common.support.network.tcp;
 
-import com.chua.common.support.network.tcp.callback.TcpClientHandler;
-
 import java.io.Closeable;
 
 /**
@@ -20,20 +18,9 @@ public interface TcpClient extends Closeable {
      *
      * @param host    目标主机
      * @param port    目标端口
-     * @param request 请求帧字节（长度帧，不含长度头）
-     * @return 响应帧字节（长度帧，不含长度头）
+     * @param request 请求帧字节（不含长度头）
+     * @return 响应帧字节（不含长度头）
      * @throws Exception 连接失败、超时或对端关闭时抛出
      */
     byte[] call(String host, int port, byte[] request) throws Exception;
-
-    /**
-     * 同步发送一帧请求并等待响应帧返回。
-     *
-     * @param host    目标主机
-     * @param port    目标端口
-     * @param request 请求帧字节（长度帧，不含长度头）
-     * @param handler 响应帧处理器，可为 {@code null}（忽略响应）
-     * @throws Exception 连接失败、超时或对端关闭时抛出
-     */
-    void call(String host, int port, byte[] request, TcpClientHandler handler) throws Exception;
 }

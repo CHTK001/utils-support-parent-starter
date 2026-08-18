@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * ImageFilter 全量实现测试
  *
  * <p>遍历 {@code D:\images} 目录下的所有图像，对每个 {@link AbstractImageFilter} 实现
- * 执行滤镜处理，并将结果写入 {@code D:\image\output\{filterName}\} 目录。
+ * 执行滤镜处理，并将结果写入 {@code D:\images\output\filter\{filterName}\} 目录。
  *
  * <p>使用 {@code main} 方法直接执行，无需 JUnit 等测试框架。
  *
@@ -37,7 +37,7 @@ public class AllImageFiltersTest {
     /**
      * 输出根目录
      */
-    private static final Path OUTPUT_DIR = Paths.get("D:", "image", "output");
+    private static final Path OUTPUT_DIR = Paths.get("D:", "images", "output", "filter");
 
     /**
      * 支持的图像后缀

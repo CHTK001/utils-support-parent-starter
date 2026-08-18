@@ -15,10 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
@@ -174,52 +176,77 @@ public class VertxTcpServer extends AbstractServer {
 
     /** 基于 NetSocket 的 InputStream(阻塞读,虚拟线程专用)。 */
     private static final class NetSocketInputStream extends InputStream {
+        /** 数据段:一次性拷贝 Vert.x Buffer 的 backing bytes,避免 per-byte boxing */
+        private static final class Segment {
+            final byte[] data;
+            int pos;
+            Segment(byte[] data) { this.data = data; }
+        }
+        /** 结束哨兵(关闭信号) */
+        private static final Segment EOS = new Segment(new byte[0]);
         /** Socket */
         private final NetSocket socket;
-        /** 队列 */
-        private final java.util.concurrent.LinkedBlockingQueue<Byte> queue =
-                new java.util.concurrent.LinkedBlockingQueue<>();
+        /** 数据段队列:LinkedBlockingQueue.take() 自带 LockSupport.park 阻塞(替代 Thread.sleep 轮询) */
+        private final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
         /** Closed */
-        private boolean closed;
+        private volatile boolean closed;
+        /** 当前正在读的数据段 */
+        private Segment current;
 
         NetSocketInputStream(NetSocket socket) {
             this.socket = socket;
             socket.handler(buf -> {
-                for (byte b : buf.getBytes()) {
-                    queue.offer(b);
+                if (buf.length() == 0) {
+                    return;
                 }
+                // 拷贝一次就好,避免 Vert.x Buffer 被底层回收而我们在排队
+                queue.offer(new Segment(buf.getBytes()));
             });
-            socket.closeHandler(v -> closed = true);
+            socket.closeHandler(v -> {
+                closed = true;
+                queue.offer(EOS);
+            });
         }
 
         @Override
         public int read() throws IOException {
-            while (!closed || !queue.isEmpty()) {
-                Byte b = queue.poll();
-                if (b != null) {
-                    return b & 0xFF;
+            byte[] b = new byte[1];
+            return read(b, 0, 1) == -1 ? -1 : b[0] & 0xFF;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (len == 0) {
+                return 0;
+            }
+            // 确保手头有含未读字节的数据段
+            while (current == null || current.pos >= current.data.length) {
+                if (closed && queue.isEmpty()) {
+                    return -1;
                 }
                 try {
-                    Thread.sleep(1);
+                    Segment seg = queue.take();
+                    if (seg == EOS) {
+                        return -1;
+                    }
+                    current = seg;
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return -1;
                 }
             }
-            return -1;
+            int n = Math.min(current.data.length - current.pos, len);
+            System.arraycopy(current.data, current.pos, b, off, n);
+            current.pos += n;
+            return n;
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            if (b.length == 0) {
-                return 0;
-            }
-            int c = read();
-            if (c < 0) {
-                return -1;
-            }
-            b[off] = (byte) c;
-            return 1;
+        public int available() {
+            Segment c = current;
+            int avail = (c == null || c.pos >= c.data.length) ? 0 : (c.data.length - c.pos);
+            avail += queue.stream().mapToInt(s -> s == EOS ? 0 : s.data.length - s.pos).sum();
+            return avail;
         }
     }
 
@@ -234,12 +261,16 @@ public class VertxTcpServer extends AbstractServer {
 
         @Override
         public void write(int b) {
-            socket.write(io.vertx.core.buffer.Buffer.buffer(new byte[]{(byte) b}));
+            socket.write(io.vertx.core.buffer.Buffer.buffer(1).appendByte((byte) b));
         }
 
         @Override
         public void write(byte[] b, int off, int len) {
-            socket.write(io.vertx.core.buffer.Buffer.buffer(java.util.Arrays.copyOfRange(b, off, off + len)));
+            if (off == 0 && len == b.length) {
+                socket.write(io.vertx.core.buffer.Buffer.buffer(b));
+            } else {
+                socket.write(io.vertx.core.buffer.Buffer.buffer(java.util.Arrays.copyOfRange(b, off, off + len)));
+            }
         }
     }
 }

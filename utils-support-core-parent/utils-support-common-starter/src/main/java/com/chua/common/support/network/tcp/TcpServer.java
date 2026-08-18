@@ -1,6 +1,5 @@
 package com.chua.common.support.network.tcp;
 
-import com.chua.common.support.function.InitializingAware;
 import com.chua.common.support.network.tcp.callback.TcpServerHandler;
 
 import java.io.Closeable;
@@ -17,7 +16,7 @@ import java.io.Closeable;
  * @author CH
  * @since 4.0.0.42
  */
-public interface TcpServer extends Closeable, InitializingAware {
+public interface TcpServer extends Closeable {
 
     /**
      * 注册帧处理器：服务端每收到一帧完整请求即回调一次，处理器返回响应帧字节。
