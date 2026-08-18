@@ -217,6 +217,11 @@ public enum Protocol {
     INFLUXDB("InfluxDB", 8086, false),
 
     /**
+     * H2 Database（嵌入式，TCP 服务默认 8082）
+     */
+    H2("H2", 8082, false),
+
+    /**
      * 进程内调用（无网络）
      */
     INTERNAL("Internal", 0, false),
@@ -326,6 +331,7 @@ public enum Protocol {
             case 7000 -> RSOCKET;
             case 4222 -> NATS;
             case 8086 -> INFLUXDB;
+            case 8082 -> H2;
             default -> UNKNOWN;
         };
     }

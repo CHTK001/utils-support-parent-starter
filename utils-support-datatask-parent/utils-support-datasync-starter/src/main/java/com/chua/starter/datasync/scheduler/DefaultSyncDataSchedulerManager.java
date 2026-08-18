@@ -170,6 +170,13 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         private int estimatedRowBytes = 256;
 
         /**
+         * 是否启用直连派发模式（同 JVM 内 publish 直接调用 subscriber，绕过 Chronicle）。
+         * 默认 false 使用 Chronicle 磁盘派发；true 时跳过 Chronicle 提高吞吐。
+         */
+        @Builder.Default
+        private boolean directDispatch = false;
+
+        /**
          * 计算最大在飞行数（受 {@link #memorySafeEnabled} 控制）。
          *
          * @param batchSize 当前批次大小

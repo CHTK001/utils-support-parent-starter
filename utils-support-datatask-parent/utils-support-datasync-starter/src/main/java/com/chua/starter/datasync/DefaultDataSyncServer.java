@@ -42,7 +42,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
                                   DefaultSyncDataSchedulerManager.SchedulerConfig schedulerConfig) {
         this.agentServerManager = agentServerManager;
         this.mappingManager = new DefaultDataSyncMappingManager();
-        this.executorManager = new DefaultExecutorManager(DEFAULT_SERVER_ID);
+        this.executorManager = new DefaultExecutorManager(DEFAULT_SERVER_ID, schedulerConfig.isDirectDispatch());
         this.schedulerManager = new DefaultSyncDataSchedulerManager(this, schedulerConfig);
     }
 

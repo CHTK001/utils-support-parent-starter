@@ -24,29 +24,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class DefaultExecutorManager implements ExecutorManager {
 
-    /**
-     * 服务器标识
-     */
     private final String serverId;
-
-    /**
-     * 执行器缓存（topic -> executor）
-     */
+    private final boolean directDispatch;
     private final Map<String, ReactorDataSyncExecutor> executors = new ConcurrentHashMap<>();
-
-    /**
-     * 启动状态标记
-     */
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     public DefaultExecutorManager(String serverId) {
+        this(serverId, false);
+    }
+
+    public DefaultExecutorManager(String serverId, boolean directDispatch) {
         this.serverId = serverId;
+        this.directDispatch = directDispatch;
     }
 
     @Override
     public void start() {
         started.set(true);
-        log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}", serverId, executors.size());
+        log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}, directDispatch={}", serverId, executors.size(), directDispatch);
     }
 
     @Override
@@ -67,20 +62,15 @@ public class DefaultExecutorManager implements ExecutorManager {
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
             ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);
-            executor.setDirectDispatch(true);
+            executor.setDirectDispatch(directDispatch);
             if (started.get()) {
                 executor.start();
-                log.debug("懒启动执行器: topic={}", t);
+                log.debug("懒启动执行器: topic={}, directDispatch={}", t, directDispatch);
             }
             return executor;
         });
     }
 
-    /**
-     * 获取当前已创建的执行器数量。
-     *
-     * @return 执行器数量
-     */
     public int getExecutorCount() {
         return executors.size();
     }
