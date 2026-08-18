@@ -337,7 +337,11 @@ public class NioHttpServer extends AbstractServer {
             st.keepAlive = shouldKeepAlive(st.request, response);
             st.request.resetForNextRequest();
             // 触发写:入队待写 key,由所属分片事件循环线程统一注册 OP_WRITE
-            if (!st.writeQueue.isEmpty()) {
+            boolean hasPending;
+            synchronized (st.writeQueue) {
+                hasPending = !st.writeQueue.isEmpty();
+            }
+            if (hasPending) {
                 pendingWriteQueues[st.shard].add(key);
                 selectors[st.shard].wakeup();
             }
@@ -349,22 +353,27 @@ public class NioHttpServer extends AbstractServer {
 
     private void handleWrite(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
-        // 无锁队列:事件循环线程作为唯一消费者
-        while (true) {
-            ByteBuffer bb = st.writeQueue.peek();
-            if (bb == null) {
-                break;
+        // 与 worker 的 asyncWriter 共用同一把锁排空队列:
+        // ArrayDeque 扩容时内部数组引用被替换,事件循环线程若无锁 peek/poll,
+        // 可能与 worker 的 synchronized add 并发读到旧数组/撕裂状态,
+        // 造成响应丢失 → 连接静默挂起 → 客户端超时(间歇性 0.4%~0.01% 失败)。
+        synchronized (st.writeQueue) {
+            while (true) {
+                ByteBuffer bb = st.writeQueue.peek();
+                if (bb == null) {
+                    break;
+                }
+                int w = st.channel.write(bb);
+                if (w < 0) {
+                    closeConn(key, st);
+                    return;
+                }
+                if (bb.hasRemaining()) {
+                    // 未写完,等待下次 OP_WRITE
+                    return;
+                }
+                st.writeQueue.poll();
             }
-            int w = st.channel.write(bb);
-            if (w < 0) {
-                closeConn(key, st);
-                return;
-            }
-            if (bb.hasRemaining()) {
-                // 未写完,等待下次 OP_WRITE
-                return;
-            }
-            st.writeQueue.poll();
         }
         // 写完:Keep-Alive 则重新注册 OP_READ,否则关闭
         if (st.keepAlive && running) {
