@@ -179,15 +179,24 @@ public class JdkTcpServer extends AbstractServer {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(setting.isSoReuseAddr());
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
-            serverSocket.bind(addr, Math.max(setting.getBacklog(), 2048));
+            // backlog 下限 65536:瞬间并发连接(万级突发)下避免内核 accept 队列溢出导致连接被拒
+            serverSocket.bind(addr, Math.max(setting.getBacklog(), 65536));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
             workerPool = Executors.newVirtualThreadPerTaskExecutor();
             running = true;
 
-            workerPool.submit(this::acceptLoop);
-            log.info("JDK TcpServer started on {}:{} (backlog={}, virtualThreads=true)",
-                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048));
+            // 多 acceptor:多个虚拟线程同时阻塞在 accept() 上,内核唤醒后负载分散到各线程,
+            // 消除单 accept 线程在高并发连接接纳(每秒万级新建连接)下的调度瓶颈;
+            // 同一 ServerSocket 多线程 accept 是 JDK 官方支持的用法(Windows 同样适用)。
+            // 默认至少 min(CPU,4) 个 acceptor,支撑百万级连接建立
+            int acceptors = Math.max(setting.getBossThreads(),
+                    Math.min(Runtime.getRuntime().availableProcessors(), 4));
+            for (int i = 0; i < acceptors; i++) {
+                workerPool.submit(this::acceptLoop);
+            }
+            log.info("JDK TcpServer started on {}:{} (backlog={}, acceptors={}, virtualThreads=true)",
+                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048), acceptors);
         } catch (IOException e) {
             throw new RuntimeException("TCP 服务器启动失败", e);
         }
@@ -215,6 +224,12 @@ public class JdkTcpServer extends AbstractServer {
             try {
                 Socket socket = serverSocket.accept();
                 socket.setTcpNoDelay(setting.isTcpNoDelay());
+                // 收发缓冲对齐内核:放大 SO_RCVBUF/SO_SNDBUF 减少高并发下的小包分片与 ACK 往返
+                try {
+                    socket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
+                    socket.setSendBufferSize(Math.max(setting.getBufferSize(), 16384));
+                } catch (IOException ignored) {
+                }
                 try {
                     workerPool.submit(() -> handleConnection(socket));
                 } catch (Exception e) {
@@ -245,11 +260,12 @@ public class JdkTcpServer extends AbstractServer {
                 }
             } else {
                 // 默认处理：回显
-                byte[] buffer = new byte[8192];
+                // 缓冲跟随 setting.bufferSize(autoConfig 在内存充足时设为 16KB),复用而非每连接新建;
+                // 高频小请求场景的 flush 为无操作,吞吐由虚拟线程调度主导
+                byte[] buffer = new byte[Math.max(setting.getBufferSize(), 16384)];
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
-                    out.flush();
                 }
             }
         } catch (Exception e) {

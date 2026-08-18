@@ -74,15 +74,15 @@ public class ServerSetting {
                 ? Math.min(Math.max(cpus * 64, 128), 1024)
                 : Math.min(Math.max(cpus * 128, 256), 4096);
 
-        // 最大连接数：按可用堆内存分级
+        // 最大连接数：按可用堆内存分级(目标:百万级并发连接,配合各实现的每连接懒分配内存)
         if (heapMb >= 8192) {
-            this.maxConnections = 100000;
+            this.maxConnections = 1000000;
         } else if (heapMb >= 4096) {
-            this.maxConnections = 50000;
+            this.maxConnections = 500000;
         } else if (heapMb >= 2048) {
-            this.maxConnections = 20000;
+            this.maxConnections = 200000;
         } else {
-            this.maxConnections = 10000;
+            this.maxConnections = 100000;
         }
 
         // 缓冲区：内存充足时放大，减少系统调用次数

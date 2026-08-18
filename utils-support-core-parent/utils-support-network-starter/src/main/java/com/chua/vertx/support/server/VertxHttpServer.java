@@ -85,7 +85,10 @@ public class VertxHttpServer extends AbstractServer {
                 .setMaxHeaderSize(Math.min(16384, (int) setting.getMaxRequestSize()))
                 .setMaxChunkSize((int) setting.getMaxRequestSize())
                 .setMaxInitialLineLength(Math.min(8192, (int) setting.getMaxRequestSize()))
-                .setAcceptBacklog(Math.max(setting.getBacklog(), 128))
+                .setAcceptBacklog(Math.max(setting.getBacklog(), 65536))
+                // 收发缓冲放大:与内核窗口对齐,高并发小请求场景减少分片与 ACK 往返
+                .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
+                .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
                 // TCP Fast Open 仅 Linux/macOS 支持,Windows 上无效,避免无效配置
                 .setTcpFastOpen(!isWindows)
                 .setTcpNoDelay(setting.isTcpNoDelay())

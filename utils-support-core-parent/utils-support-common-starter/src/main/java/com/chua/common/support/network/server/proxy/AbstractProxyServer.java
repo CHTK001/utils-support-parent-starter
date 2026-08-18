@@ -83,7 +83,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(setting.isSoReuseAddr());
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
-            serverSocket.bind(addr, Math.max(setting.getBacklog(), 4096));
+            // backlog 下限 65536:瞬间并发连接(万级突发)下避免内核 accept 队列溢出导致连接被拒
+            serverSocket.bind(addr, Math.max(setting.getBacklog(), 65536));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
             running = true;
@@ -91,8 +92,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
             // 连接限流
             int maxConn = setting.getMaxConnections();
             connectionLimiter = maxConn > 0 ? new Semaphore(maxConn) : null;
-            // 多 acceptor：使用 bossThreads 控制并行 accept 线程数（默认 1，高并发可设 >1）
-            int acceptors = Math.max(1, setting.getBossThreads());
+            // 多 acceptor：使用 bossThreads 控制并行 accept 线程数(默认至少 min(CPU,4),
+            // 高并发下支撑百万级连接建立;同一 ServerSocket 多线程 accept 为 JDK 支持用法)
+            int acceptors = Math.max(setting.getBossThreads(),
+                    Math.min(Runtime.getRuntime().availableProcessors(), 4));
             for (int i = 0; i < acceptors; i++) {
                 proxyPool.submit(this::acceptLoop);
             }
@@ -211,11 +214,12 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 转发缓冲区大小（32KB）。
-     * <p>虚拟线程的 ThreadLocal 开销极低，适当增大 buffer 提升吞吐量。
-     * 相比 8KB，大文件转发场景吞吐量提升约 2x。</p>
+     * 转发缓冲区大小（64KB）。
+     * <p>虚拟线程的 ThreadLocal 开销极低,适当增大 buffer 提升吞吐量。
+     * 相比 8KB,大文件转发场景吞吐量提升约 2x;相比 32KB,大报文场景
+     * read/write 系统调用进一步减半。</p>
      */
-    private static final int FORWARD_BUFFER_SIZE = 32 * 1024;
+    private static final int FORWARD_BUFFER_SIZE = 64 * 1024;
 
     /**
      * 转发用缓冲区，每虚拟线程独立缓存。
