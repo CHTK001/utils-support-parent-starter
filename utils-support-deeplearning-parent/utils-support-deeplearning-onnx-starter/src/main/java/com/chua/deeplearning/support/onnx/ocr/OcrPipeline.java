@@ -22,9 +22,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -866,12 +864,8 @@ public class OcrPipeline {
      * @return PNG 字节
      */
     private static byte[] toBytes(BufferedImage img) {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            ImageIO.write(img, "png", bos);
-            return bos.toByteArray();
-        } catch (Exception e) {
-            throw new IllegalStateException("图像编码失败", e);
-        }
+        return OpenCvImageUtils.encode(OpenCvImageUtils.toMat(img), "png");
+    }
     }
 
     /**

@@ -3,6 +3,10 @@ package com.chua.ionet.support.client;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
+import com.chua.common.support.objects.annotation.OnClose;
+import com.chua.common.support.objects.annotation.OnError;
+import com.chua.common.support.objects.annotation.OnMessage;
+import com.chua.common.support.objects.annotation.OnOpen;
 import com.iohao.net.external.core.config.ExternalGlobalConfig;
 import com.iohao.net.external.core.config.ExternalJoinEnum;
 import com.iohao.net.extension.client.InputCommandRegion;
@@ -12,6 +16,7 @@ import com.iohao.net.extension.client.user.ClientUser;
 import com.iohao.net.extension.client.user.DefaultClientUser;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +60,16 @@ public class IonetSyncClient implements SyncClient {
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
     /** 流程监听器 */
     private final List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
+    /** 已注册的注解 Bean（beanClass -> 实例） */
+    private final Map<Class<?>, Object> annotatedBeans = new ConcurrentHashMap<>();
+    /** OnOpen 注解方法列表 */
+    private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
+    /** OnClose 注解方法列表 */
+    private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
+    /** OnMessage 注解方法列表 */
+    private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
+    /** OnError 注解方法列表 */
+    private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     private IonetSyncClient(Builder builder) {
         this.host = builder.host;
@@ -102,6 +117,8 @@ public class IonetSyncClient implements SyncClient {
             } finally {
                 connected.set(true);
                 connectionLatch.countDown();
+                // @OnOpen 注解分发
+                dispatchAnnotatedMethods(onOpenMethods);
             }
         });
 
@@ -127,6 +144,8 @@ public class IonetSyncClient implements SyncClient {
     @Override
     public void disconnect() {
         connected.set(false);
+        // @OnClose 注解分发
+        dispatchAnnotatedMethods(onCloseMethods);
     }
 
     @Override
@@ -182,7 +201,148 @@ public class IonetSyncClient implements SyncClient {
     }
 
     /**
-     * 本地分发：主题订阅表 + 流程监听器。
+     * 注册注解 Bean：扫描 {@code @OnOpen/@OnMessage/@OnClose/@OnError} 方法。
+     *
+     * @param bean 注解处理器实例
+     * @return 当前实例
+     */
+    public IonetSyncClient registerBean(Object bean) {
+        if (bean == null) {
+            return this;
+        }
+        Class<?> clazz = bean.getClass();
+        annotatedBeans.put(clazz, bean);
+        for (Method method : clazz.getDeclaredMethods()) {
+            method.setAccessible(true);
+            if (method.isAnnotationPresent(OnOpen.class)) {
+                onOpenMethods.add(new AnnotatedMethod(clazz, method));
+            }
+            if (method.isAnnotationPresent(OnClose.class)) {
+                onCloseMethods.add(new AnnotatedMethod(clazz, method));
+            }
+            if (method.isAnnotationPresent(OnMessage.class)) {
+                String topic = method.getAnnotation(OnMessage.class).value();
+                if (topic == null || topic.isEmpty()) {
+                    topic = "#";
+                }
+                onMessageMethods.add(new AnnotatedMessage(clazz, method, topic));
+            }
+            if (method.isAnnotationPresent(OnError.class)) {
+                onErrorMethods.add(new AnnotatedMethod(clazz, method));
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 分发注解方法（OnOpen/OnClose/OnError，可带参）。
+     *
+     * @param methods 注解方法列表
+     * @param args    方法参数
+     */
+    private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods, Object... args) {
+        for (AnnotatedMethod entry : methods) {
+            Object bean = annotatedBeans.get(entry.beanClass());
+            if (bean != null) {
+                safeInvoke(bean, entry.method(), args);
+            }
+        }
+    }
+
+    /**
+     * 按主题分发 OnMessage 注解方法。
+     *
+     * @param topic   主题
+     * @param payload 消息内容
+     */
+    private void dispatchAnnotatedPublish(String topic, String payload) {
+        for (AnnotatedMessage entry : onMessageMethods) {
+            if (matchTopic(entry.topic(), topic)) {
+                Object bean = annotatedBeans.get(entry.beanClass());
+                if (bean != null) {
+                    safeInvoke(bean, entry.method(), payload);
+                }
+            }
+        }
+    }
+
+    /**
+     * 主题匹配：支持 # 多级通配、+ / * 单级通配。
+     *
+     * @param pattern 订阅模式
+     * @param topic   实际主题
+     * @return true 表示匹配
+     */
+    private boolean matchTopic(String pattern, String topic) {
+        if ("#".equals(pattern)) {
+            return true;
+        }
+        String[] pp = pattern.split("/");
+        String[] tp = topic.split("/");
+        int p = 0;
+        int t = 0;
+        while (p < pp.length && t < tp.length) {
+            if ("#".equals(pp[p])) {
+                return true;
+            }
+            if ("+".equals(pp[p]) || "*".equals(pp[p])) {
+                p++;
+                t++;
+            } else if (pp[p].equals(tp[t])) {
+                p++;
+                t++;
+            } else {
+                return false;
+            }
+        }
+        return p == pp.length && t == tp.length;
+    }
+
+    /**
+     * 安全调用注解方法，异常走 @OnError 分发。
+     *
+     * @param bean   目标实例
+     * @param method 方法
+     * @param args   参数
+     */
+    private void safeInvoke(Object bean, Method method, Object... args) {
+        try {
+            if (args == null || args.length == 0) {
+                method.invoke(bean);
+            } else {
+                method.invoke(bean, args);
+            }
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            log.error("ionet 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
+            dispatchAnnotatedMethods(onErrorMethods, cause);
+        } catch (Exception e) {
+            log.error("ionet 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), e);
+            dispatchAnnotatedMethods(onErrorMethods, e);
+        }
+    }
+
+    /**
+     * 注解方法元信息。
+     *
+     * @param beanClass Bean 类型
+     * @param method    注解方法
+     */
+    private record AnnotatedMethod(Class<?> beanClass, Method method) {
+    }
+
+    /**
+     * OnMessage 注解方法元信息。
+     *
+     * @param beanClass Bean 类型
+     * @param method    注解方法
+     * @param topic     订阅主题
+     */
+    private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {
+    }
+
+    /**
+     * 本地分发：主题订阅表 + 流程监听器 + @OnMessage 注解。
      *
      * @param topic   主题
      * @param payload 消息内容
@@ -202,6 +362,8 @@ public class IonetSyncClient implements SyncClient {
             } catch (Exception ignored) {
             }
         }
+        // @OnMessage 注解分发
+        dispatchAnnotatedPublish(topic, payload);
     }
 
     // ========== Builder ==========

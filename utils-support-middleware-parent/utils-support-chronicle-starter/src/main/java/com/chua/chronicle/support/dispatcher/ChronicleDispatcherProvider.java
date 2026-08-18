@@ -40,21 +40,15 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     private final Map<String, ChronicleQueue> queueMap = new ConcurrentHashMap<>();
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
-    private final ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("chronicle-dispatcher-%d").setDaemon(true).build());
+    private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual().name("chronicle-dispatcher-", 0).factory());
     private volatile boolean closed = false;
-    private volatile boolean chronicleAvailable = true;
-    private final Map<String, java.util.concurrent.LinkedBlockingQueue<Object>> fallbackQueueMap = new ConcurrentHashMap<>();
-    private static final int FALLBACK_QUEUE_CAPACITY = 50000;
 
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     private ChronicleQueue getOrCreateQueue(String topic) {
-        if (!chronicleAvailable) {
-            return null;
-        }
         try {
             return queueMap.computeIfAbsent(topic, t -> {
                 var path = config.getDataPath() != null
@@ -63,22 +57,13 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                 return SingleChronicleQueueBuilder.single(path).build();
             });
         } catch (Throwable e) {
-            log.warn("Chronicle Queue 初始化失败，降级为内存队列。缺少 JVM 参数，请添加 --add-opens 相关参数。错误：{}", e.getMessage());
-            chronicleAvailable = false;
-            return null;
+            throw new RuntimeException("Chronicle Queue 初始化失败。请添加 --add-opens 相关 JVM 参数，或使用 directDispatch=true 绕过。topic=" + topic, e);
         }
     }
 
     @Override
     public void publish(String topic, Object body) {
         var queue = getOrCreateQueue(topic);
-        if (queue == null) {
-            var fbq = fallbackQueueMap.computeIfAbsent(topic, t -> new java.util.concurrent.LinkedBlockingQueue<>(FALLBACK_QUEUE_CAPACITY));
-            if (!fbq.offer(body)) {
-                log.warn("内存队列已满，丢弃消息，主题：{}", topic);
-            }
-            return;
-        }
         try {
             String value;
             try {
@@ -108,16 +93,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     private void startConsumer(String topic) {
-        if (!chronicleAvailable) {
-            startFallbackConsumer(topic);
-            return;
-        }
         ChronicleQueue queue = getOrCreateQueue(topic);
-        if (queue == null) {
-            chronicleAvailable = false;
-            startFallbackConsumer(topic);
-            return;
-        }
         executor.submit(() -> {
             ExcerptTailer tailer = queue.createTailer().toStart();
             while (!closed) {
@@ -152,39 +128,6 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                     if (!closed) {
                         log.error("Chronicle 严重错误，主题：{}", topic, e);
                     }
-                }
-            }
-        });
-    }
-
-    private void startFallbackConsumer(String topic) {
-        executor.submit(() -> {
-            var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new java.util.concurrent.LinkedBlockingQueue<>(FALLBACK_QUEUE_CAPACITY));
-            long consumed = 0;
-            while (!closed) {
-                try {
-                    var body = fallbackQueue.poll(1, TimeUnit.SECONDS);
-                    if (body == null) {
-                        if (consumed > 0) {
-                            log.warn("回退队列 topic={} 已空，共消费 {} 条", topic, consumed);
-                        }
-                        continue;
-                    }
-                    consumed++;
-                    var definitions = definitionMap.get(topic);
-                    if (definitions != null) {
-                        for (var def : definitions) {
-                            try {
-                                def.dispatch(body);
-                            } catch (Exception e) {
-                                log.warn("订阅方法执行异常，主题：{}", topic, e);
-                            }
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    log.warn("回退消费者线程被中断 topic={} 已消费={}", topic, consumed);
-                    Thread.currentThread().interrupt();
-                    break;
                 }
             }
         });
@@ -292,6 +235,5 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         queueMap.values().forEach(ChronicleQueue::close);
         queueMap.clear();
         definitionMap.clear();
-        fallbackQueueMap.clear();
     }
 }

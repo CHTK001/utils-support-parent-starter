@@ -8,11 +8,10 @@ import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -136,7 +135,7 @@ public class StyleTransferImageFilter implements ImageFilter {
             } else if (result instanceof BufferedImage bi) {
                 outputImage = bi;
             } else if (result instanceof byte[] bytes) {
-                outputImage = ImageIO.read(new ByteArrayInputStream(bytes));
+                outputImage = OpenCvImageUtils.toBufferedImage(bytes);
             } else {
                 throw new RuntimeException("风格迁移模型返回了不支持的类型: "
                         + (result != null ? result.getClass().getName() : "null"));
@@ -157,10 +156,10 @@ public class StyleTransferImageFilter implements ImageFilter {
 
     @Override
     public OutputStream converter(InputStream image) throws Exception {
-        BufferedImage inputImage = ImageIO.read(image);
+        BufferedImage inputImage = OpenCvImageUtils.toBufferedImage(OpenCvImageUtils.decode(image.readAllBytes()));
         BufferedImage outputImage = converter(inputImage);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(outputImage, getImageFormat(), baos);
+        baos.write(OpenCvImageUtils.encode(OpenCvImageUtils.toMat(outputImage), getImageFormat()));
         return baos;
     }
 
@@ -183,9 +182,7 @@ public class StyleTransferImageFilter implements ImageFilter {
      * @throws IOException IO 异常
      */
     private static byte[] toBytes(BufferedImage image, String format) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, format, baos);
-        return baos.toByteArray();
+        return OpenCvImageUtils.encode(OpenCvImageUtils.toMat(image), format);
     }
 
     /**

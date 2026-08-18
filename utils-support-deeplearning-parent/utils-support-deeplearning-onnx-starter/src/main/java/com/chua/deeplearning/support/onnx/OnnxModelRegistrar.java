@@ -377,18 +377,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("duguang-ocr-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/small/det_512.onnx");
         // 读光OCR(large)：读光中英文文字识别（DBNet检测+ConvNeXT识别，嵌入式），精度更高；适用高精度中英文OCR
         reg("duguang-ocr-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/large/det_512.onnx");
-        // 文档版面分析(DocLayNet)：YOLOv8n 文档版面分析，11 类（文本、表格、图片等），约 6MB；适用文档分类、版面分析
-        reg("doc-layout-yolo-imgsz640", "com.chua.deeplearning.support.onnx.layout.doclaynet.DocLayNetYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/layout/doclaynet/model.onnx");
-        // 表格检测(YOLOv8n)：YOLOv8n 表格检测，1 类 table，约 6MB；适用表格识别、文档分析
-        reg("yolov8n-table-detection", "com.chua.deeplearning.support.onnx.detection.single.TableDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/table/yolov8n/model.onnx");
-        // 印章检测(YOLOv8n)：YOLOv8n 中文印章检测，1 类 seal，约 6MB；适用印章识别、合同验证
-        reg("yolov8n-seal-detection", "com.chua.deeplearning.support.onnx.detection.single.SealDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/seal/yolov8n/model.onnx");
-        // 条形码/二维码检测(YOLOv8s)：YOLOv8s 条码/二维码检测，5 类（QR、Code128、EAN13 等），约 12MB；适用扫码、文档解析
-        reg("yolov8n-barcode", "com.chua.deeplearning.support.onnx.detection.multi.BarcodeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/barcode/yolov8n/model.onnx");
-        // 安全帽/PPE检测(YOLOv8n)：YOLOv8n 个人防护装备检测，3 类（安全帽、背心、手套），约 6MB；适用工地安全监控
-        reg("yolov8n-ppe", "com.chua.deeplearning.support.onnx.detection.multi.PpeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
-        // 火灾烟雾检测(YOLOv8n)：YOLOv8n 火灾/烟雾检测，2 类（fire、smoke），约 6MB；适用消防监控、安防预警
-        reg("yolov8n-fire-smoke", "com.chua.deeplearning.support.onnx.detection.multi.FireSmokeDetectionYolov8Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
 
         // ==================== 语音合成 TTS ====================
         // MMS-TTS-English（VITS）：英文语音合成，输入文本输出 WAV 音频；适用英文朗读、语音播报。
