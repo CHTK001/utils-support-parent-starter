@@ -20,6 +20,7 @@ import com.chua.runtime.apm.handler.FlinkHandler;
 import com.chua.runtime.apm.handler.GrpcHandler;
 import com.chua.runtime.apm.handler.GraphQLHandler;
 import com.chua.runtime.apm.handler.HBaseHandler;
+import com.chua.runtime.apm.handler.H2Handler;
 import com.chua.runtime.apm.handler.HandleLeakHandler;
 import com.chua.runtime.apm.handler.HazelcastHandler;
 import com.chua.runtime.apm.handler.HdfsHandler;
@@ -163,6 +164,7 @@ public class ApmBootstrap {
         handlers.add(new PostgreSqlHandler());
         handlers.add(new OracleHandler());
         handlers.add(new SqlServerHandler());
+        handlers.add(new H2Handler());
         handlers.add(new Db2Handler());
         handlers.add(new ClickHouseHandler());
         handlers.add(new DamengHandler());
