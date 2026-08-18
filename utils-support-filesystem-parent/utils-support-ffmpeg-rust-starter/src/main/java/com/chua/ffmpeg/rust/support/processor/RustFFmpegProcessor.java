@@ -5,6 +5,7 @@ import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
 import com.chua.common.support.media.ffmpeg.FrameInfo;
 import com.chua.ffmpeg.rust.support.bridge.RustFFmpegBridge;
+import com.chua.nativeffmpeg.support.NativeFFmpeg;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -118,36 +119,65 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     public void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for streaming.");
+        checkStreamAvailable();
+        String videoCodec = options != null ? options.getVideoCodec() : null;
+        String audioCodec = options != null ? options.getAudioCodec() : null;
+        int width = options != null && options.getWidth() != null ? options.getWidth() : 0;
+        int height = options != null && options.getHeight() != null ? options.getHeight() : 0;
+        int fps = options != null && options.getFps() != null ? options.getFps() : 0;
+        int ret = RustFFmpegBridge.pushStream(input, streamUrl, videoCodec, audioCodec, width, height, fps);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg push stream failed with code: " + ret);
+        }
     }
 
     @Override
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for streaming with callbacks.");
+        checkStreamAvailable();
+        String videoCodec = options != null ? options.getVideoCodec() : null;
+        String audioCodec = options != null ? options.getAudioCodec() : null;
+        int width = options != null && options.getWidth() != null ? options.getWidth() : 0;
+        int height = options != null && options.getHeight() != null ? options.getHeight() : 0;
+        int fps = options != null && options.getFps() != null ? options.getFps() : 0;
+        int ret = RustFFmpegBridge.pushStreamWithCallback(input, streamUrl, videoCodec, audioCodec,
+                width, height, fps, callback);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg push stream failed with code: " + ret);
+        }
     }
 
     @Override
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for streaming with frame callbacks.");
+        // Rust 原生推流不支持帧图像数据返回，回退到普通回调
+        pushStream(input, streamUrl, options, callback);
     }
 
     @Override
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for stream pulling.");
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.pullStream(streamUrl, output.getAbsolutePath(), duration);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg pull stream failed with code: " + ret);
+        }
     }
 
     @Override
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for stream pulling with callbacks.");
+        checkStreamAvailable();
+        int ret = RustFFmpegBridge.pullStreamWithCallback(streamUrl, output.getAbsolutePath(), duration, callback);
+        if (ret != 0) {
+            throw new IOException("Rust FFmpeg pull stream failed with code: " + ret);
+        }
     }
 
     @Override
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for stream pulling with frame callbacks.");
+        // Rust 原生拉流不支持帧图像数据返回，回退到普通回调
+        pullStream(streamUrl, output, duration, callback);
     }
 
     @Override
@@ -157,12 +187,29 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     public double getDuration(File input) throws IOException {
-        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for duration.");
+        if (!RustFFmpegBridge.isStreamLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded");
+        }
+        double duration = RustFFmpegBridge.getStreamDuration(input.getAbsolutePath());
+        if (duration < 0) {
+            throw new IOException("Failed to get duration for: " + input.getAbsolutePath());
+        }
+        return duration;
     }
 
     @Override
     public boolean isAvailable() {
-        return RustFFmpegBridge.isLoaded();
+        return RustFFmpegBridge.isLoaded() || RustFFmpegBridge.isStreamLoaded();
+    }
+
+    /**
+     * 检查推流/拉流原生库是否可用。
+     */
+    private void checkStreamAvailable() throws IOException {
+        if (!RustFFmpegBridge.isStreamLoaded()) {
+            throw new IOException("Rust FFmpeg stream library not loaded. " +
+                    "Ensure ffmpeg-rust native library is available. Error: " + NativeFFmpeg.getLoadError());
+        }
     }
 
     @Override

@@ -20,8 +20,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
@@ -74,6 +77,16 @@ public class NativeRpcClient implements RpcClient {
      */
     private final int readTimeout;
 
+    /**
+     * 每个端点复用连接数（连接池大小），取自消费者配置，默认 4
+     */
+    private final int poolSize;
+
+    /**
+     * 端点地址 → 连接池；复用长连接避免高并发下反复建连导致 Windows 临时端口耗尽
+     */
+    private final Map<String, PooledConnections> pools = new ConcurrentHashMap<>();
+
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
     /**
@@ -86,6 +99,8 @@ public class NativeRpcClient implements RpcClient {
                 ? consumerConfig.getTimeout() : DEFAULT_READ_TIMEOUT;
         this.connectTimeout = configuredTimeout > 0 ? configuredTimeout : DEFAULT_CONNECT_TIMEOUT;
         this.readTimeout = configuredTimeout;
+        this.poolSize = consumerConfig != null && consumerConfig.getConnections() != null
+                && consumerConfig.getConnections() > 0 ? consumerConfig.getConnections() : 4;
         this.loadBalance = createLoadBalancer(consumerConfig);
         if (registryConfigs == null) {
             registryConfigs = new ArrayList<>();
@@ -175,42 +190,56 @@ public class NativeRpcClient implements RpcClient {
         private Object call(String addr, RpcRequest req) throws Exception {
             String host = addr.contains(":") ? addr.split(":")[0] : addr;
             int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;
-            try (SocketChannel ch = SocketChannel.open()) {
-                ch.configureBlocking(true);
-                Socket socket = ch.socket();
-                socket.setSoTimeout(readTimeout);
-                SocketAddress target = new InetSocketAddress(host, port);
-                // 阻塞模式下无法直接给 SocketChannel.connect 传超时，先切非阻塞探测再切回阻塞
-                ch.configureBlocking(false);
-                boolean connected = ch.connect(target);
-                if (!connected) {
-                    long deadline = System.currentTimeMillis() + connectTimeout;
-                    while (!ch.finishConnect()) {
-                        if (System.currentTimeMillis() > deadline) {
-                            throw new SocketTimeoutException("Native RPC connect timeout: " + addr);
-                        }
-                        Thread.sleep(10);
-                    }
+            // 复用长连接避免高并发下反复建连耗尽 Windows 临时端口；先借用再归还
+            PooledConnections pool = pools.computeIfAbsent(addr,
+                    a -> new PooledConnections(poolSize, connectTimeout, readTimeout));
+            Exception first = null;
+            for (int attempt = 0; attempt < 2; attempt++) {
+                SocketChannel ch = pool.borrow(host, port);
+                boolean usable = false;
+                try {
+                    Object result = exchange(ch, req);
+                    usable = true;
+                    return result;
+                } catch (RpcException e) {
+                    // 业务异常：服务端已成功执行并返回「业务失败」，重试会放大副作用，直接抛出
+                    if (e.isBusiness()) { throw e; }
+                    first = e;
+                } catch (Exception e) {
+                    first = e;
+                } finally {
+                    pool.recycle(ch, usable);
                 }
-                ch.configureBlocking(true);
-                byte[] reqData = serialize(req);
-                ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + reqData.length);
-                buf.putInt(reqData.length); buf.put(reqData); buf.flip();
-                ch.write(buf);
-                ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
-                readFully(ch, headerBuf);
-                headerBuf.flip();
-                int bodyLen = headerBuf.getInt();
-                if (bodyLen <= 0 || bodyLen > MAX_BODY_SIZE) {
-                    throw RpcException.transport("Native RPC response too large: " + bodyLen);
-                }
-                ByteBuffer bodyBuf = ByteBuffer.allocate(bodyLen);
-                readFully(ch, bodyBuf); bodyBuf.flip();
-                byte[] respData = new byte[bodyLen]; bodyBuf.get(respData);
-                RpcResponse resp = deserialize(respData);
-                if (!resp.isSuccess()) { throw RpcException.business(resp.getError()); }
-                return resp.getResult();
             }
+            throw first;
+        }
+
+        /**
+         * 在已建立的连接上执行一次请求-响应交换。
+         *
+         * @param ch  已连接的通道
+         * @param req 请求对象
+         * @return 服务端返回结果
+         * @throws Exception 传输失败或业务异常时抛出
+         */
+        private Object exchange(SocketChannel ch, RpcRequest req) throws Exception {
+            byte[] reqData = serialize(req);
+            ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + reqData.length);
+            buf.putInt(reqData.length); buf.put(reqData); buf.flip();
+            ch.write(buf);
+            ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
+            readFully(ch, headerBuf);
+            headerBuf.flip();
+            int bodyLen = headerBuf.getInt();
+            if (bodyLen <= 0 || bodyLen > MAX_BODY_SIZE) {
+                throw RpcException.transport("Native RPC response too large: " + bodyLen);
+            }
+            ByteBuffer bodyBuf = ByteBuffer.allocate(bodyLen);
+            readFully(ch, bodyBuf); bodyBuf.flip();
+            byte[] respData = new byte[bodyLen]; bodyBuf.get(respData);
+            RpcResponse resp = deserialize(respData);
+            if (!resp.isSuccess()) { throw RpcException.business(resp.getError()); }
+            return resp.getResult();
         }
 
         /**
@@ -230,9 +259,168 @@ public class NativeRpcClient implements RpcClient {
         }
     }
 
+    /**
+     * 端点级连接池：按 {@code capacity} 上限复用长连接。
+     *
+     * <p>设计要点：借用即独占，归还才可用——同一连接同一时刻只有一个在途请求，
+     * 保证服务端异步 worker 写响应时不会发生交错；连接失效时关闭并放回建连额度。</p>
+     */
+    private static final class PooledConnections {
+
+        /**
+         * 空闲连接队列（容量即连接数上限）
+         */
+        private final ArrayBlockingQueue<SocketChannel> idle;
+
+        /**
+         * 已创建连接数（含借用中与空闲中）
+         */
+        private final AtomicInteger created = new AtomicInteger();
+
+        /**
+         * 连接数上限
+         */
+        private final int capacity;
+
+        /**
+         * 连接超时（毫秒），建连与等待空闲连接共用
+         */
+        private final int connectTimeout;
+
+        /**
+         * 读超时（毫秒）
+         */
+        private final int readTimeout;
+
+        PooledConnections(int capacity, int connectTimeout, int readTimeout) {
+            this.capacity = Math.max(capacity, 1);
+            this.idle = new ArrayBlockingQueue<>(this.capacity);
+            this.connectTimeout = connectTimeout;
+            this.readTimeout = readTimeout;
+        }
+
+        /**
+         * 借用一个可用连接：优先取空闲队列，无空闲且未达上限时新建，否则等待归还。
+         *
+         * @param host 服务端主机
+         * @param port 服务端端口
+         * @return 可用的已连接通道（借用方独占，完成后必须 {@link #recycle}）
+         * @throws IOException 建连失败或等待超时时抛出
+         */
+        SocketChannel borrow(String host, int port) throws IOException {
+            for (;;) {
+                SocketChannel ch = idle.poll();
+                if (ch != null) {
+                    if (ch.isOpen() && ch.isConnected()) { return ch; }
+                    closeQuietly(ch);
+                    created.decrementAndGet();
+                    continue;
+                }
+                int cur = created.get();
+                if (cur < capacity && created.compareAndSet(cur, cur + 1)) {
+                    try {
+                        return openChannel(host, port);
+                    } catch (IOException e) {
+                        created.decrementAndGet();
+                        throw e;
+                    }
+                }
+                // 全部连接均被占用，等待有连接被归还
+                try {
+                    SocketChannel waited = idle.poll(connectTimeout, TimeUnit.MILLISECONDS);
+                    if (waited != null) {
+                        if (waited.isOpen() && waited.isConnected()) { return waited; }
+                        closeQuietly(waited);
+                        created.decrementAndGet();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while waiting for pooled connection", e);
+                }
+            }
+        }
+
+        /**
+         * 归还连接：仍可用则放回空闲队列，否则关闭并释放建连额度。
+         *
+         * @param ch     借用的通道
+         * @param usable 连接是否仍可用（本请求是否成功交换）
+         */
+        void recycle(SocketChannel ch, boolean usable) {
+            if (usable && idle.offer(ch)) {
+                return;
+            }
+            closeQuietly(ch);
+            created.decrementAndGet();
+        }
+
+        /**
+         * 关闭池内全部空闲连接（借用中的由调用方自行归还后关闭）。
+         */
+        void closeAll() {
+            SocketChannel ch;
+            while ((ch = idle.poll()) != null) {
+                closeQuietly(ch);
+                created.decrementAndGet();
+            }
+        }
+
+        /**
+         * 新建并连接一个通道：非阻塞探测完成连接（带超时），随后切回阻塞并设置读超时。
+         *
+         * @param host 服务端主机
+         * @param port 服务端端口
+         * @return 已连接通道
+         * @throws IOException 建连失败或超时时抛出
+         */
+        private SocketChannel openChannel(String host, int port) throws IOException {
+            SocketChannel ch = SocketChannel.open();
+            try {
+                ch.configureBlocking(true);
+                Socket socket = ch.socket();
+                socket.setSoTimeout(readTimeout);
+                SocketAddress target = new InetSocketAddress(host, port);
+                // 阻塞模式下无法直接给 SocketChannel.connect 传超时，先切非阻塞探测再切回阻塞
+                ch.configureBlocking(false);
+                boolean connected = ch.connect(target);
+                if (!connected) {
+                    long deadline = System.currentTimeMillis() + connectTimeout;
+                    while (!ch.finishConnect()) {
+                        if (System.currentTimeMillis() > deadline) {
+                            throw new SocketTimeoutException("Native RPC connect timeout: " + host + ":" + port);
+                        }
+                        Thread.sleep(10);
+                    }
+                }
+                ch.configureBlocking(true);
+                return ch;
+            } catch (IOException | RuntimeException e) {
+                closeQuietly(ch);
+                throw e instanceof IOException ioe ? ioe
+                        : new IOException("Failed to connect " + host + ":" + port, e);
+            } catch (InterruptedException e) {
+                closeQuietly(ch);
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted while connecting " + host + ":" + port, e);
+            }
+        }
+    }
+
+    /**
+     * 安静关闭通道，忽略关闭过程中的异常。
+     *
+     * @param ch 通道，可为 {@code null}
+     */
+    private static void closeQuietly(SocketChannel ch) {
+        if (ch == null) { return; }
+        try { ch.close(); } catch (IOException ignored) { }
+    }
+
     @Override
     public void close() {
         proxyCache.clear();
+        pools.values().forEach(PooledConnections::closeAll);
+        pools.clear();
         if (serviceDiscovery != null) { try { serviceDiscovery.close(); } catch (Exception ignored) { } }
     }
 

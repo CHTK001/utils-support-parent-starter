@@ -11,13 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 
 /**
@@ -39,6 +33,7 @@ public class ImageFilterPoolTest {
 
     private static final AtomicInteger createdCount = new AtomicInteger(0);
     private static final AtomicInteger generateCount = new AtomicInteger(0);
+    private static final List<BufferedImage> generatedImages = new ArrayList<>();
 
 
     public static void main(String[] args) throws Exception {
@@ -69,10 +64,8 @@ public class ImageFilterPoolTest {
         testFilterWithChainedConfig();
         System.out.println();
 
-        // ========== 3. 真实输入图 (无 AI 也能跑) ==========
-        if (Files.exists(Paths.get("D:", "images"))) {
-            testRealImagesWithClient();
-        }
+        // ========== 3. SPI 链路验证 ==========
+        testImageFilterSpi();
 
         System.out.println();
         System.out.println("=" .repeat(70));
@@ -109,15 +102,15 @@ public class ImageFilterPoolTest {
         assertEqual(1, createdCount.get(), "单例模式只创建 1 次");
         assertEqual(3, generateCount.get(), "单例模式调用 3 次");
 
-        // pool(1) 也是单例
+        // pool(1) 也是单例 (但切换会清空旧单例, 所以会重新创建 1 次)
         client.pool(1);
         int countBefore = createdCount.get();
         client.generate("d");
         int countAfter = createdCount.get();
-        // pool(1) 切换会清空旧单例, 所以会重新创建 1 次
         if (countAfter - countBefore != 1) {
             throw new AssertionError("pool(1) 切换后应该创建 1 次新实例, 实际: " + (countAfter - countBefore));
         }
+        System.out.println("  [Test 1.1 通过] 单例模式正确");
     }
 
 
@@ -138,20 +131,18 @@ public class ImageFilterPoolTest {
         assertEqual(true, client.isPooled(), "pool(4) 后 isPooled");
         assertEqual(true, client.getPool() != null, "pool(4) 后 getPool != null");
 
-        // 串行调用, 由于是单线程不会同时 borrow 多个, 池内只有 1 个实际创建的实例
         for (int i = 0; i < 5; i++) {
             client.generate("prompt-" + i);
         }
         System.out.println("  池大小: 4, 调用次数: 5");
-        System.out.println("  create 次数: " + createdCount.get() + " (单线程预期 ≤ 5)");
+        System.out.println("  create 次数: " + createdCount.get() + " (单线程预期 <= 5)");
         System.out.println("  generate 次数: " + generateCount.get() + " (预期 5)");
 
-        // 验证 generateCount
         assertEqual(5, generateCount.get(), "generate 次数");
-        // 单线程串行 borrow/return 最多创建 1 个 (或更少)
         if (createdCount.get() < 1 || createdCount.get() > 5) {
             throw new AssertionError("create 次数异常: " + createdCount.get());
         }
+        System.out.println("  [Test 1.2 通过] 池化模式正确");
     }
 
 
@@ -174,9 +165,8 @@ public class ImageFilterPoolTest {
         for (int i = 0; i < 3; i++) {
             client.generate("prompt-" + i);
         }
-        // 无池化模式: 每次都新建, 但底层 mock 在 borrowClient 时不一定调 factory
-        // 这里只验证不抛错即可
         System.out.println("  无池化模式调用 3 次未抛错");
+        System.out.println("  [Test 1.3 通过] 无池化模式正确");
     }
 
 
@@ -200,12 +190,12 @@ public class ImageFilterPoolTest {
         assertEqual(false, client.isPooled(), "pool(null) 切换到单例");
         client.generate("b");
         client.generate("c");
-        // 单例模式, 应该复用之前的实例
         System.out.println("  pool(null) 切换后调用 2 次, create 次数: " + createdCount.get());
 
         client.pool(2);
         assertEqual(true, client.isPooled(), "pool(2) 切换到池化");
         client.generate("d");
+        System.out.println("  [Test 1.4 通过] 重新配置正确");
     }
 
 
@@ -243,12 +233,12 @@ public class ImageFilterPoolTest {
 
         int totalCalls = threadCount * callsPerThread;
         System.out.println("  总调用: " + totalCalls + " (预期 generateCount=" + totalCalls + ")");
-        System.out.println("  create 次数: " + createdCount.get() + " (≤ " + totalCalls + ", 理想 ≤ 4)");
+        System.out.println("  create 次数: " + createdCount.get() + " (理想 <= 4)");
         assertEqual(totalCalls, generateCount.get(), "并发 generate 总次数");
-        // 池大小 4, 并发 create 不会超过 4 (假设串行化池)
         if (createdCount.get() > totalCalls) {
             throw new AssertionError("create 次数超过总调用: " + createdCount.get());
         }
+        System.out.println("  [Test 1.5 通过] 并发安全");
     }
 
 
@@ -257,23 +247,19 @@ public class ImageFilterPoolTest {
      */
     private static void testIsPooledFlag() throws Exception {
         System.out.println("[Test 1.6] isPooled / getPool 状态检查");
-        PooledImageClient client = new PooledImageClient(() -> {
-            createdCount.incrementAndGet();
-            return new MockImageClient();
-        });
+        PooledImageClient client = new PooledImageClient(() -> new MockImageClient());
 
-        // 默认
         assertEqual(false, client.isPooled(), "默认 isPooled=false");
         assertEqual(null, client.getPool(), "默认 getPool=null");
 
         client.pool(8);
         assertEqual(true, client.isPooled(), "pool(8) isPooled=true");
         assertEqual(true, client.getPool() != null, "pool(8) getPool != null");
-        // ObjectPool 接口存在
         if (!(client.getPool() instanceof com.chua.common.support.concurrent.pool.ObjectPool)) {
             throw new AssertionError("getPool 应为 ObjectPool 实例");
         }
         System.out.println("  ObjectPool 类型: " + client.getPool().getClass().getSimpleName());
+        System.out.println("  [Test 1.6 通过] isPooled 状态正确");
     }
 
 
@@ -292,6 +278,7 @@ public class ImageFilterPoolTest {
         } catch (IllegalStateException e) {
             System.out.println("  正确抛出异常: " + e.getMessage());
         }
+        System.out.println("  [Test 2.1 通过] 无客户端抛错");
     }
 
 
@@ -314,6 +301,7 @@ public class ImageFilterPoolTest {
         assertEqual(true, result != null, "filter 结果非空");
         assertEqual(true, generateCount.get() == 1, "调用 1 次 generate");
         System.out.println("  filter 成功, 输出图像: " + result.getWidth() + "x" + result.getHeight());
+        System.out.println("  [Test 2.2 通过] 客户端注入正常");
     }
 
 
@@ -337,17 +325,15 @@ public class ImageFilterPoolTest {
         }
         assertEqual(3, generatedImages.size(), "生成 3 次");
         System.out.println("  池化客户端调用 3 次, 生成的图像数: " + generatedImages.size());
+        System.out.println("  [Test 2.3 通过] 链式配置 + 池化注入正常");
     }
 
 
     /**
-     * 3. 真实输入图像 (跳过 AI 调用, 仅验证非 AI 滤镜正常)
+     * 3. SPI 链路验证
      */
-    private static void testRealImagesWithClient() throws Exception {
-        System.out.println("[Test 3] 验证 ImageFilter SPI 仍可加载 (非 AI 滤镜回归测试)");
-        // 项目自定义 SPI 在 META-INF/extensions
-        // 验证 1 级 SPI 至少能加载 AbstractImageFilter
-        // (具体子类通过 META-INF/extensions/com.chua.image.support.filter.AbstractImageFilter 链式加载, 由 CustomServiceResolver 处理)
+    private static void testImageFilterSpi() {
+        System.out.println("[Test 3] 验证 ImageFilter SPI 链路 (非 AI 滤镜回归测试)");
         com.chua.common.support.spi.ServiceProvider<com.chua.common.support.image.filter.ImageFilter> provider =
                 com.chua.common.support.spi.ServiceProvider.of(com.chua.common.support.image.filter.ImageFilter.class);
         java.util.Set<String> names = provider.getExtensions();
@@ -360,16 +346,6 @@ public class ImageFilterPoolTest {
         }
         System.out.println("  [Test 3 通过] SPI 链路正常");
     }
-        for (String name : names) {
-            System.out.println("    - " + name);
-        }
-        if (names.size() < 20) {
-            throw new AssertionError("应至少加载 20 个滤镜, 实际: " + names.size());
-        }
-    }
-
-
-    private static final List<BufferedImage> generatedImages = new ArrayList<>();
 
 
     /**
