@@ -13,6 +13,7 @@ import lombok.Data;
  *   <tr><td>{@code retries}</td><td>失败最大重试次数</td><td>{@code 2}</td></tr>
  *   <tr><td>{@code loadBalance}</td><td>负载均衡策略</td><td>{@code random}</td></tr>
  *   <tr><td>{@code async}</td><td>是否异步调用</td><td>{@code false}</td></tr>
+ *   <tr><td>{@code auto}</td><td>是否按当前系统自动调优</td><td>{@code true}</td></tr>
  * </table>
  *
  * @author CH
@@ -20,6 +21,53 @@ import lombok.Data;
  */
 @Data
 public class RpcConsumerConfig {
+
+    /**
+     * 创建一份按当前系统自动调优的消费者配置。
+     *
+     * <p>基于 CPU 核数与 JVM 可用堆内存自动调整超时、连接数、连接超时、
+     * 重试间隔等关键参数（等效于 {@code autoConfig()}）。</p>
+     *
+     * @return 自动配置实例
+     */
+    public static RpcConsumerConfig auto() {
+        return new RpcConsumerConfig().autoConfig();
+    }
+
+    /**
+     * 是否启用按当前系统自动调优。
+     *
+     * <p>开启后，客户端创建前会基于 CPU 核数与 JVM 可用堆内存自动调整
+     * 超时、连接数、连接超时、重试间隔等参数，使消费者在各环境中都能获得
+     * 较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
+     */
+    private boolean auto = true;
+
+    /**
+     * 按当前系统自动调优关键参数。
+     *
+     * <p>基于 CPU 核数 {@code cpus} 与 JVM 可用堆内存 {@code heapMb}：</p>
+     * <ul>
+     *   <li>调用超时：核数越多放大（预留 GC 与调度开销），范围 3000-15000ms</li>
+     *   <li>连接超时：取调用超时的 {@code 1/3}</li>
+     *   <li>连接数：核数 × 4，最少 4</li>
+     *   <li>重试间隔：堆内存充足时收敛，避免大堆频繁重试放大压力</li>
+     * </ul>
+     *
+     * @return 当前配置实例
+     */
+    public RpcConsumerConfig autoConfig() {
+        int cpus = Runtime.getRuntime().availableProcessors();
+        long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+
+        this.timeout = Math.min(Math.max(cpus * 1500, 3000), 15000);
+        this.connectTimeout = Math.max(this.timeout / 3, 1000);
+        this.connections = Math.max(cpus * 4, 4);
+        this.retryDelay = heapMb >= 4096 ? 200 : 500;
+
+        return this;
+    }
+
     /** 启动时检查 */
     private Boolean check;
     /** 超时（毫秒） */
