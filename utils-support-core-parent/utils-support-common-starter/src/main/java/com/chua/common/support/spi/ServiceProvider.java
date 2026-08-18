@@ -608,6 +608,73 @@ public interface ServiceProvider<T> {
     }
 
     /**
+     * 获取按优先级自动降级的服务代理实例（复用已注册实例）。
+     *
+     * <p>返回的代理对象实现了服务接口，调用任一方法时按优先级（{@link SpiOrder} 大者优先）
+     * 依次尝试已注册的实现；当前实现失败（抛出异常）时自动降级到下一优先级实现。
+     * 全部失败则抛出最后一个异常。</p>
+     *
+     * @param name 服务名称
+     * @return 服务代理，未找到任何实现时返回 null
+     */
+    @Nullable
+    default T getExtensionFactory(@Nullable String name) {
+        List<T> instances = (name == null || name.isEmpty())
+                ? collect()
+                : getNewExtensions(name);
+        return proxyFactory(instances);
+    }
+
+    /**
+     * 获取按优先级自动降级的服务代理实例（每次新建实例）。
+     *
+     * <p>与 {@link #getExtensionFactory(String)} 语义一致，区别在于实例通过构造参数新建，
+     * 不缓存引用。调用任一方法时按优先级依次尝试，失败自动降级到下一实现。</p>
+     *
+     * @param name 服务名称
+     * @param args 构造参数
+     * @return 服务代理，未找到任何实现时返回 null
+     */
+    @Nullable
+    default T getNewExtensionFactory(@Nullable String name, @Nonnull Object... args) {
+        List<T> instances = getNewExtensions(name, args);
+        return proxyFactory(instances);
+    }
+
+    /**
+     * 构建按优先级自动降级的服务代理。
+     *
+     * @param instances 按优先级排序的服务实例列表（高优先级在前）
+     * @return 服务代理，列表为空时返回 null
+     */
+    @Nullable
+    default T proxyFactory(@Nonnull List<T> instances) {
+        if (instances == null || instances.isEmpty()) {
+            return null;
+        }
+        return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
+            @Override
+            public Object apply(ProxyMethod proxyMethod) {
+                Exception last = null;
+                for (T t : instances) {
+                    try {
+                        Object result = proxyMethod.invoke(t);
+                        if (result != null) {
+                            return result;
+                        }
+                    } catch (Exception e) {
+                        last = e;
+                    }
+                }
+                if (last != null) {
+                    throw new IllegalStateException("所有图像处理器均执行失败", last);
+                }
+                return null;
+            }
+        }));
+    }
+
+    /**
      * 获取支持的类型集合。
      *
      * @return 支持的类型集合

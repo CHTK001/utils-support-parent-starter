@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author CH
@@ -472,7 +473,107 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     public void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException {
-        throw new UnsupportedOperationException("推流功能未实现，请使用命令行处理器");
+        if (!available) {
+            throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
+        }
+
+        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(input);
+             FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(streamUrl, 0)) {
+
+            grabber.start();
+
+            recorder.setFormat(streamUrl.startsWith("rtmp://") ? "flv" : FileUtils.getSimpleExtension(streamUrl));
+            recorder.setImageWidth(options != null && options.getWidth() != null ? options.getWidth() : grabber.getImageWidth());
+            recorder.setImageHeight(options != null && options.getHeight() != null ? options.getHeight() : grabber.getImageHeight());
+            recorder.setFrameRate(options != null && options.getFps() != null ? options.getFps() : grabber.getFrameRate());
+            recorder.setAudioChannels(grabber.getAudioChannels());
+            recorder.setSampleRate(grabber.getSampleRate());
+            if (options != null && options.getVideoCodec() != null) {
+                recorder.setVideoCodecName(options.getVideoCodec());
+            } else {
+                recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            }
+            if (options != null && options.getAudioCodec() != null) {
+                recorder.setAudioCodecName(options.getAudioCodec());
+            } else {
+                recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+            }
+            recorder.start();
+
+            Frame frame;
+            while ((frame = grabber.grab()) != null) {
+                recorder.record(frame);
+            }
+
+            recorder.stop();
+            grabber.stop();
+        }
+    }
+
+    @Override
+    public void pushStream(String input, String streamUrl, FFmpegOptions options,
+                           Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
+        }
+        pushStreamInternal(input, streamUrl, options, callback, false);
+    }
+
+    @Override
+    public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
+                                     Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
+        }
+        pushStreamInternal(input, streamUrl, options, callback, true);
+    }
+
+    private void pushStreamInternal(String input, String streamUrl, FFmpegOptions options,
+                                    Consumer<FrameInfo> callback, boolean withImageData) throws IOException {
+        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(input);
+             FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(streamUrl, 0)) {
+
+            grabber.start();
+
+            recorder.setFormat(streamUrl.startsWith("rtmp://") ? "flv" : FileUtils.getSimpleExtension(streamUrl));
+            recorder.setImageWidth(options != null && options.getWidth() != null ? options.getWidth() : grabber.getImageWidth());
+            recorder.setImageHeight(options != null && options.getHeight() != null ? options.getHeight() : grabber.getImageHeight());
+            recorder.setFrameRate(options != null && options.getFps() != null ? options.getFps() : grabber.getFrameRate());
+            recorder.setAudioChannels(grabber.getAudioChannels());
+            recorder.setSampleRate(grabber.getSampleRate());
+            if (options != null && options.getVideoCodec() != null) {
+                recorder.setVideoCodecName(options.getVideoCodec());
+            } else {
+                recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            }
+            if (options != null && options.getAudioCodec() != null) {
+                recorder.setAudioCodecName(options.getAudioCodec());
+            } else {
+                recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+            }
+            recorder.start();
+
+            long frameCount = 0;
+            Java2DFrameConverter converter = withImageData ? new Java2DFrameConverter() : null;
+            Frame frame;
+            while ((frame = grabber.grab()) != null) {
+                recorder.record(frame);
+                if (callback != null && frame.image != null) {
+                    FrameInfo info = buildFrameInfo(frame, frameCount, grabber);
+                    if (withImageData && converter != null) {
+                        BufferedImage image = converter.convert(frame);
+                        if (image != null) {
+                            info.setImageData(toJpegBytes(image));
+                        }
+                    }
+                    callback.accept(info);
+                }
+                frameCount++;
+            }
+
+            recorder.stop();
+            grabber.stop();
+        }
     }
 
     @Override

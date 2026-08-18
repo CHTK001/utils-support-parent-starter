@@ -21,9 +21,10 @@ public class OnnxOcrPipeline {
 
     public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                            ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
-                           boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence) {
+                           boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
+                           int cropPadding, int cropMinHeight) {
         this.delegate = new OcrPipeline(detector, recognizer, direction, enhancer,
-                enhanceInPipeline, sortReadingOrder, minConfidence);
+                enhanceInPipeline, sortReadingOrder, minConfidence, cropPadding, cropMinHeight);
     }
 
     public String recognize(byte[] imageData) {

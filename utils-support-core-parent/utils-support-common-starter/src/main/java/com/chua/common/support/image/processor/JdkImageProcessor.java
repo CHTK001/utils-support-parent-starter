@@ -1,6 +1,8 @@
 package com.chua.common.support.image.processor;
 
 import com.chua.common.support.image.ImageProcessor;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiOrder;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -21,6 +23,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("image-processor")
+@SpiOrder(-100)
 public class JdkImageProcessor implements ImageProcessor {
 
     @Override
