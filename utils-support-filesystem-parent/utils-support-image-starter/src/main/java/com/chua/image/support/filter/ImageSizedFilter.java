@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 public class ImageSizedFilter extends AbstractImageFilter {
 
 
+    /** 尺寸 */
     private double size = 0.5d;
 
     public ImageSizedFilter(double size) {

@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SpringCloudStreamHandler extends AbstractAppHandler {
 
+    /**
+     * 消息 channel
+     */
     private static final String MESSAGE_CHANNEL = "org/springframework/messaging/MessageChannel";
+    /**
+     * send methods
+     */
     private static final String[] SEND_METHODS = {"send"};
 
     @Override

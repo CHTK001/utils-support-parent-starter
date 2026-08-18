@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 @Accessors(chain = true)
 public class NetAddress implements Serializable {
 
+    /** 协议 */
     private String protocol;
     /**
      * 主机名
@@ -25,12 +26,15 @@ public class NetAddress implements Serializable {
      * 端口号
      */
     private Integer port;
+    /** 地址 */
     private String address;
     /**
      * 路径
      */
     private String path;
+    /** Query */
     private String query;
+    /** Fragment */
     private String fragment;
     /**
      * 用户名

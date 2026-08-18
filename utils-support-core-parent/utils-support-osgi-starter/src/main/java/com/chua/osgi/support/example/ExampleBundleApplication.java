@@ -13,6 +13,7 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi("example-bundle")
 public class ExampleBundleApplication implements BundleApplication {
 
+    /** 服务名称 */
     private static final String serviceName = "example-service";
 
     @Override

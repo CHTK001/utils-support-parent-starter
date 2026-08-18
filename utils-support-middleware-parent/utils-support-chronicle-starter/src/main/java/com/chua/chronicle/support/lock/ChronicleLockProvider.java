@@ -18,7 +18,9 @@ import java.util.concurrent.locks.ReentrantLock;
 @Spi("chronicle")
 public class ChronicleLockProvider extends AbstractLockProvider {
 
+    /** 名称 */
     private final String name;
+    /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
 
     public ChronicleLockProvider() {

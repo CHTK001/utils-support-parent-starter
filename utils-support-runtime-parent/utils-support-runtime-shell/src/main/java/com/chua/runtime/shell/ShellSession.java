@@ -24,6 +24,9 @@ import java.util.List;
 public class ShellSession implements Runnable {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(ShellSession.class.getName());
     /**
      * 欢迎横幅

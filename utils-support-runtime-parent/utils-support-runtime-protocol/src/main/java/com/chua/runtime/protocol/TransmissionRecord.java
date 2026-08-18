@@ -65,6 +65,7 @@ public class TransmissionRecord {
      * 状态
      */
     @Builder.Default
+    /** 状态 */
     private StatusCode status = StatusCode.UNSET;
 
     /**

@@ -27,6 +27,9 @@ import java.util.function.Consumer;
 @Spi("kcp")
 public class KcpSyncClient implements SyncClient {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpSyncClient.class);
 
     /**

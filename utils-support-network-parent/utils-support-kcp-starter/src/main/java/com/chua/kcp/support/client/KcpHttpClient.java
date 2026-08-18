@@ -23,6 +23,9 @@ import java.util.Map;
  */
 public class KcpHttpClient {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpHttpClient.class);
 
     /**

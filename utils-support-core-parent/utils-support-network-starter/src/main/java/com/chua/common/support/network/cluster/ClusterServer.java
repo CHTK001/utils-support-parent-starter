@@ -24,7 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ClusterServer implements AutoCloseable {
 
+    /** Cluster设置 */
     private final ClusterSetting clusterSetting;
+    /** 节点 */
     private final ClusterNode node;
 
     private ClusterServer(ClusterSetting clusterSetting) throws Exception {

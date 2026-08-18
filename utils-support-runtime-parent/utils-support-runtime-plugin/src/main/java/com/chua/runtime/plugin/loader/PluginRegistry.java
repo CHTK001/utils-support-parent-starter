@@ -15,6 +15,9 @@ import java.util.*;
  */
 public class PluginRegistry {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class.getName());
     /**
      * 插件名称到信息映射

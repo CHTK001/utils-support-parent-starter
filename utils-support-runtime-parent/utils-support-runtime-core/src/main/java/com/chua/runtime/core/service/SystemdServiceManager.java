@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 public class SystemdServiceManager implements ServiceManager {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(SystemdServiceManager.class.getName());
     /**
      * systemd 服务目录

@@ -19,9 +19,11 @@ import java.util.List;
 public class ImageDefinition extends AgentDefinition {
 
     /** 图像生成模型名称，如 dall-e-3、agnes-image-2.0-flash */
+    /** 图片模型 */
     private final String imageModel;
 
     /** 图像生成客户端 */
+    /** 图片客户端 */
     private final ImageClient imageClient;
 
     public ImageDefinition(String id, String name, String description, String role,

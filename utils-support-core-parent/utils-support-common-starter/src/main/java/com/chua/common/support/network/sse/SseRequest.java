@@ -97,6 +97,7 @@ public class SseRequest {
      * <p>SSE 连接断开后是否自动重新建立连接。默认 false。
      */
     @Builder.Default
+    /** Reconnect */
     private boolean reconnect = false;
 
     /**

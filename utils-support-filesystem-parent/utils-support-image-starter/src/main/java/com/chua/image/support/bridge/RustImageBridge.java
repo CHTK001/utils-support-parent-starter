@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 @Slf4j
 public class RustImageBridge {
     
+    /** Library_name */
     private static final String LIBRARY_NAME = "rust_image_processor";
     private static volatile boolean initialized = false;
     

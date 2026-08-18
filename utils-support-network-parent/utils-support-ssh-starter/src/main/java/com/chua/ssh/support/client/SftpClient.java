@@ -24,15 +24,42 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class SftpClient implements AutoCloseable {
 
+    /**
+     * 主机地址
+     */
     private final String host;
+    /**
+     * 端口号
+     */
     private final int port;
+    /**
+     * 登录用户名
+     */
     private final String username;
+    /**
+     * 登录密码
+     */
     private final String password;
+    /**
+     * private Key Path
+     */
     private final String privateKeyPath;
+    /**
+     * 连接超时时间（毫秒）
+     */
     private final int connectTimeout;
 
+    /**
+     * ssh Client
+     */
     private SshClient sshClient;
+    /**
+     * 会话对象
+     */
     private ClientSession session;
+    /**
+     * sftp
+     */
     private org.apache.sshd.sftp.client.SftpClient sftp;
 
     private SftpClient(Builder b) {
@@ -104,8 +131,17 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class UploadOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 本地文件路径
+         */
         private String localPath;
+        /**
+         * 远程文件路径
+         */
         private String remotePath;
         UploadOperation(SftpClient client) { this.client = client; }
         public UploadOperation local(String p) { localPath = p; return this; }
@@ -125,8 +161,17 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class DownloadOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 远程文件路径
+         */
         private String remotePath;
+        /**
+         * 本地文件路径
+         */
         private String localPath;
         DownloadOperation(SftpClient client) { this.client = client; }
         public DownloadOperation remote(String p) { remotePath = p; return this; }
@@ -150,7 +195,13 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class ListOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 路径
+         */
         private String path = ".";
         ListOperation(SftpClient client) { this.client = client; }
         public ListOperation path(String p) { path = p; return this; }
@@ -171,8 +222,17 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class MkdirOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 路径
+         */
         private String path;
+        /**
+         * recursive
+         */
         private boolean recursive = false;
         MkdirOperation(SftpClient client) { this.client = client; }
         public MkdirOperation path(String p) { path = p; return this; }
@@ -196,8 +256,17 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class RmOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 路径
+         */
         private String path;
+        /**
+         * recursive
+         */
         private boolean recursive = false;
         RmOperation(SftpClient client) { this.client = client; }
         public RmOperation path(String p) { path = p; return this; }
@@ -218,8 +287,17 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class RenameOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 原路径
+         */
         private String oldPath;
+        /**
+         * 新路径
+         */
         private String newPath;
         RenameOperation(SftpClient client) { this.client = client; }
         public RenameOperation from(String p) { oldPath = p; return this; }
@@ -232,7 +310,13 @@ public class SftpClient implements AutoCloseable {
 
     @Getter
     public static class StatOperation {
+        /**
+         * 客户端实例
+         */
         private final SftpClient client;
+        /**
+         * 路径
+         */
         private String path;
         StatOperation(SftpClient client) { this.client = client; }
         public StatOperation path(String p) { path = p; return this; }
@@ -251,11 +335,29 @@ public class SftpClient implements AutoCloseable {
      }
 
     public static class Builder {
+        /**
+         * 主机地址
+         */
         private String host;
+        /**
+         * 端口号
+         */
         private int port = 22;
+        /**
+         * 登录用户名
+         */
         private String username;
+        /**
+         * 登录密码
+         */
         private String password;
+        /**
+         * private Key Path
+         */
         private String privateKeyPath;
+        /**
+         * 连接超时时间（毫秒）
+         */
         private int connectTimeout = 30;
         public Builder host(String h) { host = h; return this; }
         public Builder port(int p) { port = p; return this; }

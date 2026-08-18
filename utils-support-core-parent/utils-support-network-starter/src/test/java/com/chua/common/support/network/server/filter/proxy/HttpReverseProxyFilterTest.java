@@ -31,8 +31,11 @@ import static org.mockito.Mockito.*;
  */
 public class HttpReverseProxyFilterTest {
 
+    /** Backend服务器 */
     private HttpServer backendServer;
+    /** Proxy过滤器 */
     private HttpReverseProxyFilter proxyFilter;
+    /** Backend端口 */
     private int backendPort;
 
     @BeforeEach
@@ -153,6 +156,7 @@ public class HttpReverseProxyFilterTest {
     }
 
     private static class CapturingServerResponse extends AbstractServerResponse {
+        /** Latch */
         private final CountDownLatch latch = new CountDownLatch(1);
 
         @Override

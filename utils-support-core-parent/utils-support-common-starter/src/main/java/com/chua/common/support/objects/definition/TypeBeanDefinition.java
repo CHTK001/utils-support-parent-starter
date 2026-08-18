@@ -43,6 +43,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
      * 类加载器
      */
     @Setter
+    /** Classloader */
     private ClassLoader classLoader;
 
     /**

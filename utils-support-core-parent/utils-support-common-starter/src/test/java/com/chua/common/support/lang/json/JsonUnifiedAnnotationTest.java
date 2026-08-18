@@ -31,14 +31,18 @@ class JsonUnifiedAnnotationTest {
      */
     static class Order implements Serializable {
         @JsonName("order_id")
+        /** 排序ID */
         private String orderId;
 
         @JsonIgnore
+        /** 内部 */
         private String internal;
 
         @JsonFormat("yyyy-MM-dd HH:mm:ss")
+        /** Create时间 */
         private LocalDateTime createTime;
 
+        /** Amount */
         private double amount;
 
         public Order() {

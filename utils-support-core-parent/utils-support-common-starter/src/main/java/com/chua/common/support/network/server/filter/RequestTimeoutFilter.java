@@ -21,6 +21,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class RequestTimeoutFilter implements ServerFilter {
 
+    /** 超时毫秒 */
     private final long timeoutMillis;
 
     /**

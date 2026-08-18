@@ -125,6 +125,8 @@ public class Yolo8GeneralLayoutTranslator implements Translator<Image, DetectedO
      *                   
      */
     private int imageWidth;
+    /** 图像高度 */
+    /** 图片高度 */
     private int imageHeight;
 
     /**

@@ -15,9 +15,21 @@ import java.util.*;
  */
 public class RSocketSyncFlow implements SyncFlow {
 
+    /**
+     * 客户端实例
+     */
     private final RSocketSyncClient client;
+    /**
+     * 服务器实例
+     */
     private final RSocketSyncServer server;
+    /**
+     * running
+     */
     private volatile boolean running = false;
+    /**
+     * 监听器列表
+     */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     public RSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {

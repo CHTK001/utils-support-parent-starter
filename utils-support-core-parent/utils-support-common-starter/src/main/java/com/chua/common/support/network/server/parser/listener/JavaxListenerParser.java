@@ -27,6 +27,7 @@ import java.util.Map;
 public class JavaxListenerParser implements ListenerParser {
 
     /** javax.websocket 注解类名列表 */
+    /** Javax_annotations */
     private static final String[] JAVAX_ANNOTATIONS = {
             "javax.websocket.OnOpen",
             "javax.websocket.OnMessage",
@@ -35,6 +36,7 @@ public class JavaxListenerParser implements ListenerParser {
     };
 
     /** jakarta.websocket 注解类名列表 */
+    /** Jakarta_annotations */
     private static final String[] JAKARTA_ANNOTATIONS = {
             "jakarta.websocket.OnOpen",
             "jakarta.websocket.OnMessage",

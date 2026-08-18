@@ -56,6 +56,9 @@ public final class W3CTraceContext {
      * 全 0 / 全 f 等非法 traceid 屏蔽（RFC 要求）
      */
     private static final String INVALID_TRACE_ID_1 = "00000000000000000000000000000000";
+    /**
+     * invalid trace 标识 2
+     */
     private static final String INVALID_TRACE_ID_2 = "ffffffffffffffffffffffffffffffff";
 
     /**
@@ -63,9 +66,21 @@ public final class W3CTraceContext {
      */
     private static final String INVALID_PARENT_ID = "0000000000000000";
 
+    /**
+     * 版本
+     */
     private final String version;
+    /**
+     * trace Id
+     */
     private final String traceId;
+    /**
+     * span Id
+     */
     private final String spanId;
+    /**
+     * flags
+     */
     private final byte flags;
 
     private W3CTraceContext(String version, String traceId, String spanId, byte flags) {

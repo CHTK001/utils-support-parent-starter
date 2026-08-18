@@ -31,18 +31,25 @@ import java.util.List;
 @Spi("kuaidi100")
 public class Kuaidi100ExpressProvider implements ExpressProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(Kuaidi100ExpressProvider.class);
 
+    /** Default_query */
     private static final String DEFAULT_QUERY = "https://www.kuaidi100.com/query?type=%s&postid=%s";
 
+    /** Default_auto */
     private static final String DEFAULT_AUTO = "https://www.kuaidi100.com/autonumber/autoComNum?resultv2=1&text=%s";
 
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    /** QueryURL模板 */
     private final String queryUrlTemplate;
 
+    /** AutoURL模板 */
     private final String autoUrlTemplate;
 
+    /** HTTP客户端 */
     private final HttpClient httpClient;
 
     public Kuaidi100ExpressProvider() {

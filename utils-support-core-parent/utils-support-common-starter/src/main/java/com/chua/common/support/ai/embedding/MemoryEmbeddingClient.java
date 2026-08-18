@@ -16,9 +16,11 @@ import com.chua.common.support.spi.annotations.Spi;
 public class MemoryEmbeddingClient implements EmbeddingClient {
 
     /** 默认向量维度 */
+    /** Default_dimensions */
     private static final int DEFAULT_DIMENSIONS = 1536;
 
     /** 当前向量维度 */
+    /** Dimensions */
     private int dimensions = DEFAULT_DIMENSIONS;
 
     @Override

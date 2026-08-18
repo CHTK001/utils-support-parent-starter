@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class OkHttpHandler extends AbstractAppHandler {
 
+    /**
+     * CALL
+     */
     private static final String CALL = "okhttp3/Call";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute", "enqueue"};
 
     @Override

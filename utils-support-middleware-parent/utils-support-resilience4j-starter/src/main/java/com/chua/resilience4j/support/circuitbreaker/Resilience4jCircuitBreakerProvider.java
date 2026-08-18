@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @ConditionalOnClass("io.github.resilience4j.circuitbreaker.CircuitBreaker")
 public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvider {
 
+    /** Circuitbreaker */
     private final CircuitBreaker circuitBreaker;
 
     /**

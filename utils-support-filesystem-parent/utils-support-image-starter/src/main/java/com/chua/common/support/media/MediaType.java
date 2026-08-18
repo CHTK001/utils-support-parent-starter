@@ -8,8 +8,11 @@ import java.io.Serializable;
 
 public class MediaType implements Serializable {
 
+    /** 类型 */
     private final String type;
+    /** Subtype */
     private final String subtype;
+    /** 字符集 */
     private final String charset;
 
     public MediaType(String type, String subtype, String charset) {

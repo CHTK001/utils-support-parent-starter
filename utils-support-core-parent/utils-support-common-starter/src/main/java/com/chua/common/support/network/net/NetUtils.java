@@ -16,9 +16,13 @@ import java.util.Enumeration;
  */
 public final class NetUtils {
 
+    /** Local_host_cache */
     private static final String LOCAL_HOST_CACHE;
+    /** Any_host */
     private static final String ANY_HOST = "0.0.0.0";
+    /** Localhost */
     private static final String LOCALHOST = "127.0.0.1";
+    /** Localhost_ipv6 */
     private static final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
 
     static {

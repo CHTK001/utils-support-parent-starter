@@ -25,7 +25,11 @@ public class PoolGuard<T> implements AutoCloseable {
      * 连接池
      */
     private final ObjectPool<T> pool;
+    /** 返回对象 */
+    /** Object */
     private final T object;
+    /** 是否已归还 */
+    /** Returned */
     private boolean returned;
 
     PoolGuard(ObjectPool<T> pool, T object) {

@@ -43,6 +43,7 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
 @SuppressWarnings("ALL")
 public class ClassUtils {
 
+    /** 日志 */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClassUtils.class);
 
     /**
@@ -3182,6 +3183,7 @@ public class ClassUtils {
 
 
     static class SetAccessibleAction<T extends AccessibleObject> implements PrivilegedAction<T> {
+        /** OBJ */
         private final T obj;
 
         public SetAccessibleAction(T obj) {

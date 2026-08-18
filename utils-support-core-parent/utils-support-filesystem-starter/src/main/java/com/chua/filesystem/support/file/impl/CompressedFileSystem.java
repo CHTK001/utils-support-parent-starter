@@ -42,7 +42,9 @@ import java.util.zip.ZipOutputStream;
  */
 public class CompressedFileSystem implements AutoCloseable {
 
+    /** ZIP路径 */
     private final Path zipPath;
+    /** Readonly */
     private final boolean readOnly;
 
     private CompressedFileSystem(Path zipPath, boolean readOnly) {

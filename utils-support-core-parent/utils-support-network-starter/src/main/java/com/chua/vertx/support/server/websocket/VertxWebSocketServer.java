@@ -28,9 +28,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Spi("vertx-websocket")
 public class VertxWebSocketServer extends AbstractServer {
 
+    /** Vertx */
     private Vertx vertx;
+    /** 服务器 */
     private io.vertx.core.http.HttpServer server;
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
+    /** Connections */
     private final List<ServerWebSocket> connections = new CopyOnWriteArrayList<>();
 
     public VertxWebSocketServer(ServerSetting setting) {
@@ -252,7 +255,9 @@ public class VertxWebSocketServer extends AbstractServer {
 
     private static class VertxServerRequest implements ServerRequest {
 
+        /** Topic */
         private final String topic;
+        /** 请求体 */
         private final String body;
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
@@ -349,10 +354,13 @@ public class VertxWebSocketServer extends AbstractServer {
 
     private static class VertxServerResponse implements ServerResponse {
 
+        /** WS */
         private final ServerWebSocket ws;
         private volatile boolean ended;
         private volatile boolean committed;
+        /** 状态 */
         private int status = 200;
+        /** 结果 */
         private Object result;
 
         VertxServerResponse(ServerWebSocket ws) {

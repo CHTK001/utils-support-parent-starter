@@ -35,20 +35,42 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RagDocumentLifeCycle implements AutoCloseable {
 
+    /** JSON 对象映射器 */
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+    /** 数据库文件名称 */
+    /** Db_file */
     private static final String DB_FILE = "db.json";
+    /** 文件存储目录 */
+    /** Files_dir */
     private static final String FILES_DIR = "files";
+    /** 文档列表类型引用 */
+    /** Doc_list_type */
     private static final TypeReference<List<RagDocument>> DOC_LIST_TYPE = new TypeReference<>() {};
 
+    /** 上传目录 */
+    /** 上传目录 */
     private final Path uploadDir;
+    /** 文件存储目录 */
+    /** Files目录 */
     private final Path filesDir;
+    /** 数据库文件路径 */
+    /** 数据库文件 */
     private final Path dbFile;
+    /** 知识库客户端 */
+    /** Knowledge客户端 */
     private final KnowledgeClient knowledgeClient;
+    /** 文本分割器 */
+    /** 文本splitter */
     private final TextSplitter textSplitter;
+    /** 文本提取器 */
+    /** 文本extractor */
     private final TextExtractor textExtractor;
+    /** 文档列表 */
+    /** Documents */
     private final List<RagDocument> documents;
 
     /**

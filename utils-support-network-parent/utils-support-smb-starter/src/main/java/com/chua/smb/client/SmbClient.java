@@ -45,17 +45,50 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SmbClient implements AutoCloseable {
 
+    /**
+     * URI 地址
+     */
     private final String uri;
+    /**
+     * smb Client
+     */
     private final SMBClient smbClient;
+    /**
+     * connection
+     */
     private Connection connection;
+    /**
+     * 会话对象
+     */
     private Session session;
+    /**
+     * disk Share
+     */
     private DiskShare diskShare;
 
+    /**
+     * 主机地址
+     */
     private String host;
+    /**
+     * 端口号
+     */
     private int port;
+    /**
+     * 用户
+     */
     private String user;
+    /**
+     * 登录密码
+     */
     private String password;
+    /**
+     * share Name
+     */
     private String shareName;
+    /**
+     * work Path
+     */
     private String workPath = "/";
 
     private SmbClient(String uri) {

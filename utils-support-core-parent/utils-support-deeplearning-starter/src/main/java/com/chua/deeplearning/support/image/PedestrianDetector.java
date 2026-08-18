@@ -155,6 +155,7 @@ class DefaultPedestrianDetector implements PedestrianDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
+    /** 设置 */
     private final ModelSetting setting;
 
     /**

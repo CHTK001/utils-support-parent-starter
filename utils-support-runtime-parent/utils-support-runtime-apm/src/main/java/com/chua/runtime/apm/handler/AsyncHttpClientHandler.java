@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class AsyncHttpClientHandler extends AbstractAppHandler {
 
+    /**
+     * async HTTP 客户端
+     */
     private static final String ASYNC_HTTP_CLIENT = "org/asynchttpclient/AsyncHttpClient";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"executeRequest", "execute"};
 
     @Override

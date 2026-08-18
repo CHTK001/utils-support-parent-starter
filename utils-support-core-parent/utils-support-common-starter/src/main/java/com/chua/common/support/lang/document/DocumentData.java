@@ -25,12 +25,15 @@ import java.util.List;
 public class DocumentData {
 
     /** 数据库名称（JDBC 连接 catalog） */
+    /** 数据库名称 */
     private String databaseName;
 
     /** 数据库产品名称，例如 H2、MySQL、PostgreSQL */
+    /** Product名称 */
     private String productName;
 
     /** 数据库产品版本号 */
+    /** Product版本 */
     private String productVersion;
 
     /** JDBC 连接 URL */
@@ -41,6 +44,7 @@ public class DocumentData {
 
     /** 文档标题，默认值为 "数据库设计文档" */
     @Builder.Default
+    /** 标题 */
     private String title = "数据库设计文档";
 
     /** 文档描述说明 */
@@ -58,5 +62,6 @@ public class DocumentData {
 
     /** 所有表结构的集合 */
     @Builder.Default
+    /** Tables */
     private List<TableData> tables = new ArrayList<>();
 }

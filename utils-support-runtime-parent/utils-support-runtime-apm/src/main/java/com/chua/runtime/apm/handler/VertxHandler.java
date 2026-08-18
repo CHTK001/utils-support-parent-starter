@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class VertxHandler extends AbstractAppHandler {
 
+    /**
+     * HTTP 服务器 请求
+     */
     private static final String HTTP_SERVER_REQUEST = "io/vertx/core/http/HttpServerRequest";
+    /**
+     * HTTP 客户端 请求
+     */
     private static final String HTTP_CLIENT_REQUEST = "io/vertx/core/http/HttpClientRequest";
+    /**
+     * 服务器 methods
+     */
     private static final String[] SERVER_METHODS = {"handler", "body", "params", "headers"};
+    /**
+     * 客户端 methods
+     */
     private static final String[] CLIENT_METHODS = {"send", "end", "putHeader"};
 
     @Override

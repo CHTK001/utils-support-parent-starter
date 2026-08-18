@@ -10,7 +10,11 @@ import java.util.List;
  */
 public class TableStructureResult {
 
+    /** OCR 条目列表 */
+    /** OCRitem列表 */
     private final List<OcrItem> ocrItemList;
+    /** 结构字符串列表 */
+    /** StructureSTR列表 */
     private final List<String> structureStrList;
 
     public TableStructureResult(List<OcrItem> ocrItemList, List<String> structureStrList) {

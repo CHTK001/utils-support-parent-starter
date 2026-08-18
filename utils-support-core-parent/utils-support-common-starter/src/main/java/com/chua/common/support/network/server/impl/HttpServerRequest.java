@@ -30,9 +30,13 @@ import com.chua.common.support.spi.ServiceProvider;
  */
 public class HttpServerRequest implements ServerRequest {
 
+    /** Exchange */
     private final HttpExchange exchange;
+    /** 最大值请求尺寸 */
     private final long maxRequestSize;
+    /** 默认字符集 */
     private final Charset defaultCharset;
+    /** Cached请求体 */
     private byte[] cachedBody;
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 

@@ -19,9 +19,13 @@ import java.util.List;
 @AllArgsConstructor
 public class ListReturnResult<T> implements Serializable {
 
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
+    /** 数据 */
     private List<T> data;
+    /** 消息 */
     private String message;
+    /** Success */
     private boolean success;
 
     public static <T> ListReturnResult<T> ok(List<T> data) {

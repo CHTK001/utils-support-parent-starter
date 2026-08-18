@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SpringIntegrationHandler extends AbstractAppHandler {
 
+    /**
+     * 消息 channel
+     */
     private static final String MESSAGE_CHANNEL = "org/springframework/integration/channel/AbstractMessageChannel";
+    /**
+     * send methods
+     */
     private static final String[] SEND_METHODS = {"send", "receive"};
 
     @Override

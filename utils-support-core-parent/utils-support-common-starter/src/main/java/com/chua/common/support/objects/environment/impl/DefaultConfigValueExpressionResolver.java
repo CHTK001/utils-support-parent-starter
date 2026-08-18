@@ -24,8 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 @Spi("default")
 public class DefaultConfigValueExpressionResolver implements ConfigValueExpressionResolver {
 
+    /** Prefix */
     private static final String PREFIX = "${";
+    /** Suffix */
     private static final String SUFFIX = "}";
+    /** Separator */
     private static final String SEPARATOR = ":";
 
     @Override

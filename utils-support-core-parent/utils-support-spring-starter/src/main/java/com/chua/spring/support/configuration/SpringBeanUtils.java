@@ -466,6 +466,7 @@ public class SpringBeanUtils {
      */
     public static final class EventPublisher {
 
+        /** Application上下文 */
         private final ApplicationContext applicationContext;
 
         private EventPublisher(ApplicationContext applicationContext) {

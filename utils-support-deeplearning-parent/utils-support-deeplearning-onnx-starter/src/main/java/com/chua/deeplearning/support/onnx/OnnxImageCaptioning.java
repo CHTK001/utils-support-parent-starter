@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxImageCaptioning implements ImageCaptioning {
 
+    /** 模型名称 */
+    /** 模型名称 */
     private String modelName;
 
     public OnnxImageCaptioning(String apiKey) {

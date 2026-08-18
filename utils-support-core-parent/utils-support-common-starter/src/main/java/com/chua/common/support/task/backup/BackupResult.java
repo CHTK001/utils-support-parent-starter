@@ -32,24 +32,28 @@ public class BackupResult {
      * 备份的文件列表
      */
     @Builder.Default
+    /** Files */
     private List<Path> files = List.of();
 
     /**
      * 备份的文件总数
      */
     @Builder.Default
+    /** 文件数量 */
     private int fileCount = 0;
 
     /**
      * 备份的总大小（字节）
      */
     @Builder.Default
+    /** 总数尺寸 */
     private long totalSize = 0;
 
     /**
      * 耗时（毫秒）
      */
     @Builder.Default
+    /** 持续时间毫秒 */
     private long durationMillis = 0;
 
     /**

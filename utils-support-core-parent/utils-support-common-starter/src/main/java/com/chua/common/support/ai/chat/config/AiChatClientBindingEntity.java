@@ -32,20 +32,25 @@ public class AiChatClientBindingEntity {
     private Long id;
 
     /** 所属配置 ID（关联 {@link AiChatConfigEntity}） */
+    /** 配置ID */
     private Long configId;
 
     // ==================== 组上下文 ====================
 
     /** 组名称 */
+    /** 分组名称 */
     private String groupName;
 
     /** 组内策略（failover | round_robin | weighted | cost | latency） */
+    /** 分组策略 */
     private String groupStrategy;
 
     /** 组条件表达式（如 "prompt.length < 200"） */
+    /** 分组条件 */
     private String groupCondition;
 
     /** 组排序 */
+    /** 分组排序 */
     private Integer groupOrder;
 
     // ==================== 客户端配置 ====================
@@ -63,6 +68,7 @@ public class AiChatClientBindingEntity {
     private String apiKey;
 
     /** 自定义 API 地址（可选） */
+    /** BaseURL */
     private String baseUrl;
 
     /** 模型名称（可选） */
@@ -72,20 +78,26 @@ public class AiChatClientBindingEntity {
     private String model;
 
     /** 温度参数（可选） */
+    /** Temperature */
     private Double temperature;
 
     /** 最大 Token 数（可选） */
+    /** 最大值tokens */
     private Integer maxTokens;
 
     /** 系统提示词（可选） */
+    /** Systemprompt */
     private String systemPrompt;
 
     /** HTTP 代理（可选） */
+    /** Proxy */
     private String proxy;
 
     /** 权重（weighted 策略使用，默认 1） */
+    /** 权重 */
     private int weight = 1;
 
+    /** 客户端排序 */
     /** 客户端排序 */
     private Integer clientOrder;
 

@@ -22,6 +22,8 @@ import java.util.List;
  */
 public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
+    /** 类别名称列表 */
+    /** Classes */
     public static final List<String> CLASSES = List.of(
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
             "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -37,15 +39,31 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
             "toothbrush"
     );
 
+    /** 输入尺寸 */
+    /** Input_size */
     private static final int INPUT_SIZE = 640;
+    /** 默认阈值 */
+    /** Default_threshold */
     private static final float DEFAULT_THRESHOLD = 0.25f;
+    /** 默认 NMS 阈值 */
+    /** Default_nms_threshold */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
+    /** 阈值 */
+    /** 阈值 */
     private final float threshold;
+    /** NMS 阈值 */
+    /** NMS阈值 */
     private final float nmsThreshold;
+    /** 类别名称列表 */
+    /** Classes */
     private final List<String> classes;
 
+    /** 图像宽度 */
+    /** 图片宽度 */
     private int imageWidth;
+    /** 图像高度 */
+    /** 图片高度 */
     private int imageHeight;
 
     public YoloV8sTranslator() {

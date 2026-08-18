@@ -27,12 +27,26 @@ import java.util.List;
  */
 public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
 
+    /** 车牌名称 */
+    /** Plate_name */
     private static final String PLATE_NAME = "#                                                                                                                           0123456789ABCDEFGHJKLMNPQRSTUVWXYZ      ";
+    /** 车牌颜色数组 */
+    /** Plate_colors */
     private static final String[] PLATE_COLORS = {"      ", "      ", "      ", "      ", "      "};
+    /** 均值数组 */
+    /** Mean */
     private static final float MEAN = 0.588f;
+    /** 标准差数组 */
+    /** STD */
     private static final float STD = 0.193f;
+    /** 输入宽度 */
+    /** Input_w */
     private static final int INPUT_W = 168;
+    /** 输入高度 */
+    /** Input_h */
     private static final int INPUT_H = 48;
+    /** 省份名称 */
+    /** Provinces */
     private static final String PROVINCES = "                                                                                             ";
 
     @Override

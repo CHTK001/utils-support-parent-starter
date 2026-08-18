@@ -37,8 +37,11 @@ import java.util.regex.Pattern;
 @Spi("tx")
 public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider {
 
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    /** Hot_tag_pattern */
     private static final Pattern HOT_TAG_PATTERN = Pattern.compile("data-id=\"(\\w+)\">(.+?)</a>");
+    /** Musicu_url */
     private static final String MUSICU_URL = "https://u.y.qq.com/cgi-bin/musicu.fcg";
 
     @Override

@@ -8,11 +8,17 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VideoSource {
 
+    /** 视频来源URL */
     private String videoSourceUrl;
+    /** 视频来源令牌 */
     private String videoSourceToken;
+    /** 视频来源用户agent */
     private String videoSourceUserAgent;
+    /** 视频来源connect超时 */
     private Integer videoSourceConnectTimeout;
+    /** 视频来源最大值resource */
     private Integer videoSourceMaxResource;
+    /** 视频来源最小值year */
     private Integer videoSourceMinYear;
 
     public VideoSource() {

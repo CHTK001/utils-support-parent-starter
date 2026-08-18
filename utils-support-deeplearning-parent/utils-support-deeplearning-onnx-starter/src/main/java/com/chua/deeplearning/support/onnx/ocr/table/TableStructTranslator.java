@@ -36,15 +36,35 @@ import java.util.List;
 @SpiDescribe("                  ")
 public class TableStructTranslator implements Translator<Image, TableStructureResult> {
 
+    /** 最大长度 */
+    /** Max_length */
     private static final int MAX_LENGTH = 488;
+    /** 高度 */
+    /** 高度 */
     private int height;
+    /** 宽度 */
+    /** 宽度 */
     private int width;
+    /** 缩放系数 */
+    /** 比例尺 */
     private float scale = 1.0f;
+    /** X 轴缩放系数 */
+    /** X坐标比例尺 */
     private float xScale;
+    /** Y 轴缩放系数 */
+    /** Y坐标比例尺 */
     private float yScale;
+    /** 词典列表 */
+    /** Dict */
     private List<String> dict;
+    /** 起始字符串 */
+    /** BEGSTR */
     private final String begStr = "sos";
+    /** 结束字符串 */
+    /** 结束STR */
     private final String endStr = "eos";
+    /** TD 分词列表 */
+    /** TD令牌 */
     private final List<String> tdToken = new ArrayList<>();
 
     @Override

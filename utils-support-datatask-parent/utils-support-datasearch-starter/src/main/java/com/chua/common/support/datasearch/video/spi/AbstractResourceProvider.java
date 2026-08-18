@@ -8,6 +8,8 @@ import com.chua.common.support.datasearch.video.model.VideoSource;
 
 public abstract class AbstractResourceProvider implements ResourceProvider {
 
+    /** 视频数据源 */
+    /** 视频来源 */
     protected VideoSource videoSource;
 
     public AbstractResourceProvider() {

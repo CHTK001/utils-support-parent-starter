@@ -56,11 +56,17 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
      * RAR归档输入流适配器
      */
     private static class RarArchiveInputStreamAdapter implements ArchiveInputStream {
+        /** Archive */
         private final Archive archive;
+        /** 当前entry */
         private FileHeader currentEntry;
+        /** Entries */
         private final java.util.List<FileHeader> entries;
+        /** 当前索引 */
         private int currentIndex = 0;
+        /** 当前entry流 */
         private java.io.ByteArrayInputStream currentEntryStream;
+        /** 当前entry位置 */
         private int currentEntryPosition = 0;
 
         RarArchiveInputStreamAdapter(File file, @Nullable char[] password) throws IOException {
@@ -202,6 +208,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
      * RAR归档条目适配器
      */
     private static class RarArchiveEntryAdapter implements ArchiveEntry {
+        /** 文件头部 */
         private final FileHeader fileHeader;
 
         RarArchiveEntryAdapter(FileHeader fileHeader) {

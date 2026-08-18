@@ -13,11 +13,15 @@ import java.lang.reflect.Method;
  */
 public class MethodDescribe {
 
+    /** 目标 */
     private final Object target;
+    /** Method */
     private final Method method;
+    /** 名称 */
     private final String name;
     private final Class<?> returnType;
     private final Class<?>[] parameterTypes;
+    /** Parameternames */
     private final String[] parameterNames;
 
     /**

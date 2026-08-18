@@ -8,6 +8,8 @@ package com.chua.auth.support;
  */
 public class LoginException extends RuntimeException {
 
+    /** 错误码 */
+    /** 代码 */
     private final String code;
 
     public LoginException(String code, String message) {

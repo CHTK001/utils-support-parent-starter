@@ -40,14 +40,23 @@ import java.util.List;
 @Slf4j
 public class ClusterNode implements AutoCloseable {
 
+    /** Cluster设置 */
     private final ClusterSetting clusterSetting;
+    /** Discovery */
     private final ScatterServiceDiscovery discovery;
+    /** ScatterID */
     private final String scatterId;
+    /** HTTP服务器 */
     private Server httpServer;
+    /** TCPproxy */
     private TcpProxyServer tcpProxy;
+    /** 节点服务器 */
     private ScatterNodeServer nodeServer;
+    /** HTTP端口 */
     private int httpPort;
+    /** TCP端口 */
     private int tcpPort;
+    /** Registeredpaths */
     private List<String> registeredPaths = List.of();
 
     public ClusterNode(ClusterSetting clusterSetting) throws Exception {

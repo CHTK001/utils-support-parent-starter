@@ -24,8 +24,11 @@ import java.util.List;
  */
 public class DefaultServerFilterChain implements ServerFilterChain {
 
+    /** Filters */
     private final List<ServerFilter> filters;
+    /** 处理器 */
     private final ServerHandler handler;
+    /** Listeners */
     private final List<FilterChainListener> listeners;
     /**
      * 索引名

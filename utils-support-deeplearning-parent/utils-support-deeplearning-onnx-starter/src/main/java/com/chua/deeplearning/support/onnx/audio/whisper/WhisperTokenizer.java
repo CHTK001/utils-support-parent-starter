@@ -23,15 +23,19 @@ import java.util.Map;
  */
 public class WhisperTokenizer {
 
+    /** JSON 对象映射器 */
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /** token id → token string (含 Ġ) */
+    /** IDTO令牌 */
     private final String[] idToToken;
 
     /** token string → token id，用于特殊 token 查找 */
     private final Map<String, Integer> tokenToId;
 
     /** vocab 大小 */
+    /** Vocab尺寸 */
     private final int vocabSize;
 
     public WhisperTokenizer(Map<String, Integer> vocab) {
@@ -102,12 +106,24 @@ public class WhisperTokenizer {
     }
 
     /** Whisper 特殊 token 常量 */
+    /** SOT */
     public static final int SOT = 50258;
+    /** 结束符标识 */
+    /** EOT */
     public static final int EOT = 50257;
+    /** 是否输出时间戳 */
+    /** Notimestamps */
     public static final int NOTIMESTAMPS = 50259;
+    /** 是否转写文本 */
+    /** Transcribe */
     public static final int TRANSCRIBE = 50359;
+    /** 是否翻译文本 */
+    /** Translate */
     public static final int TRANSLATE = 50358;
+    /** 是否不输出语音 */
+    /** No_speech */
     public static final int NO_SPEECH = 50362;
     /** 语言 token 起始 id（zh=50260+）... 实际语言 token id 由 vocab 决定 */
+    /** Lang_base */
     public static final int LANG_BASE = 50260;
 }

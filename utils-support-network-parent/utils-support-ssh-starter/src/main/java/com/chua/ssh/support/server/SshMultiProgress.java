@@ -30,9 +30,21 @@ import javax.annotation.Nonnull;
  */
 public class SshMultiProgress implements AutoCloseable {
 
+    /**
+     * 响应
+     */
     private final SshCommandResponse response;
+    /**
+     * bar Width
+     */
     private final int barWidth;
+    /**
+     * pending
+     */
     private final List<TaskDef> pending = new ArrayList<>();
+    /**
+     * 委托对象
+     */
     private MultiProgressBar delegate;
 
     /**

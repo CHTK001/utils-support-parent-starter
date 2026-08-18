@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
 
     /** 桥接目标对象，方法调用将被委托给该对象 */
+    /** Bridging */
     private final Object bridging;
 
     /**

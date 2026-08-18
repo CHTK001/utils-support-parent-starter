@@ -16,9 +16,13 @@ import java.util.List;
 @Slf4j
 public class MembershipPropagation {
 
+    /** 配置 */
     private final MeshConfig config;
+    /** 节点表 */
     private final NodeTable nodeTable;
+    /** 本地服务器ID */
     private final String localServerId;
+    /** Discovery */
     private final PeerMeshDiscovery discovery;
     /**
      * 是否为 UDP 通信模式

@@ -149,6 +149,8 @@ public static final List<String> D4LA_CLASSES = Arrays.asList(
      *                   
      */
     private int imageWidth;
+    /** 图像高度 */
+    /** 图片高度 */
     private int imageHeight;
 
     /**

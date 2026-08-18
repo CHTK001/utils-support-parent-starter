@@ -49,30 +49,35 @@ public class GaussianPureCalibrator implements PureCalibrator {
      * 正样本分数均值，默认0.85
      */
     @Builder.Default
+    /** MUPOS */
     private double muPos = 0.85;
 
     /**
      * 正样本分数标准差，默认0.05
      */
     @Builder.Default
+    /** STDPOS */
     private double stdPos = 0.05;
 
     /**
      * 负样本分数均值，默认0.50
      */
     @Builder.Default
+    /** MUNEG */
     private double muNeg = 0.50;
 
     /**
      * 负样本分数标准差，默认0.15
      */
     @Builder.Default
+    /** STDNEG */
     private double stdNeg = 0.15;
 
     /**
      * 正样本先验概率，默认0.5
      */
     @Builder.Default
+    /** PriorPOS */
     private double priorPos = 0.5;
 
     @Override

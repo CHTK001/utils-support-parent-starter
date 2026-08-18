@@ -341,7 +341,9 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
      * 动画帧数据类
      */
     private static class AnimationFrame {
+        /** 图片 */
         private final BufferedImage image;
+        /** Delay */
         private final int delay;
 
         public AnimationFrame(BufferedImage image, int delay) {

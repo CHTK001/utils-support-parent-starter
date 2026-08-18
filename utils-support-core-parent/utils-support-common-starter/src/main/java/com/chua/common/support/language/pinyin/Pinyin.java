@@ -30,6 +30,7 @@ public class Pinyin {
      * <p>需要转换拼音的中文字符，支持单个汉字或已确认的词语。</p>
      */
     @NonNull
+    /** 词 */
     private String word;
 
     /**

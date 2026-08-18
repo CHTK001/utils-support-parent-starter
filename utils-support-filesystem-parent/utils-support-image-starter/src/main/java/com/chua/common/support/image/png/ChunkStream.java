@@ -23,8 +23,11 @@ import java.util.zip.DeflaterOutputStream;
  */
 final class ChunkStream extends ImageOutputStreamImpl {
 
+    /** 流 */
     private final ImageOutputStream stream;
+    /** 开始POS */
     private final long startPos;
+    /** CRC */
     private final CRC crc = new CRC();
 
     ChunkStream(int type, ImageOutputStream stream) throws IOException {

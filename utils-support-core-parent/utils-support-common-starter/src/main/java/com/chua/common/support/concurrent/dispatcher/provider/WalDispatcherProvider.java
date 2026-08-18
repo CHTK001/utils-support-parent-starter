@@ -36,18 +36,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class WalDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
 
-    private static final int MAGIC = 0x57414C31; // "WAL1"
+    /** "WAL1" */
+    /** Magic */
+    private static final int MAGIC = 0x57414C31;
 
     /**
      * 序列化器：可注入（如 Fury/Kryo），默认 Jackson。
      */
     private volatile com.chua.common.support.base.serialize.Serialization serializer;
 
+    /** WAL 日志映射 */
     private final Map<String, WalLog> logs = new ConcurrentHashMap<>();
+    /** 分发定义映射 */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
+    /** 消费者线程池 */
+    /** 消费者执行器 */
     private final ExecutorService consumerExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("wal-consumer-", 0).factory());
+    /** 日志目录 */
+    /** 日志目录 */
     private final Path logDir;
+    /** 是否已关闭 */
+    /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public WalDispatcherProvider(DispatcherConfig config) {
@@ -250,8 +260,13 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         final Path file;
         final reactor.core.publisher.Sinks.Many<byte[]> sink =
                 reactor.core.publisher.Sinks.many().multicast().onBackpressureBuffer(10000, false);
+        /** 文件通道 */
+        /** 通道 */
         private FileChannel channel;
+        /** 文件头缓冲区 */
+        /** 头部 */
         private final ByteBuffer header = ByteBuffer.allocate(8);
+        /** 是否已启动写入线程 */
         private volatile boolean writerStarted = false;
 
         WalLog(Path file) {

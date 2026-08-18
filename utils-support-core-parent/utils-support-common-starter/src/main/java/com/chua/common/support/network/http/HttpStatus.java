@@ -40,28 +40,37 @@ public class HttpStatus {
     // ==================== 2xx 成功 ====================
 
     /** 200 OK — 请求成功。标准响应，表示请求已被成功处理。 */
+    /** OK */
     public static final int OK = 200;
     /** 201 Created — 资源创建成功。通常在 POST 请求后返回，表示新资源已创建。 */
+    /** 创建时间 */
     public static final int CREATED = 201;
     /** 204 No Content — 请求成功但无返回内容。常用于 DELETE 操作成功后返回。 */
+    /** No_content */
     public static final int NO_CONTENT = 204;
 
     // ==================== 4xx 客户端错误 ====================
 
     /** 400 Bad Request — 请求参数错误。服务器无法理解请求的格式。 */
+    /** Bad_request */
     public static final int BAD_REQUEST = 400;
     /** 401 Unauthorized — 未认证。请求需要用户身份验证。 */
+    /** Unauthorized */
     public static final int UNAUTHORIZED = 401;
     /** 403 Forbidden — 无权限。服务器理解请求但拒绝执行。 */
+    /** Forbidden */
     public static final int FORBIDDEN = 403;
     /** 404 Not Found — 资源不存在。服务器找不到请求的资源。 */
+    /** Not_found */
     public static final int NOT_FOUND = 404;
 
     // ==================== 5xx 服务端错误 ====================
 
     /** 500 Internal Server Error — 服务器内部错误。服务器遇到意外情况无法完成请求。 */
+    /** Internal_server_error */
     public static final int INTERNAL_SERVER_ERROR = 500;
     /** 503 Service Unavailable — 服务暂不可用。服务器当前无法处理请求（通常为过载或维护）。 */
+    /** Service_unavailable */
     public static final int SERVICE_UNAVAILABLE = 503;
 
     /**

@@ -34,14 +34,24 @@ import static com.chua.common.support.constant.CommonConstant.FILE_PROTOCOL;
  */
 public class FileTypeConverter implements TypeConverter<File> {
 
+    /** 操作系统默认临时目录 */
+    /** Temp */
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};
     /**
      * 数据
      */
     private static final String DATA = "data:";
+    /** base64 数据前缀 */
+    /** Base64 */
     private static final CharSequence BASE64 = "base64,";
+    /** HTTP 协议前缀 */
+    /** Http_prefix */
     private static final String HTTP_PREFIX = "http";
+    /** classpath 资源路径前缀 */
+    /** Classpath_url_prefix */
     private static final String CLASSPATH_URL_PREFIX = "classpath:";
+    /** classpath 通配资源路径前缀 */
+    /** Classpath_url_all_prefix */
     private static final String CLASSPATH_URL_ALL_PREFIX = "classpath*:";
 
     /**

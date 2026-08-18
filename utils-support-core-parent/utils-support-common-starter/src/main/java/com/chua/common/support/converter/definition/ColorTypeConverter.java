@@ -35,6 +35,8 @@ import javax.annotation.Nullable;
  */
 public class ColorTypeConverter implements TypeConverter<Color> {
 
+    /** 十六进制前缀 */
+    /** Hex_16 */
     private static final String HEX_16 = "0x";
 
     /**
@@ -200,6 +202,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     @Data
     @AllArgsConstructor
     public static class ColorName {
+        /** RGB 颜色分量 */
         public int r, g, b;
         /**
          * 名称

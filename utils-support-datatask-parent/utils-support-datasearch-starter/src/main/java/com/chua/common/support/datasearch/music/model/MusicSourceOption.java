@@ -12,9 +12,13 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicSourceOption {
+    /** 代码 */
     private String code;
+    /** 名称 */
     private String name;
+    /** 描述 */
     private String description;
+    /** 是否启用 */
     private Boolean enabled;
 }
 

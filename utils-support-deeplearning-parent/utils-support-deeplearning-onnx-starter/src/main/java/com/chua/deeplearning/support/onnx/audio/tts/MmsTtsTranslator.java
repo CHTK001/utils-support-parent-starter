@@ -80,8 +80,13 @@ public class MmsTtsTranslator {
      */
     private Map<Character, Integer> charToId;
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private ai.onnxruntime.OrtEnvironment ortEnv;
+    /** 会话 */
+    /** 会话 */
     private ai.onnxruntime.OrtSession session;
+    /** 是否已准备 */
     private volatile boolean prepared;
 
     /**

@@ -7,6 +7,8 @@ package com.chua.utils.support.appimage.exception;
  */
 public class AppImageException extends RuntimeException {
 
+    /** 序列化版本号 */
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     public AppImageException(String message) {

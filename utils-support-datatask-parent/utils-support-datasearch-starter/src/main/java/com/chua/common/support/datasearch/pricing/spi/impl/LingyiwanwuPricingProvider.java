@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("lingyiwanwu")
 public class LingyiwanwuPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://platform.lingyiwanwu.com/pricing";
 
     @Override

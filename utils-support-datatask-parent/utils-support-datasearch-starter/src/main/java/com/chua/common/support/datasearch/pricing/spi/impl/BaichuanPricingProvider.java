@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("baichuan")
 public class BaichuanPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://platform.baichuan-ai.com/docs/pricing";
 
     @Override

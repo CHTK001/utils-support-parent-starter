@@ -32,15 +32,24 @@ import java.util.concurrent.atomic.AtomicLong;
 @Spi("chronicle")
 public class ChronicleWalLog implements WalLog {
 
+    /** Field_lsn */
     private static final String FIELD_LSN = "lsn";
+    /** Field_op */
     private static final String FIELD_OP = "op";
+    /** Field_payload */
     private static final String FIELD_PAYLOAD = "payload";
+    /** Field_checkpoint */
     private static final String FIELD_CHECKPOINT = "checkpointLsn";
 
+    /** 队列 */
     private final ChronicleQueue queue;
+    /** Appender */
     private final ExcerptAppender appender;
+    /** 配置 */
     private final WalConfig config;
+    /** 当前LSN */
     private final AtomicLong currentLsn = new AtomicLong(0L);
+    /** CheckpointLSN */
     private final AtomicLong checkpointLsn = new AtomicLong(0L);
     private volatile boolean closed;
 
@@ -314,6 +323,7 @@ public class ChronicleWalLog implements WalLog {
     }
 
     private static final class ChronicleWalChain implements WalChain {
+        /** OPS */
         private final List<WalOp> ops;
 
         ChronicleWalChain(List<WalOp> ops) {

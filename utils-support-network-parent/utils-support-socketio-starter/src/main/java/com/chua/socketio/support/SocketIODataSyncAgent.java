@@ -27,13 +27,34 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class SocketIODataSyncAgent implements DataSyncAgent {
 
+    /**
+     * agent Id
+     */
     private final String agentId;
+    /**
+     * source Id
+     */
     private final String sourceId;
+    /**
+     * 服务器地址
+     */
     private final String serverUrl;
+    /**
+     * source
+     */
     private final DataSyncSource source;
 
+    /**
+     * socket
+     */
     private io.socket.client.Socket socket;
+    /**
+     * running
+     */
     private volatile boolean running = false;
+    /**
+     * 消息 Queue
+     */
     private final BlockingQueue<Map<String, Object>> messageQueue = new LinkedBlockingQueue<>();
 
     public SocketIODataSyncAgent(String agentId, String sourceId, String serverUrl, DataSyncSource source) {

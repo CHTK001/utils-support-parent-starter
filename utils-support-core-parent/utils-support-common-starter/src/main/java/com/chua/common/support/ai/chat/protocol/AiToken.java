@@ -31,6 +31,7 @@ public class AiToken {
     private String group;
 
     /** 过期时间，null 表示永不过期 */
+    /** Expire时间 */
     private Date expireTime;
 
     /** 是否启用 */
@@ -41,10 +42,12 @@ public class AiToken {
     private boolean enabled = true;
 
     /** 备注 */
+    /** Remark */
     private String remark;
 
     /** 创建时间 */
     @Builder.Default
+    /** Create时间 */
     private Date createTime = new Date();
 
     /**

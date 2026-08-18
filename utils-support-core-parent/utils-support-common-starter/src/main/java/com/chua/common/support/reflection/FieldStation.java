@@ -17,11 +17,13 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class FieldStation {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FieldStation.class);
 
     /** 类级字段缓存：key = className + "|" + fieldName */
     private static final ConcurrentMap<String, Field> FIELD_CACHE = new ConcurrentHashMap<>(256);
 
+    /** 实例 */
     private final Object instance;
     private final Class<?> type;
 

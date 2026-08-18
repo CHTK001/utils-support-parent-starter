@@ -15,6 +15,7 @@ public class SharedInvocationContext {
 
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
     private final Map<String, String> defaultHeaders = new ConcurrentHashMap<>();
+    /** Injectrules */
     private final List<InjectRule> injectRules = new CopyOnWriteArrayList<>();
 
     public record InjectRule(String target, InjectCallback callback) {}

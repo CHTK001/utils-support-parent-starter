@@ -99,17 +99,29 @@ public record FileSearchCriteria(
 * @since 4.0.0.42
      */
     public static final class Builder {
+        /** 根级路径 */
         private String rootPath;
+        /** 名称模式 */
         private String namePattern;
+        /** 最小值尺寸 */
         private long minSize = -1;
+        /** 最大值尺寸 */
         private long maxSize = -1;
+        /** 最大值results */
         private int maxResults = DEFAULT_MAX_RESULTS;
+        /** 最大值深度 */
         private int maxDepth = DEFAULT_MAX_DEPTH;
+        /** Excludedirs */
         private String[] excludeDirs;
+        /** Excludepatterns */
         private String[] excludePatterns;
+        /** Followlinks */
         private boolean followLinks = false;
+        /** Includehidden */
         private boolean includeHidden = false;
+        /** SortBY */
         private String sortBy = SORT_BY_SIZE;
+        /** 排序 */
         private String order = ORDER_DESC;
 
         public Builder rootPath(String rootPath) {

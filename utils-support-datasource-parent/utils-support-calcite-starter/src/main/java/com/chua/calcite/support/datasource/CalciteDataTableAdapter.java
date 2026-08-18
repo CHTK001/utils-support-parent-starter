@@ -510,8 +510,11 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      */
     private static class ObjectArrayMutableCollection extends AbstractList<Object> {
 
+        /** 数据表 */
         private final DataTable dataTable;
+        /** 列names */
         private final List<String> columnNames;
+        /** Rows */
         private final List<Row> rows = new ArrayList<>();
 
         ObjectArrayMutableCollection(DataTable dataTable) {

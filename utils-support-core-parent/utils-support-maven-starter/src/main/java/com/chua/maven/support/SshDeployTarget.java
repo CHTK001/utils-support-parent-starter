@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class SshDeployTarget implements MavenDeployTarget {
 
+    /** 日志 */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SshDeployTarget.class);
 
     /**

@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class EtcdHandler extends AbstractAppHandler {
 
+    /**
+     * kv 客户端
+     */
     private static final String KV_CLIENT = "io/etcd/jetcd/KV";
+    /**
+     * kv methods
+     */
     private static final String[] KV_METHODS = {"put", "get", "delete", "compact"};
 
     @Override

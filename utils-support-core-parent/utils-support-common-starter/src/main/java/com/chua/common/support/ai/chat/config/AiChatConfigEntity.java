@@ -46,6 +46,7 @@ public class AiChatConfigEntity {
     private String strategy = "hybrid";
 
     /** 是否启用调用监控 */
+    /** Monitor */
     private boolean monitor = true;
 
     /** 更新时间 */

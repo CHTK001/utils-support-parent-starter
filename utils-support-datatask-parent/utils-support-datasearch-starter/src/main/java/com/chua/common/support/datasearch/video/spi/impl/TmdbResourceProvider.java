@@ -114,62 +114,98 @@ public class TmdbResourceProvider extends AbstractResourceProvider {
     @Data
     static class TmdbResult {
 
+        /** 页码 */
         @JsonProperty("page")
+        /** 页 */
         private Integer page;
 
+        /** 结果列表 */
         @JsonProperty("results")
+        /** Results */
         private List<ResultsDTO> results;
 
+        /** 总页数 */
         @JsonProperty("total_pages")
+        /** 总数pages */
         private Integer totalPages;
 
+        /** 总结果数 */
         @JsonProperty("total_results")
+        /** 总数results */
         private Integer totalResults;
 
         @NoArgsConstructor
         @Data
         public static class ResultsDTO {
 
+            /** 是否成人内容 */
             @JsonProperty("adult")
+            /** Adult */
             private Boolean adult;
 
+            /** 背景图路径 */
             @JsonProperty("backdrop_path")
+            /** Backdrop路径 */
             private String backdropPath;
 
+            /** 类型标识列表 */
             @JsonProperty("genre_ids")
+            /** GenreIDS */
             private List<Integer> genreIds;
 
+            /** 标识 */
             @JsonProperty("id")
+            /** ID */
             private Integer id;
 
+            /** 原始语言 */
             @JsonProperty("original_language")
+            /** Original语言 */
             private String originalLanguage;
 
+            /** 原始标题 */
             @JsonProperty("original_title")
+            /** Original标题 */
             private String originalTitle;
 
+            /** 概述 */
             @JsonProperty("overview")
+            /** Overview */
             private String overview;
 
+            /** 热度 */
             @JsonProperty("popularity")
+            /** Popularity */
             private Double popularity;
 
+            /** 海报路径 */
             @JsonProperty("poster_path")
+            /** Poster路径 */
             private String posterPath;
 
+            /** 发布日期 */
             @JsonProperty("release_date")
+            /** Release日期 */
             private String releaseDate;
 
+            /** 标题 */
             @JsonProperty("title")
+            /** 标题 */
             private String title;
 
+            /** 是否视频 */
             @JsonProperty("video")
+            /** 视频 */
             private Boolean video;
 
+            /** 平均评分 */
             @JsonProperty("vote_average")
+            /** Voteaverage */
             private Double voteAverage;
 
+            /** 评分数 */
             @JsonProperty("vote_count")
+            /** Vote数量 */
             private Integer voteCount;
         }
     }

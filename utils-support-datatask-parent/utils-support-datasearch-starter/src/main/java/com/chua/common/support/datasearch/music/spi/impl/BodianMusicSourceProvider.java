@@ -31,7 +31,9 @@ import java.util.stream.Collectors;
 @Spi("bd")
 public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
 
+    /** Playlist_ids_env */
     private static final String PLAYLIST_IDS_ENV = "MUSIC_BD_PLAYLIST_IDS";
+    /** Playlist_ids_property */
     private static final String PLAYLIST_IDS_PROPERTY = "music.bd.playlist-ids";
     @Override
     public MusicSourceOption getSource() {

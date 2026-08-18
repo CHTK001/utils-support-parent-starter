@@ -22,9 +22,12 @@ import java.util.Map;
  */
 public class IpcMethodServerHandler implements HttpDefaultServerHandler {
 
+    /** Object上下文 */
     private final ObjectContext objectContext;
     private final Class<?> targetClass;
+    /** Method */
     private final Method method;
+    /** 路径 */
     private final String path;
 
     public IpcMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path) {

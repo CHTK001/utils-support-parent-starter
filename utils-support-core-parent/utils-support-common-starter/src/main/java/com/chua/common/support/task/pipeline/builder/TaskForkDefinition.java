@@ -85,10 +85,14 @@ import java.util.function.Consumer;
  */
 public class TaskForkDefinition {
 
+    /** ID */
     private final String id;
+    /** PRE处理器 */
     private PipelineNode preHandler;
+    /** 构建器 */
     private final PipelineBuilder builder;
     private final Map<String, Pipeline> branches = new LinkedHashMap<>();
+    /** 错误策略 */
     private ForkErrorStrategy errorStrategy;
     private Map<String, Object> params;
     private Map<String, Object> env;

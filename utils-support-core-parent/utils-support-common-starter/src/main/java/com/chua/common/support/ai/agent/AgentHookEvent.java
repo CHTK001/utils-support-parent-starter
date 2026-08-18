@@ -19,6 +19,7 @@ import java.util.Map;
 public class AgentHookEvent implements Serializable {
 
     /** 序列化版本号 */
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -30,12 +31,15 @@ public class AgentHookEvent implements Serializable {
     private String type;
 
     /** Agent 标识 */
+    /** AgentID */
     private String agentId;
 
     /** 事件描述或提示消息 */
+    /** 消息 */
     private String message;
 
     /** 事件时间戳（毫秒） */
+    /** 时间戳 */
     private long timestamp;
 
     /** 扩展属性（工具名、输入摘要、错误信息等） */

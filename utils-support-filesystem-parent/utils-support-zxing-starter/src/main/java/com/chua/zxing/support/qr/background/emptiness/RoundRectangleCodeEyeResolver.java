@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
  */
 public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
 
+    /** 单位宽度 */
     private int unitWidth = 54;
 
     public RoundRectangleCodeEyeResolver() {

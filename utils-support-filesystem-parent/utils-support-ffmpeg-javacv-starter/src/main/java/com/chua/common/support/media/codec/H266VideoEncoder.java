@@ -24,26 +24,46 @@ import java.io.OutputStream;
 @Slf4j
 @Spi(value = {"h266", "vvc"}, order = 35)
 public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
+    /** Codec_name_h266 */
     private static final String CODEC_NAME_H266 = "h266";
+    /** Format_h266 */
     private static final String FORMAT_H266 = "h266";
+    /** Memory_stream_initial_capacity */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
+    /** Gop_size */
     private static final int GOP_SIZE = 150;
+    /** Key_preset */
     private static final String KEY_PRESET = "preset";
+    /** Key_tune */
     private static final String KEY_TUNE = "tune";
+    /** Key_profile */
     private static final String KEY_PROFILE = "profile";
+    /** Val_preset */
     private static final String VAL_PRESET = "ultrafast";
+    /** Val_tune */
     private static final String VAL_TUNE = "zerolatency";
+    /** Val_profile */
     private static final String VAL_PROFILE = "main";
 
+    /** Recorder */
     private FFmpegFrameRecorder recorder;
+    /** Memory流 */
     private ByteArrayOutputStream memoryStream;
+    /** 宽度 */
     private int width;
+    /** 高度 */
     private int height;
+    /** FPS */
     private int fps;
+    /** 密钥framerequested */
     private boolean keyFrameRequested;
+    /** PTS */
     private long pts;
+    /** Started */
     private boolean started;
+    /** Frame索引 */
     private long frameIndex;
+    /** Buffered图片转换器 */
     private Java2DFrameConverter bufferedImageConverter;
 
     public H266VideoEncoder() {
@@ -242,5 +262,6 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
         return bgr;
     }
 
+    /** Key_force_key_frame */
     private static final String KEY_FORCE_KEY_FRAME = "force_key_frame";
 }

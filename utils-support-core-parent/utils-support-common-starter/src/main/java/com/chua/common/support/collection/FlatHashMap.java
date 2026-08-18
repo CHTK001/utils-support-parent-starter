@@ -33,9 +33,14 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_QUESTION;
  */
 public class FlatHashMap implements FlatMap {
 
+    /** 路径匹配器 */
+    /** Matcher */
     private static final PathMatcher MATCHER = PathMatcher.INSTANCE;
+    /** 关闭层级 */
     private transient final LevelsClose levelsClose = new LevelsClose();
+    /** 打开层级 */
     private transient final LevelsOpen levelsOpen = new LevelsOpen();
+    /** 扁平映射 */
     private final transient Map<String, Object> flatMap;
 
     /**

@@ -31,9 +31,17 @@ import java.util.List;
 @Spi("bilibili")
 public class BilibiliResourceProvider extends AbstractResourceProvider {
 
+    /** 日志记录器 */
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(BilibiliResourceProvider.class);
+    /** 哔哩哔哩搜索接口地址 */
+    /** Bilibili_search_api */
     private static final String BILIBILI_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/all/v2";
+    /** 哔哩哔哩视频链接地址 */
+    /** Bilibili_video_url */
     private static final String BILIBILI_VIDEO_URL = "https://www.bilibili.com/video/";
+    /** JSON 对象映射器 */
+    /** Objectmapper */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public BilibiliResourceProvider() {

@@ -91,18 +91,42 @@ public class DoubaoProxyChatClient implements ChatClient {
      */
     private String conversationId;
 
-/**
-     * 额外请求体参数。
+    /**
+     * extra Body
      */
     private Map<String, Object> extraBody;
 
+    /**
+     * top P
+     */
     private Double topP;
+    /**
+     * stop
+     */
     private List<String> stop;
+    /**
+     * seed
+     */
     private Long seed;
+    /**
+     * response Format
+     */
     private String responseFormat;
+    /**
+     * image Urls
+     */
     private final List<String> imageUrls = new ArrayList<>();
+    /**
+     * attachments
+     */
     private final List<Attachment> attachments = new ArrayList<>();
+    /**
+     * tools
+     */
     private final List<ChatTool> tools = new ArrayList<>();
+    /**
+     * tool Choice
+     */
     private String toolChoice;
 
     /**

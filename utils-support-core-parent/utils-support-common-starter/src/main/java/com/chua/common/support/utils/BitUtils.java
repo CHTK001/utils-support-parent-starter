@@ -23,21 +23,36 @@ public class BitUtils {
      * 单个字节的长度，单位为字节。
      */
     public static final int BYTE_LENGTH = 1;
+    /** Byte_size */
     public static final int BYTE_SIZE = BYTE_LENGTH;
+    /** Byte_bit_size */
     public static final int BYTE_BIT_SIZE = BIT_LENGTH;
+    /** Int_size */
     public static final int INT_SIZE = 4 * BYTE_SIZE;
+    /** Int_bit_size */
     public static final int INT_BIT_SIZE = 4 * BYTE_BIT_SIZE;
+    /** Float_size */
     public static final int FLOAT_SIZE = INT_SIZE;
+    /** Long_size */
     public static final int LONG_SIZE = 8 * BYTE_SIZE;
+    /** Long_bit_size */
     public static final int LONG_BIT_SIZE = 8 * BYTE_BIT_SIZE;
+    /** Double_size */
     public static final int DOUBLE_SIZE = LONG_SIZE;
+    /** Double_bit_size */
     public static final int DOUBLE_BIT_SIZE = LONG_BIT_SIZE;
+    /** Short_size */
     public static final int SHORT_SIZE = 2 * BYTE_SIZE;
+    /** Short_bit_size */
     public static final int SHORT_BIT_SIZE = 2 * BYTE_BIT_SIZE;
+    /** Char_size */
     public static final int CHAR_SIZE = SHORT_SIZE;
+    /** Char_bit_size */
     public static final int CHAR_BIT_SIZE = SHORT_BIT_SIZE;
+    /** Empty_bytes */
     private static final byte[] EMPTY_BYTES = new byte[0];
 
+    /** Symbol_blank */
     private static final String SYMBOL_BLANK = " ";
 
     /**

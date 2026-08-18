@@ -166,7 +166,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     private static class UnifiedCalciteDataSource implements DataSource {
 
         private final Map<String, DataSource> dataSources;
+        /** Schemes */
         private final List<DataScheme> schemes;
+        /** Calciteprops */
         private final Properties calciteProps;
 
         UnifiedCalciteDataSource(Map<String, DataSource> dataSources,

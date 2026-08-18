@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public final class PricingSyncer {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(PricingSyncer.class);
 
     private PricingSyncer() {

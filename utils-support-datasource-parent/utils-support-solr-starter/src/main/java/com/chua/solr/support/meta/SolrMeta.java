@@ -23,6 +23,7 @@ import java.util.function.Consumer;
  */
 public class SolrMeta extends AbstractMetaSearch {
 
+    /** Search引擎 */
     private final SolrSearchEngine searchEngine;
 
     public SolrMeta(AbstractMetaData metaData, SolrEngine engine) {
@@ -88,11 +89,15 @@ public class SolrMeta extends AbstractMetaSearch {
 
     private class SolrCreateIndexBuilder implements SearchIndexCreateBuilder {
 
+        /** 索引名称 */
         private final String indexName;
+        /** Fields */
         private final List<SearchFieldDef> fields = new ArrayList<>();
         private final Map<String, Object> settings = new LinkedHashMap<>();
         private final Map<String, Object> mappings = new LinkedHashMap<>();
+        /** Shards */
         private int shards = 1;
+        /** Replicas */
         private int replicas = 1;
 
         SolrCreateIndexBuilder(String indexName) {
@@ -171,10 +176,15 @@ public class SolrMeta extends AbstractMetaSearch {
     }
 
     private static class SearchFieldBuilderImpl implements SearchFieldBuilder {
+        /** Analyzer */
         private String analyzer;
+        /** Searchanalyzer */
         private String searchAnalyzer;
+        /** Indexed */
         private boolean indexed = true;
+        /** Stored */
         private boolean stored;
+        /** 权重 */
         private double weight = 1.0;
 
         @Override

@@ -170,14 +170,41 @@ public class QuarkusHttpServer extends AbstractServer {
 
     static class QuarkusServerResponse implements ServerResponse {
 
+        /**
+         * ctx
+         */
         private final RoutingContext ctx;
+        /**
+         * 状态
+         */
         private int status = 200;
+        /**
+         * 数据内容
+         */
         private byte[] body;
+        /**
+         * headers
+         */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
+        /**
+         * content Type
+         */
         private String contentType;
+        /**
+         * committed
+         */
         private boolean committed;
+        /**
+         * ended
+         */
         private boolean ended;
+        /**
+         * 结果
+         */
         private Object result;
+        /**
+         * sse Mode
+         */
         private boolean sseMode;
 
         QuarkusServerResponse(RoutingContext ctx) {
@@ -401,8 +428,17 @@ public class QuarkusHttpServer extends AbstractServer {
 
     static class QuarkusServerRequest implements ServerRequest {
 
+        /**
+         * ctx
+         */
         private final RoutingContext ctx;
+        /**
+         * 内容 Bytes
+         */
         private byte[] bodyBytes;
+        /**
+         * attributes
+         */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         QuarkusServerRequest(RoutingContext ctx) {

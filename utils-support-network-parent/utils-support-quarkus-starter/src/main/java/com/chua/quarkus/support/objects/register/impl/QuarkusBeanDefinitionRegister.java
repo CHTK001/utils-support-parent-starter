@@ -26,8 +26,14 @@ import java.util.*;
 @SpiDescribe("Quarkus CDI Bean 定义注册器（只读，委托 CDI 容器）")
 public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
+    /**
+     * cdi class
+     */
     private static final String CDI_CLASS = "jakarta.enterprise.inject.spi.CDI";
 
+    /**
+     * closed
+     */
     private volatile boolean closed;
 
     @Override

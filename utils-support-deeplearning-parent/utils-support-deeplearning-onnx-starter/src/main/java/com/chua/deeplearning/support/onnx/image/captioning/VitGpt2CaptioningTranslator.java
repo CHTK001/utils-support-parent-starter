@@ -91,10 +91,19 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
      */
     private static final String CACHE_ROOT = "vision/captioning/vit-gpt2/";
 
+    /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 编码器会话 */
+    /** 编码器会话 */
     private OrtSession encoderSession;
+    /** 解码器会话 */
+    /** 解码器会话 */
     private OrtSession decoderSession;
+    /** 是否已准备 */
     private volatile boolean prepared;
 
     /**

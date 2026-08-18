@@ -17,25 +17,32 @@ import javax.annotation.Nullable;
 */
 public class PNGImageReaderSpi extends ImageReaderSpi {
     // 定义供应商名称
+    /** Vendor名称 */
     private static final String vendorName = "Karstian Lee";
 
     // 定义版本号
+    /** 版本 */
     private static final String version = "1.0";
 
     // 支持的文件名列表，包括 png 和 apng
+    /** Names */
     private static final String[] names = { "png", "PNG", "apng", "APNG" };
 
     // 支持的文件后缀列表
+    /** Suffixes */
     private static final String[] suffixes = { "png", "apng" };
 
     // 支持的 MIME 类型列表
+    /** Mimetypes */
     private static final String[] MIMETypes = { "image/png", "image/x-png", "image/apng" };
 
     // 定义 PNG 图像阅读器的类名
+    /** 读取器class名称 */
     private static final String readerClassName =
             "com.tianscar.imageio.plugins.png.PNGImageReader";
 
     // 支持的图像写入服务提供者名称列表
+    /** 写入器SPInames */
     private static final String[] writerSpiNames = {
             "com.tianscar.imageio.plugins.png.PNGImageWriterSpi"
     };

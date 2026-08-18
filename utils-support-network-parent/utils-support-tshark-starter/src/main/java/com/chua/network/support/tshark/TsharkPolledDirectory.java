@@ -53,7 +53,13 @@ import java.util.function.Consumer;
 @Slf4j
 public class TsharkPolledDirectory implements PolledDirectory {
 
+    /**
+     * object mapper
+     */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    /**
+     * RESTORERS
+     */
     private static final List<ProtocolRestorer> RESTORERS;
 
     static {

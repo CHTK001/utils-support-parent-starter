@@ -39,18 +39,23 @@ public class AgentChatClient implements ChatClient {
     private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>();
 
     /** 主模型客户端（负责路由决策） */
+    /** Master客户端 */
     private ChatClient masterClient;
 
     /** 主模型名称 */
+    /** Master模型 */
     private String masterModel = "default";
 
     /** 执行模式 */
+    /** 模式 */
     private AgentMode mode = AgentMode.ROUTER;
 
     /** 内部 Agent 实例 */
+    /** Agent */
     private Agent agent;
 
     /** 是否启用 MCP 工具 */
+    /** MCP */
     private boolean mcp = false;
 
     /**

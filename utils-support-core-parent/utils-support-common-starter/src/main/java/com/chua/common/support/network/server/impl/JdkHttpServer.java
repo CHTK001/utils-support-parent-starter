@@ -31,7 +31,9 @@ import java.util.concurrent.Executors;
 @Spi({"jdk", "jdk-http"})
 public class JdkHttpServer extends AbstractServer {
 
+    /** 服务器 */
     private HttpServer server;
+    /** 执行器 */
     private ExecutorService executor;
 
     public JdkHttpServer(ServerSetting setting) {

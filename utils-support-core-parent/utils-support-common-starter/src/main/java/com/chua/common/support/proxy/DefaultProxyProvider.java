@@ -121,6 +121,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * </p>
      */
     @Getter
+    /** Object上下文 */
     private ObjectContext objectContext;
 
     /**
@@ -637,9 +638,13 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * </p>
      */
     private static class ArroundHandler {
+        /** Intercept */
         private final MethodArroundIntercept intercept;
+        /** Patterns */
         private final String[] patterns;
+        /** Match类型 */
         private final MatchUtils.MatchType matchType;
+        /** 排序 */
         private final int order;
 
         /**

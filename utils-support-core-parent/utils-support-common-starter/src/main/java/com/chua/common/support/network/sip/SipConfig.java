@@ -33,30 +33,35 @@ public class SipConfig {
      * 监听主机
      */
     @Builder.Default
+    /** 主机 */
     private String host = "0.0.0.0";
 
     /**
      * 是否启用 TCP 传输
      */
     @Builder.Default
+    /** TCP是否启用 */
     private boolean tcpEnabled = true;
 
     /**
      * TCP 监听端口
      */
     @Builder.Default
+    /** TCP端口 */
     private int tcpPort = DEFAULT_TCP_PORT;
 
     /**
      * 是否启用 KCP 传输
      */
     @Builder.Default
+    /** KCP是否启用 */
     private boolean kcpEnabled = true;
 
     /**
      * KCP 监听端口
      */
     @Builder.Default
+    /** KCP端口 */
     private int kcpPort = DEFAULT_KCP_PORT;
 
     /**

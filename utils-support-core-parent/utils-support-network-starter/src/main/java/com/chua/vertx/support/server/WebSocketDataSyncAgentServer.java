@@ -38,6 +38,7 @@ import java.util.concurrent.*;
  */
 public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(WebSocketDataSyncAgentServer.class);
 
     /**
@@ -300,8 +301,11 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     public static class Connection {
+        /** Socket */
         private final Socket socket;
+        /** AgentID */
         private final String agentId;
+        /** 来源ID */
         private final String sourceId;
 
         Connection(Socket socket, String agentId, String sourceId) {
@@ -324,7 +328,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
+        /** AgentID */
         private final String agentId;
+        /** 来源ID */
         private final String sourceId;
 
         SimpleDataSyncAgent(String agentId, String sourceId) {

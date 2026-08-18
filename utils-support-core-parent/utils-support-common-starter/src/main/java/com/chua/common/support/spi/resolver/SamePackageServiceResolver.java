@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
  */
 public class SamePackageServiceResolver implements ServiceResolver {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(SamePackageServiceResolver.class);
 
     /**

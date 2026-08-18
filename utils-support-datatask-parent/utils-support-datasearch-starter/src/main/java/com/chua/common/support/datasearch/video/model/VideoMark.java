@@ -10,8 +10,11 @@ import java.math.BigDecimal;
  */
 public class VideoMark {
 
+    /** 视频mark类型 */
     private String videoMarkType;
+    /** 视频markpeople */
     private Integer videoMarkPeople;
+    /** 视频mark分数 */
     private BigDecimal videoMarkScore;
 
     public VideoMark() {

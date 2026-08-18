@@ -14,6 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PluginContext {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(PluginContext.class.getName());
     /**
      * 插件根目录

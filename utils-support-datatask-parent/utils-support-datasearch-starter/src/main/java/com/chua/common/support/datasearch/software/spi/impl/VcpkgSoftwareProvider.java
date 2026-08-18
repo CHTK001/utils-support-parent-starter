@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("vcpkg")
 public class VcpkgSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(VcpkgSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "vcpkg";
 
     @Override

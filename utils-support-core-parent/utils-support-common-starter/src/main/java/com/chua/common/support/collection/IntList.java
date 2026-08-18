@@ -279,6 +279,8 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     @Override
     public Iterator<Integer> iterator() {
         return new Iterator<Integer>() {
+            /** 索引位置 */
+            /** 索引 */
             private int index = 0;
 
             @Override

@@ -20,12 +20,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyHttpSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
+    /** 客户端ID */
     private final String clientId = UUID.randomUUID().toString();
+    /** 服务器URL */
     private final String serverUrl;
+    /** HTTP客户端 */
     private final HttpClient httpClient;
     private volatile boolean connected;
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
+    /** Listeners */
     private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
+    /** Pull线程 */
     private Thread pullThread;
 
     public NettyHttpSyncClient(String serverUrl) {

@@ -118,13 +118,21 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     private static class MysqlTableCreateBuilder implements TableCreateBuilder {
 
+        /** Meta表 */
         private final MysqlMetaTable metaTable;
+        /** 表名称 */
         private final String tableName;
+        /** Columns */
         private final List<ColumnDef> columns = new ArrayList<>();
+        /** Comment */
         private String comment;
+        /** 引擎 */
         private String engine;
+        /** 字符集 */
         private String charset;
+        /** Collate */
         private String collate;
+        /** Primarykeys */
         private final List<String> primaryKeys = new ArrayList<>();
 
         MysqlTableCreateBuilder(MysqlMetaTable metaTable, String tableName) {
@@ -296,7 +304,9 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     private static class MysqlTableAlterBuilder implements TableAlterBuilder {
 
+        /** Meta表 */
         private final MysqlMetaTable metaTable;
+        /** Sqls */
         private final List<String> sqls = new ArrayList<>();
 
         MysqlTableAlterBuilder(MysqlMetaTable metaTable) {
@@ -389,12 +399,19 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     private static class MysqlAlterColumnBuilder implements AlterColumnBuilder {
 
+        /** 父级 */
         private final MysqlTableAlterBuilder parent;
+        /** 列名称 */
         private final String columnName;
+        /** NOT是否为null */
         private boolean notNull;
+        /** 默认值 */
         private String defaultValue;
+        /** Comment */
         private String comment;
+        /** After */
         private String after;
+        /** 首个 */
         private boolean first;
 
         MysqlAlterColumnBuilder(MysqlTableAlterBuilder parent, String clause, String columnName) {
@@ -473,11 +490,17 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     private static class MysqlAlterIndexBuilder implements AlterIndexBuilder {
 
+        /** 父级 */
         private final MysqlTableAlterBuilder parent;
+        /** 索引名称 */
         private final String indexName;
+        /** Cols */
         private final List<String> cols = new ArrayList<>();
+        /** Unique */
         private boolean unique;
+        /** 类型 */
         private String type;
+        /** Comment */
         private String comment;
 
         MysqlAlterIndexBuilder(MysqlTableAlterBuilder parent, String indexName) {
@@ -530,12 +553,19 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     private static class MysqlAlterForeignKeyBuilder implements AlterForeignKeyBuilder {
 
+        /** 父级 */
         private final MysqlTableAlterBuilder parent;
+        /** FK名称 */
         private final String fkName;
+        /** 列名称 */
         private String columnName;
+        /** 引用表 */
         private String refTable;
+        /** 引用列 */
         private String refColumn;
+        /** ONdelete */
         private String onDelete;
+        /** ONupdate */
         private String onUpdate;
 
         MysqlAlterForeignKeyBuilder(MysqlTableAlterBuilder parent, String fkName) {

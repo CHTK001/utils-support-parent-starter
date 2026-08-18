@@ -38,8 +38,14 @@ import javax.annotation.Nonnull;
 @Slf4j
 public class NimaTranslator implements Translator<Image, float[]> {
 
+    /** 图像尺寸 */
+    /** Image_size */
     private static final int IMAGE_SIZE = 224;
+    /** 图像均值 */
+    /** Image_mean */
     private static final float[] IMAGE_MEAN = {0.485f, 0.456f, 0.406f};
+    /** 图像标准差 */
+    /** Image_std */
     private static final float[] IMAGE_STD = {0.229f, 0.224f, 0.225f};
 
     @Override

@@ -23,6 +23,7 @@ import java.util.*;
 @Spi("redis")
 public class RedisServiceDiscovery extends AbstractServiceDiscovery {
 
+    /** Redisson客户端 */
     private RedissonClient redissonClient;
 
 

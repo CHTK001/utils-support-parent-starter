@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public final class OcrBatchTest {
 
+    /** OCR 名称集合 */
+    /** Ocr_names */
     private static final Set<String> OCR_NAMES = Set.of(
             "led文字.jpg", "表格.jpg", "车票.png",
             "车票ticket_180.png", "车票ticket_270.png", "车票ticket_90.png",

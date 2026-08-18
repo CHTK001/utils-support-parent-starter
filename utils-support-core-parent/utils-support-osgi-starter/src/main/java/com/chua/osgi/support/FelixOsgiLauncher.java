@@ -39,8 +39,11 @@ import java.util.stream.Collectors;
 public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
 
     private volatile Framework framework;
+    /** Applications */
     private final List<BundleApplication> applications = new CopyOnWriteArrayList<>();
+    /** Listeners */
     private final List<BundleLifecycleListener> listeners = new CopyOnWriteArrayList<>();
+    /** Auto开始installedbundles */
     private boolean autoStartInstalledBundles = true;
 
     @Override

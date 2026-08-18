@@ -26,7 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractFileStorage implements FileStorage {
 
+    /** 存储桶设置 */
     protected final BucketSetting bucketSetting;
+    /** 存储桶 */
     protected final String bucket;
     /**
      * 区域
@@ -83,6 +85,7 @@ public abstract class AbstractFileStorage implements FileStorage {
      */
     private static class LocalTmpMultipartStorage implements MultipartStorage {
 
+        /** 文件存储 */
         private final FileStorage fileStorage;
         private final Map<String, MultipartContext> contexts;
 

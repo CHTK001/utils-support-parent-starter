@@ -39,24 +39,60 @@ import java.util.function.Consumer;
 @Spi({"alibaba"})
 public class AlibabaChatClient implements ChatClient {
 
+    /** 默认模型 */
+    /** Default_model */
     private static final String DEFAULT_MODEL = "qwen-turbo";
+    /** 默认温度参数 */
+    /** Default_temperature */
     private static final double DEFAULT_TEMPERATURE = 0.3;
+    /** 默认最大令牌数 */
+    /** Default_max_tokens */
     private static final int DEFAULT_MAX_TOKENS = 2048;
+    /** 历史记录容量 */
+    /** History_capacity */
     private static final int HISTORY_CAPACITY = 16;
 
+    /** 通义千问生成服务 */
+    /** Generation */
     private final Generation generation;
+    /** 配置对象 */
+    /** 设置 */
     private final ChatClientSetting setting;
+    /** 模型名称 */
+    /** 模型 */
     private String model;
+    /** 温度参数 */
+    /** Temperature */
     private Double temperature;
+    /** 最大令牌数 */
+    /** 最大值tokens */
     private Integer maxTokens;
+    /** 系统提示 */
+    /** System */
     private String system;
+    /** 会话 ID */
+    /** 会话ID */
     private String sessionId;
+    /** 对话历史消息 */
+    /** History */
     private final List<ChatMessage> history = new ArrayList<>(HISTORY_CAPACITY);
+    /** 外部历史消息 */
+    /** 外部history */
     private List<ChatMessage> externalHistory;
+    /** 图片链接列表 */
+    /** 图片urls */
     private final List<String> imageUrls = new ArrayList<>(4);
+    /** 是否开启思考模式 */
+    /** Thinking */
     private boolean thinking;
+    /** 思考努力程度 */
+    /** Thinkingeffort */
     private String thinkingEffort;
+    /** 是否启用智能搜索 */
+    /** Smartsearch */
     private boolean smartSearch;
+    /** 技能管理器 */
+    /** Skill管理器 */
     private SkillManager skillManager;
 
     public AlibabaChatClient(ChatClientSetting setting) {

@@ -15,12 +15,19 @@ import java.util.List;
 @Slf4j
 public class BootstrapProbe {
 
+    /** 配置 */
     private final MeshConfig config;
+    /** 节点表 */
     private final NodeTable nodeTable;
+    /** Selector */
     private final InterfaceSelector selector;
+    /** 本地服务器ID */
     private final String localServerId;
+    /** 本地端口 */
     private final int localPort;
+    /** Diskstore */
     private final DiskStore diskStore;
+    /** 本地主机 */
     private final String localHost;
 
     public BootstrapProbe(MeshConfig config, NodeTable nodeTable, InterfaceSelector selector,

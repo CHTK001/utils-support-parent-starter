@@ -35,18 +35,40 @@ import java.util.Map;
 @Slf4j
 public class CardCorrectionTranslator implements ITranslator<byte[], List<DetectionInfo>> {
 
+    /** 输入尺寸 */
+    /** Input_size */
     private static final int INPUT_SIZE = 768;
+    /** 热力图尺寸 */
+    /** Heat_size */
     private static final int HEAT_SIZE = 192;
+    /** 角点数量 */
+    /** Num_corners */
     private static final int NUM_CORNERS = 4;
+    /** 步长 */
+    /** Stride */
     private static final int STRIDE = 4;
+    /** 置信度阈值 */
+    /** Conf_threshold */
     private static final float CONF_THRESHOLD = 0.3f;
 
+    /** 资源基础路径 */
+    /** Resource_base */
     private static final String RESOURCE_BASE = "cv/card_correction/";
+    /** 模型文件路径 */
+    /** Model_file */
     private static final String MODEL_FILE = "card_detection.onnx";
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 会话 */
+    /** 会话 */
     private OrtSession session;
+    /** 源图像宽度 */
+    /** SRC宽度 */
     private int srcWidth;
+    /** 源图像高度 */
+    /** SRC高度 */
     private int srcHeight;
 
     /**

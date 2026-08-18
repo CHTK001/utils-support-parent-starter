@@ -23,7 +23,9 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
 
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
+    /** Listeners */
     private final List<SyncServerListener> listeners = new ArrayList<>();
+    /** 服务器 */
     private com.sun.net.httpserver.HttpServer server;
 
     public NettyHttpSyncServer(ServerSetting setting) {

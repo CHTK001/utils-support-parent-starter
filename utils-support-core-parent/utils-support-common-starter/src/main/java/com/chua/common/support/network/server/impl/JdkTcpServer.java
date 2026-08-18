@@ -78,7 +78,9 @@ import java.util.concurrent.Executors;
 @Spi({"jdk-tcp"})
 public class JdkTcpServer extends AbstractServer {
 
+    /** 服务器Socket */
     private ServerSocket serverSocket;
+    /** Worker池 */
     private ExecutorService workerPool;
     private final Map<String, TcpHandler> handlers = new ConcurrentHashMap<>();
 

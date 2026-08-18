@@ -23,10 +23,14 @@ import java.util.List;
  */
 public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
 
+    /** 标签列表 */
+    /** Labels */
     private static final List<String> LABELS = List.of(
             "angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"
     );
 
+    /** 图像尺寸 */
+    /** 图片尺寸 */
     private final int imageSize;
 
     public DenseNetExpressionTranslator() {

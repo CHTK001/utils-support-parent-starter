@@ -52,6 +52,7 @@ public abstract class AbstractServer implements ConfigServer {
      * @return 监听器条目列表，可能为 null
      */
     @Getter
+    /** 过滤器管理器 */
     protected final ServerFilterManager filterManager;
 
     /**
@@ -63,6 +64,7 @@ public abstract class AbstractServer implements ConfigServer {
      * 服务器运行指标统计。
      */
     @Getter
+    /** Metrics */
     protected final ServerMetrics metrics = new ServerMetrics();
 
     /**
@@ -534,6 +536,7 @@ public abstract class AbstractServer implements ConfigServer {
      * 简单的 ServerFilterConfig 实现，用于内置过滤器。
      */
     private static class SimpleServerFilterConfig implements ServerFilterConfig {
+        /** 设置 */
         private final ServerSetting setting;
 
         SimpleServerFilterConfig(ServerSetting setting) {

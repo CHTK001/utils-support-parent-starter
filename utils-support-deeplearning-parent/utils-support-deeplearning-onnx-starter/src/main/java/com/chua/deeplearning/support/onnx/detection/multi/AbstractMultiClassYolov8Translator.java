@@ -60,12 +60,24 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
      */
     protected static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
+    /** 输入尺寸 */
+    /** 输入尺寸 */
     private final int inputSize;
+    /** 阈值 */
+    /** 阈值 */
     private final float threshold;
+    /** NMS 阈值 */
+    /** NMS阈值 */
     private final float nmsThreshold;
+    /** 类别名称列表 */
+    /** Classes */
     private final List<String> classes;
 
+    /** 图像宽度 */
+    /** 图片宽度 */
     private int imageWidth;
+    /** 图像高度 */
+    /** 图片高度 */
     private int imageHeight;
 
     protected AbstractMultiClassYolov8Translator() {

@@ -246,8 +246,17 @@ public enum Protocol {
      */
     UNKNOWN("Unknown", 0, false);
 
+    /**
+     * display Name
+     */
     private final String displayName;
+    /**
+     * 默认 Port
+     */
     private final int defaultPort;
+    /**
+     * text
+     */
     private final boolean text;
 
     Protocol(String displayName, int defaultPort, boolean text) {

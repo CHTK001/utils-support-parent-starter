@@ -20,6 +20,8 @@ import java.util.Map;
  */
 public class JsonConfigFileParser implements ConfigFileParser {
 
+    /** JSON 对象映射器 */
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override

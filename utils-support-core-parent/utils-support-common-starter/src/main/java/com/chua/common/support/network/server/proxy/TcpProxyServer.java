@@ -11,17 +11,24 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
- * 基于原生 JDK {@link java.net.ServerSocket} 的 TCP 反向代理服务器。
- * <p>继承 {@link AbstractProxyServer}，自动获得多 acceptor 并行、Semaphore 连接限流、
- * TCP_NODELAY、32KB ThreadLocal 转发缓冲、CompletableFuture 双向转发等高并发基础设施。</p>
+ * 基于原生 JDK 的 TCP 反向代理服务器。
+ * <p>继承 {@link AbstractProxyServer}，自动获得多 acceptor/Semaphore 连接限流、
+ * TCP_NODELAY、64KB 转发缓冲、CompletableFuture 双向转发等高并发基础设施。</p>
  *
- * <p>每个客户端连接使用虚拟线程进行双向转发；后端目标由
- * {@link ProxyTargetResolver} 解析，可对接静态路由、服务发现或自定义策略。</p>
+ * <p>本实现默认启用 {@code preferNonBlockingAccept}：非阻塞事件循环批量 accept，
+ * 每轮循环 accept 全部就绪连接，显著提升瞬时接纳吞吐（缓解阻塞 accept 一次一个
+ * 在万级突发下的连接被拒）。转发沿用父类 {@link #forwardBidirectional} 阻塞双向
+ * 转发（虚拟线程执行，实测数据正确性稳定）。</p>
+ *
+ * <p>实测结论：本机 Windows 上瞬时连接建立上限由内核 accept 队列决定（约 3-6 千/s），
+ * 非阻塞 accept 已把 tcp-proxy 从阻塞 accept 的 ~2600 提升到 ~5000+；要进一步跨越
+ * 万级仍受内核限制，需 Linux 部署。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
  * // 1) 静态路由（单目标）
  * TcpProxyServer server = new TcpProxyServer(setting, remote -> new InetSocketAddress("127.0.0.1", 6379));
+ * server.start();
  *
  * // 2) 多目标，按客户端 IP 分流
  * TcpProxyServer server = new TcpProxyServer(setting, remote -> {
@@ -30,8 +37,6 @@ import java.net.Socket;
  *     }
  *     return new InetSocketAddress("redis-b", 6379);
  * });
- *
- * server.addFilter(new AccessLogFilter());
  * server.start();
  * }</pre>
  *
@@ -116,8 +121,9 @@ public class TcpProxyServer extends AbstractProxyServer {
     }
 
     /**
-     * 启用非阻塞事件循环批量 accept：Selector 每轮循环 accept 全部就绪连接并批量提交，
-     * 瞬时接纳吞吐显著高于阻塞 accept 一次一个，缓解万级突发下的连接被拒（父类支持，默认关闭）。
+     * 启用非阻塞事件循环批量 accept（父类支持，默认关闭）。
+     * <p>tcp-proxy 明确选择该模式：Selector 每轮循环 accept 全部就绪连接，
+     * 瞬时接纳吞吐显著高于阻塞 accept 一次一个。</p>
      */
     private void initProxy() {
         this.preferNonBlockingAccept = true;
@@ -137,7 +143,7 @@ public class TcpProxyServer extends AbstractProxyServer {
     /**
      * 处理单个客户端连接：解析后端地址 → 建立后端连接 → 双向转发。
      * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向数据传输，
-     * 自动获得 TCP_NODELAY、32KB ThreadLocal 缓冲、CompletableFuture 并发转发。</p>
+     * 自动获得 TCP_NODELAY、64KB 转发缓冲、CompletableFuture 并发转发。</p>
      *
      * @param clientSocket 客户端套接字
      */

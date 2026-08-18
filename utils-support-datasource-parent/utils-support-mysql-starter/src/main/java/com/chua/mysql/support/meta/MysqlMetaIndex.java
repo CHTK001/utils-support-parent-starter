@@ -133,12 +133,19 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
 
     private static class MysqlIndexCreateBuilder implements IndexCreateBuilder {
 
+        /** Meta索引 */
         private final MysqlMetaIndex metaIndex;
+        /** 索引名称 */
         private final String indexName;
+        /** Columns */
         private final List<String> columns = new ArrayList<>();
+        /** Unique */
         private boolean unique;
+        /** 类型 */
         private String type;
+        /** Comment */
         private String comment;
+        /** Visible */
         private boolean visible = true;
 
         MysqlIndexCreateBuilder(MysqlMetaIndex metaIndex, String indexName) {

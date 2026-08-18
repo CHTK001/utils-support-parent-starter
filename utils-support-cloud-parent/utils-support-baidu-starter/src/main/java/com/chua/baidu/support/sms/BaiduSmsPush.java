@@ -61,7 +61,10 @@ public class BaiduSmsPush implements MessagePush {
      */
     private static final String SMS_API_URL = "https://sms.bce.baidu.com/api/v2/sms";
 
+    /** 消息环境 */
+    /** 环境 */
     private final MessageEnvironment environment;
+    /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     public BaiduSmsPush() {

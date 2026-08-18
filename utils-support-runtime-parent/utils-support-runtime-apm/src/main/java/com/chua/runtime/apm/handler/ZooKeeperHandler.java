@@ -46,6 +46,9 @@ import java.util.logging.Logger;
  * @since 4.0.0.42
  */
 public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(ZooKeeperHandler.class.getName());
 
     /**
@@ -63,8 +66,17 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private static final int MAX_RECORDS = 5000;
 
+    /**
+     * records
+     */
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
+    /**
+     * enabled
+     */
     private boolean enabled;
+    /**
+     * 是否已启动
+     */
     private final AtomicBoolean started;
 
     public ZooKeeperHandler() {

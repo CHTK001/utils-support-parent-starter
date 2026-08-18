@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictResult> {
 
+    /** 日志记录器 */
+    /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(AgeRaceGenderTranslator.class);
 
     /**

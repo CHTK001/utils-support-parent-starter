@@ -20,6 +20,7 @@ public class DirectoryBackup implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "directory";
+    /** Delegate */
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
     @Override

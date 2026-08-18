@@ -21,15 +21,19 @@ public class BotSendResult {
     private boolean success;
 
     /** 返回的消息 ID */
+    /** MSGID */
     private String msgId;
 
     /** 错误码 */
+    /** 错误代码 */
     private int errorCode;
 
     /** 错误信息 */
+    /** 错误消息 */
     private String errorMessage;
 
     /** 原始响应内容 */
+    /** RAW响应 */
     private String rawResponse;
 
     /**

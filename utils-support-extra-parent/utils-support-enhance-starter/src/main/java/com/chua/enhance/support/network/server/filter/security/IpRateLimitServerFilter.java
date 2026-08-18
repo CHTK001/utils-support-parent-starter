@@ -35,7 +35,9 @@ public class IpRateLimitServerFilter implements ServerFilter {
      */
     private static final int DEFAULT_REFILL_RATE = 10;
 
+    /** 存储桶容量 */
     private int bucketCapacity = DEFAULT_BUCKET_CAPACITY;
+    /** Refill比率 */
     private int refillRate = DEFAULT_REFILL_RATE;
 
     /**
@@ -94,8 +96,11 @@ public class IpRateLimitServerFilter implements ServerFilter {
      * 令牌桶实现，支持按时间补充令牌。
      */
     private static class TokenBucket {
+        /** 容量 */
         private final int capacity;
+        /** Refill比率PERMS */
         private final double refillRatePerMs;
+        /** Tokens */
         private final AtomicLong tokens;
         private volatile long lastRefillTime;
 

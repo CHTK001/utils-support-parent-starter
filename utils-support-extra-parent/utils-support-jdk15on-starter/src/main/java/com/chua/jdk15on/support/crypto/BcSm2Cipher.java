@@ -24,8 +24,11 @@ import java.security.spec.ECGenParameterSpec;
 @Spi({"bc", "bouncycastle"})
 public class BcSm2Cipher implements Sm2Cipher {
 
+    /** 提供者 */
     private static final String PROVIDER = "BC";
+    /** Ec_algorithm */
     private static final String EC_ALGORITHM = "EC";
+    /** Sm2_id */
     private static final byte[] SM2_ID = "1234567812345678".getBytes();
 
     static {

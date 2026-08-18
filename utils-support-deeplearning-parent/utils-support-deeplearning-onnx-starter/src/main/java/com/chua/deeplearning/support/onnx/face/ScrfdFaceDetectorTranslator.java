@@ -34,10 +34,20 @@ import java.util.List;
  */
 public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
 
+    /** 输入尺寸 */
+    /** Input_size */
     private static final int INPUT_SIZE = 640;
+    /** 步长数组 */
+    /** Strides */
     private static final int[] STRIDES = {8, 16, 32};
+    /** 锚框数量 */
+    /** Num_anchors */
     private static final int NUM_ANCHORS = 2;
+    /** 分数阈值 */
+    /** Score_threshold */
     private static final float SCORE_THRESHOLD = 0.45f;
+    /** NMS 阈值 */
+    /** Nms_threshold */
     private static final double NMS_THRESHOLD = 0.40d;
 
     @Override

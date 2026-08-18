@@ -44,18 +44,21 @@ public class DependencyEdge {
      * 调用次数
      */
     @Builder.Default
+    /** Call数量 */
     private long callCount = 0;
 
     /**
      * 总耗时（毫秒）
      */
     @Builder.Default
+    /** 总数持续时间 */
     private long totalDuration = 0;
 
     /**
      * 错误次数
      */
     @Builder.Default
+    /** 错误数量 */
     private long errorCount = 0;
 
     /**
@@ -67,6 +70,7 @@ public class DependencyEdge {
      * 最近一次调用时间戳（毫秒）
      */
     @Builder.Default
+    /** 最后call时间 */
     private long lastCallTime = 0;
 
     /**

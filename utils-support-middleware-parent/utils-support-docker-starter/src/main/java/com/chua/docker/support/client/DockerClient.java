@@ -78,9 +78,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class DockerClient implements Closeable {
 
     /** docker-java 原生客户端委托 */
+    /** Delegate */
     private final com.github.dockerjava.api.DockerClient delegate;
 
     /** Docker 主机地址 */
+    /** 主机 */
     private final String host;
 
     /**
@@ -204,18 +206,23 @@ public class DockerClient implements Closeable {
     public static class Builder {
 
         /** Docker 主机地址，默认 Unix socket */
+        /** 主机 */
         private String host = "unix:///var/run/docker.sock";
 
+        /** 证书路径 */
         /** 证书路径 */
         private String certPath;
 
         /** API 版本 */
+        /** API版本 */
         private String apiVersion = "1.40";
 
         /** 连接超时毫秒 */
+        /** Connect超时 */
         private int connectTimeout = 5000;
 
         /** 读取超时毫秒 */
+        /** Read超时 */
         private int readTimeout = 30000;
 
         /**
@@ -300,6 +307,7 @@ public class DockerClient implements Closeable {
     public static class ContainerOps {
 
         /** 父客户端 */
+        /** 客户端 */
         private final DockerClient client;
 
         /**
@@ -503,12 +511,15 @@ public class DockerClient implements Closeable {
         public static class CreateCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器名称 */
+            /** 名称 */
             private final String name;
 
             /** 镜像 */
+            /** 图片 */
             private String image;
 
             /** 环境变量 */
@@ -521,27 +532,35 @@ public class DockerClient implements Closeable {
             private final Map<Integer, String> portBindings = new ConcurrentHashMap<>();
 
             /** 存储卷绑定 */
+            /** Binds */
             private final List<Bind> binds = new ArrayList<>();
 
             /** 重启策略，默认 no */
+            /** Restartpolicy */
             private String restartPolicy = "no";
 
             /** 标准输入打开 */
+            /** Stdinopen */
             private boolean stdinOpen = false;
 
             /** 分配 TTY */
+            /** TTY */
             private boolean tty = false;
 
             /** 工作目录 */
+            /** Working目录 */
             private String workingDir;
 
             /** 运行用户 */
+            /** 用户 */
             private String user;
 
             /** 内存限制 */
+            /** Memory */
             private Long memory;
 
             /** CPU 配额（纳核） */
+            /** Nanocpus */
             private Long nanoCpus;
 
             /**
@@ -756,9 +775,11 @@ public class DockerClient implements Closeable {
         public static class StartCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /**
@@ -805,12 +826,15 @@ public class DockerClient implements Closeable {
         public static class StopCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /** 等待超时秒数 */
+            /** 超时 */
             private int timeout = 10;
 
             /**
@@ -868,12 +892,15 @@ public class DockerClient implements Closeable {
         public static class RestartCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /** 等待超时秒数 */
+            /** 超时 */
             private int timeout = 10;
 
             /**
@@ -930,15 +957,19 @@ public class DockerClient implements Closeable {
         public static class RemoveCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /** 强制删除 */
+            /** Force */
             private boolean force = false;
 
             /** 删除关联卷 */
+            /** Removevolumes */
             private boolean removeVolumes = false;
 
             /**
@@ -1009,12 +1040,15 @@ public class DockerClient implements Closeable {
         public static class ListCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 是否显示已停止容器 */
+            /** ALL */
             private boolean all = false;
 
             /** 过滤条件 */
+            /** Filters */
             private List<String> filters = new ArrayList<>();
 
             /**
@@ -1085,9 +1119,11 @@ public class DockerClient implements Closeable {
         public static class InspectCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /**
@@ -1135,18 +1171,23 @@ public class DockerClient implements Closeable {
         public static class LogsCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /** 获取标准输出 */
+            /** Stdout */
             private boolean stdout = true;
 
             /** 获取标准错误 */
+            /** Stderr */
             private boolean stderr = true;
 
             /** 尾部行数 */
+            /** Tail */
             private int tail = 100;
 
             /**
@@ -1240,12 +1281,15 @@ public class DockerClient implements Closeable {
         public static class ExecCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /** 执行的命令 */
+            /** CMD */
             private String[] cmd;
 
             /**
@@ -1342,12 +1386,15 @@ public class DockerClient implements Closeable {
         public static class KillCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 容器 ID */
+            /** ID */
             private final String id;
 
             /** 信号名称 */
+            /** Signal */
             private String signal = "KILL";
 
             /**
@@ -1404,6 +1451,7 @@ public class DockerClient implements Closeable {
     public static class ImageOps {
 
         /** 父客户端 */
+        /** 客户端 */
         private final DockerClient client;
 
         /**
@@ -1491,11 +1539,14 @@ public class DockerClient implements Closeable {
         public static class PullImageCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 镜像名称 */
+            /** 名称 */
             private final String name;
 
+            /** 标签 */
             /** 标签 */
             private String tag = "latest";
 
@@ -1580,6 +1631,7 @@ public class DockerClient implements Closeable {
         public static class ListImageCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /**
@@ -1605,12 +1657,15 @@ public class DockerClient implements Closeable {
         public static class RemoveImageCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 镜像 ID */
+            /** ID */
             private final String id;
 
             /** 强制删除 */
+            /** Force */
             private boolean force = false;
 
             /**
@@ -1649,6 +1704,7 @@ public class DockerClient implements Closeable {
     public static class NetworkOps {
 
         /** 父客户端 */
+        /** 客户端 */
         private final DockerClient client;
 
         /**
@@ -1763,15 +1819,19 @@ public class DockerClient implements Closeable {
         public static class CreateNetworkCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 网络名称 */
+            /** 名称 */
             private final String name;
 
             /** 驱动类型 */
+            /** 驱动 */
             private String driver = "bridge";
 
             /** 内部网络 */
+            /** 内部 */
             private boolean internal = false;
 
             /** 选项 */
@@ -1858,6 +1918,7 @@ public class DockerClient implements Closeable {
         public static class ListNetworkCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /**
@@ -1883,9 +1944,11 @@ public class DockerClient implements Closeable {
         public static class RemoveNetworkCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 网络 ID */
+            /** ID */
             private final String id;
 
             /**
@@ -1913,6 +1976,7 @@ public class DockerClient implements Closeable {
     public static class VolumeOps {
 
         /** 父客户端 */
+        /** 客户端 */
         private final DockerClient client;
 
         /**
@@ -2001,12 +2065,15 @@ public class DockerClient implements Closeable {
         public static class CreateVolumeCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 卷名称 */
+            /** 名称 */
             private final String name;
 
             /** 驱动类型 */
+            /** 驱动 */
             private String driver = "local";
 
             /** 驱动选项 */
@@ -2081,6 +2148,7 @@ public class DockerClient implements Closeable {
         public static class ListVolumeCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /**
@@ -2106,9 +2174,11 @@ public class DockerClient implements Closeable {
         public static class RemoveVolumeCmd {
 
             /** 父客户端 */
+            /** 客户端 */
             private final DockerClient client;
 
             /** 卷名称 */
+            /** 名称 */
             private final String name;
 
             /**

@@ -35,7 +35,11 @@ import java.util.List;
  */
 public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryWrapper<T>> {
 
+    /** 查询列列表 */
+    /** Selectcolumns */
     private final List<String> selectColumns = new ArrayList<>();
+    /** 分组列名 */
+    /** 分组BY列 */
     private String groupByColumn;
 
     public LambdaQueryWrapper(Class<T> entityClass) {

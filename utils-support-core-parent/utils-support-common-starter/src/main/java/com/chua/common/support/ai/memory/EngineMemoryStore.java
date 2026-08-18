@@ -38,8 +38,14 @@ public class EngineMemoryStore implements MemoryStore {
      */
     public static final String TABLE = "memory_entry_entity";
 
+    /** 引擎实例 */
+    /** 引擎 */
     private final Engine engine;
+    /** 配置对象 */
+    /** 配置 */
     private final MemoryConfig config;
+    /** 内存行数据列表 */
+    /** Rows */
     private final List<MemoryEntryEntity> rows = new CopyOnWriteArrayList<>();
 
     public EngineMemoryStore(Engine engine, MemoryConfig config) {

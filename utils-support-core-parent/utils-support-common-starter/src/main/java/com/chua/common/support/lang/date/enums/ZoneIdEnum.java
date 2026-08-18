@@ -153,7 +153,9 @@ public enum ZoneIdEnum {
     HST("-10:00", "夏威夷标准时间"),
     ;
 
+    /** ZoneID名称 */
     private final String zoneIdName;
+    /** ZoneID名称CN */
     private final String zoneIdNameCn;
 
     ZoneIdEnum(String zoneIdName, String zoneIdNameCn) {

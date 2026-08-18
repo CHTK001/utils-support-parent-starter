@@ -109,13 +109,20 @@ import java.util.function.Consumer;
  */
 public class TaskDefinition {
 
+    /** ID */
     private final String id;
+    /** 处理器 */
     private PipelineNode handler;
+    /** 构建器 */
     private final PipelineBuilder builder;
+    /** 结束afterexecute */
     private boolean endAfterExecute;
+    /** 开始节点 */
     private boolean startNode;
     private Map<String, Object> env;
+    /** 重试配置 */
     private RetryConfig retryConfig;
+    /** Units */
     private Set<String> units;
 
     /**

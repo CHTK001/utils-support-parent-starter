@@ -433,12 +433,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
     public static final class GroupByQueryWrapper<T> {
 
+        /** 引擎 */
         private final LuceneEngine engine;
+        /** Entityclass */
         private final Class<T> entityClass;
+        /** 分组BYcols */
         private final List<String> groupByCols = new ArrayList<>();
+        /** Where */
         private String where;
+        /** 参数 */
         private Object[] params;
+        /** SortCOL */
         private String sortCol;
+        /** SortASC */
         private boolean sortAsc = true;
 
         GroupByQueryWrapper(LuceneEngine engine, Class<T> entityClass, String... groupByCols) {

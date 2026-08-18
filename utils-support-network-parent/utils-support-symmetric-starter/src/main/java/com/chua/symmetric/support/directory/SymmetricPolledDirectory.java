@@ -70,38 +70,116 @@ public class SymmetricPolledDirectory implements PolledDirectory {
 
     // ==================== 配置常量 ====================
 
+    /**
+     * 键 engine 名称
+     */
     private static final String KEY_ENGINE_NAME = "symmetric.engine.name";
+    /**
+     * 键 db 类型
+     */
     private static final String KEY_DB_TYPE = "symmetric.db.type";
+    /**
+     * 键 group 标识
+     */
     private static final String KEY_GROUP_ID = "symmetric.group.id";
+    /**
+     * 键 external 标识
+     */
     private static final String KEY_EXTERNAL_ID = "symmetric.external.id";
+    /**
+     * 键 registration URL
+     */
     private static final String KEY_REGISTRATION_URL = "symmetric.registration.url";
+    /**
+     * 键 sync URL
+     */
     private static final String KEY_SYNC_URL = "symmetric.sync.url";
+    /**
+     * 键 主机
+     */
     private static final String KEY_HOST = "db.host";
+    /**
+     * 键 端口
+     */
     private static final String KEY_PORT = "db.port";
+    /**
+     * 键 用户名
+     */
     private static final String KEY_USERNAME = "db.username";
+    /**
+     * 键 密码
+     */
     private static final String KEY_PASSWORD = "db.password";
+    /**
+     * 键 database
+     */
     private static final String KEY_DATABASE = "db.name";
+    /**
+     * 键 table include 列表
+     */
     private static final String KEY_TABLE_INCLUDE_LIST = "symmetric.table.include.list";
+    /**
+     * 键 auto create tables
+     */
     private static final String KEY_AUTO_CREATE_TABLES = "symmetric.auto.create.tables";
+    /**
+     * 键 初始 加载
+     */
     private static final String KEY_INITIAL_LOAD = "symmetric.initial.load";
+    /**
+     * 键 auto 注册
+     */
     private static final String KEY_AUTO_REGISTER = "symmetric.auto.register";
+    /**
+     * 键 auto setup
+     */
     private static final String KEY_AUTO_SETUP = "symmetric.auto.setup";
 
     // ==================== 默认值 ====================
 
+    /**
+     * 默认 group 标识
+     */
     private static final String DEFAULT_GROUP_ID = "default";
+    /**
+     * 默认 auto create
+     */
     private static final String DEFAULT_AUTO_CREATE = "true";
+    /**
+     * 默认 初始 加载
+     */
     private static final String DEFAULT_INITIAL_LOAD = "false";
+    /**
+     * 默认 auto 注册
+     */
     private static final String DEFAULT_AUTO_REGISTER = "true";
 
     // ==================== 实例字段 ====================
 
+    /**
+     * listen Path
+     */
     private final String listenPath;
+    /**
+     * environment
+     */
     private final DirectoryPollerEnvironment environment;
+    /**
+     * 监听器列表
+     */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
+    /**
+     * engine
+     */
     private ISymmetricEngine engine;
+    /**
+     * 执行器 Service
+     */
     private ExecutorService executorService;
+    /**
+     * running
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**

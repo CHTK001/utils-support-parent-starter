@@ -63,16 +63,23 @@ import java.util.concurrent.Executors;
 @Spi({"nio", "nio-http"})
 public class NioHttpServer extends AbstractServer {
 
+    /** 服务器通道 */
     private ServerSocketChannel serverChannel;
     /** 多 Selector 分片:每分片一个事件循环线程,解决单事件循环在高并发下的瓶颈 */
+    /** Selectors */
     private Selector[] selectors;
     /** 每分片对应的待写 key 队列(worker 只入队,由对应分片事件循环统一注册 OP_WRITE) */
+    /** Pendingwritequeues */
     private java.util.Queue<SelectionKey>[] pendingWriteQueues;
     /** 每分片对应的待注册连接队列:accept 线程只入队,由目标分片事件循环线程自行 register,
      *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
+    /** Pendingacceptqueues */
     private java.util.Queue<SocketChannel>[] pendingAcceptQueues;
+    /** 执行器 */
     private ExecutorService executor;
+    /** Acceptor池 */
     private ExecutorService acceptorPool;
+    /** SSL上下文 */
     private SSLContext sslContext;
 
     /**
@@ -639,6 +646,7 @@ public class NioHttpServer extends AbstractServer {
      * WebSocket 连接封装，负责向对端发送帧。
      */
     private static final class WsConnection {
+        /** OUT */
         private final OutputStream out;
 
         WsConnection(OutputStream out) {
@@ -670,7 +678,9 @@ public class NioHttpServer extends AbstractServer {
      * WebSocket 消息请求（与 JdkWebSocketServer.SimpleServerRequest 行为一致）。
      */
     private static final class WsServerRequest implements ServerRequest {
+        /** Topic */
         private final String topic;
+        /** 请求体 */
         private final String body;
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
@@ -702,10 +712,15 @@ public class NioHttpServer extends AbstractServer {
      * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
      */
     private static final class WsServerResponse implements ServerResponse {
+        /** Connection */
         private final WsConnection connection;
+        /** 状态 */
         private int status = 200;
+        /** Ended */
         private boolean ended;
+        /** Committed */
         private boolean committed;
+        /** 结果 */
         private Object result;
 
         WsServerResponse(WsConnection connection) {

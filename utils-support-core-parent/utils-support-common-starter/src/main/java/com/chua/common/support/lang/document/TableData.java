@@ -20,6 +20,7 @@ import java.util.*;
 public class TableData {
 
     /** 表名（或视图名） */
+    /** 表名称 */
     private String tableName;
 
     /** 模式名（schema） */
@@ -29,18 +30,22 @@ public class TableData {
     private String schema;
 
     /** 表注释/备注 */
+    /** Remark */
     private String remark;
 
     /** 表的所有列信息 */
     @Builder.Default
+    /** Columns */
     private List<ColumnData> columns = new ArrayList<>();
 
     /** 外键关系（本表引用其他表） */
     @Builder.Default
+    /** Importedkeys */
     private List<RelationshipData> importedKeys = new ArrayList<>();
 
     /** 被引用关系（其他表引用本表） */
     @Builder.Default
+    /** Exportedkeys */
     private List<RelationshipData> exportedKeys = new ArrayList<>();
 
     /** 对象类型：TABLE 或 VIEW */

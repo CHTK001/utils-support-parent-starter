@@ -184,6 +184,7 @@ public class AiUsage {
      * <p>默认为 "USD"，实现类可根据服务商返回值覆盖。
      */
     @Builder.Default
+    /** Currency */
     private String currency = "USD";
 
     /**
@@ -196,6 +197,7 @@ public class AiUsage {
      * 服务商返回的真实费用数据（当 estimated 为 false 时）。
      */
     @Builder.Default
+    /** Estimated */
     private boolean estimated = false;
 
     // ==================== 模型标识 ====================

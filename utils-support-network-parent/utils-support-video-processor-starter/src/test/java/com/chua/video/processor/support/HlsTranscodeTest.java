@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class HlsTranscodeTest {
 
+    /**
+     * test mp4
+     */
     private static final String TEST_MP4 = "test-video.mp4";
 
     @Test

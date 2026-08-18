@@ -27,10 +27,18 @@ import java.util.Locale;
 @Spi("subhd")
 public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
 
+    /** 日志记录器 */
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(DemoSubtitleSearchProvider.class);
 
+    /** SubHD 搜索接口地址 */
+    /** Subhd_search_url */
     private static final String SUBHD_SEARCH_URL = "https://subhd.tv/api/search";
+    /** JSON 对象映射器 */
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    /** 用户代理字符串 */
+    /** UA */
     private static final String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 

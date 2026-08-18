@@ -243,35 +243,57 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
     @Data
     static class DownloadList {
 
+        /** 是否成功 */
         @JsonProperty("success")
+        /** Success */
         private Boolean success;
+        /** 数据列表 */
         @JsonProperty("data")
+        /** 数据 */
         private List<DataDTO> data;
 
         @NoArgsConstructor
         @Data
         public static class DataDTO {
+            /** 清晰度 */
             @JsonProperty("clarity")
+            /** Clarity */
             private String clarity;
+            /** 资源列表 */
             @JsonProperty("resources")
+            /** Resources */
             private List<ResourcesDTO> resources;
 
             @NoArgsConstructor
             @Data
             public static class ResourcesDTO {
+                /** 名称 */
                 @JsonProperty("name")
+                /** 名称 */
                 private String name;
+                /** 下载地址 */
                 @JsonProperty("download_url")
+                /** 下载URL */
                 private String downloadUrl;
+                /** 尺寸 */
                 @JsonProperty("size")
+                /** 尺寸 */
                 private String size;
+                /** 清晰度 */
                 @JsonProperty("clarity")
+                /** Clarity */
                 private String clarity;
+                /** 时间 */
                 @JsonProperty("time")
+                /** 时间 */
                 private String time;
+                /** 类型 */
                 @JsonProperty("type")
+                /** 类型 */
                 private String type;
+                /** 密码 */
                 @JsonProperty("pwd")
+                /** PWD */
                 private String pwd;
             }
         }

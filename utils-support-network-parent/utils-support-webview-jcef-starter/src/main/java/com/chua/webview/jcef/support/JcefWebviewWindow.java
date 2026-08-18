@@ -48,8 +48,14 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class JcefWebviewWindow implements WebViewWindow {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(JcefWebviewWindow.class);
 
+    /**
+     * ipc 页面
+     */
     private static final String IPC_PAGE =
             "<!DOCTYPE html><html><body style='background:#1e1e1e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0'>" +
             "<div style='text-align:center'>" +
@@ -57,10 +63,25 @@ public class JcefWebviewWindow implements WebViewWindow {
             "<p style='color:#888'>IPC protocol server is ready</p>" +
             "</div></body></html>";
 
+    /**
+     * cef App
+     */
     private CefApp cefApp;
+    /**
+     * 客户端实例
+     */
     private CefClient client;
+    /**
+     * 浏览器实例
+     */
     private CefBrowser browser;
+    /**
+     * frame
+     */
     private Frame frame;
+    /**
+     * ipc Server
+     */
     private IpcProtocolServer ipcServer;
 
     @Override
@@ -174,6 +195,9 @@ finally {
      */
     private static class IpcMessageRouterHandler extends CefMessageRouterHandlerAdapter {
 
+        /**
+         * ipc Server
+         */
         private final IpcProtocolServer ipcServer;
 
         IpcMessageRouterHandler(IpcProtocolServer ipcServer) {

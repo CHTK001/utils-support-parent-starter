@@ -64,6 +64,7 @@ class DataSyncAgentServerTest {
 
     private static DataSyncServer createServer() {
         return new DefaultDataSyncServer(new AgentServerManager() {
+            /** Agents */
             private final List<DataSyncAgent> agents = new CopyOnWriteArrayList<>();
             @Override public void register(DataSyncAgent a) { agents.add(a); }
             @Override public void unregister(String id) { agents.removeIf(a -> a.agentId().equals(id)); }
@@ -74,6 +75,8 @@ class DataSyncAgentServerTest {
     }
 
     private static class MockAgent implements DataSyncAgent {
+        /** 标识 */
+        /** ID */
         private final String id;
         MockAgent(String id) { this.id = id; }
         @Override public String agentId() { return id; }

@@ -116,7 +116,11 @@ public enum DataSyncErrorCode {
     /** 方向不匹配 */
     DIRECTION_MISMATCH(9003, "Source/Sink 方向不匹配: source={0}, sink={1}");
 
+    /** 代码 */
+    /** 代码 */
     private final int code;
+    /** 模板 */
+    /** 模板 */
     private final String template;
 
     DataSyncErrorCode(int code, String template) {

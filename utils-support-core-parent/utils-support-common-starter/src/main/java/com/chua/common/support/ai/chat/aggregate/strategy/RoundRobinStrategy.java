@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RoundRobinStrategy implements RouterStrategy {
 
+    /** 原子计数器 */
+    /** 计数器 */
     private final AtomicInteger counter = new AtomicInteger(0);
 
     @Override

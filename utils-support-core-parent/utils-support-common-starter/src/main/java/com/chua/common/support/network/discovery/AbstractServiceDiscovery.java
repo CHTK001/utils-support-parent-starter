@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
 
+    /** 日志 */
     protected final Logger log = LoggerFactory.getLogger(getClass());
     /**
      * 本地服务列表缓存：Key 为路径，Value 为该路径下的服务实例列表
@@ -43,7 +44,9 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
      */
     private final AtomicLong serviceVersion = new AtomicLong(0);
 
+    /** Discoveryoption */
     protected DiscoveryOption discoveryOption;
+    /** Cluster名称 */
     protected String clusterName;
 
     /**

@@ -14,8 +14,17 @@ import com.chua.runtime.protocol.Software;
  */
 public class NatsHandler extends AbstractAppHandler {
 
+    /**
+     * nats 连接
+     */
     private static final String NATS_CONNECTION = "io/nats/client/Connection";
+    /**
+     * publish methods
+     */
     private static final String[] PUBLISH_METHODS = {"publish"};
+    /**
+     * subscribe methods
+     */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
 
     @Override

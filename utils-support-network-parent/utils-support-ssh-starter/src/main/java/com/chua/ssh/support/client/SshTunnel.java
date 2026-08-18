@@ -16,13 +16,34 @@ import java.util.function.Consumer;
  */
 public class SshTunnel implements Tunnel {
 
+    /**
+     * ssh Client
+     */
     private final SshClient sshClient;
+    /**
+     * definition
+     */
     private final SshClient.TunnelDefinition definition;
+    /**
+     * bind Address
+     */
     private final String bindAddress;
 
+    /**
+     * tracker
+     */
     private AutoCloseable tracker;
+    /**
+     * open
+     */
     private volatile boolean open;
+    /**
+     * callback
+     */
     private Consumer<TunnelInfo> callback;
+    /**
+     * actual Port
+     */
     private int actualPort = -1;
 
     public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {

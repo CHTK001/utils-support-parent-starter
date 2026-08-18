@@ -42,12 +42,14 @@ public class BetaPureCalibrator implements PureCalibrator {
      * Beta分布形状参数α，默认2.0
      */
     @Builder.Default
+    /** 透明度 */
     private double alpha = 2.0;
 
     /**
      * Beta分布形状参数β，默认2.0
      */
     @Builder.Default
+    /** Beta */
     private double beta = 2.0;
 
     @Override

@@ -283,6 +283,8 @@ public class TmdbCountry {
         ZR("Zaire"),
         ZW("Zimbabwe");
 
+        /** 本地名称 */
+        /** Native名称 */
         private final String nativeName;
 
         Code(String nativeName) {

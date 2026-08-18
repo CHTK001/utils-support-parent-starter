@@ -81,15 +81,22 @@ import java.util.function.Consumer;
  */
 public class TaskDecisionDefinition {
 
+    /** ID */
     private final String id;
+    /** 处理器 */
     private PipelineNode handler;
+    /** 构建器 */
     private final PipelineBuilder builder;
     private final Map<String, String> branches = new LinkedHashMap<>();
+    /** 默认branch */
     private String defaultBranch;
+    /** 结束afterexecute */
     private boolean endAfterExecute;
     private Map<String, Object> params;
     private Map<String, Object> env;
+    /** 开始节点 */
     private boolean startNode;
+    /** 重试配置 */
     private RetryConfig retryConfig;
 
     /**

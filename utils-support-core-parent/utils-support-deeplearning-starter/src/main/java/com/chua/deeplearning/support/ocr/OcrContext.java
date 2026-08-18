@@ -48,6 +48,11 @@ public class OcrContext {
     private final List<OcrResult> results = new ArrayList<>();
 
     /**
+     * 图像是否模糊（质量门控判定），模糊时强制启用文字高清修复。
+     */
+    private boolean blurry;
+
+    /**
      * 构造。
      *
      * @param imageData 原始图像
@@ -56,6 +61,24 @@ public class OcrContext {
     public OcrContext(byte[] imageData, List<DetectionInfo> boxes) {
         this.imageData = imageData;
         this.boxes = boxes == null ? List.of() : boxes;
+    }
+
+    /**
+     * 是否模糊。
+     *
+     * @return true 表示模糊
+     */
+    public boolean blurry() {
+        return blurry;
+    }
+
+    /**
+     * 设置模糊标记。
+     *
+     * @param blurry 模糊标记
+     */
+    public void blurry(boolean blurry) {
+        this.blurry = blurry;
     }
 
     /**

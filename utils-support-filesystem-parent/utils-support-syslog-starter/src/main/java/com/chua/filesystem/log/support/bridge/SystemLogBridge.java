@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class SystemLogBridge {
 
+    /** 实例 */
     private static final SystemLogBridge INSTANCE = new SystemLogBridge();
 
     private volatile NativeFunctionRegistry win32Registry;

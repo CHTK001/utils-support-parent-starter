@@ -40,6 +40,7 @@ public class PrometheusMetric {
      * 序列值(matrix, 有序时间戳+值)
      */
     @Builder.Default
+    /** Values */
     private List<Sample> values = new ArrayList<>();
 
     /**

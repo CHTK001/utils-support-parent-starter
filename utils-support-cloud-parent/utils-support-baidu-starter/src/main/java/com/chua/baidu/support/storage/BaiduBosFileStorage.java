@@ -29,6 +29,8 @@ import java.util.List;
 @Spi({"bos", "baidu"})
 public class BaiduBosFileStorage extends AbstractFileStorage {
 
+    /** 百度 BOS 客户端 */
+    /** BOS客户端 */
     private final BosClient bosClient;
 
     public BaiduBosFileStorage(BucketSetting bucketSetting) {

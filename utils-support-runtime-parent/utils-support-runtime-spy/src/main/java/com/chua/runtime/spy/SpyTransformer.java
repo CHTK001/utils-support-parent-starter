@@ -49,6 +49,9 @@ import java.util.regex.Pattern;
 public class SpyTransformer implements ClassFileTransformer {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(SpyTransformer.class.getName());
     /**
      * ASM API 版本

@@ -22,7 +22,9 @@ import java.util.Map;
 @Slf4j
 public class CaptchaRunClient implements CaptchaParser {
 
+    /** 设置 */
     private final CaptchaSetting setting;
+    /** 任务persistence */
     private TaskPersistence taskPersistence;
 
     public CaptchaRunClient(CaptchaSetting setting) {

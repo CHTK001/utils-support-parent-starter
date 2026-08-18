@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @Spi("alipay")
 public class AlipayLoginProvider implements LoginChannel {
 
+    /** 客户端 */
+    /** 客户端 */
     private final AlipayClient client;
 
     public AlipayLoginProvider(AlipayConfig config) {

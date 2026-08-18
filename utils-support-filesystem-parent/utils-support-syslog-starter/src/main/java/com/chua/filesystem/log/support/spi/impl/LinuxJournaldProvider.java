@@ -42,10 +42,12 @@ import java.util.stream.Stream;
 @Slf4j
 public class LinuxJournaldProvider implements SystemLogProvider {
 
+    /** Sources */
     private static final List<String> SOURCES = Arrays.asList(
             "journald", "syslog", "auth", "kern", "daemon", "cron", "user"
     );
 
+    /** Var_log_files */
     private static final List<String> VAR_LOG_FILES = Arrays.asList(
             "/var/log/syslog",
             "/var/log/messages",
@@ -54,10 +56,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
             "/var/log/daemon.log"
     );
 
+    /** Timestamp_formatter */
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .withZone(ZoneId.systemDefault());
 
+    /** 注册表 */
     private final NativeFunctionRegistry registry;
 
     private volatile MethodHandle sdJournalOpen;

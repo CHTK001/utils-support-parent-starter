@@ -55,17 +55,24 @@ public class CronExpression {
      */
     private final String expression;
 
+    /** 秒 */
     private final Field seconds;
+    /** Minutes */
     private final Field minutes;
+    /** Hours */
     private final Field hours;
+    /** DaysOFmonth */
     private final Field daysOfMonth;
+    /** Months */
     private final Field months;
+    /** DaysOFweek */
     private final Field daysOfWeek;
 
     /**
      * DOM / DOW 是否为通配（影响 OR / AND 语义判定）。
      */
     private final boolean domIsAny;
+    /** DOWISANY */
     private final boolean dowIsAny;
 
     /**
@@ -227,8 +234,11 @@ public class CronExpression {
      */
     private static final class Field {
 
+        /** 最小值 */
         private final int min;
+        /** 最大值 */
         private final int max;
+        /** Bits */
         private final boolean[] bits;
 
         private Field(int min, int max) {

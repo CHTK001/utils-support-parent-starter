@@ -80,6 +80,8 @@ public class AsmCompiler implements Compiler {
      * 字符串源文件对象，将 Java 源码字符串包装为 JavaFileObject
      */
     static class StringSource extends SimpleJavaFileObject {
+        /** 代码 */
+        /** 代码 */
         private final String code;
 
         StringSource(String className, String code) {
@@ -97,7 +99,11 @@ public class AsmCompiler implements Compiler {
      * 内存字节码对象，将编译后的 .class 字节码保存在内存中
      */
     static class InMemoryByteCode extends SimpleJavaFileObject {
+        /** 字节数组输出流 */
+        /** Baos */
         private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        /** 类名称 */
+        /** Class名称 */
         private final String className;
 
         InMemoryByteCode(String className) {
@@ -123,6 +129,7 @@ public class AsmCompiler implements Compiler {
      * 内存类加载器，负责将内存中的字节码定义为 Class 对象
      */
     static class InMemoryClassLoader extends ClassLoader {
+        /** 字节码缓存映射 */
         private final Map<String, InMemoryByteCode> bytecodes = new HashMap<>();
 
         InMemoryClassLoader(ClassLoader parent) {
@@ -160,6 +167,8 @@ public class AsmCompiler implements Compiler {
      * 内存文件管理器，将编译器输出的字节码重定向到内存而非磁盘文件
      */
     static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
+        /** 类加载器 */
+        /** Classloader */
         private final InMemoryClassLoader classLoader;
 
         InMemoryFileManager(JavaFileManager fileManager, InMemoryClassLoader classLoader) {

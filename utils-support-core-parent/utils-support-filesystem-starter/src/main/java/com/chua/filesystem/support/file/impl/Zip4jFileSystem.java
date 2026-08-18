@@ -43,6 +43,7 @@ public class Zip4jFileSystem implements FileSystem {
 
     public static class Zip4jReadBuilder extends ReadBuilder {
 
+        /** 密码 */
         private char[] password;
 
         Zip4jReadBuilder(File file) {
@@ -155,8 +156,11 @@ public class Zip4jFileSystem implements FileSystem {
 
     public static class Zip4jWriteBuilder extends WriteBuilder {
 
+        /** Entries */
         private final List<EntryData> entries = new ArrayList<>();
+        /** 密码 */
         private char[] password;
+        /** Compression级别 */
         private CompressionLevel compressionLevel = CompressionLevel.NORMAL;
 
         Zip4jWriteBuilder(File file) {

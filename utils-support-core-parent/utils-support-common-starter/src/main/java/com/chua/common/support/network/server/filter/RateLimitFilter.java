@@ -35,9 +35,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RateLimitFilter implements ServerFilter {
 
+    /** 提供者名称 */
     private final String providerName;
+    /** QPS */
     private final double qps;
+    /** 密钥策略 */
     private final KeyStrategy keyStrategy;
+    /** 路径prefix */
     private final String pathPrefix;
 
     private volatile RateLimitProvider.RateLimiter limiter;

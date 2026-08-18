@@ -38,9 +38,12 @@ import java.util.concurrent.atomic.AtomicLong;
 */
 public class FileResourceFinder implements ResourceFinder {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FileResourceFinder.class);
+    /** Default_max_depth */
     private static final int DEFAULT_MAX_DEPTH = 128;
 
+    /** Configuration */
     private final ResourceConfiguration configuration;
 
     public FileResourceFinder(ResourceConfiguration configuration) {
@@ -51,6 +54,7 @@ public class FileResourceFinder implements ResourceFinder {
         this(ResourceConfiguration.DEFAULT);
     }
 
+    /** 协议 */
     private static final String PROTOCOL = "file";
 
     @Override
@@ -437,9 +441,13 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     private class FileVisitorImpl extends SimpleFileVisitor<Path> {
+        /** Full路径 */
         private final String fullPath;
+        /** Match路径 */
         private final String matchPath;
+        /** Results */
         private final Set<Resource> results;
+        /** Scanned数量 */
         private final AtomicLong scannedCount;
 
         FileVisitorImpl(String fullPath, String matchPath, Set<Resource> results, AtomicLong scannedCount) {

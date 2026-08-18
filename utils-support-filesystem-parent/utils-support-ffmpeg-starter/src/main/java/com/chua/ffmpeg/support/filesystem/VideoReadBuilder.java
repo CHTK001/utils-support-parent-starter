@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class VideoReadBuilder extends ReadBuilder {
 
+    /** 处理器 */
     private final FFmpegProcessor processor;
 
     public VideoReadBuilder(File file, FFmpegProcessor processor) {
