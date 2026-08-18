@@ -27,6 +27,7 @@ import java.util.Set;
 @SpiDescribe("Spring Bean 定义生成器")
 public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
+    /** Spring_annotations */
     private static final Set<String> SPRING_ANNOTATIONS = Set.of(
             "org.springframework.stereotype.Component",
             "org.springframework.stereotype.Service",

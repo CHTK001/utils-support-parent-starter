@@ -20,6 +20,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class MilvusStorageProperties implements Serializable {
 
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**

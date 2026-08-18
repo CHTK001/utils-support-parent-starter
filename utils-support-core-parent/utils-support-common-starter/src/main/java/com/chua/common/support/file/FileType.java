@@ -143,8 +143,10 @@ public enum FileType {
     UNKNOWN("", Category.OTHER);
 
     /** 文件扩展名列表（小写，不含点） */
+    /** Extensions */
     private final String[] extensions;
     /** 文件类别 */
+    /** 分类 */
     private final Category category;
 
     FileType(String primaryExtension, Category category) {

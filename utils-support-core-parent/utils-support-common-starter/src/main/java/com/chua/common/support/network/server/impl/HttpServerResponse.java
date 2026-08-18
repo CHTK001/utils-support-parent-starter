@@ -24,21 +24,29 @@ import java.nio.charset.StandardCharsets;
  */
 public class HttpServerResponse implements ServerResponse {
 
+    /** Exchange */
     private final HttpExchange exchange;
+    /** 状态代码 */
     private int statusCode = 200;
     /**
      * 请求体
      */
     private byte[] body;
+    /** Ended */
     private boolean ended;
+    /** Committed */
     private boolean committed;
+    /** Sent */
     private boolean sent;
+    /** SSE模式 */
     private boolean sseMode;
+    /** SSE输出流 */
     private OutputStream sseOutputStream;
     /**
      * 结果
      */
     private Object result;
+    /** 输出 */
     private ByteArrayOutputStream output;
 
     public HttpServerResponse(HttpExchange exchange) {

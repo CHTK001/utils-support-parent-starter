@@ -22,8 +22,11 @@ import java.util.concurrent.TimeUnit;
 @Spi("redis")
 public class RedisRateLimiterProvider implements RateLimiterProvider {
 
+    /** 名称 */
     private final String name;
+    /** Redisson客户端 */
     private final RedissonClient redissonClient;
+    /** 比率limiter */
     private final RRateLimiter rateLimiter;
 
     public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {

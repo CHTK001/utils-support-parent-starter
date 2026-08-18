@@ -57,16 +57,21 @@ public class IonetSyncServer implements SyncServer {
     /** 客户端元数据（clientId -> metadata） */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /** 同步监听器 */
+    /** Listeners */
     private final List<SyncServerListener> listeners = new CopyOnWriteArrayList<>();
     /** 已注册的注解 Bean（beanClass -> 实例） */
     private final Map<Class<?>, Object> annotatedBeans = new ConcurrentHashMap<>();
     /** OnOpen 注解方法列表 */
+    /** ONopenmethods */
     private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
     /** OnClose 注解方法列表 */
+    /** ONclosemethods */
     private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
     /** OnMessage 注解方法列表 */
+    /** ON消息methods */
     private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
     /** OnError 注解方法列表 */
+    /** ON错误methods */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     private IonetSyncServer(IonetServer delegate) {

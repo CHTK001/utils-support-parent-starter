@@ -36,8 +36,11 @@ import java.util.concurrent.Executors;
 @Spi("vertx-tcp")
 public class VertxTcpServer extends AbstractServer {
 
+    /** Vertx */
     private Vertx vertx;
+    /** NET服务器 */
     private NetServer netServer;
+    /** Worker池 */
     private ExecutorService workerPool;
     private final Map<String, JdkTcpServer.TcpHandler> handlers = new ConcurrentHashMap<>();
 
@@ -166,9 +169,12 @@ public class VertxTcpServer extends AbstractServer {
 
     /** 基于 NetSocket 的 InputStream(阻塞读,虚拟线程专用)。 */
     private static final class NetSocketInputStream extends InputStream {
+        /** Socket */
         private final NetSocket socket;
+        /** 队列 */
         private final java.util.concurrent.LinkedBlockingQueue<Byte> queue =
                 new java.util.concurrent.LinkedBlockingQueue<>();
+        /** Closed */
         private boolean closed;
 
         NetSocketInputStream(NetSocket socket) {
@@ -214,6 +220,7 @@ public class VertxTcpServer extends AbstractServer {
 
     /** 基于 NetSocket 的 OutputStream(阻塞写,虚拟线程专用)。 */
     private static final class NetSocketOutputStream extends OutputStream {
+        /** Socket */
         private final NetSocket socket;
 
         NetSocketOutputStream(NetSocket socket) {

@@ -59,18 +59,26 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      * Spring 参数注解类名
      */
     private static final String SPRING_PATH_VARIABLE = "org.springframework.web.bind.annotation.PathVariable";
+    /** Spring_request_param */
     private static final String SPRING_REQUEST_PARAM = "org.springframework.web.bind.annotation.RequestParam";
+    /** Spring_request_body */
     private static final String SPRING_REQUEST_BODY = "org.springframework.web.bind.annotation.RequestBody";
+    /** Spring_request_header */
     private static final String SPRING_REQUEST_HEADER = "org.springframework.web.bind.annotation.RequestHeader";
+    /** Spring_request_attribute */
     private static final String SPRING_REQUEST_ATTRIBUTE = "org.springframework.web.bind.annotation.RequestAttribute";
 
     /**
      * 反射访问的注解属性名
      */
     private static final String ANN_ATTR_VALUE = "value";
+    /** Ann_attr_name */
     private static final String ANN_ATTR_NAME = "name";
+    /** Ann_attr_method */
     private static final String ANN_ATTR_METHOD = "method";
+    /** Ann_attr_required */
     private static final String ANN_ATTR_REQUIRED = "required";
+    /** Ann_attr_default_value */
     private static final String ANN_ATTR_DEFAULT_VALUE = "defaultValue";
 
     /**

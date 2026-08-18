@@ -15,7 +15,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class GuavaRateLimiterProvider implements RateLimiterProvider {
 
+    /** 名称 */
+    /** 名称 */
     private final String name;
+    /** 限流器 */
+    /** 比率limiter */
     private final RateLimiter rateLimiter;
 
     /**

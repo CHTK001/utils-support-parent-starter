@@ -31,21 +31,33 @@ import java.util.function.Consumer;
  */
 public final class RustFileSearchBridge {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(RustFileSearchBridge.class);
 
+    /** Lib_target_dir */
     private static final String LIB_TARGET_DIR = System.getProperty("java.io.tmpdir") + "/rust_filesearch";
 
+    /** Arena */
     private static Arena ARENA;
+    /** Library */
     private static SymbolLookup LIBRARY;
+    /** Linker */
     private static final Linker LINKER = Linker.nativeLinker();
 
+    /** SearchBY名称handle */
     private static MethodHandle searchByNameHandle;
+    /** SearchBY尺寸handle */
     private static MethodHandle searchBySizeHandle;
+    /** SearchBY路径handle */
     private static MethodHandle searchByPathHandle;
+    /** GETtreehandle */
     private static MethodHandle getTreeHandle;
+    /** GET版本handle */
     private static MethodHandle getVersionHandle;
+    /** Cancelhandle */
     private static MethodHandle cancelHandle;
 
+    /** Callback_with_consumer */
     private static final MethodHandle CALLBACK_WITH_CONSUMER;
 
     static {
@@ -65,6 +77,7 @@ public final class RustFileSearchBridge {
     }
 
     private static volatile boolean loaded = false;
+    /** Load_lock */
     private static final Object LOAD_LOCK = new Object();
 
     static {

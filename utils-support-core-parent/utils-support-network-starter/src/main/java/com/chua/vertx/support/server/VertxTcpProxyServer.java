@@ -35,9 +35,13 @@ import java.util.concurrent.TimeUnit;
 @Spi("vertx-tcp-proxy")
 public class VertxTcpProxyServer extends AbstractServer {
 
+    /** 目标解析器 */
     private final ProxyTargetResolver<InetSocketAddress> targetResolver;
+    /** Vertx */
     private Vertx vertx;
+    /** NET服务器 */
     private NetServer netServer;
+    /** NET客户端 */
     private NetClient netClient;
 
     public VertxTcpProxyServer(ServerSetting setting) {

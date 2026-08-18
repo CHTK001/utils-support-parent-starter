@@ -221,13 +221,29 @@ public class CommonFaceRecTranslator implements Translator<Image, float[]> {
          */
         public static class Builder {
 
+            /** 输入宽度 */
+            /** 输入宽度 */
             private int inputWidth = 112;
+            /** 输入高度 */
+            /** 输入高度 */
             private int inputHeight = 112;
+            /** 图像标志 */
+            /** 图片标记 */
             private Image.Flag imageFlag = Image.Flag.COLOR;
+            /** 是否使用流水线 */
+            /** USE管道 */
             private boolean usePipeline = true;
+            /** 是否归一化 */
+            /** Normalize */
             private boolean normalize = true;
+            /** 均值数组 */
+            /** Mean */
             private float[] mean = new float[]{0.5f, 0.5f, 0.5f};
+            /** 标准差数组 */
+            /** STD */
             private float[] std = new float[]{0.5f, 0.5f, 0.5f};
+            /** 输出索引 */
+            /** 输出索引 */
             private int outputIndex = 0;
 
             public Builder inputSize(int width, int height) {

@@ -23,16 +23,24 @@ import java.util.zip.DeflaterOutputStream;
  */
 abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
+    /** 流 */
     protected ImageOutputStream stream;
+    /** 开始POS */
     protected long startPos;
+    /** Chunk长度 */
     protected final int chunkLength;
+    /** CRC */
     protected final CRC crc = new CRC();
 
+    /** DEF */
     private final Deflater def;
+    /** BUF */
     private final byte[] buf = new byte[512];
     // reused 1 byte[] array:
+    /** Wbuf1 */
     private final byte[] wbuf1 = new byte[1];
 
+    /** Bytes剩余 */
     protected int bytesRemaining;
 
     PNGImageOutputStream(ImageOutputStream stream, int chunkLength,

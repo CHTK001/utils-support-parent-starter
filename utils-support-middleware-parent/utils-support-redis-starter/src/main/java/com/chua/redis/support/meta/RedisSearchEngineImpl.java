@@ -22,6 +22,7 @@ import java.util.Map;
  */
 public class RedisSearchEngineImpl implements SearchEngine {
 
+    /** 引擎 */
     private final RediSearchEngine engine;
 
     public RedisSearchEngineImpl(RediSearchEngine engine) {

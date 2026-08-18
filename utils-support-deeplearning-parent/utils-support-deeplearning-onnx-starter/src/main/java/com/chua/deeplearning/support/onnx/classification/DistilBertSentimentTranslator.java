@@ -33,9 +33,15 @@ import javax.annotation.Nullable;
 @Slf4j
 public class DistilBertSentimentTranslator implements Translator<String, Classifications> {
 
+    /** 最大长度 */
+    /** Max_length */
     private static final int MAX_LENGTH = 128;
+    /** 标签列表 */
+    /** Labels */
     private static final List<String> LABELS = List.of("NEGATIVE", "POSITIVE");
 
+    /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     @Override

@@ -27,10 +27,15 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
  */
 public class CorsServerFilter implements ServerFilter {
 
+    /** Alloworigin */
     private String allowOrigin = "*";
+    /** Allowmethods */
     private String allowMethods = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
+    /** Allowheaders */
     private String allowHeaders = "*";
+    /** 最大值AGE */
     private String maxAge = "3600";
+    /** Allowcredentials */
     private boolean allowCredentials;
 
     @Override

@@ -14,11 +14,29 @@ import com.chua.runtime.protocol.Software;
  */
 public class ReactiveStreamsHandler extends AbstractAppHandler {
 
+    /**
+     * PUBLISHER
+     */
     private static final String PUBLISHER = "org/reactivestreams/Publisher";
+    /**
+     * SUBSCRIBER
+     */
     private static final String SUBSCRIBER = "org/reactivestreams/Subscriber";
+    /**
+     * SUBSCRIPTION
+     */
     private static final String SUBSCRIPTION = "org/reactivestreams/Subscription";
+    /**
+     * subscribe methods
+     */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
+    /**
+     * on methods
+     */
     private static final String[] ON_METHODS = {"onNext", "onError", "onComplete"};
+    /**
+     * 请求 methods
+     */
     private static final String[] REQUEST_METHODS = {"request", "cancel"};
 
     @Override

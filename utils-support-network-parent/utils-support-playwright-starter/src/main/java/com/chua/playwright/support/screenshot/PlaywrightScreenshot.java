@@ -24,8 +24,14 @@ import java.util.function.Consumer;
 @Slf4j
 public class PlaywrightScreenshot {
 
+    /**
+     * 默认 超时时间
+     */
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 
+    /**
+     * 默认 navigation 超时时间
+     */
     private static final Duration DEFAULT_NAVIGATION_TIMEOUT = Duration.ofSeconds(60);
 
     /**
@@ -224,17 +230,53 @@ public class PlaywrightScreenshot {
      * 截图配置
      */
     public static class ScreenshotConfig {
+        /**
+         * viewport Width
+         */
         private int viewportWidth = 1280;
+        /**
+         * viewport Height
+         */
         private int viewportHeight = 720;
+        /**
+         * full Page
+         */
         private boolean fullPage = false;
+        /**
+         * wait Selector
+         */
         private String waitSelector;
+        /**
+         * wait超时时间
+         */
         private long waitTimeout = 30000;
+        /**
+         * extraWait（毫秒）
+         */
         private long extraWaitMillis = 0;
+        /**
+         * locale
+         */
         private String locale = "zh-CN";
+        /**
+         * timezone Id
+         */
         private String timezoneId = "Asia/Shanghai";
+        /**
+         * 基础地址
+         */
         private String baseUrl;
+        /**
+         * extra Http Headers
+         */
         private java.util.Map<String, String> extraHttpHeaders;
+        /**
+         * slow Mo
+         */
         private long slowMo = 0;
+        /**
+         * 浏览器可执行文件路径
+         */
         private String executablePath;
 
         public int getViewportWidth() {

@@ -16,14 +16,23 @@ import java.io.File;
  */
 public class VideoWriteBuilder extends WriteBuilder {
 
+    /** 处理器 */
     private final FFmpegProcessor processor;
+    /** 视频codec */
     private String videoCodec;
+    /** 音频codec */
     private String audioCodec;
+    /** 视频bitrate */
     private String videoBitrate;
+    /** 音频bitrate */
     private String audioBitrate;
+    /** FPS */
     private Integer fps;
+    /** 宽度 */
     private Integer width;
+    /** 高度 */
     private Integer height;
+    /** Quality */
     private Integer quality;
 
     public VideoWriteBuilder(File file, FFmpegProcessor processor) {

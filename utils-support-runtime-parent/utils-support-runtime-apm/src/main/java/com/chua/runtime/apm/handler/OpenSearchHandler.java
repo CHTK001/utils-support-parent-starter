@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class OpenSearchHandler extends AbstractAppHandler {
 
+    /**
+     * rest 客户端
+     */
     private static final String REST_CLIENT = "org/opensearch/client/RestHighLevelClient";
+    /**
+     * 客户端 methods
+     */
     private static final String[] CLIENT_METHODS = {"search", "get", "index", "delete", "update", "bulk", "count", "exists"};
 
     @Override

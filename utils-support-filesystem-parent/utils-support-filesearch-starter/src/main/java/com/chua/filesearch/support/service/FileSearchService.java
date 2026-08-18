@@ -20,6 +20,7 @@ import java.util.List;
 public final class FileSearchService {
 
     private static volatile FileSearchService INSTANCE;
+    /** 提供者 */
     private final FileSearchProvider provider;
 
     private FileSearchService() {

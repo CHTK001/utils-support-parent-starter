@@ -68,11 +68,17 @@ import java.util.function.Function;
 @Getter
 public class RedisClient implements AutoCloseable, KvEngine {
 
+    /** 池 */
     private final JedisPool pool;
+    /** 主机 */
     private final String host;
+    /** 端口 */
     private final int port;
+    /** 密码 */
     private final String password;
+    /** 数据库 */
     private final int database;
+    /** 超时 */
     private final int timeout;
 
     private RedisClient(JedisPool pool, String host, int port, String password, int database, int timeout) {
@@ -812,14 +818,23 @@ public class RedisClient implements AutoCloseable, KvEngine {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** 主机 */
         private String host = "127.0.0.1";
+        /** 端口 */
         private int port = 6379;
+        /** 密码 */
         private String password;
+        /** 数据库 */
         private int database = 0;
+        /** 超时 */
         private int timeout = 3000;
+        /** 最大值总数 */
         private int maxTotal = 20;
+        /** 最大值idle */
         private int maxIdle = 10;
+        /** 最小值idle */
         private int minIdle = 2;
+        /** 测试ONborrow */
         private boolean testOnBorrow = true;
 
         public Builder host(String host) { this.host = host; return this; }

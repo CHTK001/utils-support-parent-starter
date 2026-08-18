@@ -44,16 +44,28 @@ import java.util.concurrent.locks.ReentrantLock;
 @SuppressWarnings({"unchecked", "serial", "rawtypes"})
 public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
+    /** 默认初始容量 */
+    /** Default_initial_capacity */
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
+    /** 默认加载因子 */
+    /** Default_load_factor */
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
+    /** 默认并发级别 */
+    /** Default_concurrency_level */
     private static final int DEFAULT_CONCURRENCY_LEVEL = 16;
 
+    /** 默认引用类型 */
+    /** Default_reference_type */
     private static final ReferenceType DEFAULT_REFERENCE_TYPE = ReferenceType.SOFT;
 
+    /** 最大并发级别 */
+    /** Maximum_concurrency_level */
     private static final int MAXIMUM_CONCURRENCY_LEVEL = 1 << 16;
 
+    /** 最大分段大小 */
+    /** Maximum_segment_size */
     private static final int MAXIMUM_SEGMENT_SIZE = 1 << 30;
 
 
@@ -441,8 +453,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     protected final class Segment extends ReentrantLock {
 
+        /** 引用管理器 */
+        /** 引用管理器 */
         private final ReferenceManager referenceManager;
 
+        /** 初始大小 */
+        /** Initial尺寸 */
         private final int initialSize;
 
         /**
@@ -764,6 +780,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     private abstract class AbstractTask<T> {
 
+        /** 选项列表 */
+        /** Options */
         private final EnumSet<TaskOption> options;
 
         public AbstractTask(TaskOption... options) {
@@ -881,20 +899,28 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     private class EntryIterator implements Iterator<Map.Entry<K, V>> {
 
+        /** 分段索引 */
+        /** Segment索引 */
         private int segmentIndex;
 
+        /** 引用索引 */
+        /** 引用索引 */
         private int referenceIndex;
 
 
+        /** 引用数组 */
         private Reference<K, V>[] references;
 
 
+        /** 弱引用节点 */
         private Reference<K, V> reference;
 
 
+        /** 第二个迭代器 */
         private Entry<K, V> next;
 
 
+        /** 最后一个元素 */
         private Entry<K, V> last;
 
         public EntryIterator() {
@@ -977,6 +1003,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     protected class ReferenceManager {
 
+        /** 引用队列 */
         private final ReferenceQueue<Entry<K, V>> queue = new ReferenceQueue<>();
 
         /**
@@ -1013,9 +1040,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     private static final class SoftEntryReference<K, V> extends SoftReference<Entry<K, V>> implements Reference<K, V> {
 
+        /** 哈希值 */
+        /** 哈希 */
         private final int hash;
 
 
+        /** 下一个引用节点 */
         private final Reference<K, V> nextReference;
 
         public SoftEntryReference(Entry<K, V> entry, int hash, Reference<K, V> next,
@@ -1050,9 +1080,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     private static final class WeakEntryReference<K, V> extends WeakReference<Entry<K, V>> implements Reference<K, V> {
 
+        /** 哈希值 */
+        /** 哈希 */
         private final int hash;
 
 
+        /** 下一个引用节点 */
         private final Reference<K, V> nextReference;
 
         public WeakEntryReference(Entry<K, V> entry, int hash, Reference<K, V> next,

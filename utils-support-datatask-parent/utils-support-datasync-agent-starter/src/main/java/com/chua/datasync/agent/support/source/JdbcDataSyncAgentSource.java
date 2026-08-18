@@ -25,13 +25,29 @@ import java.util.Map;
 @Slf4j
 public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional {
 
+    /** 数据源标识 */
+    /** 来源ID */
     private final String sourceId;
+    /** 输入标识 */
+    /** 输入ID */
     private final String inputId;
+    /** JDBC 连接地址 */
+    /** JDBCURL */
     private final String jdbcUrl;
+    /** 用户名 */
+    /** Username */
     private final String username;
+    /** 密码 */
+    /** 密码 */
     private final String password;
+    /** SQL 语句 */
+    /** SQL */
     private final String sql;
+    /** 列名数组 */
+    /** 列names */
     private final String[] columnNames;
+    /** 数据源 */
+    /** 数据来源 */
     private final HikariDataSource dataSource;
 
     public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password, String sql, String... columnNames) {

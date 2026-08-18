@@ -203,13 +203,21 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
     public static final class GroupByQueryWrapper<T> {
 
+        /** 引擎 */
         private final RediSearchEngine engine;
+        /** Entityclass */
         private final Class<T> entityClass;
+        /** 分组BYcols */
         private final List<String> groupByCols = new ArrayList<>();
+        /** Where */
         private final List<String> where = new ArrayList<>();
+        /** SortCOL */
         private String sortCol;
+        /** SortASC */
         private boolean sortAsc = true;
+        /** 偏移 */
         private int offset = 0;
+        /** 限制 */
         private int limit = 1000;
 
         GroupByQueryWrapper(RediSearchEngine engine, Class<T> entityClass, String... groupByCols) {
@@ -433,6 +441,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         return 0;
     }
 
+    /** Ft_search */
     private static final ProtocolCommand FT_SEARCH = () -> SafeEncoder.encode("FT.SEARCH");
 
     private byte[][] buildFtSearchArgs(String index, String query) {
@@ -466,6 +475,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         return result;
     }
 
+    /** Ft_aggregate */
     private static final ProtocolCommand FT_AGGREGATE = () -> SafeEncoder.encode("FT.AGGREGATE");
 
     private static byte[][] buildFtAggregateArgs(String index, String query, List<String> groupByCols,

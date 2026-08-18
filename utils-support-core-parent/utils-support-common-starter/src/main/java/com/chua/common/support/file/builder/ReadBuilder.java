@@ -28,15 +28,18 @@ public abstract class ReadBuilder {
     protected final File file;
 
     /** 读取时使用的字符集编码，默认使用系统编码 */
+    /** 字符集 */
     protected Charset charset = Charset.defaultCharset();
 
     /** 读取回调 */
+    /** Callback */
     protected ReadCallback callback;
 
     /** 列名映射（字段 → 中文），读取时自动转换 */
     protected Map<String, String> columnMapping;
 
     /** 是否将首行作为表头 */
+    /** HAS头部 */
     protected boolean hasHeader = true;
 
     /** 行过滤谓词（null 表示不过滤） */

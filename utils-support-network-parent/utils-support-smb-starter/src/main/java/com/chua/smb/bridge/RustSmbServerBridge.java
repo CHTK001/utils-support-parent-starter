@@ -28,19 +28,49 @@ import java.nio.file.Path;
 @Slf4j
 public final class RustSmbServerBridge {
 
+    /**
+     * lib target dir
+     */
     private static final String LIB_TARGET_DIR =
             System.getProperty("java.io.tmpdir") + "/rust_smb_server";
 
+    /**
+     * ARENA
+     */
     private static Arena ARENA;
+    /**
+     * LIBRARY
+     */
     private static SymbolLookup LIBRARY;
+    /**
+     * LINKER
+     */
     private static final Linker LINKER = Linker.nativeLinker();
 
+    /**
+     * start Handle
+     */
     private static MethodHandle startHandle;
+    /**
+     * stop Handle
+     */
     private static MethodHandle stopHandle;
+    /**
+     * 列表 Shares Handle
+     */
     private static MethodHandle listSharesHandle;
+    /**
+     * free String Handle
+     */
     private static MethodHandle freeStringHandle;
 
+    /**
+     * loaded
+     */
     private static volatile boolean loaded = false;
+    /**
+     * 加载 锁
+     */
     private static final Object LOAD_LOCK = new Object();
 
     static { loadLibrary(); }

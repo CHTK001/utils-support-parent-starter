@@ -27,6 +27,7 @@ public class DocumentExportConfig {
      * 模板类型，默认 {@link DocumentTemplateType#DEFAULT}
      */
     @Builder.Default
+    /** 模板类型 */
     private DocumentTemplateType templateType = DocumentTemplateType.DEFAULT;
 
     /**

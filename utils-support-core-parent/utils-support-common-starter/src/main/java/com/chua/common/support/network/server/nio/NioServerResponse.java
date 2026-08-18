@@ -28,20 +28,33 @@ import java.util.TreeMap;
  */
 public class NioServerResponse implements ServerResponse {
 
+    /** Crlf */
     private static final byte[] CRLF = {'\r', '\n'};
+    /** Colon_sp */
     private static final byte[] COLON_SP = {':', ' '};
+    /** Zero_chunk */
     private static final byte[] ZERO_CHUNK = {'0', '\r', '\n', '\r', '\n'};
 
+    /** 通道 */
     private final SocketChannel channel;
+    /** 状态代码 */
     private int statusCode = 200;
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    /** 请求体 */
     private byte[] body;
+    /** Ended */
     private boolean ended;
+    /** Committed */
     private boolean committed;
+    /** Sent */
     private boolean sent;
+    /** SSE模式 */
     private boolean sseMode;
+    /** 通道closed */
     private boolean channelClosed;
+    /** 结果 */
     private Object result;
+    /** RAW输出 */
     private ByteArrayOutputStream rawOutput;
 
     /**

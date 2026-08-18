@@ -19,6 +19,7 @@ import java.util.List;
 @Spi("opencode")
 public class OpencodeUsageParser extends BaseUsageParser {
 
+    /** Logs_dir */
     private static final Path LOGS_DIR = Path.of(
             System.getProperty("user.home"), "AppData", "Roaming", "ai.opencode.desktop", "logs");
 

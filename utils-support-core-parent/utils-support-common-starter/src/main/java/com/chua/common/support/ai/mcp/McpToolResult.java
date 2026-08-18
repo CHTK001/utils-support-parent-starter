@@ -24,6 +24,7 @@ public class McpToolResult {
     private final Object content;
 
     /** 错误信息 */
+    /** 错误消息 */
     private final String errorMessage;
 
     public McpToolResult(boolean success, Object content, String errorMessage) {

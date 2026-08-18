@@ -33,9 +33,13 @@ import java.util.concurrent.*;
 @Spi("native")
 public class NativeRpcServer implements RpcServer {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(NativeRpcServer.class);
+    /** Header_size */
     private static final int HEADER_SIZE = 4;
+    /** Default_port */
     private static final int DEFAULT_PORT = 18866;
+    /** Default_workers */
     private static final int DEFAULT_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
@@ -55,15 +59,22 @@ public class NativeRpcServer implements RpcServer {
      * Worker 线程数
      */
     private final int workerThreads;
+    /** APP名称 */
     private final String appName;
+    /** 注册表configs */
     private final List<RpcRegistryConfig> registryConfigs;
     private final Map<String, Object> services = new ConcurrentHashMap<>();
+    /** Worker池 */
     private final ExecutorService workerPool;
 
+    /** 服务器通道 */
     private ServerSocketChannel serverChannel;
+    /** Selector */
     private Selector selector;
     private volatile boolean running;
+    /** Selector线程 */
     private Thread selectorThread;
+    /** 服务discovery */
     private ServiceDiscovery serviceDiscovery;
 
     public NativeRpcServer(List<RpcRegistryConfig> registryConfigs, RpcProtocolConfig protocolConfig, String name) {

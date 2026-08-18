@@ -101,11 +101,19 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
      */
     private final boolean large;
 
+    /** 检测翻译器 */
+    /** DETtranslator */
     private final DuguangDetTranslator detTranslator;
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 识别会话 */
+    /** REC会话 */
     private OrtSession recSession;
+    /** 词表映射 */
     private Map<Integer, String> vocab;
+    /** 是否已加载 */
     private volatile boolean loaded;
 
     /**
@@ -331,20 +339,17 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                 }
                 int batch = logits.length;
                 int steps = logits[0].length;
-                // large 输出 1 行拼接 3 段（每段 67 步）；small 输出 3 行（每行 75 步）
+                // large 输出 1 行 201 步（连续 CTC，整行 decode，与 Python 一致）；
+                // small 输出 3 行独立 75 步，各自 decode 后按重叠合并
                 if (large && batch == 1) {
-                    for (int c = 0; c < CHUNK_COUNT; c++) {
-                        float[][] seg = new float[LARGE_CHUNK_STEPS][];
-                        System.arraycopy(logits[0], c * LARGE_CHUNK_STEPS, seg, 0, LARGE_CHUNK_STEPS);
-                        texts[c] = decode(seg);
-                    }
+                    return decode(logits[0]);
                 } else {
                     for (int c = 0; c < Math.min(batch, CHUNK_COUNT); c++) {
                         texts[c] = decode(logits[c]);
                     }
                 }
-            }
-        }
+             }
+         }
         return mergeTexts(texts);
     }
 

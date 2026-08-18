@@ -35,6 +35,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DefaultRuntimeInstance implements RuntimeInstance {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(DefaultRuntimeInstance.class.getName());
     /**
      * 健康检查超时（秒）

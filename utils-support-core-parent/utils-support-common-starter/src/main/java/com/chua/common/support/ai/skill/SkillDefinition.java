@@ -29,9 +29,11 @@ public class SkillDefinition {
     private final String description;
 
     /** 参数 schema */
+    /** Arguments */
     private final List<SkillArgumentSchema> arguments;
 
     /** 技能处理器 */
+    /** 处理器 */
     private final SkillHandler handler;
 
     public SkillDefinition(String name, String description, List<SkillArgumentSchema> arguments, SkillHandler handler) {

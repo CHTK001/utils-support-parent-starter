@@ -32,6 +32,8 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public class AppImageInstaller {
 
+    /** 应用配置属性 */
+    /** 属性 */
     private final AppImageProperties properties;
 
     public AppImageInstaller(AppImageProperties properties) {

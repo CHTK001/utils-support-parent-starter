@@ -62,12 +62,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ShardingV5Conversion implements DataSourceConversion {
 
+    /** 表configs */
     private final List<TableConfig> tableConfigs = new ArrayList<>();
+    /** 数据库configs */
     private final List<DbConfig> dbConfigs = new ArrayList<>();
+    /** 时间rangeconfigs */
     private final List<TimeRangeConfig> timeRangeConfigs = new ArrayList<>();
     private final Map<String, AlgorithmHolder> algorithms = new LinkedHashMap<>();
+    /** Autodiscover */
     private boolean autoDiscover = true;
+    /** 缓存秒 */
     private int cacheSeconds = -1;
+    /** 表缓存 */
     private TableCache tableCache;
 
     public ShardingV5Conversion autoDiscover(boolean auto) { this.autoDiscover = auto; return this; }

@@ -49,6 +49,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class RuntimeBoot {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(RuntimeBoot.class.getName());
     /**
      * 配置
@@ -349,6 +352,7 @@ public class RuntimeBoot {
          * 工件
          */
         @Builder.Default
+        /** Artifact */
         private RuntimeArtifact artifact = RuntimeArtifact.builder().id("default").build();
 
         /**
@@ -365,24 +369,28 @@ public class RuntimeBoot {
          * Agent 选项
          */
         @Builder.Default
+        /** Agentoptions */
         private String agentOptions = "";
 
         /**
          * 目标 PID
          */
         @Builder.Default
+        /** PID */
         private int pid = 0;
 
         /**
          * Shell 端口
          */
         @Builder.Default
+        /** Shell端口 */
         private int shellPort = 4567;
 
         /**
          * 插件目录
          */
         @Builder.Default
+        /** 插件目录 */
         private Path pluginDir = Paths.get("plugins");
     }
 }

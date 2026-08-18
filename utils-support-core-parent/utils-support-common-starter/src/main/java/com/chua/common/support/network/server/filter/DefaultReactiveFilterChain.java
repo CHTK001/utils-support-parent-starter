@@ -35,9 +35,11 @@ import java.util.concurrent.CompletionStage;
 public class DefaultReactiveFilterChain implements ReactiveFilterChain {
 
     /** 响应式过滤器列表 */
+    /** Filters */
     private final List<ReactiveServerFilter> filters;
 
     /** 目标处理器（过滤器链末端） */
+    /** 处理器 */
     private final ServerHandler handler;
 
     /** 当前执行索引 */

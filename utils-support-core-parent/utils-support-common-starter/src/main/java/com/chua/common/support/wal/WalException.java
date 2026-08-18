@@ -9,6 +9,7 @@ package com.chua.common.support.wal;
  */
 public class WalException extends RuntimeException {
 
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**

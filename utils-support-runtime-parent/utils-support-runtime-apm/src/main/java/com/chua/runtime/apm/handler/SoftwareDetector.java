@@ -21,6 +21,9 @@ import java.util.*;
  */
 public final class SoftwareDetector {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(SoftwareDetector.class.getName());
     private SoftwareDetector() {
     }

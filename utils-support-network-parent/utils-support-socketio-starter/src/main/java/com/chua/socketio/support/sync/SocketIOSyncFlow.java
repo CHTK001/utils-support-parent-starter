@@ -16,9 +16,21 @@ import java.util.*;
  */
 public class SocketIOSyncFlow implements SyncFlow {
 
+    /**
+     * 客户端实例
+     */
     private final SocketIOSyncClient client;
+    /**
+     * 服务器实例
+     */
     private final SocketIOSyncServer server;
+    /**
+     * running
+     */
     private volatile boolean running = false;
+    /**
+     * 监听器列表
+     */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     public SocketIOSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {

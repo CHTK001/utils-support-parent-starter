@@ -24,11 +24,17 @@ import java.util.concurrent.ThreadLocalRandom;
 */
 public final class NeteaseCryptoSupport {
 
+    /** IV */
     private static final byte[] IV = "0102030405060708".getBytes(StandardCharsets.UTF_8);
+    /** Preset_key */
     private static final byte[] PRESET_KEY = "0CoJUm6Qyw8W8jud".getBytes(StandardCharsets.UTF_8);
+    /** Linux_api_key */
     private static final byte[] LINUX_API_KEY = "rFgB&h#%2?^eDg:Q".getBytes(StandardCharsets.UTF_8);
+    /** Eapi_key */
     private static final byte[] EAPI_KEY = "e82ckenh8dichen8".getBytes(StandardCharsets.UTF_8);
+    /** Base62 */
     private static final String BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    /** Public_key_pem */
     private static final String PUBLIC_KEY_PEM =
             "-----BEGIN PUBLIC KEY-----\n" +
                     "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUr\n" +
@@ -37,6 +43,7 @@ public final class NeteaseCryptoSupport {
                     "CiK45wIDAQAB\n" +
                     "-----END PUBLIC KEY-----";
 
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private NeteaseCryptoSupport() {

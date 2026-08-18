@@ -300,8 +300,11 @@ public class ApngUtils {
      * APNG 信息类
      */
     public static class ApngInfo {
+        /** Frame数量 */
         private final int frameCount;
+        /** 宽度 */
         private final int width;
+        /** 高度 */
         private final int height;
 
         public ApngInfo(int frameCount, int width, int height) {

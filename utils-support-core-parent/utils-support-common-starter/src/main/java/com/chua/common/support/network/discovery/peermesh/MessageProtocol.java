@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class MessageProtocol {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(MessageProtocol.class);
     /**
      * 协议魔数

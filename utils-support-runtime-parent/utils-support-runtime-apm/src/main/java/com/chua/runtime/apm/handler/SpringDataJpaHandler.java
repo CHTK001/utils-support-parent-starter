@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SpringDataJpaHandler extends AbstractAppHandler {
 
+    /**
+     * jpa repository
+     */
     private static final String JPA_REPOSITORY = "org/springframework/data/repository/CrudRepository";
+    /**
+     * repository methods
+     */
     private static final String[] REPOSITORY_METHODS = {"save", "findById", "findAll", "deleteById", "count"};
 
     @Override

@@ -45,6 +45,7 @@ public class SystemLogService {
 
     private static volatile SystemLogService INSTANCE;
 
+    /** 提供者 */
     private final SystemLogProvider provider;
 
     private volatile boolean initialized;

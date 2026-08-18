@@ -45,25 +45,32 @@ import java.util.Map;
 public class LogWriteBuilder extends WriteBuilder {
 
     /** 默认时间戳格式 */
+    /** Default_timestamp_fmt */
     private static final DateTimeFormatter DEFAULT_TIMESTAMP_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /** 是否追加模式（默认 true） */
+    /** Append模式 */
     private boolean appendMode = true;
 
     /** 是否自动添加时间戳前缀（默认 false） */
+    /** With时间戳 */
     private boolean withTimestamp;
 
     /** 自定义时间戳格式 */
+    /** 时间戳formatter */
     private DateTimeFormatter timestampFormatter = DEFAULT_TIMESTAMP_FMT;
 
     /** 行前缀（自定义固定前缀，时间戳之前） */
+    /** Prefix */
     private String prefix;
 
     /** 行后缀（追加在行尾） */
+    /** Suffix */
     private String suffix;
 
     /** 换行符 */
+    /** Lineseparator */
     private String lineSeparator = System.lineSeparator();
 
     /**

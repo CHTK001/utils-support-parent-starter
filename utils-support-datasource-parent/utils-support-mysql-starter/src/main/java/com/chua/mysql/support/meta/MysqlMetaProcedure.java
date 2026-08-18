@@ -98,12 +98,19 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
 
     private static class MysqlProcedureCreateBuilder implements ProcedureCreateBuilder {
 
+        /** Metaprocedure */
         private final MysqlMetaProcedure metaProcedure;
+        /** Procedure名称 */
         private final String procedureName;
+        /** 参数 */
         private final StringBuilder params = new StringBuilder();
+        /** 请求体 */
         private final StringBuilder body = new StringBuilder();
+        /** 语言 */
         private String language = "SQL";
+        /** Security类型 */
         private String securityType;
+        /** Comment */
         private String comment;
 
         MysqlProcedureCreateBuilder(MysqlMetaProcedure metaProcedure, String procedureName) {

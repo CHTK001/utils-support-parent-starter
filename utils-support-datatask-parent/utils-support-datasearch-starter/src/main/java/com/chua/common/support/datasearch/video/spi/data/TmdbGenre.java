@@ -25,7 +25,11 @@ public enum TmdbGenre {
     WAR(10752, "战争"),
     WESTERN(37, "西部");
 
+    /** 标识 */
+    /** ID */
     private final int id;
+    /** 名称 */
+    /** 名称 */
     private final String name;
 
     TmdbGenre(int id, String name) {

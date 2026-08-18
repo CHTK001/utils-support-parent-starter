@@ -27,6 +27,7 @@ public class EmojiManager {
      */
     public static final EmojiTrie EMOJI_TRIE = new EmojiTrie(10);
 
+    /** Emoji_data */
     private static final List<Emoji> EMOJI_DATA = new ArrayList<>();
     /**
      * 别名到 Emoji 的映射

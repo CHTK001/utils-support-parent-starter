@@ -29,6 +29,9 @@ import java.util.logging.Logger;
  * @since 4.0.0.42
  */
 public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(AbstractAppHandler.class.getName());
 
     /**

@@ -58,6 +58,7 @@ public class BTreeNode {
     private final Type type;
 
     /** 运算符或列名或函数名 */
+    /** Operator */
     private final String operator;
 
     /** 值（VALUE 类型时为实际值，其他类型可能为 null） */
@@ -67,12 +68,15 @@ public class BTreeNode {
     private final Object value;
 
     /** 左子节点（LOGIC/COMPARE/FUNCTION 时可能有值） */
+    /** 左侧 */
     private BTreeNode left;
 
     /** 右子节点（LOGIC/NOT/COMPARE 时有值） */
+    /** 右侧 */
     private BTreeNode right;
 
     /** 子节点列表（FUNCTION 参数等） */
+    /** Children */
     private final List<BTreeNode> children = new ArrayList<>();
 
     public BTreeNode(Type type, String operator, Object value) {

@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class SentinelHandler extends AbstractAppHandler {
 
+    /**
+     * sph u
+     */
     private static final String SPH_U = "com/alibaba/csp/sentinel/SphU";
+    /**
+     * sph entry
+     */
     private static final String SPH_ENTRY = "com/alibaba/csp/sentinel/Entry";
+    /**
+     * entry methods
+     */
     private static final String[] ENTRY_METHODS = {"entry", "asyncEntry"};
+    /**
+     * exit methods
+     */
     private static final String[] EXIT_METHODS = {"exit"};
 
     @Override

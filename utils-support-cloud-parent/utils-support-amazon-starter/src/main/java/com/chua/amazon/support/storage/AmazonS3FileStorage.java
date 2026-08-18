@@ -36,6 +36,8 @@ import java.util.List;
 @Spi({"s3", "amazon"})
 public class AmazonS3FileStorage extends AbstractFileStorage {
 
+    /** Amazon S3 客户端 */
+    /** S3client */
     private final AmazonS3 s3Client;
 
     public AmazonS3FileStorage(BucketSetting bucketSetting) {

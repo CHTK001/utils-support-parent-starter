@@ -100,8 +100,11 @@ public class WechatPush implements MessagePush {
      */
     private static final long TOKEN_EXPIRE_MARGIN_MILLIS = 200L;
 
+    /** 消息环境 */
+    /** 环境 */
     private final MessageEnvironment environment;
 
+    /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**

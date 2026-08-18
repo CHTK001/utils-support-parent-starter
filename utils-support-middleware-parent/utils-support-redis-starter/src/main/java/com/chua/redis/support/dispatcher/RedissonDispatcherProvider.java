@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Spi("redis")
 public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
 
+    /** Redisson客户端 */
     private final RedissonClient redissonClient;
     private final Map<String, RTopic> topicMap = new ConcurrentHashMap<>();
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();

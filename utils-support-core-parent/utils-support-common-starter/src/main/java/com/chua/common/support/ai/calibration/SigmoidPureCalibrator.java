@@ -40,12 +40,14 @@ public class SigmoidPureCalibrator implements PureCalibrator {
      * 陡度参数，默认15
      */
     @Builder.Default
+    /** K */
     private double k = 15.0;
 
     /**
      * 阈值参数，默认0.75
      */
     @Builder.Default
+    /** T */
     private double t = 0.75;
 
     @Override

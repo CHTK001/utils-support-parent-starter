@@ -22,6 +22,7 @@ import java.util.zip.DeflaterOutputStream;
  */
 final class PNGIDATOutputStream extends PNGImageOutputStream {
 
+    /** Chunk类型 */
     private static final byte[] chunkType = {
         (byte)'I', (byte)'D', (byte)'A', (byte)'T'
     };

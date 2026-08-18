@@ -14,8 +14,11 @@ import java.util.List;
 @Data
 @Builder
 public class MusicPlaylistCategoryGroup {
+    /** 分组ID */
     private String groupId;
+    /** 名称 */
     private String name;
+    /** Tags */
     private List<MusicPlaylistCategory> tags;
 }
 

@@ -328,10 +328,15 @@ public class SyslogPolledDirectory implements PolledDirectory {
      * 系统日志轮询监听器构建器
      */
     public static class Builder {
+        /** 来源 */
         private String source;
+        /** 模式 */
         private String pattern;
+        /** 最小值级别 */
         private LogLevel minLevel;
+        /** Poll间隔秒 */
         private int pollIntervalSeconds = 5;
+        /** 日志服务 */
         private SystemLogService logService;
 
         /**

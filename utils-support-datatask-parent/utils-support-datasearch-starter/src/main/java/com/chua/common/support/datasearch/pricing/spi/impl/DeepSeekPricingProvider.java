@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("deepseek")
 public class DeepSeekPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://api-docs.deepseek.com/quick_start/pricing/";
 
     @Override

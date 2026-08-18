@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class AwsSdkHandler extends AbstractAppHandler {
 
+    /**
+     * CLIENT
+     */
     private static final String CLIENT = "software/amazon/awssdk/core/client/ClientExecution";
+    /**
+     * exec methods
+     */
     private static final String[] EXEC_METHODS = {"execute"};
 
     @Override

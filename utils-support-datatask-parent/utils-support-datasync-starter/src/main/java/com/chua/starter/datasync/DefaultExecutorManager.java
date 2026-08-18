@@ -24,9 +24,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class DefaultExecutorManager implements ExecutorManager {
 
+    /** 服务标识 */
+    /** 服务器ID */
     private final String serverId;
+    /** 是否直接分发 */
+    /** Directdispatch */
     private final boolean directDispatch;
+    /** 执行器映射 */
     private final Map<String, ReactorDataSyncExecutor> executors = new ConcurrentHashMap<>();
+    /** 是否已启动 */
+    /** Started */
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     public DefaultExecutorManager(String serverId) {

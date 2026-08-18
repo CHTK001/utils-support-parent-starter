@@ -32,8 +32,10 @@ public class MemoryDeduplicator implements Deduplicator {
      */
     private static final long CLEANUP_INTERVAL_MS = 60_000L;
 
+    /** TTLMS */
     private final long ttlMs;
     private final Map<String, Long> processed;
+    /** Cleanup执行器 */
     private final ScheduledExecutorService cleanupExecutor;
 
     /**

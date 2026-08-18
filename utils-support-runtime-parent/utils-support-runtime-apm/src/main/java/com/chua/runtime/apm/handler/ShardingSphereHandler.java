@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class ShardingSphereHandler extends AbstractAppHandler {
 
+    /**
+     * sharding sphere
+     */
     private static final String SHARDING_SPHERE = "org/apache/shardingsphere";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
     @Override

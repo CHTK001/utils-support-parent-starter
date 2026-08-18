@@ -34,8 +34,14 @@ import java.util.concurrent.ConcurrentMap;
 @ConditionalOnClass("retrofit2.Retrofit")
 public class RetrofitHttpInvoker implements Invoker {
 
+    /**
+     * proxy cache
+     */
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
 
+    /**
+     * class level annotations
+     */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };

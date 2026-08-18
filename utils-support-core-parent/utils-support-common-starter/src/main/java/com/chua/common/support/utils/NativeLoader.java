@@ -59,11 +59,17 @@ public class NativeLoader {
 
     private static final Map<String, Boolean> LOADED = new ConcurrentHashMap<>();
 
+    /** 任务ID */
     private final String taskId;
+    /** Classloader */
     private ClassLoader classLoader;
+    /** 目标目录 */
     private Path targetDir;
+    /** Glob */
     private String glob;
+    /** MD5 */
     private boolean md5;
+    /** Extractonly */
     private boolean extractOnly;
     /**
      * 自定义 classpath 基础路径，覆盖默认的 native/{platformDir}/。
@@ -300,8 +306,11 @@ public class NativeLoader {
     }
 
     private static final class ResourceItem {
+        /** 名称 */
         private final String name;
+        /** 尺寸 */
         private final long size;
+        /** 供应商 */
         private final StreamSupplier supplier;
 
         private ResourceItem(String name, long size, StreamSupplier supplier) {

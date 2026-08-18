@@ -36,16 +36,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("online")
 public class OnlineHolidayProvider implements HolidayProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(OnlineHolidayProvider.class);
 
+    /** Default_url */
     private static final String DEFAULT_URL = "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/%d.json";
 
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final Map<String, HolidayInfo> FALLBACK_2026 = build2026();
 
+    /** URL模板 */
     private final String urlTemplate;
 
+    /** HTTP客户端 */
     private final HttpClient httpClient;
 
     private final Map<Integer, Map<String, HolidayInfo>> cache = new ConcurrentHashMap<>();

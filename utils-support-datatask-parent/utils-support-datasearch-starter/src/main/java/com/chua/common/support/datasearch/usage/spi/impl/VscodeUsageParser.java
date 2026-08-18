@@ -19,6 +19,7 @@ import java.util.List;
 @Spi("vscode")
 public class VscodeUsageParser extends BaseUsageParser {
 
+    /** Data_dir */
     private static final Path DATA_DIR = Path.of(
             System.getProperty("user.home"), "AppData", "Roaming", "Code", "User",
             "globalStorage", "github.copilot-chat");

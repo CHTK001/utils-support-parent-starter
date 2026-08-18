@@ -730,6 +730,7 @@ public class DefaultSpider implements Spider {
         }
 
         private static class ConsumerPipeline implements SpiderPipeline {
+            /** 消费者 */
             private final Consumer<SpiderResult> consumer;
 
             ConsumerPipeline(Consumer<SpiderResult> consumer) {

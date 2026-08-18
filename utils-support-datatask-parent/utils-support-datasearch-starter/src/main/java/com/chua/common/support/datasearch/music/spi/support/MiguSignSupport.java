@@ -14,7 +14,9 @@ import java.util.Map;
 */
 public final class MiguSignSupport {
 
+    /** Device_id */
     private static final String DEVICE_ID = "963B7AA0D21511ED807EE5846EC87D20";
+    /** Signature_md5 */
     private static final String SIGNATURE_MD5 = "6cdc72a439cef99a3418d2a78aa28c73";
 
     private MiguSignSupport() {

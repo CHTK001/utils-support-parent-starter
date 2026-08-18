@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("stepfun")
 public class StepFunPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://platform.stepfun.com/docs/pricing";
 
     @Override

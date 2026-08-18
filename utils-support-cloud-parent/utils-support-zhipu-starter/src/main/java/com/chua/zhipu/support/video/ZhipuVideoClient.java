@@ -24,15 +24,35 @@ import java.util.Map;
 @Spi({"zhipu", "glm"})
 public class ZhipuVideoClient implements VideoClient {
 
+    /** 默认 API 地址 */
+    /** Default_url */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
+    /** 配置对象 */
+    /** 设置 */
     private final VideoClientSetting setting;
+    /** 模型名称 */
+    /** 模型 */
     private String model;
+    /** 图片宽度 */
+    /** 宽度 */
     private Integer width;
+    /** 图片高度 */
+    /** 高度 */
     private Integer height;
+    /** 提示词 */
+    /** Prompt */
     private String prompt;
+    /** 耗时（毫秒） */
+    /** 持续时间 */
     private Integer duration;
+    /** 图片风格 */
+    /** Style */
     private String style;
+    /** 参考图 */
+    /** 引用图片 */
     private byte[] referenceImage;
+    /** 参考图强度 */
+    /** 图片strength */
     private Double imageStrength;
 
     public ZhipuVideoClient(VideoClientSetting setting) {

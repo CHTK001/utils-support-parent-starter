@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 @Getter
 public class EmbeddedRedisServer {
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(EmbeddedRedisServer.class);
 /**
      * 底层嵌入式 Redis 服务器
@@ -145,8 +146,11 @@ public class EmbeddedRedisServer {
      * Builder 模式创建 RedisServer。
      */
     public static class Builder {
+        /** 端口 */
         private int port = 6379;
+        /** 最大值memory */
         private String maxMemory;
+        /** 参数 */
         private String[] args = new String[0];
 
         /**

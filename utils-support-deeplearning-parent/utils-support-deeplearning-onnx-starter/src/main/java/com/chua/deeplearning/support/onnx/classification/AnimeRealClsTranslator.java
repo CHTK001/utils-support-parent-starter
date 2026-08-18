@@ -24,6 +24,8 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
     static final String MODEL_NAME = "anime_real_cls";
     static final String MODEL_RELATIVE_PATH = "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx";
 
+    /** 委托对象 */
+    /** Delegate */
     private final ImageClassificationTranslator delegate;
 
     public AnimeRealClsTranslator() {

@@ -27,22 +27,73 @@ import java.util.concurrent.TimeUnit;
  */
 public class SymmetricEnvironment {
 
+    /**
+     * 键 engine 名称
+     */
     public static final String KEY_ENGINE_NAME = "symmetric.engine.name";
+    /**
+     * 键 db 类型
+     */
     public static final String KEY_DB_TYPE = "symmetric.db.type";
+    /**
+     * 键 group 标识
+     */
     public static final String KEY_GROUP_ID = "symmetric.group.id";
+    /**
+     * 键 external 标识
+     */
     public static final String KEY_EXTERNAL_ID = "symmetric.external.id";
+    /**
+     * 键 registration URL
+     */
     public static final String KEY_REGISTRATION_URL = "symmetric.registration.url";
+    /**
+     * 键 sync URL
+     */
     public static final String KEY_SYNC_URL = "symmetric.sync.url";
+    /**
+     * 键 主机
+     */
     public static final String KEY_HOST = "db.host";
+    /**
+     * 键 端口
+     */
     public static final String KEY_PORT = "db.port";
+    /**
+     * 键 用户名
+     */
     public static final String KEY_USERNAME = "db.username";
+    /**
+     * 键 密码
+     */
     public static final String KEY_PASSWORD = "db.password";
+    /**
+     * 键 database
+     */
     public static final String KEY_DATABASE = "db.name";
+    /**
+     * 键 table include 列表
+     */
     public static final String KEY_TABLE_INCLUDE_LIST = "symmetric.table.include.list";
+    /**
+     * 键 table exclude 列表
+     */
     public static final String KEY_TABLE_EXCLUDE_LIST = "symmetric.table.exclude.list";
+    /**
+     * 键 auto create tables
+     */
     public static final String KEY_AUTO_CREATE_TABLES = "symmetric.auto.create.tables";
+    /**
+     * 键 初始 加载
+     */
     public static final String KEY_INITIAL_LOAD = "symmetric.initial.load";
+    /**
+     * 键 auto 注册
+     */
     public static final String KEY_AUTO_REGISTER = "symmetric.auto.register";
+    /**
+     * 键 auto setup
+     */
     public static final String KEY_AUTO_SETUP = "symmetric.auto.setup";
 
     private SymmetricEnvironment() {}
@@ -117,9 +168,21 @@ public class SymmetricEnvironment {
      * SymmetricDS 环境配置 Builder。
      */
     public static class Builder {
+        /**
+         * props
+         */
         private final Map<String, String> props = new LinkedHashMap<>();
+        /**
+         * polling间隔
+         */
         private long pollingInterval = 10;
+        /**
+         * 时间 Unit
+         */
         private TimeUnit timeUnit = TimeUnit.SECONDS;
+        /**
+         * events
+         */
         private Set<WatcherEvent> events = Set.of(WatcherEvent.CREATE, WatcherEvent.MODIFY, WatcherEvent.DELETE);
 
         public Builder engineName(String engineName) { props.put(KEY_ENGINE_NAME, engineName); return this; }

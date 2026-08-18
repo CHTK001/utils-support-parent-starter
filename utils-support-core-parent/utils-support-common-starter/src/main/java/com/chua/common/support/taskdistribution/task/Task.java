@@ -53,6 +53,7 @@ public class Task<T> {
      * 分片数量（>1 表示需要分片执行）
      */
     @Builder.Default
+    /** Shard数量 */
     private int shardCount = 1;
 
     /**
@@ -64,30 +65,35 @@ public class Task<T> {
      * 当前分片索引（分片执行时标记，-1 表示未分片）
      */
     @Builder.Default
+    /** Shard索引 */
     private int shardIndex = -1;
 
     /**
      * 执行超时时间（毫秒）
      */
     @Builder.Default
+    /** 超时MS */
     private long timeoutMs = 30000;
 
     /**
      * 最大重试次数
      */
     @Builder.Default
+    /** 最大值重试次数 */
     private int maxRetries = 3;
 
     /**
      * 任务优先级
      */
     @Builder.Default
+    /** 优先级 */
     private TaskPriority priority = TaskPriority.MEDIUM;
 
     /**
      * 是否暂停（已创建但暂停派发，工作端可继续执行已派发的任务）
      */
     @Builder.Default
+    /** Paused */
     private boolean paused = false;
 
     /**

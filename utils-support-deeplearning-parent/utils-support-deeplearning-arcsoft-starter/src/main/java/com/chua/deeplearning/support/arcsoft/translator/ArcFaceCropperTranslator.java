@@ -22,6 +22,8 @@ import java.util.List;
 @Slf4j
 public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedImage> {
 
+    /** 人脸引擎 */
+    /** Face引擎 */
     private final FaceEngine faceEngine;
 
     public ArcFaceCropperTranslator(FaceEngine faceEngine) {

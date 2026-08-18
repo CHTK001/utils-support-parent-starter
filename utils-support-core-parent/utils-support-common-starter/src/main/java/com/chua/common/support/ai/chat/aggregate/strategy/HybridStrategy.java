@@ -25,7 +25,11 @@ import java.util.function.Predicate;
 @Slf4j
 public class HybridStrategy implements RouterStrategy {
 
+    /** 路由组列表 */
+    /** Groups */
     private final List<GroupRouter> groups;
+    /** 健康状态过滤器 */
+    /** Health过滤器 */
     private final Predicate<WeightedClient> healthFilter;
 
     public HybridStrategy(List<GroupRouter> groups, Predicate<WeightedClient> healthFilter) {

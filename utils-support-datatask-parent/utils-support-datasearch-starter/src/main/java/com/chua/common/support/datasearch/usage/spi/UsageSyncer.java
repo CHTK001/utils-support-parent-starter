@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public final class UsageSyncer {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(UsageSyncer.class);
 
     private UsageSyncer() {}

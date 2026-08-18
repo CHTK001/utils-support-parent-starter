@@ -12,15 +12,25 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicPlaylistSummary {
+    /** PlaylistID */
     private String playlistId;
+    /** 来源 */
     private String source;
+    /** 标题 */
     private String title;
+    /** 描述 */
     private String description;
+    /** CoverURL */
     private String coverUrl;
+    /** Author */
     private String author;
+    /** Track数量 */
     private Integer trackCount;
+    /** Accent颜色 */
     private String accentColor;
+    /** Play数量 */
     private Long playCount;
+    /** Comment数量 */
     private Long commentCount;
 }
 

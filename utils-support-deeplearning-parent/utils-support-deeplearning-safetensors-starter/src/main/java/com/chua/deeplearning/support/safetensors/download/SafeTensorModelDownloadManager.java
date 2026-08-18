@@ -19,8 +19,12 @@ import java.nio.file.Path;
 @Slf4j
 public class SafeTensorModelDownloadManager {
 
+    /** 客户端 */
+    /** 客户端 */
     private final SafeTensorServiceClient client;
 
+    /** 模型根目录 */
+    /** 模型根级 */
     private final Path modelRoot;
 
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client) {

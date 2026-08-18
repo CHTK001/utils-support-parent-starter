@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("pip")
 public class PipSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(PipSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "pip";
 
     @Override

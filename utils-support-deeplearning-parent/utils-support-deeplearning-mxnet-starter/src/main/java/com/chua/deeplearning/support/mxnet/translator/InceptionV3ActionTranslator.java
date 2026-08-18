@@ -35,6 +35,8 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
      */
     private static final String DEFAULT_SYNSET_FILE = "classes.txt";
 
+    /** 委托对象 */
+    /** Delegate */
     private final ImageClassificationTranslator delegate;
 
     public InceptionV3ActionTranslator() {

@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
  */
 public class MavenClient implements AutoCloseable {
 
+    /** 日志 */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MavenClient.class);
 
     /**
@@ -124,19 +125,28 @@ public class MavenClient implements AutoCloseable {
      * 编译阶段进度阈值
      */
     private static final int PROGRESS_VALIDATION = 5;
+    /** Progress_resolve */
     private static final int PROGRESS_RESOLVE = 15;
+    /** Progress_compile */
     private static final int PROGRESS_COMPILE = 50;
+    /** Progress_test */
     private static final int PROGRESS_TEST = 75;
+    /** Progress_package */
     private static final int PROGRESS_PACKAGE = 90;
+    /** Progress_complete */
     private static final int PROGRESS_COMPLETE = 100;
 
     /**
      * Maven 输出解析正则
      */
     private static final Pattern BUILD_SUCCESS_PATTERN = Pattern.compile("BUILD\\s+SUCCESS");
+    /** Build_failure_pattern */
     private static final Pattern BUILD_FAILURE_PATTERN = Pattern.compile("BUILD\\s+FAILURE");
+    /** Error_line_pattern */
     private static final Pattern ERROR_LINE_PATTERN = Pattern.compile("\\[ERROR\\]\\s*(.+)");
+    /** Compiling_pattern */
     private static final Pattern COMPILING_PATTERN = Pattern.compile("Compiling\\s+(\\d+)\\s+source\\s+files");
+    /** Testing_pattern */
     private static final Pattern TESTING_PATTERN = Pattern.compile("Tests run:\\s+(\\d+)");
 
     MavenClient(MavenClientBuilder builder) {

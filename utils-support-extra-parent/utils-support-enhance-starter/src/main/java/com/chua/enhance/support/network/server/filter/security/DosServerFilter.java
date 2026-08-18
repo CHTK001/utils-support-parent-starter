@@ -36,7 +36,9 @@ public class DosServerFilter implements ServerFilter {
      */
     private static final int DEFAULT_WINDOW_SECONDS = 60;
 
+    /** 最大值requests */
     private int maxRequests = DEFAULT_MAX_REQUESTS;
+    /** Window秒 */
     private int windowSeconds = DEFAULT_WINDOW_SECONDS;
 
     /**

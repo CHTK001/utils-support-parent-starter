@@ -25,8 +25,14 @@ import java.util.Map;
  */
 public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.DefaultDataSyncAgentServer {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(RSocketDataSyncAgentServer.class);
 
+    /**
+     * 端口号
+     */
     private final int port;
 
     public RSocketDataSyncAgentServer(int port) {
@@ -160,6 +166,9 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
+        /**
+         * agent Id
+         */
         private final String agentId;
         SimpleDataSyncAgent(String agentId) { this.agentId = agentId; }
         @Override public String agentId() { return agentId; }

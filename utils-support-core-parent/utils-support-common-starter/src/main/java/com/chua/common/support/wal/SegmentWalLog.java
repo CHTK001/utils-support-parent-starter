@@ -743,6 +743,7 @@ public class SegmentWalLog implements WalLog {
      */
     private static final class WalChainImpl implements WalChain {
 
+        /** OPS */
         private final List<WalOp> ops;
 
         WalChainImpl(List<WalOp> ops) {

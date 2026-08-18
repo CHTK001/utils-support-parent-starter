@@ -23,6 +23,7 @@ import java.util.function.Consumer;
  */
 public class EsMeta extends AbstractMetaSearch {
 
+    /** Search引擎 */
     private final EsSearchEngineImpl searchEngine;
 
     public EsMeta(AbstractMetaData metaData, ElasticsearchEngine engine) {
@@ -82,11 +83,15 @@ public class EsMeta extends AbstractMetaSearch {
 
     private class EsCreateIndexBuilder implements SearchIndexCreateBuilder {
 
+        /** 索引名称 */
         private final String indexName;
+        /** Fields */
         private final List<SearchFieldDef> fields = new ArrayList<>();
         private final Map<String, Object> settings = new LinkedHashMap<>();
         private final Map<String, Object> mappings = new LinkedHashMap<>();
+        /** Shards */
         private int shards = 1;
+        /** Replicas */
         private int replicas = 1;
 
         EsCreateIndexBuilder(String indexName) {
@@ -165,10 +170,15 @@ public class EsMeta extends AbstractMetaSearch {
     }
 
     private static class SearchFieldBuilderImpl implements SearchFieldBuilder {
+        /** Analyzer */
         private String analyzer;
+        /** Searchanalyzer */
         private String searchAnalyzer;
+        /** Indexed */
         private boolean indexed = true;
+        /** Stored */
         private boolean stored;
+        /** 权重 */
         private double weight = 1.0;
 
         @Override

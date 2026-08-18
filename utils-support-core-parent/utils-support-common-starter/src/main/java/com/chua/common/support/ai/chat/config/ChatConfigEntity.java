@@ -63,6 +63,7 @@ public class ChatConfigEntity {
     private String appSecret;
 
     /** API 请求基础地址 */
+    /** BaseURL */
     private String baseUrl;
 
     /** 默认模型名称 */
@@ -72,18 +73,23 @@ public class ChatConfigEntity {
     private String model;
 
     /** 默认温度参数 */
+    /** Temperature */
     private Double temperature;
 
     /** 默认最大输出 Token 数 */
+    /** 最大值tokens */
     private Integer maxTokens;
 
     /** 默认 Top-P 采样参数 */
+    /** 顶部P */
     private Double topP;
 
     /** 默认系统提示词 */
+    /** System */
     private String system;
 
     /** HTTP 代理地址 */
+    /** Proxy */
     private String proxy;
 
     /** 更新时间 */

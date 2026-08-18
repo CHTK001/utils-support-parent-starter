@@ -31,8 +31,11 @@ import java.awt.image.BufferedImage;
  */
 public class ImageFilterPoolTest {
 
+    /** 创建时间数量 */
     private static final AtomicInteger createdCount = new AtomicInteger(0);
+    /** Generate数量 */
     private static final AtomicInteger generateCount = new AtomicInteger(0);
+    /** Generatedimages */
     private static final List<BufferedImage> generatedImages = new ArrayList<>();
 
 

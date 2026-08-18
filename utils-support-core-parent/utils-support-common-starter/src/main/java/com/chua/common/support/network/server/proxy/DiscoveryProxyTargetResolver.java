@@ -17,9 +17,13 @@ import java.net.InetSocketAddress;
  */
 public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSocketAddress> {
 
+    /** 服务discovery */
     private final ServiceDiscovery serviceDiscovery;
+    /** 服务路径 */
     private final String servicePath;
+    /** ScatterID */
     private final String scatterId;
+    /** Balance */
     private final String balance;
 
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath) {

@@ -30,6 +30,7 @@ import java.nio.file.StandardCopyOption;
  */
 public class LocalDeployTarget implements MavenDeployTarget {
 
+    /** 日志 */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LocalDeployTarget.class);
 
     /**

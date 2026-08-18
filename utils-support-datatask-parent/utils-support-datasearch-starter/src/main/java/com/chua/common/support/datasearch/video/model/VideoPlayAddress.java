@@ -10,8 +10,11 @@ import java.util.List;
  */
 public class VideoPlayAddress {
 
+    /** 视频play地址名称 */
     private String videoPlayAddressName;
+    /** 视频play地址代码 */
     private String videoPlayAddressCode;
+    /** 视频play地址channels */
     private List<VideoPlayAddressChannel> videoPlayAddressChannels;
 
     public VideoPlayAddress() {

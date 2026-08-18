@@ -24,6 +24,7 @@ public enum TaskPriority {
      */
     HIGH(10);
 
+    /** 级别 */
     private final int level;
 
     TaskPriority(int level) {

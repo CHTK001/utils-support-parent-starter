@@ -52,6 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 )
 public class EmailPush implements MessagePush {
 
+    /** 环境 */
     private final MessageEnvironment environment;
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 

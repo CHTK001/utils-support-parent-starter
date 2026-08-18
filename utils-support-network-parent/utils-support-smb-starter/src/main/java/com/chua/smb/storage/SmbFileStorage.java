@@ -48,6 +48,9 @@ import java.util.List;
 @Spi("smb")
 public class SmbFileStorage extends AbstractFileStorage {
 
+    /**
+     * smb Client
+     */
     private final SmbClient smbClient;
 
     public SmbFileStorage(BucketSetting bucketSetting) {

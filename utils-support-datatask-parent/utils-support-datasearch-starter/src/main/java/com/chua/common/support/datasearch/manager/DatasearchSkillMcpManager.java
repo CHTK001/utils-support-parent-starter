@@ -41,13 +41,17 @@ import java.util.Map;
  */
 public class DatasearchSkillMcpManager {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(DatasearchSkillMcpManager.class);
 
+    /** Skill管理器 */
     private final SkillManager skillManager = new DefaultSkillManager();
+    /** MCP管理器 */
     private final McpManager mcpManager = new DefaultMcpManager();
     private final Map<String, SkillProvider> skillProviders = new LinkedHashMap<>();
     private final Map<String, McpProvider> mcpProviders = new LinkedHashMap<>();
 
+    /** Initialized */
     private boolean initialized = false;
 
     /**

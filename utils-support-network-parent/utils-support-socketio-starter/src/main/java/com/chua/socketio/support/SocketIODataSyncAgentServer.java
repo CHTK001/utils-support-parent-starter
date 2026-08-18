@@ -19,9 +19,18 @@ import java.util.Map;
  */
 public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent.DefaultDataSyncAgentServer {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(SocketIODataSyncAgentServer.class);
 
+    /**
+     * 端口号
+     */
     private final int port;
+    /**
+     * 服务器实例
+     */
     private com.corundumstudio.socketio.SocketIOServer server;
 
     public SocketIODataSyncAgentServer(int port) {
@@ -86,8 +95,17 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     }
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
+        /**
+         * agent Id
+         */
         private final String agentId;
+        /**
+         * source Id
+         */
         private final String sourceId;
+        /**
+         * 客户端实例
+         */
         private final com.corundumstudio.socketio.SocketIOClient client;
 
         SimpleDataSyncAgent(String agentId, String sourceId, com.corundumstudio.socketio.SocketIOClient client) {

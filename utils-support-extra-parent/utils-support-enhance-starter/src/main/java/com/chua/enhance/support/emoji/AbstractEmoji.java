@@ -10,10 +10,15 @@ import java.util.regex.Pattern;
 */
 public abstract class AbstractEmoji {
 
+    /** Short_code_pattern */
     protected static final Pattern SHORT_CODE_PATTERN = Pattern.compile(":(\\w+):");
+    /** Short_code_or_html_entity_pattern */
     protected static final Pattern SHORT_CODE_OR_HTML_ENTITY_PATTERN = Pattern.compile(":?(\\w+):?|&#?\\w+;");
+    /** Html_surrogate_entity_pattern */
     protected static final Pattern HTML_SURROGATE_ENTITY_PATTERN = Pattern.compile("(?<H>&#x?\\w+;)(?<L>&#x?\\w+;)");
+    /** Html_surrogate_entity_pattern_2 */
     protected static final Pattern HTML_SURROGATE_ENTITY_PATTERN_2 = Pattern.compile("(?<H1>&#x?\\w+;)(?<H2>&#x?\\w+;)(?<L1>&#x?\\w+;)(?<L2>&#x?\\w+;)");
+    /** Html_entity_pattern */
     protected static final Pattern HTML_ENTITY_PATTERN = Pattern.compile("&#x?\\w+;");
 
     protected static String htmlHelper(String text, boolean hex, boolean asSurrogate) {

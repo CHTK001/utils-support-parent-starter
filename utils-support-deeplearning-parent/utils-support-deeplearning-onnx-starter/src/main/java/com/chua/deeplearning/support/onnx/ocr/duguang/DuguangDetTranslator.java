@@ -11,6 +11,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.FloatBuffer;
@@ -64,10 +65,19 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
      * NativeLoader 缓存隔离名。
      */
     private final String modelName;
+    /** ONNX 运行时环境 */
 
+    /** 会话 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 源图像宽度 */
+    /** 会话 */
     private OrtSession session;
+    /** 源图像高度 */
+    /** SRC宽度 */
     private int srcWidth;
+    /** 源图像高度 */
+    /** SRC高度 */
     private int srcHeight;
 
     /**
@@ -267,7 +277,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
             }
             passedScore++;
             // unclip 1.5：绕矩形中心等比放大（保持矩形形状，近似 pyclipper 扩张）
-            Point[] expanded = unclip(rect, 1.5);
+            Point[] expanded = unclip(rotatedRect, 1.5);
             if (expanded == null) {
                 contour2f.release();
                 continue;
@@ -354,58 +364,29 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
      * @param ratio 扩张比例
      * @return 扩张后多边形，失败返回 null
      */
-    private Point[] unclip(Point[] pts, double ratio) {
-        if (pts == null || pts.length < 4) {
+    /**
+     * 多边形扩张（unclip）：沿矩形每边法线方向外扩 distance（匹配 pyclipper 行为）。
+     *
+     * @param rotatedRect 原始最小外接矩形
+     * @param ratio       扩张比例（面积 / 周长）
+     * @return 扩张后 4 点
+     */
+    private Point[] unclip(org.opencv.core.RotatedRect rotatedRect, double ratio) {
+        double w = rotatedRect.size.width;
+        double h = rotatedRect.size.height;
+        if (w <= 0 || h <= 0) {
             return null;
         }
-        // 匹配 pyclipper 扩张：distance = area * ratio / length
-        // 中心等比放大 scale 使每边外扩 distance：scale = 1 + 2d / 平均边长
-        double area = polygonArea(pts);
-        double length = polygonLength(pts);
-        if (length <= 0 || area <= 0) {
-            return null;
-        }
-        double distance = area * ratio / length;
-        double cx = 0, cy = 0;
-        for (Point p : pts) {
-            cx += p.x;
-            cy += p.y;
-        }
-        cx /= pts.length;
-        cy /= pts.length;
-        // 按短边方向外扩 distance：scale 使短边半宽增加 distance
-        double minHalf = Double.MAX_VALUE, maxHalf = 0;
-        for (Point p : pts) {
-            double hw = Math.hypot(p.x - cx, p.y - cy);
-            minHalf = Math.min(minHalf, hw);
-            maxHalf = Math.max(maxHalf, hw);
-        }
-        double scale = minHalf > 0 ? 1.0 + distance / minHalf : 1.0;
-        Point[] out = new Point[pts.length];
-        for (int i = 0; i < pts.length; i++) {
-            out[i] = new Point(cx + (pts[i].x - cx) * scale, cy + (pts[i].y - cy) * scale);
-        }
+        // distance = area * ratio / perimeter（与 pyclipper 一致）
+        double distance = w * h * ratio / (2 * (w + h));
+        // 每边外扩 distance → 宽高各 +2*distance
+        RotatedRect expanded = new RotatedRect(
+                rotatedRect.center,
+                new org.opencv.core.Size(w + 2 * distance, h + 2 * distance),
+                rotatedRect.angle);
+        Point[] out = new Point[4];
+        expanded.points(out);
         return out;
-    }
-
-    private double polygonArea(Point[] pts) {
-        double area = 0;
-        for (int i = 0; i < pts.length; i++) {
-            Point a = pts[i];
-            Point b = pts[(i + 1) % pts.length];
-            area += a.x * b.y - b.x * a.y;
-        }
-        return Math.abs(area) / 2;
-    }
-
-    private double polygonLength(Point[] pts) {
-        double len = 0;
-        for (int i = 0; i < pts.length; i++) {
-            Point a = pts[i];
-            Point b = pts[(i + 1) % pts.length];
-            len += Math.hypot(b.x - a.x, b.y - a.y);
-        }
-        return len;
     }
 
     private double minX(Point[] pts) {

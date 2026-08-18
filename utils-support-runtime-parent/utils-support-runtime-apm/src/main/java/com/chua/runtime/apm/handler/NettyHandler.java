@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class NettyHandler extends AbstractAppHandler {
 
+    /**
+     * CHANNEL
+     */
     private static final String CHANNEL = "io/netty/channel/Channel";
+    /**
+     * channel handler context
+     */
     private static final String CHANNEL_HANDLER_CONTEXT = "io/netty/channel/ChannelHandlerContext";
+    /**
+     * channel methods
+     */
     private static final String[] CHANNEL_METHODS = {"write", "writeAndFlush", "read"};
+    /**
+     * context methods
+     */
     private static final String[] CONTEXT_METHODS = {"fireChannelRead", "fireChannelActive", "fireChannelInactive"};
 
     @Override

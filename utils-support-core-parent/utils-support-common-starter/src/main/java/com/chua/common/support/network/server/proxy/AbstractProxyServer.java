@@ -71,9 +71,11 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected volatile boolean preferNonBlockingAccept = false;
 
     /** 非阻塞 accept 用的服务端通道（仅 {@link #preferNonBlockingAccept} 为 true 时使用） */
+    /** Accept通道 */
     protected ServerSocketChannel acceptChannel;
 
     /** 非阻塞 accept 用的选择器（仅 {@link #preferNonBlockingAccept} 为 true 时使用） */
+    /** Acceptselector */
     protected Selector acceptSelector;
 
     /**

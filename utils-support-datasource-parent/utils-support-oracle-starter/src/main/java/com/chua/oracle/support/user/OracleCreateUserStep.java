@@ -16,9 +16,13 @@ import javax.sql.DataSource;
  */
 public class OracleCreateUserStep implements UserManager.CreateUserStep {
 
+    /** 数据来源 */
     private final DataSource dataSource;
+    /** Username */
     private final String username;
+    /** 密码 */
     private String password;
+    /** 主机 */
     private String host = "";
 
     OracleCreateUserStep(DataSource dataSource, String username) {

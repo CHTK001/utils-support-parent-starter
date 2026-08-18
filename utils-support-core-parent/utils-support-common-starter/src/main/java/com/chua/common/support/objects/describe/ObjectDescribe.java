@@ -17,6 +17,7 @@ import java.util.List;
 @Getter
 public class ObjectDescribe {
 
+    /** Object */
     private final Object object;
     private final Class<?> objectClass;
 

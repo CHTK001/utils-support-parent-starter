@@ -24,6 +24,7 @@ public class JsoupResponse {
 
     final Document document;
 
+    /** Mappings */
     private final Mappings mappings;
 
     public JsoupResponse(String html, Mappings mappings) {
@@ -143,19 +144,27 @@ public class JsoupResponse {
     @Data
     @Builder
     public static class Mappings {
+        /** 父级xpath */
         private String parentXpath;
         @Singular("addMapping")
+        /** Mapping */
         private List<MappingsPath> mapping;
     }
 
     @Data
     public static class MappingsPath {
+        /** 路径 */
         private String path;
+        /** Attribute */
         private String attribute;
+        /** 最后 */
         private boolean last;
+        /** 首个 */
         private boolean first;
         private Function<Element, String> function;
+        /** 类型 */
         private PathType type = PathType.XPATH;
+        /** Field */
         private String field;
 
         public static MappingsPathBuilder builder() {
@@ -163,12 +172,18 @@ public class JsoupResponse {
         }
 
         public static class MappingsPathBuilder {
+            /** 路径 */
             private String path;
+            /** Attribute */
             private String attribute;
+            /** 最后 */
             private boolean last;
+            /** 首个 */
             private boolean first;
             private Function<Element, String> function;
+            /** 类型 */
             private PathType type = PathType.XPATH;
+            /** Field */
             private String field;
 
             public MappingsPathBuilder path(String path) { this.path = path; return this; }
@@ -200,6 +215,7 @@ public class JsoupResponse {
     }
 
     public static final class View {
+        /** Elements */
         private final Elements elements;
 
         private View(Elements elements) { this.elements = elements; }

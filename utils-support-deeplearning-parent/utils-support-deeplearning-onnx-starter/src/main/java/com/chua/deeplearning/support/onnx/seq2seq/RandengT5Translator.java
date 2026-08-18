@@ -42,9 +42,15 @@ import java.nio.file.Path;
 @Slf4j
 public class RandengT5Translator implements Translator<String, String> {
 
+    /** 最大输入长度 */
+    /** Max_input_length */
     private static final int MAX_INPUT_LENGTH = 512;
+    /** 结束符标识 */
+    /** Eos_id */
     private static final long EOS_ID = 1L;
 
+    /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     @Override

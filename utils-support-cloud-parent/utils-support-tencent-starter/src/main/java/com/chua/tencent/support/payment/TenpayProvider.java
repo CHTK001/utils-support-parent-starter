@@ -30,7 +30,11 @@ import java.util.Map;
 @Spi("tenpay")
 public class TenpayProvider implements PaymentChannel {
 
+    /** 微信支付服务 */
+    /** WXPAY服务 */
     private final WxPayService wxPayService;
+    /** 配置对象 */
+    /** 配置 */
     private final TenpayConfig config;
 
     public TenpayProvider() {

@@ -8,7 +8,9 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VideoPlayAddressChannel {
 
+    /** 视频play地址通道名称 */
     private String videoPlayAddressChannelName;
+    /** 视频play地址URL */
     private String videoPlayAddressUrl;
 
     public VideoPlayAddressChannel() {

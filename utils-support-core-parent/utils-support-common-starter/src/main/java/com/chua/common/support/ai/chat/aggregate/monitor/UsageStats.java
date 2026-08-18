@@ -13,12 +13,15 @@ import lombok.Data;
 @Builder
 public class UsageStats {
     /** 总调用次数 */
+    /** 总数calls */
     private long totalCalls;
 
     /** 总 Token 数 */
+    /** 总数tokens */
     private long totalTokens;
 
     /** 平均延迟（毫秒） */
+    /** AVGlatencyMS */
     private double avgLatencyMs;
 
     public double avgTokensPerCall() {

@@ -62,7 +62,9 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     private static final class ConnectionHandler implements InvocationHandler {
+        /** 目标 */
         private final Connection target;
+        /** Update执行器 */
         private final EngineUpdateSqlExecutor updateExecutor;
 
         ConnectionHandler(Connection target, EngineUpdateSqlExecutor updateExecutor) {

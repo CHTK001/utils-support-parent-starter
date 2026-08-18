@@ -65,6 +65,7 @@ public class RuntimeArtifact {
      * 启动参数列表
      */
     @Builder.Default
+    /** 参数 */
     private List<String> args = new ArrayList<>();
 
     /**
@@ -77,6 +78,7 @@ public class RuntimeArtifact {
      * 启动超时时间（毫秒），0 表示不超时
      */
     @Builder.Default
+    /** Startup超时MS */
     private long startupTimeoutMs = 30_000;
 
     /**
@@ -98,6 +100,7 @@ public class RuntimeArtifact {
      * 是否自动解压下载的文件
      */
     @Builder.Default
+    /** Autoextract */
     private boolean autoExtract = false;
 
     /**
@@ -109,11 +112,13 @@ public class RuntimeArtifact {
      * 是否自动重启
      */
     @Builder.Default
+    /** Autorestart */
     private boolean autoRestart = false;
 
     /**
      * 最大自动重启次数（-1 表示无限）
      */
     @Builder.Default
+    /** 最大值restartattempts */
     private int maxRestartAttempts = 3;
 }

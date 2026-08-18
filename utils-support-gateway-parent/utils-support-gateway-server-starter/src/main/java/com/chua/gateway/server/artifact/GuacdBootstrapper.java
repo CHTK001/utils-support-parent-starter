@@ -50,7 +50,9 @@ public final class GuacdBootstrapper {
      * macOS / Linux / Windows 平台可执行文件名
      */
     private static final String EXE_LINUX = "guacd";
+    /** Exe_mac */
     private static final String EXE_MAC = "guacd";
+    /** Exe_win */
     private static final String EXE_WIN = "guacd.exe";
 
     /**
@@ -561,9 +563,13 @@ public final class GuacdBootstrapper {
      * guacd 启动结果句柄。
      */
     public static final class GuacdHandle {
+        /** Process */
         private final Process process;
+        /** Binary路径 */
         private final Path binaryPath;
+        /** 端口 */
         private final int port;
+        /** 来源 */
         private final String source;
 
         GuacdHandle(Process process, Path binaryPath, int port, String source) {

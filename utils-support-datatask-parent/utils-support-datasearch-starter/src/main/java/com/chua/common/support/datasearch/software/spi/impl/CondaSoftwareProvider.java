@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("conda")
 public class CondaSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(CondaSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "conda";
 
     @Override

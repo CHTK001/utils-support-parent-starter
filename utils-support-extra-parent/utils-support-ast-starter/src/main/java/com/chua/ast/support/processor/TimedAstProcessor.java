@@ -28,14 +28,30 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public final class TimedAstProcessor extends AbstractProcessor {
 
+    /** Slf4j 日志字段名称 */
+    /** Slf4j_logger */
     private static final String SLF4J_LOGGER = "org.slf4j.Logger";
+    /** Slf4j 日志工厂字段名称 */
+    /** Slf4j_logger_factory */
     private static final String SLF4J_LOGGER_FACTORY = "org.slf4j.LoggerFactory";
+    /** Slf4j 注解名称 */
+    /** Slf4j_annotation */
     private static final String SLF4J_ANNOTATION = "lombok.extern.slf4j.Slf4j";
+    /** 日志字段名称 */
+    /** Log_field_name */
     private static final String LOG_FIELD_NAME = "log";
 
+    /** 抽象语法树工具 */
+    /** Trees */
     private com.sun.source.util.Trees trees;
+    /** 消息器 */
+    /** Messager */
     private Messager messager;
+    /** 注解处理环境 */
+    /** PE */
     private ProcessingEnvironment pe;
+    /** 依赖探测器 */
+    /** Dependencydetector */
     private DependencyDetector dependencyDetector;
 
     @Override

@@ -33,6 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 4.0.0.42
  */
 public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(FileHandler.class.getName());
 
     /**

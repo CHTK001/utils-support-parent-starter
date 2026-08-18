@@ -51,6 +51,8 @@ public class StyleTransferPipelineBuilder {
             "anime-gan-v2-hayao", "anime-gan-v2-shinkai", "anime-gan-v2-paprika", "anime-gan-v2-face-portrait"
     };
 
+    /** 风格名称列表 */
+    /** Stylenames */
     private final List<String> styleNames = new ArrayList<>();
 
     /**

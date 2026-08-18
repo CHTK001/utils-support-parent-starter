@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 */
 public class NeuQuant {
 
+    /** Netsize */
     protected static final int NETSIZE = 256;
 /**number of colours used */
 
@@ -46,10 +47,14 @@ public class NeuQuant {
      * that it is divisible by all four primes
      */
     protected static final int PRIME1 = 499;
+    /** Prime2 */
     protected static final int PRIME2 = 491;
+    /** Prime3 */
     protected static final int PRIME3 = 487;
+    /** Prime4 */
     protected static final int PRIME4 = 503;
 
+    /** Minpicturebytes */
     protected static final int MINPICTUREBYTES = (3 * PRIME4);
 
 /**minimum size for input image */
@@ -74,6 +79,7 @@ public class NeuQuant {
      */
 
     protected static final int MAXNETPOS = (NETSIZE - 1);
+    /** Netbiasshift */
     protected static final int NETBIASSHIFT = 4;
     /**
      * bias for colour values
@@ -90,12 +96,15 @@ public class NeuQuant {
      * bias for fractions
      */
     protected static final int INTBIAS = (1 << INTBIASSHIFT);
+    /** Gammashift */
     protected static final int GAMMASHIFT = 10;
     /**
      * gamma = 1024
      */
     protected static final int GAMMA = (1 << GAMMASHIFT);
+    /** Betashift */
     protected static final int BETASHIFT = 10;
+    /** Beta */
     protected static final int BETA = (INTBIAS >> BETASHIFT);
     /**
      * beta = 1/1024
@@ -116,6 +125,7 @@ public class NeuQuant {
      * at 32.0 biased by 6 bits
      */
     protected static final int RADIUSBIAS = (1 << RADIUSBIASSHIFT);
+    /** Initradius */
     protected static final int INITRADIUS = (INITRAD * RADIUSBIAS);
     /**
      * and decreases by a
@@ -133,6 +143,7 @@ public class NeuQuant {
      */
     protected static final int INITALPHA = (1 << ALPHABIASSHIFT);
 
+    /** Alphadec */
     protected int alphadec;
 /**biased by 10 bits */
 
@@ -141,8 +152,11 @@ public class NeuQuant {
      * radbias and alpharadbias used for radpower calculation
      */
     protected static final int RADBIASSHIFT = 8;
+    /** Radbias */
     protected static final int RADBIAS = (1 << RADBIASSHIFT);
+    /** Alpharadbshift */
     protected static final int ALPHARADBSHIFT = (ALPHABIASSHIFT + RADBIASSHIFT);
+    /** Alpharadbias */
     protected static final int ALPHARADBIAS = (1 << ALPHARADBSHIFT);
 
 
@@ -184,6 +198,7 @@ public class NeuQuant {
      * bias and freq arrays for learning
      */
     protected int[] freq = new int[NETSIZE];
+    /** Radpower */
     protected int[] radpower = new int[INITRAD];
 
 /**radpower for precomputation */

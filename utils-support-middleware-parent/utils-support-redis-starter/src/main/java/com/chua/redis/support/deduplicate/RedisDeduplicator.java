@@ -36,7 +36,9 @@ public class RedisDeduplicator implements Deduplicator {
      */
     private static final String KEY_PREFIX = "dedup:";
 
+    /** Redisson */
     private final RedissonClient redisson;
+    /** TTLMS */
     private final long ttlMs;
 
     public RedisDeduplicator(RedissonClient redisson) {

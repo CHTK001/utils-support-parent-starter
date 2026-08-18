@@ -24,10 +24,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class DubboRpcServer implements RpcServer {
 
+    /**
+     * registry Configs
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    /**
+     * 协议 Configs
+     */
     private final List<ProtocolConfig> protocolConfigs = new ArrayList<>();
+    /**
+     * 服务 Configs
+     */
     private final List<ServiceConfig<?>> serviceConfigs = new ArrayList<>();
+    /**
+     * state
+     */
     private final AtomicBoolean state = new AtomicBoolean(false);
+    /**
+     * application Config
+     */
     private final ApplicationConfig applicationConfig;
 
     public DubboRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {

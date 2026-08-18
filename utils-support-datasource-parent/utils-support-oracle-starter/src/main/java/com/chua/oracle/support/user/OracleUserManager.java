@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class OracleUserManager implements UserManager, DataSourceAware {
 
+    /** 数据来源 */
     private DataSource dataSource;
 
     /**

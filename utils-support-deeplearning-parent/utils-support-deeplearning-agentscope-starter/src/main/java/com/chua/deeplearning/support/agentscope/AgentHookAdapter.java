@@ -31,12 +31,22 @@ import java.util.Set;
  */
 public class AgentHookAdapter implements Hook {
 
+    /** 计划工具名称集合 */
+    /** Plan_tools */
     private static final Set<String> PLAN_TOOLS = Set.of(
             "plan_enter", "plan_write", "plan_exit");
 
+    /** 代理标识 */
+    /** AgentID */
     private final String agentId;
+    /** 调试钩子 */
+    /** 调试钩子 */
     private final AgentDebugHook debugHook;
+    /** 计划钩子 */
+    /** Plan钩子 */
     private final AgentPlanHook planHook;
+    /** 计划最大任务数 */
+    /** Plan最大值任务 */
     private final int planMaxTask;
 
     public AgentHookAdapter(String agentId, AgentDebugHook debugHook, AgentPlanHook planHook) {

@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 @Spi({"filesystem", "file", "local"})
 public class FileSystemFileStorage extends AbstractFileStorage {
 
+    /** Base路径 */
     private final Path basePath;
 
     public FileSystemFileStorage(BucketSetting bucketSetting) {

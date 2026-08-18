@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Splitter {
 
+    /** Delimiter */
     private final String delimiter;
 
     private Splitter(String delimiter) {

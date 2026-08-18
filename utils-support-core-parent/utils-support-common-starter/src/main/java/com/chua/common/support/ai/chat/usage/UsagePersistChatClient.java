@@ -51,8 +51,13 @@ import java.util.function.Consumer;
 @Slf4j
 public class UsagePersistChatClient implements ChatClient {
 
+    /** 委托客户端 */
+    /** Delegate */
     private final ChatClient delegate;
+    /** 引擎实例 */
+    /** 引擎 */
     private final Engine engine;
+    /** 待处理异步任务列表 */
     private final List<CompletableFuture<?>> pendingFutures = new CopyOnWriteArrayList<>();
 
     /**

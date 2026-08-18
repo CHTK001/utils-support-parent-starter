@@ -42,8 +42,12 @@ import java.nio.file.Path;
 @Slf4j
 public class ChineseBartLargeTranslator implements Translator<String, String> {
 
+    /** 最大输入长度 */
+    /** Max_input_length */
     private static final int MAX_INPUT_LENGTH = 1024;
 
+    /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     @Override

@@ -25,8 +25,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("cargo")
 public class CargoSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(CargoSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "cargo";
 
     @Override

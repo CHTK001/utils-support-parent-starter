@@ -22,9 +22,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class SocketIOAgentDataSyncSource implements DataSyncSource {
 
+    /**
+     * 客户端实例
+     */
     private final SocketIOClient client;
+    /**
+     * source Id
+     */
     private final String sourceId;
+    /**
+     * agent Id
+     */
     private final String agentId;
+    /**
+     * pending
+     */
     private final Map<String, CompletableFuture<Map<String, Object>>> pending = new ConcurrentHashMap<>();
 
     public SocketIOAgentDataSyncSource(SocketIOClient client, String agentId, String sourceId) {

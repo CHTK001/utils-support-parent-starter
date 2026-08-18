@@ -132,6 +132,8 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
      */
     private static class ConnectionFactory implements ObjectFactory<Connection> {
 
+        /** 构建器 */
+        /** 构建器 */
         private final Builder builder;
 
         ConnectionFactory(Builder builder) {

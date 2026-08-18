@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CrawlerServerFilter implements ServerFilter {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(CrawlerServerFilter.class);
 
     /**
@@ -95,13 +96,21 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private static final long DEFAULT_CLEANUP_INTERVAL_SECONDS = 300;
 
+    /** 是否启用 */
     private boolean enabled = DEFAULT_ENABLED;
+    /** Block是否启用 */
     private boolean blockEnabled = DEFAULT_BLOCK_ENABLED;
+    /** Block状态 */
     private int blockStatus = DEFAULT_BLOCK_STATUS;
+    /** Period是否启用 */
     private boolean periodEnabled = DEFAULT_PERIOD_ENABLED;
+    /** Period最小值times */
     private int periodMinTimes = DEFAULT_PERIOD_MIN_TIMES;
+    /** Periodwindow秒 */
     private int periodWindowSeconds = DEFAULT_PERIOD_WINDOW_SECONDS;
+    /** Period最大值间隔比率 */
     private double periodMaxIntervalRatio = DEFAULT_PERIOD_MAX_INTERVAL_RATIO;
+    /** Cleanup间隔秒 */
     private long cleanupIntervalSeconds = DEFAULT_CLEANUP_INTERVAL_SECONDS;
 
     /**

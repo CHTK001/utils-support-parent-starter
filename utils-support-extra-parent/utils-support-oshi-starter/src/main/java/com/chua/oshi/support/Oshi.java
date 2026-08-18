@@ -25,8 +25,11 @@ import java.util.List;
 @Slf4j
 public final class Oshi {
 
+    /** System_info */
     private static final SystemInfo SYSTEM_INFO = new SystemInfo();
+    /** Hardware */
     private static final HardwareAbstractionLayer HARDWARE = SYSTEM_INFO.getHardware();
+    /** Operating_system */
     private static final OperatingSystem OPERATING_SYSTEM = SYSTEM_INFO.getOperatingSystem();
 
     private Oshi() {

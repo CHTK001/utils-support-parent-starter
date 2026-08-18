@@ -31,6 +31,7 @@ import java.lang.reflect.Parameter;
 @Spi("spring")
 public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
+    /** 解析器 */
     private static final SpelExpressionParser PARSER = new SpelExpressionParser();
 
     private volatile org.springframework.core.env.Environment springEnv;

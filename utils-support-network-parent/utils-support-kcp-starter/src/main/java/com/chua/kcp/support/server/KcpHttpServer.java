@@ -21,6 +21,9 @@ import java.util.Map;
  */
 public class KcpHttpServer extends AbstractServer {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpHttpServer.class);
 
     /**

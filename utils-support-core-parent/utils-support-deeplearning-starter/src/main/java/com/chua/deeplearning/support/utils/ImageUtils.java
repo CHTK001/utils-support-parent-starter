@@ -464,6 +464,57 @@ public final class ImageUtils {
     }
 
     /**
+     * 按旋转矩形扶正裁剪：绕旋转矩形中心反旋转 angle，将倾斜文字扶正为水平，
+     * 再输出 rw x rh 水平矩形区域（多余部分白底填充）。
+     *
+     * <p>与整块 deskew 的区别：旋转中心为旋转矩形中心、输出尺寸等于 rw x rh，
+     * 避免中心错位与多余背景，提升大角度文字的识别率。</p>
+     *
+     * @param imageData 原图字节
+     * @param cx        旋转矩形中心 x
+     * @param cy        旋转矩形中心 y
+     * @param rw        旋转矩形宽度（长边）
+     * @param rh        旋转矩形高度（短边）
+     * @param angle     旋转角度（度）
+     * @return 扶正后 rw x rh 的 PNG 字节；处理失败返回原图
+     */
+    public static byte[] cropRotated(byte[] imageData, double cx, double cy, double rw, double rh, double angle) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return imageData;
+        }
+        try {
+            Point center = new Point(cx, cy);
+            Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+            Mat rotated = new Mat();
+            try {
+                Imgproc.warpAffine(src, rotated, rot, src.size(), Imgproc.INTER_CUBIC,
+                        Core.BORDER_CONSTANT, new Scalar(255, 255, 255));
+                if (rotated.empty()) {
+                    return imageData;
+                }
+                int x = clamp((int) Math.round(cx - rw / 2), 0, rotated.cols() - 1);
+                int y = clamp((int) Math.round(cy - rh / 2), 0, rotated.rows() - 1);
+                int w = Math.max(1, Math.min((int) Math.round(rw), rotated.cols() - x));
+                int h = Math.max(1, Math.min((int) Math.round(rh), rotated.rows() - y));
+                Mat sub = new Mat(rotated, new Rect(x, y, w, h));
+                try {
+                    return encode(sub);
+                } finally {
+                    sub.release();
+                }
+            } finally {
+                rotated.release();
+                rot.release();
+            }
+        } catch (Exception e) {
+            return imageData;
+        } finally {
+            src.release();
+        }
+    }
+
+    /**
      * 图像放大 scale 倍（双线性插值）。
      *
      * @param imageData 图像字节
@@ -576,8 +627,7 @@ public final class ImageUtils {
      * @param imageData 图像字节
      * @return true 表示深色背景
      */
-    public static boolean isDarkBackground(byte[] imageData) {
-        Mat src = decode(imageData);
+    public static boolean isDarkBackground(byte[] imageData) {        Mat src = decode(imageData);
         if (src == null) {
             return false;
         }
@@ -597,6 +647,104 @@ public final class ImageUtils {
             gray.release();
             src.release();
         }
+    }
+
+    /**
+     * 图像模糊度评分（Laplacian 方差平方，越大越清晰）。
+     *
+     * <p>对灰度图做 Laplacian 二阶差分，统计方差作为清晰度指标；
+     * 与 {@code OpencvImageQualityAssessor} 口径一致，阈值经验值 100。</p>
+     *
+     * @param imageData 图像字节
+     * @return 模糊度评分，解码失败返回 0
+     */
+    public static double blurScore(byte[] imageData) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return 0;
+        }
+        Mat gray = new Mat();
+        Mat lap = new Mat();
+        MatOfDouble mean = new MatOfDouble();
+        MatOfDouble std = new MatOfDouble();
+        try {
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+            Imgproc.Laplacian(gray, lap, org.opencv.core.CvType.CV_64F);
+            Core.meanStdDev(lap, mean, std);
+            double lapStd = std.get(0, 0)[0];
+            return Math.pow(lapStd, 2);
+        } catch (Exception e) {
+            return 0;
+        } finally {
+            mean.release();
+            std.release();
+            lap.release();
+            gray.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 图像灰度均值（平均亮度 0~255）。
+     *
+     * @param imageData 图像字节
+     * @return 平均亮度，解码失败返回 0
+     */
+    public static double meanGray(byte[] imageData) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return 0;
+        }
+        Mat gray = new Mat();
+        MatOfDouble mean = new MatOfDouble();
+        MatOfDouble std = new MatOfDouble();
+        try {
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+            Core.meanStdDev(gray, mean, std);
+            return mean.get(0, 0)[0];
+        } finally {
+            std.release();
+            mean.release();
+            gray.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 图像灰度标准差（对比度）。
+     *
+     * @param imageData 图像字节
+     * @return 对比度，解码失败返回 0
+     */
+    public static double stdDevGray(byte[] imageData) {
+        Mat src = decode(imageData);
+        if (src == null || src.empty()) {
+            return 0;
+        }
+        Mat gray = new Mat();
+        MatOfDouble mean = new MatOfDouble();
+        MatOfDouble std = new MatOfDouble();
+        try {
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+            Core.meanStdDev(gray, mean, std);
+            return std.get(0, 0)[0];
+        } finally {
+            std.release();
+            mean.release();
+            gray.release();
+            src.release();
+        }
+    }
+
+    /**
+     * 图像是否模糊（模糊度评分低于阈值）。
+     *
+     * @param imageData 图像字节
+     * @param threshold 清晰度阈值，低于视为模糊（经验值 100）
+     * @return true 表示模糊
+     */
+    public static boolean isBlurry(byte[] imageData, double threshold) {
+        return blurScore(imageData) < threshold;
     }
 
     /**
@@ -628,10 +776,10 @@ public final class ImageUtils {
                 mean.release();
                 std.release();
             }
-        } finally {
-            inv.release();
-            gray.release();
-            src.release();
+            } finally {
+                inv.release();
+                gray.release();
+                src.release();
         }
     }
 

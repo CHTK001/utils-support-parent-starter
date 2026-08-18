@@ -10,14 +10,23 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VideoSearch {
 
+    /** Keyword */
     private String keyword;
+    /** Year */
     private Integer year;
+    /** 分类 */
     private String category;
+    /** 视频类型 */
     private String videoType;
+    /** Platform */
     private String platform;
+    /** 页 */
     private int page = 1;
+    /** 每页大小 */
     private int pageSize = 10;
+    /** 排序 */
     private String order;
+    /** Prop */
     private String[] prop;
 
     public VideoSearch() {}

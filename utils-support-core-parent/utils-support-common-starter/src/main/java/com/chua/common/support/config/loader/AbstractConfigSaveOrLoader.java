@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
 
+    /** 配置对象 */
+    /** 设置 */
     protected final ConfigSaveLoadSetting setting;
 
     protected AbstractConfigSaveOrLoader(ConfigSaveLoadSetting setting) {

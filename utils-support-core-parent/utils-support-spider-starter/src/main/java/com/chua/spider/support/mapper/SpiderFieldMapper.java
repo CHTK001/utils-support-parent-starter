@@ -31,9 +31,12 @@ import java.util.Map;
 @ConditionalOnClass({"org.jsoup.Jsoup", "com.fasterxml.jackson.databind.ObjectMapper"})
 public class SpiderFieldMapper {
 
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    /** Max_ai_text_length */
     private static final int MAX_AI_TEXT_LENGTH = 8000;
 
+    /** Chat客户端 */
     private final ChatClient chatClient;
 
     /**

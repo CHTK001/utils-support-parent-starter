@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class PluginManager {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(PluginManager.class.getName());
     /**
      * 插件根目录

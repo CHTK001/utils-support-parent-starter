@@ -24,7 +24,9 @@ import java.util.Map;
 @Spi("card")
 public class CardViewParser implements ViewParser {
 
+    /** Min_width */
     private static final int MIN_WIDTH = 40;
+    /** Padding */
     private static final int PADDING = 2;
 
     @Override

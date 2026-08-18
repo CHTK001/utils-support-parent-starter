@@ -35,6 +35,9 @@ import java.util.concurrent.TimeUnit;
 public class DefaultRuntimeManager implements RuntimeManager {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(DefaultRuntimeManager.class.getName());
     /**
      * 工件注册表

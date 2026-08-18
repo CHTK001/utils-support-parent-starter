@@ -21,10 +21,17 @@ import java.nio.file.Path;
 @Slf4j
 public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
 
+    /** 默认最大长度 */
+    /** Default_max_len */
     private static final int DEFAULT_MAX_LEN = 512;
 
+    /** 翻译器 */
+    /** Translator */
     private final BgeEmbeddingTranslator translator;
+    /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
+    /** 是否已加载 */
     private volatile boolean loaded;
 
     public BgeTextFeatureTranslator() {

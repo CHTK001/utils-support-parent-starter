@@ -71,8 +71,11 @@ public class WebhookPush implements MessagePush {
      */
     private static final String CONTENT_TYPE_RAW = "raw";
 
+    /** 消息环境 */
+    /** 环境 */
     private final MessageEnvironment environment;
 
+    /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     public WebhookPush() {

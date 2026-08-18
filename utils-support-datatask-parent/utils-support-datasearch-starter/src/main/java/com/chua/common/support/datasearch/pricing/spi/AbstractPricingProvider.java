@@ -44,8 +44,10 @@ public abstract class AbstractPricingProvider implements PricingProvider {
      */
     private static final String CLASSPATH_ROOT = "pricing/";
 
+    /** 日志 */
     protected static final Logger log = LoggerFactory.getLogger(AbstractPricingProvider.class);
 
+    /** 配置saveORloader */
     private ConfigSaveOrLoader configSaveOrLoader;
 
     protected AbstractPricingProvider() {

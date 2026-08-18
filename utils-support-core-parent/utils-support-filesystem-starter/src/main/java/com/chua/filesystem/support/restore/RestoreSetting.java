@@ -25,6 +25,7 @@ public class RestoreSetting {
      * 恢复类型
      */
     @Builder.Default
+    /** Restore类型 */
     private RestoreType restoreType = RestoreType.ALL;
 
     /**
@@ -41,36 +42,42 @@ public class RestoreSetting {
      * 是否在恢复前删除已存在的表
      */
     @Builder.Default
+    /** DropIFexists */
     private boolean dropIfExists = false;
 
     /**
      * 是否在恢复前清空表数据
      */
     @Builder.Default
+    /** Truncatebeforerestore */
     private boolean truncateBeforeRestore = false;
 
     /**
      * 批量插入大小
      */
     @Builder.Default
+    /** Batch尺寸 */
     private int batchSize = 1000;
 
     /**
      * 是否使用事务
      */
     @Builder.Default
+    /** USEtransaction */
     private boolean useTransaction = true;
 
     /**
      * 是否忽略错误继续执行
      */
     @Builder.Default
+    /** ContinueON错误 */
     private boolean continueOnError = false;
 
     /**
      * 是否使用LOAD DATA快速导入（仅MySQL支持）
      */
     @Builder.Default
+    /** USEload数据 */
     private boolean useLoadData = true;
 
     /**
@@ -82,12 +89,14 @@ public class RestoreSetting {
      * 超时时间（秒）
      */
     @Builder.Default
+    /** 超时 */
     private int timeout = 3600;
 
     /**
      * 是否为MySQL 5.7版本（IBD文件解析）
      */
     @Builder.Default
+    /** Mysql5 */
     private boolean mysql5 = false;
 
     /**
@@ -99,12 +108,14 @@ public class RestoreSetting {
      * 是否强制解析（忽略错误页）
      */
     @Builder.Default
+    /** Force */
     private boolean force = false;
 
     /**
      * 字符编码
      */
     @Builder.Default
+    /** 字符集 */
     private String charset = "UTF-8";
 
     /**

@@ -33,6 +33,7 @@ public class NodeMeta {
      * 节点权重（负载均衡 WEIGHT 策略使用）
      */
     @Builder.Default
+    /** 权重 */
     private int weight = 1;
 
     /**
@@ -59,5 +60,6 @@ public class NodeMeta {
      * 是否在线
      */
     @Builder.Default
+    /** Online */
     private boolean online = true;
 }

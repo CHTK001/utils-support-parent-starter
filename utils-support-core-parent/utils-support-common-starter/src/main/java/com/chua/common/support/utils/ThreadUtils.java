@@ -31,6 +31,7 @@ public class ThreadUtils {
      * 无效退出状态码标记。
      */
     public static final int INVALID_EXITVALUE = 0xdeadbeef;
+    /** Global_executor */
     public static final Executor GLOBAL_EXECUTOR = newVirtualThreadExecutor();
 
     /**
@@ -43,9 +44,12 @@ public class ThreadUtils {
      */
     private static final long KEEP_ALIVE_TIME = 0L;
 
+    /** 处理器 */
     private static final int PROCESSOR = processor();
 
+    /** Thread_pool */
     private static final ExecutorService THREAD_POOL = newVirtualThreadExecutor();
+    /** Scheduled_executor_service */
     private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = newScheduledThreadPoolExecutor(200, "com-ch-scheduled-thread-pool");
 
     static {
@@ -1101,6 +1105,7 @@ public class ThreadUtils {
     static class DelegatedScheduledExecutorServiceImpl
             extends DelegatedExecutorService
             implements ScheduledExecutorService {
+        /** E */
         private final ScheduledExecutorService e;
         DelegatedScheduledExecutorServiceImpl(ScheduledExecutorService executor) {
             super(executor);
@@ -1129,6 +1134,7 @@ public class ThreadUtils {
      * 委托模式的执行器，将 ExecutorService 的方法委托给内部实例。
      */
     static class DelegatedExecutorService extends AbstractExecutorService {
+        /** E */
         private final ExecutorService e;
         DelegatedExecutorService(ExecutorService executor) { e = executor; }
         @Override
@@ -1185,12 +1191,15 @@ public class ThreadUtils {
      * 默认线程工厂实现，支持命名前缀和线程编号。
      */
     public static final class DefaultThreadFactory implements ThreadFactory {
+        /** Pool_number */
         private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
         /**
          * 用户组
          */
         private final ThreadGroup group;
+        /** 线程数字 */
         private final AtomicInteger threadNumber = new AtomicInteger(1);
+        /** 名称prefix */
         private final String namePrefix;
 
         public DefaultThreadFactory() {

@@ -34,6 +34,8 @@ import java.util.List;
 @Spi("oss")
 public class AliYunFileStorage extends AbstractFileStorage {
 
+    /** 阿里云 OSS 客户端 */
+    /** OSS客户端 */
     private final OSS ossClient;
 
     public AliYunFileStorage(BucketSetting bucketSetting) {

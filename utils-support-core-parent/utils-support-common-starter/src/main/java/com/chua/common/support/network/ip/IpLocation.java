@@ -12,15 +12,19 @@ import lombok.Data;
 public class IpLocation {
 
     /** 国家或地区 */
+    /** 国家 */
     private String country;
 
     /** 省份 */
+    /** Province */
     private String province;
 
     /** 城市 */
+    /** City */
     private String city;
 
     /** 运营商 */
+    /** ISP */
     private String isp;
 
     @Override

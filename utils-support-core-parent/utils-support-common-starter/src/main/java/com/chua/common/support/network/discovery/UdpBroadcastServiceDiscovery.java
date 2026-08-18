@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */@Spi("udp-broadcast")
 public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery implements Runnable {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(UdpBroadcastServiceDiscovery.class);
 
     /**

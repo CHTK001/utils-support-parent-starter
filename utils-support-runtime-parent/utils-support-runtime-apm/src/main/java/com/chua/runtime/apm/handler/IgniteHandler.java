@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class IgniteHandler extends AbstractAppHandler {
 
+    /**
+     * ignite cache
+     */
     private static final String IGNITE_CACHE = "org/apache/ignite/IgniteCache";
+    /**
+     * cache methods
+     */
     private static final String[] CACHE_METHODS = {"get", "put", "remove", "replace", "getAndPut", "getAndRemove", "query"};
 
     @Override

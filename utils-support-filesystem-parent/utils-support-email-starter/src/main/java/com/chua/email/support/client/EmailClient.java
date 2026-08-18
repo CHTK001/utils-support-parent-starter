@@ -55,14 +55,23 @@ import java.util.function.Consumer;
 @Getter
 public class EmailClient {
 
+    /** SMTP主机 */
     private final String smtpHost;
+    /** SMTP端口 */
     private final int smtpPort;
+    /** IMAP主机 */
     private final String imapHost;
+    /** IMAP端口 */
     private final int imapPort;
+    /** Pop3host */
     private final String pop3Host;
+    /** Pop3port */
     private final int pop3Port;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** SMTP可用 */
     private final boolean smtpAvailable;
 
     private EmailClient(Builder b) {
@@ -141,13 +150,21 @@ public class EmailClient {
 
     @Getter
     public static class SendOperation {
+        /** 客户端 */
         private final EmailClient client;
+        /** TO */
         private String to;
+        /** Subject */
         private String subject;
+        /** 请求体 */
         private String body;
+        /** HTML */
         private boolean html = false;
+        /** From */
         private String from;
+        /** CC */
         private List<String> cc = new ArrayList<>();
+        /** BCC */
         private List<String> bcc = new ArrayList<>();
         private Map<String, byte[]> attachments = new LinkedHashMap<>();
 
@@ -228,10 +245,15 @@ public class EmailClient {
 
     @Getter
     public static class FetchOperation {
+        /** 客户端 */
         private final EmailClient client;
+        /** 文件夹 */
         private String folder = "INBOX";
+        /** 限制 */
         private int limit = 20;
+        /** Unreadonly */
         private boolean unreadOnly = false;
+        /** Searchterm */
         private String searchTerm;
 
         FetchOperation(EmailClient client) { this.client = client; }
@@ -314,10 +336,14 @@ public class EmailClient {
 
     @Getter
     public static class WatchOperation {
+        /** 客户端 */
         private final EmailClient client;
+        /** 文件夹 */
         private String folder = "INBOX";
+        /** Poll间隔 */
         private int pollInterval = 60;
         private Consumer<Map<String, Object>> onMessage;
+        /** Watch线程 */
         private Thread watchThread;
         private volatile boolean running = false;
 
@@ -380,13 +406,21 @@ public class EmailClient {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** SMTP主机 */
         private String smtpHost;
+        /** SMTP端口 */
         private int smtpPort = 587;
+        /** IMAP主机 */
         private String imapHost;
+        /** IMAP端口 */
         private int imapPort = 993;
+        /** Pop3host */
         private String pop3Host;
+        /** Pop3port */
         private int pop3Port = 110;
+        /** Username */
         private String username;
+        /** 密码 */
         private String password;
 
         public Builder smtpHost(String h) { this.smtpHost = h; return this; }

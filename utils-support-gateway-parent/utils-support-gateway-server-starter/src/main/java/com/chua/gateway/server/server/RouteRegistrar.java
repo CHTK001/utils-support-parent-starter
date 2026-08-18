@@ -27,6 +27,7 @@ import java.util.Map;
 @Slf4j
 final class RouteRegistrar {
 
+    /** JSON */
     private static final ObjectMapper JSON = new ObjectMapper();
 
     /**

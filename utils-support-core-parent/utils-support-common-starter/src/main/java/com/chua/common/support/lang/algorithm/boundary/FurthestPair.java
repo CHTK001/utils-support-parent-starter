@@ -13,21 +13,27 @@ package com.chua.common.support.lang.algorithm.boundary;
 public class FurthestPair {
 
     /** 空结果常量 */
+    /** 是否为空 */
     public static final FurthestPair EMPTY = new FurthestPair(-1, -1, new double[0], new double[0], Double.NaN);
 
     /** 第一个点在数据集中的索引 */
+    /** 首个索引 */
     private final int firstIndex;
 
     /** 第二个点在数据集中的索引 */
+    /** Second索引 */
     private final int secondIndex;
 
     /** 第一个点的特征向量 */
+    /** 首个vector */
     private final double[] firstVector;
 
     /** 第二个点的特征向量 */
+    /** Secondvector */
     private final double[] secondVector;
 
     /** 两点间的距离 */
+    /** Distance */
     private final double distance;
 
     /**

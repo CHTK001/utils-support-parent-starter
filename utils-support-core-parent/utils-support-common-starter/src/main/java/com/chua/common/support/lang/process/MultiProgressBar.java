@@ -294,10 +294,15 @@ public class MultiProgressBar implements AutoCloseable {
      */
     public static class Builder {
 
+        /** 任务names */
         private final List<String> taskNames = new ArrayList<>();
+        /** 任务maxs */
         private final List<Long> taskMaxs = new ArrayList<>();
+        /** 消费者 */
         private ProgressBarConsumer consumer;
+        /** Renderer */
         private ProgressBarRenderer renderer;
+        /** Update间隔毫秒 */
         private int updateIntervalMillis = 100;
 
         Builder() {

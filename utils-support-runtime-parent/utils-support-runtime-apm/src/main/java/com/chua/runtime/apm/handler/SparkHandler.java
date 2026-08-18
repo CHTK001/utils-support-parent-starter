@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SparkHandler extends AbstractAppHandler {
 
+    /**
+     * DATASET
+     */
     private static final String DATASET = "org/apache/spark/sql/Dataset";
+    /**
+     * action methods
+     */
     private static final String[] ACTION_METHODS = {"collect", "show", "count", "head", "first", "take", "foreach", "write"};
 
     @Override

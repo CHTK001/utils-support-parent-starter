@@ -31,12 +31,23 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AppImageManager {
 
+    /** 日志记录器 */
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(AppImageManager.class);
+    /** 单例实例 */
     private static volatile AppImageManager INSTANCE;
 
+    /** 应用配置属性 */
+    /** 属性 */
     private final AppImageProperties properties;
+    /** 安装器 */
+    /** Installer */
     private final AppImageInstaller installer;
+    /** 打包器 */
+    /** Packager */
     private final AppImagePackager packager;
+    /** 生命周期管理器 */
+    /** Lifecycle管理器 */
     private final AppImageLifecycleManager lifecycleManager;
 
     /*

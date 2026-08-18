@@ -62,12 +62,19 @@ public record LogQuery(
     }
 
     public static final class Builder {
+        /** 来源 */
         private String source;
+        /** 模式 */
         private String pattern;
+        /** 最小值级别 */
         private LogLevel minLevel;
+        /** 最大值results */
         private int maxResults = DEFAULT_MAX_RESULTS;
+        /** After */
         private String after;
+        /** Tail */
         private boolean tail;
+        /** 排序 */
         private String order = ORDER_DESC;
 
         public Builder source(String source) {

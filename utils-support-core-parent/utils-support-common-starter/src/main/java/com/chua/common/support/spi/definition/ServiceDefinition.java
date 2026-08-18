@@ -30,6 +30,7 @@ import java.util.Set;
  */
 public class ServiceDefinition implements Comparable<ServiceDefinition> {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ServiceDefinition.class);
 
     /**

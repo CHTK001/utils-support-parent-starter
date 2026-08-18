@@ -31,9 +31,18 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnClass("com.microsoft.playwright.Playwright")
 public class PlaywrightParser implements SpiderParser {
 
+    /**
+     * supported types
+     */
     private static final String[] SUPPORTED_TYPES = {"text/html", "application/xhtml+xml"};
 
+    /**
+     * Playwright 实例
+     */
     private final Playwright playwright;
+    /**
+     * 浏览器实例
+     */
     private final Browser browser;
 
     /**

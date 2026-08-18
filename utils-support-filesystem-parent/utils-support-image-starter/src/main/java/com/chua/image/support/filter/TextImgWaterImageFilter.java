@@ -26,15 +26,25 @@ import javax.annotation.Nullable;
 @SpiIgnore
 public class TextImgWaterImageFilter extends AbstractImageFilter {
 
+    /** Default_font_size */
     private static final int DEFAULT_FONT_SIZE = 18;
+    /** Default_font */
     private static final Font DEFAULT_FONT = new Font("黑体", Font.PLAIN, DEFAULT_FONT_SIZE);
+    /** Default_point */
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
+    /** 图片bytes */
     private final byte[] imageBytes;
+    /** 文本 */
     private String text;
+    /** 位置 */
     private Position position = Position.RIGHT_BOTTOM;
+    /** Font尺寸 */
     private int fontSize = DEFAULT_FONT_SIZE;
+    /** 颜色 */
     private Color color = Color.WHITE;
+    /** Font */
     private Font font = DEFAULT_FONT;
+    /** 图片point */
     private ImagePoint imagePoint = DEFAULT_POINT;
 
 

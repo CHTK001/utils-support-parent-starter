@@ -36,12 +36,15 @@ import java.util.Map;
 public class TuiDashboardBuilder {
 
     /** 布局规格，默认 2x2 */
+    /** Layout */
     private TuiLayout layout = TuiLayout.GRID_2x2;
 
     /** 仪表盘标题 */
+    /** 标题 */
     private String title = "仪表盘";
 
     /** 组件列表 */
+    /** Widgets */
     private final List<TuiWidget> widgets = new ArrayList<>();
 
     /** 处理器方法注册表（路径 → 方法） */
@@ -51,15 +54,19 @@ public class TuiDashboardBuilder {
     private final Map<String, Object> handlerTargets = new LinkedHashMap<>();
 
     /** IpcMethod 注解解析器 */
+    /** 解析器 */
     private final IpcAddressParser parser = new IpcAddressParser();
 
     /** 刷新间隔（毫秒），默认 3 秒 */
+    /** Refresh间隔 */
     private long refreshInterval = 3000L;
 
     /** 创建时默认显示的组件 id 列表（为空时全部显示） */
+    /** VisiblewidgetIDS */
     private final List<String> visibleWidgetIds = new ArrayList<>();
 
     /** 创建时默认隐藏的组件 id 列表 */
+    /** HiddenwidgetIDS */
     private final List<String> hiddenWidgetIds = new ArrayList<>();
 
     /** 私有构造方法，通过 {@link #create()} 创建 */

@@ -826,8 +826,11 @@ public final class ModelRegistry {
      */
     private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable {
 
+        /** 模型ID */
         private final String modelId;
+        /** 模型路径 */
         private final Path modelPath;
+        /** Translatorclass名称 */
         private final String translatorClassName;
         private volatile ITranslator<Object, Object> delegate;
 
@@ -917,6 +920,7 @@ public final class ModelRegistry {
      */
     private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable {
 
+        /** 模型ID */
         private final String modelId;
         private final ITranslator<?, ?> translator;
 

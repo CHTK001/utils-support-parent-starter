@@ -42,9 +42,13 @@ public class SignatureServerFilter implements ServerFilter {
      */
     private static final String DEFAULT_ALGORITHM = "HMAC-SHA256";
 
+    /** Secret */
     private String secret;
+    /** 算法 */
     private String algorithm = DEFAULT_ALGORITHM;
+    /** 签名头部 */
     private String signatureHeader = DEFAULT_SIGNATURE_HEADER;
+    /** Excludepaths */
     private final Set<String> excludePaths = new HashSet<>();
 
     @Override

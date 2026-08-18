@@ -10,8 +10,11 @@ import javax.sql.DataSource;
 
 public class MysqlDropIndexStep implements IndexManager.DropIndexStep {
 
+    /** 数据来源 */
     private final DataSource dataSource;
+    /** 索引名称 */
     private final String indexName;
+    /** 表 */
     private String table;
 
     MysqlDropIndexStep(DataSource dataSource, String indexName) {

@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 @Spi("demo")
 public class DemoMusicSourceProvider implements MusicSourceProvider {
 
+    /** Hot_tags */
     private static final List<MusicPlaylistCategory> HOT_TAGS = List.of(
             tag("", "热门", true),
             tag("late-night", "深夜", true),
@@ -39,6 +40,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
             tag("focus", "专注", true)
     );
 
+    /** Category_groups */
     private static final List<MusicPlaylistCategoryGroup> CATEGORY_GROUPS = List.of(
             MusicPlaylistCategoryGroup.builder()
                     .groupId("scene")
@@ -62,6 +64,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
 
     private static final Map<String, List<String>> CATEGORY_PLAYLISTS = createCategoryPlaylists();
 
+    /** Tracks */
     private static final List<MusicTrackDetail> TRACKS = List.of(
             track("starlit-drift", "Starlit Drift", "Lumen Harbor", "Signal Bloom", 228,
                     "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=600&q=80",

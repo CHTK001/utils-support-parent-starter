@@ -13,6 +13,7 @@ public class DataRecovery {
         com.chua.common.support.utils.NativeUtils.loadFromClasspath("data_recovery_ffi");
     }
 
+    /** Device路径 */
     private final String devicePath;
 
     private DataRecovery(String devicePath) {
@@ -44,6 +45,7 @@ public class DataRecovery {
         return this;
     }
 
+    /** Callback */
     private RecoveryCallback callback;
 
     public static interface RecoveryCallback {
@@ -54,39 +56,61 @@ public class DataRecovery {
     }
 
     public static class FileEntry {
+        /** 名称 */
         public String name;
+        /** 路径 */
         public String path;
+        /** 尺寸bytes */
         public long sizeBytes;
+        /** Modified时间戳 */
         public long modifiedTimestamp;
+        /** 删除标记时间戳 */
         public long deletedTimestamp;
+        /** Recovery分数 */
         public int recoveryScore;
+        /** Carved签名 */
         public String carvedSignature;
     }
 
     public static class ScanResult {
+        /** Success */
         public boolean success;
+        /** Filesscanned */
         public int filesScanned;
+        /** Filesfound */
         public int filesFound;
+        /** 消息 */
         public String message;
+        /** Entries */
         public FileEntry[] entries;
     }
 
     public static class DeleteResult {
+        /** Success */
         public boolean success;
+        /** Bytesoverwritten */
         public long bytesOverwritten;
+        /** Passescompleted */
         public int passesCompleted;
+        /** 消息 */
         public String message;
     }
 
     public static class RecoverResult {
+        /** Success数量 */
         public int successCount;
+        /** Failed数量 */
         public int failedCount;
+        /** Failed列表 */
         public FailedItem[] failedList;
+        /** 总数byteswritten */
         public long totalBytesWritten;
     }
 
     public static class FailedItem {
+        /** 路径 */
         public String path;
+        /** Reason */
         public String reason;
     }
 

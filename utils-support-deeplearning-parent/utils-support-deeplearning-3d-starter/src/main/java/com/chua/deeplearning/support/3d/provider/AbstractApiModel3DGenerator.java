@@ -28,12 +28,24 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, TextTo3DGenerator, ImageTo3DGenerator, SketchTo3DGenerator, Model3DStylizer {
 
+    /** 日志记录器 */
+    /** Logger */
     private static final Logger logger = LoggerFactory.getLogger(AbstractApiModel3DGenerator.class);
+    /** JSON 媒体类型 */
+    /** JSON */
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    /** 八位组媒体类型 */
+    /** Octet */
     private static final MediaType OCTET = MediaType.parse("application/octet-stream");
 
+    /** 配置定义 */
+    /** 配置 */
     protected final Model3DConfig config;
+    /** JSON 对象映射器 */
+    /** Objectmapper */
     protected final ObjectMapper objectMapper;
+    /** HTTP 客户端 */
+    /** HTTP客户端 */
     protected final OkHttpClient httpClient;
 
     protected AbstractApiModel3DGenerator(Model3DConfig config) {

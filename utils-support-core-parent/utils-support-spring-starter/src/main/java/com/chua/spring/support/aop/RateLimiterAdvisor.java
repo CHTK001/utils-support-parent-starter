@@ -34,6 +34,7 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
     @RequiredArgsConstructor
     private static class RateLimiterAdvice implements MethodInterceptor {
 
+        /** Intercept */
         private final RateLimiterIntercept intercept;
 
         @Override

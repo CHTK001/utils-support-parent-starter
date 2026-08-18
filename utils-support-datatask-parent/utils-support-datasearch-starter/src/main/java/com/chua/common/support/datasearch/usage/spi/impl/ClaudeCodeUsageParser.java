@@ -19,6 +19,7 @@ import java.util.List;
 @Spi("claude-code")
 public class ClaudeCodeUsageParser extends BaseUsageParser {
 
+    /** Data_dir */
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".claude");
 
     @Override

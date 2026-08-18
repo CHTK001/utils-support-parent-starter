@@ -20,27 +20,35 @@ import com.chua.common.support.ai.chat.ChatClient;
 public class ImageGenerationSpec {
 
     /** 底层对话客户端 */
+    /** 客户端 */
     private final ChatClient client;
 
     /** 生成提示词 */
+    /** Prompt */
     private String prompt;
 
     /** 宽高比 */
+    /** 比率 */
     private String ratio;
 
     /** 生成数量 */
+    /** N */
     private int n = 1;
 
     /** 图像宽度（像素） */
+    /** 宽度 */
     private int width;
 
     /** 图像高度（像素） */
+    /** 高度 */
     private int height;
 
     /** 图像质量 */
+    /** Quality */
     private String quality;
 
     /** 参考图键 */
+    /** 引用图片密钥 */
     private String refImageKey;
 
     public ImageGenerationSpec(ChatClient client) {

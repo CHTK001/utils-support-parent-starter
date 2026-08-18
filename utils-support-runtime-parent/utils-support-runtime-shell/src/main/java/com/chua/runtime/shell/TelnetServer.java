@@ -26,6 +26,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TelnetServer {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(TelnetServer.class.getName());
     /**
      * 默认 Shell 端口

@@ -28,6 +28,7 @@ import java.util.Collections;
 @Spi(value = "rpc", order = 50)
 public class RpcInvoker implements Invoker {
 
+    /** Class_level_annotations */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };

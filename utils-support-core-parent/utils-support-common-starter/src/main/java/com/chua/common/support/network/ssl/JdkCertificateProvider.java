@@ -39,20 +39,33 @@ import java.util.concurrent.TimeUnit;
 @Spi("jdk")
 public class JdkCertificateProvider implements AcmeProvider {
 
+    /** Keytool */
     private static final String KEYTOOL = "keytool";
+    /** Default_key_alg */
     private static final String DEFAULT_KEY_ALG = "RSA";
+    /** Default_key_size */
     private static final int DEFAULT_KEY_SIZE = 2048;
+    /** Default_keystore_type */
     private static final String DEFAULT_KEYSTORE_TYPE = "PKCS12";
+    /** Default_validity_days */
     private static final int DEFAULT_VALIDITY_DAYS = 365;
 
+    /** 密钥ALG */
     private String keyAlg = DEFAULT_KEY_ALG;
+    /** 密钥尺寸 */
     private int keySize = DEFAULT_KEY_SIZE;
+    /** Keystore类型 */
     private String keystoreType = DEFAULT_KEYSTORE_TYPE;
+    /** Validitydays */
     private int validityDays = DEFAULT_VALIDITY_DAYS;
+    /** Keystore路径 */
     private String keystorePath;
+    /** Keystore密码 */
     private String keystorePassword = "changeit";
 
+    /** Temp目录 */
     private Path tempDir;
+    /** Account私有密钥PEM */
     private String accountPrivateKeyPem;
 
     @Override

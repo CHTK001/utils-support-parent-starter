@@ -29,14 +29,28 @@ import java.util.Map;
 @Slf4j
 public class DocOrientationTranslator implements ITranslator<byte[], DirectionInfo> {
 
+    /** 缩放宽度 */
+    /** Resize_width */
     private static final int RESIZE_WIDTH = 224;
+    /** 缩放高度 */
+    /** Resize_height */
     private static final int RESIZE_HEIGHT = 224;
+    /** 类别名称列表 */
+    /** Classes */
     private static final List<String> CLASSES = List.of("0", "90", "180", "270");
 
+    /** 资源基础路径 */
+    /** Resource_base */
     private static final String RESOURCE_BASE = "ocr/direction/doc_ori/";
+    /** 模型文件路径 */
+    /** Model_file */
     private static final String MODEL_FILE = "model.onnx";
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 会话 */
+    /** 会话 */
     private OrtSession session;
 
     private synchronized void prepare() throws Exception {
