@@ -70,9 +70,9 @@ public class KingbaseHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(KINGBASE_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(KINGBASE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(KINGBASE_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(KINGBASE_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(KINGBASE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(KINGBASE_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override

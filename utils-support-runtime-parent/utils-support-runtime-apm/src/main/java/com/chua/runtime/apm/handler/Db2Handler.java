@@ -70,9 +70,9 @@ public class Db2Handler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(DB2_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(DB2_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(DB2_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(DB2_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(DB2_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(DB2_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override

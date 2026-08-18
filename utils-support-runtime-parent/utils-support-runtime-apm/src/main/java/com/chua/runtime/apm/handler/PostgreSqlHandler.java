@@ -70,9 +70,9 @@ public class PostgreSqlHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(PG_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(PG_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(PG_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(PG_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(PG_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(PG_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override

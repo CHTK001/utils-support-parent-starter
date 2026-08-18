@@ -70,9 +70,9 @@ public class DamengHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(DAMENG_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(DAMENG_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(DAMENG_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(DAMENG_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(DAMENG_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(DAMENG_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override
