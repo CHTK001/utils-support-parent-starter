@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.bot;
 
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
@@ -22,7 +23,7 @@ import com.chua.common.support.spi.ServiceProvider;
  * @author CH
  * @since 2026/07/18
  */
-public interface BotClient {
+public interface BotClient extends PooledObjectClient<BotClient> {
 
     // ── SPI Auto-load ────────────────────────────────────────────
 

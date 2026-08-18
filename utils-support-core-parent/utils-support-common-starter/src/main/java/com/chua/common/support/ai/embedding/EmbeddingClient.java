@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.embedding;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 4.0.0.42
  */
-public interface EmbeddingClient extends AutoCloseable {
+public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<EmbeddingClient> {
 
     /**
      * 创建指定 provider 的 AI 嵌入向量客户端。

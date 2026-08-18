@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.audio;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public interface TextToAudioClient extends AutoCloseable {
+public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<TextToAudioClient> {
 
     /**
      * 创建指定 provider 的 TTS 客户端

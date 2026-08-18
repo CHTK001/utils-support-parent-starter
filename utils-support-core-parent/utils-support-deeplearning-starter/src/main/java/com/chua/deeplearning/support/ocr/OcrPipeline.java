@@ -420,9 +420,10 @@ public class OcrPipeline {
     }
 
     /**
-     * 编排识别管线（裁剪 → 裁剪块方向矫正 → 修复 → 识别 → 收集）。
+     * 编排识别管线（裁剪 → 裁剪块 deskew → 修复 → 识别 → 收集）。
      *
-     * <p>顺序：检测（外层）→ 裁剪 → 对每个文字块方向矫正 → 修复 → 识别。</p>
+     * <p>顺序：检测（外层）→ 裁剪 → 对每个文字块小角 deskew（整图已矫正，
+     * 裁剪块无需再判 0/180°）→ 修复 → 识别。</p>
      *
      * @return 管线实例
      */
@@ -439,28 +440,15 @@ public class OcrPipeline {
                     byte[] crop = ImageCropUtils.crop(oc.imageData(),
                             (int) box.x() - px, (int) box.y() - px,
                             (int) box.width() + px * 2, (int) box.height() + px * 2);
+                    // 小角 deskew：倾斜文字扶正（整图已矫正，角度应 < 30°）
+                    if (crop != null && Math.abs(box.angle()) > 1f && Math.abs(box.angle()) < 30f) {
+                        crop = ImageUtils.deskew(crop, -box.angle());
+                    }
                     // 裁剪块过小时放大 2 倍，提升 rec 对小字识别率
                     oc.currentCrop(upscaleIfSmall(crop, cropMinHeight));
                     return null;
                 }).taskEnd()
-                .decision("hasCrop", ctx -> current(ctx).currentCrop() != null ? NODE_CORRECT : NODE_END)
-                .task(NODE_CORRECT, ctx -> {
-                    // 裁剪块方向矫正（0°/180°），仅当方向模型高置信
-                    OcrContext oc = current(ctx);
-                    byte[] crop = oc.currentCrop();
-                    if (direction != null && crop != null) {
-                        try {
-                            String[] dir = classifyBytesProb(crop);
-                            if ("180".equals(dir[0]) && Float.parseFloat(dir[1]) >= 0.6f) {
-                                byte[] rotated = rotateBytes(crop, 180);
-                                oc.currentCrop(rotated);
-                            }
-                        } catch (Exception e) {
-                            log.debug("[ocr-pipeline] 裁剪块方向矫正跳过: {}", e.getMessage());
-                        }
-                    }
-                    return null;
-                }).taskEnd()
+                .decision("hasCrop", ctx -> current(ctx).currentCrop() != null ? NODE_ENHANCE : NODE_END)
                 .task(NODE_ENHANCE, ctx -> {
                     OcrContext oc = current(ctx);
                     if (!enhanceInPipeline || enhancer == null) {
@@ -688,7 +676,7 @@ public class OcrPipeline {
         }
     }
 
-    /**
+/**
      * 旋转图像字节。
      *
      * @param imageData 图像字节
@@ -697,10 +685,47 @@ public class OcrPipeline {
      */
     private static byte[] rotateBytes(byte[] imageData, int degree) {
         try {
-            return ImageUtils.rotate(imageData, degree);
+            return OpenCvImageUtils.rotate(imageData, degree);
         } catch (Exception e) {
             return imageData;
         }
+    }
+
+    /**
+     * 对倾斜文字块执行 deskew（OpenCV warpAffine 旋转扶正）。
+     *
+     * @param crop  裁剪块 PNG 字节
+     * @param angle 旋转角度（度），正=顺时针
+     * @return 扶正后 PNG 字节
+     */
+    public static byte[] deskew(byte[] crop, float angle) {
+        try {
+            OpenCvImageUtils.load();
+            Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
+                    new MatOfByte(crop), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+            if (src == null || src.empty()) {
+                return crop;
+            }
+            try {
+                Point center = new Point(src.cols() / 2.0, src.rows() / 2.0);
+                Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+                Mat dst = new Mat();
+                Imgproc.warpAffine(src, dst, rot, src.size(), Imgproc.INTER_CUBIC, Core.BORDER_CONSTANT,
+                        new Scalar(255, 255, 255));
+                MatOfByte mob = new MatOfByte();
+                org.opencv.imgcodecs.Imgcodecs.imencode(".png", dst, mob);
+                byte[] result = mob.toArray();
+                dst.release();
+                rot.release();
+                return result;
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            log.debug("[ocr-pipeline] deskew 跳过: {}", e.getMessage());
+            return crop;
+        }
+    }
     }
 
     /**

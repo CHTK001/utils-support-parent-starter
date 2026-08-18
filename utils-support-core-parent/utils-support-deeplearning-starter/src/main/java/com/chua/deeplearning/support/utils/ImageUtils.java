@@ -533,6 +533,44 @@ public final class ImageUtils {
     }
 
     /**
+     * 对倾斜文字/图像执行 deskew（绕中心 warpAffine 旋转扶正，白底填充）。
+     *
+     * <p>用于 OCR 裁剪块小角度倾斜矫正，或文档扫描件倾斜修复。
+     * 角度越小效果越好，超过 30° 建议用 {@link #rotate} 处理 90° 倍角。</p>
+     *
+     * @param imageData 图像字节
+     * @param angle     旋转角度（度），正=顺时针
+     * @return 扶正后 PNG 字节；处理失败返回原图
+     */
+    public static byte[] deskew(byte[] imageData, float angle) {
+        try {
+            load();
+            Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
+                    new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+            if (src == null || src.empty()) {
+                return imageData;
+            }
+            try {
+                Point center = new Point(src.cols() / 2.0, src.rows() / 2.0);
+                Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+                Mat dst = new Mat();
+                Imgproc.warpAffine(src, dst, rot, src.size(), Imgproc.INTER_CUBIC,
+                        org.opencv.core.Core.BORDER_CONSTANT, new org.opencv.core.Scalar(255, 255, 255));
+                MatOfByte mob = new MatOfByte();
+                org.opencv.imgcodecs.Imgcodecs.imencode(".png", dst, mob);
+                byte[] result = mob.toArray();
+                dst.release();
+                rot.release();
+                return result;
+            } finally {
+                src.release();
+            }
+        } catch (Exception e) {
+            return imageData;
+        }
+    }
+
+    /**
      * 平均亮度是否低于阈值（深色背景）。
      *
      * @param imageData 图像字节

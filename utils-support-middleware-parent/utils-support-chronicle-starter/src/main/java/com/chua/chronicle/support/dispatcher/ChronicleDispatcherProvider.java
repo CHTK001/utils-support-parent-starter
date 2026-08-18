@@ -136,7 +136,7 @@ executor.submit(() -> {
             if (type == Void.TYPE) {
                 return null;
             }
-            return MAPPER.readValue(text, type);
+            return SERIALIZER.fallback.readValue(text, type);
         } catch (Exception e) {
             log.warn("Chronicle 反序列化失败，原始字符串：{}", text, e);
             return text;
@@ -233,7 +233,7 @@ executor.submit(() -> {
      */
     static class ChronicleQueueSerializer {
         private final com.chua.common.support.base.serialize.Serialization fury;
-        private final com.fasterxml.jackson.databind.ObjectMapper fallback;
+        final com.fasterxml.jackson.databind.ObjectMapper fallback;
         private final boolean useFury;
 
         ChronicleQueueSerializer() {

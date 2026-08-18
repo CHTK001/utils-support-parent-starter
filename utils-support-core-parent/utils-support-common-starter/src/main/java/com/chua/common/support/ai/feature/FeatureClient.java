@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.feature;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * @author CH
  * @since 4.0.0.42
  */
-public interface FeatureClient extends AutoCloseable {
+public interface FeatureClient extends AutoCloseable, PooledObjectClient<FeatureClient> {
 
     /**
      * 创建指定 provider 的 AI 特征提取客户端。
