@@ -92,6 +92,10 @@ public class VertxHttpServer extends AbstractServer {
                 // 收发缓冲放大:与内核窗口对齐,高并发小请求场景减少分片与 ACK 往返
                 .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
                 .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
+                // 吞吐优化:TCP_CORK 合并小包,TCP_QUICKACK 减少 ACK 延迟,KeepAlive 复用
+                .setTcpCork(true)
+                .setTcpQuickAck(true)
+                .setTcpKeepAlive(true)
                 // TCP Fast Open 仅 Linux/macOS 支持,Windows 上无效,避免无效配置
                 .setTcpFastOpen(!isWindows)
                 .setTcpNoDelay(setting.isTcpNoDelay())

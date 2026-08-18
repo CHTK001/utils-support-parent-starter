@@ -82,7 +82,14 @@ public class VertxHttpProxyServer extends AbstractServer {
                     .setAcceptBacklog(Math.max(setting.getBacklog(), 2048))
                     .setReuseAddress(setting.isSoReuseAddr())
                     .setMaxHeaderSize(16384)
-                    .setTcpNoDelay(setting.isTcpNoDelay());
+                    .setTcpNoDelay(setting.isTcpNoDelay())
+                    // 吞吐优化:收发缓冲放大 + TCP_CORK/QUICKACK/FastOpen/KeepAlive
+                    .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
+                    .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
+                    .setTcpCork(true)
+                    .setTcpQuickAck(true)
+                    .setTcpFastOpen(true)
+                    .setTcpKeepAlive(true);
             server = vertx.createHttpServer(options);
             server.requestHandler(this::handleProxy);
             // Vert.x 5.x:listen 返回 Future,异步完成;用 latch 等监听就绪并回填端口

@@ -262,26 +262,56 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         final Path file;
         final reactor.core.publisher.Sinks.Many<byte[]> sink =
                 reactor.core.publisher.Sinks.many().multicast().onBackpressureBuffer(10000, false);
-        /** 文件通道 */
-        /** 通道 */
         private FileChannel channel;
-        /** 文件头缓冲区 */
-        /** 头部 */
+        private java.nio.MappedByteBuffer mappedBuf;
+        private long mappedSize = 0;
+        private volatile boolean useMmap = true;
+        private static final long MMAP_GROW = 64L * 1024 * 1024;
         private final ByteBuffer header = ByteBuffer.allocate(8);
-        /** 是否已启动写入线程 */
         private volatile boolean writerStarted = false;
         private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WalLog.class);
 
         WalLog(Path file) {
             this.file = file;
             try {
-                if (!Files.exists(file)) {
-                    Files.createFile(file);
-                }
-                channel = FileChannel.open(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+                if (!Files.exists(file)) Files.createFile(file);
+                channel = FileChannel.open(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.READ);
                 channel.position(channel.size());
+                tryMmap();
             } catch (Exception e) {
                 throw new RuntimeException("WAL 文件打开失败: " + file, e);
+            }
+        }
+
+        private void tryMmap() {
+            try {
+                long pos = channel.size();
+                long size = Math.max(MMAP_GROW, pos + MMAP_GROW);
+                mappedBuf = channel.map(java.nio.channels.FileChannel.MapMode.READ_WRITE, 0, size);
+                mappedBuf.position((int) pos);
+                mappedSize = size;
+                LOG.info("WAL mmap 已启用 file={}", file.getFileName());
+            } catch (Throwable t) {
+                LOG.warn("WAL mmap 不可用，降级 FileChannel I/O cause={}", t.getMessage());
+                useMmap = false;
+                mappedBuf = null;
+            }
+        }
+
+        private void ensureMmap(long needed) {
+            if (!useMmap || mappedBuf == null) return;
+            long pos = (long) mappedBuf.position();
+            if (pos + needed <= mappedSize) return;
+            try {
+                long newSize = mappedSize + Math.max(MMAP_GROW, needed);
+                mappedBuf.force();
+                mappedBuf = channel.map(java.nio.channels.FileChannel.MapMode.READ_WRITE, 0, newSize);
+                mappedBuf.position((int) pos);
+                mappedSize = newSize;
+            } catch (Throwable t) {
+                LOG.warn("WAL mmap 扩容失败，降级 FileChannel I/O cause={}", t.getMessage());
+                useMmap = false;
+                mappedBuf = null;
             }
         }
 
@@ -299,19 +329,25 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
 
         void appendBytes(byte[] payload) {
-            try {
-                sink.tryEmitNext(payload);
-            } catch (Exception e) {
-                LOG.warn("WAL 入队失败 file={}", file, e);
-            }
+            try { sink.tryEmitNext(payload); } catch (Exception e) { LOG.warn("WAL 入队失败 file={}", file, e); }
         }
 
         private void writeFrame(byte[] payload) {
             try {
-                header.clear();
-                header.putInt(MAGIC);
-                header.putInt(payload.length);
-                header.flip();
+                int frameSize = 8 + payload.length;
+                if (useMmap && mappedBuf != null) {
+                    ensureMmap(frameSize);
+                    if (useMmap) {
+                        int pos = mappedBuf.position();
+                        mappedBuf.putInt(MAGIC);
+                        mappedBuf.putInt(payload.length);
+                        mappedBuf.put(payload);
+                        mappedBuf.force();
+                        return;
+                    }
+                }
+                // fallback FileChannel I/O
+                header.clear(); header.putInt(MAGIC); header.putInt(payload.length); header.flip();
                 channel.write(header);
                 channel.write(ByteBuffer.wrap(payload));
                 channel.force(false);
@@ -353,3 +389,4 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 }
+
