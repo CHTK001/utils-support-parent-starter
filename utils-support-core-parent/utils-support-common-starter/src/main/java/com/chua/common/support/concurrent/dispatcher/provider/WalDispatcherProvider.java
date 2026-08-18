@@ -217,10 +217,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    /**
+/**
      * 序列化消息体（使用注入序列化器，默认 Jackson）。
+     * synchronized 保证 Fury（非线程安全）在并发 publish 下不抛 Nested 异常。
      */
-    private byte[] writeBody(Object body) {
+    private synchronized byte[] writeBody(Object body) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.serialize(body);
@@ -231,10 +232,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    /**
+/**
      * 反序列化消息体（使用注入序列化器，默认 Jackson）。
+     * synchronized 保证 Fury（非线程安全）在并发 publish/consume 下不抛 Nested 异常。
      */
-    private Object readBody(byte[] data) {
+    private synchronized Object readBody(byte[] data) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.deserialize(data, Object.class);

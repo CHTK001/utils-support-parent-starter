@@ -311,4 +311,76 @@ public final class RustFFmpegBridge {
         }
         return NativeFFmpeg.getDuration(inputUrl);
     }
+
+    // ==================== 文件转码桥接 ====================
+
+    /**
+     * 通用文件转码。
+     *
+     * @param inputUrl    输入文件路径
+     * @param outputPath  输出文件路径
+     * @param videoCodec  视频编码器，null 使用默认
+     * @param audioCodec  音频编码器，null 使用默认
+     * @param width       视频宽度，0 使用源
+     * @param height      视频高度，0 使用源
+     * @param fps         帧率，0 使用源
+     * @param startTime   起始时间（秒），0 从头开始
+     * @param duration    持续时长（秒），0 到结尾
+     * @param removeVideo 是否移除视频流
+     * @param removeAudio 是否移除音频流
+     * @return 0 表示成功
+     */
+    public static int convertFile(String inputUrl, String outputPath,
+                                   String videoCodec, String audioCodec,
+                                   int width, int height, int fps,
+                                   double startTime, double duration,
+                                   boolean removeVideo, boolean removeAudio) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.convertFile(inputUrl, outputPath, videoCodec, audioCodec,
+                width, height, fps, startTime, duration, removeVideo, removeAudio);
+    }
+
+    /**
+     * 截取单帧保存为图片。
+     *
+     * @param inputUrl   输入文件路径
+     * @param timestampMs 时间戳（毫秒）
+     * @param outputPath  输出图片路径
+     * @return 0 表示成功
+     */
+    public static int captureFrame(String inputUrl, long timestampMs, String outputPath) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.captureFrame(inputUrl, timestampMs, outputPath);
+    }
+
+    /**
+     * 拼接多个媒体文件。
+     *
+     * @param inputPaths 输入文件路径列表，以分号分隔
+     * @param outputPath 输出文件路径
+     * @return 0 表示成功
+     */
+    public static int concatFiles(String inputPaths, String outputPath) {
+        if (!NativeFFmpeg.isLoaded()) {
+            throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
+        }
+        return NativeFFmpeg.concatFiles(inputPaths, outputPath);
+    }
+
+    /**
+     * 获取媒体文件信息（JSON 格式）。
+     *
+     * @param inputUrl 输入 URL 或文件路径
+     * @return JSON 格式的媒体信息，失败返回 null
+     */
+    public static String getStreamMediaInfo(String inputUrl) {
+        if (!NativeFFmpeg.isLoaded()) {
+            return null;
+        }
+        return NativeFFmpeg.getMediaInfo(inputUrl);
+    }
 }

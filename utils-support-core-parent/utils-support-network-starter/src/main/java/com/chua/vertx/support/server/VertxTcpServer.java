@@ -68,7 +68,12 @@ public class VertxTcpServer extends AbstractServer {
                     .setReuseAddress(setting.isSoReuseAddr())
                     // 收发缓冲放大:与内核窗口对齐,减少小包分片与 ACK 往返,提升高并发吞吐
                     .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
-                    .setSendBufferSize(Math.max(setting.getBufferSize(), 16384));
+                    .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
+                    // 吞吐优化:TCP_CORK 合并小包,TCP_QUICKACK 减少 ACK 延迟,FastOpen 加速握手
+                    .setTcpCork(true)
+                    .setTcpQuickAck(true)
+                    .setTcpFastOpen(true)
+                    .setTcpKeepAlive(true);
             netServer = vertx.createNetServer(options);
             netServer.connectHandler(this::handleSocket);
             // Vert.x 5.x:listen 返回 Future,异步完成;用 latch 等监听就绪并回填端口,

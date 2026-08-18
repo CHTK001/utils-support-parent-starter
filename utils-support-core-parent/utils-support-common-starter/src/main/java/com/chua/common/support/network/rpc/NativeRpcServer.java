@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 原生 TCP NIO RPC 服务端，纯 JDK 实现。
@@ -69,13 +70,27 @@ public class NativeRpcServer implements RpcServer {
 
     /** 服务器通道 */
     private ServerSocketChannel serverChannel;
-    /** Selector */
-    private Selector selector;
+    /** 接收连接用 Selector（专用线程） */
+    private Selector acceptSelector;
+    /** IO Selector 数组（多线程分发读事件，按 ioThreads 配置） */
+    private Selector[] ioSelectors;
+    /** IO Selector 线程数组 */
+    private Thread[] ioThreads;
+    /** 下一个 IO Selector 分配游标（轮询注册新连接） */
+    private final AtomicInteger ioCursor = new AtomicInteger();
     private volatile boolean running;
-    /** Selector线程 */
-    private Thread selectorThread;
+    /** Selector线程（接收连接） */
+    private Thread acceptThread;
     /** 服务discovery */
     private ServiceDiscovery serviceDiscovery;
+
+    /** IO 线程数，取自协议配置 ioThreads，默认 CPU 核数 */
+    private final int ioThreadsCount;
+
+    /**
+     * 服务方法缓存：避免每次请求都走 getMethod 反射查找（热路径开销）
+     */
+    private final Map<MethodKey, java.lang.reflect.Method> methodCache = new ConcurrentHashMap<>();
 
     public NativeRpcServer(List<RpcRegistryConfig> registryConfigs, RpcProtocolConfig protocolConfig, String name) {
         this.registryConfigs = registryConfigs;
@@ -83,6 +98,8 @@ public class NativeRpcServer implements RpcServer {
         this.host = protocolConfig != null && protocolConfig.host() != null ? protocolConfig.host() : "0.0.0.0";
         this.port = protocolConfig != null && protocolConfig.port() != null ? protocolConfig.port() : DEFAULT_PORT;
         this.workerThreads = protocolConfig != null && protocolConfig.threads() != null ? protocolConfig.threads() : DEFAULT_WORKERS;
+        this.ioThreadsCount = protocolConfig != null && protocolConfig.ioThreads() != null && protocolConfig.ioThreads() > 0
+                ? protocolConfig.ioThreads() : Runtime.getRuntime().availableProcessors();
         this.workerPool = ThreadUtils.newFixedThreadExecutor(workerThreads, "native-rpc-worker");
         initServiceDiscovery();
     }
@@ -93,12 +110,25 @@ public class NativeRpcServer implements RpcServer {
             serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(false);
             serverChannel.bind(new InetSocketAddress(host, port));
-            selector = Selector.open();
-            serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+            acceptSelector = Selector.open();
+            serverChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
+            // 启动多个 IO Selector 线程，把读事件分发并行化，避免单线程成为瓶颈
             running = true;
-            selectorThread = new Thread(this::eventLoop, "native-rpc-selector");
-            selectorThread.start();
-            log.info("NativeRpcServer started on {}:{}", host, port);
+            ioSelectors = new Selector[ioThreadsCount];
+            ioThreads = new Thread[ioThreadsCount];
+            for (int i = 0; i < ioThreadsCount; i++) {
+                final Selector ioSelector = Selector.open();
+                ioSelectors[i] = ioSelector;
+                final int idx = i;
+                ioThreads[i] = new Thread(() -> ioEventLoop(ioSelector), "native-rpc-io-" + idx);
+                ioThreads[i].setDaemon(true);
+                ioThreads[i].start();
+            }
+            acceptThread = new Thread(this::acceptLoop, "native-rpc-accept");
+            acceptThread.setDaemon(true);
+            acceptThread.start();
+            log.info("NativeRpcServer started on {}:{} (ioThreads={}, workers={})",
+                    host, port, ioThreadsCount, workerThreads);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to start NativeRpcServer", e);
         }
@@ -125,21 +155,45 @@ public class NativeRpcServer implements RpcServer {
         }
     }
 
-    private void eventLoop() {
+    /**
+     * 接收连接专用线程：accept 后轮询注册到某个 IO Selector。
+     */
+    private void acceptLoop() {
         while (running) {
             try {
-                selector.select(1000);
-                Set<SelectionKey> keys = selector.selectedKeys();
+                acceptSelector.select(1000);
+                Set<SelectionKey> keys = acceptSelector.selectedKeys();
                 Iterator<SelectionKey> it = keys.iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
                     if (!key.isValid()) { continue; }
                     if (key.isAcceptable()) { doAccept(key); }
-                    else if (key.isReadable()) { doRead(key); }
                 }
             } catch (ClosedSelectorException e) { break; }
-            catch (IOException e) { log.error("Selector error", e); }
+            catch (IOException e) { log.error("Accept selector error", e); }
+        }
+    }
+
+    /**
+     * IO Selector 线程：只负责读事件分发，业务处理交给 worker 线程池。
+     *
+     * @param ioSelector 该线程专属的 Selector
+     */
+    private void ioEventLoop(Selector ioSelector) {
+        while (running) {
+            try {
+                ioSelector.select(1000);
+                Set<SelectionKey> keys = ioSelector.selectedKeys();
+                Iterator<SelectionKey> it = keys.iterator();
+                while (it.hasNext()) {
+                    SelectionKey key = it.next();
+                    it.remove();
+                    if (!key.isValid()) { continue; }
+                    if (key.isReadable()) { doRead(key); }
+                }
+            } catch (ClosedSelectorException e) { break; }
+            catch (IOException e) { log.error("IO selector error", e); }
         }
     }
 
@@ -147,7 +201,9 @@ public class NativeRpcServer implements RpcServer {
         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
         if (sc != null) {
             sc.configureBlocking(false);
-            sc.register(selector, SelectionKey.OP_READ, new Attachment());
+            // 轮询选择一个 IO Selector 注册，分散读事件压力
+            Selector ioSelector = ioSelectors[Math.floorMod(ioCursor.getAndIncrement(), ioSelectors.length)];
+            sc.register(ioSelector, SelectionKey.OP_READ, new Attachment(ioSelector));
         }
     }
 
@@ -168,24 +224,24 @@ public class NativeRpcServer implements RpcServer {
                 att.headerBuf.clear();
             }
             int r = sc.read(att.headerBuf);
-            if (r == -1) { closeChannel(keyFor(sc)); return false; }
+            if (r == -1) { closeChannel(keyFor(sc, att)); return false; }
             if (att.headerBuf.position() < HEADER_SIZE) { return false; }
             att.headerBuf.flip();
             att.bodyLen = att.headerBuf.getInt();
             if (att.bodyLen <= 0 || att.bodyLen > MAX_BODY_SIZE) {
-                closeChannel(keyFor(sc));
+                closeChannel(keyFor(sc, att));
                 throw new IOException("Invalid body length: " + att.bodyLen);
             }
             att.bodyBuf = ByteBuffer.allocate(att.bodyLen);
             att.state = State.BODY;
         }
         int r = sc.read(att.bodyBuf);
-        if (r == -1) { closeChannel(keyFor(sc)); return false; }
+        if (r == -1) { closeChannel(keyFor(sc, att)); return false; }
         return !att.bodyBuf.hasRemaining();
     }
 
-    private SelectionKey keyFor(SocketChannel sc) {
-        return sc.keyFor(selector);
+    private SelectionKey keyFor(SocketChannel sc, Attachment att) {
+        return sc.keyFor(att.ioSelector);
     }
 
     private void processRequest(SocketChannel sc, byte[] reqData) {
@@ -247,10 +303,7 @@ public class NativeRpcServer implements RpcServer {
                 response.setError("Service not found: " + request.getService());
                 return response;
             }
-            Class<?>[] paramTypes = resolveParamTypes(request.getParamTypes());
-            java.lang.reflect.Method method = service.getClass().getMethod(request.getMethod(), paramTypes);
-            if (method == null) { throw new NoSuchMethodException(request.getMethod()); }
-            method.setAccessible(true);
+            java.lang.reflect.Method method = resolveMethod(service, request);
             Object result = method.invoke(service, request.getArgs());
             response.setSuccess(true);
             response.setResult(result);
@@ -263,6 +316,28 @@ public class NativeRpcServer implements RpcServer {
             response.setError(cause.getMessage() != null ? cause.getMessage() : cause.toString());
         }
         return response;
+    }
+
+    /**
+     * 解析并缓存服务方法：热路径下避免每次请求都做 getMethod 反射查找。
+     *
+     * @param service 服务实例
+     * @param request RPC 请求
+     * @return 已解析的方法
+     * @throws NoSuchMethodException 方法不存在时抛出
+     */
+    private java.lang.reflect.Method resolveMethod(Object service, RpcRequest request) throws NoSuchMethodException {
+        String[] typeNames = request.getParamTypes();
+        MethodKey key = new MethodKey(request.getService(), request.getMethod(), typeNames);
+        java.lang.reflect.Method method = methodCache.get(key);
+        if (method != null) {
+            return method;
+        }
+        Class<?>[] paramTypes = resolveParamTypes(typeNames);
+        method = service.getClass().getMethod(request.getMethod(), paramTypes);
+        method.setAccessible(true);
+        methodCache.putIfAbsent(key, method);
+        return method;
     }
 
     private Class<?>[] resolveParamTypes(String[] typeNames) {
@@ -299,9 +374,15 @@ public class NativeRpcServer implements RpcServer {
     @Override
     public void close() {
         running = false;
-        try { if (selector != null) { selector.wakeup(); selector.close(); } } catch (IOException ignored) {}
+        try { if (acceptSelector != null) { acceptSelector.wakeup(); acceptSelector.close(); } } catch (IOException ignored) {}
+        if (ioSelectors != null) {
+            for (Selector ioSelector : ioSelectors) {
+                try { if (ioSelector != null) { ioSelector.wakeup(); ioSelector.close(); } } catch (IOException ignored) {}
+            }
+        }
         try { if (serverChannel != null) { serverChannel.close(); } } catch (IOException ignored) {}
         if (serviceDiscovery != null) { try { serviceDiscovery.close(); } catch (Exception ignored) {} }
+        methodCache.clear();
         ThreadUtils.closeQuietly(workerPool);
         log.info("NativeRpcServer closed");
     }
@@ -325,13 +406,39 @@ public class NativeRpcServer implements RpcServer {
 
     private static class Attachment {
         final ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
+        /** 归属的 IO Selector（用于 keyFor 关闭连接时定位注册表） */
+        final Selector ioSelector;
         State state = State.HEADER;
         int bodyLen;
         ByteBuffer bodyBuf;
+        Attachment(Selector ioSelector) {
+            this.ioSelector = ioSelector;
+        }
         void reset() {
             headerBuf.clear();
             state = State.HEADER;
             bodyBuf = null;
+        }
+    }
+
+    /**
+     * 服务方法缓存键：服务名 + 方法名 + 参数类型名。
+     */
+    private record MethodKey(String service, String method, String[] paramTypes) {
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) { return true; }
+            if (!(o instanceof MethodKey other)) { return false; }
+            return service.equals(other.service) && method.equals(other.method)
+                    && Arrays.equals(paramTypes, other.paramTypes);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = service.hashCode();
+            result = 31 * result + method.hashCode();
+            result = 31 * result + Arrays.hashCode(paramTypes);
+            return result;
         }
     }
 }

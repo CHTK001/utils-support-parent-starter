@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * guacd 内嵌预编译资源完整性测试。
  *
- * <p>验证 utils-support-guacd-resource-starter 内嵌的 linux zip：
+ * <p>验证 utils-support-resource-guacd 内嵌的 linux zip：
  *   1. classpath 资源存在
  *   2. 包含 sbin/guacd，且解压后可执行位会被设置
  *   3. 包含 lib/ 下的 guac client 插件库与 freerdp2 插件
