@@ -103,9 +103,22 @@ public class KcpServer extends AbstractServer {
     private static final String TOPIC_WILDCARD = "#";
 
     /**
-     * 客户端会话集合（clientId -> 会话）
+     * 客户端连接表（clientId -> ukcp）
      */
     private final Map<String, Ukcp> sessions = new HashMap<>();
+
+    /**
+     * 批量发送队列（clientId -> 待发送消息字节，无锁队列）
+     * <p>publish/send 只入队，由批量 flusher 合并多条消息为一个 KCP 包写出，
+     * 显著减少逐条 write 与 ACK 确认次数（KCP 可靠确认是下行吞吐主瓶颈）。</p>
+     */
+    private final Map<String, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> batchQueues =
+            new ConcurrentHashMap<>();
+
+    /**
+     * 批量 flusher（虚拟线程）：周期性合并队列消息写出。
+     */
+    private volatile Thread batchFlusher;
 
     /**
      * 客户端元数据集合（clientId -> Map）
@@ -209,7 +222,49 @@ public class KcpServer extends AbstractServer {
         channelConfig.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
 
         kcpBaseServer = kcp.KcpServer.createStarted(channelConfig, new OAuthKcpListener(), setting.getPort());
+        // 启动批量 flusher：合并队列消息为一个 KCP 包写出（虚拟线程，interval 粒度）
+        batchFlusher = Thread.ofVirtual().name("kcp-batch-flusher").start(() -> {
+            while (running) {
+                try {
+                    Thread.sleep(KCP_INTERVAL);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                flushBatches();
+            }
+        });
         log.info("KCP 服务器启动: {}:{} (响应式, bossCore={}, 虚拟线程)", setting.getHost(), setting.getPort(), setting.getBossThreads());
+    }
+
+    /**
+     * 批量冲刷：把每个连接的待发送消息合并为一个 KCP 包（\n 分隔）写出。
+     * <p>合并多条消息为一次 {@code ukcp.write}，减少 KCP 包数 → 减少 ACK 确认次数，
+     * 直击"可靠确认是下行吞吐主瓶颈"。</p>
+     */
+    private void flushBatches() {
+        for (Map.Entry<String, Ukcp> entry : sessions.entrySet()) {
+            java.util.concurrent.ConcurrentLinkedQueue<byte[]> queue = batchQueues.get(entry.getKey());
+            if (queue == null || queue.isEmpty()) {
+                continue;
+            }
+            Ukcp ukcp = entry.getValue();
+            if (ukcp == null || !ukcp.isActive()) {
+                continue;
+            }
+            java.io.ByteArrayOutputStream merged = new java.io.ByteArrayOutputStream(256);
+            byte[] msg;
+            while ((msg = queue.poll()) != null) {
+                merged.write(msg, 0, msg.length);
+                merged.write('\n');
+            }
+            ByteBuf buf = Unpooled.wrappedBuffer(merged.toByteArray());
+            try {
+                ukcp.write(buf);
+            } catch (Exception e) {
+                log.debug("KCP 批量发送异常: {}", e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -248,6 +303,17 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
+     * 批量发送：消息入队（无锁），由批量 flusher 合并为一个 KCP 包写出。
+     *
+     * @param ukcp  连接
+     * @param bytes 消息字节
+     */
+    private void sendTo(Ukcp ukcp, byte[] bytes) {
+        String clientId = ukcp.getId();
+        batchQueues.computeIfAbsent(clientId, k -> new java.util.concurrent.ConcurrentLinkedQueue<>()).offer(bytes);
+    }
+
+    /**
      * 向指定客户端发送消息。
      *
      * @param clientId 客户端标识
@@ -263,21 +329,6 @@ public class KcpServer extends AbstractServer {
     }
     private void sendTo(Ukcp ukcp, String text) {
         ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
-        try {
-            ukcp.write(buf);
-        } finally {
-            // kcp-base 会在内部 retain/release，调用方不再持有
-        }
-    }
-
-    /**
-     * 零拷贝发送：包装共享字节数组（不复制），写入 KCP 发送队列。
-     *
-     * @param ukcp 连接
-     * @param bytes 消息字节（publish 已编码一次）
-     */
-    private void sendTo(Ukcp ukcp, byte[] bytes) {
-        ByteBuf buf = Unpooled.wrappedBuffer(bytes);
         try {
             ukcp.write(buf);
         } finally {

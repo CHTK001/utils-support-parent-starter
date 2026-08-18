@@ -520,11 +520,16 @@ public class KcpClient {
         @Override
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
             // kcp-base 1.6.2 ReadTask 自行管理 ByteBuf 引用计数，此处不可 release（双重释放会 IllegalReferenceCountException）
-            String line = byteBuf.toString(StandardCharsets.UTF_8).trim();
-            if (line.isEmpty()) {
-                return;
+            String data = byteBuf.toString(StandardCharsets.UTF_8);
+            // 服务端批量聚合：一个 KCP 包可能含多条 \n 分隔的消息，逐行分发
+            String[] lines = data.split("\\n");
+            for (String line : lines) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                handleLine(trimmed);
             }
-            handleLine(line);
         }
 
         @Override

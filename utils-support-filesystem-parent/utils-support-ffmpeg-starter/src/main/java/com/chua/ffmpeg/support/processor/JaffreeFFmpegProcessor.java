@@ -276,6 +276,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
+                                     Consumer<FrameInfo> callback) throws IOException {
+        // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 ProgressListener 提供帧号和时间戳
+        pushStream(input, streamUrl, options, callback);
+    }
+
+    @Override
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -289,6 +296,38 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
                 .addInput(input)
                 .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"))
                 .execute();
+    }
+
+    @Override
+    public void pullStream(String streamUrl, File output, double duration,
+                           Consumer<FrameInfo> callback) throws IOException {
+        if (!available) {
+            throw new IllegalStateException("FFmpeg unavailable: " + loadError);
+        }
+        output.getParentFile().mkdirs();
+        com.github.kokorin.jaffree.ffmpeg.UrlInput input = UrlInput.fromUrl(streamUrl);
+        if (duration > 0) {
+            input.setDuration((long) (duration * 1000));
+        }
+        FFmpeg ffmpeg = FFmpeg.atPath(getBinDir())
+                .addInput(input)
+                .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"));
+        if (callback != null) {
+            ffmpeg.setProgressListener(progress -> {
+                FrameInfo info = new FrameInfo();
+                info.setFrameNumber(progress.getFrame());
+                info.setTimestampMs(progress.getTimeMillis());
+                callback.accept(info);
+            });
+        }
+        ffmpeg.execute();
+    }
+
+    @Override
+    public void pullStreamWithFrames(String streamUrl, File output, double duration,
+                                     Consumer<FrameInfo> callback) throws IOException {
+        // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 ProgressListener 提供帧号和时间戳
+        pullStream(streamUrl, output, duration, callback);
     }
 
     @Override
