@@ -1661,12 +1661,12 @@ class OvisOcrRunner(BaseRunner):
             from ovis import AutoModelForCausalLM, AutoProcessor
             log.info(f"[OvisOCR2] ovis 已安装，加载模型: {model_dir}, device={device}")
         except ImportError:
-            from transformers import AutoModelForCausalLM, AutoProcessor
-            log.info(f"[OvisOCR2] ovis 未安装，使用 transformers 加载: {model_dir}, device={device}")
+            from transformers import AutoModelForImageTextToText, AutoProcessor
+            log.info(f"[OvisOCR2] ovis 未安装，使用 transformers AutoModelForImageTextToText 加载: {model_dir}, device={device}")
 
         self._processor = AutoProcessor.from_pretrained(model_dir, trust_remote_code=True)
-        self._model = AutoModelForCausalLM.from_pretrained(
-            model_dir, torch_dtype=dtype, trust_remote_code=True, device_map=None
+        self._model = AutoModelForImageTextToText.from_pretrained(
+            model_dir, dtype=dtype, trust_remote_code=True, device_map=None
         ).to(device).eval()
         self._loaded = True
         log.info("[OvisOCR2] 加载完成")
@@ -1710,14 +1710,13 @@ class OvisOcrRunner(BaseRunner):
 
         import torch
 
-        # 使用 processor 构造带 image token 的输入
-        # Qwen3.5 的 processor 接受 text= 和 images= 关键字参数
-        try:
-            inputs_tok = self._processor(text=query, images=image, return_tensors="pt")
-        except TypeError:
-            # 某些版本的 processor 使用位置参数
-            inputs_tok = self._processor(query, image, return_tensors="pt")
+        # Qwen3.5 VLM：先经 chat 模板生成含影像占位符的字符串，再交给 processor
+        chat_messages = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": query}]}]
+        chat_prompt = self._processor.apply_chat_template(chat_messages, add_generation_prompt=True, tokenize=False)
+        inputs_tok = self._processor(text=chat_prompt, images=[image], return_tensors="pt")
 
+        if self.use_gpu:
+            inputs_tok = {k: v.to(self._device_str()) if hasattr(v, 'to') else v for k, v in inputs_tok.items()}
         max_tokens = int(params.get("max_new_tokens", 2048))
 
         with torch.no_grad():
