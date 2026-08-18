@@ -162,6 +162,13 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                 throw new IllegalArgumentException("无法解码图像");
             }
             try {
+                // 深色背景自动反色（白底黑字提升检测/识别率）
+                Mat gray = new Mat();
+                Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+                if (Core.mean(gray).val[0] < 128) {
+                    Core.bitwise_not(src, src);
+                }
+                gray.release();
                 srcWidth = src.cols();
                 srcHeight = src.rows();
                 // 限制最长边，保持比例
