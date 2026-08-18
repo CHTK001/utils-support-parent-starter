@@ -35,8 +35,17 @@ class IonetProtocolFilterTest {
      * 触发标记过滤器（声明指定协议）。
      */
     static class FlagFilter implements ServerFilter {
+        /**
+         * 过滤器是否被调用标记
+         */
         final AtomicBoolean invoked = new AtomicBoolean(false);
+        /**
+         * 经过的请求路径列表
+         */
         final List<String> paths = new ArrayList<>();
+        /**
+         * 声明支持的协议类型
+         */
         private final ProtocolType[] protocols;
 
         FlagFilter(ProtocolType... protocols) {

@@ -32,9 +32,21 @@ class IonetDispatcherProviderTest {
      * 订阅者：@Subscribe 标记接收方法。
      */
     static class EventSubscriber {
+        /**
+         * 订单事件触发次数
+         */
         final AtomicInteger orderCount = new AtomicInteger();
+        /**
+         * 订单事件信号门闩
+         */
         final CountDownLatch orderLatch = new CountDownLatch(1);
+        /**
+         * 用户事件触发次数
+         */
         final AtomicInteger userCount = new AtomicInteger();
+        /**
+         * 用户事件信号门闩
+         */
         final CountDownLatch userLatch = new CountDownLatch(1);
 
         @Subscribe(topic = "order/created")
@@ -52,7 +64,13 @@ class IonetDispatcherProviderTest {
         }
     }
 
+    /**
+     * 分发器提供者
+     */
     private IonetDispatcherProvider provider;
+    /**
+     * 测试订阅者
+     */
     private EventSubscriber subscriber;
 
     @BeforeEach

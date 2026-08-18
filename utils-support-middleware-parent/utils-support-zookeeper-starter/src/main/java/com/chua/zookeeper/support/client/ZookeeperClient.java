@@ -50,7 +50,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public class ZookeeperClient implements AutoCloseable {
 
+    /**
+     * Curator 客户端实例
+     */
     private final CuratorFramework curator;
+    /**
+     * ZooKeeper 连接字符串
+     */
     private final String connectString;
 
     private ZookeeperClient(CuratorFramework curator, String connectString) {
@@ -152,11 +158,29 @@ public class ZookeeperClient implements AutoCloseable {
     // ==================== Builder ====================
 
     public static class Builder {
+        /**
+         * 连接字符串，默认 127.0.0.1:2181
+         */
         private String connectString = "127.0.0.1:2181";
+        /**
+         * 会话超时时间（毫秒），默认 30000
+         */
         private int sessionTimeoutMs = 30000;
+        /**
+         * 连接超时时间（毫秒），默认 15000
+         */
         private int connectionTimeoutMs = 15000;
+        /**
+         * 重试基础休眠时间（毫秒），默认 1000
+         */
         private int retryBaseSleepMs = 1000;
+        /**
+         * 最大重试次数，默认 3
+         */
         private int retryMaxRetries = 3;
+        /**
+         * 命名空间
+         */
         private String namespace;
 
         public Builder connectString(String connectString) { this.connectString = connectString; return this; }
@@ -195,11 +219,29 @@ public class ZookeeperClient implements AutoCloseable {
      * </ul>
      */
     public static class CreateBuilder {
+        /**
+         * Curator 客户端实例
+         */
         private final CuratorFramework curator;
+        /**
+         * 节点路径
+         */
         private String path;
+        /**
+         * 节点数据
+         */
         private byte[] data;
+        /**
+         * 是否自动创建父节点，默认 true
+         */
         private boolean creatingParentsIfNeeded = true;
+        /**
+         * 节点创建模式，默认持久节点
+         */
         private org.apache.zookeeper.CreateMode mode = org.apache.zookeeper.CreateMode.PERSISTENT;
+        /**
+         * ACL 权限映射
+         */
         private Map<String, byte[]> acl;
 
         CreateBuilder(CuratorFramework curator) { this.curator = curator; }
@@ -255,9 +297,21 @@ public class ZookeeperClient implements AutoCloseable {
      * 删除节点构建器。
      */
     public static class DeleteBuilder {
+        /**
+         * Curator 客户端实例
+         */
         private final CuratorFramework curator;
+        /**
+         * 节点路径
+         */
         private String path;
+        /**
+         * 是否级联删除子节点，默认 false
+         */
         private boolean deletingChildrenIfNeeded = false;
+        /**
+         * 是否静默删除（忽略异常），默认 false
+         */
         private boolean quiet = false;
 
         DeleteBuilder(CuratorFramework curator) { this.curator = curator; }
@@ -285,7 +339,13 @@ public class ZookeeperClient implements AutoCloseable {
      * 获取数据构建器。
      */
     public static class GetDataBuilder {
+        /**
+         * Curator 客户端实例
+         */
         private final CuratorFramework curator;
+        /**
+         * 节点路径
+         */
         private String path;
 
         GetDataBuilder(CuratorFramework curator) { this.curator = curator; }
@@ -320,8 +380,17 @@ public class ZookeeperClient implements AutoCloseable {
      * 设置数据构建器。
      */
     public static class SetDataBuilder {
+        /**
+         * Curator 客户端实例
+         */
         private final CuratorFramework curator;
+        /**
+         * 节点路径
+         */
         private String path;
+        /**
+         * 节点数据
+         */
         private byte[] data;
 
         SetDataBuilder(CuratorFramework curator) { this.curator = curator; }
@@ -342,7 +411,13 @@ public class ZookeeperClient implements AutoCloseable {
      * 判断节点是否存在构建器。
      */
     public static class CheckExistsBuilder {
+        /**
+         * Curator 客户端实例
+         */
         private final CuratorFramework curator;
+        /**
+         * 节点路径
+         */
         private String path;
 
         CheckExistsBuilder(CuratorFramework curator) { this.curator = curator; }
@@ -361,7 +436,13 @@ public class ZookeeperClient implements AutoCloseable {
      * 获取子节点构建器。
      */
     public static class GetChildrenBuilder {
+        /**
+         * Curator 客户端实例
+         */
         private final CuratorFramework curator;
+        /**
+         * 节点路径
+         */
         private String path;
 
         GetChildrenBuilder(CuratorFramework curator) { this.curator = curator; }

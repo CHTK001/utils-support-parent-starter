@@ -207,10 +207,25 @@ public class JRebelLicenseService {
      * 许可证信息
      */
     public static class LicenseInfo {
+        /**
+         * 许可证 GUID
+         */
         private final String guid;
+        /**
+         * 用户名
+         */
         private final String username;
+        /**
+         * 生效时间
+         */
         private final String validFrom;
+        /**
+         * 失效时间
+         */
         private final String validUntil;
+        /**
+         * 是否离线许可证
+         */
         private final boolean offline;
 
         public LicenseInfo(String guid, String username, String validFrom,

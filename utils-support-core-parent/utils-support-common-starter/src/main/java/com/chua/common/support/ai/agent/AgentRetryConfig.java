@@ -62,6 +62,7 @@ public class AgentRetryConfig {
     private RetryPredicate retryPredicate;
 
     /**
+ * @author CH
      * 退避策略枚举。
      */
     public enum BackoffStrategy {

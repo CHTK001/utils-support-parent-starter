@@ -34,12 +34,30 @@ import java.util.List;
 @Slf4j
 public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
 
+    /**
+     * FTP 服务器主机地址
+     */
     private final String host;
+    /**
+     * FTP 服务器端口号
+     */
     private final int port;
+    /**
+     * 登录用户名
+     */
     private final String username;
+    /**
+     * 登录密码
+     */
     private final String password;
+    /**
+     * 是否使用被动模式
+     */
     private final boolean passiveMode;
 
+    /**
+     * Apache Commons Net FTP 客户端实例
+     */
     private FTPClient client;
 
     /**

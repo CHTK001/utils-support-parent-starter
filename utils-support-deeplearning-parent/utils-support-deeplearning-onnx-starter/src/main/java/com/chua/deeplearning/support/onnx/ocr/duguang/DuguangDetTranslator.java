@@ -7,7 +7,6 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -34,7 +33,6 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRectangle>> {
 
     /**
@@ -114,7 +112,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         this.session = ortEnv.createSession(modelPath.toString(), opts);
-        log.info("[DuguangOCR-det] ONNX loaded: {}", modelPath.getFileName());
+        System.out.println("[DuguangOCR-det] ONNX loaded: " + modelPath.getFileName());
     }
 
     @Override
@@ -150,7 +148,8 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
                     h = Math.max(1, Math.round(h * ratio));
                 }
                 // 统一 resize 到固定 512×512
-                Mat resized = ImageUtils.resize(src, IMG_SIZE, IMG_SIZE, Imgproc.INTER_LINEAR);
+                Mat resized = new Mat();
+                Imgproc.resize(src, resized, new org.opencv.core.Size(IMG_SIZE, IMG_SIZE), 0, 0, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * IMG_SIZE * IMG_SIZE];
                 for (int y = 0; y < IMG_SIZE; y++) {
@@ -192,7 +191,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
                                     pn++;
                                 }
                             }
-                            log.info("[DuguangOCR-det] probMap {}x{} max={} mean={}", probs.length, probs[0].length, pmax, psum / Math.max(1, pn));
+                            System.out.println("[DuguangOCR-det] probMap " + probs.length + "x" + probs[0].length + " max=" + pmax + " mean=" + (psum / Math.max(1, pn)));
                         }
                         return boxesFromProbMap(probs, probs[0].length, probs.length);
                     }
@@ -230,7 +229,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         Mat hierarchy = new Mat();
         Imgproc.findContours(binary, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         if (Boolean.getBoolean("duguang.debug")) {
-            log.info("[DuguangOCR-det] contours={}", contours.size());
+            System.out.println("[DuguangOCR-det] contours=" + contours.size());
         }
 
         List<PredictRectangle> result = new ArrayList<>();
@@ -253,7 +252,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
             // 短边 < 3 丢弃（过小区域）
             double sside = minSide(rect);
             if (Boolean.getBoolean("duguang.debug") && passedSide == 0) {
-                log.info("[DuguangOCR-det] rect pts={} sside={} contourLen={}", java.util.Arrays.toString(rect), sside, pts.length);
+                System.out.println("[DuguangOCR-det] rect pts=" + java.util.Arrays.toString(rect) + " sside=" + sside + " contourLen=" + pts.length);
             }
             if (sside < 3) {
                 contour2f.release();
@@ -267,7 +266,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
                 continue;
             }
             passedScore++;
-            // unclip 1.5 扩大
+            // unclip 1.5：绕矩形中心等比放大（保持矩形形状，近似 pyclipper 扩张）
             Point[] expanded = unclip(rect, 1.5);
             if (expanded == null) {
                 contour2f.release();
@@ -298,7 +297,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         hierarchy.release();
         binary.release();
         if (Boolean.getBoolean("duguang.debug")) {
-            log.info("[DuguangOCR-det] passedPts={} passedSide={} passedScore={} passedUnclip={} result={}", passedPts, passedSide, passedScore, passedUnclip, result.size());
+            System.out.println("[DuguangOCR-det] passedPts=" + passedPts + " passedSide=" + passedSide + " passedScore=" + passedScore + " passedUnclip=" + passedUnclip + " result=" + result.size());
         }
         return result;
     }
@@ -356,34 +355,35 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
      * @return 扩张后多边形，失败返回 null
      */
     private Point[] unclip(Point[] pts, double ratio) {
+        if (pts == null || pts.length < 4) {
+            return null;
+        }
+        // 匹配 pyclipper 扩张：distance = area * ratio / length
+        // 中心等比放大 scale 使每边外扩 distance：scale = 1 + 2d / 平均边长
         double area = polygonArea(pts);
         double length = polygonLength(pts);
         if (length <= 0 || area <= 0) {
             return null;
         }
         double distance = area * ratio / length;
-        // 沿每个顶点向外偏移 distance（近似 unclip）
+        double cx = 0, cy = 0;
+        for (Point p : pts) {
+            cx += p.x;
+            cy += p.y;
+        }
+        cx /= pts.length;
+        cy /= pts.length;
+        // 按短边方向外扩 distance：scale 使短边半宽增加 distance
+        double minHalf = Double.MAX_VALUE, maxHalf = 0;
+        for (Point p : pts) {
+            double hw = Math.hypot(p.x - cx, p.y - cy);
+            minHalf = Math.min(minHalf, hw);
+            maxHalf = Math.max(maxHalf, hw);
+        }
+        double scale = minHalf > 0 ? 1.0 + distance / minHalf : 1.0;
         Point[] out = new Point[pts.length];
         for (int i = 0; i < pts.length; i++) {
-            Point prev = pts[(i - 1 + pts.length) % pts.length];
-            Point next = pts[(i + 1) % pts.length];
-            double dx1 = pts[i].x - prev.x;
-            double dy1 = pts[i].y - prev.y;
-            double dx2 = next.x - pts[i].x;
-            double dy2 = next.y - pts[i].y;
-            double n1 = Math.hypot(dx1, dy1);
-            double n2 = Math.hypot(dx2, dy2);
-            if (n1 == 0 || n2 == 0) {
-                return null;
-            }
-            double ux = dx1 / n1 + dx2 / n2;
-            double uy = dy1 / n1 + dy2 / n2;
-            double un = Math.hypot(ux, uy);
-            if (un == 0) {
-                out[i] = new Point(pts[i].x, pts[i].y);
-                continue;
-            }
-            out[i] = new Point(pts[i].x + ux / un * distance, pts[i].y + uy / un * distance);
+            out[i] = new Point(cx + (pts[i].x - cx) * scale, cy + (pts[i].y - cy) * scale);
         }
         return out;
     }

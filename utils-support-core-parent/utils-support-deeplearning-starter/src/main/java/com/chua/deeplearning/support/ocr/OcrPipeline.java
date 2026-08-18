@@ -478,7 +478,8 @@ public class OcrPipeline {
                     oc.addResult(new OcrResult(
                             text == null ? "" : text,
                             oc.currentBox().confidence(),
-                            oc.currentRectangle()));
+                            oc.currentRectangle(),
+                            oc.currentBox().angle()));
                     return null;
                 }).taskEnd()
                 .task(NODE_COLLECT, ctx -> null).end().taskEnd()

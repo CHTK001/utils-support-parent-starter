@@ -223,13 +223,8 @@ public class JdkTcpServer extends AbstractServer {
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
-                socket.setTcpNoDelay(setting.isTcpNoDelay());
-                // 收发缓冲对齐内核:放大 SO_RCVBUF/SO_SNDBUF 减少高并发下的小包分片与 ACK 往返
-                try {
-                    socket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
-                    socket.setSendBufferSize(Math.max(setting.getBufferSize(), 16384));
-                } catch (IOException ignored) {
-                }
+                // 热路径只做 accept+submit:SO 设置(setTcpNoDelay/RCVBUF/SNDBUF)移到
+                // handleConnection(虚拟线程)内执行,提升瞬时连接接纳能力
                 try {
                     workerPool.submit(() -> handleConnection(socket));
                 } catch (Exception e) {
@@ -245,6 +240,13 @@ public class JdkTcpServer extends AbstractServer {
     }
 
     private void handleConnection(Socket socket) {
+        try {
+            socket.setTcpNoDelay(setting.isTcpNoDelay());
+            // 收发缓冲对齐内核:放大 SO_RCVBUF/SO_SNDBUF 减少高并发下的小包分片与 ACK 往返
+            socket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
+            socket.setSendBufferSize(Math.max(setting.getBufferSize(), 16384));
+        } catch (IOException ignored) {
+        }
         String clientKey = socket.getRemoteSocketAddress().toString();
         log.debug("TCP 连接: {}", clientKey);
 

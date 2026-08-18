@@ -53,9 +53,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi({"undertow", "jboss-undertow"})
 public class UndertowWebContainer extends AbstractWebContainer {
 
+    /**
+     * Undertow 服务器实例
+     */
     private Undertow undertow;
+    /**
+     * Servlet 容器实例
+     */
     private ServletContainer servletContainer;
+    /**
+     * 已部署应用集合，key 为上下文路径
+     */
     private final Map<String, DeploymentManager> deployments = new ConcurrentHashMap<>();
+    /**
+     * 路径处理器
+     */
     private final PathHandler pathHandler = Handlers.path();
 
     @Override

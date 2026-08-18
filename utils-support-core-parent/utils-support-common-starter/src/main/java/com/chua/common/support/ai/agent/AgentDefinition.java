@@ -360,6 +360,7 @@ public class AgentDefinition {
     /**
      * Agent 定义构建器
      *
+ * @author CH
      * <p>支持链式设置所有属性，并可通过 {@link #subAgent(AgentDefinition)} 注册子 Agent。
      */
     public static class Builder {

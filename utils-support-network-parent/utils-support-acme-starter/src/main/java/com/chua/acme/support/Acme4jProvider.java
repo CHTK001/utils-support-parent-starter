@@ -38,9 +38,21 @@ import java.util.List;
 @Component
 public class Acme4jProvider implements AcmeProvider {
 
+    /**
+     * ACME 会话
+     */
     private Session session;
+    /**
+     * ACME 账户
+     */
     private Account account;
+    /**
+     * 账户密钥对
+     */
     private KeyPair accountKeyPair;
+    /**
+     * 账户私钥 PEM 内容
+     */
     private String accountPrivateKeyPem;
 
     @Override

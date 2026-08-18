@@ -33,18 +33,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class KcpServerFilterTest {
 
+    /**
+     * 测试客户端标识
+     */
     private static final String CLIENT_ID = "kcp-filter-client";
 
+    /**
+     * KCP 服务器实例
+     */
     private KcpServer server;
+    /**
+     * KCP 客户端实例
+     */
     private KcpClient client;
+    /**
+     * 测试端口号
+     */
     private int port;
 
     /**
      * 记录拦截消息的自定义过滤器。
      */
     static class RecordingFilter implements ServerFilter {
+        /**
+         * 拦截到的请求路径列表
+         */
         final List<String> paths = new CopyOnWriteArrayList<>();
+        /**
+         * 拦截到的请求体列表
+         */
         final List<String> bodies = new CopyOnWriteArrayList<>();
+        /**
+         * 拦截消息信号门闩
+         */
         final CountDownLatch latch = new CountDownLatch(1);
 
         @Override
@@ -65,7 +86,13 @@ class KcpServerFilterTest {
      * 声明仅支持 UDP 的过滤器：KCP 与 UDP 兼容，应同样拦截 KCP 消息。
      */
     static class UdpCompatibleFilter implements ServerFilter {
+        /**
+         * 拦截到的请求路径列表
+         */
         final List<String> paths = new CopyOnWriteArrayList<>();
+        /**
+         * 拦截消息信号门闩
+         */
         final CountDownLatch latch = new CountDownLatch(1);
 
         @Override

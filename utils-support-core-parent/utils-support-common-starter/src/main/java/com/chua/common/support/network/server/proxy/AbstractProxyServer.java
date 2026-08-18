@@ -10,6 +10,10 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,6 +63,20 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected Semaphore connectionLimiter;
 
     /**
+     * 是否使用非阻塞事件循环批量 accept（默认 false = 阻塞 accept）。
+     * <p>设为 true 时改用 {@link ServerSocketChannel} + Selector，每次 select 后
+     * 循环 accept 全部就绪连接（批量 drain），瞬时接纳吞吐显著高于阻塞 accept
+     * 一次一个。子类（如 TcpProxyServer）可覆写置为 true，Socks5 等保持默认。</p>
+     */
+    protected volatile boolean preferNonBlockingAccept = false;
+
+    /** 非阻塞 accept 用的服务端通道（仅 {@link #preferNonBlockingAccept} 为 true 时使用） */
+    protected ServerSocketChannel acceptChannel;
+
+    /** 非阻塞 accept 用的选择器（仅 {@link #preferNonBlockingAccept} 为 true 时使用） */
+    protected Selector acceptSelector;
+
+    /**
      * 构造代理服务器。
      *
      * @param setting 服务器配置
@@ -80,18 +98,36 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
+            int backlog = Math.max(setting.getBacklog(), 65536);
+            connectionLimiter = maxConnectionsSemaphore();
+            running = true;
+            proxyPool = Executors.newVirtualThreadPerTaskExecutor();
+            if (preferNonBlockingAccept) {
+                // 非阻塞批量 accept：Selector 事件循环驱动，每次 select 后循环 accept 全部就绪连接，
+                // 显著提升瞬时接纳吞吐（对标 NioHttpServer 事件循环 accept）
+                acceptChannel = ServerSocketChannel.open();
+                acceptChannel.configureBlocking(false);
+                acceptChannel.setOption(java.net.StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
+                acceptChannel.setOption(java.net.StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
+                acceptChannel.bind(addr, backlog);
+                setting.setPort(((InetSocketAddress) acceptChannel.getLocalAddress()).getPort());
+                acceptSelector = Selector.open();
+                acceptChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
+                // 单事件循环批量 drain：与其多 acceptor 各自阻塞 accept 一次一个，
+                // 不如单一 Selector 循环批量接纳，吞吐由 drain 密度决定
+                proxyPool.submit(this::nonBlockingAcceptLoop);
+                log.info("{} 启动成功（非阻塞批量 accept）：{}://{}:{} (backlog={}, maxConn={})",
+                        getClass().getSimpleName(), setting.getProtocol(), setting.getHost(),
+                        setting.getPort(), backlog, connectionLimiter != null ? setting.getMaxConnections() : 0);
+                return;
+            }
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(setting.isSoReuseAddr());
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
             // backlog 下限 65536:瞬间并发连接(万级突发)下避免内核 accept 队列溢出导致连接被拒
-            serverSocket.bind(addr, Math.max(setting.getBacklog(), 65536));
+            serverSocket.bind(addr, backlog);
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
-            running = true;
-            proxyPool = Executors.newVirtualThreadPerTaskExecutor();
-            // 连接限流
-            int maxConn = setting.getMaxConnections();
-            connectionLimiter = maxConn > 0 ? new Semaphore(maxConn) : null;
             // 多 acceptor：使用 bossThreads 控制并行 accept 线程数(默认至少 min(CPU,4),
             // 高并发下支撑百万级连接建立;同一 ServerSocket 多线程 accept 为 JDK 支持用法)
             int acceptors = Math.max(setting.getBossThreads(),
@@ -101,16 +137,30 @@ public abstract class AbstractProxyServer extends AbstractServer {
             }
             log.info("{} 启动成功：{}://{}:{} (acceptors={}, maxConn={}, backlog={})",
                     getClass().getSimpleName(), setting.getProtocol(), setting.getHost(),
-                    setting.getPort(), acceptors, maxConn, Math.max(setting.getBacklog(), 4096));
+                    setting.getPort(), acceptors, connectionLimiter != null ? setting.getMaxConnections() : 0, backlog);
         } catch (IOException e) {
             throw new RuntimeException(getClass().getSimpleName() + " 启动失败", e);
         }
     }
 
+    /** 构建连接限流信号量（maxConnections > 0 时启用），供 doStart 分支复用。 */
+    private Semaphore maxConnectionsSemaphore() {
+        int maxConn = setting.getMaxConnections();
+        return maxConn > 0 ? new Semaphore(maxConn) : null;
+    }
+
     @Override
     protected void doStop() {
         running = false;
-        if (serverSocket != null && !serverSocket.isClosed()) {
+        if (preferNonBlockingAccept && acceptChannel != null) {
+            try {
+                if (acceptSelector != null) {
+                    acceptSelector.close();
+                }
+                acceptChannel.close();
+            } catch (IOException ignored) {
+            }
+        } else if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
             } catch (IOException ignored) {
@@ -134,8 +184,6 @@ public abstract class AbstractProxyServer extends AbstractServer {
         while (running) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                // TCP_NODELAY：禁用 Nagle 算法，减少小包延迟
-                clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
                 // 连接限流：超出上限直接拒绝
                 if (connectionLimiter != null && !connectionLimiter.tryAcquire()) {
                     log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
@@ -145,6 +193,12 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 }
                 proxyPool.submit(() -> {
                     try {
+                        // TCP_NODELAY 移到连接处理线程:accept 热路径只做 accept+限流+submit,
+                        // 提升瞬时连接接纳能力
+                        try {
+                            clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
+                        } catch (IOException ignored) {
+                        }
                         handleConnection(clientSocket);
                     } finally {
                         if (connectionLimiter != null) {
@@ -157,6 +211,76 @@ public abstract class AbstractProxyServer extends AbstractServer {
                     log.error("{} 接受连接异常", getClass().getSimpleName(), e);
                 }
             }
+        }
+    }
+
+    /**
+     * 非阻塞事件循环批量 accept（{@link #preferNonBlockingAccept} 为 true 时使用）。
+     * <p>每次 select 后循环 accept 全部就绪连接并批量提交到连接处理线程，
+     * 瞬时接纳吞吐显著高于阻塞 accept 一次一个，可在突发接入(每秒数千连接)下
+     * 避免内核 accept 队列积压导致连接被拒。握手后的 {@link SocketChannel} 通过
+     * {@link SocketChannel#socket()} 包装为 {@link Socket}，复用
+     * {@link #handleConnection(Socket)} 子类契约。</p>
+     */
+    protected void nonBlockingAcceptLoop() {
+        while (running) {
+            try {
+                acceptSelector.select();
+                java.util.Iterator<SelectionKey> it = acceptSelector.selectedKeys().iterator();
+                while (it.hasNext()) {
+                    SelectionKey key = it.next();
+                    it.remove();
+                    SocketChannel ch;
+                    try {
+                        ch = acceptChannel.accept();
+                    } catch (java.nio.channels.ClosedChannelException e2) {
+                        return;
+                    }
+                    if (ch == null) {
+                        continue;
+                    }
+                    try {
+                        ch.configureBlocking(true);
+                        Socket clientSocket = ch.socket();
+                        // 连接限流：超出上限直接拒绝
+                        if (connectionLimiter != null && !connectionLimiter.tryAcquire()) {
+                            log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
+                                    setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
+                            closeSocket(clientSocket);
+                            continue;
+                        }
+                        proxyPool.submit(() -> {
+                            try {
+                                try {
+                                    clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
+                                } catch (IOException ignored) {
+                                }
+                                handleConnection(clientSocket);
+                            } finally {
+                                if (connectionLimiter != null) {
+                                    connectionLimiter.release();
+                                }
+                            }
+                        });
+                    } catch (Exception e) {
+                        closeSocket(ch.socket());
+                    }
+                }
+            } catch (java.nio.channels.ClosedSelectorException e2) {
+                return;
+            } catch (IOException e) {
+                if (running) {
+                    log.warn("{} 非阻塞 accept 异常: {}", getClass().getSimpleName(), e.getMessage());
+                }
+            }
+        }
+    }
+
+    /** 静默关闭套接字。 */
+    private void closeSocket(Socket s) {
+        try {
+            s.close();
+        } catch (IOException ignored) {
         }
     }
 

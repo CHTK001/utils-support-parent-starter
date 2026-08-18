@@ -68,6 +68,11 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     private static final int HEADER_SIZE = 5;
 
     /**
+     * poll 操作的空数据负载
+     */
+    private static final byte[] EMPTY_DATA = new byte[0];
+
+    /**
      * 底层无锁内存队列
      */
     private final LockFreeQueue<E> delegate;
@@ -329,7 +334,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
      */
     @Override
     public E poll() {
-        writeWal(OP_POLL, new byte[0]);
+        writeWal(OP_POLL, EMPTY_DATA);
         return delegate.poll();
     }
 
@@ -396,6 +401,11 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         return Integer.MAX_VALUE;
     }
 
+    /**
+     * 关闭队列，刷盘并释放资源。
+     *
+     * @throws IOException 刷盘或关闭文件失败时抛出
+     */
     @Override
     public void close() throws IOException {
         running = false;
