@@ -216,6 +216,32 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
+     * 注册单方法双插桩点（仅 ENTRY/EXIT，无 EXCEPTION）。
+     *
+     * <p>用于类自身带复杂异常处理器表的三方类（如 JDBC 驱动语句/连接类），
+     * 避免 {@code visitMaxs} 注入的 try/catch + onException 与原生异常表叠加导致 VerifyError。</p>
+     *
+     * @param className  目标类内部名
+     * @param methodName 目标方法名
+     */
+    protected void registerEntryExit(String className, String methodName) {
+        RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.EXIT, this);
+    }
+
+    /**
+     * 注册类多方法双插桩点（仅 ENTRY/EXIT）。
+     *
+     * @param className 目标类内部名
+     * @param methods   目标方法名数组
+     */
+    protected void registerAllEntryExit(String className, String[] methods) {
+        for (String method : methods) {
+            registerEntryExit(className, method);
+        }
+    }
+
+    /**
      * 注册类多方法三插桩点。
      *
      * @param className 目标类内部名
