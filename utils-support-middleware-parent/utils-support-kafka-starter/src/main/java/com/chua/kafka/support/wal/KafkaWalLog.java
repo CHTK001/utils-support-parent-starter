@@ -33,13 +33,19 @@ import java.util.concurrent.locks.ReentrantLock;
 @Spi("kafka")
 public class KafkaWalLog implements WalLog {
 
+    /** Checkpoint_file */
     private static final String CHECKPOINT_FILE = "checkpoint.dat";
+    /** 配置 */
     private final WalConfig config;
+    /** Topic */
     private final String topic;
     private final KafkaProducer<String, byte[]> producer;
     private final KafkaConsumer<String, byte[]> consumer;
+    /** 当前LSN */
     private final AtomicLong currentLsn = new AtomicLong(0);
+    /** CheckpointLSN */
     private final AtomicLong checkpointLsn = new AtomicLong(0);
+    /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
     private volatile boolean closed;
 

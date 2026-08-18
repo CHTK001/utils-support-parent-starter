@@ -29,8 +29,15 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InMemoryStorage implements ApmStorage {
 
     /** 自增 id 分配器 */
+    /** TransmissionSEQ */
     private final AtomicLong transmissionSeq = new AtomicLong();
+    /**
+     * leak Seq
+     */
     private final AtomicLong leakSeq = new AtomicLong();
+    /**
+     * log Seq
+     */
     private final AtomicLong logSeq = new AtomicLong();
 
     /** 传输事件表（id → event） */
@@ -45,7 +52,13 @@ public class InMemoryStorage implements ApmStorage {
     /** 日志表（id → record） */
     private final Map<Long, LogRecord> logs = new ConcurrentHashMap<>();
 
+    /**
+     * capacity
+     */
     private volatile int capacity = 100_000;
+    /**
+     * retention（毫秒）
+     */
     private volatile long retentionMillis = 7L * 24 * 60 * 60 * 1000L;
 
     @Override

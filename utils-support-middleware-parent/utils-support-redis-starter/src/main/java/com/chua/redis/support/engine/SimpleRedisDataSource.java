@@ -11,8 +11,11 @@ import redis.clients.jedis.JedisPool;
  */
 
 public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
+        /** 名称 */
         private final String name;
+        /** 池 */
         private final JedisPool pool;
+        /** Dialect */
         private Dialect dialect;
 
         SimpleRedisDataSource(String name, JedisPool pool) {

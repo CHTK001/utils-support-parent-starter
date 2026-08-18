@@ -15,21 +15,26 @@ import java.util.Map;
 public class FieldMappingContext {
 
     /** 字段名称 */
+    /** Field名称 */
     private final String fieldName;
 
     /** 映射后的列名 */
+    /** Mapped名称 */
     private final String mappedName;
 
     /** 日期格式（可能为空） */
+    /** 格式 */
     private final String format;
 
     /** 默认值表达式（可能为空） */
+    /** 默认值 */
     private final String defaultValue;
 
     /** 上下文数据（用于 #{key} 表达式解析） */
     private final Map<String, Object> context;
 
     /** 字段的原始值（转换前的值） */
+    /** Original值 */
     private Object originalValue;
 
     FieldMappingContext(String fieldName, String mappedName, String format,
@@ -79,11 +84,22 @@ public class FieldMappingContext {
      * 构建器。
      */
     public static class Builder {
+        /** 字段名称 */
+        /** Field名称 */
         private String fieldName;
+        /** 映射目标名称 */
+        /** Mapped名称 */
         private String mappedName;
+        /** 日期格式 */
+        /** 格式 */
         private String format;
+        /** 默认值 */
+        /** 默认值 */
         private String defaultValue;
+        /** 上下文对象 */
         private Map<String, Object> context;
+        /** 原始值 */
+        /** Original值 */
         private Object originalValue;
 
         Builder() {

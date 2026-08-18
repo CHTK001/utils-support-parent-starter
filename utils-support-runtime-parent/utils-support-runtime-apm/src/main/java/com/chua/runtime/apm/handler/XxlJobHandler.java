@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class XxlJobHandler extends AbstractAppHandler {
 
+    /**
+     * job handler
+     */
     private static final String JOB_HANDLER = "com/xxl/job/core/handler/IJobHandler";
+    /**
+     * EXECUTOR
+     */
     private static final String EXECUTOR = "com/xxl/job/core/executor/XxlJobExecutor";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute"};
+    /**
+     * start methods
+     */
     private static final String[] START_METHODS = {"start", "stop"};
 
     @Override

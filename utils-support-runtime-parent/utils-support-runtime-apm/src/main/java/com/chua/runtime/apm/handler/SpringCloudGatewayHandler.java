@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SpringCloudGatewayHandler extends AbstractAppHandler {
 
+    /**
+     * filtering handler
+     */
     private static final String FILTERING_HANDLER = "org/springframework/cloud/gateway/handler/FilteringWebHandler";
+    /**
+     * handle methods
+     */
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override

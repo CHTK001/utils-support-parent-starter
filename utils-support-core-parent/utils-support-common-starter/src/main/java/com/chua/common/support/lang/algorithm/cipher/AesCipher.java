@@ -40,6 +40,8 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
      * 算法名称
      */
     private static final String ALGORITHM = "AES";
+    /** 加密转换算法 */
+    /** Transformation */
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
 
     /**

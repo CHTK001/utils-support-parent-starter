@@ -20,7 +20,13 @@ import java.util.List;
  */
 public class BoundedRecordList<T> implements Iterable<T> {
 
+    /**
+     * 委托对象
+     */
     private final ArrayList<T> delegate;
+    /**
+     * max大小
+     */
     private final int maxSize;
 
     public BoundedRecordList(int maxSize) {

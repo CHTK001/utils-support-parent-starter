@@ -16,8 +16,13 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class OnnxFeatureClient implements FeatureClient {
 
+    /** 设置 */
+    /** 设置 */
     private final FeatureClientSetting setting;
+    /** 翻译器 */
     private ITranslator<Object, Object> translator;
+    /** 解析后的模型标识 */
+    /** Resolved模型ID */
     private String resolvedModelId;
 
     public OnnxFeatureClient(FeatureClientSetting setting) {

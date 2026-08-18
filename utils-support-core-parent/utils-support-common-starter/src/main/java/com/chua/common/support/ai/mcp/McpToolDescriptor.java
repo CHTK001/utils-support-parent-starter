@@ -19,6 +19,7 @@ public class McpToolDescriptor {
     private final String name;
 
     /** 所属 MCP 服务端名称 */
+    /** 服务器名称 */
     private final String serverName;
 
     /** 工具描述 */

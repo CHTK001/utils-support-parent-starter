@@ -8,6 +8,7 @@ package com.chua.payment.support;
  */
 public class PayException extends RuntimeException {
 
+    /** 代码 */
     private final String code;
 
     public PayException(String code, String message) {

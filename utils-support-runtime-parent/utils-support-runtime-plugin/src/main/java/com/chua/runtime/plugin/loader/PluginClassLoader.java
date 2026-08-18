@@ -20,6 +20,9 @@ import java.util.*;
 public class PluginClassLoader extends URLClassLoader {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(PluginClassLoader.class.getName());
     /**
      * 插件名称

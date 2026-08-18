@@ -27,11 +27,26 @@ import java.util.function.Consumer;
 @Spi("kcp")
 public class KcpSyncClient implements SyncClient {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpSyncClient.class);
 
+    /**
+     * 服务端 URL（kcp://host:port）
+     */
     private final String serverUrl;
+    /**
+     * 客户端标识
+     */
     private final String clientId;
+    /**
+     * 底层 KCP 客户端实例
+     */
     private KcpClient kcpClient;
+    /**
+     * 是否已连接
+     */
     private boolean connected;
 
     /**

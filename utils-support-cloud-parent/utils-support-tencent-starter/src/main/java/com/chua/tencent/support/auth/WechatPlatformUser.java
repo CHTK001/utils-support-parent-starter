@@ -1,4 +1,4 @@
-package com.chua.tencent.support.auth;
+﻿package com.chua.tencent.support.auth;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 public class WechatPlatformUser {
 
     /**
+ * @author CH
      * 平台类型
      */
     public enum PlatformType {
@@ -34,6 +35,8 @@ public class WechatPlatformUser {
         /** 微信企业微信 */
         ENTERPRISE("ENTERPRISE");
 
+        /** 值 */
+        /** 值 */
         private final String value;
 
         PlatformType(String value) {

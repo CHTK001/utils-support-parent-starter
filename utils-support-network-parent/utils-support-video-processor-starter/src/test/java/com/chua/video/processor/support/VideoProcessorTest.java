@@ -9,7 +9,13 @@ import java.net.URL;
 
 public class VideoProcessorTest {
 
+    /**
+     * passed
+     */
     private static int passed = 0;
+    /**
+     * failed
+     */
     private static int failed = 0;
 
     public static void main(String[] args) {

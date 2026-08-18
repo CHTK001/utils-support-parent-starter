@@ -1,1 +1,4 @@
 com.chua.vertx.support.server.VertxHttpServer
+com.chua.vertx.support.server.VertxHttpProxyServer
+com.chua.vertx.support.server.VertxTcpServer
+com.chua.vertx.support.server.VertxTcpProxyServer

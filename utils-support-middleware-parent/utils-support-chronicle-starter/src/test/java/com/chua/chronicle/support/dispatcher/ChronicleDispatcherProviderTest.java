@@ -37,7 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class ChronicleDispatcherProviderTest {
 
+    /** 提供者 */
     private ChronicleDispatcherProvider provider;
+    /** 配置 */
     private DispatcherConfig config;
 
     @BeforeEach

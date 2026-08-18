@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class GraphQLHandler extends AbstractAppHandler {
 
+    /**
+     * GRAPHQL
+     */
     private static final String GRAPHQL = "graphql/GraphQL";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute", "executeAsync"};
 
     @Override

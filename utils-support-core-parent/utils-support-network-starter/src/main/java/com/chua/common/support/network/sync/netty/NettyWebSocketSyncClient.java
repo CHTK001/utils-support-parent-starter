@@ -18,13 +18,19 @@ import java.util.concurrent.*;
  */
 public class NettyWebSocketSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
+    /** 客户端ID */
     private final String clientId = java.util.UUID.randomUUID().toString();
     private volatile boolean connected;
+    /** Socket */
     private Socket socket;
+    /** 输出 */
     private OutputStream output;
+    /** 输入 */
     private BufferedReader input;
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
+    /** Listeners */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
+    /** Receive线程 */
     private Thread receiveThread;
 
     public NettyWebSocketSyncClient(String serverUrl) {

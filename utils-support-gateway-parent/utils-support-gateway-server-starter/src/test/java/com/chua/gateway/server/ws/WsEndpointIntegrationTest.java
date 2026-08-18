@@ -316,10 +316,14 @@ class WsEndpointIntegrationTest {
      * Mock VNC server：接受任意连接，收到字节后 echo 回去。
      */
     static final class MockVncServer {
+        /** 端口 */
         private final int port;
+        /** 服务器Socket */
         private java.net.ServerSocket serverSocket;
         private volatile boolean running = true;
+        /** Clients */
         private final List<java.net.Socket> clients = new CopyOnWriteArrayList<>();
+        /** Accept线程 */
         private Thread acceptThread;
 
         MockVncServer(int port) {

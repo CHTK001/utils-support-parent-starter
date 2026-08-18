@@ -20,6 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 public class PageResult<T> implements Serializable {
 
+ /** 序列化版本号 */
+ /** Serial版本UID */
  private static final long serialVersionUID = 1L;
 
  /**

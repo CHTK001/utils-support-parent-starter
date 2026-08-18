@@ -27,8 +27,11 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DiskStore {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(DiskStore.class);
+    /** 文件路径 */
     private final Path filePath;
+    /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
 
     /**

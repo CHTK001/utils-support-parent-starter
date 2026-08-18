@@ -125,9 +125,13 @@ public interface VectorStorageProvider {
      * }</pre>
      */
     final class Builder {
+        /** 提供者 */
         private final VectorStorageProvider provider;
+        /** Dimension */
         private int dimension = 128;
+        /** 算法 */
         private VectorCompareAlgorithm algorithm = VectorCompareAlgorithm.euclidean();
+        /** 属性 */
         private Object properties;
 
         Builder(VectorStorageProvider provider) {

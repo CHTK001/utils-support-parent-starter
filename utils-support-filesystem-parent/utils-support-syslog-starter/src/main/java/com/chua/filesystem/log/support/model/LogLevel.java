@@ -26,6 +26,7 @@ public enum LogLevel {
     /** 严重 */
     CRITICAL(5);
 
+    /** Severity */
     private final int severity;
 
     LogLevel(int severity) {

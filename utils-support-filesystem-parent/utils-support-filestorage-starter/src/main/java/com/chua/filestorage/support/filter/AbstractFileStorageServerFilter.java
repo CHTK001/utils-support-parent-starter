@@ -35,11 +35,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractFileStorageServerFilter implements ServerFilter {
 
     protected final Map<String, FileStorage> storageMap = new ConcurrentHashMap<>();
+    /** 设置 */
     protected final FileStorageSetting setting;
 
+    /** PDF缓存 */
     protected PreviewPdfCache pdfCache;
+    /** 文件设置 */
     protected FileStorageFileSetting fileSetting;
+    /** 过滤器设置 */
     protected FileStorageFilterSetting filterSetting;
+    /** 图片operation */
     protected ImageOperation imageOperation;
     protected transient FlashTokenService flashService;
 

@@ -24,6 +24,7 @@ public class FileStorageCacheSetting {
      * <p>默认为 {@code ${java.io.tmpdir}/filestorage-pdf-cache}</p>
      */
     @Builder.Default
+    /** PDF缓存目录 */
     private String pdfCacheDir = System.getProperty("java.io.tmpdir") + "/filestorage-pdf-cache";
 
     /**
@@ -31,6 +32,7 @@ public class FileStorageCacheSetting {
      * <p>默认为 {@code ${java.io.tmpdir}/filestorage-flash}</p>
      */
     @Builder.Default
+    /** Flash目录 */
     private String flashDir = System.getProperty("java.io.tmpdir") + "/filestorage-flash";
 
     /**
@@ -38,6 +40,7 @@ public class FileStorageCacheSetting {
      * <p>默认 86400（1 天）。0 表示永不过期。</p>
      */
     @Builder.Default
+    /** TTL */
     private long ttl = 86400L;
 
     /**
@@ -50,6 +53,7 @@ public class FileStorageCacheSetting {
      * 是否预加载到内存。
      */
     @Builder.Default
+    /** PreloadTOmemory */
     private boolean preloadToMemory = false;
 
     /**
@@ -57,6 +61,7 @@ public class FileStorageCacheSetting {
      * <p>默认 600（10 分钟）。</p>
      */
     @Builder.Default
+    /** Flashexpire秒 */
     private long flashExpireSeconds = 600L;
 
     /**
@@ -64,5 +69,6 @@ public class FileStorageCacheSetting {
      * <p>默认 false（只删除闪图本身，不删除原始上传文件）。</p>
      */
     @Builder.Default
+    /** Flashautodeleteorigin */
     private boolean flashAutoDeleteOrigin = false;
 }

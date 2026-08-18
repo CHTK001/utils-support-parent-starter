@@ -30,21 +30,51 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class OnXxxAnnotationTest {
 
+    /**
+     * 测试客户端标识
+     */
     private static final String CLIENT_ID = "onnx-annotation-client";
 
+    /**
+     * KCP 服务器实例
+     */
     private KcpServer server;
+    /**
+     * KCP 客户端实例
+     */
     private KcpClient client;
+    /**
+     * 测试端口号
+     */
     private int port;
 
     /**
      * 四注解处理器：每条路径触发对应方法并计数。
      */
     static class AnnotatedHandler {
+        /**
+         * 打开事件触发计数
+         */
         final AtomicInteger openCount = new AtomicInteger();
+        /**
+         * 消息事件触发计数
+         */
         final AtomicInteger messageCount = new AtomicInteger();
+        /**
+         * 关闭事件触发计数
+         */
         final AtomicInteger closeCount = new AtomicInteger();
+        /**
+         * 错误事件触发计数
+         */
         final AtomicInteger errorCount = new AtomicInteger();
+        /**
+         * 消息事件信号门闩
+         */
         final CountDownLatch messageLatch = new CountDownLatch(1);
+        /**
+         * 错误事件信号门闩
+         */
         final CountDownLatch errorLatch = new CountDownLatch(1);
 
         @OnOpen

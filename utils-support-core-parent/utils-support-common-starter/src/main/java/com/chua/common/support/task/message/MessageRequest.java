@@ -84,7 +84,9 @@ public class MessageRequest {
     }
 
     public static class Builder {
+        /** TO */
         private String to;
+        /** CC */
         private List<String> cc;
         /**
          * 主题
@@ -94,7 +96,9 @@ public class MessageRequest {
          * 内容
          */
         private String content;
+        /** 内容类型 */
         private String contentType = "text";
+        /** Attachments */
         private List<String> attachments;
         /**
          * 模板 ID

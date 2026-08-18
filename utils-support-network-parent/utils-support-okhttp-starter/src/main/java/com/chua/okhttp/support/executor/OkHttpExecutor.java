@@ -24,6 +24,9 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnClass("okhttp3.OkHttpClient")
 public class OkHttpExecutor implements HttpClientExecutor {
 
+    /**
+     * 客户端实例
+     */
     private final OkHttpClient client;
 
     public OkHttpExecutor() {

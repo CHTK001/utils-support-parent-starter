@@ -24,12 +24,15 @@ import com.chua.common.support.spi.ServiceProvider;
  */
 public class ServerBuilder {
 
+    /** 设置 */
     private ServerSetting setting;
     /**
      * 类型
      */
     private String type = "jdk";
+    /** Object上下文 */
     private ObjectContext objectContext;
+    /** 服务器 */
     private Server server;
 
     private ServerBuilder() {

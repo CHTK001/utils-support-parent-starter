@@ -86,11 +86,17 @@ import java.util.function.Consumer;
  */
 public class TaskSubPipelineDefinition {
 
+    /** ID */
     private final String id;
+    /** PRE处理器 */
     private PipelineNode preHandler;
+    /** 构建器 */
     private final PipelineBuilder builder;
+    /** SUB管道 */
     private final Pipeline subPipeline;
+    /** 结束afterexecute */
     private boolean endAfterExecute;
+    /** 开始节点 */
     private String startNode;
     private Map<String, Object> params;
     private Map<String, Object> env;

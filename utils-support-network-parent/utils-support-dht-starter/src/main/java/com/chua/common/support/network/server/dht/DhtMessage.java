@@ -28,6 +28,9 @@ import java.util.Map;
 @Accessors(chain = true)
 public class DhtMessage implements Serializable {
 
+    /**
+     * 序列化版本号
+     */
     private static final long serialVersionUID = 1L;
 
     /**

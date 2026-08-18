@@ -50,6 +50,9 @@ import java.util.Map;
 @RestController
 public class AgentController {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(AgentController.class.getName());
     @GetMapping("/agent/status")
     public Map<String, Object> status() {

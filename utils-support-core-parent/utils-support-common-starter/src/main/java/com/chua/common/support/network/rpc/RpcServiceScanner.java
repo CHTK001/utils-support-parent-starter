@@ -14,7 +14,9 @@ import java.util.Set;
  */
 public class RpcServiceScanner {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(RpcServiceScanner.class);
+    /** 服务器 */
     private final RpcServer server;
 
     private RpcServiceScanner(RpcServer server) {

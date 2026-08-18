@@ -21,6 +21,7 @@ import java.util.List;
 @Slf4j
 public class RustFileStorageBridge {
 
+    /** Library_name */
     private static final String LIBRARY_NAME = "rust_filestorage_processor";
     private static volatile boolean initialized = false;
 

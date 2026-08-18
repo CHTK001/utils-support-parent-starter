@@ -19,6 +19,7 @@ import java.util.List;
 @Spi("trae-cn")
 public class TraeCnUsageParser extends BaseUsageParser {
 
+    /** Data_dir */
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".trae-cn");
 
     @Override

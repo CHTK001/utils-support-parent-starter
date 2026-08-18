@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class CuratorHandler extends AbstractAppHandler {
 
+    /**
+     * curator framework
+     */
     private static final String CURATOR_FRAMEWORK = "org/apache/curator/framework/CuratorFramework";
+    /**
+     * OPERATIONS
+     */
     private static final String[] OPERATIONS = {"create", "delete", "getData", "setData", "getChildren", "checkExists"};
 
     @Override

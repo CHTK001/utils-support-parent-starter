@@ -30,16 +30,25 @@ import java.util.function.Consumer;
 @Slf4j
 public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProvider {
 
+    /** Mapper */
     protected static final ObjectMapper MAPPER = new ObjectMapper();
+    /** Desktop_ua */
     protected static final String DESKTOP_UA =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+    /** Mobile_ua */
     protected static final String MOBILE_UA =
             "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+    /** Default_connect_timeout_millis */
     private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10_000;
+    /** Default_read_timeout_millis */
     private static final int DEFAULT_READ_TIMEOUT_MILLIS = 20_000;
+    /** Connect_timeout_property */
     private static final String CONNECT_TIMEOUT_PROPERTY = "music.http.connect-timeout-millis";
+    /** Connect_timeout_env */
     private static final String CONNECT_TIMEOUT_ENV = "MUSIC_HTTP_CONNECT_TIMEOUT_MILLIS";
+    /** Read_timeout_property */
     private static final String READ_TIMEOUT_PROPERTY = "music.http.read-timeout-millis";
+    /** Read_timeout_env */
     private static final String READ_TIMEOUT_ENV = "MUSIC_HTTP_READ_TIMEOUT_MILLIS";
 
     protected JsonNode getJson(String url) {

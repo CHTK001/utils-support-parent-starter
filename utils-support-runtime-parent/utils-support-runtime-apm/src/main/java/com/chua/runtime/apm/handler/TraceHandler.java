@@ -59,6 +59,9 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(TraceHandler.class.getName());
 
     /**

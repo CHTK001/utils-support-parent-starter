@@ -22,6 +22,7 @@ import java.io.File;
 @Spi("video")
 public class VideoFileSystem implements FileSystem {
 
+    /** 处理器 */
     private final FFmpegProcessor processor;
 
     public VideoFileSystem() {

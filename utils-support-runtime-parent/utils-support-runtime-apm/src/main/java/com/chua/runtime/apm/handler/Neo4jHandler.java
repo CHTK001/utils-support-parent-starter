@@ -22,8 +22,17 @@ import com.chua.runtime.protocol.Software;
  */
 public class Neo4jHandler extends AbstractAppHandler {
 
+    /**
+     * 会话 class
+     */
     private static final String SESSION_CLASS = "org/neo4j/driver/Session";
+    /**
+     * transaction class
+     */
     private static final String TRANSACTION_CLASS = "org/neo4j/driver/Transaction";
+    /**
+     * run methods
+     */
     private static final String[] RUN_METHODS = {"run"};
 
     @Override

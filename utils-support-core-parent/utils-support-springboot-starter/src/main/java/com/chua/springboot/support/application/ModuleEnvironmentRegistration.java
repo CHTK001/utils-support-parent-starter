@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
  * @since 2026/01/14
  */
 public class ModuleEnvironmentRegistration {
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ModuleEnvironmentRegistration.class);
 
     /**

@@ -25,9 +25,21 @@ import org.agrona.concurrent.SleepingMillisIdleStrategy;
 @Slf4j
 public class IonetAeron {
 
+    /**
+     * 客户端存活超时时间（纳秒）
+     */
     private static final long DEBUG_CLIENT_TIMEOUT_NS = 600_000_000_000L;
+    /**
+     * 驱动超时时间（毫秒）
+     */
     private static final long DEBUG_DRIVER_TIMEOUT_MS = 600_000L;
+    /**
+     * 发布解阻塞超时时间（纳秒）
+     */
     private static final long DEBUG_UNBLOCK_TIMEOUT_NS = 900_000_000_000L;
+    /**
+     * 服务间超时时间（纳秒）
+     */
     private static final long DEBUG_INTER_SERVICE_TIMEOUT_NS = DEBUG_CLIENT_TIMEOUT_NS + 1_000_000_000L;
 
     static {
@@ -40,7 +52,13 @@ public class IonetAeron {
         static final IonetAeron INSTANCE = new IonetAeron();
     }
 
+    /**
+     * 嵌入式媒体驱动实例
+     */
     private final MediaDriver mediaDriver;
+    /**
+     * Aeron 客户端实例
+     */
     private final Aeron aeron;
 
     private IonetAeron() {

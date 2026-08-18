@@ -18,6 +18,7 @@ import lombok.Data;
 public class TextToAudioResponse {
 
     /**
+ * @author CH
      * 任务状态枚举
      */
     public enum Status {

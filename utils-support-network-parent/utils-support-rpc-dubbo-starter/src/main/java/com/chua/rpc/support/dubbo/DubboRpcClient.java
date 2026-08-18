@@ -25,10 +25,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class DubboRpcClient implements RpcClient {
 
+    /**
+     * registry Configs
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    /**
+     * application Config
+     */
     private final ApplicationConfig applicationConfig;
+    /**
+     * consumer Config
+     */
     private final ConsumerConfig consumerConfig;
+    /**
+     * rpc Consumer Config
+     */
     private final RpcConsumerConfig rpcConsumerConfig;
+    /**
+     * reference Cache
+     */
     private final Map<Class<?>, ReferenceConfig<?>> referenceCache = new ConcurrentHashMap<>();
 
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {

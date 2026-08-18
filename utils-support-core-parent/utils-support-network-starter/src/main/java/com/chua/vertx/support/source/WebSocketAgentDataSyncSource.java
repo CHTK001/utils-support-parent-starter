@@ -18,7 +18,9 @@ import java.util.Map;
  */
 public class WebSocketAgentDataSyncSource implements DataSyncSource {
 
+    /** Connection */
     private final com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection;
+    /** 来源ID */
     private final String sourceId;
 
     public WebSocketAgentDataSyncSource(com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection, String sourceId) {

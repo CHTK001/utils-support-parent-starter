@@ -14,7 +14,13 @@ import lombok.Setter;
 @Setter
 public class LinuxExecClient implements AutoCloseable {
 
+    /**
+     * 配置对象
+     */
     private final ClientSetting setting;
+    /**
+     * ssh Client
+     */
     private SshClient sshClient;
 
     public LinuxExecClient(ClientSetting setting) {

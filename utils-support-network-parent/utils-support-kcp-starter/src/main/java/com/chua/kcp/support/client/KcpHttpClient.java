@@ -23,11 +23,26 @@ import java.util.Map;
  */
 public class KcpHttpClient {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpHttpClient.class);
 
+    /**
+     * KCP 服务器主机地址
+     */
     private final String host;
+    /**
+     * KCP 服务器端口号
+     */
     private final int port;
+    /**
+     * 请求超时时间（毫秒）
+     */
     private final long timeoutMs;
+    /**
+     * 底层 KCP 客户端实例
+     */
     private KcpClient client;
 
     public KcpHttpClient(String host, int port) {
@@ -109,8 +124,17 @@ public class KcpHttpClient {
      * 简易 HTTP 响应对象。
      */
     public static class HttpResponse {
+        /**
+         * HTTP 状态码，默认 200
+         */
         private int status = 200;
+        /**
+         * 响应头键值映射
+         */
         private final Map<String, String> headers = new HashMap<>();
+        /**
+         * 响应体字节数组，默认空数组
+         */
         private byte[] body = new byte[0];
 
         public int getStatus() {

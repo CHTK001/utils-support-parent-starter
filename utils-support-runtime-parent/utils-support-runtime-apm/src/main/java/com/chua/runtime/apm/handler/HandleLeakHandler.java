@@ -38,6 +38,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 4.0.0.42
  */
 public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(HandleLeakHandler.class.getName());
 
     /**

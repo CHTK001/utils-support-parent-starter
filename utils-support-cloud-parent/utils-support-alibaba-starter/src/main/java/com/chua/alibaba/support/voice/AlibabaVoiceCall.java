@@ -34,6 +34,8 @@ import java.util.Map;
 @Spi("alibaba-voice")
 public class AlibabaVoiceCall implements VoiceCall {
 
+    /** 消息环境 */
+    /** 环境 */
     private final MessageEnvironment environment;
 
     public AlibabaVoiceCall() {

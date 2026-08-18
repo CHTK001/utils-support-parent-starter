@@ -36,11 +36,15 @@ import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
  */
 public class NumberUtils {
 
+    /** Long_min */
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
 
+    /** Long_max */
     private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
+    /** A */
     private static final int A = 'A';
+    /** Z坐标 */
     private static final int Z = 'Z';
 
     /** 中文数字字符 → 数值映射（小写+大写+两） */

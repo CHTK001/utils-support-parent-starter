@@ -37,17 +37,47 @@ import java.util.function.Consumer;
 @Getter
 public class WinRmExecClient implements AutoCloseable {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(WinRmExecClient.class);
 
+    /**
+     * 主机地址
+     */
     private final String host;
+    /**
+     * 端口号
+     */
     private final int port;
+    /**
+     * 登录用户名
+     */
     private final String username;
+    /**
+     * 登录密码
+     */
     private final String password;
+    /**
+     * domain
+     */
     private final String domain;
+    /**
+     * 连接超时时间（毫秒）
+     */
     private final int connectTimeout;
+    /**
+     * 会话超时时间
+     */
     private final int sessionTimeout;
 
+    /**
+     * win Rm Client
+     */
     private WinRmClient winRmClient;
+    /**
+     * 是否已连接
+     */
     private boolean connected = false;
 
     private WinRmExecClient(Builder b) {
@@ -173,7 +203,13 @@ public class WinRmExecClient implements AutoCloseable {
     @Getter
     public static class ExecOperation {
 
+        /**
+         * 客户端实例
+         */
         private final WinRmExecClient client;
+        /**
+         * command
+         */
         private String command;
 
         ExecOperation(WinRmExecClient client) {
@@ -217,7 +253,13 @@ public class WinRmExecClient implements AutoCloseable {
     @Getter
     public static class ShellOperation {
 
+        /**
+         * 客户端实例
+         */
         private final WinRmExecClient client;
+        /**
+         * shell
+         */
         private ShellCommand shell;
 
         ShellOperation(WinRmExecClient client) {
@@ -274,10 +316,25 @@ public class WinRmExecClient implements AutoCloseable {
     @Getter
     public static class TerminalOperation {
 
+        /**
+         * 客户端实例
+         */
         private final WinRmExecClient client;
+        /**
+         * 是否已连接
+         */
         private boolean connected = false;
+        /**
+         * output Callback
+         */
         private Consumer<String> outputCallback;
+        /**
+         * close Callback
+         */
         private Runnable closeCallback;
+        /**
+         * output Buffer
+         */
         private StringBuilder outputBuffer = new StringBuilder();
 
         TerminalOperation(WinRmExecClient client) {
@@ -368,12 +425,33 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
 
     public static class Builder {
 
+        /**
+         * 主机地址
+         */
         private String host;
+        /**
+         * 端口号
+         */
         private int port = 5985;
+        /**
+         * 登录用户名
+         */
         private String username;
+        /**
+         * 登录密码
+         */
         private String password;
+        /**
+         * domain
+         */
         private String domain;
+        /**
+         * 连接超时时间（毫秒）
+         */
         private int connectTimeout = 30;
+        /**
+         * 会话超时时间
+         */
         private int sessionTimeout = 30;
 
         public Builder host(String h) {

@@ -46,9 +46,12 @@ import java.util.concurrent.TimeUnit;
 @Spi({"jdk-udp"})
 public class JdkUdpServer extends AbstractServer {
 
+    /** DatagramSocket */
     private DatagramSocket datagramSocket;
+    /** Worker池 */
     private ExecutorService workerPool;
     private final Map<String, UdpHandler> handlers = new ConcurrentHashMap<>();
+    /** Receiver线程 */
     private Thread receiverThread;
 
     public JdkUdpServer(ServerSetting setting) {

@@ -102,9 +102,12 @@ public class ExcelFileSystem implements FileSystem {
 
     public static class ExcelReadBuilder extends ReadBuilder {
 
+        /** Sheet名称 */
         private String sheetName;
+        /** Sheet索引 */
         private int sheetIndex;
         /** 列投影（null 表示全部列） */
+        /** Selectedcolumns */
         private Set<String> selectedColumns;
 
         ExcelReadBuilder(File file) {
@@ -335,6 +338,7 @@ public class ExcelFileSystem implements FileSystem {
         private final java.util.Map<CellStyleConfig, CellStyle> cellStyleCache = new java.util.IdentityHashMap<>();
 
         /** 是否创建新工作簿 */
+        /** NEWworkbook */
         private boolean newWorkbook = true;
 
         // ==================== Sheet 上下文管理 ====================
@@ -374,6 +378,7 @@ public class ExcelFileSystem implements FileSystem {
         private final LinkedHashMap<String, SheetContext> sheets = new LinkedHashMap<>();
 
         /** 当前活跃的 Sheet 上下文 */
+        /** 是否激活sheet */
         private SheetContext activeSheet;
 
         ExcelWriteBuilder(File file) {

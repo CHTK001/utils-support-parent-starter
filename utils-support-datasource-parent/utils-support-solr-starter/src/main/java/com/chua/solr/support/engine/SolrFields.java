@@ -10,6 +10,8 @@ public class SolrFields {
 
     private SolrFields() {}
 
+    /** ID */
     public static final String ID = "id";
+    /** 版本 */
     public static final String VERSION = "_version_";
 }

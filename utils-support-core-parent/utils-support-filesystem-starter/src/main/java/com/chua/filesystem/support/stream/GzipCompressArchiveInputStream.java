@@ -224,6 +224,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
      */
     private static class GzipEntryAdapter implements ArchiveEntry {
 
+        /** 名称 */
         private final String name;
 
         GzipEntryAdapter(String name) {

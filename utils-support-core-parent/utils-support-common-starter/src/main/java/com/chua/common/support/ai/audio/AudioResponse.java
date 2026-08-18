@@ -20,6 +20,7 @@ import java.util.List;
 public class AudioResponse {
 
     /**
+ * @author CH
      * 任务状态枚举
      */
     public enum Status {

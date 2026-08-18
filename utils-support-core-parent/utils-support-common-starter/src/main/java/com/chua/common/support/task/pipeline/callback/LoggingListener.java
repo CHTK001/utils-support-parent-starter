@@ -23,10 +23,14 @@ import java.util.logging.Logger;
  */
 public class LoggingListener implements PipelineListener {
 
+    /** Logger */
     private static final Logger LOGGER = Logger.getLogger(LoggingListener.class.getName());
 
+    /** 节点级别 */
     private final Level nodeLevel;
+    /** Complete级别 */
     private final Level completeLevel;
+    /** 错误级别 */
     private final Level errorLevel;
 
     /**

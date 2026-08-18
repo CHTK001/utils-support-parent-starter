@@ -67,14 +67,20 @@ import java.util.function.Consumer;
  */
 public class TaskParallelDefinition {
 
+    /** ID */
     private final String id;
+    /** PRE处理器 */
     private PipelineNode preHandler;
+    /** 构建器 */
     private final PipelineBuilder builder;
+    /** SUB管道 */
     private final Pipeline subPipeline;
+    /** 开始节点 */
     private String startNode;
     private Map<String, Object> params;
     private Map<String, Object> env;
     private Map<String, Object> environment;
+    /** Merge当前数据 */
     private boolean mergeCurrentData = true;
     private BiConsumer<PipelineContext<?>, AsyncResult> completionHandler;
 

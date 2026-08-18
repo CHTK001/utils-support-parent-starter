@@ -62,20 +62,27 @@ public class DdlBuilder {
         DROP
     }
 
+    /** 模式 */
     private final Mode mode;
+    /** 表名称 */
     private final String tableName;
     /**
      * Schema 名
      */
     private String schema;
+    /** Comment */
     private String comment;
+    /** 引擎 */
     private String engine;
     /**
      * 字符集
      */
     private String charset;
+    /** Columns */
     private final List<ColumnDef> columns = new ArrayList<>();
+    /** Primarykeys */
     private final List<String> primaryKeys = new ArrayList<>();
+    /** NEW表名称 */
     private String newTableName;
 
     private DdlBuilder(Mode mode, String tableName) {

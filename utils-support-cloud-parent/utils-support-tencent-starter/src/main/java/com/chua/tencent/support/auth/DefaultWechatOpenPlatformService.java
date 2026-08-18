@@ -29,8 +29,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class DefaultWechatOpenPlatformService implements WechatOpenPlatformService {
 
+    /** 获取用户向量接口地址 */
+    /** Get_user_vector_url */
     private static final String GET_USER_VECTOR_URL = "https://api.weixin.qq.com/cgi-bin/component/getuservector";
+    /** JSON 对象映射器 */
+    /** Object_mapper */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    /** 微信平台用户表名 */
+    /** Table_name */
     private static final String TABLE_NAME = "wechat_platform_user";
 
     /**
@@ -43,9 +49,17 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
      */
     private final ConcurrentHashMap<String, List<WechatPlatformUser>> unionUserMap = new ConcurrentHashMap<>();
 
+    /** 微信开放平台服务 */
+    /** WXopen服务 */
     private final WxOpenService wxOpenService;
+    /** 第三方平台应用 AppId */
+    /** ComponentAPPID */
     private final String componentAppId;
+    /** 引擎实例 */
+    /** 引擎 */
     private final WechatFileEngine engine;
+    /** ID 序列号 */
+    /** IDsequence */
     private long idSequence = 0;
 
     public DefaultWechatOpenPlatformService(String componentAppId, String componentAppSecret, String storagePath) {

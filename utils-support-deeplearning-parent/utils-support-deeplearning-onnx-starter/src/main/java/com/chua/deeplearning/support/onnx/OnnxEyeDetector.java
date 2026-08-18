@@ -8,7 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxEyeDetector implements EyeDetector {
 
+    /** 模型名称 */
+    /** 模型名称 */
     private String modelName;
+    /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxEyeDetector(String apiKey) {

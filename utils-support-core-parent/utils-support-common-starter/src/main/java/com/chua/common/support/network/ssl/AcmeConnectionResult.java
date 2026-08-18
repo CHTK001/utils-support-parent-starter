@@ -13,15 +13,19 @@ import lombok.Data;
 public class AcmeConnectionResult {
 
     /** 是否成功 */
+    /** Success */
     private boolean success;
 
     /** 账户 URL */
+    /** AccountURL */
     private String accountUrl;
 
     /** 账户私钥 PEM */
+    /** 私有密钥PEM */
     private String privateKeyPem;
 
     /** 错误信息 */
+    /** 错误 */
     private String error;
 
     /**

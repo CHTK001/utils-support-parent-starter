@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class QuartzHandler extends AbstractAppHandler {
 
+    /**
+     * JOB
+     */
     private static final String JOB = "org/quartz/Job";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override

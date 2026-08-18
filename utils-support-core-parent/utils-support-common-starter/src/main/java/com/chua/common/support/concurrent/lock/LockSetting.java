@@ -62,6 +62,7 @@ public class LockSetting {
      * 默认值为 true（可重入）。
      */
     @Builder.Default
+    /** Reentrant */
     private boolean reentrant = true;
 
     /**
@@ -101,6 +102,7 @@ public class LockSetting {
      * 默认 5000ms，值为 0 表示不超时。
      */
     @Builder.Default
+    /** Connection超时 */
     private long connectionTimeout = 5000;
 
     /**

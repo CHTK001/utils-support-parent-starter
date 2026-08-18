@@ -26,6 +26,7 @@ import java.util.Map;
 @Spi({"toml"})
 public class TomlConfigParser implements ConfigParser {
 
+    /** Toml_mapper */
     private static final ObjectMapper TOML_MAPPER = new ObjectMapper(new TomlFactory());
 
     @Override

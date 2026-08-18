@@ -131,6 +131,8 @@ public class Yolo8CdlaLayoutTranslator implements Translator<Image, DetectedObje
      *                   
      */
     private int imageWidth;
+    /** 图像高度 */
+    /** 图片高度 */
     private int imageHeight;
 
     /**

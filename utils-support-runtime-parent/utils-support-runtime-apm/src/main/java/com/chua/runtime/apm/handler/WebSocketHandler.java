@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class WebSocketHandler extends AbstractAppHandler {
 
+    /**
+     * websocket 会话
+     */
     private static final String WEBSOCKET_SESSION = "javax/websocket/Session";
+    /**
+     * 会话 methods
+     */
     private static final String[] SESSION_METHODS = {"getBasicRemote", "getAsyncRemote", "close"};
+    /**
+     * remote endpoint
+     */
     private static final String REMOTE_ENDPOINT = "javax/websocket/RemoteEndpoint";
+    /**
+     * remote methods
+     */
     private static final String[] REMOTE_METHODS = {"sendText", "sendBinary", "sendObject"};
 
     @Override

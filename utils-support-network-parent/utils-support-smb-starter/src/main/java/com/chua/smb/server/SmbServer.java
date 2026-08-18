@@ -32,12 +32,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SmbServer extends AbstractServer {
 
+    /**
+     * 默认 端口
+     */
     public static final int DEFAULT_PORT = 445;
 
+    /**
+     * 用户
+     */
     private final String user;
+    /**
+     * 登录密码
+     */
     private final String password;
+    /**
+     * share Name
+     */
     private final String shareName;
+    /**
+     * root Path
+     */
     private final String rootPath;
+    /**
+     * 服务器 Handle
+     */
     private volatile long serverHandle = -1;
 
     protected SmbServer(ServerSetting setting, String user, String password,
@@ -95,11 +113,29 @@ public class SmbServer extends AbstractServer {
 
     public static class Builder {
 
+        /**
+         * 端口号
+         */
         private int port = DEFAULT_PORT;
+        /**
+         * 主机地址
+         */
         private String host = "0.0.0.0";
+        /**
+         * 用户
+         */
         private String user = "";
+        /**
+         * 登录密码
+         */
         private String password = "";
+        /**
+         * share Name
+         */
         private String shareName = "smbshare";
+        /**
+         * root Path
+         */
         private String rootPath = "/tmp/smbroot";
 
         public Builder port(int port) {

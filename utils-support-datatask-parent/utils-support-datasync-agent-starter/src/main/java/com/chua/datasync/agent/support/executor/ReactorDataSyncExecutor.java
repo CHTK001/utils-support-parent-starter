@@ -23,14 +23,21 @@ import java.util.function.Consumer;
 @Slf4j
 public class ReactorDataSyncExecutor {
 
+    /** Chronicle 调度提供者 */
+    /** Chronicle提供者 */
     protected DispatcherProvider chronicleProvider;
+    /** 代理标识 */
+    /** AgentID */
     private final String agentId;
+    /** 服务端模式 */
+    /** 服务器模式 */
     private final boolean serverMode;
 
     /**
      * 直连派发模式：同 JVM 内 publish 直接调用 subscriber，绕过 Chronicle 派发层。
      */
     private volatile boolean directDispatch;
+    /** 直接消费器 */
     private volatile Consumer<List<Map<String, Object>>> directConsumer;
 
     public ReactorDataSyncExecutor(String agentId, boolean serverMode) {

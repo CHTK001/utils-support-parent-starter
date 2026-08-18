@@ -31,10 +31,14 @@ import java.util.Map;
  */
 public class SkillsmpProvider {
 
+    /** 日志 */
     protected static final Logger log = LoggerFactory.getLogger(SkillsmpProvider.class);
 
+    /** 名称 */
     protected static final String NAME = "skillsmp";
+    /** Prefix */
     protected static final String PREFIX = "";
+    /** Api_base */
     protected static final String API_BASE = "https://skillsmp.com/api/skills";
 
     /**

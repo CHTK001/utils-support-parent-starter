@@ -1,9 +1,10 @@
-package com.recovery;
+﻿package com.recovery;
 
 /**
  * 扫描删除文件测试类
  * 用法: java ScanTest [drive] [scanMode]
  *   drive: 如 F:\ 或 \\.\F:
+ * @author CH
  *   scanMode: 0=walkdir, 1=raw disk carve, 2=NTFS MFT (默认 1)
  */
 public class ScanTest {
@@ -80,3 +81,4 @@ public class ScanTest {
         return String.format("%.1f %s", size, units[unitIndex]);
     }
 }
+

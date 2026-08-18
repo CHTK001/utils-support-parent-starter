@@ -82,13 +82,25 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
         this.scale = Math.max(1, Math.min(4, scale));
     }
 
+    /** 均值数组 */
+    /** Mean */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
+    /** 标准差数组 */
+    /** STD */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
+    /** 资源基础路径 */
+    /** Resource_base */
     private static final String RESOURCE_BASE = "vision/text_restore/textbsr/";
+    /** 模型文件路径 */
+    /** Model_file */
     private static final String MODEL_FILE = "textbsr.onnx";
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 会话 */
+    /** 会话 */
     private OrtSession session;
 
     private synchronized void prepare() throws Exception {

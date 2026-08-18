@@ -11,54 +11,71 @@ package com.chua.common.support.media.ffmpeg;
 public class FFmpegOptions {
 
     /** 视频编码器（libx264, libx265, h264_nvenc） */
+    /** 视频codec */
     private String videoCodec;
 
     /** 音频编码器（aac, mp3, libopus） */
+    /** 音频codec */
     private String audioCodec;
 
     /** 视频码率（"2M", "5000k"） */
+    /** 视频bitrate */
     private String videoBitrate;
 
     /** 音频码率（"128k", "320k"） */
+    /** 音频bitrate */
     private String audioBitrate;
 
     /** 帧率 */
+    /** FPS */
     private Integer fps;
 
     /** 视频宽度 */
+    /** 宽度 */
     private Integer width;
 
     /** 视频高度 */
+    /** 高度 */
     private Integer height;
 
     /** 音频采样率（44100, 48000） */
+    /** 音频示例比率 */
     private Integer audioSampleRate;
 
     /** 音频声道数 */
+    /** 音频channels */
     private Integer audioChannels;
 
     /** 质量 CRF 0-51，越小质量越高 */
+    /** Quality */
     private Integer quality;
 
     /** 编码预设（ultrafast, fast, medium, slow） */
+    /** Preset */
     private String preset;
 
     /** 像素格式（yuv420p, yuv444p） */
+    /** Pixel格式 */
     private String pixelFormat;
 
     /** 硬件加速（cuda, vaapi, videotoolbox） */
+    /** Hwaccel */
     private String hwaccel;
 
     /** 是否静音 */
+    /** Mute */
     private boolean mute;
 
     /** 是否移除视频流 */
+    /** Remove视频 */
     private boolean removeVideo;
 
     /** 是否移除音频流 */
+    /** Remove音频 */
     private boolean removeAudio;
 
     /** 是否覆盖输出文件 */
+    /** Overwrite */
     private boolean overwrite = true;
 
     /** 超时时间（毫秒） */

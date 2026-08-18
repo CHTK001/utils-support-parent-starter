@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class FelixOsgiBundle implements OsgiBundle {
 
+    /** Bundle */
     private final Bundle bundle;
     private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>();
 

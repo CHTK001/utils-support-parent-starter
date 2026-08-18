@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("composer")
 public class ComposerSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ComposerSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "composer";
 
     @Override

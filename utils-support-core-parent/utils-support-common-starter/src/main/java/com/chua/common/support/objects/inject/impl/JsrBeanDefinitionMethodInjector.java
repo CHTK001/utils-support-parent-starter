@@ -22,11 +22,17 @@ import java.util.function.Function;
 @Spi("jsr")
 public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
 
+    /** Resource_javax */
     private static final String RESOURCE_JAVAX = "javax.annotation.Resource";
+    /** Resource_jakarta */
     private static final String RESOURCE_JAKARTA = "jakarta.annotation.Resource";
+    /** Inject_javax */
     private static final String INJECT_JAVAX = "javax.inject.Inject";
+    /** Inject_jakarta */
     private static final String INJECT_JAKARTA = "jakarta.inject.Inject";
+    /** Named_javax */
     private static final String NAMED_JAVAX = "javax.inject.Named";
+    /** Named_jakarta */
     private static final String NAMED_JAKARTA = "jakarta.inject.Named";
 
     @Override

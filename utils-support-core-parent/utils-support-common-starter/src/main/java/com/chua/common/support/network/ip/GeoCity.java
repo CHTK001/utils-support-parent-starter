@@ -12,32 +12,42 @@ package com.chua.common.support.network.ip;
 public class GeoCity {
 
     /** 空对象常量 */
+    /** 是否为空 */
     public static final GeoCity EMPTY = new GeoCity();
 
+    /** 国家 */
     /** 国家 */
     private String country;
 
     /** 省份/地区 */
+    /** Province */
     private String province;
 
     /** 城市 */
+    /** City */
     private String city;
 
     /** ISP 运营商 */
+    /** ISP */
     private String isp;
 
     /** IP 地址 */
+    /** IP */
     private String ip;
 
     /** 纬度 */
+    /** Latitude */
     private Double latitude;
 
     /** 经度 */
+    /** Longitude */
     private Double longitude;
 
     /** 邮编 */
+    /** Postal */
     private String postal;
 
+    /** 时区 */
     /** 时区 */
     private String timeZone;
 

@@ -292,8 +292,17 @@ public class SocketIOServer extends AbstractServer {
      */
     private static class SimpleServerRequest implements com.chua.common.support.network.server.request.ServerRequest {
 
+        /**
+         * topic
+         */
         private final String topic;
+        /**
+         * 数据内容
+         */
         private final String body;
+        /**
+         * attributes
+         */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         SimpleServerRequest(String topic, String body) {
@@ -392,9 +401,21 @@ public class SocketIOServer extends AbstractServer {
      */
     private static class SimpleServerResponse implements com.chua.common.support.network.server.response.ServerResponse {
 
+        /**
+         * ended
+         */
         private volatile boolean ended;
+        /**
+         * committed
+         */
         private volatile boolean committed;
+        /**
+         * 状态
+         */
         private int status = 200;
+        /**
+         * 结果
+         */
         private Object result;
 
         @Override

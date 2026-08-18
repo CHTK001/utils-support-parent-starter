@@ -25,6 +25,7 @@ import java.util.Map;
  */
 public class SolrSearchEngine implements SearchEngine {
 
+    /** 引擎 */
     private final SolrEngine engine;
 
     public SolrSearchEngine(SolrEngine engine) {

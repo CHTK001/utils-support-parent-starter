@@ -26,11 +26,16 @@ import org.bytedeco.javacv.Frame;
 @Spi("javacv")
 public class JavaCVScreenCapture implements ScreenCature {
 
+    /** Grabber */
     private FFmpegFrameGrabber grabber;
+    /** 宽度 */
     private int width;
+    /** 高度 */
     private int height;
+    /** FPS */
     private int fps;
     private volatile boolean initialized;
+    /** Pixelstride */
     private int pixelStride;
 
     /**

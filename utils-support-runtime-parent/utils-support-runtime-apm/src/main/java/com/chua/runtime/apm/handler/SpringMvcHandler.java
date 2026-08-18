@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SpringMvcHandler extends AbstractAppHandler {
 
+    /**
+     * dispatcher servlet
+     */
     private static final String DISPATCHER_SERVLET = "org/springframework/web/servlet/DispatcherServlet";
+    /**
+     * do dispatch
+     */
     private static final String[] DO_DISPATCH = {"doDispatch"};
 
     @Override

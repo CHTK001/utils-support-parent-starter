@@ -26,7 +26,13 @@ import java.util.Optional;
 @Spi("webdav")
 public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 
+    /**
+     * sardine
+     */
     private final Sardine sardine;
+    /**
+     * 基础地址
+     */
     private final String baseUrl;
 
     public WebdavConfigSaveOrLoader(ConfigSaveLoadSetting setting) {

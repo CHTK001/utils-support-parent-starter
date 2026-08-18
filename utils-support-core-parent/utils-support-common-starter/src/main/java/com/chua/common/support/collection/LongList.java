@@ -279,6 +279,8 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     @Override
     public Iterator<Long> iterator() {
         return new Iterator<Long>() {
+            /** 索引位置 */
+            /** 索引 */
             private int index = 0;
 
             @Override

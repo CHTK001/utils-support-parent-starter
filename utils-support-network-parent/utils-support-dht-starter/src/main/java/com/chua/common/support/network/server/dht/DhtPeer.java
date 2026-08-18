@@ -39,6 +39,9 @@ public record DhtPeer(
         int failedPings
 ) implements Serializable {
 
+    /**
+     * 序列化版本号
+     */
     private static final long serialVersionUID = 1L;
 
     /**

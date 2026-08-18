@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class RSocketHandler extends AbstractAppHandler {
 
+    /**
+     * rsocket requests
+     */
     private static final String RSOCKET_REQUESTS = "io/rsocket/RSocket";
+    /**
+     * rsocket methods
+     */
     private static final String[] RSOCKET_METHODS = {"requestResponse", "requestStream", "requestChannel", "requestFireAndForget"};
 
     @Override

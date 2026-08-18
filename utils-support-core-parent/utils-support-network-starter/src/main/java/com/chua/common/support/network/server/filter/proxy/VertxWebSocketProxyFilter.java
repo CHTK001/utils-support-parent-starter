@@ -43,7 +43,9 @@ import java.util.concurrent.CompletionStage;
 @Slf4j
 public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFilter {
 
+    /** Vertx */
     private Vertx vertx;
+    /** WebSocket客户端 */
     private WebSocketClient webSocketClient;
 
     @Override

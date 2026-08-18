@@ -112,6 +112,9 @@ import java.util.Map;
  */
 public class ApmBootstrap {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(ApmBootstrap.class.getName());
     /**
      * 全局唯一实例（RuntimeAgent.premain 启动时设置）

@@ -24,13 +24,23 @@ import java.util.concurrent.TimeUnit;
 public class CmdResult {
 
     /** 退出码：超时标记 */
+    /** Exit_code_timeout */
     public static final int EXIT_CODE_TIMEOUT = -1;
     /** 退出码：未知错误 */
+    /** Exit_code_error */
     public static final int EXIT_CODE_ERROR = -2;
 
+    /** 退出码 */
+    /** Exit代码 */
     private final int exitCode;
+    /** 标准输出 */
+    /** Stdout */
     private final String stdout;
+    /** 标准错误输出 */
+    /** Stderr */
     private final String stderr;
+    /** 命令字符串 */
+    /** 命令 */
     private final String command;
     /**
      * 开始时间
@@ -44,6 +54,8 @@ public class CmdResult {
      * 超时时间（毫秒）
      */
     private final boolean timeout;
+    /** 异常对象 */
+    /** Throwable */
     private final Throwable throwable;
 
     CmdResult(int exitCode, String stdout, String stderr, String command,
@@ -180,9 +192,17 @@ public class CmdResult {
      * CmdResult 构建器
      */
     public static class CmdResultBuilder {
+        /** 退出码 */
+        /** Exit代码 */
         private int exitCode;
+        /** 标准输出 */
+        /** Stdout */
         private String stdout;
+        /** 标准错误输出 */
+        /** Stderr */
         private String stderr;
+        /** 命令字符串 */
+        /** 命令 */
         private String command;
         /**
          * 开始时间
@@ -196,6 +216,8 @@ public class CmdResult {
          * 超时时间（毫秒）
          */
         private boolean timeout;
+        /** 异常对象 */
+        /** Throwable */
         private Throwable throwable;
 
         CmdResultBuilder() {}

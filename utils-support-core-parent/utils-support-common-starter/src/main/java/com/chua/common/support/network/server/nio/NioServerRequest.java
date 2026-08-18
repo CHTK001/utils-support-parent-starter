@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 将数据 {@link #feed(ByteBuffer)} 进来,内部状态机推进:
  * {@code REQUEST_LINE → HEADERS → BODY → COMPLETE}。</p>
  *
+ * @author CH
  * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
  */
 public class NioServerRequest implements ServerRequest {
@@ -41,36 +42,49 @@ public class NioServerRequest implements ServerRequest {
         REQUEST_LINE, HEADERS, BODY, COMPLETE
     }
 
+    /** 通道 */
     private final SocketChannel channel;
+    /** 最大值请求尺寸 */
     private final long maxRequestSize;
+    /** 默认字符集 */
     private final Charset defaultCharset;
+    /** Method */
     private String method;
+    /** URI */
     private String uri;
+    /** 路径 */
     private String path;
+    /** Query字符串 */
     private String queryString;
+    /** HTTP版本 */
     private String httpVersion = "HTTP/1.1";
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    /** 请求体 */
     private byte[] body;
-    private ByteBuffer buf = ByteBuffer.allocate(8192);
+    /** 行解析缓冲(REQUEST_LINE/HEADERS/chunked 头);懒分配,空闲连接(未收到数据)不占用
+     *  <p>百万级空闲连接场景,每连接省 8KB,整体省数十 GB,是支撑高连接数的关键</p> */
+    /** BUF */
+    private ByteBuffer buf;
+    /** BUFHAS数据 */
     private boolean bufHasData = true;
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-
-    {
-        // 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据
-        buf.limit(0);
-    }
 
     // ==================== 增量解析状态机 ====================
 
     /** 当前解析状态 */
+    /** Parse状态 */
     private ParseState parseState = ParseState.REQUEST_LINE;
     /** 请求体剩余需读取字节数(非 chunked) */
+    /** 请求体剩余 */
     private int bodyRemaining = 0;
     /** 是否 chunked 编码 */
+    /** Chunked */
     private boolean chunked = false;
     /** chunked:当前 chunk 剩余字节 */
+    /** Chunk剩余 */
     private int chunkRemaining = 0;
     /** chunked:是否正在读 chunk 头部行 */
+    /** Chunk头部pending */
     private boolean chunkHeaderPending = false;
 
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {
@@ -86,6 +100,7 @@ public class NioServerRequest implements ServerRequest {
      * @return 1=完整请求已解析完成;0=需要更多数据;-1=解析错误
      */
     int feed(ByteBuffer data) {
+        ensureBuf();
         // BODY 阶段:直接消费 data,不并入行解析缓冲,避免大 body 撑爆 8K 缓冲
         if (parseState == ParseState.BODY && !chunked) {
             if (data != null && data.hasRemaining()) {
@@ -279,6 +294,17 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
+     * 懒分配行解析缓冲:空闲连接(从未收到数据)不占用 8KB。
+     * 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据。
+     */
+    private void ensureBuf() {
+        if (buf == null) {
+            buf = ByteBuffer.allocate(8192);
+            buf.limit(0);
+        }
+    }
+
+    /**
      * 从解析缓冲读取一行(以 \n 结尾,剔除 \r)。找不到完整行返回 null(不移除数据)。
      */
     private String nextLineFromBuf() {
@@ -415,3 +441,4 @@ public class NioServerRequest implements ServerRequest {
         chunkHeaderPending = false;
     }
 }
+

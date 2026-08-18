@@ -61,20 +61,33 @@ import java.util.function.Consumer;
 @Getter
 public class MqttClientWrapper implements AutoCloseable {
 
+    /** Broker */
     private final String broker;
+    /** 客户端ID */
     private final String clientId;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** Keepalive */
     private final int keepAlive;
+    /** Clean会话 */
     private final boolean cleanSession;
+    /** Connection超时 */
     private final int connectionTimeout;
+    /** Automaticreconnect */
     private final boolean automaticReconnect;
 
+    /** Mqtt客户端 */
     private MqttClient mqttClient;
     private final Map<String, List<BiConsumer<String, String>>> topicHandlers = new ConcurrentHashMap<>();
+    /** Connectlisteners */
     private final List<Runnable> connectListeners = new CopyOnWriteArrayList<>();
+    /** Disconnectlisteners */
     private final List<Consumer<Throwable>> disconnectListeners = new CopyOnWriteArrayList<>();
+    /** 错误listeners */
     private final List<Consumer<Throwable>> errorListeners = new CopyOnWriteArrayList<>();
+    /** Connected */
     private final AtomicBoolean connected = new AtomicBoolean(false);
 
     private MqttClientWrapper(Builder b) {
@@ -278,13 +291,21 @@ public class MqttClientWrapper implements AutoCloseable {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** Broker */
         private String broker = "tcp://127.0.0.1:1883";
+        /** 客户端ID */
         private String clientId = "mqtt-client-" + System.currentTimeMillis();
+        /** Username */
         private String username;
+        /** 密码 */
         private String password;
+        /** Keepalive */
         private int keepAlive = 60;
+        /** Clean会话 */
         private boolean cleanSession = true;
+        /** Connection超时 */
         private int connectionTimeout = 10;
+        /** Automaticreconnect */
         private boolean automaticReconnect = true;
 
         public Builder broker(String b) { this.broker = b; return this; }
@@ -302,8 +323,11 @@ public class MqttClientWrapper implements AutoCloseable {
     // ==================== 订阅操作 ====================
 
     public static class SubscribeOperation {
+        /** 客户端 */
         private final MqttClientWrapper client;
+        /** Topic */
         private String topic;
+        /** QOS */
         private int qos = 1;
         private BiConsumer<String, String> handler;
 
@@ -338,10 +362,15 @@ public class MqttClientWrapper implements AutoCloseable {
     // ==================== 发布操作 ====================
 
     public static class PublishOperation {
+        /** 客户端 */
         private final MqttClientWrapper client;
+        /** Topic */
         private String topic;
+        /** Payload */
         private byte[] payload;
+        /** QOS */
         private int qos = 1;
+        /** Retained */
         private boolean retained = false;
 
         PublishOperation(MqttClientWrapper client) { this.client = client; }

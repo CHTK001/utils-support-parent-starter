@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("zhipu")
 public class ZhipuPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://open.bigmodel.cn/dev/howuse/pricing";
 
     @Override

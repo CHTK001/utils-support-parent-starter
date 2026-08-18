@@ -14,11 +14,29 @@ import com.chua.runtime.protocol.Software;
  */
 public class JmsHandler extends AbstractAppHandler {
 
+    /**
+     * 消息 producer
+     */
     private static final String MESSAGE_PRODUCER = "javax/jms/MessageProducer";
+    /**
+     * 消息 consumer
+     */
     private static final String MESSAGE_CONSUMER = "javax/jms/MessageConsumer";
+    /**
+     * SESSION
+     */
     private static final String SESSION = "javax/jms/Session";
+    /**
+     * producer methods
+     */
     private static final String[] PRODUCER_METHODS = {"send"};
+    /**
+     * consumer methods
+     */
     private static final String[] CONSUMER_METHODS = {"receive", "receiveNoWait"};
+    /**
+     * 会话 methods
+     */
     private static final String[] SESSION_METHODS = {"createProducer", "createConsumer", "createDurableConsumer"};
 
     @Override

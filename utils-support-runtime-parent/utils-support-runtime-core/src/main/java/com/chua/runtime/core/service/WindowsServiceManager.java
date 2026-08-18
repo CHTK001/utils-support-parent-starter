@@ -18,6 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class WindowsServiceManager implements ServiceManager {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(WindowsServiceManager.class.getName());
     /**
      * 命令超时（秒）

@@ -22,6 +22,8 @@ import static com.chua.common.support.constant.CommonConstant.*;
  * @since 2020/11/5
  */
 public class SetTypeConverter implements TypeConverter<Set> {
+    /** 单例实例 */
+    /** 实例 */
     public static final SetTypeConverter INSTANCE = new SetTypeConverter();
 
     /**

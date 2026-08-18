@@ -203,9 +203,13 @@ public class MqttServer extends AbstractServer {
 
     // ==================== 注解方法缓存 ====================
 
+    /** ONopenmethods */
     private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
+    /** ONclosemethods */
     private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
+    /** ON消息methods */
     private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
+    /** ON错误methods */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     @Override
@@ -360,10 +364,15 @@ public class MqttServer extends AbstractServer {
     // ==================== 客户端会话 ====================
 
     private class ClientSession {
+        /** 客户端ID */
         private String clientId;
+        /** Socket */
         private final Socket socket;
+        /** IN */
         private final DataInputStream in;
+        /** OUT */
         private final DataOutputStream out;
+        /** Subscriptions */
         private final Set<String> subscriptions = new CopyOnWriteArraySet<>();
 
         ClientSession(String clientId, Socket socket) throws IOException {

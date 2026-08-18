@@ -35,6 +35,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DependencyGraphHandler implements Plugin {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(DependencyGraphHandler.class.getName());
     /**
      * 插件名称

@@ -44,8 +44,11 @@ import java.util.function.Function;
 @Spi("native")
 public class NativeRpcClient implements RpcClient {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(NativeRpcClient.class);
+    /** Header_size */
     private static final int HEADER_SIZE = 4;
+    /** Default_port */
     private static final int DEFAULT_PORT = 18866;
 
     /**
@@ -63,8 +66,11 @@ public class NativeRpcClient implements RpcClient {
      */
     private static final int DEFAULT_READ_TIMEOUT = 10000;
 
+    /** Addresses */
     private final List<String> addresses = new ArrayList<>();
+    /** 服务discovery */
     private final ServiceDiscovery serviceDiscovery;
+    /** APP名称 */
     private final String appName;
 
     /**

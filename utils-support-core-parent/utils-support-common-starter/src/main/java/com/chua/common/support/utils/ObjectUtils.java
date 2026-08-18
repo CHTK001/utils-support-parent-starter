@@ -39,15 +39,24 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * @author CH
  */
 public class ObjectUtils {
+    /** Initial_hash */
     private static final int INITIAL_HASH = 7;
+    /** 倍数 */
     private static final int MULTIPLIER = 31;
 
+    /** Empty_string */
     private static final String EMPTY_STRING = "";
+    /** Null_string */
     private static final String NULL_STRING = "null";
+    /** Array_start */
     private static final String ARRAY_START = "{";
+    /** Array_end */
     private static final String ARRAY_END = "}";
+    /** Empty_array */
     private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
+    /** Array_element_separator */
     private static final String ARRAY_ELEMENT_SEPARATOR = ", ";
+    /** At_sign */
     private static final char AT_SIGN = '@';
 
 

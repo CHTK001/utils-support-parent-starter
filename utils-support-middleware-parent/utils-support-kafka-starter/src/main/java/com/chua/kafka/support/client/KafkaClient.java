@@ -48,14 +48,19 @@ import java.util.function.Consumer;
 @Getter
 public class KafkaClient implements AutoCloseable {
 
+    /** Bootstrapservers */
     private final String bootstrapServers;
+    /** 分组ID */
     private final String groupId;
+    /** Extraprops */
     private final Properties extraProps;
 
     private Producer<String, String> producer;
+    /** Admin客户端 */
     private AdminClient adminClient;
     private final Map<String, KafkaConsumer<String, String>> consumerCache = new ConcurrentHashMap<>();
     private final Map<String, Thread> consumerThreads = new ConcurrentHashMap<>();
+    /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private KafkaClient(String bootstrapServers, String groupId, Properties extraProps) {
@@ -159,8 +164,11 @@ public class KafkaClient implements AutoCloseable {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** Bootstrapservers */
         private String bootstrapServers = "127.0.0.1:9092";
+        /** 分组ID */
         private String groupId = "default-group";
+        /** Extraprops */
         private Properties extraProps = new Properties();
 
         public Builder bootstrapServers(String s) { this.bootstrapServers = s; return this; }
@@ -179,12 +187,18 @@ public class KafkaClient implements AutoCloseable {
     // ==================== 生产者操作 ====================
 
     public static class ProducerOperation {
+        /** 客户端 */
         private final KafkaClient client;
+        /** Topic */
         private String topic;
+        /** 密钥 */
         private String key;
+        /** 值 */
         private String value;
         private Map<String, byte[]> headers = new LinkedHashMap<>();
+        /** Partition */
         private Integer partition;
+        /** 时间戳 */
         private Long timestamp;
 
         ProducerOperation(KafkaClient client) { this.client = client; }
@@ -245,12 +259,18 @@ public class KafkaClient implements AutoCloseable {
     // ==================== 消费者操作 ====================
 
     public static class ConsumerOperation {
+        /** 客户端 */
         private final KafkaClient client;
+        /** 分组ID */
         private String groupId;
+        /** Topics */
         private String[] topics;
         private Consumer<ConsumerRecord<String, String>> handler;
+        /** Autocommit */
         private boolean autoCommit = true;
+        /** 偏移reset */
         private String offsetReset = "latest";
+        /** Poll超时MS */
         private long pollTimeoutMs = 1000;
 
         ConsumerOperation(KafkaClient client) { this.client = client; }
@@ -344,6 +364,7 @@ public class KafkaClient implements AutoCloseable {
     // ==================== 管理操作 ====================
 
     public static class AdminOperation {
+        /** 客户端 */
         private final KafkaClient client;
 
         AdminOperation(KafkaClient client) { this.client = client; }

@@ -16,9 +16,12 @@ import java.util.*;
  */
 public class NettyWebSocketSyncFlow implements SyncFlow {
 
+    /** 客户端 */
     private final NettyWebSocketSyncClient client;
+    /** 服务器 */
     private final NettyHttpSyncServer server;
     private volatile boolean running = false;
+    /** Listeners */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     public NettyWebSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {

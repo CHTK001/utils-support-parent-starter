@@ -17,6 +17,7 @@ import java.util.List;
 
 public class MysqlUserManager implements UserManager, DataSourceAware {
 
+    /** 数据来源 */
     private DataSource dataSource;
 
     @Override

@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 public class RegexUtils {
 
+    /** Number_pattern */
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
     public static Integer getFirstNumber(String text) {

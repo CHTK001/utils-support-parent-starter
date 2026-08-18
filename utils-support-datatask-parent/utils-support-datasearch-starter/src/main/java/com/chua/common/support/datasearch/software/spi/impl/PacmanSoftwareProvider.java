@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("pacman")
 public class PacmanSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(PacmanSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "pacman";
 
     @Override

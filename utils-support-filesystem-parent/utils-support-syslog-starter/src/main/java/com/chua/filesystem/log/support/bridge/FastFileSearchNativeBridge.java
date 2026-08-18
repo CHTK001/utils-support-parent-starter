@@ -29,18 +29,26 @@ import java.util.function.BiConsumer;
 @Slf4j
 public final class FastFileSearchNativeBridge {
 
+    /** Lib_name_windows */
     private static final String LIB_NAME_WINDOWS = "fast_file_search.dll";
+    /** Lib_base_name */
     private static final String LIB_BASE_NAME = "fast_file_search";
 
+    /** Arena */
     private static Arena ARENA;
+    /** Library */
     private static SymbolLookup LIBRARY;
 
+    /** SearchMFThandle */
     private static MethodHandle searchMftHandle;
+    /** Cancelhandle */
     private static MethodHandle cancelHandle;
 
     private static volatile boolean loaded = false;
+    /** Load_lock */
     private static final Object LOAD_LOCK = new Object();
 
+    /** Linker */
     private static final Linker LINKER = Linker.nativeLinker();
 
     static {

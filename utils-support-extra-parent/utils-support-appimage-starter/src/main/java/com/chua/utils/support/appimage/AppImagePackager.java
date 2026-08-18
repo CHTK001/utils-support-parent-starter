@@ -24,9 +24,15 @@ import java.util.stream.Collectors;
  */
 public class AppImagePackager {
 
+    /** 日志记录器 */
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(AppImagePackager.class);
 
+    /** 应用配置属性 */
+    /** 属性 */
     private final AppImageProperties properties;
+    /** 安装器 */
+    /** Installer */
     private final AppImageInstaller installer;
 
     public AppImagePackager(AppImageProperties properties, AppImageInstaller installer) {

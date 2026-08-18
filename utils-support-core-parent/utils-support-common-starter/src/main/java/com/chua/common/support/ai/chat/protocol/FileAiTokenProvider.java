@@ -47,17 +47,22 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     private final Map<String, AiToken> tokenMap = new ConcurrentHashMap<>();
 
     /** 令牌文件路径 */
+    /** 文件路径 */
     private final Path filePath;
 
     /** 令牌文件所在目录 */
+    /** Watch目录 */
     private final Path watchDir;
 
     /** 是否正在监听文件 */
+    /** Watching */
     private final AtomicBoolean watching = new AtomicBoolean(false);
 
     /** 文件监听线程 */
+    /** Watcher线程 */
     private Thread watcherThread;
 
+    /** 日期格式 */
     /** 日期格式 */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 

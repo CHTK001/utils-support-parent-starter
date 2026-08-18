@@ -9,6 +9,7 @@ import java.nio.file.Path;
 
 public class VideoProcessorBridge {
 
+    /** Library_name */
     private static final String LIBRARY_NAME = "video_processor";
     private static volatile boolean loaded = false;
     private static volatile Throwable loadError = null;

@@ -22,7 +22,9 @@ import java.util.Map;
  */
 public class PdfReadBuilder extends ReadBuilder {
 
+    /** 开始页 */
     private int startPage = 1;
+    /** 结束页 */
     private int endPage = Integer.MAX_VALUE;
 
     public PdfReadBuilder(File file) {

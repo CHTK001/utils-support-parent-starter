@@ -25,12 +25,16 @@ import java.util.Set;
 public final class MimeTypeUtils {
 
     /** 浏览器原生可预览的 MIME 类型集合（部分） */
+    /** Browser_preview_mimes */
     private static final Set<String> BROWSER_PREVIEW_MIMES;
     /** 可转换为 PDF 的扩展名集合 */
+    /** Convertable_to_pdf_extensions */
     private static final Set<String> CONVERTABLE_TO_PDF_EXTENSIONS;
     /** 前端插件可预览的扩展名集合（如 Office、CAD 等） */
+    /** Plugin_preview_extensions */
     private static final Set<String> PLUGIN_PREVIEW_EXTENSIONS;
     /** 支持 Range 断点续传的 MIME 类型 */
+    /** Range_supported_mimes */
     private static final Set<String> RANGE_SUPPORTED_MIMES;
     /** 扩展名到 MIME 的映射 */
     private static final Map<String, String> EXTENSION_TO_MIME;

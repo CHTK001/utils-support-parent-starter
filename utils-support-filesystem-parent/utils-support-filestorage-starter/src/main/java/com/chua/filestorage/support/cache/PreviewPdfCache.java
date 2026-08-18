@@ -29,6 +29,7 @@ public class PreviewPdfCache {
      */
     private static final Path DEFAULT_CACHE_DIR = Path.of(System.getProperty("java.io.tmpdir"), "file-storage-preview-cache");
 
+    /** 缓存目录 */
     private final Path cacheDir;
 
     public PreviewPdfCache() {

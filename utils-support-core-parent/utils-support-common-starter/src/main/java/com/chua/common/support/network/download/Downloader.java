@@ -66,8 +66,11 @@ import java.util.concurrent.Future;
 @Slf4j
 public class Downloader {
 
+    /** Default_buffer_size */
     private static final int DEFAULT_BUFFER_SIZE = 8192;
+    /** Default_connect_timeout_ms */
     private static final int DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
+    /** Default_read_timeout_ms */
     private static final int DEFAULT_READ_TIMEOUT_MS = 60_000;
 
     // ===== 链式配置字段 =====
@@ -75,19 +78,32 @@ public class Downloader {
      * 地址
      */
     private String url;
+    /** 目标目录 */
     private Path targetDir;
+    /** Filename */
     private String filename;
+    /** ExpectedMD5 */
     private String expectedMd5;
+    /** Concurrency */
     private int concurrency = 1;
     // ; // bytes per second, 0 = unlimited
+    /** 最大值speed */
     private long maxSpeed = 0;
+    /** Proxy */
     private Proxy proxy;
+    /** Autoextract */
     private boolean autoExtract = false;
+    /** ExtractTO */
     private Path extractTo;
+    /** Skipmd5check */
     private boolean skipMd5Check = false;
+    /** Force下载 */
     private boolean forceDownload = false;
+    /** Showprogress */
     private boolean showProgress = true;
+    /** Connect超时MS */
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MS;
+    /** Read超时MS */
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MS;
     private Map<String, String> headers = new LinkedHashMap<>();
 
@@ -540,9 +556,13 @@ public class Downloader {
      * 限速 InputStream — 通过令牌桶算法控制读取速率。
      */
     private static class ThrottledInputStream extends InputStream {
+        /** Delegate */
         private final InputStream delegate;
+        /** BytesPERMS */
         private final long bytesPerMs;
+        /** Tokens */
         private long tokens;
+        /** 最后refill */
         private long lastRefill;
 
         ThrottledInputStream(InputStream delegate, long bytesPerSecond) {
@@ -601,8 +621,11 @@ public class Downloader {
          * 文件路径
          */
         private Path file;
+        /** Skipped */
         private boolean skipped;
+        /** Reason */
         private String reason;
+        /** MD5 */
         private String md5;
     }
 

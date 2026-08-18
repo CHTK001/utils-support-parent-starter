@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class PahoMqttHandler extends AbstractAppHandler {
 
+    /**
+     * mqtt 客户端
+     */
     private static final String MQTT_CLIENT = "org/eclipse/paho/client/mqttv3/MqttClient";
+    /**
+     * OPERATIONS
+     */
     private static final String[] OPERATIONS = {"connect", "publish", "subscribe", "unsubscribe", "disconnect"};
 
     @Override

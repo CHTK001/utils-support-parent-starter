@@ -24,7 +24,9 @@ import javax.annotation.Nullable;
  */
 public class DefaultImaging implements Imaging{
 
+    /** Buffered图片 */
     private BufferedImage bufferedImage;
+    /** 类型 */
     private String type;
 
     @Override

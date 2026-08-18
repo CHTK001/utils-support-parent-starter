@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class BuiltinShellCommands {
 
     /** 当前工作目录，每个线程独立的上下文 */
+    /** Workingdirectory */
     private final ThreadLocal<Path> workingDirectory = ThreadLocal.withInitial(() ->
             Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize());
 

@@ -33,10 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("alibaba")
 public class AlibabaRegionProvider implements RegionProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(AlibabaRegionProvider.class);
 
+    /** Base */
     private static final String BASE = "https://geo.datav.aliyun.com/areas_v3/bound/";
 
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -49,6 +52,7 @@ public class AlibabaRegionProvider implements RegionProvider {
      */
     private final int defaultLevel;
 
+    /** HTTP客户端 */
     private final HttpClient httpClient;
 
     public AlibabaRegionProvider() {

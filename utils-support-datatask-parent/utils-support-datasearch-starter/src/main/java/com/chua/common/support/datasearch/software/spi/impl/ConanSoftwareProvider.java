@@ -27,8 +27,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("conan")
 public class ConanSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ConanSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "conan";
 
     @Override

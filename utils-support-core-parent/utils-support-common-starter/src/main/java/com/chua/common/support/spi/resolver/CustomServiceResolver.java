@@ -35,6 +35,7 @@ import javax.annotation.Nullable;
  */
 public class CustomServiceResolver implements ServiceResolver {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(CustomServiceResolver.class);
 
     /**

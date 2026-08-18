@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Spi("html")
 public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
+    /** Id_gen */
     private static final AtomicLong ID_GEN = new AtomicLong(System.nanoTime());
 
     @Override
@@ -316,6 +317,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
             .back-top.visible { display:flex; }
             """;
 
+    /** Script */
     private static final String SCRIPT = """
             (function() {
               const tree = document.getElementById('apiTree');

@@ -33,8 +33,11 @@ import org.bouncycastle.crypto.util.PublicKeyFactory;
 @Spi({"bc", "bouncycastle"})
 public class BcEciesCipher implements EciesCipher {
 
+    /** 提供者 */
     private static final String PROVIDER = "BC";
+    /** Curve */
     private static final String CURVE = "secp256r1";
+    /** Key_algorithm */
     private static final String KEY_ALGORITHM = "EC";
 
     static {

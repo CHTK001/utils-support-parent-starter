@@ -45,20 +45,27 @@ import java.util.function.Consumer;
 public class IonetServer extends AbstractServer {
 
     /** 连接方式：TCP / WEBSOCKET / UDP */
+    /** Join类型 */
     private final ExternalJoinEnum joinType;
     /** 逻辑服名称 */
+    /** Logic服务器名称 */
     private final String logicServerName;
     /** Action 类所在包的扫描根类 */
     private final Class<?> scanActionClass;
     /** 是否启用中心服 */
+    /** Enablecenter服务器 */
     private final boolean enableCenterServer;
     /** 是否开启调试插件 */
+    /** 调试模式 */
     private final boolean debugMode;
     /** 额外的 BarSkeletonBuilder 配置 */
+    /** Skeletonconfigurer */
     private final Consumer<BarSkeletonBuilder> skeletonConfigurer;
     /** 额外的 RunOne 配置 */
+    /** RUNONEconfigurer */
     private final Consumer<RunOne> runOneConfigurer;
     /** RunOne 实例 */
+    /** RUNONE */
     private RunOne runOne;
 
     private IonetServer(Builder builder) {
@@ -238,8 +245,17 @@ public class IonetServer extends AbstractServer {
      */
     private static final class IonetServerRequest extends AbstractServerRequest {
 
+        /**
+         * 客户端远端地址
+         */
         private final String remoteAddress;
+        /**
+         * 请求路径
+         */
         private final String path;
+        /**
+         * 请求载荷字节数组
+         */
         private final byte[] payload;
 
         IonetServerRequest(String remoteAddress, String path, String payload) {
@@ -312,13 +328,37 @@ public class IonetServer extends AbstractServer {
     }
 
     public static class Builder {
+        /**
+         * 服务器端口号，默认取外部全局端口
+         */
         private int port = ExternalGlobalConfig.externalPort;
+        /**
+         * 连接方式，默认 TCP
+         */
         private ExternalJoinEnum joinType = ExternalJoinEnum.TCP;
+        /**
+         * 逻辑服名称，默认 IonetLogicServer
+         */
         private String logicServerName = "IonetLogicServer";
+        /**
+         * Action 类所在包的扫描根类
+         */
         private Class<?> scanActionClass;
+        /**
+         * 是否启用中心服，默认 true
+         */
         private boolean enableCenterServer = true;
+        /**
+         * 是否开启调试插件，默认 true
+         */
         private boolean debugMode = true;
+        /**
+         * 额外的 BarSkeletonBuilder 配置器
+         */
         private Consumer<BarSkeletonBuilder> skeletonConfigurer;
+        /**
+         * 额外的 RunOne 配置器
+         */
         private Consumer<RunOne> runOneConfigurer;
 
         public Builder port(int port) { this.port = port; return this; }

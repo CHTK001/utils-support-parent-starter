@@ -8,12 +8,14 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -42,7 +44,6 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>> {
 
     /**
@@ -100,11 +101,19 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
      */
     private final boolean large;
 
+    /** 检测翻译器 */
+    /** DETtranslator */
     private final DuguangDetTranslator detTranslator;
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 识别会话 */
+    /** REC会话 */
     private OrtSession recSession;
+    /** 词表映射 */
     private Map<Integer, String> vocab;
+    /** 是否已加载 */
     private volatile boolean loaded;
 
     /**
@@ -152,7 +161,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         this.recSession = ortEnv.createSession(recPath.toString(), opts);
         this.vocab = loadVocab();
         loaded = true;
-        log.info("[DuguangOCR-rec] ONNX loaded: {} vocab={}", recPath.getFileName(), vocab.size());
+        System.out.println("[DuguangOCR-rec] ONNX loaded: " + recPath.getFileName() + " vocab=" + vocab.size());
     }
 
     /**
@@ -194,7 +203,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     private List<OcrResult> recognize(byte[] imageData) {
         try {
             ImageUtils.load();
-            Mat src = ImageUtils.decode(imageData);
+            Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -224,59 +233,48 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     }
 
     /**
-     * 四点透视裁剪文本行。
+     * 四点透视裁剪文本行（匹配 Python crop_image 逻辑）。
+     * <p>先按 x 排序四角点，左半/右半各按 y 排序得到 top/bottom，
+     * 再按 left-top/right-top/left-bottom/right-bottom 映射透视变换。</p>
      *
      * @param src 原图
      * @param kp  四个角点 [x,y]
      * @return 裁剪后的行图像
      */
     private Mat perspectiveCrop(Mat src, List<float[]> kp) {
-        Point[] corners = new Point[4];
-        for (int i = 0; i < 4; i++) {
-            float[] p = kp.get(i);
-            corners[i] = new Point(p[0], p[1]);
+        // 按 x 排序
+        float[][] sorted = kp.toArray(new float[0][]);
+        java.util.Arrays.sort(sorted, (a, b) -> Float.compare(a[0], b[0]));
+        // 左半 [0],[1]：按 y 排序（小的在上）
+        if (sorted[0][1] > sorted[1][1]) {
+            float[] tmp = sorted[0]; sorted[0] = sorted[1]; sorted[1] = tmp;
         }
-        // 排序：按中心角度（左上、右上、右下、左下）
-        Point[] ordered = orderCorners(corners);
-        double topWidth = Math.hypot(ordered[1].x - ordered[0].x, ordered[1].y - ordered[0].y);
-        double bottomWidth = Math.hypot(ordered[2].x - ordered[3].x, ordered[2].y - ordered[3].y);
-        double leftHeight = Math.hypot(ordered[3].x - ordered[0].x, ordered[3].y - ordered[0].y);
-        double rightHeight = Math.hypot(ordered[2].x - ordered[1].x, ordered[2].y - ordered[1].y);
+        // 右半 [2],[3]：按 y 排序
+        if (sorted[2][1] > sorted[3][1]) {
+            float[] tmp = sorted[2]; sorted[2] = sorted[3]; sorted[3] = tmp;
+        }
+        // sorted[0]=left-top, sorted[1]=left-bottom, sorted[2]=right-top, sorted[3]=right-bottom
+        float[] lt = sorted[0], lb = sorted[1], rt = sorted[2], rb = sorted[3];
+        double topWidth = Math.hypot(rt[0] - lt[0], rt[1] - lt[1]);
+        double bottomWidth = Math.hypot(rb[0] - lb[0], rb[1] - lb[1]);
+        double leftHeight = Math.hypot(lb[0] - lt[0], lb[1] - lt[1]);
+        double rightHeight = Math.hypot(rb[0] - rt[0], rb[1] - rt[1]);
         int w = Math.max(1, (int) Math.round(Math.max(topWidth, bottomWidth)));
         int h = Math.max(1, (int) Math.round(Math.max(leftHeight, rightHeight)));
 
+        Point[] corners = new Point[]{
+            new Point(lt[0], lt[1]), new Point(rt[0], rt[1]),
+            new Point(lb[0], lb[1]), new Point(rb[0], rb[1])};
         Mat dst = new Mat(h, w, src.type());
-        MatOfPoint2f srcPts = new MatOfPoint2f(ordered);
+        MatOfPoint2f srcPts = new MatOfPoint2f(corners);
         MatOfPoint2f dstPts = new MatOfPoint2f(
-                new Point(0, 0), new Point(w - 1, 0), new Point(w - 1, h - 1), new Point(0, h - 1));
+            new Point(0, 0), new Point(w - 1, 0), new Point(0, h - 1), new Point(w - 1, h - 1));
         Mat transform = Imgproc.getPerspectiveTransform(srcPts, dstPts);
         Imgproc.warpPerspective(src, dst, transform, new Size(w, h), Imgproc.INTER_LINEAR, org.opencv.core.Core.BORDER_CONSTANT, Scalar.all(255));
         transform.release();
         srcPts.release();
         dstPts.release();
         return dst;
-    }
-
-    /**
-     * 四角排序（左上、右上、右下、左下）。
-     */
-    private Point[] orderCorners(Point[] corners) {
-        final double cx, cy;
-        double sx = 0, sy = 0;
-        for (Point p : corners) {
-            sx += p.x;
-            sy += p.y;
-        }
-        cx = sx / 4;
-        cy = sy / 4;
-        Point[] sorted = corners.clone();
-        java.util.Arrays.sort(sorted, (a, b) -> {
-            double thetaA = Math.atan2(a.y - cy, a.x - cx);
-            double thetaB = Math.atan2(b.y - cy, b.x - cx);
-            return Double.compare(thetaA, thetaB);
-        });
-        // 排序后是顺时针（从右上开始），调整为左上、右上、右下、左下
-        return new Point[]{sorted[0], sorted[1], sorted[2], sorted[3]};
     }
 
     /**
@@ -294,7 +292,8 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         }
         double ratio = (double) w / h;
         int targetW = Math.min(REC_WIDTH, (int) Math.round(REC_HEIGHT * ratio));
-        Mat resized = ImageUtils.resize(crop, targetW, REC_HEIGHT, Imgproc.INTER_LINEAR);
+            Mat resized = new Mat();
+            Imgproc.resize(crop, resized, new org.opencv.core.Size(targetW, REC_HEIGHT), 0, 0, Imgproc.INTER_LINEAR);
         Mat padded = Mat.zeros(REC_HEIGHT, REC_WIDTH, crop.type());
         resized.copyTo(padded.submat(0, REC_HEIGHT, 0, targetW));
         resized.release();
@@ -315,9 +314,9 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                     int b = rowData[bgrBase] & 0xFF;
                     int g = rowData[bgrBase + 1] & 0xFF;
                     int r = rowData[bgrBase + 2] & 0xFF;
-                    chunkPixels[pixelBase] = r / 255.0f;
+                    chunkPixels[pixelBase] = b / 255.0f;
                     chunkPixels[pixelBase + CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = g / 255.0f;
-                    chunkPixels[pixelBase + 2 * CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = b / 255.0f;
+                    chunkPixels[pixelBase + 2 * CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = r / 255.0f;
                 }
             }
         }
@@ -340,20 +339,17 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                 }
                 int batch = logits.length;
                 int steps = logits[0].length;
-                // large 输出 1 行拼接 3 段（每段 67 步）；small 输出 3 行（每行 75 步）
+                // large 输出 1 行 201 步（连续 CTC，整行 decode，与 Python 一致）；
+                // small 输出 3 行独立 75 步，各自 decode 后按重叠合并
                 if (large && batch == 1) {
-                    for (int c = 0; c < CHUNK_COUNT; c++) {
-                        float[][] seg = new float[LARGE_CHUNK_STEPS][];
-                        System.arraycopy(logits[0], c * LARGE_CHUNK_STEPS, seg, 0, LARGE_CHUNK_STEPS);
-                        texts[c] = decode(seg);
-                    }
+                    return decode(logits[0]);
                 } else {
                     for (int c = 0; c < Math.min(batch, CHUNK_COUNT); c++) {
                         texts[c] = decode(logits[c]);
                     }
                 }
-            }
-        }
+             }
+         }
         return mergeTexts(texts);
     }
 

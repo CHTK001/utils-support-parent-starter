@@ -27,10 +27,14 @@ import java.util.regex.Pattern;
 @Slf4j
 public final class WsBridgeServer {
 
+    /** 端口 */
     private static final int PORT = 8092;
+    /** Ws_tunnel_path */
     private static final Pattern WS_TUNNEL_PATH = Pattern.compile("/ws/([a-z]+)/([a-f0-9\\-]+)");
+    /** Ws_magic */
     private static final String WS_MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
+    /** 注册表 */
     private final TunnelRegistry registry;
     private volatile ServerSocket serverSocket;
     private volatile boolean running;

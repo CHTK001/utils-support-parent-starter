@@ -29,6 +29,8 @@ import javax.annotation.Nullable;
  * @since 4.0.0.42
  */
 public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> {
+    /** 图像预测结果类全限定名 */
+    /** Buffered_image_class */
     private static final String BUFFERED_IMAGE_CLASS = "com.chua.deeplearning.support.ml.BufferedImagePredictResult";
 
     @Override

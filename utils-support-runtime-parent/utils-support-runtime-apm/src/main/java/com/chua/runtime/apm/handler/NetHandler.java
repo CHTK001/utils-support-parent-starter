@@ -38,6 +38,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 4.0.0.42
  */
 public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(NetHandler.class.getName());
 
     /**

@@ -16,13 +16,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NativeUtils {
 
+    /** Os_name */
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
+    /** Raw_arch */
     private static final String RAW_ARCH = System.getProperty("os.arch").toLowerCase();
+    /** Os_arch */
     private static final String OS_ARCH = normalizeArch(RAW_ARCH);
+    /** Os_prefix */
     private static final String OS_PREFIX = getOsPrefix();
+    /** Fallback_arches */
     private static final String[] FALLBACK_ARCHES = buildFallbackArches();
 
     private static final ConcurrentHashMap<String, Boolean> LOADED = new ConcurrentHashMap<>();
+    /** Loaded_paths */
     private static final Set<String> LOADED_PATHS = new LinkedHashSet<>();
 
     private NativeUtils() {}

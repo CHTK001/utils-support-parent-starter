@@ -26,9 +26,13 @@ import java.util.Set;
 @Slf4j
 public class ClusterManager {
 
+    /** Discovery */
     private final ScatterServiceDiscovery discovery;
+    /** Balance */
     private final String balance;
+    /** Self服务器ID */
     private final String selfServerId;
+    /** 分组ID */
     private final String groupId;
 
     public ClusterManager(ScatterServiceDiscovery discovery, String balance) {

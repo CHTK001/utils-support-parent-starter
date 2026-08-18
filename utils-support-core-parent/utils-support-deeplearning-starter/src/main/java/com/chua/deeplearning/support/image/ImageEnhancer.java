@@ -4,7 +4,10 @@ import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
+import javax.imageio.ImageIO;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
@@ -137,6 +140,7 @@ class DefaultImageEnhancer implements ImageEnhancer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
+    /** 设置 */
     private final ModelSetting setting;
 
     /**
@@ -176,11 +180,23 @@ class DefaultImageEnhancer implements ImageEnhancer {
     @Override
     @SuppressWarnings("unchecked")
     public byte[] enhance(byte[] imageData) {
-        ITranslator<byte[], byte[]> t =
-                (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);
+        ITranslator<byte[], Object> t =
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
-        return t.translate(imageData);
+        Object out = t.translate(imageData);
+        if (out instanceof byte[] bytes) {
+            return bytes;
+        }
+        if (out instanceof BufferedImage img) {
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                ImageIO.write(img, "png", bos);
+                return bos.toByteArray();
+            } catch (Exception e) {
+                throw new IllegalStateException("增强结果图像编码失败", e);
+            }
+        }
+        throw new IllegalStateException("增强模型输出类型不支持: " + (out == null ? "null" : out.getClass().getName()));
     }
 }

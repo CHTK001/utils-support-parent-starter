@@ -22,7 +22,9 @@ import java.util.Map;
  */
 public abstract class BaseUsageParser implements UsageParser {
 
+    /** 日志 */
     protected final Logger log = LoggerFactory.getLogger(getClass());
+    /** Day_fmt */
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -62,13 +64,21 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     protected static class DayAggregator {
+        /** DAY */
         private final String day;
+        /** 提供者 */
         private final String provider;
+        /** 输入tokens */
         private int inputTokens;
+        /** 输出tokens */
         private int outputTokens;
+        /** 总数tokens */
         private int totalTokens;
+        /** 总数cost */
         private BigDecimal totalCost = BigDecimal.ZERO;
+        /** 总数持续时间 */
         private long totalDuration;
+        /** 数量 */
         private int count;
 
         DayAggregator(String day, String provider) {

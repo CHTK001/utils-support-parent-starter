@@ -42,10 +42,14 @@ import java.util.Base64;
 @Spi("jdk-websocket")
 public class JdkWebSocketServer extends AbstractServer {
 
+    /** 服务器Socket */
     private ServerSocket serverSocket;
+    /** 执行器 */
     private ExecutorService executor;
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
+    /** Connections */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
+    /** ConnectionIDSEQ */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     public JdkWebSocketServer(ServerSetting setting) {
@@ -521,6 +525,7 @@ public class JdkWebSocketServer extends AbstractServer {
 
     private static class SimpleServerResponse implements ServerResponse {
 
+        /** Connection */
         private final Connection connection;
         private volatile boolean ended;
         private volatile boolean committed;
@@ -532,6 +537,7 @@ public class JdkWebSocketServer extends AbstractServer {
          * 结果
          */
         private Object result;
+        /** Close消息 */
         private String closeMessage;
 
         SimpleServerResponse(Connection connection) {

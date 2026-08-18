@@ -31,6 +31,7 @@ public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
     @RequiredArgsConstructor
     private static class CircuitBreakerAdvice implements MethodInterceptor {
 
+        /** Intercept */
         private final CircuitBreakerIntercept intercept;
 
         @Override

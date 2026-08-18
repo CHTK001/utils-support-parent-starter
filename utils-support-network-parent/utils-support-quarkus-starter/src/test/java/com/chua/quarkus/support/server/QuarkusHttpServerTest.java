@@ -27,10 +27,19 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class QuarkusHttpServerTest {
 
+    /**
+     * 端口号
+     */
     private static int port;
 
+    /**
+     * 服务器实例
+     */
     private static QuarkusHttpServer server;
 
+    /**
+     * http Client
+     */
     private static HttpClient httpClient;
 
     @BeforeAll

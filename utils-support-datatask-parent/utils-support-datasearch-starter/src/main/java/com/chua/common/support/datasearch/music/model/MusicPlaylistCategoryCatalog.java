@@ -14,8 +14,11 @@ import java.util.List;
 @Data
 @Builder
 public class MusicPlaylistCategoryCatalog {
+    /** 来源 */
     private String source;
+    /** HOTtags */
     private List<MusicPlaylistCategory> hotTags;
+    /** Groups */
     private List<MusicPlaylistCategoryGroup> groups;
 }
 

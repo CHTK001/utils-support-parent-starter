@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class CxfHandler extends AbstractAppHandler {
 
+    /**
+     * INVOKER
+     */
     private static final String INVOKER = "org/apache/cxf/endpoint/ClientImpl";
+    /**
+     * PROXY
+     */
     private static final String PROXY = "org/apache/cxf/frontend/ClientProxy";
+    /**
+     * invoke methods
+     */
     private static final String[] INVOKE_METHODS = {"invoke"};
+    /**
+     * proxy methods
+     */
     private static final String[] PROXY_METHODS = {"invoke"};
 
     @Override

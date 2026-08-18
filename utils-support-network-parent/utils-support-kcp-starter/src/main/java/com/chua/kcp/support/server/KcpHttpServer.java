@@ -21,6 +21,9 @@ import java.util.Map;
  */
 public class KcpHttpServer extends AbstractServer {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpHttpServer.class);
 
     /**
@@ -28,6 +31,9 @@ public class KcpHttpServer extends AbstractServer {
      */
     public static final int KCP_CONV = 0x48455054;
 
+    /**
+     * 底层 KCP 服务器实例
+     */
     private KcpServer kcpServer;
 
     public KcpHttpServer(ServerSetting setting) {

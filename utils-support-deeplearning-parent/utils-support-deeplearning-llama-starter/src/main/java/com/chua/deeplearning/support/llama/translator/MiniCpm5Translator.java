@@ -19,9 +19,13 @@ import java.nio.file.Path;
 @Slf4j
 public class MiniCpm5Translator implements ITranslator<String, String>, AutoCloseable {
 
+    /** 默认模型标识 */
+    /** Default_model_id */
     private static final String DEFAULT_MODEL_ID = "minicpm5";
 
+    /** 模型 */
     private volatile LlamaModel model;
+    /** 是否已初始化 */
     private volatile boolean initialized;
 
     @Override

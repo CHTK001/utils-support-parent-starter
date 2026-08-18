@@ -23,48 +23,56 @@ public class FileStorageSetting {
      * 是否启用预览功能（总开关）。
      */
     @Builder.Default
+    /** Openpreview */
     private boolean openPreview = true;
 
     /**
      * 是否启用下载功能（总开关）。
      */
     @Builder.Default
+    /** Open下载 */
     private boolean openDownload = true;
 
     /**
      * 是否启用 Range 断点续传。
      */
     @Builder.Default
+    /** Openrange */
     private boolean openRange = true;
 
     /**
      * 是否启用 webjars 资源访问。
      */
     @Builder.Default
+    /** Openwebjars */
     private boolean openWebjars = true;
 
     /**
      * 是否启用远程文件访问。
      */
     @Builder.Default
+    /** Open远程文件 */
     private boolean openRemoteFile = false;
 
     /**
      * 是否启用闪图（一次性预览/下载）功能。
      */
     @Builder.Default
+    /** Openflash */
     private boolean openFlash = true;
 
     /**
      * 缓存相关配置。
      */
     @Builder.Default
+    /** 缓存 */
     private FileStorageCacheSetting cache = new FileStorageCacheSetting();
 
     /**
      * 水印配置。
      */
     @Builder.Default
+    /** Watermark */
     private FileStorageWatermarkSetting watermark = new FileStorageWatermarkSetting();
 
     /**
@@ -92,5 +100,6 @@ public class FileStorageSetting {
      * 是否启用全局图片滤镜（基于 FileStorageFilterSetting）。
      */
     @Builder.Default
+    /** 图片过滤器是否启用 */
     private boolean imageFilterEnabled = false;
 }

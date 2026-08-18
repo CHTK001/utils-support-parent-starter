@@ -154,12 +154,15 @@ public class SevenZFileSystem implements FileSystem {
 
     public static class SevenZWriteBuilder extends WriteBuilder {
 
+        /** Entries */
         private final List<EntryData> entries = new ArrayList<>();
 
         /** 压缩方法（默认 LZMA2） */
+        /** Compressionmethod */
         private SevenZMethod compressionMethod = SevenZMethod.LZMA2;
 
         /** 压缩级别（-1 表示默认，具体含义随方法而异） */
+        /** Compression级别 */
         private int compressionLevel = -1;
 
         SevenZWriteBuilder(File file) {

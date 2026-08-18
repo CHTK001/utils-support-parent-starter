@@ -45,12 +45,15 @@ import java.util.UUID;
 public class MemoryManager implements AutoCloseable {
 
     /** 记忆存储 */
+    /** Store */
     private final MemoryStore store;
 
     /** 记忆配置 */
+    /** 配置 */
     private final MemoryConfig config;
 
     /** 默认总结 prompt */
+    /** Default_summarizer_prompt */
     private static final String DEFAULT_SUMMARIZER_PROMPT =
             "请从以下对话内容中提炼出关键信息，生成一条高质量的记忆条目。\n"
             + "要求：\n"

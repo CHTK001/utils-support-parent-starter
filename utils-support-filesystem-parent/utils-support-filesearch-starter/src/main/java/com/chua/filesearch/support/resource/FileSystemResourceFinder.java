@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FileSystemResourceFinder extends AbstractResourceFinder {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FileSystemResourceFinder.class);
 
     /**

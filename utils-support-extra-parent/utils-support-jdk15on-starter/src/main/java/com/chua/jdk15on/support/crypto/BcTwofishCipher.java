@@ -23,8 +23,11 @@ import java.security.SecureRandom;
 @Spi({"bc", "bouncycastle"})
 public class BcTwofishCipher implements TwofishCipher {
 
+    /** 提供者 */
     private static final String PROVIDER = "BC";
+    /** 算法 */
     private static final String ALGORITHM = "Twofish";
+    /** Transformation */
     private static final String TRANSFORMATION = "Twofish/CBC/PKCS7Padding";
 
     static {

@@ -14,8 +14,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JacksonSerialization implements Serialization {
 
+    /** 单例实例 */
+    /** 实例 */
     public static final JacksonSerialization INSTANCE = new JacksonSerialization();
 
+    /** JSON 对象映射器 */
+    /** Objectmapper */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

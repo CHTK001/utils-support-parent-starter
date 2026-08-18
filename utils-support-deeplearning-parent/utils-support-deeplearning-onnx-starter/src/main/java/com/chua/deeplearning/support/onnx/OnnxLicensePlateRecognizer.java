@@ -12,9 +12,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
+    /** 模型名称 */
+    /** 模型名称 */
     private String modelName;
+    /** 阈值 */
+    /** 阈值 */
     private float threshold = 0.5f;
+    /** 模型路径 */
+    /** 模型路径 */
     private String modelPath;
+    /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxLicensePlateRecognizer(String apiKey) {

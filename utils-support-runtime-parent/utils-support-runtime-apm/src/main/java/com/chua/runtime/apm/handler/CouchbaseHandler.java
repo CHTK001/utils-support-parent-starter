@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class CouchbaseHandler extends AbstractAppHandler {
 
+    /**
+     * BUCKET
+     */
     private static final String BUCKET = "com/couchbase/client/java/Bucket";
+    /**
+     * COLLECTION
+     */
     private static final String COLLECTION = "com/couchbase/client/java/Collection";
+    /**
+     * bucket methods
+     */
     private static final String[] BUCKET_METHODS = {"defaultCollection", "collection"};
+    /**
+     * collection methods
+     */
     private static final String[] COLLECTION_METHODS = {"get", "insert", "upsert", "replace", "remove", "query"};
 
     @Override

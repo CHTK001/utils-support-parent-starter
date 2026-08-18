@@ -53,13 +53,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class TcpProxyServerFilter implements ServerFilter {
 
+    /** Connect超时MS */
     private final int connectTimeoutMs;
+    /** Read超时MS */
     private final int readTimeoutMs;
+    /** 目标解析器 */
     private final ProxyTargetResolver targetResolver;
+    /** Running */
     private final AtomicBoolean running = new AtomicBoolean(false);
+    /** 是否激活connections */
     private final AtomicInteger activeConnections = new AtomicInteger(0);
+    /** Vertx */
     private Vertx vertx;
+    /** NET服务器 */
     private NetServer netServer;
+    /** NET客户端 */
     private NetClient netClient;
 
     public TcpProxyServerFilter() {

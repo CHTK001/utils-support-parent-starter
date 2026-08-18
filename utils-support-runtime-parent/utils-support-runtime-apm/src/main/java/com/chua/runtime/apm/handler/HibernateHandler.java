@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class HibernateHandler extends AbstractAppHandler {
 
+    /**
+     * SESSION
+     */
     private static final String SESSION = "org/hibernate/Session";
+    /**
+     * 会话 methods
+     */
     private static final String[] SESSION_METHODS = {"save", "update", "delete", "load", "get", "merge", "persist"};
 
     @Override

@@ -28,12 +28,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class CModeProbe implements ProbeStrategy {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(CModeProbe.class);
+    /** Connect_timeout_ms */
     private static final int CONNECT_TIMEOUT_MS = 200;
+    /** Max_hosts_per_cidr */
     private static final int MAX_HOSTS_PER_CIDR = 256;
 
+    /** 配置 */
     private final MeshConfig config;
+    /** 本地服务器ID */
     private final String localServerId;
+    /** Discovered */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
     private volatile boolean stopped;
 

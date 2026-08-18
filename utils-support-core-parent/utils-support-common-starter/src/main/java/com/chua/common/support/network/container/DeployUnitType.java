@@ -30,6 +30,7 @@ public enum DeployUnitType {
     /** Main 类部署（将 Main 方法作为 Web 入口启动） */
     MAIN("class");
 
+    /** Extension */
     private final String extension;
 
     DeployUnitType(String extension) {

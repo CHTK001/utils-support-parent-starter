@@ -159,10 +159,11 @@ public class TcpScatterRemoteClient implements ScatterRemoteClient<Object> {
 
         long effectiveTimeout = timeoutMillis > TIMEOUT_THRESHOLD ? timeoutMillis : DEFAULT_RESPONSE_TIMEOUT;
         String requestId = context.getRequestId();
-        CompletableFuture<ScatterResult<Object>> future = new CompletableFuture<>();
-        if (requestId != null) {
-            pendingResponses.put(requestId, future);
+        if (requestId == null || requestId.isBlank()) {
+            return ScatterResult.failure(node.getNodeId(), "请求缺少 requestId");
         }
+        CompletableFuture<ScatterResult<Object>> future = new CompletableFuture<>();
+        pendingResponses.put(requestId, future);
 
         try {
             client.send(SYNC_REQUEST_TOPIC, context);

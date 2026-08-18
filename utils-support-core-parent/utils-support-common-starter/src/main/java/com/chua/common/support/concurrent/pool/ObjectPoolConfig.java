@@ -23,6 +23,7 @@ public class ObjectPoolConfig {
      * 默认 10。
      */
     @Builder.Default
+    /** 最大值总数 */
     private int maxTotal = 10;
 
     /**
@@ -40,6 +41,7 @@ public class ObjectPoolConfig {
      * 默认 0（不预热）。
      */
     @Builder.Default
+    /** 最小值idle */
     private int minIdle = 0;
 
     /**
@@ -49,6 +51,7 @@ public class ObjectPoolConfig {
      * 默认 3000ms。
      */
     @Builder.Default
+    /** Borrow超时毫秒 */
     private long borrowTimeoutMillis = 3000;
 
     /**
@@ -57,6 +60,7 @@ public class ObjectPoolConfig {
      * <p>空闲对象超过此时间未被使用将被销毁。默认 60000ms（1 分钟）。
      */
     @Builder.Default
+    /** Idle超时毫秒 */
     private long idleTimeoutMillis = 60000;
 
     /**
@@ -65,6 +69,7 @@ public class ObjectPoolConfig {
      * <p>开启后定期清理超时的空闲对象。默认开启。
      */
     @Builder.Default
+    /** Idleeviction是否启用 */
     private boolean idleEvictionEnabled = true;
 
     /**
@@ -73,6 +78,7 @@ public class ObjectPoolConfig {
      * <p>每次检测的间隔时间。默认 30000ms（30 秒）。
      */
     @Builder.Default
+    /** Idleeviction间隔毫秒 */
     private long idleEvictionIntervalMillis = 30000;
 
     /**
@@ -82,6 +88,7 @@ public class ObjectPoolConfig {
      * 不可用则销毁并创建新对象。默认开启。
      */
     @Builder.Default
+    /** 测试ONborrow */
     private boolean testOnBorrow = true;
 
     /**
@@ -91,5 +98,6 @@ public class ObjectPoolConfig {
      * 无效对象直接销毁不放回池中。默认开启。
      */
     @Builder.Default
+    /** 测试ON返回值 */
     private boolean testOnReturn = true;
 }

@@ -469,6 +469,7 @@ public class SpringBootObjectContext implements ObjectContext {
      */
     private static class SpringBootEnvironment implements Environment {
 
+        /** SpringENV */
         private final org.springframework.core.env.Environment springEnv;
 
         SpringBootEnvironment(ApplicationContext applicationContext) {

@@ -29,9 +29,13 @@ import java.lang.reflect.Method;
 @SpiDescribe("JSR 标准生命周期处理器（@PostConstruct、@PreDestroy）")
 public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
+    /** Post_construct_javax */
     private static final String POST_CONSTRUCT_JAVAX = "javax.annotation.PostConstruct";
+    /** Post_construct_jakarta */
     private static final String POST_CONSTRUCT_JAKARTA = "jakarta.annotation.PostConstruct";
+    /** Pre_destroy_javax */
     private static final String PRE_DESTROY_JAVAX = "javax.annotation.PreDestroy";
+    /** Pre_destroy_jakarta */
     private static final String PRE_DESTROY_JAKARTA = "jakarta.annotation.PreDestroy";
 
     @Override

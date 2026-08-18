@@ -18,9 +18,13 @@ import javax.annotation.Nullable;
 @EqualsAndHashCode(callSuper = true)
 public class ImagePoint extends Point {
 
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
+    /** 比率 */
     private double rate;
+    /** 宽度 */
     private int width;
+    /** 高度 */
     private int height;
 
     public ImagePoint(double rate) {

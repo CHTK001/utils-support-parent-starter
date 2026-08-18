@@ -103,6 +103,7 @@ public class LaMaConfiguration {
      * 指定需要移除的颜色，格式为RGB
      */
     // 默认白色
+    /** 目标颜色 */
     private int[] targetColor = {255, 255, 255};
 
     /**

@@ -23,6 +23,9 @@ import com.chua.common.support.lang.process.ProgressBarStyle;
  */
 public class SshProgress implements AutoCloseable {
 
+    /**
+     * 委托对象
+     */
     private final ProgressBar delegate;
 
     /**

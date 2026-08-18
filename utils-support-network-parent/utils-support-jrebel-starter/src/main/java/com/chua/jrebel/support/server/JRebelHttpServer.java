@@ -204,6 +204,9 @@ licenseType=0
         }
     }
 
+    /**
+     * JDK HttpServer 实例
+     */
     private com.sun.net.httpserver.HttpServer httpServer;
 
     private java.util.concurrent.Executor createExecutor() {

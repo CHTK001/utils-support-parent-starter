@@ -35,18 +35,25 @@ import java.util.regex.PatternSyntaxException;
 @Slf4j
 public class WindowsEventLogProvider implements SystemLogProvider {
 
+    /** Sources */
     private static final List<String> SOURCES = List.of("System", "Application", "Security");
 
+    /** Eventlog_sequential_read */
     private static final int EVENTLOG_SEQUENTIAL_READ = 0x0001;
+    /** Eventlog_forwards_read */
     private static final int EVENTLOG_FORWARDS_READ    = 0x0004;
+    /** Eventlog_seek_read */
     private static final int EVENTLOG_SEEK_READ        = 0x0002;
 
+    /** Buffer_size */
     private static final int BUFFER_SIZE = 65536;
 
+    /** Timestamp_formatter */
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .withZone(ZoneId.systemDefault());
 
+    /** 注册表 */
     private final NativeFunctionRegistry registry;
 
     private volatile MethodHandle openEventLog;

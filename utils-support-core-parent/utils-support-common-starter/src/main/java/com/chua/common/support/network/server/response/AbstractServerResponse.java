@@ -24,9 +24,11 @@ import java.nio.charset.StandardCharsets;
 public abstract class AbstractServerResponse implements ServerResponse {
 
     /** HTTP 状态码 */
+    /** 状态代码 */
     protected int statusCode = 200;
 
     /** 响应头集合 */
+    /** Headers */
     protected HttpHeader headers = HttpHeader.create();
 
     /**
@@ -35,9 +37,11 @@ public abstract class AbstractServerResponse implements ServerResponse {
     protected byte[] body;
 
     /** 是否已提交响应头 */
+    /** Committed */
     protected boolean committed;
 
     /** 是否已调用 end() 终止 */
+    /** Ended */
     protected boolean ended;
 
     @Override

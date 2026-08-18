@@ -308,11 +308,16 @@ public class AgentEditorProvider {
      * MCP Server 配置模型（从 JSON 反序列化，用于 TRAE-CN 等插件发现场景）
      */
     protected static class McpServerConfig {
+        /** 名称 */
         private String name;
+        /** 命令 */
         private String command;
+        /** 参数 */
         private List<String> args;
         private Map<String, String> env;
+        /** URL */
         private String url;
+        /** 类型 */
         private String type;
 
         public String getName() { return name; }

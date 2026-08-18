@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class MyBatisHandler extends AbstractAppHandler {
 
+    /**
+     * sql 会话
+     */
     private static final String SQL_SESSION = "org/apache/ibatis/session/SqlSession";
+    /**
+     * sql methods
+     */
     private static final String[] SQL_METHODS = {"selectOne", "selectList", "selectMap", "insert", "update", "delete"};
 
     @Override

@@ -48,9 +48,11 @@ import java.util.UUID;
 public class MemoryMcpPlugin {
 
     /** 工具名称前缀 */
+    /** Prefix */
     private static final String PREFIX = "memory_";
 
     /** 记忆管理器 */
+    /** 管理器 */
     private final MemoryManager manager;
 
     public MemoryMcpPlugin(MemoryManager manager) {
@@ -68,6 +70,7 @@ public class MemoryMcpPlugin {
         // memory_save
         mcpManager.register("memory", new com.chua.common.support.ai.mcp.McpClient() {
             /** 是否已初始化 */
+            /** Initialized */
             private boolean initialized = false;
 
             @Override

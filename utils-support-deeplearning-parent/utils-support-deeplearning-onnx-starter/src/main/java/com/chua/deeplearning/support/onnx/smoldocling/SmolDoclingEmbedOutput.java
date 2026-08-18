@@ -11,6 +11,8 @@ import ai.djl.ndarray.NDArray;
  */
 public class SmolDoclingEmbedOutput {
 
+    /** 嵌入向量 */
+    /** Embeddings */
     private final NDArray embeddings;
 
     public SmolDoclingEmbedOutput(NDArray embeddings) {

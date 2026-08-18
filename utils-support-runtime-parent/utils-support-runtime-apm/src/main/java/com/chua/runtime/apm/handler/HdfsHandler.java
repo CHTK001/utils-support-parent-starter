@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class HdfsHandler extends AbstractAppHandler {
 
+    /**
+     * file system
+     */
     private static final String FILE_SYSTEM = "org/apache/hadoop/fs/FileSystem";
+    /**
+     * fs methods
+     */
     private static final String[] FS_METHODS = {"open", "create", "delete", "rename", "listStatus", "mkdirs", "exists", "getFileStatus"};
 
     @Override

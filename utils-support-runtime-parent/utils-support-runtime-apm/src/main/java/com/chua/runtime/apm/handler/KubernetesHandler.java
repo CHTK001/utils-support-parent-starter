@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class KubernetesHandler extends AbstractAppHandler {
 
+    /**
+     * api 客户端
+     */
     private static final String API_CLIENT = "io/kubernetes/client/openapi/ApiClient";
+    /**
+     * api methods
+     */
     private static final String[] API_METHODS = {"execute", "call"};
 
     @Override

@@ -22,6 +22,7 @@ public class MemoryConfig {
      * <p>为 {@code engine} 时必须提供 {@link #engine}。</p>
      */
     @Builder.Default
+    /** Store类型 */
     private String storeType = "file";
 
     /**
@@ -36,6 +37,7 @@ public class MemoryConfig {
      * 该目录下按 session 分子目录存储记忆条目。
      */
     @Builder.Default
+    /** Workspace */
     private String workspace = ".agent/memory";
 
     /**
@@ -45,6 +47,7 @@ public class MemoryConfig {
      * 默认 2000 字符。
      */
     @Builder.Default
+    /** 最大值内容长度 */
     private int maxContentLength = 2000;
 
     /**
@@ -54,6 +57,7 @@ public class MemoryConfig {
      * 默认 500 条。
      */
     @Builder.Default
+    /** 最大值entries */
     private int maxEntries = 500;
 
     /**
@@ -88,5 +92,6 @@ public class MemoryConfig {
      * 默认为 true。
      */
     @Builder.Default
+    /** Autosummarize */
     private boolean autoSummarize = true;
 }

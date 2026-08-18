@@ -23,11 +23,16 @@ import java.util.List;
  */
 public class UdpModeProbe implements ProbeStrategy {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(UdpModeProbe.class);
+    /** Receive_timeout_ms */
     private static final int RECEIVE_TIMEOUT_MS = 2000;
 
+    /** 配置 */
     private final MeshConfig config;
+    /** 本地服务器ID */
     private final String localServerId;
+    /** Discovered */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
     private volatile boolean stopped;
 

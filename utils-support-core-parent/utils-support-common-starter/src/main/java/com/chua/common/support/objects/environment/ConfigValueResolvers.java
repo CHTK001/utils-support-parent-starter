@@ -14,6 +14,7 @@ import java.util.List;
 @Slf4j
 public final class ConfigValueResolvers {
 
+    /** Resolvers */
     private static final List<ConfigValueExpressionResolver> RESOLVERS;
 
     static {

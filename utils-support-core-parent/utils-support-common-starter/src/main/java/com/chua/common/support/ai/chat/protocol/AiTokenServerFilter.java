@@ -27,17 +27,22 @@ import lombok.extern.slf4j.Slf4j;
 public class AiTokenServerFilter implements ServerFilter {
 
     /** 请求属性名：token 分组 */
+    /** Attr_token_group */
     public static final String ATTR_TOKEN_GROUP = "_ai_token_group";
     /** 请求属性名：token 值 */
+    /** Attr_token_value */
     public static final String ATTR_TOKEN_VALUE = "_ai_token_value";
     /** 请求属性名：token 对象 */
+    /** Attr_token */
     public static final String ATTR_TOKEN = "_ai_token";
 
+    /** 令牌提供者 */
     /** 令牌提供者 */
     private final AiTokenProvider tokenProvider;
 
     /** 未认证时的错误消息 */
     @Setter
+    /** Unauthorized消息 */
     private String unauthorizedMessage = "Invalid or expired token";
 
     /** 是否启用 */

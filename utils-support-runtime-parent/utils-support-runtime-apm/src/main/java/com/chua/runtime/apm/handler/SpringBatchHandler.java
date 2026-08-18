@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SpringBatchHandler extends AbstractAppHandler {
 
+    /**
+     * STEP
+     */
     private static final String STEP = "org/springframework/batch/core/step/Step";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override

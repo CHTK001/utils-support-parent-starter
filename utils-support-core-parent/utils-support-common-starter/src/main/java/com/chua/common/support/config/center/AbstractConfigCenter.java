@@ -24,6 +24,8 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
      * 配置中心连接设置。
      */
     protected final ConfigCenterSetting configCenterSetting;
+    /** 配置监听器列表 */
+    /** Listeners */
     protected List<ConfigListener> listeners;
 
     /**

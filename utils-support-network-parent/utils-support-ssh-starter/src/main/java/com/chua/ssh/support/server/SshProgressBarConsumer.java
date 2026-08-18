@@ -10,9 +10,18 @@ import com.chua.common.support.lang.process.ProgressBarConsumer;
  */
 public class SshProgressBarConsumer implements ProgressBarConsumer {
 
+    /**
+     * 默认 width
+     */
     private static final int DEFAULT_WIDTH = 80;
 
+    /**
+     * 响应
+     */
     private final SshCommandResponse response;
+    /**
+     * max Rendered Length
+     */
     private final int maxRenderedLength;
 
     public SshProgressBarConsumer(SshCommandResponse response) {

@@ -52,6 +52,9 @@ import java.util.function.Consumer;
  */
 public class KcpClient {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpClient.class);
 
     /**

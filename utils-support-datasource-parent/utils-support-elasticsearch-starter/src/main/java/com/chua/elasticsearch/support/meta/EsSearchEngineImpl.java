@@ -24,6 +24,7 @@ import java.util.Map;
  */
 public class EsSearchEngineImpl implements SearchEngine {
 
+    /** 引擎 */
     private final ElasticsearchEngine engine;
 
     public EsSearchEngineImpl(ElasticsearchEngine engine) {

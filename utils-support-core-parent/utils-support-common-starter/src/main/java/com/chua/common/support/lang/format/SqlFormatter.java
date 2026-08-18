@@ -134,6 +134,7 @@ public abstract class SqlFormatter implements Formatter {
                 '=', '<', '>', '+', '-', '*', '/', '(', ')', ',', ';', '.'
         ));
     }
+    /** Highlight配置 */
     protected HighlightConfig highlightConfig = new HighlightConfig();
 
     // ==================== 构造函数 ====================

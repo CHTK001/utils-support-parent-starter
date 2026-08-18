@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
  */
 public class CircleCodeEyeResolver implements CodeEyeResolver{
     
+    /** 单位宽度 */
     private int unitWidth = 54;
 
     public CircleCodeEyeResolver() {

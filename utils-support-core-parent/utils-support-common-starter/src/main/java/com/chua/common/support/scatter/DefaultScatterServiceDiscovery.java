@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -193,7 +194,6 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                 .port(setting.getPort())
                 .timeout((int) setting.getTimeoutMillis())
                 .weight(computeDynamicWeight())
-                .metadata(Map.of(METADATA_SEED, METADATA_VALUE_TRUE))
                 .build();
         registerService(setting.getServicePath(), self);
     }
@@ -242,6 +242,13 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
         try {
             // 同步即心跳：更新自身动态权重（远端通过 gossip 拉取到最新权重，替代独立心跳）
             if (setting.isDynamicWeight()) {
+                // 保留已有 metadata，仅覆写权重
+                Set<Discovery> existing = getServiceAll(setting.getServicePath());
+                java.util.Map<String, String> meta = existing.stream()
+                        .filter(d -> setting.getNodeId().equals(d.getServerId()))
+                        .findFirst()
+                        .map(d -> d.getMetadata() == null ? Map.<String, String>of() : d.getMetadata())
+                        .orElse(Map.<String, String>of());
                 updateService(setting.getServicePath(), Discovery.builder()
                         .id(setting.getNodeId())
                         .serverId(setting.getNodeId())
@@ -251,7 +258,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                         .port(setting.getPort())
                         .timeout((int) setting.getTimeoutMillis())
                         .weight(computeDynamicWeight())
-                        .metadata(Map.of())
+                        .metadata(meta)
                         .build());
             }
             List<ScatterNode> remoteNodes = new ArrayList<>(resolveSeedNodes());
@@ -320,17 +327,32 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                 return;
             }
             long now = System.currentTimeMillis();
+            // 复制对象写入 lastSeen，避免修改缓存中的共享 Discovery
+            List<Discovery> toPersist = new ArrayList<>(nodes.size());
             for (Discovery node : nodes) {
                 Map<String, String> metadata = new java.util.HashMap<>(node.getMetadata() == null ? Map.of() : node.getMetadata());
                 metadata.put(METADATA_LAST_SEEN, String.valueOf(now));
-                node.setMetadata(metadata);
+                Discovery copy = Discovery.builder()
+                        .id(node.getId())
+                        .serverId(node.getServerId())
+                        .scatterId(node.getScatterId())
+                        .protocol(node.getProtocol())
+                        .host(node.getHost())
+                        .port(node.getPort())
+                        .timeout(node.getTimeout())
+                        .weight(node.getWeight())
+                        .uriSpec(node.getUriSpec())
+                        .metadata(metadata)
+                        .env(node.getEnv())
+                        .build();
+                toPersist.add(copy);
             }
             java.nio.file.Path path = java.nio.file.Paths.get(setting.getPersistenceFile());
             if (path.getParent() != null) {
                 java.nio.file.Files.createDirectories(path.getParent());
             }
-            java.nio.file.Files.write(path, Json.toJson(nodes).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            log.debug("节点持久化完成: {} 个节点 -> {}", nodes.size(), setting.getPersistenceFile());
+            java.nio.file.Files.write(path, Json.toJson(toPersist).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            log.debug("节点持久化完成: {} 个节点 -> {}", toPersist.size(), setting.getPersistenceFile());
         } catch (Exception e) {
             log.warn("节点持久化失败: {}", e.getMessage());
         }

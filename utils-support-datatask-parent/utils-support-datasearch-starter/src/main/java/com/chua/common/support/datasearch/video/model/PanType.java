@@ -24,7 +24,9 @@ public enum PanType {
     ED2K("ed2k", "电¿链接"),
     OTHERS("others", "其他");
 
+    /** 代码 */
     private final String code;
+    /** 名称 */
     private final String name;
 
     PanType(String code, String name) {

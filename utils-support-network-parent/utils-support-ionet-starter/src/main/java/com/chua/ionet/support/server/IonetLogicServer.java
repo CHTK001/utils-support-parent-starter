@@ -20,9 +20,21 @@ import java.util.function.Consumer;
 @Slf4j
 public class IonetLogicServer implements LogicServer {
 
+    /**
+     * 逻辑服名称
+     */
     private final String name;
+    /**
+     * Action 扫描根类
+     */
     private final Class<?> scanActionClass;
+    /**
+     * 是否开启调试模式
+     */
     private final boolean debugMode;
+    /**
+     * BarSkeletonBuilder 自定义配置器
+     */
     private final Consumer<BarSkeletonBuilder> skeletonConfigurer;
 
     public IonetLogicServer(String name, Class<?> scanActionClass, boolean debugMode,

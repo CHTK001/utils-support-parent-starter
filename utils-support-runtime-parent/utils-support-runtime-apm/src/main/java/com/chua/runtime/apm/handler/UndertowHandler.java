@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class UndertowHandler extends AbstractAppHandler {
 
+    /**
+     * HTTP handler
+     */
     private static final String HTTP_HANDLER = "io/undertow/server/HttpHandler";
+    /**
+     * handle 请求
+     */
     private static final String[] HANDLE_REQUEST = {"handleRequest"};
 
     @Override

@@ -27,6 +27,7 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
      * 被委托的框架环境
      */
     @Getter
+    /** Delegate */
     private final Environment delegate;
 
     @Override

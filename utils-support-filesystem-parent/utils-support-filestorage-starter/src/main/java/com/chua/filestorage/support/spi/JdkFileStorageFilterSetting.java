@@ -25,10 +25,14 @@ import java.util.regex.Pattern;
 @Spi("jdk")
 public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
 
+    /** Prefix */
     private static final String PREFIX = "filestorage.filter.";
 
+    /** 过滤器chain */
     private final List<FileStorageFilterSetting.ImageFilterConfig> filterChain;
+    /** Exclude路径patterns */
     private final List<Pattern> excludePathPatterns;
+    /** Excludeextensions */
     private final Set<String> excludeExtensions;
 
     public JdkFileStorageFilterSetting() {

@@ -12,16 +12,27 @@ import java.time.LocalDateTime;
  */
 public class PanResource {
 
+    /** 标题 */
     private String title;
+    /** URL */
     private String url;
+    /** PAN类型 */
     private PanType panType;
+    /** 尺寸 */
     private String size;
+    /** 描述 */
     private String description;
+    /** Publish时间 */
     private LocalDateTime publishTime;
+    /** 来源 */
     private String source;
+    /** 分数 */
     private Double score;
+    /** Extract代码 */
     private String extractCode;
+    /** 是否有效 */
     private Boolean valid;
+    /** Create时间 */
     private LocalDateTime createTime;
 
     public PanResource() {

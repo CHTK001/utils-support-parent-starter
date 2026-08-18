@@ -44,7 +44,9 @@ import java.util.concurrent.CompletionStage;
 @Slf4j
 public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilter {
 
+    /** Vertx */
     private Vertx vertx;
+    /** HTTP客户端 */
     private HttpClient httpClient;
 
     @Override
