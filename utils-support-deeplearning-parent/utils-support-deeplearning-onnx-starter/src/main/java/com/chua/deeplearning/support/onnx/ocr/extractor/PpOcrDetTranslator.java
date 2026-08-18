@@ -38,6 +38,15 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private static final float THRESHOLD = 0.3f;
     private static final int MAX_SIDE = 960;
 
+    /**
+     * 获取 DB 二值化阈值，子类可覆盖（如 medium 模型用 0.25）。
+     *
+     * @return 阈值
+     */
+    protected float getThreshold() {
+        return THRESHOLD;
+    }
+
     private static final String MODEL_FILE = "inference.onnx";
 
     /**
@@ -242,7 +251,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         byte[] binData = new byte[mapH * mapW];
         for (int y = 0; y < mapH; y++) {
             for (int x = 0; x < mapW; x++) {
-                binData[y * mapW + x] = (probs[y][x] >= THRESHOLD) ? (byte) 255 : (byte) 0;
+                binData[y * mapW + x] = (probs[y][x] >= getThreshold()) ? (byte) 255 : (byte) 0;
             }
         }
         binary.put(0, 0, binData);

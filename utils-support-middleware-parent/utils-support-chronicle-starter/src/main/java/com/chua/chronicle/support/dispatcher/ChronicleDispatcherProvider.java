@@ -130,13 +130,18 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                                 for (var def : definitions) {
                                     try {
                                         Object payload = deserialize(text, def);
-                                        System.out.println("[CHRONICLE-CONSUME] topic=" + topic + " payload=" + payload);
                                         def.dispatch(payload);
                                     } catch (Exception e) {
                                         log.warn("订阅方法执行异常，主题：{}", topic, e);
                                     }
                                 }
                             }
+                        }
+                    } else {
+                        // 无数据时短暂休眠，避免 busy-spin
+                        try { Thread.sleep(1); } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            break;
                         }
                     }
                 } catch (Exception e) {
@@ -155,9 +160,17 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     private void startFallbackConsumer(String topic) {
         executor.submit(() -> {
             var fallbackQueue = fallbackQueueMap.computeIfAbsent(topic, t -> new java.util.concurrent.LinkedBlockingQueue<>(FALLBACK_QUEUE_CAPACITY));
+            long consumed = 0;
             while (!closed) {
                 try {
-                    var body = fallbackQueue.take();
+                    var body = fallbackQueue.poll(1, TimeUnit.SECONDS);
+                    if (body == null) {
+                        if (consumed > 0) {
+                            log.warn("回退队列 topic={} 已空，共消费 {} 条", topic, consumed);
+                        }
+                        continue;
+                    }
+                    consumed++;
                     var definitions = definitionMap.get(topic);
                     if (definitions != null) {
                         for (var def : definitions) {
@@ -169,6 +182,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                         }
                     }
                 } catch (InterruptedException e) {
+                    log.warn("回退消费者线程被中断 topic={} 已消费={}", topic, consumed);
                     Thread.currentThread().interrupt();
                     break;
                 }
