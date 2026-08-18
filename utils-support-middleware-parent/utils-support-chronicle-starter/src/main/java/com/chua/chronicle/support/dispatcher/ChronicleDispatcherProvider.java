@@ -65,15 +65,8 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     public void publish(String topic, Object body) {
         var queue = getOrCreateQueue(topic);
         try {
-            String value;
-            try {
-                value = body == null ? "" : MAPPER.writeValueAsString(body);
-            } catch (Exception e) {
-                log.error("Chronicle 序列化消息失败，主题：{}", topic, e);
-                return;
-            }
             try (var dc = queue.createAppender().writingDocument()) {
-                dc.wire().write("msg").text(value);
+                dc.wire().write("msg").object(body);
             }
             log.debug("Chronicle 已发布消息到主题：{}", topic);
         } catch (Throwable t) {

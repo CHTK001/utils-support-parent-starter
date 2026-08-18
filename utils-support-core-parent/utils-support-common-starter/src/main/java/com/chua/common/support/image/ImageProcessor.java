@@ -7,10 +7,11 @@ import java.util.Map;
  *
  * <p>定义统一的图像处理能力，支持按 {@link java.util.ServiceLoader} 机制注册多种实现：
  * <ul>
- *   <li>Rust 原生实现（FFM 加载 {@code libimage_processor.so}，性能优先）</li>
- *   <li>Java AWT 实现（无原生依赖，作为兜底）</li>
+ *   <li>OpenCV 原生实现（通过 {@code org.openpnp:opencv} 加载，性能最优）</li>
+ *   <li>Rust 原生实现（FFM 加载 {@code libimage_processor.so}，性能次优）</li>
+ *   <li>JDK AWT 实现（无原生依赖，作为兜底）</li>
  * </ul>
- * 默认通过 {@link ImageProcessors#getProcessor()} 获取，Rust 实现可用时优先返回。
+ * 默认通过 {@link ImageProcessors#getProcessor()} 获取，OpenCV 可用时优先返回。
  *
  * @author CH
  * @since 4.0.0.42

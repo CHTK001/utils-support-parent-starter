@@ -72,16 +72,7 @@ class IonetDispatcherProviderTest {
 
     @Test
     void publishDispatchesToSubscribedMethod() throws Exception {
-        // 验证 BeanUtils.convert 对 String 的处理
-        Object converted = com.chua.common.support.utils.BeanUtils.convert("order-1001", String.class);
-        System.err.println("[Diag] BeanUtils.convert result=" + converted + " isNull=" + (converted == null));
-        // 对照 1：provider.publish 路径
         provider.publish("order/created", "order-1001");
-        System.err.println("[Diag] after publish orderCount=" + subscriber.orderCount.get());
-        // 对照 2：手动反射 invoke（绕过 provider，验证 dispatch 逻辑本身）
-        Method manual = EventSubscriber.class.getMethod("onOrderCreated", String.class);
-        manual.invoke(subscriber, "manual-msg");
-        System.err.println("[Diag] after manual invoke orderCount=" + subscriber.orderCount.get());
         assertTrue(subscriber.orderLatch.await(5, TimeUnit.SECONDS), "order/created 订阅方法应被触发");
         assertEquals(1, subscriber.orderCount.get());
 
