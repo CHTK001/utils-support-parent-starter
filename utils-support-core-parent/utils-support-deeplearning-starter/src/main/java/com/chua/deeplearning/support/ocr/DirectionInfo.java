@@ -1,0 +1,26 @@
+package com.chua.deeplearning.support.ocr;
+
+/**
+ * OCR 方向检测结果。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public class DirectionInfo {
+
+    private final String name;
+    private final double probability;
+
+    public DirectionInfo(String name, double probability) {
+        this.name = name;
+        this.probability = probability;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getProbability() {
+        return probability;
+    }
+}

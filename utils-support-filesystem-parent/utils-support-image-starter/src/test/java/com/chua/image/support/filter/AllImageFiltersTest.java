@@ -211,11 +211,11 @@ public class AllImageFiltersTest {
 
 
     /**
-     * 列出目录下所有支持的图像
+     * 列出目录下所有支持的图像 (仅当前目录, 不递归)
      */
     private static List<File> listImages(Path dir) throws IOException {
         List<File> result = new ArrayList<>();
-        try (var stream = Files.walk(dir)) {
+        try (var stream = Files.list(dir)) {
             stream.filter(Files::isRegularFile).forEach(p -> {
                 String name = p.getFileName().toString().toLowerCase();
                 for (String ext : SUPPORTED_EXTS) {

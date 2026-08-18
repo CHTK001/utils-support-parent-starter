@@ -204,7 +204,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 注册单方法三插桩点（ENTRY/EXIT/EXCEPTION）。
+     * 注册单方法双插桩点（ENTRY/EXIT）。
+     *
+     * <p>不注册 EXCEPTION：对含自身异常处理器表的三方类（JDBC 驱动、Redis 客户端等），
+     * {@code visitMaxs} 注入的 try/catch + onException 与原生异常表叠加会导致 VerifyError。</p>
      *
      * @param className  目标类内部名
      * @param methodName 目标方法名
@@ -212,7 +215,6 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     protected void register(String className, String methodName) {
         RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.EXIT, this);
-        RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.EXCEPTION, this);
     }
 
     /**

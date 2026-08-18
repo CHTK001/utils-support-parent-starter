@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>{@code process_image(input, len, json)} — 处理图像，返回 malloc 内存（前4字节为长度，后为图像数据）</li>
  *   <li>{@code free_result(ptr)} — 释放上述内存</li>
  * </ul>
- * 加载失败时 {@link #available()} 返回 false，上层自动回退到 {@link AwtImageProcessor}。
+ * 加载失败时 {@link #available()} 返回 false，上层自动回退到 {@link JdkImageProcessor}。
  *
  * @author CH
  * @since 4.0.0.42

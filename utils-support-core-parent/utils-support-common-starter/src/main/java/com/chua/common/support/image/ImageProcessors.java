@@ -1,6 +1,6 @@
 package com.chua.common.support.image;
 
-import com.chua.common.support.image.processor.AwtImageProcessor;
+import com.chua.common.support.image.processor.JdkImageProcessor;
 import com.chua.common.support.image.processor.RustImageProcessor;
 
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import java.util.ServiceLoader;
  * 图像处理器加载器
  *
  * <p>通过 {@link ServiceLoader} 发现全部 {@link ImageProcessor} 实现，
- * 按优先级排序：Rust 原生实现优先，AWT 实现兜底。
- * 若 SPI 未注册任何实现，则默认创建 {@link AwtImageProcessor}。
+ * 按优先级排序：OpenCV 优先，Rust 次之，JDK 兜底。
+ * 若 SPI 未注册任何实现，则默认创建 {@link JdkImageProcessor}。
  *
  * @author CH
  * @since 4.0.0.42
@@ -52,7 +52,7 @@ public final class ImageProcessors {
                     .sorted(Comparator.comparingInt(ImageProcessors::priority))
                     .filter(ImageProcessor::available)
                     .findFirst()
-                    .orElseGet(AwtImageProcessor::new);
+                    .orElseGet(JdkImageProcessor::new);
             return processor;
         }
     }
@@ -64,6 +64,10 @@ public final class ImageProcessors {
      * @return 优先级值
      */
     private static int priority(ImageProcessor p) {
-        return "rust".equals(p.name()) ? 0 : 10;
+        return switch (p.name()) {
+            case "opencv" -> 0;
+            case "rust" -> 1;
+            default -> 10;
+        };
     }
 }

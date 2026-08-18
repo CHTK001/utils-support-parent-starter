@@ -331,7 +331,6 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     private void registerClassInterceptors(String className) {
         RuntimeSpy.registerInterceptor(className, "*", "", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(className, "*", "", InterceptPoint.EXIT, this);
-        RuntimeSpy.registerInterceptor(className, "*", "", InterceptPoint.EXCEPTION, this);
     }
 
     /**

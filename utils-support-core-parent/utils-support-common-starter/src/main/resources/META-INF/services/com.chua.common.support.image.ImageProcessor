@@ -1,2 +1,2 @@
 com.chua.common.support.image.processor.RustImageProcessor
-com.chua.common.support.image.processor.AwtImageProcessor
+com.chua.common.support.image.processor.JdkImageProcessor
