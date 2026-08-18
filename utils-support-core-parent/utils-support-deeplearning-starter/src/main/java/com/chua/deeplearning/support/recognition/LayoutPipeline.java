@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.recognition;
 
+import com.chua.common.support.image.ImagePipeline;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -23,9 +24,17 @@ import java.util.Objects;
  * 各模型输出类型不同：layout-lmv3 输出 LayoutLMv3Result（文档区域列表），
  * YOLO 版面模型输出检测框列表。</p>
  *
+ * <p>支持在识别前接入 {@link ImagePipeline} 图像预处理（灰度化 / 二值化 /
+ * 降噪 / 腐蚀 / 膨胀等），提升低质量文档的版面识别准确率。图像预处理
+ * <strong>默认关闭</strong>，仅显式配置后生效。</p>
+ *
  * <pre>{@code
  * LayoutPipeline pipeline = LayoutPipeline.builder()
  *         .model("layout-lmv3")
+ *         .imagePipeline(ImagePipeline.builder()
+ *                 .grayscale(true)
+ *                 .binarize(true, 128)
+ *                 .build())
  *         .build();
  * Object result = pipeline.recognizeSingle(imageBytes);
  * }</pre>
@@ -37,17 +46,22 @@ import java.util.Objects;
 public class LayoutPipeline {
 
     /**
-     * 节点：识别
+     * 节点：预处理。
+     */
+    private static final String NODE_PREPROCESS = "preprocess";
+
+    /**
+     * 节点：识别。
      */
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
-     * 节点：收集
+     * 节点：收集。
      */
     private static final String NODE_COLLECT = "collect";
 
     /**
-     * 节点：终止
+     * 节点：终止。
      */
     private static final String NODE_END = "end";
 
@@ -64,7 +78,7 @@ public class LayoutPipeline {
     /**
      * 图像预处理管线，可为 null（不预处理）。
      */
-    private final com.chua.common.support.image.ImagePipeline imagePipeline;
+    private final ImagePipeline imagePipeline;
 
     /**
      * 识别管线实例。
@@ -77,7 +91,7 @@ public class LayoutPipeline {
      * @param model         模型名称
      * @param imagePipeline 图像预处理管线，可为 null
      */
-    public LayoutPipeline(String model, com.chua.common.support.image.ImagePipeline imagePipeline) {
+    public LayoutPipeline(String model, ImagePipeline imagePipeline) {
         this.engine = AbstractIdentificationEngine.getInstance();
         this.model = Objects.requireNonNull(model, "model");
         this.imagePipeline = imagePipeline;
@@ -107,6 +121,11 @@ public class LayoutPipeline {
         private String model;
 
         /**
+         * 图像预处理管线，默认 null（不预处理）。
+         */
+        private ImagePipeline imagePipeline;
+
+        /**
          * 设置模型名称。
          *
          * @param model 模型
@@ -118,22 +137,56 @@ public class LayoutPipeline {
         }
 
         /**
+         * 接入图像预处理管线。
+         *
+         * <p>可组合 {@code ImagePipeline.builder()} 启用灰度化、二值化、
+         * 降噪、腐蚀、膨胀等预处理步骤。未设置时不做预处理。</p>
+         *
+         * @param imagePipeline 图像管线，可为 null
+         * @return this
+         */
+        public Builder imagePipeline(ImagePipeline imagePipeline) {
+            this.imagePipeline = imagePipeline;
+            return this;
+        }
+
+        /**
+         * 便捷接入：启用灰度化预处理。
+         *
+         * @param grayscale true 启用灰度化
+         * @return this
+         */
+        public Builder grayscale(boolean grayscale) {
+            return imagePipeline(ImagePipeline.builder().grayscale(grayscale).build());
+        }
+
+        /**
          * 构建。
          *
          * @return LayoutPipeline
          */
         public LayoutPipeline build() {
-            return new LayoutPipeline(model);
+            return new LayoutPipeline(model, imagePipeline);
         }
     }
 
     /**
-     * 编排识别管线（识别 → 收集）。
+     * 编排识别管线（预处理 → 识别 → 收集）。
      *
      * @return 管线实例
      */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("layout-analyze")
+                .task(NODE_PREPROCESS, ctx -> {
+                    LayoutContext lc = current(ctx);
+                    if (lc.currentImage() == null) {
+                        return null;
+                    }
+                    if (imagePipeline != null) {
+                        lc.currentImage(imagePipeline.process(lc.currentImage()));
+                    }
+                    return null;
+                }).taskEnd()
                 .task(NODE_RECOGNIZE, ctx -> {
                     LayoutContext lc = current(ctx);
                     if (lc.currentImage() == null) {
@@ -151,6 +204,8 @@ public class LayoutPipeline {
     /**
      * 分析单张文档图像版面。
      *
+     * <p>若配置了图像预处理管线，先对图像执行预处理再交给模型。</p>
+     *
      * @param imageData 图像
      * @return 版面结果（各模型输出类型不同）
      */
@@ -158,13 +213,13 @@ public class LayoutPipeline {
         if (imageData == null) {
             return null;
         }
-        @SuppressWarnings("unchecked")
+        byte[] prepared = imagePipeline == null ? imageData : imagePipeline.process(imageData);
         ITranslator<Object, Object> translator =
                 (ITranslator<Object, Object>) engine.get(model, ITranslator.class);
         if (translator == null) {
             throw new IllegalStateException("模型未注册: " + model);
         }
-        return translator.translate(imageData);
+        return translator.translate(prepared);
     }
 
     /**
@@ -177,7 +232,7 @@ public class LayoutPipeline {
         LayoutContext lc = new LayoutContext(imageData);
         PipelineContext<LayoutContext> ctx = new PipelineContext<>(pipeline.getId(), lc);
         ctx.setAttribute("layout", lc);
-        ctx.setNextNodeId(NODE_RECOGNIZE);
+        ctx.setNextNodeId(NODE_PREPROCESS);
         pipeline.resume(ctx);
         return lc.results();
     }
@@ -208,7 +263,7 @@ public class LayoutPipeline {
         for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {
             String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
             if (RecognitionSupport.contains(name, "layout", "doc-layout", "pp-doc-layout", "ocr-layout", "doclayout")) {
-                grouped.computeIfAbsent("layout", k -> new LinkedHashSet<>()).add(entry.modelId());
+                grouped.computeIfAbsent("layout", _ -> new LinkedHashSet<>()).add(entry.modelId());
             }
         }
         Map<String, List<String>> result = new LinkedHashMap<>();

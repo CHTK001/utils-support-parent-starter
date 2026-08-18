@@ -29,10 +29,10 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- guacd 二进制资源包（提供 Windows zip；Linux 走包管理器） -->
+        <!-- guacd 预编译二进制资源包（内嵌 Windows/Linux zip，一键式启动） -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-guacd-resource-starter</artifactId>
+            <artifactId>utils-support-resource-guacd</artifactId>
             <version>${project.version}</version>
         </dependency>
 

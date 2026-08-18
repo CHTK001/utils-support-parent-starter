@@ -241,25 +241,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 反序列化消息体（使用注入序列化器，默认 Jackson）。
-     */
-    private Object readBody(byte[] data) {
-        try {
-            if (serializer == null) {
-                return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
-            }
-            return serializer.deserialize(data, Object.class);
-        } catch (Exception e) {
-            log.warn("WAL 反序列化失败，回退 Jackson", e);
-            try {
-                return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
-            } catch (Exception ex) {
-                throw new RuntimeException("WAL 反序列化失败", ex);
-            }
-        }
-    }
-
-    /**
      * 单 topic 的 append-only WAL 日志文件。
      *
      * <p>写入通过 Reactor {@code Sinks.Many} 队列异步完成：{@link #appendBytes} 将
@@ -272,6 +253,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         private FileChannel channel;
         private final ByteBuffer header = ByteBuffer.allocate(8);
         private volatile boolean writerStarted = false;
+        private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WalLog.class);
 
         WalLog(Path file) {
             this.file = file;
@@ -294,7 +276,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 sink.asFlux()
                         .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
                         .flatMap(bytes -> reactor.core.publisher.Mono.fromRunnable(() -> writeFrame(bytes)), 1, 1)
-                        .onErrorContinue((e, o) -> log.warn("WAL reactor 写入失败 file={} cause={}", file, e.getMessage()))
+                        .onErrorContinue((e, o) -> LOG.warn("WAL reactor 写入失败 file={} cause={}", file, e.getMessage()))
                         .subscribe();
             }
         }
@@ -303,7 +285,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             try {
                 sink.tryEmitNext(payload);
             } catch (Exception e) {
-                log.warn("WAL 入队失败 file={}", file, e);
+                LOG.warn("WAL 入队失败 file={}", file, e);
             }
         }
 
@@ -317,7 +299,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 channel.write(ByteBuffer.wrap(payload));
                 channel.force(false);
             } catch (Exception e) {
-                log.warn("WAL frame 写入失败 file={}", file, e);
+                LOG.warn("WAL frame 写入失败 file={}", file, e);
             }
         }
 
