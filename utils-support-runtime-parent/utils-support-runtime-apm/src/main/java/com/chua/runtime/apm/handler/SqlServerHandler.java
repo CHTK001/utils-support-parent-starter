@@ -70,9 +70,9 @@ public class SqlServerHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(SQLSERVER_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(SQLSERVER_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(SQLSERVER_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(SQLSERVER_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(SQLSERVER_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(SQLSERVER_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override

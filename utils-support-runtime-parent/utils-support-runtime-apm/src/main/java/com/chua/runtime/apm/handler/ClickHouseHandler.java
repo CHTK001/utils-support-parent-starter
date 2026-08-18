@@ -70,9 +70,9 @@ public class ClickHouseHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(CLICKHOUSE_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(CLICKHOUSE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(CLICKHOUSE_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(CLICKHOUSE_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(CLICKHOUSE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(CLICKHOUSE_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override

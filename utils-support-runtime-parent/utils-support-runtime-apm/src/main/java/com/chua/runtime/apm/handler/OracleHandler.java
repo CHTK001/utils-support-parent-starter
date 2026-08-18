@@ -70,9 +70,9 @@ public class OracleHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(ORACLE_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(ORACLE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(ORACLE_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(ORACLE_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(ORACLE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(ORACLE_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override
