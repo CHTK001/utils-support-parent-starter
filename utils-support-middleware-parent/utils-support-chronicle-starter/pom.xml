@@ -28,6 +28,12 @@
             <artifactId>chronicle-queue</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-fory-starter</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-map</artifactId>
             <version>3.27ea2</version>

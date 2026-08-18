@@ -133,12 +133,12 @@ public class OcrPipeline {
     /**
      * 检测输出是否应用 sigmoid（部分模型输出 logits 需激活，默认 false）
      */
-    private final boolean sigDetect;
+    private final boolean sigmoidDetect;
 
     /**
      * 识别输出是否应用 sigmoid（默认 false）
      */
-    private final boolean sigRecognize;
+    private final boolean sigmoidRecognize;
 
     /**
      * 识别管线实例
@@ -161,7 +161,7 @@ public class OcrPipeline {
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                        ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                        boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
-                       int cropPadding, int cropMinHeight, boolean sigDetect, boolean sigRecognize) {
+                       int cropPadding, int cropMinHeight, boolean sigmoidDetect, boolean sigmoidRecognize) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
         this.direction = direction;
@@ -171,8 +171,8 @@ public class OcrPipeline {
         this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
         this.cropPadding = Math.max(0, cropPadding);
         this.cropMinHeight = Math.max(1, cropMinHeight);
-        this.sigDetect = sigDetect;
-        this.sigRecognize = sigRecognize;
+        this.sigmoidDetect = sigmoidDetect;
+        this.sigmoidRecognize = sigmoidRecognize;
         this.pipeline = buildPipeline();
     }
 
@@ -241,12 +241,12 @@ public class OcrPipeline {
         /**
          * 检测输出是否应用 sigmoid（默认 false）
          */
-        private boolean sigDetect;
+        private boolean sigmoidDetect;
 
         /**
          * 识别输出是否应用 sigmoid（默认 false）
          */
-        private boolean sigRecognize;
+        private boolean sigmoidRecognize;
 
         /**
          * 设置检测器。
@@ -372,22 +372,22 @@ public class OcrPipeline {
         /**
          * 设置检测输出是否应用 sigmoid。
          *
-         * @param sigDetect true 应用 sigmoid
+         * @param sigmoidDetect true 应用 sigmoid
          * @return this
          */
-        public Builder sigDetect(boolean sigDetect) {
-            this.sigDetect = sigDetect;
+        public Builder sigmoidDetect(boolean sigmoidDetect) {
+            this.sigmoidDetect = sigmoidDetect;
             return this;
         }
 
         /**
          * 设置识别输出是否应用 sigmoid。
          *
-         * @param sigRecognize true 应用 sigmoid
+         * @param sigmoidRecognize true 应用 sigmoid
          * @return this
          */
-        public Builder sigRecognize(boolean sigRecognize) {
-            this.sigRecognize = sigRecognize;
+        public Builder sigmoidRecognize(boolean sigmoidRecognize) {
+            this.sigmoidRecognize = sigmoidRecognize;
             return this;
         }
 
@@ -400,7 +400,7 @@ public class OcrPipeline {
             return new OcrPipeline(detector, recognizer,
                     createTranslator(direction), createTranslator(enhancer),
                     enhanceInPipeline, sortReadingOrder, minConfidence,
-                    cropPadding, cropMinHeight, sigDetect, sigRecognize);
+                    cropPadding, cropMinHeight, sigmoidDetect, sigmoidRecognize);
         }
 
         /**
@@ -891,8 +891,8 @@ public class OcrPipeline {
      *
      * @return true 应用
      */
-    public boolean sigDetect() {
-        return sigDetect;
+    public boolean sigmoidDetect() {
+        return sigmoidDetect;
     }
 
     /**
@@ -900,7 +900,7 @@ public class OcrPipeline {
      *
      * @return true 应用
      */
-    public boolean sigRecognize() {
-        return sigRecognize;
+    public boolean sigmoidRecognize() {
+        return sigmoidRecognize;
     }
 }

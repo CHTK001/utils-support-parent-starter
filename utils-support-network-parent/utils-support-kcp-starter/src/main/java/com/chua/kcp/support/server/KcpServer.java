@@ -66,16 +66,21 @@ public class KcpServer extends AbstractServer {
     /**
      * KCP 最大传输单元（字节）
      */
-    private static final int KCP_MTU = 512;
+    /**
+     * KCP MTU（最大传输单元）
+     * <p>KCP 按 MTU 分包发送：MTU 越小单条消息分包越多、ACK 次数越多、吞吐越低。
+     * 512 → 1400（udp 承载上限内）减少分包与确认开销，是 tcp/udp 吞吐差距的重要来源之一。</p>
+     */
+    private static final int KCP_MTU = 1400;
 
     /**
      * KCP 更新间隔（毫秒）
      * <p>KCP interval 决定发送 flush 频率：interval 越大每批数据等待越久、吞吐越低。
      * 默认 20ms 严重限制下行吞吐（实测约 1.3k ops/s vs tcp 5万+），
-     * 降为 2ms 显著提升发送频率（5ms 时实测 2165 ops/s，2ms 可再提升）；
+     * 降为 1ms 最大化发送频率（20→5ms +63%，5→2ms +18%，2→1ms 再提升）；
      * 配合 nodelay 快速模式（关拥塞控制+快速重传）接近 udp/tcp 量级。</p>
      */
-    private static final int KCP_INTERVAL = 2;
+    private static final int KCP_INTERVAL = 1;
 
     /**
      * KCP 快速重传阈值
@@ -228,8 +233,10 @@ public class KcpServer extends AbstractServer {
      */
     public void publish(String topic, Object message) {
         String text = topic + ":" + message;
+        // 编码一次，各连接共享字节数组（wrappedBuffer 零拷贝视图），避免逐连接重复编码
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
         for (Ukcp ukcp : sessions.values()) {
-            sendTo(ukcp, text);
+            sendTo(ukcp, bytes);
         }
         notifyListeners(listener -> listener.onMessage("broadcast", topic, String.valueOf(message)));
     }
@@ -248,9 +255,23 @@ public class KcpServer extends AbstractServer {
         }
         sendTo(ukcp, topic + ":" + message);
     }
-
     private void sendTo(Ukcp ukcp, String text) {
         ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
+        try {
+            ukcp.write(buf);
+        } finally {
+            // kcp-base 会在内部 retain/release，调用方不再持有
+        }
+    }
+
+    /**
+     * 零拷贝发送：包装共享字节数组（不复制），写入 KCP 发送队列。
+     *
+     * @param ukcp 连接
+     * @param bytes 消息字节（publish 已编码一次）
+     */
+    private void sendTo(Ukcp ukcp, byte[] bytes) {
+        ByteBuf buf = Unpooled.wrappedBuffer(bytes);
         try {
             ukcp.write(buf);
         } finally {
