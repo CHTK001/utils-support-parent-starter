@@ -37,7 +37,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FileMemoryStore implements MemoryStore {
 
+    /** 配置对象 */
+    /** 配置 */
     private final MemoryConfig config;
+    /** 内存存储目录 */
+    /** Memory目录 */
     private final Path memoryDir;
 
     public FileMemoryStore(MemoryConfig config) {

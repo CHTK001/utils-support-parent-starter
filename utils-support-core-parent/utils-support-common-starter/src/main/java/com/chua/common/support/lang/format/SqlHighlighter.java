@@ -106,6 +106,7 @@ public class SqlHighlighter {
 
     // ==================== 合并所有关键词 ====================
 
+    /** All_keywords */
     private static final Set<String> ALL_KEYWORDS;
     private static final Map<String, HighlightConfig.KeywordCategory> KEYWORD_CATEGORY_MAP;
 

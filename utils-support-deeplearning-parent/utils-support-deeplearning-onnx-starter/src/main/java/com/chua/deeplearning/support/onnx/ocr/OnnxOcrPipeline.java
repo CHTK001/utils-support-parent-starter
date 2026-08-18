@@ -17,14 +17,19 @@ import java.util.List;
  */
 public class OnnxOcrPipeline {
 
+    /** 委托对象 */
+    /** Delegate */
     private final OcrPipeline delegate;
 
     public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                            ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                            boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
-                           int cropPadding, int cropMinHeight, boolean sigmoidDetect, boolean sigmoidRecognize) {
+                           int cropPadding, int cropMinHeight, float cropRotateThreshold,
+                           boolean qualityGate, float blurThreshold,
+                           boolean sigmoidDetect, boolean sigmoidRecognize) {
         this.delegate = new OcrPipeline(detector, recognizer, direction, enhancer,
                 enhanceInPipeline, sortReadingOrder, minConfidence, cropPadding, cropMinHeight,
+                cropRotateThreshold, qualityGate, blurThreshold,
                 sigmoidDetect, sigmoidRecognize);
     }
 

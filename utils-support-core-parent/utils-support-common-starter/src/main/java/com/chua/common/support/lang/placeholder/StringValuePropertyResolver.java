@@ -19,7 +19,9 @@ import java.util.Set;
  */
 public class StringValuePropertyResolver implements PropertyResolver {
 
+    /** Placeholdersupport */
     private final PlaceholderSupport placeholderSupport;
+    /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(StringValuePropertyResolver.class);
 
     /**

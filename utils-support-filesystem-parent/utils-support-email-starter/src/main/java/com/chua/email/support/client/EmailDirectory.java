@@ -44,14 +44,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Getter
 public class EmailDirectory implements PolledDirectory {
 
+    /** IMAP主机 */
     private final String imapHost;
+    /** IMAP端口 */
     private final int imapPort;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** 文件夹 */
     private final String folder;
+    /** Poll间隔秒 */
     private final int pollIntervalSeconds;
 
+    /** Listeners */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
+    /** Seen消息IDS */
     private final Set<String> seenMessageIds = ConcurrentHashMap.newKeySet();
     private volatile boolean running = false;
 
@@ -185,11 +193,17 @@ public class EmailDirectory implements PolledDirectory {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** IMAP主机 */
         private String imapHost;
+        /** IMAP端口 */
         private int imapPort = 993;
+        /** Username */
         private String username;
+        /** 密码 */
         private String password;
+        /** 文件夹 */
         private String folder = "INBOX";
+        /** Poll间隔秒 */
         private int pollIntervalSeconds = 60;
 
         public Builder imapHost(String h) { this.imapHost = h; return this; }

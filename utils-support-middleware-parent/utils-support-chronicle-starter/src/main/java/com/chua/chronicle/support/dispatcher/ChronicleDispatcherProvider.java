@@ -31,10 +31,12 @@ import java.util.concurrent.TimeUnit;
 @Spi("chronicle")
 public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
+    /** 序列化器 */
     private static final ChronicleQueueSerializer SERIALIZER = new ChronicleQueueSerializer();
 
     private final Map<String, ChronicleQueue> queueMap = new ConcurrentHashMap<>();
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
+    /** 执行器 */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("chronicle-dispatcher-", 0).factory());
     private volatile boolean closed = false;
@@ -236,8 +238,10 @@ executor.submit(() -> {
      * 序列化工具：优先使用 Fury（性能最优），不可用时降级到 Jackson。
      */
     static class ChronicleQueueSerializer {
+        /** Fury */
         private final com.chua.common.support.base.serialize.Serialization fury;
         final com.fasterxml.jackson.databind.ObjectMapper fallback;
+        /** USEfury */
         private final boolean useFury;
 
         ChronicleQueueSerializer() {

@@ -12,8 +12,11 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicPlaylistCategory {
+    /** 标签ID */
     private String tagId;
+    /** 名称 */
     private String name;
+    /** HOT */
     private Boolean hot;
 }
 

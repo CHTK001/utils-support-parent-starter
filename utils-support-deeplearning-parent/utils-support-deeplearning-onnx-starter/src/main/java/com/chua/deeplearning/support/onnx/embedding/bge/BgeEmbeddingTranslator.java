@@ -35,7 +35,11 @@ public class BgeEmbeddingTranslator {
      */
     public static final int DEFAULT_MAX_LEN = 512;
 
+    /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
+    /** 会话 */
+    /** 会话 */
     private OrtSession session;
 
     /**

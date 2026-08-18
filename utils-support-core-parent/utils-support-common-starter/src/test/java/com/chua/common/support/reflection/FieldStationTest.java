@@ -17,14 +17,19 @@ class FieldStationTest {
 
     @Data
     static class TestBean {
+        /** Check代码open */
         private boolean checkCodeOpen;
+        /** System名称 */
         private String systemName;
+        /** SYS用户ID */
         private int sysUserId;
+        /** Login数量 */
         private Integer loginCount;
     }
 
     @Data
     static class ChildBean extends TestBean {
+        /** 子级only */
         private boolean childOnly;
     }
 
@@ -138,6 +143,7 @@ class FieldStationTest {
 
     @Data
     static class FieldBean {
+        /** System名称 */
         private String systemName;
     }
 }

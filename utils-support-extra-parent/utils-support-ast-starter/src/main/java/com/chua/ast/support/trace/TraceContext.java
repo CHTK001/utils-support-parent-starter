@@ -29,26 +29,54 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class TraceContext {
 
+    /** 环境启用开关 */
+    /** Env_enabled */
     private static final String ENV_ENABLED = "TRACE_ENABLED";
+    /** 缩进单位 */
+    /** Indent_unit */
     private static final String INDENT_UNIT = "    ";
+    /** 分支名称 */
+    /** Branch */
     private static final String BRANCH = "└── ";
+    /** 最大缩进深度 */
+    /** Max_indent_depth */
     private static final int MAX_INDENT_DEPTH = 16;
 
+    /** 调用栈 */
+    /** 栈 */
     private static final ThreadLocal<Deque<TraceNode>> STACK = ThreadLocal.withInitial(ArrayDeque::new);
+    /** 最大深度 */
+    /** Max_depth */
     private static final ThreadLocal<Integer> MAX_DEPTH = new ThreadLocal<>();
     /** 共享节点存储：traceId → 该调用链的所有节点（跨线程共享） */
     private static final java.util.concurrent.ConcurrentHashMap<String, List<TraceNode>> SHARED_NODES = new java.util.concurrent.ConcurrentHashMap<>();
+    /** 标识序号生成器 */
+    /** Id_seq */
     private static final AtomicLong ID_SEQ = new AtomicLong(0);
 
+    /** 是否启用 */
+    /** 是否启用 */
     private static final boolean ENABLED;
+    /** 缩进序列 */
+    /** Indents */
     private static final String[] INDENTS;
 
+    /** MDC 写入方法句柄 */
+    /** MDCPUThandle */
     private static MethodHandle mdcPutHandle;
+    /** MDC 移除方法句柄 */
+    /** MDCremovehandle */
     private static MethodHandle mdcRemoveHandle;
+    /** MDC 是否可用 */
     private static volatile boolean mdcAvailable = true;
 
+    /** 日志信息处理方法句柄 */
+    /** Logger信息handle */
     private static MethodHandle loggerInfoHandle;
+    /** 日志记录器 */
+    /** Logger */
     private static Object logger;
+    /** Slf4j 是否可用 */
     private static volatile boolean slf4jAvailable = true;
 
     static {
@@ -323,11 +351,14 @@ public final class TraceContext {
     // ==================== 树形输出 ====================
 
     /** 颜色阈值：耗时占比超过此值显示红色 */
+    /** Color_threshold_percent */
     private static final long COLOR_THRESHOLD_PERCENT = 80;
 
     /** ANSI 红色 */
+    /** 红色 */
     private static final String RED = "\033[31m";
     /** ANSI 重置 */
+    /** Reset */
     private static final String RESET = "\033[0m";
 
     /**

@@ -8,11 +8,23 @@ package com.chua.deeplearning.support.onnx.layoutlmv3;
  */
 public class DocumentRegion {
 
+    /** 类型 */
+    /** 类型 */
     private String type;
+    /** 置信度 */
+    /** Confidence */
     private float confidence;
+    /** 起始 X 坐标 */
+    /** X0 */
     private int x0;
+    /** 起始 Y 坐标 */
+    /** Y0 */
     private int y0;
+    /** 结束 X 坐标 */
+    /** X1 */
     private int x1;
+    /** 结束 Y 坐标 */
+    /** Y1 */
     private int y1;
 
     public DocumentRegion() {
@@ -56,11 +68,23 @@ public class DocumentRegion {
     }
 
     public static class Builder {
+        /** 类型 */
+        /** 类型 */
         private String type;
+        /** 置信度 */
+        /** Confidence */
         private float confidence;
+        /** 起始 X 坐标 */
+        /** X0 */
         private int x0;
+        /** 起始 Y 坐标 */
+        /** Y0 */
         private int y0;
+        /** 结束 X 坐标 */
+        /** X1 */
         private int x1;
+        /** 结束 Y 坐标 */
+        /** Y1 */
         private int y1;
 
         public Builder type(String type) {

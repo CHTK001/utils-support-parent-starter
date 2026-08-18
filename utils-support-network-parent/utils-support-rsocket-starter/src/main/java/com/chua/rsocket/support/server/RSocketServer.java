@@ -406,7 +406,13 @@ public class RSocketServer extends AbstractServer {
      */
     private static class SimpleServerRequest extends com.chua.common.support.network.server.request.AbstractServerRequest {
 
+        /**
+         * topic
+         */
         private final String topic;
+        /**
+         * 数据内容
+         */
         private final byte[] body;
 
         SimpleServerRequest(String topic, String body) {

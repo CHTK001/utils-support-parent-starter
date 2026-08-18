@@ -18,9 +18,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ReturnPageResult<T> implements Serializable {
 
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
+    /** 数据 */
     private PageResult<T> data;
+    /** 消息 */
     private String message;
+    /** Success */
     private boolean success;
 
     public static <T> ReturnPageResult<T> of(PageResult<T> data) {

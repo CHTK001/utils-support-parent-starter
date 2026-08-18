@@ -23,12 +23,19 @@ import java.awt.image.BufferedImage;
 @Spi("robot")
 public class RobotScreenCapture implements ScreenCature {
 
+    /** Robot */
     private Robot robot;
+    /** 宽度 */
     private int width;
+    /** 高度 */
     private int height;
+    /** FPS */
     private int fps;
+    /** Initialized */
     private boolean initialized;
+    /** Frame转换器 */
     private Java2DFrameConverter frameConverter;
+    /** CaptureBUF */
     private java.awt.image.BufferedImage captureBuf;
 
     @Override

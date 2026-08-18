@@ -99,6 +99,7 @@ public class ConfigValueBinding {
 
      */
     @Setter
+    /** 当前值 */
     private Object currentValue;
 
     /**

@@ -53,8 +53,10 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFilter {
 
+    /** 超时秒 */
     private final int timeoutSeconds;
     private volatile HttpClient httpClient;
+    /** 异步执行器 */
     private ExecutorService asyncExecutor;
 
     public ReverseProxyServerFilter() {

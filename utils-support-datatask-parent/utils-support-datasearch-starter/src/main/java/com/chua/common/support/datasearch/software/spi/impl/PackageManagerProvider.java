@@ -33,9 +33,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class PackageManagerProvider {
 
+    /** 日志 */
     protected static final Logger log = LoggerFactory.getLogger(PackageManagerProvider.class);
 
+    /** 名称 */
     protected static final String NAME = "package-manager";
+    /** Prefix */
     protected static final String PREFIX = "";
 
     /**

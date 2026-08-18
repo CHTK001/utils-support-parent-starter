@@ -23,8 +23,11 @@ import java.security.SecureRandom;
 @Spi({"bc", "bouncycastle"})
 public class BcDesedeCipher implements DesedeCipher {
 
+    /** 提供者 */
     private static final String PROVIDER = "BC";
+    /** 算法 */
     private static final String ALGORITHM = "DESede";
+    /** Transformation */
     private static final String TRANSFORMATION = "DESede/CBC/PKCS7Padding";
 
     static {

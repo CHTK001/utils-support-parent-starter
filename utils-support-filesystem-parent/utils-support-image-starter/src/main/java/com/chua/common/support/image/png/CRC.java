@@ -22,7 +22,9 @@ import java.util.zip.DeflaterOutputStream;
  */
 final class CRC {
 
+    /** CRC表 */
     private static final int[] crcTable = new int[256];
+    /** CRC */
     private int crc = 0xffffffff;
 
     static {

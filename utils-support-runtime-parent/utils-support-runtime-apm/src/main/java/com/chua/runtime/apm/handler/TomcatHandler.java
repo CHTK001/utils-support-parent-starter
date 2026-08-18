@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class TomcatHandler extends AbstractAppHandler {
 
+    /**
+     * standard wrapper valve
+     */
     private static final String STANDARD_WRAPPER_VALVE = "org/apache/catalina/core/StandardWrapperValve";
+    /**
+     * invoke methods
+     */
     private static final String[] INVOKE_METHODS = {"invoke"};
 
     @Override

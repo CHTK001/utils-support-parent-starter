@@ -15,6 +15,7 @@ import java.util.List;
 
 public class MysqlIndexManager implements IndexManager, com.chua.datasource.support.user.DataSourceAware {
 
+    /** 数据来源 */
     private DataSource dataSource;
 
     @Override

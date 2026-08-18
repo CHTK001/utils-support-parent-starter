@@ -1,4 +1,4 @@
-package com.chua.wechat.support.message;
+﻿package com.chua.wechat.support.message;
 
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
@@ -100,8 +100,11 @@ public class WechatPush implements MessagePush {
      */
     private static final long TOKEN_EXPIRE_MARGIN_MILLIS = 200L;
 
+    /** 消息环境 */
+    /** 环境 */
     private final MessageEnvironment environment;
 
+    /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**
@@ -113,6 +116,7 @@ public class WechatPush implements MessagePush {
      * access_token 缓存项
      *
      * @param token    访问令牌
+ * @author CH
      * @param expireAt 过期时间戳（毫秒）
      */
     private record TokenCache(String token, long expireAt) {

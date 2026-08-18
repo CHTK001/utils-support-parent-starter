@@ -24,7 +24,13 @@ import java.lang.reflect.Parameter;
 @Spi("quarkus")
 public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
+    /**
+     * config property
+     */
     private static final String CONFIG_PROPERTY = "org.eclipse.microprofile.config.inject.ConfigProperty";
+    /**
+     * unconfigured 值
+     */
     private static final String UNCONFIGURED_VALUE = "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
 
     @Override

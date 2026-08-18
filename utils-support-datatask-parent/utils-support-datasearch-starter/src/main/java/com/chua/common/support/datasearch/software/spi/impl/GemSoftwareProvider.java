@@ -25,8 +25,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("gem")
 public class GemSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(GemSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "gem";
 
     @Override

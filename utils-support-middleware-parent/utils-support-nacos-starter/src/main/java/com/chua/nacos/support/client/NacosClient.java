@@ -54,13 +54,20 @@ import java.util.function.Consumer;
 @Getter
 public class NacosClient implements AutoCloseable {
 
+    /** 服务器addr */
     private final String serverAddr;
+    /** Namespace */
     private final String namespace;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** 超时 */
     private final long timeout;
 
+    /** 配置服务 */
     private ConfigService configService;
+    /** Naming服务 */
     private NamingService namingService;
     private final Map<String, Listener> configListeners = new ConcurrentHashMap<>();
 
@@ -159,10 +166,15 @@ public class NacosClient implements AutoCloseable {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** 服务器addr */
         private String serverAddr = "127.0.0.1:8848";
+        /** Namespace */
         private String namespace;
+        /** Username */
         private String username;
+        /** 密码 */
         private String password;
+        /** 超时 */
         private long timeout = 30000;
 
         public Builder serverAddr(String addr) { this.serverAddr = addr; return this; }
@@ -182,9 +194,13 @@ public class NacosClient implements AutoCloseable {
      * Nacos 配置操作构建器。
      */
     public static class ConfigOperation {
+        /** 客户端 */
         private final NacosClient client;
+        /** 数据ID */
         private String dataId;
+        /** 分组 */
         private String group = "DEFAULT_GROUP";
+        /** 超时MS */
         private long timeoutMs = 5000;
 
         ConfigOperation(NacosClient client) { this.client = client; }
@@ -308,12 +324,19 @@ public class NacosClient implements AutoCloseable {
      * Nacos 命名服务操作构建器。
      */
     public static class NamingOperation {
+        /** 客户端 */
         private final NacosClient client;
+        /** 服务名称 */
         private String serviceName;
+        /** IP */
         private String ip = "127.0.0.1";
+        /** 端口 */
         private int port = 8080;
+        /** 权重 */
         private double weight = 1.0;
+        /** Healthy */
         private boolean healthy = true;
+        /** Ephemeral */
         private boolean ephemeral = true;
         private Map<String, String> metadata = new HashMap<>();
 

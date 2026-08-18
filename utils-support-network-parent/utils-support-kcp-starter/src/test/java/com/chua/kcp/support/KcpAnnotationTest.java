@@ -35,19 +35,43 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class KcpAnnotationTest {
 
+    /**
+     * 测试客户端标识
+     */
     private static final String CLIENT_ID = "kcp-ann-client";
 
+    /**
+     * KCP 服务器实例
+     */
     private KcpServer server;
+    /**
+     * KCP 客户端实例
+     */
     private KcpClient client;
+    /**
+     * 测试端口号
+     */
     private int port;
 
     /**
      * 服务端注解处理器（serverReceiveViaOnMessage 使用）。
      */
     static class ServerHandler {
+        /**
+         * 已接收的消息列表
+         */
         final List<String> received = new CopyOnWriteArrayList<>();
+        /**
+         * 接收消息信号门闩
+         */
         final CountDownLatch latch = new CountDownLatch(1);
+        /**
+         * 打开事件触发计数
+         */
         final AtomicInteger openCount = new AtomicInteger();
+        /**
+         * 最近一次消息主题引用
+         */
         final AtomicReference<String> lastTopic = new AtomicReference<>();
 
         @OnOpen
@@ -69,7 +93,13 @@ class KcpAnnotationTest {
      * <p>与 {@link ServerHandler} 类名不同，避免共享注册器按类名判重导致同名冲突。</p>
      */
     static class BidirectionalServerHandler {
+        /**
+         * 已接收的消息列表
+         */
         final List<String> received = new CopyOnWriteArrayList<>();
+        /**
+         * 接收消息信号门闩
+         */
         final CountDownLatch latch = new CountDownLatch(1);
 
         @OnMessage("echo/#")
@@ -83,9 +113,21 @@ class KcpAnnotationTest {
      * 客户端注解处理器。
      */
     static class ClientHandler {
+        /**
+         * 已接收的消息列表
+         */
         final List<String> received = new CopyOnWriteArrayList<>();
+        /**
+         * 接收消息信号门闩
+         */
         final CountDownLatch latch = new CountDownLatch(1);
+        /**
+         * 打开事件触发计数
+         */
         final AtomicInteger openCount = new AtomicInteger();
+        /**
+         * 错误事件触发计数
+         */
         final AtomicInteger errorCount = new AtomicInteger();
 
         @OnOpen

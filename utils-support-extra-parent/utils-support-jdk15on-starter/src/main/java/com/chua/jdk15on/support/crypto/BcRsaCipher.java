@@ -21,9 +21,13 @@ import java.security.spec.X509EncodedKeySpec;
 @Spi({"bc", "bouncycastle"})
 public class BcRsaCipher implements RsaCipher {
 
+    /** 提供者 */
     private static final String PROVIDER = "BC";
+    /** Key_algorithm */
     private static final String KEY_ALGORITHM = "RSA";
+    /** Cipher_algorithm */
     private static final String CIPHER_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    /** Signature_algorithm */
     private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     static {

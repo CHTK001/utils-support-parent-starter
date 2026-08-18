@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class OracleIndexManager implements IndexManager, DataSourceAware {
 
+    /** 数据来源 */
     private DataSource dataSource;
 
     /**

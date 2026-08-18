@@ -68,27 +68,35 @@ import java.util.stream.Stream;
 public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCloseable {
 
     /** 数据加载器，首次访问时调用 */
+    /** Loader */
     private final Supplier<List<E>> loader;
 
     /** TTL 过期时间（毫秒），0 表示永不过期 */
+    /** TTL毫秒 */
     private final long ttlMillis;
 
     /** 是否使用堆外内存存储 */
+    /** OFFheap */
     private final boolean offHeap;
 
     /** 序列化器，堆外模式下用于对象与字节的互转 */
+    /** 序列化器 */
     private final Serializer<E> serializer;
 
     /** 过期检查间隔（毫秒） */
+    /** Expirycheck间隔毫秒 */
     private final long expiryCheckIntervalMillis;
 
     /** 最大容量，0 表示不限制 */
+    /** 最大值容量 */
     private final int maxCapacity;
 
     /** 加载超时时间（毫秒），0 表示无限等待 */
+    /** Load超时毫秒 */
     private final long loadTimeoutMillis;
 
     /** 生命周期事件监听器 */
+    /** Lifecycle监听器 */
     private final LifecycleListener<E> lifecycleListener;
 
     /** 当前生命周期状态，volatile 保证可见性 */
@@ -104,6 +112,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     private final ScheduledFuture<?> expiryTask;
 
     /** 加载互斥锁，保证只有一个线程执行加载 */
+    /** Load锁 */
     private final ReentrantLock loadLock = new ReentrantLock();
 
     /** 加载完成信号，用于让等待线程阻塞/释放 */
@@ -181,24 +190,34 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
      */
     public static class Builder<E extends Serializable> {
         /** 数据加载器（必填） */
+        /** Loader */
         private Supplier<List<E>> loader;
         /** TTL 过期时间（毫秒），0 = 永不过期 */
+        /** TTL毫秒 */
         private long ttlMillis;
         /** 是否使用堆外内存 */
+        /** OFFheap */
         private boolean offHeap;
         /** 序列化器实例（优先级高于 serializerType） */
+        /** 序列化器 */
         private Serializer<E> serializer;
         /** 序列化器 SPI 名称（如 "java"、"json"） */
+        /** 序列化器类型 */
         private String serializerType;
         /** 元素类型（泛型擦除时辅助 SPI 加载） */
+        /** Elementclass */
         private Class<E> elementClass;
         /** 过期检查间隔（毫秒），0 = 自动计算 ttlMillis/3 */
+        /** Expirycheck间隔毫秒 */
         private long expiryCheckIntervalMillis;
         /** 最大容量，0 = 不限制 */
+        /** 最大值容量 */
         private int maxCapacity;
         /** 加载超时（毫秒），0 = 无限等待 */
+        /** Load超时毫秒 */
         private long loadTimeoutMillis;
         /** 生命周期事件监听器 */
+        /** Lifecycle监听器 */
         private LifecycleListener<E> lifecycleListener;
 
         private Builder() {}
@@ -321,12 +340,16 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
      */
     public static class Event<E extends Serializable> {
         /** 事件类型 */
+        /** 类型 */
         private final Type type;
         /** 事件来源 */
+        /** 来源 */
         private final LazyExpiringList<E> source;
         /** 事件时间戳 */
+        /** 时间戳 */
         private final long timestamp;
         /** 事件详情（如加载元素数量、异常对象等） */
+        /** Detail */
         private final Object detail;
 
         Event(Type type, LazyExpiringList<E> source, Object detail) {
@@ -743,7 +766,11 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
 
     /** 快照迭代器，遍历创建时的数据，不反映后续修改 */
     private class DataStoreIterator implements Iterator<E> {
+        /** 游标位置 */
+        /** Cursor */
         private int cursor = 0;
+        /** 大小 */
+        /** 尺寸 */
         private final int size = dataStore.size();
         @Override public boolean hasNext() { return cursor < size; }
         @Override public E next() { if (cursor >= size) throw new java.util.NoSuchElementException(); return dataStore.get(cursor++); }
@@ -751,7 +778,11 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
 
     /** 快照列表迭代器，支持双向遍历 */
     private class DataStoreListIterator implements ListIterator<E> {
+        /** 游标位置 */
+        /** Cursor */
         private int cursor;
+        /** 大小 */
+        /** 尺寸 */
         private final int size;
         DataStoreListIterator(int index) { this.size = dataStore.size(); if (index < 0 || index > size) throw new IndexOutOfBoundsException(); this.cursor = index; }
         @Override public boolean hasNext() { return cursor < size; }
@@ -767,7 +798,11 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
 
     /** 快照 Spliterator */
     private class DataStoreSpliterator implements Spliterator<E> {
+        /** 游标位置 */
+        /** Cursor */
         private int cursor = 0;
+        /** 大小 */
+        /** 尺寸 */
         private final int size = dataStore.size();
         @Override public boolean tryAdvance(Consumer<? super E> action) { if (cursor < size) { action.accept(dataStore.get(cursor++)); return true; } return false; }
         @Override public Spliterator<E> trySplit() { return null; }

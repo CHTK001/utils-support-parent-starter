@@ -29,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnClass("org.apache.hc.client5.http.classic.methods.HttpGet")
 public class HttpClient5Executor implements HttpClientExecutor {
 
+    /**
+     * Apache HttpClient5 客户端实例
+     */
     private CloseableHttpClient client;
 
     public HttpClient5Executor() {

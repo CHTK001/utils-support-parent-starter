@@ -302,6 +302,7 @@ public class SimpleWalLog implements WalLog {
         }
     }
 
+    /** Mmap缓冲区引用 */
     private static final java.lang.reflect.Method mmapBufferRef;
 
     static {
@@ -695,6 +696,7 @@ public class SimpleWalLog implements WalLog {
      */
     private static final class WalChainImpl implements WalChain {
 
+        /** OPS */
         private final List<WalOp> ops;
 
         WalChainImpl(List<WalOp> ops) {

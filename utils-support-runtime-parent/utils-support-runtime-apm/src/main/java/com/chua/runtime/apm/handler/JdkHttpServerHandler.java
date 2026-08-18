@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class JdkHttpServerHandler extends AbstractAppHandler {
 
+    /**
+     * HTTP handler
+     */
     private static final String HTTP_HANDLER = "com/sun/net/httpserver/HttpHandler";
+    /**
+     * handle methods
+     */
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override

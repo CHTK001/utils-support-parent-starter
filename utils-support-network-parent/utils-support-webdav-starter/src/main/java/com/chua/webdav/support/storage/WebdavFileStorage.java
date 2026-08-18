@@ -43,7 +43,13 @@ import java.util.List;
 @Spi({"webdav", "swebdav"})
 public class WebdavFileStorage extends AbstractFileStorage {
 
+    /**
+     * sardine
+     */
     private final Sardine sardine;
+    /**
+     * 基础地址
+     */
     private final String baseUrl;
 
     public WebdavFileStorage(BucketSetting bucketSetting) {

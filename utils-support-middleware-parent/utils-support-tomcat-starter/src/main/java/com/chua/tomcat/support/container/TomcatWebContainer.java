@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi({"tomcat", "apache-tomcat"})
 public class TomcatWebContainer extends AbstractWebContainer {
 
+    /** Tomcat */
     private Tomcat tomcat;
     private final Map<String, Context> contexts = new ConcurrentHashMap<>();
 

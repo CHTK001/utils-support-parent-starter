@@ -14,6 +14,7 @@ import com.chua.common.support.objects.ObjectContext;
  */
 public class DefaultObjectProvider<T> implements ObjectProvider<T> {
 
+    /** CTX */
     private final ObjectContext ctx;
     /**
      * 类型

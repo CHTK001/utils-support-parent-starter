@@ -334,6 +334,8 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     @Override
     public Iterator<Boolean> iterator() {
         return new Iterator<Boolean>() {
+            /** 索引位置 */
+            /** 索引 */
             private int index = 0;
 
             @Override

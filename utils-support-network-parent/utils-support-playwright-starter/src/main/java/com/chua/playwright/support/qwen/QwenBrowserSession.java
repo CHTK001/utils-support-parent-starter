@@ -22,8 +22,17 @@ import java.util.function.BiConsumer;
 @Slf4j
 public class QwenBrowserSession implements AutoCloseable {
 
+    /**
+     * 页面 加载 超时时间 毫秒
+     */
     private static final long PAGE_LOAD_TIMEOUT_MS = 60000;
+    /**
+     * 响应 超时时间 毫秒
+     */
     private static final long RESPONSE_TIMEOUT_MS = 120000;
+    /**
+     * 隐身 参数
+     */
     private static final String[] STEALTH_ARGS = {
             "--disable-blink-features=AutomationControlled", "--no-sandbox",
             "--disable-web-security", "--disable-features=IsolateOrigins,site-per-process",
@@ -31,10 +40,25 @@ public class QwenBrowserSession implements AutoCloseable {
             "--no-first-run", "--no-default-browser-check", "--disable-extensions"
     };
 
+    /**
+     * Playwright 实例
+     */
     private final Playwright playwright;
+    /**
+     * 浏览器实例
+     */
     private final Browser browser;
+    /**
+     * 浏览器上下文
+     */
     private final BrowserContext context;
+    /**
+     * 页面实例
+     */
     private Page page;
+    /**
+     * 页面是否就绪
+     */
     private boolean pageReady;
 
     public QwenBrowserSession(String cookieString, String userDataDir) {

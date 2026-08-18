@@ -70,24 +70,34 @@ import java.util.concurrent.TimeUnit;
 public class JdkTelnetServer extends AbstractServer {
 
     /** Telnet 协议选项：回显 */
+    /** Telnet_option_echo */
     private static final int TELNET_OPTION_ECHO = 1;
     /** Telnet 协议选项：抑制回显 */
+    /** Telnet_option_sga */
     private static final int TELNET_OPTION_SGA = 3;
     /** Telnet 协议选项：窗口大小 */
+    /** Telnet_option_naws */
     private static final int TELNET_OPTION_NAWS = 31;
 
     /** Telnet 协议命令：IAC */
+    /** Telnet_iac */
     private static final int TELNET_IAC = 255;
     /** Telnet 协议命令：WILL */
+    /** Telnet_will */
     private static final int TELNET_WILL = 251;
     /** Telnet 协议命令：WONT */
+    /** Telnet_wont */
     private static final int TELNET_WONT = 252;
     /** Telnet 协议命令：DO */
+    /** Telnet_do */
     private static final int TELNET_DO = 253;
     /** Telnet 协议命令：DONT */
+    /** Telnet_dont */
     private static final int TELNET_DONT = 254;
 
+    /** 服务器Socket */
     private ServerSocket serverSocket;
+    /** Worker池 */
     private ExecutorService workerPool;
     private final Map<String, TelnetCommand> commands = new ConcurrentHashMap<>();
     private final Map<String, TelnetSession> sessions = new ConcurrentHashMap<>();
@@ -312,8 +322,11 @@ public class JdkTelnetServer extends AbstractServer {
          * 客户端 ID
          */
         private final String clientId;
+        /** Socket */
         private final Socket socket;
+        /** 读取器 */
         private final BufferedReader reader;
+        /** 写入器 */
         private final DataOutputStream writer;
 
         TelnetSession(String clientId, Socket socket) throws IOException {

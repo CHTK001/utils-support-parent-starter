@@ -13,8 +13,10 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi("qqwry")
 public class QqwryIpPosition implements IpPosition {
 
+    /** Default_db */
     private static final String DEFAULT_DB = "qqwry.dat";
 
+    /** 读取器 */
     private final QQWryReader reader;
 
     /**

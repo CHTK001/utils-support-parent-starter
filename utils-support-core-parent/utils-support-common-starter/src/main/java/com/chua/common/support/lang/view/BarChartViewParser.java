@@ -22,6 +22,7 @@ import java.util.Map;
 @Spi("barchart")
 public class BarChartViewParser implements ViewParser {
 
+    /** Default_bar_width */
     private static final int DEFAULT_BAR_WIDTH = 20;
 
     @Override

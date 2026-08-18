@@ -40,8 +40,11 @@ public class VertxHttpProxyServer extends AbstractServer {
      */
     private final ProxyTargetResolver<InetSocketAddress> targetResolver;
 
+    /** Vertx */
     private Vertx vertx;
+    /** 服务器 */
     private HttpServer server;
+    /** HTTP客户端 */
     private HttpClient httpClient;
 
     public VertxHttpProxyServer(ServerSetting setting) {

@@ -21,6 +21,7 @@ import java.util.Set;
 @Spi("preview-code")
 public class CodePreviewProvider implements FileStoragePreviewProvider {
 
+    /** Code_exts */
     private static final Set<String> CODE_EXTS = Set.of(
             "js", "ts", "jsx", "tsx", "css", "scss", "less",
             "xml", "json", "yaml", "yml", "toml",
@@ -30,6 +31,7 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     );
 
     /** 已有专门 SPI 提供者抢跑的扩展名，CodePreviewProvider 不应匹配 */
+    /** Bypass_exts */
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
     @Override

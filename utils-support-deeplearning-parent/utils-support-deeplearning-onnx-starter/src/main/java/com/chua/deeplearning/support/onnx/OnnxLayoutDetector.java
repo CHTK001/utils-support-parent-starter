@@ -13,10 +13,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxLayoutDetector implements LayoutDetector {
 
+    /** 模型名称 */
+    /** 模型名称 */
     private String modelName;
+    /** 阈值 */
+    /** 阈值 */
     private float threshold = 0.5f;
+    /** 模型路径 */
+    /** 模型路径 */
     private String modelPath;
+    /** 是否使用 GPU */
+    /** USEGPU */
     private boolean useGpu = false;
+    /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxLayoutDetector(String apiKey) {

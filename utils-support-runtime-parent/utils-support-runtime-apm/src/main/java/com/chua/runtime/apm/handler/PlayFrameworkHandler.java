@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class PlayFrameworkHandler extends AbstractAppHandler {
 
+    /**
+     * ROUTER
+     */
     private static final String ROUTER = "play/core/routing/Router";
+    /**
+     * 请求 handler
+     */
     private static final String REQUEST_HANDLER = "play/http/RequestHandler";
+    /**
+     * router methods
+     */
     private static final String[] ROUTER_METHODS = {"routeRequest"};
+    /**
+     * handler methods
+     */
     private static final String[] HANDLER_METHODS = {"handlerForRequest", "handleRequest"};
 
     @Override

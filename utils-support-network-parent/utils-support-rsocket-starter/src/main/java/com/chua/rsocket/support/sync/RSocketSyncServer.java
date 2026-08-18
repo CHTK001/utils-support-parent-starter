@@ -39,8 +39,17 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
         return new RSocketSyncClient(url);
     }
 
+    /**
+     * clients
+     */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
+    /**
+     * 监听器列表
+     */
     private final List<SyncServerListener> listeners = new ArrayList<>();
+    /**
+     * 委托对象
+     */
     private final com.chua.rsocket.support.server.RSocketServer delegate;
 
     public RSocketSyncServer(ServerSetting setting) {

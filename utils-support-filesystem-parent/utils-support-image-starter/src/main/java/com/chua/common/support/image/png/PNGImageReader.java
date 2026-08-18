@@ -1116,6 +1116,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** Bandoffsets */
     private static final int[][] bandOffsets = {
         null,
         { 0 }, // G

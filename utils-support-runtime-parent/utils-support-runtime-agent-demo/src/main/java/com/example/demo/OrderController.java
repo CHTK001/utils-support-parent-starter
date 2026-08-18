@@ -32,6 +32,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class OrderController {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = LoggerFactory.getLogger(OrderController.class);
 
     /**

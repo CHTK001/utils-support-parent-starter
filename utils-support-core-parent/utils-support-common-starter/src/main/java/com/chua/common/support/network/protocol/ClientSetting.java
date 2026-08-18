@@ -9,12 +9,19 @@ package com.chua.common.support.network.protocol;
  */
 public class ClientSetting {
 
+    /** 主机 */
     private final String host;
+    /** 端口 */
     private final int port;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** Connect超时 */
     private final long connectTimeout;
+    /** Read超时 */
     private final long readTimeout;
+    /** Write超时 */
     private final long writeTimeout;
 
     private ClientSetting(Builder b) {
@@ -103,12 +110,19 @@ public class ClientSetting {
      * 构建器类。
      */
     public static class Builder {
+        /** 主机 */
         private String host;
+        /** 端口 */
         private int port = 5985;
+        /** Username */
         private String username;
+        /** 密码 */
         private String password;
+        /** Connect超时 */
         private long connectTimeout = 15_000;
+        /** Read超时 */
         private long readTimeout = 30_000;
+        /** Write超时 */
         private long writeTimeout = 30_000;
 
         public Builder host(String h) { host = h; return this; }

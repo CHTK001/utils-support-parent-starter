@@ -6,9 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxFeatureExtractor implements FeatureExtractor {
 
+    /** 模型名称 */
+    /** 模型名称 */
     private String modelName;
+    /** 模型路径 */
+    /** 模型路径 */
     private String modelPath;
+    /** 是否归一化 */
+    /** Normalize */
     private boolean normalize = true;
+    /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxFeatureExtractor(String apiKey) {

@@ -30,8 +30,11 @@ import java.util.Map;
 @Spi({"jpg", "jpeg", "png", "bmp", "gif", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
 public class ImageWriterFileSystem extends AbstractWriter {
 
+    /** Key_bytes */
     private static final String KEY_BYTES = "bytes";
+    /** Key_base64 */
     private static final String KEY_BASE64 = "base64";
+    /** Key_image */
     private static final String KEY_IMAGE = "image";
 
     public ImageWriterFileSystem() {

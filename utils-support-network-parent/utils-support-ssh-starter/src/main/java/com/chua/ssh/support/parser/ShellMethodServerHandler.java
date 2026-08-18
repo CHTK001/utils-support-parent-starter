@@ -26,10 +26,25 @@ import java.util.Map;
  */
 public class ShellMethodServerHandler implements HttpDefaultServerHandler {
 
+    /**
+     * object Context
+     */
     private final ObjectContext objectContext;
+    /**
+     * target Class
+     */
     private final Class<?> targetClass;
+    /**
+     * method
+     */
     private final Method method;
+    /**
+     * 路径
+     */
     private final String path;
+    /**
+     * produce
+     */
     private final String produce;
 
     public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path, String produce) {

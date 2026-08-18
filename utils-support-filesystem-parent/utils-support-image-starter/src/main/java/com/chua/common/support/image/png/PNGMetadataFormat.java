@@ -20,21 +20,32 @@ import javax.annotation.Nullable;
  */
 public class PNGMetadataFormat extends IIOMetadataFormatImpl {
 
+    /** 实例 */
     private static IIOMetadataFormat instance = null;
 
+    /** Value_0 */
     private static final String VALUE_0 = "0";
+    /** Value_1 */
     private static final String VALUE_1 = "1";
+    /** Value_12 */
     private static final String VALUE_12 = "12";
+    /** Value_23 */
     private static final String VALUE_23 = "23";
+    /** Value_31 */
     private static final String VALUE_31 = "31";
+    /** Value_59 */
     private static final String VALUE_59 = "59";
+    /** Value_60 */
     private static final String VALUE_60 = "60";
+    /** Value_255 */
     private static final String VALUE_255 = "255";
     // 2^16 - 1
     // ;
+    /** Value_max_16 */
     private static final String VALUE_MAX_16 = "65535";
     // 2^32 - 1
     // ;
+    /** Value_max_32 */
     private static final String VALUE_MAX_32 = "2147483647";
 
     private PNGMetadataFormat() {

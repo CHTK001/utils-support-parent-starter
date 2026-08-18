@@ -58,6 +58,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class RuntimeSpy {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(RuntimeSpy.class.getName());
     /**
      * 拦截点匹配键分隔符（className#methodName#pointKey）
@@ -879,9 +882,21 @@ public class RuntimeSpy {
      * @param <V> 值类型
      */
     private static final class BoundedLocalCache<K, V> {
+        /**
+         * 映射
+         */
         private final Map<K, V> map = new ConcurrentHashMap<>();
+        /**
+         * max大小
+         */
         private final int maxSize;
+        /**
+         * ttl Ms
+         */
         private final long ttlMs;
+        /**
+         * last Cleanup
+         */
         private final AtomicLong lastCleanup = new AtomicLong();
 
         BoundedLocalCache(int maxSize, long ttlMs) {

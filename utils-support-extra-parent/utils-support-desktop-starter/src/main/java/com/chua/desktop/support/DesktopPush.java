@@ -51,6 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 )
 public class DesktopPush implements MessagePush {
 
+    /** 环境 */
     private final MessageEnvironment environment;
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 

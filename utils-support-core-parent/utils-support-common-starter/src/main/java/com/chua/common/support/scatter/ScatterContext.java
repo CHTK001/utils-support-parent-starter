@@ -1,5 +1,7 @@
 package com.chua.common.support.scatter;
 
+import com.chua.common.support.lang.json.Json;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,6 +13,26 @@ import java.util.Objects;
  * @since 4.0.0.42
  */
 public final class ScatterContext {
+
+    /**
+     * JSON 字段名：请求ID
+     */
+    private static final String FIELD_REQUEST_ID = "requestId";
+
+    /**
+     * JSON 字段名：服务路径
+     */
+    private static final String FIELD_PATH = "path";
+
+    /**
+     * JSON 字段名：超时时间
+     */
+    private static final String FIELD_TIMEOUT_MILLIS = "timeoutMillis";
+
+    /**
+     * JSON 字段名：最小成功数
+     */
+    private static final String FIELD_MIN_SUCCESS_COUNT = "minSuccessCount";
 
     /**
      * 请求唯一标识
@@ -95,5 +117,36 @@ public final class ScatterContext {
         return "{\"requestId\":\"" + requestId + "\",\"path\":\"" + path
                 + "\",\"timeoutMillis\":" + timeoutMillis
                 + ",\"minSuccessCount\":" + minSuccessCount + "}";
+    }
+
+    /**
+     * 从 sync 文本协议的 payload（{@link #toString()} 输出的 JSON）反序列化上下文。
+     * <p>替代各处手工 indexOf 字符串解析，避免转义/边界问题。</p>
+     *
+     * @param line 线格式 payload
+     * @return 上下文，无法解析时返回 null
+     */
+    public static ScatterContext fromLine(String line) {
+        if (line == null || line.isBlank()) {
+            return null;
+        }
+        try {
+            Map<String, Object> map = Json.fromJson(line, Map.class);
+            if (map == null) {
+                return null;
+            }
+            String requestId = Objects.toString(map.get(FIELD_REQUEST_ID), null);
+            String path = Objects.toString(map.get(FIELD_PATH), null);
+            if (requestId == null || requestId.isBlank() || path == null || path.isBlank()) {
+                return null;
+            }
+            Number timeout = map.get(FIELD_TIMEOUT_MILLIS) instanceof Number n ? n : null;
+            Number minCount = map.get(FIELD_MIN_SUCCESS_COUNT) instanceof Number n ? n : null;
+            long timeoutMillis = timeout == null ? 0L : timeout.longValue();
+            int minSuccessCount = minCount == null ? 1 : Math.max(1, minCount.intValue());
+            return new ScatterContext(requestId, path, timeoutMillis, minSuccessCount, Map.of());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

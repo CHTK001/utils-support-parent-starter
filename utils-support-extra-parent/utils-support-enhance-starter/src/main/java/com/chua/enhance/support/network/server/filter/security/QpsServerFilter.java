@@ -29,6 +29,7 @@ public class QpsServerFilter implements ServerFilter {
      */
     private static final int DEFAULT_MAX_QPS = 1000;
 
+    /** 最大值QPS */
     private int maxQps = DEFAULT_MAX_QPS;
 
     /**

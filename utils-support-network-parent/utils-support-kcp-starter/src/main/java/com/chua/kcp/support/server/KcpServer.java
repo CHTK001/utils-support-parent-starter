@@ -56,6 +56,9 @@ import java.util.function.Consumer;
 @Spi("kcp")
 public class KcpServer extends AbstractServer {
 
+    /**
+     * 日志实例
+     */
     private static final Logger log = LoggerFactory.getLogger(KcpServer.class);
 
     /**
@@ -702,8 +705,17 @@ public class KcpServer extends AbstractServer {
      */
     private static final class KcpServerRequest extends AbstractServerRequest {
 
+        /**
+         * 客户端标识
+         */
         private final String clientId;
+        /**
+         * 消息主题
+         */
         private final String topic;
+        /**
+         * 消息载荷字节数组
+         */
         private final byte[] payload;
 
         KcpServerRequest(String clientId, String topic, String payload) {

@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
     private static volatile boolean available = false;
+    /** Load错误 */
     private static String loadError = null;
 
     static {

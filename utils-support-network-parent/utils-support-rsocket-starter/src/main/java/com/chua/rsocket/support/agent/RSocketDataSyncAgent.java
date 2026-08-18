@@ -30,13 +30,34 @@ import java.util.Map;
  */
 public class RSocketDataSyncAgent implements DataSyncAgent {
 
+    /**
+     * agent Id
+     */
     private final String agentId;
+    /**
+     * source Id
+     */
     private final String sourceId;
+    /**
+     * 主机地址
+     */
     private final String host;
+    /**
+     * 端口号
+     */
     private final int port;
+    /**
+     * source
+     */
     private final DataSyncSource source;
 
+    /**
+     * r Socket
+     */
     private RSocket rSocket;
+    /**
+     * running
+     */
     private volatile boolean running = false;
 
     public RSocketDataSyncAgent(String agentId, String sourceId, String host, int port, DataSyncSource source) {

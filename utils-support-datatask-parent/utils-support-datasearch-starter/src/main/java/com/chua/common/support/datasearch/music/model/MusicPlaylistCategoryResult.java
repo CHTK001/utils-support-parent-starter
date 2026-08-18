@@ -14,12 +14,19 @@ import java.util.List;
 @Data
 @Builder
 public class MusicPlaylistCategoryResult {
+    /** 来源 */
     private String source;
+    /** 标签ID */
     private String tagId;
+    /** 分类名称 */
     private String categoryName;
+    /** 页 */
     private Integer page;
+    /** 每页大小 */
     private Integer pageSize;
+    /** 总数 */
     private Long total;
+    /** Playlists */
     private List<MusicPlaylistSummary> playlists;
 }
 

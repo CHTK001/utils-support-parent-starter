@@ -113,6 +113,7 @@ public class DdlFormatter extends SqlFormatter {
     private static final Pattern CONSTRAINT_PATTERN =
             Pattern.compile("(?i)(CONSTRAINT\\s+\\w+\\s+)?(PRIMARY\\s+KEY|FOREIGN\\s+KEY|UNIQUE|CHECK)", Pattern.CASE_INSENSITIVE);
 
+    /** Constraint_keywords */
     private static final Set<String> CONSTRAINT_KEYWORDS = Set.of(
             "PRIMARY KEY", "FOREIGN KEY", "UNIQUE", "CHECK", "CONSTRAINT"
     );

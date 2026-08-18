@@ -40,8 +40,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 4.0.0.42
  */
 public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(TransmissionHandler.class.getName());
 
+    /**
+     * handler 名称
+     */
     private static final String HANDLER_NAME = "transmission-handler";
 
     /**
@@ -229,6 +235,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
      * 本地网络身份缓存 — 避免在 handleEntry 阶段重复解析 InetAddress.getLocalHost()
      */
     private static volatile String LOCAL_HOST;
+    /**
+     * local 端口 hint
+     */
     private static volatile int LOCAL_PORT_HINT = -1;
 
     private static String resolveLocalHost() {

@@ -43,6 +43,7 @@ public class Trace {
      * 所有 Span（按开始时间排序）
      */
     @Builder.Default
+    /** Spans */
     private List<Span> spans = new ArrayList<>();
 
     /**
@@ -65,5 +66,6 @@ public class Trace {
      * 是否已结束
      */
     @Builder.Default
+    /** Finished */
     private boolean finished = false;
 }

@@ -55,23 +55,37 @@ import java.util.function.Consumer;
 public class NatsClient implements AutoCloseable {
 
     /** 默认 NATS 服务器 URL */
+    /** Default_url */
     public static final String DEFAULT_URL = "nats://localhost:4222";
 
+    /** URL */
     private final String url;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** 令牌 */
     private final String token;
+    /** Connection超时 */
     private final Duration connectionTimeout;
+    /** Reconnectwait */
     private final Duration reconnectWait;
+    /** 最大值reconnects */
     private final int maxReconnects;
+    /** Pedantic */
     private final boolean pedantic;
 
+    /** Connection */
     private Connection connection;
+    /** JET流 */
     private JetStream jetStream;
+    /** JET流management */
     private JetStreamManagement jetStreamManagement;
+    /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /** 活跃的订阅列表 */
+    /** Subscriptions */
     private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
 
     private NatsClient(Builder b) {
@@ -326,13 +340,21 @@ public class NatsClient implements AutoCloseable {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** URL */
         private String url = DEFAULT_URL;
+        /** Username */
         private String username;
+        /** 密码 */
         private String password;
+        /** 令牌 */
         private String token;
+        /** Connection超时 */
         private Duration connectionTimeout = Duration.ofSeconds(5);
+        /** Reconnectwait */
         private Duration reconnectWait = Duration.ofSeconds(2);
+        /** 最大值reconnects */
         private int maxReconnects = 60;
+        /** Pedantic */
         private boolean pedantic;
 
         public Builder url(String url) {
@@ -384,9 +406,13 @@ public class NatsClient implements AutoCloseable {
     // ==================== 发布操作 ====================
 
     public static class PublishOperation {
+        /** 客户端 */
         private final NatsClient client;
+        /** Subject */
         private String subject;
+        /** 请求体 */
         private byte[] body;
+        /** ReplyTO */
         private String replyTo;
         private Map<String, String> headers;
 
@@ -461,10 +487,15 @@ public class NatsClient implements AutoCloseable {
     // ==================== 订阅操作 ====================
 
     public static class SubscribeOperation {
+        /** 客户端 */
         private final NatsClient client;
+        /** Subject */
         private String subject;
+        /** 队列 */
         private String queue;
+        /** 处理器 */
         private Consumer<io.nats.client.Message> handler;
+        /** AutoACK */
         private boolean autoAck = true;
 
         SubscribeOperation(NatsClient client) {
@@ -551,6 +582,7 @@ public class NatsClient implements AutoCloseable {
     // ==================== JetStream 操作 ====================
 
     public static class JetStreamOperation {
+        /** 客户端 */
         private final NatsClient client;
 
         JetStreamOperation(NatsClient client) {
@@ -626,8 +658,11 @@ public class NatsClient implements AutoCloseable {
      * JetStream 流操作。
      */
     public static class StreamOperation {
+        /** 客户端 */
         private final NatsClient client;
+        /** 流名称 */
         private final String streamName;
+        /** 配置 */
         private StreamConfiguration config;
 
         StreamOperation(NatsClient client, String streamName) {
@@ -765,8 +800,11 @@ public class NatsClient implements AutoCloseable {
     // ==================== Key-Value Store 操作 ====================
 
     public static class KvOperation {
+        /** 客户端 */
         private final NatsClient client;
+        /** 存储桶名称 */
         private final String bucketName;
+        /** 配置 */
         private KeyValueConfiguration config;
 
         KvOperation(NatsClient client, String bucketName) {
@@ -900,7 +938,9 @@ public class NatsClient implements AutoCloseable {
     // ==================== Object Store 操作 ====================
 
     public static class ObjectStoreOperation {
+        /** 客户端 */
         private final NatsClient client;
+        /** 存储桶名称 */
         private final String bucketName;
 
         ObjectStoreOperation(NatsClient client, String bucketName) {
@@ -1010,8 +1050,11 @@ public class NatsClient implements AutoCloseable {
      */
     @Getter
     public static class DispatchedSubscription {
+        /** Coresubscription */
         private final io.nats.client.Subscription coreSubscription;
+        /** JSsubscription */
         private final io.nats.client.JetStreamSubscription jsSubscription;
+        /** ISJET流 */
         private final boolean isJetStream;
         private volatile boolean cancelled;
 

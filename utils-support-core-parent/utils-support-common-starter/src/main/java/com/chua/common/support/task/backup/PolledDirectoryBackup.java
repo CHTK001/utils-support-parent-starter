@@ -41,7 +41,9 @@ public class PolledDirectoryBackup implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "polled";
+    /** Date_fmt */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /** Time_fmt */
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
@@ -63,12 +65,14 @@ public class PolledDirectoryBackup implements BackupStrategy {
     }
 
     /** 默认转换器：包装为 JSON insert 格式 */
+    /** Default_transformer */
     private static final RecordTransformer DEFAULT_TRANSFORMER = (fileName, content) -> {
         return "{\"type\":\"insert\",\"source\":\"" + fileName + "\","
                 + "\"timestamp\":\"" + LocalDateTime.now().format(TIME_FMT) + "\","
                 + "\"data\":" + content + "}";
     };
 
+    /** Transformer */
     private RecordTransformer transformer = DEFAULT_TRANSFORMER;
 
     public PolledDirectoryBackup() {

@@ -34,15 +34,18 @@ import java.util.stream.Stream;
 @Slf4j
 public class MacOSUnifiedLogProvider implements SystemLogProvider {
 
+    /** Sources */
     private static final List<String> SOURCES = Arrays.asList(
             "unified", "system", "install", "kernel"
     );
 
+    /** Var_log_files */
     private static final List<String> VAR_LOG_FILES = Arrays.asList(
             "/var/log/system.log",
             "/var/log/install.log"
     );
 
+    /** Log_show_cmd */
     private static final String LOG_SHOW_CMD = "/usr/bin/log";
 
     @Override

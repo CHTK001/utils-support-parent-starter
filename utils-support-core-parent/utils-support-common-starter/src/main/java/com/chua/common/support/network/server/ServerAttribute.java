@@ -24,36 +24,47 @@ import java.util.Map;
 public final class ServerAttribute {
 
     /** 反向代理后端目标地址 (host:port) */
+    /** Backend_address */
     public static final String BACKEND_ADDRESS = "__backend_address";
 
     /** 反向代理后端协议 (http/https) */
+    /** Backend_scheme */
     public static final String BACKEND_SCHEME = "__backend_scheme";
 
     /** 反向代理后端主机 */
+    /** Backend_host */
     public static final String BACKEND_HOST = "__backend_host";
 
     /** 反向代理后端端口 */
+    /** Backend_port */
     public static final String BACKEND_PORT = "__backend_port";
 
     /** 反向代理后端完整 URI */
+    /** Backend_uri */
     public static final String BACKEND_URI = "__backend_uri";
 
     /** 匹配的 Ant 路由模式 */
+    /** Route_pattern */
     public static final String ROUTE_PATTERN = "__route_pattern";
 
     /** 路径模板变量集 ({@code {var} -> value}) */
+    /** Path_variables */
     public static final String PATH_VARIABLES = "__path_variables";
 
     /** 已认证用户标识 */
+    /** Auth_principal */
     public static final String AUTH_PRINCIPAL = "__auth_principal";
 
     /** 原始请求路径（重写前） */
+    /** Original_path */
     public static final String ORIGINAL_PATH = "__original_path";
 
     /** 服务发现对象（ServiceDiscoveryServerFilter 存入） */
+    /** Backend_discovery */
     public static final String BACKEND_DISCOVERY = "__backend_discovery";
 
     /** 底层 Vert.x RoutingContext（VertxHttpServer 存入，供 WebSocket 代理升级使用） */
+    /** Vertx_routing_context */
     public static final String VERTX_ROUTING_CONTEXT = "__vertx_routing_context";
 
     private ServerAttribute() {

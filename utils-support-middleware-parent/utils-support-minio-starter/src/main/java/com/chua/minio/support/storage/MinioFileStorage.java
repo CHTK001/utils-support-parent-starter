@@ -56,6 +56,7 @@ import java.util.Objects;
 @Spi({"minio", "minio-s3"})
 public class MinioFileStorage extends AbstractFileStorage {
 
+    /** Minio客户端 */
     private final MinioClient minioClient;
 
     public MinioFileStorage(BucketSetting bucketSetting) {

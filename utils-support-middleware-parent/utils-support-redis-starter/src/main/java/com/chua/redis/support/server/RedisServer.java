@@ -145,8 +145,11 @@ public class RedisServer {
      * Builder 模式创建 RedisServer。
      */
     public static class Builder {
+        /** 端口 */
         private int port = 6379;
+        /** 最大值memory */
         private String maxMemory;
+        /** 参数 */
         private String[] args = new String[0];
 
         /**

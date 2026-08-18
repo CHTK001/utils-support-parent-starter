@@ -18,12 +18,15 @@ import java.util.List;
 public class TrainingData {
 
     /** 不相似目录的原始分数列表 */
+    /** NOTsimilarscores */
     private List<Double> notSimilarScores;
 
     /** 看似相似目录的原始分数列表 */
+    /** Looksimilarscores */
     private List<Double> lookSimilarScores;
 
     /** 本人目录的原始分数列表 */
+    /** Samepersonscores */
     private List<Double> samePersonScores;
 
     /**

@@ -29,47 +29,113 @@ import java.util.Map;
 public class TransmissionEvent {
 
     /** 内部 row id，存储层自增 */
+    /** ID */
     private long id;
 
+    /**
+     * trace Id
+     */
     private String traceId;
+    /**
+     * span Id
+     */
     private String spanId;
+    /**
+     * parent Span Id
+     */
     private String parentSpanId;
 
+    /**
+     * source Protocol
+     */
     private String sourceProtocol;
+    /**
+     * source Software
+     */
     private String sourceSoftware;
+    /**
+     * source Host
+     */
     private String sourceHost;
+    /**
+     * source Port
+     */
     private int sourcePort;
+    /**
+     * source Path
+     */
     private String sourcePath;
 
+    /**
+     * target Protocol
+     */
     private String targetProtocol;
+    /**
+     * target Software
+     */
     private String targetSoftware;
+    /**
+     * target Host
+     */
     private String targetHost;
+    /**
+     * target Port
+     */
     private int targetPort;
+    /**
+     * target Path
+     */
     private String targetPath;
 
     /** 协议名（HTTP/TCP/REDIS/...） */
+    /** 协议 */
     private String protocol;
 
     /** 软件栈名（JEDIS/TOMCAT/...） */
+    /** Software */
     private String software;
 
     /** 操作描述（GET /api/order） */
+    /** Operation */
     private String operation;
 
     /** 状态（OK/ERROR） */
+    /** 状态 */
     private StatusCode status;
 
     /** 响应码（HTTP 状态码 / ZK rc / Redis reply） */
+    /** 状态代码 */
     private int statusCode;
 
+    /**
+     * start Time
+     */
     private long startTime;
+    /**
+     * end Time
+     */
     private long endTime;
+    /**
+     * duration
+     */
     private long duration;
 
+    /**
+     * bytes Out
+     */
     private long bytesOut;
+    /**
+     * bytes In
+     */
     private long bytesIn;
 
+    /**
+     * error Type
+     */
     private String errorType;
+    /**
+     * error Message
+     */
     private String errorMessage;
 
     /** 附加属性（懒填充） */

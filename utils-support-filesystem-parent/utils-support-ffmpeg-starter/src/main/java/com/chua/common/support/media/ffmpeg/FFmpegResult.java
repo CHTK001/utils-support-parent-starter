@@ -17,15 +17,19 @@ public class FFmpegResult {
     private boolean success;
 
     /** 进程退出码，0 表示正常退出 */
+    /** Exit代码 */
     private int exitCode;
 
     /** 标准输出内容 */
+    /** Stdout */
     private String stdout;
 
     /** 错误输出内容 */
+    /** Stderr */
     private String stderr;
 
     /** 执行耗时（毫秒） */
+    /** Execution时间 */
     private long executionTime;
 
     public boolean isSuccess() { return success; }

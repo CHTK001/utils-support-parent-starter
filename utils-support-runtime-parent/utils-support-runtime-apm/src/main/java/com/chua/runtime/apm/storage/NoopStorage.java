@@ -19,6 +19,9 @@ import com.chua.runtime.protocol.DependencyEdge;
  */
 public class NoopStorage implements ApmStorage {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(NoopStorage.class.getName());
 
     @Override

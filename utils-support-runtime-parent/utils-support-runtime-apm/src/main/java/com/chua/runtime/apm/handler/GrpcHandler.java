@@ -14,9 +14,21 @@ import com.chua.runtime.protocol.Software;
  */
 public class GrpcHandler extends AbstractAppHandler {
 
+    /**
+     * 客户端 call
+     */
     private static final String CLIENT_CALL = "io/grpc/ClientCall";
+    /**
+     * 服务器 call
+     */
     private static final String SERVER_CALL = "io/grpc/ServerCall";
+    /**
+     * 客户端 methods
+     */
     private static final String[] CLIENT_METHODS = {"start", "sendMessage", "request", "halfClose"};
+    /**
+     * 服务器 methods
+     */
     private static final String[] SERVER_METHODS = {"sendMessage", "close"};
 
     @Override

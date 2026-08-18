@@ -16,10 +16,15 @@ import javax.sql.DataSource;
  */
 public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
 
+    /** 数据来源 */
     private final DataSource dataSource;
+    /** 索引名称 */
     private final String indexName;
+    /** 表 */
     private String table;
+    /** 列 */
     private String column;
+    /** 算法 */
     private String algorithm;
 
     OracleCreateIndexStep(DataSource dataSource, String indexName) {

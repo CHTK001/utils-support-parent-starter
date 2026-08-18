@@ -27,8 +27,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("go")
 public class GoSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(GoSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "go";
 
     @Override

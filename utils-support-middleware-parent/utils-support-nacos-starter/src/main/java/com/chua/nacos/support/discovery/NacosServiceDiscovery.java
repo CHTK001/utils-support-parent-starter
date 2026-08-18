@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @Spi("nacos")
 public class NacosServiceDiscovery extends AbstractServiceDiscovery {
 
+    /** Naming服务 */
     private NamingService namingService;
 
     public NacosServiceDiscovery(DiscoveryOption discoveryOption) {

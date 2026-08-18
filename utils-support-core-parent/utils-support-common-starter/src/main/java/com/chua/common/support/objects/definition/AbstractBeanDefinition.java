@@ -50,12 +50,14 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * 初始化状态标志
      */
     @Getter
+    /** Initialized */
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
 
     /**
      * 销毁状态标志
      */
     @Getter
+    /** Destroyed */
     protected final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     /**
@@ -63,6 +65,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Getter
     @Setter
+    /** Proxy */
     private boolean proxy = true;
 
     /**
@@ -70,6 +73,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Getter
     @Setter
+    /** 优先级 */
     private int priority;
 
     /**
@@ -77,6 +81,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Getter
     @Setter
+    /** 作用域 */
     private BeanScope scope = BeanScope.SINGLETON;
 
     /**
@@ -111,6 +116,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Getter
     @Setter
+    /** 可用 */
     private boolean available = true;
 
     /**
@@ -138,6 +144,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Setter
     @Getter
+    /** 环境 */
     private Environment environment;
 
     /**

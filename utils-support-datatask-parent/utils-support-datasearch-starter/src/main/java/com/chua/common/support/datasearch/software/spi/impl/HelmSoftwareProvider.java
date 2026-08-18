@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("helm")
 public class HelmSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(HelmSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "helm";
 
     @Override

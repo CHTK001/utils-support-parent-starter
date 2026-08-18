@@ -42,8 +42,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class RealSshInteractiveTest {
 
+    /** HTTP端口 */
     private static int httpPort;
+    /** WS端口 */
     private static int wsPort;
+    /** Gateway */
     private static GatewayServerBootstrap gateway;
 
     @BeforeAll

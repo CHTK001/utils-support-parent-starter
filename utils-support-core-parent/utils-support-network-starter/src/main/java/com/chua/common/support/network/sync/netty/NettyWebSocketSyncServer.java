@@ -23,12 +23,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("netty-websocket")
 public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
+    /** 服务器Socket */
     private ServerSocket serverSocket;
+    /** 执行器 */
     private ExecutorService executor;
+    /** Connections */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> subscriptions = new ConcurrentHashMap<>();
+    /** Listeners */
     private final List<SyncServerListener> listeners = new ArrayList<>();
+    /** ConnectionIDSEQ */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     public NettyWebSocketSyncServer(ServerSetting setting) {

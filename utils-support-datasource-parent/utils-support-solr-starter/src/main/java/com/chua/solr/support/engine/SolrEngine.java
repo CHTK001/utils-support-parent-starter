@@ -43,7 +43,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("solr")
 public class SolrEngine extends AbstractEngine {
 
+    /** 客户端 */
     private SolrClient client;
+    /** 默认数据来源名称 */
     private String defaultDataSourceName;
 
     @Override
@@ -263,15 +265,25 @@ public class SolrEngine extends AbstractEngine {
 
     public static final class GroupByQueryWrapper<T> {
 
+        /** 引擎 */
         private final SolrEngine engine;
+        /** Entityclass */
         private final Class<T> entityClass;
+        /** 分组BYcols */
         private final List<String> groupByCols = new ArrayList<>();
+        /** Where */
         private final List<String> where = new ArrayList<>();
+        /** 参数 */
         private final List<Object> params = new ArrayList<>();
+        /** Selectcols */
         private final List<String> selectCols = new ArrayList<>();
+        /** 偏移 */
         private int offset = 0;
+        /** 限制 */
         private int limit = 1000;
+        /** SortCOL */
         private String sortCol;
+        /** SortASC */
         private boolean sortAsc = true;
 
         GroupByQueryWrapper(SolrEngine engine, Class<T> entityClass, String... groupByCols) {

@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class FeignHandler extends AbstractAppHandler {
 
+    /**
+     * feign 客户端
+     */
     private static final String FEIGN_CLIENT = "feign/Client";
+    /**
+     * execute methods
+     */
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override

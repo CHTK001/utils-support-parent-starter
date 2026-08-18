@@ -21,8 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class IpFilter implements ServerFilter {
 
+    /** Whitelist */
     private final Set<String> whitelist = ConcurrentHashMap.newKeySet();
+    /** Blacklist */
     private final Set<String> blacklist = ConcurrentHashMap.newKeySet();
+    /** Whitelist模式 */
     private boolean whitelistMode = false;
 
     /**

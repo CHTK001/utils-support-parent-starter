@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class JettyHandler extends AbstractAppHandler {
 
+    /**
+     * SERVER
+     */
     private static final String SERVER = "org/eclipse/jetty/server/Server";
+    /**
+     * handle methods
+     */
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override

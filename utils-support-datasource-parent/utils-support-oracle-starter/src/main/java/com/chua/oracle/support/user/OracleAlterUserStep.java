@@ -22,10 +22,15 @@ import java.util.List;
  */
 public class OracleAlterUserStep implements UserManager.AlterUserStep {
 
+    /** 数据来源 */
     private final DataSource dataSource;
+    /** Username */
     private final String username;
+    /** 密码 */
     private String password;
+    /** Grants */
     private final List<String> grants = new ArrayList<>();
+    /** Revokes */
     private final List<String> revokes = new ArrayList<>();
 
     OracleAlterUserStep(DataSource dataSource, String username) {

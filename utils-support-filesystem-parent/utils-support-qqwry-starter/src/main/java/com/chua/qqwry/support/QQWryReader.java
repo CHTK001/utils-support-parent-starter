@@ -17,7 +17,9 @@ import java.nio.file.Path;
  */
 public class QQWryReader implements Closeable {
 
+    /** Mode_1 */
     private static final int MODE_1 = 0x01;
+    /** Mode_2 */
     private static final int MODE_2 = 0x02;
 
     /**

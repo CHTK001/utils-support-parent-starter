@@ -55,6 +55,7 @@ public class RpcResponse implements Serializable {
     private Object result;
 
     /** 异常类型全限定名，用于客户端精确识别异常种类 */
+    /** 异常类型 */
     private String exceptionType;
 
     /** 远程调用的失败原因描述

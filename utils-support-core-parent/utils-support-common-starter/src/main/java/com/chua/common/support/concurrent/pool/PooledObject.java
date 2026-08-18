@@ -29,6 +29,7 @@ class PooledObject<T> {
     }
 
     /** 被包装的实际对象 */
+    /** Object */
     private final T object;
 
     /** 当前状态 */

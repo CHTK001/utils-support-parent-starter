@@ -10,19 +10,33 @@ import java.time.LocalDateTime;
  */
 public class VideoSyncConfig {
 
+    /** 视频同步配置ID */
     private String videoSyncConfigId;
+    /** 视频同步配置名称 */
     private String videoSyncConfigName;
+    /** 视频来源ID */
     private String videoSourceId;
+    /** 视频同步配置是否启用 */
     private Boolean videoSyncConfigEnabled;
+    /** 视频同步间隔 */
     private Integer videoSyncInterval;
+    /** 视频同步配置最后异步时间 */
     private LocalDateTime videoSyncConfigLastAsyncTime;
+    /** 视频同步配置headers */
     private String videoSyncConfigHeaders;
+    /** 视频同步配置remark */
     private String videoSyncConfigRemark;
+    /** 视频同步配置状态 */
     private String videoSyncConfigStatus;
+    /** 视频同步配置消息 */
     private String videoSyncConfigMessage;
+    /** 视频同步配置最后偏移 */
     private String videoSyncConfigLastOffset;
+    /** 视频同步配置最后日志 */
     private String videoSyncConfigLastLog;
+    /** 同步数量 */
     private Integer syncCount;
+    /** 同步视频数量 */
     private Long syncVideoCount;
 
     public VideoSyncConfig() {

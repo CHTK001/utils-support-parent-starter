@@ -160,14 +160,23 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
 
     private static class MysqlTriggerCreateBuilder implements TriggerCreateBuilder {
 
+        /** Metatrigger */
         private final MysqlMetaTrigger metaTrigger;
+        /** Trigger名称 */
         private final String triggerName;
+        /** 表名称 */
         private String tableName;
+        /** Timing */
         private String timing;
+        /** 事件 */
         private String event;
+        /** FOReach行 */
         private boolean forEachRow = true;
+        /** 请求体 */
         private String body;
+        /** Enable */
         private boolean enable = true;
+        /** Comment */
         private String comment;
 
         MysqlTriggerCreateBuilder(MysqlMetaTrigger metaTrigger, String triggerName) {

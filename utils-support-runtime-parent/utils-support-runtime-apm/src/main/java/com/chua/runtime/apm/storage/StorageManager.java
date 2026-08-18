@@ -28,7 +28,13 @@ import java.util.logging.Level;
 @Log
 public final class StorageManager {
 
+    /**
+     * GLOBAL
+     */
     private static final AtomicReference<ApmStorage> GLOBAL = new AtomicReference<>(new NoopStorage());
+    /**
+     * REGISTERED
+     */
     private static final Map<String, ApmStorage> REGISTERED = new ConcurrentHashMap<>();
 
     private StorageManager() {

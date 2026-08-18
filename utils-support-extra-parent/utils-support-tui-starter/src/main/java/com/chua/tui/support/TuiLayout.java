@@ -37,9 +37,11 @@ public enum TuiLayout {
     FREE_GRID(0, 0);
 
     /** 网格行数 */
+    /** Rows */
     private final int rows;
 
     /** 网格列数 */
+    /** Cols */
     private final int cols;
 
     /**

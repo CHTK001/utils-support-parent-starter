@@ -23,9 +23,21 @@ import java.util.Map;
  */
 public class RSocketAgentDataSyncSource implements DataSyncSource {
 
+    /**
+     * agent Id
+     */
     private final String agentId;
+    /**
+     * source Id
+     */
     private final String sourceId;
+    /**
+     * 主机地址
+     */
     private final String host;
+    /**
+     * 端口号
+     */
     private final int port;
 
     public RSocketAgentDataSyncSource(String agentId, String sourceId, String host, int port) {

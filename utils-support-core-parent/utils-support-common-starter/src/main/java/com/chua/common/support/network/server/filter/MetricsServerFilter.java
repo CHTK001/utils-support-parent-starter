@@ -38,18 +38,31 @@ public class MetricsServerFilter implements ServerFilter {
      * 指标快照。
      */
     public static class MetricsSnapshot {
+        /** 总数requests */
         private final long totalRequests;
+        /** 错误数量 */
         private final long errorCount;
+        /** 是否激活requests */
         private final long activeRequests;
+        /** AVGlatencyMS */
         private final double avgLatencyMs;
+        /** 最大值latencyMS */
         private final long maxLatencyMs;
+        /** P50ms */
         private final double p50Ms;
+        /** P75ms */
         private final double p75Ms;
+        /** P90ms */
         private final double p90Ms;
+        /** P95ms */
         private final double p95Ms;
+        /** P99ms */
         private final double p99Ms;
+        /** QPS */
         private final double qps;
+        /** TPS */
         private final double tps;
+        /** UptimeMS */
         private final long uptimeMs;
 
         public MetricsSnapshot(long totalRequests, long errorCount, long activeRequests,
@@ -112,14 +125,22 @@ public class MetricsServerFilter implements ServerFilter {
         void onMetrics(MetricsSnapshot snapshot);
     }
 
+    /** Callback */
     private final MetricsCallback callback;
+    /** Period秒 */
     private final int periodSeconds;
+    /** Latencies */
     private final ConcurrentLinkedQueue<Long> latencies;
+    /** 总数requests */
     private final LongAdder totalRequests = new LongAdder();
+    /** 错误数量 */
     private final LongAdder errorCount = new LongAdder();
+    /** 总数latencynanos */
     private final LongAdder totalLatencyNanos = new LongAdder();
+    /** 最大值latencynanos */
     private final AtomicLong maxLatencyNanos = new AtomicLong();
     private volatile ScheduledFuture<?> scheduledFuture;
+    /** 开始时间 */
     private final long startTime = System.currentTimeMillis();
     private volatile long lastPeriodRequests = 0;
     private volatile long lastPeriodTimestamp;

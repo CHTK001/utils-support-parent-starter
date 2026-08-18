@@ -37,7 +37,9 @@ import java.util.List;
  */
 public class MultipartBody {
 
+    /** Crlf */
     private static final byte[] CRLF = {'\r', '\n'};
+    /** Dashes */
     private static final byte[] DASHES = {'-', '-'};
 
     /**
@@ -57,6 +59,7 @@ public class MultipartBody {
 
      */
     @Getter
+    /** Boundary */
     private final String boundary;
 
     /**

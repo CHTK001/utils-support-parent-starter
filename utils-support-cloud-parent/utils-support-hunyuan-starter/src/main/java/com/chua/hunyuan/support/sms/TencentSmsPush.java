@@ -53,7 +53,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TencentSmsPush implements MessagePush {
 
+    /** 消息环境 */
+    /** 环境 */
     private final MessageEnvironment environment;
+    /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     public TencentSmsPush() {

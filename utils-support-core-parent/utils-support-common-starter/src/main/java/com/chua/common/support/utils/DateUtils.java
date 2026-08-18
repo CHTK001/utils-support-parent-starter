@@ -62,13 +62,21 @@ public class DateUtils {
      * 3
      */
     public static final int THIRD = 3;
+    /** One_day */
     public static final int ONE_DAY = 24 * 60 * 60;
+    /** One_hour */
     public static final int ONE_HOUR = 60;
+    /** One_minute */
     public static final int ONE_MINUTE = ONE_HOUR;
+    /** Accuracy_hours */
     public static final int ACCURACY_HOURS = 4;
+    /** Accuracy_minutes */
     public static final int ACCURACY_MINUTES = 5;
+    /** Accuracy_seconds */
     public static final int ACCURACY_SECONDS = 6;
+    /** Accuracy_milliseconds */
     public static final int ACCURACY_MILLISECONDS = 7;
+    /** Accuracy_milliseconds_forced */
     public static final int ACCURACY_MILLISECONDS_FORCED = 8;
     /**
      * Milliseconds per seconde
@@ -86,8 +94,11 @@ public class DateUtils {
      *                 24*60*60*1000;
      */
     public static final long MILLISECONDS_PER_DAY = 86400000;
+    /** Week */
     public static final String WEEK = "week";
+    /** Week_day */
     public static final int WEEK_DAY = 7;
+    /** Default_zone_id */
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
     /**
      * Hours per day.
@@ -149,10 +160,15 @@ public class DateUtils {
      * =====================================            ===============================================
      */
     private static final String YEAR = "year";
+    /** Month */
     private static final String MONTH = "month";
+    /** DAY */
     private static final String DAY = "day";
+    /** Hour */
     private static final String HOUR = "hour";
+    /** Minute */
     private static final String MINUTE = "minute";
+    /** Second */
     private static final String SECOND = "second";
     /**
      * Monday constant
@@ -182,6 +198,7 @@ public class DateUtils {
      * Sunday constant
      */
     private static final String SUNDAY = "SUNDAY";
+    /** 模式 */
     private static final Pattern PATTERN =
             Pattern.compile("([-+]?)P(?:([-+]?[0-9]+)D)?" +
                             "(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?",
@@ -221,6 +238,7 @@ public class DateUtils {
             "yyyy/MM",
             "yyyy   "
     };
+    /** Index_not_found */
     private static final int INDEX_NOT_FOUND = -1;
 
     /**

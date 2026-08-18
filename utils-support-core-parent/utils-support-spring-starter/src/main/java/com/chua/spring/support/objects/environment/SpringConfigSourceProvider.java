@@ -52,8 +52,10 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
      */
     private static class SpringPropertySourceAdapter implements com.chua.common.support.config.source.PropertySource {
 
+        /** 名称 */
         private final String name;
         private final org.springframework.core.env.PropertySource<?> delegate;
+        /** 优先级 */
         private final int priority;
 
         SpringPropertySourceAdapter(org.springframework.core.env.PropertySource<?> delegate, int priority) {

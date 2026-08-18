@@ -37,6 +37,9 @@ import java.util.logging.Logger;
  * @since 4.0.0.42
  */
 public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(JedisHandler.class.getName());
 
     /**
@@ -59,8 +62,17 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private static final int MAX_RECORDS = 5000;
 
+    /**
+     * records
+     */
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
+    /**
+     * enabled
+     */
     private boolean enabled;
+    /**
+     * 是否已启动
+     */
     private final AtomicBoolean started;
 
     public JedisHandler() {
@@ -161,6 +173,9 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /**
+     * CURRENT
+     */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
     private void handleEntry(InterceptContext ctx) {

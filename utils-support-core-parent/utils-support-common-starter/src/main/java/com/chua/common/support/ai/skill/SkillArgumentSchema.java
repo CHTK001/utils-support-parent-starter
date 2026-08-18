@@ -39,6 +39,7 @@ public class SkillArgumentSchema {
     private final boolean required;
 
     /** 枚举值列表（仅 type=enum 时有效） */
+    /** Enumvalues */
     private final List<String> enumValues;
 
     public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {

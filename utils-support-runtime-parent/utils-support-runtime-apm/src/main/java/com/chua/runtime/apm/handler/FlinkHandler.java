@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class FlinkHandler extends AbstractAppHandler {
 
+    /**
+     * data stream
+     */
     private static final String DATA_STREAM = "org/apache/flink/streaming/api/datastream/DataStream";
+    /**
+     * stream methods
+     */
     private static final String[] STREAM_METHODS = {"execute", "print", "collect", "count", "map", "filter", "flatMap"};
 
     @Override

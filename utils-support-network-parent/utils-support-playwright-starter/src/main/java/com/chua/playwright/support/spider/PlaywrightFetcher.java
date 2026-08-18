@@ -32,10 +32,22 @@ import java.time.Duration;
 @ConditionalOnClass("com.microsoft.playwright.Playwright")
 public class PlaywrightFetcher implements SpiderFetcher {
 
+    /**
+     * 加载 超时时间
+     */
     private static final Duration LOAD_TIMEOUT = Duration.ofSeconds(30);
+    /**
+     * nav 超时时间
+     */
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
 
+    /**
+     * Playwright 实例
+     */
     private final Playwright playwright;
+    /**
+     * 浏览器实例
+     */
     private final Browser browser;
 
     /**

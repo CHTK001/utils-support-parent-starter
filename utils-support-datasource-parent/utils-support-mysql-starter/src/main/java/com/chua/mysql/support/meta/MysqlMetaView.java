@@ -87,11 +87,17 @@ public class MysqlMetaView extends AbstractMetaView {
 
     private static class MysqlViewCreateBuilder implements ViewCreateBuilder {
 
+        /** Metaview */
         private final MysqlMetaView metaView;
+        /** View名称 */
         private final String viewName;
+        /** Definition */
         private String definition;
+        /** ORreplace */
         private boolean orReplace;
+        /** Comment */
         private String comment;
+        /** Updatable */
         private boolean updatable;
 
         MysqlViewCreateBuilder(MysqlMetaView metaView, String viewName) {
@@ -153,8 +159,11 @@ public class MysqlMetaView extends AbstractMetaView {
 
     private static class MysqlViewAlterBuilder implements ViewAlterBuilder {
 
+        /** Metaview */
         private final MysqlMetaView metaView;
+        /** Definition */
         private String definition;
+        /** NEW名称 */
         private String newName;
 
         MysqlViewAlterBuilder(MysqlMetaView metaView) {

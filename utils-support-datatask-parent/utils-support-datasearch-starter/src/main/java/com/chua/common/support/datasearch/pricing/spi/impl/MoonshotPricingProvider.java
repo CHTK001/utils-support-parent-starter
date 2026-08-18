@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("moonshot")
 public class MoonshotPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://platform.moonshot.cn/docs/pricing";
 
     @Override

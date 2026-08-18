@@ -417,6 +417,9 @@ public enum Software {
      */
     UNKNOWN("Unknown");
 
+    /**
+     * display Name
+     */
     private final String displayName;
 
     Software(String displayName) {

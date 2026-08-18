@@ -59,6 +59,9 @@ public class JRebelSign {
             "d6c4j2b9s3l1p7k9d2c8j6b4s2l6p4k6d7c1j9b7s1l9p9k4d8c6j8b6s9l7p5k3" +
             "d0c9j7b3s8l8p0k5", 36);
 
+    /**
+     * RSA 私钥对象
+     */
     private PrivateKey privateKey;
 
     public JRebelSign() {

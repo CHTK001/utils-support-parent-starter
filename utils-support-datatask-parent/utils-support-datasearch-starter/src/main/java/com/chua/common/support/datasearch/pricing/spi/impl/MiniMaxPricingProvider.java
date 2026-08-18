@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("minimax")
 public class MiniMaxPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://www.minimaxi.com/pricing";
 
     @Override

@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class JdkHttpClientHandler extends AbstractAppHandler {
 
+    /**
+     * HTTP URL 连接
+     */
     private static final String HTTP_URL_CONNECTION = "java/net/HttpURLConnection";
+    /**
+     * connect methods
+     */
     private static final String[] CONNECT_METHODS = {"connect", "getInputStream", "getOutputStream", "getResponseCode"};
 
     @Override

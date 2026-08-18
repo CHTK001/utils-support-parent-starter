@@ -24,9 +24,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SofaRpcClient implements RpcClient {
 
+    /**
+     * registry Configs
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    /**
+     * rpc Consumer Config
+     */
     private final RpcConsumerConfig rpcConsumerConfig;
+    /**
+     * application Config
+     */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
+    /**
+     * consumer Cache
+     */
     private final Map<Class<?>, ConsumerConfig<?>> consumerCache = new ConcurrentHashMap<>();
 
     public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {

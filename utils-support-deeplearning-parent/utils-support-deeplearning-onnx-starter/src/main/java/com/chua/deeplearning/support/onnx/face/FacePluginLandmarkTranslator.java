@@ -24,6 +24,8 @@ import ai.djl.translate.TranslatorContext;
  */
 public class FacePluginLandmarkTranslator implements Translator<Image, float[]> {
 
+    /** 输入尺寸 */
+    /** Input_size */
     private static final int INPUT_SIZE = 64;
 
     public FacePluginLandmarkTranslator() {

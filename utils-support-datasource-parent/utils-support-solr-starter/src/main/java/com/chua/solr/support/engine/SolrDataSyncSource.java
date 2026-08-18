@@ -19,12 +19,18 @@ import java.util.*;
 @Slf4j
 public class SolrDataSyncSource implements DataSyncSource {
 
+    /** Default_batch */
     private static final int DEFAULT_BATCH = 1000;
 
+    /** 引擎 */
     private final SolrEngine engine;
+    /** Collection名称 */
     private final String collectionName;
+    /** 来源ID */
     private final String sourceId;
+    /** AgentID */
     private final String agentId;
+    /** Batch尺寸 */
     private final int batchSize;
 
     private SolrDataSyncSource(SolrEngine engine, String collectionName,

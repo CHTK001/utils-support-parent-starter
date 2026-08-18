@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * @since 4.0.0.42
 */
 public class WhiteAndBlackTankUtils {
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(WhiteAndBlackTankUtils.class);
 
     /**

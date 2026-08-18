@@ -24,6 +24,9 @@ import java.util.*;
  */
 public class PluginScanner {
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(PluginScanner.class.getName());
     /**
      * 插件根目录

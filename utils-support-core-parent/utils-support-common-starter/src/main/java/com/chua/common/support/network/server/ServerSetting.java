@@ -50,6 +50,7 @@ public class ServerSetting {
      * 使服务器在各环境中都能获得较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
      */
     @Builder.Default
+    /** Auto */
     private boolean auto = true;
 
     /**
@@ -74,15 +75,15 @@ public class ServerSetting {
                 ? Math.min(Math.max(cpus * 64, 128), 1024)
                 : Math.min(Math.max(cpus * 128, 256), 4096);
 
-        // 最大连接数：按可用堆内存分级
+        // 最大连接数：按可用堆内存分级(目标:百万级并发连接,配合各实现的每连接懒分配内存)
         if (heapMb >= 8192) {
-            this.maxConnections = 100000;
+            this.maxConnections = 1000000;
         } else if (heapMb >= 4096) {
-            this.maxConnections = 50000;
+            this.maxConnections = 500000;
         } else if (heapMb >= 2048) {
-            this.maxConnections = 20000;
+            this.maxConnections = 200000;
         } else {
-            this.maxConnections = 10000;
+            this.maxConnections = 100000;
         }
 
         // 缓冲区：内存充足时放大，减少系统调用次数
@@ -98,168 +99,196 @@ public class ServerSetting {
      * 主机名
      */
     @Builder.Default
+    /** 主机 */
     private String host = "0.0.0.0";
 
     /**
      * 端口号
      */
     @Builder.Default
+    /** 端口 */
     private int port = 8080;
 
     /**
      * 协议类型名称
      */
     @Builder.Default
+    /** 协议 */
     private String protocol = "http";
 
     /**
      * 上下文路径
      */
     @Builder.Default
+    /** 上下文路径 */
     private String contextPath = "/";
 
     /**
      * Boss 线程数
      */
     @Builder.Default
+    /** Bossthreads */
     private int bossThreads = 1;
 
     /**
      * Worker 线程数
      */
     @Builder.Default
+    /** Workerthreads */
     private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
      * 等待队列长度
      */
     @Builder.Default
+    /** Backlog */
     private int backlog = 128;
 
     /**
      * 最大请求体/消息大小（字节）
      */
     @Builder.Default
+    /** 最大值请求尺寸 */
     private long maxRequestSize = 10 * 1024 * 1024;
 
     /**
      * 最大连接数
      */
     @Builder.Default
+    /** 最大值connections */
     private int maxConnections = 10000;
 
     /**
      * 字符集
      */
     @Builder.Default
+    /** 字符集 */
     private String charset = "UTF-8";
 
     /**
      * 读取超时时间（毫秒）
      */
     @Builder.Default
+    /** Read超时 */
     private int readTimeout = 30000;
 
     /**
      * 写超时时间（毫秒）
      */
     @Builder.Default
+    /** Write超时 */
     private int writeTimeout = 30000;
 
     /**
      * 最大并发请求数，0 表示不限制
      */
     @Builder.Default
+    /** 最大值concurrency */
     private int maxConcurrency = 0;
 
     /**
      * 响应超时时间（毫秒）
      */
     @Builder.Default
+    /** 响应超时 */
     private long responseTimeout = 60000;
 
     /**
      * 是否启用 Reactor 处理模式
      */
     @Builder.Default
+    /** Reactor */
     private boolean reactor = false;
 
     /**
      * 最大 Keep-Alive 请求数
      */
     @Builder.Default
+    /** 最大值keepaliverequests */
     private int maxKeepAliveRequests = 100;
 
     /**
      * 优雅关闭等待时间（秒）
      */
     @Builder.Default
+    /** Shutdownquietperiod */
     private int shutdownQuietPeriod = 30;
 
     /**
      * TCP_NODELAY
      */
     @Builder.Default
+    /** TCPNOdelay */
     private boolean tcpNoDelay = true;
 
     /**
      * SO_REUSEADDR
      */
     @Builder.Default
+    /** SOreuseaddr */
     private boolean soReuseAddr = true;
 
     /**
      * 默认 Content-Type
      */
     @Builder.Default
+    /** 内容类型 */
     private String contentType = "text/html; charset=utf-8";
 
     /**
      * 缓冲区大小（字节）
      */
     @Builder.Default
+    /** 缓冲区尺寸 */
     private int bufferSize = 8192;
 
     /**
      * WebSocket/消息协议最大帧大小（字节）
      */
     @Builder.Default
+    /** 最大值frame尺寸 */
     private int maxFrameSize = 65536;
 
     /**
      * 是否启用 Gzip 压缩
      */
     @Builder.Default
+    /** Gzip是否启用 */
     private boolean gzipEnabled = false;
 
     /**
      * Gzip 压缩等级（1-9）
      */
     @Builder.Default
+    /** Gzip级别 */
     private int gzipLevel = 6;
 
     /**
      * Gzip 最小压缩大小（字节），小于此值不压缩
      */
     @Builder.Default
+    /** Gzip最小值尺寸 */
     private int gzipMinSize = 1024;
 
     /**
      * CORS 配置
      */
     @Builder.Default
+    /** Cors */
     private CorsConfig cors = new CorsConfig();
 
     /**
      * SSL/TLS 配置
      */
     @Builder.Default
+    /** SSL */
     private SslConfig ssl = new SslConfig();
 
     /**
      * HTTP 协议专用配置
      */
     @Builder.Default
+    /** HTTP */
     private HttpConfig http = new HttpConfig();
 
     /**
@@ -278,24 +307,28 @@ public class ServerSetting {
          * CORS 开关
          */
         @Builder.Default
+        /** Alloworigin */
         private boolean allowOrigin = false;
 
         /**
          * 允许的源
          */
         @Builder.Default
+        /** Allowedorigins */
         private String allowedOrigins = "*";
 
         /**
          * 允许的方法
          */
         @Builder.Default
+        /** Allowedmethods */
         private String allowedMethods = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
 
         /**
          * 允许的请求头
          */
         @Builder.Default
+        /** Allowedheaders */
         private String allowedHeaders = "Content-Type,Authorization";
     }
 
@@ -315,6 +348,7 @@ public class ServerSetting {
          * 是否启用
          */
         @Builder.Default
+        /** 是否启用 */
         private boolean enabled = false;
 
         /**
@@ -346,6 +380,7 @@ public class ServerSetting {
          * 是否信任所有证书（开发环境）
          */
         @Builder.Default
+        /** TrustALL */
         private boolean trustAll = false;
 
         /**
@@ -357,6 +392,7 @@ public class ServerSetting {
          * <p>示例：{@code .selfSignedAuto(true)} 即可启动 HTTPS。</p>
          */
         @Builder.Default
+        /** Selfsignedauto */
         private boolean selfSignedAuto = false;
 
         /**
@@ -366,6 +402,7 @@ public class ServerSetting {
          * 将自动使用 JDK keytool 生成自签名证书。</p>
          */
         @Builder.Default
+        /** Selfsigned */
         private boolean selfSigned = false;
 
         /**
@@ -375,24 +412,28 @@ public class ServerSetting {
          * 多个域名将作为 SAN（Subject Alternative Name）扩展添加到证书中。</p>
          */
         @Builder.Default
+        /** Selfsigneddomains */
         private List<String> selfSignedDomains = List.of("localhost", "127.0.0.1");
 
         /**
          * 自签名证书有效期（天），默认 365 天
          */
         @Builder.Default
+        /** Selfsignedvalidity */
         private int selfSignedValidity = 365;
 
         /**
          * 自签名证书密钥算法（RSA / EC），默认 RSA
          */
         @Builder.Default
+        /** Selfsigned密钥ALG */
         private String selfSignedKeyAlg = "RSA";
 
         /**
          * 自签名证书密钥大小，默认 2048
          */
         @Builder.Default
+        /** Selfsigned密钥尺寸 */
         private int selfSignedKeySize = 2048;
     }
 
@@ -412,6 +453,7 @@ public class ServerSetting {
          * 是否启用 WebSocket 升级
          */
         @Builder.Default
+        /** Websocket是否启用 */
         private boolean websocketEnabled = false;
     }
 }

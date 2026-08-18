@@ -116,12 +116,19 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
 
     private static class MysqlForeignKeyCreateBuilder implements ForeignKeyCreateBuilder {
 
+        /** MetaFK */
         private final MysqlMetaForeignKey metaFk;
+        /** FK名称 */
         private final String fkName;
+        /** 列名称 */
         private String columnName;
+        /** 引用表 */
         private String refTable;
+        /** 引用列 */
         private String refColumn;
+        /** ONdelete */
         private String onDelete;
+        /** ONupdate */
         private String onUpdate;
 
         MysqlForeignKeyCreateBuilder(MysqlMetaForeignKey metaFk, String fkName) {

@@ -88,20 +88,33 @@ import java.util.function.Consumer;
 @Getter
 public class RabbitmqClient implements AutoCloseable {
 
+    /** 主机 */
     private final String host;
+    /** 端口 */
     private final int port;
+    /** Username */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** Virtual主机 */
     private final String virtualHost;
+    /** Connection超时 */
     private final int connectionTimeout;
+    /** Heartbeat */
     private final int heartbeat;
+    /** Automaticrecovery */
     private final boolean automaticRecovery;
+    /** Prefetch数量 */
     private final int prefetchCount;
 
+    /** 工厂 */
     private ConnectionFactory factory;
+    /** Connection */
     private Connection connection;
     private final Map<String, Channel> channelCache = new ConcurrentHashMap<>();
+    /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
+    /** Confirm模式 */
     private final AtomicBoolean confirmMode = new AtomicBoolean(false);
 
     private RabbitmqClient(Builder b) {
@@ -212,14 +225,23 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== Builder ====================
 
     public static class Builder {
+        /** 主机 */
         private String host = "127.0.0.1";
+        /** 端口 */
         private int port = 5672;
+        /** Username */
         private String username = "guest";
+        /** 密码 */
         private String password = "guest";
+        /** Virtual主机 */
         private String virtualHost = "/";
+        /** Connection超时 */
         private int connectionTimeout = 10000;
+        /** Heartbeat */
         private int heartbeat = 60;
+        /** Automaticrecovery */
         private boolean automaticRecovery = true;
+        /** Prefetch数量 */
         private int prefetchCount = 0;
 
         public Builder host(String h) { this.host = h; return this; }
@@ -238,10 +260,15 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 交换机操作 ====================
 
     public static class ExchangeOperation {
+        /** 客户端 */
         private final RabbitmqClient client;
+        /** 名称 */
         private String name = "";
+        /** 类型 */
         private String type = "direct";
+        /** Durable */
         private boolean durable = true;
+        /** Autodelete */
         private boolean autoDelete = false;
         private Map<String, Object> arguments;
 
@@ -277,10 +304,15 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 队列操作 ====================
 
     public static class QueueOperation {
+        /** 客户端 */
         private final RabbitmqClient client;
+        /** 名称 */
         private String name = "";
+        /** Durable */
         private boolean durable = true;
+        /** Exclusive */
         private boolean exclusive = false;
+        /** Autodelete */
         private boolean autoDelete = false;
         private Map<String, Object> arguments = new HashMap<>();
 
@@ -391,9 +423,13 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 绑定操作 ====================
 
     public static class BindOperation {
+        /** 客户端 */
         private final RabbitmqClient client;
+        /** 队列 */
         private String queue;
+        /** Exchange */
         private String exchange;
+        /** Routing密钥 */
         private String routingKey = "";
         private Map<String, Object> arguments;
 
@@ -418,12 +454,19 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 发布操作 ====================
 
     public static class PublishOperation {
+        /** 客户端 */
         private final RabbitmqClient client;
+        /** Exchange */
         private String exchange = "";
+        /** Routing密钥 */
         private String routingKey = "";
+        /** 请求体 */
         private byte[] body;
+        /** Props构建器 */
         private AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
+        /** USEconfirm */
         private boolean useConfirm = false;
+        /** Confirm超时MS */
         private long confirmTimeoutMs = 10000;
 
         PublishOperation(RabbitmqClient client) { this.client = client; }
@@ -541,15 +584,24 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 消费操作 ====================
 
     public static class ConsumeOperation {
+        /** 客户端 */
         private final RabbitmqClient client;
+        /** 队列 */
         private String queue;
+        /** 处理器 */
         private Consumer<MessageHandler> handler;
+        /** AutoACK */
         private boolean autoAck = true;
+        /** 消费者标签 */
         private String consumerTag = "";
+        /** NO本地 */
         private boolean noLocal = false;
+        /** Exclusive */
         private boolean exclusive = false;
         private Map<String, Object> arguments;
+        /** Prefetch */
         private int prefetch = 0;
+        /** 通道名称 */
         private String channelName = "default";
 
         ConsumeOperation(RabbitmqClient client) { this.client = client; }
@@ -613,6 +665,7 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 事务操作 ====================
 
     public static class TxOperation {
+        /** 客户端 */
         private final RabbitmqClient client;
 
         TxOperation(RabbitmqClient client) { this.client = client; }
@@ -653,9 +706,13 @@ public class RabbitmqClient implements AutoCloseable {
 
     @Getter
     public static class MessageHandler {
+        /** 客户端 */
         private final RabbitmqClient client;
+        /** 通道 */
         private final Channel channel;
+        /** Delivery */
         private final Delivery delivery;
+        /** 消费者标签 */
         private final String consumerTag;
 
         MessageHandler(RabbitmqClient client, Channel channel, Delivery delivery, String consumerTag) {

@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("npm")
 public class NpmSoftwareProvider implements SoftwareProvider {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(NpmSoftwareProvider.class);
 
+    /** 名称 */
     private static final String NAME = "npm";
 
     @Override

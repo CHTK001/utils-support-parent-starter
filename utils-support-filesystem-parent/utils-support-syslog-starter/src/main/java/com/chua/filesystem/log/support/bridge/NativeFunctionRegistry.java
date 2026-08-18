@@ -21,7 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class NativeFunctionRegistry {
 
+    /** Linker */
     private final Linker linker;
+    /** Lookup */
     private final SymbolLookup lookup;
     private final Map<String, MethodHandle> handleCache;
 

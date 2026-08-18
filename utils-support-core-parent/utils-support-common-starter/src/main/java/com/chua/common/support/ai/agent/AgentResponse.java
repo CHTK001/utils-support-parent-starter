@@ -23,19 +23,24 @@ import java.util.Map;
 public class AgentResponse implements Serializable {
 
     /** 序列化版本号 */
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /** Agent 输出文本 */
+    /** 输出 */
     private String output;
 
     /** 执行模式 */
+    /** 模式 */
     private String mode;
 
     /** 选中的 Agent 标识 */
+    /** Selectedagent */
     private String selectedAgent;
 
     /** 执行事件列表 */
     @Builder.Default
+    /** Events */
     private List<AgentEvent> events = new ArrayList<>();
 
     /** 扩展元数据 */

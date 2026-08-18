@@ -91,12 +91,14 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
          * 陡度参数，默认15.0
          */
         @Builder.Default
+        /** K */
         private double k = 15.0;
 
         /**
          * 阈值参数，默认0.75
          */
         @Builder.Default
+        /** T */
         private double t = 0.75;
     }
 
@@ -388,12 +390,15 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     @lombok.Data
     private static class ModelData {
         /** 算法名称 */
+        /** 算法 */
         private String algorithm;
 
         /** 陡度参数 */
+        /** K */
         private double k;
 
         /** 阈值参数 */
+        /** T */
         private double t;
     }
 }

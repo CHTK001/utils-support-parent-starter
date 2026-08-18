@@ -35,6 +35,8 @@ import java.util.List;
 @Spi({"obs", "huawei"})
 public class HuaweiObsFileStorage extends AbstractFileStorage {
 
+    /** 华为云 OBS 客户端 */
+    /** OBS客户端 */
     private final ObsClient obsClient;
 
     public HuaweiObsFileStorage(BucketSetting bucketSetting) {

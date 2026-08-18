@@ -20,21 +20,27 @@ import com.chua.common.support.ai.chat.ChatClient;
 public class VideoGenerationSpec {
 
     /** 底层对话客户端 */
+    /** 客户端 */
     private final ChatClient client;
 
     /** 生成提示词 */
+    /** Prompt */
     private String prompt;
 
     /** 宽高比 */
+    /** 比率 */
     private String ratio;
 
     /** 镜头运动描述 */
+    /** Cameramovement */
     private String cameraMovement;
 
     /** 参考图键 */
+    /** 引用图片密钥 */
     private String refImageKey;
 
     /** 超时时间（秒） */
+    /** 超时秒 */
     private int timeoutSeconds = 300;
 
     public VideoGenerationSpec(ChatClient client) {

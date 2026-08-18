@@ -131,6 +131,24 @@ public class OcrPipeline {
     private final int cropMinHeight;
 
     /**
+     * 大角度矫正阈值（度）：检测框角度绝对值超过该值时，
+     * 按旋转矩形扶正裁剪（cropRotated），否则轴对齐裁剪直接 rec。
+     * 小于 0 表示禁用大角度矫正。
+     */
+    private final float cropRotateThreshold;
+
+    /**
+     * 质量门控：是否在识别前评估图像清晰度，质量差（模糊）时
+     * 跳过方向矫正并启用文字高清修复。
+     */
+    private final boolean qualityGate;
+
+    /**
+     * 清晰度阈值：模糊度评分低于该值判定为模糊（经验值 100）。
+     */
+    private final float blurThreshold;
+
+    /**
      * 检测输出是否应用 sigmoid（部分模型输出 logits 需激活，默认 false）
      */
     private final boolean sigmoidDetect;
@@ -157,11 +175,16 @@ public class OcrPipeline {
      * @param minConfidence     最低识别置信度
      * @param cropPadding       裁剪框四周扩展像素数
      * @param cropMinHeight     裁剪块最小高度
+     * @param cropRotateThreshold 大角度矫正阈值（度），负值禁用
+     * @param qualityGate         是否启用质量门控（模糊图优先进修复）
+     * @param blurThreshold       清晰度阈值（低于视为模糊）
      */
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                        ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                        boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
-                       int cropPadding, int cropMinHeight, boolean sigmoidDetect, boolean sigmoidRecognize) {
+                       int cropPadding, int cropMinHeight, float cropRotateThreshold,
+                       boolean qualityGate, float blurThreshold,
+                       boolean sigmoidDetect, boolean sigmoidRecognize) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
         this.direction = direction;
@@ -171,6 +194,9 @@ public class OcrPipeline {
         this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
         this.cropPadding = Math.max(0, cropPadding);
         this.cropMinHeight = Math.max(1, cropMinHeight);
+        this.cropRotateThreshold = cropRotateThreshold;
+        this.qualityGate = qualityGate;
+        this.blurThreshold = blurThreshold;
         this.sigmoidDetect = sigmoidDetect;
         this.sigmoidRecognize = sigmoidRecognize;
         this.pipeline = buildPipeline();
@@ -237,6 +263,23 @@ public class OcrPipeline {
          * 裁剪块最小高度，低于此值自动放大 2 倍（默认 40）
          */
         private int cropMinHeight = 40;
+
+        /**
+         * 大角度矫正阈值（度）：检测框角度绝对值超过该值时按旋转矩形扶正裁剪。
+         * 默认 25°：rec 对 ±20° 内倾斜鲁棒（实测 -17° 直接识别即正确），
+         * 仅对超过 25° 的大倾斜做旋转扶正。
+         */
+        private float cropRotateThreshold = 25f;
+
+        /**
+         * 质量门控：模糊图（清晰度低于 blurThreshold）跳过方向矫正并优先进修复（默认关闭）
+         */
+        private boolean qualityGate;
+
+        /**
+         * 清晰度阈值：模糊度评分低于该值判定为模糊（默认 100，与 OpencvImageQualityAssessor 一致）
+         */
+        private float blurThreshold = 100f;
 
         /**
          * 检测输出是否应用 sigmoid（默认 false）
@@ -370,6 +413,45 @@ public class OcrPipeline {
         }
 
         /**
+         * 设置大角度矫正阈值（度）。
+         * <p>检测框角度绝对值超过该值时，按旋转矩形扶正裁剪后识别；
+         * 低于该值直接轴对齐裁剪识别（依赖 rec 对 ±20° 倾斜的鲁棒性）。
+         * 设为负值可禁用大角度矫正。</p>
+         *
+         * @param cropRotateThreshold 阈值（度），如 15
+         * @return this
+         */
+        public Builder cropRotateThreshold(float cropRotateThreshold) {
+            this.cropRotateThreshold = cropRotateThreshold;
+            return this;
+        }
+
+        /**
+         * 启用质量门控。
+         * <p>识别前先评估图像清晰度（Laplacian 方差），若模糊则：① 跳过方向矫正
+         * （方向模型对模糊图分类不可靠，实测会把横排模糊图误判 90° 旋转）；
+         * ② 若配置了 enhancer，自动启用文字高清修复后再识别。</p>
+         *
+         * @param qualityGate true 启用
+         * @return this
+         */
+        public Builder qualityGate(boolean qualityGate) {
+            this.qualityGate = qualityGate;
+            return this;
+        }
+
+        /**
+         * 设置清晰度阈值（模糊度评分低于该值判定为模糊）。
+         *
+         * @param blurThreshold 阈值，默认 100
+         * @return this
+         */
+        public Builder blurThreshold(float blurThreshold) {
+            this.blurThreshold = blurThreshold;
+            return this;
+        }
+
+        /**
          * 设置检测输出是否应用 sigmoid。
          *
          * @param sigmoidDetect true 应用 sigmoid
@@ -400,7 +482,9 @@ public class OcrPipeline {
             return new OcrPipeline(detector, recognizer,
                     createTranslator(direction), createTranslator(enhancer),
                     enhanceInPipeline, sortReadingOrder, minConfidence,
-                    cropPadding, cropMinHeight, sigmoidDetect, sigmoidRecognize);
+                    cropPadding, cropMinHeight, cropRotateThreshold,
+                    qualityGate, blurThreshold,
+                    sigmoidDetect, sigmoidRecognize);
         }
 
         /**
@@ -420,10 +504,11 @@ public class OcrPipeline {
     }
 
     /**
-     * 编排识别管线（裁剪 → 裁剪块 deskew → 修复 → 识别 → 收集）。
+     * 编排识别管线（裁剪 → 修复 → 识别 → 收集）。
      *
-     * <p>顺序：检测（外层）→ 裁剪 → 对每个文字块小角 deskew（整图已矫正，
-     * 裁剪块无需再判 0/180°）→ 修复 → 识别。</p>
+     * <p>顺序：检测（外层）→ 裁剪 → 修复 → 识别。小角度框（|angle| ≦ 阈值，默认 15°）
+     * 轴对齐裁剪直接识别，依赖 rec 对 ±20° 内倾斜鲁棒；超过阈值的大角度框
+     * 按旋转矩形中心扶正后裁剪（cropRotated），避免倾斜文字识别失败。</p>
      *
      * @return 管线实例
      */
@@ -435,15 +520,19 @@ public class OcrPipeline {
                         return null;
                     }
                     DetectionInfo box = oc.currentBox();
-                    // 检测框四周扩展（可配置），提升识别对边缘字符的包容性
+                    // 大角度（超过阈值）：按旋转矩形扶正裁剪，避免倾斜文字识别失败
+                    if (cropRotateThreshold >= 0 && Math.abs(box.angle()) > cropRotateThreshold) {
+                        oc.currentCrop(upscaleIfSmall(
+                                ImageUtils.cropRotated(oc.imageData(),
+                                        box.cx(), box.cy(), box.rw(), box.rh(), box.angle()),
+                                cropMinHeight));
+                        return null;
+                    }
+                    // 小角度：轴对齐裁剪直接 rec（rec 对 ±20° 内倾斜鲁棒，实测无需 deskew）
                     int px = cropPadding;
                     byte[] crop = ImageCropUtils.crop(oc.imageData(),
                             (int) box.x() - px, (int) box.y() - px,
                             (int) box.width() + px * 2, (int) box.height() + px * 2);
-                    // 小角 deskew：倾斜文字扶正（整图已矫正，角度应 < 30°）
-                    if (crop != null && Math.abs(box.angle()) > 1f && Math.abs(box.angle()) < 30f) {
-                        crop = ImageUtils.deskew(crop, -box.angle());
-                    }
                     // 裁剪块过小时放大 2 倍，提升 rec 对小字识别率
                     oc.currentCrop(upscaleIfSmall(crop, cropMinHeight));
                     return null;
@@ -451,7 +540,7 @@ public class OcrPipeline {
                 .decision("hasCrop", ctx -> current(ctx).currentCrop() != null ? NODE_ENHANCE : NODE_END)
                 .task(NODE_ENHANCE, ctx -> {
                     OcrContext oc = current(ctx);
-                    if (!enhanceInPipeline || enhancer == null) {
+                    if ((!enhanceInPipeline && !(qualityGate && oc.blurry())) || enhancer == null) {
                         return null;
                     }
                     byte[] crop = oc.currentCrop();
@@ -478,7 +567,8 @@ public class OcrPipeline {
                     oc.addResult(new OcrResult(
                             text == null ? "" : text,
                             oc.currentBox().confidence(),
-                            oc.currentRectangle()));
+                            oc.currentRectangle(),
+                            oc.currentBox().angle()));
                     return null;
                 }).taskEnd()
                 .task(NODE_COLLECT, ctx -> null).end().taskEnd()
@@ -565,6 +655,10 @@ public class OcrPipeline {
                 .toList()
                 : boxes;
         OcrContext oc = new OcrContext(prepared, ordered);
+        // 质量门控：模糊图强制启用文字高清修复，提升低质量文字识别率
+        if (qualityGate && enhancer != null) {
+            oc.blurry(ImageUtils.isBlurry(prepared, blurThreshold));
+        }
         while (oc.advance()) {
             runSingle(oc);
         }
@@ -600,6 +694,11 @@ public class OcrPipeline {
      */
     public byte[] correct(byte[] imageData) {
         if (direction == null) {
+            return imageData;
+        }
+        // 质量门控：模糊图方向模型分类不可靠，跳过方向矫正（避免误旋转）
+        if (qualityGate && enhancer != null && ImageUtils.isBlurry(imageData, blurThreshold)) {
+            log.debug("[ocr-pipeline] 图像模糊，跳过方向矫正");
             return imageData;
         }
         try {

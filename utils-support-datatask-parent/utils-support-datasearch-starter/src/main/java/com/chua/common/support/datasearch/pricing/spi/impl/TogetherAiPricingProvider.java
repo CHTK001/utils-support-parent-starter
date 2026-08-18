@@ -23,6 +23,7 @@ import java.util.List;
 @Spi("together")
 public class TogetherAiPricingProvider extends AbstractPricingProvider {
 
+    /** Pricing_url */
     private static final String PRICING_URL = "https://www.together.ai/pricing";
 
     @Override

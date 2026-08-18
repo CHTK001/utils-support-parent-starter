@@ -26,7 +26,9 @@ public class BcSm4Cipher implements Sm4Cipher {
         }
     }
 
+    /** 算法 */
     private static final String ALGORITHM = "SM4";
+    /** Transformation */
     private static final String TRANSFORMATION = "SM4/ECB/PKCS7Padding";
 
     @Override

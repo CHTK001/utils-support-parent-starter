@@ -44,12 +44,14 @@ public class SyncContext implements Serializable {
      * 事件类型（INSERT / UPDATE / DELETE / SNAPSHOT）
      */
     @Builder.Default
+    /** 事件类型 */
     private String eventType = "SNAPSHOT";
 
     /**
      * 数据产生时间（毫秒时间戳）
      */
     @Builder.Default
+    /** 时间戳 */
     private long timestamp = System.currentTimeMillis();
 
     /**

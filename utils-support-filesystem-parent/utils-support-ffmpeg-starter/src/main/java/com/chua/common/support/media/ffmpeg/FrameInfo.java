@@ -13,24 +13,31 @@ package com.chua.common.support.media.ffmpeg;
 public class FrameInfo {
 
     /** 帧序号（从 0 开始） */
+    /** Frame数字 */
     private long frameNumber;
 
     /** 帧时间戳（毫秒） */
+    /** 时间戳MS */
     private long timestampMs;
 
     /** 视频宽度 */
+    /** 宽度 */
     private int width;
 
     /** 视频高度 */
+    /** 高度 */
     private int height;
 
     /** 视频编码器名称 */
+    /** Codec */
     private String codec;
 
     /** 帧率 */
+    /** FPS */
     private double fps;
 
     /** 是否为关键帧 */
+    /** 密钥frame */
     private boolean keyFrame;
 
     /**

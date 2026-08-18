@@ -21,7 +21,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SolrHandler extends AbstractAppHandler {
 
+    /**
+     * solr 客户端
+     */
     private static final String SOLR_CLIENT = "org/apache/solr/client/solrj/SolrClient";
+    /**
+     * solr methods
+     */
     private static final String[] SOLR_METHODS = {"request"};
 
     @Override

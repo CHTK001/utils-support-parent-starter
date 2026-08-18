@@ -14,7 +14,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class SeataHandler extends AbstractAppHandler {
 
+    /**
+     * global transaction
+     */
     private static final String GLOBAL_TRANSACTION = "io/seata/tm/api/GlobalTransaction";
+    /**
+     * tx methods
+     */
     private static final String[] TX_METHODS = {"begin", "commit", "rollback", "getStatus"};
 
     @Override

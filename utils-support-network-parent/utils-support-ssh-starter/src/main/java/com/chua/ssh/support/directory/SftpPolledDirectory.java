@@ -36,15 +36,39 @@ import java.util.List;
 @Slf4j
 public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry> {
 
+    /**
+     * 日志实例
+     */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SftpPolledDirectory.class);
 
+    /**
+     * 主机地址
+     */
     private final String host;
+    /**
+     * 端口号
+     */
     private final int port;
+    /**
+     * 登录用户名
+     */
     private final String username;
+    /**
+     * 登录密码
+     */
     private final String password;
 
+    /**
+     * 客户端实例
+     */
     private SshClient client;
+    /**
+     * 会话对象
+     */
     private ClientSession session;
+    /**
+     * sftp
+     */
     private SftpClient sftp;
 
     /**

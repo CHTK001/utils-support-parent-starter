@@ -19,21 +19,27 @@ package com.chua.excel.support.file.config;
 public class ColumnConfig {
 
     /** 字段名（数据 Map 中的 key） */
+    /** Field名称 */
     private final String fieldName;
 
     /** 列显示名（默认为字段名） */
+    /** Display名称 */
     private String displayName;
 
     /** 列宽（字符数，默认自动） */
+    /** 宽度 */
     private Integer width;
 
     /** 列样式 */
+    /** Style */
     private CellStyleConfig style;
 
     /** 自定义表头样式（覆盖列样式中的表头设置） */
+    /** 头部style */
     private CellStyleConfig headerStyle;
 
     /** 是否隐藏该列 */
+    /** Hidden */
     private boolean hidden;
 
     /**

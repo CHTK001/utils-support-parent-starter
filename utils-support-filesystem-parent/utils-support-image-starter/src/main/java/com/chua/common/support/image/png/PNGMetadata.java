@@ -84,9 +84,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     };
 
     // "Unknown" unit for pHYs chunk
+    /** Phys_unit_unknown */
     public static final int PHYS_UNIT_UNKNOWN = 0;
 
     // "Meter" unit for pHYs chunk
+    /** Phys_unit_meter */
     public static final int PHYS_UNIT_METER = 1;
 
     // Unit specifiers for pHYs chunk
@@ -120,21 +122,33 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     };
 
     // IHDR chunk
+    /** Ihdr_present */
     public boolean IHDR_present;
+    /** Ihdr_width */
     public int IHDR_width;
+    /** Ihdr_height */
     public int IHDR_height;
+    /** Ihdr_bit深度 */
     public int IHDR_bitDepth;
+    /** Ihdr_color类型 */
     public int IHDR_colorType;
+    /** Ihdr_compressionmethod */
     public int IHDR_compressionMethod;
+    /** Ihdr_filtermethod */
     public int IHDR_filterMethod;
         // 0 == none, 1 == adam7
         // ;
+        /** Ihdr_interlacemethod */
         public int IHDR_interlaceMethod;
 
     // PLTE chunk
+    /** Plte_present */
     public boolean PLTE_present;
+    /** Plte_red */
     public byte[] PLTE_red;
+    /** Plte_green */
     public byte[] PLTE_green;
+    /** Plte_blue */
     public byte[] PLTE_blue;
 
     // If non-null, used to reorder palette entries during encoding in
@@ -142,127 +156,203 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     // 'i' in the source should be encoded as index 'PLTE_order[i]'.
     // PLTE_order will be null unless 'initialize' is called with an
     // IndexColorModel image type.
+    /** Plte_order */
     public int[] PLTE_order = null;
 
     // bKGD chunk
     // If external (non-PNG sourced) data has red = green = blue,
     // always store it as gray and promote when writing
+    /** Bkgd_present */
     public boolean bKGD_present;
     // PNG_COLOR_GRAY, _RGB, or _PALETTE
     // ;
+    /** Bkgd_color类型 */
     public int bKGD_colorType;
+    /** Bkgd_index */
     public int bKGD_index;
+    /** Bkgd_gray */
     public int bKGD_gray;
+    /** Bkgd_red */
     public int bKGD_red;
+    /** Bkgd_green */
     public int bKGD_green;
+    /** Bkgd_blue */
     public int bKGD_blue;
 
     // cHRM chunk
+    /** Chrm_present */
     public boolean cHRM_present;
+    /** Chrm_whitepointX坐标 */
     public int cHRM_whitePointX;
+    /** Chrm_whitepointY坐标 */
     public int cHRM_whitePointY;
+    /** Chrm_redX坐标 */
     public int cHRM_redX;
+    /** Chrm_redY坐标 */
     public int cHRM_redY;
+    /** Chrm_greenX坐标 */
     public int cHRM_greenX;
+    /** Chrm_greenY坐标 */
     public int cHRM_greenY;
+    /** Chrm_blueX坐标 */
     public int cHRM_blueX;
+    /** Chrm_blueY坐标 */
     public int cHRM_blueY;
 
     // gAMA chunk
+    /** Gama_present */
     public boolean gAMA_present;
+    /** Gama_gamma */
     public int gAMA_gamma;
 
     // hIST chunk
+    /** Hist_present */
     public boolean hIST_present;
+    /** Hist_histogram */
     public char[] hIST_histogram;
 
     // iCCP chunk
+    /** Iccp_present */
     public boolean iCCP_present;
+    /** Iccp_profile名称 */
     public String iCCP_profileName;
+    /** Iccp_compressionmethod */
     public int iCCP_compressionMethod;
+    /** Iccp_compressed配置文件 */
     public byte[] iCCP_compressedProfile;
 
     // cICP chunk
+    /** Cicp_present */
     public boolean cICP_present;
+    /** Cicp_colourprimaries */
     public int cICP_colourPrimaries;
+    /** Cicp_transferfunction */
     public int cICP_transferFunction;
+    /** Cicp_matrixcoefficients */
     public int cICP_matrixCoefficients;
+    /** Cicp_videofullrange标记 */
     public boolean cICP_videoFullRangeFlag;
 
     // eXIf chunk
+    /** Exif_present */
     public boolean eXIf_present;
+    /** Exif_data */
     public byte[] eXIf_data;
 
     // iTXt chunk
+    /** Itxt_keyword */
     public ArrayList<String> iTXt_keyword = new ArrayList<String>();
+    /** Itxt_compression标记 */
     public ArrayList<Boolean> iTXt_compressionFlag = new ArrayList<Boolean>();
+    /** Itxt_compressionmethod */
     public ArrayList<Integer> iTXt_compressionMethod = new ArrayList<Integer>();
+    /** Itxt_language标签 */
     public ArrayList<String> iTXt_languageTag = new ArrayList<String>();
+    /** Itxt_translatedkeyword */
     public ArrayList<String> iTXt_translatedKeyword = new ArrayList<String>();
+    /** Itxt_text */
     public ArrayList<String> iTXt_text = new ArrayList<String>();
 
     // pHYs chunk
+    /** Phys_present */
     public boolean pHYs_present;
+    /** Phys_pixelsPER单位xaxis */
     public int pHYs_pixelsPerUnitXAxis;
+    /** Phys_pixelsPER单位yaxis */
     public int pHYs_pixelsPerUnitYAxis;
         // 0 == unknown, 1 == meter
         // ;
+        /** Phys_unitspecifier */
         public int pHYs_unitSpecifier;
 
     // sBIT chunk
+    /** Sbit_present */
     public boolean sBIT_present;
         // PNG_COLOR_GRAY, _GRAY_ALPHA, _RGB, _RGB_ALPHA
         // ;
+        /** Sbit_color类型 */
         public int sBIT_colorType;
+    /** Sbit_graybits */
     public int sBIT_grayBits;
+    /** Sbit_redbits */
     public int sBIT_redBits;
+    /** Sbit_greenbits */
     public int sBIT_greenBits;
+    /** Sbit_bluebits */
     public int sBIT_blueBits;
+    /** Sbit_alphabits */
     public int sBIT_alphaBits;
 
     // sPLT chunk
+    /** Splt_present */
     public boolean sPLT_present;
         // 1-79 characters
         // ;
+        /** Splt_palette名称 */
         public String sPLT_paletteName;
         // 8 or 16
         // ;
+        /** Splt_sample深度 */
         public int sPLT_sampleDepth;
+    /** Splt_red */
     public int[] sPLT_red;
+    /** Splt_green */
     public int[] sPLT_green;
+    /** Splt_blue */
     public int[] sPLT_blue;
+    /** Splt_alpha */
     public int[] sPLT_alpha;
+    /** Splt_frequency */
     public int[] sPLT_frequency;
 
     // sRGB chunk
+    /** Srgb_present */
     public boolean sRGB_present;
+    /** Srgb_renderingintent */
     public int sRGB_renderingIntent;
 
     // tEXt chunk
     // 1-79 characters
     // ;
+    /** Text_keyword */
     public ArrayList<String> tEXt_keyword = new ArrayList<String>();
+    /** Text_text */
     public ArrayList<String> tEXt_text = new ArrayList<String>();
 
     // tIME chunk. Gives the image modification time.
+    /** Time_present */
     public boolean tIME_present;
+    /** Time_year */
     public int tIME_year;
+    /** Time_month */
     public int tIME_month;
+    /** Time_day */
     public int tIME_day;
+    /** Time_hour */
     public int tIME_hour;
+    /** Time_minute */
     public int tIME_minute;
+    /** Time_second */
     public int tIME_second;
 
     // Specifies whether metadata contains Standard/Document/ImageCreationTime
+    /** Creation_time_present */
     public boolean creation_time_present;
 
     // Values that make up Standard/Document/ImageCreationTime
+    /** Creation_time_year */
     public int creation_time_year;
+    /** Creation_time_month */
     public int creation_time_month;
+    /** Creation_time_day */
     public int creation_time_day;
+    /** Creation_time_hour */
     public int creation_time_hour;
+    /** Creation_time_minute */
     public int creation_time_minute;
+    /** Creation_time_second */
     public int creation_time_second;
+    /** Creation_time_offset */
     public ZoneOffset creation_time_offset;
 
     /*
@@ -285,52 +375,81 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
      * ensure that PNGImageWriter will write image creation time on the output.
      */
     public boolean tEXt_creation_time_present;
+    /** Text_creation_time_iter */
     private ListIterator<String> tEXt_creation_time_iter = null;
+    /** Text_creation时间密钥 */
     public static final String tEXt_creationTimeKey = "Creation Time";
 
     // tRNS chunk
     // If external (non-PNG sourced) data has red = green = blue,
     // always store it as gray and promote when writing
+/** Trns_present */
 public boolean tRNS_present;
     // PNG_COLOR_GRAY, _RGB, or _PALETTE
     // ;
+    /** Trns_color类型 */
     public int tRNS_colorType;
     // May have fewer entries than PLTE_red, etc.
     // ;
+    /** Trns_alpha */
     public byte[] tRNS_alpha;
+    /** Trns_gray */
     public int tRNS_gray;
+    /** Trns_red */
     public int tRNS_red;
+    /** Trns_green */
     public int tRNS_green;
+    /** Trns_blue */
     public int tRNS_blue;
 
     // zTXt chunk
+    /** Z坐标txt_keyword */
     public ArrayList<String> zTXt_keyword = new ArrayList<String>();
+    /** Z坐标txt_compressionmethod */
     public ArrayList<Integer> zTXt_compressionMethod = new ArrayList<Integer>();
+    /** Z坐标txt_text */
     public ArrayList<String> zTXt_text = new ArrayList<String>();
 
     // acTL chunk
+    /** ACtl_present */
     public boolean acTL_present;
+    /** ACtl_num_frames */
     public int acTL_num_frames;
+    /** ACtl_num_plays */
     public int acTL_num_plays;
 
     // fcTL chunk
+    /** FCtl_present */
     public boolean fcTL_present;
+    /** FCtl_sequence_number */
     public int fcTL_sequence_number;
+    /** FCtl_width */
     public int fcTL_width;
+    /** FCtl_height */
     public int fcTL_height;
+    /** FCtl_x_offset */
     public int fcTL_x_offset;
+    /** FCtl_y_offset */
     public int fcTL_y_offset;
+    /** FCtl_delay_num */
     public int fcTL_delay_num;
+    /** FCtl_delay_den */
     public int fcTL_delay_den;
+    /** FCtl_dispose_op */
     public int fcTL_dispose_op;
+    /** FCtl_blend_op */
     public int fcTL_blend_op;
 
     // fdAT chunk
+    /** FDat_present */
     public boolean fdAT_present;
+    /** FDat_sequence_number */
     public int fdAT_sequence_number;
 
     // Unknown chunks
+    /** Unknownchunk类型 */
     public ArrayList<String> unknownChunkType = new ArrayList<String>();
+    /** Unknownchunk数据 */
     public ArrayList<byte[]> unknownChunkData = new ArrayList<byte[]>();
 
     public PNGMetadata() {

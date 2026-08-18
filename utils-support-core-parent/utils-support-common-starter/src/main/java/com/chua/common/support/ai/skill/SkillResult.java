@@ -24,6 +24,7 @@ public class SkillResult {
     private final Object content;
 
     /** 错误信息 */
+    /** 错误消息 */
     private final String errorMessage;
 
     public SkillResult(boolean success, Object content, String errorMessage) {

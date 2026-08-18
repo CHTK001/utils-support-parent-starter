@@ -34,27 +34,49 @@ import javax.annotation.Nullable;
 */
 public class GifEncoder {
 
+    /** 宽度 */
     protected int width;
+    /** 高度 */
     protected int height;
+    /** Transparent */
     protected Color transparent = null;
+    /** Transparentexactmatch */
     protected boolean transparentExactMatch = false;
+    /** Background */
     protected Color background = null;
+    /** Trans索引 */
     protected int transIndex;
+    /** Repeat */
     protected int repeat = -1;
+    /** Delay */
     protected int delay = 0;
+    /** Started */
     protected boolean started = false;
+    /** OUT */
     protected OutputStream out;
+    /** 图片 */
     protected BufferedImage image;
+    /** Pixels */
     protected byte[] pixels;
+    /** Indexedpixels */
     protected byte[] indexedPixels;
+    /** 颜色深度 */
     protected int colorDepth;
+    /** 颜色TAB */
     protected byte[] colorTab;
+    /** Usedentry */
     protected boolean[] usedEntry = new boolean[256];
+    /** PAL尺寸 */
     protected int palSize = 7;
+    /** Dispose */
     protected int dispose = -1;
+    /** Close流 */
     protected boolean closeStream = false;
+    /** 首个frame */
     protected boolean firstFrame = true;
+    /** 尺寸集合 */
     protected boolean sizeSet = false;
+    /** 示例 */
     protected int sample = 10;
 
     /**

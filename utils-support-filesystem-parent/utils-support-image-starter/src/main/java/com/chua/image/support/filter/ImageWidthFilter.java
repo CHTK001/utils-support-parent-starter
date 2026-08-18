@@ -32,7 +32,9 @@ import javax.annotation.Nullable;
 public class ImageWidthFilter extends AbstractImageFilter {
 
 
+    /** 宽度 */
     private int width = 100;
+    /** 高度 */
     private int height = 100;
 
     public ImageWidthFilter(int width, int height) {

@@ -42,6 +42,8 @@ import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX
  */
 public class ClassPathResourceFinder extends AbstractResourceFinder {
 
+    /** 日志对象 */
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ClassPathResourceFinder.class);
 
     /**
@@ -278,11 +280,15 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
      */
     private class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
 
+        /** 完整匹配模式 */
+        /** Full模式 */
         private final String fullPattern;
         /**
          * 结果
          */
         private final Set<Resource> result;
+        /** 已扫描计数 */
+        /** Scanned数量 */
         private final AtomicLong scannedCount;
 
         ClassPathFileVisitor(String fullPattern, Set<Resource> result, AtomicLong scannedCount) {

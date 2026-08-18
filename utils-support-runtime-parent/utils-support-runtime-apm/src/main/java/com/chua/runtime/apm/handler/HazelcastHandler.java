@@ -21,7 +21,13 @@ import com.chua.runtime.protocol.Software;
  */
 public class HazelcastHandler extends AbstractAppHandler {
 
+    /**
+     * imap class
+     */
     private static final String IMAP_CLASS = "com/hazelcast/map/IMap";
+    /**
+     * 映射 methods
+     */
     private static final String[] MAP_METHODS = {"get", "put", "remove", "replace", "putIfAbsent", "delete", "containsKey", "size"};
 
     @Override

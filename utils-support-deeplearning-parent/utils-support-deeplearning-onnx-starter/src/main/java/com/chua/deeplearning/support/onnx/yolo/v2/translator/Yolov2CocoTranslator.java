@@ -100,6 +100,8 @@ private static final float[][] ANCHORS = {
      *                                     
      */
     private int imageWidth;
+    /** 图像高度 */
+    /** 图片高度 */
     private int imageHeight;
 
     /**

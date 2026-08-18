@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
 @Slf4j
 @Spi({"zxing", DEFAULT})
 public class DefaultQrCode extends AbstractQrCode {
+    /** Quiet_zone_size */
     private static final int QUIET_ZONE_SIZE = 4;
 
     public DefaultQrCode(QrSetting setting) {

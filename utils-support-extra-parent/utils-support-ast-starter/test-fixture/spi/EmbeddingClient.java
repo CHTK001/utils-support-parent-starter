@@ -1,6 +1,7 @@
-package com.chua.test.spi;
+﻿package com.chua.test.spi;
 
 /**
+ * @author CH
  * Test SPI interface fixture.
  */
 public interface EmbeddingClient {
@@ -13,3 +14,4 @@ public interface EmbeddingClient {
      */
     float[] embedding(String text);
 }
+

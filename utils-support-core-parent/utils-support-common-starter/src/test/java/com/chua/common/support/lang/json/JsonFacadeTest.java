@@ -43,7 +43,9 @@ class JsonFacadeTest {
      * 测试数据实体。
      */
     static class User implements Serializable {
+        /** 名称 */
         private String name;
+        /** AGE */
         private int age;
 
         public User() {

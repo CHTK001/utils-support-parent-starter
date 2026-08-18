@@ -34,23 +34,39 @@ public class BgeEmbeddingClient implements EmbeddingClient {
      */
     private static final int DEFAULT_MAX_LEN = 512;
 
+    /** 设置 */
+    /** 设置 */
     private final EmbeddingClientSetting setting;
+    /** 翻译器 */
+    /** Translator */
     private BgeEmbeddingTranslator translator;
+    /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
+    /** 是否已加载 */
+    /** Loaded */
     private boolean loaded;
 
     /**
      * jar 内打包的资源目录（离线版），null 表示自动下载版
      */
     private String embeddedBase;
+    /** 嵌入式模型名称 */
+    /** Embedded模型 */
     private final String embeddedModel;
+    /** 嵌入式分词器名称 */
+    /** Embeddedtokenizer */
     private final String embeddedTokenizer;
 
     /**
      * 本地模型目录（自动下载版经 registry 解析后传入）
      */
     private Path localModelRoot;
+    /** 嵌入式本地目录 */
+    /** Embedded本地目录 */
     private Path embeddedLocalDir;
+    /** 模型路径 */
+    /** 模型路径 */
     private Path modelPath;
 
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {

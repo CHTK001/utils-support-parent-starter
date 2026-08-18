@@ -25,10 +25,15 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     private final Map<String, String> headers = new LinkedHashMap<>();
     private final Map<String, String> queryParams = new LinkedHashMap<>();
     private final Map<String, Object> attributes = new LinkedHashMap<>();
+    /** 请求体 */
     private byte[] body;
+    /** 路径 */
     private String path;
+    /** 结果 */
     private Object result;
+    /** 状态代码 */
     private int statusCode = 200;
+    /** Ended */
     private boolean ended;
 
     public String getPath() { return path; }

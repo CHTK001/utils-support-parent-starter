@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxImageEnhancer implements ImageEnhancer {
 
+    /** 模型名称 */
+    /** 模型名称 */
     private String modelName;
 
     public OnnxImageEnhancer(String apiKey) {

@@ -22,6 +22,7 @@ import java.util.function.Consumer;
  */
 public class RedisSearchMeta extends AbstractMetaSearch {
 
+    /** Search引擎 */
     private final RedisSearchEngineImpl searchEngine;
 
     public RedisSearchMeta(AbstractMetaData metaData, RediSearchEngine engine) {
@@ -69,10 +70,14 @@ public class RedisSearchMeta extends AbstractMetaSearch {
 
     private class RedisSearchCreateIndexBuilder implements SearchIndexCreateBuilder {
 
+        /** 索引名称 */
         private final String indexName;
+        /** Fields */
         private final List<SearchFieldDef> fields = new ArrayList<>();
         private final Map<String, Object> settings = new LinkedHashMap<>();
+        /** Shards */
         private int shards = 1;
+        /** Replicas */
         private int replicas = 1;
 
         RedisSearchCreateIndexBuilder(String indexName) {
@@ -149,10 +154,15 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     }
 
     private static class SearchFieldBuilderImpl implements SearchFieldBuilder {
+        /** Analyzer */
         private String analyzer;
+        /** Searchanalyzer */
         private String searchAnalyzer;
+        /** Indexed */
         private boolean indexed = true;
+        /** Stored */
         private boolean stored;
+        /** 权重 */
         private double weight = 1.0;
 
         @Override

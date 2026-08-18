@@ -14,44 +14,78 @@ import java.util.List;
  */
 public class VideoInfoResult {
 
+    /** 视频ID */
     private Integer videoId;
+    /** 视频标题 */
     private String videoTitle;
+    /** 视频名称 */
     private String videoName;
+    /** 视频别名名称 */
     private String videoAliasName;
+    /** 视频分数 */
     private BigDecimal videoScore;
+    /** 视频year */
     private Integer videoYear;
+    /** 视频platform */
     private String videoPlatform;
+    /** 视频语言 */
     private String videoLanguage;
+    /** 视频quality */
     private String videoQuality;
+    /** 视频thumbnail */
     private String videoThumbnail;
+    /** 视频cover */
     private String videoCover;
+    /** 视频URL */
     private String videoUrl;
+    /** 视频views */
     private BigDecimal videoViews;
+    /** 视频likes */
     private Integer videoLikes;
+    /** 视频状态 */
     private Integer videoStatus;
+    /** 视频持续时间 */
     private Integer videoDuration;
+    /** 视频版本 */
     private Integer videoVersion;
+    /** 视频DOUBANID */
     private String videoDouBanId;
+    /** 视频publish日期 */
     private LocalDateTime videoPublishDate;
+    /** 视频分类 */
     private String videoCategory;
+    /** 视频类型 */
     private String videoType;
+    /** 视频release */
     private String videoRelease;
+    /** 视频district */
     private String videoDistrict;
+    /** 视频尺寸 */
     private String videoSize;
+    /** 视频author */
     private String videoAuthor;
+    /** 视频director */
     private String videoDirector;
+    /** 视频写入器 */
     private String videoWriter;
+    /** 视频actor */
     private String videoActor;
+    /** 视频描述 */
     private String videoDescription;
+    /** 视频originID */
     private String videoOriginId;
+    /** 视频popularity */
     private String videoPopularity;
+    /** 视频vote数量 */
     private Integer videoVoteCount;
 
     // VideoInfoResult specific fields
     private List<?> videoMarkList;
     private List<?> downloadList;
     private List<?> playAddressesList;
+    /** 下载urls */
     private String downloadUrls;
+    /** Tags */
     private String tags;
 
     public VideoInfoResult() {}

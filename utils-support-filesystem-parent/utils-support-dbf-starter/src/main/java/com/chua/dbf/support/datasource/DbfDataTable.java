@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  */
 public class DbfDataTable extends MutableDataTable {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(DbfDataTable.class);
 
     /**

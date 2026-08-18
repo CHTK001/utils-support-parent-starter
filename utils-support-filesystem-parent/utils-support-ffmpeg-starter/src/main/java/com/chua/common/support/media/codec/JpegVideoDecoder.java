@@ -20,7 +20,9 @@ import java.nio.ByteBuffer;
 @Spi("jpeg")
 public class JpegVideoDecoder implements VideoDecoder {
 
+    /** 宽度 */
     private int width;
+    /** 高度 */
     private int height;
 
     /**

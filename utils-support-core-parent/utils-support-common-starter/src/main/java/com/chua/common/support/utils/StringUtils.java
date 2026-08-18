@@ -69,20 +69,30 @@ public class StringUtils {
     static final String[] PADDING = {"", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ",
             "         ", "          ", "           ", "            ", "             ", "              ", "               ",
             "                ", "                 ", "                  ", "                   ", "                    "};
+    /** Thread_local_builders */
     private static final ThreadLocal<Stack<StringBuilder>> THREAD_LOCAL_BUILDERS = new ThreadLocal<Stack<StringBuilder>>() {
         @Override
         protected Stack<StringBuilder> initialValue() {
             return new Stack<>();
         }
     };
+    /** None */
     private static final String NONE = "NONE";
+    /** 是否为null */
     private static final String NULL = "NULL";
+    /** Sbuf_extra_capacity */
     private static final int SBUF_EXTRA_CAPACITY = 50;
+    /** Default_pad_limit */
     private static final int DEFAULT_PAD_LIMIT = 30;
+    /** Newline */
     private static final String NEWLINE = "\r\n";
+    /** Ascii_limit */
     private static final int ASCII_LIMIT = 127;
+    /** Html_space */
     private static final int HTML_SPACE = 160;
+    /** Invisible_char_1 */
     private static final char INVISIBLE_CHAR_1 = 8203;
+    /** Invisible_char_2 */
     private static final char INVISIBLE_CHAR_2 = 173;
 
     /**

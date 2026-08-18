@@ -27,6 +27,7 @@ import java.util.Set;
 @SpiDescribe("Quarkus/CDI Bean 定义生成器")
 public class QuarkusBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
+    /** Cdi_annotations */
     private static final Set<String> CDI_ANNOTATIONS = Set.of(
             "javax.enterprise.context.ApplicationScoped",
             "javax.enterprise.context.RequestScoped",

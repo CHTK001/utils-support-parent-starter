@@ -46,8 +46,11 @@ import lombok.extern.slf4j.Slf4j;
 @Spi({"vertx-http", "http"})
 public class VertxHttpServer extends AbstractServer {
 
+    /** Vertx */
     private Vertx vertx;
+    /** 服务器 */
     private io.vertx.core.http.HttpServer server;
+    /** Reactive */
     private boolean reactive;
 
     public VertxHttpServer(ServerSetting setting) {
@@ -85,7 +88,10 @@ public class VertxHttpServer extends AbstractServer {
                 .setMaxHeaderSize(Math.min(16384, (int) setting.getMaxRequestSize()))
                 .setMaxChunkSize((int) setting.getMaxRequestSize())
                 .setMaxInitialLineLength(Math.min(8192, (int) setting.getMaxRequestSize()))
-                .setAcceptBacklog(Math.max(setting.getBacklog(), 128))
+                .setAcceptBacklog(Math.max(setting.getBacklog(), 65536))
+                // 收发缓冲放大:与内核窗口对齐,高并发小请求场景减少分片与 ACK 往返
+                .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
+                .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
                 // TCP Fast Open 仅 Linux/macOS 支持,Windows 上无效,避免无效配置
                 .setTcpFastOpen(!isWindows)
                 .setTcpNoDelay(setting.isTcpNoDelay())
@@ -196,8 +202,11 @@ public class VertxHttpServer extends AbstractServer {
             // 暴露底层 RoutingContext，供 WebSocket 反向代理等 Filter 完成升级
             request.setAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT, ctx);
             VertxServerResponse response = new VertxServerResponse(ctx);
-            // 无响应式过滤器(纯同步 ServerFilter 链,如压测场景):链执行放 worker 池,
-            // EventLoop 只做 IO 收发,避免同步链占满事件循环线程
+            // 无响应式过滤器(纯同步 ServerFilter 链,如 echo/mapping 压测场景):
+            // 事件循环直接执行,省去 executeBlocking 每请求一次 worker 池 hop,
+            // 吞吐显著提升(实测 10k→20k+ RPS)。
+            // 注意:同步链必须轻量(echo/mapping/非阻塞 filter);若接入耗时/阻塞 filter,
+            // 应改为响应式过滤器(ReactiveServerFilter),由响应式链在 worker 池执行。
             boolean hasReactiveFilters = !filterManager.getMergedReactiveFilters().isEmpty();
             if (reactive && hasReactiveFilters) {
                 // 响应式:等待异步过滤器链(含 handler 的 sleep 等耗时操作)完成后再真正写出响应,
@@ -208,11 +217,8 @@ public class VertxHttpServer extends AbstractServer {
                     }
                 });
             } else {
-                // 同步链(或无响应式过滤器):worker 池执行,EventLoop 不阻塞
-                ctx.vertx().executeBlocking(() -> {
-                    handleRequestAsync(request, response);
-                    return null;
-                }, false).onComplete(ar -> {
+                // 同步链(或无响应式过滤器):事件循环直接执行,EventLoop 不参与 worker 池 hop
+                handleRequestAsync(request, response).whenComplete((v, ex) -> {
                     if (!response.isCommitted()) {
                         response.endVertx();
                     }
@@ -260,16 +266,25 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerResponse implements ServerResponse {
 
+        /** CTX */
         private final RoutingContext ctx;
+        /** 状态 */
         private int status = 200;
+        /** 请求体 */
         private byte[] body;
         // getOutputStream() 写入内容保留在此,响应完成(endVertx)时写回,避免临时流丢字节
+        /** OUT流 */
         private java.io.ByteArrayOutputStream outStream;
         private final Map<String, String> headers = new ConcurrentHashMap<>();
+        /** 内容类型 */
         private String contentType;
+        /** Committed */
         private boolean committed;
+        /** Ended */
         private boolean ended;
+        /** 结果 */
         private Object result;
+        /** SSE模式 */
         private boolean sseMode;
 
         VertxServerResponse(RoutingContext ctx) {
@@ -499,7 +514,9 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerRequest implements ServerRequest {
 
+        /** CTX */
         private final RoutingContext ctx;
+        /** 请求体bytes */
         private byte[] bodyBytes;
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 

@@ -49,6 +49,7 @@ public class TemperatureScalingPureCalibrator implements PureCalibrator {
      * 温度参数T，默认1.0（保持原始分数不变）
      */
     @Builder.Default
+    /** Temperature */
     private double temperature = 1.0;
 
     @Override

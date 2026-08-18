@@ -39,36 +39,57 @@ import java.awt.Color;
 public class CellStyleConfig {
 
     // ==================== 字体属性 ====================
+    /** Font名称 */
     private String fontName;
+    /** Font尺寸 */
     private Short fontSize;
+    /** Bold */
     private Boolean bold;
+    /** Italic */
     private Boolean italic;
+    /** Strikeout */
     private Boolean strikeout;
+    /** Underline */
     private Byte underline;
-    private String fontColor;      // 六位 RGB（如 "4472C4"）或 IndexedColors 名称
+    /** 六位 RGB（如 "4472C4"）或 IndexedColors 名称 */
+    private String fontColor;
 
     // ==================== 背景填充 ====================
+    /** Background颜色 */
     private String backgroundColor;
+    /** Fill模式 */
     private FillPatternType fillPattern = FillPatternType.SOLID_FOREGROUND;
 
     // ==================== 边框 ====================
+    /** Border顶部 */
     private BorderStyle borderTop;
+    /** Border底部 */
     private BorderStyle borderBottom;
+    /** Border左侧 */
     private BorderStyle borderLeft;
+    /** Border右侧 */
     private BorderStyle borderRight;
+    /** Border颜色 */
     private String borderColor;
 
     // ==================== 对齐 ====================
+    /** Horizontalalignment */
     private HorizontalAlignment horizontalAlignment;
+    /** Verticalalignment */
     private VerticalAlignment verticalAlignment;
+    /** Wrap文本 */
     private Boolean wrapText;
+    /** Indention */
     private Integer indention;
+    /** Rotation */
     private Integer rotation;
 
     // ==================== 数据格式 ====================
+    /** 数据格式 */
     private String dataFormat;
 
     // ==================== 行高 ====================
+    /** 行高度 */
     private Float rowHeight;
 
     private CellStyleConfig() {

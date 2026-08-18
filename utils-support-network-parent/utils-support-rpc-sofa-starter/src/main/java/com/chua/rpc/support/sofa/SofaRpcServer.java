@@ -25,10 +25,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class SofaRpcServer implements RpcServer {
 
+    /**
+     * registry Configs
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    /**
+     * 服务器 Configs
+     */
     private final List<ServerConfig> serverConfigs = new ArrayList<>();
+    /**
+     * 提供者 Configs
+     */
     private final List<ProviderConfig<?>> providerConfigs = new ArrayList<>();
+    /**
+     * state
+     */
     private final AtomicBoolean state = new AtomicBoolean(false);
+    /**
+     * application Config
+     */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
 
     public SofaRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {

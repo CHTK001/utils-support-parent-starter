@@ -39,8 +39,17 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
         return new SocketIOSyncClient(url);
     }
 
+    /**
+     * clients
+     */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
+    /**
+     * 监听器列表
+     */
     private final List<SyncServerListener> listeners = new ArrayList<>();
+    /**
+     * 委托对象
+     */
     private final com.chua.socketio.support.server.SocketIOServer delegate;
 
     public SocketIOSyncServer(ServerSetting setting) {

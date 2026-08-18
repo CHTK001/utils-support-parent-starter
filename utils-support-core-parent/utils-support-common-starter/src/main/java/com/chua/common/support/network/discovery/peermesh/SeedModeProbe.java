@@ -24,13 +24,20 @@ import java.util.List;
  */
 public class SeedModeProbe implements ProbeStrategy {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(SeedModeProbe.class);
+    /** Connect_timeout_ms */
     private static final int CONNECT_TIMEOUT_MS = 500;
 
+    /** 配置 */
     private final MeshConfig config;
+    /** 本地服务器ID */
     private final String localServerId;
+    /** 本地主机 */
     private final String localHost;
+    /** 本地端口 */
     private final int localPort;
+    /** Discovered */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
     private volatile boolean stopped;
 

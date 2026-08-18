@@ -30,33 +30,43 @@ import java.util.List;
 public class AgentContextCompressionService implements AgentContextCompressionConsumer {
 
     /** 基线快照类型标识 */
+    /** Baseline_type */
     private static final String BASELINE_TYPE = "context_baseline";
 
     /** 基线摘要类型标识 */
+    /** Baseline_summary_type */
     private static final String BASELINE_SUMMARY_TYPE = "context_baseline_summary";
 
     /** 轮数计数器类型标识 */
+    /** Rounds_counter_type */
     private static final String ROUNDS_COUNTER_TYPE = "context_rounds_counter";
 
     /** 压缩配置 */
+    /** 配置 */
     private final AgentCompressionConfig config;
 
     /** 压缩用聊天客户端 */
+    /** Compressionchat客户端 */
     private final ChatClient compressionChatClient;
 
     /** 备用聊天客户端 */
+    /** 回退chat客户端 */
     private final ChatClient fallbackChatClient;
 
     /** 工作空间路径 */
+    /** Workspace */
     private final String workspace;
 
     /** 是否已保存基线 */
+    /** Baselinesaved */
     private boolean baselineSaved = false;
 
     /** 基线之后经过的轮数 */
+    /** Roundsafterbaseline */
     private int roundsAfterBaseline = 0;
 
     /** 缓存的基线摘要 */
+    /** Cachedbaselinesummary */
     private String cachedBaselineSummary = null;
 
     public AgentContextCompressionService(AgentCompressionConfig config,

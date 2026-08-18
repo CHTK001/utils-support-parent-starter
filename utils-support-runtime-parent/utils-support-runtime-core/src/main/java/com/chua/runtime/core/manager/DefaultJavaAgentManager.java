@@ -19,6 +19,9 @@ import java.util.concurrent.TimeUnit;
 public class DefaultJavaAgentManager implements JavaAgentManager {
 
 
+    /**
+     * LOG
+     */
     private static final Logger LOG = Logger.getLogger(DefaultJavaAgentManager.class.getName());
     /**
      * 命令超时（秒）
