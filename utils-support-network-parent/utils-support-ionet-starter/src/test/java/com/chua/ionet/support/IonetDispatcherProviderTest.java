@@ -72,6 +72,9 @@ class IonetDispatcherProviderTest {
 
     @Test
     void publishDispatchesToSubscribedMethod() throws Exception {
+        // 验证 BeanUtils.convert 对 String 的处理
+        Object converted = com.chua.common.support.utils.BeanUtils.convert("order-1001", String.class);
+        System.err.println("[Diag] BeanUtils.convert result=" + converted + " isNull=" + (converted == null));
         // 对照 1：provider.publish 路径
         provider.publish("order/created", "order-1001");
         System.err.println("[Diag] after publish orderCount=" + subscriber.orderCount.get());

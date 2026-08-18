@@ -347,45 +347,8 @@ public class OcrPipeline {
             if (modelId == null || modelId.isBlank()) {
                 return null;
             }
-            String baseId = modelId;
-            Integer scaleArg = null;
-            int colon = modelId.indexOf(':');
-            if (colon > 0) {
-                baseId = modelId.substring(0, colon);
-                try {
-                    scaleArg = Integer.parseInt(modelId.substring(colon + 1));
-                } catch (NumberFormatException ignored) {
-                    // 非数字参数忽略，按默认处理
-                }
-            }
-            ITranslator<Object, Object> translator =
-                    (ITranslator<Object, Object>) AbstractIdentificationEngine.getInstance()
-                            .get(baseId, ITranslator.class);
-            if (translator != null && scaleArg != null) {
-                try {
-                    // 穿透 LazyDjlTranslator/ITranslatorDelegate 包装，对原生 Translator 注入 scale
-                    Object target = translator;
-                    for (int i = 0; i < 4 && target != null; i++) {
-                        try {
-                            java.lang.reflect.Method unwrap = target.getClass().getMethod("unwrap");
-                            Object next = unwrap.invoke(target);
-                            if (next == null || next == target) {
-                                break;
-                            }
-                            target = next;
-                        } catch (NoSuchMethodException e) {
-                            break;
-                        }
-                    }
-                    java.lang.reflect.Method setScale = target.getClass().getMethod("setScale", int.class);
-                    setScale.setAccessible(true);
-                    setScale.invoke(target, scaleArg);
-                    log.debug("[ocr-pipeline] {} scale={}x", baseId, scaleArg);
-                } catch (Exception e) {
-                    log.warn("[ocr-pipeline] 注入 {} scale={} 失败: {}", baseId, scaleArg, e.getMessage());
-                }
-            }
-            return translator;
+            return (ITranslator<Object, Object>) AbstractIdentificationEngine.getInstance()
+                    .get(modelId, ITranslator.class);
         }
     }
 
