@@ -29,8 +29,8 @@ import java.util.Map;
 @Slf4j
 public class DocOrientationTranslator implements ITranslator<byte[], DirectionInfo> {
 
-    private static final int RESIZE_WIDTH = 192;
-    private static final int RESIZE_HEIGHT = 48;
+    private static final int RESIZE_WIDTH = 224;
+    private static final int RESIZE_HEIGHT = 224;
     private static final List<String> CLASSES = List.of("0", "90", "180", "270");
 
     private static final String RESOURCE_BASE = "ocr/direction/doc_ori/";

@@ -71,8 +71,7 @@ public class VertxHttpProxyServer extends AbstractServer {
             vertx = Vertx.vertx(opts);
             httpClient = vertx.createHttpClient(new HttpClientOptions()
                     .setTcpNoDelay(true)
-                    .setConnectTimeout(setting.getReadTimeout())
-                    .setMaxPoolSize(1024));
+                    .setConnectTimeout(setting.getReadTimeout()));
 
             HttpServerOptions options = new HttpServerOptions()
                     .setHost(setting.getHost())
@@ -129,16 +128,32 @@ public class VertxHttpProxyServer extends AbstractServer {
             // 请求头透传（Host 保留后端）
             front.headers().forEach(req::putHeader);
             HttpServerResponse resp = front.response();
-            req.send(front).onSuccess(backResp -> {
-                resp.setStatusCode(backResp.statusCode());
-                backResp.headers().forEach(resp::putHeader);
-                backResp.pipeTo(resp);
-            }).onFailure(err -> {
-                resp.setStatusCode(502).end();
-            });
+            // Vert.x 5:req.send(request) 会抛 "Request has already been read"；
+            // 无 body（GET/HEAD）直接 send()，有 body 用 pipeTo 管道透传
+            if (front.isEnded()) {
+                req.send().onSuccess(backResp -> forwardResponse(resp, backResp))
+                        .onFailure(err -> resp.setStatusCode(502).end());
+            } else {
+                front.pipeTo(req);
+                req.response().onSuccess(backResp -> forwardResponse(resp, backResp))
+                        .onFailure(err -> resp.setStatusCode(502).end());
+            }
         }).onFailure(err -> {
             front.response().setStatusCode(502).end();
         });
+    }
+
+    /**
+     * 回传后端响应。
+     *
+     * @param resp      前端响应
+     * @param backResp  后端响应
+     */
+    private void forwardResponse(HttpServerResponse resp,
+                                 io.vertx.core.http.HttpClientResponse backResp) {
+        resp.setStatusCode(backResp.statusCode());
+        backResp.headers().forEach(resp::putHeader);
+        backResp.pipeTo(resp);
     }
 
     @Override
