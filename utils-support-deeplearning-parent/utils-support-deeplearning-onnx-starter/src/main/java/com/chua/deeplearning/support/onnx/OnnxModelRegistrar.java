@@ -3,6 +3,8 @@ package com.chua.deeplearning.support.onnx;
 import com.chua.deeplearning.support.engine.ModelRegistrar;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 
+import java.util.List;
+
 /**
  * ONNX 模块模型集中注册器。
  * <p>通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
