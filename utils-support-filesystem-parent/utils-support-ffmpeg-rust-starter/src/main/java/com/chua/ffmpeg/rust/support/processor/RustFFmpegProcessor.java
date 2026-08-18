@@ -3,11 +3,13 @@ package com.chua.ffmpeg.rust.support.processor;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
+import com.chua.common.support.media.ffmpeg.FrameInfo;
 import com.chua.ffmpeg.rust.support.bridge.RustFFmpegBridge;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * 基于原生 Rust 视频编码和加密库的 FFmpeg 处理器。
@@ -120,8 +122,32 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
+    public void pushStream(String input, String streamUrl, FFmpegOptions options,
+                           Consumer<FrameInfo> callback) throws IOException {
+        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for streaming with callbacks.");
+    }
+
+    @Override
+    public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
+                                     Consumer<FrameInfo> callback) throws IOException {
+        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for streaming with frame callbacks.");
+    }
+
+    @Override
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for stream pulling.");
+    }
+
+    @Override
+    public void pullStream(String streamUrl, File output, double duration,
+                           Consumer<FrameInfo> callback) throws IOException {
+        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for stream pulling with callbacks.");
+    }
+
+    @Override
+    public void pullStreamWithFrames(String streamUrl, File output, double duration,
+                                     Consumer<FrameInfo> callback) throws IOException {
+        throw new UnsupportedOperationException("Rust FFmpeg processor focuses on video codec encode/decode. Use javacv-starter for stream pulling with frame callbacks.");
     }
 
     @Override

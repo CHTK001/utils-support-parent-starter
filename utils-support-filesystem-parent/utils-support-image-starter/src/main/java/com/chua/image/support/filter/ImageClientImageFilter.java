@@ -58,6 +58,19 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
 
     /**
+     * 设置 AI 图像生成客户端 (覆盖父类以支持链式调用)
+     *
+     * @param imageClient AI 客户端实例
+     * @return 当前滤镜实例
+     */
+    @Override
+    public ImageClientImageFilter imageClient(ImageClient imageClient) {
+        super.imageClient(imageClient);
+        return this;
+    }
+
+
+    /**
      * 设置提示词
      *
      * @param prompt 提示词

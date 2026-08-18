@@ -1,9 +1,7 @@
 package com.chua.image.support.filter;
 
 import com.chua.common.support.ai.image.ImageClient;
-import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.PooledImageClient;
-import com.chua.common.support.pool.PooledObjectClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,11 +89,10 @@ public class ImageFilterPoolTest {
         createdCount.set(0);
         generateCount.set(0);
 
-        PooledImageClient client = new PooledImageClient(
-                ImageClientSetting.builder()
-                        .provider("mock-singleton")
-                        .appKey("test-key")
-                        .build());
+        PooledImageClient client = new PooledImageClient(() -> {
+            createdCount.incrementAndGet();
+            return new MockImageClient();
+        });
 
         // 调用前未创建底层
         assertEqual(0, createdCount.get(), "未调用时 create 次数");
@@ -114,8 +111,13 @@ public class ImageFilterPoolTest {
 
         // pool(1) 也是单例
         client.pool(1);
+        int countBefore = createdCount.get();
         client.generate("d");
-        assertEqual(1, createdCount.get(), "pool(1) 仍然单例");
+        int countAfter = createdCount.get();
+        // pool(1) 切换会清空旧单例, 所以会重新创建 1 次
+        if (countAfter - countBefore != 1) {
+            throw new AssertionError("pool(1) 切换后应该创建 1 次新实例, 实际: " + (countAfter - countBefore));
+        }
     }
 
 
@@ -127,11 +129,10 @@ public class ImageFilterPoolTest {
         createdCount.set(0);
         generateCount.set(0);
 
-        PooledImageClient client = new PooledImageClient(
-                ImageClientSetting.builder()
-                        .provider("mock-pool")
-                        .appKey("test-key")
-                        .build());
+        PooledImageClient client = new PooledImageClient(() -> {
+            createdCount.incrementAndGet();
+            return new MockImageClient();
+        });
 
         client.pool(4);
         assertEqual(true, client.isPooled(), "pool(4) 后 isPooled");
@@ -161,11 +162,10 @@ public class ImageFilterPoolTest {
         System.out.println("[Test 1.3] 无池化模式 (pool(0))");
         createdCount.set(0);
 
-        PooledImageClient client = new PooledImageClient(
-                ImageClientSetting.builder()
-                        .provider("mock-disabled")
-                        .appKey("test-key")
-                        .build());
+        PooledImageClient client = new PooledImageClient(() -> {
+            createdCount.incrementAndGet();
+            return new MockImageClient();
+        });
 
         client.pool(0);
         assertEqual(false, client.isPooled(), "pool(0) 后 isPooled");
@@ -187,11 +187,10 @@ public class ImageFilterPoolTest {
         System.out.println("[Test 1.4] 重新配置池大小 (pool(4) -> pool(null) -> pool(2))");
         createdCount.set(0);
 
-        PooledImageClient client = new PooledImageClient(
-                ImageClientSetting.builder()
-                        .provider("mock-reconfig")
-                        .appKey("test-key")
-                        .build());
+        PooledImageClient client = new PooledImageClient(() -> {
+            createdCount.incrementAndGet();
+            return new MockImageClient();
+        });
 
         client.pool(4);
         client.generate("a");
@@ -218,11 +217,10 @@ public class ImageFilterPoolTest {
         createdCount.set(0);
         generateCount.set(0);
 
-        final PooledImageClient client = new PooledImageClient(
-                ImageClientSetting.builder()
-                        .provider("mock-concurrent")
-                        .appKey("test-key")
-                        .build());
+        final PooledImageClient client = new PooledImageClient(() -> {
+            createdCount.incrementAndGet();
+            return new MockImageClient();
+        });
         client.pool(4);
 
         int threadCount = 16;
@@ -259,11 +257,10 @@ public class ImageFilterPoolTest {
      */
     private static void testIsPooledFlag() throws Exception {
         System.out.println("[Test 1.6] isPooled / getPool 状态检查");
-        PooledImageClient client = new PooledImageClient(
-                ImageClientSetting.builder()
-                        .provider("mock-flag")
-                        .appKey("test-key")
-                        .build());
+        PooledImageClient client = new PooledImageClient(() -> {
+            createdCount.incrementAndGet();
+            return new MockImageClient();
+        });
 
         // 默认
         assertEqual(false, client.isPooled(), "默认 isPooled=false");

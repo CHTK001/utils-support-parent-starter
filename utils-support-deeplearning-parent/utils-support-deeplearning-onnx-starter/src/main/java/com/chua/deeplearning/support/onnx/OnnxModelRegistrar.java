@@ -153,10 +153,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
         // 文档方向分类(PP-LCNet_x1_0_doc_ori)：4 类（0°/90°/180°/270°），整图方向检测；适用文档矫正、旋转自动修正
         reg("doc-orientation", "com.chua.deeplearning.support.onnx.ocr.direction.DocOrientationTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/doc_ori/model.onnx",
-                "https://huggingface.co/onnx-community/PP-LCNet_x1_0_doc_ori/resolve/main/model.onnx",
+                "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/main/model.onnx",
                 List.of(
-                        "https://modelscope.cn/models/warriorTan/PP-LCNet_x1_0_doc_ori/resolve/master/onnx/model.onnx",
-                        "https://hf-mirror.com/onnx-community/PP-LCNet_x1_0_doc_ori/resolve/main/model.onnx"
+                        "https://hf-mirror.com/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/main/model.onnx",
+                        "https://huggingface.co/ningpp/PP-LCNet_x1_0_doc_ori-ONNX/resolve/main/model.onnx"
                 ),
                 false, "model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
@@ -393,6 +393,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 模型打包在 utils-support-models-onnx-mms-tts-eng jar 中（audio/tts/mms-tts-eng/），
         // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
         reg("mms-tts-eng", null, String.class, byte[].class, Object.class, "audio/tts/mms-tts-eng/model_quantized.onnx");
+
+        // Pocket-TTS（Kyutai 100M 流匹配 TTS）：多语言语音合成（含零样本声音克隆），24kHz WAV；
+        // 模型打包在 utils-support-models-onnx-pocket-tts jar 中（audio/tts/pocket-tts/，~225MB int8），
+        // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
+        reg("pocket-tts", null, String.class, byte[].class, Object.class, "audio/tts/pocket-tts/config.json");
 
         // ==================== 图像描述 Image Captioning ====================
         // ViT-GPT2：图像内容文字描述。encoder 打包在 utils-support-models-onnx-vit-gpt2-captioning jar，

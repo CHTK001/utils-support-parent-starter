@@ -49,7 +49,11 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                 var path = config.getDataPath() != null
                         ? config.getDataPath() + "/" + t
                         : System.getProperty("java.io.tmpdir") + "/chronicle/" + t;
-                return SingleChronicleQueueBuilder.single(path).build();
+                var builder = SingleChronicleQueueBuilder.single(path);
+                if (config.getBlockSize() > 0) {
+                    builder.blockSize(config.getBlockSize());
+                }
+                return builder.build();
             });
         } catch (Throwable e) {
             throw new RuntimeException("Chronicle Queue 初始化失败。请添加 --add-opens 相关 JVM 参数，或使用 directDispatch=true 绕过。topic=" + topic, e);

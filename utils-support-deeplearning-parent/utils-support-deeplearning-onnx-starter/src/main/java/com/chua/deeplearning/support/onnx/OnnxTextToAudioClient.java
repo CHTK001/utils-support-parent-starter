@@ -7,6 +7,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.deeplearning.support.ai.client.AbstractLocalTextToAudioClient;
 import com.chua.deeplearning.support.ai.client.DeeplearningModels;
 import com.chua.deeplearning.support.onnx.audio.tts.MmsTtsTranslator;
+import com.chua.deeplearning.support.onnx.audio.tts.PocketTtsTranslator;
 
 import java.util.List;
 
@@ -36,9 +37,19 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     private static final String MMS_TTS_MODEL = "mms-tts-eng";
 
     /**
+     * Pocket-TTS 模型名（Kyutai 流匹配 TTS）
+     */
+    private static final String POCKET_TTS_MODEL = "pocket-tts";
+
+    /**
      * 内嵌的 MMS-TTS 合成器（懒加载）
      */
     private MmsTtsTranslator mmsTtsTranslator;
+
+    /**
+     * 内嵌的 Pocket-TTS 合成器（懒加载）
+     */
+    private PocketTtsTranslator pocketTtsTranslator;
 
     /**
      * 构造 ONNX 语音合成客户端。
@@ -64,6 +75,15 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
             }
             return mmsTtsTranslator.synthesize(this.text);
         }
+        // Pocket-TTS 走内嵌 ORT 合成器（Kyutai 流匹配 TTS，模型打包在 jar 中）
+        if (POCKET_TTS_MODEL.equalsIgnoreCase(modelName) || modelName.toLowerCase().contains("pocket-tts")) {
+            synchronized (this) {
+                if (pocketTtsTranslator == null) {
+                    pocketTtsTranslator = new PocketTtsTranslator();
+                }
+            }
+            return pocketTtsTranslator.synthesize(this.text);
+        }
         return super.synthesize(this.text);
     }
 
@@ -72,6 +92,10 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
         if (mmsTtsTranslator != null) {
             mmsTtsTranslator.close();
             mmsTtsTranslator = null;
+        }
+        if (pocketTtsTranslator != null) {
+            pocketTtsTranslator.close();
+            pocketTtsTranslator = null;
         }
         super.close();
     }
