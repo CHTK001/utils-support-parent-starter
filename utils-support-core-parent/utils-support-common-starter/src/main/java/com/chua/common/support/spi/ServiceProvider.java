@@ -12,7 +12,10 @@ import com.chua.common.support.utils.ClassUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -652,11 +655,22 @@ public interface ServiceProvider<T> {
         if (instances == null || instances.isEmpty()) {
             return null;
         }
+        List<T> unique = new ArrayList<>(instances.size());
+        Set<Class<?>> seen = new HashSet<>();
+        for (T t : instances) {
+            Class<?> implClass = t.getClass();
+            if (seen.add(implClass)) {
+                unique.add(t);
+            }
+        }
         return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
             @Override
             public Object apply(ProxyMethod proxyMethod) {
                 Exception last = null;
-                for (T t : instances) {
+                for (T t : unique) {
+                    if (!isAvailable(t, proxyMethod)) {
+                        continue;
+                    }
                     try {
                         Object result = proxyMethod.invoke(t);
                         if (result != null) {
@@ -667,11 +681,37 @@ public interface ServiceProvider<T> {
                     }
                 }
                 if (last != null) {
-                    throw new IllegalStateException("所有图像处理器均执行失败", last);
+                    throw new IllegalStateException("所有服务实例均执行失败", last);
                 }
                 return null;
             }
         }));
+    }
+
+    /**
+     * 判断服务实例是否可用。
+     *
+     * <p>优先调用实例的 {@code available()} 方法（存在时）；不可用则跳过，实现自动降级。
+     * 代理拦截到调用目标方法时需排除 {@code available}/{@code name} 等元信息方法。</p>
+     *
+     * @param instance 服务实例
+     * @param proxyMethod 当前代理调用
+     * @return true 表示可用
+     */
+    default boolean isAvailable(@Nonnull T instance, @Nonnull ProxyMethod proxyMethod) {
+        String methodName = proxyMethod.getMethodName();
+        if (methodName == null || "available".equals(methodName)) {
+            return true;
+        }
+        try {
+            Method available = instance.getClass().getMethod("available");
+            if (available.getReturnType() == boolean.class) {
+                return (boolean) available.invoke(instance);
+            }
+        } catch (Exception ignored) {
+            // 无 available() 方法的实例视为可用
+        }
+        return true;
     }
 
     /**

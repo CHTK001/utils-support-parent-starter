@@ -14,7 +14,7 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.FaceQualityInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -186,10 +186,25 @@ public class FacePipeline {
      */
     private final boolean requireLive;
 
-    /**
-     * 活体分数阈值。
+/**
+     * 搜索 threshold
      */
     private final float livenessThreshold;
+
+    /**
+     * 检测框四扩展像素数
+     */
+    private final int cropPadding;
+
+    /**
+     * 最小人脸面积阈值（过滤过小检测框）
+     */
+    private final float minFaceArea;
+
+    /**
+     * 最小检测置信度（过滤低置信度检测框）
+     */
+    private final float minConfidence;
 
     /**
      * 单张人脸检测管线（裁剪 → 活体 → 收集）。
@@ -234,7 +249,10 @@ public class FacePipeline {
                         ImageClassifier deepfakeClassifier,
                         int topK,
                         boolean requireLive,
-                        float livenessThreshold) {
+                        float livenessThreshold,
+                        int cropPadding,
+                        float minFaceArea,
+                        float minConfidence) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.liveness = liveness;
         this.featureExtractor = featureExtractor;
@@ -250,6 +268,9 @@ public class FacePipeline {
         this.topK = Math.max(1, topK);
         this.requireLive = requireLive;
         this.livenessThreshold = livenessThreshold;
+        this.cropPadding = Math.max(0, cropPadding);
+        this.minFaceArea = Math.max(0f, minFaceArea);
+        this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
         this.detectPipeline = buildDetectPipeline();
         this.identifyPipeline = buildIdentifyPipeline();
     }
@@ -345,6 +366,21 @@ public class FacePipeline {
          * 活体检测置信度阈值
          */
         private float livenessThreshold = 0.5f;
+
+        /**
+         * 检测框四周扩展像素数（默认 0）
+         */
+        private int cropPadding;
+
+        /**
+         * 最小人脸面积阈值（默认 0 不过滤）
+         */
+        private float minFaceArea;
+
+        /**
+         * 最小检测置信度（默认 0 不过滤）
+         */
+        private float minConfidence;
 
         /**
          * 设置检测器。
@@ -622,6 +658,39 @@ public class FacePipeline {
         }
 
         /**
+         * 设置检测框四周扩展像素数。
+         *
+         * @param cropPadding 扩展像素数
+         * @return this
+         */
+        public Builder cropPadding(int cropPadding) {
+            this.cropPadding = cropPadding;
+            return this;
+        }
+
+        /**
+         * 设置最小人脸面积阈值（过滤过小检测框）。
+         *
+         * @param minFaceArea 最小面积（像素²）
+         * @return this
+         */
+        public Builder minFaceArea(float minFaceArea) {
+            this.minFaceArea = minFaceArea;
+            return this;
+        }
+
+        /**
+         * 设置最小检测置信度（过滤低置信度检测框）。
+         *
+         * @param minConfidence 阈值 0~1
+         * @return this
+         */
+        public Builder minConfidence(float minConfidence) {
+            this.minConfidence = minConfidence;
+            return this;
+        }
+
+        /**
          * 构建。
          *
          * @return FacePipeline
@@ -631,7 +700,8 @@ public class FacePipeline {
                     animeDetector, superResolution, restorer,
                     attributeClassifier, emotionClassifier, landmarkExtractor,
                     qualityAssessor, deepfakeClassifier,
-                    topK, requireLive, livenessThreshold);
+                    topK, requireLive, livenessThreshold,
+                    cropPadding, minFaceArea, minConfidence);
         }
     }
 
@@ -647,7 +717,13 @@ public class FacePipeline {
                     if (fc.currentBox() == null) {
                         return null;
                     }
-                    fc.currentFace(ImageCropUtils.crop(fc.imageData(), fc.currentBox()));
+                    // 检测框四周扩展（可配置），提升裁剪包容性
+                    PredictRectangle box = fc.currentBox();
+                    int px = cropPadding;
+                    byte[] face = ImageCropUtils.crop(fc.imageData(),
+                            (int) box.x() - px, (int) box.y() - px,
+                            (int) box.width() + px * 2, (int) box.height() + px * 2);
+                    fc.currentFace(face);
                     return null;
                 }).taskEnd()
                 .decision("hasFace", ctx -> current(ctx).currentFace() != null ? NODE_LIVENESS : NODE_END)
@@ -691,7 +767,13 @@ public class FacePipeline {
                     if (fc.currentBox() == null) {
                         return null;
                     }
-                    fc.currentFace(ImageCropUtils.crop(fc.imageData(), fc.currentBox()));
+                    // 检测框四周扩展（可配置），提升裁剪包容性
+                    PredictRectangle box = fc.currentBox();
+                    int px = cropPadding;
+                    byte[] face = ImageCropUtils.crop(fc.imageData(),
+                            (int) box.x() - px, (int) box.y() - px,
+                            (int) box.width() + px * 2, (int) box.height() + px * 2);
+                    fc.currentFace(face);
                     return null;
                 }).taskEnd()
                 .decision("hasFace", ctx -> current(ctx).currentFace() != null ? NODE_LIVENESS : NODE_END)
@@ -835,13 +917,13 @@ public class FacePipeline {
         if (featureExtractor == null || vectorStorage == null) {
             return false;
         }
-        FaceDetectionHit largest = detectLargest(imageData);
-        if (largest == null || largest.faceImage() == null) {
+        // 复用完整特征提取管线（检测 → 裁剪 → 活体 → 对齐 → 修复 → 高清化 → 特征）
+        FaceFeaturePipelineResult result = extractFeatureWithMeta(imageData);
+        if (result == null || result.feature() == null || result.feature().length == 0) {
             return false;
         }
-        float[] feature = featureExtractor.extract(largest.faceImage());
         return vectorStorage.add(new com.chua.common.support.vector.Vector(
-                id, feature, metadata == null ? Map.of() : metadata, id));
+                id, result.feature(), metadata == null ? Map.of() : metadata, id));
     }
 
     /**
@@ -912,7 +994,14 @@ public class FacePipeline {
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
-        return boxes == null ? List.of() : boxes;
+        if (boxes == null || boxes.isEmpty()) {
+            return List.of();
+        }
+        // 置信度 + 面积阈值过滤
+        return boxes.stream()
+                .filter(b -> b.confidence() >= minConfidence || minConfidence == 0f)
+                .filter(b -> (b.width() * b.height()) >= minFaceArea || minFaceArea == 0f)
+                .toList();
     }
 
     /**
@@ -1383,8 +1472,8 @@ public class FacePipeline {
             if (Math.abs(angle) < 0.5) {
                 return face;
             }
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(face);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(face);
             if (src == null || src.empty()) {
                 return face;
             }
@@ -1392,7 +1481,7 @@ public class FacePipeline {
                 Mat out = new Mat();
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(src.cols() / 2.0, src.rows() / 2.0), angle, 1.0);
                 Imgproc.warpAffine(src, out, rot, new Size(src.cols(), src.rows()), Imgproc.INTER_CUBIC, Core.BORDER_REPLICATE);
-                byte[] result = OpenCvImageUtils.encode(out);
+                byte[] result = ImageUtils.encode(out);
                 rot.release();
                 out.release();
                 return result;
@@ -1453,7 +1542,7 @@ public class FacePipeline {
             return null;
         }
         try {
-            Mat src = OpenCvImageUtils.decode(imageData);
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 return null;
             }
@@ -1469,8 +1558,8 @@ public class FacePipeline {
                 src.release();
                 return null;
             }
-            Mat sub = OpenCvImageUtils.crop(src, newX1, newY1, cw, ch);
-            byte[] result = OpenCvImageUtils.encode(sub);
+            Mat sub = ImageUtils.crop(src, newX1, newY1, cw, ch);
+            byte[] result = ImageUtils.encode(sub);
             sub.release();
             src.release();
             return result;

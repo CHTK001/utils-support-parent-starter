@@ -8,7 +8,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
@@ -35,7 +35,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
         int w = input.getWidth();
         int h = input.getHeight();
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < pixels.length; i++) {

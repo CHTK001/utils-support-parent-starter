@@ -7,7 +7,7 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.translator.ITranslator;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint2f;
@@ -193,8 +193,8 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
 
     private List<OcrResult> recognize(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -294,7 +294,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         }
         double ratio = (double) w / h;
         int targetW = Math.min(REC_WIDTH, (int) Math.round(REC_HEIGHT * ratio));
-        Mat resized = OpenCvImageUtils.resize(crop, targetW, REC_HEIGHT, Imgproc.INTER_LINEAR);
+        Mat resized = ImageUtils.resize(crop, targetW, REC_HEIGHT, Imgproc.INTER_LINEAR);
         Mat padded = Mat.zeros(REC_HEIGHT, REC_WIDTH, crop.type());
         resized.copyTo(padded.submat(0, REC_HEIGHT, 0, targetW));
         resized.release();

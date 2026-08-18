@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.classification;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -142,8 +142,8 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     public byte[] correct(byte[] imageData) {
         try {
             prepare();
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -175,7 +175,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
                 org.opencv.core.Mat perspective = Imgproc.getPerspectiveTransform(srcPts, dstPts);
                 Mat corrected = new Mat();
                 Imgproc.warpPerspective(src, corrected, perspective, new Size(outW, outH), Imgproc.INTER_LINEAR);
-                byte[] result = OpenCvImageUtils.encode(corrected);
+                byte[] result = ImageUtils.encode(corrected);
                 corrected.release();
                 perspective.release();
                 srcPts.release();
@@ -196,8 +196,8 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
      * @return 四边形列表，每项 4×2（角点 [x,y]），未检测到返回空列表
      */
     public List<float[][]> detectQuads(byte[] imageData) {
-        OpenCvImageUtils.load();
-        Mat src = OpenCvImageUtils.decode(imageData);
+        ImageUtils.load();
+        Mat src = ImageUtils.decode(imageData);
         if (src == null || src.empty()) {
             throw new IllegalArgumentException("无法解码图像");
         }
@@ -215,7 +215,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         try {
             srcWidth = src.cols();
             srcHeight = src.rows();
-            Mat resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
+            Mat resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
 
             float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
             for (int y = 0; y < INPUT_SIZE; y++) {

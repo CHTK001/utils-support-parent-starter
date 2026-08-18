@@ -9,7 +9,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
@@ -43,7 +43,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         // 纯 Java 预处理：AWT BICUBIC resize + CHW 标准化，
         // 避免 NDImageUtils.resize / NDArray 张量运算在部分 engine（Rust/ONNX）不受支持
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_CUBIC);
 
         int total = INPUT_SIZE * INPUT_SIZE;
         float[] data = new float[3 * total];

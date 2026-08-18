@@ -1691,6 +1691,17 @@ class OvisOcrRunner(BaseRunner):
                 )
         self._loaded = True
 
+    def _clean_ocr_output(self, text: str) -> str:
+        import re
+        if not text:
+            return text
+        s = text
+        sidx = s.rfind('assistant')
+        if sidx >= 0:
+            s = s[sidx + len('assistant'):].strip()
+        s = re.sub(r'<[^>]+>', '', s)
+        return s.strip()
+
     def run(self, inputs: dict, params: dict) -> str:
         if not self._loaded:
             self._apply_gpu(params)
@@ -1722,7 +1733,9 @@ class OvisOcrRunner(BaseRunner):
         with torch.no_grad():
             output = self._model.generate(**inputs_tok, max_new_tokens=max_tokens)
 
-        return self._processor.decode(output[0], skip_special_tokens=True)
+        raw = self._processor.decode(output[0], skip_special_tokens=True)
+        # 剥离 chat 回显与 think/response 标签，仅保留最终内容
+        return self._clean_ocr_output(raw)
 
 
 class UnlimitedOcrRunner(BaseRunner):

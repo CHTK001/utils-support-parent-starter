@@ -6,7 +6,7 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Graphics2D;
@@ -90,7 +90,7 @@ public class FastSamSegmentTranslator {
 
         // Preprocess: resize to 1024x1024 stretch, /255
         BufferedImage src = toBufferedImage(input);
-        BufferedImage canvas = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage canvas = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
 
         float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
         int idx = 0;

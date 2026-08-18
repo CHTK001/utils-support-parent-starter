@@ -10,7 +10,7 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -590,7 +590,7 @@ public class OcrPipeline {
             if (rotate == 0) {
                 return imageData;
             }
-            return OpenCvImageUtils.rotate(imageData, rotate);
+            return ImageUtils.rotate(imageData, rotate);
         } catch (Exception e) {
             log.warn("[ocr-pipeline] 方向矫正失败，使用原图: {}", e.getMessage());
             return imageData;
@@ -653,7 +653,7 @@ public class OcrPipeline {
      */
     private static byte[] rotateBytes(byte[] imageData, int degree) {
         try {
-            return OpenCvImageUtils.rotate(imageData, degree);
+            return ImageUtils.rotate(imageData, degree);
         } catch (Exception e) {
             return imageData;
         }
@@ -671,7 +671,7 @@ public class OcrPipeline {
             return null;
         }
         try {
-            Mat src = OpenCvImageUtils.decode(crop);
+            Mat src = ImageUtils.decode(crop);
             if (src == null || src.empty()) {
                 return crop;
             }
@@ -680,7 +680,7 @@ public class OcrPipeline {
                 if (h >= minHeight) {
                     return crop;
                 }
-                return OpenCvImageUtils.upscale(crop, 2);
+                return ImageUtils.upscale(crop, 2);
             } finally {
                 src.release();
             }
@@ -701,7 +701,7 @@ public class OcrPipeline {
      */
     private static byte[] autoInvertIfDark(byte[] imageData) {
         try {
-            Mat src = OpenCvImageUtils.decode(imageData);
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 return imageData;
             }

@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx.example;
 
 import com.chua.deeplearning.support.face.FaceDetectionHit;
 import com.chua.deeplearning.support.face.FacePipeline;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
@@ -174,7 +174,7 @@ public final class FaceDetectDrawExample extends ExampleBase {
                 System.out.println(sb.toString().trim());
             }
         }
-        Mat src = OpenCvImageUtils.decode(img);
+        Mat src = ImageUtils.decode(img);
         if (src != null) {
             for (int i = 0; i < hits.size(); i++) {
                 var box = hits.get(i).box();
@@ -207,7 +207,7 @@ public final class FaceDetectDrawExample extends ExampleBase {
         try {
             var box = hit.box();
             int iw, ih;
-            Mat tmp = OpenCvImageUtils.decode(img);
+            Mat tmp = ImageUtils.decode(img);
             iw = tmp.cols();
             ih = tmp.rows();
             tmp.release();
@@ -223,7 +223,7 @@ public final class FaceDetectDrawExample extends ExampleBase {
             if (cw <= 0 || ch <= 0) {
                 return null;
             }
-            Mat src = OpenCvImageUtils.decode(img);
+            Mat src = ImageUtils.decode(img);
             Mat sub = new Mat(src, new org.opencv.core.Rect(newX1, newY1, cw, ch));
 
             // 关键点换算到子图坐标系
@@ -231,8 +231,8 @@ public final class FaceDetectDrawExample extends ExampleBase {
             for (float[] p : box.keypoints()) {
                 kps.add(new float[]{p[0] - newX1, p[1] - newY1});
             }
-            Mat aligned = OpenCvImageUtils.alignFace(sub, kps, 512);
-            byte[] out = OpenCvImageUtils.encode(aligned);
+            Mat aligned = ImageUtils.alignFace(sub, kps, 512);
+            byte[] out = ImageUtils.encode(aligned);
             src.release();
             sub.release();
             aligned.release();

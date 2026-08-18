@@ -11,7 +11,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
@@ -101,7 +101,7 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
             }
         }
 
-        BufferedImage scaled = OpenCvImageUtils.resize(buf, width, height, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage scaled = ImageUtils.resize(buf, width, height, org.opencv.imgproc.Imgproc.INTER_LINEAR);
 
         return ImageFactory.getInstance().fromImage(scaled);
     }

@@ -289,6 +289,11 @@ public class ServiceDefinitionUtils {
      * @return 服务优先级，未配置时返回 0
      */
     private static int getOrder(Class<?> implType) {
+        SpiOrder spiOrder = implType.getDeclaredAnnotation(SpiOrder.class);
+        if (null != spiOrder) {
+            return spiOrder.value();
+        }
+
         Spi spi = implType.getDeclaredAnnotation(Spi.class);
         if (null != spi) {
             return spi.order();

@@ -4,16 +4,14 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -21,13 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * 基于 JDK Socket 的 TCP 同步客户端实现。
+ * 基于 NIO SocketChannel + 虚拟线程的 TCP 同步客户端实现。
  * <p>
  * 通过 TCP 长连接与服务端双向同步，支持注册、主题订阅与消息收发。
+ * 读取由虚拟线程承载（阻塞读让出载体线程，连接数不再消耗 OS 线程），
+ * 行切分后按订阅表/监听器分发。
  * </p>
  *
  * @author CH
- * @since 2026-07-25
+ * @since 4.0.0.42
  */
 @Spi("tcp")
 public class TcpSyncClient implements SyncClient {
@@ -43,9 +43,9 @@ public class TcpSyncClient implements SyncClient {
     private final String serverUrl;
 
     /**
-     * 底层 Socket
+     * 底层通道
      */
-    private Socket socket;
+    private SocketChannel channel;
 
     /**
      * 是否已连接
@@ -68,7 +68,7 @@ public class TcpSyncClient implements SyncClient {
     private final List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 接收线程
+     * 接收虚拟线程
      */
     private Thread readThread;
 
@@ -98,8 +98,10 @@ public class TcpSyncClient implements SyncClient {
             return;
         }
         try {
-            socket = new Socket();
-            socket.connect(parseAddress(serverUrl));
+            channel = SocketChannel.open();
+            channel.configureBlocking(true);
+            channel.socket().setTcpNoDelay(true);
+            channel.connect(parseAddress(serverUrl));
             connected = true;
             startRead();
             sendLine("register:" + clientId);
@@ -136,12 +138,12 @@ public class TcpSyncClient implements SyncClient {
             readThread.interrupt();
             readThread = null;
         }
-        if (socket != null) {
+        if (channel != null) {
             try {
-                socket.close();
+                channel.close();
             } catch (IOException ignored) {
             }
-            socket = null;
+            channel = null;
         }
         notifyListeners(SyncFlowListener::onStop);
     }
@@ -193,11 +195,12 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 启动接收线程。
+     * 启动虚拟线程读取：阻塞读让出载体线程，行到达后按订阅/监听器分发。
      */
     private void startRead() {
-        readThread = ThreadUtils.newThread(() -> {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
+        readThread = Thread.ofVirtual().name("tcp-sync-read-" + clientId).start(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    java.nio.channels.Channels.newInputStream(channel), StandardCharsets.UTF_8))) {
                 String line;
                 while (connected && (line = reader.readLine()) != null) {
                     handleLine(line);
@@ -207,9 +210,7 @@ public class TcpSyncClient implements SyncClient {
                     notifyListeners(l -> l.onError("tcp", e));
                 }
             }
-        }, "tcp-sync-read-" + clientId);
-        readThread.setDaemon(true);
-        readThread.start();
+        });
     }
 
     /**
@@ -240,9 +241,10 @@ public class TcpSyncClient implements SyncClient {
      */
     private void sendLine(String line) {
         try {
-            OutputStream out = socket.getOutputStream();
-            out.write((line + "\n").getBytes(StandardCharsets.UTF_8));
-            out.flush();
+            ByteBuffer buffer = ByteBuffer.wrap((line + "\n").getBytes(StandardCharsets.UTF_8));
+            while (buffer.hasRemaining()) {
+                channel.write(buffer);
+            }
         } catch (IOException e) {
             throw new RuntimeException("TCP SyncClient 发送失败", e);
         }

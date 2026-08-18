@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -156,8 +156,8 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     private List<DetectionInfo> detect(byte[] imageData) {
         try {
-            OpenCvImageUtils.load();
-            Mat src = OpenCvImageUtils.decode(imageData);
+            ImageUtils.load();
+            Mat src = ImageUtils.decode(imageData);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }
@@ -183,7 +183,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                 w = Math.max(32, (w / 32) * 32);
                 h = Math.max(32, (h / 32) * 32);
 
-                Mat resized = OpenCvImageUtils.resize(src, w, h, Imgproc.INTER_LINEAR);
+                Mat resized = ImageUtils.resize(src, w, h, Imgproc.INTER_LINEAR);
 
                 float[] pixels = new float[3 * h * w];
                 for (int y = 0; y < h; y++) {

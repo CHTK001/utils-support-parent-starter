@@ -1,5 +1,5 @@
 package com.chua.deeplearning.support.onnx.matting.translator;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.djl.modality.cv.BufferedImageFactory;
 import ai.djl.modality.cv.Image;
@@ -46,7 +46,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：Image → BufferedImage → Mat → 缩放 → CHW 归一化 → float[]
-        OpenCvImageUtils.load();
+        ImageUtils.load();
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         if (buffered == null) {
             throw new IllegalStateException("无法获取图像像素: " + input.getClass().getName());
@@ -68,12 +68,12 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     private float[] preprocess(BufferedImage src) {
         Mat img;
         try {
-            img = OpenCvImageUtils.toMat(src);
+            img = ImageUtils.toMat(src);
         } catch (Exception e) {
             throw new IllegalStateException("图像转换失败", e);
         }
         try {
-            Mat resized = OpenCvImageUtils.resize(img, TARGET_SIZE, TARGET_SIZE, Imgproc.INTER_LINEAR);
+            Mat resized = ImageUtils.resize(img, TARGET_SIZE, TARGET_SIZE, Imgproc.INTER_LINEAR);
 
             float[] pixels = new float[3 * TARGET_SIZE * TARGET_SIZE];
             for (int y = 0; y < TARGET_SIZE; y++) {

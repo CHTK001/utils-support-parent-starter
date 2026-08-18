@@ -8,7 +8,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.utils.OpenCvImageUtils;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -205,7 +205,7 @@ public class FastNeuralStyleTranslator implements Translator<Image, Image> {
      * @return 目标图
      */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
-        return OpenCvImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+        return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
     }
 
     @Override

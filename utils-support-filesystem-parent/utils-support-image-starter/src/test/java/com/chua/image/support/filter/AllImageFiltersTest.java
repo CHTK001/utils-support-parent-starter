@@ -101,13 +101,26 @@ public class AllImageFiltersTest {
                         totalSkipped++;
                         continue;
                     }
-                    String format = ext.equalsIgnoreCase(".jpg") ? "jpg" : ext.replace(".", "");
+                    String lower = ext.toLowerCase();
+                    String format;
+                    if (lower.equals(".jpg") || lower.equals(".jpeg")) {
+                        format = "jpg";
+                    } else {
+                        format = lower.replace(".", "");
+                    }
                     if (format.equals("webp")) {
                         format = "png";
                     }
-                    ImageIO.write(toRgbIfNeeded(result), format, outFile.toFile());
-                    System.out.println("    [ OK ] " + imageName + " -> " + outFile.getFileName());
-                    totalSuccess++;
+                    boolean noAlpha = "jpg".equalsIgnoreCase(format) || "bmp".equalsIgnoreCase(format);
+                    BufferedImage toWrite = noAlpha ? toRgbIfNeeded(result) : result;
+                    boolean written = ImageIO.write(toWrite, format, outFile.toFile());
+                    if (!written) {
+                        System.out.println("    [FAIL] " + imageName + " : ImageIO.write returned false (no writer for format=" + format + ")");
+                        totalFailed++;
+                    } else {
+                        System.out.println("    [ OK ] " + imageName + " -> " + outFile.getFileName());
+                        totalSuccess++;
+                    }
                 } catch (Throwable t) {
                     System.out.println("    [FAIL] " + imageName + " : " + t.getClass().getSimpleName() + " - " + t.getMessage());
                     totalFailed++;
@@ -135,7 +148,8 @@ public class AllImageFiltersTest {
      * 当输出格式不包含 alpha 通道(jpg/bmp)时, 将带 alpha 通道的图像转为 RGB
      */
     private static BufferedImage toRgbIfNeeded(BufferedImage src) {
-        if (src.getType() == BufferedImage.TYPE_INT_RGB || src.getType() == BufferedImage.TYPE_INT_ARGB) {
+        int type = src.getType();
+        if (type == BufferedImage.TYPE_INT_RGB) {
             return src;
         }
         BufferedImage rgb = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -188,6 +202,18 @@ public class AllImageFiltersTest {
                         throw new RuntimeException(e);
                     }
                     return new TextImgWaterImageFilter("CH", logo, com.chua.common.support.constant.Position.RIGHT_BOTTOM);
+                }));
+        map.put("sized", new FilterEntry("按比例缩放", () -> new ImageSizedFilter(0.5d)));
+        map.put("width", new FilterEntry("按宽高缩放", () -> new ImageWidthFilter(200, 200)));
+        map.put("imageWater", new FilterEntry("图片水印",
+                () -> {
+                    byte[] logo;
+                    try {
+                        logo = readSmallLogo();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return new ImageWaterImageFilter(logo, com.chua.common.support.constant.Position.RIGHT_BOTTOM);
                 }));
         return map;
     }
