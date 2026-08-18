@@ -32,8 +32,7 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
         // 纯 Java 预处理：resize 到 448x448，RGB 归一化到 [0,1]，NHWC 布局
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         int size = INPUT_SIZE;
-        BufferedImage resized = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-        resized.getGraphics().drawImage(src, 0, 0, size, size, null);
+        BufferedImage resized = OpenCvImageUtils.resize(src, size, size, org.opencv.imgproc.Imgproc.INTER_LINEAR);
 
         int[] rgb = resized.getRGB(0, 0, size, size, null, 0, size);
         float[] data = new float[size * size * 3];

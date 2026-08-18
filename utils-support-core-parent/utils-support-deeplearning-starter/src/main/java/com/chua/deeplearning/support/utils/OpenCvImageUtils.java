@@ -194,6 +194,29 @@ public final class OpenCvImageUtils {
     }
 
     /**
+     * BufferedImage 按指定宽高缩放。
+     *
+     * @param image         源图像
+     * @param width         目标宽
+     * @param height        目标高
+     * @param interpolation 插值方式（Imgproc.INTER_*）
+     * @return 缩放后的 BufferedImage
+     */
+    public static BufferedImage resize(BufferedImage image, int width, int height, int interpolation) {
+        Mat src = toMat(image);
+        try {
+            Mat resized = resize(src, width, height, interpolation);
+            try {
+                return toBufferedImage(resized);
+            } finally {
+                resized.release();
+            }
+        } finally {
+            src.release();
+        }
+    }
+
+    /**
      * 图像字节按指定宽高缩放（返回 PNG 字节）。
      *
      * @param imageData     图像字节

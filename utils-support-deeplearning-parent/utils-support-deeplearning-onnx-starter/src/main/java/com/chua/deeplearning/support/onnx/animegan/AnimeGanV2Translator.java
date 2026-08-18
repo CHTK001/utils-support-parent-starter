@@ -10,6 +10,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -182,12 +183,7 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
      * @return 目标图
      */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
-        java.awt.image.BufferedImage out = new java.awt.image.BufferedImage(dw, dh, java.awt.image.BufferedImage.TYPE_INT_RGB);
-        java.awt.Graphics2D g = out.createGraphics();
-        g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g.drawImage(src, 0, 0, dw, dh, null);
-        g.dispose();
-        return out;
+        return OpenCvImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
     }
 
     @Override

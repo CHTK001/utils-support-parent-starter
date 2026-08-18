@@ -14,6 +14,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -43,8 +44,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     public NDList processInput(TranslatorContext ctx, Image input) {
         // 纯 Java 预处理（BufferedImage resize + RGB 归一化），避免 ONNX NDArray 不支持的算术/图像操作
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = new BufferedImage(INPUT_SIZE, INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
-        resized.getGraphics().drawImage(src, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
+        BufferedImage resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
 
         int[] rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];

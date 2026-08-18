@@ -84,9 +84,12 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
         }
         for (DispatcherDefinition definition : definitions) {
             try {
+                System.err.println("[IonetDispatcher] dispatch -> " + definition);
                 definition.dispatch(body);
+                System.err.println("[IonetDispatcher] dispatch done");
             } catch (Exception e) {
                 log.error("ionet 事件分发异常，主题：{}", topic, e);
+                System.err.println("[IonetDispatcher] dispatch ERROR: " + e);
             }
         }
     }

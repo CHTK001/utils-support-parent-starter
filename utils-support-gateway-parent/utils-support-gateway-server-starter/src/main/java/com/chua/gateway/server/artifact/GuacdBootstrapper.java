@@ -175,31 +175,53 @@ public final class GuacdBootstrapper {
         boolean isLinux = !isWindows && !isMac && (os.contains("linux") || os.contains("nix"));
 
         log.info("[guacd-bootstrapper] OS 探测: {}", os);
-        log.info("[guacd-bootstrapper] 引导顺序: LocalOverrideResolver 下载 → local-override → classpath jar → package manager");
+        log.info("[guacd-bootstrapper] 引导顺序: local-override → classpath jar → 源码编译 → Linux 包管理器 → 系统路径");
 
         Path guacdBin = null;
         String source = null;
 
-        // 0. GuacdArtifact 下载 + 解压（source tarball）
-        try {
-            RuntimeArtifact art = GuacdArtifact.createDefault();
-            if (art.getDownloadUrl() != null) {
-                log.info("[guacd-bootstrapper] 下载 guacd artifact: {} → cache", art.getDownloadUrl());
-                Path downloaded = LocalOverrideResolver.ensure(
-                        "guacd", GuacdArtifact.DEFAULT_VERSION,
-                        GuacdArtifact.binaryRelativePath(),
-                        art.getDownloadUrl());
-                if (Files.exists(downloaded)) {
-                    guacdBin = downloaded;
-                    source = "downloaded-tarball";
-                    log.info("[guacd-bootstrapper] ✓ 下载完成: {}", guacdBin);
-                }
-            }
-        } catch (Exception ex) {
-            log.warn("[guacd-bootstrapper] 下载失败: {}（继续走其他路径）", ex.getMessage());
+        // 1. local-override 已有 guacd？
+        guacdBin = findGuacdInLocalOverride();
+        if (guacdBin != null) {
+            source = "local-override";
+            log.info("[guacd-bootstrapper] ✓ 命中 local-override: {}", guacdBin);
         }
 
-        // 0.5 尝试编译已下载的 source（如有 gcc + 编译依赖）
+        // 2. classpath 内嵌 zip（Windows/Linux 预编译，纯代码一键式）
+        if (guacdBin == null) {
+            try {
+                guacdBin = extractFromClasspath(isWindows, isLinux);
+                if (guacdBin != null) {
+                    source = "classpath-zip";
+                    log.info("[guacd-bootstrapper] ✓ 从 classpath 解压预编译 guacd: {}", guacdBin);
+                }
+            } catch (IOException ex) {
+                log.warn("[guacd-bootstrapper] classpath 解压失败: {}", ex.getMessage());
+            }
+        }
+
+        // 3. GuacdArtifact 下载 tarball + 解压（官方 source tarball）
+        if (guacdBin == null) {
+            try {
+                RuntimeArtifact art = GuacdArtifact.createDefault();
+                if (art.getDownloadUrl() != null) {
+                    log.info("[guacd-bootstrapper] 下载 guacd artifact: {} → cache", art.getDownloadUrl());
+                    Path downloaded = LocalOverrideResolver.ensure(
+                            "guacd", GuacdArtifact.DEFAULT_VERSION,
+                            GuacdArtifact.binaryRelativePath(),
+                            art.getDownloadUrl());
+                    if (Files.exists(downloaded)) {
+                        guacdBin = downloaded;
+                        source = "downloaded-tarball";
+                        log.info("[guacd-bootstrapper] ✓ 下载完成: {}", guacdBin);
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("[guacd-bootstrapper] 下载失败: {}（继续走其他路径）", ex.getMessage());
+            }
+        }
+
+        // 3.5 尝试编译已下载的 source（如有 gcc + 编译依赖）
         if (guacdBin == null) {
             try {
                 Path sourceDir = Paths.get(
@@ -223,29 +245,7 @@ public final class GuacdBootstrapper {
             }
         }
 
-        // 1. local-override 已有 guacd？
-        if (guacdBin == null) {
-            guacdBin = findGuacdInLocalOverride();
-            if (guacdBin != null) {
-                source = "local-override";
-                log.info("[guacd-bootstrapper] ✓ 命中 local-override: {}", guacdBin);
-            }
-        }
-
-        // 2. classpath 内嵌 zip？
-        if (guacdBin == null) {
-            try {
-                guacdBin = extractFromClasspath(isWindows, isLinux);
-                if (guacdBin != null) {
-                    source = "classpath-zip";
-                    log.info("[guacd-bootstrapper] ✓ 从 classpath 解压: {}", guacdBin);
-                }
-            } catch (IOException ex) {
-                log.warn("[guacd-bootstrapper] classpath 解压失败: {}", ex.getMessage());
-            }
-        }
-
-        // 3. Linux 包管理器安装
+        // 4. Linux 包管理器安装
         if (guacdBin == null && isLinux) {
             log.info("[guacd-bootstrapper] 尝试 Linux 包管理器安装 guacd...");
             try {
@@ -263,7 +263,7 @@ public final class GuacdBootstrapper {
             }
         }
 
-        // 4. 兜底：Linux 常见系统路径
+        // 5. 兜底：Linux 常见系统路径
         if (guacdBin == null && (isLinux || isMac)) {
             for (String p : new String[]{"/usr/sbin/guacd", "/usr/local/sbin/guacd", "/opt/guacamole/sbin/guacd"}) {
                 if (Files.exists(Paths.get(p))) {
@@ -275,7 +275,7 @@ public final class GuacdBootstrapper {
             }
         }
 
-        // 5. 全部失败
+        // 6. 全部失败
         if (guacdBin == null) {
             log.warn("[guacd-bootstrapper] ✗ 未找到 guacd。RDP/VNC 协议不可用，但 SSH / WebSocket 仍可用。");
             log.warn("[guacd-bootstrapper] 提示:");
@@ -285,7 +285,7 @@ public final class GuacdBootstrapper {
             return null;
         }
 
-        // 6. 启动 guacd 子进程
+        // 7. 启动 guacd 子进程
         try {
             return startGuacd(guacdBin, source);
         } catch (IOException ex) {
@@ -406,6 +406,8 @@ public final class GuacdBootstrapper {
         pb.directory(guacdBin.getParent().getParent().toFile());
         // 把 guacd stdout/stderr 透传到 gateway stdout
         pb.inheritIO();
+        // 为 classpath 解压的预编译 guacd 设置动态库搜索路径（lib/ 目录）
+        configureLibraryPath(pb, guacdBin);
         // guacd 是 C 进程不能用 ProcessHandle 直接看 alive；
         // 用 isAlive() 周期性检查
         log.info("[guacd-bootstrapper] 启动 guacd: {} (port={})", String.join(" ", cmd), port);
@@ -447,6 +449,57 @@ public final class GuacdBootstrapper {
         }, "guacd-shutdown"));
 
         return new GuacdHandle(proc, guacdBin, port, source);
+    }
+
+    /**
+     * 配置 guacd 子进程的动态库搜索路径。
+     *
+     * <p>对于从 classpath zip 解压的预编译 guacd（内含 {@code lib/} 与 {@code lib/freerdp2/}），
+     * 设置 {@code LD_LIBRARY_PATH}（Linux/macOS 用 {@code DYLD_LIBRARY_PATH}，Windows 用 PATH），
+     * 使 guacd 能加载内嵌的 guac client 插件库，实现纯代码一键式启动。</p>
+     *
+     * @param pb        子进程构建器
+     * @param guacdBin  guacd 可执行文件路径（约定解压布局为 {@code .../{version}/sbin/guacd}）
+     */
+    private static void configureLibraryPath(ProcessBuilder pb, Path guacdBin) {
+        Path parentDir = guacdBin.getParent();
+        if (parentDir == null) {
+            return;
+        }
+        Path versionDir = parentDir.getParent();
+        if (versionDir == null) {
+            return;
+        }
+        Path libDir = versionDir.resolve("lib");
+        if (!Files.isDirectory(libDir)) {
+            return;
+        }
+        String os = System.getProperty("os.name", "").toLowerCase();
+        String libPathKey;
+        String dirSeparator;
+        if (os.contains("windows")) {
+            libPathKey = "PATH";
+            dirSeparator = ";";
+        } else if (os.contains("mac")) {
+            libPathKey = "DYLD_LIBRARY_PATH";
+            dirSeparator = ":";
+        } else {
+            libPathKey = "LD_LIBRARY_PATH";
+            dirSeparator = ":";
+        }
+        String joiner = dirSeparator;
+        StringBuilder libPath = new StringBuilder();
+        // freerdp2 插件库优先
+        libPath.append(libDir.resolve("freerdp2"));
+        libPath.append(joiner);
+        libPath.append(libDir);
+        Map<String, String> env = pb.environment();
+        String existing = env.get(libPathKey);
+        if (existing != null && !existing.trim().isEmpty()) {
+            libPath.append(joiner).append(existing);
+        }
+        env.put(libPathKey, libPath.toString());
+        log.info("[guacd-bootstrapper] 已设置 {} = {}", libPathKey, libPath);
     }
 
     /**

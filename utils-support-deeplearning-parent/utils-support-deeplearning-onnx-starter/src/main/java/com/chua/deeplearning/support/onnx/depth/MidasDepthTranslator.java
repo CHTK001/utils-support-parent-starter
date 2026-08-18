@@ -10,8 +10,8 @@ import ai.djl.ndarray.types.DataType;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 
@@ -124,14 +124,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
             }
         }
 
-        BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        Graphics2D graphics = scaled.createGraphics();
-        try {
-            graphics.drawImage(bufferedImage, 0, 0, width, height, null);
-        }
-finally {
-            graphics.dispose();
-        }
+        BufferedImage scaled = OpenCvImageUtils.resize(bufferedImage, width, height, org.opencv.imgproc.Imgproc.INTER_LINEAR);
 
         return ImageFactory.getInstance().fromImage(scaled);
     }

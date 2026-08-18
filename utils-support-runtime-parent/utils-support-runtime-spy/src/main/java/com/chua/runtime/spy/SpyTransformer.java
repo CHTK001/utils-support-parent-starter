@@ -543,17 +543,45 @@ public class SpyTransformer implements ClassFileTransformer {
 
         @Override
         protected void onMethodExit(int opcode) {
-            // 插入所有 post 系插桩点（方法正常出口）
+            // 非 void 返回值方法：先把返回值存入临时 local，插入插桩调用后再恢复，
+            // 否则 long/double 等两槽返回值会与 onIntercept 参数压栈冲突导致 VerifyError
+            boolean hasValue = isValueReturn(opcode);
+            int returnSlot = -1;
+            Type returnType = null;
+            if (hasValue) {
+                returnType = Type.getReturnType(methodDescriptor);
+                returnSlot = newLocal(returnType);
+                mv.visitVarInsn(returnType.getOpcode(Opcodes.ISTORE), returnSlot);
+            }
+            // 插入所有 post 系插桩点（方法正常出口；异常路径由 EXCEPTION 独立处理）
             for (InterceptPoint point : points) {
                 if (isPostPoint(point)) {
                     insertInterceptCall(point);
                 }
+            }
+            // 恢复返回值
+            if (hasValue && returnType != null && returnSlot >= 0) {
+                mv.visitVarInsn(returnType.getOpcode(Opcodes.ILOAD), returnSlot);
             }
             // 标记 try 范围终点（异常插桩需要）
             if (points.contains(InterceptPoint.EXCEPTION)) {
                 tryEnd = new Label();
                 mv.visitLabel(tryEnd);
             }
+        }
+
+        /**
+         * 判断方法出口是否为普通返回（有操作数返回值）。
+         *
+         * <p>排除 RETURN（void）与 ATHROW（异常路径，栈顶是异常对象而非返回值，由 EXCEPTION 独立处理）。</p>
+         *
+         * @param opcode 出口操作码
+         * @return 是值返回返回 true
+         */
+        private boolean isValueReturn(int opcode) {
+            return opcode == Opcodes.IRETURN || opcode == Opcodes.LRETURN
+                    || opcode == Opcodes.FRETURN || opcode == Opcodes.DRETURN
+                    || opcode == Opcodes.ARETURN;
         }
 
         @Override

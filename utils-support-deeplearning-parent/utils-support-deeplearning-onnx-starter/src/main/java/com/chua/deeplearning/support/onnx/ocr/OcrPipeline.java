@@ -617,44 +617,23 @@ public class OcrPipeline {
             return imageData;
         }
         try {
-            Mat src = OpenCvImageUtils.decode(imageData);
-            if (src == null || src.empty()) {
+            String[] dir = classifyBytesProb(imageData);
+            String cls = dir[0];
+            float prob = Float.parseFloat(dir[1]);
+            // 置信度低于 0.6 时跳过矫正
+            if (prob < 0.6f) {
                 return imageData;
             }
-            try {
-                int w = src.cols(), h = src.rows();
-                // 正方形或横向（宽 >= 高）：方向模型直接判 0°/180°
-                // 仅明显纵向（高显著大于宽，如 1.2 倍以上）才按 90°/270° 处理，
-                // 避免正方形/近似正方形图片被误旋转
-                boolean landscape = w >= h;
-                boolean stronglyPortrait = h > (int) (w * 1.2f);
-                int rotate = 0;
-                if (landscape) {
-                    String[] dir = classifyBytesProb(OpenCvImageUtils.encode(src));
-                    if ("180".equals(dir[0])) {
-                        rotate = 180;
-                    }
-                } else if (stronglyPortrait) {
-                    byte[] tmp = OpenCvImageUtils.rotate(imageData, 90);
-                    String[] dir = classifyBytesProb(tmp);
-                    // 纵向图：旋转90°（顺时针）后判方向
-                    // 判 0 → 当前图再顺时针90°即正确（原图是逆时针90°）
-                    // 判 180 → 当前图再逆时针90°即正确（原图是顺时针90°）
-                    rotate = "180".equals(dir[0]) ? 270 : 90;
-                } else {
-                    // 近似正方形（宽高接近）：直接用方向模型判 0°/180°
-                    String[] dir = classifyBytesProb(OpenCvImageUtils.encode(src));
-                    if ("180".equals(dir[0])) {
-                        rotate = 180;
-                    }
-                }
-                if (rotate == 0) {
-                    return imageData;
-                }
-                return OpenCvImageUtils.rotate(imageData, rotate);
-            } finally {
-                src.release();
+            int rotate = 0;
+            switch (cls) {
+                case "90" -> rotate = 270;  // 顺时针转 270° = 逆时针 90°
+                case "180" -> rotate = 180;
+                case "270" -> rotate = 90;   // 顺时针转 90°
             }
+            if (rotate == 0) {
+                return imageData;
+            }
+            return OpenCvImageUtils.rotate(imageData, rotate);
         } catch (Exception e) {
             log.warn("[ocr-pipeline] 方向矫正失败，使用原图: {}", e.getMessage());
             return imageData;

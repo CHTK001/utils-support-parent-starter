@@ -9,10 +9,9 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
@@ -44,11 +43,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         // 纯 Java 预处理：AWT BICUBIC resize + CHW 标准化，
         // 避免 NDImageUtils.resize / NDArray 张量运算在部分 engine（Rust/ONNX）不受支持
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = new BufferedImage(INPUT_SIZE, INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = resized.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g.drawImage(src, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
-        g.dispose();
+        BufferedImage resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_CUBIC);
 
         int total = INPUT_SIZE * INPUT_SIZE;
         float[] data = new float[3 * total];
