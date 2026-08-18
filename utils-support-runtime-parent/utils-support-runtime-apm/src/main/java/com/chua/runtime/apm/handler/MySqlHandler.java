@@ -76,10 +76,10 @@ public class MySqlHandler extends AbstractAppHandler {
 
     @Override
     protected void registerInterceptors() {
-        registerAll(MYSQL_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(MYSQL_CLIENT_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(MYSQL_SERVER_PREPARED_STATEMENT_CLASS, SQL_METHODS);
-        registerAll(MYSQL_CONNECTION_CLASS, CONNECTION_METHODS);
+        registerAllEntryExit(MYSQL_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(MYSQL_CLIENT_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(MYSQL_SERVER_PREPARED_STATEMENT_CLASS, SQL_METHODS);
+        registerAllEntryExit(MYSQL_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
     @Override
