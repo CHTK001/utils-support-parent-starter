@@ -73,4 +73,12 @@ public class DispatcherConfig {
      */
     @Builder.Default
     private int maxBatchSize = 100;
+
+    /**
+     * Chronicle mmap 块大小（字节）。控制内存映射文件块粒度，
+     * 大块减少 mmap 调用次数（高吞吐，占内存多）；小块降低内存占用。
+     * 默认 64MB。
+     */
+    @Builder.Default
+    private long blockSize = 64L * 1024 * 1024;
 }

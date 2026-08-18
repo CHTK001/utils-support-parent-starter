@@ -125,6 +125,12 @@ public class KcpClient {
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
+     * 跨包接收缓冲：服务端批量聚合后一条 KCP 消息可能含多条 \n 分隔的消息，
+     * 且大消息会被分包到达（每次 handleReceive 只是碎片），未完成行保留到下一包。
+     */
+    private final StringBuilder receiveBuffer = new StringBuilder(256);
+
+    /**
      * 主题订阅处理器表（topic -> handler 列表）
      */
     private final Map<String, List<BiConsumer<String, String>>> topicSubscribers = new ConcurrentHashMap<>();
@@ -520,15 +526,25 @@ public class KcpClient {
         @Override
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
             // kcp-base 1.6.2 ReadTask 自行管理 ByteBuf 引用计数，此处不可 release（双重释放会 IllegalReferenceCountException）
-            String data = byteBuf.toString(StandardCharsets.UTF_8);
-            // 服务端批量聚合：一个 KCP 包可能含多条 \n 分隔的消息，逐行分发
-            String[] lines = data.split("\\n");
-            for (String line : lines) {
-                String trimmed = line.trim();
-                if (trimmed.isEmpty()) {
-                    continue;
+            // 服务端批量聚合 + KCP 分包：追加到跨包缓冲，按 \n 切出完整行分发，未完成行保留
+            synchronized (receiveBuffer) {
+                receiveBuffer.append(byteBuf.toString(StandardCharsets.UTF_8));
+                String buffered = receiveBuffer.toString();
+                int newline = buffered.lastIndexOf('\n');
+                if (newline < 0) {
+                    return; // 无完整行，全部保留
                 }
-                handleLine(trimmed);
+                String complete = buffered.substring(0, newline);
+                receiveBuffer.setLength(0);
+                receiveBuffer.append(buffered.substring(newline + 1));
+                String[] lines = complete.split("\\n");
+                for (String line : lines) {
+                    String trimmed = line.trim();
+                    if (trimmed.isEmpty()) {
+                        continue;
+                    }
+                    handleLine(trimmed);
+                }
             }
         }
 

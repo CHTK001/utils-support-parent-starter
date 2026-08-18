@@ -108,17 +108,24 @@ public class KcpServer extends AbstractServer {
     private final Map<String, Ukcp> sessions = new HashMap<>();
 
     /**
-     * 批量发送队列（clientId -> 待发送消息字节，无锁队列）
+     * 批量发送队列（连接 -> 待发送消息字节，无锁队列）
      * <p>publish/send 只入队，由批量 flusher 合并多条消息为一个 KCP 包写出，
      * 显著减少逐条 write 与 ACK 确认次数（KCP 可靠确认是下行吞吐主瓶颈）。</p>
      */
-    private final Map<String, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> batchQueues =
-            new ConcurrentHashMap<>();
+    private final Map<Ukcp, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> batchQueues =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
-     * 批量 flusher（虚拟线程）：周期性合并队列消息写出。
+     * 批量 flusher 列表（虚拟线程，按连接 hash 分片并发冲刷）。
      */
-    private volatile Thread batchFlusher;
+    private volatile List<Thread> batchFlushers = new ArrayList<>();
+
+    /**
+     * 批量 flusher 生命周期标志。
+     * <p>不能复用 {@code running}（AbstractServer.start() 先 doStart 后置 running=true，
+     * doStart 内启动的 flusher 会因 running=false 立即退出导致批量队列永不冲刷）。</p>
+     */
+    private final java.util.concurrent.atomic.AtomicBoolean batchRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     /**
      * 客户端元数据集合（clientId -> Map）
@@ -176,6 +183,11 @@ public class KcpServer extends AbstractServer {
     private EventLoopGroup eventLoopGroup;
 
     /**
+     * 虚拟线程执行器（响应式 IO 回调）
+     */
+    private java.util.concurrent.ExecutorService virtualExecutor;
+
+    /**
      * kcp-base 服务器实例
      */
     private kcp.KcpServer kcpBaseServer;
@@ -222,33 +234,50 @@ public class KcpServer extends AbstractServer {
         channelConfig.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
 
         kcpBaseServer = kcp.KcpServer.createStarted(channelConfig, new OAuthKcpListener(), setting.getPort());
-        // 启动批量 flusher：合并队列消息为一个 KCP 包写出（虚拟线程，interval 粒度）
-        batchFlusher = Thread.ofVirtual().name("kcp-batch-flusher").start(() -> {
-            while (running) {
-                try {
-                    Thread.sleep(KCP_INTERVAL);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
+        // 启动批量 flusher 多实例：按连接 hash 分片，多个虚拟线程并发合并写出，
+        // 避免单 flusher 串行瓶颈（无锁 ConcurrentLinkedQueue 入队，无锁并发安全）
+        int flusherCount = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 8));
+        batchFlushers = new ArrayList<>(flusherCount);
+        batchRunning.set(true);
+        for (int i = 0; i < flusherCount; i++) {
+            final int shard = i;
+            Thread flusher = Thread.ofVirtual().name("kcp-batch-flusher-" + shard).start(() -> {
+                while (batchRunning.get()) {
+                    try {
+                        Thread.sleep(KCP_INTERVAL);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                    flushBatches(shard, flusherCount);
                 }
-                flushBatches();
-            }
-        });
-        log.info("KCP 服务器启动: {}:{} (响应式, bossCore={}, 虚拟线程)", setting.getHost(), setting.getPort(), setting.getBossThreads());
+            });
+            batchFlushers.add(flusher);
+        }
+        log.info("KCP 服务器启动: {}:{} (响应式, bossCore={}, 虚拟线程, flushers={})",
+                setting.getHost(), setting.getPort(), setting.getBossThreads(), flusherCount);
     }
 
     /**
-     * 批量冲刷：把每个连接的待发送消息合并为一个 KCP 包（\n 分隔）写出。
+     * 批量冲刷（分片）：只处理本分片内的连接，多个 flusher 并发执行。
      * <p>合并多条消息为一次 {@code ukcp.write}，减少 KCP 包数 → 减少 ACK 确认次数，
      * 直击"可靠确认是下行吞吐主瓶颈"。</p>
+     *
+     * @param shard 当前分片号
+     * @param total 分片总数
      */
-    private void flushBatches() {
-        for (Map.Entry<String, Ukcp> entry : sessions.entrySet()) {
-            java.util.concurrent.ConcurrentLinkedQueue<byte[]> queue = batchQueues.get(entry.getKey());
+    private void flushBatches(int shard, int total) {
+        int idx = 0;
+        for (Map.Entry<Ukcp, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> entry : batchQueues.entrySet()) {
+            // 按连接 hash 分片，各 flusher 只冲刷自己的连接，无锁并发不冲突
+            if ((idx++ & 0x7fffffff) % total != shard) {
+                continue;
+            }
+            java.util.concurrent.ConcurrentLinkedQueue<byte[]> queue = entry.getValue();
             if (queue == null || queue.isEmpty()) {
                 continue;
             }
-            Ukcp ukcp = entry.getValue();
+            Ukcp ukcp = entry.getKey();
             if (ukcp == null || !ukcp.isActive()) {
                 continue;
             }
@@ -309,8 +338,7 @@ public class KcpServer extends AbstractServer {
      * @param bytes 消息字节
      */
     private void sendTo(Ukcp ukcp, byte[] bytes) {
-        String clientId = ukcp.getId();
-        batchQueues.computeIfAbsent(clientId, k -> new java.util.concurrent.ConcurrentLinkedQueue<>()).offer(bytes);
+        batchQueues.computeIfAbsent(ukcp, k -> new java.util.concurrent.ConcurrentLinkedQueue<>()).offer(bytes);
     }
 
     /**
@@ -328,7 +356,9 @@ public class KcpServer extends AbstractServer {
         sendTo(ukcp, topic + ":" + message);
     }
     private void sendTo(Ukcp ukcp, String text) {
-        ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
+        // 统一以 \n 结尾：客户端按行切分（批量聚合后跨包缓冲依赖 \n 边界），
+        // 注册确认 registered:xxx 也必须带 \n，否则客户端永远等不到 registered
+        ByteBuf buf = Unpooled.copiedBuffer(text + "\n", StandardCharsets.UTF_8);
         try {
             ukcp.write(buf);
         } finally {
