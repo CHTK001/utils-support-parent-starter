@@ -42,8 +42,17 @@ import java.util.function.Consumer;
 @Slf4j
 public class IonetSyncServer implements SyncServer {
 
+    /**
+     * 底层委托的 ionet 服务器
+     */
     private final IonetServer delegate;
+    /**
+     * 服务器线程引用
+     */
     private final AtomicReference<Thread> serverThread = new AtomicReference<>();
+    /**
+     * 启动完成信号门闩
+     */
     private final CountDownLatch startupLatch = new CountDownLatch(1);
     /** 客户端元数据（clientId -> metadata） */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
@@ -424,6 +433,9 @@ public class IonetSyncServer implements SyncServer {
     }
 
     public static class Builder {
+        /**
+         * 内部 IonetServer 构建器
+         */
         private final IonetServer.Builder serverBuilder = IonetServer.builder();
 
         public Builder port(int port) { serverBuilder.port(port); return this; }

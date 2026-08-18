@@ -1,4 +1,4 @@
-package com.recovery;
+﻿package com.recovery;
 
 import com.chua.common.support.utils.NativeUtils;
 
@@ -7,6 +7,7 @@ import com.chua.common.support.utils.NativeUtils;
  *
  * Maven 依赖引用:
  * - com.chua:utils-support-common-starter (提供 NativeUtils)
+ * @author CH
  * - com.fasterxml.jackson.core:jackson-databind (JSON 解析)
  */
 public class DataRecoveryTest {

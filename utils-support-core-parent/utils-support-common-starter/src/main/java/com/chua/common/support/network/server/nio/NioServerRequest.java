@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 将数据 {@link #feed(ByteBuffer)} 进来,内部状态机推进:
  * {@code REQUEST_LINE → HEADERS → BODY → COMPLETE}。</p>
  *
+ * @author CH
  * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
  */
 public class NioServerRequest implements ServerRequest {
@@ -424,3 +425,4 @@ public class NioServerRequest implements ServerRequest {
         chunkHeaderPending = false;
     }
 }
+

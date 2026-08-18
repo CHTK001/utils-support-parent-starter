@@ -66,6 +66,7 @@ public class TcpProxyServer extends AbstractProxyServer {
      */
     public TcpProxyServer(ServerSetting setting) {
         super(setting);
+        initProxy();
         this.targetResolver = remote -> null;
         this.connectTimeoutMs = setting.getReadTimeout();
         this.readTimeoutMs = setting.getWriteTimeout();
@@ -79,6 +80,7 @@ public class TcpProxyServer extends AbstractProxyServer {
      */
     public TcpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
+        initProxy();
         this.targetResolver = targetResolver;
         this.connectTimeoutMs = setting.getReadTimeout();
         this.readTimeoutMs = setting.getWriteTimeout();
@@ -97,6 +99,7 @@ public class TcpProxyServer extends AbstractProxyServer {
                           int connectTimeoutMs,
                           int readTimeoutMs) {
         super(setting);
+        initProxy();
         this.targetResolver = targetResolver;
         this.connectTimeoutMs = connectTimeoutMs;
         this.readTimeoutMs = readTimeoutMs;
@@ -110,6 +113,14 @@ public class TcpProxyServer extends AbstractProxyServer {
      */
     public TcpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         this(setting, remote -> backend);
+    }
+
+    /**
+     * 启用非阻塞事件循环批量 accept：Selector 每轮循环 accept 全部就绪连接并批量提交，
+     * 瞬时接纳吞吐显著高于阻塞 accept 一次一个，缓解万级突发下的连接被拒（父类支持，默认关闭）。
+     */
+    private void initProxy() {
+        this.preferNonBlockingAccept = true;
     }
 
     @Override

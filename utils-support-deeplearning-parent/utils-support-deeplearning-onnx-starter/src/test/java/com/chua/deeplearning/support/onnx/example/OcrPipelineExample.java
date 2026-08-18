@@ -36,7 +36,7 @@ public final class OcrPipelineExample extends ExampleBase {
         OcrPipeline ocr = OcrPipeline.builder()
                 .detector("paddleocrv6-medium-det")
                 .recognizer("paddleocrv6-medium-rec")
-                .directionModel("pp-word-rotate")
+                .direction("doc-orientation")
                 .build();
 
         long t0 = System.currentTimeMillis();

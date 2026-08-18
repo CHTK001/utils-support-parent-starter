@@ -123,7 +123,7 @@ public class LayoutPipeline {
          * @return LayoutPipeline
          */
         public LayoutPipeline build() {
-            return new LayoutPipeline(model);
+            return new LayoutPipeline(model, null);
         }
     }
 

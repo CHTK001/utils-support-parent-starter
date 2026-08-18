@@ -133,6 +133,9 @@ public class ArmeriaHttpServer extends AbstractServer {
      */
     static class ArmeriaServerResponse implements ServerResponse {
 
+        /**
+         * Armeria 服务请求上下文
+         */
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
 
         /**
@@ -353,8 +356,13 @@ public class ArmeriaHttpServer extends AbstractServer {
      */
     static class ArmeriaServerRequest implements ServerRequest {
 
+        /**
+         * Armeria 服务请求上下文
+         */
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
-
+        /**
+         * 聚合后的 HTTP 请求
+         */
         private final com.linecorp.armeria.common.AggregatedHttpRequest aggReq;
 
         /**

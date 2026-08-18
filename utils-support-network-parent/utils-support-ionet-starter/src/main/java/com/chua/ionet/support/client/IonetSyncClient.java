@@ -43,16 +43,46 @@ import java.util.function.Consumer;
 @Slf4j
 public class IonetSyncClient implements SyncClient {
 
+    /**
+     * 服务器主机地址
+     */
     private final String host;
+    /**
+     * 服务器端口号
+     */
     private final int port;
+    /**
+     * 连接方式（TCP/WebSocket）
+     */
     private final ExternalJoinEnum joinType;
+    /**
+     * 输入命令区域列表
+     */
     private final List<InputCommandRegion> regions;
+    /**
+     * 客户端用户对象
+     */
     private final ClientUser clientUser;
+    /**
+     * 是否关闭日志输出
+     */
     private final boolean closeLog;
+    /**
+     * 是否关闭控制台输入扫描
+     */
     private final boolean closeScanner;
+    /**
+     * ClientRunOne 自定义配置器
+     */
     private final Consumer<ClientRunOne> configurer;
 
+    /**
+     * 连接就绪信号门闩
+     */
     private final CountDownLatch connectionLatch = new CountDownLatch(1);
+    /**
+     * 连接状态标记
+     */
     private final AtomicBoolean connected = new AtomicBoolean(false);
     /** 客户端元数据 */
     private final Map<String, Object> metadata = new HashMap<>();
@@ -373,13 +403,37 @@ public class IonetSyncClient implements SyncClient {
     }
 
     public static class Builder {
+        /**
+         * 服务器主机地址，默认 127.0.0.1
+         */
         private String host = "127.0.0.1";
+        /**
+         * 服务器端口号，默认取外部全局端口
+         */
         private int port = ExternalGlobalConfig.externalPort;
+        /**
+         * 连接方式，默认 TCP
+         */
         private ExternalJoinEnum joinType = ExternalJoinEnum.TCP;
+        /**
+         * 输入命令区域列表
+         */
         private final List<InputCommandRegion> regions = new ArrayList<>();
+        /**
+         * 客户端用户对象
+         */
         private ClientUser clientUser;
+        /**
+         * 是否关闭日志输出，默认 true
+         */
         private boolean closeLog = true;
+        /**
+         * 是否关闭控制台输入扫描，默认 true
+         */
         private boolean closeScanner = true;
+        /**
+         * ClientRunOne 自定义配置器
+         */
         private Consumer<ClientRunOne> configurer;
 
         public Builder host(String host) { this.host = host; return this; }

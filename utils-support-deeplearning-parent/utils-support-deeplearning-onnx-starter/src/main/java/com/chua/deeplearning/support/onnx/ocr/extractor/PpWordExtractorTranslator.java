@@ -25,7 +25,7 @@ import java.util.Map;
  * {@code utils-support-models-onnx-paddleocrv6-tiny} 提供，NativeLoader 解压。
  * 字符表从 {@code inference.yml} 的 {@code character_dict} 提取（与模型 6906 类对齐，
  * 而非精简的 dict.txt 6623 行）。输入 {@code x [1,3,48,W]}（OpenCV resize 高 48、
- * 按宽高比缩放、归一化、pad），输出 {@code fetch_name_0 [1,seq,classes]}，
+ * 按宽高比缩放、归一化；宽度动态，上限 1920），输出 {@code fetch_name_0 [1,seq,classes]}，
  * CTC 解码 → 识别文本。</p>
  *
  * @author CH
@@ -35,7 +35,7 @@ import java.util.Map;
 public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     private static final int IMG_H = 48;
-    private static final int IMG_W = 320;
+    private static final int IMG_W_MAX = 1920;
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
@@ -169,24 +169,25 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
                 float ratio = (float) srcH / IMG_H;
                 int resizeW = Math.max(1, (int) Math.ceil(srcW / ratio));
                 resizeW = Math.max(resizeW, 16);
-                resizeW = Math.min(resizeW, IMG_W);
+                // 宽度动态（模型 shape=[-1,3,48,-1]），保留原始宽高比，仅限制上限防止超长行 OOM
+                resizeW = Math.min(resizeW, IMG_W_MAX);
 
                 Mat resized = ImageUtils.resize(src, resizeW, IMG_H, Imgproc.INTER_LINEAR);
 
-                float[] pixels = new float[3 * IMG_H * IMG_W];
+                float[] pixels = new float[3 * IMG_H * resizeW];
                 for (int y = 0; y < IMG_H; y++) {
                     for (int x = 0; x < resizeW; x++) {
                         double[] bgr = resized.get(y, x);
-                        int idx = y * IMG_W + x;
+                        int idx = y * resizeW + x;
                         // PP-OCR 输入 BGR 顺序（img_mode=BGR），归一化 (v/255 - 0.5) / 0.5
                         pixels[idx] = (((float) bgr[0] / 255.0f) - MEAN[0]) / STD[0];
-                        pixels[idx + IMG_H * IMG_W] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
-                        pixels[idx + 2 * IMG_H * IMG_W] = (((float) bgr[2] / 255.0f) - MEAN[2]) / STD[2];
+                        pixels[idx + IMG_H * resizeW] = (((float) bgr[1] / 255.0f) - MEAN[1]) / STD[1];
+                        pixels[idx + 2 * IMG_H * resizeW] = (((float) bgr[2] / 255.0f) - MEAN[2]) / STD[2];
                     }
                 }
                 resized.release();
 
-                long[] shape = {1, 3, IMG_H, IMG_W};
+                long[] shape = {1, 3, IMG_H, resizeW};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
                     Map<String, OnnxTensor> inputs = new HashMap<>();
                     inputs.put("x", tensor);

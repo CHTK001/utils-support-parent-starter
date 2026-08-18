@@ -1,10 +1,11 @@
-package com.recovery;
+﻿package com.recovery;
 
 /**
  * 恢复文件测试类
  * 用法: java RecoverTest [drive] [outputDir] [scanMode]
  *   drive: 如 F:\ 或 \\.\F:
  *   outputDir: 恢复文件输出目录 (默认 G:\recovered_files)
+ * @author CH
  *   scanMode: 0=walkdir, 1=raw disk carve, 2=NTFS MFT (默认 1)
  */
 public class RecoverTest {
@@ -88,3 +89,4 @@ public class RecoverTest {
         return String.format("%.1f %s", size, units[unitIndex]);
     }
 }
+

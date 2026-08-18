@@ -34,10 +34,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Spi("zookeeper")
 public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
 
+    /**
+     * 是否已启动标记
+     */
     private final AtomicBoolean started = new AtomicBoolean(false);
+    /**
+     * 服务路径与监听器列表映射
+     */
     private final Map<String, List<ServiceDiscoveryListener>> listeners = new ConcurrentHashMap<>();
+    /**
+     * 删除前的服务状态快照
+     */
     private final Map<String, Set<Discovery>> preDeleteState = new ConcurrentHashMap<>();
+    /**
+     * Curator 客户端实例
+     */
     private CuratorFramework client;
+    /**
+     * ZooKeeper 根路径
+     */
     private String root;
 
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption) {

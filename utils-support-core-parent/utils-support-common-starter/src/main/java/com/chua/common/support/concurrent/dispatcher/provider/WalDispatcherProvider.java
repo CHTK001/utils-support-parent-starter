@@ -241,25 +241,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 反序列化消息体（使用注入序列化器，默认 Jackson）。
-     */
-    private Object readBody(byte[] data) {
-        try {
-            if (serializer == null) {
-                return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
-            }
-            return serializer.deserialize(data, Object.class);
-        } catch (Exception e) {
-            log.warn("WAL 反序列化失败，回退 Jackson", e);
-            try {
-                return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
-            } catch (Exception ex) {
-                throw new RuntimeException("WAL 反序列化失败", ex);
-            }
-        }
-    }
-
-    /**
      * 单 topic 的 append-only WAL 日志文件。
      *
      * <p>写入通过 Reactor {@code Sinks.Many} 队列异步完成：{@link #appendBytes} 将

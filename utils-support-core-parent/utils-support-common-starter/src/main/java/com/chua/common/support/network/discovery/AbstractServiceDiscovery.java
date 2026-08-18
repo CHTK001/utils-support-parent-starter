@@ -271,7 +271,11 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     public ServiceDiscovery updateService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         String normalizedKey = StringUtils.startWithAppend(prefixed, "/");
-        localCache.computeIfPresent(normalizedKey, (k, list) -> {
+        // 使用 compute 而非 computeIfPresent:key 不存在时同样执行(否则新服务被静默丢弃)
+        localCache.compute(normalizedKey, (k, list) -> {
+            if (list == null) {
+                list = new LinkedList<>();
+            }
             for (int i = 0; i < list.size(); i++) {
                 if (discovery.getServerId() != null && discovery.getServerId().equals(list.get(i).getServerId())) {
                     Discovery old = list.get(i);
@@ -281,7 +285,6 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
                 }
             }
             list.add(discovery);
-            addToCache(prefixed, discovery);
             return list;
         });
         incrementServiceVersion();

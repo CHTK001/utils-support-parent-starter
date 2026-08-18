@@ -10,6 +10,7 @@ import com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryS
 import com.chua.common.support.network.server.filter.proxy.ReverseProxyServerFilter;
 import com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver;
 import com.chua.common.support.network.server.proxy.TcpProxyServer;
+import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNodeServer;
 import com.chua.common.support.scatter.ScatterRemoteClient;
 import com.chua.common.support.scatter.ScatterResult;
@@ -47,6 +48,7 @@ public class ClusterNode implements AutoCloseable {
     private ScatterNodeServer nodeServer;
     private int httpPort;
     private int tcpPort;
+    private List<String> registeredPaths = List.of();
 
     public ClusterNode(ClusterSetting clusterSetting) throws Exception {
         this.clusterSetting = clusterSetting;
@@ -130,23 +132,14 @@ public class ClusterNode implements AutoCloseable {
                             return;
                         }
                         try {
-                            // sync 协议为文本行(topic:payload),payload 是字符串;提取 requestId 与 path
-                            String payload = message.toString();
-                            String requestId = null;
-                            String path = null;
-                            int ri = payload.indexOf("\"requestId\":\"");
-                            if (ri >= 0) {
-                                // 前缀 "requestId":" 为 13 字符，偏移 +13 定位 UUID 起始
-                                requestId = payload.substring(ri + 13, payload.indexOf('"', ri + 13));
-                            }
-                            int pi = payload.indexOf("\"path\":\"");
-                            if (pi >= 0) {
-                                path = payload.substring(pi + 8, payload.indexOf('"', pi + 8));
-                            }
-                            if (requestId == null || path == null) {
-                                log.warn("ClusterNode 远程查询消息无法解析: {}", payload);
+                            // sync 协议为文本行(topic:payload),payload 是 ScatterContext.toString() 输出的 JSON
+                            ScatterContext ctx = ScatterContext.fromLine(message.toString());
+                            if (ctx == null) {
+                                log.warn("ClusterNode 远程查询消息无法解析: {}", message);
                                 return;
                             }
+                            String requestId = ctx.getRequestId();
+                            String path = ctx.getPath();
                             java.util.Set<Discovery> services = discovery.getServiceAll(path);
                             Discovery picked = services.stream().findFirst().orElse(null);
                             ScatterResult<Discovery> result =
@@ -168,6 +161,7 @@ public class ClusterNode implements AutoCloseable {
         }
 
         registerSelf(paths);
+        this.registeredPaths = paths;
     }
 
     private void registerSelf(List<String> paths) {
@@ -206,6 +200,15 @@ public class ClusterNode implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        // ① 先注销本节点服务，防止其他节点继续路由到已关闭节点
+        try {
+            for (String path : registeredPaths) {
+                discovery.unregisterService(path, clusterSetting.getNodeId() + "-http");
+                discovery.unregisterService(path, clusterSetting.getNodeId() + "-tcp");
+            }
+        } catch (Exception ignored) {
+        }
+        // ② 按顺序关闭:节点服务 → TCP 代理 → HTTP 服务器 → discovery
         if (nodeServer != null) {
             try {
                 nodeServer.close();
