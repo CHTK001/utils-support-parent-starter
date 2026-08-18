@@ -149,6 +149,42 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
          */
         @Builder.Default
         private int circuitBreakerThreshold = 10;
+
+        /**
+         * 内存安全模式：根据 JVM 最大堆自动计算管线中最大在飞行数，防止 OOM。
+         * 计算公式：{@code maxInFlightRows = (maxMemory * memoryPercent / 100) / estimatedRowBytes}
+         */
+        @Builder.Default
+        private boolean memorySafeEnabled = true;
+
+        /**
+         * 用于内存安全计算的堆内存百分比（默认 30%）
+         */
+        @Builder.Default
+        private int memoryPercent = 30;
+
+        /**
+         * 估算单行数据字节数（Map 开销 + 字段值，默认 256 字节）
+         */
+        @Builder.Default
+        private int estimatedRowBytes = 256;
+
+        /**
+         * 计算最大在飞行数（受 {@link #memorySafeEnabled} 控制）。
+         *
+         * @param batchSize 当前批次大小
+         * @return publishOn prefetch 值
+         */
+        public int computePrefetch(int batchSize) {
+            if (!memorySafeEnabled) {
+                return 256;
+            }
+            long maxMem = Runtime.getRuntime().maxMemory();
+            long available = maxMem * memoryPercent / 100;
+            long maxRows = available / Math.max(estimatedRowBytes, 1);
+            int prefetch = (int) (maxRows / Math.max(batchSize, 1));
+            return Math.max(1, Math.min(prefetch, 10000));
+        }
     }
 
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer) {
@@ -359,10 +395,11 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         // 分批处理（CPU 密集型：字段转换 + 发布，切到 parallel 固定线程池减少切换开销）
         int batchSize = mapping.batch() > 0 ? mapping.batch() : DEFAULT_BATCH_SIZE;
         long maxRows = config.getMaxBufferRows() > 0 ? config.getMaxBufferRows() : Long.MAX_VALUE;
+        int prefetch = config.computePrefetch(batchSize);
         Flux<List<Map<String, Object>>> batched = sourceFlux
                 .buffer(batchSize)
                 .take(maxRows / Math.max(1, batchSize))
-                .publishOn(Schedulers.parallel());
+                .publishOn(Schedulers.parallel(), prefetch);
 
         // 重试 + 转换 + 发布
         reactor.core.Disposable disposable = batched
