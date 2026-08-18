@@ -8,6 +8,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 
 import java.awt.image.BufferedImage;
 

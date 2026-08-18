@@ -128,13 +128,10 @@ public class LetterBoxUtils {
             }
         }
         // 缩放
-        BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_3BYTE_BGR);
-        java.awt.Graphics2D g2d = resized.createGraphics();
-        g2d.drawImage(bi, 0, 0, newW, newH, null);
-        g2d.dispose();
+        BufferedImage resized = OpenCvImageUtils.resize(bi, newW, newH, org.opencv.imgproc.Imgproc.INTER_LINEAR);
         // 填充到目标尺寸
         BufferedImage padded = new BufferedImage(targetW, targetH, BufferedImage.TYPE_3BYTE_BGR);
-        g2d = padded.createGraphics();
+        java.awt.Graphics2D g2d = padded.createGraphics();
         int pc = Math.round(padColor);
         g2d.setColor(new java.awt.Color(pc, pc, pc));
         g2d.fillRect(0, 0, targetW, targetH);
