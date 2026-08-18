@@ -6,6 +6,7 @@ import com.arcsoft.face.toolkit.ImageFactory;
 import com.arcsoft.face.toolkit.ImageInfo;
 import com.chua.common.support.converter.Converter;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
@@ -71,7 +72,7 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
                 return image;
             }
             
-            return image.getSubimage(x, y, width, height);
+            return OpenCvImageUtils.toBufferedImage(OpenCvImageUtils.crop(OpenCvImageUtils.toMat(image), x, y, width, height));
             
         } catch (Exception e) {
             log.warn("[ArcFaceCropper] 裁剪失败: {}", e.getMessage());
