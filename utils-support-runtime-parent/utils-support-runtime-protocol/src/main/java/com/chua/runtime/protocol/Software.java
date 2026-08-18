@@ -393,6 +393,11 @@ public enum Software {
     AWS_SDK("AWS SDK"),
 
     /**
+     * H2 JDBC Driver
+     */
+    H2_DRIVER("H2 JDBC"),
+
+    /**
      * Quartz Scheduler
      */
     QUARTZ("Quartz"),

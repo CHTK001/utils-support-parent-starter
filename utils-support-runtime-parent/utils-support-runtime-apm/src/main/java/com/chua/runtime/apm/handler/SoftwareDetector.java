@@ -266,6 +266,9 @@ public final class SoftwareDetector {
         // Java 线程
         put("java.util.concurrent", Software.THREAD);
 
+        // H2
+        put("org.h2", Software.H2_DRIVER);
+
         // AsyncHttpClient
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 
