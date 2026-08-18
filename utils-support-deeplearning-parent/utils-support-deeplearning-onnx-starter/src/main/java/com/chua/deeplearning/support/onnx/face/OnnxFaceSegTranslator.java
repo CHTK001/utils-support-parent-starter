@@ -10,6 +10,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -59,8 +60,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
         int w = input.getWidth();
         int h = input.getHeight();
         java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
-        java.awt.image.BufferedImage resized = new java.awt.image.BufferedImage(INPUT_SIZE, INPUT_SIZE, java.awt.image.BufferedImage.TYPE_INT_RGB);
-        resized.getGraphics().drawImage(src, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
+        java.awt.image.BufferedImage resized = OpenCvImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < pixels.length; i++) {

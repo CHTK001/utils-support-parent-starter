@@ -80,6 +80,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     private void startConsumer(String topic) {
         executor.submit(() -> {
             var queue = topicQueues.computeIfAbsent(topic, t -> new LinkedBlockingQueue<>(QUEUE_CAPACITY));
+            log.info("InMemory 消费者已启动 topic={}", topic);
             while (!closed) {
                 try {
                     var body = queue.poll(100, TimeUnit.MILLISECONDS);
@@ -99,6 +100,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
                     break;
                 }
             }
+            log.info("InMemory 消费者已停止 topic={}", topic);
         });
     }
 }

@@ -39,12 +39,14 @@ class IonetDispatcherProviderTest {
 
         @Subscribe(topic = "order/created")
         public void onOrderCreated(String message) {
+            System.err.println("[DiagSubscriber] onOrderCreated called: " + message);
             orderCount.incrementAndGet();
             orderLatch.countDown();
         }
 
         @Subscribe(topic = "user/login")
         public void onUserLogin(String message) {
+            System.err.println("[DiagSubscriber] onUserLogin called: " + message);
             userCount.incrementAndGet();
             userLatch.countDown();
         }
@@ -70,7 +72,13 @@ class IonetDispatcherProviderTest {
 
     @Test
     void publishDispatchesToSubscribedMethod() throws Exception {
+        // 对照 1：provider.publish 路径
         provider.publish("order/created", "order-1001");
+        System.err.println("[Diag] after publish orderCount=" + subscriber.orderCount.get());
+        // 对照 2：手动反射 invoke（绕过 provider，验证 dispatch 逻辑本身）
+        Method manual = EventSubscriber.class.getMethod("onOrderCreated", String.class);
+        manual.invoke(subscriber, "manual-msg");
+        System.err.println("[Diag] after manual invoke orderCount=" + subscriber.orderCount.get());
         assertTrue(subscriber.orderLatch.await(5, TimeUnit.SECONDS), "order/created 订阅方法应被触发");
         assertEquals(1, subscriber.orderCount.get());
 

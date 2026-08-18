@@ -12,6 +12,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.NMSUtils;
+import com.chua.deeplearning.support.utils.OpenCvImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -205,11 +206,7 @@ public class DocLayNetYolov8Translator implements Translator<Image, DetectedObje
         java.awt.image.BufferedImage src = wrapped instanceof java.awt.image.BufferedImage b
                 ? b
                 : (java.awt.image.BufferedImage) ai.djl.modality.cv.BufferedImageFactory.getInstance().fromImage(input).getWrappedImage();
-        java.awt.image.BufferedImage resized = new java.awt.image.BufferedImage(inputSize, inputSize, java.awt.image.BufferedImage.TYPE_INT_RGB);
-        java.awt.Graphics2D g2 = resized.createGraphics();
-        g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2.drawImage(src, 0, 0, inputSize, inputSize, null);
-        g2.dispose();
+        java.awt.image.BufferedImage resized = OpenCvImageUtils.resize(src, inputSize, inputSize, org.opencv.imgproc.Imgproc.INTER_CUBIC);
 
         return new NDList(toNormalizedChw(ctx, resized));
     }
