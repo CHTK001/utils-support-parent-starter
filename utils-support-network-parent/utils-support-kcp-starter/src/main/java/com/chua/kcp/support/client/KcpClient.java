@@ -205,9 +205,9 @@ public class KcpClient {
         try {
             InetSocketAddress remote = parseRemote(serverUrl);
             ChannelConfig config = new ChannelConfig();
-            config.setMtu(512);
+            config.setMtu(1400);
             config.setTimeoutMillis(60_000L);
-            config.nodelay(true, 2, 2, true);
+            config.nodelay(true, 1, 2, true);
             eventLoopGroup = new NioEventLoopGroup(1);
             config.setNettyBootstrapGroup(eventLoopGroup, NioDatagramChannel.class);
 

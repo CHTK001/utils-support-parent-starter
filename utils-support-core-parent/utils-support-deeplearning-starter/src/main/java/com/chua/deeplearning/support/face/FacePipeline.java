@@ -209,7 +209,7 @@ public class FacePipeline {
     /**
      * 识别（特征输出）是否应用 sigmoid（默认 true，部分模型输出 logits 需激活）
      */
-    private final boolean sigRecognize;
+    private final boolean sigmoidRecognize;
 
     /**
      * 单张人脸检测管线（裁剪 → 活体 → 收集）。
@@ -258,7 +258,7 @@ public class FacePipeline {
                         int cropPadding,
                         float minFaceArea,
                         float minConfidence,
-                        boolean sigRecognize) {
+                        boolean sigmoidRecognize) {
         this.detector = Objects.requireNonNull(detector, "detector");
         this.liveness = liveness;
         this.featureExtractor = featureExtractor;
@@ -277,7 +277,7 @@ public class FacePipeline {
         this.cropPadding = Math.max(0, cropPadding);
         this.minFaceArea = Math.max(0f, minFaceArea);
         this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
-        this.sigRecognize = sigRecognize;
+        this.sigmoidRecognize = sigmoidRecognize;
         this.detectPipeline = buildDetectPipeline();
         this.identifyPipeline = buildIdentifyPipeline();
     }
@@ -392,7 +392,7 @@ public class FacePipeline {
         /**
          * 识别（特征输出）是否应用 sigmoid（默认 true）
          */
-        private boolean sigRecognize = true;
+        private boolean sigmoidRecognize = true;
 
         /**
          * 设置检测器。
@@ -705,11 +705,11 @@ public class FacePipeline {
         /**
          * 设置识别（特征输出）是否应用 sigmoid。
          *
-         * @param sigRecognize true 应用 sigmoid
+         * @param sigmoidRecognize true 应用 sigmoid
          * @return this
          */
-        public Builder sigRecognize(boolean sigRecognize) {
-            this.sigRecognize = sigRecognize;
+        public Builder sigmoidRecognize(boolean sigmoidRecognize) {
+            this.sigmoidRecognize = sigmoidRecognize;
             return this;
         }
 
@@ -724,7 +724,7 @@ public class FacePipeline {
                     attributeClassifier, emotionClassifier, landmarkExtractor,
                     qualityAssessor, deepfakeClassifier,
                     topK, requireLive, livenessThreshold,
-                    cropPadding, minFaceArea, minConfidence, sigRecognize);
+                    cropPadding, minFaceArea, minConfidence, sigmoidRecognize);
         }
     }
 

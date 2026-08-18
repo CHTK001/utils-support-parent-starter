@@ -5,8 +5,6 @@ import com.chua.common.support.concurrent.dispatcher.ConsumerDispatcherDefinitio
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.provider.AbstractDispatcherProvider;
 import com.chua.common.support.spi.annotations.Spi;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.ExcerptAppender;
@@ -16,11 +14,8 @@ import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Spi("chronicle")
 public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ChronicleQueueSerializer SERIALIZER = new ChronicleQueueSerializer();
 
     private final Map<String, ChronicleQueue> queueMap = new ConcurrentHashMap<>();
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
@@ -66,7 +61,8 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         var queue = getOrCreateQueue(topic);
         try {
             try (var dc = queue.createAppender().writingDocument()) {
-                dc.wire().write("msg").object(body);
+                byte[] data = SERIALIZER.serialize(body);
+                dc.wire().write("msg").bytes(data);
             }
             log.debug("Chronicle 已发布消息到主题：{}", topic);
         } catch (Throwable t) {
@@ -87,21 +83,23 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     private void startConsumer(String topic) {
         ChronicleQueue queue = getOrCreateQueue(topic);
-        executor.submit(() -> {
+executor.submit(() -> {
             ExcerptTailer tailer = queue.createTailer().toStart();
             while (!closed) {
                 try (var dc = tailer.readingDocument()) {
                     if (dc.isPresent() && dc.isData()) {
-                        var text = dc.wire().read("msg").text();
-                        if (text != null) {
-                            var definitions = definitionMap.get(topic);
-                            if (definitions != null) {
-                                for (var def : definitions) {
-                                    try {
-                                        Object payload = deserialize(text, def);
-                                        def.dispatch(payload);
-                                    } catch (Exception e) {
-                                        log.warn("订阅方法执行异常，主题：{}", topic, e);
+                        var bytes = dc.wire().read("msg").bytes();
+                        if (bytes != null) {
+                            var payload = SERIALIZER.deserialize(bytes);
+                            if (payload != null) {
+                                var definitions = definitionMap.get(topic);
+                                if (definitions != null) {
+                                    for (var def : definitions) {
+                                        try {
+                                            def.dispatch(payload);
+                                        } catch (Exception e) {
+                                            log.warn("订阅方法执行异常，主题：{}", topic, e);
+                                        }
                                     }
                                 }
                             }
@@ -228,5 +226,53 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         queueMap.values().forEach(ChronicleQueue::close);
         queueMap.clear();
         definitionMap.clear();
+    }
+
+    /**
+     * 序列化工具：优先使用 Fury（性能最优），不可用时降级到 Jackson。
+     */
+    static class ChronicleQueueSerializer {
+        private final com.chua.common.support.base.serialize.Serialization fury;
+        private final com.fasterxml.jackson.databind.ObjectMapper fallback;
+        private final boolean useFury;
+
+        ChronicleQueueSerializer() {
+            com.chua.common.support.base.serialize.Serialization f = null;
+            try {
+                f = new com.chua.fory.support.serialize.ForySerialization();
+            } catch (Throwable t) {
+                log.info("Fury 不可用，降级为 Jackson 序列化: {}", t.getMessage());
+            }
+            this.fury = f;
+            this.useFury = f != null;
+            this.fallback = new com.fasterxml.jackson.databind.ObjectMapper();
+        }
+
+        byte[] serialize(Object obj) {
+            try {
+                if (useFury) {
+                    return fury.serialize(obj);
+                }
+                return fallback.writeValueAsBytes(obj);
+            } catch (Exception e) {
+                throw new RuntimeException("序列化失败", e);
+            }
+        }
+
+        Object deserialize(byte[] data) {
+            try {
+                if (useFury) {
+                    return fury.deserialize(data, Object.class);
+                }
+                return fallback.readValue(data, Object.class);
+            } catch (Exception e) {
+                log.warn("反序列化失败，尝试 Jackson 降级", e);
+                try {
+                    return fallback.readValue(data, Object.class);
+                } catch (Exception ex) {
+                    throw new RuntimeException("反序列化失败", ex);
+                }
+            }
+        }
     }
 }
