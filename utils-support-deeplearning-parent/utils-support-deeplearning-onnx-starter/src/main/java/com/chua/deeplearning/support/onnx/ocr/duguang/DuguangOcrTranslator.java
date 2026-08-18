@@ -315,9 +315,9 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                     int b = rowData[bgrBase] & 0xFF;
                     int g = rowData[bgrBase + 1] & 0xFF;
                     int r = rowData[bgrBase + 2] & 0xFF;
-                    chunkPixels[pixelBase] = r / 255.0f;
+                    chunkPixels[pixelBase] = b / 255.0f;
                     chunkPixels[pixelBase + CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = g / 255.0f;
-                    chunkPixels[pixelBase + 2 * CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = b / 255.0f;
+                    chunkPixels[pixelBase + 2 * CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = r / 255.0f;
                 }
             }
         }
