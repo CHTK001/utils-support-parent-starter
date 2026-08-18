@@ -243,10 +243,9 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
             passedPts++;
             MatOfPoint2f contour2f = new MatOfPoint2f(pts);
             org.opencv.core.RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
-            MatOfPoint2f boxPts = new MatOfPoint2f();
-            Imgproc.boxPoints(rotatedRect, boxPts);
-            Point[] rect = boxPts.toArray();
-            boxPts.release();
+            Point[] rect = new Point[4];
+            rotatedRect.points(rect);
+            contour2f.release();
             if (rect.length < 4) {
                 contour2f.release();
                 continue;
