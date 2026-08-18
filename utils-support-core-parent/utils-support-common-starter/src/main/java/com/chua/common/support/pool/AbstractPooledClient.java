@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * @since 4.0.0.42
  */
 @Slf4j
-public abstract class AbstractPooledClient<T extends PooledObjectClient<T>> implements PooledObjectClient<T> {
+public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
     /**
      * 池化模式: 0 (无池, 每次新建)

@@ -33,7 +33,7 @@ import com.chua.common.support.concurrent.pool.ObjectPool;
  * @author CH
  * @since 4.0.0.42
  */
-public interface PooledObjectClient<T extends PooledObjectClient<T>> {
+public interface PooledObjectClient<T> {
 
     /**
      * 设置对象池大小

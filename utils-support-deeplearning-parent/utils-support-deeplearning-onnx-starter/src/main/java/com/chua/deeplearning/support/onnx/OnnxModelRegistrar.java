@@ -152,6 +152,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文档方向分类(PP-LCNet_x1_0_doc_ori)：4 类（0°/90°/180°/270°），整图方向检测；适用文档矫正、旋转自动修正
         reg("doc-orientation", "com.chua.deeplearning.support.onnx.ocr.direction.DocOrientationTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/doc_ori/model.onnx",
                 "https://huggingface.co/onnx-community/PP-LCNet_x1_0_doc_ori/resolve/main/model.onnx",
+                List.of(
+                        "https://modelscope.cn/models/warriorTan/PP-LCNet_x1_0_doc_ori/resolve/master/onnx/model.onnx",
+                        "https://hf-mirror.com/onnx-community/PP-LCNet_x1_0_doc_ori/resolve/main/model.onnx"
+                ),
                 false, "model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");

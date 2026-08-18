@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
-import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
@@ -40,21 +40,11 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
     private OrtSession session;
 
     private synchronized void prepare() throws Exception {
-        if (session != null) return;
-        Path tmpDir = Files.createTempDirectory("doc-ori-");
-        tmpDir.toFile().deleteOnExit();
-        Path modelDir = tmpDir.resolve("ori");
-        Files.createDirectories(modelDir);
-        NativeLoader.of("doc-orientation")
-                .from(DocOrientationTranslator.class.getClassLoader())
-                .basePath(RESOURCE_BASE)
-                .toTarget(modelDir)
-                .glob("*.onnx")
-                .withMd5(true)
-                .extractOnly(true)
-                .load();
-        Path modelPath = modelDir.resolve(MODEL_FILE);
-        if (!Files.isRegularFile(modelPath)) {
+        if (session != null) {
+            return;
+        }
+        Path modelPath = ModelRegistry.resolveModelPath("doc-orientation");
+        if (modelPath == null || !Files.isRegularFile(modelPath)) {
             throw new IllegalArgumentException("文档方向分类模型缺失: " + modelPath);
         }
         this.ortEnv = OrtEnvironment.getEnvironment();
@@ -63,7 +53,6 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[doc-orientation] ONNX loaded: {}", modelPath.getFileName());
     }
-
     @Override
     public String name() {
         return "doc-orientation";
