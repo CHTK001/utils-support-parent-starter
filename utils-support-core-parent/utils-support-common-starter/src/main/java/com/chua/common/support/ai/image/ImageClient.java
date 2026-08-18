@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.image;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.awt.image.BufferedImage;
@@ -36,10 +37,13 @@ import java.util.List;
  *   }
  * }</pre>
  *
+ * <p>对象池：实现 {@link PooledObjectClient}，可通过 {@link #pool(Number)} 调整池大小。
+ * 默认单例模式（{@code pool(null)} 或 {@code pool(1)}），设置 {@code pool(n>1)} 启用对象池。
+ *
  * @author CH
  * @since 4.0.0.42
  */
-public interface ImageClient extends AutoCloseable {
+public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClient> {
 
     /**
      * 创建指定 provider 的图片生成客户端

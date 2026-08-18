@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.audio;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.io.InputStream;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public interface AudioClient extends AutoCloseable {
+public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClient> {
 
     /**
      * 创建指定 provider 的语音识别客户端

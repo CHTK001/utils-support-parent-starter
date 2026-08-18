@@ -1,6 +1,7 @@
 package com.chua.common.support.ai.video;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public interface VideoClient extends AutoCloseable {
+public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClient> {
 
     /**
      * 创建指定 provider 的视频生成客户端

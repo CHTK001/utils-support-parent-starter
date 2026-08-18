@@ -11,6 +11,7 @@ import com.chua.common.support.ai.skill.DefaultSkillManager;
 import com.chua.common.support.ai.skill.SkillDefinition;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
@@ -50,7 +51,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 2026/07/15
  */
-public interface ChatClient extends AutoCloseable {
+public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient> {
 
     /**
      * 通过完整配置创建 AI 对话客户端

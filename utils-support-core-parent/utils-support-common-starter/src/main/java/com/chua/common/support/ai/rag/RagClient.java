@@ -2,6 +2,7 @@ package com.chua.common.support.ai.rag;
 
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
+import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
@@ -38,7 +39,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
-public interface RagClient extends AutoCloseable {
+public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> {
 
     /**
      * 创建指定 provider 的 RagClient。
