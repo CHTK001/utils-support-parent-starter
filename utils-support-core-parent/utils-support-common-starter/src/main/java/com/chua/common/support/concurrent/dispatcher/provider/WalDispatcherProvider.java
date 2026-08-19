@@ -196,7 +196,9 @@ private byte[] writeBody(Object body) {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.serialize(body);
             }
-            return serializer.serialize(body);
+            synchronized (serializer) {
+                return serializer.serialize(body);
+            }
         } catch (Exception e) {
             throw new RuntimeException("WAL 序列化失败", e);
         }
@@ -207,7 +209,9 @@ private byte[] writeBody(Object body) {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
             }
-            return serializer.deserialize(data, Object.class);
+            synchronized (serializer) {
+                return serializer.deserialize(data, Object.class);
+            }
         } catch (Exception e) {
             log.warn("WAL 反序列化失败，回退 Jackson", e);
             try {

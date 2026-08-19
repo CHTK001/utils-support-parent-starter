@@ -10,11 +10,11 @@ import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.Map;
 
 /**
  * 基于 JDK NIO SocketChannel 的 TCP 长度帧客户端实现。
@@ -33,8 +33,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi("native-tcp")
-public class NativeTcpClient implements TcpClient {
+@Spi("jdk-tcp")
+public class JdkTcpClient implements TcpClient {
 
     /**
      * 长度头字节数
@@ -96,11 +96,11 @@ public class NativeTcpClient implements TcpClient {
     /**
      * 创建 TCP 长度帧客户端。
      *
-     * @param poolSize      每个端点复用连接数
+     * @param poolSize       每个端点复用连接数
      * @param connectTimeout 连接超时（毫秒）
      * @param readTimeout    读超时（毫秒）
      */
-    public NativeTcpClient(int poolSize, int connectTimeout, int readTimeout) {
+    public JdkTcpClient(int poolSize, int connectTimeout, int readTimeout) {
         this.poolSize = poolSize > 0 ? poolSize : DEFAULT_POOL_SIZE;
         this.connectTimeout = connectTimeout > 0 ? connectTimeout : DEFAULT_CONNECT_TIMEOUT;
         this.readTimeout = readTimeout > 0 ? readTimeout : DEFAULT_READ_TIMEOUT;
@@ -216,7 +216,7 @@ public class NativeTcpClient implements TcpClient {
         /**
          * 创建端点级连接池。
          *
-         * @param capacity      连接数上限
+         * @param capacity       连接数上限
          * @param connectTimeout 连接超时（毫秒）
          * @param readTimeout    读超时（毫秒）
          */

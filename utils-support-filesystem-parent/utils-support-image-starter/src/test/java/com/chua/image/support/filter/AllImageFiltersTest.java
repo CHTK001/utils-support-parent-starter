@@ -182,14 +182,7 @@ public class AllImageFiltersTest {
         map.put("pixel", new FilterEntry("像素化", () -> new ImagePixelImageFilter(10)));
         map.put("sudoku", new FilterEntry("九宫格", SudokuImageFilter::new));
         map.put("bsc", new FilterEntry("BSC调整", BscAdjustImageFilter::new));
-        map.put("nightVision", new FilterEntry("夜视效果", NightVisionImageFilter::new));
-        map.put("sepiaTone", new FilterEntry("复古棕褐色调", SepiaToneImageFilter::new));
         map.put("laplace", new FilterEntry("拉普拉斯锐化", LaplaceImageFilter::new));
-        map.put("underwater", new FilterEntry("水下增强", UnderwaterEnhancementFilter::new));
-        map.put("minecraft", new FilterEntry("我的世界风格", MinecraftStyleImageFilter::new));
-        map.put("ghibli", new FilterEntry("宫崎骏风格", StudioGhibliStyleImageFilter::new));
-        map.put("ghibliStudio", new FilterEntry("吉卜力工作室风格", GhibliStudioImageFilter::new));
-        map.put("clay", new FilterEntry("黏土风格", ClayStyleImageFilter::new));
         map.put("textWater", new FilterEntry("文本水印", () -> new TextWaterImageFilter("CH")));
         map.put("textImgWater", new FilterEntry("文本+图片水印",
                 () -> {

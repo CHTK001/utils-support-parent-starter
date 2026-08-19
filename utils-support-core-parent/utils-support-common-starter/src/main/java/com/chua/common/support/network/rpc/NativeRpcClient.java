@@ -3,8 +3,8 @@ package com.chua.common.support.network.rpc;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.network.tcp.JdkTcpClient;
 import com.chua.common.support.network.tcp.TcpClient;
-import com.chua.common.support.network.tcp.NativeTcpClient;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.proxy.ProxyUtils;
@@ -28,7 +28,7 @@ import java.util.function.Function;
 /**
  * 原生 TCP NIO RPC 客户端，复用 {@link TcpClient} 长度帧传输层。
  *
- * <p>传输层（连接池、读写超时、帧收发）由 {@link NativeTcpClient} 承担，
+ * <p>传输层（连接池、读写超时、帧收发）由 {@link JdkTcpClient} 承担，
  * 本类只负责 RPC 语义：代理生成、负载均衡、端点容错、请求/响应编解码。</p>
  *
  * <p>安全与健壮性约束：</p>
@@ -151,7 +151,7 @@ public class NativeRpcClient implements RpcClient {
             addresses.add("localhost:" + DEFAULT_PORT);
         }
         // 复用共享传输层：连接池大小、连接超时、读超时均来自消费者配置
-        this.tcpClient = new NativeTcpClient(poolSize, connectTimeout, readTimeout);
+        this.tcpClient = new JdkTcpClient(poolSize, connectTimeout, readTimeout);
     }
 
     @Override
