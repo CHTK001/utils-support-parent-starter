@@ -1,8 +1,12 @@
 package com.chua.common.support.network.sip;
 
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
+import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.impl.JdkTcpServer;
+import com.chua.common.support.network.tcp.TcpServer;
+import com.chua.common.support.network.tcp.callback.TcpServerHandler;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +26,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * SIP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口（JdkTcpServer 流式模式）。
+ * SIP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口。
+ *
+ * <p>继承 {@link AbstractServer} 获得统一生命周期与配置管理，实现 {@link TcpServer} 接口
+ * 复用 TCP 服务抽象，底层由 {@link JdkTcpServer} 流式模式承载连接。</p>
  *
  * <p>连接建立后首行握手：</p>
  * <ul>
@@ -36,7 +43,7 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
-public class SipServer {
+public class SipServer extends AbstractServer implements TcpServer {
 
     /**
      * 客户端注册表（clientId -> 信令连接）
@@ -74,19 +81,14 @@ public class SipServer {
     private final List<Consumer<String>> disconnectListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 服务器配置
+     * 认证令牌（初始共享密钥）
      */
-    private final SipConfig config;
+    private final String token;
 
     /**
      * 底层 TCP 服务器（流式模式，一连接一虚拟线程）
      */
     private JdkTcpServer tcpServer;
-
-    /**
-     * 是否正在运行
-     */
-    private volatile boolean running;
 
     /**
      * 使用默认配置创建 SIP 服务器。
@@ -101,44 +103,30 @@ public class SipServer {
      * @param config 服务器配置
      */
     public SipServer(SipConfig config) {
-        this.config = config;
+        super(ServerSetting.defaults()
+                .setHost(config.getHost())
+                .setPort(config.getPort())
+                .setProtocol("tcp"));
+        this.token = config.getToken();
     }
 
     /**
-     * 启动 SIP 服务器（单端口监听）。
-     *
-     * @return 当前服务器实例，支持链式调用
+     * 启动服务器的具体逻辑。
      */
-    public SipServer start() {
-        if (running) {
-            return this;
-        }
-        try {
-            ServerSetting setting = ServerSetting.defaults();
-            setting.setHost(config.getHost());
-            setting.setPort(config.getPort());
-            setting.setProtocol("tcp");
-            tcpServer = new JdkTcpServer(setting);
-            tcpServer.registerHandler("*", this::handleConnection);
-            tcpServer.start();
-            running = true;
-            log.info("SIP 单端口服务器启动成功: {}:{}", config.getHost(), config.getPort());
-        } catch (Exception e) {
-            throw new RuntimeException("SIP 服务器启动失败: " + config.getPort(), e);
-        }
-        return this;
+    @Override
+    protected void doStart() {
+        tcpServer = new JdkTcpServer(setting);
+        tcpServer.registerHandler("*", this::handleConnection);
+        tcpServer.start();
+        setting.setPort(tcpServer.getPort());
+        log.info("SIP 单端口服务器启动成功: {}:{}", setting.getHost(), setting.getPort());
     }
 
     /**
-     * 停止 SIP 服务器。
-     *
-     * @return 当前服务器实例，支持链式调用
+     * 停止服务器的具体逻辑。
      */
-    public SipServer stop() {
-        if (!running) {
-            return this;
-        }
-        running = false;
+    @Override
+    protected void doStop() {
         if (tcpServer != null) {
             try {
                 tcpServer.stop();
@@ -153,17 +141,6 @@ public class SipServer {
         sessionTokens.clear();
         tunnelServices.clear();
         tunnelChannels.clear();
-        log.info("SIP 服务器已停止");
-        return this;
-    }
-
-    /**
-     * 判断服务器是否正在运行。
-     *
-     * @return true 表示运行中
-     */
-    public boolean isRunning() {
-        return running;
     }
 
     /**
@@ -172,7 +149,11 @@ public class SipServer {
      * @return 配置实例
      */
     public SipConfig getConfig() {
-        return config;
+        return SipConfig.builder()
+                .host(setting.getHost())
+                .port(setting.getPort())
+                .token(token)
+                .build();
     }
 
     /**
@@ -204,6 +185,27 @@ public class SipServer {
     public SipServer onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
         return this;
+    }
+
+    /**
+     * 注册帧处理器（TcpServer 接口，SIP 使用流式协议，此处直接返回当前实例）。
+     *
+     * @param handler 帧处理器
+     * @return 当前实例
+     */
+    @Override
+    public SipServer setHandler(TcpServerHandler handler) {
+        return this;
+    }
+
+    /**
+     * 获取协议类型。
+     *
+     * @return 协议类型
+     */
+    @Override
+    public ProtocolType getProtocolType() {
+        return ProtocolType.TCP;
     }
 
     /**
@@ -246,18 +248,18 @@ public class SipServer {
         String host = parts[2];
         int port = parseInt(parts[3]);
         String signature = parts[4];
-        String expected = HMacUtils.hmacSha256Hex(config.getToken(), clientId + host + port);
+        String expected = HMacUtils.hmacSha256Hex(token, clientId + host + port);
         if (!expected.equals(signature)) {
             log.warn("SIP 认证签名校验失败，拒绝接入: clientId={}", clientId);
             writeLine(out, SipProtocol.line(SipProtocol.PREFIX_ERROR, "auth", "签名校验失败"));
             return;
         }
-        String token = UUID.randomUUID().toString();
-        sessionTokens.put(token, clientId);
+        String sessionToken = UUID.randomUUID().toString();
+        sessionTokens.put(sessionToken, clientId);
         PrintWriter writer = new PrintWriter(out, true, StandardCharsets.UTF_8);
-        SignalConnection conn = new SignalConnection(clientId, host, port, token, writer);
+        SignalConnection conn = new SignalConnection(clientId, host, port, sessionToken, writer);
         registry.put(clientId, conn);
-        writeLine(out, SipProtocol.line(SipProtocol.PREFIX_TOKEN, token));
+        writeLine(out, SipProtocol.line(SipProtocol.PREFIX_TOKEN, sessionToken));
         notifyConnectListeners(clientId);
         log.info("SIP 客户端认证接入: {} @ {}:{}", clientId, host, port);
 
@@ -346,8 +348,8 @@ public class SipServer {
         }
         String channelId = parts[1];
         String role = parts[2];
-        String token = parts[3];
-        String ownerId = sessionTokens.get(token);
+        String sessionToken = parts[3];
+        String ownerId = sessionTokens.get(sessionToken);
         if (ownerId == null) {
             log.warn("SIP 数据平面 token 校验失败: channelId={}", channelId);
             return;
