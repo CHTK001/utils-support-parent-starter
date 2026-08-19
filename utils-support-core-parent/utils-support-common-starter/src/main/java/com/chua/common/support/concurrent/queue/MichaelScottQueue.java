@@ -62,19 +62,17 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
         }
         Node<E> node = new Node<>(element);
         while (true) {
-            Node<E> last = tail.get();
-            Node<E> next = last.next.get();
+            Node<E> last = tail.getAcquire();
+            Node<E> next = last.next.getAcquire();
             if (next == null) {
-                // last 即为真实队尾，尝试追加新节点
                 if (last.next.compareAndSet(null, node)) {
-                    // 追加成功，尽力推进 tail，失败也无妨（由后续线程推进）
                     tail.compareAndSet(last, node);
                     return true;
                 }
             } else {
-                // tail 滞后于真实队尾，推进 tail 后重试
                 tail.compareAndSet(last, next);
             }
+            Thread.onSpinWait();
         }
     }
 
@@ -86,24 +84,21 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     @Override
     public E poll() {
         while (true) {
-            Node<E> first = head.get();
-            Node<E> last = tail.get();
-            Node<E> next = first.next.get();
+            Node<E> first = head.getAcquire();
+            Node<E> last = tail.getAcquire();
+            Node<E> next = first.next.getAcquire();
             if (first == last) {
-                // head 与 tail 指向同一节点
                 if (next == null) {
-                    // 队列为空
                     return null;
                 }
-                // tail 滞后，推进 tail 后重试
                 tail.compareAndSet(last, next);
             } else {
-                // 取出队首元素的值并 CAS 前进 head
                 E value = next.value;
                 if (head.compareAndSet(first, next)) {
                     return value;
                 }
             }
+            Thread.onSpinWait();
         }
     }
 
@@ -114,17 +109,18 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
      */
     @Override
     public E peek() {
-        while (true) {
-            Node<E> first = head.get();
-            Node<E> next = first.next.get();
+        for (int i = 0; i < 100; i++) {
+            Node<E> first = head.getAcquire();
+            Node<E> next = first.next.getAcquire();
             if (next == null) {
                 return null;
             }
-            // 校验 head 未被其他消费者推进，避免读到已出队节点的残留值
-            if (head.get() == first) {
+            if (head.getAcquire() == first) {
                 return next.value;
             }
+            Thread.onSpinWait();
         }
+        return null;
     }
 
     /**
@@ -134,23 +130,16 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
      */
     @Override
     public boolean isEmpty() {
-        return head.get().next.get() == null;
+        return head.getAcquire().next.getAcquire() == null;
     }
 
-    /**
-     * 返回队列中的元素数量（近似值）。
-     * <p>通过遍历原子链表的节点数估算，极端并发下可能持续增长，
-     * 因此设有最大扫描保护上限 100 万，仅供监控展示使用。</p>
-     *
-     * @return 元素数量估计值
-     */
     @Override
     public int size() {
         int count = 0;
-        Node<E> node = head.get().next.get();
+        Node<E> node = head.getAcquire().next.getAcquire();
         while (node != null && count < MAX_SIZE_SCAN) {
             count++;
-            node = node.next.get();
+            node = node.next.getAcquire();
         }
         return count;
     }
