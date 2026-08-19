@@ -235,6 +235,19 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     @SuppressWarnings("unchecked")
     /** Recognize */
     public String recognize(byte[] imageData) {
+        // 优先走 String 路径（单行 rec 模型返回纯文本）
+        try {
+            ITranslator<byte[], String> t =
+                    (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
+            if (t != null) {
+                String s = t.translate(imageData);
+                if (s != null) {
+                    return s;
+                }
+            }
+        } catch (ClassCastException ignored) {
+            // translator 返回 List<OcrResult>，走下面的拼接路径
+        }
         List<OcrResult> results = recognizeDetail(imageData);
         if (results == null || results.isEmpty()) {
             return "";
