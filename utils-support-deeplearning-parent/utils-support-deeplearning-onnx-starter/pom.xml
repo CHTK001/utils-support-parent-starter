@@ -58,6 +58,12 @@
             <artifactId>opencv</artifactId>
             <version>${opencv.version}</version>
         </dependency>
+        <!-- PP-DocLayoutV3 文档版面分析模型（DETR，25 类，800 输入） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-ppdoclayoutv3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -95,43 +101,7 @@
             <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
-        <!-- 测试用例数据：6 个新模型 + 旧模型. 由测试期在 test classpath 解析使用 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-doclaynet</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-table-detect</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-seal-detect</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-barcode</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-ppe</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-fire-smoke</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- 测试用例数据：由测试期在 test classpath 解析使用 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId>

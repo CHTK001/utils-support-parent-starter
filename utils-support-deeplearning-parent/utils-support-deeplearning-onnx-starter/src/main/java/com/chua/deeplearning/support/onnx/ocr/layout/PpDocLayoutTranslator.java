@@ -4,13 +4,14 @@ import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -88,6 +89,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     private int height;
 
     /**
+     * AWT 缩放类型。
+     */
+    private int scale;
+
+    /**
      *                              
      */
     private boolean lowInformationInput;
@@ -122,17 +128,20 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         width = input.getWidth();
         height = input.getHeight();
 
-        NDArray image = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        lowInformationInput = isLowInformationImage(image);
+        Object wrapped = input.getWrappedImage();
+        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+            throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
+        }
+        scale = java.awt.image.BufferedImage.SCALE_SMOOTH;
+        lowInformationInput = isLowInformationBuffered(bufferedImage);
         scoreThreshold = configuredScoreThreshold != null
                 ? configuredScoreThreshold
                 : resolveDefaultThreshold(ctx.getModel().getModelPath());
-        image = NDImageUtils.resize(image, INPUT_SIZE, INPUT_SIZE);
-        if (!image.getDataType().equals(DataType.FLOAT32)) {
-            image = image.toType(DataType.FLOAT32, false);
-        }
-        image = image.transpose(2, 0, 1).div(255f);
-        image = image.expandDims(0);
+
+        // 用 AWT 缩放（ONNX Runtime 引擎的 NDArray 不支持 resize）
+        java.awt.image.BufferedImage resized = ImageUtils.resize(bufferedImage, INPUT_SIZE, INPUT_SIZE, scale);
+        float[] chw = toChwFloats(resized);
+        NDArray image = ctx.getNDManager().create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         image.setName("image");
 
         NDArray imShape = ctx.getNDManager().create(new float[][]{{INPUT_SIZE, INPUT_SIZE}});
@@ -276,23 +285,54 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         return 0.5f;
     }
 
-    private boolean isLowInformationImage(NDArray image) {
-        float[] values = image.toType(DataType.FLOAT32, false).toFloatArray();
-        if (values.length == 0) {
+    private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
+        int w = buf.getWidth();
+        int h = buf.getHeight();
+        if (w <= 0 || h <= 0) {
+            return true;
+        }
+        int[] pixels = new int[w * h];
+        buf.getRGB(0, 0, w, h, pixels, 0, w);
+        if (pixels.length == 0) {
             return true;
         }
         double sum = 0d;
-        for (float value : values) {
-            sum += value;
+        for (int pixel : pixels) {
+            sum += (pixel & 0xFF);
         }
-        double mean = sum / values.length;
+        double mean = sum / pixels.length;
         double variance = 0d;
-        for (float value : values) {
-            double diff = value - mean;
+        for (int pixel : pixels) {
+            double diff = (pixel & 0xFF) - mean;
             variance += diff * diff;
         }
-        variance /= values.length;
+        variance /= pixels.length;
         return Math.sqrt(variance) < 3d;
+    }
+
+    /**
+     * 将 BufferedImage 转换为 CHW 归一化 float 数组（RGB，除以 255）。
+     *
+     * @param buf BufferedImage
+     * @return CHW 数组，长度 3 * H * W
+     */
+    private float[] toChwFloats(java.awt.image.BufferedImage buf) {
+        int w = buf.getWidth();
+        int h = buf.getHeight();
+        int[] pixels = new int[w * h];
+        buf.getRGB(0, 0, w, h, pixels, 0, w);
+        float[] chw = new float[3 * w * h];
+        int idx = 0;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int pixel = pixels[y * w + x];
+                chw[idx] = ((pixel >> 16) & 0xFF) / 255f;
+                chw[idx + w * h] = ((pixel >> 8) & 0xFF) / 255f;
+                chw[idx + 2 * w * h] = (pixel & 0xFF) / 255f;
+                idx++;
+            }
+        }
+        return chw;
     }
 
     private float clip(float value, float min, float max) {

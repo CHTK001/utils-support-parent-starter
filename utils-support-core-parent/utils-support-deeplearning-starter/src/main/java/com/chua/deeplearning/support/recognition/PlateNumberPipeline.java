@@ -6,7 +6,7 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.draw.DrawerPipeline;
-import com\.chua\.deeplearning\.support\.engine\.ModelRegistry;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.plate.PlateResult;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -288,4 +288,4 @@ public class PlateNumberPipeline {
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);
     }
-\}
+}

@@ -5,6 +5,7 @@ import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
+import com.chua.deeplearning.support.draw.DrawerPipeline;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 
 import java.util.List;
@@ -128,4 +129,4 @@ public class SearchPipeline {
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);
     }
-\}
+}
