@@ -16,10 +16,14 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.nio.MappedByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class WalDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
@@ -117,7 +121,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 RandomAccessFile raf = new RandomAccessFile(wal.file.toFile(), "r");
                 raf.seek(index);
                 while (!closed.get()) {
-                    Object payload = readDispatchFrame(raf, topic);
+                    Object payload = readDispatchFrame(raf, topic, wal);
                     if (payload == null) {
                         Thread.sleep(2);
                     }
@@ -134,11 +138,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         });
     }
 
-    private Object readDispatchFrame(RandomAccessFile raf, String topic) throws Exception {
+private Object readDispatchFrame(RandomAccessFile raf, String topic, WalLog wal) throws Exception {
         long pos = raf.getFilePointer();
-        long fileLen = raf.length();
+        long commitEnd = wal.commitPos.get();
         int headerSize = 8;
-        if (fileLen - pos < headerSize) {
+        if (commitEnd - pos < headerSize) {
             raf.seek(pos);
             return null;
         }
@@ -149,7 +153,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         int magic = hb.getInt();
         int len = hb.getInt();
         if (magic != MAGIC) {
-            log.warn("WAL 帧头损坏 topic={} pos={} magic={}", topic, pos, Integer.toHexString(magic));
             raf.seek(pos + 1);
             return null;
         }
@@ -158,12 +161,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             return null;
         }
         if (len == 0) {
-            
             raf.seek(pos + headerSize);
             return null;
         }
-        if (fileLen - pos < headerSize + len) {
-            raf.seek(pos); 
+        if (commitEnd - pos < headerSize + len) {
+            raf.seek(pos);
             return null;
         }
         byte[] data = new byte[len];
@@ -218,16 +220,16 @@ private byte[] writeBody(Object body) {
 
     static class WalLog {
         final Path file;
-        final java.util.concurrent.LinkedBlockingQueue<byte[]> queue = new java.util.concurrent.LinkedBlockingQueue<>(10000);
+        final LinkedBlockingQueue<byte[]> queue = new LinkedBlockingQueue<>(10000);
         private FileChannel channel;
-        private java.nio.MappedByteBuffer mappedBuf;
+        private MappedByteBuffer mappedBuf;
         private long mappedSize = 0;
         private volatile boolean useMmap = true;
         private static final long MMAP_GROW = 64L * 1024 * 1024;
         private final ByteBuffer header = ByteBuffer.allocate(8);
         private volatile boolean writerStarted = false;
         private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WalLog.class);
-        private int forceCounter = 0;
+        final AtomicLong commitPos = new AtomicLong(0);
 
         WalLog(Path file) {
             this.file = file;
@@ -301,22 +303,21 @@ private void writeFrame(byte[] payload) {
                 if (useMmap && mappedBuf != null) {
                     ensureMmap(frameSize);
                     if (useMmap) {
+                        int pos = mappedBuf.position();
                         mappedBuf.putInt(MAGIC);
                         mappedBuf.putInt(payload.length);
                         mappedBuf.put(payload);
-                        
-                        if (++forceCounter % 1000 == 0) {
-                            
-                        }
                         mappedBuf.force();
+                        commitPos.set(pos + frameSize);
                         return;
                     }
                 }
-                
+                long pos = channel.position();
                 header.clear(); header.putInt(MAGIC); header.putInt(payload.length); header.flip();
                 channel.write(header);
                 channel.write(ByteBuffer.wrap(payload));
                 channel.force(false);
+                commitPos.set(pos + frameSize);
             } catch (Exception e) {
                 LOG.warn("WAL frame 写入失败 file={}", file, e);
             }

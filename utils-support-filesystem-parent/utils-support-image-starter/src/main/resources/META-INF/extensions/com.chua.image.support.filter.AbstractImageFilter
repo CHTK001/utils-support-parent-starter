@@ -1,6 +1,4 @@
 com.chua.image.support.filter.BscAdjustImageFilter
-com.chua.image.support.filter.ClayStyleImageFilter
-com.chua.image.support.filter.GhibliStudioImageFilter
 com.chua.image.support.filter.ImageAntiAliasingImageFilter
 com.chua.image.support.filter.ImageBinImageFilter
 com.chua.image.support.filter.ImageBrightImageFilter
@@ -17,11 +15,6 @@ com.chua.image.support.filter.ImageTransparentFilter
 com.chua.image.support.filter.ImageWaterImageFilter
 com.chua.image.support.filter.ImageWidthFilter
 com.chua.image.support.filter.LaplaceImageFilter
-com.chua.image.support.filter.MinecraftStyleImageFilter
-com.chua.image.support.filter.NightVisionImageFilter
-com.chua.image.support.filter.SepiaToneImageFilter
-com.chua.image.support.filter.StudioGhibliStyleImageFilter
 com.chua.image.support.filter.SudokuImageFilter
 com.chua.image.support.filter.TextImgWaterImageFilter
 com.chua.image.support.filter.TextWaterImageFilter
-com.chua.image.support.filter.UnderwaterEnhancementFilter
