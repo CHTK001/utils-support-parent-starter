@@ -161,7 +161,6 @@ public class TarHeader {
     public long modTime;
 
     /** 校验和 */
-    /** 校验和 */
     public int checkSum;
 
     /** 链接标识（文件类型） */

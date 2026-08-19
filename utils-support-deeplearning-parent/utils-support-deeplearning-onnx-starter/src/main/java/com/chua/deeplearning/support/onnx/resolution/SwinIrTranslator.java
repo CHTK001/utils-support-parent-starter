@@ -43,9 +43,7 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /** 宽度 */
-    /** 宽度 */
     private int width;
-    /** 高度 */
     /** 高度 */
     private int height;
 

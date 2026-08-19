@@ -98,7 +98,6 @@ public class AiChatClientBindingEntity {
     private int weight = 1;
 
     /** 客户端排序 */
-    /** 客户端排序 */
     private Integer clientOrder;
 
     // ==================== 审计 ====================

@@ -16,7 +16,6 @@ public class GeoCity {
     public static final GeoCity EMPTY = new GeoCity();
 
     /** 国家 */
-    /** 国家 */
     private String country;
 
     /** 省份/地区 */
@@ -47,7 +46,6 @@ public class GeoCity {
     /** Postal */
     private String postal;
 
-    /** 时区 */
     /** 时区 */
     private String timeZone;
 

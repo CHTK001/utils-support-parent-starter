@@ -222,9 +222,7 @@ public class CommonFaceRecTranslator implements Translator<Image, float[]> {
         public static class Builder {
 
             /** 输入宽度 */
-            /** 输入宽度 */
             private int inputWidth = 112;
-            /** 输入高度 */
             /** 输入高度 */
             private int inputHeight = 112;
             /** 图像标志 */
@@ -242,7 +240,6 @@ public class CommonFaceRecTranslator implements Translator<Image, float[]> {
             /** 标准差数组 */
             /** STD */
             private float[] std = new float[]{0.5f, 0.5f, 0.5f};
-            /** 输出索引 */
             /** 输出索引 */
             private int outputIndex = 0;
 

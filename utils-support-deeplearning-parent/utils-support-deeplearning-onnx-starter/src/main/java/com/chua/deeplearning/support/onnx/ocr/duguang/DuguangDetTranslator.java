@@ -50,6 +50,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
      * ImageNet 均值（BGR 顺序，读光使用）。
      */
     private static final float[] MEAN = {123.68f, 116.78f, 103.94f};
+    private static final float[] STD = {58.395f, 57.12f, 57.375f}; // 0.229*255, 0.224*255, 0.225*255
 
     /**
      * 缩放最大边（防止超大图内存爆炸）。
@@ -166,10 +167,10 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
                     for (int x = 0; x < IMG_SIZE; x++) {
                         double[] bgr = resized.get(y, x);
                         int idx = y * IMG_SIZE + x;
-                        // (v - mean)/255，BGR 顺序保持（读光用 BGR）
-                        pixels[idx] = (((float) bgr[0]) - MEAN[0]) / 255.0f;
-                        pixels[idx + IMG_SIZE * IMG_SIZE] = (((float) bgr[1]) - MEAN[1]) / 255.0f;
-                        pixels[idx + 2 * IMG_SIZE * IMG_SIZE] = (((float) bgr[2]) - MEAN[2]) / 255.0f;
+                        // (v - mean)/255/std，BGR 顺序保持（读光用 BGR，匹配 Python）
+                        pixels[idx] = (((float) bgr[0]) - MEAN[0]) / 255.0f / STD[0];
+                        pixels[idx + IMG_SIZE * IMG_SIZE] = (((float) bgr[1]) - MEAN[1]) / 255.0f / STD[1];
+                        pixels[idx + 2 * IMG_SIZE * IMG_SIZE] = (((float) bgr[2]) - MEAN[2]) / 255.0f / STD[2];
                     }
                 }
                 resized.release();

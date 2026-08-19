@@ -15,7 +15,6 @@ import java.nio.file.StandardOpenOption;
 public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
 
     /** 存储目录 */
-    /** 存储目录 */
     private final Path storageDir;
 
     public FileSyncDataOffsetStorage() {

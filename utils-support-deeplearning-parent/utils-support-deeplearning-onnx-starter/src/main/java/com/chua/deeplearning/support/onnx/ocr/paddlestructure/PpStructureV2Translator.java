@@ -40,9 +40,7 @@ public class PpStructureV2Translator implements Translator<Image, TableStructure
     /** Max_length */
     private static final int MAX_LENGTH = 488;
     /** 高度 */
-    /** 高度 */
     private int height;
-    /** 宽度 */
     /** 宽度 */
     private int width;
     /** 缩放系数 */

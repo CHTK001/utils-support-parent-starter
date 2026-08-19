@@ -40,9 +40,7 @@ public class TableStructTranslator implements Translator<Image, TableStructureRe
     /** Max_length */
     private static final int MAX_LENGTH = 488;
     /** 高度 */
-    /** 高度 */
     private int height;
-    /** 宽度 */
     /** 宽度 */
     private int width;
     /** 缩放系数 */

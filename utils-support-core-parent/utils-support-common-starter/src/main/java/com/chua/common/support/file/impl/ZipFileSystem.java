@@ -342,7 +342,6 @@ public class ZipFileSystem implements FileSystem {
              */
             private final File source;
             /** 输入流 */
-            /** 输入流 */
             private final InputStream inputStream;
             /** 字节数组 */
             /** Bytes */

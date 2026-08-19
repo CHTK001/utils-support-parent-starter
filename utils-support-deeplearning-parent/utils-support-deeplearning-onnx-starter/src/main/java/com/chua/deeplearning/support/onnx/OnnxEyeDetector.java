@@ -1,14 +1,14 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.face.EyeDetector;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxEyeDetector implements EyeDetector {
 
-    /** 模型名称 */
     /** 模型名称 */
     private String modelName;
     /** 设备类型 */
@@ -40,3 +40,5 @@ public class OnnxEyeDetector implements EyeDetector {
     }
 
 }
+
+

@@ -66,7 +66,6 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private OrtSession session;
     /** 源图像宽度 */
     /** SRC宽度 */

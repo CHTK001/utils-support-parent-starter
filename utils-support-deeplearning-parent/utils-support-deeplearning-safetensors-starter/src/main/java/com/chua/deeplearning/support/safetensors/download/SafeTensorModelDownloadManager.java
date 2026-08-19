@@ -20,7 +20,6 @@ import java.nio.file.Path;
 public class SafeTensorModelDownloadManager {
 
     /** 客户端 */
-    /** 客户端 */
     private final SafeTensorServiceClient client;
 
     /** 模型根目录 */

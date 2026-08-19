@@ -1,4 +1,4 @@
-package com.chua.common.support.image.processor;
+﻿package com.chua.common.support.image.processor;
 
 import com.chua.common.support.image.ImageProcessor;
 import com.chua.common.support.image.ImageProcessors;
@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 并发压力测试模拟多线程同时调用 process()，验证:
  * - Rust原生库线程安全性（FFM SymbolLookup是否线程安全）
  * - 共享内存协议在并发下的正确性
+ * @author CH
  * - 多线程吞吐量与延迟分布
  */
 public class ImageProcessorBenchmark {

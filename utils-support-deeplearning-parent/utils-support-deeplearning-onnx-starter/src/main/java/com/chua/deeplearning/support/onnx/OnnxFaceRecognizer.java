@@ -1,20 +1,18 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.face.FaceRecognizer;
 import com.chua.deeplearning.support.face.FaceFeature;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxFaceRecognizer implements FaceRecognizer {
 
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
     /** 阈值 */
-    /** 阈值 */
     private float threshold = 0.5f;
-    /** 模型路径 */
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
@@ -68,3 +66,5 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     }
 
 }
+
+

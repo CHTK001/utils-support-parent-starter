@@ -1,10 +1,11 @@
-package com.chua.starter.datasync;
+﻿package com.chua.starter.datasync;
 
 import com.chua.datasync.agent.support.executor.ReactorDataSyncExecutor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class ExecutorManagerTest {
 
     @Test
@@ -43,3 +44,4 @@ class ExecutorManagerTest {
         assertEquals(2, mgr.getExecutorCount());
     }
 }
+

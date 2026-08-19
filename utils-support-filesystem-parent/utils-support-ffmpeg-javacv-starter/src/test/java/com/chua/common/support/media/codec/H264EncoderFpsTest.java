@@ -1,10 +1,11 @@
-package com.chua.common.support.media.codec;
+﻿package com.chua.common.support.media.codec;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.bytedeco.javacv.Frame;
 
 import java.nio.ByteBuffer;
 
+/** @author CH */
 public class H264EncoderFpsTest {
     public static void main(String[] args) throws Exception {
         int w = 1280, h = 720;
@@ -97,3 +98,4 @@ public class H264EncoderFpsTest {
         encoder.close();
     }
 }
+

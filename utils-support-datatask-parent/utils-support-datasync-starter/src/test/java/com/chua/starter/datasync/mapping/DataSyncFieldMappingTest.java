@@ -1,9 +1,10 @@
-package com.chua.starter.datasync.mapping;
+﻿package com.chua.starter.datasync.mapping;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class DataSyncFieldMappingTest {
 
     @Test
@@ -18,3 +19,4 @@ class DataSyncFieldMappingTest {
         assertEquals("toString", fm.converter());
     }
 }
+

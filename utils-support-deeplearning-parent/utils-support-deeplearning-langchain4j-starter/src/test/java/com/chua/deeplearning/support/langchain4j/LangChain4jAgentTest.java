@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.langchain4j;
+﻿package com.chua.deeplearning.support.langchain4j;
 
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentMode;
@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class LangChain4jAgentTest {
 
     @Test
@@ -171,7 +172,6 @@ class LangChain4jAgentTest {
         /** Messages */
         private final List<AiMessage> messages;
         /** 索引 */
-        /** 索引 */
         private int index = 0;
 
         SequentialChatModel(List<AiMessage> messages) {
@@ -196,3 +196,5 @@ class LangChain4jAgentTest {
         }
     }
 }
+
+

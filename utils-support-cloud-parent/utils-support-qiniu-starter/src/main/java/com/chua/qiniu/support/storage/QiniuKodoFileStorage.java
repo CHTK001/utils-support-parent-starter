@@ -36,7 +36,6 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     /** Auth */
     private final Auth auth;
     /** 上传管理器 */
-    /** 上传管理器 */
     private final UploadManager uploadManager;
     /** Bucket 管理器 */
     /** 存储桶管理器 */

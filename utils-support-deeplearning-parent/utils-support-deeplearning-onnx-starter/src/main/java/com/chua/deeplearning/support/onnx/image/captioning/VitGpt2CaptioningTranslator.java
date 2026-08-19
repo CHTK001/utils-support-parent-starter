@@ -98,9 +98,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
-    /** 编码器会话 */
     private OrtSession encoderSession;
-    /** 解码器会话 */
     /** 解码器会话 */
     private OrtSession decoderSession;
     /** 是否已准备 */

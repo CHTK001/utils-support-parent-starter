@@ -116,7 +116,6 @@ public class AgentDefinition {
     private final MemoryConfig memoryConfig;
 
     /** 重试配置 */
-    /** 重试配置 */
     private final AgentRetryConfig retryConfig;
 
     /**

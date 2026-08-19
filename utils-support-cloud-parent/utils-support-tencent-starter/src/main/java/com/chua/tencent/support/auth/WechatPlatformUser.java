@@ -36,7 +36,6 @@ public class WechatPlatformUser {
         ENTERPRISE("ENTERPRISE");
 
         /** 值 */
-        /** 值 */
         private final String value;
 
         PlatformType(String value) {

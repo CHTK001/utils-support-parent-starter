@@ -41,7 +41,6 @@ public class HttpHeader {
     /** Cache_control */
     public static final String CACHE_CONTROL = "Cache-Control";
     /** Connection */
-    /** Connection */
     public static final String CONNECTION = "Connection";
     /** application/json */
     /** Application_json */

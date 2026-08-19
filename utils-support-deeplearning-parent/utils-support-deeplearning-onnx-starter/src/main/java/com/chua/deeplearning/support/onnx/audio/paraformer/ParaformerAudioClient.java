@@ -59,14 +59,11 @@ public class ParaformerAudioClient implements AudioClient {
     private static final String TASK_ID_PREFIX = "paraformer-";
 
     /** 设置 */
-    /** 设置 */
     private final AudioClientSetting setting;
 
     /** 模型 */
-    /** 模型 */
     private String model;
 
-    /** 语言 */
     /** 语言 */
     private String language;
 
@@ -74,7 +71,6 @@ public class ParaformerAudioClient implements AudioClient {
     /** Override 采样率 */
     private Integer overrideSampleRate;
 
-    /** 格式 */
     /** 格式 */
     private String format;
 

@@ -28,7 +28,6 @@ public class Query {
     private int limit = 100;
 
     /** 偏移 */
-    /** 偏移 */
     private int offset = 0;
 
     /** traceId 精确匹配 */

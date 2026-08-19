@@ -79,9 +79,7 @@ public class EfficientSamSegmentTranslator {
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
-    /** 编码器会话 */
     private OrtSession encoderSession;
-    /** 解码器会话 */
     /** 解码器会话 */
     private OrtSession decoderSession;
 

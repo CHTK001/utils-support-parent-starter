@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx.feature;
+﻿package com.chua.deeplearning.support.onnx.feature;
 
 import com.chua.common.support.ai.feature.FeatureClient;
 import com.chua.common.support.ai.feature.FeatureClientSetting;
@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+/** @author CH */
 
 @Slf4j
 public class OnnxFeatureClient implements FeatureClient {
 
-    /** 设置 */
     /** 设置 */
     private final FeatureClientSetting setting;
     /** 翻译器 */
@@ -74,3 +74,4 @@ public class OnnxFeatureClient implements FeatureClient {
         }
     }
 }
+

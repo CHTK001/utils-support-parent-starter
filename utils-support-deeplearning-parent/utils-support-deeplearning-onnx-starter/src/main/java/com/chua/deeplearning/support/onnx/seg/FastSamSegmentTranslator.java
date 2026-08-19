@@ -68,7 +68,6 @@ public class FastSamSegmentTranslator {
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private OrtSession session;
 
     /** 源图像宽度 */

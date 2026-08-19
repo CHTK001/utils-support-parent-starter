@@ -1,20 +1,19 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxImageClassifier implements ImageClassifier {
 
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
     /** Top-K 采样数量 */
     /** 顶部K */
     private int topK = 5;
-    /** 模型路径 */
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
@@ -63,3 +62,5 @@ public class OnnxImageClassifier implements ImageClassifier {
     }
 
 }
+
+

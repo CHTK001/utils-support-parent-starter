@@ -40,7 +40,6 @@ public class AgentHookAdapter implements Hook {
     /** AgentID */
     private final String agentId;
     /** 调试钩子 */
-    /** 调试钩子 */
     private final AgentDebugHook debugHook;
     /** 计划钩子 */
     /** Plan钩子 */

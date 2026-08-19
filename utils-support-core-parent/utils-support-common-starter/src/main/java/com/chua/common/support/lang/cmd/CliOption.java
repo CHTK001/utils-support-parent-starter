@@ -83,12 +83,10 @@ public final class CliOption {
     /** 类型 */
     private final OptionType type;
     /** 是否必填 */
-    /** 是否必填 */
     private final boolean required;
     /** 是否为标志参数 */
     /** 标记 */
     private final boolean flag;
-    /** 默认值 */
     /** 默认值 */
     private final Object defaultValue;
     /** 枚举类型 */
@@ -317,12 +315,10 @@ public final class CliOption {
         /** 类型 */
         private OptionType type = OptionType.STRING;
         /** 是否必填 */
-        /** 是否必填 */
         private boolean required;
         /** 是否为标志参数 */
         /** 标记 */
         private boolean flag;
-        /** 默认值 */
         /** 默认值 */
         private Object defaultValue;
 

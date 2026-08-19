@@ -1,4 +1,4 @@
-package com.chua.starter.datasync.agent;
+﻿package com.chua.starter.datasync.agent;
 
 import com.chua.datasync.agent.support.DataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncAgentSink;
@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class DataSyncAgentServerTest {
 
     @Test
@@ -124,3 +125,5 @@ class DataSyncAgentServerTest {
         @Override public void close() {}
     }
 }
+
+

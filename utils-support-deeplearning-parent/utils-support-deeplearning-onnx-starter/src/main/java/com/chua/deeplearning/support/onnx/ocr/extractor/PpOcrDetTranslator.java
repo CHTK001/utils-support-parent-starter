@@ -40,7 +40,6 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     /** STD */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
     /** 阈值 */
-    /** 阈值 */
     private static final float THRESHOLD = 0.3f;
     /** 最大边长 */
     /** Max_side */
@@ -72,7 +71,6 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     /** ONNX 运行时环境 */
     /** ORTENV */
     private OrtEnvironment ortEnv;
-    /** 会话 */
     /** 会话 */
     private OrtSession session;
     /** 源图像宽度 */

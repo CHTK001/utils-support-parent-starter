@@ -62,7 +62,6 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private OrtSession session;
     /** 源图像宽度 */
     /** SRC宽度 */

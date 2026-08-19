@@ -18,7 +18,6 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
      */
     private final String name;
     /** 信号量 */
-    /** 信号量 */
     private final Semaphore semaphore;
 
     public SemaphoreLockProvider() {

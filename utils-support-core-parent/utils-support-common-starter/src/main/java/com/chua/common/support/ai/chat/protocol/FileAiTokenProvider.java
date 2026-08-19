@@ -63,7 +63,6 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     private Thread watcherThread;
 
     /** 日期格式 */
-    /** 日期格式 */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**

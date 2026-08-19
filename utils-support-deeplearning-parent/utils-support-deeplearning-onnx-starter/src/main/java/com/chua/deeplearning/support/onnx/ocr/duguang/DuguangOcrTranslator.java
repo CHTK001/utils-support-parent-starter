@@ -300,13 +300,13 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
 
         // 3 chunk：300 宽、48 重叠
         float[] chunkPixels = new float[CHUNK_COUNT * CHUNK_WIDTH * REC_HEIGHT * 3];
-        int totalPixels = REC_WIDTH * REC_HEIGHT;
         byte[] rowData = new byte[REC_WIDTH * 3];
+        int hw = REC_HEIGHT * CHUNK_WIDTH; // 每 chunk 每通道 32*300=9600
         for (int c = 0; c < CHUNK_COUNT; c++) {
             int left = (CHUNK_WIDTH - CHUNK_OVERLAP) * c;
             for (int y = 0; y < REC_HEIGHT; y++) {
                 padded.get(y, 0, rowData);
-                int base = (c * REC_HEIGHT + y) * CHUNK_WIDTH;
+                int base = c * 3 * hw + y * CHUNK_WIDTH;
                 for (int x = 0; x < CHUNK_WIDTH; x++) {
                     int sx = left + x;
                     int pixelBase = base + x;
@@ -314,9 +314,10 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                     int b = rowData[bgrBase] & 0xFF;
                     int g = rowData[bgrBase + 1] & 0xFF;
                     int r = rowData[bgrBase + 2] & 0xFF;
+                    // NCHW 布局：[(c*3+0), (c*3+1), (c*3+2)] 三通道
                     chunkPixels[pixelBase] = b / 255.0f;
-                    chunkPixels[pixelBase + CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = g / 255.0f;
-                    chunkPixels[pixelBase + 2 * CHUNK_COUNT * REC_HEIGHT * CHUNK_WIDTH] = r / 255.0f;
+                    chunkPixels[pixelBase + hw] = g / 255.0f;
+                    chunkPixels[pixelBase + 2 * hw] = r / 255.0f;
                 }
             }
         }
@@ -346,6 +347,11 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                 } else {
                     for (int c = 0; c < Math.min(batch, CHUNK_COUNT); c++) {
                         texts[c] = decode(logits[c]);
+                    }
+                    if (Boolean.getBoolean("duguang.rec.debug")) {
+                        System.out.println("  [rec-debug] chunk0='" + (texts[0] == null ? "" : texts[0])
+                                + "' chunk1='" + (texts[1] == null ? "" : texts[1])
+                                + "' chunk2='" + (texts[2] == null ? "" : texts[2]) + "'");
                     }
                 }
              }

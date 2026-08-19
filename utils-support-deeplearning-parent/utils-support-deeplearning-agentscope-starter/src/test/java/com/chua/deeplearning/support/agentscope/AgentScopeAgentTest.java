@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.agentscope;
+﻿package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.agent.Agent;
 import com.chua.common.support.ai.agent.AgentDefinition;
@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class AgentScopeAgentTest {
 
     /** 原始输出流 */
@@ -328,3 +329,4 @@ class AgentScopeAgentTest {
         }
     }
 }
+

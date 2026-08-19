@@ -1,12 +1,12 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.DepthEstimator;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxDepthEstimator implements DepthEstimator {
 
-    /** 模型名称 */
     /** 模型名称 */
     private String modelName;
 
@@ -29,3 +29,5 @@ public class OnnxDepthEstimator implements DepthEstimator {
     }
 
 }
+
+

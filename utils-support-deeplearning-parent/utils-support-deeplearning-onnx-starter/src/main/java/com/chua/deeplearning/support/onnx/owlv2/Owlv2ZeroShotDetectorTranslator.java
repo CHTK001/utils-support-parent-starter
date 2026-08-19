@@ -83,7 +83,6 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     }
 
     /** 阈值 */
-    /** 阈值 */
     private final double threshold;
     /** NMS 阈值 */
     /** NMS阈值 */
@@ -108,9 +107,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     /** Candidate模型labels */
     private List<String> candidateModelLabels = DEFAULT_CANDIDATES;
     /** 输入宽度 */
-    /** 输入宽度 */
     private int inputWidth = 960;
-    /** 输入高度 */
     /** 输入高度 */
     private int inputHeight = 960;
     /** 图像均值数组 */

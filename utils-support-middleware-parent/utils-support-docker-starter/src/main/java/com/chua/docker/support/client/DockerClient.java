@@ -210,7 +210,6 @@ public class DockerClient implements Closeable {
         private String host = "unix:///var/run/docker.sock";
 
         /** 证书路径 */
-        /** 证书路径 */
         private String certPath;
 
         /** API 版本 */
@@ -1546,7 +1545,6 @@ public class DockerClient implements Closeable {
             /** 名称 */
             private final String name;
 
-            /** 标签 */
             /** 标签 */
             private String tag = "latest";
 

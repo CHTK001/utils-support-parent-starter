@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.recognition;
+﻿package com.chua.deeplearning.support.recognition;
 
 import com.chua.deeplearning.support.draw.DrawerPipeline;
 
@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/** @author CH */
 public class AllPipelinesDrawerVerify {
 
     private static final List<String> PIPELINES = List.of(

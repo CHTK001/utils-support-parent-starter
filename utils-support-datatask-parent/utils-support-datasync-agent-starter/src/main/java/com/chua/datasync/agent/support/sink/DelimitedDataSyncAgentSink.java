@@ -31,7 +31,6 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     /** SinkID */
     private final String sinkId;
     /** 文件路径 */
-    /** 文件路径 */
     private final Path filePath;
     /** 分隔符 */
     /** Delimiter */

@@ -44,7 +44,6 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     private static final int DEFAULT_MAX_LEN = 128;
 
     /** 设置 */
-    /** 设置 */
     private final EmbeddingClientSetting setting;
     /** 翻译器 */
     /** Translator */

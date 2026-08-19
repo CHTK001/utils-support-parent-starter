@@ -65,7 +65,6 @@ public class AgentScopeAgent implements Agent {
     /** Definition */
     private AgentDefinition definition;
     /** 模式 */
-    /** 模式 */
     private AgentMode mode = AgentMode.AUTO;
     /** 最大工具迭代次数 */
     /** 最大值tooliterations */
@@ -99,7 +98,6 @@ public class AgentScopeAgent implements Agent {
     /** 计划最大任务数 */
     /** Plan最大值任务 */
     private int planMaxTask;
-    /** 调试钩子 */
     /** 调试钩子 */
     private AgentDebugHook debugHook;
     /** 计划钩子 */
