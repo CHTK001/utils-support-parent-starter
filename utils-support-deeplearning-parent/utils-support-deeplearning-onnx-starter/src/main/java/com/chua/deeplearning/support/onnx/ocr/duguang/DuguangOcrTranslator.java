@@ -385,9 +385,10 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         StringBuilder sb = new StringBuilder();
         int last = 0;
         for (float[] step : logits) {
+            // argmax 含 blank(0)（与 Python np.argmax 一致），decode 时再跳过 blank
             int best = 0;
             float bestScore = Float.NEGATIVE_INFINITY;
-            for (int i = 1; i < step.length; i++) {
+            for (int i = 0; i < step.length; i++) {
                 if (step[i] > bestScore) {
                     bestScore = step[i];
                     best = i;
