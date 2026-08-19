@@ -127,6 +127,7 @@ public class SipTunnelService {
             readSocket(socket, session);
         } catch (IOException e) {
             log.error("SIP 隧道连接本地服务失败: {}:{}", localHost, localPort, e);
+            session.close();
         }
     }
 

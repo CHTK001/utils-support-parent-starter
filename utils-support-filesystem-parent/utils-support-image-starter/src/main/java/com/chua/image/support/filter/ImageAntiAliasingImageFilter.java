@@ -12,13 +12,13 @@ import javax.annotation.Nullable;
 
 
 /**
- * 抗锯齿
+ * 鎶楅敮榻?
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Spi("AntiAliasing")
-@SpiDescribe("抗锯齿滤镜")
+@SpiDescribe("鎶楅敮榻挎护闀?)
 public class ImageAntiAliasingImageFilter extends AbstractImageFilter {
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {

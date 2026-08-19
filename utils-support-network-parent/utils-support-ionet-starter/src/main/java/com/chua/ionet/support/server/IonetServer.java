@@ -85,6 +85,15 @@ public class IonetServer extends AbstractServer {
     }
 
     /**
+     * SPI 无参构造（供 {@code ServiceProvider.list()} 枚举扩展名时实例化）。
+     * <p>仅用于 SPI 注册表静态列举，不启动监听；实际使用应走
+     * {@link #IonetServer(ServerSetting)} 或 {@link #builder()}。</p>
+     */
+    public IonetServer() {
+        this(ServerSetting.defaults());
+    }
+
+    /**
      * SPI 构造（供 {@code ServerBuilder.type("ionet")} 反射创建）：
      * joinType 由 setting.protocol 反向映射，Action 扫描类需通过 Builder 场景提供。
      *

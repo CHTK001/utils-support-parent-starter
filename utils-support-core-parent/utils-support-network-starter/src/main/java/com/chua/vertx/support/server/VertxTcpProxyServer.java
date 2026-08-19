@@ -71,7 +71,12 @@ public class VertxTcpProxyServer extends AbstractServer {
             vertx = Vertx.vertx(opts);
             netClient = vertx.createNetClient(new NetClientOptions()
                     .setTcpNoDelay(setting.isTcpNoDelay())
-                    .setConnectTimeout(setting.getReadTimeout()));
+                    .setConnectTimeout(setting.getReadTimeout())
+                    // 后端连接 TCP 性能优化:FastOpen 加速握手,Cork 合并小包,QuickAck 减 ACK 延迟
+                    .setTcpFastOpen(true)
+                    .setTcpCork(true)
+                    .setTcpQuickAck(true)
+                    .setReconnectAttempts(0));
 
             NetServerOptions options = new NetServerOptions()
                     .setHost(setting.getHost())

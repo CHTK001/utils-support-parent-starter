@@ -5,7 +5,6 @@ import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.image.ImageDetector;
-import com.chua.deeplearning.support.layout.LayoutDetector;
 import com.chua.deeplearning.support.nlp.TextTranslator;
 
 /**
@@ -101,17 +100,7 @@ public class PaddleModelRegistrar implements ModelRegistrar {
                 String[][].class, float[].class,
                 FeatureExtractor.class, "nlp/simnet");
 
-        // 文档版面分析(PP-DocLayoutV3)：复用共享 ONNX 模型资源（utils-support-models-onnx-ppdoclayoutv3）
-        // 注意：该模型是 ONNX 格式，不能加 paddle/ 前缀，需直接使用 onnx 资源相对路径
-        if (ModelRegistry.get("paddle-pp-doc-layout") == null) {
-            ModelRegistry.register(
-                    "paddle-pp-doc-layout",
-                    "com.chua.deeplearning.support.paddle.layout.PpDocLayoutV3Translator",
-                    ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
-                    com.chua.deeplearning.support.layout.LayoutDetector.class,
-                    "vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx");
         }
-    }
 
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,

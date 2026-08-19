@@ -71,6 +71,9 @@ public class NioHttpServer extends AbstractServer {
     /** 每分片对应的待写 key 队列(worker 只入队,由对应分片事件循环统一注册 OP_WRITE) */
     /** Pendingwritequeues */
     private java.util.Queue<SelectionKey>[] pendingWriteQueues;
+    /** 每分片对应的"写完成待恢复 OP_READ"队列:worker 直写排空后入队,事件循环统一恢复 OP_READ */
+    /** Rearmreadqueues */
+    private java.util.Queue<SelectionKey>[] rearmReadQueues;
     /** 每分片对应的待注册连接队列:accept 线程只入队,由目标分片事件循环线程自行 register,
      *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
     /** Pendingacceptqueues */
@@ -128,12 +131,21 @@ public class NioHttpServer extends AbstractServer {
             // 出现请求超时/连接被拒(WindowsSelectorImpl 多 Selector 并发稳定性限制),
             // 与"百万级 RPS"目标冲突但无法在本平台规避,保持 2 分片确保零失败
             int eventLoops = setting.getEventLoops();
+            String osName = System.getProperty("os.name", "").toLowerCase();
+            boolean windows = osName.contains("win");
             if (eventLoops <= 0) {
                 // 自动:Windows 受 WindowsSelectorImpl 稳定性限制保守用 2;
                 // Linux/macOS 满核扩展(epoll/kqueue 多 Selector 稳定),达最大吞吐
-                String osName = System.getProperty("os.name", "").toLowerCase();
                 int cpus = Runtime.getRuntime().availableProcessors();
-                eventLoops = osName.contains("win") ? Math.min(Math.max(cpus, 2), 2) : Math.max(cpus, 2);
+                eventLoops = windows ? Math.min(Math.max(cpus, 2), 2) : Math.max(cpus, 2);
+            }
+            // Windows 强制上限 2：>2 个 Selector 并发时 WindowsSelectorImpl 表现为
+            // 接受连接成功但读事件永远无法感知(实测 eventLoops=6/12 下 QPS=0、全请求超时)。
+            // 该现象无法在本平台规避，Clamping 而非静默失败，避免用户误以为优化生效。
+            if (windows && eventLoops > 2) {
+                log.warn("NIO HttpServer eventLoops={} 超过 Windows 稳定上限 2，已收敛至 2 " +
+                        "(WindowsSelectorImpl 多 Selector 并发不稳定)。如需更高并行度请使用 Linux+epoll", eventLoops);
+                eventLoops = 2;
             }
             eventLoops = Math.max(1, eventLoops);
             selectors = new Selector[eventLoops];
@@ -141,13 +153,17 @@ public class NioHttpServer extends AbstractServer {
             @SuppressWarnings("unchecked")
             java.util.Queue<SelectionKey>[] queues = new java.util.concurrent.ConcurrentLinkedQueue[eventLoops];
             @SuppressWarnings("unchecked")
+            java.util.Queue<SelectionKey>[] rearmQueues = new java.util.concurrent.ConcurrentLinkedQueue[eventLoops];
+            @SuppressWarnings("unchecked")
             java.util.Queue<SocketChannel>[] acceptQueues = new java.util.concurrent.ConcurrentLinkedQueue[eventLoops];
             for (int i = 0; i < eventLoops; i++) {
                 selectors[i] = Selector.open();
                 queues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
+                rearmQueues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
                 acceptQueues[i] = new java.util.concurrent.ConcurrentLinkedQueue<>();
             }
             pendingWriteQueues = queues;
+            rearmReadQueues = rearmQueues;
             pendingAcceptQueues = acceptQueues;
             // serverChannel 注册移到事件循环线程 0 内部(eventLoop(0) 启动后自行注册):
             // 主线程跨线程 register 到 selectors[0] 与事件循环 select() 存在竞态,
@@ -190,6 +206,19 @@ public class NioHttpServer extends AbstractServer {
         while (running) {
             try {
                 sel.select(200L);
+                // worker 直写排空后:本分片事件循环统一恢复 OP_READ(与 select 同线程,无跨线程竞态)
+                SelectionKey rk;
+                while ((rk = rearmReadQueues[idx].poll()) != null) {
+                    if (rk.isValid()) {
+                        ConnectionState rst = (ConnectionState) rk.attachment();
+                        if (rst != null && rst.keepAlive && running) {
+                            rk.interestOps(SelectionKey.OP_READ);
+                            rst.inWorker = false;
+                        } else if (rst != null) {
+                            closeConn(rk, rst);
+                        }
+                    }
+                }
                 // 统一在本分片事件循环线程注册 OP_WRITE(worker 只入队 + wakeup,避免跨线程 interestOps 竞态)
                 SelectionKey wk;
                 while ((wk = writeQueue.poll()) != null) {
@@ -304,7 +333,7 @@ public class NioHttpServer extends AbstractServer {
                     && !WebSocketProtocol.isUpgradeRequest(st.request)) {
                 processRequestInline(st, key);
             } else {
-                executor.submit(() -> processRequest(st, key));
+                executor.submit(() -> processRequestDirectWrite(st, key));
             }
         } else if (r < 0) {
             closeConn(key, st);
@@ -320,7 +349,16 @@ public class NioHttpServer extends AbstractServer {
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         try {
             NioServerResponse response = new NioServerResponse(st.channel);
-            response.setAsyncWriter(this::inlineWrite);
+            // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
+            response.setAsyncWriter((header, body) -> {
+                synchronized (st.writeQueue) {
+                    st.writeQueue.add(header);
+                    if (body != null && body.hasRemaining()) {
+                        st.writeQueue.add(body);
+                    }
+                }
+                flushInlineWrite(st, key);
+            });
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
@@ -351,12 +389,18 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 内联路径的写出回调:在事件循环线程尽力同步写出,未写完部分留在 writeQueue。
+     * 内联路径写出完成收尾：Keep-Alive 恢复 OP_READ 继续读，否则关闭连接。
+     * <p>对照 {@link #handleWrite} 写完后的收尾语义。</p>
+     *
+     * @param st  连接状态
+     * @param key 选择键
      */
-    private void inlineWrite(ByteBuffer header, ByteBuffer body) {
-        // 同步写出必须直接从事件循环线程执行;若被其他线程调用(不应发生)则回退异步
-        synchronized (this) {
-            // no-op placeholder (真实逻辑在下面)
+    private void finishAfterWrite(ConnectionState st, SelectionKey key) {
+        if (st.keepAlive && running) {
+            key.interestOps(SelectionKey.OP_READ);
+            st.inWorker = false;
+        } else {
+            closeConn(key, st);
         }
     }
 
@@ -438,6 +482,96 @@ public class NioHttpServer extends AbstractServer {
         } catch (Exception e) {
             log.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage());
             closeConn(key, st);
+        }
+    }
+
+    /**
+     * worker(虚拟线程)执行 handler 链后,由 worker 线程直接同步写出(直写路径)。
+     * <p>对比 {@link #processRequest}:直写让 socket 写调用在 12 核虚拟线程上并行执行,
+     * 而非全部串行在 2 个事件循环线程上(Windows 上限),显著提升多核吞吐。</p>
+     * <p>线程安全:与事件循环 {@link #handleWrite} 共用 st.writeQueue 同一把锁排空,
+     * worker 只操作 writeQueue + rearmReadQueues(仅入队),interestOps 仍只由事件循环修改。</p>
+     */
+    private void processRequestDirectWrite(ConnectionState st, SelectionKey key) {
+        try {
+            // WebSocket 升级:回退到虚拟线程帧协议处理
+            if (WebSocketProtocol.isUpgradeRequest(st.request)) {
+                key.cancel();
+                st.channel.configureBlocking(true);
+                handleWebSocketUpgrade(st.channel, st.request);
+                closeConn(key, st);
+                return;
+            }
+            NioServerResponse response = new NioServerResponse(st.channel);
+            response.setAsyncWriter((header, body) -> {
+                synchronized (st.writeQueue) {
+                    st.writeQueue.add(header);
+                    if (body != null && body.hasRemaining()) {
+                        st.writeQueue.add(body);
+                    }
+                }
+            });
+            try {
+                handleRequest(st.request, response);
+            } catch (Exception e) {
+                log.warn("Request handling failed: {}", e.getMessage());
+                if (!response.isCommitted()) {
+                    response.sendError(500, "Internal Server Error");
+                }
+            } finally {
+                response.complete();
+            }
+            st.keepAlive = shouldKeepAlive(st.request, response);
+            st.request.resetForNextRequest();
+            // 直写:worker 线程同步排空 writeQueue(与事件循环 handleWrite 同锁)。
+            // 未写完(对端背压)时剩余字节交由事件循环 OP_WRITE 续写。
+            boolean allWritten;
+            synchronized (st.writeQueue) {
+                allWritten = drainWriteQueue(st, key);
+            }
+            if (allWritten) {
+                // 直写完成:通知事件循环恢复 OP_READ(interestOps 仍由事件循环线程修改)
+                rearmReadQueues[st.shard].add(key);
+                selectors[st.shard].wakeup();
+            } else {
+                pendingWriteQueues[st.shard].add(key);
+                selectors[st.shard].wakeup();
+            }
+        } catch (Exception e) {
+            log.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage());
+            closeConn(key, st);
+        }
+    }
+
+    /**
+     * 排空 writeQueue 至写满或清空。
+     * <p>必须在持有 st.writeQueue 锁的情况下调用(与事件循环 handleWrite 互斥)。
+     * 返回 true 表示已全部写出,false 表示 socket 缓冲已满仍有剩余(需 OP_WRITE 续写)。</p>
+     *
+     * @param st  连接状态
+     * @param key 选择键
+     * @return true 全部写完,false 未写完
+     */
+    private boolean drainWriteQueue(ConnectionState st, SelectionKey key) {
+        while (true) {
+            ByteBuffer bb = st.writeQueue.peek();
+            if (bb == null) {
+                return true;
+            }
+            try {
+                int w = st.channel.write(bb);
+                if (w < 0) {
+                    closeConn(key, st);
+                    return true;
+                }
+                if (bb.hasRemaining()) {
+                    return false;
+                }
+            } catch (IOException e) {
+                closeConn(key, st);
+                return true;
+            }
+            st.writeQueue.poll();
         }
     }
 

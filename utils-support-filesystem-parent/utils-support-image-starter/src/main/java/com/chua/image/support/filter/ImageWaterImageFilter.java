@@ -25,12 +25,12 @@ import javax.annotation.Nullable;
 
 
 /**
- * 水印
+ * 姘村嵃
  *
  * @author CH
  * @since 4.0.0.42
  */
-@SpiDescribe("水印")
+@SpiDescribe("姘村嵃")
 @Spi("water")
 @SpiIgnore
 public class ImageWaterImageFilter extends AbstractImageFilter {
@@ -79,12 +79,12 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-     * 图片位置定位计算
-     * @param g 图像
-     * @param image 文本
-     * @param w 宽
-     * @param h 高
-     * @param position 位置
+     * 鍥剧墖浣嶇疆瀹氫綅璁＄畻
+     * @param g 鍥惧儚
+     * @param image 鏂囨湰
+     * @param w 瀹?
+     * @param h 楂?
+     * @param position 浣嶇疆
      */
     private static void imageCountProcess(Graphics2D g, BufferedImage image, int w, int h, Position position) {
         //LOWER_RIGHT

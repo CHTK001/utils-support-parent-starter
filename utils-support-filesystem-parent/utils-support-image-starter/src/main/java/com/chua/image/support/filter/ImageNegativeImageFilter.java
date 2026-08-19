@@ -10,58 +10,58 @@ import javax.annotation.Nullable;
 
 
 /**
- * 负片效果图像滤镜
+ * 璐熺墖鏁堟灉鍥惧儚婊ら暅
  *
- * 实现经典的负片（反转）效果，通过将每个像素的RGB值进行反转操作，
- * 创建类似胶片负片的视觉效果。
+ * 瀹炵幇缁忓吀鐨勮礋鐗囷紙鍙嶈浆锛夋晥鏋滐紝閫氳繃灏嗘瘡涓儚绱犵殑RGB鍊艰繘琛屽弽杞搷浣滐紝
+ * 鍒涘缓绫讳技鑳剁墖璐熺墖鐨勮瑙夋晥鏋溿€?
  *
- * 技术原理：
- * - 对每个颜色通道执行反转操作：新值 = 255 - 原值
- * - 保持Alpha通道不变（如果存在）
- * - 亮的区域变暗，暗的区域变亮
- * - 颜色变为其补色
+ * 鎶€鏈師鐞嗭細
+ * - 瀵规瘡涓鑹查€氶亾鎵ц鍙嶈浆鎿嶄綔锛氭柊鍊?= 255 - 鍘熷€?
+ * - 淇濇寔Alpha閫氶亾涓嶅彉锛堝鏋滃瓨鍦級
+ * - 浜殑鍖哄煙鍙樻殫锛屾殫鐨勫尯鍩熷彉浜?
+ * - 棰滆壊鍙樹负鍏惰ˉ鑹?
  *
- * 数学公式：
+ * 鏁板鍏紡锛?
  * - R' = 255 - R
  * - G' = 255 - G
  * - B' = 255 - B
  *
- * 视觉效果：
- * - 白色变为黑色，黑色变为白色
- * - 红色变为青色，绿色变为品红色，蓝色变为黄色
- * - 创建超现实的艺术效果
- * - 突出图像的轮廓和结构
+ * 瑙嗚鏁堟灉锛?
+ * - 鐧借壊鍙樹负榛戣壊锛岄粦鑹插彉涓虹櫧鑹?
+ * - 绾㈣壊鍙樹负闈掕壊锛岀豢鑹插彉涓哄搧绾㈣壊锛岃摑鑹插彉涓洪粍鑹?
+ * - 鍒涘缓瓒呯幇瀹炵殑鑹烘湳鏁堟灉
+ * - 绐佸嚭鍥惧儚鐨勮疆寤撳拰缁撴瀯
  *
- * 应用场景：
- * - 艺术摄影：创建独特的视觉效果
- * - 图像分析：突出显示图像特征
- * - 创意设计：制作特殊的视觉元素
- * - 医学影像：某些医学图像的显示需求
- * - 夜视效果：模拟夜视设备的显示效果
+ * 搴旂敤鍦烘櫙锛?
+ * - 鑹烘湳鎽勫奖锛氬垱寤虹嫭鐗圭殑瑙嗚鏁堟灉
+ * - 鍥惧儚鍒嗘瀽锛氱獊鍑烘樉绀哄浘鍍忕壒寰?
+ * - 鍒涙剰璁捐锛氬埗浣滅壒娈婄殑瑙嗚鍏冪礌
+ * - 鍖诲褰卞儚锛氭煇浜涘尰瀛﹀浘鍍忕殑鏄剧ず闇€姹?
+ * - 澶滆鏁堟灉锛氭ā鎷熷瑙嗚澶囩殑鏄剧ず鏁堟灉
  *
- * 注意：当前实现创建的是灰度图像，如需保持彩色效果，
- * 应使用TYPE_INT_RGB而不是TYPE_BYTE_GRAY。
+ * 娉ㄦ剰锛氬綋鍓嶅疄鐜板垱寤虹殑鏄伆搴﹀浘鍍忥紝濡傞渶淇濇寔褰╄壊鏁堟灉锛?
+ * 搴斾娇鐢═YPE_INT_RGB鑰屼笉鏄疶YPE_BYTE_GRAY銆?
  *
  * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */
-@SpiDescribe("负片反转滤镜")
+@SpiDescribe("璐熺墖鍙嶈浆婊ら暅")
 @Spi("negative")
 public class ImageNegativeImageFilter extends AbstractImageFilter {
 
     /**
-     * 执行负片滤镜处理
+     * 鎵ц璐熺墖婊ら暅澶勭悊
      *
-     * 对图像的每个像素进行颜色反转操作，将RGB值转换为其补色。
+     * 瀵瑰浘鍍忕殑姣忎釜鍍忕礌杩涜棰滆壊鍙嶈浆鎿嶄綔锛屽皢RGB鍊艰浆鎹负鍏惰ˉ鑹层€?
      *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 应用负片效果后的图像
+     * @param src 婧愬浘鍍?
+     * @param dst 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
+     * @return 搴旂敤璐熺墖鏁堟灉鍚庣殑鍥惧儚
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        // 注意：这里应该使用TYPE_INT_RGB来保持彩色效果
+        // 娉ㄦ剰锛氳繖閲屽簲璇ヤ娇鐢═YPE_INT_RGB鏉ヤ繚鎸佸僵鑹叉晥鏋?
         BufferedImage negativeImage = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         int width = src.getWidth();
@@ -71,17 +71,17 @@ public class ImageNegativeImageFilter extends AbstractImageFilter {
             for (int y = 0; y < height; y++) {
                 int pixelVal = src.getRGB(x, y);
 
-                // 提取RGB分量
+                // 鎻愬彇RGB鍒嗛噺
                 int red = (pixelVal >> 16) & 0xFF;
                 int green = (pixelVal >> 8) & 0xFF;
                 int blue = pixelVal & 0xFF;
 
-                // 执行颜色反转：新值 = 255 - 原值
+                // 鎵ц棰滆壊鍙嶈浆锛氭柊鍊?= 255 - 鍘熷€?
                 red = 255 - red;
                 green = 255 - green;
                 blue = 255 - blue;
 
-                // 重新组合RGB值
+                // 閲嶆柊缁勫悎RGB鍊?
                 Color negativeColor = new Color(red, green, blue);
                 negativeImage.setRGB(x, y, negativeColor.getRGB());
             }

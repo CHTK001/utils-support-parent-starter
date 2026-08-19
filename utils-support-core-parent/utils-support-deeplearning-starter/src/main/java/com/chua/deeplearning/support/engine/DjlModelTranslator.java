@@ -139,10 +139,17 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
      */
     private Object adaptOutput(Object result, int imgW, int imgH) {
         if (result instanceof ai.djl.modality.cv.Image image) {
-            // 图像输出模型（人脸修复/超分/动漫化等）：转 byte[]（PNG）
+            // 图像输出模型（人脸修复/超分/抠图等）：转 byte[]（PNG，保留 alpha）
             try {
                 Object wrapped = image.getWrappedImage();
                 if (wrapped instanceof java.awt.image.BufferedImage bufferedImage) {
+                    boolean hasAlpha = bufferedImage.getColorModel().hasAlpha();
+                    if (hasAlpha) {
+                        // 有 alpha 通道，用 ImageIO 写 PNG 保留透明
+                        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                        javax.imageio.ImageIO.write(bufferedImage, "PNG", baos);
+                        return baos.toByteArray();
+                    }
                     return ImageUtils.encode(ImageUtils.toMat(bufferedImage));
                 }
             } catch (Exception e) {

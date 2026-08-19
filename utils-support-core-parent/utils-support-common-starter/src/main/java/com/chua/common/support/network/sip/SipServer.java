@@ -406,13 +406,16 @@ public class SipServer {
                     requestId + SipProtocol.SEPARATOR + "service not found: " + serviceName);
             return;
         }
+        SipPeer provider = registry.get(providerId);
+        if (provider == null) {
+            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR,
+                    requestId + SipProtocol.SEPARATOR + "provider offline: " + serviceName);
+            return;
+        }
         String channelId = UUID.randomUUID().toString();
         tunnelChannels.put(channelId, new TunnelChannel(clientId, providerId));
-        SipPeer provider = registry.get(providerId);
-        if (provider != null) {
-            provider.transport().send(providerId, SipProtocol.CMD_TUNNEL_OPEN,
-                    channelId + SipProtocol.SEPARATOR + serviceName);
-        }
+        provider.transport().send(providerId, SipProtocol.CMD_TUNNEL_OPEN,
+                channelId + SipProtocol.SEPARATOR + serviceName);
         transport.send(clientId, SipProtocol.CMD_TUNNEL_OPENED,
                 requestId + SipProtocol.SEPARATOR + channelId);
         log.info("SIP 隧道建立: {} <-> {} via {}", clientId, providerId, channelId);
@@ -515,6 +518,30 @@ public class SipServer {
     }
 
     /**
+     * 清理断线客户端占用的隧道服务与通道，并通知通道对端关闭。
+     *
+     * @param clientId 客户端标识
+     */
+    private void cleanupTunnels(String clientId) {
+        // 移除该客户端提供的隧道服务，避免成为陈旧服务
+        tunnelServices.entrySet().removeIf(entry -> entry.getValue().equals(clientId));
+        // 关闭该客户端参与的所有隧道通道，并通知对端
+        List<String> closedChannels = new ArrayList<>();
+        for (Map.Entry<String, TunnelChannel> entry : tunnelChannels.entrySet()) {
+            TunnelChannel channel = entry.getValue();
+            String peerId = channel.targetOf(clientId);
+            if (peerId != null) {
+                SipPeer peer = registry.get(peerId);
+                if (peer != null) {
+                    peer.transport().send(peerId, SipProtocol.CMD_TUNNEL_CLOSE, entry.getKey());
+                }
+                closedChannels.add(entry.getKey());
+            }
+        }
+        closedChannels.forEach(tunnelChannels::remove);
+    }
+
+    /**
      * 传输层事件监听器，将各传输（TCP/KCP）的信令统一交给 {@link SipServer} 处理。
      *
      * @author CH
@@ -546,6 +573,7 @@ public class SipServer {
             if (registry.remove(clientId) != null) {
                 notifyDisconnectListeners(clientId);
             }
+            cleanupTunnels(clientId);
         }
 
         @Override
