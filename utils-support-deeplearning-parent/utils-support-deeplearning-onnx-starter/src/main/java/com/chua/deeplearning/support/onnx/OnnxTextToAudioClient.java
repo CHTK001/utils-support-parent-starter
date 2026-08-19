@@ -8,6 +8,8 @@ import com.chua.deeplearning.support.ai.client.AbstractLocalTextToAudioClient;
 import com.chua.deeplearning.support.ai.client.DeeplearningModels;
 import com.chua.deeplearning.support.onnx.audio.tts.MmsTtsTranslator;
 import com.chua.deeplearning.support.onnx.audio.tts.PocketTtsTranslator;
+import com.chua.deeplearning.support.onnx.audio.tts.VitsTtsTranslator;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Spi("onnx")
+@Slf4j
 public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
 
     /**
@@ -42,6 +45,11 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     private static final String POCKET_TTS_MODEL = "pocket-tts";
 
     /**
+     * VITS-icefall 中文 TTS 模型名（AISHELL3 多说话人）
+     */
+    private static final String VITS_ICEEFALL_ZH_MODEL = "vits-icefall-zh";
+
+    /**
      * 内嵌的 MMS-TTS 合成器（懒加载）
      */
     private MmsTtsTranslator mmsTtsTranslator;
@@ -52,12 +60,52 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     private PocketTtsTranslator pocketTtsTranslator;
 
     /**
+     * 内嵌的 VITS-icefall 中文合成器（懒加载）
+     */
+    private VitsTtsTranslator vitsTtsTranslator;
+
+    /**
+     * 说话人指定（voice 参数，VITS speaker id）
+     */
+    private String voice;
+
+    /**
      * 构造 ONNX 语音合成客户端。
      *
      * @param setting 客户端配置
      */
     public OnnxTextToAudioClient(TextToAudioClientSetting setting) {
         super("onnx", setting);
+        this.voice = setting != null ? setting.getVoice() : null;
+    }
+
+    @Override
+    public TextToAudioClient voice(String voice) {
+        this.voice = voice;
+        return this;
+    }
+
+    /**
+     * 解析 VITS 说话人 id：voice 参数为数字时直接使用，否则按说话人名查 speakers 序。
+     * 无法解析回退 0。
+     *
+     * @return 说话人 id
+     */
+    private int resolveSpeakerId() {
+        if (voice != null && !voice.isBlank()) {
+            try {
+                return Integer.parseInt(voice.trim());
+            } catch (NumberFormatException ignored) {
+                // 按名字查序（vitsTtsTranslator 内 speakers 列表）
+                List<String> names = vitsTtsTranslator.speakerNames();
+                int idx = names.indexOf(voice.trim());
+                if (idx >= 0) {
+                    return idx;
+                }
+                log.warn("[VITS] 未知说话人 {}，回退 speaker=0", voice);
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -84,6 +132,15 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
             }
             return pocketTtsTranslator.synthesize(this.text);
         }
+        // VITS-icefall 中文 TTS 走内嵌 ORT 合成器（AISHELL3 多说话人，模型打包在 jar 中）
+        if (VITS_ICEEFALL_ZH_MODEL.equalsIgnoreCase(modelName) || modelName.toLowerCase().contains("vits")) {
+            synchronized (this) {
+                if (vitsTtsTranslator == null) {
+                    vitsTtsTranslator = new VitsTtsTranslator();
+                }
+            }
+            return vitsTtsTranslator.synthesize(this.text, resolveSpeakerId());
+        }
         return super.synthesize(this.text);
     }
 
@@ -96,6 +153,10 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
         if (pocketTtsTranslator != null) {
             pocketTtsTranslator.close();
             pocketTtsTranslator = null;
+        }
+        if (vitsTtsTranslator != null) {
+            vitsTtsTranslator.close();
+            vitsTtsTranslator = null;
         }
         super.close();
     }

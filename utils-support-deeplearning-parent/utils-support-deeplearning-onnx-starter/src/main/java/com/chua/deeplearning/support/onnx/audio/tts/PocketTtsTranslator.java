@@ -9,7 +9,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
@@ -143,6 +142,11 @@ public class PocketTtsTranslator {
      * 最大帧数上限（防 OOM）
      */
     private int maxFrames = 4096;
+
+    /**
+     * 参考音频潜变量布局："NCT" = [1, C, T]（Mimi 默认），"NTC" = [1, T, C]（兼容旧导出）
+     */
+    private String refLatentsLayout = "NCT";
 
     /** 是否已准备 */
     private volatile boolean prepared;
@@ -334,6 +338,7 @@ public class PocketTtsTranslator {
         latentDim = configInt("latent_dim", latentDim);
         framesPerToken = configDouble("frames_per_token", framesPerToken);
         maxFrames = configInt("max_frames", maxFrames);
+        refLatentsLayout = configStr("ref_latents_layout", refLatentsLayout);
     }
 
     /**
@@ -534,7 +539,11 @@ public class PocketTtsTranslator {
             log.debug("[Pocket-TTS] mimi_encoder 或 flow ref 输入缺失，忽略参考音频，使用默认音色");
             return null;
         }
-        float[] waveform = new float[0];
+        float[] waveform = decodeWavToFloat(refAudioWav);
+        if (waveform.length == 0) {
+            log.warn("[Pocket-TTS] 参考音频解码为空，使用默认音色");
+            return null;
+        }
         long[] shape = new long[]{1, waveform.length};
         try (ai.onnxruntime.OnnxTensor tWave = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(waveform), shape)) {
             Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
@@ -544,6 +553,7 @@ public class PocketTtsTranslator {
                 FloatBuffer fb = latents.getFloatBuffer();
                 float[] out = new float[fb.remaining()];
                 fb.get(out);
+                refLatentsLen = out.length;
                 log.info("[Pocket-TTS] 参考音频编码完成: {} samples -> {} latents", waveform.length, out.length);
                 return out;
             }
@@ -616,11 +626,16 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 参考音频潜变量 shape：mimi_encoder 输出 [1, C, T]，此处按输出长度推断
-     * 为 [1, latentDim, frames]（与 Mimi 编码器输出布局一致）。
+     * 参考音频潜变量 shape：默认 [1, C, T]（NCT），可通过 config.json
+     * {@code ref_latents_layout} 配置为 "NTC" 以兼容旧导出。
      */
     private long[] refLatentsShape() {
-        return new long[]{1, refLatentsLen / latentDim, latentDim};
+        int C = latentDim;
+        int T = refLatentsLen / C;
+        if ("NTC".equalsIgnoreCase(refLatentsLayout)) {
+            return new long[]{1, T, C};
+        }
+        return new long[]{1, C, T};
     }
 
     /**
@@ -690,6 +705,88 @@ public class PocketTtsTranslator {
         }
     }
 
+    // ==================== WAV 解码 ====================
+
+    /**
+     * WAV 字节解码为 float 波形（-1.0~1.0）：支持任意采样率/声道数，自动重采样到 24kHz 单声道。
+     *
+     * @param wavBytes WAV 字节
+     * @return float 波形（单声道 24kHz）
+     * @throws Exception 解码异常
+     */
+    private static float[] decodeWavToFloat(byte[] wavBytes) throws Exception {
+        try (AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wavBytes))) {
+            AudioFormat srcFmt = ais.getFormat();
+            // 尽早检查位深度，避免无效 I/O
+            int bitsPerSample = srcFmt.getSampleSizeInBits();
+            if (bitsPerSample != 16) {
+                throw new IllegalArgumentException("参考音频仅支持 16-bit PCM WAV，当前: " + bitsPerSample + "-bit");
+            }
+            // 按 16-bit PCM 读取全部帧（getFrameLength 可能返回 -1，此时按 8KB 分块读）
+            long frameLength = ais.getFrameLength();
+            int frameSize = srcFmt.getFrameSize();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int totalRead = 0;
+            if (frameLength > 0) {
+                byte[] raw = new byte[(int) (frameLength * frameSize)];
+                while (totalRead < raw.length) {
+                    int n = ais.read(raw, totalRead, raw.length - totalRead);
+                    if (n < 0) break;
+                    totalRead += n;
+                }
+                // raw 可能因 partial read 而含尾部零，截断到实际读取长度
+                if (totalRead < raw.length) {
+                    raw = java.util.Arrays.copyOf(raw, totalRead);
+                }
+                baos.write(raw);
+            } else {
+                // 帧长度未知，分块读取
+                int n;
+                while ((n = ais.read(buf)) != -1) {
+                    baos.write(buf, 0, n);
+                    totalRead += n;
+                }
+            }
+            byte[] raw = baos.toByteArray();
+            // PCM → float [-1.0, 1.0]
+            float[] mono = new float[totalRead / 2];
+            for (int i = 0; i < mono.length; i++) {
+                int lo = raw[i * 2] & 0xFF;
+                int hi = raw[i * 2 + 1];
+                mono[i] = (hi << 8 | lo) / 32768.0f;
+            }
+            // 多声道 → 单声道
+            int channels = srcFmt.getChannels();
+            if (channels > 1) {
+                float[] merged = new float[mono.length / channels];
+                for (int i = 0; i < merged.length; i++) {
+                    float sum = 0;
+                    for (int c = 0; c < channels; c++) {
+                        sum += mono[i * channels + c];
+                    }
+                    merged[i] = sum / channels;
+                }
+                mono = merged;
+            }
+            // 重采样到 24kHz
+            float srcRate = srcFmt.getSampleRate();
+            if (srcRate != SAMPLE_RATE && srcRate > 0) {
+                int newLen = (int) (mono.length * (long) SAMPLE_RATE / srcRate);
+                float[] resampled = new float[newLen];
+                for (int i = 0; i < newLen; i++) {
+                    double pos = (double) i * srcRate / SAMPLE_RATE;
+                    int lo = (int) pos;
+                    int hi = Math.min(lo + 1, mono.length - 1);
+                    float frac = (float) (pos - lo);
+                    resampled[i] = mono[lo] * (1 - frac) + mono[hi] * frac;
+                }
+                mono = resampled;
+            }
+            return mono;
+        }
+    }
+
     // ==================== WAV 输出 ====================
 
     /**
@@ -722,9 +819,11 @@ public class PocketTtsTranslator {
         closeQuietly(textEncoderSession);
         closeQuietly(flowSession);
         closeQuietly(mimiDecoderSession);
+        closeQuietly(mimiEncoderSession);
         textEncoderSession = null;
         flowSession = null;
         mimiDecoderSession = null;
+        mimiEncoderSession = null;
         prepared = false;
     }
 
