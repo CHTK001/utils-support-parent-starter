@@ -180,15 +180,19 @@ class PocketTtsTranslatorTest {
 
     @Test
     void testDecodeWavToFloat_emptyInput() throws Exception {
-        // 空 WAV 字节应抛出异常或返回空数组
+        // 空 WAV 字节应抛出异常（反射调用会包装为 InvocationTargetException）
         byte[] emptyWav = new byte[0];
         try {
             float[] result = invokeDecodeWavToFloat(emptyWav);
             // 如果不抛异常，应返回空数组
             assertEquals(0, result.length);
         } catch (Exception e) {
-            // 抛出异常也是可接受的行为
-            assertTrue(e instanceof IllegalArgumentException || e instanceof javax.sound.sampled.UnsupportedAudioFileException);
+            // 反射调用会包装为 InvocationTargetException，需取 cause
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            assertTrue(cause instanceof IllegalArgumentException
+                    || cause instanceof javax.sound.sampled.UnsupportedAudioFileException
+                    || cause instanceof java.io.EOFException,
+                    "Unexpected exception: " + cause.getClass().getName() + ": " + cause.getMessage());
         }
     }
 
@@ -344,16 +348,22 @@ class PocketTtsTranslatorTest {
 
     @Test
     void testFindValueEnd_string() throws Exception {
+        // "key": "value", "next": 1
+        // 位置: 0123456789...
+        // 位置7是value的开头引号"，位置14是逗号
         String s = "\"key\": \"value\", \"next\": 1";
-        int end = invokeFindValueEnd(s, 8); // position after colon+space
-        assertEquals(15, end, "应找到字符串值结束位置（不含尾逗号）");
+        int end = invokeFindValueEnd(s, 7); // 从value的开头引号开始
+        assertEquals(14, end, "字符串值应结束于逗号位置（不含逗号）");
     }
 
     @Test
     void testFindValueEnd_object() throws Exception {
+        // "key": {"a": 1}, "next": 2
+        // 位置: 0123456789...
+        // 位置7是{，位置15是逗号
         String s = "\"key\": {\"a\": 1}, \"next\": 2";
-        int end = invokeFindValueEnd(s, 8); // position after colon+space
-        assertEquals(19, end, "应找到嵌套对象结束位置（含尾逗号前）");
+        int end = invokeFindValueEnd(s, 7); // 从{开始
+        assertEquals(15, end, "对象值应结束于逗号位置（不含逗号）");
     }
 
     // ==================== close 资源释放 ====================

@@ -1,5 +1,6 @@
-﻿package com.recovery;
+package com.recovery;
 
+import com.chua.datarecovery.support.DataRecovery;
 import com.chua.common.support.utils.NativeUtils;
 
 /**

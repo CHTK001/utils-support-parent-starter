@@ -79,7 +79,11 @@ public class VertxHttpProxyServer extends AbstractServer {
                     .setKeepAlive(true)
                     .setKeepAliveTimeout(60)
                     .setPipelining(false)
+                    // 后端 HTTP/2 多路复用：单连接多路流承载并发转发，
+                    // http2MultiplexingLimit(128) 仅在 HTTP/2 协议下生效
+                    .setProtocolVersion(io.vertx.core.http.HttpVersion.HTTP_2)
                     .setHttp2MultiplexingLimit(128)
+                    .setHttp2ConnectionWindowSize(8 * 1024 * 1024)
                     .setTcpFastOpen(true)
                     .setTcpCork(true)
                     .setTcpQuickAck(true));
