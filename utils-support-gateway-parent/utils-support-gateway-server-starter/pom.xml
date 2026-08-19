@@ -29,12 +29,14 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- guacd 预编译二进制资源包（内嵌 Windows/Linux zip，一键式启动） -->
+        <!-- guacd 预编译二进制资源包（内嵌 Windows/Linux zip，一键式启动）
+             暂时注释：模块不存在，guacd 改由 apt 包管理器自动安装
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-resource-guacd</artifactId>
             <version>${project.version}</version>
         </dependency>
+        -->
 
         <!-- Apache Guacamole Java 公共 API（RDP/VNC/SSH 抽象） -->
         <dependency>

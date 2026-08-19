@@ -2,13 +2,18 @@ package com.chua.common.support.network.sip;
 
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.server.SyncServer;
-import com.chua.common.support.network.server.SyncServerListener;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.network.server.impl.JdkTcpServer;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,21 +22,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * SIP 信令服务器，内部同时支持 TCP 与 KCP 两种长连接传输。
+ * SIP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口（JdkTcpServer 流式模式）。
  *
- * <p>本服务器复用 {@code com.chua.common.support.network.sync} 的传输层实现
- * （TCP 使用 {@code TcpSyncServer}，KCP 使用 {@code KcpSyncServer}，通过 SPI 按
- * {@code "tcp"} / {@code "kcp"} 加载），在其之上提供注册、寻址与消息中继能力。</p>
- *
- * <h2>工作方式</h2>
+ * <p>连接建立后首行握手：</p>
  * <ul>
- *   <li>客户端（A、B）与服务器建立长连接并通过 {@code sip/register} 注册，上报可达地址</li>
- *   <li>任意客户端通过 {@code sip/find} 查询对端地址</li>
- *   <li>A 通过 {@code sip/msg} 携带 B 的标识发送消息，服务器按注册表路由到 B 的长连接</li>
- *   <li>B 通过 {@code sip/resp} 回传响应，服务器转发回 A</li>
+ *   <li>{@code AUTH|clientId|host|port|signature} → 认证连接，
+ *       验签通过后返回 {@code TOKEN|token} 并保持为信令长连接，后续按行收发信令</li>
+ *   <li>{@code CONNECT|channelId|role|token} → 数据平面连接，
+ *       携带会话 token 校验，通过后与对端裸字节流双向桥接（TCP 代理模式）</li>
  * </ul>
- *
- * <p>转发基于注册表路由（走客户端既有长连接），不建立到 IP:PORT 的新连接。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,9 +39,14 @@ import java.util.function.Consumer;
 public class SipServer {
 
     /**
-     * 客户端注册表（clientId -> 会话信息）
+     * 客户端注册表（clientId -> 信令连接）
      */
-    private final Map<String, SipPeer> registry = new ConcurrentHashMap<>();
+    private final Map<String, SignalConnection> registry = new ConcurrentHashMap<>();
+
+    /**
+     * 会话令牌表（token -> clientId）
+     */
+    private final Map<String, String> sessionTokens = new ConcurrentHashMap<>();
 
     /**
      * 隧道服务注册表（serviceName -> 服务提供方 clientId）
@@ -53,6 +57,11 @@ public class SipServer {
      * 隧道通道路由表（channelId -> 通道两端）
      */
     private final Map<String, TunnelChannel> tunnelChannels = new ConcurrentHashMap<>();
+
+    /**
+     * 数据通道桥接表（channelId -> 桥接器）
+     */
+    private final Map<String, DataChannel> dataChannels = new ConcurrentHashMap<>();
 
     /**
      * 客户端连接回调列表
@@ -70,19 +79,9 @@ public class SipServer {
     private final SipConfig config;
 
     /**
-     * TCP 传输实例
+     * 底层 TCP 服务器（流式模式，一连接一虚拟线程）
      */
-    private SyncServer tcpServer;
-
-    /**
-     * KCP 传输实例
-     */
-    private SyncServer kcpServer;
-
-    /**
-     * frp 数据平面（独立端口承载隧道数据）
-     */
-    private SipDataPlane dataPlane;
+    private JdkTcpServer tcpServer;
 
     /**
      * 是否正在运行
@@ -106,7 +105,7 @@ public class SipServer {
     }
 
     /**
-     * 启动 SIP 服务器（按配置启动 TCP 与 KCP 传输）。
+     * 启动 SIP 服务器（单端口监听）。
      *
      * @return 当前服务器实例，支持链式调用
      */
@@ -114,55 +113,20 @@ public class SipServer {
         if (running) {
             return this;
         }
-        if (config.isTcpEnabled()) {
-            startTransport("tcp", config.getTcpPort());
-        }
-        if (config.isKcpEnabled()) {
-            startTransport("kcp", config.getKcpPort());
-        }
-        if (config.isDataPlaneEnabled()) {
-            try {
-                dataPlane = new SipDataPlane(config.getHost(), config.getDataPort(), config.getToken(),
-                        this::handleDataPlaneClosed);
-                dataPlane.start();
-            } catch (Exception e) {
-                log.warn("SIP 数据平面启动失败: {}", e.getMessage());
-            }
-        }
-        running = true;
-        log.info("SIP 服务器启动完成: tcp={}, kcp={}, dataPlane={}",
-                config.isTcpEnabled(), config.isKcpEnabled(), config.isDataPlaneEnabled());
-        return this;
-    }
-
-    /**
-     * 启动指定类型的传输。
-     *
-     * @param type 传输类型（tcp / kcp）
-     * @param port 监听端口
-     */
-    private void startTransport(String type, int port) {
         try {
             ServerSetting setting = ServerSetting.defaults();
             setting.setHost(config.getHost());
-            setting.setPort(port);
-            setting.setProtocol(type);
-            SyncServer transport = ServiceProvider.of(SyncServer.class).getNewExtension(type, setting);
-            if (transport == null) {
-                log.warn("SIP 传输 [{}] 未找到 SPI 实现，已跳过", type);
-                return;
-            }
-            transport.addListener(new SipTransportListener(transport));
-            transport.start();
-            if ("tcp".equals(type)) {
-                tcpServer = transport;
-            } else {
-                kcpServer = transport;
-            }
-            log.info("SIP 传输 [{}] 启动成功: {}:{}", type, config.getHost(), port);
+            setting.setPort(config.getPort());
+            setting.setProtocol("tcp");
+            tcpServer = new JdkTcpServer(setting);
+            tcpServer.registerHandler("*", this::handleConnection);
+            tcpServer.start();
+            running = true;
+            log.info("SIP 单端口服务器启动成功: {}:{}", config.getHost(), config.getPort());
         } catch (Exception e) {
-            log.warn("SIP 传输 [{}] 启动失败（请确认依赖是否齐全）: {}", type, e.getMessage());
+            throw new RuntimeException("SIP 服务器启动失败: " + config.getPort(), e);
         }
+        return this;
     }
 
     /**
@@ -181,19 +145,12 @@ public class SipServer {
             } catch (Exception ignored) {
             }
         }
-        if (kcpServer != null) {
-            try {
-                kcpServer.stop();
-            } catch (Exception ignored) {
-            }
+        for (DataChannel channel : dataChannels.values()) {
+            channel.close();
         }
-        if (dataPlane != null) {
-            try {
-                dataPlane.stop();
-            } catch (Exception ignored) {
-            }
-        }
+        dataChannels.clear();
         registry.clear();
+        sessionTokens.clear();
         tunnelServices.clear();
         tunnelChannels.clear();
         log.info("SIP 服务器已停止");
@@ -203,7 +160,7 @@ public class SipServer {
     /**
      * 判断服务器是否正在运行。
      *
-     * @return true 表示正在运行
+     * @return true 表示运行中
      */
     public boolean isRunning() {
         return running;
@@ -224,53 +181,7 @@ public class SipServer {
      * @return 客户端标识列表
      */
     public List<String> getConnectedClients() {
-        return new ArrayList<>(registry.keySet());
-    }
-
-    /**
-     * 获取指定客户端的可达地址。
-     *
-     * @param clientId 客户端标识
-     * @return 形如 {@code host:port} 的地址，未注册时返回 null
-     */
-    public String getClientAddress(String clientId) {
-        SipPeer peer = registry.get(clientId);
-        return peer != null ? peer.host() + ":" + peer.port() : null;
-    }
-
-    /**
-     * 向所有已注册客户端广播消息。
-     *
-     * @param topic   主题
-     * @param message 消息内容
-     * @return 当前服务器实例，支持链式调用
-     */
-    public SipServer publish(String topic, Object message) {
-        String payload = topic + SipProtocol.SEPARATOR + message;
-        for (String clientId : registry.keySet()) {
-            SipPeer peer = registry.get(clientId);
-            if (peer != null) {
-                peer.transport().send(clientId, SipProtocol.CMD_PUSH, payload);
-            }
-        }
-        return this;
-    }
-
-    /**
-     * 向指定客户端定向推送消息。
-     *
-     * @param clientId 目标客户端标识
-     * @param topic    主题
-     * @param message  消息内容
-     * @return 当前服务器实例，支持链式调用
-     */
-    public SipServer push(String clientId, String topic, Object message) {
-        SipPeer peer = registry.get(clientId);
-        if (peer != null) {
-            peer.transport().send(clientId, SipProtocol.CMD_PUSH,
-                    topic + SipProtocol.SEPARATOR + message);
-        }
-        return this;
+        return List.copyOf(registry.keySet());
     }
 
     /**
@@ -296,205 +207,253 @@ public class SipServer {
     }
 
     /**
-     * 处理信令消息。
+     * 处理一条连接：读首行握手，按前缀分流认证信令与数据平面。
      *
-     * @param transport 来源传输实例
-     * @param clientId  客户端标识
-     * @param topic     消息主题
-     * @param message   消息内容
+     * @param in  输入流
+     * @param out 输出流
      */
-    private void handleSignal(SyncServer transport, String clientId, String topic, Object message) {
-        String payload = message != null ? message.toString() : "";
-        switch (topic) {
-            case SipProtocol.CMD_REGISTER -> handleRegister(transport, clientId, payload);
-            case SipProtocol.CMD_FIND -> handleFind(transport, clientId, payload);
-            case SipProtocol.CMD_MSG -> handleMsg(transport, clientId, payload);
-            case SipProtocol.CMD_RESP -> handleResp(transport, clientId, payload);
-            case SipProtocol.CMD_TUNNEL_REGISTER -> handleTunnelRegister(transport, clientId, payload);
-            case SipProtocol.CMD_TUNNEL_OPEN -> handleTunnelOpen(transport, clientId, payload);
-            case SipProtocol.CMD_TUNNEL_CLOSE -> handleTunnelClose(transport, clientId, payload);
-            default -> log.debug("忽略未知 SIP 信令: {}", topic);
+    private void handleConnection(InputStream in, OutputStream out) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String firstLine = reader.readLine();
+            if (firstLine == null || firstLine.isBlank()) {
+                return;
+            }
+            if (firstLine.startsWith(SipProtocol.PREFIX_AUTH + SipProtocol.SEPARATOR)) {
+                handleSignalConnection(reader, out, firstLine);
+            } else if (firstLine.startsWith(SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR)) {
+                handleDataConnection(in, out, firstLine);
+            }
+        } catch (IOException e) {
+            log.debug("SIP 连接处理异常: {}", e.getMessage());
         }
     }
 
     /**
-     * 处理客户端注册，校验签名后登记可达地址。
+     * 处理信令长连接：认证换 token 后循环读取信令行。
      *
-     * @param transport 来源传输实例
-     * @param clientId  客户端标识
-     * @param payload   报文内容（host|port|signature）
+     * @param reader    输入
+     * @param out       输出
+     * @param firstLine 认证握手行（AUTH|clientId|host|port|signature）
+     * @throws IOException IO 异常
      */
-    private void handleRegister(SyncServer transport, String clientId, String payload) {
-        String[] parts = payload.split("\\|");
-        if (parts.length < 3) {
-            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR, "register|缺少签名");
+    private void handleSignalConnection(BufferedReader reader, OutputStream out, String firstLine) throws IOException {
+        String[] parts = firstLine.split("\\|");
+        if (parts.length < 5) {
             return;
         }
-        String host = parts[0];
-        int port = parsePort(parts);
-        String signature = parts[2];
+        String clientId = parts[1];
+        String host = parts[2];
+        int port = parseInt(parts[3]);
+        String signature = parts[4];
         String expected = HMacUtils.hmacSha256Hex(config.getToken(), clientId + host + port);
         if (!expected.equals(signature)) {
-            log.warn("SIP 注册签名校验失败，拒绝接入: clientId={}, host={}:{}", clientId, host, port);
-            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR, "register|签名校验失败");
+            log.warn("SIP 认证签名校验失败，拒绝接入: clientId={}", clientId);
+            writeLine(out, SipProtocol.line(SipProtocol.PREFIX_ERROR, "auth", "签名校验失败"));
             return;
         }
-        registry.put(clientId, new SipPeer(transport, host, port, System.currentTimeMillis()));
-        transport.send(clientId, SipProtocol.CMD_REGISTERED, clientId);
+        String token = UUID.randomUUID().toString();
+        sessionTokens.put(token, clientId);
+        PrintWriter writer = new PrintWriter(out, true, StandardCharsets.UTF_8);
+        SignalConnection conn = new SignalConnection(clientId, host, port, token, writer);
+        registry.put(clientId, conn);
+        writeLine(out, SipProtocol.line(SipProtocol.PREFIX_TOKEN, token));
         notifyConnectListeners(clientId);
+        log.info("SIP 客户端认证接入: {} @ {}:{}", clientId, host, port);
+
+        String line;
+        while (running && (line = reader.readLine()) != null) {
+            handleSignal(clientId, line);
+        }
+        onSignalClosed(clientId);
     }
 
     /**
-     * 处理对端地址查询。
+     * 处理信令命令。
      *
-     * @param transport 来源传输实例
-     * @param clientId  查询方客户端标识
-     * @param payload   报文内容（requestId|peerId）
+     * @param clientId 客户端标识
+     * @param line     命令行
      */
-    private void handleFind(SyncServer transport, String clientId, String payload) {
-        String[] parts = payload.split("\\|");
-        String requestId = parts[0];
-        String peerId = parts.length > 1 ? parts[1] : "";
-        SipPeer peer = registry.get(peerId);
-        if (peer != null) {
-            transport.send(clientId, SipProtocol.CMD_FOUND,
-                    SipProtocol.found(requestId, peerId, peer.host(), peer.port()));
-        } else {
-            transport.send(clientId, SipProtocol.CMD_NOTFOUND, SipProtocol.notFound(requestId, peerId));
+    private void handleSignal(String clientId, String line) {
+        try {
+            if (line.startsWith(SipProtocol.PREFIX_SERVICE + SipProtocol.SEPARATOR)) {
+                String serviceName = line.substring(SipProtocol.PREFIX_SERVICE.length() + 1).trim();
+                tunnelServices.put(serviceName, clientId);
+                send(clientId, SipProtocol.line(SipProtocol.PREFIX_SERVICE_OK, serviceName));
+                log.info("SIP 隧道服务注册: {} -> {}", serviceName, clientId);
+            } else if (line.startsWith(SipProtocol.PREFIX_OPEN + SipProtocol.SEPARATOR)) {
+                handleOpen(clientId, line);
+            } else if (line.startsWith(SipProtocol.PREFIX_CLOSE + SipProtocol.SEPARATOR)) {
+                handleClose(clientId, line);
+            } else {
+                log.debug("忽略未知 SIP 信令: {}", line);
+            }
+        } catch (Exception e) {
+            log.warn("SIP 信令处理异常: {}", e.getMessage());
         }
     }
 
     /**
-     * 处理消息转发。
+     * 处理隧道开启请求。
      *
-     * @param transport 来源传输实例
-     * @param clientId  发送方客户端标识
-     * @param payload   报文内容（toId|content）
+     * @param clientId 访问方客户端标识
+     * @param line     命令行（OPEN|requestId|serviceName）
      */
-    private void handleMsg(SyncServer transport, String clientId, String payload) {
-        String[] parts = payload.split("\\|", 2);
-        String toId = parts[0];
-        String content = parts.length > 1 ? parts[1] : "";
-        SipPeer peer = registry.get(toId);
-        if (peer != null) {
-            peer.transport().send(toId, SipProtocol.CMD_MSG, SipProtocol.msg(clientId, content));
-        } else {
-            transport.send(clientId, SipProtocol.CMD_NOTFOUND, SipProtocol.notFound("", toId));
-        }
-    }
-
-    /**
-     * 处理响应回传。
-     *
-     * @param transport 来源传输实例
-     * @param clientId  响应方客户端标识
-     * @param payload   报文内容（toId|requestId|content）
-     */
-    private void handleResp(SyncServer transport, String clientId, String payload) {
-        String[] parts = payload.split("\\|", 3);
-        String toId = parts[0];
+    private void handleOpen(String clientId, String line) {
+        String[] parts = line.split("\\|", 3);
         String requestId = parts.length > 1 ? parts[1] : "";
-        String content = parts.length > 2 ? parts[2] : "";
-        SipPeer peer = registry.get(toId);
-        if (peer != null) {
-            peer.transport().send(toId, SipProtocol.CMD_RESP,
-                    SipProtocol.resp(clientId, requestId, content));
-        } else {
-            transport.send(clientId, SipProtocol.CMD_NOTFOUND, SipProtocol.notFound("", toId));
-        }
-    }
-
-    /**
-     * 处理隧道服务注册，登记服务提供方。
-     *
-     * @param transport 来源传输实例
-     * @param clientId  服务提供方客户端标识
-     * @param payload   报文内容（serviceName）
-     */
-    private void handleTunnelRegister(SyncServer transport, String clientId, String payload) {
-        String serviceName = payload.trim();
-        if (serviceName.isEmpty()) {
-            return;
-        }
-        tunnelServices.put(serviceName, clientId);
-        transport.send(clientId, SipProtocol.CMD_TUNNEL_REGISTERED, serviceName);
-        log.info("SIP 隧道服务注册: {} -> {}", serviceName, clientId);
-    }
-
-    /**
-     * 处理隧道开启请求，在访问方与服务提供方之间建立通道。
-     *
-     * @param transport 来源传输实例
-     * @param clientId  访问方客户端标识
-     * @param payload   报文内容（requestId|serviceName）
-     */
-    private void handleTunnelOpen(SyncServer transport, String clientId, String payload) {
-        String[] parts = payload.split("\\|", 2);
-        String requestId = parts[0];
-        String serviceName = parts.length > 1 ? parts[1] : "";
+        String serviceName = parts.length > 2 ? parts[2] : "";
         String providerId = tunnelServices.get(serviceName);
         if (providerId == null || providerId.equals(clientId)) {
-            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR,
-                    requestId + SipProtocol.SEPARATOR + "service not found: " + serviceName);
+            send(clientId, SipProtocol.line(SipProtocol.PREFIX_ERROR, requestId, "service not found: " + serviceName));
             return;
         }
-        SipPeer provider = registry.get(providerId);
+        SignalConnection provider = registry.get(providerId);
         if (provider == null) {
-            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR,
-                    requestId + SipProtocol.SEPARATOR + "provider offline: " + serviceName);
+            send(clientId, SipProtocol.line(SipProtocol.PREFIX_ERROR, requestId, "provider offline: " + serviceName));
             return;
         }
         String channelId = UUID.randomUUID().toString();
         tunnelChannels.put(channelId, new TunnelChannel(clientId, providerId));
-        if (dataPlane != null) {
-            dataPlane.createChannel(channelId);
-        }
-        provider.transport().send(providerId, SipProtocol.CMD_TUNNEL_OPEN,
-                channelId + SipProtocol.SEPARATOR + serviceName + SipProtocol.SEPARATOR + config.getDataPort());
-        transport.send(clientId, SipProtocol.CMD_TUNNEL_OPENED,
-                requestId + SipProtocol.SEPARATOR + channelId + SipProtocol.SEPARATOR + config.getDataPort());
+        dataChannels.computeIfAbsent(channelId, DataChannel::new);
+        provider.send(SipProtocol.line(SipProtocol.PREFIX_TUNNEL_OPEN, provider.token(), channelId, serviceName));
+        send(clientId, SipProtocol.line(SipProtocol.PREFIX_OPENED, requestId, channelId));
         log.info("SIP 隧道建立: {} <-> {} via {}", clientId, providerId, channelId);
     }
 
     /**
-     * 处理隧道关闭，通知通道对端并清理路由。
+     * 处理隧道关闭。
      *
-     * @param transport 来源传输实例
-     * @param clientId  关闭方客户端标识
-     * @param payload   报文内容（channelId）
+     * @param clientId 关闭方客户端标识
+     * @param line     命令行（CLOSE|channelId）
      */
-    private void handleTunnelClose(SyncServer transport, String clientId, String payload) {
-        String channelId = payload.trim();
-        TunnelChannel channel = tunnelChannels.remove(channelId);
-        if (channel == null) {
-            return;
-        }
-        String targetId = channel.targetOf(clientId);
-        if (targetId != null) {
-            SipPeer target = registry.get(targetId);
-            if (target != null) {
-                target.transport().send(targetId, SipProtocol.CMD_TUNNEL_CLOSE, channelId);
-            }
-        }
-        if (dataPlane != null) {
-            dataPlane.closeChannel(channelId);
-        }
-        log.info("SIP 隧道关闭: {} ({})", channelId, clientId);
+    private void handleClose(String clientId, String line) {
+        String channelId = line.substring(SipProtocol.PREFIX_CLOSE.length() + 1).trim();
+        closeChannel(channelId);
     }
 
     /**
-     * 解析端口号。
+     * 处理数据平面连接：会话 token 校验后与对端桥接裸字节流。
      *
-     * @param parts 报文字段
-     * @return 端口号，解析失败返回 0
+     * @param in        输入流
+     * @param out       输出流
+     * @param firstLine 连接握手行（CONNECT|channelId|role|token）
      */
-    private int parsePort(String[] parts) {
-        if (parts.length < 2) {
-            return 0;
+    private void handleDataConnection(InputStream in, OutputStream out, String firstLine) {
+        String[] parts = firstLine.split("\\|", 4);
+        if (parts.length < 4) {
+            return;
         }
+        String channelId = parts[1];
+        String role = parts[2];
+        String token = parts[3];
+        String ownerId = sessionTokens.get(token);
+        if (ownerId == null) {
+            log.warn("SIP 数据平面 token 校验失败: channelId={}", channelId);
+            return;
+        }
+        TunnelChannel channel = tunnelChannels.get(channelId);
+        if (channel == null
+                || !(channel.aId().equals(ownerId) || channel.bId().equals(ownerId))) {
+            log.warn("SIP 数据平面无权接入: channelId={}, owner={}", channelId, ownerId);
+            return;
+        }
+        DataChannel dataChannel = dataChannels.get(channelId);
+        if (dataChannel == null) {
+            return;
+        }
+        dataChannel.bind(role, in, out);
+        log.debug("SIP 数据平面连接绑定: channel={}, role={}", channelId, role);
+    }
+
+    /**
+     * 信令连接关闭后的清理。
+     *
+     * @param clientId 客户端标识
+     */
+    private void onSignalClosed(String clientId) {
+        SignalConnection conn = registry.remove(clientId);
+        if (conn == null) {
+            return;
+        }
+        sessionTokens.remove(conn.token());
+        notifyDisconnectListeners(clientId);
+        // 移除该客户端提供的服务
+        tunnelServices.entrySet().removeIf(entry -> entry.getValue().equals(clientId));
+        // 关闭该客户端参与的隧道
+        List<String> closed = new ArrayList<>();
+        for (Map.Entry<String, TunnelChannel> entry : tunnelChannels.entrySet()) {
+            TunnelChannel channel = entry.getValue();
+            if (channel.aId().equals(clientId) || channel.bId().equals(clientId)) {
+                closed.add(entry.getKey());
+            }
+        }
+        closed.forEach(this::closeChannel);
+        log.info("SIP 客户端断开: {}", clientId);
+    }
+
+    /**
+     * 关闭隧道并通知两端。
+     *
+     * @param channelId 通道标识
+     */
+    private void closeChannel(String channelId) {
+        TunnelChannel channel = tunnelChannels.remove(channelId);
+        DataChannel dataChannel = dataChannels.remove(channelId);
+        if (dataChannel != null) {
+            dataChannel.close();
+        }
+        if (channel == null) {
+            return;
+        }
+        if (registry.containsKey(channel.aId())) {
+            send(channel.aId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, channelId));
+        }
+        if (registry.containsKey(channel.bId())) {
+            send(channel.bId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, channelId));
+        }
+    }
+
+    /**
+     * 向指定客户端发送信令行。
+     *
+     * @param clientId 客户端标识
+     * @param line     信令行
+     */
+    private void send(String clientId, String line) {
+        SignalConnection conn = registry.get(clientId);
+        if (conn != null) {
+            conn.send(line);
+        }
+    }
+
+    /**
+     * 写一行输出。
+     *
+     * @param out  输出流
+     * @param line 行内容
+     */
+    private void writeLine(OutputStream out, String line) {
         try {
-            return Integer.parseInt(parts[1].trim());
-        } catch (NumberFormatException e) {
+            synchronized (out) {
+                out.write((line + "\n").getBytes(StandardCharsets.UTF_8));
+                out.flush();
+            }
+        } catch (IOException e) {
+            log.debug("SIP 写响应异常: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 解析整数。
+     *
+     * @param value 文本
+     * @return 整数，解析失败返回 0
+     */
+    private int parseInt(String value) {
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -530,114 +489,27 @@ public class SipServer {
     }
 
     /**
-     * 清理断线客户端占用的隧道服务与通道，并通知通道对端关闭。
+     * 已注册客户端的信令长连接。
      *
      * @param clientId 客户端标识
+     * @param host     可达地址
+     * @param port     可达端口
+     * @param token    会话令牌
+     * @param writer   输出
      */
-    private void cleanupTunnels(String clientId) {
-        // 移除该客户端提供的隧道服务，避免成为陈旧服务
-        tunnelServices.entrySet().removeIf(entry -> entry.getValue().equals(clientId));
-        // 关闭该客户端参与的所有隧道通道，并通知对端
-        List<String> closedChannels = new ArrayList<>();
-        for (Map.Entry<String, TunnelChannel> entry : tunnelChannels.entrySet()) {
-            TunnelChannel channel = entry.getValue();
-            String peerId = channel.targetOf(clientId);
-            if (peerId != null) {
-                SipPeer peer = registry.get(peerId);
-                if (peer != null) {
-                    peer.transport().send(peerId, SipProtocol.CMD_TUNNEL_CLOSE, entry.getKey());
-                }
-                if (dataPlane != null) {
-                    dataPlane.closeChannel(entry.getKey());
-                }
-                closedChannels.add(entry.getKey());
-            }
-        }
-        closedChannels.forEach(tunnelChannels::remove);
-    }
-
-    /**
-     * 数据平面通道关闭回调：通知信令层清理隧道路由。
-     *
-     * @param channelId 通道标识
-     * @param reason    关闭原因
-     */
-    private void handleDataPlaneClosed(String channelId, String reason) {
-        TunnelChannel channel = tunnelChannels.remove(channelId);
-        if (channel == null) {
-            return;
-        }
-        SipPeer visitor = registry.get(channel.aId());
-        if (visitor != null) {
-            visitor.transport().send(channel.aId(), SipProtocol.CMD_TUNNEL_CLOSE, channelId);
-        }
-        SipPeer provider = registry.get(channel.bId());
-        if (provider != null) {
-            provider.transport().send(channel.bId(), SipProtocol.CMD_TUNNEL_CLOSE, channelId);
-        }
-    }
-
-    /**
-     * 传输层事件监听器，将各传输（TCP/KCP）的信令统一交给 {@link SipServer} 处理。
-     *
-     * @since 4.0.0.42
-     */
-    private final class SipTransportListener implements SyncServerListener {
+    private record SignalConnection(String clientId, String host, int port, String token, PrintWriter writer) {
 
         /**
-         * 关联的传输实例
-         */
-        private final SyncServer transport;
-
-        /**
-         * 创建监听器。
+         * 发送信令行。
          *
-         * @param transport 关联的传输实例
+         * @param line 信令行
          */
-        private SipTransportListener(SyncServer transport) {
-            this.transport = transport;
-        }
-
-        @Override
-        /** OnClientConnected */
-        public void onClientConnected(String clientId, Map<String, Object> metadata) {
-            log.debug("SIP 客户端连接: {}", clientId);
-        }
-
-        @Override
-        /** OnClientDisconnected */
-        public void onClientDisconnected(String clientId) {
-            if (registry.remove(clientId) != null) {
-                notifyDisconnectListeners(clientId);
-            }
-            cleanupTunnels(clientId);
-        }
-
-        @Override
-        /** OnMessage */
-        public void onMessage(String clientId, String topic, Object message) {
-            if (topic != null && topic.startsWith(SipProtocol.TOPIC_PREFIX)) {
-                handleSignal(transport, clientId, topic, message);
+        void send(String line) {
+            synchronized (writer) {
+                writer.println(line);
+                writer.flush();
             }
         }
-
-        @Override
-        /** On记录错误 */
-        public void onError(String clientId, Throwable cause) {
-            log.debug("SIP 传输异常: {}", cause.getMessage());
-        }
-    }
-
-    /**
-     * 已注册客户端会话信息。
-     *
-     * @param transport   关联的传输实例
-     * @param host        客户端上报的可达地址
-     * @param port        客户端上报的可达端口
-     * @param connectedAt 注册时间（毫秒时间戳）
-     * @since 4.0.0.42
-     */
-    private record SipPeer(SyncServer transport, String host, int port, long connectedAt) {
     }
 
     /**
@@ -645,24 +517,174 @@ public class SipServer {
      *
      * @param aId 访问方客户端标识
      * @param bId 服务提供方客户端标识
-     * @since 4.0.0.42
      */
     private record TunnelChannel(String aId, String bId) {
+    }
+
+    /**
+     * 单条隧道的数据桥接器：负责访问方与提供方两条数据连接的裸字节流双向转发。
+     */
+    private static final class DataChannel {
 
         /**
-         * 获取发送方对应的对端标识。
-         *
-         * @param senderId 发送方客户端标识
-         * @return 对端客户端标识，非通道两端时返回 null
+         * 通道标识
          */
-        private String targetOf(String senderId) {
-            if (senderId.equals(aId)) {
-                return bId;
+        private final String channelId;
+
+        /**
+         * 访问方输入输出
+         */
+        private volatile Endpoint visitor;
+
+        /**
+         * 提供方输入输出
+         */
+        private volatile Endpoint provider;
+
+        /**
+         * 是否已关闭
+         */
+        private volatile boolean closed;
+
+        /**
+         * 创建通道桥接器。
+         *
+         * @param channelId 通道标识
+         */
+        private DataChannel(String channelId) {
+            this.channelId = channelId;
+        }
+
+        /**
+         * 绑定一端连接，两端齐备后启动双向透传。
+         *
+         * @param role 角色（visitor / provider）
+         * @param in   输入流
+         * @param out  输出流
+         */
+        void bind(String role, InputStream in, OutputStream out) {
+            Endpoint endpoint = new Endpoint(in, out);
+            if (SipDataPlaneRole.VISITOR.name.equals(role)) {
+                this.visitor = endpoint;
+            } else if (SipDataPlaneRole.PROVIDER.name.equals(role)) {
+                this.provider = endpoint;
+            } else {
+                return;
             }
-            if (senderId.equals(bId)) {
-                return aId;
+            if (visitor != null && provider != null) {
+                bridge(visitor, provider, "visitor");
+                bridge(provider, visitor, "provider");
             }
-            return null;
+        }
+
+        /**
+         * 单向裸字节流转发（与 TcpProxyServer 相同模式）。
+         *
+         * @param source 来源端点
+         * @param target 目标端点
+         * @param role   来源角色
+         */
+        private void bridge(Endpoint source, Endpoint target, String role) {
+            ThreadUtils.newThread(() -> {
+                try {
+                    byte[] buf = new byte[64 * 1024];
+                    int n;
+                    while (!closed && (n = source.in.read(buf)) != -1) {
+                        synchronized (target.out) {
+                            target.out.write(buf, 0, n);
+                            target.out.flush();
+                        }
+                    }
+                } catch (IOException ignored) {
+                } finally {
+                    close();
+                }
+            }, "sip-data-bridge-" + channelId + "-" + role).start();
+        }
+
+        /**
+         * 关闭通道两端连接。
+         */
+        void close() {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            if (visitor != null) {
+                visitor.close();
+            }
+            if (provider != null) {
+                provider.close();
+            }
+        }
+
+        /**
+         * 连接端点。
+         */
+        private static final class Endpoint {
+
+            /**
+             * 输入流
+             */
+            private final InputStream in;
+
+            /**
+             * 输出流
+             */
+            private final OutputStream out;
+
+            /**
+             * 创建端点。
+             *
+             * @param in  输入流
+             * @param out 输出流
+             */
+            private Endpoint(InputStream in, OutputStream out) {
+                this.in = in;
+                this.out = out;
+            }
+
+            /**
+             * 关闭。
+             */
+            void close() {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * 数据平面角色。
+     */
+    private enum SipDataPlaneRole {
+        /**
+         * 访问方
+         */
+        VISITOR("visitor"),
+        /**
+         * 提供方
+         */
+        PROVIDER("provider");
+
+        /**
+         * 名称
+         */
+        private final String name;
+
+        /**
+         * 创建角色。
+         *
+         * @param name 名称
+         */
+        SipDataPlaneRole(String name) {
+            this.name = name;
         }
     }
 }

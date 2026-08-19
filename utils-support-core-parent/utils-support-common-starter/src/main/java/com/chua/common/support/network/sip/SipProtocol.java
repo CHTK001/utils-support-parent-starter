@@ -1,11 +1,16 @@
 package com.chua.common.support.network.sip;
 
 /**
- * SIP 信令协议常量与报文构造工具。
+ * SIP 单端口协议：认证与 frp 数据平面共用同一监听端口。
  *
- * <p>基于现有 Sync 传输的 {@code topic:payload} 行格式，payload 内部使用
- * {@code |} 作为字段分隔符（避开 IP:PORT 中的冒号）。信令主题统一使用
- * {@code sip/} 前缀。</p>
+ * <p>所有连接建立后第一行为握手行，按前缀区分类型：</p>
+ * <ul>
+ *   <li>{@code AUTH|clientId|host|port|signature}：认证连接（短交互）。
+ *       用初始共享密钥签名换取会话 token，验签通过后返回 {@code TOKEN|token}。</li>
+ *   <li>{@code CONNECT|channelId|role|token}：数据平面连接。
+ *       携带会话 token 校验，通过后与对端裸字节流双向桥接（TCP 代理模式）。</li>
+ * </ul>
+ * 认证连接获得 token 后可保持为信令长连接，后续按行收发信令（SERVICE / OPEN / CLOSE）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,84 +18,54 @@ package com.chua.common.support.network.sip;
 public interface SipProtocol {
 
     /**
-     * 信令主题前缀
+     * 认证握手前缀（AUTH|clientId|host|port|signature）
      */
-    String TOPIC_PREFIX = "sip/";
+    String PREFIX_AUTH = "AUTH";
 
     /**
-     * 主题通配符
+     * 认证成功响应（TOKEN|token）
      */
-    String TOPIC_WILDCARD = "#";
+    String PREFIX_TOKEN = "TOKEN";
 
     /**
-     * 客户端注册主题（客户端上报可达地址）
+     * 隧道服务注册（SERVICE|token|serviceName）
      */
-    String CMD_REGISTER = "sip/register";
+    String PREFIX_SERVICE = "SERVICE";
 
     /**
-     * 注册确认主题
+     * 隧道服务注册成功（SERVICE_OK|serviceName）
      */
-    String CMD_REGISTERED = "sip/registered";
+    String PREFIX_SERVICE_OK = "SERVICE_OK";
 
     /**
-     * 查询对端地址主题
+     * 隧道开启请求（OPEN|token|requestId|serviceName）
      */
-    String CMD_FIND = "sip/find";
+    String PREFIX_OPEN = "OPEN";
 
     /**
-     * 查询结果主题
+     * 隧道开启成功（OPENED|requestId|channelId）
      */
-    String CMD_FOUND = "sip/found";
+    String PREFIX_OPENED = "OPENED";
 
     /**
-     * 查无此人主题
+     * 隧道开启通知（发给服务提供方：TUNNEL_OPEN|token|channelId|serviceName）
      */
-    String CMD_NOTFOUND = "sip/notfound";
+    String PREFIX_TUNNEL_OPEN = "TUNNEL_OPEN";
 
     /**
-     * 消息转发主题
+     * 错误（ERROR|requestId|reason）
      */
-    String CMD_MSG = "sip/msg";
+    String PREFIX_ERROR = "ERROR";
 
     /**
-     * 响应回传主题
+     * 隧道关闭（CLOSE|token|channelId）
      */
-    String CMD_RESP = "sip/resp";
+    String PREFIX_CLOSE = "CLOSE";
 
     /**
-     * 服务器主动推送主题（topic|message）
+     * 数据平面连接握手前缀（CONNECT|channelId|role|token）
      */
-    String CMD_PUSH = "sip/push";
-
-    /**
-     * 隧道服务注册主题（服务提供方声明对外暴露的服务）
-     */
-    String CMD_TUNNEL_REGISTER = "sip/tunnel/register";
-
-    /**
-     * 隧道注册确认主题
-     */
-    String CMD_TUNNEL_REGISTERED = "sip/tunnel/registered";
-
-    /**
-     * 隧道开启请求主题（访问方请求建立通道）
-     */
-    String CMD_TUNNEL_OPEN = "sip/tunnel/open";
-
-    /**
-     * 隧道开启成功主题
-     */
-    String CMD_TUNNEL_OPENED = "sip/tunnel/opened";
-
-    /**
-     * 隧道开启失败主题
-     */
-    String CMD_TUNNEL_ERROR = "sip/tunnel/error";
-
-    /**
-     * 隧道关闭主题
-     */
-    String CMD_TUNNEL_CLOSE = "sip/tunnel/close";
+    String PREFIX_CONNECT = "CONNECT";
 
     /**
      * 字段分隔符
@@ -98,72 +73,12 @@ public interface SipProtocol {
     String SEPARATOR = "|";
 
     /**
-     * 构造注册报文（携带 HMAC-SHA256 签名）。
+     * 拼接行。
      *
-     * @param host      可达地址
-     * @param port      可达端口
-     * @param signature 签名（HMAC-SHA256(token, clientId+host+port)）
-     * @return 报文内容
+     * @param fields 字段
+     * @return 拼接结果
      */
-    static String register(String host, int port, String signature) {
-        return host + SEPARATOR + port + SEPARATOR + signature;
-    }
-
-    /**
-     * 构造查询报文。
-     *
-     * @param requestId 请求标识
-     * @param peerId    对端标识
-     * @return 报文内容
-     */
-    static String find(String requestId, String peerId) {
-        return requestId + SEPARATOR + peerId;
-    }
-
-    /**
-     * 构造查询结果报文。
-     *
-     * @param requestId 请求标识
-     * @param peerId    对端标识
-     * @param host      对端地址
-     * @param port      对端端口
-     * @return 报文内容
-     */
-    static String found(String requestId, String peerId, String host, int port) {
-        return requestId + SEPARATOR + peerId + ":" + host + ":" + port;
-    }
-
-    /**
-     * 构造查无此人报文。
-     *
-     * @param requestId 请求标识
-     * @param peerId    对端标识
-     * @return 报文内容
-     */
-    static String notFound(String requestId, String peerId) {
-        return requestId + SEPARATOR + peerId;
-    }
-
-    /**
-     * 构造消息或转发报文。
-     *
-     * @param id      目标或来源标识
-     * @param content 消息内容
-     * @return 报文内容
-     */
-    static String msg(String id, String content) {
-        return id + SEPARATOR + content;
-    }
-
-    /**
-     * 构造响应报文。
-     *
-     * @param id        目标或来源标识
-     * @param requestId 请求标识
-     * @param content   响应内容
-     * @return 报文内容
-     */
-    static String resp(String id, String requestId, String content) {
-        return id + SEPARATOR + requestId + SEPARATOR + content;
+    static String line(String... fields) {
+        return String.join(SEPARATOR, fields);
     }
 }
