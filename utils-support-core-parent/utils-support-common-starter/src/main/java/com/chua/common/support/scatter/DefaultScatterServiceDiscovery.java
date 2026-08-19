@@ -505,17 +505,6 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
     }
 
     /**
-     * 判断是否为 seed 引导节点（仅引导，不参与心跳与负载均衡）。
-     *
-     * @param discovery 服务发现数据
-     * @return true 表示 seed 节点
-     */
-    private boolean isSeedNode(Discovery discovery) {
-        return discovery.getMetadata() != null
-                && METADATA_VALUE_TRUE.equals(discovery.getMetadata().get(METADATA_SEED));
-    }
-
-    /**
      * 判断地址是否不可寻址（无法作为连接目标）。
      *
      * @param host 地址
