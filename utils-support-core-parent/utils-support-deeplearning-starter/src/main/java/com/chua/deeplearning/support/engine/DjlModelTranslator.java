@@ -204,6 +204,11 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
             }
             return "";
         }
+        if (result instanceof com.chua.deeplearning.support.ai.result.PredictResult predictResult) {
+            // 通用预测结果 → 字符串标签（表情/年龄等业务接口期望 String）
+            String value = predictResult.value();
+            return value == null ? "" : value;
+        }
         return result;
     }
 

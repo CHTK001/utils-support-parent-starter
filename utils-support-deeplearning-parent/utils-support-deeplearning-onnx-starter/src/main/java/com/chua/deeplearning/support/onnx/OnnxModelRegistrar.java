@@ -93,7 +93,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文档理解(Donut)：端到端文档理解模型，输入文档图片输出结构化文本；适用发票识别、表单解析、文档 OCR
         reg("donut", "com.chua.deeplearning.support.onnx.donut.DonutTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/donut/donut.onnx");
         // 情绪识别(FER+)：识别面部表情（开心、难过、生气等 7 种基础情绪）；适用情感分析、用户反馈、安防监控
-        reg("emotion-ferplus", "com.chua.deeplearning.support.onnx.emotion.EmotionFerplusTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/expression/FrEmotion/fr_expression.onnx");
+        reg("emotion-ferplus", "com.chua.deeplearning.support.onnx.emotion.EmotionFerplusTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/expression/FER/FER.onnx");
         // 人脸识别(ArcFace)：提取人脸特征向量（512维），用于人脸比对/识别/搜索；适用人脸门禁、人脸搜索、身份验证
         reg("arc-face", "com.chua.deeplearning.support.onnx.face.ArcFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/swap/common/buffalo_l/w600k_r50.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸识别(AdaFace)：高质量人脸特征提取，对低质量/模糊人脸更鲁棒；适用复杂光照条件的人脸识别

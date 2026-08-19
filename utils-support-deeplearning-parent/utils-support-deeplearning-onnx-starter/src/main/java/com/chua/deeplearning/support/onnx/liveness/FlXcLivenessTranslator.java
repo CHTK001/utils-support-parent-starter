@@ -55,7 +55,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
             }
         }
         NDArray array = ctx.getNDManager().create(data, new Shape(1, CHANNELS, INPUT_SIZE, INPUT_SIZE));
-        return new NDList(array.squeeze(0));
+        return new NDList(array);
     }
 
     @Override
@@ -74,6 +74,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+        return null;
     }
 }
