@@ -71,6 +71,7 @@ public class ImageSupportUtils {
         FORMAT_ALIASES.put("ico", "ico");
     }
 
+    /** 创建 ImageSupportUtils 实例 */
     private ImageSupportUtils() {
     }
 

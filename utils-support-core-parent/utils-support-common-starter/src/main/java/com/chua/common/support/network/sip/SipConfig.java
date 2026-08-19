@@ -30,6 +30,11 @@ public class SipConfig {
     public static final int DEFAULT_KCP_PORT = 19461;
 
     /**
+     * 默认数据平面监听端口
+     */
+    public static final int DEFAULT_DATA_PORT = 19462;
+
+    /**
      * 监听主机
      */
     @Builder.Default
@@ -65,11 +70,33 @@ public class SipConfig {
     private int kcpPort = DEFAULT_KCP_PORT;
 
     /**
+     * 是否启用 frp 数据平面
+     */
+    @Builder.Default
+    /** 数据平面是否启用 */
+    private boolean dataPlaneEnabled = true;
+
+    /**
+     * 数据平面监听端口
+     */
+    @Builder.Default
+    /** 数据平面端口 */
+    private int dataPort = DEFAULT_DATA_PORT;
+
+    /**
+     * 认证令牌：注册与数据平面握手均需携带
+     * {@code HMAC-SHA256(token, clientId + host + port)} 签名，验签通过才允许接入
+     */
+    @Builder.Default
+    /** 认证令牌 */
+    private String token = "chua-sip-default-token";
+
+    /**
      * 创建一份独立的默认配置。
      *
      * @return 新的默认配置实例
      */
     public static SipConfig defaults() {
-        return new SipConfig();
+        return SipConfig.builder().build();
     }
 }

@@ -44,12 +44,13 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
         if (loaded) {
             return;
         }
-        // 依次尝试 jar 内 bge 资源（zh/en 通用）
+        // 依次尝试 jar 内 bge 资源（zh/en 通用）或 registry 下载缓存
+        Path modelDir = null;
+        // 1. 尝试 jar 内嵌资源
         String[] candidates = {
                 "nlp/embedding/bge-small-en-v1.5/",
                 "nlp/embedding/bge-small-zh-v1.5/"
         };
-        Path modelDir = null;
         for (String base : candidates) {
             Path tmpDir = Files.createTempDirectory("bge-registry-");
             tmpDir.toFile().deleteOnExit();
@@ -80,8 +81,34 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
                 // 尝试下一个候选
             }
         }
+        // 2. 若 jar 内未找到，尝试从 ModelRegistry 下载缓存读取（新模型如 bge-base-zh）
+        if (modelDir == null) {
+            String registryModelId = System.getProperty("bge.registry.model", "");
+            if (!registryModelId.isBlank()) {
+                try {
+                    java.nio.file.Path resolved = com.chua.deeplearning.support.engine.ModelRegistry.resolveModelPath(registryModelId);
+                    if (resolved != null) {
+                        Path dir = Files.isDirectory(resolved) ? resolved : resolved.getParent();
+                        if (dir != null) {
+                            Path model = dir.resolve("model.onnx");
+                            Path tk = dir.resolve("tokenizer.json");
+                            if (Files.isRegularFile(model) && Files.isRegularFile(tk)) {
+                                translator.loadLocal(model.toString());
+                                tokenizer = HuggingFaceTokenizer.builder()
+                                        .optTokenizerPath(tk)
+                                        .optPadding(true)
+                                        .optMaxLength(DEFAULT_MAX_LEN)
+                                        .build();
+                                modelDir = dir;
+                            }
+                        }
+                    }
+                } catch (Exception ignore) {
+                }
+            }
+        }
         if (modelDir == null || tokenizer == null) {
-            throw new IllegalStateException("BGE 模型资源未就绪（jar 内缺少 bge-small-en/zh 模型）");
+            throw new IllegalStateException("BGE 模型资源未就绪（jar 内缺少 bge-small-en/zh 模型，且未配置 bge.registry.model）");
         }
         loaded = true;
     }

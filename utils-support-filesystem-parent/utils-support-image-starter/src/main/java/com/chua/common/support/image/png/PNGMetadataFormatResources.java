@@ -16,8 +16,10 @@ import javax.annotation.Nullable;
  */
 public class PNGMetadataFormatResources extends ListResourceBundle {
 
+    /** 创建 PNGMetadataFormatResources 实例 */
     public PNGMetadataFormatResources() {}
 
+    /** 获取Contents */
     protected Object[][] getContents() {
         return new Object[][] {
 

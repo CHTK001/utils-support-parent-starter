@@ -73,11 +73,19 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "image";
     }
 
     @Override
+    /**
+     * Do转换
+     * @param inputStream inputStream
+     * @param outputStream outputStream
+     * @param sourceFile sourceFile
+     * @param targetFile targetFile
+     */
     protected void doConvert(InputStream inputStream, OutputStream outputStream,
                              File sourceFile, File targetFile) throws IOException {
         try {
@@ -96,6 +104,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
         }
     }
 
+    /** 是否Support格式化 */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换
         if (sourceFormat != null && sourceFormat.equalsIgnoreCase(targetFormat)) {
@@ -117,6 +126,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
+    /** SupportedTypes */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         Set<String> formats = ImageSupportUtils.getAllSupportedFormats();
         List<String> formatList = new ArrayList<>(formats);

@@ -209,9 +209,11 @@ public class TcpSyncClient implements SyncClient {
      * 启动虚拟线程读取：阻塞读让出载体线程，行到达后按订阅/监听器分发。
      */
     private void startRead() {
+        // 捕获本次连接的通道：旧线程退出时不误标已被重连替换的新连接
+        SocketChannel connChannel = channel;
         readThread = Thread.ofVirtual().name("tcp-sync-read-" + clientId).start(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    java.nio.channels.Channels.newInputStream(channel), StandardCharsets.UTF_8))) {
+                    java.nio.channels.Channels.newInputStream(connChannel), StandardCharsets.UTF_8))) {
                 String line;
                 while (connected && (line = reader.readLine()) != null) {
                     handleLine(line);
@@ -219,6 +221,12 @@ public class TcpSyncClient implements SyncClient {
             } catch (IOException e) {
                 if (connected) {
                     notifyListeners(l -> l.onError("tcp", e));
+                }
+            } finally {
+                // 对端断开（EOF/读异常）：标记断开，供连接池摘除并重连。
+                // 仅当底层通道未被重连替换时才置 false，避免新连接被旧线程误标断开。
+                if (channel == connChannel) {
+                    connected = false;
                 }
             }
         });
@@ -257,6 +265,12 @@ public class TcpSyncClient implements SyncClient {
                 channel.write(buffer);
             }
         } catch (IOException e) {
+            // 发送失败即连接已断：标记断开，供连接池下一轮重建
+            connected = false;
+            if (readThread != null) {
+                readThread.interrupt();
+                readThread = null;
+            }
             throw new RuntimeException("TCP SyncClient 发送失败", e);
         }
     }

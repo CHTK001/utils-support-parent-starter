@@ -88,9 +88,34 @@ public record Seq2SeqModelDefinition(
             0L);
 
     /**
+     * t5-base 模型定义（modelscope: Xenova/t5-base，int8 量化，12 层 12 头 768 维，词表 32128）。
+     * <p>英文摘要/生成质量优于 t5-small；官方摘要推荐参数：num_beams=4、min_length=30、max_length=200。</p>
+     */
+    public static final Seq2SeqModelDefinition T5_BASE = new Seq2SeqModelDefinition(
+            "t5-base-seq2seq",
+            "nlp/seq2seq/t5-base/",
+            "Xenova/t5-base",
+            List.of(
+                    "onnx/encoder_model_int8.onnx",
+                    "onnx/decoder_model_int8.onnx",
+                    "onnx/decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            List.of(
+                    "encoder_model_int8.onnx",
+                    "decoder_model_int8.onnx",
+                    "decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            12,
+            12,
+            64,
+            1L,
+            0L);
+
+    /**
      * mt5-small 模型定义（modelscope: Xenova/mt5-small，多语言 T5，支持中文）。
      * <p>8 层 6 头（实际解码参数由模型输出维度动态解析，此处仅作文档参考）；词表 250112。
-     * 编码器使用 fp16（int8 动态量化在 mt5 上会使编码上下文退化，实测生成 <extra_id_0>）。</p>
+     * 全 fp16（编码器/解码器均 fp16）——int8 动态量化在 mT5 上会严重退化（实测：int8 编码器输出
+     * &lt;extra_id_0&gt;、int8 解码器输出模板噪声），fp16 是当前中文质量的关键。</p>
      */
     public static final Seq2SeqModelDefinition MT5_SMALL = new Seq2SeqModelDefinition(
             "mt5-seq2seq",
@@ -98,13 +123,13 @@ public record Seq2SeqModelDefinition(
             "Xenova/mt5-small",
             List.of(
                     "onnx/encoder_model_fp16.onnx",
-                    "onnx/decoder_model_int8.onnx",
-                    "onnx/decoder_with_past_model_int8.onnx",
+                    "onnx/decoder_model_fp16.onnx",
+                    "onnx/decoder_with_past_model_fp16.onnx",
                     "tokenizer.json"),
             List.of(
                     "encoder_model_fp16.onnx",
-                    "decoder_model_int8.onnx",
-                    "decoder_with_past_model_int8.onnx",
+                    "decoder_model_fp16.onnx",
+                    "decoder_with_past_model_fp16.onnx",
                     "tokenizer.json"),
             8,
             6,
@@ -115,7 +140,7 @@ public record Seq2SeqModelDefinition(
     /**
      * mt5-base 模型定义（modelscope: Xenova/mt5-base，多语言 T5，中文摘要效果优于 small）。
      * <p>12 层 12 头（实际解码参数由模型输出维度动态解析）；d_model=768、词表 250112。
-     * 编码器 fp16 + 解码器 int8（small 验证：int8 编码器在 mT5 上会使上下文退化）。</p>
+     * 全 fp16（int8 动态量化在 mT5 上严重退化，全 fp16 已验证：解码器量化是模板噪声根因）。</p>
      */
     public static final Seq2SeqModelDefinition MT5_BASE = new Seq2SeqModelDefinition(
             "mt5-base-seq2seq",
@@ -123,13 +148,13 @@ public record Seq2SeqModelDefinition(
             "Xenova/mt5-base",
             List.of(
                     "onnx/encoder_model_fp16.onnx",
-                    "onnx/decoder_model_int8.onnx",
-                    "onnx/decoder_with_past_model_int8.onnx",
+                    "onnx/decoder_model_fp16.onnx",
+                    "onnx/decoder_with_past_model_fp16.onnx",
                     "tokenizer.json"),
             List.of(
                     "encoder_model_fp16.onnx",
-                    "decoder_model_int8.onnx",
-                    "decoder_with_past_model_int8.onnx",
+                    "decoder_model_fp16.onnx",
+                    "decoder_with_past_model_fp16.onnx",
                     "tokenizer.json"),
             12,
             12,
