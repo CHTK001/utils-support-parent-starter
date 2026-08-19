@@ -3,6 +3,9 @@ package com.chua.common.support.concurrent.dispatcher.provider;
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
+import com.chua.common.support.concurrent.queue.LockFreeQueue;
+import com.chua.common.support.concurrent.queue.LockFreeQueueFlow;
+import com.chua.common.support.concurrent.queue.QueueType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
@@ -23,10 +26,12 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * WAL（Write-Ahead Log）分发器提供者。
  *
- * <p>基于内存映射文件（mmap）实现发布-订阅模式，数据直接写入 mmap 缓冲区，
- * 消费者从 mmap 读取，消除队列和线程上下文切换开销。
- *
- * <p>支持 Jackson 和 Fury 两种序列化方式，通过构造参数注入。</p>
+ * <p>双支杆架构：
+ * <ul>
+ *   <li><b>主支杆</b>：无锁队列（MpmcArrayQueue），数据直达消费者，零系统调用</li>
+ *   <li><b>副支杆</b>：WAL + mmap 持久化，用于崩溃恢复</li>
+ * </ul>
+ * </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -55,6 +60,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
+     * 主题 -> 无锁快速队列映射（主支杆）
+     */
+    private final Map<String, LockFreeQueue<byte[]>> fastQueues = new ConcurrentHashMap<>();
+
+    /**
      * 消费者线程池（虚拟线程）
      */
     private final ExecutorService consumerExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
@@ -71,9 +81,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * 空闲自旋上限，超过后切换为 nanos 休眠
+     * 快速队列容量
      */
-    private static final int IDLE_SPIN_LIMIT = 1_000_000;
+    private static final int FAST_QUEUE_CAPACITY = 65536;
 
     /**
      * WAL 帧头大小（魔数 4 字节 + 长度 4 字节）
@@ -119,9 +129,20 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             return;
         }
         byte[] data = writeBody(body);
-        if (data != null) {
-            getLog(topic).writeFrame(data);
+        if (data == null) {
+            return;
         }
+        // 副支杆：写入 WAL（持久化）
+        getLog(topic).writeFrame(data);
+        // 主支杆：写入无锁队列（快速消费）
+        fastQueue(topic).offer(data);
+    }
+
+    /**
+     * 获取或创建主题的无锁快速队列。
+     */
+    private LockFreeQueue<byte[]> fastQueue(String topic) {
+        return fastQueues.computeIfAbsent(topic, t -> LockFreeQueueFlow.create(QueueType.MPMC, FAST_QUEUE_CAPACITY));
     }
 
     @Override
@@ -154,67 +175,33 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         logs.values().forEach(WalLog::close);
         logs.clear();
         definitionMap.clear();
+        fastQueues.clear();
     }
 
     /**
      * 获取或创建指定主题的 WAL 日志。
-     *
-     * @param topic 主题名称
-     * @return WAL 日志实例
      */
     private WalLog getLog(String topic) {
         return logs.computeIfAbsent(topic, t -> new WalLog(logDir.resolve("wal-" + t + ".log")));
     }
 
     /**
-     * 启动指定主题的消费者虚拟线程。
-     * <p>消费者通过持久 mmap 只读映射持续读取新数据，commitPos 增长后增量 remap。</p>
-     *
-     * @param topic 主题名称
+     * 启动消费者虚拟线程，从无锁快速队列读取并分发。
      */
     private void startConsumer(String topic) {
-        var wal = getLog(topic);
+        var queue = fastQueue(topic);
         consumerExecutor.submit(() -> {
-            log.info("WAL 消费者已启动 topic={} file={}", topic, wal.file.getFileName());
+            log.info("WAL 消费者已启动 topic={}", topic);
             try {
-                long pos = 0;
-                int idle = 0;
-                MappedByteBuffer reader = null;
-                long readerSize = 0;
                 while (!closed.get()) {
-                    long commitEnd = wal.commitPos.get();
-                    if (commitEnd <= pos) {
-                        if (++idle > IDLE_SPIN_LIMIT) {
-                            Thread.sleep(0, 1);
-                            idle = 0;
-                        }
+                    byte[] data = queue.poll();
+                    if (data == null) {
+                        Thread.onSpinWait();
                         continue;
                     }
-                    idle = 0;
-                    if (reader == null || commitEnd > readerSize) {
-                        readerSize = Math.max(MMAP_GROW, commitEnd + MMAP_GROW);
-                        reader = wal.channel.map(FileChannel.MapMode.READ_ONLY, 0, readerSize);
-                    }
-                    reader.position((int) pos);
-                    reader.limit((int) commitEnd);
-                    while (reader.remaining() >= FRAME_HEADER_SIZE) {
-                        int mark = reader.position();
-                        int magic = reader.getInt();
-                        int len = reader.getInt();
-                        if (magic != MAGIC || len <= 0 || reader.remaining() < len) {
-                            reader.position(mark + 1);
-                            pos = mark + 1;
-                            continue;
-                        }
-                        byte[] data = new byte[len];
-                        reader.get(data);
-                        pos = mark + FRAME_HEADER_SIZE + len;
-                        dispatch(topic, data);
-                    }
+                    dispatch(topic, data);
                 }
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 if (!closed.get()) {
                     log.error("WAL 消费异常 topic={}", topic, ex);
                 }
@@ -225,9 +212,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     /**
      * 分发已反序列化的消息到所有订阅者。
-     *
-     * @param topic 主题名称
-     * @param data  序列化后的字节数据
      */
     private void dispatch(String topic, byte[] data) {
         var definitions = definitionMap.get(topic);
@@ -244,36 +228,28 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    /**
-     * 序列化消息体。
-     *
-     * @param body 消息对象
-     * @return 序列化后的字节数组，失败返回 null
-     */
     private byte[] writeBody(Object body) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.serialize(body);
             }
-            return serializer.serialize(body);
+            synchronized (serializer) {
+                return serializer.serialize(body);
+            }
         } catch (Exception e) {
             log.warn("WAL 序列化失败", e);
             return null;
         }
     }
 
-    /**
-     * 反序列化消息体。
-     *
-     * @param data 字节数据
-     * @return 反序列化后的对象
-     */
     private Object readBody(byte[] data) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
             }
-            return serializer.deserialize(data, Object.class);
+            synchronized (serializer) {
+                return serializer.deserialize(data, Object.class);
+            }
         } catch (Exception e) {
             log.warn("WAL 反序列化失败，回退 Jackson", e);
             try {
@@ -327,6 +303,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
          */
         final AtomicLong commitPos = new AtomicLong(0);
 
+        /**
+         * 写入锁，保证多线程并发 publish 时 mmap 写入原子性
+         */
+        private final Object writeLock = new Object();
+
         WalLog(Path file) {
             this.file = file;
             try {
@@ -358,9 +339,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
         /**
          * 确保 mmap 缓冲区有足够空间写入指定大小的数据。
-         * 空间不足时自动扩容 64MB。
-         *
-         * @param needed 需要写入的字节数
          */
         private void ensureMmap(int needed) {
             if (!useMmap || mappedBuf == null) {
@@ -385,41 +363,43 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         /**
          * 写入一帧数据到 mmap。
          * <p>帧格式：魔数(4B) + 负载长度(4B) + 负载数据。</p>
-         * <p>mmap 为共享内存，数据对消费者立即可见，无需 force() 刷盘。
-         * 使用 CAS 无锁写入，仅在 mmap 扩容时同步。</p>
-         *
-         * @param payload 已序列化的负载数据
          */
         void writeFrame(byte[] payload) {
             int frameSize = FRAME_HEADER_SIZE + payload.length;
             if (useMmap && mappedBuf != null) {
-                ensureMmap(frameSize);
-                if (useMmap) {
-                    int pos = mappedBuf.position();
-                    int endPos = pos + frameSize;
-                    mappedBuf.putInt(pos, MAGIC);
-                    mappedBuf.putInt(pos + 4, payload.length);
-                    mappedBuf.position(pos + FRAME_HEADER_SIZE);
-                    mappedBuf.put(payload);
-                    mappedBuf.position(endPos);
-                    commitPos.set(endPos);
-                    return;
+                synchronized (writeLock) {
+                    if (useMmap && mappedBuf != null) {
+                        ensureMmap(frameSize);
+                        if (useMmap) {
+                            int pos = mappedBuf.position();
+                            int endPos = pos + frameSize;
+                            mappedBuf.putInt(pos, MAGIC);
+                            mappedBuf.putInt(pos + 4, payload.length);
+                            mappedBuf.position(pos + FRAME_HEADER_SIZE);
+                            mappedBuf.put(payload);
+                            mappedBuf.position(endPos);
+                            commitPos.set(endPos);
+                            return;
+                        }
+                    }
                 }
             }
-            try {
-                long pos = channel.position();
-                ByteBuffer hdr = ByteBuffer.allocate(FRAME_HEADER_SIZE);
-                hdr.putInt(MAGIC).putInt(payload.length).flip();
-                channel.write(hdr);
-                channel.write(ByteBuffer.wrap(payload));
-                commitPos.set(pos + FRAME_HEADER_SIZE + payload.length);
-            } catch (Exception e) {
-                LOG.warn("WAL 写入失败 file={}", file, e);
+            synchronized (writeLock) {
+                try {
+                    long pos = channel.position();
+                    ByteBuffer hdr = ByteBuffer.allocate(FRAME_HEADER_SIZE);
+                    hdr.putInt(MAGIC).putInt(payload.length).flip();
+                    channel.write(hdr);
+                    channel.write(ByteBuffer.wrap(payload));
+                    commitPos.set(pos + FRAME_HEADER_SIZE + payload.length);
+                } catch (Exception e) {
+                    LOG.warn("WAL 写入失败 file={}", file, e);
+                }
             }
         }
 
         /**
-         * 关闭 WAL 日志，强制刷新 mmap 并释放文件通道。
+         * 关闭 WAL 日志，释放文件通道。
          */
         void close() {
             try {

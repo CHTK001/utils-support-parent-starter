@@ -1005,15 +1005,19 @@ public class OcrPipeline {
         byte[] corrected = correct(imageData);
         List<DetectionInfo> allBoxes = detector.detect(corrected);
         List<OcrResult> results = recognizeDetail(imageData);
-        return withInitDrawer().target(corrected).boxes(allBoxes, results).done();
+        List<String> labels = results.stream()
+                .map(r -> r.text() + " " + String.format("%.2f", r.confidence()))
+                .toList();
+        return withInitDrawer().target(corrected).boxes(allBoxes, labels).done();
     }
 
     /**
      * 创建标注管线，支持自定义绘制流程。
      *
      * <p>通过 {@link DrawerPipeline#target(byte[])} 设置矫正图，
-     * {@link DrawerPipeline#onProcess(DetectionInfo, String, float)} 逐框标注，
-     * {@link DrawerPipeline#done()} 完成绘制。</p>
+     * {@link DrawerPipeline#boxes(List, List)} 一键注入检测框与标签，
+     * {@link DrawerPipeline#done()} 完成绘制。绘制过程可用
+     * {@link DrawerPipeline#onProcess(java.util.function.BiConsumer)} 观察进度。</p>
      *
      * @return DrawerPipeline 实例
      */

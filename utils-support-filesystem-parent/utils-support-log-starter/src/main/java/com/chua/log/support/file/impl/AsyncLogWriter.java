@@ -346,6 +346,9 @@ public class AsyncLogWriter implements AutoCloseable {
                 if (!running) {
                     break;
                 }
+            } catch (RuntimeException e) {
+                // 单次刷盘异常不终止后台线程，记录后等待下次尝试
+                System.err.println("[AsyncLogWriter] 刷盘异常: " + file + " - " + e.getMessage());
             }
         }
         // 退出前刷盘，避免数据丢失
@@ -398,12 +401,23 @@ public class AsyncLogWriter implements AutoCloseable {
      */
     private void forceActive(Segment segment, int index) {
         long cursor = segment.cursors[index].get();
+        // 临时指针可能因回绕前一步超出容量，跳过本轮即可（下轮刷盘或封区时补刷）
+        if (cursor > segment.capacity) {
+            return;
+        }
         long lastForced = segment.lastForced[index];
         if (cursor <= lastForced) {
             return;
         }
-        int written = (int) (cursor - lastForced);
-        segment.buffers[index].force((int) lastForced, written);
+        int from = (int) lastForced;
+        int length = (int) (cursor - lastForced);
+        // 裁剪至缓冲区范围，防御性防越界
+        if (from + length > segment.capacity) {
+            length = segment.capacity - from;
+        }
+        if (length > 0) {
+            segment.buffers[index].force(from, length);
+        }
         segment.lastForced[index] = cursor;
     }
 
@@ -709,7 +723,7 @@ public class AsyncLogWriter implements AutoCloseable {
          * @return 不小于原值的 2 的幂
          */
         private static int roundUpToPowerOfTwo(int value) {
-            return Integer.highestOneBit(value - 1) << 1;
+            return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
         }
 
         /**

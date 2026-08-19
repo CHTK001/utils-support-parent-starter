@@ -13,12 +13,7 @@ import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -106,6 +101,11 @@ public class NativeRpcClient implements RpcClient {
     private final com.chua.common.support.lang.balance.LoadBalance loadBalance;
 
     /**
+     * 请求/响应编解码器（SPI 序列化，Fury 优先）
+     */
+    private final RpcSerialization rpcSerialization;
+
+    /**
      * 创建原生 TCP NIO RPC 客户端。
      *
      * @param registryConfigs 注册中心配置列表
@@ -120,6 +120,9 @@ public class NativeRpcClient implements RpcClient {
         int poolSize = consumerConfig != null && consumerConfig.getConnections() != null
                 && consumerConfig.getConnections() > 0 ? consumerConfig.getConnections() : 4;
         this.loadBalance = createLoadBalancer(consumerConfig);
+        this.rpcSerialization = new RpcSerialization(
+                consumerConfig != null ? consumerConfig.getSerialization() : null);
+        log.info("NativeRpcClient serialization: {}", rpcSerialization.name());
         if (registryConfigs == null) {
             registryConfigs = new ArrayList<>();
         }
@@ -221,9 +224,9 @@ public class NativeRpcClient implements RpcClient {
             String host = addr.contains(":") ? addr.split(":")[0] : addr;
             int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;
             // 传输层内部维护连接池与超时，此处只做一次请求-响应交换
-            byte[] reqData = serialize(req);
+            byte[] reqData = rpcSerialization.serialize(req);
             byte[] respData = tcpClient.call(host, port, reqData);
-            RpcResponse resp = deserialize(respData);
+            RpcResponse resp = rpcSerialization.deserializeResponse(respData);
             if (!resp.isSuccess()) {
                 throw RpcException.business(resp.getError());
             }
@@ -276,63 +279,4 @@ public class NativeRpcClient implements RpcClient {
         }
         return loadBalance.select(new ArrayList<>(targets));
     }
-
-    static byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
-        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-            oos.writeObject(obj);
-        }
-        return bos.toByteArray();
-    }
-
-    static <T> T deserialize(byte[] data) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
-            ois.setObjectInputFilter(objectInputFilter());
-            return (T) ois.readObject();
-        }
-    }
-
-    /**
-     * 创建反序列化安全过滤器。
-     *
-     * <p>策略：默认放行普通业务类，但拒绝已知反序列化攻击 gadget 链上的高危类，
-     * 同时限制对象图深度与数组长度，防止 {@link #deserialize(byte[])} 被恶意报文利用。</p>
-     *
-     * @return 对象输入过滤器
-     */
-    static ObjectInputFilter objectInputFilter() {
-        return info -> {
-            Class<?> serialClass = info.serialClass();
-            if (serialClass == null) {
-                return ObjectInputFilter.Status.UNDECIDED;
-            }
-            if (info.depth() > 64) {
-                return ObjectInputFilter.Status.REJECTED;
-            }
-            if (info.arrayLength() >= 0 && info.arrayLength() > 100_000) {
-                return ObjectInputFilter.Status.REJECTED;
-            }
-            String name = serialClass.getName();
-            for (String denied : DENIED_CLASS_PREFIXES) {
-                if (name.startsWith(denied)) {
-                    return ObjectInputFilter.Status.REJECTED;
-                }
-            }
-            return ObjectInputFilter.Status.UNDECIDED;
-        };
-    }
-
-    /**
-     * 高危反序列化 gadget 类前缀黑名单
-     */
-    private static final String[] DENIED_CLASS_PREFIXES = {
-            "com.sun.", "java.rmi.", "javax.naming.", "javax.management.",
-            "org.apache.commons.collections.", "org.apache.commons.beanutils.",
-            "org.apache.commons.fileupload.", "org.apache.xbean.",
-            "org.springframework.beans.factory.", "org.springframework.context.",
-            "org.codehaus.groovy.runtime.", "com.mchange.v2.c3p0.",
-            "com.alibaba.fastjson.", "net.sf.json.", "org.jboss.",
-            "org.python.core.", "org.mozilla.javascript.", "jdk.internal.",
-            "sun.rmi.", "org.apache.dubbo.", "com.caucho."
-    };
 }

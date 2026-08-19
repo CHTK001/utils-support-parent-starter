@@ -356,7 +356,7 @@ public class NioHttpServer extends AbstractServer {
      */
     private void inlineWrite(ByteBuffer header, ByteBuffer body) {
         // 同步写出必须直接从事件循环线程执行;若被其他线程调用(不应发生)则回退异步
-        synchronized (st_writeLockHolder == null ? this : this) {
+        synchronized (this) {
             // no-op placeholder (真实逻辑在下面)
         }
     }
@@ -931,3 +931,4 @@ public class NioHttpServer extends AbstractServer {
         return ProtocolType.HTTP;
     }
 }
+
