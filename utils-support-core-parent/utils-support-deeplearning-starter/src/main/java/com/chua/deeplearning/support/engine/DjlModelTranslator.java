@@ -1,7 +1,6 @@
 package com.chua.deeplearning.support.engine;
 
 import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.ImageFactory;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
@@ -112,7 +111,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
         int imgH = 0;
         if (imageInput && input instanceof byte[] bytes) {
             try {
-                ai.djl.modality.cv.Image img = ImageFactory.getInstance().fromImage(ImageUtils.toBufferedImage(bytes));
+                ai.djl.modality.cv.Image img = new ai.djl.modality.cv.BufferedImageFactory().fromImage(ImageUtils.toBufferedImage(bytes));
                 imgW = img.getWidth();
                 imgH = img.getHeight();
                 result = factory.predict(img);

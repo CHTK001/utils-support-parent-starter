@@ -7,7 +7,7 @@ import com.chua.deeplearning.support.ai.result.HumanPredictResult;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.draw.DrawerPipeline;
-import com\.chua\.deeplearning\.support\.engine\.ModelRegistry;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
@@ -304,4 +304,4 @@ public class AgeGenderPipeline {
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);
     }
-\}
+}
