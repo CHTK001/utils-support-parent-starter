@@ -2,8 +2,10 @@ package com.chua.common.support.lang.view;
 
 import com.chua.common.support.spi.annotations.Spi;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 树形视图解析器，将嵌套数据渲染为终端树。
@@ -24,8 +26,43 @@ import java.util.stream.Collectors;
 @Spi("tree")
 public class TreeViewParser implements ViewParser {
 
+    /**
+     * 空数据占位文本
+     */
+    private static final String EMPTY_PLACEHOLDER = "(empty)";
+
+    /**
+     * 分支节点前缀（└──）
+     */
+    private static final String LAST_BRANCH = "└── ";
+
+    /**
+     * 分支节点前缀（├──）
+     */
+    private static final String MIDDLE_BRANCH = "├── ";
+
+    /**
+     * 父节点为末位时的子节点缩进
+     */
+    private static final String INDENT_LAST = "    ";
+
+    /**
+     * 父节点为非末位时的子节点缩进
+     */
+    private static final String INDENT_MIDDLE = "│   ";
+
+    /**
+     * 叶子节点键值分隔符
+     */
+    private static final String KEY_VALUE_SEPARATOR = ": ";
+
+    /**
+     * 判断是否支持渲染指定数据。
+     *
+     * @param data 待渲染的数据
+     * @return {@link Map} / {@link Iterable} / 数组 / 嵌套 POJO 返回 true
+     */
     @Override
-    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -37,10 +74,18 @@ public class TreeViewParser implements ViewParser {
         return data instanceof Map || data instanceof Iterable || type.isArray() || isNestedPojo(data);
     }
 
+    /**
+     * 将数据渲染为终端树。
+     *
+     * @param data 待渲染的数据
+     * @return 树形文本；空数据返回 {@value #EMPTY_PLACEHOLDER}
+     */
+    @SuppressWarnings("unchecked")
     @Override
-@SuppressWarnings("unchecked")
-    /** Render */
     public String render(Object data) {
+        if (data == null) {
+            return EMPTY_PLACEHOLDER;
+        }
         StringBuilder sb = new StringBuilder();
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;
@@ -70,10 +115,16 @@ public class TreeViewParser implements ViewParser {
 
     /**
      * 递归渲染树节点。
+     *
+     * @param sb     输出缓冲区
+     * @param name   节点名称
+     * @param value  节点值
+     * @param prefix 当前缩进前缀
+     * @param last   是否为兄弟节点的末位
      */
     private void renderNode(StringBuilder sb, String name, Object value, String prefix, boolean last) {
         sb.append(prefix);
-        sb.append(last ? "└── " : "├── ");
+        sb.append(last ? LAST_BRANCH : MIDDLE_BRANCH);
         sb.append(name);
 
         if (value == null) {
@@ -84,12 +135,12 @@ public class TreeViewParser implements ViewParser {
         List<Map.Entry<Object, Object>> childList = toChildren(value);
         if (childList == null) {
             // 叶子节点，显示值
-            sb.append(": ").append(value).append('\n');
+            sb.append(KEY_VALUE_SEPARATOR).append(value).append('\n');
             return;
         }
 
         sb.append('\n');
-        String childPrefix = prefix + (last ? "    " : "│   ");
+        String childPrefix = prefix + (last ? INDENT_LAST : INDENT_MIDDLE);
         for (int i = 0; i < childList.size(); i++) {
             Map.Entry<Object, Object> child = childList.get(i);
             renderNode(sb, String.valueOf(child.getKey()), child.getValue(), childPrefix, i == childList.size() - 1);
@@ -98,8 +149,14 @@ public class TreeViewParser implements ViewParser {
 
     /**
      * 将值转为子节点列表。Map 的每个条目编码为 {@link Map.Entry} 以携带 key+value。
+     *
+     * @param value 待转换的值
+     * @return 子节点列表；值为空或非嵌套结构返回 null
      */
     private static List<Map.Entry<Object, Object>> toChildren(Object value) {
+        if (value == null) {
+            return null;
+        }
         if (value instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) value;
             return new ArrayList<>(map.entrySet());
@@ -123,6 +180,9 @@ public class TreeViewParser implements ViewParser {
 
     /**
      * 判断是否为嵌套 POJO。
+     *
+     * @param data 待判断对象
+     * @return 存在非 JDK 类型字段返回 true
      */
     private static boolean isNestedPojo(Object data) {
         Class<?> type = data.getClass();
@@ -140,8 +200,12 @@ public class TreeViewParser implements ViewParser {
         return false;
     }
 
+    /**
+     * 获取解析器顺序。
+     *
+     * @return 顺序值
+     */
     @Override
-    /** 获取Order */
     public int getOrder() {
         return 20;
     }

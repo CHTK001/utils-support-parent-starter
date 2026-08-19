@@ -3,7 +3,16 @@ package com.chua.common.support.lang.view;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.lang.reflect.Modifier;
+import java.time.temporal.Temporal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,8 +41,38 @@ import java.util.stream.Collectors;
 @Spi("table")
 public class TableViewParser implements ViewParser {
 
+    /**
+     * 空数据占位文本
+     */
+    private static final String EMPTY_PLACEHOLDER = "(empty)";
+
+    /**
+     * 字段读取失败时的占位字符
+     */
+    private static final String UNKNOWN_CELL = "?";
+
+    /**
+     * 单值渲染时的占位列名
+     */
+    private static final String INDEX_COLUMN = "#";
+
+    /**
+     * Map 渲染时的列名（Key）
+     */
+    private static final String KEY_COLUMN = "Key";
+
+    /**
+     * Map 渲染时的列名（Value）
+     */
+    private static final String VALUE_COLUMN = "Value";
+
+    /**
+     * 判断是否支持渲染指定数据。
+     *
+     * @param data 待渲染的数据
+     * @return {@link Iterable} / {@link Map} / 数组 返回 true
+     */
     @Override
-    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -41,16 +80,21 @@ public class TableViewParser implements ViewParser {
         return data instanceof Iterable || data instanceof Map || data.getClass().isArray();
     }
 
+    /**
+     * 将数据渲染为终端 ASCII 表格。
+     *
+     * @param data 待渲染的数据
+     * @return 表格字符串；空数据返回 {@value #EMPTY_PLACEHOLDER}
+     */
+    @SuppressWarnings("unchecked")
     @Override
-@SuppressWarnings("unchecked")
-    /** Render */
     public String render(Object data) {
         if (data instanceof Map) {
             return renderMap((Map<Object, Object>) data);
         }
         List<Object> rows = toList(data);
         if (rows.isEmpty()) {
-            return "(empty)";
+            return EMPTY_PLACEHOLDER;
         }
         if (rows.get(0) instanceof Map) {
             List<Map<String, Object>> mapRows = (List<Map<String, Object>>) (List<?>) rows;
@@ -64,6 +108,9 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 将数据转为列表。
+     *
+     * @param data 待转换的数据
+     * @return 元素列表
      */
     private static List<Object> toList(Object data) {
         if (data instanceof Iterable) {
@@ -79,10 +126,13 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 渲染 Map 键值对为两列表格。
+     *
+     * @param map 数据源
+     * @return 两列表格字符串
      */
     private static String renderMap(Map<Object, Object> map) {
         List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"Key", "Value"});
+        rows.add(new String[]{KEY_COLUMN, VALUE_COLUMN});
         for (var entry : map.entrySet()) {
             rows.add(new String[]{
                     String.valueOf(entry.getKey()),
@@ -93,7 +143,10 @@ public class TableViewParser implements ViewParser {
     }
 
     /**
-     * 渲染 List<Map> 为动态列表格。
+     * 渲染 List&lt;Map&gt; 为动态列表格。
+     *
+     * @param data Map 列表
+     * @return 多列表格字符串
      */
     private static String renderMapRows(List<Map<String, Object>> data) {
         Set<String> allKeys = new LinkedHashSet<>();
@@ -116,10 +169,13 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 渲染 POJO 列表为字段列表格。
+     *
+     * @param data Bean 列表
+     * @return 多列表格字符串
      */
     private static String renderBeanRows(List<Object> data) {
         if (data.isEmpty()) {
-            return "(empty)";
+            return EMPTY_PLACEHOLDER;
         }
         List<Field> fields = extractFields(data.get(0).getClass());
         List<String> columns = fields.stream().map(Field::getName).collect(Collectors.toList());
@@ -137,7 +193,7 @@ public class TableViewParser implements ViewParser {
                     Object val = f.get(bean);
                     values[i] = val != null ? val.toString() : "";
                 } catch (Exception e) {
-                    values[i] = "?";
+                    values[i] = UNKNOWN_CELL;
                 }
             }
             rows.add(values);
@@ -147,10 +203,13 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 渲染简单类型列表（单列）。
+     *
+     * @param data 简单类型元素列表
+     * @return 单列表格字符串
      */
     private static String renderSimpleList(List<Object> data) {
         List<String[]> rows = new ArrayList<>();
-        rows.add(new String[]{"#"});
+        rows.add(new String[]{INDEX_COLUMN});
         for (int i = 0; i < data.size(); i++) {
             rows.add(new String[]{String.valueOf(data.get(i))});
         }
@@ -159,6 +218,9 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 计算每列最大宽度并绘制带框线的表格。
+     *
+     * @param rows 二维行集合（第一行是表头）
+     * @return 表格字符串
      */
     private static String formatTable(List<String[]> rows) {
         if (rows.isEmpty()) {
@@ -175,7 +237,7 @@ public class TableViewParser implements ViewParser {
                 widths[i] = Math.max(widths[i], row[i] != null ? row[i].length() : 0);
             }
         }
-        // padding
+        // 左右各加一个空格内边距
         for (int i = 0; i < colCount; i++) {
             widths[i] += 2;
         }
@@ -197,6 +259,10 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 补齐行到指定列数。
+     *
+     * @param row      原行
+     * @param colCount 目标列数
+     * @return 补齐后的行
      */
     private static String[] padRow(String[] row, int colCount) {
         if (row.length >= colCount) {
@@ -212,6 +278,12 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 绘制水平线。
+     *
+     * @param widths 各列宽度
+     * @param left   左端点字符
+     * @param cross  交叉点字符
+     * @param right  右端点字符
+     * @return 水平线字符串
      */
     private static String hLine(int[] widths, char left, char cross, char right) {
         StringBuilder sb = new StringBuilder();
@@ -230,6 +302,11 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 追加一行数据。
+     *
+     * @param sb     输出缓冲区
+     * @param row    当前行单元格数组
+     * @param widths 各列宽度
+     * @param sep    单元格分隔符
      */
     private static void appendRow(StringBuilder sb, String[] row, int[] widths, char sep) {
         sb.append(sep);
@@ -245,12 +322,20 @@ public class TableViewParser implements ViewParser {
     }
 
     /**
-     * 提取类所有字段（含继承）。
+     * 提取类所有字段（含继承，过滤静态字段）。
+     *
+     * @param type 起始类型
+     * @return 字段列表
      */
     private static List<Field> extractFields(Class<?> type) {
         List<Field> result = new ArrayList<>();
         while (type != null && type != Object.class) {
-            Collections.addAll(result, type.getDeclaredFields());
+            for (Field field : type.getDeclaredFields()) {
+                // 跳过静态字段，仅展示实例字段
+                if (!Modifier.isStatic(field.getModifiers())) {
+                    result.add(field);
+                }
+            }
             type = type.getSuperclass();
         }
         return result;
@@ -258,16 +343,23 @@ public class TableViewParser implements ViewParser {
 
     /**
      * 判断是否为简单类型（直接 toString 即可）。
+     *
+     * @param obj 待判断对象
+     * @return 简单类型返回 true
      */
     private static boolean isSimpleType(Object obj) {
         return obj instanceof String || obj instanceof Number
                 || obj instanceof Boolean || obj instanceof Character
-                || obj instanceof java.util.Date || obj instanceof java.time.temporal.Temporal
+                || obj instanceof Date || obj instanceof Temporal
                 || obj instanceof Enum;
     }
 
+    /**
+     * 获取解析器顺序。
+     *
+     * @return 顺序值
+     */
     @Override
-    /** 获取Order */
     public int getOrder() {
         return 0;
     }

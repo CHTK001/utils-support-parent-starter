@@ -3,6 +3,7 @@ package com.chua.common.support.lang.view;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,13 +25,43 @@ import java.util.Map;
 @Spi("card")
 public class CardViewParser implements ViewParser {
 
-    /** Min_width */
+    /**
+     * 卡片最小宽度
+     */
     private static final int MIN_WIDTH = 40;
-    /** Padding */
+
+    /**
+     * 单元格左右内边距
+     */
     private static final int PADDING = 2;
 
+    /**
+     * 键与值之间的最小间隔列数
+     */
+    private static final int KEY_VALUE_GAP = 1;
+
+    /**
+     * 空数据占位文本
+     */
+    private static final String EMPTY_PLACEHOLDER = "(empty)";
+
+    /**
+     * 卡片标题：Map 类型专用
+     */
+    private static final String MAP_TITLE = "Map";
+
+    /**
+     * 新行字符
+     */
+    private static final char NEWLINE = '\n';
+
+    /**
+     * 判断是否支持渲染指定数据。
+     *
+     * @param data 待渲染的数据
+     * @return 普通 POJO 或非空 {@link Map} 返回 true，集合/数组/简单类型返回 false
+     */
     @Override
-    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -48,50 +79,58 @@ public class CardViewParser implements ViewParser {
         return true;
     }
 
+    /**
+     * 将数据渲染为带标题的分隔卡片。
+     *
+     * @param data 待渲染的数据
+     * @return 卡片字符串；空数据返回 {@value #EMPTY_PLACEHOLDER}
+     */
     @Override
-    /** Render */
     public String render(Object data) {
         Map<String, String> kv = toKeyValue(data);
         if (kv.isEmpty()) {
-            return "(empty)";
+            return EMPTY_PLACEHOLDER;
         }
 
         int maxKeyLen = kv.keySet().stream().mapToInt(String::length).max().orElse(0);
         int maxValLen = kv.values().stream().mapToInt(String::length).max().orElse(0);
-        int titleLen = data instanceof Map ? "Map".length() : data.getClass().getSimpleName().length();
-        int innerWidth = Math.max(maxKeyLen + 3 + maxValLen, titleLen + 2);
-        int width = Math.max(innerWidth + 2, MIN_WIDTH);
+        String title = data instanceof Map ? MAP_TITLE : data.getClass().getSimpleName();
+        int innerWidth = Math.max(maxKeyLen + KEY_VALUE_GAP + PADDING + maxValLen, title.length() + PADDING);
+        int width = Math.max(innerWidth + PADDING, MIN_WIDTH);
 
         StringBuilder sb = new StringBuilder();
         // 顶线
-        sb.append('┌').append("─".repeat(width - 2)).append('┐').append('\n');
+        sb.append('┌').append("─".repeat(width - 2)).append('┐').append(NEWLINE);
         // 标题
-        String title = data instanceof Map ? "Map" : data.getClass().getSimpleName();
         int titleStart = (width - 2 - title.length()) / 2;
         sb.append('│').append(" ".repeat(titleStart)).append(title);
-        sb.append(" ".repeat(width - 2 - titleStart - title.length())).append('│').append('\n');
+        sb.append(" ".repeat(width - 2 - titleStart - title.length())).append('│').append(NEWLINE);
         // 分隔线
-        sb.append('├').append("─".repeat(width - 2)).append('┤').append('\n');
-        // 内容
+        sb.append('├').append("─".repeat(width - 2)).append('┤').append(NEWLINE);
+        // 内容行
         for (var entry : kv.entrySet()) {
-            sb.append('│');
             String key = entry.getKey();
             String val = entry.getValue();
-            sb.append(' ').append(key);
-            sb.append(" ".repeat(maxKeyLen - key.length() + 1));
+            sb.append('│').append(' ').append(key);
+            sb.append(" ".repeat(maxKeyLen - key.length() + KEY_VALUE_GAP));
             sb.append(val);
-            int remain = width - 3 - maxKeyLen - 1 - val.length();
+            int remain = width - 4 - maxKeyLen - val.length();
             if (remain > 0) {
                 sb.append(" ".repeat(remain));
             }
-            sb.append('│').append('\n');
+            sb.append('│').append(NEWLINE);
         }
         // 底线
         sb.append('└').append("─".repeat(width - 2)).append('┘');
         return sb.toString();
     }
 
-    /** ToKeyValue */
+    /**
+     * 将数据转为键值对映射。
+     *
+     * @param data 待转换的数据
+     * @return 有序键值对映射
+     */
     private static Map<String, String> toKeyValue(Object data) {
         Map<String, String> result = new LinkedHashMap<>();
         if (data instanceof Map) {
@@ -103,6 +142,10 @@ public class CardViewParser implements ViewParser {
         Class<?> type = data.getClass();
         while (type != null && type != Object.class) {
             for (Field f : type.getDeclaredFields()) {
+                // 跳过静态字段，仅展示实例字段
+                if (Modifier.isStatic(f.getModifiers())) {
+                    continue;
+                }
                 try {
                     f.setAccessible(true);
                     Object val = f.get(data);
@@ -116,8 +159,12 @@ public class CardViewParser implements ViewParser {
         return result;
     }
 
+    /**
+     * 获取解析器顺序。
+     *
+     * @return 顺序值
+     */
     @Override
-    /** 获取Order */
     public int getOrder() {
         return 15;
     }
