@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.example;
 
 import com.chua.deeplearning.support.ocr.OcrResult;
-import com.chua.deeplearning.support.onnx.ocr.OcrPipeline;
+import com.chua.deeplearning.support.ocr.OcrPipeline;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;

@@ -106,6 +106,11 @@ public class NativeRpcClient implements RpcClient {
     private final RpcSerialization rpcSerialization;
 
     /**
+     * 是否启用同 JVM 直调：目标服务本机已注册时直接调用本地对象，跳过 TCP 与序列化
+     */
+    private final boolean inlineEnabled;
+
+    /**
      * 创建原生 TCP NIO RPC 客户端。
      *
      * @param registryConfigs 注册中心配置列表
@@ -122,7 +127,8 @@ public class NativeRpcClient implements RpcClient {
         this.loadBalance = createLoadBalancer(consumerConfig);
         this.rpcSerialization = new RpcSerialization(
                 consumerConfig != null ? consumerConfig.getSerialization() : null);
-        log.info("NativeRpcClient serialization: {}", rpcSerialization.name());
+        this.inlineEnabled = consumerConfig != null && Boolean.TRUE.equals(consumerConfig.getInline());
+        log.info("NativeRpcClient serialization: {}, inline: {}", rpcSerialization.name(), inlineEnabled);
         if (registryConfigs == null) {
             registryConfigs = new ArrayList<>();
         }
@@ -174,6 +180,12 @@ public class NativeRpcClient implements RpcClient {
 
         @Override
         public Object apply(ProxyMethod pm) {
+            // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
+            Object localService = inlineEnabled ? NativeRpcServer.LOCAL_SERVICES.get(targetType.getName()) : null;
+            if (localService != null) {
+                return invokeLocal(localService, pm);
+            }
+
             RpcRequest req = new RpcRequest();
             req.setService(targetType.getName());
             req.setMethod(pm.getMethod().getName());
@@ -231,6 +243,31 @@ public class NativeRpcClient implements RpcClient {
                 throw RpcException.business(resp.getError());
             }
             return resp.getResult();
+        }
+
+        /**
+         * 同 JVM 直调：反射调用本机已注册的服务对象，零网络、零序列化。
+         *
+         * @param localService 本机服务对象
+         * @param pm           代理方法
+         * @return 调用结果
+         */
+        private Object invokeLocal(Object localService, ProxyMethod pm) {
+            try {
+                java.lang.reflect.Method method = pm.getMethod();
+                method.setAccessible(true);
+                Object result = method.invoke(localService, pm.getArgs());
+                // 语义对齐：服务端通过 RpcServer 返回 Future 时也做同样解包
+                if (result instanceof java.util.concurrent.Future) {
+                    return ((java.util.concurrent.Future<?>) result).get();
+                }
+                return result;
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                // 服务端抛出的业务异常原样上抛，保持与远程调用一致
+                throw RpcException.business(e.getCause() != null ? e.getCause().toString() : e.toString());
+            } catch (Exception e) {
+                throw RpcException.transport("Inline RPC invoke failed", e);
+            }
         }
     }
 

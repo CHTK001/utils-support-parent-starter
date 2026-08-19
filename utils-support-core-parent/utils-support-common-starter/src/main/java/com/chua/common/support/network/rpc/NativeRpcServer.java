@@ -88,6 +88,15 @@ public class NativeRpcServer implements RpcServer {
     private final Map<String, Object> services = new ConcurrentHashMap<>();
 
     /**
+     * 本进程内已注册服务共享注册表（供同 JVM 直调使用）。
+     *
+     * <p>key 为服务接口全限定名，value 为服务实现对象。客户端开启
+     * {@link RpcConsumerConfig#getInline()} 后直接在此查找并本地调用，
+     * 绕过 TCP 与序列化。</p>
+     */
+    static final Map<String, Object> LOCAL_SERVICES = new ConcurrentHashMap<>();
+
+    /**
      * 底层 TCP 长度帧服务端（复用传输层）
      */
     private TcpServer tcpServer;
@@ -253,6 +262,7 @@ public class NativeRpcServer implements RpcServer {
     @Override
     public RpcServer register(String name, Object bean) {
         services.put(name, bean);
+        LOCAL_SERVICES.put(name, bean);
         // 注册到 ServiceDiscovery
         if (serviceDiscovery != null) {
             Discovery discovery = Discovery.builder()

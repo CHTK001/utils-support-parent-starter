@@ -5,7 +5,8 @@ import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
-import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.deeplearning.support.draw.DrawerPipeline;
+import com\.chua\.deeplearning\.support\.engine\.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -209,4 +210,13 @@ public class SceneUnderstandingPipeline {
         }
         return result;
     }
-}
+
+    /**
+     * 创建标注管线，支持一键绘制检测结果。
+     *
+     * @return DrawerPipeline 实例
+     */
+    public DrawerPipeline withInitDrawer() {
+        return new DrawerPipeline(0.5f);
+    }
+\}

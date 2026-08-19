@@ -119,4 +119,13 @@ public class SearchPipeline {
     private static SearchContext current(PipelineContext<?> ctx) {
         return (SearchContext) ctx.getAttribute("search");
     }
-}
+
+    /**
+     * 创建标注管线，支持一键绘制检测结果。
+     *
+     * @return DrawerPipeline 实例
+     */
+    public DrawerPipeline withInitDrawer() {
+        return new DrawerPipeline(0.5f);
+    }
+\}

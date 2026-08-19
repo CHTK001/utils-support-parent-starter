@@ -298,11 +298,10 @@ public class NioHttpServer extends AbstractServer {
             // 完整请求解析完成:摘除 OP_READ
             key.interestOps(0);
             st.inWorker = true;
+            // 内联快速路径按需启用(setting.isInlineDispatch=true 且非 SSL/WS):
+            // 非阻塞 handler 事件循环线程内执行并同步写出,省虚拟线程提交 + Selector 唤醒
             if (setting.isInlineDispatch() && sslContext == null
                     && !WebSocketProtocol.isUpgradeRequest(st.request)) {
-                // 内联快速路径:非阻塞 handler 在同线程执行并同步写出(channel 非阻塞,
-                // 每次 write 直接返回;若写不完则回退 pendingWrite 队列交给事件循环续写),
-                // 省去虚拟线程提交 + Selector 唤醒往返,小响应吞吐大幅提升
                 processRequestInline(st, key);
             } else {
                 executor.submit(() -> processRequest(st, key));

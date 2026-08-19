@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.ocr.OcrRecognizer;
 import com.chua.deeplearning.support.ocr.OcrResult;
-import com.chua.deeplearning.support.onnx.ocr.OcrPipeline;
+import com.chua.deeplearning.support.ocr.OcrPipeline;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
