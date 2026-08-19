@@ -13,11 +13,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -75,7 +75,8 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
      */
     protected void addToCache(String path, Discovery discovery) {
         path = StringUtils.startWithAppend(path, "/");
-        localCache.computeIfAbsent(path, k -> new LinkedList<>()).add(discovery);
+        // CopyOnWriteArrayList：写时拷贝，读时无锁快照，避免 gossip/心跳/查询并发写坏链表结构
+        localCache.computeIfAbsent(path, k -> new CopyOnWriteArrayList<>()).add(discovery);
     }
 
     /**
@@ -98,7 +99,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
      */
     protected void replaceCache(String path, Collection<Discovery> discoveries) {
         path = StringUtils.startWithAppend(path, "/");
-        localCache.put(path, new LinkedList<>(discoveries));
+        localCache.put(path, new CopyOnWriteArrayList<>(discoveries));
     }
 
     /**
@@ -292,7 +293,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         // 使用 compute 而非 computeIfPresent:key 不存在时同样执行(否则新服务被静默丢弃)
         localCache.compute(normalizedKey, (k, list) -> {
             if (list == null) {
-                list = new LinkedList<>();
+                list = new CopyOnWriteArrayList<>();
             }
             for (int i = 0; i < list.size(); i++) {
                 if (discovery.getServerId() != null && discovery.getServerId().equals(list.get(i).getServerId())) {
