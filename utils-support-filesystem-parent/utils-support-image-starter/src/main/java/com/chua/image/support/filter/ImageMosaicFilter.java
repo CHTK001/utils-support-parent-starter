@@ -15,114 +15,113 @@ import javax.annotation.Nullable;
 
 
 /**
- * 椹禌鍏嬪浘鍍忔护闀?
+ * 马赛克图像滤镜
  *
- * 瀹炵幇椹禌鍏嬫晥鏋滅殑鍥惧儚婊ら暅锛屽皢鍥惧儚鍒嗗壊鎴愯鍒欑殑鐭╁舰鍧楋紝
- * 姣忎釜鍧椾娇鐢ㄥ叾涓績鍍忕礌鐨勯鑹茶繘琛屽～鍏咃紝浜х敓鍍忕礌鍖栫殑瑙嗚鏁堟灉銆?
+ * 实现马赛克效果的图像滤镜，将图像分割成规则的矩形块，
+ * 每个块使用其中心像素的颜色进行填充，产生像素化的视觉效果。
  *
- * 鎶€鏈師鐞嗭細
- * - 灏嗗浘鍍忔寜鎸囧畾澶у皬鍒嗗壊鎴愮煩褰㈢綉鏍?
- * - 璁＄畻姣忎釜缃戞牸鐨勪腑蹇冨儚绱犱綅缃?
- * - 浣跨敤涓績鍍忕礌鐨勯鑹插～鍏呮暣涓綉鏍?
- * - 澶勭悊杈圭晫缃戞牸鐨勭壒娈婃儏鍐?
+ * 技术原理：
+ * - 将图像按指定大小分割成矩形网格
+ * - 计算每个网格的中心像素位置
+ * - 使用中心像素的颜色填充整个网格
+ * - 处理边界网格的特殊情况
  *
- * 瑙嗚鏁堟灉锛?
- * - 闄嶄綆鍥惧儚鍒嗚鲸鐜囧拰缁嗚妭
- * - 浜х敓鍍忕礌鍖栫殑鑹烘湳鏁堟灉
- * - 鍙皟鑺傜殑椹禌鍏嬪潡澶у皬
- * - 淇濇寔鍥惧儚鐨勬暣浣撹壊褰╁拰鏋勫浘
+ * 视觉效果：
+ * - 降低图像分辨率和细节
+ * - 产生像素化的艺术效果
+ * - 可调节的马赛克块大小
+ * - 保持图像的整体色彩和构图
  *
- * 搴旂敤鍦烘櫙锛?
- * - 闅愮淇濇姢锛氭ā绯婃晱鎰熶俊鎭?
- * - 鑹烘湳鏁堟灉锛氬垱寤哄儚绱犺壓鏈鏍?
- * - 娓告垙寮€鍙戯細澶嶅彜鍍忕礌娓告垙椋庢牸
- * - 鍥惧儚鍘嬬缉锛氭瀬搴﹀帇缂╃殑棰勮鏁堟灉
- * - 鍒涙剰璁捐锛氱幇浠ｆ暟瀛楄壓鏈晥鏋?
+ * 应用场景：
+ * - 隐私保护：模糊敏感信息
+ * - 艺术效果：创建像素艺术风格
+ * - 游戏开发：复古像素游戏风格
+ * - 图像压缩：极度压缩的预览效果
+ * - 创意设计：现代数字艺术效果
  *
  * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@SpiDescribe("椹禌鍏嬪儚绱犲寲婊ら暅")
+@SpiDescribe("马赛克像素化滤镜")
 @Spi("mosaic")
 @Accessors(chain = true)
 public class ImageMosaicFilter extends AbstractImageFilter {
 
     /**
-     * 椹禌鍏嬪潡鐨勫ぇ灏忥紙鍍忕礌锛夛紝榛樿涓?x8鍍忕礌
+     * 马赛克块的大小（像素），默认为8x8像素
      */
     private int size = 8;
 
     /**
-     * 榛樿鏋勯€犲嚱鏁帮紝浣跨敤榛樿鐨勯┈璧涘厠鍧楀ぇ灏忥紙8鍍忕礌锛?
+     * 默认构造函数，使用默认的马赛克块大小（8像素）
      */
     public ImageMosaicFilter() {
     }
 
     /**
-     * 鏋勯€犲嚱鏁帮紝鎸囧畾椹禌鍏嬪潡澶у皬
+     * 构造函数，指定马赛克块大小
      *
-     * @param size 椹禌鍏嬪潡鐨勫ぇ灏忥紙鍍忕礌锛夛紝蹇呴』澶т簬0
+     * @param size 马赛克块的大小（像素），必须大于0
      */
     public ImageMosaicFilter(int size) {
         this.size = size;
     }
 
     /**
-     * 鎵ц椹禌鍏嬫护闀滃鐞?
+     * 执行马赛克滤镜处理
      *
-     * 灏嗚緭鍏ュ浘鍍忓垎鍓叉垚瑙勫垯鐨勭煩褰㈢綉鏍硷紝姣忎釜缃戞牸浣跨敤鍏朵腑蹇冨儚绱犵殑棰滆壊
-     * 杩涜濉厖锛屼粠鑰屼骇鐢熼┈璧涘厠鏁堟灉銆傚鐞嗚竟鐣岀綉鏍肩殑鐗规畩鎯呭喌銆?
+     * 将输入图像分割成规则的矩形网格，每个网格使用其中心像素的颜色
+     * 进行填充，从而产生马赛克效果。处理边界网格的特殊情况。
      *
-     * @param src    婧愬浘鍍?
-     * @param image1 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
-     * @return 搴旂敤椹禌鍏嬫晥鏋滃悗鐨勫浘鍍忥紝濡傛灉鍙傛暟鏃犳晥鍒欒繑鍥炲師鍥惧儚
+     * @param src    源图像
+     * @param image1 目标图像（此参数未使用）
+     * @return 应用马赛克效果后的图像，如果参数无效则返回原图像
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage image1) {
         BufferedImage mosaicImage = new BufferedImage(src.getWidth(), src.getHeight(), TYPE_INT_RGB);
 
-        // 楠岃瘉椹禌鍏嬪潡澶у皬鐨勬湁鏁堟€?
+        // 验证马赛克块大小的有效性
         if (src.getWidth() < size || src.getHeight() < size || size <= 0) {
-            return src;
+            // turn src; // 参数无效时返回原图像
+            
         }
 
-        // 璁＄畻姘村钩鏂瑰悜鐨勭綉鏍兼暟閲?
+        // 计算水平方向的网格数量
         int xCount = 0;
-        // 璁＄畻鍨傜洿鏂瑰悜鐨勭綉鏍兼暟閲?
+        // 计算垂直方向的网格数量
         int yCount = 0;
 
         if (src.getWidth() % size == 0) {
             xCount = src.getWidth() / size;
         } else {
-            // 澶勭悊涓嶈兘鏁撮櫎鐨勬儏鍐?
-            xCount = src.getWidth() / size + 1;
+            xCount = src.getWidth() / size + 1; // 处理不能整除的情况
         }
 
         if (src.getHeight() % size == 0) {
             yCount = src.getHeight() / size;
         } else {
-            // 澶勭悊涓嶈兘鏁撮櫎鐨勬儏鍐?
-            yCount = src.getHeight() / size + 1;
+            yCount = src.getHeight() / size + 1; // 处理不能整除的情况
         }
 
-        // 褰撳墠缁樺埗浣嶇疆鍧愭爣
+        // 当前绘制位置坐标
         int x = 0;
         int y = 0;
 
-        // 鑾峰彇鍥惧舰涓婁笅鏂囪繘琛岀粯鍒?
+        // 获取图形上下文进行绘制
         Graphics graphics = mosaicImage.getGraphics();
 
-        // 閬嶅巻鎵€鏈夌綉鏍艰繘琛岄┈璧涘厠澶勭悊
+        // 遍历所有网格进行马赛克处理
         for (int i = 0; i < xCount; i++) {
             for (int j = 0; j < yCount; j++) {
-                // 褰撳墠椹禌鍏嬪潡鐨勫疄闄呭ぇ灏?
+                // 当前马赛克块的实际大小
                 int blockWidth = size;
                 int blockHeight = size;
 
-                // 澶勭悊杈圭晫鍧楋細鏈€鍚庝竴琛屾垨鏈€鍚庝竴鍒楀彲鑳戒笉瓒充竴涓畬鏁寸殑size
+                // 处理边界块：最后一行或最后一列可能不足一个完整的size
                 if (i == xCount - 1) {
                     blockWidth = src.getWidth() - x;
                 }
@@ -130,7 +129,7 @@ public class ImageMosaicFilter extends AbstractImageFilter {
                     blockHeight = src.getHeight() - y;
                 }
 
-                // 璁＄畻褰撳墠鍧楃殑涓績鍍忕礌鍧愭爣
+                // 计算当前块的中心像素坐标
                 int centerX = x;
                 int centerY = y;
 
@@ -146,21 +145,21 @@ public class ImageMosaicFilter extends AbstractImageFilter {
                     centerY += (blockHeight - 1) / 2;
                 }
 
-                // 鑾峰彇涓績鍍忕礌鐨勯鑹插苟濉厖鏁翠釜鍧?
+                // 获取中心像素的颜色并填充整个块
                 Color centerColor = new Color(src.getRGB(centerX, centerY));
                 graphics.setColor(centerColor);
                 graphics.fillRect(x, y, blockWidth, blockHeight);
 
-                // 绉诲姩鍒颁笅涓€涓瀭鐩翠綅缃?
+                // 移动到下一个垂直位置
                 y = y + size;
             }
 
-            // 閲嶇疆鍨傜洿鍧愭爣锛岀Щ鍔ㄥ埌涓嬩竴涓按骞充綅缃?
+            // 重置垂直坐标，移动到下一个水平位置
             y = 0;
             x = x + size;
         }
 
-        // 閲婃斁鍥惧舰璧勬簮
+        // 释放图形资源
         graphics.dispose();
         return mosaicImage;
     }

@@ -10,63 +10,65 @@ import javax.annotation.Nullable;
 
 
 /**
- * 复古旧滤镜
+ * 复古怀旧风格图像滤镜
  *
- * 将图像转换为复古怀旧风格，模拟老照片的色调效果。常用于摄影后期和艺术创作。
- * 通过调整RGB通道权重，使图像呈现暖色调的怀旧效果。
+ * 通过特定的颜色变换矩阵将现代彩色图像转换为具有怀旧复古感的图像效果。
+ * 该滤镜模拟老式照片的色彩特征，营造温暖、怀念的视觉氛围。
  *
  * 技术原理：
- * - 使用加权矩阵对RGB通道进行线性变换
- * - 增强红色通道，减少蓝色通道
- * - 保持绿色通道基本不变
- * - 结果值限制在0-255范围内
+ * - 使用自定义的颜色变换矩阵
+ * - 调整RGB各通道的权重分配
+ * - 增强暖色调，减弱冷色调
+ * - 降低整体饱和度和对比度
  *
- * 变换公式：
- * R' = 0.393*R + 0.469*G + 0.049*B
- * G' = 0.349*R + 0.586*G + 0.068*B
- * B' = 0.272*R + 0.534*G + 0.031*B
+ * 颜色变换矩阵：
+ * R' = 0.393×R + 0.469×G + 0.049×B
+ * G' = 0.349×R + 0.586×G + 0.068×B
+ * B' = 0.272×R + 0.534×G + 0.031×B
  *
- * 视觉效果：
- * - 暖色调偏移，模拟老照片褪色效果
- * - 红棕色主导的整体色调
- * - 适合人像和风景的怀旧处理
- * - 可与其他滤镜叠加使用
+ * 视觉效果特点：
+ * - 温暖的色调：增强红色和黄色成分
+ * - 柔和的对比度：降低图像的锐利度
+ * - 怀旧的氛围：模拟老式胶片的色彩特征
+ * - 统一的色彩风格：减少色彩的跳跃性
  *
  * 应用场景：
- * - 照片后期：快速添加怀旧色调
- * - 艺术创作：复古风格图像处理
- * - 社交媒体：打造怀旧氛围
- * - UI设计：复古界面风格元素
- * - 视频处理：逐帧应用实现复古视频
+ * - 艺术摄影：创建复古风格的艺术作品
+ * - 情感表达：营造怀念、温馨的情感氛围
+ * - 主题设计：复古主题的视觉设计项目
+ * - 社交媒体：为照片添加流行的复古滤镜效果
+ * - 品牌营销：营造品牌的历史感和情怀
  *
- * 注意事项：
- * - 输入图像应为TYPE_INT_RGB格式以确保最佳效果
- * - 对于灰度图像会自动转换为RGB处理
- * - 每个通道值会自动限制在0-255范围内
- * - 处理大图像时可能需要考虑性能优化
+ * 算法特点：
+ * - 线性变换：使用矩阵运算进行颜色转换
+ * - 保持细节：不会丢失图像的细节信息
+ * - 计算简单：每个像素独立处理，效率较高
+ * - 效果稳定：对不同类型的图像都有一致的效果
+ *
+ * 注意：当前实现创建的是灰度图像，如需保持彩色复古效果，
+ * 应使用TYPE_INT_RGB而不是TYPE_BYTE_GRAY。
  *
  * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
-@SpiDescribe("复古旧滤镜")
+@SpiDescribe("复古怀旧风格滤镜")
 @Spi("OldFashion")
 public class ImageOldFashionImageFilter extends AbstractImageFilter {
 
     /**
      * 执行复古滤镜处理
      *
-     * 使用加权矩阵对图像的每个像素进行RGB通道变换，
-     * 生成具有暖色调的复古风格图像。
-     * 结果值自动限制在0-255范围内。
+     * 对图像应用复古色彩变换，通过特定的颜色矩阵将现代照片
+     * 转换为具有怀旧风格的图像效果。
      *
      * @param src 源图像
-     * @param dst 目标图像（可选，若为null则自动创建）
-     * @return 处理后的复古风格图像
+     * @param dst 目标图像（此参数未使用）
+     * @return 应用复古效果后的图像
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        // 创建TYPE_INT_RGB格式的目标图像以确保兼容性
+        // 注意：这里应该使用TYPE_INT_RGB来保持彩色复古效果
         BufferedImage vintageImage = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         int width = src.getWidth();
@@ -81,17 +83,17 @@ public class ImageOldFashionImageFilter extends AbstractImageFilter {
                 int green = (pixelVal >> 8) & 0xFF;
                 int blue = pixelVal & 0xFF;
 
-                // 应用复古变换矩阵
+                // 应用复古色彩变换矩阵
                 int r = (int) (0.393 * red + 0.469 * green + 0.049 * blue);
                 int g = (int) (0.349 * red + 0.586 * green + 0.068 * blue);
                 int b = (int) (0.272 * red + 0.534 * green + 0.031 * blue);
 
-                // 限制通道值在0-255范围内
+                // 确保颜色值在有效范围内
                 r = Math.min(255, Math.max(0, r));
                 g = Math.min(255, Math.max(0, g));
                 b = Math.min(255, Math.max(0, b));
 
-                // 设置变换后的复古色调像素
+                // 创建复古色彩并设置到图像
                 Color vintageColor = new Color(r, g, b);
                 vintageImage.setRGB(x, y, vintageColor.getRGB());
             }

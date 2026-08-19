@@ -35,18 +35,14 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @since 4.0.0.42
+ * @since 2024/7/29
  */
 @Slf4j
 public class LaMaOnnxInfer implements AutoCloseable {
 
-    /** 配置 */
     private final LaMaConfiguration config;
-    /** ORT环境 */
     private Object ortEnvironment;
-    /** ORT会话 */
     private Object ortSession;
-    /** Initialized */
     private boolean initialized = false;
 
     /**
@@ -254,10 +250,8 @@ public class LaMaOnnxInfer implements AutoCloseable {
         String[] nameArray = (String[]) ClassUtils.invokeMethod(toArrayMethod, inputNames, String[].class);
 
         if (nameArray.length >= 2) {
-            // 通常是"image"
-            inputs.put(nameArray[0], imageTensor);
-            // 通常是"mask"
-            inputs.put(nameArray[1], maskTensor);
+            inputs.put(nameArray[0], imageTensor);  // 通常是"image"
+            inputs.put(nameArray[1], maskTensor);   // 通常是"mask"
         } else {
             // 如果只有一个输入，可能需要合并image和mask
             inputs.put(nameArray[0], imageTensor);
@@ -287,8 +281,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
             float[] outputData;
 if (tensorValue instanceof float[][][]) {
                 float[][][] output3D = (float[][][]) tensorValue;
-                // 取第一个batch
-                outputData = flatten3DArray(output3D);
+                outputData = flatten3DArray(output3D); // 取第一个batch
             } else if (tensorValue instanceof float[][]) {
                 float[][] output2D = (float[][]) tensorValue;
                 outputData = flatten2DArray(output2D);

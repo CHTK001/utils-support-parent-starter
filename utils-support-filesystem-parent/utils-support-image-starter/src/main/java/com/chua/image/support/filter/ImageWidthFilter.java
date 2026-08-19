@@ -18,11 +18,11 @@ import javax.annotation.Nullable;
 
 
 /**
- * 澶у皬婊ら暅
+ * 大小滤镜
  *
  * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -32,9 +32,7 @@ import javax.annotation.Nullable;
 public class ImageWidthFilter extends AbstractImageFilter {
 
 
-    /** 瀹藉害 */
     private int width = 100;
-    /** 楂樺害 */
     private int height = 100;
 
     public ImageWidthFilter(int width, int height) {
@@ -51,19 +49,19 @@ public class ImageWidthFilter extends AbstractImageFilter {
 
 
     /**
-     * 鎸夋瘮渚嬪鍥剧墖杩涜缂╂斁. 妫€娴嬪浘鐗囨槸妯浘杩樻槸绔栧浘
+     * 按比例对图片进行缩放. 检测图片是横图还是竖图
      *
-     * @param width  缂╂斁鍚庣殑瀹?
-     * @param height 缂╂斁鍚庣殑楂?
+     * @param width  缩放后的宽
+     * @param height 缩放后的高
      * @param img    BufferedImage
      */
     public static BufferedImage zoomBySize(int width, int height, BufferedImage img) {
-        //妯悜鍥?
+        //横向图
         if (img.getWidth() >= img.getHeight()) {
             double ratio = calculateZoomRatio(width, img.getWidth());
-            //鑾峰彇鍘嬬缉瀵硅薄
+            //获取压缩对象
             BufferedImage newbufferedImage = zoomByScale(ratio, img);
-            //褰撳浘鐗囧ぇ浜庡浘鐗囧帇缂╅珮鏃?鍐嶆缂╂斁
+            //当图片大于图片压缩高时 再次缩放
             if (newbufferedImage.getHeight() > height) {
                 ratio = calculateZoomRatio(height, newbufferedImage.getHeight());
                 return zoomByScale(ratio, img);
@@ -73,12 +71,12 @@ public class ImageWidthFilter extends AbstractImageFilter {
         }
 
 
-        //绾靛悜鍥?
+        //纵向图
         if (img.getWidth() < img.getHeight()) {
             double ratio = calculateZoomRatio(height, img.getHeight());
-            //鑾峰彇鍘嬬缉瀵硅薄
+            //获取压缩对象
             BufferedImage newbufferedImage = zoomByScale(ratio, img);
-            //褰撳浘鐗囧澶т簬鍥剧墖鍘嬬缉瀹芥椂 鍐嶆缂╂斁
+            //当图片宽大于图片压缩宽时 再次缩放
             if (newbufferedImage.getHeight() > height) {
                 ratio = calculateZoomRatio(width, newbufferedImage.getWidth());
                 return zoomByScale(ratio, img);
@@ -97,7 +95,7 @@ public class ImageWidthFilter extends AbstractImageFilter {
     }
 
     /**
-     * 缂╂斁姣旂巼璁＄畻
+     * 缩放比率计算
      *
      * @param divisor  divisor
      * @param dividend dividend

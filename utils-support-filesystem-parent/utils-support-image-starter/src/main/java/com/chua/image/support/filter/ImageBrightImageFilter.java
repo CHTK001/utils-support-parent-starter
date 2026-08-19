@@ -10,54 +10,54 @@ import javax.annotation.Nullable;
 
 
 /**
- * 鏄庝寒搴﹀寮哄浘鍍忔护闀?
+ * 明亮度增强图像滤镜
  *
- * 閫氳繃澧炲姞RGB鍚勪釜棰滆壊閫氶亾鐨勬暟鍊兼潵鎻愰珮鍥惧儚鐨勬暣浣撲寒搴︺€?
- * 璇ユ护闀滃鍥惧儚鐨勬瘡涓儚绱犵偣杩涜浜害璋冩暣锛屼娇鍥惧儚鐪嬭捣鏉ユ洿鍔犳槑浜€?
+ * 通过增加RGB各个颜色通道的数值来提高图像的整体亮度。
+ * 该滤镜对图像的每个像素点进行亮度调整，使图像看起来更加明亮。
  *
- * 鎶€鏈師鐞嗭細
- * - 鎻愬彇姣忎釜鍍忕礌鐨凴GB鍒嗛噺
- * - 瀵规瘡涓鑹查€氶亾澧炲姞鍥哄畾鏁板€硷紙榛樿+10锛?
- * - 纭繚棰滆壊鍊间笉瓒呰繃255鐨勪笂闄?
- * - 閲嶆柊缁勫悎RGB鍊煎舰鎴愭柊鐨勫儚绱?
+ * 技术原理：
+ * - 提取每个像素的RGB分量
+ * - 对每个颜色通道增加固定数值（默认+10）
+ * - 确保颜色值不超过255的上限
+ * - 重新组合RGB值形成新的像素
  *
- * 搴旂敤鍦烘櫙锛?
- * - 鐓х墖鍚庢湡澶勭悊锛氭彁鍗囨殫娣＄収鐗囩殑浜害
- * - 鍥惧儚澧炲己锛氭敼鍠勪綆鍏夌収鏉′欢涓嬫媿鎽勭殑鍥惧儚
- * - 鏄剧ず浼樺寲锛氫负涓嶅悓鏄剧ず璁惧璋冩暣鍥惧儚浜害
- * - 鑹烘湳鏁堟灉锛氬垱寤烘槑浜€佹竻鏂扮殑瑙嗚鏁堟灉
+ * 应用场景：
+ * - 照片后期处理：提升暗淡照片的亮度
+ * - 图像增强：改善低光照条件下拍摄的图像
+ * - 显示优化：为不同显示设备调整图像亮度
+ * - 艺术效果：创建明亮、清新的视觉效果
  *
- * 娉ㄦ剰浜嬮」锛?
- * - 杩囧害澧炰寒鍙兘瀵艰嚧鍥惧儚杩囨洕
- * - 寤鸿閰嶅悎瀵规瘮搴﹁皟鏁翠娇鐢?
- * - 瀵逛簬宸茬粡寰堜寒鐨勫浘鍍忔晥鏋滄湁闄?
+ * 注意事项：
+ * - 过度增亮可能导致图像过曝
+ * - 建议配合对比度调整使用
+ * - 对于已经很亮的图像效果有限
  *
  * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
 @Spi("Bright")
-@SpiDescribe("鏄庝寒搴﹀寮烘护闀?)
+@SpiDescribe("明亮度增强滤镜")
 public class ImageBrightImageFilter extends AbstractImageFilter {
 
     /**
-     * 榛樿浜害澧炲姞鍊?
+     * 默认亮度增加值
      */
     private static final int DEFAULT_BRIGHTNESS_INCREASE = 10;
 
     /**
-     * 鎵ц鏄庝寒搴﹀寮烘护闀滃鐞?
+     * 执行明亮度增强滤镜处理
      *
-     * 瀵瑰浘鍍忕殑姣忎釜鍍忕礌杩涜浜害澧炲己澶勭悊锛岄€氳繃澧炲姞RGB鍚勯€氶亾鐨勬暟鍊?
-     * 鏉ユ彁楂樺浘鍍忕殑鏁翠綋浜害銆傚鐞嗚繃绋嬩腑浼氱‘淇濋鑹插€间笉浼氭孩鍑恒€?
+     * 对图像的每个像素进行亮度增强处理，通过增加RGB各通道的数值
+     * 来提高图像的整体亮度。处理过程中会确保颜色值不会溢出。
      *
-     * @param src 婧愬浘鍍?
-     * @param dst 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢紝鏂规硶浼氬垱寤烘柊鍥惧儚锛?
-     * @return 浜害澧炲己鍚庣殑鍥惧儚
+     * @param src 源图像
+     * @param dst 目标图像（此参数未使用，方法会创建新图像）
+     * @return 亮度增强后的图像
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        // 娉ㄦ剰锛氳繖閲屽簲璇ヤ娇鐢═YPE_INT_RGB鑰屼笉鏄疶YPE_BYTE_GRAY锛屽洜涓烘垜浠淇濇寔褰╄壊
+        // 注意：这里应该使用TYPE_INT_RGB而不是TYPE_BYTE_GRAY，因为我们要保持彩色
         BufferedImage brightImage = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         int width = src.getWidth();
@@ -67,17 +67,17 @@ public class ImageBrightImageFilter extends AbstractImageFilter {
             for (int y = 0; y < height; y++) {
                 int pixelVal = src.getRGB(x, y);
 
-                // 鎻愬彇RGB鍒嗛噺
+                // 提取RGB分量
                 int red = (pixelVal >> 16) & 0xFF;
                 int green = (pixelVal >> 8) & 0xFF;
                 int blue = pixelVal & 0xFF;
 
-                // 澧炲姞浜害锛岀‘淇濅笉瓒呰繃255
+                // 增加亮度，确保不超过255
                 red = Math.min(255, red + DEFAULT_BRIGHTNESS_INCREASE);
                 green = Math.min(255, green + DEFAULT_BRIGHTNESS_INCREASE);
                 blue = Math.min(255, blue + DEFAULT_BRIGHTNESS_INCREASE);
 
-                // 閲嶆柊缁勫悎RGB鍊?
+                // 重新组合RGB值
                 Color brightColor = new Color(red, green, blue);
                 brightImage.setRGB(x, y, brightColor.getRGB());
             }
