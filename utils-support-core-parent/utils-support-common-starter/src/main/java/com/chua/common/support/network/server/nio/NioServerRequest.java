@@ -353,6 +353,9 @@ public class NioServerRequest implements ServerRequest {
     @Override public String getUri() { return uri; }
     @Override public String getPath() { return path; }
     @Override public HttpMethod getMethod() {
+        if (method == null || method.isEmpty()) {
+            return HttpMethod.GET;
+        }
         try { return HttpMethod.valueOf(method.toUpperCase()); } catch (IllegalArgumentException e) { return HttpMethod.OPTIONS; }
     }
     @Override public String getHeader(String name) { return headers.get(name.toLowerCase()); }
