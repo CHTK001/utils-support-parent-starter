@@ -268,7 +268,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         }
 
         // NMS
-        List<Integer> keep = nms(boxes, probabilities, nmsThreshold);
+        List<Integer> keep = nms(boxes, probabilities, (float) nmsThreshold);
 
         List<String> finalNames = new ArrayList<>();
         List<Double> finalProbs = new ArrayList<>();
