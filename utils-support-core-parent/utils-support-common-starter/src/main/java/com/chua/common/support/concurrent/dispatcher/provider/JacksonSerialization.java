@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.dispatcher.provider;
 
 import com.chua.common.support.base.serialize.Serialization;
+import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi({"jackson"})
 public class JacksonSerialization implements Serialization {
 
     /** 单例实例 */
