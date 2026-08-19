@@ -255,9 +255,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.serialize(body);
             }
-            synchronized (serializer) {
-                return serializer.serialize(body);
-            }
+            return serializer.serialize(body);
         } catch (Exception e) {
             log.warn("WAL 序列化失败", e);
             return null;
@@ -275,9 +273,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.deserialize(data, Object.class);
             }
-            synchronized (serializer) {
-                return serializer.deserialize(data, Object.class);
-            }
+            return serializer.deserialize(data, Object.class);
         } catch (Exception e) {
             log.warn("WAL 反序列化失败，回退 Jackson", e);
             try {
