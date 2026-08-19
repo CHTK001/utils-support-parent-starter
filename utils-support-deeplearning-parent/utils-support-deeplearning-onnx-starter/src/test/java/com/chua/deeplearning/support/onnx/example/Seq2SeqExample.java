@@ -18,8 +18,9 @@ import java.util.List;
  *
  * <pre>{@code
  *   Seq2SeqExample list                       # 列出 seq2seq 相关模型
- *   Seq2SeqExample opus "你好，世界"            # 嵌入式中译英
+ *   Seq2SeqExample opus "你好，世界"            # 嵌入式中译英（MarianMT seq2seq）
  *   Seq2SeqExample t5 summarize <长文本>       # T5 摘要（自动下载模型）
+ *   Seq2SeqExample t5 translate English to Chinese <text>   # T5 翻译
  *   Seq2SeqExample t5 <文本>                   # T5 文本生成（不拼接任务前缀）
  * }</pre>
  *
@@ -69,21 +70,30 @@ public final class Seq2SeqExample extends ExampleBase {
                 System.out.println("[t5] 需要生成文本");
                 return;
             }
-            boolean summarize = args[1] != null && "summarize".equalsIgnoreCase(args[1])
-                    && args.length > 2;
-            if (summarize) {
-                text = String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length));
-                T5Seq2SeqOrtTranslator.setTaskPrefix("summarize: ");
+            String task = args[1];
+            String input;
+            String prefix;
+            if ("summarize".equalsIgnoreCase(task) && args.length > 2) {
+                // 摘要任务
+                input = String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length));
+                prefix = "summarize: ";
+            } else if ("translate".equalsIgnoreCase(task) && args.length > 5 && "to".equalsIgnoreCase(args[3])) {
+                // 翻译任务：t5 translate English to Chinese <text>
+                input = String.join(" ", java.util.Arrays.copyOfRange(args, 5, args.length));
+                prefix = "translate " + args[2] + " to " + args[4] + ": ";
             } else {
-                T5Seq2SeqOrtTranslator.setTaskPrefix("");
+                // 默认生成任务（不拼接前缀）
+                input = text;
+                prefix = "";
             }
+            T5Seq2SeqOrtTranslator.setTaskPrefix(prefix);
             ModelRegistry.discoverAll();
             long t0 = System.currentTimeMillis();
             @SuppressWarnings("unchecked")
             ITranslator<String, String> t5 = (ITranslator<String, String>) (ITranslator<?, ?>)
                     ModelRegistry.createTranslator("t5-seq2seq", null);
-            String output = t5.translate(text);
-            System.out.println("[t5]" + (summarize ? " summarize" : "") + " 输入: " + text);
+            String output = t5.translate(input);
+            System.out.println("[t5] task=" + (prefix.isEmpty() ? "generate" : prefix.trim()) + " 输入: " + input);
             System.out.println("      输出: " + output);
             printResult("t5-seq2seq", "onnx", "t5-small", t0);
             return;

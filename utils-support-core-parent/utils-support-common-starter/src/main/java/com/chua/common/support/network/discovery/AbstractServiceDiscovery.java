@@ -116,6 +116,18 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     }
 
     /**
+     * 判断是否为 seed 引导节点。
+     * <p>seed 仅用于引导发现，不参与业务负载均衡路由。</p>
+     *
+     * @param discovery 服务发现数据
+     * @return true 表示 seed 节点
+     */
+    protected boolean isSeedNode(Discovery discovery) {
+        return discovery != null && discovery.getMetadata() != null
+                && Boolean.parseBoolean(discovery.getMetadata().get("seed"));
+    }
+
+    /**
      * 构建负载均衡器的缓存键。
      * @param path 服务路径
      * @param balance 负载均衡策略名称

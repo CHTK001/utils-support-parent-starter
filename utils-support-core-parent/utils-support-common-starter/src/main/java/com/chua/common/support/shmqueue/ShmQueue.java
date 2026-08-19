@@ -78,20 +78,75 @@ public abstract class ShmQueue implements AutoCloseable {
      * C 端错误码（与 SHMQ_ERR_* 宏对齐，跨实现统一）
      */
     public static final int ERR_OK              = 0;
-    /** ERINVALIARG */
+
+    /**
+     * 无效参数错误码
+     */
     public static final int ERR_INVALID_ARG     = -1;
+
+    /**
+     * 内存不足错误码
+     */
     public static final int ERR_NOMEM           = -2;
+
+    /**
+     * 共享内存打开失败错误码
+     */
     public static final int ERR_OPEN_SHM        = -3;
+
+    /**
+     * 截断失败错误码
+     */
     public static final int ERR_TRUNCATE        = -4;
+
+    /**
+     * 内存映射失败错误码
+     */
     public static final int ERR_MMAP            = -5;
+
+    /**
+     * 头魔数错误错误码
+     */
     public static final int ERR_HEADER_MAGIC    = -6;
+
+    /**
+     * 头版本错误错误码
+     */
     public static final int ERR_HEADER_VERSION  = -7;
+
+    /**
+     * 队列已满错误码
+     */
     public static final int ERR_QUEUE_FULL      = -8;
+
+    /**
+     * 数据过大错误码
+     */
     public static final int ERR_DATA_TOO_LARGE  = -9;
+
+    /**
+     * 写入文件描述符错误码
+     */
     public static final int ERR_WRITE_FD        = -10;
+
+    /**
+     * 读取文件描述符错误码
+     */
     public static final int ERR_READ_FD         = -11;
+
+    /**
+     * 超时错误码
+     */
     public static final int ERR_TIMEOUT         = -12;
+
+    /**
+     * 不支持操作错误码
+     */
     public static final int ERR_NOT_SUPPORTED   = -13;
+
+    /**
+     * 队列已销毁错误码
+     */
     public static final int ERR_DESTROYED       = -14;
 
     /**

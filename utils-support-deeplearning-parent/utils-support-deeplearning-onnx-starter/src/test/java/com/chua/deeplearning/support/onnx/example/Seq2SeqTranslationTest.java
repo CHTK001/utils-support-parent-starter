@@ -61,4 +61,24 @@ class Seq2SeqTranslationTest {
         Assertions.assertNotNull(result, "摘要结果不应为 null");
         Assertions.assertFalse(result.isBlank(), "摘要结果不应为空白");
     }
+
+    /**
+     * T5 翻译任务验证：证明同一 seq2seq 模型通过任务前缀可切换到翻译任务。
+     */
+    @Test
+    @DisplayName("t5-seq2seq 翻译任务（同一模型，任务前缀切换）")
+    @EnabledIfSystemProperty(named = "seq2seq.download", matches = "true")
+    void t5SmallTranslate() {
+        ModelRegistry.discoverAll();
+        T5Seq2SeqOrtTranslator.setTaskPrefix("translate English to Chinese: ");
+        @SuppressWarnings("unchecked")
+        ITranslator<String, String> t5 = (ITranslator<String, String>) (ITranslator<?, ?>)
+                ModelRegistry.createTranslator("t5-seq2seq", null);
+        String source = "The cat sits on the mat.";
+        String result = t5.translate(source);
+        System.out.println("[t5-seq2seq] 输入: " + source);
+        System.out.println("[t5-seq2seq] 译文: " + result);
+        Assertions.assertNotNull(result, "翻译结果不应为 null");
+        Assertions.assertFalse(result.isBlank(), "翻译结果不应为空白");
+    }
 }
