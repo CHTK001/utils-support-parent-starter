@@ -63,10 +63,15 @@ public class DingdingPush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
+    /** 创建 DingdingPush 实例 */
     public DingdingPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 DingdingPush 实例
+     * @param environment environment
+     */
     public DingdingPush(MessageEnvironment environment) {
         this.environment = environment;
     }

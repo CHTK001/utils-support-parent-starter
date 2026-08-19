@@ -62,10 +62,15 @@ public class AlibabaSmsPush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
+    /** 创建 AlibabaSmsPush 实例 */
     public AlibabaSmsPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 AlibabaSmsPush 实例
+     * @param environment environment
+     */
     public AlibabaSmsPush(MessageEnvironment environment) {
         this.environment = environment;
     }

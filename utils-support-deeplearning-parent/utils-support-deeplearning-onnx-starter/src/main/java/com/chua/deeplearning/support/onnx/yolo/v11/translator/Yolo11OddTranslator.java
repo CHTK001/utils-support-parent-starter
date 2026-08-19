@@ -94,6 +94,10 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         this(defaultClasses(1024));
     }
 
+    /**
+     * 创建 Yolo11OddTranslator 实例
+     * @param classes classes
+     */
     public Yolo11OddTranslator(List<String> classes) {
         this(1024, 1024, 0.25f, 0.45f, classes, 8400);
     }

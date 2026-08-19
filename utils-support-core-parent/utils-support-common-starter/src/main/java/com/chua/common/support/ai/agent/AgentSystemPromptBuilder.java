@@ -433,6 +433,7 @@ public final class AgentSystemPromptBuilder {
      */
     private static final String BRACKET_RIGHT = "]";
 
+    /** 创建 AgentSystemPromptBuilder 实例 */
     private AgentSystemPromptBuilder() {
     }
 

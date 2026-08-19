@@ -101,6 +101,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
      */
     private final Map<String, String> extra;
 
+    /**
+     * 创建 LanzouFileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public LanzouFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.extra = bucketSetting.getExtraProperties() == null

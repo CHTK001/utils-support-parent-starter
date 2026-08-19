@@ -62,10 +62,15 @@ public class DesktopPush implements MessagePush {
     /** templates */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
+    /** 创建 DesktopPush 实例 */
     public DesktopPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 DesktopPush 实例
+     * @param environment environment
+     */
     public DesktopPush(MessageEnvironment environment) {
         this.environment = environment;
     }

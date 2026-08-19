@@ -96,6 +96,10 @@ public class JdkTelnetServer extends AbstractServer {
     /** sessions */
     private final Map<String, TelnetSession> sessions = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 JdkTelnetServer 实例
+     * @param setting setting
+     */
     public JdkTelnetServer(ServerSetting setting) {
         super(setting);
     }

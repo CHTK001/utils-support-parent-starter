@@ -35,6 +35,11 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     int length;
     final boolean fdAT;
 
+    /**
+     * 创建 PNGImageDataEnumeration 实例
+     * @param stream stream
+     * @param fdAT fdAT
+     */
     public PNGImageDataEnumeration(ImageInputStream stream, boolean fdAT)
         throws IOException {
         this.stream = stream;
@@ -194,6 +199,10 @@ public class PNGImageReader extends ImageReader {
 
     boolean animContainsIDAT = false;
 
+    /**
+     * 创建 PNGImageReader 实例
+     * @param originatingProvider originatingProvider
+     */
     public PNGImageReader(ImageReaderSpi originatingProvider) {
         super(originatingProvider);
     }

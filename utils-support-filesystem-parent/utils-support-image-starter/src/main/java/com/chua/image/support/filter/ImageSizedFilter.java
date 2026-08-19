@@ -34,6 +34,10 @@ public class ImageSizedFilter extends AbstractImageFilter {
     /** 缩放比例 */
     private double size = 0.5d;
 
+    /**
+     * 创建 ImageSizedFilter 实例
+     * @param size size
+     */
     public ImageSizedFilter(double size) {
         this.size = size;
     }

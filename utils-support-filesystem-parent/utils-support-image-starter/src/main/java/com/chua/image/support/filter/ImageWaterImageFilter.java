@@ -43,34 +43,74 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     /** 水印位置点 */
     private ImagePoint point = DEFAULT_POINT;
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param stream stream
+     */
     public ImageWaterImageFilter(InputStream stream) throws IOException {
         this(IoUtils.toByteArray(stream), RIGHT_BOTTOM, DEFAULT_POINT);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param stream stream
+     * @param point point
+     */
     public ImageWaterImageFilter(InputStream stream, ImagePoint point) throws IOException {
         this(IoUtils.toByteArray(stream), RIGHT_BOTTOM, point);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param file file
+     */
     public ImageWaterImageFilter(File file) throws IOException {
         this(Files.newInputStream(file.toPath()), DEFAULT_POINT);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param file file
+     * @param point point
+     */
     public ImageWaterImageFilter(File file, ImagePoint point) throws IOException {
         this(Files.newInputStream(file.toPath()), point);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param file file
+     * @param position position
+     */
     public ImageWaterImageFilter(File file, Position position) throws IOException {
         this(IoUtils.toByteArray(Files.newInputStream(file.toPath())), position, DEFAULT_POINT);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param file file
+     * @param position position
+     * @param point point
+     */
     public ImageWaterImageFilter(File file, Position position, ImagePoint point) throws IOException {
         this(IoUtils.toByteArray(Files.newInputStream(file.toPath())), position, point);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param bytes bytes
+     * @param position position
+     */
     public ImageWaterImageFilter(byte[] bytes, Position position) {
         this(bytes, position, DEFAULT_POINT);
     }
 
+    /**
+     * 创建 ImageWaterImageFilter 实例
+     * @param bytes bytes
+     * @param position position
+     * @param point point
+     */
     public ImageWaterImageFilter(byte[] bytes, Position position, ImagePoint point) {
         this.bytes = bytes;
         this.direction = position;

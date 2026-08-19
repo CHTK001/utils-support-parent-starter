@@ -48,6 +48,7 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     /** Value_max_32 */
     private static final String VALUE_MAX_32 = "2147483647";
 
+    /** 创建 PNGMetadataFormat 实例 */
     private PNGMetadataFormat() {
         super(PNGMetadata.nativeMetadataFormatName,
               CHILD_POLICY_SOME);
