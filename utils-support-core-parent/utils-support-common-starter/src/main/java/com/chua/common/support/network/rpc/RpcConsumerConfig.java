@@ -72,7 +72,6 @@ public class RpcConsumerConfig {
     }
 
     /** 启动时检查 */
-    /** Check */
     private Boolean check;
     /** 超时（毫秒） */
     /**
@@ -85,7 +84,6 @@ public class RpcConsumerConfig {
      */
     private Integer retries;
     /** 负载均衡策略（random, roundrobin, leastactive, consistenthash, shortestresponse） */
-    /** Loadbalance */
     private String loadBalance;
     /** 是否异步 */
     /**
@@ -103,16 +101,12 @@ public class RpcConsumerConfig {
      */
     private String group;
     /** 最大连接数 */
-    /** Connections */
     private Integer connections;
     /** 集群策略（failover, failfast, failsafe, failback, forking, broadcast） */
-    /** Cluster */
     private String cluster;
     /** 粘性连接 */
-    /** Sticky */
     private Boolean sticky;
     /** 序列化协议 */
-    /** Serialization */
     private String serialization;
 
     /**
@@ -131,16 +125,12 @@ public class RpcConsumerConfig {
      */
     private Integer connectTimeout;
     /** 是否启用重试 */
-    /** 重试是否启用 */
     private Boolean retryEnabled;
     /** 重试间隔（毫秒） */
-    /** 重试delay */
     private Integer retryDelay;
     /** 是否开启访问日志 */
-    /** Access日志 */
     private Boolean accessLog;
     /** 是否延迟检查 */
-    /** Lazy */
     private Boolean lazy;
     /** 直连 URL */
     /**
@@ -148,12 +138,10 @@ public class RpcConsumerConfig {
      */
     private String url;
     /** 调用模式（sync, async, future, callback, oneway） */
-    /** Invoke类型 */
     private String invokeType;
     /** 服务接口类 */
     private Class<?> interfaceClass;
     /** 服务接口名 */
-    /** 接口名称 */
     private String interfaceName;
     /** 服务治理令牌（请求头 X-RPC-Token），服务端 {@code RpcService#token()} 校验时必填 */
     /**

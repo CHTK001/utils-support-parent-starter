@@ -159,7 +159,7 @@ public class InterceptContext {
      * @param traceId      全局追踪 ID
      * @param spanId       当前 Span ID
      * @param parentSpanId 父 Span ID（根调用为 null）
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record TraceStack(

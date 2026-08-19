@@ -21,20 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ModelHealthChecker {
 
     /** 定时调度器 */
-    /** 调度器 */
     private final TimeScheduler scheduler;
     /** 客户端健康状态映射 */
     private final Map<ChatClient, ModelHealth> clientHealthMap = new ConcurrentHashMap<>();
     /** 客户端列表 */
-    /** Clients */
     private final List<ChatClient> clients = new CopyOnWriteArrayList<>();
     /** 是否运行中 */
-    /** Running */
     private final AtomicBoolean running = new AtomicBoolean(false);
     /** 健康检查函数 */
     private final Function<ChatClient, ModelHealthCheckResult> healthCheckFunction;
     /** 健康检查间隔（毫秒） */
-    /** Check间隔MS */
     private final long checkIntervalMs;
 
     public ModelHealthChecker(long checkIntervalMs, Function<ChatClient, ModelHealthCheckResult> healthCheckFunction) {
@@ -184,13 +180,10 @@ public class ModelHealthChecker {
      */
     public static class ModelHealthCheckResult {
         /** 是否健康 */
-        /** Healthy */
         private final boolean healthy;
         /** 问题类型 */
-        /** Issue类型 */
         private final IssueType issueType;
         /** 消息内容 */
-        /** 消息 */
         private final String message;
 
         public ModelHealthCheckResult(boolean healthy, IssueType issueType, String message) {

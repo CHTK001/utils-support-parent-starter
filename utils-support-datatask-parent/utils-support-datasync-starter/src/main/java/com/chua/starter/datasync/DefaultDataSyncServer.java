@@ -24,17 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultDataSyncServer implements DataSyncServer {
 
     /** 默认服务标识 */
-    /** Default_server_id */
     private static final String DEFAULT_SERVER_ID = "default-server";
 
     /** 代理服务管理器 */
-    /** Agent服务器管理器 */
     private final AgentServerManager agentServerManager;
     /** 映射管理器 */
-    /** Mapping管理器 */
     private DataSyncMappingManager mappingManager;
     /** 调度管理器 */
-    /** 调度器管理器 */
     private final SyncDataSchedulerManager schedulerManager;
     /** 执行器管理器 */
     private volatile ExecutorManager executorManager;

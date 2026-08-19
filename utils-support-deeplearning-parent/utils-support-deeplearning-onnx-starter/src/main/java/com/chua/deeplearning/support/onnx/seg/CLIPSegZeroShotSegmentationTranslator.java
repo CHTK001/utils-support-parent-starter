@@ -49,18 +49,14 @@ import java.util.Arrays;
 public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, Image> {
 
     /** 输入尺寸 */
-    /** Input_size */
     private static final int INPUT_SIZE = 352;
     /** 最大文本长度 */
-    /** Max_text_length */
     private static final int MAX_TEXT_LENGTH = 77;
 
     /** 提示词 */
-    /** Prompt */
     private final String prompt;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     public CLIPSegZeroShotSegmentationTranslator() {

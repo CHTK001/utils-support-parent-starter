@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  *   sms.templateCode 短信模板代码
  * </pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Spi("alibaba-sms")
@@ -51,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AlibabaSmsPush implements MessagePush {
 
     /** 消息环境 */
-    /** 环境 */
     private final MessageEnvironment environment;
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();

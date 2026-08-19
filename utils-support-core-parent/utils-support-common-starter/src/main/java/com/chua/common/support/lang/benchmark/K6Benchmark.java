@@ -65,10 +65,8 @@ public class K6Benchmark implements Benchmark {
             """;
 
     /** 配置对象 */
-    /** 配置 */
     private BenchmarkConfig config = BenchmarkConfig.builder().build();
     /** 结果对象 */
-    /** 结果 */
     private BenchmarkResult result;
 
     @Override

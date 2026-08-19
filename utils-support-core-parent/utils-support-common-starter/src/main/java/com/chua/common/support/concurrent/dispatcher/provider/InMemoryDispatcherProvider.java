@@ -30,14 +30,12 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     /** 分发定义映射 */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
     /** 线程池执行器 */
-    /** 执行器 */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("inmem-dispatcher-", 0).factory());
     /** 是否已关闭 */
     private volatile boolean closed = false;
 
     /** 队列容量 */
-    /** Queue_capacity */
     private static final int QUEUE_CAPACITY = 50000;
 
     public InMemoryDispatcherProvider(DispatcherConfig config) {

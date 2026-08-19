@@ -18,13 +18,10 @@ import java.util.Map;
 @Slf4j
 public abstract class AbstractWriter implements FileSystem {
     /** 表头列表 */
-    /** Headers */
     protected List<String> headers;
     /** 写入选项 */
-    /** Writeoption */
     protected WriteOption writeOption;
     /** 是否已初始化 */
-    /** Initialized */
     protected boolean initialized;
     /**
      * 文件路径

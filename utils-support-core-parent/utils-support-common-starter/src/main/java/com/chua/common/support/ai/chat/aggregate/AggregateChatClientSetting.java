@@ -61,15 +61,12 @@ public class AggregateChatClientSetting {
     private String strategy = "hybrid";
 
     /** 是否启用调用监控 */
-    /** Monitor */
     private boolean monitor = true;
 
     /** 多组配置（仅 hybrid 策略使用） */
-    /** Groups */
     private List<GroupConfig> groups;
 
     /** 顶级客户端列表（非 hybrid 策略使用） */
-    /** Clients */
     private List<ClientConfig> clients;
 
     /**
@@ -170,13 +167,10 @@ public class AggregateChatClientSetting {
          */
         private String strategy = "failover";
         /** 条件表达式（如 "prompt.length < 200"），为空则默认匹配 */
-        /** 条件 */
         private String condition;
         /** 允许访问该组的 token 分组列表（空表示所有 token 均可访问） */
-        /** 令牌groups */
         private List<String> tokenGroups;
         /** 该组的客户端列表 */
-        /** Clients */
         private List<ClientConfig> clients;
 
         public String getName() {

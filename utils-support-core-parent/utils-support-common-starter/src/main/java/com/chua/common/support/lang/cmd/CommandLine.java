@@ -80,28 +80,21 @@ import java.util.function.Consumer;
 public final class CommandLine {
 
     /** 默认帮助选项的长名称 */
-    /** Help_long */
     private static final String HELP_LONG = "help";
 
     /** 默认帮助选项的短名称 */
-    /** Help_short */
     private static final String HELP_SHORT = "h";
 
     /** 默认帮助选项的描述 */
-    /** Help_desc */
     private static final String HELP_DESC = "显示帮助信息";
 
     /** 选项列表 */
-    /** Options */
     private final List<CliOption> options;
     /** 程序名称 */
-    /** Program名称 */
     private final String programName;
     /** 程序描述 */
-    /** Program描述 */
     private final String programDescription;
     /** 是否启用帮助选项 */
-    /** Helpoption是否启用 */
     private final boolean helpOptionEnabled;
 
     private CommandLine(Builder builder) {
@@ -672,16 +665,12 @@ public final class CommandLine {
      */
     public static final class Builder {
         /** 选项列表 */
-        /** Options */
         private final List<CliOption> options = new ArrayList<>();
         /** 程序名称 */
-        /** Program名称 */
         private String programName;
         /** 程序描述 */
-        /** Program描述 */
         private String programDescription;
         /** 是否启用帮助选项 */
-        /** Helpoption是否启用 */
         private boolean helpOptionEnabled = true;
 
         private Builder() {
@@ -820,15 +809,12 @@ public final class CommandLine {
     public static final class Result {
 
         /** 选项列表 */
-        /** Options */
         private final List<CliOption> options;
         /** 值映射 */
         private final Map<String, Object> values;
         /** 位置参数列表 */
-        /** Positional参数 */
         private final List<String> positionalArgs;
         /** 已解析选项集合 */
-        /** Seenoptions */
         private final Set<String> seenOptions;
 
         private Result(List<CliOption> options, Map<String, Object> values,
@@ -1073,18 +1059,14 @@ public final class CommandLine {
     public static final class Composer {
 
         /** 命令行实例 */
-        /** 命令line */
         private final CommandLine commandLine;
         /** 已解析选项值映射 */
         private final Map<String, Object> optionValues = new LinkedHashMap<>();
         /** 位置参数列表 */
-        /** Positional参数 */
         private final List<String> positionalArgs = new ArrayList<>();
         /** 是否使用长选项名 */
-        /** USElongnames */
         private boolean useLongNames = true;
         /** 是否使用等号格式 */
-        /** USEequals格式 */
         private boolean useEqualsFormat = false;
 
         private Composer(CommandLine commandLine) {

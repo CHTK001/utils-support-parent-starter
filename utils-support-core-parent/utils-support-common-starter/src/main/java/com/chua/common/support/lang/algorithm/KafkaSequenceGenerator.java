@@ -40,83 +40,65 @@ public class KafkaSequenceGenerator {
     // ==================== 默认位分配 ====================
 
     /** 时间戳占用位数 */
-    /** Default_timestamp_bits */
     private static final long DEFAULT_TIMESTAMP_BITS = 40L;
 
     /** 数据中心 ID 占用位数 */
-    /** Default_data_center_bits */
     private static final long DEFAULT_DATA_CENTER_BITS = 2L;
 
     /** 工作节点 ID 占用位数 */
-    /** Default_worker_id_bits */
     private static final long DEFAULT_WORKER_ID_BITS = 8L;
 
     /** 序列号占用位数 */
-    /** Default_sequence_bits */
     private static final long DEFAULT_SEQUENCE_BITS = 13L;
 
     // ==================== 移位偏移量 ====================
 
     /** 序列号移位偏移 */
-    /** Sequence_shift */
     private static final long SEQUENCE_SHIFT = 0L;
 
     /** 工作节点 ID 移位偏移 */
-    /** WorkerIDshift */
     private final long workerIdShift;
 
     /** 数据中心 ID 移位偏移 */
-    /** 数据centerIDshift */
     private final long dataCenterIdShift;
 
     /** 时间戳移位偏移 */
-    /** 时间戳shift */
     private final long timestampShift;
 
     // ==================== 掩码 ====================
 
     /** 序列号掩码 */
-    /** Sequence掩码 */
     private final long sequenceMask;
 
     /** 工作节点 ID 掩码 */
-    /** WorkerID掩码 */
     private final long workerIdMask;
 
     /** 数据中心 ID 掩码 */
-    /** 数据centerID掩码 */
     private final long dataCenterIdMask;
 
     /** 时间戳最大值 */
-    /** 最大值时间戳 */
     private final long maxTimestamp;
 
     // ==================== 默认值 ====================
 
     /** 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位毫秒） */
-    /** Default_epoch */
     private static final long DEFAULT_EPOCH = 1577836800000L;
 
     /** 默认数据中心 ID */
-    /** Default_data_center_id */
     private static final long DEFAULT_DATA_CENTER_ID = 0L;
 
     /** 默认工作节点 ID */
-    /** Default_worker_id */
     private static final long DEFAULT_WORKER_ID = 0L;
 
     // ==================== 实例状态 ====================
 
     /** 纪元起始时间（毫秒） */
-    /** Epoch */
     private final long epoch;
 
     /** 数据中心 ID */
-    /** 数据centerID */
     private final long dataCenterId;
 
     /** 工作节点 ID */
-    /** WorkerID */
     private final long workerId;
 
     /** 上次生成 ID 的时间戳（毫秒） */
@@ -126,7 +108,6 @@ public class KafkaSequenceGenerator {
     private volatile long sequence = 0L;
 
     /** 序列号同步锁 */
-    /** 锁 */
     private final Object lock = new Object();
 
     // ==================== 构造方法 ====================

@@ -64,15 +64,25 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     /** 注册表 */
     private final NativeFunctionRegistry registry;
 
+    /** sdJournalOpen */
     private volatile MethodHandle sdJournalOpen;
+    /** sdJournalAddMatch */
     private volatile MethodHandle sdJournalAddMatch;
+    /** sdJournalNext */
     private volatile MethodHandle sdJournalNext;
+    /** sdJournalPrevious */
     private volatile MethodHandle sdJournalPrevious;
+    /** sdJournalGetData */
     private volatile MethodHandle sdJournalGetData;
+    /** sdJournalClose */
     private volatile MethodHandle sdJournalClose;
+    /** sdJournalSeekTail */
     private volatile MethodHandle sdJournalSeekTail;
+    /** sdJournalSeekHead */
     private volatile MethodHandle sdJournalSeekHead;
+    /** sdJournalGetCursor */
     private volatile MethodHandle sdJournalGetCursor;
+    /** sdJournalSeekCursor */
     private volatile MethodHandle sdJournalSeekCursor;
 
     public LinuxJournaldProvider(SystemLogBridge bridge) {

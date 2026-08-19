@@ -102,6 +102,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
         private final double refillRatePerMs;
         /** Tokens */
         private final AtomicLong tokens;
+        /** lastRefillTime */
         private volatile long lastRefillTime;
 
         TokenBucket(int capacity, int refillRatePerSecond) {

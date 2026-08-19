@@ -24,13 +24,10 @@ import java.util.function.Consumer;
 public class ReactorDataSyncExecutor {
 
     /** Chronicle 调度提供者 */
-    /** Chronicle提供者 */
     protected DispatcherProvider chronicleProvider;
     /** 代理标识 */
-    /** AgentID */
     private final String agentId;
     /** 服务端模式 */
-    /** 服务器模式 */
     private final boolean serverMode;
 
     /**

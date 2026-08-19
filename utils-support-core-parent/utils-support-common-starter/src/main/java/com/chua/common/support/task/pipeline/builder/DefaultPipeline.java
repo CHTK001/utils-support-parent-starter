@@ -593,57 +593,40 @@ public class DefaultPipeline implements Pipeline {
     // ==================== ANSI 颜色支持 ====================
 
     /** ANSI 重置 */
-    /** Ansi_reset */
     private static final String ANSI_RESET = "\u001B[0m";
     /** ANSI 粗体 */
-    /** Ansi_bold */
     private static final String ANSI_BOLD = "\u001B[1m";
     /** ANSI 暗色（降低亮度） */
-    /** Ansi_dim */
     private static final String ANSI_DIM = "\u001B[2m";
     /** ANSI 绿色 — Task 节点 */
-    /** Ansi_green */
     private static final String ANSI_GREEN = "\u001B[32m";
     /** ANSI 黄色 — Decision 节点 */
-    /** Ansi_yellow */
     private static final String ANSI_YELLOW = "\u001B[33m";
     /** ANSI 蓝色 — SubPipeline 节点 */
-    /** Ansi_blue */
     private static final String ANSI_BLUE = "\u001B[34m";
     /** ANSI 青色 — Fork 节点 */
-    /** Ansi_cyan */
     private static final String ANSI_CYAN = "\u001B[36m";
     /** ANSI 红色 — 错误标记 */
-    /** Ansi_red */
     private static final String ANSI_RED = "\u001B[31m";
 
     /** 重试提供者 — 用于节点级重试执行 */
-    /** Retry_provider */
     private static final RetryProvider RETRY_PROVIDER = new JdkRetryProvider();
 
     /** 节点类型图标：Task */
-    /** Icon_task */
     private static final String ICON_TASK = "●";
     /** 节点类型图标：Decision */
-    /** Icon_decision */
     private static final String ICON_DECISION = "◆";
     /** 节点类型图标：SubPipeline */
-    /** Icon_sub */
     private static final String ICON_SUB = "▶";
     /** 节点类型图标：Fork */
-    /** Icon_fork */
     private static final String ICON_FORK = "⋈";
     /** 节点类型图标：End */
-    /** Icon_end */
     private static final String ICON_END = "◉";
     /** 执行状态标记：已执行 */
-    /** Mark_executed */
     private static final String MARK_EXECUTED = "✓";
     /** 执行状态标记：未执行 */
-    /** Mark_pending */
     private static final String MARK_PENDING = "○";
     /** 执行状态标记：错误 */
-    /** Mark_error */
     private static final String MARK_ERROR = "✗";
 
     /**
@@ -804,8 +787,11 @@ public class DefaultPipeline implements Pipeline {
         return tree;
     }
 
+    /** lastTreeLineCount */
     private transient int lastTreeLineCount = 0;
+    /** treeLineCounter */
     private transient int treeLineCounter = 0;
+    /** countingTreeLines */
     private transient boolean countingTreeLines = false;
 
     @Override

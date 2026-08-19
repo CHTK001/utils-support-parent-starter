@@ -16,43 +16,33 @@ import java.util.List;
 public class AcmeCertificateResult {
 
     /** 是否成功 */
-    /** Success */
     private boolean success;
 
     /** 证书 PEM（含链） */
-    /** 证书PEM */
     private String certificatePem;
 
     /** 私钥 PEM */
-    /** 私有密钥PEM */
     private String privateKeyPem;
 
     /** 主域名 */
-    /** Primarydomain */
     private String primaryDomain;
 
     /** 备用域名（逗号分隔） */
-    /** SAN */
     private String san;
 
     /** 有效期起 */
-    /** NOTbefore */
     private LocalDateTime notBefore;
 
     /** 有效期止 */
-    /** NOTafter */
     private LocalDateTime notAfter;
 
     /** 错误信息 */
-    /** 错误 */
     private String error;
 
     /** 需要验证（首次申请时） */
-    /** Needsvalidation */
     private boolean needsValidation;
 
     /** 验证信息列表 */
-    /** Validationinfos */
     private List<AcmeValidationInfo> validationInfos;
 
     /**

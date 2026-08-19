@@ -27,30 +27,22 @@ import java.text.DecimalFormat;
 public class FileSize {
 
     /** 字节数 */
-    /** Bytes */
     private final long bytes;
 
     /** 1024 = 1 KB */
-    /** KB */
     public static final long KB = 1024;
     /** 1024^2 = 1 MB */
-    /** MB */
     public static final long MB = KB * 1024;
     /** 1024^3 = 1 GB */
-    /** GB */
     public static final long GB = MB * 1024;
     /** 1024^4 = 1 TB */
-    /** TB */
     public static final long TB = GB * 1024;
     /** 1024^5 = 1 PB */
-    /** PB */
     public static final long PB = TB * 1024;
 
     /** 数字格式化器 */
-    /** DF */
     private static final DecimalFormat DF = new DecimalFormat("#.00");
     /** 文件容量单位数组 */
-    /** Units */
     private static final String[] UNITS = {"B", "KB", "MB", "GB", "TB", "PB"};
 
     /**

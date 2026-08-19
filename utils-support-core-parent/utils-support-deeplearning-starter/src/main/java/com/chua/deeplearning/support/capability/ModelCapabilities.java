@@ -11,6 +11,7 @@ import com.chua.deeplearning.support.image.DepthEstimator;
 import com.chua.deeplearning.support.image.ImageCaptioning;
 import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.image.ImageDetector;
+import com.chua.deeplearning.support.image.ImageClarityDetector;
 import com.chua.deeplearning.support.image.ImageEnhancer;
 import com.chua.deeplearning.support.image.ImageGenerator;
 import com.chua.deeplearning.support.image.ImageQualityAssessor;
@@ -51,103 +52,71 @@ public final class ModelCapabilities {
     // ==================== 本地深度学习能力标签 ====================
 
     /** 人脸检测 */
-    /** Detect */
     public static final String DETECT = "detect";
     /** 眼睛检测 */
-    /** Eye_detect */
     public static final String EYE_DETECT = "eye-detect";
     /** 微笑检测 */
-    /** Smile_detect */
     public static final String SMILE_DETECT = "smile-detect";
     /** 人脸质量评估 */
-    /** Face_quality */
     public static final String FACE_QUALITY = "face-quality";
     /** 人脸识别（1:1/1:N） */
-    /** Face_recognize */
     public static final String FACE_RECOGNIZE = "face-recognize";
     /** 特征提取（图像/文本） */
-    /** Feature */
     public static final String FEATURE = "feature";
     /** 图像分类 */
-    /** Classify */
     public static final String CLASSIFY = "classify";
     /** 图像检测（目标/物体） */
-    /** Image_detect */
     public static final String IMAGE_DETECT = "image-detect";
     /** 图像增强（超分/上色/风格等 Image→Image） */
-    /** Enhance */
     public static final String ENHANCE = "enhance";
     /** 图像分割 */
-    /** Segment */
     public static final String SEGMENT = "segment";
     /** 图像质量评估 */
-    /** Image_quality */
     public static final String IMAGE_QUALITY = "image-quality";
     /** 图像描述（Image Captioning） */
-    /** Captioning */
     public static final String CAPTIONING = "captioning";
     /** 图像生成 */
-    /** Image_generate */
     public static final String IMAGE_GENERATE = "image-generate";
     /** 深度估计 */
-    /** 深度 */
     public static final String DEPTH = "depth";
     /** 行人检测 */
-    /** Pedestrian */
     public static final String PEDESTRIAN = "pedestrian";
     /** OCR 文字识别 */
-    /** OCR */
     public static final String OCR = "ocr";
     /** 活体检测 */
-    /** Liveness */
     public static final String LIVENESS = "liveness";
     /** 版面分析 */
-    /** Layout */
     public static final String LAYOUT = "layout";
     /** 姿态估计 */
-    /** Pose */
     public static final String POSE = "pose";
     /** 嵌入（文本/图像向量化） */
-    /** Embedding */
     public static final String EMBEDDING = "embedding";
     /** 文本翻译 */
-    /** Translate */
     public static final String TRANSLATE = "translate";
     /** 车牌检测 */
-    /** Plate_detect */
     public static final String PLATE_DETECT = "plate-detect";
     /** 车牌识别 */
-    /** Plate_recognize */
     public static final String PLATE_RECOGNIZE = "plate-recognize";
     /** 语音识别 ASR */
-    /** ASR */
     public static final String ASR = "asr";
     /** 语音合成 TTS */
-    /** TTS */
     public static final String TTS = "tts";
 
     // ==================== 云端 AI 客户端能力标签 ====================
 
     /** 对话/大模型 */
-    /** Chat */
     public static final String CHAT = "chat";
     /** 视觉理解（多模态图像理解） */
-    /** Vision */
     public static final String VISION = "vision";
     /** 文生图 */
-    /** Text_to_image */
     public static final String TEXT_TO_IMAGE = "text-to-image";
     /** 文生视频 */
-    /** Text_to_video */
     public static final String TEXT_TO_VIDEO = "text-to-video";
     /** 文本嵌入 */
-    /** Text_embedding */
     public static final String TEXT_EMBEDDING = "text-embedding";
     /** RAG 检索增强 */
-    /** RAG */
     public static final String RAG = "rag";
     /** Agent 智能体 */
-    /** Agent */
     public static final String AGENT = "agent";
 
     /**
@@ -165,6 +134,8 @@ public final class ModelCapabilities {
             Map.entry(ImageEnhancer.class, ENHANCE),
             Map.entry(ImageSegmenter.class, SEGMENT),
             Map.entry(ImageQualityAssessor.class, IMAGE_QUALITY),
+            Map.entry(ImageClarityDetector.class, IMAGE_QUALITY),
+            Map.entry(FaceClarityDetector.class, FACE_QUALITY),
             Map.entry(ImageCaptioning.class, CAPTIONING),
             Map.entry(ImageGenerator.class, IMAGE_GENERATE),
             Map.entry(DepthEstimator.class, DEPTH),

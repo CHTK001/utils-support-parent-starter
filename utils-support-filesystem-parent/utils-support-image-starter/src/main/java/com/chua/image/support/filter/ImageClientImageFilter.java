@@ -38,6 +38,7 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
     /**
      * 鎻愮ず璇?     */
+    /** 提示词 */
     private String prompt = "";
 
     /**

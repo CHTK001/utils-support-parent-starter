@@ -38,31 +38,22 @@ public class AlibabaImageClient implements ImageClient {
     private static final String DEFAULT_URL = "https://dashscope.aliyuncs.com";
 
     /** 默认模型 */
-    /** Default_model */
     private static final String DEFAULT_MODEL = "wanx-v1";
     /** 默认推理步数 */
-    /** Default_steps */
     private static final int DEFAULT_STEPS = 50;
     /** 默认尺寸（像素） */
-    /** Default_size */
     private static final int DEFAULT_SIZE = 1024;
     /** 授权请求头名称 */
-    /** Header_authorization */
     private static final String HEADER_AUTHORIZATION = "Authorization";
     /** Bearer 令牌前缀 */
-    /** Token_prefix */
     private static final String TOKEN_PREFIX = "Bearer ";
     /** JSON 内容类型 */
-    /** Content_type_json */
     private static final String CONTENT_TYPE_JSON = "application/json";
     /** 任务成功状态 */
-    /** Status_succeeded */
     private static final String STATUS_SUCCEEDED = "SUCCEEDED";
     /** 任务失败状态 */
-    /** Status_failed */
     private static final String STATUS_FAILED = "FAILED";
     /** 连接超时时间（秒） */
-    /** Connect_timeout_seconds */
     private static final int CONNECT_TIMEOUT_SECONDS = 30;
 
     /**

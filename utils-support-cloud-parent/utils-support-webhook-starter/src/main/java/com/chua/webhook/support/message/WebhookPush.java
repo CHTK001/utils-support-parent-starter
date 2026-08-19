@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   webhook.url  Webhook 地址（必填）
  * </pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Spi("webhook")
@@ -71,7 +72,6 @@ public class WebhookPush implements MessagePush {
     private static final String CONTENT_TYPE_RAW = "raw";
 
     /** 消息环境 */
-    /** 环境 */
     private final MessageEnvironment environment;
 
     /** 模板映射 */

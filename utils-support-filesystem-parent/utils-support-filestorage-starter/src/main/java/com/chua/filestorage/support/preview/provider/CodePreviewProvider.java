@@ -31,7 +31,6 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     );
 
     /** 已有专门 SPI 提供者抢跑的扩展名，CodePreviewProvider 不应匹配 */
-    /** Bypass_exts */
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
     @Override

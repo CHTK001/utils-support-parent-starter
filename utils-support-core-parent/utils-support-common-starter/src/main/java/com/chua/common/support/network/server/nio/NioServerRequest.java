@@ -58,6 +58,7 @@ public class NioServerRequest implements ServerRequest {
     private String queryString;
     /** HTTP版本 */
     private String httpVersion = "HTTP/1.1";
+    /** headers */
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     /** 请求体 */
     private byte[] body;
@@ -67,24 +68,20 @@ public class NioServerRequest implements ServerRequest {
     private ByteBuffer buf;
     /** BUFHAS数据 */
     private boolean bufHasData = true;
+    /** attributes */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     // ==================== 增量解析状态机 ====================
 
     /** 当前解析状态 */
-    /** Parse状态 */
     private ParseState parseState = ParseState.REQUEST_LINE;
     /** 请求体剩余需读取字节数(非 chunked) */
-    /** 请求体剩余 */
     private int bodyRemaining = 0;
     /** 是否 chunked 编码 */
-    /** Chunked */
     private boolean chunked = false;
     /** chunked:当前 chunk 剩余字节 */
-    /** Chunk剩余 */
     private int chunkRemaining = 0;
     /** chunked:是否正在读 chunk 头部行 */
-    /** Chunk头部pending */
     private boolean chunkHeaderPending = false;
 
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {

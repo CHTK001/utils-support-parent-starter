@@ -37,7 +37,6 @@ public class LuceneExpressionParser implements ExpressionParser {
     private static final String TYPE = "lucene";
 
     /** 委托客户端 */
-    /** Delegate */
     private final DefaultExpressionParser delegate = new DefaultExpressionParser();
 
     @Override

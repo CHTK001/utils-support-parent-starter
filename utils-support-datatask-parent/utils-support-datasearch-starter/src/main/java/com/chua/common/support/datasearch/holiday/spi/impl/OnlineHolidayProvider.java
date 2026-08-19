@@ -45,6 +45,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
     /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    /** FALLBACK_2026 */
     private static final Map<String, HolidayInfo> FALLBACK_2026 = build2026();
 
     /** URL模板 */
@@ -53,6 +54,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
     /** HTTP客户端 */
     private final HttpClient httpClient;
 
+    /** cache */
     private final Map<Integer, Map<String, HolidayInfo>> cache = new ConcurrentHashMap<>();
 
     public OnlineHolidayProvider() {

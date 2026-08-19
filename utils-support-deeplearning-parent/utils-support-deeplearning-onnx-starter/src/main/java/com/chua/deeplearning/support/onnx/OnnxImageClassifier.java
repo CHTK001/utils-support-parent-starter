@@ -12,12 +12,10 @@ public class OnnxImageClassifier implements ImageClassifier {
     /** 模型名称 */
     private String modelName;
     /** Top-K 采样数量 */
-    /** 顶部K */
     private int topK = 5;
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
-    /** Device */
     private String device = "cpu";
 
     public OnnxImageClassifier(String apiKey) {

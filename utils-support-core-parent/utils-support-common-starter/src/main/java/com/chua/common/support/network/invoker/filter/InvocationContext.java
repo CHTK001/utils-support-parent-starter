@@ -22,8 +22,11 @@ import java.util.*;
  */
 public class InvocationContext implements ServerRequest, ServerResponse {
 
+    /** headers */
     private final Map<String, String> headers = new LinkedHashMap<>();
+    /** queryParams */
     private final Map<String, String> queryParams = new LinkedHashMap<>();
+    /** attributes */
     private final Map<String, Object> attributes = new LinkedHashMap<>();
     /** 请求体 */
     private byte[] body;

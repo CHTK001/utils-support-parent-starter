@@ -10,15 +10,12 @@ package com.chua.common.support.network.server.request;
 public class FormFile {
 
     /** 表单字段名 */
-    /** Field名称 */
     private final String fieldName;
 
     /** 原始文件名 */
-    /** 文件名称 */
     private final String fileName;
 
     /** 文件内容类型 */
-    /** 内容类型 */
     private final String contentType;
 
     /** 文件字节数据 */

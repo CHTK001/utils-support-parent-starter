@@ -390,15 +390,12 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     @lombok.Data
     private static class ModelData {
         /** 算法名称 */
-        /** 算法 */
         private String algorithm;
 
         /** 陡度参数 */
-        /** K */
         private double k;
 
         /** 阈值参数 */
-        /** T */
         private double t;
     }
 }

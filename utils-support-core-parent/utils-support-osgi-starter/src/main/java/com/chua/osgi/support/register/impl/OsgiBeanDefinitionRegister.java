@@ -28,7 +28,9 @@ import java.util.*;
 @SpiDescribe("OSGi Bean 定义注册器（只读，委托 Felix OSGi 框架）")
 public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
+    /** closed */
     private volatile boolean closed;
+    /** osgiLauncher */
     private volatile OsgiLauncher osgiLauncher;
 
     /**

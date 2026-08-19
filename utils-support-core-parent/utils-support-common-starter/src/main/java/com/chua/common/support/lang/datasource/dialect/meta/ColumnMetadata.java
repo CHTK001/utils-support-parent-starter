@@ -16,25 +16,18 @@ import lombok.experimental.Accessors;
 public class ColumnMetadata {
 
     /** 列名 */
-    /** 列名称 */
     private String columnName;
     /** 所属表名 */
-    /** 表名称 */
     private String tableName;
     /** JDBC 类型名称 */
-    /** JDBC类型 */
     private String jdbcType;
     /** JDBC 类型代码 */
-    /** SQL类型 */
     private int sqlType;
     /** 字段长度 */
-    /** 长度 */
     private int length;
     /** 数字精度 */
-    /** Precision */
     private int precision;
     /** 小数位数 */
-    /** 比例尺 */
     private int scale;
     /** 是否可为空 */
     /**
@@ -44,7 +37,6 @@ public class ColumnMetadata {
     /** 默认值 */
     private String defaultValue;
     /** 注释 */
-    /** Comment */
     private String comment;
     /** 是否主键 */
     /**
@@ -52,10 +44,8 @@ public class ColumnMetadata {
      */
     private boolean primaryKey;
     /** 是否自增 */
-    /** Autoincrement */
     private boolean autoIncrement;
     /** 字段位置 */
-    /** 位置 */
     private int position;
 
     /** 使用方言的引用符包裹列名 */

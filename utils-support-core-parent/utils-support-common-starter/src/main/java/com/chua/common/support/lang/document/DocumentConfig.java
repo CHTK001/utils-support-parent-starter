@@ -53,7 +53,6 @@ public class DocumentConfig {
     private String password;
 
     /** JDBC 驱动类全限定名 */
-    /** 驱动class */
     private String driverClass;
 
     /** 扩展参数字段，各实现可自行定义键值含义 */

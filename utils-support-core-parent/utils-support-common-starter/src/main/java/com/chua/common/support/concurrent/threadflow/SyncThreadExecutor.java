@@ -46,7 +46,6 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
      */
     private static final class CompletedFuture implements Future<Object> {
         /** 结果对象 */
-        /** 结果 */
         private final Object result;
 
         CompletedFuture(Object result) {
@@ -84,7 +83,6 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
      */
     private static final class FailedFuture implements Future<Object> {
         /** 异常对象 */
-        /** 异常 */
         private final Exception exception;
 
         FailedFuture(Exception exception) {

@@ -132,7 +132,7 @@ public final class FlowNodeRegistry {
      * @param name      节点类型名称
      * @param describe  节点类型功能描述
      * @param prototype 节点原型实例
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record Registration(

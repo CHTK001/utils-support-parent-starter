@@ -11,31 +11,24 @@ import java.time.Instant;
 public class ModelHealth {
 
     /** 服务商 */
-    /** 提供者 */
     private final String provider;
 
     /** 模型名称 */
-    /** 模型 */
     private final String model;
 
     /** 是否限流 */
-    /** 比率limited */
     private boolean rateLimited = false;
 
     /** 是否余额不足 */
-    /** Quotaexhausted */
     private boolean quotaExhausted = false;
 
     /** 连续失败次数 */
-    /** Consecutivefailures */
     private int consecutiveFailures = 0;
 
     /** 最后检测时间 */
-    /** 最后check时间 */
     private long lastCheckTime = System.currentTimeMillis();
 
     /** 最后失败原因 */
-    /** 最后failurereason */
     private String lastFailureReason;
 
     public ModelHealth(String provider, String model) {

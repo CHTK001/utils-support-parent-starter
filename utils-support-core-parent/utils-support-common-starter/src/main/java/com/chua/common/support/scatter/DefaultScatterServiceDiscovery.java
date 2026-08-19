@@ -183,6 +183,8 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
 
     /**
      * 注册本节点服务（按 groupId 分组，携带动态权重）。
+     * <p>注册地址使用 {@link ScatterSetting#effectiveHost()} 对外宣告，
+     * 与监听地址({@code setting.getHost()})解耦，适配云主机内网监听/公网宣告场景。</p>
      */
     private void registerSelf() {
         Discovery self = Discovery.builder()
@@ -190,7 +192,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                 .serverId(setting.getNodeId())
                 .scatterId(getGroupId())
                 .protocol(setting.getProtocol())
-                .host(setting.getHost())
+                .host(setting.effectiveHost())
                 .port(setting.getPort())
                 .timeout((int) setting.getTimeoutMillis())
                 .weight(computeDynamicWeight())
@@ -254,7 +256,7 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                         .serverId(setting.getNodeId())
                         .scatterId(getGroupId())
                         .protocol(setting.getProtocol())
-                        .host(setting.getHost())
+                        .host(setting.effectiveHost())
                         .port(setting.getPort())
                         .timeout((int) setting.getTimeoutMillis())
                         .weight(computeDynamicWeight())

@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
 
+    /** framework */
     private volatile Framework framework;
     /** Applications */
     private final List<BundleApplication> applications = new CopyOnWriteArrayList<>();

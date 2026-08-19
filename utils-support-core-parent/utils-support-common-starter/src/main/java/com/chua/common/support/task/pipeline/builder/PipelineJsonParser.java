@@ -163,6 +163,7 @@ public class PipelineJsonParser {
      * 简易 JSON 节点表示
      */
     static class JsonNode {
+        /** data */
         private final Map<String, Object> data;
 
         JsonNode(Map<String, Object> data) {

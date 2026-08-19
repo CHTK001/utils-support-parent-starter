@@ -27,10 +27,8 @@ public class TableMetadata {
      */
     private String schema;
     /** 列元数据列表 */
-    /** Columns */
     private List<ColumnMetadata> columns;
     /** 索引元数据列表 */
-    /** Indexes */
     private List<IndexMetadata> indexes;
     /** 表类型 */
     /**
@@ -38,19 +36,14 @@ public class TableMetadata {
      */
     private String type = "TABLE";
     /** 表注释 */
-    /** Comment */
     private String comment;
     /** 分区类型（RANGE / LIST / HASH / KEY） */
-    /** Partition类型 */
     private String partitionType;
     /** 分区列名 */
-    /** Partition列 */
     private String partitionColumn;
     /** 分区自定义定义 */
-    /** Partitiondefinition */
     private String partitionDefinition;
     /** 存储引擎 */
-    /** 引擎 */
     private String engine = "InnoDB";
 
     /** 是否配置了分区 */

@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 @Spi(value = {"rust", "native"}, order = 100)
 public class RustFFmpegProcessor implements FFmpegProcessor {
 
+    /** JSON 对象映射器 */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override

@@ -67,21 +67,16 @@ public class PocketTtsTranslator {
     private static final String CACHE_ROOT = "audio/tts/";
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private ai.onnxruntime.OrtEnvironment ortEnv;
     /** 文本编码器会话 */
     private ai.onnxruntime.OrtSession textEncoderSession;
     /** 流程会话 */
-    /** Flow会话 */
     private ai.onnxruntime.OrtSession flowSession;
     /** Mimi 解码器会话 */
-    /** Mimi解码器会话 */
     private ai.onnxruntime.OrtSession mimiDecoderSession;
     /** Mimi 编码器会话 */
-    /** Mimi编码器会话 */
     private ai.onnxruntime.OrtSession mimiEncoderSession;
     /** 分词器 */
-    /** Tokenizer */
     private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
 
     /**
@@ -89,37 +84,26 @@ public class PocketTtsTranslator {
      */
     private String textEncoderInputName;
     /** 文本编码器输出节点名称 */
-    /** 文本编码器输出名称 */
     private String textEncoderOutputName;
     /** 流程输入节点名称 */
-    /** Flowxname */
     private String flowXName;
     /** 流程时间戳节点名称 */
-    /** Flowtname */
     private String flowTName;
     /** 流程嵌入节点名称 */
-    /** FlowEMB名称 */
     private String flowEmbName;
     /** 流程掩码节点名称 */
-    /** Flow掩码名称 */
     private String flowMaskName;
     /** 流程引用节点名称 */
-    /** Flow引用名称 */
     private String flowRefName;
     /** 流程向量节点名称 */
-    /** Flowvname */
     private String flowVName;
     /** Mimi 输入节点名称 */
-    /** Mimi输入名称 */
     private String mimiInputName;
     /** Mimi 输出节点名称 */
-    /** Mimi输出名称 */
     private String mimiOutputName;
     /** Mimi 编码器输入节点名称 */
-    /** Mimi编码器输入名称 */
     private String mimiEncoderInputName;
     /** Mimi 编码器输出节点名称 */
-    /** Mimi编码器输出名称 */
     private String mimiEncoderOutputName;
 
     /**

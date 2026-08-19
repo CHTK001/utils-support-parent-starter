@@ -171,6 +171,7 @@ public class SkillsmpProvider {
      * SkillsMP MCP 客户端实现
      */
     protected class SkillsmpMcpClient implements McpClient {
+        /** initialized */
         private volatile boolean initialized = false;
 
         @Override

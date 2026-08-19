@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
  public class NitriteEngine extends AbstractEngine implements FulltextSearch, DocumentStore {
 
     /** 数据源未找到错误前缀 */
-    /** Error_datasource_not_found */
     private static final String ERROR_DATASOURCE_NOT_FOUND = "Nitrite 数据源未找到: ";
     /** 数据库实例映射表 */
     private final ConcurrentHashMap<String, Nitrite> databases = new ConcurrentHashMap<>();

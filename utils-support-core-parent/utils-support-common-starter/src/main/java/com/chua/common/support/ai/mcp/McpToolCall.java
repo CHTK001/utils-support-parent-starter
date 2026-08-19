@@ -13,7 +13,6 @@ import java.util.Map;
 public class McpToolCall {
 
     /** 工具名称 */
-    /** Tool名称 */
     private final String toolName;
 
     /** 调用参数 */

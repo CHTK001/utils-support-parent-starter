@@ -43,6 +43,7 @@ public final class FastFileSearchNativeBridge {
     /** Cancelhandle */
     private static MethodHandle cancelHandle;
 
+    /** loaded */
     private static volatile boolean loaded = false;
     /** Load_lock */
     private static final Object LOAD_LOCK = new Object();

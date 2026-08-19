@@ -53,6 +53,7 @@ public class ApolloClient implements AutoCloseable {
     private final String meta;
     /** Namespaces */
     private final List<String> namespaces;
+    /** configCache */
     private final Map<String, Config> configCache = new ConcurrentHashMap<>();
 
     private ApolloClient(String appId, String meta, List<String> namespaces) {

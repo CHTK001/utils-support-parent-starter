@@ -25,8 +25,11 @@ public final class SystemLogBridge {
     /** 实例 */
     private static final SystemLogBridge INSTANCE = new SystemLogBridge();
 
+    /** win32Registry */
     private volatile NativeFunctionRegistry win32Registry;
+    /** linuxRegistry */
     private volatile NativeFunctionRegistry linuxRegistry;
+    /** initialized */
     private volatile boolean initialized;
 
     private SystemLogBridge() {

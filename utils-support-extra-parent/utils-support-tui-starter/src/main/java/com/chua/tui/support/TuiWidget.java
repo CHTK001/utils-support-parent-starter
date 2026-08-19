@@ -20,27 +20,21 @@ import lombok.Getter;
 public abstract class TuiWidget {
 
     /** 组件唯一标识，对应 {@code @IpcMethod} 中的路径值 */
-    /** ID */
     private final String id;
 
     /** 组件标题，显示在仪表盘面板顶部 */
-    /** 标题 */
     private final String title;
 
     /** 上一次渲染的原始数据 */
-    /** RAW数据 */
     private String rawData;
 
     /** 组件是否可见 */
-    /** Visible */
     private boolean visible = true;
 
     /** 跨列数，默认为 1 */
-    /** Colspan */
     private int colspan = 1;
 
     /** 跨行数，默认为 1 */
-    /** Rowspan */
     private int rowspan = 1;
 
     /**

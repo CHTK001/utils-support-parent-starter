@@ -31,19 +31,15 @@ import java.util.function.Consumer;
 public class AgentModelDefinition implements ChatClient {
 
     /** 默认模型名称 */
-    /** Default_model */
     private static final String DEFAULT_MODEL = "router-auto";
 
     /** 内部 Agent 实例 */
-    /** Agent */
     private final Agent agent;
 
     /** 模型名称 */
-    /** 模型 */
     private String model = DEFAULT_MODEL;
 
     /** 最近一次 Agent 响应 */
-    /** 最后响应 */
     private AgentResponse lastResponse;
 
     public AgentModelDefinition(Agent agent) {

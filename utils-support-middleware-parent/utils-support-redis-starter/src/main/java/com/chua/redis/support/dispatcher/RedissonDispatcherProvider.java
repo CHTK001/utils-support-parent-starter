@@ -29,9 +29,13 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
 
     /** Redisson客户端 */
     private final RedissonClient redissonClient;
+    /** topicMap */
     private final Map<String, RTopic> topicMap = new ConcurrentHashMap<>();
+    /** definitionMap */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
+    /** listenerIdMap */
     private final Map<String, Integer> listenerIdMap = new ConcurrentHashMap<>();
+    /** closed */
     private volatile boolean closed = false;
 
     public RedissonDispatcherProvider(DispatcherConfig config) {

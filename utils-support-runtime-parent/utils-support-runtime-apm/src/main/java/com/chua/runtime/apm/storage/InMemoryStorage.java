@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InMemoryStorage implements ApmStorage {
 
     /** 自增 id 分配器 */
-    /** TransmissionSEQ */
     private final AtomicLong transmissionSeq = new AtomicLong();
     /**
      * leak Seq

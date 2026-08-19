@@ -45,27 +45,20 @@ import java.util.function.Consumer;
 public class IonetServer extends AbstractServer {
 
     /** 连接方式：TCP / WEBSOCKET / UDP */
-    /** Join类型 */
     private final ExternalJoinEnum joinType;
     /** 逻辑服名称 */
-    /** Logic服务器名称 */
     private final String logicServerName;
     /** Action 类所在包的扫描根类 */
     private final Class<?> scanActionClass;
     /** 是否启用中心服 */
-    /** Enablecenter服务器 */
     private final boolean enableCenterServer;
     /** 是否开启调试插件 */
-    /** 调试模式 */
     private final boolean debugMode;
     /** 额外的 BarSkeletonBuilder 配置 */
-    /** Skeletonconfigurer */
     private final Consumer<BarSkeletonBuilder> skeletonConfigurer;
     /** 额外的 RunOne 配置 */
-    /** RUNONEconfigurer */
     private final Consumer<RunOne> runOneConfigurer;
     /** RunOne 实例 */
-    /** RUNONE */
     private RunOne runOne;
 
     private IonetServer(Builder builder) {

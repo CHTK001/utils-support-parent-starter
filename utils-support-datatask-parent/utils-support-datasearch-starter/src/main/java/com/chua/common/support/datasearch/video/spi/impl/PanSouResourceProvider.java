@@ -37,10 +37,8 @@ import java.util.regex.Pattern;
 public class PanSouResourceProvider extends AbstractResourceProvider {
 
     /** 日志记录器 */
-    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(PanSouResourceProvider.class);
     /** JSON 对象映射器 */
-    /** Objectmapper */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -48,16 +46,12 @@ public class PanSouResourceProvider extends AbstractResourceProvider {
      */
     private static final Pattern BAIDU_PATTERN = Pattern.compile("(https?://pan\\.baidu\\.com/s/[A-Za-z0-9_-]+)");
     /** 阿里云盘链接匹配正则 */
-    /** Aliyun_pattern */
     private static final Pattern ALIYUN_PATTERN = Pattern.compile("(https?://www\\.aliyundrive\\.com/s/[A-Za-z0-9_-]+)");
     /** 夸克网盘链接匹配正则 */
-    /** Quark_pattern */
     private static final Pattern QUARK_PATTERN = Pattern.compile("(https?://pan\\.quark\\.cn/s/[A-Za-z0-9_-]+)");
     /** 天翼云盘链接匹配正则 */
-    /** Tianyi_pattern */
     private static final Pattern TIANYI_PATTERN = Pattern.compile("(https?://cloud\\.189\\.cn/t/[A-Za-z0-9_-]+)");
     /** 磁力链接匹配正则 */
-    /** Magnet_pattern */
     private static final Pattern MAGNET_PATTERN = Pattern.compile("(magnet:\\?xt=urn:[a-z0-9]+:[a-z0-9]{32,40})");
 
     public PanSouResourceProvider() {

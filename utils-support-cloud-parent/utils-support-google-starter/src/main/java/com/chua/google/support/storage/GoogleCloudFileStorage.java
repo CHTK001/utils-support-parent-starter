@@ -35,7 +35,6 @@ import java.util.List;
 public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     /** 对象存储客户端 */
-    /** 存储 */
     private final Storage storage;
 
     public GoogleCloudFileStorage(BucketSetting bucketSetting) {

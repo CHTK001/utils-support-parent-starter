@@ -458,7 +458,7 @@ private long cleanExpireMs = 60000;
      * @param retryCount  重试次数
      * @param createdAt   创建时间
      * @param completedAt 完成时间
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record TaskView(

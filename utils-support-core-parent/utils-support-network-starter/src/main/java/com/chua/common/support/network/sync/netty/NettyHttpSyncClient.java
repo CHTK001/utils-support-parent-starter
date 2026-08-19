@@ -26,7 +26,9 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     private final String serverUrl;
     /** HTTP客户端 */
     private final HttpClient httpClient;
+    /** connected */
     private volatile boolean connected;
+    /** subscriptions */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
     /** Listeners */
     private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();

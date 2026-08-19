@@ -166,6 +166,7 @@ public class EmailClient {
         private List<String> cc = new ArrayList<>();
         /** BCC */
         private List<String> bcc = new ArrayList<>();
+        /** attachments */
         private Map<String, byte[]> attachments = new LinkedHashMap<>();
 
         SendOperation(EmailClient client) { this.client = client; }
@@ -342,9 +343,11 @@ public class EmailClient {
         private String folder = "INBOX";
         /** Poll间隔 */
         private int pollInterval = 60;
+        /** onMessage */
         private Consumer<Map<String, Object>> onMessage;
         /** Watch线程 */
         private Thread watchThread;
+        /** running */
         private volatile boolean running = false;
 
         WatchOperation(EmailClient client) { this.client = client; }

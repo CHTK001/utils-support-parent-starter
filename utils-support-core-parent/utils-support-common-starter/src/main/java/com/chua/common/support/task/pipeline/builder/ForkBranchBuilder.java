@@ -62,15 +62,12 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
 public class ForkBranchBuilder {
 
     /** 分支名称 */
-    /** Branch名称 */
     private final String branchName;
 
     /** 内部构建器，用于构建分支流水线 */
-    /** Inner构建器 */
     private final PipelineBuilder innerBuilder;
 
     /** 父分叉定义，endFork() 时返回 */
-    /** 父级 */
     private final TaskForkDefinition parent;
 
     /**

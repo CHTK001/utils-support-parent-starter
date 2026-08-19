@@ -22,13 +22,10 @@ import java.nio.file.Path;
 public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.cv.Image, float[]> {
 
     /** 图像尺寸 */
-    /** Image_size */
     private static final int IMAGE_SIZE = 224;
     /** 均值数组 */
-    /** Mean */
     private static final float[] MEAN = new float[]{0.48145466f, 0.45782750f, 0.40821073f};
     /** 标准差数组 */
-    /** STD */
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
     @Override

@@ -22,7 +22,6 @@ import java.util.Map;
 public class WechatFileEngine extends FileEngine {
 
     /** JSON 对象映射器 */
-    /** Object_mapper */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /** 已加载文件映射 */
     private final Map<String, File> loadedFiles = new java.util.concurrent.ConcurrentHashMap<>();

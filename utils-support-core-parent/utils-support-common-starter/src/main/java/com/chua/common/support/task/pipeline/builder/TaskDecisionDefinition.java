@@ -87,12 +87,15 @@ public class TaskDecisionDefinition {
     private PipelineNode handler;
     /** 构建器 */
     private final PipelineBuilder builder;
+    /** branches */
     private final Map<String, String> branches = new LinkedHashMap<>();
     /** 默认branch */
     private String defaultBranch;
     /** 结束afterexecute */
     private boolean endAfterExecute;
+    /** params */
     private Map<String, Object> params;
+    /** env */
     private Map<String, Object> env;
     /** 开始节点 */
     private boolean startNode;

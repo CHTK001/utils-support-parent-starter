@@ -77,7 +77,6 @@ class DataSyncAgentServerTest {
 
     private static class MockAgent implements DataSyncAgent {
         /** 标识 */
-        /** ID */
         private final String id;
         MockAgent(String id) { this.id = id; }
         @Override public String agentId() { return id; }

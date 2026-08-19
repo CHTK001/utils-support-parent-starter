@@ -29,6 +29,7 @@ public class SpiderExecutionController {
      * 测试态：SpiderRunner 在保存前回调通知，记录 hash 与 json 长度。
      */
     private volatile int lastSavedHash = 0;
+    /** lastSavedResultsJson */
     private volatile String lastSavedResultsJson = null;
 
     /**

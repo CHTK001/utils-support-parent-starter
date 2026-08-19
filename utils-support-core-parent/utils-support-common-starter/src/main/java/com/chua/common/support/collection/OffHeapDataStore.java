@@ -48,11 +48,9 @@ import java.util.concurrent.atomic.LongAdder;
 public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
 
     /** 序列化器，将对象与字节数组互转 */
-    /** 序列化器 */
     private final Serializer<E> serializer;
 
     /** 共享 Arena，管理所有 native 内存段的生命周期，close 时一次性释放 */
-    /** Arena */
     private final Arena arena;
 
     /**

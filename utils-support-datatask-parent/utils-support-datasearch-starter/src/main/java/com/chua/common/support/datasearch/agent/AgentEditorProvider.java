@@ -314,6 +314,7 @@ public class AgentEditorProvider {
         private String command;
         /** 参数 */
         private List<String> args;
+        /** env */
         private Map<String, String> env;
         /** URL */
         private String url;

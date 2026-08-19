@@ -20,6 +20,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
 
     /** 客户端ID */
     private final String clientId = java.util.UUID.randomUUID().toString();
+    /** connected */
     private volatile boolean connected;
     /** Socket */
     private Socket socket;
@@ -27,6 +28,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     private OutputStream output;
     /** 输入 */
     private BufferedReader input;
+    /** subscriptions */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
     /** Listeners */
     private final List<SyncFlowListener> listeners = new ArrayList<>();

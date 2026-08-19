@@ -95,7 +95,7 @@ public class FlowDefinition {
      * @param props 节点配置参数
      * @param x     画布横坐标，仅供前端渲染使用
      * @param y     画布纵坐标，仅供前端渲染使用
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record FlowNodeDef(
@@ -139,7 +139,7 @@ public class FlowDefinition {
      * @param from  源节点 ID
      * @param to    目标节点 ID
      * @param label 边标签
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record FlowEdgeDef(

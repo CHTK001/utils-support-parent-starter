@@ -11,7 +11,9 @@ public class VideoProcessorBridge {
 
     /** Library_name */
     private static final String LIBRARY_NAME = "video_processor";
+    /** loaded */
     private static volatile boolean loaded = false;
+    /** loadError */
     private static volatile Throwable loadError = null;
 
     static {

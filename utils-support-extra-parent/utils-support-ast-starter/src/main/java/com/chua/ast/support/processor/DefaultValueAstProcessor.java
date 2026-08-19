@@ -51,13 +51,10 @@ import java.util.Set;
 public final class DefaultValueAstProcessor extends AbstractProcessor {
 
     /** 抽象语法树工具 */
-    /** Trees */
     private com.sun.source.util.Trees trees;
     /** 消息器 */
-    /** Messager */
     private Messager messager;
     /** 注解处理环境 */
-    /** PE */
     private ProcessingEnvironment pe;
 
     @Override

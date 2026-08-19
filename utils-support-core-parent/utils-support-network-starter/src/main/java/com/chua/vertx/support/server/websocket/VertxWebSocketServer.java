@@ -32,6 +32,7 @@ public class VertxWebSocketServer extends AbstractServer {
     private Vertx vertx;
     /** 服务器 */
     private io.vertx.core.http.HttpServer server;
+    /** topicHandlers */
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
     /** Connections */
     private final List<ServerWebSocket> connections = new CopyOnWriteArrayList<>();
@@ -259,6 +260,7 @@ public class VertxWebSocketServer extends AbstractServer {
         private final String topic;
         /** 请求体 */
         private final String body;
+        /** attributes */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         VertxServerRequest(String topic, String body) {
@@ -356,7 +358,9 @@ public class VertxWebSocketServer extends AbstractServer {
 
         /** WS */
         private final ServerWebSocket ws;
+        /** ended */
         private volatile boolean ended;
+        /** committed */
         private volatile boolean committed;
         /** 状态 */
         private int status = 200;

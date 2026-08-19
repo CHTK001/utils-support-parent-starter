@@ -16,13 +16,10 @@ public class DefaultModel3D implements Model3D {
     /** 名称 */
     private String name;
     /** 模型三维格式 */
-    /** 格式 */
     private Model3DFormat format;
     /** 数据列表 */
-    /** 数据 */
     private byte[] data;
     /** 纹理数据 */
-    /** Texture */
     private byte[] texture;
 
     public DefaultModel3D(String name, Model3DFormat format, byte[] data) {

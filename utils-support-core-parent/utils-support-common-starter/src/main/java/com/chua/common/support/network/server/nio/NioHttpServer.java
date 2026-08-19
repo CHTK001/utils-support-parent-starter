@@ -66,13 +66,10 @@ public class NioHttpServer extends AbstractServer {
     /** 服务器通道 */
     private ServerSocketChannel serverChannel;
     /** 多 Selector 分片:每分片一个事件循环线程,解决单事件循环在高并发下的瓶颈 */
-    /** Selectors */
     private Selector[] selectors;
     /** 每分片对应的待写 key 队列(worker 只入队,由对应分片事件循环统一注册 OP_WRITE) */
-    /** Pendingwritequeues */
     private java.util.Queue<SelectionKey>[] pendingWriteQueues;
     /** 每分片对应的"写完成待恢复 OP_READ"队列:worker 直写排空后入队,事件循环统一恢复 OP_READ */
-    /** Rearmreadqueues */
     private java.util.Queue<SelectionKey>[] rearmReadQueues;
     /** 每分片对应的待注册连接队列:accept 线程只入队,由目标分片事件循环线程自行 register,
      *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
@@ -915,6 +912,7 @@ public class NioHttpServer extends AbstractServer {
         private final String topic;
         /** 请求体 */
         private final String body;
+        /** attributes */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         WsServerRequest(String topic, String body) {

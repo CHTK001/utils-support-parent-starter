@@ -24,10 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class AgentScopeAgentTest {
 
     /** 原始输出流 */
-    /** OriginalOUT */
     private PrintStream originalOut;
     /** 捕获输出流 */
-    /** CaptureOUT */
     private ByteArrayOutputStream captureOut;
 
     @BeforeEach

@@ -99,10 +99,8 @@ public class AsmCompiler implements Compiler {
      */
     static class InMemoryByteCode extends SimpleJavaFileObject {
         /** 字节数组输出流 */
-        /** Baos */
         private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         /** 类名称 */
-        /** Class名称 */
         private final String className;
 
         InMemoryByteCode(String className) {
@@ -167,7 +165,6 @@ public class AsmCompiler implements Compiler {
      */
     static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         /** 类加载器 */
-        /** Classloader */
         private final InMemoryClassLoader classLoader;
 
         InMemoryFileManager(JavaFileManager fileManager, InMemoryClassLoader classLoader) {

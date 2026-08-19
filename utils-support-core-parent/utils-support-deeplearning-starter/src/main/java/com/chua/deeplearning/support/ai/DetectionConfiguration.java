@@ -15,22 +15,18 @@ import java.util.Map;
 public class DetectionConfiguration {
 
     /** 默认配置实例 */
-    /** 默认 */
     public static final DetectionConfiguration DEFAULT = new DetectionConfiguration();
 
     /** 是否使用 GPU */
-    /** USEGPU */
     private boolean useGpu;
 
     /** 模型名称 */
     private String modelName;
 
     /** 覆盖加载的模型名称 */
-    /** Load模型名称 */
     private String loadModelName;
 
     /** 模型文件路径 */
-    /** Load模型路径 */
     private String loadModelPath;
 
     /** 系统级选项（appId、appKey 等） */

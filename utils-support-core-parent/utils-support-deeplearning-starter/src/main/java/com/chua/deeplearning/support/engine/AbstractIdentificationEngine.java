@@ -257,6 +257,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return INSTANCE;
     }
 
+    /** INSTANCE */
     private static volatile IdentificationEngine INSTANCE;
 
     /**

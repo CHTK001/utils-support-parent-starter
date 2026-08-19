@@ -65,7 +65,6 @@ public class PolledDirectoryBackup implements BackupStrategy {
     }
 
     /** 默认转换器：包装为 JSON insert 格式 */
-    /** Default_transformer */
     private static final RecordTransformer DEFAULT_TRANSFORMER = (fileName, content) -> {
         return "{\"type\":\"insert\",\"source\":\"" + fileName + "\","
                 + "\"timestamp\":\"" + LocalDateTime.now().format(TIME_FMT) + "\","

@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public abstract class AbstractFileStorageServerFilter implements ServerFilter {
 
+    /** storageMap */
     protected final Map<String, FileStorage> storageMap = new ConcurrentHashMap<>();
     /** 设置 */
     protected final FileStorageSetting setting;
@@ -45,6 +46,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     protected FileStorageFilterSetting filterSetting;
     /** 图片operation */
     protected ImageOperation imageOperation;
+    /** flashService */
     protected transient FlashTokenService flashService;
 
     public AbstractFileStorageServerFilter(FileStorageSetting setting) {

@@ -18,7 +18,6 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     /** 名称 */
     private final String name;
     /** 限流器 */
-    /** 比率limiter */
     private final RateLimiter rateLimiter;
 
     /**

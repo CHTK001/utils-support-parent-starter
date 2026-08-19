@@ -13,10 +13,8 @@ import java.util.Map;
 public class FileSystemDataSyncSource implements DataSyncAgentSource {
 
     /** 数据源标识 */
-    /** 来源ID */
     private final String sourceId;
     /** 输入标识 */
-    /** 输入ID */
     private final String inputId;
     /** 文件路径 */
     private final String filePath;

@@ -26,7 +26,6 @@ import lombok.experimental.Accessors;
 public class Pagination {
 
     /** 当前页码 */
-    /** 页NUM */
     private int pageNum = 1;
 
     /**

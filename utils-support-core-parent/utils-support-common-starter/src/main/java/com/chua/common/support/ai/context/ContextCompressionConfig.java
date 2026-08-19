@@ -39,7 +39,6 @@ public class ContextCompressionConfig {
     private int deviationThreshold = 6;
 
     /** 压缩用 ChatClient（建议小模型） */
-    /** Compressionchat客户端 */
     private ChatClient compressionChatClient;
 
     /** 压缩后保留最近消息数 */

@@ -81,6 +81,13 @@ public class ScatterSetting {
     private String host = DEFAULT_HOST;
 
     /**
+     * 对外宣告地址：注册进 discovery 的地址，供远端寻址。
+     * 与监听地址({@link #host})分离：云主机通常绑定内网/0.0.0.0 监听，
+     * 通过公网 IP 或域名对外宣告，空值时回落到 {@link #host}。
+     */
+    private String announceHost;
+
+    /**
      * 通信端口(数据同步 + 心跳共用)
      */
     private int port = DEFAULT_PORT;
@@ -178,5 +185,14 @@ public class ScatterSetting {
      */
     public String effectiveGroupId() {
         return scatterId == null || scatterId.isBlank() ? groupId : scatterId;
+    }
+
+    /**
+     * 获取对外宣告地址：announceHost 非空时优先使用，否则回落监听地址 host。
+     *
+     * @return 宣告地址
+     */
+    public String effectiveHost() {
+        return announceHost == null || announceHost.isBlank() ? host : announceHost;
     }
 }

@@ -46,6 +46,7 @@ public class JdkWebSocketServer extends AbstractServer {
     private ServerSocket serverSocket;
     /** 执行器 */
     private ExecutorService executor;
+    /** topicHandlers */
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
     /** Connections */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
@@ -430,6 +431,7 @@ public class JdkWebSocketServer extends AbstractServer {
          * 请求体
          */
         private final String body;
+        /** attributes */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         SimpleServerRequest(String topic, String body) {
@@ -527,7 +529,9 @@ public class JdkWebSocketServer extends AbstractServer {
 
         /** Connection */
         private final Connection connection;
+        /** ended */
         private volatile boolean ended;
+        /** committed */
         private volatile boolean committed;
         /**
          * 状态

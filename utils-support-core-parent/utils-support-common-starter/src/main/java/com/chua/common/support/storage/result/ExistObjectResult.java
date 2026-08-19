@@ -16,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 public class ExistObjectResult extends ObjectResult {
 
     /** 空结果实例 */
-    /** 是否为空 */
     public static final ExistObjectResult EMPTY = ExistObjectResult.builder().build();
 
     /**

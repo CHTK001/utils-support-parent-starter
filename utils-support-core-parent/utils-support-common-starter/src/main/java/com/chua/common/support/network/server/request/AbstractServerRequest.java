@@ -29,11 +29,9 @@ public abstract class AbstractServerRequest implements ServerRequest {
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /** 缓存的请求体，避免重复读取输入流 */
-    /** Cached请求体 */
     private byte[] cachedBody;
 
     /** 是否已读取请求体 */
-    /** 请求体read */
     private boolean bodyRead;
 
     @Override

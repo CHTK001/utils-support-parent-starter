@@ -50,7 +50,6 @@ public class BotInboundMessage {
     }
 
     /** 消息唯一标识 ID */
-    /** MSGID */
     private String msgId;
 
     /** 消息类型 */
@@ -78,11 +77,9 @@ public class BotInboundMessage {
     private String fromUserName;
 
     /** 目标用户 ID（Bot 回复对象）*/
-    /** TO用户 */
     private String toUser;
 
     /** 消息创建时间戳（毫秒）*/
-    /** Create时间 */
     private long createTime;
 
     /**
@@ -104,7 +101,6 @@ public class BotInboundMessage {
     private String eventType;
 
     /** 事件 Key */
-    /** 事件密钥 */
     private String eventKey;
 
     /**
@@ -114,7 +110,6 @@ public class BotInboundMessage {
     private String chatId;
 
     /** 是否来自群组 */
-    /** From分组 */
     private boolean fromGroup;
 
     /** @ 提及的用户 ID 列表 */

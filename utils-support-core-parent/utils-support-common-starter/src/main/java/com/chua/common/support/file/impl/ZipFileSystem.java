@@ -213,11 +213,9 @@ public class ZipFileSystem implements FileSystem {
     public static class ZipWriteBuilder extends WriteBuilder {
 
         /** ZIP 条目列表 */
-        /** Entries */
         private final List<ZipEntryData> entries = new ArrayList<>();
 
         /** 压缩级别（0~9，-1 为默认） */
-        /** Compression级别 */
         private int compressionLevel = Deflater.DEFAULT_COMPRESSION;
 
         ZipWriteBuilder(File file) {
@@ -333,7 +331,6 @@ public class ZipFileSystem implements FileSystem {
 
         private static class ZipEntryData {
             /** 条目名称 */
-            /** Entry名称 */
             private final String entryName;
             /**
              * 数据源
@@ -342,7 +339,6 @@ public class ZipFileSystem implements FileSystem {
             /** 输入流 */
             private final InputStream inputStream;
             /** 字节数组 */
-            /** Bytes */
             private final byte[] bytes;
 
             ZipEntryData(String entryName, File source) {

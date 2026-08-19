@@ -52,7 +52,6 @@ public class StyleTransferPipelineBuilder {
     };
 
     /** 风格名称列表 */
-    /** Stylenames */
     private final List<String> styleNames = new ArrayList<>();
 
     /**

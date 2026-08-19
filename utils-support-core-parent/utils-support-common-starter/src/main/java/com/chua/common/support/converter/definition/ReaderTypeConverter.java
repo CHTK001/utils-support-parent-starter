@@ -42,7 +42,6 @@ import javax.annotation.Nullable;
 public class ReaderTypeConverter implements TypeConverter<Reader> {
 
     /** 单例实例 */
-    /** 实例 */
     private static final ReaderTypeConverter INSTANCE = new ReaderTypeConverter();
 
     /**

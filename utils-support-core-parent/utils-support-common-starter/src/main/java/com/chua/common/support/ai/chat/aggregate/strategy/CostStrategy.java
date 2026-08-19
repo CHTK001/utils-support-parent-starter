@@ -22,10 +22,8 @@ import java.util.List;
 public class CostStrategy implements RouterStrategy {
 
     /** 短文本阈值 */
-    /** Short_threshold */
     private static final int SHORT_THRESHOLD = 100;
     /** 中等文本阈值 */
-    /** Medium_threshold */
     private static final int MEDIUM_THRESHOLD = 1000;
 
     @Override

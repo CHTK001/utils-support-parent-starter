@@ -61,6 +61,7 @@ public class EmailDirectory implements PolledDirectory {
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
     /** Seen消息IDS */
     private final Set<String> seenMessageIds = ConcurrentHashMap.newKeySet();
+    /** running */
     private volatile boolean running = false;
 
     private EmailDirectory(Builder b) {

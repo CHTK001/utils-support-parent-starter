@@ -25,7 +25,6 @@ public class RestoreResult {
     private boolean success;
 
     /** 恢复目标目录 */
-    /** 目标目录 */
     private Path targetDir;
 
     /** 恢复的文件列表 */
@@ -49,7 +48,6 @@ public class RestoreResult {
     private long durationMillis = 0;
 
     /** 错误信息 */
-    /** 错误消息 */
     private String errorMessage;
 
     public static RestoreResult success(Path target, List<Path> files, long size, long duration) {

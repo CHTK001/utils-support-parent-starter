@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class MediaTypeFactory {
 
+    /** MEDIA_TYPES */
     private static final Map<String, MediaType> MEDIA_TYPES = new HashMap<>();
 
     static {

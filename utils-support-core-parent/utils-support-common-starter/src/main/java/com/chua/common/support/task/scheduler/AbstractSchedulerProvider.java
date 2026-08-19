@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractSchedulerProvider implements SchedulerProvider {
 
+    /** taskMap */
     protected final Map<String, ScheduledTask> taskMap = new ConcurrentHashMap<>();
+    /** running */
     protected volatile boolean running = true;
 
     @Override

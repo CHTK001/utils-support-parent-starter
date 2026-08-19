@@ -29,7 +29,6 @@ import java.util.Map;
 public class TransmissionEvent {
 
     /** 内部 row id，存储层自增 */
-    /** ID */
     private long id;
 
     /**
@@ -88,23 +87,18 @@ public class TransmissionEvent {
     private String targetPath;
 
     /** 协议名（HTTP/TCP/REDIS/...） */
-    /** 协议 */
     private String protocol;
 
     /** 软件栈名（JEDIS/TOMCAT/...） */
-    /** Software */
     private String software;
 
     /** 操作描述（GET /api/order） */
-    /** Operation */
     private String operation;
 
     /** 状态（OK/ERROR） */
-    /** 状态 */
     private StatusCode status;
 
     /** 响应码（HTTP 状态码 / ZK rc / Redis reply） */
-    /** 状态代码 */
     private int statusCode;
 
     /**

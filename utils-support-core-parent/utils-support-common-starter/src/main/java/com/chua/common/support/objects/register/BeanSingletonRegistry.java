@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public abstract class BeanSingletonRegistry {
 
+    /** singletonBeans */
     private final Map<String, BeanDefinition> singletonBeans = new ConcurrentHashMap<>();
+    /** singletonInstances */
     private final Map<String, Object> singletonInstances = new ConcurrentHashMap<>();
 
     /**

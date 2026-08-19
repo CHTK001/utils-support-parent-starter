@@ -18,13 +18,10 @@ import java.util.concurrent.*;
 public class AppImageLifecycleManager {
 
     /** 进程管理器 */
-    /** Process管理器 */
     private final AppImageProcessManager processManager;
     /** 健康检查器 */
-    /** Healthchecker */
     private final AppImageHealthChecker healthChecker;
     /** 定时调度器 */
-    /** 调度器 */
     private final ScheduledExecutorService scheduler;
     /** 实例映射 */
     private final Map<String, AppImageInstance> instances;

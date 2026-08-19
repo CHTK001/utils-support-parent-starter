@@ -54,6 +54,7 @@ import java.util.Objects;
  *         .build();
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class CliOption {
@@ -70,31 +71,24 @@ public final class CliOption {
     }
 
     /** 长选项名称 */
-    /** Long名称 */
     private final String longName;
     /** 短选项名称 */
-    /** Short名称 */
     private final String shortName;
     /** 描述信息 */
-    /** 描述 */
     private final String description;
     /** 选项类型 */
-    /** 类型 */
     private final OptionType type;
     /** 是否必填 */
     private final boolean required;
     /** 是否为标志参数 */
-    /** 标记 */
     private final boolean flag;
     /** 默认值 */
     private final Object defaultValue;
     /** 枚举类型 */
     private final Class<? extends Enum<?>> enumType;
     /** 枚举常量值数组 */
-    /** Enumconstants */
     private final String[] enumConstants;
     /** 是否忽略枚举大小写 */
-    /** Enumignorecase */
     private final boolean enumIgnoreCase;
 
     private CliOption(Builder builder) {
@@ -302,21 +296,16 @@ public final class CliOption {
      */
     public static final class Builder {
         /** 长选项名称 */
-        /** Long名称 */
         private String longName;
         /** 短选项名称 */
-        /** Short名称 */
         private String shortName;
         /** 描述信息 */
-        /** 描述 */
         private String description;
         /** 选项类型 */
-        /** 类型 */
         private OptionType type = OptionType.STRING;
         /** 是否必填 */
         private boolean required;
         /** 是否为标志参数 */
-        /** 标记 */
         private boolean flag;
         /** 默认值 */
         private Object defaultValue;
@@ -324,10 +313,8 @@ public final class CliOption {
         /** 枚举类型 */
         private Class<? extends Enum<?>> enumType;
         /** 枚举常量值数组 */
-        /** Enumconstants */
         private String[] enumConstants = new String[0];
         /** 是否忽略枚举大小写 */
-        /** Enumignorecase */
         private boolean enumIgnoreCase;
 
         private Builder() {

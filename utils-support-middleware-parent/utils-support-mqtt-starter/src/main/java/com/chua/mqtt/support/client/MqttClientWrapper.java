@@ -80,6 +80,7 @@ public class MqttClientWrapper implements AutoCloseable {
 
     /** Mqtt客户端 */
     private MqttClient mqttClient;
+    /** topicHandlers */
     private final Map<String, List<BiConsumer<String, String>>> topicHandlers = new ConcurrentHashMap<>();
     /** Connectlisteners */
     private final List<Runnable> connectListeners = new CopyOnWriteArrayList<>();
@@ -329,6 +330,7 @@ public class MqttClientWrapper implements AutoCloseable {
         private String topic;
         /** QOS */
         private int qos = 1;
+        /** handler */
         private BiConsumer<String, String> handler;
 
         SubscribeOperation(MqttClientWrapper client) { this.client = client; }

@@ -12,15 +12,12 @@ package com.chua.common.support.media.ffmpeg;
 public class FFmpegMediaInfo {
 
     /** 文件名 */
-    /** Filename */
     private String filename;
 
     /** 封装格式名称（如 mp4, avi, mkv） */
-    /** 格式名称 */
     private String formatName;
 
     /** 封装格式详细描述 */
-    /** 格式long名称 */
     private String formatLongName;
 
     /** 视频总时长（秒） */
@@ -36,15 +33,12 @@ public class FFmpegMediaInfo {
     private long size;
 
     /** 总码率（bps） */
-    /** Bitrate */
     private long bitrate;
 
     /** 视频流信息 */
-    /** 视频流 */
     private VideoStream videoStream;
 
     /** 音频流信息 */
-    /** 音频流 */
     private AudioStream audioStream;
 
     /**
@@ -59,22 +53,16 @@ public class FFmpegMediaInfo {
          */
         private int index;
         /** 编码器名称（如 h264, hevc） */
-        /** Codec */
         private String codec;
         /** 编码器详细名称 */
-        /** Codeclong名称 */
         private String codecLongName;
         /** 视频宽度（像素） */
-        /** 宽度 */
         private int width;
         /** 视频高度（像素） */
-        /** 高度 */
         private int height;
         /** 帧率 */
-        /** FPS */
         private double fps;
         /** 视频码率（bps） */
-        /** Bitrate */
         private long bitrate;
         /** 视频时长（秒） */
         /**
@@ -112,22 +100,16 @@ public class FFmpegMediaInfo {
          */
         private int index;
         /** 编码器名称（如 aac, mp3） */
-        /** Codec */
         private String codec;
         /** 编码器详细名称 */
-        /** Codeclong名称 */
         private String codecLongName;
         /** 采样率（Hz） */
-        /** 示例比率 */
         private int sampleRate;
         /** 声道数 */
-        /** Channels */
         private int channels;
         /** 声道布局（如 stereo, 5.1） */
-        /** 通道layout */
         private String channelLayout;
         /** 音频码率（bps） */
-        /** Bitrate */
         private long bitrate;
         /** 音频时长（秒） */
         /**

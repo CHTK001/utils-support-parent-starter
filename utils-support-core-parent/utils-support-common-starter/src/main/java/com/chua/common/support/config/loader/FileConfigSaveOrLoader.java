@@ -25,7 +25,6 @@ import java.util.Optional;
 public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 
     /** 配置根路径 */
-    /** 根级路径 */
     private final Path rootPath;
 
     public FileConfigSaveOrLoader() {

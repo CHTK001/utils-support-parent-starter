@@ -47,59 +47,47 @@ public class MacSequenceGenerator {
  // ==================== 默认位分配 ====================
 
  /** 时间戳占用位数（28 位，秒级） */
- /** Default_timestamp_bits */
  private static final long DEFAULT_TIMESTAMP_BITS = 28L;
 
  /** MAC 地址标识占用位数 */
- /** Default_mac_id_bits */
  private static final long DEFAULT_MAC_ID_BITS = 24L;
 
  /** 序列号占用位数 */
- /** Default_sequence_bits */
  private static final long DEFAULT_SEQUENCE_BITS = 11L;
 
  // ==================== 移位偏移量 ====================
 
  /** 序列号移位偏移 */
- /** Sequence_shift */
  private static final long SEQUENCE_SHIFT = 0L;
 
  /** MAC 地址标识移位偏移 */
- /** MACIDshift */
  private final long macIdShift;
 
  /** 时间戳移位偏移 */
- /** 时间戳shift */
  private final long timestampShift;
 
  // ==================== 掩码 ====================
 
  /** 序列号掩码 */
- /** Sequence掩码 */
  private final long sequenceMask;
 
  /** MAC 地址标识掩码 */
- /** MACID掩码 */
  private final long macIdMask;
 
  /** 时间戳最大值 */
- /** 最大值时间戳 */
  private final long maxTimestamp;
 
  // ==================== 默认值 ====================
 
  /** 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位秒） */
- /** Default_epoch */
  private static final long DEFAULT_EPOCH = 1577836800L;
 
  // ==================== 实例状态 ====================
 
  /** 纪元起始时间（秒） */
- /** Epoch */
  private final long epoch;
 
  /** MAC 地址标识 */
- /** MACID */
  private final long macId;
 
  /** 上次生成 ID 的时间戳（秒） */
@@ -109,7 +97,6 @@ public class MacSequenceGenerator {
  private volatile long sequence = 0L;
 
  /** 序列号同步锁 */
- /** 锁 */
  private final Object lock = new Object();
 
  // ==================== 构造方法 ====================

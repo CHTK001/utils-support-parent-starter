@@ -28,15 +28,12 @@ import java.util.Map;
 public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directional {
 
     /** 写入端标识 */
-    /** SinkID */
     private final String sinkId;
     /** 文件路径 */
     private final Path filePath;
     /** 分隔符 */
-    /** Delimiter */
     private final String delimiter;
     /** 是否追加写入 */
-    /** Append */
     private final boolean append;
 
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter) {

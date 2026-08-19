@@ -18,6 +18,7 @@ public class RustImageBridge {
     
     /** Library_name */
     private static final String LIBRARY_NAME = "rust_image_processor";
+    /** initialized */
     private static volatile boolean initialized = false;
     
     static {

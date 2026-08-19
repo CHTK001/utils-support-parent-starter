@@ -34,6 +34,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     /** 解析器 */
     private static final SpelExpressionParser PARSER = new SpelExpressionParser();
 
+    /** springEnv */
     private volatile org.springframework.core.env.Environment springEnv;
 
     @Override

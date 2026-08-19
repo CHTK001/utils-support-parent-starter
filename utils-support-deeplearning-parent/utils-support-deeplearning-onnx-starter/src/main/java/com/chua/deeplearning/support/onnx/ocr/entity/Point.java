@@ -9,10 +9,8 @@ package com.chua.deeplearning.support.onnx.ocr.entity;
 public class Point {
 
     /** X 坐标 */
-    /** X坐标 */
     private final double x;
     /** Y 坐标 */
-    /** Y坐标 */
     private final double y;
 
     public Point(double x, double y) {

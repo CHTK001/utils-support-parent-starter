@@ -57,7 +57,6 @@ import java.util.List;
 public class TencentCosFileStorage extends AbstractFileStorage {
 
     /** 腾讯云 COS 客户端 */
-    /** COS客户端 */
     private final COSClient cosClient;
 
     public TencentCosFileStorage(BucketSetting bucketSetting) {

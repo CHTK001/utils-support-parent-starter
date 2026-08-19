@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TuiDashboard {
 
     /** 布局规格 */
-    /** Layout */
     private final TuiLayout layout;
 
     /** 仪表盘标题 */
@@ -52,7 +51,6 @@ public class TuiDashboard {
     private final String title;
 
     /** 组件列表（按添加顺序排列） */
-    /** Widgets */
     private final List<TuiWidget> widgets;
 
     /** 处理器方法注册表（路径 → 方法） */
@@ -62,23 +60,18 @@ public class TuiDashboard {
     private final Map<String, Object> handlerTargets;
 
     /** 刷新间隔（毫秒） */
-    /** Refresh间隔 */
     private final long refreshInterval;
 
     /** Mordant 终端实例，自动检测终端能力 */
-    /** Terminal */
     private final Terminal terminal;
 
     /** 定时刷新线程池 */
-    /** 调度器 */
     private ScheduledExecutorService scheduler;
 
     /** 键盘输入监听线程 */
-    /** 输入线程 */
     private Thread inputThread;
 
     /** 运行状态标志 */
-    /** Running */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**

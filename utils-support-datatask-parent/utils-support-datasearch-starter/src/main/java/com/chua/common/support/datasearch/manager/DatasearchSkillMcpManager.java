@@ -48,7 +48,9 @@ public class DatasearchSkillMcpManager {
     private final SkillManager skillManager = new DefaultSkillManager();
     /** MCP管理器 */
     private final McpManager mcpManager = new DefaultMcpManager();
+    /** skillProviders */
     private final Map<String, SkillProvider> skillProviders = new LinkedHashMap<>();
+    /** mcpProviders */
     private final Map<String, McpProvider> mcpProviders = new LinkedHashMap<>();
 
     /** Initialized */

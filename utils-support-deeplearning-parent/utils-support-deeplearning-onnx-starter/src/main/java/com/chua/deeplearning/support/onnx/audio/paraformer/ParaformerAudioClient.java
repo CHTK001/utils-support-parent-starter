@@ -35,27 +35,21 @@ import java.util.UUID;
 public class ParaformerAudioClient implements AudioClient {
 
     /** 默认模型名 */
-    /** Default_model */
     private static final String DEFAULT_MODEL = "paraformer-zh-small";
 
     /** classpath 资源根路径 */
-    /** Resource_base */
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /** 模型缓存根目录（相对 deeplearning.model.cache-dir 或 %TEMP%） */
-    /** Cache_root */
     private static final String CACHE_ROOT = "audio/asr/";
 
     /** 临时音频文件名前缀 */
-    /** Tmp_audio_prefix */
     private static final String TMP_AUDIO_PREFIX = "paraformer-audio-";
 
     /** 临时音频文件名后缀 */
-    /** Tmp_audio_suffix */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /** 任务 ID 前缀 */
-    /** Task_id_prefix */
     private static final String TASK_ID_PREFIX = "paraformer-";
 
     /** 设置 */
@@ -68,42 +62,33 @@ public class ParaformerAudioClient implements AudioClient {
     private String language;
 
     /** 覆盖采样率 */
-    /** Override 采样率 */
     private Integer overrideSampleRate;
 
     /** 格式 */
     private String format;
 
     /** 提示词 */
-    /** Prompt */
     private String prompt;
 
     /** 温度 */
-    /** Temperature */
     private Double temperature;
 
     /** 随机种子 */
-    /** Seed */
     private Long seed;
 
     /** 音频数据 */
-    /** 音频 */
     private byte[] audio;
 
     /** 音频文件路径 */
-    /** 音频路径 */
     private Path audioPath;
 
     /** 音频输入流 */
-    /** 音频输入 */
     private InputStream audioInput;
 
     /** 翻译器 */
-    /** Translator */
     private ParaformerTranslator translator;
 
     /** 是否已准备 */
-    /** Prepared */
     private boolean prepared;
 
     public ParaformerAudioClient(AudioClientSetting setting) {

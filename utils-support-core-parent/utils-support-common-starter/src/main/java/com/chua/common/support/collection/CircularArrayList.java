@@ -130,7 +130,6 @@ public class CircularArrayList<E> implements CircularArray<E> {
     public Iterator<E> iterator() {
         return new Iterator<E>() {
             /** 索引位置 */
-            /** 索引 */
             private int index = 0;
 
             @Override
@@ -352,10 +351,8 @@ public class CircularArrayList<E> implements CircularArray<E> {
         checkPositionIndex(index);
         return new ListIterator<E>() {
             /** 当前索引位置 */
-            /** 当前索引 */
             private int currentIndex = index;
             /** 最后索引位置 */
-            /** 最后索引 */
             private int lastIndex = -1;
 
             @Override

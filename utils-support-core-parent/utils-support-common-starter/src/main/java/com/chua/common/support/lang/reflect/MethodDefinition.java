@@ -35,7 +35,7 @@ public record MethodDefinition(
      * @param name 参数名
      * @param type 参数类型
      * @param annotations 参数注解定义列表
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record ParameterDefinition(

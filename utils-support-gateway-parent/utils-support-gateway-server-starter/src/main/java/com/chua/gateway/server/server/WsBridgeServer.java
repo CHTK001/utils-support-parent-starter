@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  * <p>监听 8091 端口，处理 /ws/ssh/{tunnelId} 路径的 WebSocket 升级，
  * 桥接数据到 SSH 目标（通过 TunnelRegistry 查询隧道配置）。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
@@ -35,7 +36,9 @@ public final class WsBridgeServer {
 
     /** 注册表 */
     private final TunnelRegistry registry;
+    /** serverSocket */
     private volatile ServerSocket serverSocket;
+    /** running */
     private volatile boolean running;
 
     public WsBridgeServer(TunnelRegistry registry) {

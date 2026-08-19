@@ -36,47 +36,33 @@ import java.util.function.Consumer;
 public class DoubaoChatClient implements ChatClient {
 
     /** 默认 API 地址 */
-    /** Default_url */
     private static final String DEFAULT_URL = "https://ark.cn-beijing.volces.com/api/v3";
 
     /** 火山引擎 Ark 服务客户端 */
-    /** ARK服务 */
     private final ArkService arkService;
     /** 配置对象 */
-    /** 设置 */
     private final ChatClientSetting setting;
     /** 模型名称 */
-    /** 模型 */
     private String model;
     /** 温度参数 */
-    /** Temperature */
     private Double temperature;
     /** 最大令牌数 */
-    /** 最大值tokens */
     private Integer maxTokens;
     /** 系统提示 */
-    /** System */
     private String system;
     /** 会话 ID */
-    /** 会话ID */
     private String sessionId;
     /** 对话历史消息 */
-    /** History */
     private final List<ChatMessage> history = new ArrayList<>();
     /** 外部历史消息 */
-    /** 外部history */
     private List<ChatMessage> externalHistory;
     /** 是否开启思考模式 */
-    /** Thinking */
     private boolean thinking;
     /** 思考努力程度 */
-    /** Thinkingeffort */
     private String thinkingEffort;
     /** 是否启用智能搜索 */
-    /** Smartsearch */
     private boolean smartSearch;
     /** 技能管理器 */
-    /** Skill管理器 */
     private SkillManager skillManager;
 
     public DoubaoChatClient(ChatClientSetting setting) {

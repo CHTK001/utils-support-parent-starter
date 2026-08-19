@@ -119,6 +119,7 @@ public class TaskDefinition {
     private boolean endAfterExecute;
     /** 开始节点 */
     private boolean startNode;
+    /** env */
     private Map<String, Object> env;
     /** 重试配置 */
     private RetryConfig retryConfig;

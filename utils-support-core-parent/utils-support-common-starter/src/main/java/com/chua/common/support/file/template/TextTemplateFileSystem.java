@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 public class TextTemplateFileSystem implements TemplateFileSystem {
 
     /** 占位符正则：匹配 #{单词.单词}# 格式 */
-    /** Placeholder */
     private static final Pattern PLACEHOLDER = Pattern.compile("#([\\w.]+)#");
 
     @Override

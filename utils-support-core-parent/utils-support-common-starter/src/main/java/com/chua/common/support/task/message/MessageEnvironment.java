@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MessageEnvironment {
 
+    /** properties */
     private final Map<String, String> properties = new ConcurrentHashMap<>();
 
     /**

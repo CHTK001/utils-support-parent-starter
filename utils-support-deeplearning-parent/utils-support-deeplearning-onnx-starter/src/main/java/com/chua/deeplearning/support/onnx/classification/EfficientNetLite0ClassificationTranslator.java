@@ -23,10 +23,8 @@ import java.util.List;
 public class EfficientNetLite0ClassificationTranslator implements Translator<Image, Classifications> {
 
     /** 默认类别数量 */
-    /** Default_class_count */
     private static final int DEFAULT_CLASS_COUNT = 1000;
     /** 运行时标签列表 */
-    /** Runtimelabels */
     private List<String> runtimeLabels = defaultLabels(DEFAULT_CLASS_COUNT);
 
     public EfficientNetLite0ClassificationTranslator() {

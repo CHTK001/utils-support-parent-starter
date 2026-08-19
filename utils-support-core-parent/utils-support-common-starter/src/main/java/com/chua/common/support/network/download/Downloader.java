@@ -105,6 +105,7 @@ public class Downloader {
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MS;
     /** Read超时MS */
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MS;
+    /** headers */
     private Map<String, String> headers = new LinkedHashMap<>();
 
     // ===== 构造 =====

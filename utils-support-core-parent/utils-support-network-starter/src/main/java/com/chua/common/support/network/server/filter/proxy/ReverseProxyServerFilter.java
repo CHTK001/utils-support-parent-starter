@@ -55,6 +55,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
 
     /** 超时秒 */
     private final int timeoutSeconds;
+    /** httpClient */
     private volatile HttpClient httpClient;
     /** 异步执行器 */
     private ExecutorService asyncExecutor;

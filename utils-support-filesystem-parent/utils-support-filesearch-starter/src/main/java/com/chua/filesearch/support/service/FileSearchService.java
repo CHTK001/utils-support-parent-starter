@@ -18,6 +18,7 @@ import java.util.List;
 @Slf4j
 public final class FileSearchService {
 
+    /** INSTANCE */
     private static volatile FileSearchService INSTANCE;
     /** 提供者 */
     private final FileSearchProvider provider;

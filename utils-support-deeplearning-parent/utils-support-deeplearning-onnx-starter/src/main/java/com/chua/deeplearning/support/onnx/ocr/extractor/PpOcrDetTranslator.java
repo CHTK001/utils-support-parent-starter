@@ -34,15 +34,12 @@ import java.util.Map;
 public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInfo>> {
 
     /** 均值数组 */
-    /** Mean */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
     /** 标准差数组 */
-    /** STD */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
     /** 阈值 */
     private static final float THRESHOLD = 0.3f;
     /** 最大边长 */
-    /** Max_side */
     private static final int MAX_SIDE = 960;
 
     /**
@@ -55,7 +52,6 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     /** 模型文件路径 */
-    /** Model_file */
     private static final String MODEL_FILE = "inference.onnx";
 
     /**
@@ -69,15 +65,12 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private final String modelName;
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;
     /** 源图像宽度 */
-    /** SRC宽度 */
     private int srcWidth;
     /** 源图像高度 */
-    /** SRC高度 */
     private int srcHeight;
 
     /**

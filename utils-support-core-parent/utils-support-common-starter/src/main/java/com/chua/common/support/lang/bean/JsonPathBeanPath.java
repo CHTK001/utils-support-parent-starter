@@ -20,7 +20,6 @@ import com.chua.common.support.spi.annotations.Spi;
 public class JsonPathBeanPath implements BeanPath {
 
     /** 回退解析器 */
-    /** 回退 */
     private final ObjectBeanPath fallback = new ObjectBeanPath();
 
     @Override
