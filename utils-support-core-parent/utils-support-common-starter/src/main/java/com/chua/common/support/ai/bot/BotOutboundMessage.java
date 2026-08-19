@@ -118,7 +118,6 @@ public class BotOutboundMessage {
     private BotInboundMessage.Type type;
 
     /** 目标用户 ID */
-    /** TO用户 */
     private String toUser;
 
     /**
@@ -134,7 +133,6 @@ public class BotOutboundMessage {
     private String mediaPath;
 
     /** 视频标题 */
-    /** 标题 */
     private String title;
 
     /** 视频描述 */
@@ -150,7 +148,6 @@ public class BotOutboundMessage {
     private boolean toGroup;
 
     /** @ 提及的用户 ID 列表 */
-    /** Mentionedusers */
     private List<String> mentionedUsers;
 
     /**

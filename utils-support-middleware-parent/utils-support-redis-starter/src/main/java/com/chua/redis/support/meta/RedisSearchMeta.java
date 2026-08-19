@@ -74,6 +74,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         private final String indexName;
         /** Fields */
         private final List<SearchFieldDef> fields = new ArrayList<>();
+        /** settings */
         private final Map<String, Object> settings = new LinkedHashMap<>();
         /** Shards */
         private int shards = 1;

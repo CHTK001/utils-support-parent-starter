@@ -22,7 +22,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @SpiDescribe("注解 Bean 定义注册器")
 public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
+    /** beanDefinitions */
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentSkipListMap<>();
+    /** closed */
     private volatile boolean closed;
 
     @Override

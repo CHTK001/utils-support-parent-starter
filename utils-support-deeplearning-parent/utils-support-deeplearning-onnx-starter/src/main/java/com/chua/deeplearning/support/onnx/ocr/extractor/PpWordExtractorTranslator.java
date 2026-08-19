@@ -35,23 +35,17 @@ import java.util.Map;
 public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     /** 图像高度 */
-    /** Img_h */
     private static final int IMG_H = 48;
     /** 图像最大宽度 */
-    /** Img_w_max */
     private static final int IMG_W_MAX = 1920;
     /** 均值数组 */
-    /** Mean */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
     /** 标准差数组 */
-    /** STD */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /** 模型文件路径 */
-    /** Model_file */
     private static final String MODEL_FILE = "inference.onnx";
     /** 配置文件路径 */
-    /** Config_file */
     private static final String CONFIG_FILE = "inference.yml";
 
     /**
@@ -65,12 +59,10 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private final String modelName;
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;
     /** 词典列表 */
-    /** Dict */
     private List<String> dict;
 
     /**

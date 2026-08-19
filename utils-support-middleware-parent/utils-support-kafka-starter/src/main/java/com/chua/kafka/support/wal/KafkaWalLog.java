@@ -39,7 +39,9 @@ public class KafkaWalLog implements WalLog {
     private final WalConfig config;
     /** Topic */
     private final String topic;
+    /** producer */
     private final KafkaProducer<String, byte[]> producer;
+    /** consumer */
     private final KafkaConsumer<String, byte[]> consumer;
     /** 当前LSN */
     private final AtomicLong currentLsn = new AtomicLong(0);
@@ -47,6 +49,7 @@ public class KafkaWalLog implements WalLog {
     private final AtomicLong checkpointLsn = new AtomicLong(0);
     /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
+    /** closed */
     private volatile boolean closed;
 
     public KafkaWalLog(WalConfig config) {

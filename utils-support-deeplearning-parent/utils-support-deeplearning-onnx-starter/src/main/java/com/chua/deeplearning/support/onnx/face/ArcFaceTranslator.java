@@ -26,7 +26,6 @@ import ai.djl.translate.TranslatorContext;
 public class ArcFaceTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
     private static final int INPUT_SIZE = 112;
 
     @Override

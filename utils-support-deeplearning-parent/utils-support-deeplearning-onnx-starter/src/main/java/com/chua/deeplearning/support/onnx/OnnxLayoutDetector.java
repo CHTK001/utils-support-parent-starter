@@ -21,10 +21,8 @@ public class OnnxLayoutDetector implements LayoutDetector {
     /** 模型路径 */
     private String modelPath;
     /** 是否使用 GPU */
-    /** USEGPU */
     private boolean useGpu = false;
     /** 设备类型 */
-    /** Device */
     private String device = "cpu";
 
     public OnnxLayoutDetector(String apiKey) {

@@ -62,6 +62,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                     .build()
     );
 
+    /** CATEGORY_PLAYLISTS */
     private static final Map<String, List<String>> CATEGORY_PLAYLISTS = createCategoryPlaylists();
 
     /** Tracks */
@@ -92,6 +93,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                     "[00:00.00]Analog Heart\n[00:13.00]Tape hiss under moonlit glass\n[00:33.00]Old ghosts hum as moments pass")
     );
 
+    /** PLAYLISTS */
     private static final Map<String, MusicPlaylistDetail> PLAYLISTS = createPlaylists();
 
     @Override

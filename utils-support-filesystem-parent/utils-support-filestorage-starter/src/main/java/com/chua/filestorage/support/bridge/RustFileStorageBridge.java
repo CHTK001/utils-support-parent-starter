@@ -23,6 +23,7 @@ public class RustFileStorageBridge {
 
     /** Library_name */
     private static final String LIBRARY_NAME = "rust_filestorage_processor";
+    /** initialized */
     private static volatile boolean initialized = false;
 
     static {

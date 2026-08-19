@@ -33,12 +33,10 @@ import java.util.List;
 public class QiniuKodoFileStorage extends AbstractFileStorage {
 
     /** 鉴权客户端 */
-    /** Auth */
     private final Auth auth;
     /** 上传管理器 */
     private final UploadManager uploadManager;
     /** Bucket 管理器 */
-    /** 存储桶管理器 */
     private final BucketManager bucketManager;
 
     public QiniuKodoFileStorage(BucketSetting bucketSetting) {

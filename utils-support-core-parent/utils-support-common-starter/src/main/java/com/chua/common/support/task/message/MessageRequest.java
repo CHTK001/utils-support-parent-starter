@@ -104,7 +104,9 @@ public class MessageRequest {
          * 模板 ID
          */
         private String templateId;
+        /** templateParams */
         private Map<String, String> templateParams;
+        /** extra */
         private Map<String, Object> extra;
 
         /**

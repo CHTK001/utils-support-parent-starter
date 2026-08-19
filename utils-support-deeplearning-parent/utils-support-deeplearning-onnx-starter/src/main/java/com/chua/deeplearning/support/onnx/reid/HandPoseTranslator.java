@@ -36,10 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 public class HandPoseTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
     private static final int INPUT_SIZE = 224;
     /** 关键点数量 */
-    /** Num_keypoints */
     private static final int NUM_KEYPOINTS = 21;
 
     @Override

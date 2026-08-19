@@ -30,33 +30,25 @@ import java.util.Locale;
 public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /** 默认方差数组 */
-    /** Default_variance */
     private static final double[] DEFAULT_VARIANCE = {0.1d, 0.2d};
     /** BGR 通道均值 */
-    /** Bgr_mean */
     private static final float[] BGR_MEAN = {104f, 117f, 123f};
 
     /** 置信度阈值 */
-    /** Confthresh */
     private final double confThresh;
     /** NMS 阈值 */
-    /** NMSthresh */
     private final double nmsThresh;
     /** Top-K 采样数量 */
-    /** 顶部K */
     private final int topK;
     /** 输入宽度 */
     private final int inputWidth;
     /** 输入高度 */
     private final int inputHeight;
     /** 方差数组 */
-    /** Variance */
     private final double[] variance;
     /** 缩放系数数组 */
-    /** Scales */
     private final int[][] scales;
     /** 步数数组 */
-    /** Steps */
     private final int[] steps;
 
     public UltraFaceTranslator() {

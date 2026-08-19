@@ -206,12 +206,10 @@ public class CircuitBreaker {
     public static class Builder {
 
         /** 熔断表达式 */
-        /** 表达式 */
         private String expression;
         /** 上下文对象 */
         private Map<String, Object> context;
         /** 熔断判定器 */
-        /** Judge */
         private BreakerJudge judge;
         /** 表达式类型 */
         private String expressionType = "expr";

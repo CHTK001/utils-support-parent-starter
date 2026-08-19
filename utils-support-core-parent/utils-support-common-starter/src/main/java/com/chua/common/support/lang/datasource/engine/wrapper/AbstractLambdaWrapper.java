@@ -40,19 +40,15 @@ import java.util.function.Consumer;
 public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T, C>> {
 
     /** 实体类类型 */
-    /** Entityclass */
     protected final Class<T> entityClass;
 
     /** 条件列表，每个条件是一个列名 + 操作符 + 值的组合 */
-    /** Conditions */
     protected final List<Condition> conditions = new ArrayList<>();
 
     /** 排序列列表，每项格式为 "列名 ASC" 或 "列名 DESC" */
-    /** 排序BYS */
     protected final List<String> orderBys = new ArrayList<>();
 
     /** 表别名，用于多表关联查询 */
-    /** 表别名 */
     protected String tableAlias;
 
     protected AbstractLambdaWrapper(Class<T> entityClass) {

@@ -29,11 +29,9 @@ import java.util.List;
 public final class ContextCompressor {
 
     /** 压缩配置 */
-    /** 配置 */
     private final ContextCompressionConfig config;
 
     /** 底层压缩服务 */
-    /** Delegate */
     private final AgentContextCompressionService delegate;
 
     private ContextCompressor(ContextCompressionConfig config, ChatClient fallbackClient) {

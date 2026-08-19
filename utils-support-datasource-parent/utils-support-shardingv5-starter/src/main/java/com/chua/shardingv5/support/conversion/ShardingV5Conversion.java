@@ -68,6 +68,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
     private final List<DbConfig> dbConfigs = new ArrayList<>();
     /** 时间rangeconfigs */
     private final List<TimeRangeConfig> timeRangeConfigs = new ArrayList<>();
+    /** algorithms */
     private final Map<String, AlgorithmHolder> algorithms = new LinkedHashMap<>();
     /** Autodiscover */
     private boolean autoDiscover = true;

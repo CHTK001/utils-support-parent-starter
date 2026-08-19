@@ -59,6 +59,7 @@ public final class StructuredConcurrencyFlow {
 
     /**
      * 失败策略枚举。
+ * @author CH
      */
     public enum FailureStrategy {
         /**

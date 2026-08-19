@@ -18,7 +18,6 @@ import com.chua.tui.support.TuiWidget;
 public class CpuWidget extends TuiWidget {
 
     /** 进度条总长度（字符数） */
-    /** Bar_width */
     private static final int BAR_WIDTH = 25;
 
     /**

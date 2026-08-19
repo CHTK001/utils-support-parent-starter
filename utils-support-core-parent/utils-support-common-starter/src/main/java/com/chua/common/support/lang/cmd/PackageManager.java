@@ -29,13 +29,10 @@ public class PackageManager {
  APK("apk", "apk add %s", true);
 
  /** 命令字符串 */
- /** 命令 */
  private final String command;
  /** 安装模板 */
- /** Install模板 */
  private final String installTemplate;
  /** 是否可用 */
- /** 可用 */
  private final boolean available;
 
  Type(String command, String installTemplate, boolean available) {

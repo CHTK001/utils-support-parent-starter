@@ -34,6 +34,7 @@ public class JavaCVScreenCapture implements ScreenCature {
     private int height;
     /** FPS */
     private int fps;
+    /** initialized */
     private volatile boolean initialized;
     /** Pixelstride */
     private int pixelStride;

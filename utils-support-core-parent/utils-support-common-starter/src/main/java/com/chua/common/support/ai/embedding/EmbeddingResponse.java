@@ -33,7 +33,7 @@ public record EmbeddingResponse(
     /**
      * 单个文本的嵌入向量。
      *
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     @Builder

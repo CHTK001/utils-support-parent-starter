@@ -287,6 +287,7 @@ public class VertxHttpServer extends AbstractServer {
         // getOutputStream() 写入内容保留在此,响应完成(endVertx)时写回,避免临时流丢字节
         /** OUT流 */
         private java.io.ByteArrayOutputStream outStream;
+        /** headers */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         /** 内容类型 */
         private String contentType;
@@ -530,6 +531,7 @@ public class VertxHttpServer extends AbstractServer {
         private final RoutingContext ctx;
         /** 请求体bytes */
         private byte[] bodyBytes;
+        /** attributes */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         VertxServerRequest(RoutingContext ctx) {

@@ -16,7 +16,7 @@ public final class ProgressSimulator {
      * <p>
      * 定义不同的进度曲线算法。
      *
-     * @author CH
+ * @author CH
      * @since 2024-01-01
      */
     public enum Type {

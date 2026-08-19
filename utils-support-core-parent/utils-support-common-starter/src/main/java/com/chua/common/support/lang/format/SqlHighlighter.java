@@ -108,6 +108,7 @@ public class SqlHighlighter {
 
     /** All_keywords */
     private static final Set<String> ALL_KEYWORDS;
+    /** KEYWORD_CATEGORY_MAP */
     private static final Map<String, HighlightConfig.KeywordCategory> KEYWORD_CATEGORY_MAP;
 
     static {

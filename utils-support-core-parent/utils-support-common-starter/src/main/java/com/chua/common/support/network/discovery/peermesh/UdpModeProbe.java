@@ -34,6 +34,7 @@ public class UdpModeProbe implements ProbeStrategy {
     private final String localServerId;
     /** Discovered */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
+    /** stopped */
     private volatile boolean stopped;
 
     /**

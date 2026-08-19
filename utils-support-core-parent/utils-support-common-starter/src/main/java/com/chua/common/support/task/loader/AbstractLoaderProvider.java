@@ -13,6 +13,7 @@ package com.chua.common.support.task.loader;
  */
 public abstract class AbstractLoaderProvider<T> implements Loader<T> {
 
+    /** instance */
     private volatile T instance;
 
     @Override

@@ -407,21 +407,16 @@ public class GitClient implements AutoCloseable {
     public static class Builder {
 
         /** 远端 URL */
-        /** 远程URL */
         private String remoteUrl;
         /** 本地路径 */
         private java.nio.file.Path localPath;
         /** 用户名 */
-        /** Username */
         private String username;
         /** 密码/token */
-        /** 密码 */
         private String password;
         /** SSH 私钥路径 */
-        /** SSH私有密钥路径 */
         private String sshPrivateKeyPath;
         /** SSH 私钥密码 */
-        /** SSHpassphrase */
         private String sshPassphrase;
 
         public Builder remoteUrl(String remoteUrl) {

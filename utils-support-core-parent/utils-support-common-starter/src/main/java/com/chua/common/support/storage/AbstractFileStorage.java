@@ -81,11 +81,13 @@ public abstract class AbstractFileStorage implements FileStorage {
      * 基于本地临时目录的分片上传存储实现。
      *
      * <p>分片暂存在本地临时目录，完成时合并为完整字节数组后调用 {@link #putObject(PutObjectRequest)}。</p>
+ * @author CH
      */
     private static class LocalTmpMultipartStorage implements MultipartStorage {
 
         /** 文件存储 */
         private final FileStorage fileStorage;
+        /** contexts */
         private final Map<String, MultipartContext> contexts;
 
         LocalTmpMultipartStorage(FileStorage fileStorage) {

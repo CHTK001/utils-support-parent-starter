@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  *   sms.signName    短信签名
  * </pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Spi("baidu-sms")
@@ -61,7 +62,6 @@ public class BaiduSmsPush implements MessagePush {
     private static final String SMS_API_URL = "https://sms.bce.baidu.com/api/v2/sms";
 
     /** 消息环境 */
-    /** 环境 */
     private final MessageEnvironment environment;
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();

@@ -98,7 +98,9 @@ public class TaskSubPipelineDefinition {
     private boolean endAfterExecute;
     /** 开始节点 */
     private String startNode;
+    /** params */
     private Map<String, Object> params;
+    /** env */
     private Map<String, Object> env;
 
     /**

@@ -43,16 +43,12 @@ import java.util.function.Consumer;
 public class SseProtocolParser {
 
     /** {@code data} 字段名 */
-    /** Field_data */
     private static final String FIELD_DATA = "data";
     /** {@code event} 字段名 */
-    /** Field_event */
     private static final String FIELD_EVENT = "event";
     /** {@code id} 字段名 */
-    /** Field_id */
     private static final String FIELD_ID = "id";
     /** {@code retry} 字段名 */
-    /** Field_retry */
     private static final String FIELD_RETRY = "retry";
 
     // ==================== 当前事件缓冲区 ====================

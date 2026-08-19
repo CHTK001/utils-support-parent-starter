@@ -12,15 +12,12 @@ package com.chua.common.support.network.ip;
 public class GeoSetting {
 
     /** 默认配置 */
-    /** 默认 */
     public static final GeoSetting DEFAULT = new GeoSetting("", "");
 
     /** 数据库文件路径 */
-    /** 数据库文件 */
     private final String databaseFile;
 
     /** MaxMind License Key（用于自动下载 GeoLite2 数据库） */
-    /** License密钥 */
     private final String licenseKey;
 
     public GeoSetting(String databaseFile, String licenseKey) {

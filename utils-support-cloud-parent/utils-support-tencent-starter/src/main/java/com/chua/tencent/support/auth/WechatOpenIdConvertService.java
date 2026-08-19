@@ -33,20 +33,15 @@ import java.util.Map;
 public class WechatOpenIdConvertService implements OpenIdConvertService {
 
     /** 获取用户向量接口地址 */
-    /** Get_user_vector_url */
     private static final String GET_USER_VECTOR_URL = "https://api.weixin.qq.com/cgi-bin/component/getuservector";
     /** JSON 对象映射器 */
-    /** Object_mapper */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /** 微信开放平台服务 */
-    /** WXopen服务 */
     private final WxOpenService wxOpenService;
     /** 第三方平台应用 AppId */
-    /** ComponentAPPID */
     private final String componentAppId;
     /** 默认小程序 AppId */
-    /** 默认miniAPPID */
     private final String defaultMiniAppId;
 
     public WechatOpenIdConvertService(String componentAppId, String componentAppSecret, String defaultMiniAppId) {

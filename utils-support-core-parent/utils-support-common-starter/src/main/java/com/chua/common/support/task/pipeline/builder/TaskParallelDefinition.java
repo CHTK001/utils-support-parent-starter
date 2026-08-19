@@ -77,8 +77,11 @@ public class TaskParallelDefinition {
     private final Pipeline subPipeline;
     /** 开始节点 */
     private String startNode;
+    /** params */
     private Map<String, Object> params;
+    /** env */
     private Map<String, Object> env;
+    /** environment */
     private Map<String, Object> environment;
     /** Merge当前数据 */
     private boolean mergeCurrentData = true;

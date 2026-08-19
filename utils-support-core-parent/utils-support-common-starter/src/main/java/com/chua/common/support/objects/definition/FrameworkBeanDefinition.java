@@ -14,6 +14,7 @@ package com.chua.common.support.objects.definition;
  */
 public class FrameworkBeanDefinition extends AbstractBeanDefinition {
 
+    /** instance */
     private volatile Object instance;
 
     /**

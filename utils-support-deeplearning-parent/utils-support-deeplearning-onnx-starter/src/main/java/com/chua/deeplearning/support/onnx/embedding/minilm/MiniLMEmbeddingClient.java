@@ -46,7 +46,6 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     /** 设置 */
     private final EmbeddingClientSetting setting;
     /** 翻译器 */
-    /** Translator */
     private MiniLMEmbeddingTranslator translator;
 
     public MiniLMEmbeddingClient(EmbeddingClientSetting setting) {

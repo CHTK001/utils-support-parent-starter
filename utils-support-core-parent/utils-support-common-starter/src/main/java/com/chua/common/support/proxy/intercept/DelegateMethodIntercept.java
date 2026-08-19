@@ -19,6 +19,7 @@ public class DelegateMethodIntercept<T> implements InvocationHandler {
      * 类型
      */
     private final Class<T> type;
+    /** delegate */
     private final Function<ProxyMethod, Object> delegate;
 
     public DelegateMethodIntercept(Class<T> type, Function<ProxyMethod, Object> delegate) {

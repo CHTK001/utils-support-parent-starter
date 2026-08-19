@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 基于UDP广播的服务发现实现类。
  * 作者：CH
-
  * @author CH
  * @since 4.0.0.42
  */@Spi("udp-broadcast")

@@ -29,7 +29,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     private ExecutorService executor;
     /** Connections */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
+    /** clients */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
+    /** subscriptions */
     private final Map<String, Set<String>> subscriptions = new ConcurrentHashMap<>();
     /** Listeners */
     private final List<SyncServerListener> listeners = new ArrayList<>();

@@ -35,18 +35,14 @@ import java.util.Map;
 public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Directional {
 
     /** 数据源标识 */
-    /** 来源ID */
     private final String sourceId;
     /** 输入标识 */
-    /** 输入ID */
     private final String inputId;
     /** 文件路径 */
     private final Path filePath;
     /** 分隔符 */
-    /** Delimiter */
     private final String delimiter;
     /** 偏移量存储 */
-    /** 偏移存储 */
     private final SyncDataOffsetStorage offsetStorage;
     /** 最后行号 */
     private volatile long lastLineNumber = 0;

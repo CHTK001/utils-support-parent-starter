@@ -35,19 +35,14 @@ public class DirectoryDataSyncMappingScanner {
     private static final long POLL_INTERVAL_MS = 2000;
 
     /** 映射管理器 */
-    /** Mapping管理器 */
     private final DataSyncMappingManager mappingManager;
     /** 配置定义 */
-    /** 配置 */
     private final DirectoryConfigDefinition config;
     /** 配置文件解析器列表 */
-    /** Parsers */
     private final List<ConfigFileParser> parsers;
     /** 定时任务执行器 */
-    /** 执行器 */
     private final ScheduledExecutorService executor;
     /** 文件监听服务 */
-    /** Watch服务 */
     private WatchService watchService;
 
     public DirectoryDataSyncMappingScanner(DataSyncMappingManager mappingManager,

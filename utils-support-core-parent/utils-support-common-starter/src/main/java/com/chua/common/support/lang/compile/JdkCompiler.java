@@ -121,23 +121,19 @@ public class JdkCompiler implements Compiler {
     static final class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         // 需要转发给标准文件管理器的位置名称（平台类路径和系统模块）
         /** 父级类路径位置名称 */
-        /** Super_location_names */
         private static final String[] SUPER_LOCATION_NAMES = {StandardLocation.PLATFORM_CLASS_PATH.name(),
                 /** JPMS StandardLocation.SYSTEM_MODULES **/
                 "SYSTEM_MODULES"};
         
         // 用于在 ClassLoader 中查找包内部类的工具
         /** 包内部查找器 */
-        /** Finder */
         private final PackageInternalsFinder finder;
 
         // 关联的动态类加载器
         /** 类加载器 */
-        /** Classloader */
         private final DynamicClassLoader classLoader;
         // 存储正在编译中的内存字节码列表
         /** 字节码缓存集合 */
-        /** 字节codes */
         private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
         public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
@@ -307,13 +303,10 @@ public class JdkCompiler implements Compiler {
      */
     static final class MemoryByteCode extends SimpleJavaFileObject {
         /** 包路径分隔符 */
-        /** Pkg_separator */
         private static final char PKG_SEPARATOR = '.';
         /** 目录分隔符 */
-        /** Dir_separator */
         private static final char DIR_SEPARATOR = '/';
         /** 类文件后缀 */
-        /** Class_file_suffix */
         private static final String CLASS_FILE_SUFFIX = ".class";
 
         /** 字节数组输出流 */
@@ -364,10 +357,8 @@ public class JdkCompiler implements Compiler {
      */
     static final class PackageInternalsFinder {
         /** 类文件扩展名 */
-        /** Class_file_extension */
         private static final String CLASS_FILE_EXTENSION = ".class";
         /** 类加载器 */
-        /** Classloader */
         private final ClassLoader classLoader;
 
         public PackageInternalsFinder(ClassLoader classLoader) {
@@ -471,20 +462,15 @@ public class JdkCompiler implements Compiler {
      */
     final class DynamicCompiler {
         /** Java 编译器 */
-        /** Javacompiler */
         private final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
         /** 标准文件管理器 */
-        /** Standard文件管理器 */
         private final StandardJavaFileManager standardFileManager;
         /** 选项列表 */
-        /** Options */
         private final List<String> options = new ArrayList<>();
         /** 动态类加载器 */
-        /** Dynamicclassloader */
         private final DynamicClassLoader dynamicClassLoader;
 
         /** 编译单元集合 */
-        /** Compilationunits */
         private final Collection<JavaFileObject> compilationUnits = new ArrayList<>();
         /** 编译错误列表 */
         private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
@@ -676,7 +662,6 @@ public class JdkCompiler implements Compiler {
      */
     public static class StringSource extends SimpleJavaFileObject {
         /** 文件内容 */
-        /** Contents */
         private final String contents;
 
         public StringSource(String className, String contents) {
@@ -696,10 +681,8 @@ public class JdkCompiler implements Compiler {
      */
     public static class CustomJavaFileObject implements JavaFileObject {
         /** 二进制类名 */
-        /** Binary名称 */
         private final String binaryName;
         /** 文件 URI */
-        /** URI */
         private final URI uri;
         /**
          * 名称

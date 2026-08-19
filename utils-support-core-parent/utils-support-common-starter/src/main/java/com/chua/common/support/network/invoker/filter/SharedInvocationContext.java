@@ -13,7 +13,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class SharedInvocationContext {
 
+    /** attributes */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+    /** defaultHeaders */
     private final Map<String, String> defaultHeaders = new ConcurrentHashMap<>();
     /** Injectrules */
     private final List<InjectRule> injectRules = new CopyOnWriteArrayList<>();

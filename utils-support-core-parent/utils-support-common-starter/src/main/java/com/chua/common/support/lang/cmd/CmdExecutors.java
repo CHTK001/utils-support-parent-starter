@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 public final class CmdExecutors {
 
     /** 默认执行器名称 */
-    /** Default_name */
     private static String DEFAULT_NAME = "process";
 
     /** 缓存的 CmdExecutor 实例 */

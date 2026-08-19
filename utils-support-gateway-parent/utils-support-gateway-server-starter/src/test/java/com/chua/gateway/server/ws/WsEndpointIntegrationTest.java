@@ -320,6 +320,7 @@ class WsEndpointIntegrationTest {
         private final int port;
         /** 服务器Socket */
         private java.net.ServerSocket serverSocket;
+        /** running */
         private volatile boolean running = true;
         /** Clients */
         private final List<java.net.Socket> clients = new CopyOnWriteArrayList<>();

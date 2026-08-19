@@ -359,7 +359,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
      * {@code META-INF/extensions/com.chua.common.support.ai.bot.BotClient$Factory}
      * 来实现自动加载。</p>
      *
-     * @author CH
+ * @author CH
      */
     interface Factory {
 
@@ -381,7 +381,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     /**
      * BotClient 构建器
      *
-     * @author CH
+ * @author CH
      */
     interface Builder {
 

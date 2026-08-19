@@ -36,7 +36,6 @@ public class AsmBeanCopier implements BeanCopier {
     private static final Map<List<Class<?>>, BeanCopier> GENERATED_CACHE = new ConcurrentHashMap<>();
 
     /** 降级使用的 Bean 拷贝器 */
-    /** 回退 */
     private static final BeanCopier FALLBACK = new JdkBeanCopier();
 
     @Override

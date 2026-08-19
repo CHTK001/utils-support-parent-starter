@@ -20,6 +20,7 @@ public class NettyWebSocketSyncFlow implements SyncFlow {
     private final NettyWebSocketSyncClient client;
     /** 服务器 */
     private final NettyHttpSyncServer server;
+    /** running */
     private volatile boolean running = false;
     /** Listeners */
     private final List<SyncFlowListener> listeners = new ArrayList<>();

@@ -13,16 +13,12 @@ import java.util.Map;
 public class HttpAgentDataSyncSource implements DataSyncAgentSource {
 
     /** 数据源标识 */
-    /** 来源ID */
     private final String sourceId;
     /** 输入标识 */
-    /** 输入ID */
     private final String inputId;
     /** 代理标识 */
-    /** AgentID */
     private final String agentId;
     /** 代理服务地址 */
-    /** AgentURL */
     private final String agentUrl;
 
     public HttpAgentDataSyncSource(String sourceId, String inputId, String agentId, String agentUrl) {

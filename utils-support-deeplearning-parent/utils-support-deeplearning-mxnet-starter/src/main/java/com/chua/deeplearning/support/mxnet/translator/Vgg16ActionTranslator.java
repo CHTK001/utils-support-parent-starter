@@ -36,7 +36,6 @@ public class Vgg16ActionTranslator implements Translator<Image, Classifications>
     private static final String DEFAULT_SYNSET_FILE = "classes.txt";
 
     /** 委托对象 */
-    /** Delegate */
     private final ImageClassificationTranslator delegate;
 
     public Vgg16ActionTranslator() {

@@ -34,6 +34,7 @@ import java.util.Map;
 @SpiDescribe("Spring Bean 定义注册器（只读，委托 Spring ApplicationContext）")
 public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
+    /** closed */
     private volatile boolean closed;
 
     @Override

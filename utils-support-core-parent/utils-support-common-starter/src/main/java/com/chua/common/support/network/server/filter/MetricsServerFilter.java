@@ -142,7 +142,9 @@ public class MetricsServerFilter implements ServerFilter {
     private volatile ScheduledFuture<?> scheduledFuture;
     /** 开始时间 */
     private final long startTime = System.currentTimeMillis();
+    /** lastPeriodRequests */
     private volatile long lastPeriodRequests = 0;
+    /** lastPeriodTimestamp */
     private volatile long lastPeriodTimestamp;
 
     /**

@@ -165,6 +165,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
      */
     private static class UnifiedCalciteDataSource implements DataSource {
 
+        /** dataSources */
         private final Map<String, DataSource> dataSources;
         /** Schemes */
         private final List<DataScheme> schemes;
@@ -284,6 +285,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
      */
     private static class DataSchemeSchema extends AbstractSchema {
 
+        /** tableMap */
         private final Map<String, Table> tableMap;
 
         DataSchemeSchema(Map<String, Table> tableMap) {

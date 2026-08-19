@@ -29,7 +29,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @SpiDescribe("SPI Bean 定义注册器（只读，由 ServiceProvider 自动发现服务）")
 public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
+    /** beanDefinitions */
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentSkipListMap<>();
+    /** closed */
     private volatile boolean closed;
 
     @Override

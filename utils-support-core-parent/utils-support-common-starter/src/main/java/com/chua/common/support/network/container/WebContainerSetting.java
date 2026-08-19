@@ -30,63 +30,48 @@ public class WebContainerSetting {
     }
 
     /** 绑定主机地址，默认 0.0.0.0 */
-    /** 主机 */
     private String host = "0.0.0.0";
 
     /** 绑定端口，默认 8080 */
-    /** 端口 */
     private int port = 8080;
 
     /** 上下文路径，默认 / */
-    /** 上下文路径 */
     private String contextPath = "/";
 
     /** 是否自动解压部署单元 */
-    /** UnpackWAR */
     private boolean unpackWar = true;
 
     /** 最大线程数，默认 200 */
-    /** 最大值threads */
     private int maxThreads = 200;
 
     /** 最小空闲线程数，默认 10 */
-    /** 最小值sparethreads */
     private int minSpareThreads = 10;
 
     /** 连接超时时间（毫秒），默认 60000 */
-    /** Connection超时 */
     private int connectionTimeout = 60000;
 
     /** 字符编码，默认 UTF-8 */
-    /** 字符集 */
     private String charset = "UTF-8";
 
     /** 最大请求体大小（字节），默认 10MB */
-    /** 最大值请求请求体尺寸 */
     private long maxRequestBodySize = 10 * 1024 * 1024;
 
     /** 是否启用访问日志 */
-    /** Access日志是否启用 */
     private boolean accessLogEnabled;
 
     /** 访问日志输出目录 */
-    /** Access日志directory */
     private String accessLogDirectory = "logs";
 
     /** 优雅关闭等待时间（秒），默认 30 */
-    /** Gracefulshutdown超时 */
     private int gracefulShutdownTimeout = 30;
 
     /** 远程文件下载缓存目录，默认使用系统临时目录 */
-    /** 下载目录 */
     private String downloadDir;
 
     /** 部署单元列表 */
-    /** Deployunits */
     private List<DeployUnit> deployUnits = new ArrayList<>();
 
     /** SSL/TLS 配置 */
-    /** SSL */
     private SslConfig ssl = new SslConfig();
 
     /** 追加的部署单元，不会覆盖已有列表 */
@@ -111,11 +96,9 @@ public class WebContainerSetting {
         private DeployUnitType type = DeployUnitType.WAR;
 
         /** 归档文件绝对路径或 classpath 路径 */
-        /** 路径 */
         private String path;
 
         /** 部署后的上下文路径（仅对 WAR 有效），默认从文件名推导 */
-        /** 上下文路径 */
         private String contextPath;
 
         /** 是否在启动时部署 */
@@ -133,15 +116,12 @@ public class WebContainerSetting {
     @Builder
     public static class SslConfig {
         /** 是否启用 SSL/TLS */
-        /** 是否启用 */
         private boolean enabled;
 
         /** KeyStore 文件路径（JKS/PKCS12） */
-        /** 密钥store路径 */
         private String keyStorePath;
 
         /** KeyStore 密码 */
-        /** 密钥store密码 */
         private String keyStorePassword;
 
         /** KeyStore 类型，默认 PKCS12 */
@@ -150,15 +130,12 @@ public class WebContainerSetting {
         private String keyStoreType = "PKCS12";
 
         /** SSL 证书文件路径（PEM） */
-        /** 证书路径 */
         private String certPath;
 
         /** SSL 私钥文件路径（PEM） */
-        /** 密钥路径 */
         private String keyPath;
 
         /** SSL 私钥密码 */
-        /** 密钥密码 */
         private String keyPassword;
 
         /** SSL 协议，默认 TLS */

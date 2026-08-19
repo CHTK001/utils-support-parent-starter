@@ -77,7 +77,7 @@ public @interface SpiCondition {
      *     实现该接口并配合 {@link SpiCondition#onCondition()} 使用。
      * </p>
      *
-     * @author CH
+ * @author CH
      * @since 2024-01-01
      */
     interface Condition {

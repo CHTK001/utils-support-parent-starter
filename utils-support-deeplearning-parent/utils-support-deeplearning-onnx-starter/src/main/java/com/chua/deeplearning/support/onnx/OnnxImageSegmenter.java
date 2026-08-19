@@ -12,7 +12,6 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
-    /** Device */
     private String device = "cpu";
 
     public OnnxImageSegmenter(String apiKey) {

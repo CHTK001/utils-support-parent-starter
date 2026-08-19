@@ -25,7 +25,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
      * <p>
      * 每种类型对应一种颜色渐变效果。
      *
-     * @author CH
+ * @author CH
      * @since 2024-01-01
      */
     public enum GradientType {

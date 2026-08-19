@@ -39,6 +39,7 @@ public class NioServerResponse implements ServerResponse {
     private final SocketChannel channel;
     /** 状态代码 */
     private int statusCode = 200;
+    /** headers */
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     /** 请求体 */
     private byte[] body;

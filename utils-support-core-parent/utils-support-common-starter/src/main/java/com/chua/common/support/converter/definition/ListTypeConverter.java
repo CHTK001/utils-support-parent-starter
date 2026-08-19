@@ -33,7 +33,6 @@ public class ListTypeConverter implements TypeConverter<List> {
 
 
     /** 单例实例 */
-    /** 实例 */
     public static final ListTypeConverter INSTANCE = new ListTypeConverter();
 
     /**

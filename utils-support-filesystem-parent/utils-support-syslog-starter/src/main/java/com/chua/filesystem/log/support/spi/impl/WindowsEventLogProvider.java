@@ -56,10 +56,15 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     /** 注册表 */
     private final NativeFunctionRegistry registry;
 
+    /** openEventLog */
     private volatile MethodHandle openEventLog;
+    /** readEventLog */
     private volatile MethodHandle readEventLog;
+    /** closeEventLog */
     private volatile MethodHandle closeEventLog;
+    /** getNumberOfEventLogRecords */
     private volatile MethodHandle getNumberOfEventLogRecords;
+    /** getLastErrorHandle */
     private volatile MethodHandle getLastErrorHandle;
 
     public WindowsEventLogProvider(SystemLogBridge bridge) {

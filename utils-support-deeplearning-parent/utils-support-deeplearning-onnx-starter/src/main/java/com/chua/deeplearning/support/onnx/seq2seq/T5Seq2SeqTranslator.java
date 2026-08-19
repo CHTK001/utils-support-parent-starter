@@ -39,20 +39,15 @@ import java.util.Arrays;
 public class T5Seq2SeqTranslator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** Max_input_length */
     private static final int MAX_INPUT_LENGTH = 512;
     /** 最大输出长度 */
-    /** Max_output_length */
     private static final int MAX_OUTPUT_LENGTH = 128;
     /** 结束符标识 */
-    /** Eos_id */
     private static final long EOS_ID = 1L;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 模型根目录 */
-    /** 模型根级 */
     private Path modelRoot;
 
     @Override

@@ -31,30 +31,22 @@ import java.util.*;
 public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypoint>> {
 
     /** 输入尺寸 */
-    /** Input_size */
     private static final int INPUT_SIZE = 640;
     /** 预测数量 */
-    /** Num_preds */
     private static final int NUM_PREDS = 8400;
     /** 关键点数量 */
-    /** Num_keypoints */
     private static final int NUM_KEYPOINTS = 17;
     /** 置信度阈值 */
-    /** Conf_threshold */
     private static final float CONF_THRESHOLD = 0.3f;
     /** NMS 阈值 */
-    /** Nms_threshold */
     private static final float NMS_THRESHOLD = 0.45f;
 
     /** 资源基础路径 */
-    /** Resource_base */
     private static final String RESOURCE_BASE = "vision/pose/yolov8n/onnx/";
     /** 模型文件路径 */
-    /** Model_file */
     private static final String MODEL_FILE = "model_quantized.onnx";
 
     /** 关键点名称数组 */
-    /** Keypoint_names */
     private static final String[] KEYPOINT_NAMES = {
             "nose", "left_eye", "right_eye", "left_ear", "right_ear",
             "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
@@ -63,29 +55,22 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     };
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;
     /** 源图像宽度 */
-    /** SRC宽度 */
     private int srcWidth;
     /** 源图像高度 */
-    /** SRC高度 */
     private int srcHeight;
 
     public static class PoseResult {
         /** 边界框坐标 */
-        /** Bbox */
         public float[] bbox;
         /** 得分 */
-        /** 分数 */
         public float score;
         /** 关键点坐标数组（[17][2]，(x, y)） */
-        /** Keypoints */
         public float[][] keypoints;
         /** 关键点得分数组（[17]） */
-        /** Keypointscores */
         public float[] keypointScores;
     }
 

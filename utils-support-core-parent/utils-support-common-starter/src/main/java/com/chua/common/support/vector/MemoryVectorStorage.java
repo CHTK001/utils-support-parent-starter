@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MemoryVectorStorage extends AbstractVectorStorage {
 
+    /** store */
     private final Map<String, Vector> store = new ConcurrentHashMap<>();
 
     /**

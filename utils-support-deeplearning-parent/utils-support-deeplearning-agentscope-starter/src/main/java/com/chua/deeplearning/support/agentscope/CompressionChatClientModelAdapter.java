@@ -29,11 +29,9 @@ import java.util.UUID;
 public class CompressionChatClientModelAdapter implements Model {
 
     /** 日志记录器 */
-    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(CompressionChatClientModelAdapter.class);
 
     /** 压缩聊天客户端 */
-    /** Compressionchat客户端 */
     private final ChatClient compressionChatClient;
     /** 模型名称 */
     private final String modelName;

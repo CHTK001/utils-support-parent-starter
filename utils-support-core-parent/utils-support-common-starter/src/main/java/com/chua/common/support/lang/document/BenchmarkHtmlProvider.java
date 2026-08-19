@@ -35,7 +35,6 @@ import java.util.Map;
 public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /** ECharts CDN 地址 */
-    /** Echarts_cdn */
     private static final String ECHARTS_CDN =
             "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js";
 

@@ -161,6 +161,7 @@ public class JsoupResponse {
         private boolean last;
         /** 首个 */
         private boolean first;
+        /** function */
         private Function<Element, String> function;
         /** 类型 */
         private PathType type = PathType.XPATH;
@@ -180,6 +181,7 @@ public class JsoupResponse {
             private boolean last;
             /** 首个 */
             private boolean first;
+            /** function */
             private Function<Element, String> function;
             /** 类型 */
             private PathType type = PathType.XPATH;

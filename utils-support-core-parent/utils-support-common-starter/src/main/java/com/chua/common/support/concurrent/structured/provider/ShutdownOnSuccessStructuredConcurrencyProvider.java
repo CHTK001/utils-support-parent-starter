@@ -21,10 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ShutdownOnSuccessStructuredConcurrencyProvider implements StructuredConcurrencyProvider {
 
     /** 线程池执行器 */
-    /** 执行器 */
     private final ExecutorService executor;
     /** 是否已关闭 */
-    /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public ShutdownOnSuccessStructuredConcurrencyProvider() {

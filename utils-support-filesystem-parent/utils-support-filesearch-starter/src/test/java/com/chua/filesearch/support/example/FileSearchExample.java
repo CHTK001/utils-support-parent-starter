@@ -40,23 +40,18 @@ import java.util.stream.Collectors;
 public class FileSearchExample {
 
     /** 默认扫描根目录 */
-    /** Default_root_dir */
     private static final String DEFAULT_ROOT_DIR = ".";
 
     /** 默认最大结果数（0 表示无限制） */
-    /** Default_max_results */
     private static final int DEFAULT_MAX_RESULTS = 0;
 
     /** 默认 Top N 显示数 */
-    /** Default_top_n */
     private static final int DEFAULT_TOP_N = 50;
 
     /** 默认目录树显示深度 */
-    /** Default_tree_depth */
     private static final int DEFAULT_TREE_DEPTH = 5;
 
     /** 时间格式化 */
-    /** Date_fmt */
     private static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private FileSearchExample() {

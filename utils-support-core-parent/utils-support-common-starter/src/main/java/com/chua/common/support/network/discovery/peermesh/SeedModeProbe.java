@@ -39,6 +39,7 @@ public class SeedModeProbe implements ProbeStrategy {
     private final int localPort;
     /** Discovered */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
+    /** stopped */
     private volatile boolean stopped;
 
     /**

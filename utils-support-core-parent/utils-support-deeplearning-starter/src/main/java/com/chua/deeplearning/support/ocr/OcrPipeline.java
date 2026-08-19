@@ -619,7 +619,7 @@ public class OcrPipeline {
      *
      * @param image   实际识别使用的图（矫正或原图）
      * @param results 识别结果
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record OcrRecognizeResult(byte[] image, List<OcrResult> results) {

@@ -26,11 +26,9 @@ import java.util.UUID;
 public class ChatClientModelAdapter implements Model {
 
     /** 日志记录器 */
-    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ChatClientModelAdapter.class);
 
     /** 聊天客户端 */
-    /** Chat客户端 */
     private final ChatClient chatClient;
     /** 模型名称 */
     private final String modelName;

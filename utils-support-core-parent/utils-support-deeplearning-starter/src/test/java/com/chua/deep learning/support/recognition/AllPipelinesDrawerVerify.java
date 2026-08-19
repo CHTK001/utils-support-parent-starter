@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /** @author CH */
 public class AllPipelinesDrawerVerify {
 
+    /** 管道列表 */
     private static final List<String> PIPELINES = List.of(
             "com.chua.deeplearning.support.face.FacePipeline",
             "com.chua.deeplearning.support.ocr.OcrPipeline",

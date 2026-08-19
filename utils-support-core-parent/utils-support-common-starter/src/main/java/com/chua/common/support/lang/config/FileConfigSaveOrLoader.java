@@ -14,7 +14,6 @@ import java.util.Optional;
 /**
  * 本地文件实现的配置保存和加载器。
  * 该类负责将配置数据以字节数组的形式存储在本地文件系统中，并支持读取和删除操作。
-
  * @author CH
  * @since 4.0.0.42
  */@Spi({"file", "local"})

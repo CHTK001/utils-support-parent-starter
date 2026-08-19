@@ -25,15 +25,12 @@ import java.util.List;
 public class DocumentData {
 
     /** 数据库名称（JDBC 连接 catalog） */
-    /** 数据库名称 */
     private String databaseName;
 
     /** 数据库产品名称，例如 H2、MySQL、PostgreSQL */
-    /** Product名称 */
     private String productName;
 
     /** 数据库产品版本号 */
-    /** Product版本 */
     private String productVersion;
 
     /** JDBC 连接 URL */

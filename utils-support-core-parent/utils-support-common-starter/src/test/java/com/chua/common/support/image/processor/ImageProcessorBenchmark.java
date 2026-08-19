@@ -27,8 +27,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ImageProcessorBenchmark {
 
+    /** 默认输入路径 */
     private static final String DEFAULT_INPUT = "D:/images/test_1.jpg";
+    /** 预热迭代次数 */
     private static final int WARMUP_ITERATIONS = 3;
+    /** 测量迭代次数 */
     private static final int MEASURE_ITERATIONS = 5;
 
     public static void main(String[] args) throws Exception {

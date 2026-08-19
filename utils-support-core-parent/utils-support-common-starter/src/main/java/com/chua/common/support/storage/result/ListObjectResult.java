@@ -21,7 +21,6 @@ import java.util.List;
 public class ListObjectResult extends ObjectResult {
 
     /** 空结果实例 */
-    /** 是否为空 */
     public static final ListObjectResult EMPTY = ListObjectResult.builder().build();
 
     /**

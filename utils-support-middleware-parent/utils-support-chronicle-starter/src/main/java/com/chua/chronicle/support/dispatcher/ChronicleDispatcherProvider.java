@@ -34,11 +34,14 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     /** 序列化器 */
     private static final ChronicleQueueSerializer SERIALIZER = new ChronicleQueueSerializer();
 
+    /** queueMap */
     private final Map<String, ChronicleQueue> queueMap = new ConcurrentHashMap<>();
+    /** definitionMap */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
     /** 执行器 */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("chronicle-dispatcher-", 0).factory());
+    /** closed */
     private volatile boolean closed = false;
 
     public ChronicleDispatcherProvider(DispatcherConfig config) {

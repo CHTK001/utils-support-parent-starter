@@ -106,19 +106,14 @@ public class PipelineWal implements AutoCloseable {
      */
     public static class ContextSnapshot {
         /** 当前节点 ID */
-        /** 当前节点ID */
         public String currentNodeId;
         /** 下一节点 ID */
-        /** 下一个节点ID */
         public String nextNodeId;
         /** 当前数据（JSON 序列化形式） */
-        /** 当前数据 */
         public Object currentData;
         /** 执行历史 */
-        /** History */
         public List<String> history;
         /** 当前动作 */
-        /** 动作 */
         public String action;
         /** 扩展属性（JSON 序列化形式） */
         public Map<String, Object> attributes;

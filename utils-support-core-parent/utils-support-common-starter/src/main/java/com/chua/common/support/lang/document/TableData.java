@@ -20,7 +20,6 @@ import java.util.*;
 public class TableData {
 
     /** 表名（或视图名） */
-    /** 表名称 */
     private String tableName;
 
     /** 模式名（schema） */
@@ -30,7 +29,6 @@ public class TableData {
     private String schema;
 
     /** 表注释/备注 */
-    /** Remark */
     private String remark;
 
     /** 表的所有列信息 */

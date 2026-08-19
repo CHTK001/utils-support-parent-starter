@@ -22,10 +22,8 @@ class DefaultValue<T> implements Value<T> {
      */
     private final T value;
     /** 默认值（当 value 为 null 时返回） */
-    /** 默认值 */
     private final T defaultValue;
     /** 转换过程中产生的异常 */
-    /** Throwable */
     private final Throwable throwable;
 
     /**

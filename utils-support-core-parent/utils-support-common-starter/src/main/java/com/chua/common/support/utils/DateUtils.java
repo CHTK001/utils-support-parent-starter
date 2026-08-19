@@ -203,6 +203,7 @@ public class DateUtils {
             Pattern.compile("([-+]?)P(?:([-+]?[0-9]+)D)?" +
                             "(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?",
                     Pattern.CASE_INSENSITIVE);
+    /** DATE_FORMATS */
     private final static String[] DATE_FORMATS = {
             "yyyy-MM-dd'T'HH:mm:ss.SSS+08:00",
             "E M d H:m:s z yyyy",

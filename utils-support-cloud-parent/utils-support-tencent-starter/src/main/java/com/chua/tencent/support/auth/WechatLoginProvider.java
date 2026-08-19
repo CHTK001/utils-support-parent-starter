@@ -33,13 +33,10 @@ import java.util.Map;
 public class WechatLoginProvider implements LoginChannel {
 
     /** 微信小程序服务 */
-    /** WXMA服务 */
     private final WxMaService wxMaService;
     /** 微信公众号服务 */
-    /** WXMP服务 */
     private final WxMpService wxMpService;
     /** 配置对象 */
-    /** 配置 */
     private final TenpayConfig config;
 
     public WechatLoginProvider() {

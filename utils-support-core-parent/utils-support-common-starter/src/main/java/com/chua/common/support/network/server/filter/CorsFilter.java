@@ -16,6 +16,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
  */
 public class CorsFilter implements ServerFilter {
 
+    /** setting */
     private volatile ServerSetting setting;
 
     @Override

@@ -13,15 +13,12 @@ import org.dizitart.no2.Nitrite;
 public class NitriteEngineDataSource implements EngineDataSource<Object> {
 
     /** 数据源名称 */
-    /** 名称 */
     private final String name;
 
     /** 数据库文件路径 */
-    /** 文件路径 */
     private final String filePath;
 
     /** Nitrite 数据库实例 */
-    /** Nitrite */
     private final Nitrite nitrite;
 
     /**

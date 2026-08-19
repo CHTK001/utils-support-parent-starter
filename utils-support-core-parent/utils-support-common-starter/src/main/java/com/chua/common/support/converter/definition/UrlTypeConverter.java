@@ -27,13 +27,10 @@ import javax.annotation.Nullable;
 public class UrlTypeConverter implements TypeConverter<URL> {
 
     /** HTTP 协议名称 */
-    /** Http_protocol */
     private static final String HTTP_PROTOCOL = "http";
     /** HTTPS 协议名称 */
-    /** Https_protocol */
     private static final String HTTPS_PROTOCOL = "https";
     /** 文件 URL 协议前缀 */
-    /** File_url_prefix */
     private static final String FILE_URL_PREFIX = "file:";
 
     /**

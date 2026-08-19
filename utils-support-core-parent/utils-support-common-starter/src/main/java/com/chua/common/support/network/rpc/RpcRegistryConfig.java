@@ -21,7 +21,6 @@ import lombok.Data;
 @Data
 public class RpcRegistryConfig {
     /** 注册中心地址 */
-    /** 地址 */
     private String address;
     /** 登录用户名 */
     /**
@@ -39,7 +38,6 @@ public class RpcRegistryConfig {
      */
     private Integer port;
     /** 注册中心协议类型（zookeeper, nacos, redis, multicast, direct） */
-    /** 协议 */
     private String protocol;
     /** 连接超时（毫秒） */
     /**
@@ -47,7 +45,6 @@ public class RpcRegistryConfig {
      */
     private Integer timeout;
     /** 会话超时（毫秒），ZooKeeper 等依赖心跳的注册中心使用 */
-    /** 会话超时 */
     private Integer sessionTimeout;
     /** 服务分组 */
     /**
@@ -60,19 +57,14 @@ public class RpcRegistryConfig {
      */
     private String version;
     /** 启动时检查连通性 */
-    /** Check */
     private Boolean check;
     /** 是否动态注册 */
-    /** Dynamic */
     private Boolean dynamic;
     /** 是否注册（服务端） */
-    /** Register */
     private Boolean register;
     /** 是否订阅（客户端） */
-    /** Subscribe */
     private Boolean subscribe;
     /** 节点权重 */
-    /** 权重 */
     private Integer weight;
     /** 扩展参数 */
     private java.util.Map<String, String> parameters;

@@ -177,19 +177,14 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     private static class EagerMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
-        /** Dimension */
         private final int dimension;
         /** 相似度度量函数 */
-        /** Similarity */
         private final VectorSimilarityFunction similarity;
         /** 存储配置属性（含图参数） */
-        /** 属性 */
         private final JVectorStorageProperties properties;
         /** 内存图索引；构建前为 null */
-        /** Graph */
         private ImmutableGraphIndex graph;
         /** 原始向量深拷贝（防御调用者后续修改） */
-        /** RAWvectors */
         private final List<float[]> rawVectors = new ArrayList<>();
         /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
@@ -337,30 +332,22 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
-        /** Dimension */
         private final int dimension;
         /** 相似度度量函数 */
-        /** Similarity */
         private final VectorSimilarityFunction similarity;
         /** 存储配置属性（含图参数） */
-        /** 属性 */
         private final JVectorStorageProperties properties;
         /** 磁盘索引文件路径 */
-        /** 索引路径 */
         private final Path indexPath;
         /** 磁盘图索引；构建前为 null */
-        /** Diskgraph */
         private OnDiskGraphIndex diskGraph;
         /** 原始向量深拷贝（防御调用者后续修改） */
-        /** RAWvectors */
         private final List<float[]> rawVectors = new ArrayList<>();
         /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
         /** 向量持久化文件路径 */
-        /** Vector数据路径 */
         private final Path vectorDataPath;
         /** 向量是否被修改且未持久化 */
-        /** Vectorsdirty */
         private boolean vectorsDirty;
 
         DiskStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -603,25 +590,18 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      */
     private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
-        /** Dimension */
         private final int dimension;
         /** 相似度度量函数 */
-        /** Similarity */
         private final VectorSimilarityFunction similarity;
         /** 存储配置属性（含图参数） */
-        /** 属性 */
         private final JVectorStorageProperties properties;
         /** PQ 索引持久化路径 */
-        /** 索引路径 */
         private final Path indexPath;
         /** 内存图索引；构建前为 null */
-        /** Graph */
         private ImmutableGraphIndex graph;
         /** PQ 压缩向量；训练前为 null */
-        /** PQvectors */
         private PQVectors pqVectors;
         /** 原始向量深拷贝（防御调用者后续修改） */
-        /** RAWvectors */
         private final List<float[]> rawVectors = new ArrayList<>();
         /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();

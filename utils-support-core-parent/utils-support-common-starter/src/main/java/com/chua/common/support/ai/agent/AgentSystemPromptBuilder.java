@@ -160,13 +160,10 @@ public final class AgentSystemPromptBuilder {
      */
     private static final String MCP_RULE_1 = "1. 分析用户请求，判断是否需要调用 MCP 工具";
     /** MCP 工具调用规则第二条 */
-    /** Mcp_rule_2 */
     private static final String MCP_RULE_2 = "2. 若需要，输出 `[MCP:工具名]({\"参数名\": \"参数值\"})` 格式";
     /** MCP 工具调用规则第三条 */
-    /** Mcp_rule_3 */
     private static final String MCP_RULE_3 = "3. 框架将自动执行工具并返回结果";
     /** MCP 工具调用规则第四条 */
-    /** Mcp_rule_4 */
     private static final String MCP_RULE_4 = "4. 根据工具结果生成最终回答";
 
     /**
@@ -200,14 +197,11 @@ public final class AgentSystemPromptBuilder {
      */
     private static final String ROUTE_RULE_1 = "1. 分析用户输入，判断最匹配的子 Agent";
     /** Agent 路由规则第二条 */
-    /** Route_rule_2 */
     private static final String ROUTE_RULE_2 = "2. 在回复中明确输出要使用的 Agent ID";
     /** Agent 路由规则第三条 */
-    /** Route_rule_3 */
     private static final String ROUTE_RULE_3 =
             "3. 框架将自动使用该 Agent 的专属 ChatClient、MCP 工具和技能执行任务";
     /** Agent 路由规则第四条 */
-    /** Route_rule_4 */
     private static final String ROUTE_RULE_4 = "4. 若没有合适的子 Agent，由当前 Agent 直接处理";
 
     /**
@@ -220,13 +214,10 @@ public final class AgentSystemPromptBuilder {
      */
     private static final String SKILL_RULE_1 = "1. 分析用户请求，判断是否匹配某个技能";
     /** 技能调用规则第二条 */
-    /** Skill_rule_2 */
     private static final String SKILL_RULE_2 = "2. 若匹配，输出 `[SKILL:技能名](参数=值)` 格式的调用指令";
     /** 技能调用规则第三条 */
-    /** Skill_rule_3 */
     private static final String SKILL_RULE_3 = "3. 框架将自动执行对应技能并返回结果";
     /** 技能调用规则第四条 */
-    /** Skill_rule_4 */
     private static final String SKILL_RULE_4 = "4. 若无匹配技能，直接回答用户问题";
 
     /**

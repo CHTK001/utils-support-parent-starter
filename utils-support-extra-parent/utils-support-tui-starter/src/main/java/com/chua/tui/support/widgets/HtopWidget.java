@@ -23,15 +23,12 @@ import com.chua.tui.support.TuiWidget;
 public class HtopWidget extends TuiWidget {
 
     /** CPU 进度条长度 */
-    /** Cpu_bar_width */
     private static final int CPU_BAR_WIDTH = 10;
 
     /** 内存进度条长度 */
-    /** Mem_bar_width */
     private static final int MEM_BAR_WIDTH = 10;
 
     /** 最大显示进程数 */
-    /** Max_processes */
     private static final int MAX_PROCESSES = 8;
 
     /**

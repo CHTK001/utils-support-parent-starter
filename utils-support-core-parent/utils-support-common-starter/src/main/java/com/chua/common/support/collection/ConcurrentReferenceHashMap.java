@@ -45,27 +45,21 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
     /** 默认初始容量 */
-    /** Default_initial_capacity */
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     /** 默认加载因子 */
-    /** Default_load_factor */
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /** 默认并发级别 */
-    /** Default_concurrency_level */
     private static final int DEFAULT_CONCURRENCY_LEVEL = 16;
 
     /** 默认引用类型 */
-    /** Default_reference_type */
     private static final ReferenceType DEFAULT_REFERENCE_TYPE = ReferenceType.SOFT;
 
     /** 最大并发级别 */
-    /** Maximum_concurrency_level */
     private static final int MAXIMUM_CONCURRENCY_LEVEL = 1 << 16;
 
     /** 最大分段大小 */
-    /** Maximum_segment_size */
     private static final int MAXIMUM_SEGMENT_SIZE = 1 << 30;
 
 
@@ -457,7 +451,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         private final ReferenceManager referenceManager;
 
         /** 初始大小 */
-        /** Initial尺寸 */
         private final int initialSize;
 
         /**
@@ -780,7 +773,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     private abstract class AbstractTask<T> {
 
         /** 选项列表 */
-        /** Options */
         private final EnumSet<TaskOption> options;
 
         public AbstractTask(TaskOption... options) {
@@ -899,7 +891,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     private class EntryIterator implements Iterator<Map.Entry<K, V>> {
 
         /** 分段索引 */
-        /** Segment索引 */
         private int segmentIndex;
 
         /** 引用索引 */
@@ -1039,7 +1030,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     private static final class SoftEntryReference<K, V> extends SoftReference<Entry<K, V>> implements Reference<K, V> {
 
         /** 哈希值 */
-        /** 哈希 */
         private final int hash;
 
 
@@ -1079,7 +1069,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     private static final class WeakEntryReference<K, V> extends WeakReference<Entry<K, V>> implements Reference<K, V> {
 
         /** 哈希值 */
-        /** 哈希 */
         private final int hash;
 
 

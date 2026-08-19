@@ -554,7 +554,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 即时查询操作
      *
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public class QueryOperation {
@@ -612,7 +612,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 范围查询操作
      *
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public class RangeQueryOperation {
@@ -696,7 +696,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 序列查询操作
      *
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public class SeriesOperation {

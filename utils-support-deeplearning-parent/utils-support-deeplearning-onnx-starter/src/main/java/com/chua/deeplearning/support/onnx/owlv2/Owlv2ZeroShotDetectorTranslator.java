@@ -49,22 +49,16 @@ import java.util.regex.Pattern;
 public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, DetectedObjects> {
 
     /** JSON 对象映射器 */
-    /** Object_mapper */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /** 中文匹配正则 */
-    /** Chinese_pattern */
     private static final Pattern CHINESE_PATTERN = Pattern.compile(".*[\\u4e00-\\u9fff].*");
     /** 默认候选列表 */
-    /** Default_candidates */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "flower", "dog", "car");
     /** 默认阈值 */
-    /** Default_threshold */
     private static final double DEFAULT_THRESHOLD = 0.10d;
     /** 默认 NMS 阈值 */
-    /** Default_nms_threshold */
     private static final double DEFAULT_NMS_THRESHOLD = 0.50d;
     /** 默认低信息方差 */
-    /** Default_low_info_variance */
     private static final double DEFAULT_LOW_INFO_VARIANCE = 25d;
     /** 中文转英文映射表 */
     private static final Map<String, String> CHINESE_TO_ENGLISH;
@@ -85,58 +79,42 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     /** 阈值 */
     private final double threshold;
     /** NMS 阈值 */
-    /** NMS阈值 */
     private final double nmsThreshold;
     /** 请求的候选列表 */
-    /** Requestedcandidates */
     private final List<String> requestedCandidates;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 候选输入标识 */
-    /** Candidate输入IDS */
     private long[][] candidateInputIds = new long[0][];
     /** 候选注意力掩码 */
-    /** Candidateattentionmasks */
     private long[][] candidateAttentionMasks = new long[0][];
     /** 候选输出标签 */
-    /** Candidate输出labels */
     private List<String> candidateOutputLabels = DEFAULT_CANDIDATES;
     /** 候选模型标签 */
-    /** Candidate模型labels */
     private List<String> candidateModelLabels = DEFAULT_CANDIDATES;
     /** 输入宽度 */
     private int inputWidth = 960;
     /** 输入高度 */
     private int inputHeight = 960;
     /** 图像均值数组 */
-    /** 图片mean */
     private float[] imageMean = {0.48145466f, 0.4578275f, 0.40821073f};
     /** 图像标准差数组 */
-    /** 图片STD */
     private float[] imageStd = {0.26862954f, 0.26130258f, 0.27577711f};
     /** 重缩放系数 */
-    /** Rescale系数 */
     private float rescaleFactor = 1f / 255f;
 
     /** 是否为低信息图像 */
-    /** LOWinformation图片 */
     private boolean lowInformationImage;
     /** 原始宽度 */
-    /** Original宽度 */
     private int originalWidth;
     /** 原始高度 */
-    /** Original高度 */
     private int originalHeight;
     /** 缩放比例 */
-    /** Resize比例尺 */
     private double resizeScale = 1d;
     /** X 轴填充值 */
-    /** PADX坐标 */
     private int padX;
     /** Y 轴填充值 */
-    /** PADY坐标 */
     private int padY;
 
     public Owlv2ZeroShotDetectorTranslator() {

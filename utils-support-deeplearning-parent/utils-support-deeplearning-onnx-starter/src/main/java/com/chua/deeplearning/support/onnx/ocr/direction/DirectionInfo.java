@@ -11,7 +11,6 @@ public class DirectionInfo {
     /** 名称 */
     private final String name;
     /** 概率 */
-    /** Probability */
     private final double probability;
 
     public DirectionInfo(String name, double probability) {

@@ -28,11 +28,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class NatsDispatcherProvider extends AbstractDispatcherProvider {
 
     /** NATS 连接 */
-    /** Connection */
     private Connection connection;
 
     /** NATS 分发器 */
-    /** Dispatcher */
     private Dispatcher dispatcher;
 
     /** 主题与订阅定义列表的映射 */

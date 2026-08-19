@@ -21,7 +21,6 @@ public class IndexMetadata {
      */
     private String name;
     /** 所属表名 */
-    /** 表名称 */
     private String tableName;
     /** 索引类型（BTREE / HASH / FULLTEXT） */
     /**
@@ -34,24 +33,17 @@ public class IndexMetadata {
      */
     private boolean unique;
     /** 是否主键索引 */
-    /** Primary */
     private boolean primary;
     /** 是否不可见 */
-    /** Invisible */
     private boolean invisible;
     /** 索引列名列表 */
-    /** Columns */
     private List<String> columns;
     /** 单列索引的列名 */
-    /** 列名称 */
     private String columnName;
     /** 索引位置 */
-    /** 位置 */
     private Integer position;
     /** 排序方向 */
-    /** Sortdirection */
     private String sortDirection;
     /** 索引注释 */
-    /** Comment */
     private String comment;
 }

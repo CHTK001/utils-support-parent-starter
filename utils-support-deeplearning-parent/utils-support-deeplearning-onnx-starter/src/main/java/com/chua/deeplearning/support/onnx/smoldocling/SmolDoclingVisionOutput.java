@@ -14,7 +14,6 @@ import java.util.Arrays;
 public class SmolDoclingVisionOutput {
 
     /** 图像特征 */
-    /** 图片features */
     private final NDArray imageFeatures;
 
     public SmolDoclingVisionOutput(NDArray imageFeatures) {

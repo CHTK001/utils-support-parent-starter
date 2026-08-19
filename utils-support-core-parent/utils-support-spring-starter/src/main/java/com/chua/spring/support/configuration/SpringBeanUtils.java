@@ -324,6 +324,7 @@ public class SpringBeanUtils {
      * 内部持有 ConversionService 的单例类，延迟加载以避免循环依赖或空指针问题。
      */
     private static final class ConversionServiceHolder {
+        /** conversionService */
         private static volatile ConversionService conversionService;
 
         static ConversionService get(ApplicationContext applicationContext) {

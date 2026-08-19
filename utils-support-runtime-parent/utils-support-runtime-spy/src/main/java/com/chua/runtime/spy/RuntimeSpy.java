@@ -822,7 +822,7 @@ public class RuntimeSpy {
      * @param className  类名
      * @param methodName 方法名
      * @param startTime  开始时间
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record SpyContext(
@@ -837,7 +837,7 @@ public class RuntimeSpy {
      *
      * @param traceId 全局追踪 ID
      * @param spanId  当前 Span ID
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record TraceStackFrame(
@@ -851,7 +851,7 @@ public class RuntimeSpy {
      *
      * @param traceId 根 traceId
      * @param frames  追踪栈（按从栈底到栈顶顺序）
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public record TraceContextSnapshot(
@@ -960,7 +960,7 @@ public class RuntimeSpy {
     /**
      * 拦截器接口 — Handler 实现此接口接收插桩事件。
      *
-     * @author CH
+ * @author CH
      * @since 4.0.0.42
      */
     public interface Interceptor {

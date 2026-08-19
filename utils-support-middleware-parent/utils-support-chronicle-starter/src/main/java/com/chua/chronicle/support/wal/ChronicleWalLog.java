@@ -52,6 +52,7 @@ public class ChronicleWalLog implements WalLog {
     private final AtomicLong currentLsn = new AtomicLong(0L);
     /** CheckpointLSN */
     private final AtomicLong checkpointLsn = new AtomicLong(0L);
+    /** closed */
     private volatile boolean closed;
 
     public ChronicleWalLog(WalConfig config) {

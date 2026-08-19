@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   smtp.starttls   是否启用 STARTTLS（默认 true）
  * </pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Spi("email")
@@ -53,6 +54,7 @@ public class EmailPush implements MessagePush {
 
     /** 环境 */
     private final MessageEnvironment environment;
+    /** templates */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     public EmailPush() {

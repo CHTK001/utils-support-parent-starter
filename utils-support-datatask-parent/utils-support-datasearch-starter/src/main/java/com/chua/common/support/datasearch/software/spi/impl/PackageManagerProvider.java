@@ -115,6 +115,7 @@ public class PackageManagerProvider {
     // ==================== MCP 客户端 ====================
 
     protected class PackageManagerMcpClient implements McpClient {
+        /** initialized */
         private volatile boolean initialized = false;
 
         @Override

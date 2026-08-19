@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentMap;
  *   wechat.templateId  默认模板 ID（mp/mini 模式，发送时也可通过 request.templateId 指定）
  * </pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Spi("wechat")
@@ -100,7 +101,6 @@ public class WechatPush implements MessagePush {
     private static final long TOKEN_EXPIRE_MARGIN_MILLIS = 200L;
 
     /** 消息环境 */
-    /** 环境 */
     private final MessageEnvironment environment;
 
     /** 模板映射 */

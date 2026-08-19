@@ -23,11 +23,9 @@ import java.lang.management.OperatingSystemMXBean;
 public class SystemMonitorService {
 
     /** 操作系统管理 Bean */
-    /** OSbean */
     private final OperatingSystemMXBean osBean;
 
     /** JVM 运行时 */
-    /** Runtime */
     private final Runtime runtime;
 
     /**

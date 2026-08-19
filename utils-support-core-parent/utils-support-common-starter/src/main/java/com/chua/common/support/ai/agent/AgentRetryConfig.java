@@ -65,7 +65,7 @@ public class AgentRetryConfig {
     private RetryPredicate retryPredicate;
 
     /**
-     * @author CH
+ * @author CH
      * 退避策略枚举。
      */
     public enum BackoffStrategy {
@@ -79,6 +79,7 @@ public class AgentRetryConfig {
 
     /**
      * 重试条件函数式接口。
+ * @author CH
      */
     @FunctionalInterface
     public interface RetryPredicate {

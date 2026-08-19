@@ -21,6 +21,7 @@ public class TableCache {
     private final List<DataSource> dataSources;
     /** 缓存秒 */
     private final int cacheSeconds;
+    /** cache */
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {

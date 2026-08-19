@@ -91,10 +91,13 @@ public class TaskForkDefinition {
     private PipelineNode preHandler;
     /** 构建器 */
     private final PipelineBuilder builder;
+    /** branches */
     private final Map<String, Pipeline> branches = new LinkedHashMap<>();
     /** 错误策略 */
     private ForkErrorStrategy errorStrategy;
+    /** params */
     private Map<String, Object> params;
+    /** env */
     private Map<String, Object> env;
 
     /**

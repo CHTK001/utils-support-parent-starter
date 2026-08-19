@@ -50,31 +50,24 @@ public class LogReadBuilder extends ReadBuilder {
     };
 
     /** 关键词过滤（子串匹配） */
-    /** Keyword */
     private String keyword;
 
     /** 正则过滤 Pattern */
-    /** Regex模式 */
     private Pattern regexPattern;
 
     /** 尾部行数（> 0 时启用 tail） */
-    /** Taillines */
     private int tailLines;
 
     /** 时间范围下限（null 不限） */
-    /** 时间from */
     private LocalDateTime timeFrom;
 
     /** 时间范围上限（null 不限） */
-    /** 时间TO */
     private LocalDateTime timeTo;
 
     /** 自定义时间戳格式（null 则自动检测） */
-    /** 时间戳格式 */
     private DateTimeFormatter timestampFormat;
 
     /** 是否反转过滤（类似 grep -v） */
-    /** Invertmatch */
     private boolean invertMatch;
 
     /**

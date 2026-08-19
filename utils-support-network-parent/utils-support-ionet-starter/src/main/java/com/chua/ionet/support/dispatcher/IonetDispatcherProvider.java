@@ -32,16 +32,13 @@ import java.util.concurrent.TimeUnit;
 public class IonetDispatcherProvider extends AbstractDispatcherProvider {
 
     /** 服务端端口 */
-    /** Default_port */
     private static final int DEFAULT_PORT = 10100;
 
     /** 主题 -> 订阅定义列表 */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
     /** 分发器服务端 */
-    /** 服务器 */
     private IonetSyncServer server;
     /** 分发器客户端 */
-    /** 客户端 */
     private IonetSyncClient client;
 
     public IonetDispatcherProvider(DispatcherConfig config) {

@@ -38,6 +38,7 @@ public class HttpServerRequest implements ServerRequest {
     private final Charset defaultCharset;
     /** Cached请求体 */
     private byte[] cachedBody;
+    /** attributes */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     public HttpServerRequest(HttpExchange exchange, long maxRequestSize, String charset) {

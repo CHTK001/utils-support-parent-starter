@@ -24,6 +24,7 @@ public final class NativeFunctionRegistry {
     private final Linker linker;
     /** Lookup */
     private final SymbolLookup lookup;
+    /** handleCache */
     private final Map<String, MethodHandle> handleCache;
 
     public NativeFunctionRegistry(SymbolLookup lookup) {

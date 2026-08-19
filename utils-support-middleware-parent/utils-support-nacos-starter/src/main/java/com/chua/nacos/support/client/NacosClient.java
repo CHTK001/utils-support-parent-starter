@@ -69,6 +69,7 @@ public class NacosClient implements AutoCloseable {
     private ConfigService configService;
     /** Naming服务 */
     private NamingService namingService;
+    /** configListeners */
     private final Map<String, Listener> configListeners = new ConcurrentHashMap<>();
 
     private NacosClient(String serverAddr, String namespace, String username, String password, long timeout) {
@@ -338,6 +339,7 @@ public class NacosClient implements AutoCloseable {
         private boolean healthy = true;
         /** Ephemeral */
         private boolean ephemeral = true;
+        /** metadata */
         private Map<String, String> metadata = new HashMap<>();
 
         NamingOperation(NacosClient client) { this.client = client; }

@@ -55,10 +55,13 @@ public class KafkaClient implements AutoCloseable {
     /** Extraprops */
     private final Properties extraProps;
 
+    /** producer */
     private Producer<String, String> producer;
     /** Admin客户端 */
     private AdminClient adminClient;
+    /** consumerCache */
     private final Map<String, KafkaConsumer<String, String>> consumerCache = new ConcurrentHashMap<>();
+    /** consumerThreads */
     private final Map<String, Thread> consumerThreads = new ConcurrentHashMap<>();
     /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -195,6 +198,7 @@ public class KafkaClient implements AutoCloseable {
         private String key;
         /** 值 */
         private String value;
+        /** headers */
         private Map<String, byte[]> headers = new LinkedHashMap<>();
         /** Partition */
         private Integer partition;
@@ -265,6 +269,7 @@ public class KafkaClient implements AutoCloseable {
         private String groupId;
         /** Topics */
         private String[] topics;
+        /** handler */
         private Consumer<ConsumerRecord<String, String>> handler;
         /** Autocommit */
         private boolean autoCommit = true;

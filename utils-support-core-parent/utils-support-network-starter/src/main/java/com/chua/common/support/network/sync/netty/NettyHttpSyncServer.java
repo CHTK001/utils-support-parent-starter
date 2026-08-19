@@ -21,7 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("netty-http")
 public class NettyHttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
+    /** clients */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
+    /** messageQueues */
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
     /** Listeners */
     private final List<SyncServerListener> listeners = new ArrayList<>();

@@ -111,6 +111,7 @@ public class RabbitmqClient implements AutoCloseable {
     private ConnectionFactory factory;
     /** Connection */
     private Connection connection;
+    /** channelCache */
     private final Map<String, Channel> channelCache = new ConcurrentHashMap<>();
     /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -270,6 +271,7 @@ public class RabbitmqClient implements AutoCloseable {
         private boolean durable = true;
         /** Autodelete */
         private boolean autoDelete = false;
+        /** arguments */
         private Map<String, Object> arguments;
 
         ExchangeOperation(RabbitmqClient client) { this.client = client; }
@@ -314,6 +316,7 @@ public class RabbitmqClient implements AutoCloseable {
         private boolean exclusive = false;
         /** Autodelete */
         private boolean autoDelete = false;
+        /** arguments */
         private Map<String, Object> arguments = new HashMap<>();
 
         QueueOperation(RabbitmqClient client) { this.client = client; }
@@ -431,6 +434,7 @@ public class RabbitmqClient implements AutoCloseable {
         private String exchange;
         /** Routing密钥 */
         private String routingKey = "";
+        /** arguments */
         private Map<String, Object> arguments;
 
         BindOperation(RabbitmqClient client) { this.client = client; }
@@ -598,6 +602,7 @@ public class RabbitmqClient implements AutoCloseable {
         private boolean noLocal = false;
         /** Exclusive */
         private boolean exclusive = false;
+        /** arguments */
         private Map<String, Object> arguments;
         /** Prefetch */
         private int prefetch = 0;

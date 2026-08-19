@@ -74,6 +74,7 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     private static class PerKeyGuavaRateLimiter implements RateLimiter {
         /** QPS */
         private final double qps;
+        /** limiters */
         private final Map<String, com.google.common.util.concurrent.RateLimiter> limiters = new ConcurrentHashMap<>();
 
         PerKeyGuavaRateLimiter(double qps) {

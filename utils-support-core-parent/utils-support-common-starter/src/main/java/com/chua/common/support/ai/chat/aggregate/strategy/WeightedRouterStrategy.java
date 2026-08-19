@@ -15,7 +15,6 @@ import java.util.Random;
 public class WeightedRouterStrategy implements RouterStrategy {
 
     /** 随机数生成器 */
-    /** Random */
     private final Random random = new Random();
 
     @Override

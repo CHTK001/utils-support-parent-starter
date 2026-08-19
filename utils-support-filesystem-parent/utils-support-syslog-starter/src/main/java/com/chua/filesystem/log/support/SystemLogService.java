@@ -43,11 +43,13 @@ import java.util.*;
 @Slf4j
 public class SystemLogService {
 
+    /** INSTANCE */
     private static volatile SystemLogService INSTANCE;
 
     /** 提供者 */
     private final SystemLogProvider provider;
 
+    /** initialized */
     private volatile boolean initialized;
 
     public SystemLogService() {

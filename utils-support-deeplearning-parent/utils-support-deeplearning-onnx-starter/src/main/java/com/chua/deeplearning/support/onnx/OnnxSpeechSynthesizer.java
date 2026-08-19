@@ -10,18 +10,14 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
     /** 模型名称 */
     private String modelName;
     /** 语言 */
-    /** Lang */
     private String lang = "zh";
     /** 模型路径 */
     private String modelPath;
     /** 速度 */
-    /** Speed */
     private float speed = 1.0f;
     /** 音高 */
-    /** Pitch */
     private float pitch = 1.0f;
     /** 设备类型 */
-    /** Device */
     private String device = "cpu";
 
     public OnnxSpeechSynthesizer(String apiKey) {

@@ -52,7 +52,6 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
      */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
     /** 输入尺寸 */
-    /** Input_size */
     private static final int INPUT_SIZE = 512;
 
     @Override

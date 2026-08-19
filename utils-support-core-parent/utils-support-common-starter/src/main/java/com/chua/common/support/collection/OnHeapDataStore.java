@@ -24,7 +24,6 @@ import java.util.List;
 public class OnHeapDataStore<E> implements DataStore<E> {
 
     /** 内部元素列表，存储所有堆内数据 */
-    /** Elements */
     private final List<E> elements;
 
     /** 关闭标志，volatile 保证可见性 */

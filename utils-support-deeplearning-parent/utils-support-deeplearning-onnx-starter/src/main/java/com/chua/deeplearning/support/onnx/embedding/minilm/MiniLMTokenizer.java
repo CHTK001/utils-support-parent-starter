@@ -60,22 +60,16 @@ public class MiniLMTokenizer {
     /** 词表映射 */
     private final Map<String, Integer> vocab;
     /** 未知词标识 */
-    /** UNKID */
     private final int unkId;
     /** 类别标识 */
-    /** CLSID */
     private final int clsId;
     /** 分隔符标识 */
-    /** SEPID */
     private final int sepId;
     /** 填充符标识 */
-    /** PADID */
     private final int padId;
     /** 是否转小写 */
-    /** DOlowercase */
     private final boolean doLowerCase;
     /** 是否分词中文字符 */
-    /** Tokenizechinesechars */
     private final boolean tokenizeChineseChars;
 
     public MiniLMTokenizer(Map<String, Integer> vocab, boolean doLowerCase, boolean tokenizeChineseChars) {
@@ -135,13 +129,10 @@ public class MiniLMTokenizer {
      */
     public static final class EncodeResult {
         /** 输入标识数组 */
-        /** 输入IDS */
         public final int[] inputIds;
         /** 注意力掩码 */
-        /** Attention掩码 */
         public final int[] attentionMask;
         /** 标记类型标识数组 */
-        /** 令牌类型IDS */
         public final int[] tokenTypeIds;
 
         public EncodeResult(int[] inputIds, int[] attentionMask, int[] tokenTypeIds) {

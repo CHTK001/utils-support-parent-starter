@@ -111,7 +111,6 @@ public class TarFileSystem implements FileSystem {
     public static class TarReadBuilder extends ReadBuilder {
 
         /** 是否启用 GZIP 解包 */
-        /** Gzip是否启用 */
         private boolean gzipEnabled;
 
         TarReadBuilder(File file) {
@@ -285,11 +284,9 @@ public class TarFileSystem implements FileSystem {
         private final List<TarEntryData> entries = new ArrayList<>();
 
         /** 是否启用 GZIP 压缩 */
-        /** Gzip是否启用 */
         private boolean gzipEnabled;
 
         /** GZIP 压缩级别（0~9，-1 为默认） */
-        /** Gzip级别 */
         private int gzipLevel = Deflater.DEFAULT_COMPRESSION;
 
         TarWriteBuilder(File file) {

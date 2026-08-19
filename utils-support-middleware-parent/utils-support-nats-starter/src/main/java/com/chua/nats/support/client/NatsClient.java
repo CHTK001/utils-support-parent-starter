@@ -55,7 +55,6 @@ import java.util.function.Consumer;
 public class NatsClient implements AutoCloseable {
 
     /** 默认 NATS 服务器 URL */
-    /** Default_url */
     public static final String DEFAULT_URL = "nats://localhost:4222";
 
     /** URL */
@@ -85,7 +84,6 @@ public class NatsClient implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /** 活跃的订阅列表 */
-    /** Subscriptions */
     private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
 
     private NatsClient(Builder b) {
@@ -414,6 +412,7 @@ public class NatsClient implements AutoCloseable {
         private byte[] body;
         /** ReplyTO */
         private String replyTo;
+        /** headers */
         private Map<String, String> headers;
 
         PublishOperation(NatsClient client) {
@@ -1056,6 +1055,7 @@ public class NatsClient implements AutoCloseable {
         private final io.nats.client.JetStreamSubscription jsSubscription;
         /** ISJET流 */
         private final boolean isJetStream;
+        /** cancelled */
         private volatile boolean cancelled;
 
         DispatchedSubscription(io.nats.client.Subscription subscription, boolean isJetStream) {

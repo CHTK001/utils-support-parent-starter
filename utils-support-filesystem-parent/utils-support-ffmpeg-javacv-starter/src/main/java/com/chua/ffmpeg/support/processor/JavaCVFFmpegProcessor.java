@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 @Spi(value = {"javacv"}, order = 50)
 public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
+    /** available */
     private static volatile boolean available = false;
     /** Load错误 */
     private static String loadError = null;

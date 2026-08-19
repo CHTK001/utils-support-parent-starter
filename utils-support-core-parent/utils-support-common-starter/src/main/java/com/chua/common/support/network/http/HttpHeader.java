@@ -35,15 +35,12 @@ import java.util.Map;
 public class HttpHeader {
 
     /** Content-Type */
-    /** Content_type */
     public static final String CONTENT_TYPE = "Content-Type";
     /** Cache-Control */
-    /** Cache_control */
     public static final String CACHE_CONTROL = "Cache-Control";
     /** Connection */
     public static final String CONNECTION = "Connection";
     /** application/json */
-    /** Application_json */
     public static final String APPLICATION_JSON = "application/json";
 
     /**
