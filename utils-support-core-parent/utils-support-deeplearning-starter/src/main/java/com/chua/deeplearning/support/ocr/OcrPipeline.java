@@ -1005,11 +1005,11 @@ public class OcrPipeline {
         List<DetectionInfo> allBoxes = detector.detect(corrected);
         List<OcrResult> results;
         try {
-            // 优先尝试整图识别（一体化 OCR 模型 det+rec 同时出框与文本）
-            results = recognizer.recognizeDetail(imageData);
+            // 优先尝试整图识别（一体化 OCR 模型 det+rec 同时出框与文本），基于矫正后图
+            results = recognizer.recognizeDetail(corrected);
         } catch (ClassCastException e) {
             // 回退管线模式（裁剪块逐行识别，适用于 PaddleOCR 等分步模型）
-            results = recognizeDetail(imageData);
+            results = recognizeDetail(corrected);
         }
         return withInitDrawer().target(corrected).boxes(allBoxes, results).done();
     }
