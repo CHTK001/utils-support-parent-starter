@@ -86,6 +86,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("dino-v2", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2/model.onnx");
         // 视觉特征提取(DINOv2-small emb)：嵌入式版 DINOv2-small（~84MB），FP32，384维特征，jar 内嵌；适用离线以图搜图、特征比对
         reg("dino-v2-small-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-small/onnx/model.onnx");
+        // 视觉特征提取(DINOv2-base)：DINOv2 ViT-B/14，768维特征，精度更高；适用高精度以图搜图、特征比对
+        reg("dino-v2-base-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-base/onnx/model.onnx", "https://huggingface.co/onnx-community/dinov2-base-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-base-ONNX/resolve/main/onnx/model.onnx"), false, null);
+        // 视觉特征提取(DINOv2-large)：DINOv2 ViT-L/14，1024维特征，最高精度；适用高精度检索/匹配
+        reg("dino-v2-large-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-large/onnx/model.onnx", "https://huggingface.co/onnx-community/dinov2-large-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-large-ONNX/resolve/main/onnx/model.onnx"), false, null);
         // 文档理解(Donut)：端到端文档理解模型，输入文档图片输出结构化文本；适用发票识别、表单解析、文档 OCR
         reg("donut", "com.chua.deeplearning.support.onnx.donut.DonutTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/donut/donut.onnx");
         // 情绪识别(FER+)：识别面部表情（开心、难过、生气等 7 种基础情绪）；适用情感分析、用户反馈、安防监控
@@ -254,40 +258,20 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("sam-encoder", "com.chua.deeplearning.support.onnx.seg.SamImageEncoderTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/seg/sam_vit_h/encoder.onnx", "https://huggingface.co/vietanhdev/segment-anything-onnx-models/resolve/main/sam_vit_h_4b8939.zip", true, "encoder.onnx");
         // 开放词汇检测(GroundingDINO)：用任意文本描述检测图像中的物体，比 OWLv2 更准确；适用零样本检测、开放词汇目标检测
         reg("grounding-dino", "com.chua.deeplearning.support.onnx.dino.GroundingDinoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx", false, null);
-        // 文本摘要(BART)：BART-large-cnn 文本摘要，输入长文本输出摘要；适用文章摘要、新闻概括
-        reg("bart-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "vision/generation/bart-large-cnn/model.onnx", "https://huggingface.co/Xenova/bart-large-cnn/resolve/main/onnx/model.onnx", false, null);
-        // 文本摘要(T5)：T5-small 文本摘要/翻译，多任务 seq2seq；适用文本生成、翻译、摘要
+        // 文本摘要(T5-small)：英文摘要/生成/翻译，多任务 seq2seq；modelscope 下载
         // 注意：T5 为 encoder-decoder 自回归多文件模型（encoder/decoder/decoder_with_past + tokenizer），
         // 由 T5Seq2SeqOrtTranslator 按"嵌入/缓存/modelscope 下载"自行组装，注册不设 downloadUrl 避免单文件预下载。
         reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/t5-small/encoder_model_int8.onnx", null, null, false, null);
-        // 多语言摘要/生成(mT5)：mt5-small 中文/多语言文本摘要与生成，encoder-decoder 自回归；适用中文多句→一句总结
+        // 文本摘要(T5-base)：英文摘要/生成，质量优于 t5-small（12 层 12 头）；modelscope 下载
+        reg("t5-base-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5BaseSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/t5-base/encoder_model_int8.onnx", null, null, false, null);
+        // 多语言摘要/生成(mT5-small)：中文/多语言文本摘要与生成；modelscope 下载（中文正式语料质量有限）
         reg("mt5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-small/encoder_model_fp16.onnx", null, null, false, null);
-        // 多语言摘要/生成(mT5-base)：中文多句→一句总结，12 层 12 头，效果优于 mt5-small；适用正式/长文本
+        // 多语言摘要/生成(mT5-base)：中文多句→一句总结，12 层 12 头；modelscope 下载
         reg("mt5-base-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5BaseSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-base/encoder_model_fp16.onnx", null, null, false, null);
-        // 文本摘要(Chinese-T5-base)：中文 T5-base 文本摘要，中文优化；适用中文文本摘要、生成
-        reg("chinese-t5-base", "com.chua.deeplearning.support.onnx.seq2seq.ChineseT5BaseTranslator", String.class, String.class, Object.class, "nlp/seq2seq/chinese-t5-base/encoder_model.onnx", "https://huggingface.co/hfl/chinese-t5-base/resolve/main/encoder_model.onnx", false, null);
-        // 文本摘要(Chinese-BART-base)：中文 BART-base 文本摘要；适用中文文本摘要、文章概括
-        reg("chinese-bart-base", "com.chua.deeplearning.support.onnx.seq2seq.ChineseBartBaseTranslator", String.class, String.class, Object.class, "nlp/seq2seq/chinese-bart-base-cluecorpussmall/model.onnx", "https://huggingface.co/UER/bart-base-chinese-cluecorpussmall/resolve/main/model.onnx", false, null);
-        // 文本摘要(Chinese-BART-large)：中文 BART-large 文本摘要，容量更大效果更好；适用高质量中文文本摘要
-        reg("chinese-bart-large", "com.chua.deeplearning.support.onnx.seq2seq.ChineseBartLargeTranslator", String.class, String.class, Object.class, "nlp/seq2seq/chinese-bart-large/model.onnx", "https://huggingface.co/fnlp/bart-large-chinese/resolve/main/model.onnx", false, null);
-        // 文本摘要(Randeng-T5)：中文 Randeng-T5 文本生成，基于 T5 架构；适用中文文本生成、摘要
-        reg("randeng-t5", "com.chua.deeplearning.support.onnx.seq2seq.RandengT5Translator", String.class, String.class, Object.class, "nlp/seq2seq/randeng-t5-77m-chinese/encoder_model.onnx", "https://huggingface.co/IDEA-CCNL/Randeng-T5-77M-Chinese/resolve/main/encoder_model.onnx", false, null);
-        // 文本摘要(Randeng-BART)：中文 Randeng-BART 文本摘要，139M 参数；适用高质量中文文本摘要
-        reg("randeng-bart", "com.chua.deeplearning.support.onnx.seq2seq.RandengBartTranslator", String.class, String.class, Object.class, "nlp/seq2seq/randeng-bart-139m/model.onnx", "https://huggingface.co/IDEA-CCNL/Randeng-BART-139M/resolve/main/model.onnx", false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx");
-        // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译中文
-        reg("opus-mt-en-zh", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnZhTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
-        // 机器翻译(opus-mt-zh-ja)：Helsinki-NLP 中译日 MarianMT，ONNX 自动下载（~30MB 量化）；适用中文翻译日文
-        reg("opus-mt-zh-ja", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhJaTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
-        // 机器翻译(opus-mt-en-fr)：Helsinki-NLP 英译法 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译法文
-        reg("opus-mt-en-fr", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnFrTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
-        // 机器翻译(opus-mt-en-de)：Helsinki-NLP 英译德 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译德文
-        reg("opus-mt-en-de", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnDeTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
-        // 机器翻译(opus-mt-en-es)：Helsinki-NLP 英译西 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译西班牙文
-        reg("opus-mt-en-es", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnEsTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
-        // 机器翻译(opus-mt-en-ru)：Helsinki-NLP 英译俄 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译俄文
-        reg("opus-mt-en-ru", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnRuTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
+        // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，嵌入式模型 jar 提供，无需下载；适用英文翻译中文
+        reg("opus-mt-en-zh", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnZhTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_en_zh/encoder_model_quantized.onnx");
         // 动漫人脸检测(YOLOv8n)：检测动漫/二次元图片中的人脸（YOLOv8 v1.4_n）；适用动漫人脸检测、二次元内容分析。模型内嵌 jar（utils-support-models-onnx-anime-face）
         reg("anime-face-detector", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/anime-face/model.onnx");
         // 零样本分割(CLIPSeg)：用文本描述分割图像（如"分割出汽车"），无需训练；适用零样本语义分割、文本引导分割
@@ -323,6 +307,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("bge-small-en-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeEmbeddingClient", String.class, float[].class, Object.class, "nlp/embedding/bge-small-en-v1.5/onnx/model_fp16.onnx");
         // 文本嵌入(BGE-small-zh)：中文句向量（512维），BGE 系列中文版，离线 jar 版；适用中文语义搜索、向量检索
         reg("bge-small-zh-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/bge-small-zh-v1.5/model.onnx", "https://huggingface.co/onnx-community/bge-small-zh-v1.5-ONNX/resolve/main/onnx/model.onnx", false, null);
+        // 文本嵌入(BGE-base-zh)：中文句向量（768维），BGE 系列中文 base 版，自动下载；适用高精度中文语义搜索
+        reg("bge-base-zh-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/bge-base-zh-v1.5/model.onnx", "https://huggingface.co/onnx-community/bge-base-zh-v1.5-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/bge-base-zh-v1.5-ONNX/resolve/main/onnx/model.onnx"), false, null);
+        // 文本嵌入(BGE-base-en)：英文句向量（768维），BGE 系列英文 base 版，自动下载；适用高精度英文语义搜索
+        reg("bge-base-en-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/bge-base-en-v1.5/model.onnx", "https://huggingface.co/onnx-community/bge-base-en-v1.5-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/bge-base-en-v1.5-ONNX/resolve/main/onnx/model.onnx"), false, null);
         // 文本嵌入(Granite-embedding-small)：IBM Granite 英文句向量；适用英文语义搜索
         reg("granite-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class, float[].class, Object.class, "nlp/embedding/granite-embedding-small/model.onnx", "https://huggingface.co/onnx-community/granite-embedding-small-english-r2-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 文本嵌入(BGE-M3)：多语言句向量（1024维），支持中英等多语言，自动下载；适用多语言语义搜索、跨语言检索

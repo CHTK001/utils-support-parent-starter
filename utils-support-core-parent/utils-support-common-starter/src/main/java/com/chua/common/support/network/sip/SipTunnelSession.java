@@ -1,6 +1,5 @@
 package com.chua.common.support.network.sip;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -8,10 +7,9 @@ import java.util.function.Consumer;
 /**
  * SIP 隧道会话，表示访问方与服务提供方之间的一条双向数据通道。
  *
- * <p>会话建立后，两端可通过 {@link #send(String)} 发送文本、
- * {@link #sendBytes(byte[])} 发送二进制数据（内部 Base64 编码），
- * 通过 {@link #onData(Consumer)} / {@link #onBytes(Consumer)} 接收对端数据，
- * 通过 {@link #close()} 关闭通道。数据帧经 SipServer 按通道标识路由转发。</p>
+ * <p>会话建立后，两端通过 {@link #sendBytes(byte[])} 发送数据、
+ * 通过 {@link #onBytes(Consumer)} 接收对端数据、
+ * 通过 {@link #close()} 关闭通道。数据经 frp 数据平面裸字节流直连转发。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -54,6 +52,11 @@ public class SipTunnelSession {
     private volatile boolean open = true;
 
     /**
+     * frp 数据平面连接（承载裸字节流）
+     */
+    private volatile SipTunnelStream dataStream;
+
+    /**
      * 创建隧道会话。
      *
      * @param client      关联的 SIP 客户端
@@ -94,21 +97,19 @@ public class SipTunnelSession {
     }
 
     /**
-     * 向通道对端发送数据。
-     *
-     * @param data 数据内容
-     */
-    public void send(String data) {
-        client.sendTunnelData(channelId, data);
-    }
-
-    /**
-     * 向通道对端发送二进制数据（内部 Base64 编码）。
+     * 向通道对端发送二进制数据（走 frp 数据平面裸字节流）。
      *
      * @param data 字节数据
      */
     public void sendBytes(byte[] data) {
-        client.sendTunnelData(channelId, Base64.getEncoder().encodeToString(data));
+        SipTunnelStream stream = dataStream;
+        if (stream != null && !stream.isClosed()) {
+            try {
+                stream.send(data);
+            } catch (Exception e) {
+                close();
+            }
+        }
     }
 
     /**
@@ -145,9 +146,32 @@ public class SipTunnelSession {
     }
 
     /**
+     * 绑定 frp 数据平面连接。
+     *
+     * @param stream 数据平面连接
+     */
+    void attachStream(SipTunnelStream stream) {
+        this.dataStream = stream;
+        stream.startRead(this::dispatchBytes);
+    }
+
+    /**
+     * 是否已启用数据平面。
+     *
+     * @return true 表示已启用
+     */
+    public boolean isStreamActive() {
+        return dataStream != null && !dataStream.isClosed();
+    }
+
+    /**
      * 关闭通道。
      */
     public void close() {
+        SipTunnelStream stream = dataStream;
+        if (stream != null) {
+            stream.close();
+        }
         client.closeTunnel(channelId);
         dispatchClose();
     }
@@ -164,13 +188,9 @@ public class SipTunnelSession {
             } catch (Exception ignored) {
             }
         }
-        byte[] bytes = null;
         for (Consumer<byte[]> listener : bytesListeners) {
-            if (bytes == null) {
-                bytes = Base64.getDecoder().decode(data);
-            }
             try {
-                listener.accept(bytes);
+                listener.accept(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             } catch (Exception ignored) {
             }
         }
@@ -181,9 +201,32 @@ public class SipTunnelSession {
      */
     void dispatchClose() {
         open = false;
+        SipTunnelStream stream = dataStream;
+        if (stream != null) {
+            stream.close();
+        }
         for (Consumer<String> listener : closeListeners) {
             try {
                 listener.accept(channelId);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * 分发数据平面收到的原始字节（跳过 Base64 解码）。
+     *
+     * <p>由 {@link SipTunnelStream} 的读线程调用。</p>
+     *
+     * @param data 原始字节数据
+     */
+    void dispatchBytes(byte[] data) {
+        if (!open) {
+            return;
+        }
+        for (Consumer<byte[]> listener : bytesListeners) {
+            try {
+                listener.accept(data);
             } catch (Exception ignored) {
             }
         }

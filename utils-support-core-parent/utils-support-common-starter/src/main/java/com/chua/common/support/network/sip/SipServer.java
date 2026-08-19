@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
@@ -79,6 +80,11 @@ public class SipServer {
     private SyncServer kcpServer;
 
     /**
+     * frp 数据平面（独立端口承载隧道数据）
+     */
+    private SipDataPlane dataPlane;
+
+    /**
      * 是否正在运行
      */
     private volatile boolean running;
@@ -114,8 +120,18 @@ public class SipServer {
         if (config.isKcpEnabled()) {
             startTransport("kcp", config.getKcpPort());
         }
+        if (config.isDataPlaneEnabled()) {
+            try {
+                dataPlane = new SipDataPlane(config.getHost(), config.getDataPort(), config.getToken(),
+                        this::handleDataPlaneClosed);
+                dataPlane.start();
+            } catch (Exception e) {
+                log.warn("SIP 数据平面启动失败: {}", e.getMessage());
+            }
+        }
         running = true;
-        log.info("SIP 服务器启动完成: tcp={}, kcp={}", config.isTcpEnabled(), config.isKcpEnabled());
+        log.info("SIP 服务器启动完成: tcp={}, kcp={}, dataPlane={}",
+                config.isTcpEnabled(), config.isKcpEnabled(), config.isDataPlaneEnabled());
         return this;
     }
 
@@ -168,6 +184,12 @@ public class SipServer {
         if (kcpServer != null) {
             try {
                 kcpServer.stop();
+            } catch (Exception ignored) {
+            }
+        }
+        if (dataPlane != null) {
+            try {
+                dataPlane.stop();
             } catch (Exception ignored) {
             }
         }
@@ -290,23 +312,33 @@ public class SipServer {
             case SipProtocol.CMD_RESP -> handleResp(transport, clientId, payload);
             case SipProtocol.CMD_TUNNEL_REGISTER -> handleTunnelRegister(transport, clientId, payload);
             case SipProtocol.CMD_TUNNEL_OPEN -> handleTunnelOpen(transport, clientId, payload);
-            case SipProtocol.CMD_TUNNEL_DATA -> handleTunnelData(transport, clientId, payload);
             case SipProtocol.CMD_TUNNEL_CLOSE -> handleTunnelClose(transport, clientId, payload);
             default -> log.debug("忽略未知 SIP 信令: {}", topic);
         }
     }
 
     /**
-     * 处理客户端注册，登记可达地址。
+     * 处理客户端注册，校验签名后登记可达地址。
      *
      * @param transport 来源传输实例
      * @param clientId  客户端标识
-     * @param payload   报文内容（host|port）
+     * @param payload   报文内容（host|port|signature）
      */
     private void handleRegister(SyncServer transport, String clientId, String payload) {
         String[] parts = payload.split("\\|");
-        String host = parts.length > 0 ? parts[0] : "";
+        if (parts.length < 3) {
+            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR, "register|缺少签名");
+            return;
+        }
+        String host = parts[0];
         int port = parsePort(parts);
+        String signature = parts[2];
+        String expected = HMacUtils.hmacSha256Hex(config.getToken(), clientId + host + port);
+        if (!expected.equals(signature)) {
+            log.warn("SIP 注册签名校验失败，拒绝接入: clientId={}, host={}:{}", clientId, host, port);
+            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR, "register|签名校验失败");
+            return;
+        }
         registry.put(clientId, new SipPeer(transport, host, port, System.currentTimeMillis()));
         transport.send(clientId, SipProtocol.CMD_REGISTERED, clientId);
         notifyConnectListeners(clientId);
@@ -414,37 +446,14 @@ public class SipServer {
         }
         String channelId = UUID.randomUUID().toString();
         tunnelChannels.put(channelId, new TunnelChannel(clientId, providerId));
+        if (dataPlane != null) {
+            dataPlane.createChannel(channelId);
+        }
         provider.transport().send(providerId, SipProtocol.CMD_TUNNEL_OPEN,
-                channelId + SipProtocol.SEPARATOR + serviceName);
+                channelId + SipProtocol.SEPARATOR + serviceName + SipProtocol.SEPARATOR + config.getDataPort());
         transport.send(clientId, SipProtocol.CMD_TUNNEL_OPENED,
-                requestId + SipProtocol.SEPARATOR + channelId);
+                requestId + SipProtocol.SEPARATOR + channelId + SipProtocol.SEPARATOR + config.getDataPort());
         log.info("SIP 隧道建立: {} <-> {} via {}", clientId, providerId, channelId);
-    }
-
-    /**
-     * 处理隧道数据帧，转发给通道对端。
-     *
-     * @param transport 来源传输实例
-     * @param clientId  发送方客户端标识
-     * @param payload   报文内容（channelId|data）
-     */
-    private void handleTunnelData(SyncServer transport, String clientId, String payload) {
-        String[] parts = payload.split("\\|", 2);
-        String channelId = parts[0];
-        String data = parts.length > 1 ? parts[1] : "";
-        TunnelChannel channel = tunnelChannels.get(channelId);
-        if (channel == null) {
-            return;
-        }
-        String targetId = channel.targetOf(clientId);
-        if (targetId == null) {
-            return;
-        }
-        SipPeer target = registry.get(targetId);
-        if (target != null) {
-            target.transport().send(targetId, SipProtocol.CMD_TUNNEL_DATA,
-                    channelId + SipProtocol.SEPARATOR + data);
-        }
     }
 
     /**
@@ -466,6 +475,9 @@ public class SipServer {
             if (target != null) {
                 target.transport().send(targetId, SipProtocol.CMD_TUNNEL_CLOSE, channelId);
             }
+        }
+        if (dataPlane != null) {
+            dataPlane.closeChannel(channelId);
         }
         log.info("SIP 隧道关闭: {} ({})", channelId, clientId);
     }
@@ -535,10 +547,34 @@ public class SipServer {
                 if (peer != null) {
                     peer.transport().send(peerId, SipProtocol.CMD_TUNNEL_CLOSE, entry.getKey());
                 }
+                if (dataPlane != null) {
+                    dataPlane.closeChannel(entry.getKey());
+                }
                 closedChannels.add(entry.getKey());
             }
         }
         closedChannels.forEach(tunnelChannels::remove);
+    }
+
+    /**
+     * 数据平面通道关闭回调：通知信令层清理隧道路由。
+     *
+     * @param channelId 通道标识
+     * @param reason    关闭原因
+     */
+    private void handleDataPlaneClosed(String channelId, String reason) {
+        TunnelChannel channel = tunnelChannels.remove(channelId);
+        if (channel == null) {
+            return;
+        }
+        SipPeer visitor = registry.get(channel.aId());
+        if (visitor != null) {
+            visitor.transport().send(channel.aId(), SipProtocol.CMD_TUNNEL_CLOSE, channelId);
+        }
+        SipPeer provider = registry.get(channel.bId());
+        if (provider != null) {
+            provider.transport().send(channel.bId(), SipProtocol.CMD_TUNNEL_CLOSE, channelId);
+        }
     }
 
     /**

@@ -266,6 +266,12 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-opus-mt-en-zh</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-duguang-ocr</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

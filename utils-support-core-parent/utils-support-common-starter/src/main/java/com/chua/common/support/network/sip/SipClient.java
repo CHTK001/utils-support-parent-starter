@@ -97,6 +97,21 @@ public class SipClient {
     private final List<BiConsumer<String, String>> tunnelOpenListeners = new CopyOnWriteArrayList<>();
 
     /**
+     * 数据平面服务端端口（由隧道开启报文携带，用于建立独立二进制连接）
+     */
+    private volatile int serverDataPort;
+
+    /**
+     * 认证令牌（注册与数据平面握手签名共用）
+     */
+    private volatile String token = "";
+
+    /**
+     * SipServer 主机（从 syncClient URL 解析）
+     */
+    private final String sipServerHost;
+
+    /**
      * 本地上报的可达地址
      */
     private volatile String localHost;
@@ -116,10 +131,23 @@ public class SipClient {
      *
      * @param transport  传输类型
      * @param syncClient 底层同步客户端
+     * @param sipServerHost SipServer 主机（从 URL 解析）
      */
-    private SipClient(String transport, SyncClient syncClient) {
+    private SipClient(String transport, SyncClient syncClient, String sipServerHost) {
         this.transport = transport;
         this.syncClient = syncClient;
+        this.sipServerHost = sipServerHost;
+    }
+
+    /**
+     * 设置认证令牌（注册与数据平面握手签名共用）。
+     *
+     * @param token 认证令牌
+     * @return 当前客户端实例，支持链式调用
+     */
+    public SipClient setToken(String token) {
+        this.token = token != null ? token : "";
+        return this;
     }
 
     /**
@@ -155,7 +183,14 @@ public class SipClient {
             throw new IllegalStateException("传输 [" + transport + "] 不支持 SyncProtocol，请确认依赖是否齐全");
         }
         SyncClient syncClient = protocol.createClient(url);
-        return new SipClient(transport, syncClient);
+        // 从 URL 解析 SipServer 主机：tcp://host:port → host
+        String sipServerHost = "127.0.0.1";
+        if (url != null) {
+            String addr = url.replaceFirst("^\\w+://", "");
+            int colon = addr.lastIndexOf(':');
+            sipServerHost = colon > 0 ? addr.substring(0, colon) : addr;
+        }
+        return new SipClient(transport, syncClient, sipServerHost);
     }
 
     /**
@@ -189,7 +224,6 @@ public class SipClient {
         syncClient.subscribe(SipProtocol.CMD_TUNNEL_OPEN, this::handleSipMessage);
         syncClient.subscribe(SipProtocol.CMD_TUNNEL_OPENED, this::handleSipMessage);
         syncClient.subscribe(SipProtocol.CMD_TUNNEL_ERROR, this::handleSipMessage);
-        syncClient.subscribe(SipProtocol.CMD_TUNNEL_DATA, this::handleSipMessage);
         syncClient.subscribe(SipProtocol.CMD_TUNNEL_CLOSE, this::handleSipMessage);
     }
 
@@ -241,7 +275,9 @@ public class SipClient {
     public SipClient register(String host, int port) {
         this.localHost = host;
         this.localPort = port;
-        syncClient.send(SipProtocol.CMD_REGISTER, SipProtocol.register(host, port));
+        String signature = com.chua.common.support.lang.algorithm.hmac.HMacUtils.hmacSha256Hex(
+                token, getClientId() + host + port);
+        syncClient.send(SipProtocol.CMD_REGISTER, SipProtocol.register(host, port, signature));
         return this;
     }
 
@@ -381,16 +417,6 @@ public class SipClient {
     }
 
     /**
-     * 向指定隧道通道发送数据。
-     *
-     * @param channelId 通道标识
-     * @param data      数据内容
-     */
-    public void sendTunnelData(String channelId, String data) {
-        syncClient.send(SipProtocol.CMD_TUNNEL_DATA, channelId + SipProtocol.SEPARATOR + data);
-    }
-
-    /**
      * 关闭指定隧道通道。
      *
      * @param channelId 通道标识
@@ -468,7 +494,6 @@ public class SipClient {
             case SipProtocol.CMD_TUNNEL_OPEN -> handleTunnelOpenRequest(payload);
             case SipProtocol.CMD_TUNNEL_OPENED -> handleTunnelOpened(payload);
             case SipProtocol.CMD_TUNNEL_ERROR -> handleTunnelError(payload);
-            case SipProtocol.CMD_TUNNEL_DATA -> handleTunnelData(payload);
             case SipProtocol.CMD_TUNNEL_CLOSE -> handleTunnelClose(payload);
             default -> log.debug("忽略未知 SIP 信令: {}", topic);
         }
@@ -477,14 +502,20 @@ public class SipClient {
     /**
      * 处理隧道开启请求（作为服务提供方收到访问方的隧道请求）。
      *
-     * @param payload 报文内容（channelId|serviceName）
+     * @param payload 报文内容（channelId|serviceName|dataPort）
      */
     private void handleTunnelOpenRequest(String payload) {
-        String[] parts = payload.split("\\|", 2);
+        String[] parts = payload.split("\\|", 3);
         String channelId = parts[0];
         String serviceName = parts.length > 1 ? parts[1] : "";
+        if (parts.length > 2) {
+            serverDataPort = parsePort(parts[2]);
+        }
         SipTunnelSession session = new SipTunnelSession(this, channelId, serviceName);
         openTunnels.put(channelId, session);
+        if (serverDataPort > 0) {
+            attachDataStream(session, SipTunnelStream.ROLE_PROVIDER);
+        }
         for (BiConsumer<String, String> listener : tunnelOpenListeners) {
             try {
                 listener.accept(channelId, serviceName);
@@ -505,13 +536,20 @@ public class SipClient {
             return;
         }
         String requestId = payload.substring(0, separatorIndex);
-        String channelId = payload.substring(separatorIndex + 1);
+        String[] parts = payload.substring(separatorIndex + 1).split("\\|", 2);
+        String channelId = parts[0];
+        if (parts.length > 1) {
+            serverDataPort = parsePort(parts[1]);
+        }
         CompletableFuture<SipTunnelSession> future = pendingTunnels.remove(requestId);
         if (future == null) {
             return;
         }
         SipTunnelSession session = new SipTunnelSession(this, channelId, "");
         openTunnels.put(channelId, session);
+        if (serverDataPort > 0) {
+            attachDataStream(session, SipTunnelStream.ROLE_VISITOR);
+        }
         future.complete(session);
     }
 
@@ -530,21 +568,6 @@ public class SipClient {
         CompletableFuture<SipTunnelSession> future = pendingTunnels.remove(requestId);
         if (future != null) {
             future.completeExceptionally(new IllegalArgumentException(reason));
-        }
-    }
-
-    /**
-     * 处理隧道数据帧，路由到对应会话。
-     *
-     * @param payload 报文内容（channelId|data）
-     */
-    private void handleTunnelData(String payload) {
-        String[] parts = payload.split("\\|", 2);
-        String channelId = parts[0];
-        String data = parts.length > 1 ? parts[1] : "";
-        SipTunnelSession session = openTunnels.get(channelId);
-        if (session != null) {
-            session.dispatchData(data);
         }
     }
 
@@ -658,6 +681,42 @@ public class SipClient {
  * @author CH
      * @since 4.0.0.42
      */
+    /**
+     * 解析端口字符串。
+     *
+     * @param value 端口文本
+     * @return 端口号，解析失败返回 0
+     */
+    private int parsePort(String value) {
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (Exception e) {
+            log.warn("SIP 数据平面端口解析失败: {}", value);
+            return 0;
+        }
+    }
+
+    /**
+     * 建立数据平面连接并绑定到会话（携带签名握手）。
+     *
+     * @param session 隧道会话
+     * @param role    连接角色（visitor / provider）
+     */
+    private void attachDataStream(SipTunnelSession session, String role) {
+        if (sipServerHost == null || serverDataPort <= 0) {
+            return;
+        }
+        try {
+            SipTunnelStream stream = new SipTunnelStream(sipServerHost, serverDataPort,
+                    session.getChannelId(), role, token);
+            session.attachStream(stream);
+            log.debug("SIP 数据平面连接已建立: channel={}, role={}", session.getChannelId(), role);
+        } catch (Exception e) {
+            log.warn("SIP 数据平面连接失败: {}", e.getMessage());
+            session.close();
+        }
+    }
+
     @FunctionalInterface
     public interface SipResponseListener {
 

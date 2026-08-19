@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 public class RustImageOperation implements ImageOperation {
 
     @Override
+    /** 调整大小 */
     public Mono<byte[]> resize(byte[] imageBytes, String format, Integer width, Integer height, Double scale) {
         
         return Mono.fromCallable(() -> {
@@ -73,6 +74,7 @@ public class RustImageOperation implements ImageOperation {
     }
 
     @Override
+    /** Crop */
     public Mono<byte[]> crop(byte[] imageBytes, String format, int x, int y, int width, int height) {
         
         return Mono.fromCallable(() -> {
@@ -98,6 +100,7 @@ public class RustImageOperation implements ImageOperation {
     }
 
     @Override
+    /** Rotate */
     public Mono<byte[]> rotate(byte[] imageBytes, String format, int angle) {
         
         return Mono.fromCallable(() -> {
@@ -123,6 +126,7 @@ public class RustImageOperation implements ImageOperation {
     }
 
     @Override
+    /** 压缩 */
     public Mono<Void> compress(byte[] imageBytes, String format, float quality, String outputFormat, File output) {
         
         return Mono.fromRunnable(() -> {
@@ -189,6 +193,7 @@ public class RustImageOperation implements ImageOperation {
     }
 
     @Override
+    /** Watermark */
     public Mono<byte[]> watermark(byte[] imageBytes, String format, ImageOperation.WatermarkParams params) {
         // Rust 目前没有水印功能，使用 Java 实现
         return Mono.fromCallable(() -> {
@@ -217,6 +222,7 @@ public class RustImageOperation implements ImageOperation {
     }
 
     @Override
+    /** 过滤 */
     public Mono<byte[]> filter(byte[] imageBytes, String format, String filterType, ImageOperation.FilterParams params) {
         
         return Mono.fromCallable(() -> {

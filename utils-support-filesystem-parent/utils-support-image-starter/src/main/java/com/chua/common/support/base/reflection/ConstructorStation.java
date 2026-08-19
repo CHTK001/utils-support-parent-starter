@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 public class ConstructorStation {
 
     @SuppressWarnings("unchecked")
+    /** NewInstance */
     public static <T> T newInstance(Constructor<T> constructor) {
         try {
             constructor.setAccessible(true);
@@ -19,6 +20,7 @@ public class ConstructorStation {
     }
 
     @SuppressWarnings("unchecked")
+    /** NewInstance */
     public static <T> T newInstance(Constructor<T> constructor, Object... args) {
         try {
             constructor.setAccessible(true);

@@ -63,6 +63,32 @@ class Seq2SeqTranslationTest {
     }
 
     /**
+     * T5-base 英文摘要测试（modelscope 下载，int8，官方推荐 beam 参数）。
+     */
+    @Test
+    @DisplayName("t5-base-seq2seq 英文摘要（beam=4）")
+    @EnabledIfSystemProperty(named = "seq2seq.download", matches = "true")
+    void t5BaseSummarize() {
+        ModelRegistry.discoverAll();
+        T5Seq2SeqOrtTranslator.setTaskPrefix("summarize: ");
+        @SuppressWarnings("unchecked")
+        ITranslator<String, String> t5b = (ITranslator<String, String>) (ITranslator<?, ?>)
+                ModelRegistry.createTranslator("t5-base-seq2seq", null);
+        if (t5b instanceof T5Seq2SeqOrtTranslator ort) {
+            ort.setNumBeams(4);
+            ort.setMinNewTokens(30);
+            ort.setMaxNewTokens(200);
+        }
+        String source = "The quick brown fox jumps over the lazy dog near the river bank, "
+                + "and the dog wakes up and chases the fox across the field."
+                + " The farmer watches the animals from his tractor and laughs.";
+        String result = t5b.translate(source);
+        System.out.println("[t5-base-seq2seq] 摘要: " + result);
+        Assertions.assertNotNull(result, "摘要结果不应为 null");
+        Assertions.assertFalse(result.isBlank(), "摘要结果不应为空白");
+    }
+
+    /**
      * 输出 token 大小可控验证：设置 maxNewTokens 后输出在受限范围内，不抛异常。
      */
     @Test

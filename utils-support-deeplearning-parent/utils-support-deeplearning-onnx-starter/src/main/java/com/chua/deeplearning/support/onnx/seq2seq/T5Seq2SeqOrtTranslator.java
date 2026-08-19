@@ -67,6 +67,11 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     private int maxNewTokens = DEFAULT_MAX_NEW_TOKENS;
 
     /**
+     * 束搜索宽度；1 表示贪心解码。
+     */
+    private int numBeams = 1;
+
+    /**
      * 任务前缀（如 "summarize: "），生成前拼接到输入；全局配置，空串表示不拼接。
      */
     private static volatile String taskPrefix = "";
@@ -145,6 +150,15 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     }
 
     /**
+     * 设置束搜索宽度；1 表示贪心解码。
+     *
+     * @param beams 束宽，小于 1 视为 1
+     */
+    public void setNumBeams(int beams) {
+        this.numBeams = Math.max(1, beams);
+    }
+
+    /**
      * 获取注册模型标识。
      *
      * @return t5-seq2seq
@@ -214,7 +228,9 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             }
 
             float[] encoderHidden = runEncoder(sourceIds, sourceMask);
-            List<Long> generated = runDecoder(sourceIds, sourceMask, encoderHidden);
+            List<Long> generated = numBeams > 1
+                    ? runDecoderBeam(sourceIds, sourceMask, encoderHidden)
+                    : runDecoder(sourceIds, sourceMask, encoderHidden);
 
             if (generated.isEmpty()) {
                 return "";
@@ -438,5 +454,226 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             tokenizer = null;
         }
         loaded = false;
+    }
+
+    /**
+     * 束搜索自回归生成（numBeams &gt; 1 时启用）。
+     * <p>维护多个候选假设，每步对每个候选独立扩展并保留分数最高的 numBeams 个，
+     * 显著改善小模型的摘要/生成质量（中文效果提升明显）。</p>
+     *
+     * @param sourceIds     输入 token id
+     * @param sourceMask    输入注意力掩码
+     * @param encoderHidden 编码器隐藏状态
+     * @return 最优假设的 token id 列表
+     * @throws Exception ORT 异常
+     */
+    private List<Long> runDecoderBeam(long[] sourceIds, long[] sourceMask, float[] encoderHidden) throws Exception {
+        int srcLen = sourceIds.length;
+        Set<String> pastInputs = decoderPastSession.getInputNames();
+
+        // 首步：decoder 起始 token + 编码器上下文
+        Map<String, OnnxTensor> feed = new HashMap<>();
+        feed.put("input_ids", OnnxTensor.createTensor(ortEnv,
+                LongBuffer.wrap(new long[]{def.decoderStartId()}), new long[]{1, 1}));
+        feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv,
+                LongBuffer.wrap(sourceMask), new long[]{1, srcLen}));
+        if (decoderSession.getInputNames().contains("encoder_hidden_states")) {
+            feed.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
+                    FloatBuffer.wrap(encoderHidden), new long[]{1, srcLen, encoderHidden.length / srcLen}));
+        }
+        float[] firstRow;
+        float[][][] firstDKv;
+        float[][][] firstEKv;
+        long[] eKvShape;
+        int heads;
+        int headDim;
+        int baseDecSeq;
+        try (OrtSession.Result first = decoderSession.run(feed)) {
+            OnnxTensor lt = (OnnxTensor) first.get("logits").get();
+            firstRow = ((float[][][]) lt.getValue())[0][0].clone();
+            firstDKv = new float[def.numLayers()][2][];
+            firstEKv = new float[def.numLayers()][2][];
+            boolean hasE = first.get("present.0.encoder.key").isPresent();
+            long[] d0 = ((OnnxTensor) first.get("present.0.decoder.key").get()).getInfo().getShape();
+            heads = (int) d0[1];
+            headDim = (int) d0[3];
+            baseDecSeq = (int) d0[2];
+            for (int i = 0; i < def.numLayers(); i++) {
+                firstDKv[i][0] = tensorData(first, "present." + i + ".decoder.key");
+                firstDKv[i][1] = tensorData(first, "present." + i + ".decoder.value");
+                if (hasE) {
+                    firstEKv[i][0] = tensorData(first, "present." + i + ".encoder.key");
+                    firstEKv[i][1] = tensorData(first, "present." + i + ".encoder.value");
+                }
+            }
+            eKvShape = hasE
+                    ? ((OnnxTensor) first.get("present.0.encoder.key").get()).getInfo().getShape()
+                    : null;
+        }
+
+        // 初始化 numBeams 个候选（各自持有独立 KV 副本）
+        List<Beam> beams = new ArrayList<>();
+        for (long tok : topKTokens(firstRow, numBeams, List.of(), false)) {
+            List<Long> ids = new ArrayList<>();
+            ids.add(tok);
+            beams.add(new Beam(ids, firstRow[(int) tok], cloneKv(firstDKv), baseDecSeq + 1, false));
+        }
+        if (beams.isEmpty()) {
+            return List.of();
+        }
+
+        List<Beam> finished = new ArrayList<>();
+        for (int step = 0; step < maxNewTokens && !beams.isEmpty(); step++) {
+            List<Beam> next = new ArrayList<>();
+            for (Beam b : beams) {
+                long last = b.ids.get(b.ids.size() - 1);
+                Map<String, OnnxTensor> f = new HashMap<>();
+                f.put("input_ids", OnnxTensor.createTensor(ortEnv,
+                        LongBuffer.wrap(new long[]{last}), new long[]{1, 1}));
+                f.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv,
+                        LongBuffer.wrap(sourceMask), new long[]{1, srcLen}));
+                if (pastInputs.contains("encoder_hidden_states")) {
+                    f.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
+                            FloatBuffer.wrap(encoderHidden), new long[]{1, srcLen, encoderHidden.length / srcLen}));
+                }
+                long[] decShape = {1, heads, b.decSeq, headDim};
+                for (int l = 0; l < def.numLayers(); l++) {
+                    String dk = "past_key_values." + l + ".decoder.key";
+                    String dv = "past_key_values." + l + ".decoder.value";
+                    if (pastInputs.contains(dk)) {
+                        f.put(dk, OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(b.dKv[l][0]), decShape));
+                    }
+                    if (pastInputs.contains(dv)) {
+                        f.put(dv, OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(b.dKv[l][1]), decShape));
+                    }
+                    String ek = "past_key_values." + l + ".encoder.key";
+                    String ev = "past_key_values." + l + ".encoder.value";
+                    if (eKvShape != null && pastInputs.contains(ek)) {
+                        f.put(ek, OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(firstEKv[l][0]), eKvShape));
+                    }
+                    if (eKvShape != null && pastInputs.contains(ev)) {
+                        f.put(ev, OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(firstEKv[l][1]), eKvShape));
+                    }
+                }
+                try (OrtSession.Result r = decoderPastSession.run(f)) {
+                    OnnxTensor lt = (OnnxTensor) r.get("logits").get();
+                    float[] row = ((float[][][]) lt.getValue())[0][0].clone();
+                    boolean allowEos = b.ids.size() >= minNewTokens;
+                    for (long tok : topKTokens(row, numBeams, b.ids, allowEos)) {
+                        float score = b.score + row[(int) tok];
+                        float[][][] newDkv = new float[def.numLayers()][2][];
+                        for (int l = 0; l < def.numLayers(); l++) {
+                            newDkv[l][0] = tensorData(r, "present." + l + ".decoder.key");
+                            newDkv[l][1] = tensorData(r, "present." + l + ".decoder.value");
+                        }
+                        if (tok == def.eosId()) {
+                            // 完成假设（不含 EOS token）
+                            finished.add(new Beam(b.ids, score, newDkv, b.decSeq + 1, true));
+                        } else if (tok == def.decoderStartId()) {
+                            // 忽略重复起始 token
+                        } else {
+                            List<Long> ids = new ArrayList<>(b.ids);
+                            ids.add(tok);
+                            next.add(new Beam(ids, score, newDkv, b.decSeq + 1, false));
+                        }
+                    }
+                }
+            }
+            // 保留分数最高的 numBeams 个活跃假设
+            next.sort((a, b) -> Float.compare(b.score, a.score));
+            if (next.size() > numBeams) {
+                next = new ArrayList<>(next.subList(0, numBeams));
+            }
+            beams = next;
+        }
+
+        if (!finished.isEmpty()) {
+            finished.sort((a, b) -> Float.compare(b.score, a.score));
+            return finished.get(0).ids;
+        }
+        if (!beams.isEmpty()) {
+            beams.sort((a, b) -> Float.compare(b.score, a.score));
+            return beams.get(0).ids;
+        }
+        return List.of();
+    }
+
+    /**
+     * 深拷贝 KV 缓存数组。
+     *
+     * @param src 源 KV
+     * @return 副本
+     */
+    private static float[][][] cloneKv(float[][][] src) {
+        float[][][] copy = new float[src.length][][];
+        for (int i = 0; i < src.length; i++) {
+            copy[i] = new float[2][];
+            for (int j = 0; j < 2; j++) {
+                copy[i][j] = src[i][j] == null ? null : src[i][j].clone();
+            }
+        }
+        return copy;
+    }
+
+    /**
+     * 取 logits 行的 Top-K token id（按分数降序）。
+     * <p>应用重复惩罚、禁止 decoder 起始 token、可选禁用 EOS。</p>
+     *
+     * @param row       logits 行
+     * @param k         返回数量
+     * @param seen      已生成 token（重复惩罚）
+     * @param allowEos  是否允许 EOS
+     * @return token id 列表
+     */
+    private List<Long> topKTokens(float[] row, int k, List<Long> seen, boolean allowEos) {
+        int[] order = new int[row.length];
+        for (int i = 0; i < order.length; i++) {
+            order[i] = i;
+        }
+        // 应用重复惩罚
+        Set<Long> set = new HashSet<>(seen);
+        for (Long token : set) {
+            int idx = token.intValue();
+            if (idx >= 0 && idx < row.length) {
+                float v = row[idx];
+                row[idx] = v < 0 ? v * REPETITION_PENALTY : v / REPETITION_PENALTY;
+            }
+        }
+        row[(int) def.decoderStartId()] = Float.NEGATIVE_INFINITY;
+        if (!allowEos) {
+            row[(int) def.eosId()] = Float.NEGATIVE_INFINITY;
+        }
+        // 简单选择排序取 Top-K
+        int count = Math.min(k, row.length);
+        List<Long> result = new ArrayList<>(count);
+        boolean[] picked = new boolean[row.length];
+        for (int n = 0; n < count; n++) {
+            int best = -1;
+            float bestScore = Float.NEGATIVE_INFINITY;
+            for (int i = 1; i < row.length; i++) {
+                if (!picked[i] && row[i] > bestScore) {
+                    bestScore = row[i];
+                    best = i;
+                }
+            }
+            if (best < 0) {
+                break;
+            }
+            picked[best] = true;
+            result.add((long) best);
+        }
+        return result;
+    }
+
+    /**
+     * 束搜索候选。
+     *
+     * @param ids      已生成 token
+     * @param score    累计分数（logits 和）
+     * @param dKv      解码器 KV 缓存
+     * @param decSeq   当前解码序列长度
+     * @param finished 是否已结束（含 EOS）
+     */
+    private record Beam(List<Long> ids, float score, float[][][] dKv, int decSeq, boolean finished) {
     }
 }

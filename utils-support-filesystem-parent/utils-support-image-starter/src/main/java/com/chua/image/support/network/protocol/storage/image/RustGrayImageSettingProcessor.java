@@ -24,6 +24,7 @@ public class RustGrayImageSettingProcessor implements com.chua.common.support.ne
 
     @Override
     @Nullable
+    /** 处理 */
     public byte[] process(@Nonnull byte[] imageData, @Nonnull String settingValue) {
         if (!RustImageBridge.isInitialized()) {
             return null;

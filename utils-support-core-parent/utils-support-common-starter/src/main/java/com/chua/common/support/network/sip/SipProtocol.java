@@ -88,11 +88,6 @@ public interface SipProtocol {
     String CMD_TUNNEL_ERROR = "sip/tunnel/error";
 
     /**
-     * 隧道数据帧主题（双向字节流封装）
-     */
-    String CMD_TUNNEL_DATA = "sip/tunnel/data";
-
-    /**
      * 隧道关闭主题
      */
     String CMD_TUNNEL_CLOSE = "sip/tunnel/close";
@@ -103,14 +98,15 @@ public interface SipProtocol {
     String SEPARATOR = "|";
 
     /**
-     * 构造注册报文。
+     * 构造注册报文（携带 HMAC-SHA256 签名）。
      *
-     * @param host 可达地址
-     * @param port 可达端口
+     * @param host      可达地址
+     * @param port      可达端口
+     * @param signature 签名（HMAC-SHA256(token, clientId+host+port)）
      * @return 报文内容
      */
-    static String register(String host, int port) {
-        return host + SEPARATOR + port;
+    static String register(String host, int port, String signature) {
+        return host + SEPARATOR + port + SEPARATOR + signature;
     }
 
     /**
