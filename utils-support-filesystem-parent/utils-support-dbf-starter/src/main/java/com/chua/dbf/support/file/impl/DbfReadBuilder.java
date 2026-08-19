@@ -14,10 +14,15 @@ import java.util.*;
 
 public class DbfReadBuilder extends ReadBuilder {
 
+    /**
+     * 创建 DbfReadBuilder 实例
+     * @param file file
+     */
     public DbfReadBuilder(File file) {
         super(file);
     }
 
+    /** Rows */
     public List<Map<String, Object>> rows() {
         List<Map<String, Object>> result = new ArrayList<>();
         try (DBFReader reader = new DBFReader(new FileInputStream(file))) {
@@ -52,6 +57,7 @@ public class DbfReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** 读取 */
     public Object read() {
         return rows();
     }

@@ -101,6 +101,10 @@ public class WhisperAudioClient implements AudioClient {
     /** Prepared */
     private boolean prepared;
 
+    /**
+     * 创建 WhisperAudioClient 实例
+     * @param setting setting
+     */
     public WhisperAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -113,48 +117,56 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** Model */
     public AudioClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Language */
     public AudioClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
+    /** SampleRate */
     public AudioClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
     }
 
     @Override
+    /** 格式化 */
     public AudioClient format(String format) {
         this.format = format;
         return this;
     }
 
     @Override
+    /** Prompt */
     public AudioClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
+    /** Temperature */
     public AudioClient temperature(Double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
+    /** Seed */
     public AudioClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
+    /** Audio */
     public AudioClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -163,6 +175,7 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** Audio */
     public AudioClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
@@ -171,6 +184,7 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** Audio */
     public AudioClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -179,6 +193,7 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** Transcribe */
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -196,6 +211,7 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** 创建Task */
     public String createTask(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -204,6 +220,7 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** 查询Task */
     public AudioResponse queryTask(String taskId) {
         if (!prepared) {
             ensurePrepared();
@@ -226,6 +243,7 @@ public class WhisperAudioClient implements AudioClient {
         }
     }
 
+    /** EnsurePrepared */
     private void ensurePrepared() {
         try {
             String modelName = model != null ? model : DEFAULT_MODEL;
@@ -258,6 +276,7 @@ public class WhisperAudioClient implements AudioClient {
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
+    /** 解析AudioPath */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;
@@ -282,6 +301,7 @@ public class WhisperAudioClient implements AudioClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         translator = null;
         prepared = false;

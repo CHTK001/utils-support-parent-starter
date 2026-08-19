@@ -21,9 +21,11 @@ public final class TencentSignSupport {
             89, 39, 179, 150, 218, 82, 58, 252, 177, 52, 186, 123, 120, 64, 242, 133, 143, 161, 121, 179
     };
 
+    /** 创建 TencentSignSupport 实例 */
     private TencentSignSupport() {
     }
 
+    /** Sign */
     public static String sign(String text) {
         String hash = sha1(text).toUpperCase();
         String part1 = pick(hash, PART_1_INDEXES);
@@ -42,6 +44,7 @@ public final class TencentSignSupport {
         return ("zzc" + part1 + middle + part2).toLowerCase();
     }
 
+    /** Pick */
     private static String pick(String hash, int[] indexes) {
         StringBuilder builder = new StringBuilder();
         int last = hash.length() - 1;
@@ -54,6 +57,7 @@ public final class TencentSignSupport {
         return builder.toString();
     }
 
+    /** Sha */
     private static String sha1(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");

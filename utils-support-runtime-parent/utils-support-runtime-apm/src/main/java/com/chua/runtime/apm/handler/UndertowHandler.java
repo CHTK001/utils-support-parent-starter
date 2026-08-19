@@ -24,31 +24,37 @@ public class UndertowHandler extends AbstractAppHandler {
     private static final String[] HANDLE_REQUEST = {"handleRequest"};
 
     @Override
+    /** Name */
     public String name() {
         return "undertow-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "undertow.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.UNDERTOW;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(HTTP_HANDLER, HANDLE_REQUEST);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

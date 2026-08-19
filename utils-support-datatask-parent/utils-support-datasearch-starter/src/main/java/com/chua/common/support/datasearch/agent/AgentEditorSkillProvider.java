@@ -24,6 +24,7 @@ import java.util.Map;
 public class AgentEditorSkillProvider extends AgentEditorProvider implements SkillProvider {
 
     @Override
+    /** Name */
     public String name() {
         return "datasearch";
     }

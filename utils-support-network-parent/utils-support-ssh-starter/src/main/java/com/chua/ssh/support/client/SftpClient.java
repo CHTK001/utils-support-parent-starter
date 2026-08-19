@@ -62,6 +62,10 @@ public class SftpClient implements AutoCloseable {
      */
     private org.apache.sshd.sftp.client.SftpClient sftp;
 
+    /**
+     * 创建 SftpClient 实例
+     * @param b b
+     */
     private SftpClient(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -71,11 +75,14 @@ public class SftpClient implements AutoCloseable {
         this.connectTimeout = b.connectTimeout;
     }
 
+    /** Builder */
     public static Builder builder() { return new Builder(); }
+    /** 创建 */
     public static SftpClient create(String host, String username, String password) {
         return builder().host(host).username(username).password(password).build();
     }
 
+    /** 连接 */
     public SftpClient connect() {
         try {
             sshClient = SshClient.setUpDefaultClient();
@@ -101,6 +108,7 @@ public class SftpClient implements AutoCloseable {
         return this;
     }
 
+    /** 断开 */
     public void disconnect() {
         try {
             if (sftp != null) {
@@ -119,14 +127,22 @@ public class SftpClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() { disconnect(); }
 
+    /** Upload */
     public UploadOperation upload() { return new UploadOperation(this); }
+    /** Download */
     public DownloadOperation download() { return new DownloadOperation(this); }
+    /** Ls */
     public ListOperation ls() { return new ListOperation(this); }
+    /** 创建目录 */
     public MkdirOperation mkdir() { return new MkdirOperation(this); }
+    /** Rm */
     public RmOperation rm() { return new RmOperation(this); }
+    /** 重命名 */
     public RenameOperation rename() { return new RenameOperation(this); }
+    /** Stat */
     public StatOperation stat() { return new StatOperation(this); }
 
     @Getter
@@ -144,8 +160,11 @@ public class SftpClient implements AutoCloseable {
          */
         private String remotePath;
         UploadOperation(SftpClient client) { this.client = client; }
+        /** Local */
         public UploadOperation local(String p) { localPath = p; return this; }
+        /** Remote */
         public UploadOperation remote(String p) { remotePath = p; return this; }
+        /** Exec */
         public void exec() {
             try {
                 byte[] data = Files.readAllBytes(Path.of(localPath));
@@ -174,8 +193,11 @@ public class SftpClient implements AutoCloseable {
          */
         private String localPath;
         DownloadOperation(SftpClient client) { this.client = client; }
+        /** Remote */
         public DownloadOperation remote(String p) { remotePath = p; return this; }
+        /** Local */
         public DownloadOperation local(String p) { localPath = p; return this; }
+        /** Exec */
         public void exec() {
             try {
                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
@@ -204,7 +226,9 @@ public class SftpClient implements AutoCloseable {
          */
         private String path = ".";
         ListOperation(SftpClient client) { this.client = client; }
+        /** Path */
         public ListOperation path(String p) { path = p; return this; }
+        /** Exec */
         public List<Map<String, Object>> exec() {
             try {
                 Iterable<org.apache.sshd.sftp.client.SftpClient.DirEntry> entries = client.getSftp().readDir(path);
@@ -235,8 +259,11 @@ public class SftpClient implements AutoCloseable {
          */
         private boolean recursive = false;
         MkdirOperation(SftpClient client) { this.client = client; }
+        /** Path */
         public MkdirOperation path(String p) { path = p; return this; }
+        /** Recursive */
         public MkdirOperation recursive(boolean r) { recursive = r; return this; }
+        /** Exec */
         public void exec() {
             try {
                 if (recursive) {
@@ -269,8 +296,11 @@ public class SftpClient implements AutoCloseable {
          */
         private boolean recursive = false;
         RmOperation(SftpClient client) { this.client = client; }
+        /** Path */
         public RmOperation path(String p) { path = p; return this; }
+        /** Recursive */
         public RmOperation recursive(boolean r) { recursive = r; return this; }
+        /** Exec */
         public void exec() {
             try {
                 if (recursive) {
@@ -300,8 +330,11 @@ public class SftpClient implements AutoCloseable {
          */
         private String newPath;
         RenameOperation(SftpClient client) { this.client = client; }
+        /** From */
         public RenameOperation from(String p) { oldPath = p; return this; }
+        /** To */
         public RenameOperation to(String p) { newPath = p; return this; }
+        /** Exec */
         public void exec() {
             try { client.getSftp().rename(oldPath, newPath); log.info("重命名: {} -> {}", oldPath, newPath); }
             catch (Exception e) { throw new SftpClientException("重命名失败", e); }
@@ -319,7 +352,9 @@ public class SftpClient implements AutoCloseable {
          */
         private String path;
         StatOperation(SftpClient client) { this.client = client; }
+        /** Path */
         public StatOperation path(String p) { path = p; return this; }
+        /** Exec */
         public Map<String, Object> exec() {
             try {
                 var attrs = client.getSftp().stat(path);
@@ -359,12 +394,19 @@ public class SftpClient implements AutoCloseable {
          * 连接超时时间（毫秒）
          */
         private int connectTimeout = 30;
+        /** Host */
         public Builder host(String h) { host = h; return this; }
+        /** Port */
         public Builder port(int p) { port = p; return this; }
+        /** Username */
         public Builder username(String u) { username = u; return this; }
+        /** Password */
         public Builder password(String p) { password = p; return this; }
+        /** PrivateKey */
         public Builder privateKey(String path) { this.privateKeyPath = path; return this; }
+        /** 连接Timeout */
         public Builder connectTimeout(int t) { connectTimeout = t; return this; }
+        /** 构建 */
         public SftpClient build() {
             if (host == null) {
                 throw new IllegalArgumentException("host 不能为空");
@@ -377,6 +419,11 @@ public class SftpClient implements AutoCloseable {
     }
 
     public static class SftpClientException extends RuntimeException {
+        /**
+         * 创建 SftpClientException 实例
+         * @param msg msg
+         * @param Throwable Throwable
+         */
         public SftpClientException(String msg, Throwable cause) { super(msg, cause); }
     }
 }

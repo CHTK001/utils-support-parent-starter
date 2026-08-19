@@ -35,6 +35,11 @@ public class VideoWriteBuilder extends WriteBuilder {
     /** Quality */
     private Integer quality;
 
+    /**
+     * 创建 VideoWriteBuilder 实例
+     * @param file file
+     * @param FFmpegProcessor FFmpegProcessor
+     */
     public VideoWriteBuilder(File file, FFmpegProcessor processor) {
         super(file);
         this.processor = processor;

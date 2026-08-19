@@ -38,6 +38,7 @@ public class CpuWidget extends TuiWidget {
     }
 
     @Override
+    /** Render */
     public String render(String data) {
         double usage = parseUsage(data);
         String bar = MordantHelper.progressBarWithPercent(usage, BAR_WIDTH);
@@ -53,6 +54,7 @@ public class CpuWidget extends TuiWidget {
     }
 
     @Override
+    /** 获取DefaultData */
     protected String getDefaultData() {
         return "0.0";
     }

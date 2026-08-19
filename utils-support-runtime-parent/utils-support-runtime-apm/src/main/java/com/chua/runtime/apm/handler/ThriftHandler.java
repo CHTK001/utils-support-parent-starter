@@ -32,31 +32,37 @@ public class ThriftHandler extends AbstractAppHandler {
     private static final String[] CLIENT_METHODS = {"sendBase", "recvBase"};
 
     @Override
+    /** Name */
     public String name() {
         return "thrift-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "thrift.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.THRIFT;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.THRIFT;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(T_SERVICE_CLIENT, CLIENT_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object transport = instance != null ? findField(instance, "iprot_") : null;
         String url = transport != null ? String.valueOf(findField(transport, "trans_")) : null;

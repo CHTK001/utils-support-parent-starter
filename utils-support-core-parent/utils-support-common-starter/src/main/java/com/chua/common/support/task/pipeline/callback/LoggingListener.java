@@ -55,6 +55,7 @@ public class LoggingListener implements PipelineListener {
     }
 
     @Override
+    /** BeforeNode */
     public void beforeNode(PipelineContext<?> context) {
         if (LOGGER.isLoggable(nodeLevel)) {
             LOGGER.log(nodeLevel, "[Pipeline:{0}] >> Enter node: {1}",
@@ -63,6 +64,7 @@ public class LoggingListener implements PipelineListener {
     }
 
     @Override
+    /** AfterNode */
     public void afterNode(PipelineContext<?> context) {
         if (LOGGER.isLoggable(nodeLevel)) {
             LOGGER.log(nodeLevel, "[Pipeline:{0}] << Leave node: {1}",
@@ -71,6 +73,7 @@ public class LoggingListener implements PipelineListener {
     }
 
     @Override
+    /** On记录错误 */
     public String onError(PipelineContext<?> context, Throwable e) {
         LOGGER.log(errorLevel, "[Pipeline:" + context.getPipelineId()
                 + "] !! Error at node: " + context.getCurrentNodeId(), e);
@@ -79,6 +82,7 @@ public class LoggingListener implements PipelineListener {
     }
 
     @Override
+    /** OnComplete */
     public void onComplete(PipelineContext<?> context) {
         if (LOGGER.isLoggable(completeLevel)) {
             LOGGER.log(completeLevel, "[Pipeline:{0}] == Completed. History: {1}",

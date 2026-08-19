@@ -53,6 +53,7 @@ class IonetProtocolFilterTest {
         }
 
         @Override
+        /** Do过滤 */
         public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
             invoked.set(true);
             paths.add(request.getPath());
@@ -60,11 +61,13 @@ class IonetProtocolFilterTest {
         }
 
         @Override
+        /** SupportProtocols */
         public ProtocolType[] supportProtocols() {
             return protocols;
         }
     }
 
+    /** 构建 */
     private static IonetServer build(ExternalJoinEnum joinType) {
         return IonetServer.builder()
                 .port(10100)

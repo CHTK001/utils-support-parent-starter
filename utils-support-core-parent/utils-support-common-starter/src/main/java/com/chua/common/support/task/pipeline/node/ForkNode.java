@@ -138,6 +138,7 @@ public class ForkNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "fork";
     }
@@ -161,6 +162,7 @@ public class ForkNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Params */
     public Map<String, Object> getParams() {
         return params;
     }
@@ -184,6 +186,7 @@ public class ForkNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Env */
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }

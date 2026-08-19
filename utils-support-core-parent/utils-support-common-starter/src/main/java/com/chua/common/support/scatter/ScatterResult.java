@@ -108,26 +108,32 @@ public final class ScatterResult<T> {
         return new ScatterResult<>(nodeId, true, data, null, false, true);
     }
 
+    /** 获取NodeId */
     public String getNodeId() {
         return nodeId;
     }
 
+    /** 是否Success */
     public boolean isSuccess() {
         return success;
     }
 
+    /** 获取Data */
     public T getData() {
         return data;
     }
 
+    /** 获取记录错误Message */
     public String getErrorMessage() {
         return errorMessage;
     }
 
+    /** 是否Timeout */
     public boolean isTimeout() {
         return timeout;
     }
 
+    /** 是否Fallback */
     public boolean isFallback() {
         return fallback;
     }

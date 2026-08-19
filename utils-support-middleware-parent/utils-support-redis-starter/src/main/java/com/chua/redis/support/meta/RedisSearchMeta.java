@@ -25,12 +25,18 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     /** Search引擎 */
     private final RedisSearchEngineImpl searchEngine;
 
+    /**
+     * 创建 RedisSearchMeta 实例
+     * @param metaData metaData
+     * @param RediSearchEngine RediSearchEngine
+     */
     public RedisSearchMeta(AbstractMetaData metaData, RediSearchEngine engine) {
         super(metaData, engine);
         this.searchEngine = new RedisSearchEngineImpl(engine);
     }
 
     @Override
+    /** List */
     public List<SearchIndexDef> list() {
         List<String> indexNames = searchEngine.listIndexes();
         List<SearchIndexDef> result = new ArrayList<>();
@@ -44,26 +50,31 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     }
 
     @Override
+    /** 获取 */
     public SearchIndexDef get(String indexName) {
         return searchEngine.getIndex(indexName);
     }
 
     @Override
+    /** 创建 */
     public SearchIndexCreateBuilder create(String indexName) {
         return new RedisSearchCreateIndexBuilder(indexName);
     }
 
     @Override
+    /** Drop */
     public boolean drop(String indexName) {
         return searchEngine.deleteIndex(indexName);
     }
 
     @Override
+    /** Refresh */
     public boolean refresh(String indexName) {
         return true;
     }
 
     @Override
+    /** Optimize */
     public boolean optimize(String indexName) {
         return true;
     }
@@ -86,18 +97,21 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         }
 
         @Override
+        /** Shards */
         public SearchIndexCreateBuilder shards(int shards) {
             this.shards = shards;
             return this;
         }
 
         @Override
+        /** Replicas */
         public SearchIndexCreateBuilder replicas(int replicas) {
             this.replicas = replicas;
             return this;
         }
 
         @Override
+        /** Field */
         public SearchIndexCreateBuilder field(String name, String type) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -107,6 +121,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         }
 
         @Override
+        /** Field */
         public SearchIndexCreateBuilder field(String name, String type, Consumer<SearchFieldBuilder> config) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -125,23 +140,27 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         }
 
         @Override
+        /** Fields */
         public SearchIndexCreateBuilder fields(List<SearchFieldDef> fields) {
             this.fields.addAll(fields);
             return this;
         }
 
         @Override
+        /** Settings */
         public SearchIndexCreateBuilder settings(Map<String, Object> settings) {
             this.settings.putAll(settings);
             return this;
         }
 
         @Override
+        /** Mappings */
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
             return this;
         }
 
         @Override
+        /** 执行 */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
@@ -167,96 +186,114 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         private double weight = 1.0;
 
         @Override
+        /** Analyzer */
         public SearchFieldBuilder analyzer(String analyzer) {
             this.analyzer = analyzer;
             return this;
         }
 
         @Override
+        /** 搜索Analyzer */
         public SearchFieldBuilder searchAnalyzer(String searchAnalyzer) {
             this.searchAnalyzer = searchAnalyzer;
             return this;
         }
 
         @Override
+        /** Index */
         public SearchFieldBuilder index(boolean indexed) {
             this.indexed = indexed;
             return this;
         }
 
         @Override
+        /** Store */
         public SearchFieldBuilder store(boolean stored) {
             this.stored = stored;
             return this;
         }
 
         @Override
+        /** Keyword */
         public SearchFieldBuilder keyword() {
             return this;
         }
 
         @Override
+        /** Text */
         public SearchFieldBuilder text() {
             return this;
         }
 
         @Override
+        /** Integer */
         public SearchFieldBuilder integer() {
             return this;
         }
 
         @Override
+        /** LongType */
         public SearchFieldBuilder longType() {
             return this;
         }
 
         @Override
+        /** FloatType */
         public SearchFieldBuilder floatType() {
             return this;
         }
 
         @Override
+        /** DoubleType */
         public SearchFieldBuilder doubleType() {
             return this;
         }
 
         @Override
+        /** Date */
         public SearchFieldBuilder date() {
             return this;
         }
 
         @Override
+        /** Bool */
         public SearchFieldBuilder bool() {
             return this;
         }
 
         @Override
+        /** Object */
         public SearchFieldBuilder object() {
             return this;
         }
 
         @Override
+        /** Nested */
         public SearchFieldBuilder nested() {
             return this;
         }
 
         @Override
+        /** Weight */
         public SearchFieldBuilder weight(double weight) {
             this.weight = weight;
             return this;
         }
 
         @Override
+        /** IgnoreAbove */
         public SearchFieldBuilder ignoreAbove(int ignoreAbove) {
             return this;
         }
 
         @Override
+        /** DocValues */
         public SearchFieldBuilder docValues(boolean docValues) {
             return this;
         }
 
         @Override
+        /** NullValue */
         public SearchFieldBuilder nullValue(String nullValue) {
             return this;
         }

@@ -74,6 +74,7 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         ServerHandler handler = factory.resolveHandler(request);
         if (handler != null) {
@@ -84,6 +85,7 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     }
 
     @Override
+    /** Do过滤 */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         ServerHandler handler = factory.resolveHandler(request);
         if (handler instanceof ReactiveServerHandler reactive) {
@@ -92,6 +94,7 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
         if (handler != null) {
             return CompletableFuture.runAsync(new Runnable() {
                 @Override
+                /** 运行 */
                 public void run() {
                     try {
                         handler.handle(request, response);
@@ -161,21 +164,25 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return FILTER_ORDER;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return FILTER_ID;
     }
 
     @Override
+    /** SupportPath */
     public String supportPath() {
         return null;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS};
     }

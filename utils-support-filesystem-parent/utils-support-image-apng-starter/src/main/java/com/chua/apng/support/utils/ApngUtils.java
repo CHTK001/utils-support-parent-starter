@@ -307,29 +307,40 @@ public class ApngUtils {
         /** 高度 */
         private final int height;
 
+        /**
+         * 创建 ApngInfo 实例
+         * @param frameCount frameCount
+         * @param int int
+         * @param int int
+         */
         public ApngInfo(int frameCount, int width, int height) {
             this.frameCount = frameCount;
             this.width = width;
             this.height = height;
         }
 
+        /** 获取Frame计算数量 */
         public int getFrameCount() {
             return frameCount;
         }
 
+        /** 获取Width */
         public int getWidth() {
             return width;
         }
 
+        /** 获取Height */
         public int getHeight() {
             return height;
         }
 
+        /** 是否Animated */
         public boolean isAnimated() {
             return frameCount > 1;
         }
 
         @Override
+        /** ToString */
         public String toString() {
         
             return String.format("ApngInfo{frames=%d, size=%dx%d, animated=%s}", 

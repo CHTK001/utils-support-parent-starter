@@ -18,11 +18,19 @@ import java.util.concurrent.TimeoutException;
  */
 public class SyncThreadExecutor extends AbstractThreadExecutor {
 
+    /**
+     * 创建 SyncThreadExecutor 实例
+     * @param strategy strategy
+     * @param int int
+     * @param long long
+     * @param TimeUnit TimeUnit
+     */
     public SyncThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         super(strategy, threshold, timeout, timeUnit);
     }
 
     @Override
+    /** 提交Tasks */
     protected List<Future<Object>> submitTasks() {
         List<Future<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -37,6 +45,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 无需释放资源
     }
@@ -53,26 +62,31 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
         }
 
         @Override
+        /** Cancel */
         public boolean cancel(boolean mayInterruptIfRunning) {
             return false;
         }
 
         @Override
+        /** 是否Cancelled */
         public boolean isCancelled() {
             return false;
         }
 
         @Override
+        /** 是否Done */
         public boolean isDone() {
             return true;
         }
 
         @Override
+        /** 获取 */
         public Object get() {
             return result;
         }
 
         @Override
+        /** 获取 */
         public Object get(long timeout, TimeUnit unit) {
             return result;
         }
@@ -90,26 +104,31 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
         }
 
         @Override
+        /** Cancel */
         public boolean cancel(boolean mayInterruptIfRunning) {
             return false;
         }
 
         @Override
+        /** 是否Cancelled */
         public boolean isCancelled() {
             return false;
         }
 
         @Override
+        /** 是否Done */
         public boolean isDone() {
             return true;
         }
 
         @Override
+        /** 获取 */
         public Object get() throws ExecutionException {
             throw new ExecutionException(exception);
         }
 
         @Override
+        /** 获取 */
         public Object get(long timeout, TimeUnit unit) throws ExecutionException {
             throw new ExecutionException(exception);
         }

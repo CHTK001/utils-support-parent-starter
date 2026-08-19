@@ -63,14 +63,33 @@ public class FileSource {
      */
     private final String type;
 
+    /**
+     * 创建 FileSource 实例
+     * @param path path
+     */
     private FileSource(String path) {
         this(path, null, null, null, null);
     }
 
+    /**
+     * 创建 FileSource 实例
+     * @param path path
+     * @param InputStream InputStream
+     * @param OutputStream OutputStream
+     * @param String String
+     */
     private FileSource(String path, InputStream inputStream, OutputStream outputStream, String type) {
         this(path, null, inputStream, outputStream, type);
     }
 
+    /**
+     * 创建 FileSource 实例
+     * @param path path
+     * @param URL URL
+     * @param InputStream InputStream
+     * @param OutputStream OutputStream
+     * @param String String
+     */
     private FileSource(String path, URL url, InputStream inputStream, OutputStream outputStream, String type) {
         this.path = path;
         this.url = url;
@@ -124,38 +143,47 @@ public class FileSource {
         return new FileSource(null, null, null, outputStream, type);
     }
 
+    /** 是否Path */
     public boolean isPath() {
         return path != null;
     }
 
+    /** 是否Url */
     public boolean isUrl() {
         return url != null;
     }
 
+    /** 是否InputStream */
     public boolean isInputStream() {
         return inputStream != null;
     }
 
+    /** 是否OutputStream */
     public boolean isOutputStream() {
         return outputStream != null;
     }
 
+    /** 获取Path */
     public String getPath() {
         return path;
     }
 
+    /** 获取Url */
     public URL getUrl() {
         return url;
     }
 
+    /** 获取InputStream */
     public InputStream getInputStream() {
         return inputStream;
     }
 
+    /** 获取OutputStream */
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
+    /** 获取Type */
     public String getType() {
         return type;
     }

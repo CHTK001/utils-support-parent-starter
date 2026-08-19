@@ -59,6 +59,12 @@ public class JsonRpcClient implements RpcClient {
      */
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 JsonRpcClient 实例
+     * @param rpcRegistryConfigs rpcRegistryConfigs
+     * @param RpcConsumerConfig RpcConsumerConfig
+     * @param String String
+     */
     public JsonRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
         String address = rpcRegistryConfigs != null && !rpcRegistryConfigs.isEmpty()
@@ -73,6 +79,7 @@ public class JsonRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** 获取 */
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type -> {
             Class<T> t = (Class<T>) type;
@@ -132,6 +139,7 @@ public class JsonRpcClient implements RpcClient {
         }
 
         @Override
+        /** 应用 */
         public Object apply(ProxyMethod proxyMethod) {
             int maxRetries = consumerConfig != null && Boolean.FALSE.equals(consumerConfig.getRetryEnabled())
                     ? 0 : (consumerConfig != null && consumerConfig.getRetries() != null ? consumerConfig.getRetries() : 0);
@@ -178,6 +186,7 @@ public class JsonRpcClient implements RpcClient {
             return cur;
         }
 
+        /** Do调用 */
         private Object doInvoke(ProxyMethod proxyMethod) throws Throwable {
             JsonRpcHttpClient client = ensureClient(targetType);
             Map<String, String> headers = buildHeaders();
@@ -214,6 +223,7 @@ public class JsonRpcClient implements RpcClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         clientCache.clear();
         proxyCache.clear();

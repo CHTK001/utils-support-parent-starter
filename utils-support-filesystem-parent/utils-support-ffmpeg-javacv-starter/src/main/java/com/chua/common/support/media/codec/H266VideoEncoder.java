@@ -66,19 +66,36 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     /** Buffered图片转换器 */
     private Java2DFrameConverter bufferedImageConverter;
 
+    /** 创建 H266VideoEncoder 实例 */
     public H266VideoEncoder() {
     }
 
+    /**
+     * 创建 H266VideoEncoder 实例
+     * @param width width
+     * @param int int
+     * @param int int
+     */
     public H266VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
 
+    /**
+     * 创建 H266VideoEncoder 实例
+     * @param width width
+     * @param Integer Integer
+     * @param Integer Integer
+     */
     public H266VideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
             init(width, height, fps);
         }
     }
 
+    /**
+     * 创建 H266VideoEncoder 实例
+     * @param args args
+     */
     public H266VideoEncoder(Object... args) {
         if (args != null && args.length >= 3
                 && args[0] instanceof Number
@@ -90,6 +107,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
+    /** 初始化 */
     public boolean init(int width, int height, int fps) {
         close();
         this.width = ensureEven(width);
@@ -122,30 +140,36 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
         return this.started;
     }
 
+    /** EnsureEven */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
 
     @Override
+    /** 获取CodecName */
     public String getCodecName() {
         return CODEC_NAME_H266;
     }
 
     @Override
+    /** 获取CodecId */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H266;
     }
 
     @Override
+    /** 是否HardwareAccelerated */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
+    /** ForceKeyFrame */
     public void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
 
+    /** EnsureInitialized */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || recorder == null) {
             init(w, h, f);
@@ -153,6 +177,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public byte[] encode(BufferedImage image) {
         if (image == null) {
             return new byte[0];
@@ -178,6 +203,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -194,6 +220,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
+    /** 编码Internal */
     private byte[] encodeInternal(Frame frame) {
         if (!started || recorder == null) {
             return new byte[0];
@@ -218,6 +245,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         started = false;
         if (recorder != null) {
@@ -253,6 +281,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
         keyFrameRequested = false;
     }
 
+    /** EnsureBgr */
     private static BufferedImage ensureBgr(BufferedImage src) {
         if (src.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             return src;

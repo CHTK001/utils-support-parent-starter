@@ -47,6 +47,7 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
+    /** GenerateKeyPair */
     public KeyPair generateKeyPair() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -58,6 +59,7 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
+    /** Encrypt */
     public byte[] encrypt(byte[] publicKey, byte[] data) {
         try {
             KeyPair ephemeral = generateKeyPair();
@@ -107,6 +109,7 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
+    /** Decrypt */
     public byte[] decrypt(byte[] privateKey, byte[] ciphertext) {
         try {
             int off = 0;

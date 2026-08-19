@@ -22,25 +22,39 @@ import java.util.List;
 
 public class MysqlMetaView extends AbstractMetaView {
 
+    /**
+     * 创建 MysqlMetaView 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     */
     protected MysqlMetaView(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
+    /**
+     * 创建 MysqlMetaView 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     * @param String String
+     */
     protected MysqlMetaView(AbstractMetaData metaData, Engine engine, String viewName) {
         super(metaData, engine, viewName);
     }
 
     @Override
+    /** 创建 */
     public ViewCreateBuilder create(String viewName) {
         return new MysqlViewCreateBuilder(this, viewName);
     }
 
     @Override
+    /** Alter */
     public ViewAlterBuilder alter() {
         return new MysqlViewAlterBuilder(this);
     }
 
     @Override
+    /** Drop */
     public boolean drop() {
         if (viewName == null) {
             throw new IllegalStateException("未指定视图名");
@@ -48,6 +62,7 @@ public class MysqlMetaView extends AbstractMetaView {
         return executeUpdate("DROP VIEW IF EXISTS " + quote(viewName));
     }
 
+    /** 读取ViewDefinition */
     protected String readViewDefinition(Connection conn, String schema, String viewName) throws Exception {
         String sql = "SHOW CREATE VIEW " + quote(schema != null ? schema + "." + viewName : viewName);
         try (java.sql.Statement stmt = conn.createStatement();
@@ -59,6 +74,7 @@ public class MysqlMetaView extends AbstractMetaView {
         return null;
     }
 
+    /** 获取Connection */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -71,10 +87,12 @@ public class MysqlMetaView extends AbstractMetaView {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
+    /** Quote */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
+    /** 执行更新 */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -106,35 +124,41 @@ public class MysqlMetaView extends AbstractMetaView {
         }
 
         @Override
+        /** Definition */
         public ViewCreateBuilder definition(String definition) {
             this.definition = definition;
             return this;
         }
 
         @Override
+        /** OrReplace */
         public ViewCreateBuilder orReplace() {
             this.orReplace = true;
             return this;
         }
 
         @Override
+        /** Comment */
         public ViewCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
+        /** Updatable */
         public ViewCreateBuilder updatable() {
             this.updatable = true;
             return this;
         }
 
         @Override
+        /** 校验Option */
         public ViewCreateBuilder checkOption(String checkOption) {
             return this;
         }
 
         @Override
+        /** 执行 */
         public ViewDef execute() {
             if (definition == null || definition.isEmpty()) {
                 throw new IllegalStateException("视图定义不能为空");
@@ -171,18 +195,21 @@ public class MysqlMetaView extends AbstractMetaView {
         }
 
         @Override
+        /** Definition */
         public ViewAlterBuilder definition(String definition) {
             this.definition = definition;
             return this;
         }
 
         @Override
+        /** 重命名To */
         public ViewAlterBuilder renameTo(String newName) {
             this.newName = newName;
             return this;
         }
 
         @Override
+        /** 执行 */
         public ViewDef execute() {
             if (newName != null && !newName.isEmpty()) {
                 metaView.executeUpdate("RENAME TABLE " + metaView.quote(metaView.viewName) + " TO " + metaView.quote(newName));

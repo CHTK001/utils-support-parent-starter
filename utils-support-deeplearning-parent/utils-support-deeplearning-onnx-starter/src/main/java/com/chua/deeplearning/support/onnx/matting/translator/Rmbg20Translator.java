@@ -201,6 +201,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         };
     }
 
+    /** 创建AlphaOnlyImage */
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -213,6 +214,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** 创建RgbaImage */
     private Image createRgbaImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -225,6 +227,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** 创建RgbImage */
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -241,15 +244,18 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** BlendChannel */
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
         return (foreground * alpha + background * inverseAlpha + 127) / 255;
     }
 
+    /** ToAlpha */
     private int toAlpha255(float value) {
         float clipped = Math.max(0f, Math.min(1f, value));
         return Math.round(clipped * 255f);
     }
 
+    /** 解析Mode */
     private static MattingTranslator.MattingMode resolveMode(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return MattingTranslator.MattingMode.RGBA;
@@ -267,6 +273,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         }
     }
 
+    /** 解析Target获取大小 */
     private static int resolveTargetSize(Map<String, ?> arguments) {
         Object configured = arguments == null ? null : arguments.get("targetSize");
         if (configured == null) {

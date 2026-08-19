@@ -53,6 +53,7 @@ public class MemoryEntryEntity {
      */
     private Map<String, Object> metadata;
 
+    /** From */
     public static MemoryEntryEntity from(MemoryEntry entry) {
         if (entry == null) {
             return null;
@@ -70,6 +71,7 @@ public class MemoryEntryEntity {
         return e;
     }
 
+    /** ToEntry */
     public MemoryEntry toEntry() {
         return MemoryEntry.builder()
                 .id(id)

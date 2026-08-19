@@ -16,41 +16,49 @@ public class Hive2Dialect extends AbstractDialect {
     public static final String VERSION = "Apache Hive 2.x";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return "hive2";
     }
 
     @Override
+    /** Driver */
     public String driver() {
         return "org.apache.hive.jdbc.HiveDriver";
     }
 
     @Override
+    /** Url */
     public String url() {
         return "jdbc:hive2://<IP>:<PORT>/<DATABASE>";
     }
 
     @Override
+    /** 打开Quote */
     public char openQuote() {
         return '`';
     }
 
     @Override
+    /** 关闭Quote */
     public char closeQuote() {
         return '`';
     }
 
     @Override
+    /** SupportsLimit */
     public boolean supportsLimit() {
         return true;
     }
 
     @Override
+    /** 处理Sql */
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit();
     }
 
     @Override
+    /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         return switch (jdbcType) {
             case java.sql.Types.INTEGER -> "INT";
@@ -72,11 +80,13 @@ public class Hive2Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取CurrentTimestamp选择String */
     public String getCurrentTimestampSelectString() {
         return "SELECT CURRENT_TIMESTAMP";
     }
 
     @Override
+    /** SupportsPartition */
     public boolean supportsPartition() {
         return true;
     }

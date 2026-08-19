@@ -30,11 +30,16 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     /** 服务器 */
     private com.sun.net.httpserver.HttpServer server;
 
+    /**
+     * 创建 NettyHttpSyncServer 实例
+     * @param setting setting
+     */
     public NettyHttpSyncServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             server = com.sun.net.httpserver.HttpServer.create(
@@ -86,6 +91,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -96,12 +102,14 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         messageQueues.computeIfAbsent(topic, k -> new java.util.LinkedList<>()).add(payload);
     }
 
     @Override
+    /** 发送 */
     public void send(String clientId, String topic, Object message) {
         Map<String, Object> meta = clients.get(clientId);
         if (meta == null) {
@@ -113,31 +121,37 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** 获取ConnectedClients */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
+    /** 获取ClientMetadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
+    /** 拉取Message */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
         while (System.currentTimeMillis() < deadline) {
@@ -157,6 +171,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         return null;
     }
 
+    /** 发送Response */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -166,6 +181,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         }
     }
 
+    /** ExtractParam */
     private String extractParam(String body, String key) {
         String pattern = "\"" + key + "\"";
         int idx = body.indexOf(pattern);
@@ -184,6 +200,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         return body.substring(start + 1, end);
     }
 
+    /** 解析查询 */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -205,6 +222,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         return params;
     }
 
+    /** 通知Listener */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

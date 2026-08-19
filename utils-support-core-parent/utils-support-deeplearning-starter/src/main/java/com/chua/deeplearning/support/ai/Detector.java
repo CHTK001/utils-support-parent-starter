@@ -16,6 +16,7 @@ public interface Detector extends AutoCloseable {
     PredictResultObject<?> detect(Object input);
 
     @Override
+    /** 关闭 */
     default void close() throws Exception {
     }
 }

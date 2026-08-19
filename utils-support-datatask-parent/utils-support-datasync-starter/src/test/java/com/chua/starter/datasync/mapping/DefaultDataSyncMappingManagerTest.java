@@ -62,6 +62,7 @@ class DefaultDataSyncMappingManagerTest {
         assertEquals("src1", mapping.sourceId());
     }
 
+    /** 创建Mapping */
     private static DataSyncMapping createMapping(String id, String inputId, String outputId) {
         return new DefaultDataSyncMapping(id, inputId, "src", outputId, "sink",
                 null, List.of(), 100, "", "", Map.of(), null);

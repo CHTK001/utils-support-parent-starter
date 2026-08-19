@@ -54,9 +54,11 @@ public class FileSearchExample {
     /** 时间格式化 */
     private static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    /** 创建 FileSearchExample 实例 */
     private FileSearchExample() {
     }
 
+    /** Main */
     public static void main(String[] args) {
         CommandLine cli = CommandLine.parse(args)
                 .program("FileSearchExample")
@@ -225,6 +227,7 @@ public class FileSearchExample {
         }
     }
 
+    /** 计算数量Separators */
     private static int countSeparators(String path) {
         int count = 0;
         for (int i = 0; i < path.length(); i++) {
@@ -235,6 +238,7 @@ public class FileSearchExample {
         return count;
     }
 
+    /** 格式化获取大小 */
     private static String formatSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

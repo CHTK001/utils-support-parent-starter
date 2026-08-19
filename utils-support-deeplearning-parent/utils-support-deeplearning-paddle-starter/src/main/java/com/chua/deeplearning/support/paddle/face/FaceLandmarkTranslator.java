@@ -17,6 +17,7 @@ import ai.djl.translate.TranslatorContext;
 public class FaceLandmarkTranslator implements Translator<Image, float[]> {
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         if (array.getShape().dimension() > 1 && array.getShape().get(0) == 1) {
@@ -26,6 +27,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.GRAYSCALE);
         array = NDImageUtils.resize(array, 60, 60, Image.Interpolation.BICUBIC);
@@ -35,6 +37,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
         return new NDList(array);
     }
 
+    /** Std */
     private float std(NDArray points) {
         float[] arr = points.toType(ai.djl.ndarray.types.DataType.FLOAT32, false).toFloatArray();
         double sum = 0;
@@ -45,6 +48,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

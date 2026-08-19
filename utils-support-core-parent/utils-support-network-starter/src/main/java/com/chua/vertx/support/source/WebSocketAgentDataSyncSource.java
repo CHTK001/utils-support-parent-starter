@@ -23,27 +23,36 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     /** 来源ID */
     private final String sourceId;
 
+    /**
+     * 创建 WebSocketAgentDataSyncSource 实例
+     * @param connection connection
+     * @param String String
+     */
     public WebSocketAgentDataSyncSource(com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection, String sourceId) {
         this.connection = connection;
         this.sourceId = sourceId;
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.INPUT;
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** AgentId */
     public String agentId() {
         return connection.getAgentId();
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -65,11 +74,13 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** CurrentOffset */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
+    /** 写入 */
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -89,6 +100,7 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

@@ -74,6 +74,10 @@ public class EmailClient {
     /** SMTP可用 */
     private final boolean smtpAvailable;
 
+    /**
+     * 创建 EmailClient 实例
+     * @param b b
+     */
     private EmailClient(Builder b) {
         this.smtpHost = b.smtpHost;
         this.smtpPort = b.smtpPort;
@@ -94,8 +98,10 @@ public class EmailClient {
 
     // ==================== 工厂方法 ====================
 
+    /** Builder */
     public static Builder builder() { return new Builder(); }
 
+    /** 创建 */
     public static EmailClient create(String smtpHost, String username, String password) {
         return builder().smtpHost(smtpHost).username(username).password(password).build();
     }
@@ -126,6 +132,7 @@ public class EmailClient {
 
     // ==================== SMTP 检测 ====================
 
+    /** 校验SmtpAvailable */
     private boolean checkSmtpAvailable() {
         if (smtpHost == null || smtpHost.isEmpty()) {
             return false;
@@ -171,13 +178,21 @@ public class EmailClient {
 
         SendOperation(EmailClient client) { this.client = client; }
 
+        /** To */
         public SendOperation to(String t) { this.to = t; return this; }
+        /** Subject */
         public SendOperation subject(String s) { this.subject = s; return this; }
+        /** Body */
         public SendOperation body(String b) { this.body = b; return this; }
+        /** Html */
         public SendOperation html(boolean h) { this.html = h; return this; }
+        /** From */
         public SendOperation from(String f) { this.from = f; return this; }
+        /** Cc */
         public SendOperation cc(String c) { this.cc.add(c); return this; }
+        /** Bcc */
         public SendOperation bcc(String b) { this.bcc.add(b); return this; }
+        /** Attachment */
         public SendOperation attachment(String name, byte[] data) { this.attachments.put(name, data); return this; }
 
         /**
@@ -193,6 +208,7 @@ public class EmailClient {
             }
         }
 
+        /** 发送ViaSmtp */
         private SendResult sendViaSmtp() {
             try {
                 Properties props = new Properties();
@@ -205,6 +221,7 @@ public class EmailClient {
 
                 Session session = Session.getInstance(props, new Authenticator() {
                     @Override
+                    /** 获取PasswordAuthentication */
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(client.username, client.password);
                     }
@@ -235,6 +252,7 @@ public class EmailClient {
             }
         }
 
+        /** 发送ViaQueue */
         private SendResult sendViaQueue() {
             // 降级为本地队列，后续轮询发送
             log.info("SMTP 不可用，邮件已加入本地队列: to={}, subject={}", to, subject);
@@ -259,9 +277,13 @@ public class EmailClient {
 
         FetchOperation(EmailClient client) { this.client = client; }
 
+        /** Folder */
         public FetchOperation folder(String f) { this.folder = f; return this; }
+        /** Limit */
         public FetchOperation limit(int l) { this.limit = l; return this; }
+        /** UnreadOnly */
         public FetchOperation unreadOnly(boolean u) { this.unreadOnly = u; return this; }
+        /** 搜索 */
         public FetchOperation search(String s) { this.searchTerm = s; return this; }
 
         /**
@@ -352,8 +374,11 @@ public class EmailClient {
 
         WatchOperation(EmailClient client) { this.client = client; }
 
+        /** Folder */
         public WatchOperation folder(String f) { this.folder = f; return this; }
+        /** 取出Interval */
         public WatchOperation pollInterval(int seconds) { this.pollInterval = seconds; return this; }
+        /** OnMessage */
         public WatchOperation onMessage(Consumer<Map<String, Object>> h) { this.onMessage = h; return this; }
 
         /**
@@ -404,6 +429,7 @@ public class EmailClient {
 
     // ==================== 结果类 ====================
 
+    /** 发送Result */
     public record SendResult(boolean success, String messageId, String message) {}
 
     // ==================== Builder ====================
@@ -426,15 +452,24 @@ public class EmailClient {
         /** 密码 */
         private String password;
 
+        /** SmtpHost */
         public Builder smtpHost(String h) { this.smtpHost = h; return this; }
+        /** SmtpPort */
         public Builder smtpPort(int p) { this.smtpPort = p; return this; }
+        /** ImapHost */
         public Builder imapHost(String h) { this.imapHost = h; return this; }
+        /** ImapPort */
         public Builder imapPort(int p) { this.imapPort = p; return this; }
+        /** PopHost */
         public Builder pop3Host(String h) { this.pop3Host = h; return this; }
+        /** PopPort */
         public Builder pop3Port(int p) { this.pop3Port = p; return this; }
+        /** Username */
         public Builder username(String u) { this.username = u; return this; }
+        /** Password */
         public Builder password(String p) { this.password = p; return this; }
 
+        /** 构建 */
         public EmailClient build() {
             // 自动推断 IMAP/POP3 主机
             if (imapHost == null && smtpHost != null) {

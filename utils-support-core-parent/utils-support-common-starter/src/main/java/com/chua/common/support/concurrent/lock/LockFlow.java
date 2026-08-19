@@ -58,6 +58,10 @@ public final class LockFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 LockFlow 实例
+     * @param name name
+     */
     private LockFlow(String name) {
         this.name = name;
     }

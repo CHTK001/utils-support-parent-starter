@@ -42,6 +42,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     private HuggingFaceTokenizer tokenizer;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {
@@ -64,6 +65,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("Tokenizer not initialized");
@@ -85,6 +87,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) {
@@ -113,6 +116,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

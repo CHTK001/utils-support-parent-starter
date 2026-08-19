@@ -29,21 +29,25 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     private volatile boolean closed;
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "default";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 0;
     }
 
     @Override
+    /** 是否Support */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
     @Override
+    /** 注册 */
     public boolean register(BeanDefinition beanDefinition) {
         if (beanDefinition == null || closed) {
             return false;
@@ -59,6 +63,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 注销 */
     public boolean unregister(BeanDefinition beanDefinition) {
         if (beanDefinition == null || closed) {
             return false;
@@ -72,6 +77,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 注销 */
     public boolean unregister(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -81,6 +87,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 获取BeanDefinition */
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed) {
             return null;
@@ -89,6 +96,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 获取BeanDefinitionOfType */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -107,6 +115,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 获取BeanDefinitionOfType */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -123,16 +132,19 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** ContainsBean */
     public boolean containsBean(String beanName) {
         return beanName != null && !closed && beanDefinitions.containsKey(beanName);
     }
 
     @Override
+    /** 获取BeanDefinitionNames */
     public Collection<String> getBeanDefinitionNames() {
         return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
     }
 
     @Override
+    /** 获取BeansWithAnnotation */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -153,6 +165,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 获取BeansWithMethodAnnotation */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -173,12 +186,14 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 初始化 */
     public void initialize() {
         // 内存注册器无需特殊初始化
         closed = false;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         destroySingletons();
@@ -186,6 +201,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
+    /** 是否Closed */
     public boolean isClosed() {
         return closed;
     }

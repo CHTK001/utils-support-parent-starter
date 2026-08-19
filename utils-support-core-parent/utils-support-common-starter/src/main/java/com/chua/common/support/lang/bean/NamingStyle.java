@@ -54,6 +54,7 @@ public enum NamingStyle {
         };
     }
 
+    /** UnderscoreToCamel */
     private static String underscoreToCamel(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;
@@ -71,6 +72,7 @@ public enum NamingStyle {
         return sb.toString();
     }
 
+    /** KebabToCamel */
     private static String kebabToCamel(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;
@@ -88,6 +90,7 @@ public enum NamingStyle {
         return sb.toString();
     }
 
+    /** CamelToUnderscore */
     private static String camelToUnderscore(String camel) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < camel.length(); i++) {
@@ -104,6 +107,7 @@ public enum NamingStyle {
         return sb.toString();
     }
 
+    /** CamelToKebab */
     private static String camelToKebab(String camel) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < camel.length(); i++) {

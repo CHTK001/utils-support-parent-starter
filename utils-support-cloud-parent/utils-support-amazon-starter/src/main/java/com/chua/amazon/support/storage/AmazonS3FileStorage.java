@@ -39,6 +39,10 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     /** Amazon S3 客户端 */
     private final AmazonS3 s3Client;
 
+    /**
+     * 创建 AmazonS3FileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public AmazonS3FileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);
@@ -50,6 +54,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** PutObject */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -70,6 +75,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -95,6 +101,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -102,6 +109,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 删除Object */
     public DeleteObjectResult deleteObject(String key) {
         try {
             s3Client.deleteObject(bucket, key);
@@ -117,6 +125,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ExistObject */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = s3Client.doesObjectExist(bucket, request.getKey());
@@ -133,6 +142,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ListObject */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsV2Request listReq = new ListObjectsV2Request()
@@ -173,6 +183,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (s3Client != null) {
             s3Client.shutdown();

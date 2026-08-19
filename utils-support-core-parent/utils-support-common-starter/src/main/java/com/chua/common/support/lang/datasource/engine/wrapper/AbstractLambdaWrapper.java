@@ -51,12 +51,17 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     /** 表别名，用于多表关联查询 */
     protected String tableAlias;
 
+    /**
+     * 创建 AbstractLambdaWrapper 实例
+     * @param entityClass entityClass
+     */
     protected AbstractLambdaWrapper(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
     // ==================== 条件 API ====================
 
+    /** 创建Condition */
     private Condition createCondition(SFunction<T, ?> column, String operator, Object value) {
         Condition c = new Condition(column, operator, value);
         c.setColumnName(resolveColumn(column));
@@ -299,14 +304,17 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
 
     // ==================== 访问器 ====================
 
+    /** 获取EntityClass */
     public Class<T> getEntityClass() {
         return entityClass;
     }
 
+    /** 获取Conditions */
     public List<Condition> getConditions() {
         return conditions;
     }
 
+    /** 获取OrderBys */
     public List<String> getOrderBys() {
         return orderBys;
     }

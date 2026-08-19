@@ -32,6 +32,10 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     /** 百度 BOS 客户端 */
     private final BosClient bosClient;
 
+    /**
+     * 创建 BaiduBosFileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public BaiduBosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BosClientConfiguration config = new BosClientConfiguration();
@@ -41,6 +45,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** PutObject */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -63,6 +68,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -88,6 +94,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -95,6 +102,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 删除Object */
     public DeleteObjectResult deleteObject(String key) {
         try {
             bosClient.deleteObject(bucket, key);
@@ -110,6 +118,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ExistObject */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = bosClient.doesObjectExist(bucket, request.getKey());
@@ -126,6 +135,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ListObject */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsRequest listReq = new ListObjectsRequest(bucket);
@@ -164,6 +174,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (bosClient != null) {
             bosClient.shutdown();

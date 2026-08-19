@@ -160,6 +160,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
+    /** 获取Table */
     public TableDef getTable(String catalogName, String schemaName, String tableName) {
         TableDef def = new TableDef();
         def.setName(tableName);
@@ -203,6 +204,7 @@ public class HibernateDdlManager implements DslManager {
         return def;
     }
 
+    /** 解析ActualSchema */
     private String resolveActualSchema(DatabaseMetaData meta, String catalog, String schema, String table) throws Exception {
         if (schema != null) {
             return schema;
@@ -224,6 +226,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
+    /** 创建TableDDL */
     public String createTableDDL(String catalogName, String schemaName, String tableName) {
         Dialect d = resolveDialect();
         TableDef def = getTable(catalogName, schemaName, tableName);
@@ -342,6 +345,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
+    /** 重命名Table */
     public String renameTable(String schemaName, String oldTableName, String newTableName) {
         Dialect d = resolveDialect();
         if (d != null) {
@@ -354,6 +358,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
+    /** 复制TableStructure */
     public String copyTableStructure(String schemaName, String sourceTableName, String targetTableName) {
         Dialect d = resolveDialect();
         String src = (d != null) ? d.quote(sourceTableName) : sourceTableName;
@@ -362,6 +367,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
+    /** ListTables */
     public List<TableDef> listTables(String catalogName, String schemaName) {
         List<TableDef> result = new ArrayList<>();
         try (Connection conn = dataSource.getConnection()) {
@@ -379,6 +385,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "hibernate";
     }

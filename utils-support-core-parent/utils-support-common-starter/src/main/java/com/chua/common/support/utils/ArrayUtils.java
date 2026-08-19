@@ -1127,6 +1127,7 @@ public class ArrayUtils {
         return newInstance;
     }
 
+    /** TransToByteArray */
     public static byte[] transToByteArray(float[] value) {
         if (value == null) {
             return null;
@@ -1783,6 +1784,12 @@ public class ArrayUtils {
         DESC
     }
 
+    /**
+     * 排序
+     * @param values values
+     * @param sortedFields sortedFields
+     * @param direction direction
+     */
     public static String[] sort(String[] values,
                                 String[] sortedFields,
                                 SortDirection direction) {

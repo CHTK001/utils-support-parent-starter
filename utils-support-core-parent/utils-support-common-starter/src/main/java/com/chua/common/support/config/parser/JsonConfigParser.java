@@ -34,6 +34,7 @@ import java.util.Map;
 public class JsonConfigParser implements ConfigParser {
 
     @Override
+    /** 解析 */
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             String content = IoUtils.asString(is, StandardCharsets.UTF_8);

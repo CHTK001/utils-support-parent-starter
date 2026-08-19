@@ -52,22 +52,26 @@ public abstract class AbstractEngine implements Engine {
     protected String defaultDataSourceName;
 
     @Override
+    /** 查询 */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new EngineQueryWrapper<>(this, entityClass);
     }
 
     @Override
+    /** 更新 */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new EngineUpdateWrapper<>(this, entityClass);
     }
 
     @Override
+    /** 删除 */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new EngineDeleteWrapper<>(this, entityClass);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 添加DataSource */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
@@ -77,12 +81,14 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    /** 设置DefaultDataSourceName */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
+    /** Store */
     public <T> Engine store(String name, List<T> data) {
         dataStores.put(name, new ArrayList<>(data));
         if (defaultDataSourceName == null) {
@@ -92,49 +98,58 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
     @Override
+    /** 获取Dialect */
     public Dialect getDialect(String n) {
         return null;
     }
 
     @Override
+    /** 获取DefaultDataSourceName */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
+    /** Meta */
     public com.chua.common.support.lang.datasource.meta.MetaData meta() {
         return new DefaultMetaData(this);
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         dataStores.clear();
         dataSources.clear();
     }
 
     @Override
+    /** 设置Tunnel */
     public Engine setTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null) {
@@ -144,6 +159,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    /** 打开Tunnel */
     public int openTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null) {
@@ -155,6 +171,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    /** 关闭Tunnel */
     public Engine closeTunnel(String dataSourceName) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null && ds.tunnelPort() > 0) {
@@ -321,6 +338,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
+    /** 执行更新InMemory */
     private <T> int executeUpdateInMemory(UpdateSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -367,6 +385,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
+    /** 执行删除InMemory */
     private <T> int executeDeleteInMemory(DeleteSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {

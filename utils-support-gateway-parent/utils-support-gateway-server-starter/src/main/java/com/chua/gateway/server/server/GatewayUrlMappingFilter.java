@@ -75,6 +75,7 @@ public final class GatewayUrlMappingFilter extends UrlMappingServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
@@ -97,6 +98,7 @@ public final class GatewayUrlMappingFilter extends UrlMappingServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         // 高优先级（在大多数业务 filter 之前）
         return Integer.MAX_VALUE - 1000;

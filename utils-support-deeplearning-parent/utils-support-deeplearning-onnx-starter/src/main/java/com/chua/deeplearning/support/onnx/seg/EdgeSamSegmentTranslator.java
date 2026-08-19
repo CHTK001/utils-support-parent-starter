@@ -114,6 +114,7 @@ public class EdgeSamSegmentTranslator {
     /** PADY坐标 */
     private int padY;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (encoderSession != null && decoderSession != null) {
             return;
@@ -177,6 +178,7 @@ public class EdgeSamSegmentTranslator {
         return ImageFactory.getInstance().fromImage(mask);
     }
 
+    /** ExtendScale */
     private void extendScale(Image input) {
         srcWidth = input.getWidth();
         srcHeight = input.getHeight();
@@ -222,6 +224,7 @@ public class EdgeSamSegmentTranslator {
         return out;
     }
 
+    /** 编码 */
     private float[][][][] encode(float[][] normalized) {
         long[] shape = new long[]{1, 3, INPUT_SIZE, INPUT_SIZE};
         try (OnnxTensor imageTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(normalized)), shape)) {
@@ -235,6 +238,13 @@ public class EdgeSamSegmentTranslator {
         }
     }
 
+    /**
+     * 解码
+     * @param embeddings embeddings
+     * @param coords coords
+     * @param labels labels
+     * @param scoresOut scoresOut
+     */
     private float[][][][] decode(float[][][][] embeddings, float[][] coords,
                                  float[][] labels, float[] scoresOut) {
         long[] embShape = new long[]{1, 256, EMBED_SIZE, EMBED_SIZE};
@@ -274,6 +284,7 @@ public class EdgeSamSegmentTranslator {
         };
     }
 
+    /** Argmax */
     private int argmax(float[] scores) {
         int best = 0;
         for (int i = 1; i < scores.length; i++) {
@@ -308,6 +319,7 @@ public class EdgeSamSegmentTranslator {
         return result;
     }
 
+    /** ToBufferedImage */
     private BufferedImage toBufferedImage(Image input) {
         if (input == null) {
             throw new IllegalArgumentException("EdgeSAM 输入图像为空");
@@ -323,6 +335,7 @@ public class EdgeSamSegmentTranslator {
         throw new IllegalStateException("EdgeSAM 无法将输入转换为 BufferedImage");
     }
 
+    /** 扁平化 */
     private static float[] flatten(float[][] arr) {
         int n = 0;
         for (float[] row : arr) {
@@ -338,6 +351,7 @@ public class EdgeSamSegmentTranslator {
         return out;
     }
 
+    /** 扁平化 */
     private static float[] flatten4(float[][][][] arr) {
         int n = 0;
         for (float[][][] a : arr) {

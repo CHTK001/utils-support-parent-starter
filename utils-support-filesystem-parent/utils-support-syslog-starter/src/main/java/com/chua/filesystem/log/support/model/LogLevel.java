@@ -33,10 +33,12 @@ public enum LogLevel {
         this.severity = severity;
     }
 
+    /** 获取Severity */
     public int getSeverity() {
         return severity;
     }
 
+    /** MeetsMinimum */
     public boolean meetsMinimum(LogLevel minLevel) {
         return minLevel == null || this.severity >= minLevel.severity;
     }

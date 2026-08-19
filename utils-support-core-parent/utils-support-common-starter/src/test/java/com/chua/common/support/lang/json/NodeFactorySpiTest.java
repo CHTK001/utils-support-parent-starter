@@ -101,9 +101,14 @@ class NodeFactorySpiTest {
      * 测试用节点子类（对象）。
      */
     static class StubJsonObject extends JsonObject {
+        /** 创建 StubJsonObject 实例 */
         public StubJsonObject() {
         }
 
+        /**
+         * 创建 StubJsonObject 实例
+         * @param m m
+         */
         public StubJsonObject(Map m) {
             super(m);
         }
@@ -113,9 +118,14 @@ class NodeFactorySpiTest {
      * 测试用节点子类（数组）。
      */
     static class StubJsonArray extends JsonArray {
+        /** 创建 StubJsonArray 实例 */
         public StubJsonArray() {
         }
 
+        /**
+         * 创建 StubJsonArray 实例
+         * @param collection collection
+         */
         public StubJsonArray(Collection collection) {
             super(collection);
         }
@@ -125,6 +135,10 @@ class NodeFactorySpiTest {
      * 测试用节点子类（节点）。
      */
     static class StubJsonNode extends JsonNode {
+        /**
+         * 创建 StubJsonNode 实例
+         * @param value value
+         */
         public StubJsonNode(Object value) {
             super(value);
         }
@@ -135,26 +149,31 @@ class NodeFactorySpiTest {
      */
     static class StubNodeProvider extends JacksonJsonProvider {
         @Override
+        /** 创建JsonObject */
         public JsonObject createJsonObject() {
             return new StubJsonObject();
         }
 
         @Override
+        /** 创建JsonObject */
         public JsonObject createJsonObject(Map map) {
             return new StubJsonObject(map);
         }
 
         @Override
+        /** 创建JsonArray */
         public JsonArray createJsonArray() {
             return new StubJsonArray();
         }
 
         @Override
+        /** 创建JsonArray */
         public JsonArray createJsonArray(Collection collection) {
             return new StubJsonArray(collection);
         }
 
         @Override
+        /** 创建JsonNode */
         public JsonNode createJsonNode(Object value) {
             return new StubJsonNode(value);
         }

@@ -190,16 +190,19 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取Metadata */
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "rsocket");
     }
@@ -230,6 +233,7 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
+    /** 开始Stream */
     private void startStream(String topic) {
         if (socket == null || socket.isDisposed()) {
             return;
@@ -251,6 +255,7 @@ public class RSocketSyncClient implements SyncClient {
         streamDisposables.put(topic, disposable);
     }
 
+    /** AttemptReconnect */
     private void attemptReconnect() {
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;
@@ -274,6 +279,7 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
+    /** 通知Listeners */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

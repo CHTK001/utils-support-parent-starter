@@ -30,6 +30,7 @@ public final class MdcDecorator {
      */
     public static final String KEY_TRACE_ID = "traceId";
 
+    /** 创建 MdcDecorator 实例 */
     private MdcDecorator() {
     }
 

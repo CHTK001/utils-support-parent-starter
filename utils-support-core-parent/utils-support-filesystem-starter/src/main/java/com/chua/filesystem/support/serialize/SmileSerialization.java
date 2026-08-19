@@ -24,18 +24,21 @@ public class SmileSerialization implements Serialization {
     private static final ObjectMapper MAPPER = new ObjectMapper(new SmileFactory());
 
     @Override
+    /** Name */
     public String name() {
         return "smile";
     }
 
     @SneakyThrows
     @Override
+    /** 序列化 */
     public byte[] serialize(Object obj) {
         return MAPPER.writeValueAsBytes(obj);
     }
 
     @SneakyThrows
     @Override
+    /** 反序列化 */
     public <T> T deserialize(byte[] data, Class<T> type) {
         return MAPPER.readValue(data, type);
     }

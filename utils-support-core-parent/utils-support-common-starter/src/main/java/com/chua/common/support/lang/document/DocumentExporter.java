@@ -57,6 +57,10 @@ public class DocumentExporter {
      */
     private final Map<String, Object> options = new HashMap<>();
 
+    /**
+     * 创建 DocumentExporter 实例
+     * @param data data
+     */
     private DocumentExporter(DocumentData data) {
         this.data = data;
     }

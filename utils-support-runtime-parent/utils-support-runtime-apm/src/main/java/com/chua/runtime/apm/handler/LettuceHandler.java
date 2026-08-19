@@ -33,31 +33,37 @@ public class LettuceHandler extends AbstractAppHandler {
     private static final String[] WRITE_METHODS = {"write", "writeFlush"};
 
     @Override
+    /** Name */
     public String name() {
         return "lettuce-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "lettuce.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.LETTUCE;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.REDIS;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(COMMAND_HANDLER_CLASS, WRITE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object connection = findField(instance, "connection");
         String url = connection != null ? String.valueOf(findField(connection, "url")) : null;

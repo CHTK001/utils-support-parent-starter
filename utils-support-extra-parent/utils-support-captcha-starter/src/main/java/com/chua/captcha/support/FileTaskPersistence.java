@@ -55,6 +55,7 @@ public class FileTaskPersistence implements TaskPersistence {
     }
 
     @Override
+    /** 保存 */
     public synchronized void save(String taskId, CaptchaResponse response) {
         ensureLoaded();
         cache.put(taskId, response);
@@ -62,12 +63,14 @@ public class FileTaskPersistence implements TaskPersistence {
     }
 
     @Override
+    /** 查询 */
     public synchronized Optional<CaptchaResponse> query(String taskId) {
         ensureLoaded();
         return Optional.ofNullable(cache.get(taskId));
     }
 
     @Override
+    /** 删除 */
     public synchronized void delete(String taskId) {
         ensureLoaded();
         cache.remove(taskId);

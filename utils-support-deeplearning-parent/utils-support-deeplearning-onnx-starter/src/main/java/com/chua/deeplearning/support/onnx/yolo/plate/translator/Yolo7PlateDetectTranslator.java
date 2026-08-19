@@ -150,6 +150,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -166,6 +167,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         var manager = ctx.getNDManager();
         int numCls = 2;
@@ -267,6 +269,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

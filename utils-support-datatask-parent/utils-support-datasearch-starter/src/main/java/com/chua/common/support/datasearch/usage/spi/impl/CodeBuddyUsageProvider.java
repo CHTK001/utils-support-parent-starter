@@ -15,5 +15,6 @@ import java.util.List;
 @Spi("codebuddy")
 public class CodeBuddyUsageProvider implements UsageProvider {
     @Override
+    /** 获取Usage */
     public List<AiUsage> getUsage() { return List.of(); }
 }

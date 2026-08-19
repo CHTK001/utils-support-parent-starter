@@ -23,16 +23,19 @@ public class JacksonSerialization implements Serialization {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
+    /** Name */
     public String name() {
         return "jackson";
     }
 
     @Override
+    /** 序列化 */
     public byte[] serialize(Object obj) throws Exception {
         return objectMapper.writeValueAsBytes(obj);
     }
 
     @Override
+    /** 反序列化 */
     public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
         return objectMapper.readValue(data, type);
     }

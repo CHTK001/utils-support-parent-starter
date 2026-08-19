@@ -96,6 +96,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // ---------------------------------------------------------------
 
     @Override
+    /** 添加DataSource */
     public CalciteDataSourceCreator addDataSource(String name, DataSource dataSource) {
         Objects.requireNonNull(name, "dataSource name must not be null");
         Objects.requireNonNull(dataSource, "dataSource must not be null");
@@ -104,6 +105,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
+    /** 添加Scheme */
     public CalciteDataSourceCreator addScheme(DataScheme scheme) {
         Objects.requireNonNull(scheme, "scheme must not be null");
         this.schemes.add(scheme);
@@ -111,6 +113,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
+    /** 添加Table */
     public CalciteDataSourceCreator addTable(String schemaName, DataTable table) {
         Objects.requireNonNull(schemaName, "schemaName must not be null");
         Objects.requireNonNull(table, "table must not be null");
@@ -148,6 +151,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // 创建 DataSource
     // ---------------------------------------------------------------
 
+    /** 创建 */
     public DataSource create() {
         return new UnifiedCalciteDataSource(
                 new LinkedHashMap<>(this.dataSources),
@@ -181,6 +185,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
+        /** 获取Connection */
         public Connection getConnection() throws SQLException {
             Connection connection = DriverManager.getConnection("jdbc:calcite:", calciteProps);
             CalciteConnection calciteConn = connection.unwrap(CalciteConnection.class);
@@ -238,12 +243,14 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
+        /** 获取Connection */
         public Connection getConnection(String username, String password) throws SQLException {
             return getConnection();
         }
 
         @Override
         @SuppressWarnings("unchecked")
+        /** Unwrap */
         public <T> T unwrap(Class<T> iface) throws SQLException {
             if (iface.isInstance(this)) {
                 return (T) this;
@@ -252,29 +259,35 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
+        /** 是否WrapperFor */
         public boolean isWrapperFor(Class<?> iface) {
             return iface.isInstance(this);
         }
 
         @Override
+        /** 获取记录日志Writer */
         public PrintWriter getLogWriter() {
             return null;
         }
 
         @Override
+        /** 设置记录日志Writer */
         public void setLogWriter(PrintWriter out) {
         }
 
         @Override
+        /** 设置LoginTimeout */
         public void setLoginTimeout(int seconds) {
         }
 
         @Override
+        /** 获取LoginTimeout */
         public int getLoginTimeout() {
             return 0;
         }
 
         @Override
+        /** 获取ParentLogger */
         public Logger getParentLogger() {
             return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         }
@@ -293,6 +306,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
+        /** 获取TableMap */
         protected Map<String, Table> getTableMap() {
             return tableMap;
         }

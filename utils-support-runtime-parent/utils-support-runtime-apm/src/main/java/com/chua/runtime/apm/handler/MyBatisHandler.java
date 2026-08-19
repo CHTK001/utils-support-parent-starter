@@ -24,31 +24,37 @@ public class MyBatisHandler extends AbstractAppHandler {
     private static final String[] SQL_METHODS = {"selectOne", "selectList", "selectMap", "insert", "update", "delete"};
 
     @Override
+    /** Name */
     public String name() {
         return "mybatis-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "mybatis.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.MYBATIS;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(SQL_SESSION, SQL_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

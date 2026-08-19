@@ -75,6 +75,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -94,6 +95,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
 
@@ -132,6 +134,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return batchifier;
     }

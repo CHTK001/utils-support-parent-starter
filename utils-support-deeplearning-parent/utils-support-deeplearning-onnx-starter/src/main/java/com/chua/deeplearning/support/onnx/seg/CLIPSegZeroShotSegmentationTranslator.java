@@ -63,15 +63,21 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
+    /** 创建 CLIPSegZeroShotSegmentationTranslator 实例 */
     public CLIPSegZeroShotSegmentationTranslator() {
         this("object");
     }
 
+    /**
+     * 创建 CLIPSegZeroShotSegmentationTranslator 实例
+     * @param String String
+     */
     public CLIPSegZeroShotSegmentationTranslator(@Nonnull String prompt) {
         this.prompt = prompt != null ? prompt : "object";
     }
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
@@ -88,6 +94,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         if (tokenizer == null) {
             throw new IllegalStateException("CLIPSeg tokenizer not initialized");
@@ -118,6 +125,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -130,10 +138,12 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -144,6 +154,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         return modelPath;
     }
 
+    /** 查找File */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

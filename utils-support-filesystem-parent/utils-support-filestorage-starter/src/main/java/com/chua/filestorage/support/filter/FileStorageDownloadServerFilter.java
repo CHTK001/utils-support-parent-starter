@@ -36,15 +36,26 @@ import java.io.IOException;
 @Slf4j
 public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFilter {
 
+    /**
+     * 创建 FileStorageDownloadServerFilter 实例
+     * @param setting setting
+     */
     public FileStorageDownloadServerFilter(FileStorageSetting setting) {
         super(setting);
     }
 
+    /**
+     * 创建 FileStorageDownloadServerFilter 实例
+     * @param setting setting
+     * @param java java
+     * @param cacheDir cacheDir
+     */
     public FileStorageDownloadServerFilter(FileStorageSetting setting, java.nio.file.Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String download = request.getParam("download");
         String flash = request.getParam("flash");
@@ -70,6 +81,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         }
     }
 
+    /** 处理Download */
     private void handleDownload(ServerRequest request, ServerResponse response) throws Exception {
         // 从 path 解析文件路径：/{bucket}/{filepath}
         String key = resolveFilepath(request);
@@ -112,6 +124,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
                 .end(bytes);
     }
 
+    /** 处理Flash */
     private void handleFlash(ServerRequest request, ServerResponse response, String flashTokenOrCmd) throws Exception {
         FlashTokenService svc = getFlashService();
 
@@ -179,6 +192,15 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         }
     }
 
+    /**
+     * 处理Range
+     * @param request request
+     * @param response response
+     * @param getResult getResult
+     * @param mime mime
+     * @param fileName fileName
+     * @param rangeHeader rangeHeader
+     */
     private void handleRange(ServerRequest request, ServerResponse response,
                              com.chua.common.support.storage.result.GetObjectResult getResult,
                              String mime, String fileName, String rangeHeader) throws IOException {
@@ -205,6 +227,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
                 .end(part);
     }
 
+    /** 解析FileName */
     private static String resolveFileName(ServerRequest request, String key) {
         String filename = request.getParam("filename");
         if (!StringUtils.isEmpty(filename)) {
@@ -214,6 +237,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         return key;
     }
 
+    /** 获取Ext */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
             return "";
@@ -221,6 +245,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ENGLISH);
     }
 
+    /** 解析Range */
     private static Range parseRange(String header, long len) {
         String h = header.trim();
         if (!h.startsWith("bytes=")) {
@@ -242,6 +267,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         }
     }
 
+    /** Range */
     private record Range(long start, long end) {
     }
 }

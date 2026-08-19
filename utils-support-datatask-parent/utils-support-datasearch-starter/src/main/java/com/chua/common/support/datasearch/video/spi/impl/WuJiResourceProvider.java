@@ -29,10 +29,15 @@ import java.util.Map;
  */
 @Spi("wuji")
 public class WuJiResourceProvider extends AbstractResourceProvider {
+    /** 创建 WuJiResourceProvider 实例 */
     public WuJiResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 WuJiResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public WuJiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
@@ -57,6 +62,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
     }
 
     @Override
+    /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         try {
             String url = String.format(getUrl(), videoSearch.getKeyword());

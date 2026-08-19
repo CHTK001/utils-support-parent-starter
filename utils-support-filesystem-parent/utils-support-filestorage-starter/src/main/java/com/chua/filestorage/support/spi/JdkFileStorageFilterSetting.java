@@ -35,6 +35,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     /** Excludeextensions */
     private final Set<String> excludeExtensions;
 
+    /** 创建 JdkFileStorageFilterSetting 实例 */
     public JdkFileStorageFilterSetting() {
         this.filterChain = buildFilterChain();
         this.excludePathPatterns = buildExcludePathPatterns();
@@ -42,6 +43,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     @Override
+    /** Capabilities */
     public List<String> capabilities() {
         return List.of(
                 "size", "resize",
@@ -58,11 +60,13 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     @Override
+    /** 获取过滤Chain */
     public List<FileStorageFilterSetting.ImageFilterConfig> getFilterChain() {
         return filterChain;
     }
 
     @Override
+    /** 是否Excluded */
     public boolean isExcluded(String path, String extension) {
         if (extension != null && excludeExtensions.contains(extension.toLowerCase())) {
             return true;
@@ -77,6 +81,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
         return false;
     }
 
+    /** 构建过滤Chain */
     private List<FileStorageFilterSetting.ImageFilterConfig> buildFilterChain() {
         String chainStr = System.getProperty(PREFIX + "chain", "");
         if (chainStr.isBlank()) {
@@ -89,6 +94,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
                 .toList();
     }
 
+    /** 构建ExcludePathPatterns */
     private List<Pattern> buildExcludePathPatterns() {
         String paths = System.getProperty(PREFIX + "exclude.paths", "");
         if (paths.isBlank()) {
@@ -101,6 +107,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
                 .toList();
     }
 
+    /** 构建ExcludeExtensions */
     private Set<String> buildExcludeExtensions() {
         String exts = System.getProperty(PREFIX + "exclude.extensions", "svg");
         return java.util.Arrays.stream(exts.split(","))
@@ -110,6 +117,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
                 .collect(java.util.stream.Collectors.toSet());
     }
 
+    /** AntToRegex */
     private String antToRegex(String ant) {
         return ant
                 .replace("**", "<<<DOUBLESTAR>>>")

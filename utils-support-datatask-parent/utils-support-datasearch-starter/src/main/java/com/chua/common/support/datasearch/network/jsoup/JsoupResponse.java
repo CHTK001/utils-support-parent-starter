@@ -27,32 +27,43 @@ public class JsoupResponse {
     /** Mappings */
     private final Mappings mappings;
 
+    /**
+     * 创建 JsoupResponse 实例
+     * @param html html
+     * @param Mappings Mappings
+     */
     public JsoupResponse(String html, Mappings mappings) {
         this.document = Jsoup.parse(html);
         this.mappings = mappings;
     }
 
+    /** 获取Document */
     public Document getDocument() {
         return document;
     }
 
+    /** 获取Mappings */
     public Mappings getMappings() {
         return mappings;
     }
 
+    /** 查看 */
     public JsoupResponse peek(Consumer<Document> consumer) {
         consumer.accept(document);
         return this;
     }
 
+    /** Map */
     public <R> R map(Function<Document, R> mapper) {
         return mapper.apply(document);
     }
 
+    /** View */
     public View view() {
         return new View(document);
     }
 
+    /** Eval */
     public <T> List<T> eval(Class<T> targetClass) {
         String parentXpath = mappings.getParentXpath();
         List<MappingsPath> mapping = mappings.getMapping();
@@ -63,6 +74,7 @@ public class JsoupResponse {
         return Collections.singletonList(createResult(targetClass, (Map<String, Object>) item));
     }
 
+    /** 创建Result */
     private <T> List<T> createResult(Class<T> targetClass, String parentXpath, List<MappingsPath> mapping) {
         List<T> result = new ArrayList<>();
         Elements elements = document.selectXpath(parentXpath);
@@ -74,6 +86,7 @@ public class JsoupResponse {
         return result;
     }
 
+    /** 创建Result */
     private <T> T createResult(Class<T> targetClass, Map<String, Object> item) {
         T result;
         try {
@@ -85,6 +98,7 @@ public class JsoupResponse {
         return result;
     }
 
+    /** 创建Item */
     private Map<String, Object> createItem(Element element, List<MappingsPath> mapping) {
         Map<String, Object> item = new HashMap<>();
         for (MappingsPath mappingsPath : mapping) {
@@ -103,6 +117,7 @@ public class JsoupResponse {
         return item;
     }
 
+    /** 获取Value */
     private Object getValue(Elements element, MappingsPath mappingsPath) {
         if (mappingsPath.isFirst()) {
             return getItemValue(element.first(), mappingsPath);
@@ -120,6 +135,7 @@ public class JsoupResponse {
         return element.text();
     }
 
+    /** 获取ItemValue */
     private String getItemValue(Element element, MappingsPath mappingsPath) {
         if (null == element) {
             return null;
@@ -131,6 +147,7 @@ public class JsoupResponse {
         return element.text();
     }
 
+    /** Eval */
     public Map<String, Object> eval(MappingsPath mappingsPath) {
         return createItem(document, Collections.singletonList(mappingsPath));
     }
@@ -168,6 +185,7 @@ public class JsoupResponse {
         /** Field */
         private String field;
 
+        /** Builder */
         public static MappingsPathBuilder builder() {
             return new MappingsPathBuilder();
         }
@@ -188,20 +206,34 @@ public class JsoupResponse {
             /** Field */
             private String field;
 
+            /** Path */
             public MappingsPathBuilder path(String path) { this.path = path; return this; }
+            /** Attribute */
             public MappingsPathBuilder attribute(String attribute) { this.attribute = attribute; return this; }
+            /** First */
             public MappingsPathBuilder first(boolean first) { this.first = first; return this; }
+            /** Last */
             public MappingsPathBuilder last(boolean last) { this.last = last; return this; }
+            /** Function */
             public MappingsPathBuilder function(Function<Element, String> function) { this.function = function; return this; }
+            /** Type */
             public MappingsPathBuilder type(PathType type) { this.type = type; return this; }
+            /** Field */
             public MappingsPathBuilder field(String field) { this.field = field; return this; }
+            /** Href */
             public MappingsPathBuilder href() { this.attribute("href"); return this; }
+            /** Src */
             public MappingsPathBuilder src() { this.attribute("src"); return this; }
+            /** 是否First */
             public MappingsPathBuilder isFirst() { this.first(true); return this; }
+            /** 是否Last */
             public MappingsPathBuilder isLast() { this.last(true); return this; }
+            /** Css */
             public MappingsPathBuilder css() { this.type(PathType.CSS); return this; }
+            /** Function */
             public MappingsPathBuilder function() { this.type(PathType.XPATH_FUNCTION); return this; }
 
+            /** 构建 */
             public MappingsPath build() {
                 MappingsPath mappingsPath = new MappingsPath();
                 mappingsPath.path = this.path;
@@ -220,10 +252,20 @@ public class JsoupResponse {
         /** Elements */
         private final Elements elements;
 
+        /**
+         * 创建 View 实例
+         * @param elements elements
+         */
         private View(Elements elements) { this.elements = elements; }
+        /**
+         * 创建 View 实例
+         * @param document document
+         */
         private View(Document document) { this.elements = document.getAllElements(); }
 
+        /** Css */
         public View css(String selector) { return new View(elements.select(selector)); }
+        /** Xpath */
         public View xpath(String xpath) {
             Elements result = new Elements();
             for (Element element : elements) {
@@ -231,11 +273,17 @@ public class JsoupResponse {
             }
             return new View(result);
         }
+        /** 查看 */
         public View peek(Consumer<Elements> consumer) { consumer.accept(elements); return this; }
+        /** Map */
         public <R> R map(Function<Elements, R> mapper) { return mapper.apply(elements); }
+        /** MapList */
         public <R> List<R> mapList(Function<Element, R> mapper) { return elements.stream().map(mapper).toList(); }
+        /** First */
         public <R> R first(Function<Element, R> mapper) { Element first = elements.first(); return first == null ? null : mapper.apply(first); }
+        /** Last */
         public <R> R last(Function<Element, R> mapper) { Element last = elements.last(); return last == null ? null : mapper.apply(last); }
+        /** 获取Elements */
         public Elements getElements() { return elements; }
     }
 }

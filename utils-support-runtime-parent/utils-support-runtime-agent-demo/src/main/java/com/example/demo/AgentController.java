@@ -55,6 +55,7 @@ public class AgentController {
      */
     private static final Logger LOG = Logger.getLogger(AgentController.class.getName());
     @GetMapping("/agent/status")
+    /** Status */
     public Map<String, Object> status() {
         Map<String, Object> result = new HashMap<>();
         result.put("agentStarted", RuntimeAgent.isStarted());
@@ -67,6 +68,7 @@ public class AgentController {
     }
 
     @GetMapping("/agent/traces")
+    /** Traces */
     public List<Map<String, Object>> traces() {
         List<Map<String, Object>> spans = new ArrayList<>();
         TraceHandler handler = ApmBootstrap.getGlobalHandler(TraceHandler.class);
@@ -87,6 +89,7 @@ public class AgentController {
     }
 
     @GetMapping("/agent/logs")
+    /** Logs */
     public List<Map<String, Object>> logs() {
         List<Map<String, Object>> result = new ArrayList<>();
         LogHandler handler = ApmBootstrap.getGlobalHandler(LogHandler.class);
@@ -106,6 +109,7 @@ public class AgentController {
     }
 
     @GetMapping("/agent/net")
+    /** Net */
     public List<Map<String, Object>> net() {
         List<Map<String, Object>> result = new ArrayList<>();
         NetHandler handler = ApmBootstrap.getGlobalHandler(NetHandler.class);
@@ -124,6 +128,7 @@ public class AgentController {
     }
 
     @GetMapping("/agent/files")
+    /** Files */
     public List<Map<String, Object>> files() {
         List<Map<String, Object>> result = new ArrayList<>();
         FileHandler handler = ApmBootstrap.getGlobalHandler(FileHandler.class);
@@ -142,6 +147,7 @@ public class AgentController {
     }
 
     @GetMapping("/agent/mdc")
+    /** Mdc */
     public Map<String, String> mdc() {
         Map<String, String> result = new HashMap<>();
         result.put("traceId", RuntimeSpy.getCurrentTraceId() != null ? RuntimeSpy.getCurrentTraceId() : "");

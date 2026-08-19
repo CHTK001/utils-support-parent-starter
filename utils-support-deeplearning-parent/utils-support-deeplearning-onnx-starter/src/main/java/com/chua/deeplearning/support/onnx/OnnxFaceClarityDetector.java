@@ -48,11 +48,13 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
+    /** Model */
     public FaceClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: "
@@ -62,30 +64,35 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
+    /** BlurThreshold */
     public FaceClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** 最小值FaceRatio */
     public FaceClarityDetector minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceClarityDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Assess */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

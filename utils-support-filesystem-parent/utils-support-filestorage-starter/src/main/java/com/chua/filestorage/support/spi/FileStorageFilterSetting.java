@@ -78,10 +78,12 @@ public interface FileStorageFilterSetting {
      */
     record ImageFilterConfig(String id, Map<String, Object> params) {
 
+        /** Of */
         public static ImageFilterConfig of(String id, Map<String, Object> params) {
             return new ImageFilterConfig(id, params);
         }
 
+        /** Of */
         public static ImageFilterConfig of(String id) {
             return new ImageFilterConfig(id, Collections.emptyMap());
         }

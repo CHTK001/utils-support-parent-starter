@@ -26,11 +26,17 @@ public class MetadataDownloader {
          */
         public String name;
 
+        /** 创建 MetadataResult 实例 */
         public MetadataResult() {
             this.ok = false;
             this.name = null;
         }
 
+        /**
+         * 创建 MetadataResult 实例
+         * @param ok ok
+         * @param String String
+         */
         public MetadataResult(boolean ok, String name) {
             this.ok = ok;
             this.name = name;

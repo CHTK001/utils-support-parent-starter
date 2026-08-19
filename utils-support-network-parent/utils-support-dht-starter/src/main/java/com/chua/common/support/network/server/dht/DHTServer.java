@@ -60,6 +60,11 @@ public class DHTServer extends AbstractServer {
      */
     private DhtCrawlListener crawlListener;
 
+    /**
+     * 创建 DHTServer 实例
+     * @param config config
+     * @param KademliaNodeId KademliaNodeId
+     */
     private DHTServer(DhtConfig config, KademliaNodeId selfId) {
         super(createSetting(config));
         this.config = config;
@@ -75,6 +80,7 @@ public class DHTServer extends AbstractServer {
         return new DhtServerBuilder();
     }
 
+    /** 创建Setting */
     private static ServerSetting createSetting(DhtConfig config) {
         ServerSetting setting = ServerSetting.defaults();
         setting.setProtocol("dht");
@@ -84,11 +90,13 @@ public class DHTServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.UDP;
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             this.bridge = new KrpcDhtBridge();
@@ -112,12 +120,14 @@ public class DHTServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (protocol != null) {
             protocol.close();
         }
     }
 
+    /** 处理KrpcMessage */
     private void handleKrpcMessage(byte[] data, InetSocketAddress sender) {
         try {
             KrpcMessage krpc = KrpcMessage.parse(data);

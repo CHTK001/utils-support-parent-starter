@@ -28,16 +28,19 @@ import java.util.concurrent.TimeUnit;
 public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<RateLimiter> {
 
     @Override
+    /** AnnotationType */
     public Class<RateLimiter> annotationType() {
         return RateLimiter.class;
     }
 
     @Override
+    /** Order */
     public int order() {
         return 100;
     }
 
     @Override
+    /** Intercept */
     public Object intercept(RateLimiter annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         // 解析限流器名称（支持 SpEL），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

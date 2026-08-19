@@ -112,6 +112,7 @@ public enum InterceptPoint {
         this.key = key;
     }
 
+    /** 获取Key */
     public String getKey() {
         return key;
     }

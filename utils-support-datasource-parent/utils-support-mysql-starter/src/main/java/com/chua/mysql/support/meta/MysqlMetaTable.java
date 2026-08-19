@@ -27,25 +27,39 @@ import java.util.List;
 
 public class MysqlMetaTable extends AbstractMetaTable {
 
+    /**
+     * 创建 MysqlMetaTable 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
+    /**
+     * 创建 MysqlMetaTable 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     * @param String String
+     */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);
     }
 
     @Override
+    /** 创建 */
     public TableCreateBuilder create(String tableName) {
         return new MysqlTableCreateBuilder(this, tableName);
     }
 
     @Override
+    /** Alter */
     public TableAlterBuilder alter() {
         return new MysqlTableAlterBuilder(this);
     }
 
     @Override
+    /** Drop */
     public boolean drop() {
         if (tableName == null) {
             throw new IllegalStateException("未指定表名");
@@ -54,6 +68,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     @Override
+    /** 重命名 */
     public boolean rename(String newName) {
         if (tableName == null) {
             throw new IllegalStateException("未指定原表名");
@@ -61,6 +76,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return executeUpdate("RENAME TABLE " + quote(tableName) + " TO " + quote(newName));
     }
 
+    /** 读取Columns */
     protected List<ColumnDef> readColumns(DatabaseMetaData dbMeta, String catalog, String schema, String tableName) throws SQLException {
         List<ColumnDef> columns = new ArrayList<>();
         try (ResultSet rs = dbMeta.getColumns(catalog, schema, tableName, "%")) {
@@ -79,6 +95,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return columns;
     }
 
+    /** 获取Connection */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -141,12 +158,14 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** Column */
         public TableCreateBuilder column(String name, String type) {
             columns.add(new ColumnDef().setName(name).setType(type));
             return this;
         }
 
         @Override
+        /** NotNull */
         public TableCreateBuilder notNull() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setNullable(false);
@@ -155,6 +174,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** PrimaryKey */
         public TableCreateBuilder primaryKey() {
             if (!columns.isEmpty()) {
                 ColumnDef c = columns.get(columns.size() - 1);
@@ -165,6 +185,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** AutoIncrement */
         public TableCreateBuilder autoIncrement() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setAutoIncrement(true);
@@ -173,6 +194,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** Unsigned */
         public TableCreateBuilder unsigned() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setUnsigned(true);
@@ -181,6 +203,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** DefaultValue */
         public TableCreateBuilder defaultValue(String val) {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setDefaultValue(val);
@@ -189,6 +212,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** Comment */
         public TableCreateBuilder comment(String val) {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setComment(val);
@@ -197,6 +221,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** After */
         public TableCreateBuilder after(String columnName) {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setAfter(columnName);
@@ -205,6 +230,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** First */
         public TableCreateBuilder first() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setFirst(true);
@@ -213,6 +239,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** PrimaryKey */
         public TableCreateBuilder primaryKey(String... cols) {
             for (String col : cols) {
                 primaryKeys.add(col);
@@ -221,30 +248,35 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** CommentTable */
         public TableCreateBuilder commentTable(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
+        /** Engine */
         public TableCreateBuilder engine(String engine) {
             this.engine = engine;
             return this;
         }
 
         @Override
+        /** Charset */
         public TableCreateBuilder charset(String charset) {
             this.charset = charset;
             return this;
         }
 
         @Override
+        /** Collate */
         public TableCreateBuilder collate(String collate) {
             this.collate = collate;
             return this;
         }
 
         @Override
+        /** 执行 */
         public TableDef execute() {
             Dialect dialect = metaTable.resolveDialect();
             StringBuilder sb = new StringBuilder();
@@ -318,22 +350,26 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** 添加Column */
         public AlterColumnBuilder addColumn(String name, String type) {
             return new MysqlAlterColumnBuilder(this, "ADD COLUMN `" + name + "` " + type, name);
         }
 
         @Override
+        /** DropColumn */
         public TableAlterBuilder dropColumn(String columnName) {
             sqls.add("DROP COLUMN `" + columnName + "`");
             return this;
         }
 
         @Override
+        /** ModifyColumn */
         public AlterColumnBuilder modifyColumn(String columnName, String newType) {
             return new MysqlAlterColumnBuilder(this, "MODIFY COLUMN `" + columnName + "` " + newType, columnName);
         }
 
         @Override
+        /** 添加PrimaryKey */
         public TableAlterBuilder addPrimaryKey(String... columns) {
             String pkCols = String.join(", ", java.util.Arrays.stream(columns).map(c -> "`" + c + "`").toList());
             sqls.add("ADD PRIMARY KEY (" + pkCols + ")");
@@ -341,40 +377,47 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** DropPrimaryKey */
         public TableAlterBuilder dropPrimaryKey() {
             sqls.add("DROP PRIMARY KEY");
             return this;
         }
 
         @Override
+        /** 添加Index */
         public AlterIndexBuilder addIndex(String indexName) {
             return new MysqlAlterIndexBuilder(this, indexName);
         }
 
         @Override
+        /** DropIndex */
         public TableAlterBuilder dropIndex(String indexName) {
             sqls.add("DROP INDEX `" + indexName + "`");
             return this;
         }
 
         @Override
+        /** 添加ForeignKey */
         public AlterForeignKeyBuilder addForeignKey(String fkName) {
             return new MysqlAlterForeignKeyBuilder(this, fkName);
         }
 
         @Override
+        /** DropForeignKey */
         public TableAlterBuilder dropForeignKey(String fkName) {
             sqls.add("DROP FOREIGN KEY `" + fkName + "`");
             return this;
         }
 
         @Override
+        /** 重命名To */
         public TableAlterBuilder renameTo(String newName) {
             sqls.add("RENAME TO `" + newName + "`");
             return this;
         }
 
         @Override
+        /** 执行 */
         public TableDef execute() {
             if (sqls.isEmpty()) {
                 throw new IllegalStateException("没有需要执行的变更");
@@ -426,6 +469,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** NotNull */
         public AlterColumnBuilder notNull() {
             this.notNull = true;
             rebuildColumnClause();
@@ -433,6 +477,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** DefaultValue */
         public AlterColumnBuilder defaultValue(String val) {
             this.defaultValue = val;
             rebuildColumnClause();
@@ -440,6 +485,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** Comment */
         public AlterColumnBuilder comment(String comment) {
             this.comment = comment;
             rebuildColumnClause();
@@ -447,6 +493,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** After */
         public AlterColumnBuilder after(String columnName) {
             this.after = columnName;
             rebuildColumnClause();
@@ -454,6 +501,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** First */
         public AlterColumnBuilder first() {
             this.first = true;
             rebuildColumnClause();
@@ -461,10 +509,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** 执行 */
         public TableAlterBuilder execute() {
             return parent;
         }
 
+        /** RebuildColumnClause */
         private void rebuildColumnClause() {
             String base = parent.sqls.getLast();
             StringBuilder sb = new StringBuilder();
@@ -509,29 +559,34 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** Column */
         public AlterIndexBuilder column(String columnName) {
             cols.add(columnName);
             return this;
         }
 
         @Override
+        /** Unique */
         public AlterIndexBuilder unique() {
             this.unique = true;
             return this;
         }
 
         @Override
+        /** Type */
         public AlterIndexBuilder type(String type) {
             this.type = type;
             return this;
         }
 
+        /** Comment */
         public AlterIndexBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
+        /** 执行 */
         public TableAlterBuilder execute() {
             StringBuilder sb = new StringBuilder();
             if (unique) {
@@ -573,12 +628,14 @@ public class MysqlMetaTable extends AbstractMetaTable {
             this.fkName = fkName;
         }
 
+        /** Column */
         public AlterForeignKeyBuilder column(String columnName) {
             this.columnName = columnName;
             return this;
         }
 
         @Override
+        /** References */
         public AlterForeignKeyBuilder references(String table, String column) {
             this.refTable = table;
             this.refColumn = column;
@@ -586,18 +643,21 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         @Override
+        /** On删除 */
         public AlterForeignKeyBuilder onDelete(String action) {
             this.onDelete = action;
             return this;
         }
 
         @Override
+        /** On更新 */
         public AlterForeignKeyBuilder onUpdate(String action) {
             this.onUpdate = action;
             return this;
         }
 
         @Override
+        /** 执行 */
         public TableAlterBuilder execute() {
             StringBuilder sb = new StringBuilder();
             sb.append("ADD CONSTRAINT `").append(fkName).append("` FOREIGN KEY (`").append(columnName).append("`) ");
@@ -613,6 +673,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
     }
 
+    /** EscapeSql */
     private static String escapeSql(String value) {
         if (value == null) {
             return "";

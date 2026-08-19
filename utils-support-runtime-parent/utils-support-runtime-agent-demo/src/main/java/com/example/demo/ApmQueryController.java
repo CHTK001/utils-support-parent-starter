@@ -163,6 +163,7 @@ public class ApmQueryController {
         return result;
     }
 
+    /** ToMap */
     private static Map<String, Object> toMap(TransmissionEvent e) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", e.getId());
@@ -197,6 +198,7 @@ public class ApmQueryController {
         return m;
     }
 
+    /** DependencyToMap */
     private static Map<String, Object> dependencyToMap(DependencyEdge edge) {
         Map<String, Object> m = new HashMap<>();
         m.put("source", edge.getSource() == null ? null : edge.getSource().nodeId());

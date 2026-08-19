@@ -40,6 +40,10 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /** 分组列名 */
     private String groupByColumn;
 
+    /**
+     * 创建 LambdaQueryWrapper 实例
+     * @param entityClass entityClass
+     */
     public LambdaQueryWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -116,11 +120,13 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     // ==================== 内部实现 ====================
 
     @Override
+    /** NewInstance */
     protected LambdaQueryWrapper<T> newInstance() {
         return new LambdaQueryWrapper<>(entityClass);
     }
 
     @Override
+    /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> column) {
         return null;
     }

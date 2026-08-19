@@ -60,20 +60,27 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     /** 异步执行器 */
     private ExecutorService asyncExecutor;
 
+    /** 创建 ReverseProxyServerFilter 实例 */
     public ReverseProxyServerFilter() {
         this(30);
     }
 
+    /**
+     * 创建 ReverseProxyServerFilter 实例
+     * @param timeoutSeconds timeoutSeconds
+     */
     public ReverseProxyServerFilter(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 40;
     }
 
     @Override
+    /** SupportPath */
     public String supportPath() {
         // ServerFilter 与 ReactiveServerFilter 均有同名 default 方法,显式覆写消除接口冲突;
         // 返回 null = Access Filter,每次请求都触发代理判断
@@ -81,11 +88,13 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS};
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         this.asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
         this.httpClient = HttpClient.newBuilder()
@@ -98,6 +107,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         if (asyncExecutor != null) {
             asyncExecutor.shutdown();
@@ -110,6 +120,12 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -167,6 +183,14 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
                 discovery.getHost(), discovery.getPort(), discovery.getProtocol());
     }
 
+    /**
+     * 处理HttpProxyAsync
+     * @param request request
+     * @param response response
+     * @param host host
+     * @param port port
+     * @param scheme scheme
+     */
     private CompletableFuture<Void> handleHttpProxyAsync(ServerRequest request, ServerResponse response,
                                                          String host, int port, String scheme) {
         String path = request.getPath();
@@ -253,11 +277,20 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         return done;
     }
 
+    /**
+     * 处理HttpProxy
+     * @param request request
+     * @param response response
+     * @param host host
+     * @param port port
+     * @param scheme scheme
+     */
     private void handleHttpProxy(ServerRequest request, ServerResponse response,
                                  String host, int port, String scheme) throws Exception {
         handleHttpProxyAsync(request, response, host, port, scheme);
     }
 
+    /** Extract查询 */
     private String extractQuery(String uri) {
         if (uri == null) {
             return null;

@@ -32,6 +32,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     private NDManager manager;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) {
         this.manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "OnnxRuntime");
         if (log.isDebugEnabled()) {
@@ -40,6 +41,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(manager).toType(DataType.FLOAT32, false);
 
@@ -53,6 +55,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
 
@@ -70,6 +73,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

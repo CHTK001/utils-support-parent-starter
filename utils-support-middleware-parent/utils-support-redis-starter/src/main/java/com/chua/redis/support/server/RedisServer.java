@@ -44,6 +44,11 @@ public class RedisServer {
      */
     private final int port;
 
+    /**
+     * 创建 RedisServer 实例
+     * @param delegate delegate
+     * @param int int
+     */
     private RedisServer(redis.embedded.RedisServer delegate, int port) {
         this.delegate = delegate;
         this.port = port;

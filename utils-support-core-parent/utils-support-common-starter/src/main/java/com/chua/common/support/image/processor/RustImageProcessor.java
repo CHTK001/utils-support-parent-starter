@@ -167,6 +167,7 @@ public class RustImageProcessor implements ImageProcessor {
     }
 
     @Override
+    /** 处理 */
     public byte[] process(byte[] imageData, String operation, Map<String, Object> params) {
         if (!LOADED.get()) {
             throw new IllegalStateException("Rust 原生库未加载");
@@ -310,11 +311,13 @@ public class RustImageProcessor implements ImageProcessor {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "rust";
     }
 
     @Override
+    /** Available */
     public boolean available() {
         return LOADED.get();
     }

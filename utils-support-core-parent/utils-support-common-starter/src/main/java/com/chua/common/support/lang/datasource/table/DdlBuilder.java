@@ -85,6 +85,11 @@ public class DdlBuilder {
     /** NEW表名称 */
     private String newTableName;
 
+    /**
+     * 创建 DdlBuilder 实例
+     * @param mode mode
+     * @param String String
+     */
     private DdlBuilder(Mode mode, String tableName) {
         this.mode = mode;
         this.tableName = tableName;

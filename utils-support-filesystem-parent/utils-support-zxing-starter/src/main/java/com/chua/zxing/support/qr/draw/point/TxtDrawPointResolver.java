@@ -21,6 +21,15 @@ import javax.annotation.Nullable;
  */
 @Spi("TEXT")
 public class TxtDrawPointResolver extends AbstractDrawPointResolver {
+    /**
+     * 创建 TxtDrawPointResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param Graphics2D Graphics2D
+     * @param BitMatrixEx BitMatrixEx
+     * @param int int
+     * @param int int
+     * @param int int
+     */
     public TxtDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
         super(qrCodeConfig, g2, bitMatrix, leftPadding, topPadding, infoSize);
     }

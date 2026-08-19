@@ -32,32 +32,38 @@ public class VertxHandler extends AbstractAppHandler {
     private static final String[] CLIENT_METHODS = {"send", "end", "putHeader"};
 
     @Override
+    /** Name */
     public String name() {
         return "vertx-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "vertx.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.VERTX;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(HTTP_SERVER_REQUEST, SERVER_METHODS);
         registerAll(HTTP_CLIENT_REQUEST, CLIENT_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

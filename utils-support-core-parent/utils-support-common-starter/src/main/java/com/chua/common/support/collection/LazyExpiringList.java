@@ -201,6 +201,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         /** 生命周期事件监听器 */
         private LifecycleListener<E> lifecycleListener;
 
+        /** 创建 Builder 实例 */
         private Builder() {}
 
         /**
@@ -346,6 +347,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         public Object getDetail() { return detail; }
 
         @Override
+        /** ToString */
         public String toString() { return "Event{type=" + type + ", detail=" + detail + '}'; }
 
         /**
@@ -574,6 +576,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     public Iterator<E> iterator() { ensureLoaded(); return new DataStoreIterator(); }
 
     @Override
+    /** ToArray */
     public Object[] toArray() {
         ensureLoaded();
         Object[] arr = new Object[dataStore.size()];
@@ -583,6 +586,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
 
     @Override
     @SuppressWarnings("unchecked")
+    /** ToArray */
     public <T> T[] toArray(T[] a) {
         ensureLoaded();
         int size = dataStore.size();
@@ -618,6 +622,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     }
 
     @Override
+    /** ContainsAll */
     public boolean containsAll(Collection<?> c) {
         ensureLoaded();
         for (Object o : c) { if (!contains(o)) return false; }
@@ -686,6 +691,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     }
 
     @Override
+    /** LastIndexOf */
     public int lastIndexOf(Object o) {
         ensureLoaded();
         for (int i = dataStore.size() - 1; i >= 0; i--) { if (Objects.equals(dataStore.get(i), o)) return i; }
@@ -726,6 +732,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     }
 
     @Override
+    /** ParallelStream */
     public Stream<E> parallelStream() {
         ensureLoaded();
         List<E> snapshot = new ArrayList<>(dataStore.size());
@@ -734,6 +741,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     }
 
     @Override
+    /** ForEach */
     public void forEach(Consumer<? super E> action) {
         ensureLoaded();
         for (int i = 0, sz = dataStore.size(); i < sz; i++) action.accept(dataStore.get(i));

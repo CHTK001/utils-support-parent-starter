@@ -18,9 +18,11 @@ import com.chua.common.support.ai.embedding.EmbeddingClient;
  */
 public final class EmbeddingClientExample extends ExampleBase {
 
+    /** 创建 EmbeddingClientExample 实例 */
     private EmbeddingClientExample() {
     }
 
+    /** Main */
     public static void main(String[] args) {
         if (args.length == 0) {
             printModels("embedding", "onnx", EmbeddingClient.create("onnx", "").models());

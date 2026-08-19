@@ -19,9 +19,11 @@ import java.util.List;
  */
 public final class OcrDeskewCompareAll {
 
+    /** 创建 OcrDeskewCompareAll 实例 */
     private OcrDeskewCompareAll() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         OcrPipeline ocr = OcrPipeline.builder()
                 .detector("paddleocrv6-medium-det")

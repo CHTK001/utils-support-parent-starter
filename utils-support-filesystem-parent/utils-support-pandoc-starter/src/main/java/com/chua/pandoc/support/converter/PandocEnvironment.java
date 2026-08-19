@@ -400,8 +400,11 @@ public class PandocEnvironment {
     private static void downloadFile(String downloadUrl, Path targetPath) throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+            /** 校验ClientTrusted */
             public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+            /** 校验ServerTrusted */
             public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+            /** 获取AcceptedIssuers */
             public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
         }}, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());

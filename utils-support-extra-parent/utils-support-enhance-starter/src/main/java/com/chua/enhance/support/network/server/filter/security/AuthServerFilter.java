@@ -48,6 +48,7 @@ public class AuthServerFilter implements ServerFilter {
     private final Set<String> excludePaths = new HashSet<>();
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         String header = config.getInitParameter("auth.header");
         if (header != null && !header.isEmpty()) {
@@ -74,6 +75,7 @@ public class AuthServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (isExcluded(request.getPath())) {
             chain.doFilter(request, response);
@@ -92,15 +94,18 @@ public class AuthServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 10;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "AuthServerFilter";
     }
 
+    /** 是否Excluded */
     private boolean isExcluded(String path) {
         if (path == null) {
             return false;

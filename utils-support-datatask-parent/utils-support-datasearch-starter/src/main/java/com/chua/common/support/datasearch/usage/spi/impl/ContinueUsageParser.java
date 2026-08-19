@@ -23,11 +23,13 @@ public class ContinueUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".continue");
 
     @Override
+    /** Name */
     public String name() {
         return "continue";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[continue] 数据目录不存在: {}", DATA_DIR);

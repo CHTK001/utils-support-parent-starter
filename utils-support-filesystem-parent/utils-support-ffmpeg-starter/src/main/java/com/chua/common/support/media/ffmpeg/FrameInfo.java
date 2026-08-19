@@ -41,34 +41,52 @@ public class FrameInfo {
      */
     private byte[] imageData;
 
+    /** 创建 FrameInfo 实例 */
     public FrameInfo() {
     }
 
+    /** 获取FrameNumber */
     public long getFrameNumber() { return frameNumber; }
+    /** 设置FrameNumber */
     public void setFrameNumber(long frameNumber) { this.frameNumber = frameNumber; }
 
+    /** 获取TimestampMs */
     public long getTimestampMs() { return timestampMs; }
+    /** 设置TimestampMs */
     public void setTimestampMs(long timestampMs) { this.timestampMs = timestampMs; }
 
+    /** 获取Width */
     public int getWidth() { return width; }
+    /** 设置Width */
     public void setWidth(int width) { this.width = width; }
 
+    /** 获取Height */
     public int getHeight() { return height; }
+    /** 设置Height */
     public void setHeight(int height) { this.height = height; }
 
+    /** 获取Codec */
     public String getCodec() { return codec; }
+    /** 设置Codec */
     public void setCodec(String codec) { this.codec = codec; }
 
+    /** 获取Fps */
     public double getFps() { return fps; }
+    /** 设置Fps */
     public void setFps(double fps) { this.fps = fps; }
 
+    /** 是否KeyFrame */
     public boolean isKeyFrame() { return keyFrame; }
+    /** 设置KeyFrame */
     public void setKeyFrame(boolean keyFrame) { this.keyFrame = keyFrame; }
 
+    /** 获取ImageData */
     public byte[] getImageData() { return imageData; }
+    /** 设置ImageData */
     public void setImageData(byte[] imageData) { this.imageData = imageData; }
 
     @Override
+    /** ToString */
     public String toString() {
         return "FrameInfo{frame=" + frameNumber + ", ts=" + timestampMs + "ms, " +
                 width + "x" + height + ", key=" + keyFrame +

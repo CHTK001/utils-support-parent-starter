@@ -37,6 +37,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     private long unkId;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = open(model)) {
@@ -61,6 +62,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
         unkId = word2Id.getOrDefault("<unk>", (long) word2Id.size());
     }
 
+    /** 打开 */
     private InputStream open(Model model) throws IOException {
         String[] names = {"vocab.txt", "assets/vocab.txt", "word_dict.txt"};
         for (String n : names) {
@@ -73,6 +75,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String[][] input) {
         NDManager manager = ctx.getNDManager();
         String[] query = input != null && input.length > 0 ? input[0] : new String[0];
@@ -82,6 +85,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
         return new NDList(q, t);
     }
 
+    /** ToIds */
     private NDArray toIds(NDManager manager, String[] tokens, String name) {
         List<Long> ids = new ArrayList<>();
         if (tokens != null) {
@@ -99,11 +103,13 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.get(0).toFloatArray();
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

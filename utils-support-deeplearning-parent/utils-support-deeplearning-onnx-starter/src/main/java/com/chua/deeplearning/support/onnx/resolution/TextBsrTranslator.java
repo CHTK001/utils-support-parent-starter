@@ -102,6 +102,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     /** 会话 */
     private OrtSession session;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -130,11 +131,13 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "text-bsr";
     }
 
     @Override
+    /** Translate */
     public BufferedImage translate(byte[] imageData) {
         try {
             prepare();
@@ -144,6 +147,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
         }
     }
 
+    /** Enhance */
     private BufferedImage enhance(byte[] imageData) {
         try {
             ImageUtils.load();

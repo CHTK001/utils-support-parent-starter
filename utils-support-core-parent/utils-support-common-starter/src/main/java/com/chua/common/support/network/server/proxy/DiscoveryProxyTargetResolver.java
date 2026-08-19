@@ -26,14 +26,32 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     /** Balance */
     private final String balance;
 
+    /**
+     * 创建 DiscoveryProxyTargetResolver 实例
+     * @param serviceDiscovery serviceDiscovery
+     * @param String String
+     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath) {
         this(serviceDiscovery, servicePath, null, "weight");
     }
 
+    /**
+     * 创建 DiscoveryProxyTargetResolver 实例
+     * @param serviceDiscovery serviceDiscovery
+     * @param String String
+     * @param String String
+     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath, String scatterId) {
         this(serviceDiscovery, servicePath, scatterId, "weight");
     }
 
+    /**
+     * 创建 DiscoveryProxyTargetResolver 实例
+     * @param serviceDiscovery serviceDiscovery
+     * @param servicePath servicePath
+     * @param scatterId scatterId
+     * @param balance balance
+     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath,
                                         String scatterId, String balance) {
         this.serviceDiscovery = serviceDiscovery;
@@ -43,6 +61,7 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     }
 
     @Override
+    /** 解析 */
     public InetSocketAddress resolve(InetSocketAddress remote) {
         if (serviceDiscovery == null || servicePath == null) {
             return null;

@@ -92,6 +92,10 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         this(defaultClasses(DEFAULT_CLASS_COUNT), 10);
     }
 
+    /**
+     * 创建 ClTaggerTranslator 实例
+     * @param classes classes
+     */
     public ClTaggerTranslator(List<String> classes) {
         this(classes, 10);
     }
@@ -112,6 +116,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tagMappingPath = modelRoot.resolve("tag_mapping.json");
@@ -203,18 +208,21 @@ finally {
         return Batchifier.STACK;
     }
 
+    /** DefaultClasses */
     private static List<String> defaultClasses(int size) {
         return IntStream.range(0, size)
                 .mapToObj(index -> "tag-" + index)
                 .toList();
     }
 
+    /** LooksLikeDefaultClasses */
     private static boolean looksLikeDefaultClasses(List<String> classes) {
         return classes != null
                 && !classes.isEmpty()
                 && classes.stream().limit(Math.min(16, classes.size())).allMatch(value -> value != null && value.startsWith("tag-"));
     }
 
+    /** 是否LowInformation */
     private static boolean isLowInformation(NDArray array) {
         NDArray floatArray = array.toType(DataType.FLOAT32, false);
         float min = floatArray.min().toFloatArray()[0];
@@ -222,6 +230,7 @@ finally {
         return (max - min) <= LOW_INFORMATION_RANGE_THRESHOLD;
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -233,6 +242,7 @@ finally {
         return normalized.getParent() == null ? normalized : normalized.getParent();
     }
 
+    /** 加载TagMapping */
     private static List<String> loadTagMapping(Path tagMappingPath) throws IOException {
         Map<String, TagMappingEntry> rawMapping = OBJECT_MAPPER.readValue(tagMappingPath.toFile(),
                 new TypeReference<Map<String, TagMappingEntry>>() {
@@ -252,6 +262,7 @@ finally {
                 .toList();
     }
 
+    /** TagMappingEntry */
     private record TagMappingEntry(String tag, String category) {
     }
 }

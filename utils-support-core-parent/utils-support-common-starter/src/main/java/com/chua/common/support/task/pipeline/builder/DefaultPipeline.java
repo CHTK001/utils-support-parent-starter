@@ -171,11 +171,13 @@ public class DefaultPipeline implements Pipeline {
     }
 
     @Override
+    /** 获取Id */
     public String getId() {
         return id;
     }
 
     @Override
+    /** 执行 */
     public <T> PipelineContext<T> execute(T input) {
         PipelineContext<T> ctx = new PipelineContext<>(id, input);
         if (startNodeId != null) {
@@ -238,6 +240,7 @@ public class DefaultPipeline implements Pipeline {
     }
 
     @Override
+    /** 恢复 */
     public <T> PipelineContext<T> resume(T input) {
         // WAL 恢复：尝试从 WAL 回放恢复上下文
         if (pipelineWal != null) {
@@ -260,6 +263,7 @@ public class DefaultPipeline implements Pipeline {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         // 终止执行 + 销毁 WAL
         if (pipelineWal != null) {
@@ -795,11 +799,13 @@ public class DefaultPipeline implements Pipeline {
     private transient boolean countingTreeLines = false;
 
     @Override
+    /** PrintTree */
     public void printTree(List<String> history) {
         printTree(history, false);
     }
 
     @Override
+    /** PrintTree */
     public void printTree(List<String> history, boolean colorEnabled) {
         Set<String> executed = history != null ? new HashSet<>(history) : Collections.emptySet();
         String pipelineLabel = colorEnabled ? colorize(id, ANSI_BOLD + ANSI_CYAN, true) : id;
@@ -906,6 +912,7 @@ public class DefaultPipeline implements Pipeline {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Pipeline{id='").append(id).append("', nodes=[");
@@ -923,18 +930,21 @@ public class DefaultPipeline implements Pipeline {
         return sb.toString();
     }
 
+    /** FireBeforeNode */
     private void fireBeforeNode(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.beforeNode(ctx);
         }
     }
 
+    /** FireAfterNode */
     private void fireAfterNode(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.afterNode(ctx);
         }
     }
 
+    /** FireOn记录错误 */
     private String fireOnError(PipelineContext<?> ctx, Throwable e) {
         String recoveryNodeId = null;
         for (PipelineListener listener : listeners) {
@@ -946,18 +956,21 @@ public class DefaultPipeline implements Pipeline {
         return recoveryNodeId;
     }
 
+    /** FireOnComplete */
     private void fireOnComplete(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onComplete(ctx);
         }
     }
 
+    /** FireOn开始 */
     private void fireOnStart(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onStart(ctx);
         }
     }
 
+    /** FireOnDraw */
     private void fireOnDraw(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onDraw(ctx);

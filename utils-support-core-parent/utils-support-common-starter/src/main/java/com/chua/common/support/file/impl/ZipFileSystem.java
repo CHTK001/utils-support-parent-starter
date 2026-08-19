@@ -50,16 +50,19 @@ import java.util.zip.ZipOutputStream;
 public class ZipFileSystem implements FileSystem {
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "zip";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new ZipReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new ZipWriteBuilder(file);
     }
@@ -193,11 +196,13 @@ public class ZipFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return listEntries();
         }
 
         @Override
+        /** AsString */
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -270,6 +275,7 @@ public class ZipFileSystem implements FileSystem {
         }
 
         @Override
+        /** Finish */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -300,12 +306,14 @@ public class ZipFileSystem implements FileSystem {
             }
         }
 
+        /** 写入File */
         private void writeFile(ZipOutputStream zos, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {
                 writeStream(zos, fis);
             }
         }
 
+        /** 写入Stream */
         private void writeStream(ZipOutputStream zos, InputStream in) throws IOException {
             byte[] buffer = new byte[8192];
             int len;
@@ -316,6 +324,7 @@ public class ZipFileSystem implements FileSystem {
         }
 
         @Override
+        /** 写入 */
         public ZipWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);

@@ -34,6 +34,7 @@ class IonetSyncApiTest {
      */
     static class EmptyRegion extends AbstractInputCommandRegion {
         @Override
+        /** 初始化InputCommand */
         public void initInputCommand() {
             // 空实现，不注册命令
         }
@@ -57,6 +58,7 @@ class IonetSyncApiTest {
         List<String> received = new ArrayList<>();
         server.addListener(new SyncServerListener() {
             @Override
+            /** OnMessage */
             public void onMessage(String clientId, String topic, Object message) {
                 received.add(topic + ":" + message);
             }
@@ -75,6 +77,7 @@ class IonetSyncApiTest {
         AtomicReference<String> seen = new AtomicReference<>();
         server.addListener(new SyncServerListener() {
             @Override
+            /** OnMessage */
             public void onMessage(String clientId, String topic, Object message) {
                 seen.set(clientId + "|" + topic + "|" + message);
             }

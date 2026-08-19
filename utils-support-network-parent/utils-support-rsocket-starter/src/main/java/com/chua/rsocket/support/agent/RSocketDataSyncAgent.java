@@ -60,6 +60,14 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
      */
     private volatile boolean running = false;
 
+    /**
+     * 创建 RSocketDataSyncAgent 实例
+     * @param agentId agentId
+     * @param String String
+     * @param String String
+     * @param int int
+     * @param DataSyncSource DataSyncSource
+     */
     public RSocketDataSyncAgent(String agentId, String sourceId, String host, int port, DataSyncSource source) {
         this.agentId = agentId;
         this.sourceId = sourceId;
@@ -69,6 +77,7 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (running) {
             return;
@@ -82,6 +91,7 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running = false;
         if (rSocket != null) {
@@ -91,25 +101,30 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** AgentId */
     public String agentId() {
         return agentId;
     }
 
     @Override
+    /** ToSource */
     public DataSyncSource toSource() {
         return source;
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running;
     }
 
     @Override
+    /** DataUrl */
     public String dataUrl() {
         return "tcp://" + host + ":" + port;
     }
 
+    /** 获取RSocket */
     public RSocket getRSocket() {
         return rSocket;
     }

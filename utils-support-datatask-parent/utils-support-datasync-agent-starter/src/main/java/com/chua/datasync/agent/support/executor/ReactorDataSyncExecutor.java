@@ -37,15 +37,22 @@ public class ReactorDataSyncExecutor {
     /** 直接消费器 */
     private volatile Consumer<List<Map<String, Object>>> directConsumer;
 
+    /**
+     * 创建 ReactorDataSyncExecutor 实例
+     * @param agentId agentId
+     * @param boolean boolean
+     */
     public ReactorDataSyncExecutor(String agentId, boolean serverMode) {
         this.agentId = agentId;
         this.serverMode = serverMode;
     }
 
+    /** 获取AgentId */
     public String getAgentId() {
         return agentId;
     }
 
+    /** 是否ServerMode */
     public boolean isServerMode() {
         return serverMode;
     }
@@ -58,10 +65,12 @@ public class ReactorDataSyncExecutor {
         this.directDispatch = directDispatch;
     }
 
+    /** 设置DispatcherProvider */
     public void setDispatcherProvider(DispatcherProvider chronicleProvider) {
         this.chronicleProvider = chronicleProvider;
     }
 
+    /** 开始 */
     public void start() {
         if (directDispatch) {
             log.info("直连派发模式已启用 (agentId={})", agentId);
@@ -75,6 +84,7 @@ public class ReactorDataSyncExecutor {
         chronicleProvider.start();
     }
 
+    /** 停止 */
     public void stop() {
         if (directDispatch) {
             directConsumer = null;
@@ -120,6 +130,7 @@ public class ReactorDataSyncExecutor {
         chronicleProvider.publish(buildTopic(sinkId), data);
     }
 
+    /** 构建Topic */
     private String buildTopic(String sinkId) {
         if (serverMode) {
             return "server-" + agentId;

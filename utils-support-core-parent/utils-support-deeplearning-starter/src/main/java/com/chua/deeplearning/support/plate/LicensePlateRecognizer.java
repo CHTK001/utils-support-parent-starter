@@ -56,6 +56,7 @@ public interface LicensePlateRecognizer {
         return this;
     }
 
+    /** 创建 */
     static LicensePlateRecognizer create(String name) {
         return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -203,18 +204,21 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     @Override
+    /** Threshold */
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public LicensePlateRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public LicensePlateRecognizer device(String device) {
         this.device = device;
         return this;
@@ -222,12 +226,14 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Recognize */
     public String recognize(byte[] imageData) {
         return recognizePlate(imageData).plateNo();
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** RecognizeDetail */
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);
@@ -239,6 +245,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** RecognizePlate */
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class);

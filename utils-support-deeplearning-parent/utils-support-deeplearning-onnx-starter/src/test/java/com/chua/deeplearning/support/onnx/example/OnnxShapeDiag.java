@@ -14,14 +14,17 @@ import java.nio.file.Path;
  */
 public final class OnnxShapeDiag {
 
+    /** 创建 OnnxShapeDiag 实例 */
     private OnnxShapeDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         print("yolov5-plate-rec", "vision/detection/yolov5_plate/", "yolov5_plate_rec_color.onnx",
                 OnnxShapeDiag.class.getClassLoader());
     }
 
+    /** Print */
     private static void print(String label, String base, String file, ClassLoader cl) throws Exception {
         Path tmp = Files.createTempDirectory("shape-");
         tmp.toFile().deleteOnExit();

@@ -186,6 +186,7 @@ public interface ConfigServer extends Server {
         return this;
     }
 
+    /** 创建ReflectiveHandler */
     private ServerHandler createReflectiveHandler(Class<?> targetClass, Method method) {
         return (request, response) -> {
             try {
@@ -208,6 +209,7 @@ public interface ConfigServer extends Server {
         };
     }
 
+    /** 调用Method */
     private Object invokeMethod(Object target, Method method, ServerRequest request, ServerResponse response) throws Exception {
         Parameter[] params = method.getParameters();
         Object[] args = new Object[params.length];
@@ -238,6 +240,7 @@ public interface ConfigServer extends Server {
         return method.invoke(target, args);
     }
 
+    /** 解析StringParam */
     private static String resolveStringParam(ServerRequest request, Parameter param) {
         String name = param.isNamePresent() ? param.getName() : param.getType().getSimpleName().toLowerCase();
 

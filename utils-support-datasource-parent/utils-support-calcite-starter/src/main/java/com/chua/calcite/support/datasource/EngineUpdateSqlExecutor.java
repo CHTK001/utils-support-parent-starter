@@ -96,6 +96,7 @@ public final class EngineUpdateSqlExecutor {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** 执行更新 */
     private int executeUpdate(SourceDataTable source, Map<String, Object> sets, Map<String, Object> wheres) {
         Engine engine = source.getEngine();
         Class<?> entityClass = source.getEntityClass();
@@ -111,6 +112,7 @@ public final class EngineUpdateSqlExecutor {
         return rows;
     }
 
+    /** 解析Table */
     private SourceDataTable resolveTable(String schema, String table) {
         String tableKey = table == null ? null : table.toLowerCase(Locale.ROOT);
         for (DataScheme scheme : schemes) {
@@ -134,6 +136,7 @@ public final class EngineUpdateSqlExecutor {
         return null;
     }
 
+    /** 解析Assignments */
     private static Map<String, Object> parseAssignments(String part) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String seg : splitTopLevel(part, ',')) {
@@ -150,6 +153,7 @@ public final class EngineUpdateSqlExecutor {
         return map;
     }
 
+    /** 解析And判断相等 */
     private static Map<String, Object> parseAndEquals(String where) {
         Map<String, Object> map = new LinkedHashMap<>();
         // 仅支持 AND 连接的 col = val
@@ -167,6 +171,7 @@ public final class EngineUpdateSqlExecutor {
         return map;
     }
 
+    /** IndexOfAssign */
     private static int indexOfAssign(String seg) {
         boolean inStr = false;
         for (int i = 0; i < seg.length(); i++) {
@@ -184,6 +189,7 @@ public final class EngineUpdateSqlExecutor {
         return -1;
     }
 
+    /** 分割TopLevel */
     private static List<String> splitTopLevel(String text, char sep) {
         List<String> parts = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -210,6 +216,7 @@ public final class EngineUpdateSqlExecutor {
         return parts;
     }
 
+    /** 分割TopLevel */
     private static List<String> splitTopLevel(String text, String keyword) {
         List<String> parts = new ArrayList<>();
         String upper = text.toUpperCase(Locale.ROOT);
@@ -238,6 +245,7 @@ public final class EngineUpdateSqlExecutor {
         return parts;
     }
 
+    /** UnquoteIdent */
     private static String unquoteIdent(String ident) {
         if (ident == null) {
             return null;
@@ -252,6 +260,7 @@ public final class EngineUpdateSqlExecutor {
         return ident;
     }
 
+    /** 解析Literal */
     private static Object parseLiteral(String raw) {
         if (raw == null) {
             return null;
@@ -286,6 +295,7 @@ public final class EngineUpdateSqlExecutor {
         return s;
     }
 
+    /** First */
     private static String first(String a, String b) {
         return a != null ? a : b;
     }

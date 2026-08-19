@@ -78,6 +78,13 @@ public class MiniLMTokenizer {
     /** Tokenizechinesechars */
     private final boolean tokenizeChineseChars;
 
+    /**
+     * 创建 MiniLMTokenizer 实例
+     * @param Integer Integer
+     * @param vocab vocab
+     * @param boolean boolean
+     * @param boolean boolean
+     */
     public MiniLMTokenizer(Map<String, Integer> vocab, boolean doLowerCase, boolean tokenizeChineseChars) {
         this.vocab = vocab;
         this.doLowerCase = doLowerCase;
@@ -114,18 +121,22 @@ public class MiniLMTokenizer {
         return vocab.size();
     }
 
+    /** UnkId */
     public int unkId() {
         return unkId;
     }
 
+    /** ClsId */
     public int clsId() {
         return clsId;
     }
 
+    /** SepId */
     public int sepId() {
         return sepId;
     }
 
+    /** PadId */
     public int padId() {
         return padId;
     }
@@ -144,6 +155,14 @@ public class MiniLMTokenizer {
         /** 令牌类型IDS */
         public final int[] tokenTypeIds;
 
+        /**
+         * 创建 EncodeResult 实例
+         * @param inputIds inputIds
+         * @param int int
+         * @param attentionMask attentionMask
+         * @param int int
+         * @param tokenTypeIds tokenTypeIds
+         */
         public EncodeResult(int[] inputIds, int[] attentionMask, int[] tokenTypeIds) {
             this.inputIds = inputIds;
             this.attentionMask = attentionMask;
@@ -275,6 +294,7 @@ public class MiniLMTokenizer {
                 || Character.getType(c) == Character.MATH_SYMBOL;
     }
 
+    /** 是否Cjk */
     private static boolean isCjk(char c) {
         int cp = c;
         return (cp >= 0x4E00 && cp <= 0x9FFF)

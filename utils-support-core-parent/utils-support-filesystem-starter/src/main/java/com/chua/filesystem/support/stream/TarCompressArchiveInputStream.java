@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 public class TarCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -29,12 +30,14 @@ public class TarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     @Override
+    /** 创建InputStream */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var tarInputStream = new TarArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(tarInputStream);
     }
 
     @Override
+    /** 获取格式化Name */
     public String getFormatName() {
         return "tar";
     }

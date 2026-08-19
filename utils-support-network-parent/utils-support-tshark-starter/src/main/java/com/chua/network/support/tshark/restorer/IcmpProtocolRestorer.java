@@ -11,16 +11,19 @@ package com.chua.network.support.tshark.restorer;
 public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "icmp";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 70;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 8) {
             return false;
@@ -30,6 +33,7 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 8) {
             return "[ICMP] empty";
@@ -54,6 +58,7 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToTypeName */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "EchoReply";
@@ -73,6 +78,7 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
+    /** ToCodeName */
     private static String toCodeName(int type, int code) {
         if (type == 3) {
             return switch (code) {

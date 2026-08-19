@@ -254,21 +254,25 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
+    /** 获取CodecName */
     public String getCodecName() {
         return codecName != null ? codecName : "none";
     }
 
     @Override
+    /** 获取CodecId */
     public int getCodecId() {
         return org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264;
     }
 
     @Override
+    /** 是否HardwareAccelerated */
     public boolean isHardwareAccelerated() {
         return true;
     }
 
     @Override
+    /** ForceKeyFrame */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
         this.pendingForceIdr = true;
@@ -298,6 +302,7 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -493,6 +498,7 @@ public class H264NvencEncoder implements VideoEncoder {
         }
     }
 
+    /** BytesToHex */
     private static String bytesToHex(byte[] data, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) sb.append(String.format("%02x ", data[i] & 0xff));
@@ -669,11 +675,13 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
+    /** 设置Crf */
     public synchronized void setCrf(int crf) {
         // NVENC 通过 bit_rate 控制质量，recorder 不直接支持动态修改
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         if (!started) {
             return;
@@ -724,16 +732,19 @@ public class H264NvencEncoder implements VideoEncoder {
         }
 
         @Override
+        /** 写入 */
         public void write(int b) {
             backing.write(b);
         }
 
         @Override
+        /** 写入 */
         public void write(byte[] b, int off, int len) {
             backing.write(b, off, len);
         }
 
         @Override
+        /** 关闭 */
         public void close() {
         }
     }

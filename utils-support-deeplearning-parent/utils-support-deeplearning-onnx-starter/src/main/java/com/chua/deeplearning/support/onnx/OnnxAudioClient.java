@@ -40,6 +40,7 @@ public class OnnxAudioClient extends AbstractLocalAudioClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, byte[].class, String.class);
     }

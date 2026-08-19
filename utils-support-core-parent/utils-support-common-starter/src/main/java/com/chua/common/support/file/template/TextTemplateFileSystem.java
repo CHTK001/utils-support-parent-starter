@@ -23,6 +23,7 @@ public class TextTemplateFileSystem implements TemplateFileSystem {
     private static final Pattern PLACEHOLDER = Pattern.compile("#([\\w.]+)#");
 
     @Override
+    /** 解析 */
     public void resolve(InputStream inputStream, OutputStream outputStream, Map<String, Object> templateData) {
         try {
             String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);

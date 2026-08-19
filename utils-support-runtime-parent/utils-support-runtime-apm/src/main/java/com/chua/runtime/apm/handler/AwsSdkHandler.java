@@ -24,31 +24,37 @@ public class AwsSdkHandler extends AbstractAppHandler {
     private static final String[] EXEC_METHODS = {"execute"};
 
     @Override
+    /** Name */
     public String name() {
         return "aws-sdk-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "aws-sdk.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.AWS_SDK;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(CLIENT, EXEC_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

@@ -20,6 +20,7 @@ import ai.djl.translate.TranslatorContext;
 public class AmazonFaceFeatureTranslator implements Translator<Image, float[]> {
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
@@ -33,11 +34,13 @@ public class AmazonFaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return FaceEmbeddingHelper.toFeature(list);
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

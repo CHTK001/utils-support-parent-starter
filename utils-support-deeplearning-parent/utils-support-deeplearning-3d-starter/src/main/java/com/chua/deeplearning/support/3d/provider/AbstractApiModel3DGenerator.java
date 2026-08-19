@@ -47,6 +47,10 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     /** HTTP客户端 */
     protected final OkHttpClient httpClient;
 
+    /**
+     * 创建 AbstractApiModel3DGenerator 实例
+     * @param config config
+     */
     protected AbstractApiModel3DGenerator(Model3DConfig config) {
         this.config = config;
         this.objectMapper = new ObjectMapper();
@@ -58,6 +62,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     @Override
+    /** Generate */
     public Model3D generate(String prompt, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] Text-to-3D: prompt={}, format={}, style={}, quality={}", prompt, format, style, quality);
@@ -68,6 +73,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     @Override
+    /** Generate */
     public Model3D generate(byte[] image, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] Image-to-3D: imageSize={}, format={}, style={}, quality={}", image.length, format, style, quality);
@@ -78,6 +84,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     @Override
+    /** Generate */
     public Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] MultiView-to-3D: imageCount={}, format={}, style={}, quality={}", images.length, format, style, quality);
@@ -88,6 +95,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     @Override
+    /** GenerateFromSketch */
     public Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] Sketch-to-3D: description={}, sketchSize={}, format={}, style={}, quality={}",
@@ -99,11 +107,13 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     @Override
+    /** Generate */
     public Model3D generate(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
         return generateFromSketch(sketch, description, format, style, quality);
     }
 
     @Override
+    /** Stylize */
     public Model3D stylize(Model3D model, Model3DStyle style, int resolution) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] Stylize: style={}, resolution={}", style, resolution);

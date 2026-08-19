@@ -92,6 +92,10 @@ public class SyncFlow implements AutoCloseable {
      */
     private ExecutorService producerExecutor;
 
+    /**
+     * 创建 SyncFlow 实例
+     * @param builder builder
+     */
     private SyncFlow(Builder builder) {
         this.name = builder.name;
         this.inputs = builder.inputs;
@@ -191,6 +195,7 @@ public class SyncFlow implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         stop();
     }
@@ -201,11 +206,13 @@ public class SyncFlow implements AutoCloseable {
     private void initializeComponents() {
         sink.setExecutor(new SinkExecutor() {
             @Override
+            /** Wakeup */
             public void wakeup() {
                 // 消费循环基于轮询, 无需显式唤醒
             }
 
             @Override
+            /** 是否Running */
             public boolean isRunning() {
                 return running.get();
             }
@@ -418,6 +425,10 @@ public class SyncFlow implements AutoCloseable {
          */
         private long retryInterval = 1000;
 
+        /**
+         * 创建 Builder 实例
+         * @param name name
+         */
         private Builder(String name) {
             this.name = name;
         }

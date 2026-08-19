@@ -25,6 +25,7 @@ public class VideoFileSystem implements FileSystem {
     /** 处理器 */
     private final FFmpegProcessor processor;
 
+    /** 创建 VideoFileSystem 实例 */
     public VideoFileSystem() {
         FFmpegProcessor p = null;
         try {
@@ -36,20 +37,24 @@ public class VideoFileSystem implements FileSystem {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "video";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new VideoReadBuilder(file, processor);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new VideoWriteBuilder(file, processor);
     }
 
+    /** 获取Processor */
     public FFmpegProcessor getProcessor() {
         return processor;
     }

@@ -35,6 +35,7 @@ public final class VncProtocolServerFactory implements ProtocolServerFactory {
     }
 
     @Override
+    /** 创建Tunnel */
     public GatewayTunnel createTunnel(Connection connection, String tunnelId) throws Exception {
         NoVncBridge bridge = new NoVncBridge(connection);
         GatewayTunnel tunnel = GatewayTunnel.of(tunnelId, connection, bridge);

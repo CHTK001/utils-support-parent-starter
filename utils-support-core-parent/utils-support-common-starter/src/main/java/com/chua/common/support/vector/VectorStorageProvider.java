@@ -203,11 +203,18 @@ public interface VectorStorageProvider {
     @Spi(value = "memory", order = -100)
     class MemoryProvider implements VectorStorageProvider {
         @Override
+        /** Name */
         public String name() {
             return "memory";
         }
 
         @Override
+        /**
+         * 创建
+         * @param dimension dimension
+         * @param algorithm algorithm
+         * @param properties properties
+         */
         public VectorStorage create(int dimension,
                                     VectorCompareAlgorithm algorithm,
                                     Object properties) {

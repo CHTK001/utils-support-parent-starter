@@ -24,31 +24,37 @@ public class FeignHandler extends AbstractAppHandler {
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override
+    /** Name */
     public String name() {
         return "feign-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "feign.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.FEIGN;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(FEIGN_CLIENT, EXECUTE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

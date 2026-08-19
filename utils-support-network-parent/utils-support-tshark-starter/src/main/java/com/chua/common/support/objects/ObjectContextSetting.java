@@ -34,11 +34,17 @@ public class ObjectContextSetting {
         return new ObjectContextSettingBuilder();
     }
 
+    /** 是否SpiEnabled */
     public boolean isSpiEnabled() { return spiEnabled; }
+    /** 设置SpiEnabled */
     public ObjectContextSetting setSpiEnabled(boolean spiEnabled) { this.spiEnabled = spiEnabled; return this; }
+    /** 是否Annotation扫描Enabled */
     public boolean isAnnotationScanEnabled() { return annotationScanEnabled; }
+    /** 设置Annotation扫描Enabled */
     public ObjectContextSetting setAnnotationScanEnabled(boolean annotationScanEnabled) { this.annotationScanEnabled = annotationScanEnabled; return this; }
+    /** 获取扫描Packages */
     public List<String> getScanPackages() { return scanPackages; }
+    /** 添加扫描Package */
     public ObjectContextSetting addScanPackage(String scanPackage) { this.scanPackages.add(scanPackage); return this; }
 
     /**
@@ -61,8 +67,11 @@ public class ObjectContextSetting {
          */
         private final List<String> scanPackages = new ArrayList<>();
 
+        /** SpiEnabled */
         public ObjectContextSettingBuilder spiEnabled(boolean spiEnabled) { this.spiEnabled = spiEnabled; return this; }
+        /** Annotation扫描Enabled */
         public ObjectContextSettingBuilder annotationScanEnabled(boolean annotationScanEnabled) { this.annotationScanEnabled = annotationScanEnabled; return this; }
+        /** 扫描Package */
         public ObjectContextSettingBuilder scanPackage(String scanPackage) { this.scanPackages.add(scanPackage); return this; }
 
         /**

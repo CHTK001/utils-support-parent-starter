@@ -37,6 +37,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
+    /** GenerateKeyPair */
     public KeyPair generateKeyPair(int keySize) {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -48,6 +49,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
+    /** Encrypt */
     public byte[] encrypt(byte[] publicKey, byte[] data) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -61,6 +63,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
+    /** Decrypt */
     public byte[] decrypt(byte[] privateKey, byte[] ciphertext) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -74,6 +77,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
+    /** Sign */
     public byte[] sign(byte[] privateKey, byte[] data) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -88,6 +92,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
+    /** 验证 */
     public boolean verify(byte[] publicKey, byte[] data, byte[] signature) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM, PROVIDER);

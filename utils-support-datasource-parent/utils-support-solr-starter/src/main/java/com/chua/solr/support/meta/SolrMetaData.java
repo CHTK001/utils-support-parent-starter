@@ -19,16 +19,22 @@ import com.chua.solr.support.engine.SolrEngine;
  */
 public class SolrMetaData extends DefaultMetaData {
 
+    /**
+     * 创建 SolrMetaData 实例
+     * @param engine engine
+     */
     public SolrMetaData(SolrEngine engine) {
         super(engine);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search() {
         return new SolrMeta(this, (SolrEngine) engine);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search(String indexName) {
         return new SolrMeta(this, (SolrEngine) engine);
     }

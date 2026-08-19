@@ -25,16 +25,22 @@ public class RedisSearchEngineImpl implements SearchEngine {
     /** 引擎 */
     private final RediSearchEngine engine;
 
+    /**
+     * 创建 RedisSearchEngineImpl 实例
+     * @param engine engine
+     */
     public RedisSearchEngineImpl(RediSearchEngine engine) {
         this.engine = engine;
     }
 
     @Override
+    /** Type */
     public String type() {
         return "redis";
     }
 
     @Override
+    /** ListIndexes */
     public List<String> listIndexes() {
         List<String> indexes = new ArrayList<>();
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
@@ -53,6 +59,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 获取Index */
     public SearchIndexDef getIndex(String indexName) {
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             Object response = jedis.sendCommand(() -> SafeEncoder.encode("FT.INFO"), SafeEncoder.encode(indexName));
@@ -89,6 +96,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 创建Index */
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -119,6 +127,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 删除Index */
     public boolean deleteIndex(String indexName) {
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             jedis.sendCommand(() -> SafeEncoder.encode("FT.DROPINDEX"), SafeEncoder.encode(indexName));
@@ -129,6 +138,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 获取Client */
     public Object getClient() {
         return engine.getPoolPublic(engine.getDefaultDataSourceName());
     }

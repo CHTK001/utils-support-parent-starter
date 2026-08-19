@@ -22,16 +22,23 @@ public class ProgressBarWrappedIterable<T> implements Iterable<T> {
      */
     private final ProgressBarBuilder pbb;
 
+    /**
+     * 创建 ProgressBarWrappedIterable 实例
+     * @param underlying underlying
+     * @param ProgressBarBuilder ProgressBarBuilder
+     */
     public ProgressBarWrappedIterable(Iterable<T> underlying, ProgressBarBuilder pbb) {
         this.underlying = underlying;
         this.pbb = pbb;
     }
 
+    /** 获取ProgressBarBuilder */
     public ProgressBarBuilder getProgressBarBuilder() {
         return pbb;
     }
 
     @Override
+    /** Iterator */
     public ProgressBarWrappedIterator<T> iterator() {
         Iterator<T> it = underlying.iterator();
         long exactSizeIfKnown = underlying.spliterator().getExactSizeIfKnown();

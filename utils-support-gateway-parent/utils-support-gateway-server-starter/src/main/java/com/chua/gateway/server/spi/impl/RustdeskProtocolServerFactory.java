@@ -27,11 +27,13 @@ public final class RustdeskProtocolServerFactory implements ProtocolServerFactor
     private static final String PROTOCOL_RUSTDESK = "rustdesk";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return PROTOCOL_RUSTDESK;
     }
 
     @Override
+    /** 创建Tunnel */
     public GatewayTunnel createTunnel(Connection connection, String tunnelId) throws Exception {
         RustdeskBridge bridge = new RustdeskBridge(connection);
         GatewayTunnel tunnel = GatewayTunnel.of(tunnelId, connection, bridge);

@@ -36,6 +36,14 @@ public class SoftwareInfo {
      */
     private final String packageId;
 
+    /**
+     * 创建 SoftwareInfo 实例
+     * @param name name
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     */
     public SoftwareInfo(String name, String version, String source, String description, String packageId) {
         this.name = name;
         this.version = version;
@@ -44,22 +52,27 @@ public class SoftwareInfo {
         this.packageId = packageId;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取Version */
     public String getVersion() {
         return version;
     }
 
+    /** 获取Source */
     public String getSource() {
         return source;
     }
 
+    /** 获取Description */
     public String getDescription() {
         return description;
     }
 
+    /** 获取PackageId */
     public String getPackageId() {
         return packageId;
     }

@@ -96,6 +96,10 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
      */
     private final Integer defaultTransactionIsolation;
 
+    /**
+     * 创建 ConnectionPool 实例
+     * @param builder builder
+     */
     private ConnectionPool(Builder builder) {
         super(builder.buildConfig(), new ConnectionFactory(builder));
         this.url = builder.url;
@@ -118,6 +122,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     }
 
     @Override
+    /** 获取Stats */
     public String getStats() {
         return "ConnectionPool{url=" + url
                 + ", maxTotal=" + getNumActive() + "+" + getNumIdle()
@@ -140,6 +145,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
+        /** 创建 */
         public Connection create() throws Exception {
             Properties props = new Properties();
             if (builder.username != null) {
@@ -155,6 +161,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
+        /** 初始化Object */
         public void initObject(Connection conn) throws Exception {
             // 设置 autoCommit
             if (builder.defaultAutoCommit != null) {
@@ -175,6 +182,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
+        /** 销毁 */
         public void destroy(Connection conn) {
             if (conn == null) {
                 return;
@@ -188,6 +196,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
+        /** 校验 */
         public boolean validate(Connection conn) {
             if (conn == null) {
                 return false;

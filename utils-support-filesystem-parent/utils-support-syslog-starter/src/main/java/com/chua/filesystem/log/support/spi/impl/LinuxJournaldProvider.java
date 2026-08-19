@@ -85,6 +85,10 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     /** sdJournalSeekCursor */
     private volatile MethodHandle sdJournalSeekCursor;
 
+    /**
+     * 创建 LinuxJournaldProvider 实例
+     * @param bridge bridge
+     */
     public LinuxJournaldProvider(SystemLogBridge bridge) {
         if (bridge != null) {
             this.registry = bridge.getLinuxRegistry();
@@ -94,6 +98,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
+    /** 是否PlatformSupported */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isLinux();
@@ -101,6 +106,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
+    /** 获取Sources */
     public List<String> getSources() {
         
         return SOURCES;
@@ -108,6 +114,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
+    /** 搜索 */
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             return List.of();
@@ -124,6 +131,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return searchViaVarLog(query);
     }
 
+    /** 是否JournaldAvailable */
     private boolean isJournaldAvailable() {
         try {
             bindFunctions();
@@ -133,6 +141,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
+    /** 搜索ViaJournald */
     private List<LogEntry> searchViaJournald(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
         MemorySegment journal = null;
@@ -226,6 +235,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return results;
     }
 
+    /** 获取JournalField */
     private String getJournalField(MemorySegment journal, Arena arena, String field) {
         try {
             MemorySegment dataPtr = arena.allocate(ValueLayout.ADDRESS);
@@ -260,6 +270,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
+    /** 解析JournalPriority */
     private LogLevel parseJournalPriority(String priorityStr) {
         if (priorityStr == null) {
             return LogLevel.INFO;
@@ -280,6 +291,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
+    /** 格式化Timestamp */
     private String formatTimestamp(String tsStr) {
         if (tsStr == null) {
             return "unknown";
@@ -292,6 +304,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
+    /** 搜索ViaVar记录日志 */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         log.debug("Searching /var/log files with pattern={}", query.pattern());
         List<LogEntry> results = new ArrayList<>();
@@ -331,6 +344,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return results;
     }
 
+    /** 解析记录日志Line */
     private LogEntry parseLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
         try {
@@ -350,6 +364,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
+    /** DetectLevelFromMessage */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
             return LogLevel.INFO;
@@ -367,6 +382,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return LogLevel.INFO;
     }
 
+    /** CompilePattern */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }
         try {
@@ -379,6 +395,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @SuppressWarnings("unchecked")
+    /** 绑定Functions */
     private void bindFunctions() {
         if (sdJournalOpen == null) {
             synchronized (this) {

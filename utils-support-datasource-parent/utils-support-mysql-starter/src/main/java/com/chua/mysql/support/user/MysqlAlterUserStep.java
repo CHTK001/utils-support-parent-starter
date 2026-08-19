@@ -31,18 +31,21 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
+    /** WithPassword */
     public UserManager.AlterUserStep withPassword(String password) {
         this.password = password;
         return this;
     }
 
     @Override
+    /** WithHost */
     public UserManager.AlterUserStep withHost(String host) {
         this.host = host;
         return this;
     }
 
     @Override
+    /** WithGrant */
     public UserManager.AlterUserStep withGrant(String privilege, String database) {
         String resolvedHost = host != null ? host : "%";
         grants.add("GRANT " + privilege + " ON " + database + " TO '" + username + "'@'" + resolvedHost + "'");
@@ -50,6 +53,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
+    /** WithRevoke */
     public UserManager.AlterUserStep withRevoke(String privilege, String database) {
         String resolvedHost = host != null ? host : "%";
         revokes.add("REVOKE " + privilege + " ON " + database + " FROM '" + username + "'@'" + resolvedHost + "'");
@@ -57,6 +61,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
+    /** 执行 */
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {

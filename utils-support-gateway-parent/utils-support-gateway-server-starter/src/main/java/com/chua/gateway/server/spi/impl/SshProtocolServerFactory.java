@@ -32,11 +32,13 @@ public final class SshProtocolServerFactory implements ProtocolServerFactory {
     private static final String PROTOCOL_SSH = "ssh";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return PROTOCOL_SSH;
     }
 
     @Override
+    /** 创建Tunnel */
     public GatewayTunnel createTunnel(Connection connection, String tunnelId) throws Exception {
         String host = GatewayProperties.guacdHost();
         int port = GatewayProperties.guacdPort();

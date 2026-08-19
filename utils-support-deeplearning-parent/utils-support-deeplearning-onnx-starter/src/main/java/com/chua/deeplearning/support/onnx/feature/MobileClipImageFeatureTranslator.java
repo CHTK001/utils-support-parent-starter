@@ -39,6 +39,7 @@ public class MobileClipImageFeatureTranslator implements Translator<Image, float
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：Image → BufferedImage → Mat → 短边缩放 + 中心裁剪 → CHW 归一化 → float[]
         ImageUtils.load();
@@ -102,6 +103,7 @@ public class MobileClipImageFeatureTranslator implements Translator<Image, float
 
     @Override
     @Nonnull
+    /** 处理Output */
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
@@ -112,6 +114,7 @@ public class MobileClipImageFeatureTranslator implements Translator<Image, float
 
     @Nullable
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

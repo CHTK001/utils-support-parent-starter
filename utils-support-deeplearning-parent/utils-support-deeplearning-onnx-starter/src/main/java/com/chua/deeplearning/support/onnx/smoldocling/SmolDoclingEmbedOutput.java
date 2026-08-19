@@ -15,10 +15,15 @@ public class SmolDoclingEmbedOutput {
     /** Embeddings */
     private final NDArray embeddings;
 
+    /**
+     * 创建 SmolDoclingEmbedOutput 实例
+     * @param embeddings embeddings
+     */
     public SmolDoclingEmbedOutput(NDArray embeddings) {
         this.embeddings = embeddings;
     }
 
+    /** 获取Embeddings */
     public NDArray getEmbeddings() {
         return embeddings;
     }

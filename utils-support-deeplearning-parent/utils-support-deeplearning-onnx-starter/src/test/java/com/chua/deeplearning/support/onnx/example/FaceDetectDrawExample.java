@@ -56,9 +56,11 @@ public final class FaceDetectDrawExample extends ExampleBase {
             "很多人小脸.jpg"
     };
 
+    /** 创建 FaceDetectDrawExample 实例 */
     private FaceDetectDrawExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         Path outDir = Path.of(OUTPUT_DIR);
         if (!Files.exists(outDir)) {

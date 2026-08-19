@@ -43,6 +43,7 @@ public class QpsServerFilter implements ServerFilter {
     private volatile long windowStartTime = System.currentTimeMillis();
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("qps.max");
         if (max != null && !max.isEmpty()) {
@@ -51,6 +52,7 @@ public class QpsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         long now = System.currentTimeMillis();
         if (now - windowStartTime >= 1000) {
@@ -69,11 +71,13 @@ public class QpsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 22;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "QpsServerFilter";
     }

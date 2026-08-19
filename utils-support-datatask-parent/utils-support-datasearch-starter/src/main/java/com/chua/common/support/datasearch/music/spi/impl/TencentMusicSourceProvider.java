@@ -45,6 +45,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     private static final String MUSICU_URL = "https://u.y.qq.com/cgi-bin/musicu.fcg";
 
     @Override
+    /** 获取Source */
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("tx")
@@ -55,6 +56,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 获取Overview */
     public MusicOverview getOverview() {
         List<String> hotKeywords = fetchHotKeywords();
         List<MusicPlaylistSummary> featured = getCategoryPlaylists("", 1, 12).getPlaylists();
@@ -62,6 +64,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 搜索 */
     public MusicSearchResult search(String keyword, int page, int pageSize) {
         Map<String, Object> request = new LinkedHashMap<>();
         Map<String, Object> comm = new LinkedHashMap<>();
@@ -124,6 +127,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 搜索Playlists */
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
         String url = "http://c.y.qq.com/soso/fcgi-bin/client_music_search_songlist?page_no=" + Math.max(0, page - 1)
                 + "&num_per_page=" + pageSize
@@ -156,6 +160,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 获取PlaylistCategoryCatalog */
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
         JsonNode root = getJson("https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data=%7B%22tags%22%3A%7B%22method%22%3A%22get_all_categories%22%2C%22param%22%3A%7B%22qq%22%3A%22%22%7D%2C%22module%22%3A%22playlist.PlaylistAllCategoriesServer%22%7D%7D");
         List<MusicPlaylistCategoryGroup> groups = new ArrayList<>();
@@ -201,6 +206,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 获取CategoryPlaylists */
     public MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
         JsonNode playlist;
         if (StringUtils.hasText(tagId)) {
@@ -253,6 +259,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 获取PlaylistDetail */
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         String url = "https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&new_format=1&disstid="
                 + encode(playlistId)
@@ -281,6 +288,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
+    /** 获取TrackDetail */
     public MusicTrackDetail getTrackDetail(String trackId) {
         JsonNode item = path(postJson(MUSICU_URL, Map.of(
                 "comm", Map.of("ct", "19", "cv", "1859", "uin", "0"),
@@ -312,6 +320,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
+    /** PostSigned */
     private JsonNode postSigned(Object body) {
         String json;
         try {
@@ -324,6 +333,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 builder -> builder.header("User-Agent", "QQMusic 14090508(android 12)"));
     }
 
+    /** FetchHotKeywords */
     private List<String> fetchHotKeywords() {
         JsonNode root = postJson(MUSICU_URL, Map.of(
                 "comm", Map.of("ct", "19", "cv", "1803", "guid", "0", "tmeAppID", "qqmusic", "uin", "0", "wid", "0"),
@@ -340,6 +350,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         return result;
     }
 
+    /** FetchLyrics */
     private String fetchLyrics(String songId) {
         Map<String, Object> lyricParam = new LinkedHashMap<>();
         lyricParam.put("format", "json");
@@ -366,6 +377,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         return firstNonBlank(text(root, "req", "data", "lyric"), text(root, "req", "data", "trans"));
     }
 
+    /** FetchStreamUrl */
     private String fetchStreamUrl(String songMid, String mediaMid, String quality) {
         String filename;
         if ("flac".equals(quality)) {
@@ -399,6 +411,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         return sip + purl;
     }
 
+    /** 选择Quality */
     private String selectQuality(JsonNode item) {
         JsonNode file = item.path("file");
         if (file.path("size_flac").asLong(0L) > 0) {
@@ -410,6 +423,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         return "128k";
     }
 
+    /** ToTrackSummary */
     private MusicTrackSummary toTrackSummary(JsonNode item) {
         if (!StringUtils.hasText(text(item, "file", "media_mid"))) {
             return null;
@@ -428,6 +442,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
+    /** 合并Names */
     private String joinNames(JsonNode array, String field) {
         List<String> values = new ArrayList<>();
         for (JsonNode item : elements(array)) {

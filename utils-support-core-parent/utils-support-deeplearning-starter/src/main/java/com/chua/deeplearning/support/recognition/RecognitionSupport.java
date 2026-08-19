@@ -16,6 +16,7 @@ import java.util.List;
  */
 final class RecognitionSupport {
 
+    /** 创建 RecognitionSupport 实例 */
     private RecognitionSupport() {
     }
 

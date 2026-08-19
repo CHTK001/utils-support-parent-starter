@@ -32,12 +32,18 @@ public class ImageGenerationModel implements Model {
     /** 模型名称 */
     private final String modelName;
 
+    /**
+     * 创建 ImageGenerationModel 实例
+     * @param imageClient imageClient
+     * @param String String
+     */
     public ImageGenerationModel(ImageClient imageClient, String modelName) {
         this.imageClient = imageClient;
         this.modelName = modelName != null ? modelName : "image-generation";
     }
 
     @Override
+    /** Stream */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractPrompt(messages);
         String resultText;
@@ -60,10 +66,12 @@ public class ImageGenerationModel implements Model {
     }
 
     @Override
+    /** 获取ModelName */
     public String getModelName() {
         return modelName;
     }
 
+    /** ExtractPrompt */
     private static String extractPrompt(List<Msg> messages) {
         for (int i = messages.size() - 1; i >= 0; i--) {
             Msg msg = messages.get(i);
@@ -75,6 +83,7 @@ public class ImageGenerationModel implements Model {
         return "";
     }
 
+    /** ToBasePng */
     private static String toBase64Png(BufferedImage image) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);

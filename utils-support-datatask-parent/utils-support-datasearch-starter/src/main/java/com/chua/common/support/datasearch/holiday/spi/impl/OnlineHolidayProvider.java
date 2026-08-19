@@ -57,6 +57,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
     /** cache */
     private final Map<Integer, Map<String, HolidayInfo>> cache = new ConcurrentHashMap<>();
 
+    /** 创建 OnlineHolidayProvider 实例 */
     public OnlineHolidayProvider() {
         this(DEFAULT_URL);
     }
@@ -72,17 +73,20 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "online";
     }
 
     @Override
+    /** 是否Holiday */
     public boolean isHoliday(LocalDate date) {
         HolidayInfo info = resolve(date);
         return info != null && "holiday".equals(info.getType());
     }
 
     @Override
+    /** 是否Workday */
     public boolean isWorkday(LocalDate date) {
         HolidayInfo info = resolve(date);
         if (info != null) {
@@ -93,19 +97,23 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     @Override
+    /** 获取Holiday */
     public HolidayInfo getHoliday(LocalDate date) {
         return resolve(date);
     }
 
     @Override
+    /** 获取Holidays */
     public List<HolidayInfo> getHolidays(int year) {
         return new ArrayList<>(load(year).values());
     }
 
+    /** 解析 */
     private HolidayInfo resolve(LocalDate date) {
         return load(date.getYear()).get(date.toString());
     }
 
+    /** 加载 */
     private Map<String, HolidayInfo> load(int year) {
         Map<String, HolidayInfo> cached = cache.get(year);
         if (cached != null) {
@@ -144,6 +152,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
         return map;
     }
 
+    /** Text */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -171,6 +180,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
         return m;
     }
 
+    /** 添加 */
     private static void add(Map<String, HolidayInfo> m, String start, String end, String name, String type) {
         LocalDate s = LocalDate.parse(start);
         LocalDate e = LocalDate.parse(end);

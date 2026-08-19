@@ -116,6 +116,7 @@ public class DjlModelFactory implements AutoCloseable {
         return "OnnxRuntime";
     }
 
+    /** EnsureInitialized */
     private void ensureInitialized() {
         if (!initialized) {
             synchronized (this) {
@@ -187,6 +188,7 @@ public class DjlModelFactory implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (predictor != null) {
             predictor.close();

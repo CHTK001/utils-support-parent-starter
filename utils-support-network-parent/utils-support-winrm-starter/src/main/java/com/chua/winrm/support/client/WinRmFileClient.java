@@ -56,11 +56,13 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** 连接 */
     public void connect() throws IOException {
         winrmClient.connect();
     }
 
     @Override
+    /** 关闭Quietly */
     public void closeQuietly() {
         try {
             winrmClient.disconnect();
@@ -70,6 +72,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** ListFiles */
     public List<String> listFiles(String path) throws IOException {
         String command = "Get-ChildItem -Path \"" + path + "\" | Select-Object -ExpandProperty Name";
         String output = winrmClient.exec().command(command).executeAndGetOutput();
@@ -83,6 +86,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** UploadFile */
     public void uploadFile(InputStream inputStream, String path) throws IOException {
         byte[] data = inputStream.readAllBytes();
         String encoded = Base64.getEncoder().encodeToString(data);
@@ -93,6 +97,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** DownloadFile */
     public void downloadFile(String path, OutputStream outputStream) throws IOException {
         String command = "powershell \"[Convert]::ToBase64String([IO.File]::ReadAllBytes('" + path + "'))\"";
         String output = winrmClient.exec().command(command).executeAndGetOutput();
@@ -102,12 +107,14 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** 读取File */
     public String readFile(String path) throws IOException {
         String command = "Get-Content -Path \"" + path + "\"";
         return winrmClient.exec().command(command).executeAndGetOutput();
     }
 
     @Override
+    /** 创建Directory */
     public void createDirectory(String path, boolean recursive) throws IOException {
         String forceFlag = recursive ? FORCE_FLAG : "";
         String command = "New-Item -ItemType Directory -Path \"" + path + "\"" + forceFlag;
@@ -116,6 +123,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** 删除 */
     public void delete(String path) throws IOException {
         String command = "Remove-Item -Path \"" + path + "\" -Force -Recurse";
         winrmClient.exec().command(command).execute();
@@ -123,6 +131,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** 重命名 */
     public void rename(String oldPath, String newPath) throws IOException {
         String command = "Move-Item -Path \"" + oldPath + "\" -Destination \"" + newPath + "\"";
         winrmClient.exec().command(command).execute();
@@ -130,6 +139,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** 是否存在 */
     public boolean exists(String path) throws IOException {
         String command = "Test-Path -Path \"" + path + "\"";
         String result = winrmClient.exec().command(command).executeAndGetOutput();
@@ -137,6 +147,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
+    /** 是否Directory */
     public boolean isDirectory(String path) throws IOException {
         String command = "(Get-Item -Path \"" + path + "\").PSIsContainer";
         String result = winrmClient.exec().command(command).executeAndGetOutput();

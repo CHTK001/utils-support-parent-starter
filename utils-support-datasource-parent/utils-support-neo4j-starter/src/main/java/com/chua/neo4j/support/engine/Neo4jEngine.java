@@ -58,6 +58,7 @@ public class Neo4jEngine implements Engine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 添加DataSource */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof String uri) {
@@ -95,12 +96,14 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    /** 设置DefaultDataSourceName */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
+    /** Store */
     public <T> Engine store(String name, List<T> data) {
         if (driver == null || CollectionUtils.isEmpty(data)) {
             return this;
@@ -144,33 +147,39 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
     @Override
+    /** 获取Dialect */
     public Dialect getDialect(String n) {
         return null;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (driver != null) {
             driver.close();
@@ -179,20 +188,145 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    /** 查询 */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
             @Override
+            /**
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param pn pn
+             * @param ps ps
+             * @param ps ps
+             * @param ps ps
+             * @param to to
+             * @param entityClass entityClass
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param params params
+             * @param params params
+             * @param entityClass entityClass
+             * @param e e
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param setValues setValues
+             * @param params params
+             * @param params params
+             * @param e e
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param params params
+             * @param params params
+             * @param e e
+             * @param conditions conditions
+             * @param params params
+             * @param alias alias
+             * @param 0 0
+             * @param params params
+             * @param alias alias
+             * @param sb sb
+             * @param c c
+             * @param params params
+             * @param alias alias
+             * @param 0 0
+             * @param params params
+             * @param alias alias
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param props props
+             * @param entityClass entityClass
+             * @param paramType paramType
+             * @param value value
+             * @param e e
+             * @param e e
+             * @param value value
+             * @param targetType targetType
+             * @param Number Number
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
                     @Override
+                    /**
+                     * 解析Column
+                     * @param col col
+                     * @param pn pn
+                     * @param ps ps
+                     * @param ps ps
+                     * @param ps ps
+                     * @param to to
+                     * @param entityClass entityClass
+                     * @param col col
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param col col
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param params params
+                     * @param params params
+                     * @param entityClass entityClass
+                     * @param e e
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param setValues setValues
+                     * @param params params
+                     * @param params params
+                     * @param e e
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param params params
+                     * @param params params
+                     * @param e e
+                     * @param conditions conditions
+                     * @param params params
+                     * @param alias alias
+                     * @param 0 0
+                     * @param params params
+                     * @param alias alias
+                     * @param sb sb
+                     * @param c c
+                     * @param params params
+                     * @param alias alias
+                     * @param 0 0
+                     * @param params params
+                     * @param alias alias
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param props props
+                     * @param entityClass entityClass
+                     * @param paramType paramType
+                     * @param value value
+                     * @param e e
+                     * @param e e
+                     * @param value value
+                     * @param targetType targetType
+                     * @param Number Number
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -201,11 +335,13 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
+            /** List */
             public List<T> list() {
                 return cypherQuery(entityClass, getConditions());
             }
 
             @Override
+            /** One */
             public T one() {
                 List<T> r = cypherQuery(entityClass, getConditions());
                 if (r.isEmpty()) {
@@ -215,6 +351,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
+            /** Page */
             public Page<T> page(int pn, int ps) {
                 List<T> all = cypherQuery(entityClass, getConditions());
                 int from = (pn - 1) * ps;
@@ -228,20 +365,129 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    /** 更新 */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
             @Override
+            /**
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param params params
+             * @param params params
+             * @param entityClass entityClass
+             * @param e e
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param setValues setValues
+             * @param params params
+             * @param params params
+             * @param e e
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param params params
+             * @param params params
+             * @param e e
+             * @param conditions conditions
+             * @param params params
+             * @param alias alias
+             * @param 0 0
+             * @param params params
+             * @param alias alias
+             * @param sb sb
+             * @param c c
+             * @param params params
+             * @param alias alias
+             * @param 0 0
+             * @param params params
+             * @param alias alias
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param props props
+             * @param entityClass entityClass
+             * @param paramType paramType
+             * @param value value
+             * @param e e
+             * @param e e
+             * @param value value
+             * @param targetType targetType
+             * @param Number Number
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
                     @Override
+                    /**
+                     * 解析Column
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param col col
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param params params
+                     * @param params params
+                     * @param entityClass entityClass
+                     * @param e e
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param setValues setValues
+                     * @param params params
+                     * @param params params
+                     * @param e e
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param params params
+                     * @param params params
+                     * @param e e
+                     * @param conditions conditions
+                     * @param params params
+                     * @param alias alias
+                     * @param 0 0
+                     * @param params params
+                     * @param alias alias
+                     * @param sb sb
+                     * @param c c
+                     * @param params params
+                     * @param alias alias
+                     * @param 0 0
+                     * @param params params
+                     * @param alias alias
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param props props
+                     * @param entityClass entityClass
+                     * @param paramType paramType
+                     * @param value value
+                     * @param e e
+                     * @param e e
+                     * @param value value
+                     * @param targetType targetType
+                     * @param Number Number
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -250,6 +496,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
+            /** 更新 */
             public int update() {
                 return cypherUpdate(entityClass, getConditions(), getSetValues());
             }
@@ -257,20 +504,123 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    /** 删除 */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
             @Override
+            /**
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param params params
+             * @param params params
+             * @param entityClass entityClass
+             * @param e e
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param setValues setValues
+             * @param params params
+             * @param params params
+             * @param e e
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param params params
+             * @param params params
+             * @param e e
+             * @param conditions conditions
+             * @param params params
+             * @param alias alias
+             * @param 0 0
+             * @param params params
+             * @param alias alias
+             * @param sb sb
+             * @param c c
+             * @param params params
+             * @param alias alias
+             * @param 0 0
+             * @param params params
+             * @param alias alias
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param val val
+             * @param props props
+             * @param entityClass entityClass
+             * @param paramType paramType
+             * @param value value
+             * @param e e
+             * @param e e
+             * @param value value
+             * @param targetType targetType
+             * @param Number Number
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
                     @Override
+                    /**
+                     * 解析Column
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param params params
+                     * @param params params
+                     * @param entityClass entityClass
+                     * @param e e
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param setValues setValues
+                     * @param params params
+                     * @param params params
+                     * @param e e
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param params params
+                     * @param params params
+                     * @param e e
+                     * @param conditions conditions
+                     * @param params params
+                     * @param alias alias
+                     * @param 0 0
+                     * @param params params
+                     * @param alias alias
+                     * @param sb sb
+                     * @param c c
+                     * @param params params
+                     * @param alias alias
+                     * @param 0 0
+                     * @param params params
+                     * @param alias alias
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param val val
+                     * @param props props
+                     * @param entityClass entityClass
+                     * @param paramType paramType
+                     * @param value value
+                     * @param e e
+                     * @param e e
+                     * @param value value
+                     * @param targetType targetType
+                     * @param Number Number
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -279,6 +629,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
+            /** 移除 */
             public int remove() {
                 return cypherDelete(entityClass, getConditions());
             }
@@ -501,6 +852,7 @@ public class Neo4jEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
+    /** MapToEntity */
     private <T> T mapToEntity(Map<String, Object> props, Class<T> entityClass) {
         try {
             T instance = entityClass.getDeclaredConstructor().newInstance();
@@ -529,6 +881,7 @@ public class Neo4jEngine implements Engine {
         }
     }
 
+    /** 转换Number */
     private Object convertNumber(Object value, Class<?> targetType) {
         if (!(value instanceof Number)) {
             return value;

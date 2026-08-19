@@ -20,11 +20,16 @@ import java.util.Map;
  */
 public class WordReadBuilder extends ReadBuilder {
 
+    /**
+     * 创建 WordReadBuilder 实例
+     * @param file file
+     */
     public WordReadBuilder(File file) {
         super(file);
     }
 
     @Override
+    /** WithCharset */
     public WordReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -110,6 +115,7 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** 读取 */
     public Object read() {
         return text();
     }
@@ -126,11 +132,13 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** AsLines */
     public List<String> asLines() {
          return paragraphs(); 
     }
 
     @Override
+    /** AsString */
     public String asString() {
          return text(); 
     }

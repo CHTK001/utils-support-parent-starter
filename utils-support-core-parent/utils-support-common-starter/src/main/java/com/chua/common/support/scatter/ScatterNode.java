@@ -88,30 +88,37 @@ public final class ScatterNode {
                 discovery.getScatterId(), discovery.getUriSpec(), discovery.getMetadata());
     }
 
+    /** 获取NodeId */
     public String getNodeId() {
         return nodeId;
     }
 
+    /** 获取Host */
     public String getHost() {
         return host;
     }
 
+    /** 获取Port */
     public int getPort() {
         return port;
     }
 
+    /** 获取Protocol */
     public String getProtocol() {
         return protocol;
     }
 
+    /** 获取分组Id */
     public String getGroupId() {
         return groupId;
     }
 
+    /** 获取ServicePath */
     public String getServicePath() {
         return servicePath;
     }
 
+    /** 获取Metadata */
     public Map<String, String> getMetadata() {
         return metadata;
     }

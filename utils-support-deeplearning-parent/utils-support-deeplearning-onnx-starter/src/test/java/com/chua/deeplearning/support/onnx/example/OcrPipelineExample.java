@@ -22,9 +22,11 @@ import java.util.List;
  */
 public final class OcrPipelineExample extends ExampleBase {
 
+    /** 创建 OcrPipelineExample 实例 */
     private OcrPipelineExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\车票.png";
         byte[] img = Files.readAllBytes(Path.of(imagePath));

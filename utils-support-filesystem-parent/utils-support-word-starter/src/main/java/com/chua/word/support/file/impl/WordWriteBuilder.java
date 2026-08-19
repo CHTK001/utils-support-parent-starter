@@ -33,6 +33,10 @@ public class WordWriteBuilder extends WriteBuilder {
      */
     private InputStream templateStream;
 
+    /**
+     * 创建 WordWriteBuilder 实例
+     * @param file file
+     */
     public WordWriteBuilder(File file) {
         super(file);
     }
@@ -59,6 +63,7 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     @Override
+    /** 写入 */
     public WordWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -109,6 +114,7 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     @Override
+    /** Finish */
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
@@ -155,6 +161,7 @@ public class WordWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** Do写入Text */
     private void doWriteText(List<String> lines) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;
@@ -173,6 +180,7 @@ public class WordWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** Do写入Map */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;
@@ -198,6 +206,7 @@ public class WordWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** 解析Template */
     private void resolveTemplate() {
         try {
             TemplateFileSystem engine = ServiceProvider.of(TemplateFileSystem.class).getExtension("txt");

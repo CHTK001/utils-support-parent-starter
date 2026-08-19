@@ -29,10 +29,15 @@ import java.util.List;
  */
 @Spi("Wanou")
 public class WanouResourceProvider extends AbstractResourceProvider {
+    /** 创建 WanouResourceProvider 实例 */
     public WanouResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 WanouResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public WanouResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
@@ -47,6 +52,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     }
 
     @Override
+    /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         try {
             String url = getUrl();
@@ -94,6 +100,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
         }
     }
 
+    /** 注册Download */
     private void registerDownload(List<VideoDownload> videoDownloads, String vodDownFrom, String vodDownUrl) {
         if (null == vodDownFrom) {
             return;
@@ -109,6 +116,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
         }
     }
 
+    /** TransferName */
     public String transferName(String s) {
         return switch (s.toLowerCase()) {
             case "bd" -> "百度网盘";

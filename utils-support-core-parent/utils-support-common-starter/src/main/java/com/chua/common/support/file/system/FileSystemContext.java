@@ -17,6 +17,7 @@ public class FileSystemContext<T> {
     /** 字段名到字段值的映射数据 */
     private Map<String, Object> data;
 
+    /** 创建 FileSystemContext 实例 */
     public FileSystemContext() {
     }
 

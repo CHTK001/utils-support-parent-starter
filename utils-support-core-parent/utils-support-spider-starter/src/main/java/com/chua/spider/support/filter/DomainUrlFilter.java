@@ -66,6 +66,7 @@ public class DomainUrlFilter implements SpiderUrlFilter {
     }
 
     @Override
+    /** Accept */
     public boolean accept(SpiderRequest request) {
         if (request == null || request.getUrl() == null) {
             return false;

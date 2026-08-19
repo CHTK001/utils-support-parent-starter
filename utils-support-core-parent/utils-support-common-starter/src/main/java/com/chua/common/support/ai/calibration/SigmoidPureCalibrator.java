@@ -51,6 +51,7 @@ public class SigmoidPureCalibrator implements PureCalibrator {
     private double t = 0.75;
 
     @Override
+    /** Calibrate */
     public double calibrate(double rawScore) {
         double expVal = Math.exp(-k * (rawScore - t));
         double prob = 1.0 / (1.0 + expVal);
@@ -58,11 +59,13 @@ public class SigmoidPureCalibrator implements PureCalibrator {
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "Sigmoid纯校准";
     }
 
     @Override
+    /** 获取Description */
     public String getDescription() {
         return "基于Sigmoid函数的分数校准。参数k控制陡度，t控制阈值。";
     }

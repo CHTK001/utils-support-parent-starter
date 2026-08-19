@@ -77,6 +77,10 @@ public class FtpClient implements AutoCloseable {
      */
     private FTPClient ftpClient;
 
+    /**
+     * 创建 FtpClient 实例
+     * @param b b
+     */
     private FtpClient(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -89,14 +93,17 @@ public class FtpClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** Builder */
     public static Builder builder() { return new Builder(); }
 
+    /** 创建 */
     public static FtpClient create(String host, String username, String password) {
         return builder().host(host).username(username).password(password).build();
     }
 
     // ==================== 连接管理 ====================
 
+    /** 连接 */
     public FtpClient connect() {
         try {
             ftpClient = new FTPClient();
@@ -114,6 +121,7 @@ public class FtpClient implements AutoCloseable {
         return this;
     }
 
+    /** 断开 */
     public void disconnect() {
         try {
             if (ftpClient != null && ftpClient.isConnected()) {
@@ -127,16 +135,24 @@ public class FtpClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() { disconnect(); }
 
     // ==================== 操作入口 ====================
 
+    /** Upload */
     public UploadOperation upload() { return new UploadOperation(this); }
+    /** Download */
     public DownloadOperation download() { return new DownloadOperation(this); }
+    /** Ls */
     public ListOperation ls() { return new ListOperation(this); }
+    /** 创建目录 */
     public MkdirOperation mkdir() { return new MkdirOperation(this); }
+    /** Rm */
     public RmOperation rm() { return new RmOperation(this); }
+    /** 重命名 */
     public RenameOperation rename() { return new RenameOperation(this); }
+    /** 是否存在 */
     public boolean exists(String path) {
         try {
             FTPFile[] files = ftpClient.listFiles(path);
@@ -167,9 +183,12 @@ public class FtpClient implements AutoCloseable {
 
         UploadOperation(FtpClient client) { this.client = client; }
 
+        /** Local */
         public UploadOperation local(String p) { this.localPath = p; return this; }
+        /** Remote */
         public UploadOperation remote(String p) { this.remotePath = p; return this; }
 
+        /** Exec */
         public void exec() {
             try {
                 File file = new File(localPath);
@@ -207,9 +226,12 @@ public class FtpClient implements AutoCloseable {
 
         DownloadOperation(FtpClient client) { this.client = client; }
 
+        /** Remote */
         public DownloadOperation remote(String p) { this.remotePath = p; return this; }
+        /** Local */
         public DownloadOperation local(String p) { this.localPath = p; return this; }
 
+        /** Exec */
         public void exec() {
             try {
                 File file = new File(localPath);
@@ -243,8 +265,10 @@ public class FtpClient implements AutoCloseable {
 
         ListOperation(FtpClient client) { this.client = client; }
 
+        /** Path */
         public ListOperation path(String p) { this.path = p; return this; }
 
+        /** Exec */
         public List<String> exec() {
             try {
                 FTPFile[] files = client.getFtpClient().listFiles(path);
@@ -276,8 +300,10 @@ public class FtpClient implements AutoCloseable {
 
         MkdirOperation(FtpClient client) { this.client = client; }
 
+        /** Path */
         public MkdirOperation path(String p) { this.path = p; return this; }
 
+        /** Exec */
         public void exec() {
             try {
                 client.getFtpClient().makeDirectory(path);
@@ -303,8 +329,10 @@ public class FtpClient implements AutoCloseable {
 
         RmOperation(FtpClient client) { this.client = client; }
 
+        /** Path */
         public RmOperation path(String p) { this.path = p; return this; }
 
+        /** Exec */
         public void exec() {
             try {
                 client.getFtpClient().deleteFile(path);
@@ -334,9 +362,12 @@ public class FtpClient implements AutoCloseable {
 
         RenameOperation(FtpClient client) { this.client = client; }
 
+        /** From */
         public RenameOperation from(String p) { this.oldPath = p; return this; }
+        /** To */
         public RenameOperation to(String p) { this.newPath = p; return this; }
 
+        /** Exec */
         public void exec() {
             try {
                 client.getFtpClient().rename(oldPath, newPath);
@@ -379,14 +410,22 @@ public class FtpClient implements AutoCloseable {
          */
         private int connectTimeout = 30000;
 
+        /** Host */
         public Builder host(String h) { this.host = h; return this; }
+        /** Port */
         public Builder port(int p) { this.port = p; return this; }
+        /** Username */
         public Builder username(String u) { this.username = u; return this; }
+        /** Password */
         public Builder password(String p) { this.password = p; return this; }
+        /** Passive */
         public Builder passive(boolean v) { this.passive = v; return this; }
+        /** Binary */
         public Builder binary(boolean v) { this.binary = v; return this; }
+        /** 连接Timeout */
         public Builder connectTimeout(int t) { this.connectTimeout = t; return this; }
 
+        /** 构建 */
         public FtpClient build() {
             if (host == null) {
                 throw new IllegalArgumentException("host 不能为空");
@@ -399,6 +438,11 @@ public class FtpClient implements AutoCloseable {
     }
 
     public static class FtpClientException extends RuntimeException {
+        /**
+         * 创建 FtpClientException 实例
+         * @param msg msg
+         * @param Throwable Throwable
+         */
         public FtpClientException(String msg, Throwable cause) { super(msg, cause); }
     }
 }

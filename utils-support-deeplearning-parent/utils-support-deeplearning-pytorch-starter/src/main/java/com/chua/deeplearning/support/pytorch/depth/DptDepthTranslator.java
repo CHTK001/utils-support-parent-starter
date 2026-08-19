@@ -40,16 +40,23 @@ public class DptDepthTranslator implements Translator<Image, Image> {
      */
     private int height;
 
+    /** 创建 DptDepthTranslator 实例 */
     public DptDepthTranslator() {
         this(512, 512);
     }
 
+    /**
+     * 创建 DptDepthTranslator 实例
+     * @param detectResolution detectResolution
+     * @param int int
+     */
     public DptDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
         this.imageResolution = imageResolution;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -64,6 +71,7 @@ public class DptDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
         NDArray min = depthPt.min();
@@ -78,6 +86,7 @@ public class DptDepthTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(display);
     }
 
+    /** ToDisplay */
     private NDArray toDisplay(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) {
@@ -103,6 +112,7 @@ public class DptDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

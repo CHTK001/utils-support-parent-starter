@@ -18,11 +18,16 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     /** 配置对象 */
     protected final ConfigSaveLoadSetting setting;
 
+    /**
+     * 创建 AbstractConfigSaveOrLoader 实例
+     * @param setting setting
+     */
     protected AbstractConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         this.setting = setting == null ? ConfigSaveLoadSetting.builder().build() : setting;
     }
 
     @Override
+    /** Charset */
     public Charset charset() {
         return setting.getCharset();
     }

@@ -57,6 +57,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
+    /** 开始 */
     public FlowGraph start(String nodeId) {
         checkNode(nodeId);
         this.startNodeId = nodeId;
@@ -65,6 +66,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
+    /** Next */
     public FlowGraph next(String... nodeIds) {
         if (nodeIds == null || nodeIds.length == 0) {
             throw new FlowException("next 必须指定至少一个节点");
@@ -81,6 +83,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
+    /** When */
     public FlowGraph when(String nodeId, boolean result, String... targets) {
         checkNode(nodeId);
         if (targets == null || targets.length == 0) {
@@ -95,6 +98,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
+    /** End */
     public FlowGraph end(String... nodeIds) {
         String[] targets = nodeIds;
         if (targets == null || targets.length == 0) {
@@ -111,11 +115,13 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
+    /** 创建Instance */
     public FlowInstance createInstance() {
         return createInstance(Collections.emptyMap());
     }
 
     @Override
+    /** 创建Instance */
     public FlowInstance createInstance(Map<String, Object> params) {
         String resolvedStart = startNodeId != null ? startNodeId : flow.resolveStartNodeId();
         if (resolvedStart == null) {
@@ -125,6 +131,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
+    /** ExportJson */
     public String exportJson() {
         return FlowJson.toJson(flow.getDefinition());
     }

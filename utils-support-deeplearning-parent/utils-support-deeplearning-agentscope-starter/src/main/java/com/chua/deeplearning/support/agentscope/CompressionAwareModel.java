@@ -46,6 +46,15 @@ public class CompressionAwareModel implements Model {
     /** Compression模型ID */
     private final String compressionModelId;
 
+    /**
+     * 创建 CompressionAwareModel 实例
+     * @param delegate delegate
+     * @param fallbackChatClient fallbackChatClient
+     * @param compressionConfig compressionConfig
+     * @param modelName modelName
+     * @param workspace workspace
+     * @param compressionModelId compressionModelId
+     */
     public CompressionAwareModel(Model delegate, ChatClient fallbackChatClient,
                                  AgentCompressionConfig compressionConfig,
                                  String modelName, String workspace,
@@ -61,6 +70,12 @@ public class CompressionAwareModel implements Model {
     }
 
     @Override
+    /**
+     * 流式输出
+     * @param messages messages
+     * @param tools tools
+     * @param options options
+     */
     public Flux<ChatResponse> stream(List<Msg> messages, List<io.agentscope.core.model.ToolSchema> tools,
                                      GenerateOptions options) {
         List<ChatMessage> chatMessages = convertToChatMessages(messages);
@@ -70,6 +85,7 @@ public class CompressionAwareModel implements Model {
     }
 
     @Override
+    /** 获取ModelName */
     public String getModelName() {
         return modelName;
     }
@@ -81,14 +97,17 @@ public class CompressionAwareModel implements Model {
         return compressor.maybeCompress(messages);
     }
 
+    /** 获取Compressor */
     public ContextCompressor getCompressor() {
         return compressor;
     }
 
+    /** 获取CompressionModelId */
     public String getCompressionModelId() {
         return compressionModelId;
     }
 
+    /** 转换ToChatMessages */
     private static List<ChatMessage> convertToChatMessages(List<Msg> messages) {
         if (messages == null) {
             return new ArrayList<>();
@@ -108,6 +127,7 @@ public class CompressionAwareModel implements Model {
         return result;
     }
 
+    /** 转换ToMsg */
     private static List<Msg> convertToMsg(List<ChatMessage> messages) {
         if (messages == null) {
             return new ArrayList<>();

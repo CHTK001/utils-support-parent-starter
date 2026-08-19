@@ -19,12 +19,14 @@ import ai.djl.translate.TranslatorContext;
 public class SuperResolutionTranslator implements Translator<Image, Image> {
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager()).toType(DataType.FLOAT32, false);
         return new NDList(array);
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.get(0).clip(0, 255).toType(DataType.UINT8, false);
         if (output.getShape().dimension() == 4 && output.getShape().get(0) == 1) {
@@ -34,6 +36,7 @@ public class SuperResolutionTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

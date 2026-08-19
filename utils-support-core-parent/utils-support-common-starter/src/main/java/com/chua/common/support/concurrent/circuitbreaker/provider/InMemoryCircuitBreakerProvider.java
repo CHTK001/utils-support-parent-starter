@@ -65,6 +65,13 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
      */
     private final AtomicReference<State> state = new AtomicReference<>(State.CLOSED);
 
+    /**
+     * 创建 InMemoryCircuitBreakerProvider 实例
+     * @param name name
+     * @param int int
+     * @param int int
+     * @param long long
+     */
     public InMemoryCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         this.name = name;
         this.failureThreshold = failureThreshold;
@@ -73,6 +80,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     }
 
     @Override
+    /** Try获取 */
     public boolean tryAcquire() {
         State current = state.get();
         if (current == State.CLOSED) {
@@ -94,6 +102,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     }
 
     @Override
+    /** RecordSuccess */
     public void recordSuccess() {
         State current = state.get();
         if (current == State.OPEN) {
@@ -112,6 +121,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     }
 
     @Override
+    /** RecordFailure */
     public void recordFailure() {
         State current = state.get();
         if (current == State.OPEN) {
@@ -132,6 +142,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     }
 
     @Override
+    /** 重置 */
     public void reset() {
         state.set(State.CLOSED);
         failureCount.set(0);
@@ -140,11 +151,13 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     }
 
     @Override
+    /** 是否打开 */
     public boolean isOpen() {
         return state.get() == State.OPEN;
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return name;
     }

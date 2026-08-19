@@ -174,18 +174,21 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
+    /** Threshold */
     public PlateDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public PlateDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public PlateDetector device(String device) {
         this.device = device;
         return this;
@@ -193,6 +196,7 @@ class DefaultPlateDetector implements PlateDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);
@@ -203,6 +207,7 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
+    /** DetectInfo */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(
@@ -214,6 +219,7 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
+    /** Plate计算数量 */
     public int plateCount(byte[] imageData) {
         return detect(imageData).size();
     }

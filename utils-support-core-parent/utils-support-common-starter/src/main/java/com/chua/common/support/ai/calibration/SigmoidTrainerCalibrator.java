@@ -148,6 +148,13 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     // ==================== 实现 TrainerPureCalibrator ====================
 
     @Override
+    /**
+     * GenerateTrainingData
+     * @param notSimilarCount notSimilarCount
+     * @param lookSimilarCount lookSimilarCount
+     * @param samePersonCount samePersonCount
+     * @param seed seed
+     */
     public TrainerPureCalibrator generateTrainingData(int notSimilarCount,
                                                       int lookSimilarCount,
                                                       int samePersonCount,
@@ -173,6 +180,12 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
+    /**
+     * 设置TrainingData
+     * @param notSimilarScores notSimilarScores
+     * @param lookSimilarScores lookSimilarScores
+     * @param samePersonScores samePersonScores
+     */
     public TrainerPureCalibrator setTrainingData(List<Double> notSimilarScores,
                                                  List<Double> lookSimilarScores,
                                                  List<Double> samePersonScores) {
@@ -185,6 +198,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
+    /** Train */
     public TrainerPureCalibrator train() {
         if (trainingData == null || trainingData.isEmpty()) {
             throw new IllegalStateException("训练数据为空，请先调用 generateTrainingData() 或 setTrainingData()");
@@ -268,6 +282,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
+    /** 保存Model */
     public TrainerPureCalibrator saveModel(String filePath) {
         if (!trained) {
             throw new IllegalStateException("模型尚未训练，请先调用 train()");
@@ -288,6 +303,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
+    /** 加载Model */
     public TrainerPureCalibrator loadModel(String filePath) {
         try (FileReader reader = new FileReader(filePath)) {
             ModelData modelData = Json.fromJson(reader, ModelData.class);
@@ -309,11 +325,13 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
+    /** 获取TrainingData */
     public TrainingData getTrainingData() {
         return trainingData;
     }
 
     @Override
+    /** 获取TrainingStats */
     public TrainingStats getTrainingStats() {
         return trainingStats;
     }
@@ -321,16 +339,19 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     // ==================== 实现 PureCalibrator ====================
 
     @Override
+    /** Calibrate */
     public double calibrate(double rawScore) {
         return calibrator.calibrate(rawScore);
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "Sigmoid可训练校准器";
     }
 
     @Override
+    /** 获取Description */
     public String getDescription() {
         return "基于Sigmoid函数的可训练校准器。支持生成训练数据、自动拟合参数、保存/加载模型。";
     }

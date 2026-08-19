@@ -34,6 +34,7 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
         return PreviewResult.builder()
@@ -57,6 +58,7 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /** 构建Script */
     private String buildScript(String b64, String ext) {
         return "(async function(){var b='" + b64 + "';var e='" + ext.toLowerCase() + "';" +
                 // base64 → ArrayBuffer

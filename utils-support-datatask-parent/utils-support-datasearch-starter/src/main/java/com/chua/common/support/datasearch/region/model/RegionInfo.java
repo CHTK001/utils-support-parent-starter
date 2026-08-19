@@ -59,6 +59,16 @@ public class RegionInfo {
      */
     private List<RegionInfo> children;
 
+    /**
+     * 创建 RegionInfo 实例
+     * @param adcode adcode
+     * @param String String
+     * @param int int
+     * @param String String
+     * @param String String
+     * @param double double
+     * @param double double
+     */
     public RegionInfo(String adcode, String name, int level, String levelName, String parent, double lng, double lat) {
         this.adcode = adcode;
         this.name = name;
@@ -69,38 +79,47 @@ public class RegionInfo {
         this.lat = lat;
     }
 
+    /** 获取Adcode */
     public String getAdcode() {
         return adcode;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取Level */
     public int getLevel() {
         return level;
     }
 
+    /** 获取LevelName */
     public String getLevelName() {
         return levelName;
     }
 
+    /** 获取Parent */
     public String getParent() {
         return parent;
     }
 
+    /** 获取Lng */
     public double getLng() {
         return lng;
     }
 
+    /** 获取Lat */
     public double getLat() {
         return lat;
     }
 
+    /** 获取Children */
     public List<RegionInfo> getChildren() {
         return children;
     }
 
+    /** 设置Children */
     public void setChildren(List<RegionInfo> children) {
         this.children = children;
     }

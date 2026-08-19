@@ -19,6 +19,7 @@ import java.util.List;
 public class OpencodeUsageProvider implements UsageProvider {
 
     @Override
+    /** 获取Usage */
     public List<AiUsage> getUsage() {
         return List.of();
     }

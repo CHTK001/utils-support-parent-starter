@@ -69,6 +69,10 @@ public class IonetSyncServer implements SyncServer {
     /** OnError 注解方法列表 */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
+    /**
+     * 创建 IonetSyncServer 实例
+     * @param delegate delegate
+     */
     private IonetSyncServer(IonetServer delegate) {
         this.delegate = delegate;
         // 消息入口 filter：ionet 消息经 filter 链时转发为 onMessage
@@ -86,6 +90,7 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         Locale.setDefault(Locale.CHINA);
         delegate.start();
@@ -141,6 +146,7 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         // @OnClose 注解分发
         dispatchAnnotatedMethods(onCloseMethods);
@@ -148,66 +154,79 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         stop();
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return delegate.isRunning();
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return delegate.getProtocolType();
     }
 
     @Override
+    /** 获取Port */
     public int getPort() {
         return delegate.getPort();
     }
 
     @Override
+    /** 获取Protocol */
     public String getProtocol() {
         return delegate.getProtocol();
     }
 
     @Override
+    /** 添加过滤 */
     public Server addFilter(ServerFilter filter) {
         return delegate.addFilter(filter);
     }
 
     @Override
+    /** 移除过滤 */
     public Server removeFilter(ServerFilter filter) {
         return delegate.removeFilter(filter);
     }
 
     @Override
+    /** RefreshFilters */
     public Server refreshFilters() {
         return delegate.refreshFilters();
     }
 
     @Override
+    /** 获取Setting */
     public ServerSetting getSetting() {
         return delegate.getSetting();
     }
 
     @Override
+    /** 获取ObjectContext */
     public com.chua.common.support.objects.ObjectContext getObjectContext() {
         return delegate.getObjectContext();
     }
 
     @Override
+    /** 设置ObjectContext */
     public void setObjectContext(com.chua.common.support.objects.ObjectContext objectContext) {
         delegate.setObjectContext(objectContext);
     }
 
     @Override
+    /** 获取Filters */
     public List<ServerFilter> getFilters() {
         return delegate.getFilters();
     }
 
     @Override
+    /** 注册Bean */
     public Server registerBean(Object bean) {
         // 委托底层注册进 ObjectContext 的同时，扫描 @OnOpen/@OnMessage/@OnClose/@OnError 注解
         delegate.registerBean(bean);
@@ -239,11 +258,13 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 注销Bean */
     public Server unregisterBean(Object bean) {
         return delegate.unregisterBean(bean);
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object message) {
         for (SyncServerListener listener : listeners) {
             try {
@@ -256,6 +277,7 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 发送 */
     public void send(String clientId, String topic, Object message) {
         for (SyncServerListener listener : listeners) {
             try {
@@ -266,16 +288,19 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 获取ConnectedClients */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
+    /** 获取ClientMetadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         return clients.getOrDefault(clientId, Map.of());
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncServerListener listener) {
         if (listener != null) {
             listeners.add(listener);
@@ -283,6 +308,7 @@ public class IonetSyncServer implements SyncServer {
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
@@ -401,6 +427,7 @@ public class IonetSyncServer implements SyncServer {
     private final class MessageNotifyFilter implements ServerFilter {
 
         @Override
+        /** Do过滤 */
         public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
             String clientId = request.getRemoteAddress();
             String topic = request.getPath() != null ? request.getPath() : "/";
@@ -421,6 +448,7 @@ public class IonetSyncServer implements SyncServer {
         }
 
         @Override
+        /** SupportProtocols */
         public ProtocolType[] supportProtocols() {
             return new ProtocolType[]{ProtocolType.TCP, ProtocolType.UDP, ProtocolType.WS};
         }
@@ -428,6 +456,7 @@ public class IonetSyncServer implements SyncServer {
 
     // ========== Builder ==========
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -438,14 +467,22 @@ public class IonetSyncServer implements SyncServer {
          */
         private final IonetServer.Builder serverBuilder = IonetServer.builder();
 
+        /** Port */
         public Builder port(int port) { serverBuilder.port(port); return this; }
+        /** 合并Type */
         public Builder joinType(ExternalJoinEnum joinType) { serverBuilder.joinType(joinType); return this; }
+        /** LogicServerName */
         public Builder logicServerName(String name) { serverBuilder.logicServerName(name); return this; }
+        /** 扫描ActionPackage */
         public Builder scanActionPackage(Class<?> scanClass) { serverBuilder.scanActionPackage(scanClass); return this; }
+        /** 启用CenterServer */
         public Builder enableCenterServer(boolean enable) { serverBuilder.enableCenterServer(enable); return this; }
+        /** 调试Mode */
         public Builder debugMode(boolean debug) { serverBuilder.debugMode(debug); return this; }
+        /** SkeletonConfigurer */
         public Builder skeletonConfigurer(Consumer<BarSkeletonBuilder> configurer) { serverBuilder.skeletonConfigurer(configurer); return this; }
 
+        /** 构建 */
         public IonetSyncServer build() {
             return new IonetSyncServer(serverBuilder.build());
         }

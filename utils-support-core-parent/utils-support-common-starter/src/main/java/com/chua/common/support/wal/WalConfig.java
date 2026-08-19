@@ -97,6 +97,10 @@ public final class WalConfig {
      */
     private final byte[] magic;
 
+    /**
+     * 创建 WalConfig 实例
+     * @param b b
+     */
     private WalConfig(Builder b) {
         this.walDir = b.walDir;
         this.namespace = b.namespace;

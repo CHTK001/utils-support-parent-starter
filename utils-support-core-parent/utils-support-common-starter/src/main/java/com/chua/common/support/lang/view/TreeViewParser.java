@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class TreeViewParser implements ViewParser {
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -38,6 +39,7 @@ public class TreeViewParser implements ViewParser {
 
     @Override
 @SuppressWarnings("unchecked")
+    /** Render */
     public String render(Object data) {
         StringBuilder sb = new StringBuilder();
         if (data instanceof Map) {
@@ -139,6 +141,7 @@ public class TreeViewParser implements ViewParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 20;
     }

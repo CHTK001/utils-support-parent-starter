@@ -84,6 +84,7 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
     }
 
     @Override
+    /** 处理 */
     public void process(SpiderResult result) {
         if (result == null || targetClass == null) {
             return;

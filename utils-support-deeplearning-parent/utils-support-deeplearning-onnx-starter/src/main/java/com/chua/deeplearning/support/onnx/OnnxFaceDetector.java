@@ -42,41 +42,51 @@ public class OnnxFaceDetector implements FaceDetector {
     /** Device */
     private String device = DEFAULT_DEVICE;
 
+    /**
+     * 创建 OnnxFaceDetector 实例
+     * @param apiKey apiKey
+     */
     public OnnxFaceDetector(String apiKey) {
         this.apiKey = apiKey;
     }
 
     @Override
+    /** Model */
     public FaceDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
     @Override
+    /** Threshold */
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** Nms */
     public FaceDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
+    /** 最小值Face获取大小 */
     public FaceDetector minFaceSize(int size) {
         this.minFaceSize = size;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         String name = modelName != null ? modelName : "scrfd-face-detector";
         return FaceDetector.create(name)
@@ -88,6 +98,7 @@ public class OnnxFaceDetector implements FaceDetector {
     }
 
     @Override
+    /** DetectInfo */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(
@@ -97,6 +108,7 @@ public class OnnxFaceDetector implements FaceDetector {
     }
 
     @Override
+    /** Face计算数量 */
     public int faceCount(byte[] imageData) {
         return detect(imageData).size();
     }

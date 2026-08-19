@@ -27,6 +27,10 @@ public class PdfReadBuilder extends ReadBuilder {
     /** 结束页 */
     private int endPage = Integer.MAX_VALUE;
 
+    /**
+     * 创建 PdfReadBuilder 实例
+     * @param file file
+     */
     public PdfReadBuilder(File file) {
         super(file);
     }
@@ -42,6 +46,7 @@ public class PdfReadBuilder extends ReadBuilder {
     public PdfReadBuilder endPage(int page) { this.endPage = page; return this; }
 
     @Override
+    /** WithCharset */
     public PdfReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -93,6 +98,7 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** 读取 */
     public Object read() {
         return text();
     }
@@ -124,11 +130,13 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** AsLines */
     public List<String> asLines() {
          return List.of(text().split("\\n")); 
     }
 
     @Override
+    /** AsString */
     public String asString() {
          return text(); 
     }

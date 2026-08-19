@@ -21,6 +21,7 @@ import java.util.List;
 public class ListViewParser implements ViewParser {
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -29,6 +30,7 @@ public class ListViewParser implements ViewParser {
     }
 
     @Override
+    /** Render */
     public String render(Object data) {
         List<Object> items = toList(data);
         if (items.isEmpty()) {
@@ -47,6 +49,7 @@ public class ListViewParser implements ViewParser {
         return sb.toString();
     }
 
+    /** ToList */
     private static List<Object> toList(Object data) {
         if (data instanceof Iterable) {
             List<Object> r = new ArrayList<>();
@@ -60,6 +63,7 @@ public class ListViewParser implements ViewParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 5;
     }

@@ -425,6 +425,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @SafeVarargs
+    /** 分组By */
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -460,23 +461,27 @@ import java.util.concurrent.ConcurrentHashMap;
             }
         }
 
+        /** Where */
         public GroupByQueryWrapper<T> where(String where, Object... params) {
             this.where = where;
             this.params = params;
             return this;
         }
 
+        /** OrderBy */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
             return this;
         }
 
+        /** List */
         public List<Map<String, Object>> list() {
             List<T> entities = engine.executeNewQuery(where, params, entityClass);
             return groupEntities(entities, groupByCols);
         }
 
+        /** Page */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<T> all = engine.executeNewQuery(where, params, entityClass);
             List<Map<String, Object>> grouped = groupEntities(all, groupByCols);
@@ -488,6 +493,7 @@ import java.util.concurrent.ConcurrentHashMap;
             return new Page<>(pn, ps, grouped.size(), grouped.subList(from, to));
         }
 
+        /** 分组Entities */
         private static <T> List<Map<String, Object>> groupEntities(List<T> entities, List<String> groupByCols) {
             if (entities.isEmpty() || groupByCols.isEmpty()) {
                 return Collections.emptyList();
@@ -544,6 +550,7 @@ import java.util.concurrent.ConcurrentHashMap;
             return result;
         }
 
+        /** 获取FieldValue */
         private static Object getFieldValue(Object obj, String fieldName) {
             if (obj == null || fieldName == null) {
                 return null;
@@ -573,6 +580,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
+        /** ToComparable */
         private static Comparable toComparable(Object value) {
             if (value == null) {
                 return null;
@@ -584,6 +592,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
+        /** 比较Nullable */
         private static int compareNullable(Comparable a, Comparable b) {
             if (a == null && b == null) {
                 return 0;
@@ -1004,6 +1013,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
+    /** 执行更新 */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         if (sql == null || !sql.hasSet() || !sql.hasWhere()) {
             return 0;
@@ -1077,6 +1087,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
+    /** 执行删除 */
     public <T> int executeDelete(DeleteSql<T> sql) {
         if (sql == null || !sql.hasWhere()) {
             return 0;
@@ -1109,6 +1120,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
+    /** 构建查询FromWhere */
     protected <T> Query buildQueryFromWhere(String where, Object[] params, Class<T> entityClass) {
         if (where == null || where.trim().isEmpty()) {
             return new MatchAllDocsQuery();
@@ -1118,6 +1130,7 @@ import java.util.concurrent.ConcurrentHashMap;
         return buildQuery(tree, entityClass);
     }
 
+    /** 搜索Documents */
     private <T> List<Document> searchDocuments(String where, Object[] params, Class<T> entityClass) throws IOException {
         Query query = buildQueryFromWhere(where, params, entityClass);
         Directory directory = getOrCreateDirectory(getTableName(entityClass));
@@ -1132,6 +1145,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
+    /** 添加FieldToDoc */
     static void addFieldToDoc(Document doc, String fieldName, Object value) {
         if (value instanceof String str) {
             doc.add(new StringField(fieldName, str, org.apache.lucene.document.Field.Store.YES));

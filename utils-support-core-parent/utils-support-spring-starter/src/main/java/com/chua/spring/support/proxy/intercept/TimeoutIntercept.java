@@ -28,16 +28,19 @@ import java.util.concurrent.TimeoutException;
 public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Timeout> {
 
     @Override
+    /** AnnotationType */
     public Class<Timeout> annotationType() {
         return Timeout.class;
     }
 
     @Override
+    /** Order */
     public int order() {
         return 100;
     }
 
     @Override
+    /** Intercept */
     public Object intercept(Timeout annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         // 解析超时名称（支持 SpEL），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

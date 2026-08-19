@@ -162,16 +162,19 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** Capacity */
     public int capacity() {
         return capacity;
     }
 
     @Override
+    /** Policy */
     public OverflowPolicy policy() {
         return policy;
     }
 
     @Override
+    /** 设置Policy */
     public void setPolicy(OverflowPolicy policy) {
         if (policy == null) {
             throw new NullPointerException("溢出策略不允许为 null");
@@ -180,6 +183,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** 查看Eldest */
     public E peekEldest() {
         if (isEmpty()) {
             throw new NoSuchElementException();
@@ -189,6 +193,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** 取出Eldest */
     public E pollEldest() {
         if (isEmpty()) {
             throw new NoSuchElementException();
@@ -200,41 +205,49 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** LastEvicted */
     public E lastEvicted() {
         return lastEvicted;
     }
 
     @Override
+    /** 获取大小 */
     public int size() {
         return delegate.size();
     }
 
     @Override
+    /** 是否Empty */
     public boolean isEmpty() {
         return delegate.isEmpty();
     }
 
     @Override
+    /** Contains */
     public boolean contains(Object o) {
         return delegate.containsKey(o);
     }
 
     @Override
+    /** Iterator */
     public Iterator<E> iterator() {
         return delegate.keySet().iterator();
     }
 
     @Override
+    /** ToArray */
     public Object[] toArray() {
         return delegate.keySet().toArray();
     }
 
     @Override
+    /** ToArray */
     public <T> T[] toArray(T[] a) {
         return delegate.keySet().toArray(a);
     }
 
     @Override
+    /** 添加 */
     public boolean add(E e) {
         // 每次 add 前重置淘汰记录，仅本次触发淘汰时更新
         lastEvicted = null;
@@ -258,16 +271,19 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** 移除 */
     public boolean remove(Object o) {
         return delegate.remove(o) != null;
     }
 
     @Override
+    /** ContainsAll */
     public boolean containsAll(Collection<?> c) {
         return delegate.keySet().containsAll(c);
     }
 
     @Override
+    /** 添加All */
     public boolean addAll(Collection<? extends E> c) {
         boolean modified = false;
         for (E e : c) {
@@ -277,12 +293,14 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** RetainAll */
     public boolean retainAll(Collection<?> c) {
         boolean modified = delegate.keySet().retainAll(c);
         return modified;
     }
 
     @Override
+    /** 移除All */
     public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         for (Object o : c) {
@@ -292,11 +310,13 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** Clear */
     public void clear() {
         delegate.clear();
     }
 
     @Override
+    /** 判断相等 */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -311,11 +331,13 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         return delegate.keySet().hashCode();
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return delegate.keySet().toString();
     }

@@ -81,6 +81,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     };
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -112,6 +113,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     @Override
+    /** 处理Output */
     public HumanPredictResult processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("                        : {}          ", list.size());
@@ -279,6 +281,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         //           batchifier                         processInput                    batch       
         return null;

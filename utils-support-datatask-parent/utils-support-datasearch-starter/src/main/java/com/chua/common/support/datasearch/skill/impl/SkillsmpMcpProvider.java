@@ -20,25 +20,30 @@ import java.util.Map;
 public class SkillsmpMcpProvider extends SkillsmpProvider implements McpProvider {
 
     @Override
+    /** Name */
     public String name() {
         return NAME;
     }
 
     @Override
+    /** 创建 */
     public McpClient create() {
         return new SkillsmpMcpClient();
     }
 
     @Override
+    /** Install */
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
     @Override
+    /** Uninstall */
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }
 
+    /** ListInstalled */
     public Map<String, Boolean> listInstalled() {
         Map<String, Boolean> result = new HashMap<>();
         result.put(PREFIX + "search", true);
@@ -46,6 +51,7 @@ public class SkillsmpMcpProvider extends SkillsmpProvider implements McpProvider
     }
 
     @Override
+    /** ListAvailable */
     public List<String> listAvailable() {
         return List.of(NAME);
     }

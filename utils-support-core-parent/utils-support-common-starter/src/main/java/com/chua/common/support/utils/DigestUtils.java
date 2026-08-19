@@ -264,6 +264,7 @@ public class DigestUtils {
      */
     private static final ConcurrentReferenceHashMap<String, ThreadLocal<MessageDigest>> DIGEST_CACHE = new ConcurrentReferenceHashMap<>(16);
 
+    /** 创建 DigestUtils 实例 */
     private DigestUtils() {
     }
 

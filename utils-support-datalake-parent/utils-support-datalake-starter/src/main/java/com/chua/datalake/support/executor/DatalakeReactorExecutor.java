@@ -45,6 +45,11 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
      */
     private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 DatalakeReactorExecutor 实例
+     * @param agentId agentId
+     * @param boolean boolean
+     */
     public DatalakeReactorExecutor(String agentId, boolean serverMode) {
         super(agentId, serverMode);
     }
@@ -64,6 +69,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String sinkId, Consumer<List<Map<String, Object>>> consumer) {
         if (chronicleProvider == null) {
             log.warn("[datalake-server] ReactorExecutor 订阅跳过: chronicleProvider 未初始化");
@@ -93,6 +99,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     }
 
     @Override
+    /** 发布 */
     public void publish(String sinkId, List<Map<String, Object>> data) {
         if (data == null) {
             return;

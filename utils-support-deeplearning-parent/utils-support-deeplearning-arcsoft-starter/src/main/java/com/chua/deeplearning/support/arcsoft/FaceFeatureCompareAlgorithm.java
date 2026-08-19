@@ -32,6 +32,7 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
+    /** 创建 FaceFeatureCompareAlgorithm 实例 */
     public FaceFeatureCompareAlgorithm() {
         DeeplearningEnvironment env = DeeplearningEnvironment.of("arcsoft");
         String modelPath = env.getModelPath();
@@ -88,16 +89,19 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         faceEngine.unInit();
     }
 
     @Override
+    /** Name */
     public String name() {
         return "FACE_COMPARE";
     }
 
     @Override
+    /** 比较 */
     public float compare(float[] feature1, float[] feature2) {
         if (feature1 == null || feature2 == null) {
             return 0.0f;

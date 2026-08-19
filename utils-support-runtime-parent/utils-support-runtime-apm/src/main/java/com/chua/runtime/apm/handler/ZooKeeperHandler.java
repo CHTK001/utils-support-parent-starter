@@ -79,28 +79,33 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
+    /** 创建 ZooKeeperHandler 实例 */
     public ZooKeeperHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
+    /** Name */
     public String name() {
         return "zk-handler";
     }
 
     @Override
+    /** Version */
     public String version() {
         return "1.0.0";
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.enabled = "true".equals(context.getProperty("zk.enabled", "true"));
         LOG.log(Level.INFO, String.format("ZooKeeperHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -113,6 +118,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -122,11 +128,13 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("ZooKeeperHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled && started.get();
     }
@@ -171,6 +179,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** OnIntercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -191,6 +200,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
+    /** 处理Entry */
     private void handleEntry(InterceptContext ctx) {
         try {
             TransmissionRecord record = new TransmissionRecord();
@@ -234,6 +244,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** 处理Exit */
     private void handleExit(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -250,6 +261,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** 处理Exception */
     private void handleException(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -326,6 +338,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         return "zk-cluster";
     }
 
+    /** 查找Field */
     private static Field findField(Class<?> clazz, String name) {
         Class<?> c = clazz;
         while (c != null) {
@@ -338,10 +351,12 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         return null;
     }
 
+    /** DeriveOperation */
     private static String deriveOperation(InterceptContext ctx) {
         return ctx.getMethodName();
     }
 
+    /** LocalHost */
     private static String localHost() {
         try {
             return java.net.InetAddress.getLocalHost().getHostAddress();
@@ -350,6 +365,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** 获取Records */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }

@@ -35,15 +35,25 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     /** Receive线程 */
     private Thread receiveThread;
 
+    /**
+     * 创建 NettyWebSocketSyncClient 实例
+     * @param serverUrl serverUrl
+     */
     public NettyWebSocketSyncClient(String serverUrl) {
         this(java.util.UUID.randomUUID().toString(), serverUrl);
     }
 
+    /**
+     * 创建 NettyWebSocketSyncClient 实例
+     * @param clientId clientId
+     * @param String String
+     */
     public NettyWebSocketSyncClient(String clientId, String serverUrl) {
         // clientId is generated above
     }
 
     @Override
+    /** 连接 */
     public void connect() {
         if (connected) {
             return;
@@ -83,6 +93,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (!connected) {
             return;
@@ -95,16 +106,19 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
+    /** 获取ClientId */
     public String getClientId() {
         return clientId;
     }
 
     @Override
+    /** 发送 */
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -124,35 +138,42 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取Metadata */
     public java.util.Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "websocket");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }
 
+    /** 开始接收Thread */
     private void startReceiveThread() {
         receiveThread = new Thread(() -> {
             while (connected && socket != null && socket.isConnected()) {
@@ -190,6 +211,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         receiveThread.start();
     }
 
+    /** 停止接收Thread */
     private void stopReceiveThread() {
         if (receiveThread != null) {
             receiveThread.interrupt();
@@ -197,6 +219,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         }
     }
 
+    /** 处理Message */
     private void handleMessage(String message) {
         int idx = message.indexOf(':');
         if (idx > 0) {
@@ -210,6 +233,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         notifyListeners(l -> l.onMessage(null, message));
     }
 
+    /** 关闭Silently */
     private void closeSilently(Socket s) {
         if (s != null) {
             try {
@@ -220,6 +244,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         }
     }
 
+    /** 通知Listeners */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

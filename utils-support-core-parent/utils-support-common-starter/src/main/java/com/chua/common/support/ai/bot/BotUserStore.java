@@ -65,6 +65,7 @@ public interface BotUserStore extends AutoCloseable {
     long count();
 
     @Override
+    /** 关闭 */
     default void close() {
         // 默认空实现，子类可选择性覆盖
     }

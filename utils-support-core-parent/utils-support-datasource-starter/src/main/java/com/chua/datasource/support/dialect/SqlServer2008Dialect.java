@@ -16,31 +16,37 @@ public class SqlServer2008Dialect extends AbstractDialect {
     public static final String VERSION = "SQL Server 2008";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return "sqlserver2008";
     }
 
     @Override
+    /** Driver */
     public String driver() {
         return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     }
 
     @Override
+    /** Url */
     public String url() {
         return "jdbc:sqlserver://<IP>:<PORT>;databaseName=<DATABASE>";
     }
 
     @Override
+    /** 打开Quote */
     public char openQuote() {
         return '"';
     }
 
     @Override
+    /** 关闭Quote */
     public char closeQuote() {
         return '"';
     }
 
     @Override
+    /** 处理Sql */
     public String processSql(String sql, Pagination pagination) {
         int offset = pagination.getOffset();
         int limit = pagination.getLimit();
@@ -50,6 +56,7 @@ public class SqlServer2008Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         return switch (jdbcType) {
             case java.sql.Types.INTEGER -> "INT";
@@ -74,26 +81,31 @@ public class SqlServer2008Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取AutoIncrementKeyword */
     public String getAutoIncrementKeyword() {
         return "IDENTITY(1,1)";
     }
 
     @Override
+    /** 获取AlterColumnString */
     public String getAlterColumnString() {
         return "ALTER COLUMN";
     }
 
     @Override
+    /** 获取CurrentTimestamp选择String */
     public String getCurrentTimestampSelectString() {
         return "SELECT GETDATE()";
     }
 
     @Override
+    /** 获取DropIndexString */
     public String getDropIndexString(String indexName, String tableName) {
         return "DROP INDEX " + indexName + " ON " + quote(tableName);
     }
 
     @Override
+    /** 获取重命名IndexString */
     public String getRenameIndexString(String oldIndexName, String newIndexName, String tableName) {
         return "EXEC sp_rename N'" + quote(tableName) + "." + oldIndexName + "', N'" + newIndexName + "', N'INDEX'";
     }
@@ -101,6 +113,7 @@ public class SqlServer2008Dialect extends AbstractDialect {
     // ==================== 触发器 / 存储过程查询 SQL ====================
 
     @Override
+    /** 获取TriggerListSql */
     public String getTriggerListSql(String schema) {
         StringBuilder sql = new StringBuilder(
                 "SELECT tr.name AS trigger_name, sc.name AS trigger_schema, tb.name AS table_name, "
@@ -116,6 +129,7 @@ public class SqlServer2008Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取TriggerSql */
     public String getTriggerSql(String triggerName, String schema) {
         if (triggerName == null || triggerName.isEmpty()) {
             return null;
@@ -125,6 +139,7 @@ public class SqlServer2008Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取ProcedureListSql */
     public String getProcedureListSql(String schema) {
         StringBuilder sql = new StringBuilder(
                 "SELECT sc.name AS routine_schema, o.name AS routine_name, "
@@ -139,6 +154,7 @@ public class SqlServer2008Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取ProcedureSql */
     public String getProcedureSql(String procedureName, String schema) {
         if (procedureName == null || procedureName.isEmpty()) {
             return null;

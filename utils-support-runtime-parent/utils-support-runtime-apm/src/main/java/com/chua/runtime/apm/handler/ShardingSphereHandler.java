@@ -24,31 +24,37 @@ public class ShardingSphereHandler extends AbstractAppHandler {
     private static final String[] EXECUTE_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
     @Override
+    /** Name */
     public String name() {
         return "shardingsphere-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "shardingsphere.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SHARDING_SPHERE;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(SHARDING_SPHERE, EXECUTE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

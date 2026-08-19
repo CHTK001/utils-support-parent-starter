@@ -51,26 +51,32 @@ public class FieldMappingContext {
         return new Builder();
     }
 
+    /** 获取FieldName */
     public String getFieldName() {
         return fieldName;
     }
 
+    /** 获取MappedName */
     public String getMappedName() {
         return mappedName;
     }
 
+    /** 获取格式化 */
     public String getFormat() {
         return format;
     }
 
+    /** 获取DefaultValue */
     public String getDefaultValue() {
         return defaultValue;
     }
 
+    /** 获取Context */
     public Map<String, Object> getContext() {
         return context;
     }
 
+    /** 获取OriginalValue */
     public Object getOriginalValue() {
         return originalValue;
     }
@@ -95,36 +101,43 @@ public class FieldMappingContext {
         Builder() {
         }
 
+        /** FieldName */
         public Builder fieldName(String fieldName) {
             this.fieldName = fieldName;
             return this;
         }
 
+        /** MappedName */
         public Builder mappedName(String mappedName) {
             this.mappedName = mappedName;
             return this;
         }
 
+        /** 格式化 */
         public Builder format(String format) {
             this.format = format;
             return this;
         }
 
+        /** DefaultValue */
         public Builder defaultValue(String defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
 
+        /** Context */
         public Builder context(Map<String, Object> context) {
             this.context = context;
             return this;
         }
 
+        /** OriginalValue */
         public Builder originalValue(Object originalValue) {
             this.originalValue = originalValue;
             return this;
         }
 
+        /** 构建 */
         public FieldMappingContext build() {
             return new FieldMappingContext(fieldName, mappedName, format, defaultValue, context, originalValue);
         }

@@ -15,18 +15,22 @@ public class OcrItem {
     /** 分数 */
     private float score;
 
+    /** 获取OcrBox */
     public OcrBox getOcrBox() {
         return ocrBox;
     }
 
+    /** 设置OcrBox */
     public void setOcrBox(OcrBox ocrBox) {
         this.ocrBox = ocrBox;
     }
 
+    /** 获取Score */
     public float getScore() {
         return score;
     }
 
+    /** 设置Score */
     public void setScore(float score) {
         this.score = score;
     }

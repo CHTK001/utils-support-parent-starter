@@ -65,16 +65,19 @@ public class CsvFileSystem implements FileSystem {
     private static final int ESTIMATED_COLUMN_COUNT = 8;
 
     @Override
+    /** 获取Type */
     public String getType() {
         return TYPE_CSV;
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new CsvReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new CsvWriteBuilder(file);
     }
@@ -108,6 +111,7 @@ public class CsvFileSystem implements FileSystem {
         }
 
         @Override
+        /** WithCharset */
         public CsvReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -167,6 +171,7 @@ public class CsvFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return rows();
         }
@@ -244,12 +249,14 @@ public class CsvFileSystem implements FileSystem {
         }
 
         @Override
+        /** WithCharset */
         public CsvWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
         }
 
         @Override
+        /** 写入 */
         public CsvWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);
@@ -312,6 +319,7 @@ public class CsvFileSystem implements FileSystem {
         }
 
         @Override
+        /** Finish */
         public void finish() {
             callback.onStart();
             callback.onBeginWrite();

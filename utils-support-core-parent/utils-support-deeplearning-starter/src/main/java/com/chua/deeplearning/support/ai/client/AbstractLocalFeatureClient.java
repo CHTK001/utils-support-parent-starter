@@ -55,17 +55,20 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
+    /** Provider */
     public FeatureClient provider(String provider) {
         return this;
     }
 
     @Override
+    /** Model */
     public FeatureClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Dimensions */
     public FeatureClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -88,6 +91,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
+    /** Extract */
     public float[] extract(String text) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -101,6 +105,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
+    /** ExtractImage */
     public float[] extractImage(byte[] imageData) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -135,6 +140,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

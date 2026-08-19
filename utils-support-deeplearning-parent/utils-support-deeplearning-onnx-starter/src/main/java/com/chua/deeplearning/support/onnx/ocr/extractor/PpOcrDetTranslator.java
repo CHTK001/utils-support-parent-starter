@@ -98,6 +98,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         this.modelName = modelName;
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -156,11 +157,13 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     @Override
+    /** Name */
     public String name() {
         return modelName;
     }
 
     @Override
+    /** Translate */
     public synchronized List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();
@@ -170,6 +173,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         }
     }
 
+    /** Detect */
     private List<DetectionInfo> detect(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -266,6 +270,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         }
     }
 
+    /** BoxesFromProbMap */
     private List<DetectionInfo> boxesFromProbMap(float[][] probs, int mapW, int mapH) {
         float scaleX = (float) srcWidth / mapW;
         float scaleY = (float) srcHeight / mapH;

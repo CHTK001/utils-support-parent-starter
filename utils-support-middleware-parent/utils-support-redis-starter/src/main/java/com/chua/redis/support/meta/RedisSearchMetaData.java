@@ -19,16 +19,22 @@ import com.chua.redis.support.engine.RediSearchEngine;
  */
 public class RedisSearchMetaData extends DefaultMetaData {
 
+    /**
+     * 创建 RedisSearchMetaData 实例
+     * @param engine engine
+     */
     public RedisSearchMetaData(RediSearchEngine engine) {
         super(engine);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search() {
         return new RedisSearchMeta(this, (RediSearchEngine) engine);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search(String indexName) {
         return new RedisSearchMeta(this, (RediSearchEngine) engine);
     }

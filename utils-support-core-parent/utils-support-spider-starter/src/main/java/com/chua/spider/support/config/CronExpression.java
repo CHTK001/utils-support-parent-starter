@@ -225,6 +225,7 @@ public class CronExpression {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return expression;
     }
@@ -241,18 +242,25 @@ public class CronExpression {
         /** Bits */
         private final boolean[] bits;
 
+        /**
+         * 创建 Field 实例
+         * @param min min
+         * @param int int
+         */
         private Field(int min, int max) {
             this.min = min;
             this.max = max;
             this.bits = new boolean[max - min + 1];
         }
 
+        /** Any */
         static Field any(int min, int max) {
             Field f = new Field(min, max);
             Arrays.fill(f.bits, true);
             return f;
         }
 
+        /** Step */
         static Field step(int start, int max, int step) {
             Field f = new Field(0, max);
             for (int v = start; v <= max; v += step) {
@@ -261,6 +269,7 @@ public class CronExpression {
             return f;
         }
 
+        /** List */
         static Field list(int min, int max, int[] values) {
             Field f = new Field(min, max);
             for (int v : values) {
@@ -272,6 +281,7 @@ public class CronExpression {
             return f;
         }
 
+        /** Fixed */
         static Field fixed(int min, int max, int value) {
             Field f = new Field(min, max);
             f.bits[value - min] = true;

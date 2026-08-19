@@ -26,20 +26,29 @@ public class ExpressTrace {
      */
     private final String location;
 
+    /**
+     * 创建 ExpressTrace 实例
+     * @param time time
+     * @param String String
+     * @param String String
+     */
     public ExpressTrace(String time, String context, String location) {
         this.time = time;
         this.context = context;
         this.location = location;
     }
 
+    /** 获取Time */
     public String getTime() {
         return time;
     }
 
+    /** 获取Context */
     public String getContext() {
         return context;
     }
 
+    /** 获取Location */
     public String getLocation() {
         return location;
     }

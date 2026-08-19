@@ -31,6 +31,7 @@ public class SafeTensorTextToAudioClient extends AbstractLocalTextToAudioClient 
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("tts");
     }

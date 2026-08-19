@@ -11,16 +11,19 @@ package com.chua.network.support.tshark.restorer;
 public class ArpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "arp";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 100;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 28) {
             return false;
@@ -32,6 +35,7 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 28) {
             return "[ARP] empty";
@@ -49,6 +53,7 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** MacToString */
     private static String macToString(byte[] data, int offset) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 6; i++) {
@@ -60,6 +65,7 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** IpToString */
     private static String ipToString(byte[] data, int offset) {
         return (data[offset] & 0xff) + "."
                 + (data[offset + 1] & 0xff) + "."

@@ -19,11 +19,13 @@ import java.util.Map;
 public class PackageManagerSkillProvider extends PackageManagerProvider implements SkillProvider {
 
     @Override
+    /** Name */
     public String name() {
         return NAME;
     }
 
     @Override
+    /** 获取Skills */
     public List<SkillDefinition> getSkills() {
         return List.of(
                 softwareSearchSkill(),
@@ -34,21 +36,25 @@ public class PackageManagerSkillProvider extends PackageManagerProvider implemen
     }
 
     @Override
+    /** Install */
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
     @Override
+    /** Uninstall */
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }
 
     @Override
+    /** ListInstalled */
     public Map<String, Boolean> listInstalled() {
         return super.listInstalled();
     }
 
     @Override
+    /** ListAvailable */
     public List<String> listAvailable() {
         return super.listAvailable();
     }

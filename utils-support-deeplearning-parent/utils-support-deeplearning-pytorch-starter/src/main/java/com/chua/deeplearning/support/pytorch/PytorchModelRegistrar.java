@@ -28,10 +28,12 @@ public class PytorchModelRegistrar implements ModelRegistrar {
     }
 
     @Override
+    /** 注册 */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
+    /** 注册All */
     private static void registerAll() {
         // 图像分类
         reg("pytorch-resnet18",
@@ -267,6 +269,15 @@ public class PytorchModelRegistrar implements ModelRegistrar {
         reg("pytorch-wd-tagger", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/wd-swinv2-tagger.pt", "https://huggingface.co/SmilingWolf/wd-swinv2-tagger-v3/resolve/main/model.pt", false, null);
     }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {
@@ -276,6 +287,18 @@ public class PytorchModelRegistrar implements ModelRegistrar {
         }
     }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     * @param downloadUrl downloadUrl
+     * @param compress compress
+     * @param downloadFileName downloadFileName
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,

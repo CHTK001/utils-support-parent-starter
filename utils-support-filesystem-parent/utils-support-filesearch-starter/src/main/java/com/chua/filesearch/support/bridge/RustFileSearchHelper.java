@@ -59,6 +59,7 @@ public class RustFileSearchHelper {
         return searchByJdk(criteria);
     }
 
+    /** 搜索 */
     private static List<FileInfo> search0(FileSearchCriteria criteria) {
         if (!RustFileSearchBridge.isLoaded()) {
             return new ArrayList<>();
@@ -97,6 +98,7 @@ public class RustFileSearchHelper {
         return results;
     }
 
+    /** 搜索ByJdk */
     private static List<FileInfo> searchByJdk(FileSearchCriteria criteria) {
         String rootPath = resolveRootPath(criteria.rootPath());
         Path root = Paths.get(rootPath);
@@ -139,6 +141,7 @@ public class RustFileSearchHelper {
         return results;
     }
 
+    /** MatchesGlob */
     private static boolean matchesGlob(String name, String pattern) {
         if (pattern == null || pattern.isEmpty() || "*".equals(pattern)) {
             return true;
@@ -150,6 +153,7 @@ public class RustFileSearchHelper {
         return name.matches(regex);
     }
 
+    /** ExtensionOf */
     private static String extensionOf(Path p) {
         String name = p.getFileName().toString();
         int idx = name.lastIndexOf('.');
@@ -234,6 +238,7 @@ public class RustFileSearchHelper {
         return RustFileSearchBridge.getVersion();
     }
 
+    /** Post处理Tree */
     private static void postProcessTree(List<FileInfo> results) {
         Map<String, List<FileInfo>> parentToChildren = new HashMap<>();
         Map<String, FileInfo> dirIndex = new HashMap<>();
@@ -299,6 +304,7 @@ public class RustFileSearchHelper {
         results.addAll(enriched);
     }
 
+    /** ComputeDirTotals */
     private static long[] computeDirTotals(String dirPath, Map<String, List<FileInfo>> children, Map<String, long[]> cache) {
         long[] cached = cache.get(dirPath);
         if (cached != null) {
@@ -327,6 +333,7 @@ public class RustFileSearchHelper {
         return result;
     }
 
+    /** 解析RootPath */
     private static String resolveRootPath(String rootPath) {
         if (rootPath != null && !rootPath.isBlank()) {
             return rootPath;
@@ -334,6 +341,7 @@ public class RustFileSearchHelper {
         return System.getProperty("user.dir");
     }
 
+    /** 构建FileInfo */
     private static FileInfo buildFileInfo(RustFileSearchBridge.FileResultData data) {
         Path p = Paths.get(data.path());
         String name = p.getFileName() != null ? p.getFileName().toString() : data.path();
@@ -374,6 +382,7 @@ public class RustFileSearchHelper {
                 "T", "SP", "RP", "C", "O", "I", "E"
         };
 
+        /** AttributeString */
         static String attributeString(int attrs, boolean isDirectory) {
             if (attrs == 0 && !isDirectory) {
                 return "0x00000000";
@@ -391,6 +400,7 @@ public class RustFileSearchHelper {
         }
     }
 
+    /** 格式化获取大小 */
     private static String formatSize(long bytes) {
         if (bytes < 0) {
             return "0 B";

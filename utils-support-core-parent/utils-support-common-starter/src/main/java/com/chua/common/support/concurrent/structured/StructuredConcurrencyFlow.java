@@ -138,68 +138,85 @@ public final class StructuredConcurrencyFlow {
      */
     private final List<Callable<?>> tasks = new ArrayList<>();
 
+    /**
+     * 创建 StructuredConcurrencyFlow 实例
+     * @param name name
+     */
     private StructuredConcurrencyFlow(String name) {
         this.name = name;
     }
 
+    /** Of */
     public static StructuredConcurrencyFlow of(String name) {
         return new StructuredConcurrencyFlow(name);
     }
 
+    /** FailureStrategy */
     public StructuredConcurrencyFlow failureStrategy(FailureStrategy failureStrategy) {
         this.failureStrategy = failureStrategy;
         return this;
     }
 
+    /** Success计算数量 */
     public StructuredConcurrencyFlow successCount(int successCount) {
         this.successCount = successCount;
         return this;
     }
 
+    /** Failure计算数量 */
     public StructuredConcurrencyFlow failureCount(int failureCount) {
         this.failureCount = failureCount;
         return this;
     }
 
+    /** 最大值Retries */
     public StructuredConcurrencyFlow maxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
         return this;
     }
 
+    /** Backoff */
     public StructuredConcurrencyFlow backoff(BackoffProvider backoff) {
         this.backoff = backoff;
         return this;
     }
 
+    /** Timeout */
     public StructuredConcurrencyFlow timeout(long timeout, TimeUnit unit) {
         this.timeout = timeout;
         this.timeUnit = unit;
         return this;
     }
 
+    /** Fallback */
     public StructuredConcurrencyFlow fallback(Supplier<Object> fallback) {
         this.fallback = fallback;
         return this;
     }
 
+    /** 提交 */
     public <T> StructuredConcurrencyFlow submit(Callable<T> task) {
         tasks.add(task);
         return this;
     }
 
+    /** 提交 */
     public StructuredConcurrencyFlow submit(Runnable task) {
         tasks.add(() -> { task.run(); return null; });
         return this;
     }
 
+    /** 合并 */
     public void join() throws Exception {
         executeAll();
     }
 
+    /** Collect */
     public <T> List<T> collect() throws Exception {
         return (List<T>) executeAll();
     }
 
+    /** 合并 */
     public <T, R> R merge(Function<List<T>, R> merger) throws Exception {
         return merger.apply((List<T>) executeAll());
     }
@@ -223,6 +240,7 @@ public final class StructuredConcurrencyFlow {
         return CACHE.computeIfAbsent(name, k -> createProvider(failureStrategy));
     }
 
+    /** 执行All */
     private List<Object> executeAll() throws Exception {
         if (tasks.isEmpty()) {
             return List.of();
@@ -384,6 +402,7 @@ public final class StructuredConcurrencyFlow {
                 .collect(Collectors.toList()));
     }
 
+    /** 获取WithTimeout */
     private Object getWithTimeout(Future<Object> future) throws Exception {
         if (timeout > 0 && timeUnit != null) {
             return future.get(timeout, timeUnit);
@@ -391,6 +410,7 @@ public final class StructuredConcurrencyFlow {
         return future.get();
     }
 
+    /** 处理Failure */
     private List<Object> handleFailure(Exception e) throws Exception {
         if (fallback != null) {
             return List.of(fallback.get());
@@ -398,12 +418,14 @@ public final class StructuredConcurrencyFlow {
         throw e;
     }
 
+    /** CancelRemaining */
     private void cancelRemaining(List<Future<Object>> futures, int startIndex) {
         for (int i = startIndex; i < futures.size(); i++) {
             futures.get(i).cancel(true);
         }
     }
 
+    /** 解析Backoff */
     private BackoffProvider resolveBackoff() {
         if (backoff != null) {
             return backoff;
@@ -411,6 +433,7 @@ public final class StructuredConcurrencyFlow {
         return new ExponentialBackoffProvider();
     }
 
+    /** 解析Executor */
     private ExecutorService resolveExecutor() {
         return ThreadUtils.newVirtualThreadPerTaskExecutor();
     }

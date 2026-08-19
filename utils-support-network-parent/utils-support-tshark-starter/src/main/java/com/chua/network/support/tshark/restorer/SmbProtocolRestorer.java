@@ -11,16 +11,19 @@ package com.chua.network.support.tshark.restorer;
 public class SmbProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "smb";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 150;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return false;
@@ -36,6 +39,7 @@ public class SmbProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return "[SMB] empty";
@@ -55,6 +59,7 @@ public class SmbProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToCommandName */
     private static String toCommandName(int magic, int command) {
         if (magic == 0x424d53fe) {
             return "SMB2_Command_" + command;

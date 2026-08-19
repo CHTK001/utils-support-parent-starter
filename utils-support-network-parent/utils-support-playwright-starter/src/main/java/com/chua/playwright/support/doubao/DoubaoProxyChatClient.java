@@ -175,90 +175,107 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Temperature */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
+    /** 最大值Tokens */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
+    /** System */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
+    /** ExtraBody */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
     }
 
     @Override
+    /** Thinking */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
+    /** ThinkingEffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
+    /** Smart搜索 */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
 @Override
+    /** Skill */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
+    /** TopP */
     public ChatClient topP(Double topP) { this.topP = topP; return this; }
 
     @Override
+    /** 停止 */
     public ChatClient stop(List<String> stop) { this.stop = stop; return this; }
 
     @Override
+    /** Seed */
     public ChatClient seed(Long seed) { this.seed = seed; return this; }
 
     @Override
+    /** Response格式化 */
     public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
 
     @Override
+    /** 添加Image */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
+    /** 添加Attachment */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
         return this;
     }
 
     @Override
+    /** 添加AttachmentUrl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
     }
 
     @Override
+    /** Tools */
     public ChatClient tools(List<ChatTool> tools) {
         this.tools.clear();
         if (tools != null) {
@@ -268,6 +285,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
+    /** Tool */
     public ChatClient tool(ChatTool tool) {
         if (tool != null) {
             this.tools.add(tool);
@@ -276,36 +294,42 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
+    /** ToolChoice */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
+    /** 添加UserHistory */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
+    /** 添加AssistantHistory */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
+    /** Session */
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
 @Override
+    /** NewChat */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -317,6 +341,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -329,6 +354,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -337,6 +363,13 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -415,6 +448,7 @@ if (result.isSuccess()) {
     }
 
     @Override
+/** 关闭 */
 public void close() {
         if (conversationId != null && !conversationId.isEmpty()) {
             session.deleteConversation(conversationId);
@@ -542,6 +576,16 @@ return body.toJSONString();
     }
 
     @Override
+    /**
+     * GenerateImage
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param n n
+     * @param width width
+     * @param height height
+     * @param quality quality
+     * @param refImageKey refImageKey
+     */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
                                                String refImageKey) {
@@ -549,10 +593,12 @@ return body.toJSONString();
     }
 
     @Override
+    /** GenerateImage */
     public ImageGenerationResult generateImage(String prompt, String ratio) {
         return doGenerateImage(prompt, ratio, null);
     }
 
+    /** DoGenerateImage */
     private ImageGenerationResult doGenerateImage(String prompt, String ratio, String refImageKey) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
                 ? setting.getBaseUrl() : DEFAULT_BASE_URL;
@@ -615,6 +661,14 @@ return parseImageResult(result, prompt);
     }
 
     @Override
+    /**
+     * GenerateVideo
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param cameraMovement cameraMovement
+     * @param refImageKey refImageKey
+     * @param timeoutSeconds timeoutSeconds
+     */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
@@ -622,10 +676,18 @@ return parseImageResult(result, prompt);
     }
 
     @Override
+    /** GenerateVideo */
     public VideoGenerationResult generateVideo(String prompt, String ratio) {
         return doGenerateVideo(prompt, ratio, null, null);
     }
 
+    /**
+     * DoGenerateVideo
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param cameraMovement cameraMovement
+     * @param refImageKey refImageKey
+     */
     private VideoGenerationResult doGenerateVideo(String prompt, String ratio,
                                                    String cameraMovement, String refImageKey) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
@@ -869,12 +931,14 @@ return parseImageResult(result, prompt);
         return new VideoGenerationResult(videos, prompt);
     }
 
+/** ArrayOf */
 private static JsonArray arrayOf(JsonObject obj) {
         JsonArray arr = new JsonArray();
         arr.add(obj);
         return arr;
     }
 
+    /** 获取Str */
     private static String getStr(Map<?, ?> map, String... keys) {
         if (map == null) {
             return null;
@@ -893,6 +957,7 @@ private static JsonArray arrayOf(JsonObject obj) {
         return val instanceof Map<?, ?> m ? m : null;
     }
 
+    /** IntVal */
     private static int intVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
             Object v = first.get(firstKey);
@@ -909,6 +974,7 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0;
     }
 
+    /** StrVal */
     private static String strVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
             Object v = first.get(firstKey);
@@ -925,6 +991,7 @@ private static JsonArray arrayOf(JsonObject obj) {
         return null;
     }
 
+    /** ToInt */
     private static int toInt(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
@@ -933,6 +1000,7 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0;
     }
 
+    /** ToDouble */
     private static double toDouble(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
@@ -941,6 +1009,7 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0.0;
     }
 
+    /** ExtractVideoUrlFromModel */
     private static String extractVideoUrlFromModel(Map<?, ?> item) {
         try {
             Object vmStr = item.get("video_model");

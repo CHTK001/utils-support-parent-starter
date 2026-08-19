@@ -52,6 +52,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     private String input;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         loadWordDic(model);
@@ -60,6 +61,7 @@ public class LacTranslator implements Translator<String, String[][]> {
         oovId = word2IdDict.getOrDefault("OOV", "0");
     }
 
+    /** 加载WordDic */
     private void loadWordDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/word.dic", "word.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -76,6 +78,7 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
+    /** 加载TagDic */
     private void loadTagDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/tag.dic", "tag.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -90,6 +93,7 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
+    /** 加载b */
     private void loadQ2b(Model model) {
         try (InputStream is = open(model, "lac/q2b.dic", "q2b.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -108,6 +112,7 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
+    /** 打开 */
     private InputStream open(Model model, String... names) throws IOException {
         for (String name : names) {
             try {
@@ -119,6 +124,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         this.input = input == null ? "" : input;
         NDManager manager = ctx.getNDManager();
@@ -139,6 +145,7 @@ public class LacTranslator implements Translator<String, String[][]> {
         return new NDList(ndArray);
     }
 
+    /** Try设置Lod */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
             Class<?> pp = Class.forName("ai.djl.paddlepaddle.engine.PpNDArray");
@@ -153,6 +160,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
+    /** 处理Output */
     public String[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray tags = list.get(0);
         long[] tagIds = tags.toLongArray();
@@ -191,6 +199,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

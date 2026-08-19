@@ -69,6 +69,7 @@ public class MiniLMEmbeddingTranslator {
     /** 会话 */
     private OrtSession session;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;

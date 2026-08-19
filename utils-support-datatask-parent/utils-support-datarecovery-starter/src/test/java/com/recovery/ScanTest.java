@@ -10,6 +10,7 @@ import com.chua.datarecovery.support.DataRecovery;
  *   scanMode: 0=walkdir, 1=raw disk carve, 2=NTFS MFT (默认 1)
  */
 public class ScanTest {
+    /** Main */
     public static void main(String[] args) {
         String targetPath = "F:\\";
         if (args.length > 0) {
@@ -62,6 +63,7 @@ public class ScanTest {
         }
     }
 
+    /** 获取ModeName */
     private static String getModeName(int mode) {
         switch (mode) {
             case 0: return "walkdir (现有文件)";
@@ -71,6 +73,7 @@ public class ScanTest {
         }
     }
 
+    /** 格式化获取大小 */
     private static String formatSize(long bytes) {
         if (bytes <= 0) return "0 B";
         String[] units = {"B", "KB", "MB", "GB"};

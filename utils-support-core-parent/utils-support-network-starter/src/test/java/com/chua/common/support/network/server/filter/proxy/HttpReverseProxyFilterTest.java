@@ -39,6 +39,7 @@ public class HttpReverseProxyFilterTest {
     private int backendPort;
 
     @BeforeEach
+    /** 设置Up */
     public void setUp() throws Exception {
         CountDownLatch serverReady = new CountDownLatch(1);
         backendServer = HttpServer.create(new InetSocketAddress(0), 0);
@@ -71,6 +72,7 @@ public class HttpReverseProxyFilterTest {
     }
 
     @AfterEach
+    /** TearDown */
     public void tearDown() {
         if (proxyFilter != null) {
             proxyFilter.destroy();
@@ -81,6 +83,7 @@ public class HttpReverseProxyFilterTest {
     }
 
     @Test
+    /** TestProxyHealth */
     public void testProxyHealth() throws Exception {
         Discovery backendDiscovery = Discovery.builder()
                 .host("127.0.0.1")
@@ -103,6 +106,7 @@ public class HttpReverseProxyFilterTest {
     }
 
     @Test
+    /** TestProxyPassThroughWhenNoDiscovery */
     public void testProxyPassThroughWhenNoDiscovery() throws Exception {
         ServerRequest request = createMockRequest("/health", "GET");
 
@@ -116,39 +120,47 @@ public class HttpReverseProxyFilterTest {
         assertTrue(chainCalled.get(), "Chain should be called when no backend discovery");
     }
 
+    /** 创建MockRequest */
     private ServerRequest createMockRequest(String path, String method) {
         return new AbstractServerRequest() {
             @Override
+            /** 获取Headers */
             public HttpHeader getHeaders() {
                 return HttpHeader.create();
             }
 
             @Override
+            /** 获取Header */
             public String getHeader(String name) {
                 return null;
             }
 
             @Override
+            /** 获取Uri */
             public String getUri() {
                 return path;
             }
 
             @Override
+            /** 获取Path */
             public String getPath() {
                 return path;
             }
 
             @Override
+            /** 获取Method */
             public HttpMethod getMethod() {
                 return HttpMethod.valueOf(method);
             }
 
             @Override
+            /** 获取RemoteAddress */
             public String getRemoteAddress() {
                 return "127.0.0.1";
             }
 
             @Override
+            /** 获取RemotePort */
             public int getRemotePort() {
                 return 12345;
             }
@@ -160,24 +172,29 @@ public class HttpReverseProxyFilterTest {
         private final CountDownLatch latch = new CountDownLatch(1);
 
         @Override
+        /** End */
         public void end() {
             latch.countDown();
         }
 
         @Override
+        /** 是否Ended */
         public boolean isEnded() {
             return latch.getCount() == 0;
         }
 
         @Override
+        /** 获取OutputStream */
         public OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
+        /** 写入Raw */
         public void writeRaw(byte[] bytes) {
         }
 
+        /** Await */
         public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
             return latch.await(timeout, unit);
         }

@@ -39,6 +39,12 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
      */
     private final Map<String, CompletableFuture<Map<String, Object>>> pending = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 SocketIOAgentDataSyncSource 实例
+     * @param client client
+     * @param String String
+     * @param String String
+     */
     public SocketIOAgentDataSyncSource(SocketIOClient client, String agentId, String sourceId) {
         this.client = client;
         this.agentId = agentId;
@@ -46,21 +52,25 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.INPUT;
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** AgentId */
     public String agentId() {
         return agentId;
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -92,11 +102,13 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** CurrentOffset */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
+    /** 写入 */
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -121,6 +133,7 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

@@ -30,6 +30,11 @@ public class FileConvertSystemFlow {
      */
     private final Object target;
 
+    /**
+     * 创建 FileConvertSystemFlow 实例
+     * @param source source
+     * @param Object Object
+     */
     private FileConvertSystemFlow(Object source, Object target) {
         this.source = source;
         this.target = target;

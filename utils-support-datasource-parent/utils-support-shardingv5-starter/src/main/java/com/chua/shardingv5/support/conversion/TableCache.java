@@ -24,11 +24,17 @@ public class TableCache {
     /** cache */
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 TableCache 实例
+     * @param dataSources dataSources
+     * @param int int
+     */
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {
         this.dataSources = dataSources;
         this.cacheSeconds = cacheSeconds;
     }
 
+    /** 获取Tables */
     public List<String> getTables(String prefix) {
         var now = System.currentTimeMillis();
         var entry = cache.get(prefix);
@@ -49,8 +55,10 @@ public class TableCache {
         return tables;
     }
 
+    /** Clear */
     public void clear() { cache.clear(); }
 
+    /** 扫描Tables */
     private List<String> scanTables(String prefix) {
         var all = new LinkedHashSet<String>();
         var pat = Pattern.compile("^" + Pattern.quote(prefix) + ".+");

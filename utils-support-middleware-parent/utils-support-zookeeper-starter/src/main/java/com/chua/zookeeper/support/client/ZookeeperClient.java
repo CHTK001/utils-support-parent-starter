@@ -59,6 +59,11 @@ public class ZookeeperClient implements AutoCloseable {
      */
     private final String connectString;
 
+    /**
+     * 创建 ZookeeperClient 实例
+     * @param curator curator
+     * @param String String
+     */
     private ZookeeperClient(CuratorFramework curator, String connectString) {
         this.curator = curator;
         this.connectString = connectString;
@@ -66,14 +71,17 @@ public class ZookeeperClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** 创建 */
     public static ZookeeperClient create(String connectString) {
         return builder().connectString(connectString).build();
     }
 
+    /** 创建 */
     public static ZookeeperClient create(String connectString, int sessionTimeoutMs) {
         return builder().connectString(connectString).sessionTimeoutMs(sessionTimeoutMs).build();
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -149,6 +157,7 @@ public class ZookeeperClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (curator != null) {
             curator.close();
@@ -183,13 +192,20 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String namespace;
 
+        /** 连接String */
         public Builder connectString(String connectString) { this.connectString = connectString; return this; }
+        /** SessionTimeoutMs */
         public Builder sessionTimeoutMs(int ms) { this.sessionTimeoutMs = ms; return this; }
+        /** ConnectionTimeoutMs */
         public Builder connectionTimeoutMs(int ms) { this.connectionTimeoutMs = ms; return this; }
+        /** RetryBaseSleepMs */
         public Builder retryBaseSleepMs(int ms) { this.retryBaseSleepMs = ms; return this; }
+        /** Retry最大值Retries */
         public Builder retryMaxRetries(int max) { this.retryMaxRetries = max; return this; }
+        /** Namespace */
         public Builder namespace(String namespace) { this.namespace = namespace; return this; }
 
+        /** 构建 */
         public ZookeeperClient build() {
             CuratorFrameworkFactory.Builder factoryBuilder = CuratorFrameworkFactory.builder()
                     .connectString(connectString)
@@ -246,10 +262,15 @@ public class ZookeeperClient implements AutoCloseable {
 
         CreateBuilder(CuratorFramework curator) { this.curator = curator; }
 
+        /** Path */
         public CreateBuilder path(String path) { this.path = path; return this; }
+        /** Data */
         public CreateBuilder data(String data) { this.data = data != null ? data.getBytes() : null; return this; }
+        /** Data */
         public CreateBuilder data(byte[] data) { this.data = data; return this; }
+        /** CreatingParentsIfNeeded */
         public CreateBuilder creatingParentsIfNeeded(boolean flag) { this.creatingParentsIfNeeded = flag; return this; }
+        /** WithACL */
         public CreateBuilder withACL(Map<String, byte[]> acl) { this.acl = acl; return this; }
 
         /**
@@ -316,8 +337,11 @@ public class ZookeeperClient implements AutoCloseable {
 
         DeleteBuilder(CuratorFramework curator) { this.curator = curator; }
 
+        /** Path */
         public DeleteBuilder path(String path) { this.path = path; return this; }
+        /** DeletingChildrenIfNeeded */
         public DeleteBuilder deletingChildrenIfNeeded(boolean flag) { this.deletingChildrenIfNeeded = flag; return this; }
+        /** Quiet */
         public DeleteBuilder quiet(boolean flag) { this.quiet = flag; return this; }
 
         /**
@@ -350,6 +374,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         GetDataBuilder(CuratorFramework curator) { this.curator = curator; }
 
+        /** Path */
         public GetDataBuilder path(String path) { this.path = path; return this; }
 
         /**
@@ -395,8 +420,11 @@ public class ZookeeperClient implements AutoCloseable {
 
         SetDataBuilder(CuratorFramework curator) { this.curator = curator; }
 
+        /** Path */
         public SetDataBuilder path(String path) { this.path = path; return this; }
+        /** Data */
         public SetDataBuilder data(String data) { this.data = data != null ? data.getBytes() : null; return this; }
+        /** Data */
         public SetDataBuilder data(byte[] data) { this.data = data; return this; }
 
         /**
@@ -422,6 +450,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         CheckExistsBuilder(CuratorFramework curator) { this.curator = curator; }
 
+        /** Path */
         public CheckExistsBuilder path(String path) { this.path = path; return this; }
 
         /**
@@ -447,6 +476,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         GetChildrenBuilder(CuratorFramework curator) { this.curator = curator; }
 
+        /** Path */
         public GetChildrenBuilder path(String path) { this.path = path; return this; }
 
         /**

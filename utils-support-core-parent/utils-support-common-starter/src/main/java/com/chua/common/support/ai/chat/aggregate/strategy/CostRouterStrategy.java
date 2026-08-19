@@ -27,6 +27,7 @@ public class CostRouterStrategy implements RouterStrategy {
     private static final int MEDIUM_THRESHOLD = 1000;
 
     @Override
+    /** 选择 */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");
@@ -41,6 +42,7 @@ public class CostRouterStrategy implements RouterStrategy {
         return sorted.get(index);
     }
 
+    /** EvaluateComplexity */
     private int evaluateComplexity(String prompt) {
         if (prompt == null || prompt.isEmpty()) return 0;
         int len = prompt.length();
@@ -49,6 +51,7 @@ public class CostRouterStrategy implements RouterStrategy {
         return 2;
     }
 
+    /** MapComplexityToIndex */
     private int mapComplexityToIndex(int complexity, int total) {
         if (total <= 1) return 0;
         return Math.min(complexity * (total - 1) / 2, total - 1);

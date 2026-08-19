@@ -49,14 +49,17 @@ public record LogQuery(
         }
     }
 
+    /** Of */
     public static LogQuery of(String pattern) {
         return new LogQuery(null, pattern, null, DEFAULT_MAX_RESULTS, null, false, ORDER_DESC);
     }
 
+    /** Of */
     public static LogQuery of(String pattern, LogLevel minLevel) {
         return new LogQuery(null, pattern, minLevel, DEFAULT_MAX_RESULTS, null, false, ORDER_DESC);
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -77,41 +80,49 @@ public record LogQuery(
         /** 排序 */
         private String order = ORDER_DESC;
 
+        /** Source */
         public Builder source(String source) {
             this.source = source;
             return this;
         }
 
+        /** Pattern */
         public Builder pattern(String pattern) {
             this.pattern = pattern;
             return this;
         }
 
+        /** 最小值Level */
         public Builder minLevel(LogLevel minLevel) {
             this.minLevel = minLevel;
             return this;
         }
 
+        /** 最大值Results */
         public Builder maxResults(int maxResults) {
             this.maxResults = maxResults;
             return this;
         }
 
+        /** After */
         public Builder after(String after) {
             this.after = after;
             return this;
         }
 
+        /** Tail */
         public Builder tail(boolean tail) {
             this.tail = tail;
             return this;
         }
 
+        /** Order */
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
+        /** 构建 */
         public LogQuery build() {
             return new LogQuery(source, pattern, minLevel, maxResults, after, tail, order);
         }

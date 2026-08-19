@@ -31,6 +31,7 @@ public final class InMemoryConnectionStore implements ConnectionStore {
     private final java.util.Map<String, Connection> byKey = new ConcurrentHashMap<>();
 
     @Override
+    /** 查找ByKey */
     public Optional<Connection> findByKey(String key) {
         if (key == null || key.isBlank()) {
             return Optional.empty();
@@ -39,6 +40,7 @@ public final class InMemoryConnectionStore implements ConnectionStore {
     }
 
     @Override
+    /** UpsertByTarget */
     public Connection upsertByTarget(String protocol, String host, int port, String user, String password) {
         String tkey = protocol + "@" + host + ":" + port;
         Connection existing = byTarget.get(tkey);
@@ -54,11 +56,13 @@ public final class InMemoryConnectionStore implements ConnectionStore {
     }
 
     @Override
+    /** ListKeys */
     public List<String> listKeys() {
         return new ArrayList<>(byKey.keySet());
     }
 
     @Override
+    /** 初始化 */
     public void init() {
         // 内存存储无需初始化
         log.info("[gateway-server] InMemoryConnectionStore 初始化完成");

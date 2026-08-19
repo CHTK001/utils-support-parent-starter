@@ -96,6 +96,7 @@ public class SymmetricEnvironment {
      */
     public static final String KEY_AUTO_SETUP = "symmetric.auto.setup";
 
+    /** 创建 SymmetricEnvironment 实例 */
     private SymmetricEnvironment() {}
 
     /**
@@ -185,26 +186,47 @@ public class SymmetricEnvironment {
          */
         private Set<WatcherEvent> events = Set.of(WatcherEvent.CREATE, WatcherEvent.MODIFY, WatcherEvent.DELETE);
 
+        /** EngineName */
         public Builder engineName(String engineName) { props.put(KEY_ENGINE_NAME, engineName); return this; }
+        /** DbType */
         public Builder dbType(String dbType) { props.put(KEY_DB_TYPE, dbType); return this; }
+        /** 分组Id */
         public Builder groupId(String groupId) { props.put(KEY_GROUP_ID, groupId); return this; }
+        /** ExternalId */
         public Builder externalId(String externalId) { props.put(KEY_EXTERNAL_ID, externalId); return this; }
+        /** RegistrationUrl */
         public Builder registrationUrl(String url) { props.put(KEY_REGISTRATION_URL, url); return this; }
+        /** SyncUrl */
         public Builder syncUrl(String url) { props.put(KEY_SYNC_URL, url); return this; }
+        /** Host */
         public Builder host(String host) { props.put(KEY_HOST, host); return this; }
+        /** Port */
         public Builder port(String port) { props.put(KEY_PORT, port); return this; }
+        /** Port */
         public Builder port(int port) { props.put(KEY_PORT, String.valueOf(port)); return this; }
+        /** Username */
         public Builder username(String username) { props.put(KEY_USERNAME, username); return this; }
+        /** Password */
         public Builder password(String password) { props.put(KEY_PASSWORD, password); return this; }
+        /** Database */
         public Builder database(String database) { props.put(KEY_DATABASE, database); return this; }
+        /** TableIncludeList */
         public Builder tableIncludeList(String list) { props.put(KEY_TABLE_INCLUDE_LIST, list); return this; }
+        /** TableExcludeList */
         public Builder tableExcludeList(String list) { props.put(KEY_TABLE_EXCLUDE_LIST, list); return this; }
+        /** Auto创建Tables */
         public Builder autoCreateTables(boolean v) { props.put(KEY_AUTO_CREATE_TABLES, String.valueOf(v)); return this; }
+        /** Initial加载 */
         public Builder initialLoad(boolean v) { props.put(KEY_INITIAL_LOAD, String.valueOf(v)); return this; }
+        /** Auto注册 */
         public Builder autoRegister(boolean v) { props.put(KEY_AUTO_REGISTER, String.valueOf(v)); return this; }
+        /** AutoSetup */
         public Builder autoSetup(boolean v) { props.put(KEY_AUTO_SETUP, String.valueOf(v)); return this; }
+        /** Property */
         public Builder property(String key, String value) { props.put(key, value); return this; }
+        /** PollingInterval */
         public Builder pollingInterval(long interval, TimeUnit unit) { this.pollingInterval = interval; this.timeUnit = unit; return this; }
+        /** Events */
         public Builder events(WatcherEvent... events) { this.events = Set.of(events); return this; }
 
         /**

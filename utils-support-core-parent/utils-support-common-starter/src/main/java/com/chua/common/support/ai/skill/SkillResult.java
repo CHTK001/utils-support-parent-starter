@@ -26,28 +26,39 @@ public class SkillResult {
     /** 错误信息 */
     private final String errorMessage;
 
+    /**
+     * 创建 SkillResult 实例
+     * @param success success
+     * @param Object Object
+     * @param String String
+     */
     public SkillResult(boolean success, Object content, String errorMessage) {
         this.success = success;
         this.content = content;
         this.errorMessage = errorMessage;
     }
 
+    /** Success */
     public static SkillResult success(Object content) {
         return new SkillResult(true, content, null);
     }
 
+    /** 记录错误 */
     public static SkillResult error(String errorMessage) {
         return new SkillResult(false, null, errorMessage);
     }
 
+    /** 是否Success */
     public boolean isSuccess() {
         return success;
     }
 
+    /** 获取Content */
     public Object getContent() {
         return content;
     }
 
+    /** 获取记录错误Message */
     public String getErrorMessage() {
         return errorMessage;
     }

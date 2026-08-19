@@ -46,11 +46,16 @@ public class DefaultQrCode extends AbstractQrCode {
     /** Quiet_zone_size */
     private static final int QUIET_ZONE_SIZE = 4;
 
+    /**
+     * 创建 DefaultQrCode 实例
+     * @param setting setting
+     */
     public DefaultQrCode(QrSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Out */
     public void out(String content, OutputStream outputStream) {
         QrCodeGenWrapper.Builder builder = QrCodeGenWrapper.of(content);
 

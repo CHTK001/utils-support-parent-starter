@@ -18,16 +18,32 @@ import java.util.concurrent.TimeUnit;
  */
 public class ReactiveThreadExecutor extends AbstractThreadExecutor {
 
+    /**
+     * 创建 ReactiveThreadExecutor 实例
+     * @param strategy strategy
+     * @param int int
+     * @param long long
+     * @param TimeUnit TimeUnit
+     */
     public ReactiveThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
 
+    /**
+     * 创建 ReactiveThreadExecutor 实例
+     * @param strategy strategy
+     * @param threshold threshold
+     * @param timeout timeout
+     * @param timeUnit timeUnit
+     * @param maxConcurrent maxConcurrent
+     */
     public ReactiveThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {
         super(strategy, threshold, timeout, timeUnit, maxConcurrent);
     }
 
     @Override
+    /** 提交Tasks */
     protected List<Future<Object>> submitTasks() {
         List<CompletableFuture<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -44,6 +60,7 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 无需显式释放
     }

@@ -55,6 +55,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     /** HTTP客户端 */
     private final HttpClient httpClient;
 
+    /** 创建 AlibabaRegionProvider 实例 */
     public AlibabaRegionProvider() {
         this(2);
     }
@@ -70,16 +71,19 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "alibaba";
     }
 
     @Override
+    /** 获取Regions */
     public List<RegionInfo> getRegions() {
         return getRegions(defaultLevel);
     }
 
     @Override
+    /** 获取Regions */
     public List<RegionInfo> getRegions(int maxLevel) {
         RegionInfo root = getTree(maxLevel);
         List<RegionInfo> flat = new ArrayList<>();
@@ -88,18 +92,21 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     @Override
+    /** 获取Children */
     public List<RegionInfo> getChildren(String parentAdcode) {
         String code = (parentAdcode == null || parentAdcode.isEmpty()) ? "100000" : parentAdcode;
         return fetchChildren(code);
     }
 
     @Override
+    /** 获取Tree */
     public RegionInfo getTree(int maxLevel) {
         RegionInfo root = new RegionInfo("100000", "中国", 0, "country", null, 0, 0);
         build(root, 0, Math.max(1, maxLevel));
         return root;
     }
 
+    /** 构建 */
     private void build(RegionInfo node, int cur, int max) {
         if (cur >= max) {
             node.setChildren(Collections.emptyList());
@@ -112,6 +119,7 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
+    /** 扁平化 */
     private void flatten(RegionInfo node, List<RegionInfo> out) {
         if (node.getAdcode() != null && !"100000".equals(node.getAdcode()) && node.getLevel() > 0) {
             out.add(node);
@@ -123,6 +131,7 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
+    /** FetchChildren */
     private List<RegionInfo> fetchChildren(String adcode) {
         List<RegionInfo> cached = CACHE.get(adcode);
         if (cached != null) {
@@ -144,6 +153,7 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
+    /** 解析 */
     private List<RegionInfo> parse(String json) {
         List<RegionInfo> list = new ArrayList<>();
         try {
@@ -169,6 +179,7 @@ public class AlibabaRegionProvider implements RegionProvider {
         return list;
     }
 
+    /** MapLevel */
     private static int mapLevel(String lv) {
         if (lv == null) {
             return 0;
@@ -187,11 +198,13 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
+    /** Text */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
     }
 
+    /** 解析Center */
     private static double[] parseCenter(JsonNode c) {
         if (c == null || !c.isArray() || c.size() < 2) {
             return new double[]{0, 0};

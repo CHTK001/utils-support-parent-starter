@@ -34,16 +34,19 @@ public class RpcInvoker implements Invoker {
     };
 
     @Override
+    /** 创建 */
     public <T> T create(Class<T> apiClass) {
         return createProxy(apiClass, false);
     }
 
     @Override
+    /** 创建New */
     public <T> T createNew(Class<T> apiClass) {
         return createProxy(apiClass, true);
     }
 
     @SuppressWarnings("unchecked")
+    /** 创建Proxy */
     private <T> T createProxy(Class<T> apiClass, boolean isNew) {
         String baseUrl = resolveBaseUrl(apiClass);
         if (StringUtils.isEmpty(baseUrl)) {
@@ -62,6 +65,7 @@ public class RpcInvoker implements Invoker {
         return client.get(apiClass);
     }
 
+    /** 解析BaseUrl */
     private static String resolveBaseUrl(Class<?> clazz) {
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
@@ -91,6 +95,7 @@ public class RpcInvoker implements Invoker {
         return "";
     }
 
+    /** ExtractAnnotationValue */
     private static String extractAnnotationValue(Annotation ann) {
         try {
             java.lang.reflect.Method m = ann.getClass().getMethod("value");

@@ -23,10 +23,12 @@ class DhtCrawlerTest {
                 .port(6882)
                 .crawlListener(new DhtCrawlListener() {
                     @Override
+                    /** OnInfohash */
                     public void onInfohash(String infohash, InetSocketAddress source) {
                         System.out.println("[被动发现] infohash=" + infohash + " 来自 " + source);
                     }
                     @Override
+                    /** OnPeers */
                     public void onPeers(String infohash, List<DhtPeer> peers) {
                         System.out.println("[BEP 9 下载] " + infohash + " -> " + peers.size() + " 个 BT 节点");
                         MetadataDownloader downloader = new MetadataDownloader();
@@ -77,7 +79,10 @@ class DhtCrawlerTest {
         ihs.forEach(ih -> System.out.println("  " + ih));
     }
 
+    /** Elapsed */
     private static long elapsed(long start) { return (System.currentTimeMillis() - start) / 1000; }
+    /** BytesToHex */
     private static String bytesToHex(byte[] b) { StringBuilder sb = new StringBuilder(); for (byte x : b) sb.append(String.format("%02x", x & 0xff)); return sb.toString(); }
+    /** HexToBytes */
     private static byte[] hexToBytes(String h) { byte[] r = new byte[20]; for (int i = 0; i < 20; i++) r[i] = (byte) Integer.parseInt(h.substring(i * 2, i * 2 + 2), 16); return r; }
 }

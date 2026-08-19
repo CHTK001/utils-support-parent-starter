@@ -45,6 +45,10 @@ public class ZhipuVideoClient implements VideoClient {
     /** 参考图强度 */
     private Double imageStrength;
 
+    /**
+     * 创建 ZhipuVideoClient 实例
+     * @param setting setting
+     */
     public ZhipuVideoClient(VideoClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -55,12 +59,14 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
+    /** Model */
     public VideoClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** 获取大小 */
     public VideoClient size(int width, int height) {
         this.width = width;
         this.height = height;
@@ -68,29 +74,34 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
+    /** Prompt */
     public VideoClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
+    /** Duration */
     public VideoClient duration(Integer duration) {
         this.duration = duration;
         return this;
     }
 
     @Override
+    /** Style */
     public VideoClient style(String style) {
         this.style = style;
         return this;
     }
 
     @Override
+    /** ReferenceImage */
     public VideoClient referenceImage(byte[] image) {
         this.referenceImage = image;
         return this;
     }
 
+    /** ReferenceImage */
     public VideoClient referenceImage(BufferedImage image) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -103,17 +114,20 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
+    /** ImageStrength */
     public VideoClient imageStrength(double strength) {
         this.imageStrength = strength;
         return this;
     }
 
     @Override
+    /** Seed */
     public VideoClient seed(Long seed) {
         return this;
     }
 
     @Override
+    /** 创建Task */
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -149,6 +163,7 @@ public class ZhipuVideoClient implements VideoClient {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 查询Task */
     public VideoResponse queryTask(String taskId) {
         if (taskId == null || taskId.isBlank()) {
             throw new IllegalArgumentException("任务 ID 不能为空");
@@ -195,6 +210,7 @@ public class ZhipuVideoClient implements VideoClient {
         }
     }
 
+    /** MapStatus */
     private VideoResponse.Status mapStatus(String taskStatus) {
         if (taskStatus == null) {
             return VideoResponse.Status.PENDING;
@@ -209,6 +225,7 @@ public class ZhipuVideoClient implements VideoClient {
 
     @Override public void close() {}
 
+    /** NormalizeBaseUrl */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

@@ -186,16 +186,19 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
 
         @Override
+        /** SourceId */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
+        /** InputId */
         public String inputId() {
             return "metrics";
         }
 
         @Override
+        /** 读取 */
         public Flux<Map<String, Object>> read(Map<String, Object> params) {
             return Flux.defer(() -> {
                 if (closed) {
@@ -267,6 +270,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
             return rows;
         }
 
+        /** Row */
         private static Map<String, Object> row(long ts, String type, String name, Object... kv) {
             Map<String, Object> r = new HashMap<>();
             r.put("timestamp", ts);
@@ -279,11 +283,13 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
 
         @Override
+        /** Direction */
         public Direction direction() {
             return Direction.INPUT;
         }
 
         @Override
+        /** 关闭 */
         public void close() {
             closed = true;
         }

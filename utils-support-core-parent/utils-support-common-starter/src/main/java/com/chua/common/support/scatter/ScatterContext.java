@@ -76,22 +76,27 @@ public final class ScatterContext {
         this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
     }
 
+    /** 获取RequestId */
     public String getRequestId() {
         return requestId;
     }
 
+    /** 获取Path */
     public String getPath() {
         return path;
     }
 
+    /** 获取TimeoutMillis */
     public long getTimeoutMillis() {
         return timeoutMillis;
     }
 
+    /** 获取最小值Success计算数量 */
     public int getMinSuccessCount() {
         return minSuccessCount;
     }
 
+    /** 获取Attributes */
     public Map<String, Object> getAttributes() {
         return attributes;
     }

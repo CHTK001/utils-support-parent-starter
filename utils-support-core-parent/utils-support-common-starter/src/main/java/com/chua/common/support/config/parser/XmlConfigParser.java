@@ -85,6 +85,7 @@ import java.util.Map;
 public class XmlConfigParser implements ConfigParser {
 
     @Override
+    /** 解析 */
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

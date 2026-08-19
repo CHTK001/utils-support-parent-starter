@@ -19,48 +19,60 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxFaceRecognizer 实例
+     * @param apiKey apiKey
+     */
     public OnnxFaceRecognizer(String apiKey) {
     }
 
     @Override
+    /** Model */
     public FaceRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "arc-face";
     }
 
     @Override
+    /** Threshold */
     public FaceRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** ExtractFeature */
     public float[] extractFeature(byte[] imageData) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).extractFeature(imageData);
     }
 
     @Override
+    /** 比较 */
     public float compare(float[] feature1, float[] feature2) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).compare(feature1, feature2);
     }
 
     @Override
+    /** Recognize */
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognize(imageData, referenceFeatures);
     }

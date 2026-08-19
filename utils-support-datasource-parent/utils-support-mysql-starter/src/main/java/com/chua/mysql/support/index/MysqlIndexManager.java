@@ -19,16 +19,19 @@ public class MysqlIndexManager implements IndexManager, com.chua.datasource.supp
     private DataSource dataSource;
 
     @Override
+    /** Type */
     public String type() {
         return "mysql";
     }
 
     @Override
+    /** 设置DataSource */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
+    /** ListIndexes */
     public List<String> listIndexes(String table) {
         List<String> list = new ArrayList<>();
         try (Connection c = dataSource.getConnection();
@@ -44,11 +47,13 @@ public class MysqlIndexManager implements IndexManager, com.chua.datasource.supp
     }
 
     @Override
+    /** 创建Index */
     public CreateIndexStep createIndex(String indexName) {
         return new MysqlCreateIndexStep(dataSource, indexName);
     }
 
     @Override
+    /** DropIndex */
     public DropIndexStep dropIndex(String indexName) {
         return new MysqlDropIndexStep(dataSource, indexName);
     }

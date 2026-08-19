@@ -199,26 +199,32 @@ public class AgentDefinition {
         return new Builder();
     }
 
+    /** 获取Id */
     public String getId() {
         return id;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取Description */
     public String getDescription() {
         return description;
     }
 
+    /** 获取Role */
     public String getRole() {
         return role;
     }
 
+    /** 获取Instruction */
     public String getInstruction() {
         return instruction;
     }
 
+    /** 是否Planning */
     public boolean isPlanning() {
         return planning;
     }
@@ -232,6 +238,7 @@ public class AgentDefinition {
         return mcp;
     }
 
+    /** 是否Leader */
     public boolean isLeader() {
         return leader;
     }
@@ -448,21 +455,25 @@ public class AgentDefinition {
         Builder() {
         }
 
+        /** Id */
         public Builder id(String id) {
             this.id = id;
             return this;
         }
 
+        /** Name */
         public Builder name(String name) {
             this.name = name;
             return this;
         }
 
+        /** Description */
         public Builder description(String description) {
             this.description = description;
             return this;
         }
 
+        /** Role */
         public Builder role(String role) {
             this.role = role;
             return this;
@@ -499,6 +510,7 @@ public class AgentDefinition {
             return this;
         }
 
+        /** Planning */
         public Builder planning(boolean planning) {
             this.planning = planning;
             return this;
@@ -562,6 +574,7 @@ public class AgentDefinition {
             return this;
         }
 
+        /** Leader */
         public Builder leader(boolean leader) {
             this.leader = leader;
             return this;

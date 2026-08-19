@@ -49,6 +49,7 @@ public class UdpModeProbe implements ProbeStrategy {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         int port = config.getPort();
         try (DatagramSocket socket = new DatagramSocket()) {
@@ -80,11 +81,13 @@ public class UdpModeProbe implements ProbeStrategy {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         stopped = true;
     }
 
     @Override
+    /** 获取DiscoveredNodes */
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return discovered;
     }

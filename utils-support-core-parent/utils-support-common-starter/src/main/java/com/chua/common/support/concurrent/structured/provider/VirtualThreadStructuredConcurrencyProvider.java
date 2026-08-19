@@ -35,11 +35,16 @@ public class VirtualThreadStructuredConcurrencyProvider implements StructuredCon
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
 
+    /**
+     * 创建 VirtualThreadStructuredConcurrencyProvider 实例
+     * @param executor executor
+     */
     public VirtualThreadStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;
     }
 
     @Override
+    /** 提交 */
     public <T> T submit(Callable<T> task) throws Exception {
         if (closed.get()) {
             throw new IllegalStateException("结构化并发已关闭");
@@ -48,6 +53,7 @@ public class VirtualThreadStructuredConcurrencyProvider implements StructuredCon
     }
 
     @Override
+    /** 提交 */
     public void submit(Runnable task) throws Exception {
         if (closed.get()) {
             throw new IllegalStateException("结构化并发已关闭");
@@ -56,12 +62,14 @@ public class VirtualThreadStructuredConcurrencyProvider implements StructuredCon
     }
 
     @Override
+    /** 合并 */
     public void join() throws Exception {
         executor.shutdown();
         executor.awaitTermination(60, TimeUnit.SECONDS);
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
             executor.shutdownNow();

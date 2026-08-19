@@ -31,31 +31,37 @@ public class SolrHandler extends AbstractAppHandler {
     private static final String[] SOLR_METHODS = {"request"};
 
     @Override
+    /** Name */
     public String name() {
         return "solr-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "solr.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SOLR;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.SOLR;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(SOLR_CLIENT, SOLR_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

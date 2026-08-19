@@ -22,44 +22,55 @@ public class OnnxImageDetector implements ImageDetector {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxImageDetector 实例
+     * @param apiKey apiKey
+     */
     public OnnxImageDetector(String apiKey) {
     }
 
     @Override
+    /** Model */
     public ImageDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov8s";
     }
 
     @Override
+    /** Threshold */
     public ImageDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** Nms */
     public ImageDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Detect */
     public List<DetectionInfo> detect(byte[] imageData) {
         return ImageDetector.create(resolveModel()).threshold(threshold).nms(nms).modelPath(modelPath).device(device).detect(imageData);
     }

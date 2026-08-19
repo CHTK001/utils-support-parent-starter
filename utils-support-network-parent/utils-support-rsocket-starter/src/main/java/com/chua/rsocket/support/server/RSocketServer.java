@@ -80,16 +80,22 @@ public class RSocketServer extends AbstractServer {
      */
     private final Map<String, ServerHandler> messageHandlers = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 RSocketServer 实例
+     * @param setting setting
+     */
     public RSocketServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         serverDisposable = io.rsocket.core.RSocketServer.create((setup, sendingSocket) -> {
             return Mono.just(new io.rsocket.RSocket() {
 
                 @Override
+                /** RequestResponse */
                 public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     String data = payload.getDataUtf8();
@@ -127,6 +133,7 @@ public class RSocketServer extends AbstractServer {
                 }
 
                 @Override
+                /** FireAndForget */
                 public Mono<Void> fireAndForget(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     String data = payload.getDataUtf8();
@@ -156,6 +163,7 @@ public class RSocketServer extends AbstractServer {
                 }
 
                 @Override
+                /** RequestStream */
                 public Flux<io.rsocket.Payload> requestStream(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     if (topic == null || topic.isEmpty()) {
@@ -185,6 +193,7 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (serverDisposable != null) {
             serverDisposable.dispose();
@@ -206,6 +215,7 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }
@@ -421,41 +431,49 @@ public class RSocketServer extends AbstractServer {
         }
 
         @Override
+        /** 读取Body */
         protected byte[] readBody() {
             return body;
         }
 
         @Override
+        /** 获取Uri */
         public String getUri() {
             return "/" + topic;
         }
 
         @Override
+        /** 获取Path */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
+        /** 获取Method */
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
+        /** 获取Headers */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
+        /** 获取RemoteAddress */
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
         @Override
+        /** 获取RemotePort */
         public int getRemotePort() {
             return 0;
         }
@@ -467,11 +485,13 @@ public class RSocketServer extends AbstractServer {
     private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
 
         @Override
+        /** 获取OutputStream */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
+        /** 写入Raw */
         public void writeRaw(byte[] bytes) {
             this.body = bytes;
         }

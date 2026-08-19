@@ -129,6 +129,7 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
+    /** SupportsReactor */
     public boolean supportsReactor() {
         return false;
     }
@@ -295,6 +296,7 @@ public abstract class AbstractServer implements ConfigServer {
      */
     private static volatile java.util.List<ResponseConverter> CONVERTER_CACHE;
 
+    /** Converters */
     private static java.util.List<ResponseConverter> converters() {
         java.util.List<ResponseConverter> cached = CONVERTER_CACHE;
         if (cached != null) {
@@ -307,6 +309,7 @@ public abstract class AbstractServer implements ConfigServer {
         return loaded;
     }
 
+    /** 转换Result */
     private void convertResult(ServerResponse response) {
         Object result = response.getResult();
         if (result == null) {
@@ -339,6 +342,7 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
+    /** 开始 */
     public final synchronized void start() {
         if (running) {
             return;
@@ -372,6 +376,7 @@ public abstract class AbstractServer implements ConfigServer {
     protected abstract void doStart();
 
     @Override
+    /** 停止 */
     public final synchronized void stop() {
         if (!running) {
             return;
@@ -417,31 +422,37 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         stop();
     }
 
     @Override
+    /** 获取Port */
     public int getPort() {
         return setting.getPort();
     }
 
     @Override
+    /** 获取Setting */
     public ServerSetting getSetting() {
         return setting;
     }
 
     @Override
+    /** 获取ObjectContext */
     public ObjectContext getObjectContext() {
         return objectContext;
     }
 
     @Override
+    /** 设置ObjectContext */
     public void setObjectContext(ObjectContext objectContext) {
         this.objectContext = objectContext;
         this.urlMappingFilter = new UrlMappingServerFilter(objectContext);
@@ -459,11 +470,13 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
+    /** 获取Filters */
     public List<ServerFilter> getFilters() {
         return filterManager.getStaticFilters();
     }
 
     @Override
+    /** 添加过滤 */
     public Server addFilter(ServerFilter filter) {
         filterManager.addFilter(filter);
         if (filter instanceof ReactiveServerFilter reactiveFilter) {
@@ -473,30 +486,35 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
+    /** 移除过滤 */
     public Server removeFilter(ServerFilter filter) {
         filterManager.removeFilter(filter);
         return this;
     }
 
     @Override
+    /** 注册Mapping */
     public Server registerMapping(String path, HttpMethod method, ServerHandler handler) {
         urlMappingFilter.route(path, method, handler);
         return this;
     }
 
     @Override
+    /** 注册Mapping */
     public Server registerMapping(String path, ServerHandler handler) {
         urlMappingFilter.route(path, handler);
         return this;
     }
 
     @Override
+    /** 移除Mapping */
     public Server removeMapping(String path) {
         urlMappingFilter.removeRoute(path);
         return this;
     }
 
     @Override
+    /** RefreshFilters */
     public Server refreshFilters() {
         filterManager.refreshSpiFilters();
         if (objectContext != null) {
@@ -509,6 +527,7 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
+    /** 注册Bean */
     public Server registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -543,21 +562,25 @@ public abstract class AbstractServer implements ConfigServer {
         }
 
         @Override
+        /** 获取过滤Name */
         public String getFilterName() {
             return "default";
         }
 
         @Override
+        /** 获取初始化Parameter */
         public String getInitParameter(String name) {
             return null;
         }
 
         @Override
+        /** 获取初始化Parameters */
         public Map<String, String> getInitParameters() {
             return Map.of();
         }
 
         @Override
+        /** 获取ServerSetting */
         public ServerSetting getServerSetting() {
             return setting;
         }

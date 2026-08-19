@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 public class DefaultBackgroundResolver implements BackgroundResolver{
 
     @Override
+    /** 解析 */
     public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix) {
         
         return QrCodeRenderHelper.drawBackground(image,

@@ -48,16 +48,19 @@ public class CalciteDataScheme implements DataScheme {
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
     @Override
+    /** 获取TableNames */
     public List<String> getTableNames() {
         return tables.stream().map(DataTable::getName).collect(Collectors.toList());
     }
 
     @Override
+    /** 获取Table */
     public DataTable getTable(String name) {
         for (DataTable t : tables) {
             if (t.getName().equals(name)) {
@@ -68,6 +71,7 @@ public class CalciteDataScheme implements DataScheme {
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         tables.clear();
     }

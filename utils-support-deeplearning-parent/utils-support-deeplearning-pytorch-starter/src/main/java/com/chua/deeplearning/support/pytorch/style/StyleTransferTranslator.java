@@ -20,12 +20,14 @@ import ai.djl.translate.TranslatorContext;
 public class StyleTransferTranslator implements Translator<Image, Image> {
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray image = switchFormat(input.toNDArray(ctx.getNDManager())).expandDims(0);
         return new NDList(image.toType(DataType.FLOAT32, false));
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray ndArray = list.get(0);
         NDArray output = ctx.getNDManager().create(ndArray.toFloatArray(), ndArray.getShape())
@@ -37,6 +39,7 @@ public class StyleTransferTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

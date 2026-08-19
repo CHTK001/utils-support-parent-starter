@@ -61,6 +61,11 @@ public class QwenBrowserSession implements AutoCloseable {
      */
     private boolean pageReady;
 
+    /**
+     * 创建 QwenBrowserSession 实例
+     * @param cookieString cookieString
+     * @param String String
+     */
     public QwenBrowserSession(String cookieString, String userDataDir) {
         this.playwright = Playwright.create();
         this.browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
@@ -184,6 +189,7 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         Exception ex = null;
         try { if (page != null) page.close(); } catch (Exception e) { ex = e; }
@@ -195,6 +201,7 @@ public class QwenBrowserSession implements AutoCloseable {
         }
     }
 
+    /** InjectCookies */
     private void injectCookies(String cookieString) {
         Map<String, String> cookies = parseCookies(cookieString);
         List<com.microsoft.playwright.options.Cookie> cookieList = new ArrayList<>(cookies.size());
@@ -205,6 +212,7 @@ public class QwenBrowserSession implements AutoCloseable {
         context.addCookies(cookieList);
     }
 
+    /** 解析Cookies */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = new LinkedHashMap<>();
         if (cookieString == null || cookieString.isBlank()) {
@@ -221,6 +229,7 @@ public class QwenBrowserSession implements AutoCloseable {
         return map;
     }
 
+    /** ExtractPrompt */
     private static String extractPrompt(String body) {
         try {
             JsonObject obj = JsonObject.parse(body);

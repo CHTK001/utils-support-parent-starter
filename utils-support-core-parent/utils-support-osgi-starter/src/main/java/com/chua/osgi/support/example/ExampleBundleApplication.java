@@ -17,12 +17,14 @@ public class ExampleBundleApplication implements BundleApplication {
     private static final String serviceName = "example-service";
 
     @Override
+    /** OnBundle开始 */
     public void onBundleStart(BundleContext context) {
         context.registerService(ExampleService.class, new ExampleServiceImpl());
         System.out.println("[ExampleBundle] Bundle started, registered service: " + serviceName);
     }
 
     @Override
+    /** OnBundle停止 */
     public void onBundleStop(BundleContext context) {
         context.unregisterService(ExampleService.class, new ExampleServiceImpl());
         System.out.println("[ExampleBundle] Bundle stopped");
@@ -35,11 +37,13 @@ public class ExampleBundleApplication implements BundleApplication {
 
     public static class ExampleServiceImpl implements ExampleService {
         @Override
+        /** 获取Name */
         public String getName() {
             return serviceName;
         }
 
         @Override
+        /** 获取Message */
         public String getMessage(String input) {
             return "Hello from OSGi example: " + input;
         }

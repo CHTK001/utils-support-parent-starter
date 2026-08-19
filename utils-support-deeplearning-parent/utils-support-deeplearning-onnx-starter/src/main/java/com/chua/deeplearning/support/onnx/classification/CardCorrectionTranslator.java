@@ -96,6 +96,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return shared;
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -125,11 +126,13 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     }
 
     @Override
+    /** Name */
     public String name() {
         return "card-correction-detector";
     }
 
     @Override
+    /** Translate */
     public List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();
@@ -332,6 +335,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return kept;
     }
 
+    /** 是否Local最大值 */
     private boolean isLocalMax(float[][] hm, int x, int y) {
         float v = hm[y][x];
         for (int dy = -1; dy <= 1; dy++) {
@@ -348,6 +352,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return true;
     }
 
+    /** ToMatD */
     private float[][] toMat2D(Object value) {
         // 输入 [1, C, H, W]，单通道 C=1 → 返回 [H][W]
         float[][][][] arr4 = (float[][][][]) value;
@@ -363,6 +368,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return out;
     }
 
+    /** ToMatD */
     private float[][][] toMat3D(Object value) {
         float[][][][] arr4 = (float[][][][]) value;
         return arr4[0];

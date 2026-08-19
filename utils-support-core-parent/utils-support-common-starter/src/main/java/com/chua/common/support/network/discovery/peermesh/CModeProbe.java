@@ -56,6 +56,7 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         List<String> subnets = config.getScanSubnets();
         if (subnets == null || subnets.isEmpty()) {
@@ -86,11 +87,13 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         stopped = true;
     }
 
     @Override
+    /** 获取DiscoveredNodes */
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return Collections.unmodifiableList(discovered);
     }
@@ -185,6 +188,7 @@ public class CModeProbe implements ProbeStrategy {
         }
     }
 
+    /** InetAtoN */
     private static int inetAtoN(String ip) {
         try {
             byte[] bytes = InetAddress.getByName(ip).getAddress();
@@ -200,6 +204,7 @@ public class CModeProbe implements ProbeStrategy {
         }
     }
 
+    /** InetNtoA */
     private static String inetNtoA(int ip) {
         return String.format("%d.%d.%d.%d",
                 (ip >> 24) & 0xFF,

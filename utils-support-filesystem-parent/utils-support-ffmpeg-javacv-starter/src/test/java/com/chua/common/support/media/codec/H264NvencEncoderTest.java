@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 
 /** @author CH */
 public class H264NvencEncoderTest {
+    /** Main */
     public static void main(String[] args) throws Exception {
         System.out.println("=== H264NvencEncoder SPI 测试 (nvenc) ===");
         int w = 320, h = 240;

@@ -41,10 +41,19 @@ public class PluginManager {
      */
     private Object runtimeManager;
 
+    /**
+     * 创建 PluginManager 实例
+     * @param pluginRoot pluginRoot
+     */
     public PluginManager(Path pluginRoot) {
         this(pluginRoot, ClassLoader.getSystemClassLoader());
     }
 
+    /**
+     * 创建 PluginManager 实例
+     * @param pluginRoot pluginRoot
+     * @param ClassLoader ClassLoader
+     */
     public PluginManager(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;
         this.registry = new PluginRegistry();
@@ -134,14 +143,17 @@ public class PluginManager {
         }
     }
 
+    /** 获取PluginRoot */
     public Path getPluginRoot() {
         return pluginRoot;
     }
 
+    /** 获取Registry */
     public PluginRegistry getRegistry() {
         return registry;
     }
 
+    /** 获取大小 */
     public int size() {
         return registry.size();
     }

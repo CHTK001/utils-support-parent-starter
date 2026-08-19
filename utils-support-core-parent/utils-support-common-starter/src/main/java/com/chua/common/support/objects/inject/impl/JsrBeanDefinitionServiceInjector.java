@@ -45,6 +45,7 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
     private static final String NAMED_JAKARTA = "jakarta.inject.Named";
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) {
             return false;
@@ -60,6 +61,14 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
     }
 
     @Override
+    /**
+     * Inject
+     * @param field field
+     * @param bean bean
+     * @param beanDefinition beanDefinition
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,
                          Function<Class<?>, Object> typeProvider) {
@@ -81,6 +90,13 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
         return null;
     }
 
+    /**
+     * InjectResource
+     * @param resource resource
+     * @param field field
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     private Object injectResource(Annotation resource, Field field,
                                   Function<String, Object> beanProvider,
                                   Function<Class<?>, Object> typeProvider) {
@@ -107,6 +123,13 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
         return null;
     }
 
+    /**
+     * Inject设置Named
+     * @param inject inject
+     * @param field field
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     private Object injectWithNamed(Annotation inject, Field field,
                                    Function<String, Object> beanProvider,
                                    Function<Class<?>, Object> typeProvider) {
@@ -127,6 +150,7 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
         return null;
     }
 
+    /** 查找NamedValue */
     private String findNamedValue(Field field) {
         for (Annotation ann : field.getAnnotations()) {
             String name = ann.annotationType().getName();
@@ -138,6 +162,7 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
     }
 
     @SuppressWarnings("unchecked")
+    /** 获取AnnotationAttribute */
     private <T> T getAnnotationAttribute(Annotation annotation, String attributeName, T defaultValue) {
         try {
             Method method = annotation.annotationType().getMethod(attributeName);

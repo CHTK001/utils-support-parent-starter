@@ -69,10 +69,15 @@ public class UdpProxyServerFilter implements ServerFilter {
      */
     private DatagramSocket serverSocket;
 
+    /** 创建 UdpProxyServerFilter 实例 */
     public UdpProxyServerFilter() {
         this(5000, null);
     }
 
+    /**
+     * 创建 UdpProxyServerFilter 实例
+     * @param timeoutMs timeoutMs
+     */
     public UdpProxyServerFilter(int timeoutMs) {
         this(timeoutMs, null);
     }
@@ -108,22 +113,30 @@ public class UdpProxyServerFilter implements ServerFilter {
         return new UdpProxyServerFilter(timeoutMs, targetResolver);
     }
 
+    /**
+     * 创建 UdpProxyServerFilter 实例
+     * @param timeoutMs timeoutMs
+     * @param ProxyTargetResolver ProxyTargetResolver
+     */
     public UdpProxyServerFilter(int timeoutMs, ProxyTargetResolver targetResolver) {
         this.timeoutMs = timeoutMs;
         this.targetResolver = targetResolver != null ? targetResolver : remoteAddr -> null;
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 25;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.UDP};
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         running.set(true);
@@ -131,6 +144,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         running.set(false);
         stopProxy();
@@ -141,6 +155,12 @@ public class UdpProxyServerFilter implements ServerFilter {
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);
@@ -176,6 +196,7 @@ public class UdpProxyServerFilter implements ServerFilter {
         log.info("[network-proxy] UDP 代理停止");
     }
 
+    /** 处理Packet */
     private void handlePacket(io.vertx.core.datagram.DatagramPacket packet, DatagramSocket mainSocket) {
         io.vertx.core.net.SocketAddress sender = packet.sender();
         InetSocketAddress senderAddr = new InetSocketAddress(sender.host(), sender.port());

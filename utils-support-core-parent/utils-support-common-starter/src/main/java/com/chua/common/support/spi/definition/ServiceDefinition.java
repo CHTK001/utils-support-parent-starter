@@ -179,82 +179,102 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return implClass;
     }
 
+    /** 获取Describe */
     public String getDescribe() {
         return describe;
     }
 
+    /** 设置Describe */
     public void setDescribe(String describe) {
         this.describe = describe;
     }
 
+    /** 获取DescribeType */
     public String getDescribeType() {
         return describeType;
     }
 
+    /** 设置DescribeType */
     public void setDescribeType(String describeType) {
         this.describeType = describeType;
     }
 
+    /** 获取DescribeDetail */
     public String getDescribeDetail() {
         return describeDetail;
     }
 
+    /** 设置DescribeDetail */
     public void setDescribeDetail(String describeDetail) {
         this.describeDetail = describeDetail;
     }
 
+    /** 获取SupportedTypes */
     public String[] getSupportedTypes() {
         return supportedTypes;
     }
 
+    /** 设置SupportedTypes */
     public void setSupportedTypes(String[] supportedTypes) {
         this.supportedTypes = supportedTypes;
     }
 
+    /** 获取DescribeOptional */
     public List<DescribeOptional> getDescribeOptional() {
         return describeOptional;
     }
 
+    /** 设置DescribeOptional */
     public void setDescribeOptional(List<DescribeOptional> describeOptional) {
         this.describeOptional = describeOptional;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 设置Name */
     public void setName(String name) {
         this.name = name;
     }
 
+    /** 获取Order */
     public int getOrder() {
         return order;
     }
 
+    /** 设置Order */
     public void setOrder(int order) {
         this.order = order;
     }
 
+    /** 获取Url */
     public URL getUrl() {
         return url;
     }
 
+    /** 设置Url */
     public void setUrl(URL url) {
         this.url = url;
     }
 
+    /** 获取加载Time */
     public long getLoadTime() {
         return loadTime;
     }
 
+    /** 设置加载Time */
     public void setLoadTime(long loadTime) {
         this.loadTime = loadTime;
     }
 
+    /** 获取ClassLoader */
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
+    /** 设置ClassLoader */
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
@@ -263,38 +283,47 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return type;
     }
 
+    /** 设置Type */
     public void setType(Class<?> type) {
         this.type = type;
     }
 
+    /** 是否Default */
     public boolean isDefault() {
         return isDefault;
     }
 
+    /** 设置Default */
     public void setDefault(boolean isDefault) {
         this.isDefault = isDefault;
     }
 
+    /** 获取Obj */
     public Object getObj() {
         return obj;
     }
 
+    /** 设置Obj */
     public void setObj(Object obj) {
         this.obj = obj;
     }
 
+    /** 是否Loaded */
     public boolean isLoaded() {
         return isLoaded;
     }
 
+    /** 设置Loaded */
     public void setLoaded(boolean loaded) {
         isLoaded = loaded;
     }
 
+    /** 获取Ex */
     public Throwable getEx() {
         return ex;
     }
 
+    /** 设置Ex */
     public void setEx(Throwable ex) {
         this.ex = ex;
     }
@@ -303,14 +332,17 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return finderType;
     }
 
+    /** 设置FinderType */
     public void setFinderType(Class<?> finderType) {
         this.finderType = finderType;
     }
 
+    /** 获取Stack */
     public StackTraceElement[] getStack() {
         return stack;
     }
 
+    /** 设置Stack */
     public void setStack(StackTraceElement[] stack) {
         this.stack = stack;
     }
@@ -472,6 +504,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return ClassUtils.newInstance(constructor, args1);
     }
 
+    /** 获取Value */
     private Object getValue(Class<?> parameterType, Object[] args) {
         for (Object arg : args) {
             Object necessary = Converter.convertIfNecessary(arg, parameterType);
@@ -531,6 +564,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return null != parentType && parentType.isAssignableFrom(implClass);
     }
     @Override
+    /** 比较To */
     public int compareTo(ServiceDefinition o) {
         return Integer.compare(o.order, this.order);
     }

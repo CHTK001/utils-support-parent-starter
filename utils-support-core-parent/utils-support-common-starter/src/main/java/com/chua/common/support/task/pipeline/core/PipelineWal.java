@@ -391,6 +391,7 @@ public class PipelineWal implements AutoCloseable {
 
     // ==================== 内部方法 ====================
 
+    /** Ensure打开 */
     private void ensureOpen() throws IOException {
         if (!opened) {
             open();

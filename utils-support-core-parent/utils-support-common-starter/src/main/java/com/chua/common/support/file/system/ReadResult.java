@@ -19,6 +19,7 @@ public class ReadResult<T> {
     /** 解析后的数据上下文列表 */
     private final List<FileSystemContext<?>> contexts = new ArrayList<>();
 
+    /** 创建 ReadResult 实例 */
     public ReadResult() {
     }
 

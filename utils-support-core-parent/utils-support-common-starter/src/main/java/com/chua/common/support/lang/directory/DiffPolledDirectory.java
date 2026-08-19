@@ -75,11 +75,13 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 开始 */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         this.environment = environment;
 
@@ -99,6 +101,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     }
 
     @Override
+    /** Upgrade */
     public void upgrade() {
         List<T> current = listAndModified(listenPath);
         if (current == null) {
@@ -156,6 +159,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         cache.clear();
         listeners.clear();

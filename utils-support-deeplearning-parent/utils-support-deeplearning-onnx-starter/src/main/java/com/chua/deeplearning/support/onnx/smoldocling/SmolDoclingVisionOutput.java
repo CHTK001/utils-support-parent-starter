@@ -17,14 +17,20 @@ public class SmolDoclingVisionOutput {
     /** 图片features */
     private final NDArray imageFeatures;
 
+    /**
+     * 创建 SmolDoclingVisionOutput 实例
+     * @param imageFeatures imageFeatures
+     */
     public SmolDoclingVisionOutput(NDArray imageFeatures) {
         this.imageFeatures = imageFeatures;
     }
 
+    /** 获取ImageFeatures */
     public NDArray getImageFeatures() {
         return imageFeatures;
     }
 
+    /** 获取ShapeString */
     public String getShapeString() {
         return imageFeatures.getShape().toString();
     }

@@ -32,6 +32,13 @@ public class HolidayInfo {
      */
     private final boolean offDay;
 
+    /**
+     * 创建 HolidayInfo 实例
+     * @param date date
+     * @param String String
+     * @param String String
+     * @param boolean boolean
+     */
     public HolidayInfo(LocalDate date, String name, String type, boolean offDay) {
         this.date = date;
         this.name = name;
@@ -39,18 +46,22 @@ public class HolidayInfo {
         this.offDay = offDay;
     }
 
+    /** 获取Date */
     public LocalDate getDate() {
         return date;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取Type */
     public String getType() {
         return type;
     }
 
+    /** 是否OffDay */
     public boolean isOffDay() {
         return offDay;
     }

@@ -53,6 +53,7 @@ public class BetaPureCalibrator implements PureCalibrator {
     private double beta = 2.0;
 
     @Override
+    /** Calibrate */
     public double calibrate(double rawScore) {
         double prob = regularizedIncompleteBeta(rawScore, alpha, beta);
         return Math.round(prob * 10000.0) / 100.0;
@@ -134,11 +135,13 @@ public class BetaPureCalibrator implements PureCalibrator {
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "Beta纯校准";
     }
 
     @Override
+    /** 获取Description */
     public String getDescription() {
         return "基于Beta累积分布函数的分数校准。参数α和β控制分布形状，适合两端密集中间稀疏的分布。";
     }

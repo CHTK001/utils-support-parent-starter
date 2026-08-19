@@ -33,10 +33,15 @@ import java.util.stream.Collectors;
  */
 @Spi("cldi")
 public class CldiResourceProvider extends AbstractResourceProvider implements DownloadLinkProvider {
+    /** 创建 CldiResourceProvider 实例 */
     public CldiResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 CldiResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public CldiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
@@ -121,6 +126,7 @@ public class CldiResourceProvider extends AbstractResourceProvider implements Do
     }
 
     @Override
+    /** 搜索DownloadUrls */
     public ListReturnResult<String> searchDownloadUrls(String keyword) {
         VideoSearch videoSearch = new VideoSearch();
         videoSearch.setKeyword(keyword);

@@ -49,26 +49,31 @@ public class KingbaseHandler extends AbstractAppHandler {
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
     @Override
+    /** Name */
     public String name() {
         return "kingbase-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "kingbase.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.KINGBASE_DRIVER;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.KINGBASE;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAllEntryExit(KINGBASE_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(KINGBASE_PREPARED_STATEMENT_CLASS, SQL_METHODS);
@@ -76,6 +81,7 @@ public class KingbaseHandler extends AbstractAppHandler {
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object conn = resolveConnection(instance);
         String url = conn != null ? String.valueOf(findField(conn, "url")) : null;

@@ -59,6 +59,10 @@ public class ClusterNode implements AutoCloseable {
     /** Registeredpaths */
     private List<String> registeredPaths = List.of();
 
+    /**
+     * 创建 ClusterNode 实例
+     * @param clusterSetting clusterSetting
+     */
     public ClusterNode(ClusterSetting clusterSetting) throws Exception {
         this.clusterSetting = clusterSetting;
         this.scatterId = clusterSetting.getScatterId() == null || clusterSetting.getScatterId().isBlank()
@@ -136,6 +140,7 @@ public class ClusterNode implements AutoCloseable {
             if (syncServer != null) {
                 syncServer.addListener(new SyncServerListener() {
                     @Override
+                    /** OnMessage */
                     public void onMessage(String clientId, String messageTopic, Object message) {
                         if (!"sync/request".equals(messageTopic) || message == null) {
                             return;
@@ -173,6 +178,7 @@ public class ClusterNode implements AutoCloseable {
         this.registeredPaths = paths;
     }
 
+    /** 注册Self */
     private void registerSelf(List<String> paths) {
         for (String path : paths) {
             if (clusterSetting.isHttpEnabled() && httpPort > 0) {
@@ -199,15 +205,18 @@ public class ClusterNode implements AutoCloseable {
         return discovery;
     }
 
+    /** 获取HttpPort */
     public int getHttpPort() {
         return httpPort;
     }
 
+    /** 获取TcpPort */
     public int getTcpPort() {
         return tcpPort;
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         // ① 先注销本节点服务，防止其他节点继续路由到已关闭节点
         try {

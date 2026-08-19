@@ -21,10 +21,12 @@ public class MxnetModelRegistrar implements ModelRegistrar {
     }
 
     @Override
+    /** 注册 */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
+    /** 注册All */
     private static void registerAll() {
         // 图像分类 - InceptionV3
         reg("mxnet-inceptionv3",
@@ -39,6 +41,15 @@ public class MxnetModelRegistrar implements ModelRegistrar {
                 ImageClassifier.class, "classification/vgg16");
     }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {

@@ -44,21 +44,25 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
+    /** Try获取 */
     public boolean tryAcquire() {
         return rateLimiter.tryAcquire();
     }
 
     @Override
+    /** Try获取 */
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         return rateLimiter.tryAcquire(timeout, timeUnit);
     }
 
     @Override
+    /** AvailablePermits */
     public int availablePermits() {
         return (int) rateLimiter.getRate();
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return name;
     }

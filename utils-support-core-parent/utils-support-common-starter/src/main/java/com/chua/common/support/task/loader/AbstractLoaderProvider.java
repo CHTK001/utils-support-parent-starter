@@ -17,6 +17,7 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
     private volatile T instance;
 
     @Override
+    /** 获取 */
     public T get() {
         T result = instance;
         if (result == null) {
@@ -32,6 +33,7 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
     }
 
     @Override
+    /** 重置 */
     public void reset() {
         synchronized (this) {
             instance = null;
@@ -39,6 +41,7 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
     }
 
     @Override
+    /** 是否Loaded */
     public boolean isLoaded() {
         return instance != null;
     }

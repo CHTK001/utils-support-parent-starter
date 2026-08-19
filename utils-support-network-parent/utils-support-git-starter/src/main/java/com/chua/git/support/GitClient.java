@@ -181,6 +181,7 @@ public class GitClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (git != null) {
             git.close();
@@ -419,10 +420,12 @@ public class GitClient implements AutoCloseable {
         /** SSH 私钥密码 */
         private String sshPassphrase;
 
+        /** RemoteUrl */
         public Builder remoteUrl(String remoteUrl) {
             this.remoteUrl = remoteUrl;
             return this;
         }
+        /** LocalPath */
         public Builder localPath(java.nio.file.Path localPath) {
             this.localPath = localPath;
             return this;

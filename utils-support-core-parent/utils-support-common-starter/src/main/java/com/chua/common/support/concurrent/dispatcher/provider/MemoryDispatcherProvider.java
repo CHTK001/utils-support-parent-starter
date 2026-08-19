@@ -37,6 +37,10 @@ public class MemoryDispatcherProvider extends AbstractDispatcherProvider {
      */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 MemoryDispatcherProvider 实例
+     * @param config config
+     */
     public MemoryDispatcherProvider(DispatcherConfig config) {
         super(config);
     }

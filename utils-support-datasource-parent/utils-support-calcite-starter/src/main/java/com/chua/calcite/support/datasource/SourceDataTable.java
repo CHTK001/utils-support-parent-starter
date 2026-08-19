@@ -70,6 +70,7 @@ public class SourceDataTable extends MutableDataTable {
         return columnTypes;
     }
 
+    /** 获取Engine */
     public Engine getEngine() {
         return engine;
     }
@@ -80,6 +81,7 @@ public class SourceDataTable extends MutableDataTable {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取Data */
     public List<Map<String, Object>> getData() {
         List<Map<String, Object>> rows = queryRows();
         List<Map<String, Object>> data = super.getData();
@@ -89,11 +91,13 @@ public class SourceDataTable extends MutableDataTable {
     }
 
     @Override
+    /** 获取Row计算数量 */
     public long getRowCount() {
         return getData().size();
     }
 
     @Override
+    /** 添加Row */
     public void addRow(Map<String, Object> row) {
         super.addRow(row);
         persistSnapshot(super.getData());
@@ -114,6 +118,7 @@ public class SourceDataTable extends MutableDataTable {
     }
 
     @SuppressWarnings("unchecked")
+    /** 查询Rows */
     private List<Map<String, Object>> queryRows() {
         try {
             var results = engine.query((Class<Object>) entityClass).list();
@@ -131,6 +136,7 @@ public class SourceDataTable extends MutableDataTable {
         }
     }
 
+    /** PersistSnapshot */
     private void persistSnapshot(List<Map<String, Object>> rows) {
         List<Object> entities = new ArrayList<>(rows.size());
         for (Map<String, Object> row : rows) {
@@ -153,6 +159,7 @@ public class SourceDataTable extends MutableDataTable {
         log.debug("[calcite] SourceDataTable [{}] 写回 {} 行 -> {}", getName(), entities.size(), storeName);
     }
 
+    /** 解析StoreName */
     private String resolveStoreName() {
         // AbstractEngine 表名规则：User -> user
         String simple = entityClass.getSimpleName();
@@ -166,6 +173,7 @@ public class SourceDataTable extends MutableDataTable {
         return sb.toString();
     }
 
+    /** MapToEntity */
     private Object mapToEntity(Map<String, Object> row) {
         try {
             Object instance = entityClass.getDeclaredConstructor().newInstance();
@@ -184,6 +192,7 @@ public class SourceDataTable extends MutableDataTable {
         }
     }
 
+    /** EntityToRow */
     private Map<String, Object> entityToRow(Object entity) {
         Map<String, Object> row = new LinkedHashMap<>(getters.size());
         for (int i = 0; i < getters.size(); i++) {
@@ -196,6 +205,7 @@ public class SourceDataTable extends MutableDataTable {
         return row;
     }
 
+    /** 解析Getters */
     private static List<Method> resolveGetters(Class<?> entityClass) {
         List<Method> result = new ArrayList<>();
         for (Method method : entityClass.getMethods()) {
@@ -217,6 +227,7 @@ public class SourceDataTable extends MutableDataTable {
         return Collections.unmodifiableList(result);
     }
 
+    /** 解析Setters */
     private static List<Method> resolveSetters(Class<?> entityClass, List<Method> getters) {
         List<Method> setters = new ArrayList<>(getters.size());
         for (Method getter : getters) {
@@ -234,6 +245,7 @@ public class SourceDataTable extends MutableDataTable {
         return Collections.unmodifiableList(setters);
     }
 
+    /** ToColumnNames */
     private static List<String> toColumnNames(List<Method> getters) {
         List<String> names = new ArrayList<>(getters.size());
         for (Method getter : getters) {
@@ -250,6 +262,7 @@ public class SourceDataTable extends MutableDataTable {
         return Collections.unmodifiableList(types);
     }
 
+    /** GetterToColumnName */
     private static String getterToColumnName(Method getter) {
         String methodName = getter.getName();
         String prop = methodName.startsWith("is") ? methodName.substring(2) : methodName.substring(3);
@@ -259,6 +272,7 @@ public class SourceDataTable extends MutableDataTable {
         return Character.toLowerCase(prop.charAt(0)) + prop.substring(1);
     }
 
+    /** 转换Value */
     private static Object convertValue(Object value, Class<?> targetType) {
         if (value == null || targetType.isInstance(value)) {
             return value;

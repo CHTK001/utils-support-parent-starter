@@ -148,6 +148,7 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
+    /** 运行Sync */
     public List<SpiderResult> runSync() {
         if (!running.compareAndSet(false, true)) {
             return Collections.emptyList();
@@ -167,6 +168,7 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
+    /** 运行 */
     public void run() {
         if (!running.compareAndSet(false, true)) {
             log.warn("[spider] 爬虫已在运行中");
@@ -302,15 +304,18 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running.set(false);
     }
 
     @Override
+    /** Scheduler */
     public ScheduledTask scheduler(Trigger trigger) {
         return new JdkSchedulerProvider().schedule(this::runSync, trigger);
     }
 
+    /** 关闭Pipelines */
     private void shutdownPipelines() {
         for (SpiderPipeline pipeline : pipelines) {
             try {
@@ -322,12 +327,14 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
+    /** 添加Url */
     public Spider addUrl(String url) {
         enqueueUrl(url, 0, null);
         return this;
     }
 
     @Override
+    /** 获取Results */
     public List<SpiderResult> getResults() {
         return Collections.unmodifiableList(results);
     }
@@ -548,12 +555,14 @@ public class DefaultSpider implements Spider {
         private int threads = 1;
 
         @Override
+        /** Site */
         public Builder site(SpiderSite site) {
             this.site = site;
             return this;
         }
 
         @Override
+        /** Fetcher */
         public Builder fetcher(String name) {
             this.fetcher = ServiceProvider.of(SpiderFetcher.class).getNewExtension(name);
             if (this.fetcher == null) {
@@ -563,12 +572,14 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Fetcher */
         public Builder fetcher(SpiderFetcher fetcher) {
             this.fetcher = fetcher;
             return this;
         }
 
         @Override
+        /** Parser */
         public Builder parser(String name) {
             this.parser = ServiceProvider.of(SpiderParser.class).getNewExtension(name);
             if (this.parser == null) {
@@ -578,18 +589,21 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Parser */
         public Builder parser(SpiderParser parser) {
             this.parser = parser;
             return this;
         }
 
         @Override
+        /** LinkExtractor */
         public Builder linkExtractor(SpiderLinkExtractor linkExtractor) {
             this.linkExtractor = linkExtractor;
             return this;
         }
 
         @Override
+        /** Url过滤 */
         public Builder urlFilter(SpiderUrlFilter filter) {
             if (filter != null) {
                 this.urlFilters.add(filter);
@@ -598,18 +612,21 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Scheduler */
         public Builder scheduler(SpiderScheduler scheduler) {
             this.scheduler = scheduler;
             return this;
         }
 
         @Override
+        /** Deduplicator */
         public Builder deduplicator(Deduplicator deduplicator) {
             this.deduplicator = deduplicator;
             return this;
         }
 
         @Override
+        /** AiParser */
         public Builder aiParser(String name, String apiKey) {
             this.aiParser = ServiceProvider.of(SpiderAiParser.class).getNewExtension(name, apiKey);
             if (this.aiParser == null) {
@@ -619,6 +636,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Pipeline */
         public Builder pipeline(SpiderPipeline pipeline) {
             if (pipeline != null) {
                 this.pipelines.add(pipeline);
@@ -627,6 +645,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Pipeline */
         public Builder pipeline(String name) {
             SpiderPipeline p = ServiceProvider.of(SpiderPipeline.class).getNewExtension(name);
             if (p != null) {
@@ -638,6 +657,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Pipeline */
         public Builder pipeline(Consumer<SpiderResult> consumer) {
             if (consumer != null) {
                 this.pipelines.add(new ConsumerPipeline(consumer));
@@ -646,6 +666,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** As */
         public <T> Builder as(Class<T> targetClass, Consumer<T> consumer) {
             if (targetClass != null && consumer != null) {
                 try {
@@ -659,6 +680,13 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /**
+         * As
+         * @param targetClass targetClass
+         * @param aiProvider aiProvider
+         * @param aiApiKey aiApiKey
+         * @param consumer consumer
+         */
         public <T> Builder as(Class<T> targetClass, String aiProvider,
                                String aiApiKey, Consumer<T> consumer) {
             if (targetClass != null && consumer != null) {
@@ -674,6 +702,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** 添加Request */
         public Builder addRequest(SpiderRequest request) {
             if (request != null && request.getUrl() != null) {
                 this.seedUrls.add(request.getUrl());
@@ -682,6 +711,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** 添加Url */
         public Builder addUrl(String url) {
             if (StringUtils.isNotEmpty(url)) {
                 this.seedUrls.add(url);
@@ -690,12 +720,14 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
+        /** Threads */
         public Builder threads(int threads) {
             this.threads = Math.max(1, threads);
             return this;
         }
 
         @Override
+        /** 构建 */
         public Spider build() {
             if (fetcher == null) {
                 int timeout = site != null ? site.getTimeout() : 30000;
@@ -737,6 +769,7 @@ public class DefaultSpider implements Spider {
             }
 
             @Override
+            /** 处理 */
             public void process(SpiderResult result) {
                 consumer.accept(result);
             }

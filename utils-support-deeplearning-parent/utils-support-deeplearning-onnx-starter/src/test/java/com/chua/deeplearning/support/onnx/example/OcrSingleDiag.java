@@ -17,9 +17,11 @@ import java.util.List;
  */
 public final class OcrSingleDiag {
 
+    /** 创建 OcrSingleDiag 实例 */
     private OcrSingleDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String path = args.length > 0 ? args[0] : "G:\\images\\气象文字.png";
         System.out.println("[diag] 图片=" + path);

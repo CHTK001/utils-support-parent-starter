@@ -38,11 +38,13 @@ public interface VectorCompareAlgorithm {
     static VectorCompareAlgorithm euclidean() {
         return new VectorCompareAlgorithm() {
             @Override
+            /** Name */
             public String name() {
                 return "EUCLIDEAN";
             }
 
             @Override
+            /** 比较 */
             public float compare(float[] a, float[] b) {
                 float sum = 0;
                 for (int i = 0; i < a.length; i++) {
@@ -63,11 +65,13 @@ public interface VectorCompareAlgorithm {
     static VectorCompareAlgorithm cosine() {
         return new VectorCompareAlgorithm() {
             @Override
+            /** Name */
             public String name() {
                 return "COSINE";
             }
 
             @Override
+            /** 比较 */
             public float compare(float[] a, float[] b) {
                 float dot = 0;
                 float na = 0;
@@ -91,11 +95,13 @@ public interface VectorCompareAlgorithm {
     static VectorCompareAlgorithm dotProduct() {
         return new VectorCompareAlgorithm() {
             @Override
+            /** Name */
             public String name() {
                 return "DOT";
             }
 
             @Override
+            /** 比较 */
             public float compare(float[] a, float[] b) {
                 float dot = 0;
                 for (int i = 0; i < a.length; i++) {

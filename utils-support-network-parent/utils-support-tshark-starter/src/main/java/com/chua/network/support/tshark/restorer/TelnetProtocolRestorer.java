@@ -11,16 +11,19 @@ package com.chua.network.support.tshark.restorer;
 public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "telnet";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 60;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length == 0) {
             return false;
@@ -34,6 +37,7 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length == 0) {
             return "[Telnet] empty";
@@ -72,6 +76,7 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString().trim();
     }
 
+    /** ToTelnetCommand */
     private static String toTelnetCommand(int cmd) {
         return switch (cmd) {
             case 0xfb -> "WILL";
@@ -92,6 +97,7 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
+    /** ToTelnetOption */
     private static String toTelnetOption(int option) {
         return switch (option) {
             case 0x00 -> "TRANSMIT-BINARY";

@@ -113,6 +113,7 @@ public class PipelineException extends RuntimeException {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         String s = getClass().getName();
         String message = getLocalizedMessage();

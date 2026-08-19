@@ -28,22 +28,26 @@ public class SimpleTrigger implements Trigger {
     }
 
     @Override
+    /** NextExecutionTime */
     public LocalDateTime nextExecutionTime() {
         return LocalDateTime.now().plus(interval);
     }
 
     @Override
+    /** NextExecutionTime */
     public LocalDateTime nextExecutionTime(LocalDateTime from) {
         return from.plus(interval);
     }
 
     @Override
+    /** 获取FireTimes */
     public List<LocalDateTime> getFireTimes(int count) {
         LocalDateTime base = LocalDateTime.now();
         return getFireTimes(count, base);
     }
 
     @Override
+    /** 获取FireTimes */
     public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
         List<LocalDateTime> times = new ArrayList<>(count);
         LocalDateTime t = from.plus(interval);

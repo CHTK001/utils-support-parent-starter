@@ -52,6 +52,7 @@ public class Kuaidi100ExpressProvider implements ExpressProvider {
     /** HTTP客户端 */
     private final HttpClient httpClient;
 
+    /** 创建 Kuaidi100ExpressProvider 实例 */
     public Kuaidi100ExpressProvider() {
         this(DEFAULT_QUERY, DEFAULT_AUTO);
     }
@@ -69,11 +70,13 @@ public class Kuaidi100ExpressProvider implements ExpressProvider {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "kuaidi100";
     }
 
     @Override
+    /** 查询 */
     public List<ExpressTrace> query(String trackingNo) {
         String company = detect(trackingNo);
         if (company == null || company.isEmpty()) {
@@ -84,6 +87,7 @@ public class Kuaidi100ExpressProvider implements ExpressProvider {
     }
 
     @Override
+    /** 查询 */
     public List<ExpressTrace> query(String companyCode, String trackingNo) {
         String url = String.format(queryUrlTemplate, companyCode, trackingNo);
         try {
@@ -99,6 +103,7 @@ public class Kuaidi100ExpressProvider implements ExpressProvider {
         }
     }
 
+    /** Detect */
     private String detect(String no) {
         try {
             ClientResponse resp = httpClient.get(String.format(autoUrlTemplate, no));
@@ -118,6 +123,7 @@ public class Kuaidi100ExpressProvider implements ExpressProvider {
         return null;
     }
 
+    /** 解析 */
     private List<ExpressTrace> parse(String json) {
         List<ExpressTrace> list = new ArrayList<>();
         try {
@@ -135,6 +141,7 @@ public class Kuaidi100ExpressProvider implements ExpressProvider {
         return list;
     }
 
+    /** Text */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();

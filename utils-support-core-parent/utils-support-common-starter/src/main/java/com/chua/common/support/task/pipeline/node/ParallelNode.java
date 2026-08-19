@@ -182,6 +182,7 @@ public class ParallelNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "parallel";
     }
@@ -314,6 +315,7 @@ public class ParallelNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Env */
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }

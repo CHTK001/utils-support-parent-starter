@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RealWebPhotoTranslator implements Translator<Image, Image> {
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -69,6 +70,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        ");
@@ -104,6 +106,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         //           batchifier                         processInput                    batch       
         return null;

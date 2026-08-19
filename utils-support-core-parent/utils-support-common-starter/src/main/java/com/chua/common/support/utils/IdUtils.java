@@ -363,6 +363,7 @@ public class IdUtils {
         }
     }
 
+    /** CalculateSimpleChecksum */
     private static String calculateSimpleChecksum(String data) {
         var hash = 0;
         for (char c : data.toCharArray()) {

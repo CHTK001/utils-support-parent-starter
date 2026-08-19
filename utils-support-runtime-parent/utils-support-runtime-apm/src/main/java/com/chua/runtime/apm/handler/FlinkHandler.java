@@ -24,31 +24,37 @@ public class FlinkHandler extends AbstractAppHandler {
     private static final String[] STREAM_METHODS = {"execute", "print", "collect", "count", "map", "filter", "flatMap"};
 
     @Override
+    /** Name */
     public String name() {
         return "flink-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "flink.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.FLINK;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(DATA_STREAM, STREAM_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

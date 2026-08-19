@@ -37,6 +37,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     private String unkId = "";
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = openVocab(model)) {
@@ -54,6 +55,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
         unkId = String.valueOf(word2IdDict.size());
     }
 
+    /** 打开Vocab */
     private InputStream openVocab(Model model) throws IOException {
         String[] candidates = {"assets/vocab.txt", "vocab.txt", "word_dict.txt"};
         for (String name : candidates) {
@@ -66,6 +68,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String[] input) {
         NDManager manager = ctx.getNDManager();
         List<Long> lodList = new ArrayList<>();
@@ -82,6 +85,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
         return new NDList(ndArray);
     }
 
+    /** Tokenize */
     private List<Long> tokenize(String[] input, List<Long> lod) {
         List<Long> wordIds = new ArrayList<>();
         for (String word : input) {
@@ -92,6 +96,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
         return wordIds;
     }
 
+    /** Try设置Lod */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
             // Paddle LoD：若运行时为 PpNDArray 则设置
@@ -108,11 +113,13 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.get(0).toFloatArray();
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

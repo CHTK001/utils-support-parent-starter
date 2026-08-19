@@ -51,6 +51,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     private List<String> runtimeLabels = Collections.emptyList();
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws Exception {
         List<String> labels = loadLabels(ctx.getModel().getModelPath());
         if (!labels.isEmpty()) {
@@ -59,6 +60,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -70,6 +72,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() > 1 && logits.getShape().get(0) == 1) {
@@ -91,6 +94,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

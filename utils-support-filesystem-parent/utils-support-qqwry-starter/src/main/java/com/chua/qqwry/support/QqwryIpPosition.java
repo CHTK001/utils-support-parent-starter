@@ -40,6 +40,7 @@ public class QqwryIpPosition implements IpPosition {
     }
 
     @Override
+    /** 查询 */
     public IpLocation query(String ip) {
         return reader.query(ip);
     }

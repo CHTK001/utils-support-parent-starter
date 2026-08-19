@@ -27,6 +27,7 @@ public class WechatFileEngine extends FileEngine {
     private final Map<String, File> loadedFiles = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Override
+    /** 加载 */
     public <T> FileEngine load(String name, File file, String type) {
         loadedFiles.put(name, file);
         return super.load(name, file, type);

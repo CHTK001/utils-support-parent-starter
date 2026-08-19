@@ -45,6 +45,11 @@ public class EmbeddedRedisServer {
      */
     private final int port;
 
+    /**
+     * 创建 EmbeddedRedisServer 实例
+     * @param delegate delegate
+     * @param int int
+     */
     private EmbeddedRedisServer(redis.embedded.RedisServer delegate, int port) {
         this.delegate = delegate;
         this.port = port;

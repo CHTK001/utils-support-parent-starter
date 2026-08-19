@@ -67,6 +67,10 @@ public class MessageRequest {
      */
     private final Map<String, Object> extra;
 
+    /**
+     * 创建 MessageRequest 实例
+     * @param builder builder
+     */
     private MessageRequest(Builder builder) {
         this.to = builder.to;
         this.cc = builder.cc;
@@ -79,6 +83,7 @@ public class MessageRequest {
         this.extra = builder.extra;
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }

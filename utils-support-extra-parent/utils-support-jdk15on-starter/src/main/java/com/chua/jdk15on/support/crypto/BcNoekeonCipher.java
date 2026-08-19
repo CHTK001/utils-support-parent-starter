@@ -36,6 +36,7 @@ public class BcNoekeonCipher implements NoekeonCipher {
     }
 
     @Override
+    /** Encrypt */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
@@ -48,6 +49,7 @@ public class BcNoekeonCipher implements NoekeonCipher {
     }
 
     @Override
+    /** Decrypt */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);

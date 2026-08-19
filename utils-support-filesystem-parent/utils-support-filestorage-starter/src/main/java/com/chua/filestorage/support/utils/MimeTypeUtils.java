@@ -189,6 +189,7 @@ public final class MimeTypeUtils {
         RANGE_SUPPORTED_MIMES = Collections.unmodifiableSet(range);
     }
 
+    /** 创建 MimeTypeUtils 实例 */
     private MimeTypeUtils() {
         throw new AssertionError("No com.chua.filestorage.support.utils.MimeTypeUtils instances for you!");
     }

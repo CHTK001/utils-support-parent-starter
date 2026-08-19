@@ -36,11 +36,16 @@ public class JdkHttpServer extends AbstractServer {
     /** 执行器 */
     private ExecutorService executor;
 
+    /**
+     * 创建 JdkHttpServer 实例
+     * @param setting setting
+     */
     public JdkHttpServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -65,6 +70,7 @@ public class JdkHttpServer extends AbstractServer {
         }
     }
 
+    /** 创建HttpsServer */
     private HttpServer createHttpsServer(InetSocketAddress addr, SSLContext sslContext) {
         try {
             HttpsServer httpsServer = HttpsServer.create(addr, Math.max(setting.getBacklog(), 8192));
@@ -76,6 +82,7 @@ public class JdkHttpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -87,10 +94,12 @@ public class JdkHttpServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
+    /** 处理Exchange */
     private void handleExchange(HttpExchange exchange) {
         HttpServerRequest request = new HttpServerRequest(exchange, setting.getMaxRequestSize(), setting.getCharset());
         HttpServerResponse response = new HttpServerResponse(exchange);

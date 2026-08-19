@@ -50,34 +50,42 @@ public class KvTemplate {
         return engine;
     }
 
+    /** 获取 */
     public String get(String key) {
         return engine.get(key);
     }
 
+    /** Put */
     public void put(String key, String value) {
         engine.put(key, value);
     }
 
+    /** Put */
     public void put(String key, String value, Duration ttl) {
         engine.put(key, value, ttl);
     }
 
+    /** ContainsKey */
     public boolean containsKey(String key) {
         return engine.containsKey(key);
     }
 
+    /** 删除 */
     public boolean delete(String key) {
         return engine.delete(key);
     }
 
+    /** Incr */
     public long incr(String key) {
         return engine.incr(key);
     }
 
+    /** Ttl */
     public long ttl(String key) {
         return engine.ttl(key);
     }
 
+    /** Expire */
     public void expire(String key, long seconds) {
         engine.expire(key, seconds);
     }

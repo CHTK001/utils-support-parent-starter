@@ -24,31 +24,37 @@ public class CuratorHandler extends AbstractAppHandler {
     private static final String[] OPERATIONS = {"create", "delete", "getData", "setData", "getChildren", "checkExists"};
 
     @Override
+    /** Name */
     public String name() {
         return "curator-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "curator.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.CURATOR;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.ZOOKEEPER;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(CURATOR_FRAMEWORK, OPERATIONS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

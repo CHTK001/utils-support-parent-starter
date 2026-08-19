@@ -46,6 +46,12 @@ public class SofaRpcServer implements RpcServer {
      */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
 
+    /**
+     * 创建 SofaRpcServer 实例
+     * @param rpcRegistryConfigs rpcRegistryConfigs
+     * @param RpcProtocolConfig RpcProtocolConfig
+     * @param String String
+     */
     public SofaRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig.setAppName(name);
         for (RpcRegistryConfig config : rpcRegistryConfigs) {
@@ -84,6 +90,7 @@ public class SofaRpcServer implements RpcServer {
         return Paths.get(dir, "sofa-rpc-local-" + safe + ".data").toString();
     }
 
+    /** 初始化Protocol */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) { return; }
         ServerConfig item = new ServerConfig();
@@ -103,6 +110,7 @@ public class SofaRpcServer implements RpcServer {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         state.set(false);
         for (ProviderConfig<?> config : providerConfigs) {
@@ -117,12 +125,14 @@ public class SofaRpcServer implements RpcServer {
     }
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() {
         state.compareAndSet(false, true);
         log.info("SofaRpcServer initialized");
     }
 
     @Override
+    /** 注册 */
     public RpcServer register(String name, Object bean) {
         ProviderConfig<Object> config = new ProviderConfig<>();
         config.setApplication(applicationConfig);

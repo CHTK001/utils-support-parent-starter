@@ -17,43 +17,54 @@ public class OnnxLivenessDetector implements LivenessDetector {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxLivenessDetector 实例
+     * @param apiKey apiKey
+     */
     public OnnxLivenessDetector(String apiKey) {
     }
 
     @Override
+    /** Model */
     public LivenessDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "face-liveness-flrgb";
     }
 
     @Override
+    /** Threshold */
     public LivenessDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public LivenessDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Device */
     public LivenessDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** 是否Live */
     public boolean isLive(byte[] imageData) {
         return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).isLive(imageData);
     }
 
     @Override
+    /** LiveScore */
     public float liveScore(byte[] imageData) {
         return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).liveScore(imageData);
     }

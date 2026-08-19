@@ -91,6 +91,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         this.modelName = modelName;
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -159,11 +160,13 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     @Override
+    /** Name */
     public String name() {
         return modelName;
     }
 
     @Override
+    /** Translate */
     public String translate(byte[] imageData) {
         try {
             prepare();
@@ -173,6 +176,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         }
     }
 
+    /** Recognize */
     private String recognize(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -248,6 +252,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         return sb.toString();
     }
 
+    /** Arg最大值 */
     private int argMax(float[] arr) {
         int idx = 0;
         float best = arr[0];

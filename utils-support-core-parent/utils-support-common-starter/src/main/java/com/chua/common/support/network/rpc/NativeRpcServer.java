@@ -140,6 +140,7 @@ public class NativeRpcServer implements RpcServer {
     }
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() {
         // 传输层只负责帧收发，RPC 语义（反序列化/方法调用/序列化）在这里挂接
         ServerSetting serverSetting = ServerSetting.defaults();
@@ -172,6 +173,7 @@ public class NativeRpcServer implements RpcServer {
         }
     }
 
+    /** 初始化ServiceDiscovery */
     private void initServiceDiscovery() {
         if (registryConfigs == null || registryConfigs.isEmpty()) {
             return;
@@ -195,6 +197,7 @@ public class NativeRpcServer implements RpcServer {
         }
     }
 
+    /** 调用 */
     private RpcResponse invoke(RpcRequest request) {
         RpcResponse response = new RpcResponse();
         try {
@@ -252,6 +255,7 @@ public class NativeRpcServer implements RpcServer {
         return types;
     }
 
+    /** 构建记录错误Response */
     private RpcResponse buildErrorResponse(Exception e) {
         RpcResponse err = new RpcResponse();
         err.setSuccess(false);
@@ -260,6 +264,7 @@ public class NativeRpcServer implements RpcServer {
     }
 
     @Override
+    /** 注册 */
     public RpcServer register(String name, Object bean) {
         services.put(name, bean);
         LOCAL_SERVICES.put(name, bean);
@@ -279,6 +284,7 @@ public class NativeRpcServer implements RpcServer {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (tcpServer != null) {
             try {
@@ -306,6 +312,7 @@ public class NativeRpcServer implements RpcServer {
      */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override
+        /** 判断相等 */
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -318,6 +325,7 @@ public class NativeRpcServer implements RpcServer {
         }
 
         @Override
+        /** HashCode */
         public int hashCode() {
             int result = service.hashCode();
             result = 31 * result + method.hashCode();

@@ -120,6 +120,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** 保存Task */
     public void saveTask(Task<?> task, TaskStatus status) {
         if (task == null || task.getTaskId() == null) {
             return;
@@ -130,6 +131,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** 更新Status */
     public void updateStatus(String taskId, TaskStatus status) {
         if (taskId != null) {
             statusCache.put(taskId, status);
@@ -137,6 +139,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** 保存Result */
     public void saveResult(TaskResult<?> result) {
         if (result == null || result.getTaskId() == null) {
             return;
@@ -151,6 +154,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** 获取Status */
     public TaskStatus getStatus(String taskId) {
         TaskStatus status = statusCache.get(taskId);
         if (status != null) {
@@ -178,6 +182,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** 移除Task */
     public void removeTask(String taskId) {
         taskCache.remove(taskId);
         statusCache.remove(taskId);
@@ -191,6 +196,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** Clear */
     public void clear() {
         taskCache.clear();
         statusCache.clear();
@@ -204,6 +210,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         clear();
     }

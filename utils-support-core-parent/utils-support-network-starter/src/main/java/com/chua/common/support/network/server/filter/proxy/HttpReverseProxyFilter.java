@@ -50,21 +50,25 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     private HttpClient httpClient;
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 50;
     }
 
     @Override
+    /** SupportPath */
     public String supportPath() {
         return null;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         this.httpClient = vertx.createHttpClient(new HttpClientOptions()
@@ -74,6 +78,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         if (httpClient != null) {
             httpClient.close();
@@ -84,6 +89,12 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -95,6 +106,12 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -106,6 +123,13 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         return future;
     }
 
+    /**
+     * ProxyAsync
+     * @param discovery discovery
+     * @param request request
+     * @param response response
+     * @param completionFuture completionFuture
+     */
     private void proxyAsync(Discovery discovery, ServerRequest request, ServerResponse response,
                             CompletableFuture<Void> completionFuture) {
         String host = discovery.getHost();
@@ -139,6 +163,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
                 });
     }
 
+    /** 复制Headers */
     private void copyHeaders(ServerRequest request, HttpClientRequest req) {
         if (request.getHeaders() != null) {
             for (Map.Entry<String, String> entry : request.getHeaders().toMap().entrySet()) {
@@ -152,6 +177,12 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         }
     }
 
+    /**
+     * 处理BackendResponse
+     * @param resp resp
+     * @param response response
+     * @param completionFuture completionFuture
+     */
     private void handleBackendResponse(HttpClientResponse resp, ServerResponse response,
                                        CompletableFuture<Void> completionFuture) {
         if (response.isEnded()) {
@@ -185,6 +216,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
                 });
     }
 
+    /** ExtractPath */
     private String extractPath(ServerRequest request) {
         String path = request.getPath();
         if (path == null) {
@@ -197,6 +229,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         return path;
     }
 
+    /** 发送记录错误 */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);
@@ -205,12 +238,14 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         }
     }
 
+    /** Complete */
     private static void complete(CompletableFuture<Void> future, Void value) {
         if (future != null) {
             future.complete(value);
         }
     }
 
+    /** CompleteExceptionally */
     private static void completeExceptionally(CompletableFuture<Void> future, Throwable cause) {
         if (future != null) {
             future.completeExceptionally(cause);

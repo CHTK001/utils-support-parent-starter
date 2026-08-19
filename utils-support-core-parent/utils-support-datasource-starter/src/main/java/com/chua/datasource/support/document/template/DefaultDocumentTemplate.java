@@ -20,16 +20,19 @@ import com.chua.common.support.spi.annotations.SpiDefault;
 public class DefaultDocumentTemplate extends AbstractClasspathDocumentTemplate {
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "default";
     }
 
     @Override
+    /** HtmlTemplatePath */
     protected String htmlTemplatePath() {
         return "document/templates/default/index.html";
     }
 
     @Override
+    /** MarkdownTemplatePath */
     protected String markdownTemplatePath() {
         return "document/templates/default/document.markdown";
     }

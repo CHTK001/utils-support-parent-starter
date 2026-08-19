@@ -42,6 +42,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
+    /** 是否Supported */
     public boolean isSupported(String sourceType, String targetType) {
         if (!SOURCE_TYPE.equals(sourceType)) {
             return false;
@@ -50,6 +51,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     }
 
     @Override
+    /** 转换 */
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try {
             File ibdFile = toFile(source);

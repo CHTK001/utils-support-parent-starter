@@ -256,30 +256,35 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
+    /** Threshold */
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** Nms */
     public FaceDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
+    /** 最小值Face获取大小 */
     public FaceDetector minFaceSize(int size) {
         this.minFaceSize = size;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceDetector device(String device) {
         this.device = device;
         return this;
@@ -287,6 +292,7 @@ class DefaultFaceDetector implements FaceDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);
@@ -297,6 +303,7 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
+    /** DetectInfo */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         List<PredictRectangle> raw = detect(imageData);
         if (raw == null) {
@@ -316,6 +323,7 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
+    /** Face计算数量 */
     public int faceCount(byte[] imageData) {
         return detect(imageData).size();
     }

@@ -52,6 +52,7 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
     /** 会话 */
     private OrtSession session;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -67,11 +68,13 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         log.info("[doc-orientation] ONNX loaded: {}", modelPath.getFileName());
     }
     @Override
+    /** Name */
     public String name() {
         return "doc-orientation";
     }
 
     @Override
+    /** Translate */
     public DirectionInfo translate(byte[] imageData) {
         try {
             prepare();
@@ -81,6 +84,7 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         }
     }
 
+    /** Classify */
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();

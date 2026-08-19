@@ -160,12 +160,14 @@ class DefaultTextTranslator implements TextTranslator {
     }
 
     @Override
+    /** ModelPath */
     public TextTranslator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public TextTranslator device(String device) {
         this.device = device;
         return this;
@@ -173,6 +175,7 @@ class DefaultTextTranslator implements TextTranslator {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Translate */
     public String translate(String text) {
         ITranslator<String, String> t =
                 (ITranslator<String, String>) engine.get(modelName, ITranslator.class);

@@ -38,6 +38,7 @@ class ScatterTcpClusterSceneTest {
         SyncServer syncServer = nodeServer.getSyncServer();
         syncServer.addListener(new SyncServerListener() {
             @Override
+            /** OnMessage */
             public void onMessage(String clientId, String messageTopic, Object message) {
                 if (!"sync/request".equals(messageTopic) || message == null) {
                     return;

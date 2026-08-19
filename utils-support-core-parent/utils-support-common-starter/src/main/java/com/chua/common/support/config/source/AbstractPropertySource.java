@@ -48,6 +48,7 @@ public abstract class AbstractPropertySource implements PropertySource {
     protected abstract Object getSource();
 
     @Override
+    /** 获取Property */
     public Object getProperty(String key) {
         if (key == null || key.isEmpty()) {
             return null;

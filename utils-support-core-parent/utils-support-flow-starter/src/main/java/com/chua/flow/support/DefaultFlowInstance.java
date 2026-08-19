@@ -128,21 +128,25 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
+    /** 获取InstanceId */
     public String getInstanceId() {
         return instanceId;
     }
 
     @Override
+    /** 获取FlowId */
     public String getFlowId() {
         return flow.getId();
     }
 
     @Override
+    /** 获取Status */
     public FlowStatus getStatus() {
         return status;
     }
 
     @Override
+    /** 运行 */
     public FlowInstance run() {
         if (!initialParams.isEmpty()) {
             return run(initialParams);
@@ -151,6 +155,7 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
+    /** 运行 */
     public synchronized FlowInstance run(Map<String, Object> params) {
         checkRunnable();
         // 首次运行创建唯一上下文，并放入起始节点
@@ -166,6 +171,7 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
+    /** 恢复 */
     public synchronized FlowInstance resume() {
         if (status != FlowStatus.WAITED) {
             throw new IllegalStateException("实例未挂起，无法恢复: " + status);
@@ -176,6 +182,7 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
+    /** Terminate */
     public synchronized void terminate() {
         if (status == FlowStatus.COMPLETED || status == FlowStatus.TERMINATED
                 || status == FlowStatus.FAILED) {
@@ -186,11 +193,13 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
+    /** 是否Completed */
     public boolean isCompleted() {
         return status == FlowStatus.COMPLETED;
     }
 
     @Override
+    /** 获取Context */
     public FlowContext getContext() {
         return context;
     }

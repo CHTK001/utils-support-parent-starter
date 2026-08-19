@@ -16,36 +16,43 @@ public class ClickHouse20Dialect extends AbstractDialect {
     public static final String VERSION = "ClickHouse 20.x";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return "clickhouse20";
     }
 
     @Override
+    /** Driver */
     public String driver() {
         return "ru.yandex.clickhouse.ClickHouseDriver";
     }
 
     @Override
+    /** Url */
     public String url() {
         return "jdbc:clickhouse://<IP>:<PORT>/<DATABASE>";
     }
 
     @Override
+    /** 打开Quote */
     public char openQuote() {
         return '`';
     }
 
     @Override
+    /** 关闭Quote */
     public char closeQuote() {
         return '`';
     }
 
     @Override
+    /** 处理Sql */
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
     @Override
+    /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         return switch (jdbcType) {
             case java.sql.Types.INTEGER -> "Int32";
@@ -70,16 +77,19 @@ public class ClickHouse20Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取AlterColumnString */
     public String getAlterColumnString() {
         return "MODIFY COLUMN";
     }
 
     @Override
+    /** 获取CurrentTimestamp选择String */
     public String getCurrentTimestampSelectString() {
         return "SELECT NOW()";
     }
 
     @Override
+    /** SupportsPartition */
     public boolean supportsPartition() {
         return true;
     }

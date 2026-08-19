@@ -45,9 +45,11 @@ public final class NeteaseCryptoSupport {
     /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    /** 创建 NeteaseCryptoSupport 实例 */
     private NeteaseCryptoSupport() {
     }
 
+    /** Weapi */
     public static Map<String, String> weapi(Object payload) {
         byte[] secretKey = randomSecretKey();
         String text = toJson(payload);
@@ -63,6 +65,7 @@ public final class NeteaseCryptoSupport {
         return result;
     }
 
+    /** Linuxapi */
     public static Map<String, String> linuxapi(Object payload) {
         String text = toJson(payload);
         byte[] encrypted = aes("AES/ECB/PKCS5Padding",
@@ -75,6 +78,7 @@ public final class NeteaseCryptoSupport {
         return result;
     }
 
+    /** Eapi */
     public static Map<String, String> eapi(String url, Object payload) {
         String text = payload instanceof String ? payload.toString() : toJson(payload);
         String message = "nobody" + url + "use" + text + "md5forencrypt";
@@ -90,6 +94,7 @@ public final class NeteaseCryptoSupport {
         return result;
     }
 
+    /** ToJson */
     private static String toJson(Object payload) {
         try {
             return MAPPER.writeValueAsString(payload);
@@ -98,6 +103,7 @@ public final class NeteaseCryptoSupport {
         }
     }
 
+    /** RandomSecretKey */
     private static byte[] randomSecretKey() {
         byte[] secret = new byte[16];
         for (int index = 0; index < secret.length; index++) {
@@ -106,6 +112,7 @@ public final class NeteaseCryptoSupport {
         return secret;
     }
 
+    /** RsaNoPadding */
     private static String rsaNoPadding(byte[] text) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -126,6 +133,7 @@ public final class NeteaseCryptoSupport {
         }
     }
 
+    /** Aes */
     private static byte[] aes(String transformation, byte[] content, byte[] key, byte[] iv, int mode) {
         try {
             Cipher cipher = Cipher.getInstance(transformation);
@@ -141,6 +149,7 @@ public final class NeteaseCryptoSupport {
         }
     }
 
+    /** Md */
     private static String md5(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -150,6 +159,7 @@ public final class NeteaseCryptoSupport {
         }
     }
 
+    /** ToHex */
     private static String toHex(byte[] bytes) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (byte value : bytes) {
@@ -158,6 +168,7 @@ public final class NeteaseCryptoSupport {
         return builder.toString();
     }
 
+    /** Reverse */
     private static byte[] reverse(byte[] value) {
         byte[] result = value.clone();
         for (int left = 0, right = result.length - 1; left < right; left++, right--) {

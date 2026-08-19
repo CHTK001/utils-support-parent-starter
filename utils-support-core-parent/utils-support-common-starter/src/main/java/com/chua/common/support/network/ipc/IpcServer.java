@@ -33,16 +33,19 @@ public class IpcServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.IPC;
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         // 路由由 IpcServerFilter 在构造时自动发现
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
     }
 

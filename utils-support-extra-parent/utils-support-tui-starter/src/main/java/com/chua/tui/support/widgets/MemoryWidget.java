@@ -38,6 +38,7 @@ public class MemoryWidget extends TuiWidget {
     }
 
     @Override
+    /** Render */
     public String render(String data) {
         String[] parts = parseData(data);
         double usage = Double.parseDouble(parts[0]);
@@ -54,6 +55,7 @@ public class MemoryWidget extends TuiWidget {
     }
 
     @Override
+    /** 获取DefaultData */
     protected String getDefaultData() {
         return "0.0|0|16";
     }

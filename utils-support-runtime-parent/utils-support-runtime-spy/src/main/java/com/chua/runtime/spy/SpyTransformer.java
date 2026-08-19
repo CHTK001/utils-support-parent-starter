@@ -216,6 +216,14 @@ public class SpyTransformer implements ClassFileTransformer {
     }
 
     @Override
+    /**
+     * Transform
+     * @param loader loader
+     * @param className className
+     * @param classBeingRedefined classBeingRedefined
+     * @param protectionDomain protectionDomain
+     * @param classfileBuffer classfileBuffer
+     */
     public byte[] transform(ClassLoader loader,
                             String className,
                             Class<?> classBeingRedefined,
@@ -296,6 +304,7 @@ public class SpyTransformer implements ClassFileTransformer {
         }
 
         @Override
+        /** 获取CommonSuperClass */
         protected String getCommonSuperClass(String type1, String type2) {
             ClassLoader loader = targetLoader != null
                     ? targetLoader : ClassLoader.getSystemClassLoader();
@@ -429,6 +438,14 @@ public class SpyTransformer implements ClassFileTransformer {
         }
 
         @Override
+        /**
+         * VisitMethod
+         * @param access access
+         * @param name name
+         * @param descriptor descriptor
+         * @param signature signature
+         * @param exceptions exceptions
+         */
         public MethodVisitor visitMethod(int access, String name, String descriptor,
                                          String signature, String[] exceptions) {
             MethodVisitor mv = cv.visitMethod(access, name, descriptor, signature, exceptions);
@@ -530,6 +547,7 @@ public class SpyTransformer implements ClassFileTransformer {
         }
 
         @Override
+        /** OnMethodEnter */
         protected void onMethodEnter() {
             // 标记 try 范围起点（异常插桩需要）
             if (points.contains(InterceptPoint.EXCEPTION)) {
@@ -545,6 +563,7 @@ public class SpyTransformer implements ClassFileTransformer {
         }
 
         @Override
+        /** OnMethodExit */
         protected void onMethodExit(int opcode) {
             // 非 void 返回值方法：先把返回值存入临时 local，插入插桩调用后再恢复，
             // 否则 long/double 等两槽返回值会与 onIntercept 参数压栈冲突导致 VerifyError
@@ -588,6 +607,7 @@ public class SpyTransformer implements ClassFileTransformer {
         }
 
         @Override
+        /** VisitMaxs */
         public void visitMaxs(int maxStack, int maxLocals) {
             // 异常处理：插入 EXCEPTION 插桩后重新抛出
             if (points.contains(InterceptPoint.EXCEPTION)) {

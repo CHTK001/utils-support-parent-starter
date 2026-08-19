@@ -19,14 +19,20 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
     /** 单位宽度 */
     private int unitWidth = 54;
 
+    /** 创建 RoundRectangleCodeEyeResolver 实例 */
     public RoundRectangleCodeEyeResolver() {
     }
 
+    /**
+     * 创建 RoundRectangleCodeEyeResolver 实例
+     * @param unitWidth unitWidth
+     */
     public RoundRectangleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;
     }
 
     @Override
+    /** 解析 */
     public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version) {
         // 添加一层遮罩
         g.setColor(lb);

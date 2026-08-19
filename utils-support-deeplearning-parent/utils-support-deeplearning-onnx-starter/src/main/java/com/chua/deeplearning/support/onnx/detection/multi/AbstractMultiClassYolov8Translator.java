@@ -77,10 +77,17 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     /** 图片高度 */
     private int imageHeight;
 
+    /** 创建 AbstractMultiClassYolov8Translator 实例 */
     protected AbstractMultiClassYolov8Translator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD);
     }
 
+    /**
+     * 创建 AbstractMultiClassYolov8Translator 实例
+     * @param inputSize inputSize
+     * @param float float
+     * @param float float
+     */
     protected AbstractMultiClassYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         if (inputSize <= 0) {
             throw new IllegalArgumentException("inputSize 必须 > 0: " + inputSize);
@@ -116,6 +123,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
         return classes;
     }
 
+    /** 加载ClassNames */
     private List<String> loadClassNames() {
         List<String> result = new ArrayList<>();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(classNamesResourcePath())) {
@@ -146,6 +154,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -158,6 +167,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.get(0);
 
@@ -268,6 +278,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
@@ -279,10 +290,12 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
         return inputSize;
     }
 
+    /** Sigmoid */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
+    /** ToNormalizedChw */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

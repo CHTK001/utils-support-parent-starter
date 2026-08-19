@@ -8,6 +8,7 @@ package com.chua.solr.support.engine;
  */
 public class SolrFields {
 
+    /** 创建 SolrFields 实例 */
     private SolrFields() {}
 
     /** ID */

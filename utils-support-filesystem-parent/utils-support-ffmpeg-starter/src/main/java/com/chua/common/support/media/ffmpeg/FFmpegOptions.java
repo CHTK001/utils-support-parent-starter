@@ -67,51 +67,87 @@ public class FFmpegOptions {
      */
     private long timeout;
 
+    /** DefaultOptions */
     public static FFmpegOptions defaultOptions() { return new FFmpegOptions(); }
 
+    /** HighQuality */
     public static FFmpegOptions highQuality() {
         FFmpegOptions o = new FFmpegOptions();
         o.videoCodec = "libx264"; o.quality = 18; o.preset = "slow"; o.audioBitrate = "320k";
         return o;
     }
 
+    /** WebOptimized */
     public static FFmpegOptions webOptimized() {
         FFmpegOptions o = new FFmpegOptions();
         o.videoCodec = "libx264"; o.audioCodec = "aac"; o.quality = 23; o.preset = "fast"; o.pixelFormat = "yuv420p";
         return o;
     }
 
+    /** 获取VideoCodec */
     public String getVideoCodec() { return videoCodec; }
+    /** 设置VideoCodec */
     public void setVideoCodec(String videoCodec) { this.videoCodec = videoCodec; }
+    /** 获取AudioCodec */
     public String getAudioCodec() { return audioCodec; }
+    /** 设置AudioCodec */
     public void setAudioCodec(String audioCodec) { this.audioCodec = audioCodec; }
+    /** 获取VideoBitrate */
     public String getVideoBitrate() { return videoBitrate; }
+    /** 设置VideoBitrate */
     public void setVideoBitrate(String videoBitrate) { this.videoBitrate = videoBitrate; }
+    /** 获取AudioBitrate */
     public String getAudioBitrate() { return audioBitrate; }
+    /** 设置AudioBitrate */
     public void setAudioBitrate(String audioBitrate) { this.audioBitrate = audioBitrate; }
+    /** 获取Fps */
     public Integer getFps() { return fps; }
+    /** 设置Fps */
     public void setFps(Integer fps) { this.fps = fps; }
+    /** 获取Width */
     public Integer getWidth() { return width; }
+    /** 设置Width */
     public void setWidth(Integer width) { this.width = width; }
+    /** 获取Height */
     public Integer getHeight() { return height; }
+    /** 设置Height */
     public void setHeight(Integer height) { this.height = height; }
+    /** 获取AudioSampleRate */
     public Integer getAudioSampleRate() { return audioSampleRate; }
+    /** 设置AudioSampleRate */
     public void setAudioSampleRate(Integer audioSampleRate) { this.audioSampleRate = audioSampleRate; }
+    /** 获取AudioChannels */
     public Integer getAudioChannels() { return audioChannels; }
+    /** 设置AudioChannels */
     public void setAudioChannels(Integer audioChannels) { this.audioChannels = audioChannels; }
+    /** 获取Quality */
     public Integer getQuality() { return quality; }
+    /** 设置Quality */
     public void setQuality(Integer quality) { this.quality = quality; }
+    /** 获取Preset */
     public String getPreset() { return preset; }
+    /** 设置Preset */
     public void setPreset(String preset) { this.preset = preset; }
+    /** 获取Pixel格式化 */
     public String getPixelFormat() { return pixelFormat; }
+    /** 是否Mute */
     public boolean isMute() { return mute; }
+    /** 设置Mute */
     public void setMute(boolean mute) { this.mute = mute; }
+    /** 是否移除Video */
     public boolean isRemoveVideo() { return removeVideo; }
+    /** 设置移除Video */
     public void setRemoveVideo(boolean removeVideo) { this.removeVideo = removeVideo; }
+    /** 是否移除Audio */
     public boolean isRemoveAudio() { return removeAudio; }
+    /** 设置移除Audio */
     public void setRemoveAudio(boolean removeAudio) { this.removeAudio = removeAudio; }
+    /** 是否Overwrite */
     public boolean isOverwrite() { return overwrite; }
+    /** 设置Overwrite */
     public void setOverwrite(boolean overwrite) { this.overwrite = overwrite; }
+    /** 获取Timeout */
     public long getTimeout() { return timeout; }
+    /** 设置Timeout */
     public void setTimeout(long timeout) { this.timeout = timeout; }
 }

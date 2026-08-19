@@ -76,11 +76,13 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     }
 
     @Override
+    /** 是否DelegatedOperatingSystem */
     public boolean isDelegatedOperatingSystem() {
         return false;
     }
 
     @Override
+    /** ListAndModified */
     protected List<SnapshotWrapper> listAndModified(String path) {
         String json = nativeLib.poll();
         if (json == null || json.isEmpty()) {
@@ -102,11 +104,13 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     }
 
     @Override
+    /** 获取FileName */
     protected String getFileName(SnapshotWrapper item) {
         return String.valueOf(item.getTimestamp());
     }
 
     @Override
+    /** 获取Modified */
     protected Long getModified(SnapshotWrapper item) {
         return item.getTimestamp();
     }
@@ -125,6 +129,7 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (nativeLib != null) {
             nativeLib.close();

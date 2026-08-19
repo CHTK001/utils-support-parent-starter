@@ -28,16 +28,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Spi("jaffree")
 public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
+    /** 获取BinDir */
     private Path getBinDir() {
         return ffmpegFile.getParentFile().toPath();
     }
 
     @Override
+    /** 转换Video */
     public void convertVideo(File input, File output, String targetFormat) throws IOException {
         convertVideo(input, output, targetFormat, FFmpegOptions.defaultOptions());
     }
 
     @Override
+    /** 转换Video */
     public void convertVideo(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -51,6 +54,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /**
+     * 转换Video
+     * @param inputStream inputStream
+     * @param outputStream outputStream
+     * @param inputFormat inputFormat
+     * @param outputFormat outputFormat
+     */
     public void convertVideo(InputStream inputStream, OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
         if (!available) {
@@ -63,11 +73,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 转换Audio */
     public void convertAudio(File input, File output, String targetFormat) throws IOException {
         convertAudio(input, output, targetFormat, FFmpegOptions.defaultOptions());
     }
 
     @Override
+    /** 转换Audio */
     public void convertAudio(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -81,6 +93,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** ExtractAudio */
     public void extractAudio(File videoInput, File audioOutput, String audioFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -93,6 +106,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** CaptureFrame */
     public void captureFrame(File videoInput, File imageOutput, double timestamp) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -105,6 +119,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** CaptureFrames */
     public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -119,12 +134,14 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** GenerateThumbnail */
     public void generateThumbnail(File videoInput, File imageOutput, int width, int height) throws IOException {
         double duration = getDuration(videoInput);
         captureFrame(videoInput, imageOutput, duration / 2);
     }
 
     @Override
+    /** 去空格 */
     public void trim(File input, File output, double startTime, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -139,6 +156,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** Concat */
     public void concat(File[] inputs, File output) throws IOException {
         if (!available || inputs == null || inputs.length == 0) {
             return;
@@ -159,6 +177,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 调整大小 */
     public void resize(File input, File output, int width, int height) throws IOException {
         FFmpegOptions opts = new FFmpegOptions();
         opts.setWidth(width); opts.setHeight(height);
@@ -166,6 +185,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** Rotate */
     public void rotate(File input, File output, int angle) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -184,6 +204,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 添加Watermark */
     public void addWatermark(File videoInput, File watermarkFile, File output, int x, int y) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -198,6 +219,15 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /**
+     * VideoToGif
+     * @param videoInput videoInput
+     * @param gifOutput gifOutput
+     * @param startTime startTime
+     * @param duration duration
+     * @param width width
+     * @param fps fps
+     */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
         if (!available) {
@@ -214,6 +244,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** ImagesToVideo */
     public void imagesToVideo(File imageDir, File videoOutput, int fps, String imagePattern) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -229,6 +260,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 推送Stream */
     public void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -248,6 +280,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /**
+     * 推送流式输出
+     * @param input input
+     * @param streamUrl streamUrl
+     * @param options options
+     * @param callback callback
+     */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -276,6 +315,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /**
+     * 推送流式输出设置Frames
+     * @param input input
+     * @param streamUrl streamUrl
+     * @param options options
+     * @param callback callback
+     */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
         // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 ProgressListener 提供帧号和时间戳
@@ -283,6 +329,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 拉取Stream */
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -299,6 +346,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /**
+     * 拉取流式输出
+     * @param streamUrl streamUrl
+     * @param output output
+     * @param duration duration
+     * @param callback callback
+     */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -324,6 +378,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /**
+     * 拉取流式输出设置Frames
+     * @param streamUrl streamUrl
+     * @param output output
+     * @param duration duration
+     * @param callback callback
+     */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
         // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 ProgressListener 提供帧号和时间戳
@@ -331,6 +392,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 获取MediaInfo */
     public FFmpegMediaInfo getMediaInfo(File input) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -370,16 +432,19 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
+    /** 获取Duration */
     public double getDuration(File input) throws IOException {
         return getMediaInfo(input).getDuration();
     }
 
     @Override
+    /** 获取Version */
     public String getVersion() {
         return "Jaffree FFmpeg Processor";
     }
 
     @Override
+    /** 执行 */
     public FFmpegResult execute(String... args) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -400,6 +465,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
         return r;
     }
 
+    /** 构建Output */
     private UrlOutput buildOutput(java.nio.file.Path path, String format, String... extra) {
         UrlOutput out = UrlOutput.toPath(path);
         if (format != null) {
@@ -411,10 +477,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
         return out;
     }
 
+    /** Resolv格式化 */
     private String resolvFormat(File output) {
         String n = output.getName(); int d = n.lastIndexOf('.'); return d > 0 ? n.substring(d + 1) : null;
     }
 
+    /** Resolv格式化 */
     private String resolvFormat(String targetFormat, FFmpegOptions opts) {
         return targetFormat != null ? targetFormat : "mp3";
     }

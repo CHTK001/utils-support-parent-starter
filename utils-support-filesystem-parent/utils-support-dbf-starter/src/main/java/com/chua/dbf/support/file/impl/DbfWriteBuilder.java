@@ -17,11 +17,16 @@ import java.util.Map;
 
 public class DbfWriteBuilder extends WriteBuilder {
 
+    /**
+     * 创建 DbfWriteBuilder 实例
+     * @param file file
+     */
     public DbfWriteBuilder(File file) {
         super(file);
     }
 
     @Override
+    /** 写入 */
     public DbfWriteBuilder write(Object data) {
         if (data instanceof Map || data instanceof List) {
             pending.add(data);
@@ -31,12 +36,14 @@ public class DbfWriteBuilder extends WriteBuilder {
         return this;
     }
 
+    /** 写入 */
     public void write(List<Map<String, Object>> rows) {
         pending.add(rows);
         finish();
     }
 
     @Override
+    /** Finish */
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
@@ -84,6 +91,7 @@ public class DbfWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** 解析Columns */
     private List<String> resolveColumns(List<Map<String, Object>> rows) {
         if (headerColumns != null) {
             return headerColumns;

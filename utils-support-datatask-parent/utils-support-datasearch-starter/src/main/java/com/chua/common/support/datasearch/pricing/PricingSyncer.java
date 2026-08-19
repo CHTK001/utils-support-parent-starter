@@ -36,6 +36,7 @@ public final class PricingSyncer {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(PricingSyncer.class);
 
+    /** 创建 PricingSyncer 实例 */
     private PricingSyncer() {
     }
 

@@ -24,31 +24,37 @@ public class JettyHandler extends AbstractAppHandler {
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override
+    /** Name */
     public String name() {
         return "jetty-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "jetty.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.JETTY;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(SERVER, HANDLE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

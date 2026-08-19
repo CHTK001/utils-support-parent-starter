@@ -24,50 +24,62 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxSpeechSynthesizer 实例
+     * @param apiKey apiKey
+     */
     public OnnxSpeechSynthesizer(String apiKey) {
     }
 
     @Override
+    /** Model */
     public SpeechSynthesizer model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "mms-tts-eng";
     }
 
     @Override
+    /** Lang */
     public SpeechSynthesizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public SpeechSynthesizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Speed */
     public SpeechSynthesizer speed(float speed) {
         this.speed = speed;
         return this;
     }
 
     @Override
+    /** Pitch */
     public SpeechSynthesizer pitch(float pitch) {
         this.pitch = pitch;
         return this;
     }
 
     @Override
+    /** Device */
     public SpeechSynthesizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Synthesize */
     public byte[] synthesize(String text) {
         return SpeechSynthesizer.create(resolveModel()).lang(lang).modelPath(modelPath).speed(speed).pitch(pitch).device(device).synthesize(text);
     }

@@ -48,6 +48,7 @@ public class RuntimeAgent {
      */
     private static volatile boolean started;
 
+    /** 创建 RuntimeAgent 实例 */
     private RuntimeAgent() {
     }
 

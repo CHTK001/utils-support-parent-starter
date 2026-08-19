@@ -59,6 +59,10 @@ public class MinioFileStorage extends AbstractFileStorage {
     /** Minio客户端 */
     private final MinioClient minioClient;
 
+    /**
+     * 创建 MinioFileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public MinioFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.minioClient = MinioClient.builder()
@@ -69,6 +73,7 @@ public class MinioFileStorage extends AbstractFileStorage {
         ensureBucket();
     }
 
+    /** EnsureBucket */
     private void ensureBucket() {
         try {
             boolean exists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
@@ -80,6 +85,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** PutObject */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -109,6 +115,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -142,6 +149,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -149,6 +157,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 删除Object */
     public DeleteObjectResult deleteObject(String key) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -167,6 +176,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ExistObject */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             minioClient.statObject(StatObjectArgs.builder()
@@ -187,6 +197,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ListObject */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             List<Metadata> metadataList = new ArrayList<>();
@@ -231,6 +242,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // MinioClient 实现了 AutoCloseable，调用其 close 方法释放资源
         if (minioClient != null) {

@@ -25,10 +25,12 @@ public class PaddleModelRegistrar implements ModelRegistrar {
     }
 
     @Override
+    /** 注册 */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
+    /** 注册All */
     private static void registerAll() {
         // 分类
         reg("paddle-animal",
@@ -102,6 +104,15 @@ public class PaddleModelRegistrar implements ModelRegistrar {
 
         }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {

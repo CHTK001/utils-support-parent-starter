@@ -24,6 +24,7 @@ import java.util.List;
 public class CsvTextExtractor implements TextExtractor {
 
     @Override
+    /** ExtractText */
     public List<TextExtractResult> extractText(File file) {
         StringBuilder sb = new StringBuilder();
 
@@ -54,6 +55,7 @@ public class CsvTextExtractor implements TextExtractor {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "csv";
     }

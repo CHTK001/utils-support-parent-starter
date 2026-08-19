@@ -16,14 +16,20 @@ public class DataRecovery {
     /** Device路径 */
     private final String devicePath;
 
+    /**
+     * 创建 DataRecovery 实例
+     * @param devicePath devicePath
+     */
     private DataRecovery(String devicePath) {
         this.devicePath = devicePath;
     }
 
+    /** Of */
     public static DataRecovery of(String devicePath) {
         return new DataRecovery(normalizeDevicePath(devicePath));
     }
 
+    /** NormalizeDevicePath */
     private static String normalizeDevicePath(String path) {
         if (path == null || path.isEmpty()) {
             return path;
@@ -40,6 +46,7 @@ public class DataRecovery {
         return path;
     }
 
+    /** Callback */
     public DataRecovery callback(RecoveryCallback callback) {
         this.callback = callback;
         return this;
@@ -114,43 +121,55 @@ public class DataRecovery {
         public String reason;
     }
 
+    /** 扫描 */
     public ScanResult scan(int scanMode) {
         String json = nativeScan(devicePath, scanMode);
         return parse(json, ScanResult.class);
     }
 
+    /** 扫描AndRecover */
     public ScanResult scanAndRecover(int scanMode, String outputDir) {
         String json = nativeScanAndRecover(devicePath, scanMode, outputDir);
         return parse(json, ScanResult.class);
     }
 
+    /** Recover */
     public RecoverResult recover(String[] filePaths, String outputDir, boolean preserveStructure) {
         String json = nativeRecover(devicePath, filePaths, outputDir, preserveStructure);
         return parse(json, RecoverResult.class);
     }
 
+    /** Permanent删除 */
     public DeleteResult permanentDelete(String filePath, String method) {
         String json = nativeDelete(devicePath, filePath, method);
         return parse(json, DeleteResult.class);
     }
 
+    /** 扫描Async */
     public CompletableFuture<ScanResult> scanAsync(int scanMode) {
         return CompletableFuture.supplyAsync(() -> scan(scanMode));
     }
 
+    /** RecoverAsync */
     public CompletableFuture<RecoverResult> recoverAsync(String[] filePaths, String outputDir, boolean preserveStructure) {
         return CompletableFuture.supplyAsync(() -> recover(filePaths, outputDir, preserveStructure));
     }
 
+    /** 删除Async */
     public CompletableFuture<DeleteResult> deleteAsync(String filePath, String method) {
         return CompletableFuture.supplyAsync(() -> permanentDelete(filePath, method));
     }
 
+    /** Native扫描 */
     private native String nativeScan(String devicePath, int scanMode);
+    /** Native扫描AndRecover */
     private native String nativeScanAndRecover(String devicePath, int scanMode, String outputDir);
+    /** NativeRecover */
     private native String nativeRecover(String devicePath, String[] filePaths, String outputDir, boolean preserveStructure);
+    /** Native删除 */
     private native String nativeDelete(String devicePath, String filePath, String method);
 
+    /** 解析 */
     private static <T> T parse(String json, Class<T> clazz) {
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -162,6 +181,11 @@ public class DataRecovery {
     }
 
     public static class RecoveryException extends RuntimeException {
+        /**
+         * 创建 RecoveryException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public RecoveryException(String message, Throwable cause) { super(message, cause); }
     }
 }

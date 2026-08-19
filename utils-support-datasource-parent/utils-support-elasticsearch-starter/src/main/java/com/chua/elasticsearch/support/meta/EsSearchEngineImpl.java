@@ -27,16 +27,22 @@ public class EsSearchEngineImpl implements SearchEngine {
     /** 引擎 */
     private final ElasticsearchEngine engine;
 
+    /**
+     * 创建 EsSearchEngineImpl 实例
+     * @param engine engine
+     */
     public EsSearchEngineImpl(ElasticsearchEngine engine) {
         this.engine = engine;
     }
 
     @Override
+    /** Type */
     public String type() {
         return "elasticsearch";
     }
 
     @Override
+    /** ListIndexes */
     public List<String> listIndexes() {
         try {
             var response = engine.getClient().indices().get(i -> i.index("*"));
@@ -47,6 +53,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 获取Index */
     public SearchIndexDef getIndex(String indexName) {
         try {
             GetIndexResponse indexResponse = engine.getClient().indices().get(i -> i.index(indexName));
@@ -84,6 +91,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 创建Index */
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -127,6 +135,7 @@ public class EsSearchEngineImpl implements SearchEngine {
         }
     }
 
+    /** 构建Property */
     private Property buildProperty(String type) {
         if (type == null) {
             return PropertyBuilders.text(b -> b);
@@ -150,6 +159,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 删除Index */
     public boolean deleteIndex(String indexName) {
         try {
             engine.getClient().indices().delete(d -> d.index(indexName));
@@ -160,6 +170,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
+    /** 获取Client */
     public Object getClient() {
         return engine.getClient();
     }

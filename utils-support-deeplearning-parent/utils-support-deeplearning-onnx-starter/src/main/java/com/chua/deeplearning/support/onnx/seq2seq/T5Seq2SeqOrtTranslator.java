@@ -37,19 +37,34 @@ import java.util.Set;
 public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, AutoCloseable {
 
     /**
-     * 最大生成步数，防止死循环。
+     * 重复惩罚系数（贪心解码降重复，过大会迫使选次优 token 或提前截止）。
      */
-    private static final int MAX_GENERATE_STEPS = 128;
+    private static final float REPETITION_PENALTY = 1.3f;
 
     /**
-     * 重复惩罚系数（贪心解码降重复）。
+     * 默认最小生成 token 数（达到前不停止，避免摘要过短）。
      */
-    private static final float REPETITION_PENALTY = 1.9f;
+    private static final int DEFAULT_MIN_NEW_TOKENS = 10;
+
+    /**
+     * 默认最大生成 token 数（防止死循环）。
+     */
+    private static final int DEFAULT_MAX_NEW_TOKENS = 128;
 
     /**
      * 模型定义（t5-small）。
      */
     private final Seq2SeqModelDefinition def;
+
+    /**
+     * 最小生成 token 数。
+     */
+    private int minNewTokens = DEFAULT_MIN_NEW_TOKENS;
+
+    /**
+     * 最大生成 token 数。
+     */
+    private int maxNewTokens = DEFAULT_MAX_NEW_TOKENS;
 
     /**
      * 任务前缀（如 "summarize: "），生成前拼接到输入；全局配置，空串表示不拼接。
@@ -98,7 +113,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      *
      * @param def 模型定义
      */
-    private T5Seq2SeqOrtTranslator(Seq2SeqModelDefinition def) {
+    protected T5Seq2SeqOrtTranslator(Seq2SeqModelDefinition def) {
         this.def = def;
     }
 
@@ -109,6 +124,24 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      */
     public static void setTaskPrefix(String prefix) {
         taskPrefix = prefix == null ? "" : prefix;
+    }
+
+    /**
+     * 设置最小生成 token 数（达到前不会因 EOS 提前停止）。
+     *
+     * @param min 最小 token 数，小于 0 视为 0
+     */
+    public void setMinNewTokens(int min) {
+        this.minNewTokens = Math.max(0, min);
+    }
+
+    /**
+     * 设置最大生成 token 数（超过后强制停止，防止死循环）。
+     *
+     * @param max 最大 token 数，小于 1 视为 1
+     */
+    public void setMaxNewTokens(int max) {
+        this.maxNewTokens = Math.max(1, max);
     }
 
     /**
@@ -190,7 +223,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             for (int i = 0; i < generated.size(); i++) {
                 tokenIds[i] = generated.get(i);
             }
-            return tokenizer.decode(tokenIds).trim();
+            return postProcess(tokenizer.decode(tokenIds));
         } catch (Exception e) {
             throw new RuntimeException("[t5-seq2seq] 文本生成失败: " + e.getMessage(), e);
         }
@@ -239,7 +272,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
         }
         int decSeq;
         try (OrtSession.Result first = decoderSession.run(feed)) {
-            long next = argmax(first, generated);
+            long next = argmax(first, generated, generated.size() >= minNewTokens);
             if (next == def.eosId() || next == def.decoderStartId()) {
                 return generated;
             }
@@ -259,10 +292,14 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             if (hasEEncoder) {
                 eKvShape = ((OnnxTensor) first.get("present.0.encoder.key").get()).getInfo().getShape();
             }
-            decSeq = (int) ((OnnxTensor) first.get("present.0.decoder.key").get()).getInfo().getShape()[2];
+            // 注意力头数/单头维度/序列长度从输出维度动态解析（兼容 t5 / mt5 等不同头数配置）
+            long[] d0Shape = ((OnnxTensor) first.get("present.0.decoder.key").get()).getInfo().getShape();
+            int heads = (int) d0Shape[1];
+            int headDim = (int) d0Shape[3];
+            decSeq = (int) d0Shape[2];
 
             // 循环：decoder_with_past 自回归生成
-            for (int step = 0; step < MAX_GENERATE_STEPS; step++) {
+            for (int step = 0; step < maxNewTokens; step++) {
                 Map<String, OnnxTensor> feedLoop = new HashMap<>();
                 if (pastInputs.contains("input_ids")) {
                     feedLoop.put("input_ids", OnnxTensor.createTensor(ortEnv,
@@ -276,7 +313,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
                     feedLoop.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
                             FloatBuffer.wrap(encoderHidden), new long[]{1, srcLen, encoderHidden.length / srcLen}));
                 }
-                long[] decShape = {1, def.numHeads(), decSeq, def.headDim()};
+                long[] decShape = {1, heads, decSeq, headDim};
                 for (int layer = 0; layer < def.numLayers(); layer++) {
                     String dk = "past_key_values." + layer + ".decoder.key";
                     String dv = "past_key_values." + layer + ".decoder.value";
@@ -296,7 +333,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
                     }
                 }
                 try (OrtSession.Result loopResult = decoderPastSession.run(feedLoop)) {
-                    next = argmax(loopResult, generated);
+                    next = argmax(loopResult, generated, generated.size() >= minNewTokens);
                     for (int layer = 0; layer < def.numLayers(); layer++) {
                         dKv[layer][0] = tensorData(loopResult, "present." + layer + ".decoder.key");
                         dKv[layer][1] = tensorData(loopResult, "present." + layer + ".decoder.value");
@@ -331,14 +368,15 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     }
 
     /**
-     * 从 logits 取 argmax（含重复惩罚 + 禁止 decoder 起始 token）。
+     * 从 logits 取 argmax（含重复惩罚 + 禁止 decoder 起始 token + 可选禁用 EOS）。
      *
-     * @param result 推理结果
-     * @param gen    已生成 token
+     * @param result   推理结果
+     * @param gen      已生成 token
+     * @param allowEos 是否允许生成 EOS（false 表示达到最小长度前停止）
      * @return 下一个 token id
      * @throws Exception ORT 异常
      */
-    private long argmax(OrtSession.Result result, List<Long> gen) throws Exception {
+    private long argmax(OrtSession.Result result, List<Long> gen, boolean allowEos) throws Exception {
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();
         float[][][] logits = (float[][][]) logitsTensor.getValue();
         float[] row = logits[0][0];
@@ -352,6 +390,9 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             row[idx] = value < 0 ? value * REPETITION_PENALTY : value / REPETITION_PENALTY;
         }
         row[(int) def.decoderStartId()] = Float.NEGATIVE_INFINITY;
+        if (!allowEos) {
+            row[(int) def.eosId()] = Float.NEGATIVE_INFINITY;
+        }
         int best = 0;
         float bestScore = Float.NEGATIVE_INFINITY;
         for (int i = 1; i < row.length; i++) {
@@ -361,6 +402,19 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             }
         }
         return best;
+    }
+
+    /**
+     * 后处理：剔除 T5/mT5 的占位特殊 token（如 &lt;extra_id_0&gt;）并清理空白。
+     *
+     * @param decoded 原始解码文本
+     * @return 清洗后的文本
+     */
+    private static String postProcess(String decoded) {
+        if (decoded == null || decoded.isEmpty()) {
+            return decoded;
+        }
+        return decoded.replaceAll("<extra_id_\\d+>", "").trim();
     }
 
     /**

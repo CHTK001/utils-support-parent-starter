@@ -72,11 +72,13 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
+    /** 获取 */
     public Map<String, Object> get(String dataId) {
         return get(dataId, DEFAULT_GROUP);
     }
 
     @Override
+    /** 获取 */
     public Map<String, Object> get(String dataId, String group) {
         if (configService == null) {
             throw new IllegalStateException("Nacos 未初始化，请先调用 start() 方法启动配置中心");
@@ -95,6 +97,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         final Properties properties = new Properties();
         String address = configCenterSetting.getAddress();
@@ -139,6 +142,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         if (configService != null) {
             try {
@@ -153,6 +157,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
+    /** 发布 */
     public boolean publish(String dataId, String group, String key, String value) {
         if (configService == null) {
             throw new IllegalStateException("Nacos 配置中心未启动");
@@ -188,6 +193,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
+    /** 移除 */
     public boolean remove(String dataId, String key) {
         if (configService == null) {
             throw new IllegalStateException("Nacos 配置中心未启动");
@@ -225,6 +231,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(String dataId, ConfigListener listener) {
         super.addListener(dataId, listener);
 
@@ -232,6 +239,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         try {
             configService.addListener(dataId, DEFAULT_GROUP, new Listener() {
                 @Override
+                /** 接收ConfigInfo */
                 public void receiveConfigInfo(String configInfo) {
                     // 配置变更时解析新内容并通知监听器
                     Map<String, Object> newConfig = parseConfigContent(configInfo, dataId);
@@ -260,6 +268,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
                 }
 
                 @Override
+                /** 获取Executor */
                 public Executor getExecutor() {
                     return null;
                 }

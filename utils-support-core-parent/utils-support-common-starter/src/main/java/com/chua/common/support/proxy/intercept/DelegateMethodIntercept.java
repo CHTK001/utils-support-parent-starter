@@ -22,12 +22,20 @@ public class DelegateMethodIntercept<T> implements InvocationHandler {
     /** delegate */
     private final Function<ProxyMethod, Object> delegate;
 
+    /**
+     * 创建 DelegateMethodIntercept 实例
+     * @param type type
+     * @param Function Function
+     * @param Object Object
+     * @param delegate delegate
+     */
     public DelegateMethodIntercept(Class<T> type, Function<ProxyMethod, Object> delegate) {
         this.type = type;
         this.delegate = delegate;
     }
 
     @Override
+    /** 调用 */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         return delegate.apply(ProxyMethod.builder().method(method).args(args).build());
     }

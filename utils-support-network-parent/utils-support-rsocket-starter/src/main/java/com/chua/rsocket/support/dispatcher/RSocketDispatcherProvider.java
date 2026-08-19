@@ -58,6 +58,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
         super(config);
     }
 
+    /** 开始 */
     public void start() {
         if (rSocket != null && !rSocket.isDisposed()) {
             return;
@@ -82,6 +83,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         if (rSocket == null || rSocket.isDisposed()) {
             log.warn("[RSocket] 未连接远程服务，无法发布消息: topic={}", topic);
@@ -98,6 +100,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(definition);
@@ -109,6 +112,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             List<DispatcherDefinition> defs = definitionMap.get(topic);
@@ -127,6 +131,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         for (Disposable disposable : topicSubscriptions.values()) {
             try {

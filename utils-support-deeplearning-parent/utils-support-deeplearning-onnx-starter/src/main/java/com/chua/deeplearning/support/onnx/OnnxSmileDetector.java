@@ -32,15 +32,21 @@ public class OnnxSmileDetector implements SmileDetector {
      */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxSmileDetector 实例
+     * @param apiKey apiKey
+     */
     public OnnxSmileDetector(String apiKey) {
     }
 
     @Override
+    /** Model */
     public SmileDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + SmileDetector.listModels());
@@ -49,18 +55,21 @@ public class OnnxSmileDetector implements SmileDetector {
     }
 
     @Override
+    /** ModelPath */
     public SmileDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Device */
     public SmileDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         return SmileDetector.create(resolveModel()).modelPath(modelPath).device(device).detect(imageData);
     }

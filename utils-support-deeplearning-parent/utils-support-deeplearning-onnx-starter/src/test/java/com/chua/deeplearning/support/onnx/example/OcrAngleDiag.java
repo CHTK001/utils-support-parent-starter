@@ -18,9 +18,11 @@ import java.util.List;
  */
 public final class OcrAngleDiag {
 
+    /** 创建 OcrAngleDiag 实例 */
     private OcrAngleDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String dir = "G:\\images";
         String[] files = {"车票.png", "车票ticket_90.png", "车票ticket_180.png", "车票ticket_270.png"};
@@ -74,6 +76,7 @@ public final class OcrAngleDiag {
         }
     }
 
+    /** DescribeDirection */
     private static String describeDirection(Object dr) {
         try {
             java.lang.reflect.Method gm = dr.getClass().getMethod("getName");

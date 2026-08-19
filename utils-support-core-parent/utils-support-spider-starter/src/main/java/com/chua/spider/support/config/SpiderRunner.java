@@ -74,6 +74,12 @@ public class SpiderRunner {
         return controllerRef;
     }
 
+    /**
+     * 创建 SpiderRunner 实例
+     * @param definitionStore definitionStore
+     * @param executionStore executionStore
+     * @param requestFactory requestFactory
+     */
     public SpiderRunner(SpiderDefinitionStore definitionStore,
                          SpiderExecutionStore executionStore,
                          SpiderRequestFactory requestFactory) {

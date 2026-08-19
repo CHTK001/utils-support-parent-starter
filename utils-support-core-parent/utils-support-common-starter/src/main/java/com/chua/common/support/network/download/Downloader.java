@@ -110,24 +110,29 @@ public class Downloader {
 
     // ===== 构造 =====
 
+    /** 创建 Downloader 实例 */
     private Downloader() {}
 
+    /** 创建 */
     public static Downloader create() {
         return new Downloader();
     }
 
     // ===== 链式配置方法 =====
 
+    /** Url */
     public Downloader url(String url) {
         this.url = url;
         return this;
     }
 
+    /** Target */
     public Downloader target(Path targetDir) {
         this.targetDir = targetDir;
         return this;
     }
 
+    /** Filename */
     public Downloader filename(String filename) {
         this.filename = filename;
         return this;
@@ -280,6 +285,7 @@ public class Downloader {
 
     // ===== 内部实现 =====
 
+    /** 校验 */
     private void validate() throws DownloadException {
         if (url == null || url.isBlank()) {
             throw new DownloadException("URL 不能为空");
@@ -289,6 +295,7 @@ public class Downloader {
         }
     }
 
+    /** 解析Filename */
     private String resolveFilename() {
         if (filename != null && !filename.isBlank()) {
             return filename;
@@ -301,6 +308,7 @@ public class Downloader {
         return "download";
     }
 
+    /** 校验恢复Support */
     private boolean checkResumeSupport() {
         try {
             HttpURLConnection conn = openConnection();
@@ -317,6 +325,7 @@ public class Downloader {
         }
     }
 
+    /** DownloadSingle */
     private void downloadSingle(Path targetFile, long resumeOffset) throws DownloadException {
         ProgressBar bar = null;
         try {
@@ -387,6 +396,7 @@ public class Downloader {
         }
     }
 
+    /** DownloadWithConcurrency */
     private void downloadWithConcurrency(Path targetFile, long resumeOffset) throws DownloadException {
         try {
             // 获取文件总大小
@@ -453,6 +463,7 @@ public class Downloader {
         }
     }
 
+    /** DownloadChunk */
     private void downloadChunk(Path targetFile, long start, long end, int partIndex, ProgressBar totalBar) {
         String partFile = targetFile + ".part" + partIndex;
         try {
@@ -492,6 +503,7 @@ public class Downloader {
         }
     }
 
+    /** 合并Parts */
     private void mergeParts(Path targetFile, int partCount) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(targetFile.toFile());
              FileChannel out = fos.getChannel()) {
@@ -507,6 +519,7 @@ public class Downloader {
         }
     }
 
+    /** 打开Connection */
     private HttpURLConnection openConnection() throws IOException {
         URL u = new URL(url);
         HttpURLConnection conn;
@@ -518,12 +531,14 @@ public class Downloader {
         return conn;
     }
 
+    /** 应用Headers */
     private void applyHeaders(HttpURLConnection conn) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
     }
 
+    /** ComputeMd */
     private String computeMd5(Path file) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -541,6 +556,7 @@ public class Downloader {
         }
     }
 
+    /** 构建Result */
     private DownloadResult buildResult(Path file, boolean skipped, String reason) {
         return DownloadResult.builder()
                 .success(true)
@@ -574,17 +590,20 @@ public class Downloader {
         }
 
         @Override
+        /** 读取 */
         public int read() throws IOException {
             throttle(1);
             return delegate.read();
         }
 
         @Override
+        /** 读取 */
         public int read(byte[] b, int off, int len) throws IOException {
             throttle(len);
             return delegate.read(b, off, len);
         }
 
+        /** Throttle */
         private void throttle(int bytes) {
             if (bytesPerMs <= 0) {
                 return;
@@ -606,6 +625,7 @@ public class Downloader {
         }
 
         @Override
+        /** 关闭 */
         public void close() throws IOException { delegate.close(); }
     }
 
@@ -631,7 +651,16 @@ public class Downloader {
     }
 
     public static class DownloadException extends IOException {
+        /**
+         * 创建 DownloadException 实例
+         * @param message message
+         */
         public DownloadException(String message) { super(message); }
+        /**
+         * 创建 DownloadException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public DownloadException(String message, Throwable cause) { super(message, cause); }
     }
 }

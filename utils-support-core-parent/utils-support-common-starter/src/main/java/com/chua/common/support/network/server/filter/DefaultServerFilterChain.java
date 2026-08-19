@@ -35,10 +35,22 @@ public class DefaultServerFilterChain implements ServerFilterChain {
      */
     private int index;
 
+    /**
+     * 创建 DefaultServerFilterChain 实例
+     * @param filters filters
+     * @param ServerHandler ServerHandler
+     */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler) {
         this(filters, handler, null);
     }
 
+    /**
+     * 创建 DefaultServerFilterChain 实例
+     * @param filters filters
+     * @param ServerHandler ServerHandler
+     * @param List List
+     * @param listeners listeners
+     */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler, List<FilterChainListener> listeners) {
         this.filters = filters;
         this.handler = handler;
@@ -47,6 +59,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response) throws Exception {
         if (index < filters.size()) {
             ServerFilter filter = filters.get(index++);
@@ -100,6 +113,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         return requestPath.startsWith(pattern + "/");
     }
 
+    /** 通知Before */
     private void notifyBefore(ServerFilter filter, ServerRequest request, ServerResponse response) {
         List<FilterChainListener> currentListeners = getListeners(request);
         if (currentListeners == null) {
@@ -113,6 +127,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         }
     }
 
+    /** 通知After */
     private void notifyAfter(ServerFilter filter, long elapsed, ServerRequest request, ServerResponse response) {
         List<FilterChainListener> currentListeners = getListeners(request);
         if (currentListeners == null) {
@@ -127,6 +142,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     }
 
     @SuppressWarnings("unchecked")
+    /** 获取Listeners */
     private List<FilterChainListener> getListeners(ServerRequest request) {
         Object value = request.getAttribute("_chainListeners");
         if (value instanceof List<?>) {

@@ -11,11 +11,13 @@ package com.chua.deeplearning.support.onnx.ocr.extractor;
  */
 public class PpOcrDetMediumTranslator extends PpOcrDetTranslator {
 
+    /** 创建 PpOcrDetMediumTranslator 实例 */
     public PpOcrDetMediumTranslator() {
         super("ocr/PP-OCRv6/medium/det_infer/", "paddleocrv6-medium-det");
     }
 
     @Override
+    /** 获取Threshold */
     protected float getThreshold() {
         return 0.25f;
     }

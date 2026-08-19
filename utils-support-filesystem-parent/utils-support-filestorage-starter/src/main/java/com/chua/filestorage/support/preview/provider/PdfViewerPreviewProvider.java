@@ -22,12 +22,14 @@ import java.util.Locale;
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
+    /** Supports */
     public boolean supports(String extension, String mimeType) {
         return "pdf".equalsIgnoreCase(extension)
                 || "application/pdf".equals(mimeType);
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String b64 = Base64.getEncoder().encodeToString(content);
         String html = "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"

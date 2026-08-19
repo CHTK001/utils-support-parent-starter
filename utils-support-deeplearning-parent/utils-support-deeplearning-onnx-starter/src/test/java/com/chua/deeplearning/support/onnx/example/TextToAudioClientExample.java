@@ -20,9 +20,11 @@ import java.nio.file.Path;
  */
 public final class TextToAudioClientExample extends ExampleBase {
 
+    /** 创建 TextToAudioClientExample 实例 */
     private TextToAudioClientExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             printModels("tts", "onnx", TextToAudioClient.create("onnx", "").models());

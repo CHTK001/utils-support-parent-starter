@@ -40,16 +40,23 @@ public class LineArtTranslator implements Translator<Image, Image> {
      */
     private int height;
 
+    /** 创建 LineArtTranslator 实例 */
     public LineArtTranslator() {
         this(512, 512);
     }
 
+    /**
+     * 创建 LineArtTranslator 实例
+     * @param imageResolution imageResolution
+     * @param int int
+     */
     public LineArtTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -62,6 +69,7 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray line = list.singletonOrThrow();
         if (line.getShape().dimension() == 4 && line.getShape().get(0) == 1) {
@@ -76,6 +84,7 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

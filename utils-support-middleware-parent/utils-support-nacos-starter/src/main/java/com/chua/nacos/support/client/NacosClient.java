@@ -72,6 +72,14 @@ public class NacosClient implements AutoCloseable {
     /** configListeners */
     private final Map<String, Listener> configListeners = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 NacosClient 实例
+     * @param serverAddr serverAddr
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param long long
+     */
     private NacosClient(String serverAddr, String namespace, String username, String password, long timeout) {
         this.serverAddr = serverAddr;
         this.namespace = namespace;
@@ -82,20 +90,24 @@ public class NacosClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** 创建 */
     public static NacosClient create(String serverAddr) {
         return builder().serverAddr(serverAddr).build();
     }
 
+    /** 创建 */
     public static NacosClient create(String serverAddr, String namespace) {
         return builder().serverAddr(serverAddr).namespace(namespace).build();
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
 
     // ==================== 启动/停止 ====================
 
+    /** 开始 */
     public NacosClient start() throws NacosException {
         Properties props = buildProperties();
         this.configService = NacosFactory.createConfigService(props);
@@ -104,6 +116,7 @@ public class NacosClient implements AutoCloseable {
         return this;
     }
 
+    /** 关闭 */
     public NacosClient shutdown() {
         try {
             if (configService != null) {
@@ -142,12 +155,14 @@ public class NacosClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         shutdown();
     }
 
     // ==================== 内部方法 ====================
 
+    /** 构建Properties */
     private Properties buildProperties() {
         Properties props = new Properties();
         props.setProperty(PropertyKeyConst.SERVER_ADDR, serverAddr);
@@ -178,12 +193,18 @@ public class NacosClient implements AutoCloseable {
         /** 超时 */
         private long timeout = 30000;
 
+        /** ServerAddr */
         public Builder serverAddr(String addr) { this.serverAddr = addr; return this; }
+        /** Namespace */
         public Builder namespace(String ns) { this.namespace = ns; return this; }
+        /** Username */
         public Builder username(String u) { this.username = u; return this; }
+        /** Password */
         public Builder password(String p) { this.password = p; return this; }
+        /** Timeout */
         public Builder timeout(long ms) { this.timeout = ms; return this; }
 
+        /** 构建 */
         public NacosClient build() {
             return new NacosClient(serverAddr, namespace, username, password, timeout);
         }
@@ -206,8 +227,11 @@ public class NacosClient implements AutoCloseable {
 
         ConfigOperation(NacosClient client) { this.client = client; }
 
+        /** DataId */
         public ConfigOperation dataId(String dataId) { this.dataId = dataId; return this; }
+        /** 分组 */
         public ConfigOperation group(String group) { this.group = group; return this; }
+        /** Timeout */
         public ConfigOperation timeout(long ms) { this.timeoutMs = ms; return this; }
 
         /**
@@ -302,11 +326,13 @@ public class NacosClient implements AutoCloseable {
             try {
                 Listener nacosListener = new Listener() {
                     @Override
+                    /** 接收ConfigInfo */
                     public void receiveConfigInfo(String configInfo) {
                         listener.accept(configInfo);
                     }
 
                     @Override
+                    /** 获取Executor */
                     public Executor getExecutor() {
                         return null;
                     }
@@ -344,13 +370,21 @@ public class NacosClient implements AutoCloseable {
 
         NamingOperation(NacosClient client) { this.client = client; }
 
+        /** ServiceName */
         public NamingOperation serviceName(String name) { this.serviceName = name; return this; }
+        /** Ip */
         public NamingOperation ip(String ip) { this.ip = ip; return this; }
+        /** Port */
         public NamingOperation port(int port) { this.port = port; return this; }
+        /** Weight */
         public NamingOperation weight(double w) { this.weight = w; return this; }
+        /** Healthy */
         public NamingOperation healthy(boolean h) { this.healthy = h; return this; }
+        /** Ephemeral */
         public NamingOperation ephemeral(boolean e) { this.ephemeral = e; return this; }
+        /** Metadata */
         public NamingOperation metadata(Map<String, String> m) { this.metadata = m; return this; }
+        /** Metadata */
         public NamingOperation metadata(String key, String value) { this.metadata.put(key, value); return this; }
 
         /**
@@ -438,6 +472,11 @@ public class NacosClient implements AutoCloseable {
     // ==================== 异常类 ====================
 
     public static class NacosClientException extends RuntimeException {
+        /**
+         * 创建 NacosClientException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public NacosClientException(String message, Throwable cause) {
             super(message, cause);
         }

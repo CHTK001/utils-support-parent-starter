@@ -23,15 +23,21 @@ public class ChronicleLockProvider extends AbstractLockProvider {
     /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
 
+    /** 创建 ChronicleLockProvider 实例 */
     public ChronicleLockProvider() {
         this("default");
     }
 
+    /**
+     * 创建 ChronicleLockProvider 实例
+     * @param name name
+     */
     public ChronicleLockProvider(String name) {
         this.name = name;
     }
 
     @Override
+    /** DoTry锁 */
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
         try {
             return lock.tryLock(timeout, timeUnit);
@@ -42,16 +48,19 @@ public class ChronicleLockProvider extends AbstractLockProvider {
     }
 
     @Override
+    /** Do解锁 */
     protected void doUnlock() {
         lock.unlock();
     }
 
     @Override
+    /** Do获取Name */
     protected String doGetName() {
         return name;
     }
 
     @Override
+    /** Do获取Type */
     protected String doGetType() {
         return "chronicle";
     }

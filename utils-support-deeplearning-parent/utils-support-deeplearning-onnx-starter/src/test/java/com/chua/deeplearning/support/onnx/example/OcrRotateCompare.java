@@ -18,9 +18,11 @@ import java.util.List;
  */
 public final class OcrRotateCompare {
 
+    /** 创建 OcrRotateCompare 实例 */
     private OcrRotateCompare() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         ImageUtils.load();
         byte[] img0 = Files.readAllBytes(Path.of("G:\\images\\车票.png"));
@@ -51,6 +53,17 @@ public final class OcrRotateCompare {
         System.out.println("[cmp] 票号区域像素对比(正向原图 vs ticket_90转回):");
     }
 
+    /**
+     * 保存ZoomedAligned
+     * @param ref ref
+     * @param src src
+     * @param x x
+     * @param y y
+     * @param w w
+     * @param h h
+     * @param outRef outRef
+     * @param outSrc outSrc
+     */
     private static void saveZoomedAligned(byte[] ref, byte[] src, int x, int y, int w, int h,
                                           String outRef, String outSrc) {
         try {
@@ -69,6 +82,7 @@ public final class OcrRotateCompare {
         }
     }
 
+    /** 保存ZoomedHelper */
     private static void saveZoomedHelper(Mat src, int x, int y, int w, int h, String out) {
         Mat crop = new Mat(src, new org.opencv.core.Rect(x, y, w, h));
         Mat big = new Mat();
@@ -78,6 +92,7 @@ public final class OcrRotateCompare {
         crop.release(); big.release();
     }
 
+    /** RegionMae */
     private static double regionMae(byte[] a, byte[] b, int x, int y, int w, int h) {
         try {
             ImageUtils.load();
@@ -106,6 +121,7 @@ public final class OcrRotateCompare {
         }
     }
 
+    /** Recognize */
     private static void recognize(String label, byte[] img) {
         try {
             OcrPipeline ocr = OcrPipeline.builder()
@@ -124,6 +140,7 @@ public final class OcrRotateCompare {
         }
     }
 
+    /** Dims */
     private static String dims(byte[] data) {
         Mat m = ImageUtils.decode(data);
         if (m == null) return "null";
@@ -132,10 +149,12 @@ public final class OcrRotateCompare {
         return s;
     }
 
+    /** SameBytes */
     private static boolean sameBytes(byte[] a, byte[] b) {
         return java.util.Arrays.equals(a, b);
     }
 
+    /** RotateLocal */
     private static byte[] rotateLocal(byte[] imageData, int degree) {
         Mat src = Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
         if (src == null) return imageData;

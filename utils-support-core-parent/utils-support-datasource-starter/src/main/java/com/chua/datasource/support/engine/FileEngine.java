@@ -302,6 +302,7 @@ public class FileEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 执行New查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
         List<T> data = getData(clazz);
         if (data.isEmpty()) {
@@ -369,6 +370,7 @@ public class FileEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 执行更新 */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         int rows = super.executeUpdate(sql);
         if (rows > 0) {
@@ -379,6 +381,7 @@ public class FileEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 执行删除 */
     public <T> int executeDelete(DeleteSql<T> sql) {
         int rows = super.executeDelete(sql);
         if (rows > 0) {
@@ -389,6 +392,7 @@ public class FileEngine extends AbstractEngine {
 
     // ==================== 内部方法 ====================
 
+    /** NormalizeEmptyStrings */
     private static List<Map<String, Object>> normalizeEmptyStrings(List<Map<String, Object>> rows) {
         if (rows == null || rows.isEmpty()) {
             return rows;
@@ -405,6 +409,7 @@ public class FileEngine extends AbstractEngine {
         return result;
     }
 
+    /** PersistIfAuto */
     private <T> void persistIfAuto(Class<T> clazz) {
         String tableName = getTableName(clazz);
         TableMeta meta = resolveMeta(tableName);
@@ -414,6 +419,7 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
+    /** 写入File */
     private <T> void writeFile(TableMeta meta, List<Map<String, Object>> maps) {
         FileSystem fs = FileSystem.create(meta.fileType);
         WriteBuilder writer = fs.write(meta.file);
@@ -422,6 +428,7 @@ public class FileEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
+    /** MapToEntity */
     private <T> T mapToEntity(Map<String, Object> map, Class<T> clazz) {
         try {
             T instance = clazz.getDeclaredConstructor().newInstance();
@@ -434,6 +441,7 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
+    /** EntitiesToMaps */
     private <T> List<Map<String, Object>> entitiesToMaps(List<T> entities) {
         if (entities.isEmpty()) {
             return Collections.emptyList();
@@ -447,6 +455,7 @@ public class FileEngine extends AbstractEngine {
         return maps;
     }
 
+    /** CollectFields */
     private static void collectFields(Object bean, Class<?> clazz, Map<String, Object> map) {
         for (Field field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
@@ -464,6 +473,7 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
+    /** 获取PropertyValue */
     private static Object getPropertyValue(Object bean, String field) {
         try {
             String getter = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
@@ -483,6 +493,7 @@ public class FileEngine extends AbstractEngine {
         return null;
     }
 
+    /** ToCamelCase */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;
@@ -499,6 +510,7 @@ public class FileEngine extends AbstractEngine {
         return sb.toString();
     }
 
+    /** 设置FieldValue */
     private void setFieldValue(Object obj, String field, Object value) {
         try {
             String camelField = toCamelCase(field);
@@ -516,6 +528,7 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
+    /** 转换Value */
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null || targetType.isInstance(value)) {
             return value;

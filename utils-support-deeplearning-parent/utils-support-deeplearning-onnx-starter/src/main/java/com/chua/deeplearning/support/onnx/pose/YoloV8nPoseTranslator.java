@@ -89,6 +89,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         public float[] keypointScores;
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) return;
         Path tmpDir = Files.createTempDirectory("yolov8n-pose-");
@@ -116,11 +117,13 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     @Override
+    /** Name */
     public String name() {
         return "yolov8n-pose";
     }
 
     @Override
+    /** Translate */
     public List<PoseKeypoint> translate(byte[] imageData) {
         List<PoseResult> results = detectBytes(imageData);
         if (results.isEmpty()) {
@@ -184,6 +187,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         }
     }
 
+    /** 解码 */
     private List<PoseResult> decode(float[][] data) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
@@ -234,6 +238,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         return result;
     }
 
+    /** Iou */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
         float y1 = Math.max(a[1], b[1]);
@@ -245,6 +250,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         return inter / (areaA + areaB - inter + 1e-9f);
     }
 
+    /** 关闭 */
     public synchronized void close() {
         try { if (session != null) session.close(); } catch (Exception ignore) {}
         session = null; ortEnv = null;

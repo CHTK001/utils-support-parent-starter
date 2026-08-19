@@ -44,12 +44,19 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     /** 默认小程序 AppId */
     private final String defaultMiniAppId;
 
+    /**
+     * 创建 WechatOpenIdConvertService 实例
+     * @param componentAppId componentAppId
+     * @param String String
+     * @param String String
+     */
     public WechatOpenIdConvertService(String componentAppId, String componentAppSecret, String defaultMiniAppId) {
         this.componentAppId = componentAppId;
         this.defaultMiniAppId = defaultMiniAppId;
         this.wxOpenService = buildWxOpenService(componentAppId, componentAppSecret);
     }
 
+    /** 构建Wx打开Service */
     private WxOpenService buildWxOpenService(String componentAppId, String componentAppSecret) {
         WxOpenInMemoryConfigStorage config = new WxOpenInMemoryConfigStorage();
         config.setWxOpenInfo(componentAppId, componentAppSecret, null, null);
@@ -59,6 +66,7 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     }
 
     @Override
+    /** 转换ToOfficial打开Id */
     public String convertToOfficialOpenId(String miniAppId, String officialAppId, String miniAppOpenId) {
         if (StringUtils.isEmpty(miniAppId)) {
             miniAppId = defaultMiniAppId;
@@ -113,6 +121,7 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     }
 
     @Override
+    /** 转换ToOfficial打开Id */
     public String convertToOfficialOpenId(String officialAppId, String miniAppOpenId) {
         return convertToOfficialOpenId(defaultMiniAppId, officialAppId, miniAppOpenId);
     }

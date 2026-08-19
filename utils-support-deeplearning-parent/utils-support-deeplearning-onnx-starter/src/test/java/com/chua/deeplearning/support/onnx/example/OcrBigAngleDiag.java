@@ -23,9 +23,11 @@ import java.util.List;
  */
 public final class OcrBigAngleDiag {
 
+    /** 创建 OcrBigAngleDiag 实例 */
     private OcrBigAngleDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         byte[] img0 = Files.readAllBytes(Path.of("G:\\images\\有文字图片.png"));
         Mat src = ImageUtils.decode(img0);

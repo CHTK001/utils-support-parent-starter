@@ -128,6 +128,12 @@ public class DingTalkBotClient implements BotClient {
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     @Override
+    /**
+     * 配置
+     * @param token token
+     * @param secret secret
+     * @param encodingAesKey encodingAesKey
+     */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (token != null && !token.isBlank()) {
@@ -140,6 +146,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** Token */
     public BotClient token(String token) {
         if (token != null && !token.isBlank()) {
             this.webhookUrl = baseUrl + token;
@@ -148,17 +155,20 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** Secret */
     public BotClient secret(String secret) {
         this.secret = secret;
         return this;
     }
 
     @Override
+    /** EncodingAesKey */
     public BotClient encodingAesKey(String encodingAesKey) {
         return this;
     }
 
     @Override
+    /** BaseUrl */
     public BotClient baseUrl(String baseUrl) {
         if (baseUrl != null && !baseUrl.isBlank()) {
             this.baseUrl = baseUrl;
@@ -167,18 +177,21 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 连接TimeoutMillis */
     public BotClient connectTimeoutMillis(long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
         return this;
     }
 
     @Override
+    /** 读取TimeoutMillis */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
     }
 
     @Override
+    /** Config保存OrLoader */
     public BotClient configSaveOrLoader(ConfigSaveOrLoader configSaveOrLoader) {
         return this;
     }
@@ -206,6 +219,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 开始 */
     public BotClient start() {
         if (httpClient == null) {
             httpClient = new OkHttpClient.Builder()
@@ -221,6 +235,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running = false;
         if (httpClient != null) {
@@ -232,11 +247,13 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running;
     }
 
     @Override
+    /** 发送Text */
     public BotSendResult sendText(String toUser, String content) {
         Map<String, String> text
                 = Collections.singletonMap("content", content);
@@ -247,6 +264,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 发送Image */
     public BotSendResult sendImage(String toUser, String mediaPath) {
         try {
             byte[] imageBytes = Files.readAllBytes(
@@ -273,6 +291,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 发送Voice */
     public BotSendResult sendVoice(String toUser, String mediaPath) {
         log.warn(
                 "DingTalk bot does not support voice messages "
@@ -282,6 +301,13 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Video
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     */
     public BotSendResult sendVideo(String toUser, String mediaPath,
             String title, String desc) {
         log.warn(
@@ -292,6 +318,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 发送File */
     public BotSendResult sendFile(String toUser, String mediaPath) {
         log.warn(
                 "DingTalk bot does not support file messages "
@@ -301,6 +328,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 发送 */
     public BotSendResult send(BotOutboundMessage message) {
         if (message.getType() == null) {
             return BotSendResult.fail(-1,
@@ -320,6 +348,54 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送TextAsync
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param groupId groupId
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param false false
+     * @param text text
+     * @param at at
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param userStore userStore
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param running running
+     * @param jsonBody jsonBody
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
         return CompletableFuture.supplyAsync(
@@ -327,6 +403,51 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送ImageAsync
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param groupId groupId
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param false false
+     * @param text text
+     * @param at at
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param userStore userStore
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param running running
+     * @param jsonBody jsonBody
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
         return CompletableFuture.supplyAsync(
@@ -334,17 +455,65 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Async
+     * @param message message
+     * @param groupId groupId
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param false false
+     * @param text text
+     * @param at at
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param userStore userStore
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param running running
+     * @param jsonBody jsonBody
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
     }
 
     @Override
+    /** ListGroups */
     public List<BotGroupInfo> listGroups() {
         return Collections.emptyList();
     }
 
     @Override
+    /**
+     * 发送To分组
+     * @param groupId groupId
+     * @param content content
+     */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         log.warn("Use webhookUrl to target specific group");
@@ -353,6 +522,45 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送To分组Async
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param false false
+     * @param text text
+     * @param at at
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param userStore userStore
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param running running
+     * @param jsonBody jsonBody
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
         return CompletableFuture.supplyAsync(
@@ -360,6 +568,42 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送To分组Mention
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param false false
+     * @param text text
+     * @param at at
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param userStore userStore
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param running running
+     * @param jsonBody jsonBody
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -388,6 +632,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** UserStore */
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -396,11 +641,13 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** ListUsers */
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
     @Override
+    /** 添加MessageListener */
     public BotClient addMessageListener(BotMessageListener listener) {
         if (listener != null) {
             messageListeners.add(listener);
@@ -409,6 +656,27 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 移除MessageListener
+     * @param listener listener
+     * @param listener listener
+     * @param running running
+     * @param jsonBody jsonBody
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
@@ -416,6 +684,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 添加记录错误Listener */
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);
@@ -424,6 +693,7 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
+    /** 获取Config */
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("webhookUrl",
@@ -465,6 +735,20 @@ public class DingTalkBotClient implements BotClient {
         return false;
     }
 
+    /**
+     * 发送Internal
+     * @param message message
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_TYPE
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     private BotSendResult sendInternal(
             Map<String, Object> message) {
         if (webhookUrl == null || webhookUrl.isBlank()) {
@@ -516,6 +800,7 @@ public class DingTalkBotClient implements BotClient {
         }
     }
 
+    /** 构建RequestUrl */
     private String buildRequestUrl() throws Exception {
         if (secret == null || secret.isBlank()) {
             return webhookUrl;
@@ -535,6 +820,13 @@ public class DingTalkBotClient implements BotClient {
                 + "&sign=" + sign;
     }
 
+    /**
+     * 解析Inbound
+     * @param data data
+     * @param type type
+     * @param e e
+     * @param ignored ignored
+     */
     private BotInboundMessage parseInbound(
             Map<String, Object> data) {
         String msgType = (String) data.get("msgtype");
@@ -570,6 +862,7 @@ public class DingTalkBotClient implements BotClient {
                 .build();
     }
 
+    /** MapMsgType */
     private Type mapMsgType(String type) {
         if (type == null) {
             return Type.UNKNOWN;
@@ -583,6 +876,7 @@ public class DingTalkBotClient implements BotClient {
         }
     }
 
+    /** 通知记录错误 */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {

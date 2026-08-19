@@ -43,6 +43,7 @@ class QuarkusHttpServerTest {
     private static HttpClient httpClient;
 
     @BeforeAll
+    /** Setup */
     static void setup() throws Exception {
         port = findAvailablePort();
         ServerSetting setting = new ServerSetting();
@@ -74,6 +75,7 @@ class QuarkusHttpServerTest {
     }
 
     @AfterAll
+    /** Teardown */
     static void teardown() throws Exception {
         if (server != null) {
             server.stop();

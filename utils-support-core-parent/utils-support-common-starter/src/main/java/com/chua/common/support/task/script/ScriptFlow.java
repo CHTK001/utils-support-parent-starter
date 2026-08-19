@@ -32,6 +32,10 @@ public class ScriptFlow {
      */
     private final Map<Path, Boolean> loadedScripts = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 ScriptFlow 实例
+     * @param provider provider
+     */
     private ScriptFlow(ScriptProvider provider) {
         this.provider = provider;
     }
@@ -143,6 +147,7 @@ public class ScriptFlow {
         return results;
     }
 
+    /** 获取ScriptExtension */
     private String getScriptExtension() {
         return switch (provider.engineName()) {
             case "js" -> ".js";

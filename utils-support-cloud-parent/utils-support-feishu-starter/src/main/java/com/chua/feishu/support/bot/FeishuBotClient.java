@@ -133,6 +133,12 @@ public class FeishuBotClient implements BotClient {
     private static final long POLL_INTERVAL_MS = 1_000;
 
     @Override
+    /**
+     * 配置
+     * @param token token
+     * @param secret secret
+     * @param encodingAesKey encodingAesKey
+     */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (token != null && !token.isEmpty()) {
@@ -145,23 +151,27 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** Token */
     public BotClient token(String token) {
         this.appId = token;
         return this;
     }
 
     @Override
+    /** Secret */
     public BotClient secret(String secret) {
         this.appSecret = secret;
         return this;
     }
 
     @Override
+    /** EncodingAesKey */
     public BotClient encodingAesKey(String encodingAesKey) {
         return this;
     }
 
     @Override
+    /** BaseUrl */
     public BotClient baseUrl(String baseUrl) {
         if (baseUrl != null && !baseUrl.isEmpty()) {
             this.baseUrl = baseUrl;
@@ -170,6 +180,111 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 连接TimeoutMillis
+     * @param connectTimeoutMillis connectTimeoutMillis
+     * @param readTimeoutMillis readTimeoutMillis
+     * @param configSaveOrLoader configSaveOrLoader
+     * @param token token
+     * @param appSecret appSecret
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public BotClient connectTimeoutMillis(
             long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
@@ -177,12 +292,116 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** 读取TimeoutMillis */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
     }
 
     @Override
+    /**
+     * Config保存OrLoader
+     * @param configSaveOrLoader configSaveOrLoader
+     * @param token token
+     * @param appSecret appSecret
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public BotClient configSaveOrLoader(
             ConfigSaveOrLoader configSaveOrLoader) {
         return this;
@@ -200,6 +419,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** 开始 */
     public BotClient start() {
         if (appId == null || appId.isBlank()) {
             throw new IllegalStateException("appId is required");
@@ -235,6 +455,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running.set(false);
         Thread t = eventThread;
@@ -247,16 +468,115 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running.get();
     }
 
     @Override
+    /** 发送Text */
     public BotSendResult sendText(String toUser, String content) {
         return send(BotOutboundMessage.text(toUser, content));
     }
 
     @Override
+    /**
+     * 发送TextAsync
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
         return CompletableFuture.supplyAsync(
@@ -264,12 +584,108 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Image
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.image(toUser, mediaPath));
     }
 
     @Override
+    /**
+     * 发送ImageAsync
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
         return CompletableFuture.supplyAsync(
@@ -277,6 +693,11 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Voice
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
         log.warn("Feishu bot does not support voice messages");
@@ -285,6 +706,13 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Video
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     */
     public BotSendResult sendVideo(String toUser,
             String mediaPath, String title, String desc) {
         log.warn(
@@ -295,6 +723,11 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送File
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
         log.warn(
@@ -305,6 +738,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** 发送 */
     public BotSendResult send(BotOutboundMessage message) {
         if (client == null) {
             return BotSendResult.fail(-1, "Client not started");
@@ -346,12 +780,90 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Async
+     * @param message message
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
     }
 
     @Override
+    /** 获取Config */
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("appId", appId != null ? appId : "");
@@ -362,6 +874,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** UserStore */
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -370,11 +883,13 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** ListUsers */
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
     @Override
+    /** ListGroups */
     public List<BotGroupInfo> listGroups() {
         if (client == null) {
             return Collections.emptyList();
@@ -406,12 +921,85 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送To分组
+     * @param groupId groupId
+     * @param content content
+     */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         return send(BotOutboundMessage.groupText(groupId, content));
     }
 
     @Override
+    /**
+     * 发送To分组Async
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
         return CompletableFuture.supplyAsync(
@@ -419,6 +1007,71 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送To分组Mention
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -439,6 +1092,61 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 添加MessageListener
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public BotClient addMessageListener(
             BotMessageListener listener) {
         if (listener != null) {
@@ -448,6 +1156,60 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 移除MessageListener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param null null
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param event event
+     * @param Map Map
+     * @param msgType msgType
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
@@ -455,6 +1217,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
+    /** 添加记录错误Listener */
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);
@@ -544,6 +1307,7 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /** SleepBackoff */
     private long sleepBackoff(long currentBackoff) {
         long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
         sleep(wait);
@@ -628,6 +1392,44 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /**
+     * 发送TextInternal
+     * @param receiveId receiveId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     private BotSendResult sendTextInternal(
             String receiveId, String content) {
         try {
@@ -659,6 +1461,39 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /**
+     * 发送分组TextInternal
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param userId userId
+     * @param atList atList
+     * @param e e
+     * @param e e
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     private BotSendResult sendGroupTextInternal(
             String groupId, String content) {
         try {
@@ -735,6 +1570,26 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /**
+     * 发送ImageInternal
+     * @param receiveId receiveId
+     * @param mediaPath mediaPath
+     * @param imageBytes imageBytes
+     * @param imageKey imageKey
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param msgType msgType
+     * @param e e
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     private BotSendResult sendImageInternal(
             String receiveId, String mediaPath) {
         try {
@@ -818,6 +1673,17 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /**
+     * MapMessageType
+     * @param msgType msgType
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param Number Number
+     * @param e e
+     * @param ignored ignored
+     * @param millis millis
+     * @param e e
+     */
     private static BotInboundMessage.Type mapMessageType(
             String msgType) {
         if (msgType == null) {
@@ -838,6 +1704,7 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /** ToInt */
     private static int toInt(Object value, int defaultValue) {
         if (value instanceof Number) {
             return ((Number) value).intValue();
@@ -845,6 +1712,7 @@ public class FeishuBotClient implements BotClient {
         return defaultValue;
     }
 
+    /** 通知记录错误 */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {
@@ -855,6 +1723,7 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
+    /** Sleep */
     private void sleep(long millis) {
         try {
             Thread.sleep(millis);

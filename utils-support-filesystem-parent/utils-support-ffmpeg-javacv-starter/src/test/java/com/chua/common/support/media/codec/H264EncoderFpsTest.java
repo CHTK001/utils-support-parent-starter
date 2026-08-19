@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 
 /** @author CH */
 public class H264EncoderFpsTest {
+    /** Main */
     public static void main(String[] args) throws Exception {
         int w = 1280, h = 720;
         String encoderName = args.length > 0 ? args[0] : "javacv-ffmpeg";

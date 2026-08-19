@@ -15,16 +15,19 @@ package com.chua.network.support.tshark.restorer;
 public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "modbus";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 260;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 8) {
             return false;
@@ -39,6 +42,7 @@ public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 8) {
             return "[Modbus] empty";
@@ -56,6 +60,7 @@ public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToFunctionName */
     private static String toFunctionName(int fc) {
         return switch (fc) {
             case 0x01 -> "ReadCoils";

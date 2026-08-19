@@ -61,6 +61,7 @@ public class InMemoryStorage implements ApmStorage {
     private volatile long retentionMillis = 7L * 24 * 60 * 60 * 1000L;
 
     @Override
+    /** 开始 */
     public void start(StorageConfig config) {
         this.capacity = config.getInt("apm.storage.capacity", 100_000);
         this.retentionMillis = config.getLong("apm.storage.retention.ms", 7L * 24 * 60 * 60 * 1000L);
@@ -68,11 +69,13 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         log.info("InMemoryStorage 停止");
     }
 
     @Override
+    /** 追加Transmission */
     public void appendTransmission(TransmissionEvent event) {
         if (event == null) {
             return;
@@ -85,6 +88,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 追加Dependency */
     public void appendDependency(DependencyEdge edge) {
         if (edge == null || edge.getSource() == null || edge.getTarget() == null) {
             return;
@@ -107,6 +111,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 追加Leak */
     public void appendLeak(LeakRecord record) {
         if (record == null) {
             return;
@@ -118,6 +123,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 追加记录日志 */
     public void appendLog(LogRecord record) {
         if (record == null) {
             return;
@@ -130,6 +136,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Transmissions */
     public List<TransmissionEvent> queryTransmissions(Query query) {
         return transmissions.values().stream()
                 .filter(e -> matchTime(e.getStartTime(), query))
@@ -148,11 +155,13 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Dependencies */
     public List<DependencyEdge> queryDependencies(Query query) {
         return new ArrayList<>(dependencies.values());
     }
 
     @Override
+    /** 查询Leaks */
     public List<LeakRecord> queryLeaks(Query query) {
         return leaks.values().stream()
                 .filter(r -> matchTime(r.getCreatedAt(), query))
@@ -163,6 +172,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Logs */
     public List<LogRecord> queryLogs(Query query) {
         return logs.values().stream()
                 .filter(r -> matchTime(r.getTimestamp(), query))
@@ -173,6 +183,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** Stats */
     public Map<String, Long> stats() {
         return Map.of(
                 "transmissions", (long) transmissions.size(),
@@ -182,6 +193,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** Cleanup */
     public long cleanup(long retentionMillis) {
         long cutoff = System.currentTimeMillis() - retentionMillis;
         return cleanupInternal(cutoff);
@@ -199,17 +211,36 @@ public class InMemoryStorage implements ApmStorage {
         return removed;
     }
 
+    /**
+     * 移除IfOlderThanLeak
+     * @param map map
+     * @param cutoff cutoff
+     * @param tsExtractor tsExtractor
+     */
     private static <V> long removeIfOlderThanLeak(Map<String, LeakRecord> map, long cutoff,
                                                   java.util.function.Function<LeakRecord, Long> tsExtractor) {
         return doRemoveOlder(map, cutoff, tsExtractor);
     }
 
+    /**
+     * 移除IfOlderThanLong
+     * @param map map
+     * @param cutoff cutoff
+     * @param tsExtractor tsExtractor
+     */
     private static <V> long removeIfOlderThanLong(Map<Long, V> map, long cutoff,
                                                   java.util.function.Function<V, Long> tsExtractor) {
         return doRemoveOlder(map, cutoff, tsExtractor);
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * Do移除Older
+     * @param map map
+     * @param cutoff cutoff
+     * @param V V
+     * @param tsExtractor tsExtractor
+     */
     private static <K, V> long doRemoveOlder(Map<K, V> map, long cutoff,
                                             java.util.function.Function<? super V, Long> tsExtractor) {
         long count = 0;
@@ -232,6 +263,7 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "inmemory";
     }
@@ -273,6 +305,7 @@ public class InMemoryStorage implements ApmStorage {
         }
     }
 
+    /** MatchTime */
     private static boolean matchTime(long ts, Query q) {
         if (q.getStartTime() != null && ts < q.getStartTime()) {
             return false;
@@ -283,6 +316,7 @@ public class InMemoryStorage implements ApmStorage {
         return true;
     }
 
+    /** MatchString */
     private static boolean matchString(String value, String filter) {
         if (filter == null || filter.isEmpty()) {
             return true;

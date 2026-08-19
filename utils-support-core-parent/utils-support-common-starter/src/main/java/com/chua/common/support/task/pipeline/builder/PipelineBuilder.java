@@ -517,6 +517,7 @@ public class PipelineBuilder {
     public PipelineBuilder onStart(Consumer<PipelineContext<?>> onStart) {
         this.listeners.add(new PipelineListener() {
             @Override
+            /** On开始 */
             public void onStart(PipelineContext<?> ctx) {
                 onStart.accept(ctx);
             }
@@ -535,6 +536,7 @@ public class PipelineBuilder {
     public PipelineBuilder onComplete(Consumer<PipelineContext<?>> onComplete) {
         this.listeners.add(new PipelineListener() {
             @Override
+            /** OnComplete */
             public void onComplete(PipelineContext<?> ctx) {
                 onComplete.accept(ctx);
             }
@@ -553,6 +555,7 @@ public class PipelineBuilder {
     public PipelineBuilder onNextStep(java.util.function.BiConsumer<PipelineContext<?>, String[]> onNextStep) {
         this.listeners.add(new PipelineListener() {
             @Override
+            /** AfterNode */
             public void afterNode(PipelineContext<?> ctx) {
                 onNextStep.accept(ctx, new String[]{ctx.getCurrentNodeId(), ctx.getNextNodeId()});
             }
@@ -587,6 +590,7 @@ public class PipelineBuilder {
     public PipelineBuilder onDraw(Consumer<PipelineContext<?>> onDraw) {
         this.listeners.add(new PipelineListener() {
             @Override
+            /** OnDraw */
             public void onDraw(PipelineContext<?> ctx) {
                 onDraw.accept(ctx);
             }
@@ -627,6 +631,7 @@ public class PipelineBuilder {
     public PipelineBuilder onError(BiFunction<PipelineContext<?>, Throwable, String> onError) {
         this.listeners.add(new PipelineListener() {
             @Override
+            /** On记录错误 */
             public String onError(PipelineContext<?> ctx, Throwable e) {
                 return onError.apply(ctx, e);
             }

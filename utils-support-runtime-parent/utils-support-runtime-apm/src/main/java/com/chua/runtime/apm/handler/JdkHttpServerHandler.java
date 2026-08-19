@@ -24,31 +24,37 @@ public class JdkHttpServerHandler extends AbstractAppHandler {
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override
+    /** Name */
     public String name() {
         return "jdk-http-server-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "jdk-http-server.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.JDK_HTTP_SERVER;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(HTTP_HANDLER, HANDLE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

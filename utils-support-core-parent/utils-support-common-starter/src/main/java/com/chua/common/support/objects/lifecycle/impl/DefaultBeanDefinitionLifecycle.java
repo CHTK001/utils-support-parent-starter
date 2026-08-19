@@ -24,11 +24,13 @@ import java.lang.reflect.Method;
 public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
     @Override
+    /** 初始化 */
     public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -44,6 +46,7 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     @Override
+    /** 销毁 */
     public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -52,6 +55,7 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         invokeAnnotatedMethods(bean, AutoPreDestroy.class);
     }
 
+    /** 调用AnnotatedMethods */
     private void invokeAnnotatedMethods(Object bean, Class<? extends java.lang.annotation.Annotation> annotationType) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.isAnnotationPresent(annotationType) && method.getParameterCount() == 0) {

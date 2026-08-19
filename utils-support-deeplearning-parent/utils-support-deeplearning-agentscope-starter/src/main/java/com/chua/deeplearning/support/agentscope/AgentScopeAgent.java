@@ -115,30 +115,35 @@ public class AgentScopeAgent implements Agent {
     // ==================== Agent 接口覆写 ====================
 
     @Override
+    /** Mode */
     public Agent mode(AgentMode mode) {
         this.mode = mode != null ? mode : AgentMode.AUTO;
         return this;
     }
 
     @Override
+    /** ChatClient */
     public Agent chatClient(ChatClient chatClient) {
         this.chatClients.put(null, chatClient);
         return this;
     }
 
     @Override
+    /** ChatClient */
     public Agent chatClient(String agentId, ChatClient chatClient) {
         this.chatClients.put(agentId, chatClient);
         return this;
     }
 
     @Override
+    /** McpManager */
     public Agent mcpManager(McpManager mcpManager) {
         this.globalMcpManager = mcpManager;
         return this;
     }
 
     @Override
+    /** McpManager */
     public Agent mcpManager(String agentId, McpManager mcpManager) {
         if (this.globalMcpManager == null) {
             this.globalMcpManager = mcpManager;
@@ -147,12 +152,14 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** SkillManager */
     public Agent skillManager(SkillManager skillManager) {
         this.globalSkillManager = skillManager;
         return this;
     }
 
     @Override
+    /** SkillManager */
     public Agent skillManager(String agentId, SkillManager skillManager) {
         if (this.globalSkillManager == null) {
             this.globalSkillManager = skillManager;
@@ -161,6 +168,7 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** SubAgent */
     public Agent subAgent(AgentDefinition subAgent) {
         if (subAgent != null) {
             this.subAgentDefinitions.add(subAgent);
@@ -169,58 +177,68 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** Skill */
     public Agent skill(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
         return this;
     }
 
     @Override
+    /** Mcp */
     public Agent mcp(boolean mcp) {
         this.mcpEnabled = mcp;
         return this;
     }
 
     @Override
+    /** 最大值ToolIterations */
     public Agent maxToolIterations(int maxIterations) {
         this.maxToolIterations = maxIterations;
         return this;
     }
 
     @Override
+    /** MemoryConfig */
     public Agent memoryConfig(MemoryConfig memoryConfig) {
         this.memoryConfig = memoryConfig;
         return this;
     }
 
     @Override
+    /** CompressionConfig */
     public Agent compressionConfig(AgentCompressionConfig compressionConfig) {
         this.compressionConfig = compressionConfig;
         return this;
     }
 
     @Override
+    /** CompressionConfig */
     public AgentCompressionConfig compressionConfig() {
         return compressionConfig;
     }
 
     @Override
+    /** Plan */
     public Agent plan(boolean plan) {
         this.planEnabled = plan;
         return this;
     }
 
     @Override
+    /** Plan最大值Task */
     public Agent planMaxTask(int planMaxTask) {
         this.planMaxTask = planMaxTask;
         return this;
     }
 
     @Override
+    /** 调试Hook */
     public Agent debugHook(AgentDebugHook debugHook) {
         this.debugHook = debugHook;
         return this;
     }
 
     @Override
+    /** PrintConfig */
     public Agent printConfig(boolean printConfig) {
         if (printConfig) {
             log.info("[Agent] printConfig已弃用，请使用debug(true)启用日志调试");
@@ -229,36 +247,42 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** 调试 */
     public Agent debug(boolean debug) {
         this.debugLogging = debug;
         return this;
     }
 
     @Override
+    /** PlanHook */
     public Agent planHook(AgentPlanHook planHook) {
         this.planHook = planHook;
         return this;
     }
 
     @Override
+    /** 最大值Retries */
     public Agent maxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
         return this;
     }
 
     @Override
+    /** RetryBackoff */
     public Agent retryBackoff(AgentRetryConfig.BackoffStrategy strategy) {
         this.retryStrategy = strategy;
         return this;
     }
 
     @Override
+    /** RetryBaseDelay */
     public Agent retryBaseDelay(long baseDelayMillis) {
         this.retryBaseDelay = baseDelayMillis;
         return this;
     }
 
     @Override
+    /** RetryConfig */
     public Agent retryConfig(AgentRetryConfig retryConfig) {
         if (retryConfig != null) {
             this.maxRetries = retryConfig.getMaxRetries();
@@ -269,16 +293,19 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** 获取Definition */
     public AgentDefinition getDefinition() {
         return definition;
     }
 
     @Override
+    /** 获取SubAgents */
     public List<AgentDefinition> getSubAgents() {
         return List.copyOf(subAgentDefinitions);
     }
 
     @Override
+    /** 运行 */
     public AgentResponse run(String input) {
         ChatClient primaryClient = this.chatClients.get(null);
         if (primaryClient == null) {
@@ -453,6 +480,7 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         cleanupModelRegistrations();
         for (ChatClient client : chatClients.values()) {
@@ -465,15 +493,29 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
+    /** Definition */
     public Agent definition(AgentDefinition definition) {
         this.definition = definition;
         return this;
     }
 
+    /** CleanupModelRegistrations */
     private void cleanupModelRegistrations() {
         registeredModelIds.clear();
     }
 
+    /**
+     * 构建Harness
+     * @param agentId agentId
+     * @param sysPrompt sysPrompt
+     * @param primaryModelId primaryModelId
+     * @param declarations declarations
+     * @param effectivePlan effectivePlan
+     * @param effectivePlanMaxTask effectivePlanMaxTask
+     * @param effectiveDebugHook effectiveDebugHook
+     * @param effectivePlanHook effectivePlanHook
+     * @param effectiveMaxIters effectiveMaxIters
+     */
     private HarnessAgent buildHarness(String agentId, String sysPrompt,
                                       String primaryModelId, List<SubagentDeclaration> declarations,
                                       boolean effectivePlan, int effectivePlanMaxTask,
@@ -513,6 +555,7 @@ public class AgentScopeAgent implements Agent {
         return builder.build();
     }
 
+    /** ComputeDelay */
     private long computeDelay(int attempt, int maxRetries) {
         AgentRetryConfig cfg = AgentRetryConfig.builder()
                 .backoffStrategy(retryStrategy)
@@ -534,11 +577,13 @@ public class AgentScopeAgent implements Agent {
         }
     }
 
+    /** 解析最大值Iters */
     private static int resolveMaxIters(int chainValue, int defValue) {
         int effective = chainValue != 0 ? chainValue : (defValue != 0 ? defValue : 5);
         return effective > 0 ? effective : Integer.MAX_VALUE;
     }
 
+    /** 解析ModelId */
     private static String resolveModelId(String prefix, ChatClient chatClient) {
         String suffix = "default";
         try {
@@ -548,6 +593,7 @@ public class AgentScopeAgent implements Agent {
         return "agentscope:" + prefix + ":" + suffix;
     }
 
+    /** 解析Workspace */
     private String resolveWorkspace() {
         if (memoryConfig != null && memoryConfig.getWorkspace() != null && !memoryConfig.getWorkspace().isBlank()) {
             return memoryConfig.getWorkspace();
@@ -555,6 +601,7 @@ public class AgentScopeAgent implements Agent {
         return System.getProperty("java.io.tmpdir", "/tmp") + "agentscope-compression";
     }
 
+    /** 记录日志Architecture */
     private void logArchitecture(int effectiveMaxIters) {
         String mainAgentId = definition != null && definition.getId() != null ? definition.getId() : "agent";
         String mainAgentName = definition != null && definition.getName() != null ? definition.getName() : "Agent";

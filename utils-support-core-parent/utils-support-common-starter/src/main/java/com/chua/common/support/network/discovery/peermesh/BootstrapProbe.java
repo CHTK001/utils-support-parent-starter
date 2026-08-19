@@ -30,6 +30,16 @@ public class BootstrapProbe {
     /** 本地主机 */
     private final String localHost;
 
+    /**
+     * 创建 BootstrapProbe 实例
+     * @param config config
+     * @param nodeTable nodeTable
+     * @param selector selector
+     * @param localServerId localServerId
+     * @param localPort localPort
+     * @param diskStore diskStore
+     * @param localHost localHost
+     */
     public BootstrapProbe(MeshConfig config, NodeTable nodeTable, InterfaceSelector selector,
                           String localServerId, int localPort, DiskStore diskStore,
                           String localHost) {
@@ -100,14 +110,17 @@ public class BootstrapProbe {
                 all.addAll(seedMode.getDiscoveredNodes());
                 return new ProbeStrategy() {
                     @Override
+                    /** 开始 */
                     public void start() {
                     }
 
                     @Override
+                    /** 停止 */
                     public void stop() {
                     }
 
                     @Override
+                    /** 获取DiscoveredNodes */
                     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
                         return Collections.unmodifiableList(all);
                     }

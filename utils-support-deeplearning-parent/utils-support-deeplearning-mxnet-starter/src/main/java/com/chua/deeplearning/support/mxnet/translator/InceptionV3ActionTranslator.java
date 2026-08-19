@@ -39,10 +39,15 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     /** Delegate */
     private final ImageClassificationTranslator delegate;
 
+    /** 创建 InceptionV3ActionTranslator 实例 */
     public InceptionV3ActionTranslator() {
         this(Map.of());
     }
 
+    /**
+     * 创建 InceptionV3ActionTranslator 实例
+     * @param arguments arguments
+     */
     public InceptionV3ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();
         if (arguments != null && !arguments.isEmpty()) {
@@ -61,16 +66,19 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return delegate.getBatchifier();
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return delegate.processInput(ctx, input);
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return delegate.processOutput(ctx, list);
     }

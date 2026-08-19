@@ -18,9 +18,11 @@ import java.nio.file.Path;
  */
 public final class ImageCaptioningExample extends ExampleBase {
 
+    /** 创建 ImageCaptioningExample 实例 */
     private ImageCaptioningExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("用法: ImageCaptioningExample <图片路径> [模型名]");

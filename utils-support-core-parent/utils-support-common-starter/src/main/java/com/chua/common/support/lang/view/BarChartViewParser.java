@@ -26,6 +26,7 @@ public class BarChartViewParser implements ViewParser {
     private static final int DEFAULT_BAR_WIDTH = 20;
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -38,6 +39,7 @@ public class BarChartViewParser implements ViewParser {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Render */
     public String render(Object data) {
         Map<Object, Object> map = (Map<Object, Object>) data;
         if (map.isEmpty()) {
@@ -77,6 +79,7 @@ public class BarChartViewParser implements ViewParser {
         return sb.toString();
     }
 
+    /** 解析Double */
     private static double parseDouble(Object val) {
         if (val instanceof Number) {
             return ((Number) val).doubleValue();
@@ -99,6 +102,7 @@ public class BarChartViewParser implements ViewParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 25;
     }

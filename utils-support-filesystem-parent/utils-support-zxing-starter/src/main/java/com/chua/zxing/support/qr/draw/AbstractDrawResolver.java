@@ -46,6 +46,16 @@ public abstract class AbstractDrawResolver implements DrawResolver {
     /** 左侧padding */
     protected final int leftPadding;
 
+    /**
+     * 创建 AbstractDrawResolver 实例
+     * @param g2 g2
+     * @param detectInnerColor detectInnerColor
+     * @param detectOutColor detectOutColor
+     * @param qrCodeConfig qrCodeConfig
+     * @param bitMatrix bitMatrix
+     * @param drawOptions drawOptions
+     * @param setting setting
+     */
     public AbstractDrawResolver(Graphics2D g2,
                                 Color detectInnerColor,
                                 Color detectOutColor,

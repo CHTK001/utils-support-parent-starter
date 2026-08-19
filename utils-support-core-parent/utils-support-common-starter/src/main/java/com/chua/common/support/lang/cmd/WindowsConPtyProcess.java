@@ -344,10 +344,12 @@ public final class WindowsConPtyProcess implements Closeable {
         STARTUPINFOEX_SIZE = siExSize;
     }
 
+    /** 是否Available */
     public static boolean isAvailable() {
         return AVAILABLE;
     }
 
+    /** 是否Windows */
     public static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase().contains("win");
     }
@@ -384,6 +386,15 @@ public final class WindowsConPtyProcess implements Closeable {
      */
     private ConPtyInputStream inputStream;
 
+    /**
+     * 创建 WindowsConPtyProcess 实例
+     * @param hPC hPC
+     * @param hInputWrite hInputWrite
+     * @param hOutputRead hOutputRead
+     * @param hProcess hProcess
+     * @param hThread hThread
+     * @param inputStream inputStream
+     */
     private WindowsConPtyProcess(MemorySegment hPC, MemorySegment hInputWrite,
                                   MemorySegment hOutputRead, MemorySegment hProcess,
                                   MemorySegment hThread, ConPtyInputStream inputStream) {
@@ -443,6 +454,7 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
+    /** 开始 */
     public static WindowsConPtyProcess start(String[] cmdArray, String workDir) throws IOException {
         if (!AVAILABLE) {
             throw new UnsupportedOperationException("ConPTY is not available on this system");
@@ -640,10 +652,12 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
+    /** 获取InputStream */
     public InputStream getInputStream() {
         return inputStream;
     }
 
+    /** WaitFor */
     public int waitFor() throws InterruptedException {
         if (hProcess == null) {
             return -1;
@@ -664,6 +678,7 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
+    /** WaitFor */
     public boolean waitFor(long timeout) throws InterruptedException {
         if (hProcess == null) {
             return true;
@@ -676,6 +691,7 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (inputStream != null) {
             try { inputStream.close(); } catch (Exception ignored) {
@@ -762,6 +778,7 @@ public final class WindowsConPtyProcess implements Closeable {
         }
 
         @Override
+        /** 读取 */
         public int read() throws IOException {
             byte[] b = new byte[1];
             int n = read(b, 0, 1);
@@ -769,6 +786,7 @@ public final class WindowsConPtyProcess implements Closeable {
         }
 
         @Override
+        /** 读取 */
         public int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
@@ -805,6 +823,7 @@ public final class WindowsConPtyProcess implements Closeable {
         }
 
         @Override
+        /** 关闭 */
         public void close() {
         }
     }

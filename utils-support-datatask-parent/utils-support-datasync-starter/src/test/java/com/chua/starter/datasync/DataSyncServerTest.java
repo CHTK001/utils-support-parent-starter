@@ -67,17 +67,20 @@ class DataSyncServerTest {
         assertNotNull(server.executorManager());
     }
 
+    /** 创建Mapping */
     private static DataSyncMapping createMapping(String id) {
         return new DefaultDataSyncMapping(id, "in1", "src1", "out1", "sink1",
                 null, List.of(), 100, "", "", Map.of(), null);
     }
 
+    /** MockSource */
     private record MockSource(String sourceId) implements DataSyncAgentSource {
         @Override public String inputId() { return sourceId; }
         @Override public Flux<Map<String, Object>> read(Map<String, Object> p) { return Flux.empty(); }
         @Override public void close() {}
     }
 
+    /** MockSink */
     private record MockSink(String sinkId) implements DataSyncAgentSink {
         @Override public void write(Flux<Map<String, Object>> d) {}
         @Override public void close() {}

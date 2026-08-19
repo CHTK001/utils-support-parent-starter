@@ -219,6 +219,7 @@ public class MavenClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 无需清理特殊资源
     }

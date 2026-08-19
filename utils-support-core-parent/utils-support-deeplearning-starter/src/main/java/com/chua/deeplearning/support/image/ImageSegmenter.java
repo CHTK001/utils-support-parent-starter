@@ -54,6 +54,7 @@ public interface ImageSegmenter {
         return this;
     }
 
+    /** 创建 */
     static ImageSegmenter create(String name) {
         return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -176,12 +177,14 @@ class DefaultImageSegmenter implements ImageSegmenter {
     }
 
     @Override
+    /** ModelPath */
     public ImageSegmenter modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageSegmenter device(String device) {
         this.device = device;
         return this;
@@ -189,6 +192,7 @@ class DefaultImageSegmenter implements ImageSegmenter {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Segment */
     public byte[] segment(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);
@@ -200,6 +204,7 @@ class DefaultImageSegmenter implements ImageSegmenter {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Segment */
     public byte[] segment(byte[] imageData, int targetClass) {
         return segment(imageData);
     }

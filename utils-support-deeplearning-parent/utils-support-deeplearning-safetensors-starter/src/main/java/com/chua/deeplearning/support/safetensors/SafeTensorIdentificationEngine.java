@@ -21,30 +21,36 @@ import java.util.List;
 public class SafeTensorIdentificationEngine implements IdentificationEngine {
 
     @Override
+    /** 获取 */
     public <T> T get(String modelId, Class<T> target) {
         return null;
     }
 
     @Override
+    /** 获取 */
     public <T> T get(Class<T> target) {
         return null;
     }
 
     @Override
+    /** 注册 */
     public void register(TranslatorModelDefinition definition) {
     }
 
     @Override
+    /** 获取Models */
     public List<ModelDefinition> getModels() {
         return new ArrayList<>();
     }
 
     @Override
+    /** 获取TranslatorModels */
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return new ArrayList<>();
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

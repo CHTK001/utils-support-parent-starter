@@ -34,6 +34,11 @@ public final class ContextCompressor {
     /** 底层压缩服务 */
     private final AgentContextCompressionService delegate;
 
+    /**
+     * 创建 ContextCompressor 实例
+     * @param config config
+     * @param ChatClient ChatClient
+     */
     private ContextCompressor(ContextCompressionConfig config, ChatClient fallbackClient) {
         this.config = config != null ? config : ContextCompressionConfig.builder().build();
         String workspace = this.config.getWorkspace() != null
@@ -66,10 +71,12 @@ public final class ContextCompressor {
         return new ContextCompressor(cfg, fallbackClient);
     }
 
+    /** Disabled */
     public static ContextCompressor disabled() {
         return new ContextCompressor(ContextCompressionConfig.builder().enabled(false).build(), null);
     }
 
+    /** 是否Enabled */
     public boolean isEnabled() {
         return config.isEnabled()
                 && config.getCompressionThreshold() > 0;
@@ -151,10 +158,12 @@ public final class ContextCompressor {
         return compressed.get(0).getContent();
     }
 
+    /** 是否BaselineSaved */
     public boolean isBaselineSaved() {
         return delegate.isBaselineSaved();
     }
 
+    /** 获取Config */
     public ContextCompressionConfig getConfig() {
         return config;
     }

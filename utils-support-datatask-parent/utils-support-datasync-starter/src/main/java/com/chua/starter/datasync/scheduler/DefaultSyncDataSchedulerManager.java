@@ -214,10 +214,19 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         }
     }
 
+    /**
+     * 创建 DefaultSyncDataSchedulerManager 实例
+     * @param dataSyncServer dataSyncServer
+     */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer) {
         this(dataSyncServer, SchedulerConfig.builder().build());
     }
 
+    /**
+     * 创建 DefaultSyncDataSchedulerManager 实例
+     * @param dataSyncServer dataSyncServer
+     * @param SchedulerConfig SchedulerConfig
+     */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer, SchedulerConfig config) {
         this.dataSyncServer = dataSyncServer;
         this.config = config;
@@ -231,17 +240,20 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     @Override
+    /** 添加Mapping */
     public void addMapping(DataSyncMapping mapping) {
         dataSyncServer.mappingManager().addMapping(mapping);
     }
 
     @Override
+    /** 移除Mapping */
     public void removeMapping(String mappingId) {
         dataSyncServer.mappingManager().removeMapping(mappingId);
         triggerCache.remove(mappingId);
     }
 
     @Override
+    /** 获取Mapping */
     public DataSyncMapping getMapping(String mappingId) {
         return dataSyncServer.mappingManager().getMappings().stream()
                 .filter(m -> m.mappingId().equals(mappingId))
@@ -250,11 +262,13 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     @Override
+    /** 获取Mappings */
     public List<DataSyncMapping> getMappings() {
         return dataSyncServer.mappingManager().getMappings();
     }
 
     @Override
+    /** 开始 */
     public void start() {
         scheduler.scheduleAtFixedRate(
                 this::executePendingMappings,
@@ -266,6 +280,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         scheduler.shutdown();
         subscribedSinkKeys.clear();
@@ -273,6 +288,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     @Override
+    /** Trigger */
     public void trigger(String mappingId) {
         if (mappingId == null || mappingId.isBlank()) {
             log.error("手动触发失败：mappingId 为空");
@@ -495,6 +511,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 .collect(Collectors.toList());
     }
 
+    /** 构建读取Params */
     private Map<String, Object> buildReadParams(DataSyncMapping mapping, DataSyncAgentSource source) {
         Map<String, Object> params = mapping.params() == null ? new HashMap<>() : new HashMap<>(mapping.params());
         com.chua.datasync.agent.support.model.SyncDataOffset storedOffset = source.readOffset(params);

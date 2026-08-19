@@ -47,10 +47,25 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     /** 最后行号 */
     private volatile long lastLineNumber = 0;
 
+    /**
+     * 创建 DelimitedDataSyncAgentSource 实例
+     * @param sourceId sourceId
+     * @param String String
+     * @param String String
+     * @param String String
+     */
     public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter) {
         this(sourceId, inputId, filePath, delimiter, new FileSyncDataOffsetStorage());
     }
 
+    /**
+     * 创建 DelimitedDataSyncAgentSource 实例
+     * @param sourceId sourceId
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param SyncDataOffsetStorage SyncDataOffsetStorage
+     */
     public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter, SyncDataOffsetStorage offsetStorage) {
         this.sourceId = sourceId;
         this.inputId = inputId;
@@ -60,21 +75,25 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** InputId */
     public String inputId() {
         return inputId;
     }
 
     @Override
+    /** 读取Offset */
     public SyncDataOffset readOffset(Map<String, Object> params) {
         return offsetStorage.read(sourceId, null);
     }
 
     @Override
+    /** 写入Offset */
     public void writeOffset(SyncDataOffset offset) {
         if (offset == null) {
             return;
@@ -83,6 +102,7 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         return Flux.<Map<String, Object>>create(sink -> {
             long skip = 0;
@@ -141,15 +161,18 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
+    /** 获取Last读取Offset */
     public Object getLastReadOffset() {
         return lastLineNumber;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.INPUT;
     }

@@ -51,6 +51,10 @@ public final class CircuitBreakerFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 CircuitBreakerFlow 实例
+     * @param name name
+     */
     private CircuitBreakerFlow(String name) {
         this.name = name;
     }
@@ -145,6 +149,7 @@ public final class CircuitBreakerFlow {
     }
 
     @SuppressWarnings("unchecked")
+    /** OnRejected */
     private <T> T onRejected() {
         if (fallback != null) {
             return (T) fallback.get();
@@ -152,10 +157,12 @@ public final class CircuitBreakerFlow {
         throw new IllegalStateException("熔断拒绝: " + name);
     }
 
+    /** 获取Provider */
     private CircuitBreakerProvider getProvider() {
         return CACHE.computeIfAbsent(name, this::createProvider);
     }
 
+    /** 创建Provider */
     private CircuitBreakerProvider createProvider(String name) {
         CircuitBreakerProvider provider = ServiceProvider.of(CircuitBreakerProvider.class).getExtension(name);
         if (provider != null) {

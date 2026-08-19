@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 public class BinaryResponseConverter implements ResponseConverter {
 
     @Override
+    /** 转换 */
     public void convert(ServerResponse response, Object data) throws Exception {
         response.setContentType(contentType());
         if (data instanceof byte[] b) {
@@ -33,16 +34,19 @@ public class BinaryResponseConverter implements ResponseConverter {
     }
 
     @Override
+    /** ContentType */
     public String contentType() {
         return "application/octet-stream";
     }
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         return data instanceof byte[];
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 300;
     }

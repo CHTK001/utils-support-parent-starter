@@ -49,6 +49,7 @@ public class PropertiesPropertySource extends AbstractPropertySource {
     }
 
     @Override
+    /** 获取RawProperty */
     protected Object getRawProperty(String key) {
         if (properties == null) {
             return null;
@@ -57,6 +58,7 @@ public class PropertiesPropertySource extends AbstractPropertySource {
     }
 
     @Override
+    /** 获取Source */
     protected Object getSource() {
         if (properties == null) {
             return null;

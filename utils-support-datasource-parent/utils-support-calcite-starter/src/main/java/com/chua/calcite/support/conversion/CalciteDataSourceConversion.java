@@ -41,6 +41,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     private static final String CALCITE_LEX_MYSQL = "MYSQL";
 
     @Override
+    /** 转换 */
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment environment) {
         if (dataSources == null || dataSources.isEmpty()) {
             throw new IllegalArgumentException("至少需要一个数据源");
@@ -49,6 +50,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "CALCITE";
     }
@@ -73,6 +75,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
+        /** 获取Connection */
         public Connection getConnection() throws SQLException {
             Properties info = new Properties();
             info.put(CALCITE_LEX, CALCITE_LEX_MYSQL);
@@ -89,12 +92,14 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
+        /** 获取Connection */
         public Connection getConnection(String username, String password) throws SQLException {
             return getConnection();
         }
 
         @Override
         @SuppressWarnings("unchecked")
+        /** Unwrap */
         public <T> T unwrap(Class<T> iface) throws SQLException {
             if (iface.isInstance(this)) {
                 return (T) this;
@@ -103,29 +108,35 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
+        /** 是否WrapperFor */
         public boolean isWrapperFor(Class<?> iface) {
             return iface.isInstance(this);
         }
 
         @Override
+        /** 获取记录日志Writer */
         public PrintWriter getLogWriter() {
             return null;
         }
 
         @Override
+        /** 设置记录日志Writer */
         public void setLogWriter(PrintWriter out) {
         }
 
         @Override
+        /** 设置LoginTimeout */
         public void setLoginTimeout(int seconds) {
         }
 
         @Override
+        /** 获取LoginTimeout */
         public int getLoginTimeout() {
             return 0;
         }
 
         @Override
+        /** 获取ParentLogger */
         public Logger getParentLogger() {
             return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         }

@@ -37,6 +37,13 @@ public class IonetLogicServer implements LogicServer {
      */
     private final Consumer<BarSkeletonBuilder> skeletonConfigurer;
 
+    /**
+     * 创建 IonetLogicServer 实例
+     * @param name name
+     * @param scanActionClass scanActionClass
+     * @param debugMode debugMode
+     * @param skeletonConfigurer skeletonConfigurer
+     */
     public IonetLogicServer(String name, Class<?> scanActionClass, boolean debugMode,
                             Consumer<BarSkeletonBuilder> skeletonConfigurer) {
         this.name = name;
@@ -46,6 +53,7 @@ public class IonetLogicServer implements LogicServer {
     }
 
     @Override
+    /** SettingBarSkeletonBuilder */
     public void settingBarSkeletonBuilder(BarSkeletonBuilder builder) {
         // 扫描 Action 类所在包
         builder.scanActionPackage(scanActionClass);
@@ -62,11 +70,13 @@ public class IonetLogicServer implements LogicServer {
     }
 
     @Override
+    /** SettingServerBuilder */
     public void settingServerBuilder(ServerBuilder builder) {
         builder.setName(name);
     }
 
     @Override
+    /** StartupSuccess */
     public void startupSuccess(BarSkeleton barSkeleton) {
         log.info("[IonetLogicServer] {} started successfully", name);
     }

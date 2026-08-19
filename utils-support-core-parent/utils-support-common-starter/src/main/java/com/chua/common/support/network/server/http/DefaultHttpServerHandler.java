@@ -82,11 +82,13 @@ public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
     }
 
     @Override
+    /** Path */
     public String path() {
         return path;
     }
 
     @Override
+    /** Method */
     public HttpMethod method() {
         return httpMethod;
     }

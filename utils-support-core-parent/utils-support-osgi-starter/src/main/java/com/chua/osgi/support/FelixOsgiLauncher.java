@@ -48,6 +48,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     private boolean autoStartInstalledBundles = true;
 
     @Override
+    /** 开始 */
     public void start(Map<String, String> config) {
         if (framework != null && framework.getState() == Bundle.ACTIVE) {
             log.warn("[osgi] OSGI framework is already active");
@@ -74,6 +75,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         }
     }
 
+    /** 通知Applications */
     private void notifyApplications() {
         BundleContext ctx = new FelixBundleContext(framework.getBundleContext());
         ServiceProvider<BundleApplication> provider = ServiceProvider.of(BundleApplication.class);
@@ -88,47 +90,58 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         });
     }
 
+    /** 添加Listener */
     public void addListener(BundleLifecycleListener listener) {
         listeners.add(listener);
     }
 
+    /** 移除Listener */
     public void removeListener(BundleLifecycleListener listener) {
         listeners.remove(listener);
     }
 
+    /** FireBundleInstalled */
     private void fireBundleInstalled(String symbolicName) {
         listeners.forEach(l -> l.onBundleInstalled(symbolicName));
     }
 
+    /** FireBundleStarted */
     private void fireBundleStarted(String symbolicName) {
         listeners.forEach(l -> l.onBundleStarted(symbolicName));
     }
 
+    /** FireBundleStopped */
     private void fireBundleStopped(String symbolicName) {
         listeners.forEach(l -> l.onBundleStopped(symbolicName));
     }
 
+    /** FireBundleUpdated */
     private void fireBundleUpdated(String symbolicName, String newVersion) {
         listeners.forEach(l -> l.onBundleUpdated(symbolicName, newVersion));
     }
 
+    /** FireBundleUninstalled */
     private void fireBundleUninstalled(String symbolicName) {
         listeners.forEach(l -> l.onBundleUninstalled(symbolicName));
     }
 
+    /** FireBundleStateChanged */
     private void fireBundleStateChanged(String symbolicName, String oldState, String newState) {
         listeners.forEach(l -> l.onBundleStateChanged(symbolicName, oldState, newState));
     }
 
+    /** 是否Auto开始InstalledBundles */
     public boolean isAutoStartInstalledBundles() {
         return autoStartInstalledBundles;
     }
 
+    /** 设置Auto开始InstalledBundles */
     public void setAutoStartInstalledBundles(boolean autoStart) {
         this.autoStartInstalledBundles = autoStart;
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         if (framework == null) {
             return;
@@ -153,11 +166,13 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
+    /** 是否Active */
     public boolean isActive() {
         return framework != null && framework.getState() == Bundle.ACTIVE;
     }
 
     @Override
+    /** 获取Services */
     public <T> List<T> getServices(Class<T> type) {
         if (!isActive()) {
             return Collections.emptyList();
@@ -182,12 +197,14 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
+    /** 获取Service */
     public <T> T getService(Class<T> type) {
         List<T> services = getServices(type);
         return services.isEmpty() ? null : services.get(0);
     }
 
     @Override
+    /** 获取Bundles */
     public List<OsgiBundle> getBundles() {
         if (!isActive()) {
             return Collections.emptyList();
@@ -201,6 +218,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
+    /** InstallBundle */
     public OsgiBundle installBundle(String url) {
         if (!isActive()) {
             throw new IllegalStateException("OSGI framework is not active");
@@ -226,6 +244,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
+    /** UninstallBundle */
     public void uninstallBundle(String bundleSymbolicName) {
         if (!isActive()) {
             return;
@@ -251,6 +270,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         log.warn("[osgi] Bundle not found: {}", bundleSymbolicName);
     }
 
+    /** 获取Bundle */
     public OsgiBundle getBundle(String symbolicName) {
         List<OsgiBundle> bundles = getBundles();
         return bundles.stream()
@@ -259,20 +279,24 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
                 .orElse(null);
     }
 
+    /** 获取BundlesByState */
     public List<OsgiBundle> getBundlesByState(String state) {
         return getBundles().stream()
                 .filter(b -> b.getState().equals(state))
                 .collect(Collectors.toList());
     }
 
+    /** 获取ActiveBundles */
     public List<OsgiBundle> getActiveBundles() {
         return getBundlesByState("ACTIVE");
     }
 
+    /** 获取Bundle计算数量 */
     public long getBundleCount() {
         return getBundles().size();
     }
 
+    /** 获取FrameworkStats */
     public Map<String, Object> getFrameworkStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("active", isActive());

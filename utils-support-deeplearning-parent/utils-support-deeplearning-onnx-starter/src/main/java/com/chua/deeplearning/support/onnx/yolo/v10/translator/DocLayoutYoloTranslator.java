@@ -344,6 +344,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.fromString("none");
     }

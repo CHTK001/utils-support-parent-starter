@@ -34,6 +34,7 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
     @Override
+    /** Supports */
     public boolean supports(String extension, String mimeType) {
         // 排除已有专门 SPI 提供者的扩展名
         if (extension != null && BYPASS_EXTS.contains(extension.toLowerCase(Locale.ENGLISH))) {
@@ -56,6 +57,7 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String code = new String(content, StandardCharsets.UTF_8);
         String lang = extension != null ? extension.toLowerCase(Locale.ENGLISH) : "txt";
@@ -73,6 +75,7 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
         return PreviewResult.builder().htmlContent(html).embeddedCss(css).build();
     }
 
+    /** EscapeHtml */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
                 .replace("\"", "&quot;");

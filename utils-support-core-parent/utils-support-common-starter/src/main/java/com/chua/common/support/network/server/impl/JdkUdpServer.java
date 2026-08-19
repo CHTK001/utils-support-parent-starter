@@ -55,11 +55,16 @@ public class JdkUdpServer extends AbstractServer {
     /** Receiver线程 */
     private Thread receiverThread;
 
+    /**
+     * 创建 JdkUdpServer 实例
+     * @param setting setting
+     */
     public JdkUdpServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -86,6 +91,7 @@ public class JdkUdpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         running = false;
         if (datagramSocket != null && !datagramSocket.isClosed()) {
@@ -106,10 +112,12 @@ public class JdkUdpServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.UDP;
     }
 
+    /** 接收Loop */
     private void receiveLoop() {
         byte[] buffer = new byte[65535];
         while (running) {
@@ -128,6 +136,7 @@ public class JdkUdpServer extends AbstractServer {
         }
     }
 
+    /** 处理Packet */
     private void handlePacket(byte[] data, InetSocketAddress sender) {
         UdpHandler handler = findHandler();
         if (handler != null) {
@@ -144,6 +153,7 @@ public class JdkUdpServer extends AbstractServer {
         }
     }
 
+    /** 查找Handler */
     private UdpHandler findHandler() {
         for (Map.Entry<String, UdpHandler> entry : handlers.entrySet()) {
             if ("*".equals(entry.getKey())) {

@@ -20,9 +20,11 @@ import java.nio.file.Path;
  */
 public final class AudioClientExample extends ExampleBase {
 
+    /** 创建 AudioClientExample 实例 */
     private AudioClientExample() {
     }
 
+    /** Main */
     public static void main(String[] args) {
         if (args.length == 0) {
             printModels("audio", "whisper", AudioClient.create("whisper", "").models());

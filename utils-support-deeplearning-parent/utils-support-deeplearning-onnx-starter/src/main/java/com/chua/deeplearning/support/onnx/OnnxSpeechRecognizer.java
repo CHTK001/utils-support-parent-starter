@@ -40,15 +40,21 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
      */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxSpeechRecognizer 实例
+     * @param apiKey apiKey
+     */
     public OnnxSpeechRecognizer(String apiKey) {
     }
 
     @Override
+    /** Model */
     public SpeechRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + SpeechRecognizer.listModels());
@@ -57,35 +63,41 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
+    /** Lang */
     public SpeechRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public SpeechRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** SampleRate */
     public SpeechRecognizer sampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
         return this;
     }
 
     @Override
+    /** Device */
     public SpeechRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Recognize */
     public String recognize(byte[] audioData) {
         return SpeechRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).sampleRate(sampleRate).device(device).recognize(audioData);
     }
 
     @Override
+    /** Recognize */
     public String recognize(byte[] audioData, String language) {
         return SpeechRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).sampleRate(sampleRate).device(device).recognize(audioData, language);
     }

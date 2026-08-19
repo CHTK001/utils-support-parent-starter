@@ -24,6 +24,10 @@ public class ClientSetting {
     /** Write超时 */
     private final long writeTimeout;
 
+    /**
+     * 创建 ClientSetting 实例
+     * @param b b
+     */
     private ClientSetting(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -125,14 +129,22 @@ public class ClientSetting {
         /** Write超时 */
         private long writeTimeout = 30_000;
 
+        /** Host */
         public Builder host(String h) { host = h; return this; }
+        /** Port */
         public Builder port(int p) { port = p; return this; }
+        /** Username */
         public Builder username(String u) { username = u; return this; }
+        /** Password */
         public Builder password(String p) { password = p; return this; }
+        /** 连接Timeout */
         public Builder connectTimeout(long t) { connectTimeout = t; return this; }
+        /** 读取Timeout */
         public Builder readTimeout(long t) { readTimeout = t; return this; }
+        /** 写入Timeout */
         public Builder writeTimeout(long t) { writeTimeout = t; return this; }
 
+        /** 构建 */
         public ClientSetting build() {
             if (host == null || host.isEmpty()) {
                 throw new IllegalArgumentException("host 不能为空");

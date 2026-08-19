@@ -69,6 +69,7 @@ public abstract class ShmQueue implements AutoCloseable {
         }
 
         @Override
+        /** ToString */
         public String toString() {
             return "Message{type=" + type + ", len=" + bytes.length + "}";
         }

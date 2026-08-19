@@ -63,6 +63,18 @@ public class DatalakeServer {
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
+    /**
+     * 创建 DatalakeServer 实例
+     * @param pipelineManager pipelineManager
+     * @param pipelineEngine pipelineEngine
+     * @param dispatcher dispatcher
+     * @param sinkManager sinkManager
+     * @param subscriberManager subscriberManager
+     * @param offsetFlow offsetFlow
+     * @param apiServer apiServer
+     * @param true true
+     * @param false false
+     */
     public DatalakeServer(
             PipelineManager pipelineManager,
             PipelineEngine pipelineEngine,

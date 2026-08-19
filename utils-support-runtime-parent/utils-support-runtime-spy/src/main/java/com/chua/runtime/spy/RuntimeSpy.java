@@ -150,6 +150,7 @@ public class RuntimeSpy {
      */
     private static final String MDC_KEY_METHOD_NAME = "methodName";
 
+    /** 创建 RuntimeSpy 实例 */
     private RuntimeSpy() {
     }
 
@@ -904,6 +905,7 @@ public class RuntimeSpy {
             this.ttlMs = ttlMs;
         }
 
+        /** Put */
         synchronized V put(K key, V value) {
             // 容量超限：移除最旧的 10%
             if (map.size() >= maxSize) {
@@ -918,6 +920,7 @@ public class RuntimeSpy {
             return map.put(key, value);
         }
 
+        /** 获取 */
         synchronized V get(K key) {
             // 每 60s 触发一次过期清理
             long now = System.currentTimeMillis();
@@ -935,18 +938,22 @@ public class RuntimeSpy {
             return v;
         }
 
+        /** 移除 */
         synchronized V remove(K key) {
             return map.remove(key);
         }
 
+        /** Clear */
         synchronized void clear() {
             map.clear();
         }
 
+        /** 获取大小 */
         synchronized int size() {
             return map.size();
         }
 
+        /** Cleanup */
         private void cleanup(long now) {
             map.entrySet().removeIf(e -> {
                 if (e.getValue() instanceof TraceEnvelope) {

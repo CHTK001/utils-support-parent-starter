@@ -52,6 +52,7 @@ public class AutoFetcher implements SpiderFetcher {
     }
 
     @Override
+    /** Fetch */
     public SpiderResponse fetch(SpiderRequest request) {
         if (fetchers.isEmpty()) {
             return SpiderResponse.builder()

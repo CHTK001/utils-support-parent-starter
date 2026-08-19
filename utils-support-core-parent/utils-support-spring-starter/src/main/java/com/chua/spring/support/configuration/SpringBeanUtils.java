@@ -327,6 +327,7 @@ public class SpringBeanUtils {
         /** conversionService */
         private static volatile ConversionService conversionService;
 
+        /** 获取 */
         static ConversionService get(ApplicationContext applicationContext) {
             if (conversionService == null) {
                 synchronized (ConversionServiceHolder.class) {
@@ -470,24 +471,32 @@ public class SpringBeanUtils {
         /** Application上下文 */
         private final ApplicationContext applicationContext;
 
+        /**
+         * 创建 EventPublisher 实例
+         * @param applicationContext applicationContext
+         */
         private EventPublisher(ApplicationContext applicationContext) {
             this.applicationContext = applicationContext;
         }
 
+        /** Of */
         public static EventPublisher of(ApplicationContext applicationContext) {
             return new EventPublisher(applicationContext);
         }
 
+        /** Of */
         public static EventPublisher of() {
             return new EventPublisher(getApplicationContext());
         }
 
+        /** 发布 */
         public EventPublisher publish(Object event) {
             applicationContext.publishEvent(event);
             return this;
         }
 
         @SafeVarargs
+        /** 发布All */
         public final EventPublisher publishAll(Object... events) {
             for (Object event : events) {
                 applicationContext.publishEvent(event);

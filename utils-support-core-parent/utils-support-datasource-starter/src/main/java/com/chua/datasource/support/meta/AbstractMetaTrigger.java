@@ -64,42 +64,50 @@ public abstract class AbstractMetaTrigger implements MetaTrigger {
     }
 
     @Override
+    /** OnTable */
     public MetaTrigger onTable(String tableName) {
         this.tableName = tableName;
         return this;
     }
 
     @Override
+    /** List */
     public List<TriggerDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
     @Override
+    /** 获取 */
     public TriggerDef get(String triggerName) {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
     @Override
+    /** 创建 */
     public TriggerCreateBuilder create(String triggerName) {
         throw new UnsupportedOperationException("请实现 create() 方法");
     }
 
     @Override
+    /** Drop */
     public boolean drop(String triggerName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }
 
     @Override
+    /** 启用 */
     public boolean enable(String triggerName) {
         throw new UnsupportedOperationException("请实现 enable() 方法");
     }
 
     @Override
+    /** 禁用 */
     public boolean disable(String triggerName) {
         throw new UnsupportedOperationException("请实现 disable() 方法");
     }
 
     @Override
+    /** 解析Dialect */
     public Dialect resolveDialect() {
         return engine.getDialect(metaData.getEngine().getDefaultDataSourceName());
     }

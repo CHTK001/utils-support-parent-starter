@@ -56,6 +56,7 @@ public interface ImageClassifier {
         return this;
     }
 
+    /** 创建 */
     static ImageClassifier create(String name) {
         return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -196,18 +197,21 @@ class DefaultImageClassifier implements ImageClassifier {
     }
 
     @Override
+    /** TopK */
     public ImageClassifier topK(int k) {
         this.topK = k;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageClassifier modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageClassifier device(String device) {
         this.device = device;
         return this;
@@ -215,6 +219,7 @@ class DefaultImageClassifier implements ImageClassifier {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Classify */
     public String classify(byte[] imageData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
@@ -226,6 +231,7 @@ class DefaultImageClassifier implements ImageClassifier {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** ClassifyTopK */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);

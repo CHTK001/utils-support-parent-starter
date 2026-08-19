@@ -29,6 +29,7 @@ public final class TrimAstProcessor extends AbstractProcessor {
     private ProcessingEnvironment pe;
 
     @Override
+    /** 初始化 */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -42,6 +43,7 @@ public final class TrimAstProcessor extends AbstractProcessor {
     }
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) { return false; }
 
@@ -76,12 +78,18 @@ public final class TrimAstProcessor extends AbstractProcessor {
         return false;
     }
 
+    /** 是否StringType */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != javax.lang.model.type.TypeKind.DECLARED) { return false; }
         String typeName = type.toString();
         return "java.lang.String".equals(typeName) || "java.lang.CharSequence".equals(typeName);
     }
 
+    /**
+     * 应用去空格Transform
+     * @param methodTree methodTree
+     * @param paramName paramName
+     */
     private void applyTrimTransform(com.sun.source.tree.MethodTree methodTree,
             String paramName) throws Exception {
 

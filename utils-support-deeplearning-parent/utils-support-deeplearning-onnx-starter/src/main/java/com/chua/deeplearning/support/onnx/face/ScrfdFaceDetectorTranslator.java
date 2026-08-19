@@ -51,6 +51,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     private static final double NMS_THRESHOLD = 0.40d;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         // 纯 Java 预处理（BufferedImage resize + RGB 归一化），避免 ONNX NDArray 不支持的算术/图像操作
         BufferedImage src = (BufferedImage) input.getWrappedImage();
@@ -74,6 +75,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 9) {
             return empty();
@@ -109,6 +111,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         return new DetectedObjects(names, probabilities, boxes);
     }
 
+    /** 解码Stride */
     private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray, int stride) {
         float[] scores = scoreArray.toFloatArray();
         float[] boxes = bboxArray.toFloatArray();
@@ -161,27 +164,33 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         }
     }
 
+    /** SqueezeBatch */
     private NDArray squeezeBatch(NDArray array) {
         // ONNX 引擎无 alternative NDArray 引擎，NDArrayAdapter.squeeze 会无限递归。
         // decodeStride 通过 toFloatArray() 读取线性数据，形状不影响结果，故跳过 squeeze。
         return array;
     }
 
+    /** Clamp */
     private float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }
 
+    /** Empty */
     private DetectedObjects empty() {
         return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** Candidate */
     private record Candidate(Landmark landmark, double score) {
 
+        /** Rectangle */
         private Rectangle rectangle() {
             return landmark;
         }

@@ -61,6 +61,7 @@ public interface ImageCaptioning {
         return this;
     }
 
+    /** 创建 */
     static ImageCaptioning create(String name) {
         return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -134,6 +135,7 @@ class DefaultImageCaptioning implements ImageCaptioning {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Describe */
     public String describe(byte[] imageData) {
         ITranslator<byte[], String> t = engine.get(modelName, ITranslator.class);
         if (t == null) {

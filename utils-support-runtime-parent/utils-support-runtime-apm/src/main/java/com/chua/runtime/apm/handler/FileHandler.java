@@ -78,22 +78,26 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
+    /** 创建 FileHandler 实例 */
     public FileHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
+    /** Name */
     public String name() {
         return "file-handler";
     }
 
     @Override
+    /** Version */
     public String version() {
         return "1.0.0";
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = "true".equals(context.getProperty("file.enabled", "true"));
@@ -101,6 +105,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -113,6 +118,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -122,11 +128,13 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("FileHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled && started.get();
     }

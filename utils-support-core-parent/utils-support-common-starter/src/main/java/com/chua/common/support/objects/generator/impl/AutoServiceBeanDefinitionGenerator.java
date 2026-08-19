@@ -23,11 +23,13 @@ import java.util.List;
 public class AutoServiceBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 30;
     }
 
     @Override
+    /** 是否Support */
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null) {
             return false;
@@ -40,6 +42,7 @@ public class AutoServiceBeanDefinitionGenerator implements BeanDefinitionGenerat
     }
 
     @Override
+    /** Generate */
     public List<BeanDefinition> generate(Class<?> beanClass) {
         List<BeanDefinition> definitions = new ArrayList<>();
         if (beanClass == null) {

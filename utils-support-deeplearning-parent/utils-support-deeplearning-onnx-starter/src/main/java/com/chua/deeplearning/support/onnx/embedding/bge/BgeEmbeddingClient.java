@@ -67,6 +67,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     /** 模型路径 */
     private Path modelPath;
 
+    /**
+     * 创建 BgeEmbeddingClient 实例
+     * @param setting setting
+     */
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
         this.embeddedModel = "model.onnx";
@@ -75,6 +79,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         log.info("[BGE] init model='{}' embeddedBase='{}'", setting.getModel(), this.embeddedBase);
     }
 
+    /** 解析EmbeddedBase */
     private String resolveEmbeddedBase(String model) {
         if (model == null) {
             return null;
@@ -90,12 +95,14 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Provider */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
+    /** Model */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.embeddedBase = resolveEmbeddedBase(model);
@@ -104,11 +111,13 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Dimensions */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
+    /** 重置Loaded */
     private void resetLoaded() {
         loaded = false;
         translator = null;
@@ -116,6 +125,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         embeddedLocalDir = null;
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -173,6 +183,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Embedding */
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -194,6 +205,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -206,6 +218,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingWithResponse */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -215,6 +228,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatchWithResponse */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -227,16 +241,19 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingAsync */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
+    /** EmbeddingBatchAsync */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         if (translator != null) {
             translator.close();

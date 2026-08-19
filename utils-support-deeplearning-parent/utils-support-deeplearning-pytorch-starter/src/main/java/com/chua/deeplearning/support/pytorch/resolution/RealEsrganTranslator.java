@@ -27,15 +27,21 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
      */
     private final int scale;
 
+    /** 创建 RealEsrganTranslator 实例 */
     public RealEsrganTranslator() {
         this(4);
     }
 
+    /**
+     * 创建 RealEsrganTranslator 实例
+     * @param scale scale
+     */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager()).toType(DataType.FLOAT32, false);
         array = array.transpose(2, 0, 1).div(255.0f);
@@ -44,6 +50,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         if (outputImg.getShape().dimension() == 4 && outputImg.getShape().get(0) == 1) {
@@ -57,6 +64,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

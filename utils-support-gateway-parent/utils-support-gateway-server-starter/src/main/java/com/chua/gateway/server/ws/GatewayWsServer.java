@@ -70,10 +70,19 @@ public final class GatewayWsServer implements AutoCloseable {
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
+    /**
+     * 创建 GatewayWsServer 实例
+     * @param tunnelRegistry tunnelRegistry
+     */
     public GatewayWsServer(TunnelRegistry tunnelRegistry) {
         this(tunnelRegistry, GatewayProperties.wsPort());
     }
 
+    /**
+     * 创建 GatewayWsServer 实例
+     * @param tunnelRegistry tunnelRegistry
+     * @param int int
+     */
     public GatewayWsServer(TunnelRegistry tunnelRegistry, int port) {
         this.tunnelRegistry = tunnelRegistry;
         this.port = port > 0 ? port : DEFAULT_WS_PORT;

@@ -135,6 +135,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         this.detTranslator = new DuguangDetTranslator(resourceBase, modelName);
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -186,11 +187,13 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     }
 
     @Override
+    /** Name */
     public String name() {
         return modelName;
     }
 
     @Override
+    /** Translate */
     public synchronized List<OcrResult> translate(byte[] imageData) {
         try {
             prepare();
@@ -200,6 +203,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         }
     }
 
+    /** Recognize */
     private List<OcrResult> recognize(byte[] imageData) {
         try {
             ImageUtils.load();

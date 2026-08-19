@@ -96,6 +96,7 @@ public class AgentChatClient implements ChatClient {
         return this;
     }
 
+    /** 获取Or创建Agent */
     private Agent getOrCreateAgent() {
         if (agent != null) {
             return agent;
@@ -118,17 +119,26 @@ public class AgentChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         AgentResponse result = getOrCreateAgent().run(prompt);
         return result != null ? result.getOutput() : "";
     }
 
     @Override
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -152,6 +162,7 @@ public class AgentChatClient implements ChatClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         Map<String, AgentDefinition> defs = getOrCreateAgent().getSubAgents().stream()
                 .collect(java.util.stream.Collectors.toMap(
@@ -166,11 +177,13 @@ public class AgentChatClient implements ChatClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (agent != null) {
             agent.close();
         }
     }
 
+    /** SlaveConfig */
     private record SlaveConfig(String id, String name, String description, ChatClient client) {}
 }

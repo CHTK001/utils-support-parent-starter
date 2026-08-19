@@ -44,6 +44,10 @@ public final class BulkheadFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 BulkheadFlow 实例
+     * @param name name
+     */
     private BulkheadFlow(String name) {
         this.name = name;
     }

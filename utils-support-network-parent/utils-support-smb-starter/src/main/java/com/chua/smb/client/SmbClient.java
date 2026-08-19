@@ -91,16 +91,22 @@ public class SmbClient implements AutoCloseable {
      */
     private String workPath = "/";
 
+    /**
+     * 创建 SmbClient 实例
+     * @param uri uri
+     */
     private SmbClient(String uri) {
         this.uri = uri;
         this.smbClient = new SMBClient();
         parseUri(uri);
     }
 
+    /** 创建 */
     public static SmbClient create(String uri) {
         return new SmbClient(uri);
     }
 
+    /** 解析Uri */
     private void parseUri(String uri) {
         String rest = uri.replaceFirst("^smb://", "");
         String userPass = "";
@@ -122,6 +128,7 @@ public class SmbClient implements AutoCloseable {
         this.port = hp.length > 1 ? Integer.parseInt(hp[1]) : 445;
     }
 
+    /** 连接 */
     public SmbClient connect() {
         try {
             connection = smbClient.connect(host, port);
@@ -131,6 +138,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** Login */
     public SmbClient login() {
         try {
             AuthenticationContext authCtx = (user == null || user.isEmpty())
@@ -143,6 +151,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** 打开Share */
     public SmbClient openShare() {
         if (session == null) {
             throw new IllegalStateException("请先 login()");
@@ -155,6 +164,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** Cd */
     public SmbClient cd(String path) {
         if (path == null || path.isEmpty()) {
             return this;
@@ -166,6 +176,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** Upload */
     public SmbClient upload(InputStream in, String remoteName) {
         checkShare();
         try {
@@ -190,6 +201,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** Download */
     public SmbClient download(String remoteName, OutputStream out) {
         checkShare();
         try {
@@ -213,6 +225,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** ListFiles */
     public List<SmbFileEntry> listFiles(String path) {
         checkShare();
         String dirPath = path != null ? normalize(path) : workPath;
@@ -237,6 +250,7 @@ public class SmbClient implements AutoCloseable {
         return result;
     }
 
+    /** 创建目录 */
     public SmbClient mkdir(String path) {
         checkShare();
         try {
@@ -248,6 +262,7 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
+    /** 删除 */
     public SmbClient delete(String path) {
         checkShare();
         try {
@@ -260,6 +275,7 @@ public class SmbClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         try { if (diskShare != null) diskShare.close(); } catch (Exception ignored) {}
         try { if (session != null) session.close(); } catch (Exception ignored) {}
@@ -267,12 +283,14 @@ public class SmbClient implements AutoCloseable {
         try { smbClient.close(); } catch (Exception ignored) {}
     }
 
+    /** 校验Share */
     private void checkShare() {
         if (diskShare == null) {
             throw new IllegalStateException("请先 openShare()");
         }
     }
 
+    /** EnsureParentPath */
     private void ensureParentPath(String fullPath) throws IOException {
         int lastSep = fullPath.lastIndexOf('/');
         if (lastSep <= 0) {
@@ -292,6 +310,7 @@ public class SmbClient implements AutoCloseable {
         }
     }
 
+    /** Normalize */
     private static String normalize(String p) {
         String s = p.replace('\\', '/');
         while (s.contains("//")) {
@@ -303,6 +322,14 @@ public class SmbClient implements AutoCloseable {
         return s;
     }
 
+    /**
+     * SmbFileEntry
+     * @param name name
+     * @param size size
+     * @param isDirectory isDirectory
+     * @param lastModified lastModified
+     * @param path path
+     */
     public record SmbFileEntry(
             String name,
             long size,

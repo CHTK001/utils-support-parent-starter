@@ -39,6 +39,10 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     /** Bucket 管理器 */
     private final BucketManager bucketManager;
 
+    /**
+     * 创建 QiniuKodoFileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public QiniuKodoFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         Configuration cfg = new Configuration(Region.autoRegion());
@@ -48,6 +52,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** PutObject */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -74,6 +79,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -98,6 +104,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -105,6 +112,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 删除Object */
     public DeleteObjectResult deleteObject(String key) {
         try {
             bucketManager.delete(bucket, key);
@@ -120,6 +128,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ExistObject */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             com.qiniu.storage.model.FileInfo info = bucketManager.stat(bucket, request.getKey());
@@ -143,6 +152,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ListObject */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             // 使用 marker 作为分页起始（七牛用空字符串表示从头开始）
@@ -183,6 +193,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 七牛云客户端无需显式关闭
     }

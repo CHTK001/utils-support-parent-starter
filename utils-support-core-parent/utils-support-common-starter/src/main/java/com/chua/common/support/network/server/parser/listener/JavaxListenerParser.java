@@ -43,6 +43,7 @@ public class JavaxListenerParser implements ListenerParser {
     };
 
     @Override
+    /** 解析 */
     public Map<String, Method> parse(Class<?> clazz) {
         Map<String, Method> result = new LinkedHashMap<>();
         for (Method method : clazz.getDeclaredMethods()) {
@@ -59,6 +60,7 @@ public class JavaxListenerParser implements ListenerParser {
     }
 
     @Override
+    /** Support */
     public boolean support(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (hasAnyAnnotation(method, JAVAX_ANNOTATIONS, clazz.getClassLoader())) {
@@ -72,6 +74,7 @@ public class JavaxListenerParser implements ListenerParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 0;
     }

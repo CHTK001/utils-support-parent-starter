@@ -55,10 +55,12 @@ public final class FastFileSearchNativeBridge {
         loadLibrary();
     }
 
+    /** 创建 FastFileSearchNativeBridge 实例 */
     private FastFileSearchNativeBridge() {
         throw new UnsupportedOperationException("Utility class");
     }
 
+    /** 加载Library */
     public static void loadLibrary() {
         if (loaded) {
             return;
@@ -98,6 +100,7 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** 加载FromClasspath */
     private static boolean loadFromClasspath(String libName) {
         try {
             var is = FastFileSearchNativeBridge.class.getClassLoader()
@@ -123,6 +126,7 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** 加载FromSystemPath */
     private static boolean loadFromSystemPath() {
         try {
             System.loadLibrary(LIB_BASE_NAME);
@@ -135,6 +139,7 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** 加载FromSystemLookup */
     private static boolean loadFromSystemLookup(String libName) {
         try {
             ARENA = Arena.ofShared();
@@ -148,6 +153,7 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** 绑定Functions */
     private static void bindFunctions() {
         if (LIBRARY == null || ARENA == null) {
             throw new IllegalStateException("Native library not loaded");
@@ -169,6 +175,13 @@ public final class FastFileSearchNativeBridge {
                 FunctionDescriptor.ofVoid());
     }
 
+    /**
+     * 搜索Mft
+     * @param rootDir rootDir
+     * @param pattern pattern
+     * @param maxResults maxResults
+     * @param callback callback
+     */
     public static int searchMft(String rootDir, String pattern,
                                 int maxResults, BiConsumer<String, Long> callback) {
         checkLoaded();
@@ -192,6 +205,7 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** Cancel */
     public static void cancel() {
         if (!loaded) {
             return;
@@ -203,10 +217,12 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** 是否Loaded */
     public static boolean isLoaded() {
         return loaded;
     }
 
+    /** 校验Loaded */
     private static void checkLoaded() {
         if (!loaded) {
             throw new IllegalStateException(
@@ -214,12 +230,14 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** 获取PlatformLibName */
     private static String getPlatformLibName() {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("win")) { return LIB_NAME_WINDOWS; }
         return LIB_NAME_WINDOWS;
     }
 
+    /** 创建CallbackStub */
     private static MemorySegment createCallbackStub(BiConsumer<String, Long> consumer) {
         try {
             var lookup = MethodHandles.lookup();
@@ -235,6 +253,7 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
+    /** UpcallCallback */
     private static void upcallCallback(MemorySegment pathPtr, long length, BiConsumer<String, Long> consumer) {
         if (pathPtr.equals(MemorySegment.NULL)) { return; }
         String path = pathPtr.reinterpret(length).getString(0, StandardCharsets.UTF_8);

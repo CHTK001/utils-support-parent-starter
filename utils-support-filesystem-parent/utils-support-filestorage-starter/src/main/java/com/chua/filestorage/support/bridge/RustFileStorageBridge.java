@@ -40,18 +40,23 @@ public class RustFileStorageBridge {
         }
     }
 
+    /** 创建 RustFileStorageBridge 实例 */
     private RustFileStorageBridge() {
         throw new UnsupportedOperationException();
     }
 
+    /** 是否Initialized */
     public static boolean isInitialized() {
         return initialized;
     }
 
+    /** Native初始化 */
     private static native boolean nativeInit();
 
+    /** Native获取Version */
     private static native String nativeGetVersion();
 
+    /** NativeCapabilities */
     public static List<String> nativeCapabilities() {
         try {
             String caps = nativeGetCapabilities();
@@ -62,6 +67,7 @@ public class RustFileStorageBridge {
         }
     }
 
+    /** Native解析Params */
     public static FileOperationSetting nativeParseParams(String paramsJson) {
         try {
             String json = nativeParseParams0(paramsJson);
@@ -75,6 +81,7 @@ public class RustFileStorageBridge {
         }
     }
 
+    /** Native过滤Capabilities */
     public static List<String> nativeFilterCapabilities() {
         try {
             String caps = nativeGetFilterCapabilities();
@@ -85,6 +92,7 @@ public class RustFileStorageBridge {
         }
     }
 
+    /** Native获取过滤Chain */
     public static List<FileStorageFilterSetting.ImageFilterConfig> nativeGetFilterChain() {
         try {
             String json = nativeGetFilterChainJson();
@@ -95,6 +103,7 @@ public class RustFileStorageBridge {
         }
     }
 
+    /** Native是否Excluded */
     public static boolean nativeIsExcluded(String path, String extension) {
         try {
             return nativeIsExcluded0(path, extension);
@@ -104,16 +113,22 @@ public class RustFileStorageBridge {
         }
     }
 
+    /** Native获取Capabilities */
     private static native String nativeGetCapabilities();
 
+    /** Native解析Params */
     private static native String nativeParseParams0(String paramsJson);
 
+    /** Native获取过滤Capabilities */
     private static native String nativeGetFilterCapabilities();
 
+    /** Native获取过滤ChainJson */
     private static native String nativeGetFilterChainJson();
 
+    /** Native是否Excluded */
     private static native boolean nativeIsExcluded0(String path, String extension);
 
+    /** 解析List */
     private static List<String> parseList(String s) {
         if (s == null || s.isBlank()) {
             return java.util.List.of();
@@ -124,6 +139,7 @@ public class RustFileStorageBridge {
                 .toList();
     }
 
+    /** 解析OperationJson */
     private static FileOperationSetting parseOperationJson(String json) {
         FileOperationSetting.FileOperationSettingBuilder b = FileOperationSetting.builder();
         json = json.replaceAll("[{}\"]", "");
@@ -161,6 +177,7 @@ public class RustFileStorageBridge {
         return b.build();
     }
 
+    /** 解析过滤ChainJson */
     private static List<FileStorageFilterSetting.ImageFilterConfig> parseFilterChainJson(String json) {
         if (json == null || json.isBlank() || "[]".equals(json.trim())) {
             return new java.util.ArrayList<>();
@@ -199,18 +216,22 @@ public class RustFileStorageBridge {
         return r;
     }
 
+    /** IntOrNull */
     private static Integer intOrNull(String s) {
         try { return Integer.valueOf(s); } catch (Exception e) { return null; }
     }
 
+    /** LongOrNull */
     private static Long longOrNull(String s) {
         try { return Long.valueOf(s); } catch (Exception e) { return null; }
     }
 
+    /** FloatOrNull */
     private static Float floatOrNull(String s) {
         try { return Float.valueOf(s); } catch (Exception e) { return null; }
     }
 
+    /** BoolOrNull */
     private static Boolean boolOrNull(String s) {
         if (s == null) {
             return false;

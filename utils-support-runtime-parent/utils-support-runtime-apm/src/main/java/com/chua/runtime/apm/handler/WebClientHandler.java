@@ -43,32 +43,38 @@ public class WebClientHandler extends AbstractAppHandler {
     private static final String[] EXCHANGE_METHODS = {"exchange"};
 
     @Override
+    /** Name */
     public String name() {
         return "webclient-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "webclient.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.WEB_CLIENT;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(DEFAULT_WEB_CLIENT, BUILDER_METHODS);
         registerAll(EXCHANGE_FUNCTIONS, EXCHANGE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

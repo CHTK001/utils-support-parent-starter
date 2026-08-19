@@ -35,6 +35,7 @@ public class DefaultBackupRestore implements BackupRestore {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
+    /** Restore */
     public RestoreResult restore(RestoreConfig config) {
         if (config.getDate() != null && !config.getDate().isBlank()) {
             LocalDate date = LocalDate.parse(config.getDate(), DATE_FMT);
@@ -44,6 +45,7 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     @Override
+    /** RestoreLatest */
     public RestoreResult restoreLatest(RestoreConfig config) {
         List<LocalDate> dates = listAvailableDates(config.getBackupDir());
         if (dates.isEmpty()) {
@@ -53,6 +55,7 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     @Override
+    /** RestoreByDate */
     public RestoreResult restoreByDate(RestoreConfig config, LocalDate date) {
         long start = System.currentTimeMillis();
         String dateStr = date.format(DATE_FMT);
@@ -83,6 +86,7 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     @Override
+    /** ListAvailableDates */
     public List<LocalDate> listAvailableDates(Path backupDir) {
         List<LocalDate> dates = new ArrayList<>();
 
@@ -131,6 +135,7 @@ public class DefaultBackupRestore implements BackupRestore {
         List<Path> restored = new ArrayList<>();
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             @Override
+            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
@@ -182,24 +187,28 @@ public class DefaultBackupRestore implements BackupRestore {
         return restored;
     }
 
+    /** Calc总计获取大小 */
     private long calcTotalSize(List<Path> files) {
         return files.stream()
                 .mapToLong(p -> { try { return Files.size(p); } catch (Exception e) { return 0; } })
                 .sum();
     }
 
+    /** 删除Directory */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;
         }
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
             @Override
+            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
+            /** PostVisitDirectory */
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);
                 return FileVisitResult.CONTINUE;
@@ -207,6 +216,7 @@ public class DefaultBackupRestore implements BackupRestore {
         });
     }
 
+    /** MatchPattern */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {
             return true;

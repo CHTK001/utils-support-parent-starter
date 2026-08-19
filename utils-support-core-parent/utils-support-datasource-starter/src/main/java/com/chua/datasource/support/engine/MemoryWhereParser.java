@@ -35,6 +35,7 @@ public class MemoryWhereParser {
     }
 
     @SuppressWarnings("unchecked")
+    /** 解析Conditions */
     private <T> Predicate<T> parseConditions(String where, List<Object> params, int startIdx) {
         Predicate<T> result = t -> true;
         String remaining = where.trim();

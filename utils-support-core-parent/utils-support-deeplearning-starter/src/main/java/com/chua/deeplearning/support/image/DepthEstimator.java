@@ -160,12 +160,14 @@ class DefaultDepthEstimator implements DepthEstimator {
     }
 
     @Override
+    /** ModelPath */
     public DepthEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public DepthEstimator device(String device) {
         this.device = device;
         return this;
@@ -173,6 +175,7 @@ class DefaultDepthEstimator implements DepthEstimator {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Estimate */
     public byte[] estimate(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);

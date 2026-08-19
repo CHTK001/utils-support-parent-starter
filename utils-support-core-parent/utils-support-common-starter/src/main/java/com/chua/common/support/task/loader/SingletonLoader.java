@@ -34,6 +34,7 @@ public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
     }
 
     @Override
+    /** 创建 */
     protected T create() {
         return supplier.get();
     }

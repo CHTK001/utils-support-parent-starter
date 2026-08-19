@@ -66,6 +66,12 @@ public class KafkaClient implements AutoCloseable {
     /** Closed */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    /**
+     * 创建 KafkaClient 实例
+     * @param bootstrapServers bootstrapServers
+     * @param String String
+     * @param Properties Properties
+     */
     private KafkaClient(String bootstrapServers, String groupId, Properties extraProps) {
         this.bootstrapServers = bootstrapServers;
         this.groupId = groupId;
@@ -74,20 +80,24 @@ public class KafkaClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** 创建 */
     public static KafkaClient create(String bootstrapServers) {
         return builder().bootstrapServers(bootstrapServers).build();
     }
 
+    /** 创建 */
     public static KafkaClient create(String bootstrapServers, String groupId) {
         return builder().bootstrapServers(bootstrapServers).groupId(groupId).build();
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
 
     // ==================== 启动/停止 ====================
 
+    /** 开始 */
     public KafkaClient start() {
         // 初始化 Producer
         Properties producerProps = new Properties();
@@ -109,6 +119,7 @@ public class KafkaClient implements AutoCloseable {
         return this;
     }
 
+    /** 关闭 */
     public KafkaClient shutdown() {
         if (closed.compareAndSet(false, true)) {
             // 关闭所有消费者线程
@@ -160,6 +171,7 @@ public class KafkaClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         shutdown();
     }
@@ -174,14 +186,22 @@ public class KafkaClient implements AutoCloseable {
         /** Extraprops */
         private Properties extraProps = new Properties();
 
+        /** BootstrapServers */
         public Builder bootstrapServers(String s) { this.bootstrapServers = s; return this; }
+        /** 分组Id */
         public Builder groupId(String g) { this.groupId = g; return this; }
+        /** Property */
         public Builder property(String key, String value) { this.extraProps.setProperty(key, value); return this; }
+        /** Properties */
         public Builder properties(Properties p) { this.extraProps.putAll(p); return this; }
+        /** AutoOffset重置 */
         public Builder autoOffsetReset(String policy) { this.extraProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, policy); return this; }
+        /** 启用Auto提交 */
         public Builder enableAutoCommit(boolean enable) { this.extraProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enable); return this; }
+        /** 最大值取出Records */
         public Builder maxPollRecords(int max) { this.extraProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, max); return this; }
 
+        /** 构建 */
         public KafkaClient build() {
             return new KafkaClient(bootstrapServers, groupId, extraProps);
         }
@@ -207,12 +227,19 @@ public class KafkaClient implements AutoCloseable {
 
         ProducerOperation(KafkaClient client) { this.client = client; }
 
+        /** Topic */
         public ProducerOperation topic(String t) { this.topic = t; return this; }
+        /** Key */
         public ProducerOperation key(String k) { this.key = k; return this; }
+        /** Value */
         public ProducerOperation value(String v) { this.value = v; return this; }
+        /** Partition */
         public ProducerOperation partition(Integer p) { this.partition = p; return this; }
+        /** Timestamp */
         public ProducerOperation timestamp(Long t) { this.timestamp = t; return this; }
+        /** Header */
         public ProducerOperation header(String name, byte[] value) { this.headers.put(name, value); return this; }
+        /** Header */
         public ProducerOperation header(String name, String value) { this.headers.put(name, value.getBytes()); return this; }
 
         /**
@@ -244,6 +271,7 @@ public class KafkaClient implements AutoCloseable {
             }
         }
 
+        /** 构建Record */
         private ProducerRecord<String, String> buildRecord() {
             ProducerRecord<String, String> record;
             if (partition != null && timestamp != null) {
@@ -280,10 +308,15 @@ public class KafkaClient implements AutoCloseable {
 
         ConsumerOperation(KafkaClient client) { this.client = client; }
 
+        /** 分组Id */
         public ConsumerOperation groupId(String g) { this.groupId = g; return this; }
+        /** Topic */
         public ConsumerOperation topic(String... t) { this.topics = t; return this; }
+        /** Auto提交 */
         public ConsumerOperation autoCommit(boolean a) { this.autoCommit = a; return this; }
+        /** Offset重置 */
         public ConsumerOperation offsetReset(String o) { this.offsetReset = o; return this; }
+        /** 取出Timeout */
         public ConsumerOperation pollTimeout(long ms) { this.pollTimeoutMs = ms; return this; }
 
         /**
@@ -427,6 +460,11 @@ public class KafkaClient implements AutoCloseable {
     // ==================== 异常类 ====================
 
     public static class KafkaClientException extends RuntimeException {
+        /**
+         * 创建 KafkaClientException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public KafkaClientException(String message, Throwable cause) {
             super(message, cause);
         }

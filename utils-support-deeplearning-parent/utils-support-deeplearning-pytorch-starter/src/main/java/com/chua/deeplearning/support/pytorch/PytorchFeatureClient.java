@@ -32,6 +32,7 @@ public class PytorchFeatureClient extends AbstractLocalFeatureClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, null, float[].class);
     }

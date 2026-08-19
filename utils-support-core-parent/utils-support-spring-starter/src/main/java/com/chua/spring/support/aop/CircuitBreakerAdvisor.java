@@ -19,11 +19,16 @@ import java.lang.reflect.Method;
 @RequiredArgsConstructor
 public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
+    /**
+     * 创建 CircuitBreakerAdvisor 实例
+     * @param intercept intercept
+     */
     public CircuitBreakerAdvisor(CircuitBreakerIntercept intercept) {
         super(new CircuitBreakerAdvice(intercept));
     }
 
     @Override
+    /** Matches */
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(CircuitBreaker.class);
     }
@@ -35,6 +40,7 @@ public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
         private final CircuitBreakerIntercept intercept;
 
         @Override
+        /** 调用 */
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
             CircuitBreaker annotation = method.getAnnotation(CircuitBreaker.class);

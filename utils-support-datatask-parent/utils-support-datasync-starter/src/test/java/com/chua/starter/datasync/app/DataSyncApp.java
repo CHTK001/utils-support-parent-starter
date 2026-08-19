@@ -17,6 +17,7 @@ import java.nio.file.Paths;
  */
 public class DataSyncApp {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         Path mappingDir = Paths.get("src/test/resources/test-mappings");
         System.out.println("[APP] 映射目录=" + mappingDir.toAbsolutePath());
@@ -27,6 +28,7 @@ public class DataSyncApp {
                 mappingManager,
                 new com.chua.starter.datasync.config.DirectoryConfigDefinition() {
                     @Override
+                    /** DirectoryPath */
                     public String directoryPath() { return mappingDir.toString(); }
                     @Override public String inputId() { return null; }
                     @Override public String sourceId() { return null; }

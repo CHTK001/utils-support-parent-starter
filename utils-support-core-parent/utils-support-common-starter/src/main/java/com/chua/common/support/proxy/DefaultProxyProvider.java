@@ -227,12 +227,14 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     }
 
     @Override
+    /** TryAsm */
     public ProxyProvider<T> tryAsm(boolean enable) {
         this.tryAsm = enable;
         return this;
     }
 
     @Override
+    /** TryJavassist */
     public ProxyProvider<T> tryJavassist(boolean enable) {
         this.tryJavassist = enable;
         return this;
@@ -354,11 +356,13 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         }
         return new MethodIntercept<>() {
             @Override
+            /** Before */
             public void before(Object obj, Method method, Object[] args, T proxy) {
                 delegate.before(obj, method, args, proxy);
             }
 
             @Override
+            /** 调用 */
             public Object invoke(Object obj, Method method, Object[] args, T proxy) throws Throwable {
                 ProxyMethod proxyMethod = ProxyMethod.builder()
                         .args(args)
@@ -383,11 +387,13 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
             }
 
             @Override
+            /** After */
             public void after(Object obj, Method method, Object[] args, T proxy) {
                 delegate.after(obj, method, args, proxy);
             }
 
             @Override
+            /** 处理Exception */
             public Object handleException(Object obj, Method method, Object[] args, T proxy, Throwable throwable) {
                 return delegate.handleException(obj, method, args, proxy, throwable);
             }

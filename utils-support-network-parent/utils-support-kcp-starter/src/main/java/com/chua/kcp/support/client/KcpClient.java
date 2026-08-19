@@ -198,15 +198,25 @@ public class KcpClient {
      */
     private static final AtomicLong CLIENT_COUNTER = new AtomicLong();
 
+    /**
+     * 创建 KcpClient 实例
+     * @param serverUrl serverUrl
+     */
     public KcpClient(String serverUrl) {
         this("kcp-client-" + CLIENT_COUNTER.incrementAndGet(), serverUrl);
     }
 
+    /**
+     * 创建 KcpClient 实例
+     * @param clientId clientId
+     * @param String String
+     */
     public KcpClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl;
     }
 
+    /** 连接 */
     public synchronized void connect() {
         if (session != null) {
             return;
@@ -233,6 +243,7 @@ public class KcpClient {
         }
     }
 
+    /** 断开 */
     public synchronized void disconnect() {
         if (session != null) {
             try {
@@ -247,18 +258,22 @@ public class KcpClient {
         }
     }
 
+    /** 是否Connected */
     public boolean isConnected() {
         return session != null && session.isActive();
     }
 
+    /** 获取ClientId */
     public String getClientId() {
         return clientId;
     }
 
+    /** 发送 */
     public void send(String topic, Object message) {
         publish(topic, message);
     }
 
+    /** 发布 */
     public void publish(String topic, Object message) {
         checkConnected();
         writeRaw(topic + ":" + message);
@@ -271,6 +286,7 @@ public class KcpClient {
         return execute(topic, message, DEFAULT_TIMEOUT_MS);
     }
 
+    /** 执行 */
     public String execute(String topic, Object message, long timeoutMs) {
         try {
             return executeAsync(topic, message, timeoutMs).get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -279,10 +295,12 @@ public class KcpClient {
         }
     }
 
+    /** 执行Async */
     public CompletableFuture<String> executeAsync(String topic, Object message) {
         return executeAsync(topic, message, DEFAULT_TIMEOUT_MS);
     }
 
+    /** 执行Async */
     public CompletableFuture<String> executeAsync(String topic, Object message, long timeoutMs) {
         checkConnected();
         String requestId = java.util.UUID.randomUUID().toString();
@@ -296,35 +314,42 @@ public class KcpClient {
         return future;
     }
 
+    /** 订阅 */
     public KcpClient subscribe(String topic, BiConsumer<String, String> handler) {
         topicSubscribers.computeIfAbsent(topic, key -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         topicSubscribers.remove(topic);
     }
 
+    /** OnMessage */
     public KcpClient onMessage(BiConsumer<String, String> listener) {
         messageListeners.add(listener);
         return this;
     }
 
+    /** On连接 */
     public KcpClient onConnect(Consumer<String> listener) {
         connectListeners.add(listener);
         return this;
     }
 
+    /** On断开 */
     public KcpClient onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
         return this;
     }
 
+    /** On记录错误 */
     public KcpClient onError(Consumer<Throwable> listener) {
         errorListeners.add(listener);
         return this;
     }
 
+    /** 注册Bean */
     public KcpClient registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -354,14 +379,17 @@ public class KcpClient {
         return this;
     }
 
+    /** 获取Metadata */
     public Map<String, Object> getMetadata() {
         return Collections.unmodifiableMap(metadata);
     }
 
+    /** 关闭 */
     public void close() {
         disconnect();
     }
 
+    /** 写入Raw */
     private void writeRaw(String text) {
         ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
         try {
@@ -371,12 +399,14 @@ public class KcpClient {
         }
     }
 
+    /** 校验Connected */
     private void checkConnected() {
         if (session == null || !session.isActive()) {
             throw new IllegalStateException("KCP 未连接");
         }
     }
 
+    /** 解析Remote */
     private InetSocketAddress parseRemote(String url) {
         // 解析 kcp://host:port
         String s = url;
@@ -518,6 +548,7 @@ public class KcpClient {
     private final class OAuthKcpListener implements KcpListener {
 
         @Override
+        /** OnConnected */
         public void onConnected(Ukcp ukcp) {
             // 服务端会收到 register:clientId 的第一帧作为注册请求
             // 这里仅触发连接事件，回写 register: 让服务端把 clientId 绑定
@@ -527,6 +558,7 @@ public class KcpClient {
         }
 
         @Override
+        /** 处理接收 */
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
             // kcp-base 1.6.2 ReadTask 自行管理 ByteBuf 引用计数，此处不可 release（双重释放会 IllegalReferenceCountException）
             // 服务端批量聚合 + KCP 分包：追加到跨包缓冲，按 \n 切出完整行分发，未完成行保留
@@ -552,6 +584,7 @@ public class KcpClient {
         }
 
         @Override
+        /** 处理Exception */
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 客户端异常: {}", ex.getMessage(), ex);
             notifyError(ex);
@@ -559,11 +592,13 @@ public class KcpClient {
         }
 
         @Override
+        /** 处理关闭 */
         public void handleClose(Ukcp ukcp) {
             notifyDisconnect(clientId);
             dispatchAnnotatedMethods(onCloseMethods);
         }
 
+        /** 发送注册 */
         private void sendRegister() {
             try {
                 Thread.sleep(50);
@@ -573,6 +608,7 @@ public class KcpClient {
             }
         }
 
+        /** 处理Line */
         private void handleLine(String line) {
             int colon = line.indexOf(':');
             String topic = colon > 0 ? line.substring(0, colon) : line;
@@ -607,6 +643,7 @@ public class KcpClient {
             dispatchMessage(topic, payload);
         }
 
+        /** 分发Message */
         private void dispatchMessage(String topic, String payload) {
             for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicSubscribers.entrySet()) {
                 if (matchTopic(entry.getKey(), topic)) {
@@ -631,6 +668,7 @@ public class KcpClient {
             dispatchAnnotatedPublish(topic, payload);
         }
 
+        /** MatchTopic */
         private boolean matchTopic(String pattern, String topic) {
             if ("#".equals(pattern)) {
                 return true;
@@ -656,6 +694,7 @@ public class KcpClient {
             return p == pp.length && t == tp.length;
         }
 
+        /** 通知连接 */
         private void notifyConnect(String clientId) {
             for (Consumer<String> l : connectListeners) {
                 try {
@@ -665,6 +704,7 @@ public class KcpClient {
             }
         }
 
+        /** 通知断开 */
         private void notifyDisconnect(String clientId) {
             for (Consumer<String> l : disconnectListeners) {
                 try {
@@ -674,6 +714,7 @@ public class KcpClient {
             }
         }
 
+        /** 通知记录错误 */
         private void notifyError(Throwable ex) {
             for (Consumer<Throwable> l : errorListeners) {
                 try {

@@ -49,26 +49,31 @@ public class PostgreSqlHandler extends AbstractAppHandler {
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
     @Override
+    /** Name */
     public String name() {
         return "postgresql-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "postgresql.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.POSTGRESQL_DRIVER;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.POSTGRESQL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAllEntryExit(PG_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(PG_PREPARED_STATEMENT_CLASS, SQL_METHODS);
@@ -76,6 +81,7 @@ public class PostgreSqlHandler extends AbstractAppHandler {
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object conn = resolveConnection(instance);
         String url = conn != null ? String.valueOf(findField(conn, "url")) : null;

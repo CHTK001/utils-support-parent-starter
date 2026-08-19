@@ -43,11 +43,13 @@ public class WechatPlatformUser {
         }
 
         @JsonValue
+        /** 获取Value */
         public String getValue() {
             return value;
         }
 
         @JsonCreator
+        /** FromValue */
         public static PlatformType fromValue(String value) {
             if (value == null) {
                 return null;

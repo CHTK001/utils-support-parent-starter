@@ -44,6 +44,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：Image → BufferedImage → Mat → 缩放 → CHW 归一化 → float[]
         ImageUtils.load();
@@ -94,6 +95,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
 
     @Override
     @Nonnull
+    /** 处理Output */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray alpha = list.singletonOrThrow();
         float[] flat = alpha.toFloatArray();
@@ -121,6 +123,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
 
     @Nullable
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

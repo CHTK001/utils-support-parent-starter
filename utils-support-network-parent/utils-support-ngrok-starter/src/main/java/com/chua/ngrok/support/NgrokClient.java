@@ -106,6 +106,10 @@ public class NgrokClient implements AutoCloseable {
      */
     private final List<Forwarder> forwarders = new ArrayList<>();
 
+    /**
+     * 创建 NgrokClient 实例
+     * @param authtoken authtoken
+     */
     private NgrokClient(String authtoken) {
         this.authtoken = authtoken;
     }
@@ -404,6 +408,7 @@ public class NgrokClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         for (Forwarder forwarder : forwarders) {
             try {
@@ -431,12 +436,14 @@ public class NgrokClient implements AutoCloseable {
         }
     }
 
+    /** EnsureSession */
     private void ensureSession() {
         if (session == null) {
             connect();
         }
     }
 
+    /** Safe获取Url */
     private static String safeGetUrl(Object obj) {
         try {
             return (String) obj.getClass().getMethod("getUrl").invoke(obj);
@@ -467,6 +474,11 @@ public class NgrokClient implements AutoCloseable {
          */
         private final HttpBuilder builder;
 
+        /**
+         * 创建 HttpBuilderStage 实例
+         * @param owner owner
+         * @param HttpBuilder HttpBuilder
+         */
         private HttpBuilderStage(NgrokClient owner, HttpBuilder builder) {
             this.owner = owner;
             this.builder = builder;
@@ -716,6 +728,11 @@ public class NgrokClient implements AutoCloseable {
          */
         private final TcpBuilder builder;
 
+        /**
+         * 创建 TcpBuilderStage 实例
+         * @param owner owner
+         * @param TcpBuilder TcpBuilder
+         */
         private TcpBuilderStage(NgrokClient owner, TcpBuilder builder) {
             this.owner = owner;
             this.builder = builder;
@@ -822,6 +839,11 @@ public class NgrokClient implements AutoCloseable {
          */
         private final TlsBuilder builder;
 
+        /**
+         * 创建 TlsBuilderStage 实例
+         * @param owner owner
+         * @param TlsBuilder TlsBuilder
+         */
         private TlsBuilderStage(NgrokClient owner, TlsBuilder builder) {
             this.owner = owner;
             this.builder = builder;

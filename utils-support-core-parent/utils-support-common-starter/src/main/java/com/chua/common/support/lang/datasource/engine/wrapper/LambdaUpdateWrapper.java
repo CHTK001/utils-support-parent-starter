@@ -39,6 +39,10 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     /** SET 值映射：列名 → 新值 */
     private final Map<String, Object> setValues = new LinkedHashMap<>();
 
+    /**
+     * 创建 LambdaUpdateWrapper 实例
+     * @param entityClass entityClass
+     */
     public LambdaUpdateWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -126,11 +130,13 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     }
 
     @Override
+    /** NewInstance */
     protected LambdaUpdateWrapper<T> newInstance() {
         return new LambdaUpdateWrapper<>(entityClass);
     }
 
     @Override
+    /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> column) {
         return null;
     }

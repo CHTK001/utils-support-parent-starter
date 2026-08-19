@@ -47,32 +47,38 @@ public class MongoDbHandler extends AbstractAppHandler {
     };
 
     @Override
+    /** Name */
     public String name() {
         return "mongodb-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "mongodb.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.MONGODB_DRIVER;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.MONGODB;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(MONGO_DATABASE_CLASS, DATABASE_METHODS);
         registerAll(MONGO_COLLECTION_CLASS, COLLECTION_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object cluster = findField(instance, "cluster");
         String url = cluster != null ? String.valueOf(findField(cluster, "connectionString")) : null;

@@ -140,6 +140,11 @@ public class QrCodeRenderUtils {
         return bottomImg;
     }
 
+    /**
+     * DrawFrontGifImg
+     * @param qrImg qrImg
+     * @param frontImgOptions frontImgOptions
+     */
     public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawFrontGifImg(BufferedImage qrImg,
                                                                                         QrCodeOptions.FrontImgOptions frontImgOptions) {
         final int qrWidth = qrImg.getWidth();
@@ -367,6 +372,16 @@ public class QrCodeRenderUtils {
         }
     }
 
+    /**
+     * Do注册DrawStyle
+     * @param g2 g2
+     * @param detectInnerColor detectInnerColor
+     * @param detectOutColor detectOutColor
+     * @param qrCodeConfig qrCodeConfig
+     * @param bitMatrix bitMatrix
+     * @param drawOptions drawOptions
+     * @param setting setting
+     */
     private static void doRegisterDrawStyle(Graphics2D g2,
                                             Color detectInnerColor,
                                             Color detectOutColor,
@@ -386,6 +401,12 @@ public class QrCodeRenderUtils {
         drawResolver.draw();
     }
 
+    /**
+     * ScaleQrRealSize
+     * @param qrCodeConfig qrCodeConfig
+     * @param bitMatrix bitMatrix
+     * @param qrCode qrCode
+     */
     private static BufferedImage scaleQr2RealSize(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix,
                                                   BufferedImage qrCode) {
         // 矩阵对应的宽高
@@ -417,6 +438,7 @@ public class QrCodeRenderUtils {
         RT,
         NONE {
             @Override
+            /** DetectedArea */
             public boolean detectedArea() {
         
                 return false;
@@ -424,6 +446,7 @@ public class QrCodeRenderUtils {
     }
         };
 
+        /** DetectedArea */
         public boolean detectedArea() {
             return true;
         }
@@ -523,6 +546,16 @@ public class QrCodeRenderUtils {
         g2.fillRect(leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize);
     }
 
+    /**
+     * DrawQrDotBgImg
+     * @param qrCodeConfig qrCodeConfig
+     * @param g2 g2
+     * @param leftPadding leftPadding
+     * @param topPadding topPadding
+     * @param infoSize infoSize
+     * @param x x
+     * @param y y
+     */
     public static void drawQrDotBgImg(QrCodeOptions qrCodeConfig, Graphics2D g2, int leftPadding, int topPadding,
                                       int infoSize, int x, int y) {
         // 如果没有指定二维码中0点对应的背景图，则不做任何处理
@@ -689,6 +722,7 @@ public class QrCodeRenderUtils {
         return cnt;
     }
 
+    /** 获取Available获取大小 */
     public static java.util.List<DotSize> getAvailableSize(ByteMatrix bitMatrix, int x, int y, int maxRow, int maxCol) {
         if (maxRow == 1) {
             return Collections.singletonList(DotSize.create(1, maxCol));

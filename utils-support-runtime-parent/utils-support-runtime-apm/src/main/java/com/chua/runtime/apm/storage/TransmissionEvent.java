@@ -217,6 +217,7 @@ public class TransmissionEvent {
         return r;
     }
 
+    /** 解析Protocol */
     private static Protocol parseProtocol(String name) {
         if (name == null) {
             return Protocol.UNKNOWN;
@@ -228,6 +229,7 @@ public class TransmissionEvent {
         }
     }
 
+    /** 解析Software */
     private static Software parseSoftware(String name) {
         if (name == null) {
             return Software.UNKNOWN;

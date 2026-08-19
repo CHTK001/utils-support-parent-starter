@@ -86,6 +86,7 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     @Override
+    /** Fetch */
     public SpiderResponse fetch(SpiderRequest request) {
         long startTime = System.currentTimeMillis();
         SpiderResponse.SpiderResponseBuilder builder = SpiderResponse.builder()
@@ -235,11 +236,13 @@ public class HttpFetcher implements SpiderFetcher {
                 : new Proxy(Proxy.Type.HTTP, address);
         return new ProxySelector() {
             @Override
+            /** 选择 */
             public java.util.List<Proxy> select(URI uri) {
                 return java.util.Collections.singletonList(proxyConfig);
             }
 
             @Override
+            /** 连接Failed */
             public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
                 log.warn("[spider-fetcher] 代理连接失败: {} - {}", uri, ioe.getMessage());
             }

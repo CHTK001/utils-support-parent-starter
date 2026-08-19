@@ -69,6 +69,11 @@ public class UsagePersistChatClient implements ChatClient {
         return new UsagePersistChatClient(delegate, engine);
     }
 
+    /**
+     * 创建 UsagePersistChatClient 实例
+     * @param delegate delegate
+     * @param Engine Engine
+     */
     private UsagePersistChatClient(ChatClient delegate, Engine engine) {
         this.delegate = delegate;
         this.engine = engine;
@@ -77,11 +82,13 @@ public class UsagePersistChatClient implements ChatClient {
     // ======================== 包装的接口方法 ========================
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         return delegate.chatSync(prompt);
     }
 
     @Override
+    /** ChatSyncWithResponse */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         ChatSyncResponse response = delegate.chatSyncWithResponse(prompt);
         persistAsync(response != null ? response.getUsage() : null);
@@ -89,6 +96,13 @@ public class UsagePersistChatClient implements ChatClient {
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         delegate.chat(prompt, raw -> {
@@ -101,6 +115,7 @@ public class UsagePersistChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatAsync */
     public CompletableFuture<ChatSyncResponse> chatAsync(String prompt) {
         return delegate.chatAsync(prompt)
                 .thenApply(response -> {
@@ -110,6 +125,7 @@ public class UsagePersistChatClient implements ChatClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return delegate.models();
     }
@@ -117,78 +133,91 @@ public class UsagePersistChatClient implements ChatClient {
     // ======================== 链式方法 ========================
 
     @Override
+    /** Provider */
     public ChatClient provider(String provider) {
         delegate.provider(provider);
         return this;
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         delegate.model(model);
         return this;
     }
 
     @Override
+    /** System */
     public ChatClient system(String system) {
         delegate.system(system);
         return this;
     }
 
     @Override
+    /** Temperature */
     public ChatClient temperature(double temperature) {
         delegate.temperature(temperature);
         return this;
     }
 
     @Override
+    /** 最大值Tokens */
     public ChatClient maxTokens(int maxTokens) {
         delegate.maxTokens(maxTokens);
         return this;
     }
 
     @Override
+    /** 添加Image */
     public ChatClient addImage(String imageUrl) {
         delegate.addImage(imageUrl);
         return this;
     }
 
     @Override
+    /** 添加UserHistory */
     public ChatClient addUserHistory(String content) {
         delegate.addUserHistory(content);
         return this;
     }
 
     @Override
+    /** 添加AssistantHistory */
     public ChatClient addAssistantHistory(String content) {
         delegate.addAssistantHistory(content);
         return this;
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         delegate.history(messages);
         return this;
     }
 
     @Override
+    /** 添加Attachment */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         delegate.addAttachment(name, data, mimeType);
         return this;
     }
 
     @Override
+    /** 添加AttachmentUrl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         delegate.addAttachmentUrl(name, url, mimeType);
         return this;
     }
 
     @Override
+    /** Session */
     public ChatClient session(String sessionId) {
         delegate.session(sessionId);
         return this;
     }
 
     @Override
+    /** NewChat */
     public ChatClient newChat() {
         delegate.newChat();
         return this;
@@ -229,6 +258,7 @@ public class UsagePersistChatClient implements ChatClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         flush();
         delegate.close();
@@ -236,6 +266,7 @@ public class UsagePersistChatClient implements ChatClient {
 
     // ======================== 内部方法 ========================
 
+    /** PersistAsync */
     private void persistAsync(AiUsage usage) {
         if (usage == null || engine == null) return;
         CompletableFuture<AiUsageRecord> future = AiUsageRecord.from(usage).asyncSave(engine);

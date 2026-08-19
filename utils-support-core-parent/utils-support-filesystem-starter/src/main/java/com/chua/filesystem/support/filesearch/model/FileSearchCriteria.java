@@ -123,66 +123,79 @@ public record FileSearchCriteria(
         /** 排序 */
         private String order = ORDER_DESC;
 
+        /** RootPath */
         public Builder rootPath(String rootPath) {
             this.rootPath = rootPath;
             return this;
         }
 
+        /** NamePattern */
         public Builder namePattern(String namePattern) {
             this.namePattern = namePattern;
             return this;
         }
 
+        /** 最小值获取大小 */
         public Builder minSize(long minSize) {
             this.minSize = minSize;
             return this;
         }
 
+        /** 最大值获取大小 */
         public Builder maxSize(long maxSize) {
             this.maxSize = maxSize;
             return this;
         }
 
+        /** 最大值Results */
         public Builder maxResults(int maxResults) {
             this.maxResults = maxResults;
             return this;
         }
 
+        /** 最大值Depth */
         public Builder maxDepth(int maxDepth) {
             this.maxDepth = maxDepth;
             return this;
         }
 
+        /** ExcludeDirs */
         public Builder excludeDirs(String... excludeDirs) {
             this.excludeDirs = excludeDirs;
             return this;
         }
 
+        /** ExcludePatterns */
         public Builder excludePatterns(String... excludePatterns) {
             this.excludePatterns = excludePatterns;
             return this;
         }
 
+        /** FollowLinks */
         public Builder followLinks(boolean followLinks) {
             this.followLinks = followLinks;
             return this;
         }
 
+        /** IncludeHidden */
         public Builder includeHidden(boolean includeHidden) {
             this.includeHidden = includeHidden;
             return this;
         }
 
+        /** 排序By */
         public Builder sortBy(String sortBy) {
             this.sortBy = sortBy;
             return this;
         }
 
+        /** Order */
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
+        /** 构建 */
         public FileSearchCriteria build() {
             return new FileSearchCriteria(
                     rootPath, namePattern, minSize, maxSize, maxResults, maxDepth,

@@ -186,10 +186,19 @@ public interface WebContainer {
      * Web 容器异常。
      */
     class ContainerException extends RuntimeException {
+        /**
+         * 创建 ContainerException 实例
+         * @param message message
+         */
         public ContainerException(String message) {
             super(message);
         }
 
+        /**
+         * 创建 ContainerException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public ContainerException(String message, Throwable cause) {
             super(message, cause);
         }

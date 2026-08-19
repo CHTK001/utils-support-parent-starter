@@ -55,6 +55,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
     private static final int THRESHOLD = 10;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         int w = input.getWidth();
@@ -74,6 +75,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.get(0);
         long[] shape = out.getShape().getShape();
@@ -139,6 +141,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

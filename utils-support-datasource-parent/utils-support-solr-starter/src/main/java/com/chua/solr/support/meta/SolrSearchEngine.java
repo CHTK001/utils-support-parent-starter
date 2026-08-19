@@ -28,16 +28,22 @@ public class SolrSearchEngine implements SearchEngine {
     /** 引擎 */
     private final SolrEngine engine;
 
+    /**
+     * 创建 SolrSearchEngine 实例
+     * @param engine engine
+     */
     public SolrSearchEngine(SolrEngine engine) {
         this.engine = engine;
     }
 
     @Override
+    /** Type */
     public String type() {
         return "solr";
     }
 
     @Override
+    /** ListIndexes */
     public List<String> listIndexes() {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -60,6 +66,7 @@ public class SolrSearchEngine implements SearchEngine {
     }
 
     @Override
+    /** 获取Index */
     public SearchIndexDef getIndex(String indexName) {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -91,6 +98,7 @@ public class SolrSearchEngine implements SearchEngine {
     }
 
     @Override
+    /** 创建Index */
     public boolean createIndex(SearchIndexDef indexDef) {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -113,6 +121,7 @@ public class SolrSearchEngine implements SearchEngine {
     }
 
     @Override
+    /** 删除Index */
     public boolean deleteIndex(String indexName) {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -127,6 +136,7 @@ public class SolrSearchEngine implements SearchEngine {
     }
 
     @Override
+    /** 获取Client */
     public Object getClient() {
         return engine.getClient();
     }

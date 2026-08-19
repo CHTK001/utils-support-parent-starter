@@ -100,11 +100,13 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     @Override
+    /** Name */
     public String name() {
         return modelName;
     }
 
     @Override
+    /** Translate */
     public Object translate(Object input) {
         Object result;
         int imgW = 0;
@@ -206,6 +208,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         factory.close();
     }

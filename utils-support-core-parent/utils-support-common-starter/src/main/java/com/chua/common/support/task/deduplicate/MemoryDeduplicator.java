@@ -64,21 +64,25 @@ public class MemoryDeduplicator implements Deduplicator {
     }
 
     @Override
+    /** 是否Duplicate */
     public boolean isDuplicate(String key) {
         return processed.containsKey(key);
     }
 
     @Override
+    /** 标记Processed */
     public void markProcessed(String key) {
         processed.put(key, System.currentTimeMillis());
     }
 
     @Override
+    /** Clear */
     public void clear() {
         processed.clear();
     }
 
     @Override
+    /** 获取大小 */
     public int size() {
         return processed.size();
     }

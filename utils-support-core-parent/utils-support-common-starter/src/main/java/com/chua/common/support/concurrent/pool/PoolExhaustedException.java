@@ -11,10 +11,19 @@ package com.chua.common.support.concurrent.pool;
  */
 public class PoolExhaustedException extends RuntimeException {
 
+    /**
+     * 创建 PoolExhaustedException 实例
+     * @param message message
+     */
     public PoolExhaustedException(String message) {
         super(message);
     }
 
+    /**
+     * 创建 PoolExhaustedException 实例
+     * @param message message
+     * @param Throwable Throwable
+     */
     public PoolExhaustedException(String message, Throwable cause) {
         super(message, cause);
     }

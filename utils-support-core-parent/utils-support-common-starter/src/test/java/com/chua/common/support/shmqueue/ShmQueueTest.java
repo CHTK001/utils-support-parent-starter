@@ -158,6 +158,7 @@ class ShmQueueTest {
         return "/shmq_test_" + System.nanoTime();
     }
 
+    /** IntToBytes */
     private static byte[] intToBytes(int v) {
         return new byte[]{
                 (byte) ((v >> 24) & 0xFF),
@@ -167,6 +168,7 @@ class ShmQueueTest {
         };
     }
 
+    /** BytesToInt */
     private static int bytesToInt(byte[] b) {
         if (b == null || b.length != 4) {
             return -1;

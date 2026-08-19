@@ -32,32 +32,38 @@ public class CxfHandler extends AbstractAppHandler {
     private static final String[] PROXY_METHODS = {"invoke"};
 
     @Override
+    /** Name */
     public String name() {
         return "cxf-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "cxf.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.CXF;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(INVOKER, INVOKE_METHODS);
         registerAll(PROXY, PROXY_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

@@ -31,6 +31,7 @@ public class SafeTensorAudioClient extends AbstractLocalAudioClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("asr");
     }

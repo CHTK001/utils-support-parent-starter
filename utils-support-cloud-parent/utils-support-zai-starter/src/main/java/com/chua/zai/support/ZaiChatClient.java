@@ -136,94 +136,110 @@ public class ZaiChatClient implements ChatClient {
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Temperature */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
+    /** 最大值Tokens */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
+    /** System */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
+    /** Thinking */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
+    /** ThinkingEffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
+    /** Smart搜索 */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
+    /** Skill */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
+    /** 添加Image */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
+    /** 添加UserHistory */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
+    /** 添加AssistantHistory */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
+    /** Session */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
+    /** 添加Attachment */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持文件附件");
     }
 
     @Override
+    /** 添加AttachmentUrl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
+    /** NewChat */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -232,6 +248,7 @@ public class ZaiChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -244,6 +261,7 @@ public class ZaiChatClient implements ChatClient {
     }
 
     @Override
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -252,6 +270,13 @@ public class ZaiChatClient implements ChatClient {
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

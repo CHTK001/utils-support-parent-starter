@@ -40,6 +40,13 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
      */
     private final int port;
 
+    /**
+     * 创建 RSocketAgentDataSyncSource 实例
+     * @param agentId agentId
+     * @param String String
+     * @param String String
+     * @param int int
+     */
     public RSocketAgentDataSyncSource(String agentId, String sourceId, String host, int port) {
         this.agentId = agentId;
         this.sourceId = sourceId;
@@ -47,26 +54,35 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
         this.port = port;
     }
 
+    /**
+     * 创建 RSocketAgentDataSyncSource 实例
+     * @param agentId agentId
+     * @param String String
+     */
     public RSocketAgentDataSyncSource(String agentId, String sourceId) {
         this(agentId, sourceId, "localhost", 8080);
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.INPUT;
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** AgentId */
     public String agentId() {
         return agentId;
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -95,11 +111,13 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** CurrentOffset */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
+    /** 写入 */
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -124,6 +142,7 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

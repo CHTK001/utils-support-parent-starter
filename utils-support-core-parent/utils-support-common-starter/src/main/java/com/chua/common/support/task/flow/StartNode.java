@@ -15,6 +15,7 @@ package com.chua.common.support.task.flow;
 public interface StartNode extends FlowNode {
 
     @Override
+    /** Type */
     default String type() {
         return "start";
     }

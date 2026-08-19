@@ -54,6 +54,7 @@ public interface FeatureExtractor {
         return this;
     }
 
+    /** 创建 */
     static FeatureExtractor create(String name) {
         return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -188,18 +189,21 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     }
 
     @Override
+    /** ModelPath */
     public FeatureExtractor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FeatureExtractor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Normalize */
     public FeatureExtractor normalize(boolean normalize) {
         this.normalize = normalize;
         return this;
@@ -207,6 +211,7 @@ class DefaultFeatureExtractor implements FeatureExtractor {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Extract */
     public float[] extract(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -218,6 +223,7 @@ class DefaultFeatureExtractor implements FeatureExtractor {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Extract */
     public float[] extract(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);

@@ -40,16 +40,23 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
      */
     private int height;
 
+    /** 创建 DiffusionDepthTranslator 实例 */
     public DiffusionDepthTranslator() {
         this(512, 512);
     }
 
+    /**
+     * 创建 DiffusionDepthTranslator 实例
+     * @param imageResolution imageResolution
+     * @param int int
+     */
     public DiffusionDepthTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -65,6 +72,7 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
         if (depthPt.getShape().dimension() == 4 && depthPt.getShape().get(0) == 1) {
@@ -81,6 +89,7 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(display);
     }
 
+    /** ToDisplay */
     private NDArray toDisplay(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) {
@@ -106,6 +115,7 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

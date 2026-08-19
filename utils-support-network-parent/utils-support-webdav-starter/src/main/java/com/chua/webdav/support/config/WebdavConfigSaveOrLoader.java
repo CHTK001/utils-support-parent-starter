@@ -35,6 +35,10 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
      */
     private final String baseUrl;
 
+    /**
+     * 创建 WebdavConfigSaveOrLoader 实例
+     * @param setting setting
+     */
     public WebdavConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         super(setting != null ? setting : ConfigSaveLoadSetting.builder().build());
         String username = this.setting.getUsername() != null ? this.setting.getUsername() : "";
@@ -49,10 +53,12 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         this.baseUrl = url + (basePath.endsWith("/") ? basePath : basePath + "/");
     }
 
+    /** FullUrl */
     private String fullUrl(String key) {
         return baseUrl + normalizeKey(key);
     }
 
+    /** EnsureParentPath */
     private void ensureParentPath(String key) throws IOException {
         String normalized = normalizeKey(key);
         if (!normalized.contains("/")) {
@@ -70,6 +76,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
+    /** 保存Bytes */
     public ConfigSaveResult saveBytes(String key, byte[] content) {
         try {
             ensureParentPath(key);
@@ -82,6 +89,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
+    /** 加载Bytes */
     public Optional<byte[]> loadBytes(String key) {
         try {
             InputStream is = sardine.get(fullUrl(key));
@@ -95,6 +103,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
+    /** 删除 */
     public boolean delete(String key) {
         try {
             sardine.delete(fullUrl(key));
@@ -106,6 +115,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         try {
             sardine.shutdown();

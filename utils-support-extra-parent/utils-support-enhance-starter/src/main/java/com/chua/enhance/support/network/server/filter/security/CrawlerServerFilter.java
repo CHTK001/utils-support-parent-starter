@@ -129,6 +129,7 @@ public class CrawlerServerFilter implements ServerFilter {
     private ScheduledExecutorService cleanupExecutor;
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         String enabledVal = config.getInitParameter("crawler.enabled");
         if (enabledVal != null && !enabledVal.isEmpty()) {
@@ -175,6 +176,7 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         if (cleanupExecutor != null) {
             cleanupExecutor.shutdownNow();
@@ -184,6 +186,7 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (!enabled) {
             chain.doFilter(request, response);
@@ -211,11 +214,13 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 30;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "CrawlerServerFilter";
     }
@@ -285,6 +290,7 @@ public class CrawlerServerFilter implements ServerFilter {
         return max > 0 && min > 0 && (double) max / min <= periodMaxIntervalRatio;
     }
 
+    /** 最小值Interval */
     private long minInterval(Deque<Long> times) {
         long min = Long.MAX_VALUE;
         Long prev = null;
@@ -297,6 +303,7 @@ public class CrawlerServerFilter implements ServerFilter {
         return min == Long.MAX_VALUE ? 0 : min;
     }
 
+    /** 最大值Interval */
     private long maxInterval(Deque<Long> times) {
         long max = Long.MIN_VALUE;
         Long prev = null;

@@ -68,6 +68,7 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     private static final String FORMAT_H266 = "h266";
 
     @Override
+    /** 初始化 */
     public synchronized boolean init(int codecId, int width, int height) {
         this.codecId = codecId;
         this.width = width;
@@ -78,6 +79,7 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     }
 
     @Override
+    /** 解码 */
     public synchronized ByteBuffer decode(byte[] packet) {
         if (!initialized || packet == null || packet.length == 0) {
             return null;
@@ -132,21 +134,25 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     }
 
     @Override
+    /** 刷新 */
     public ByteBuffer[] flush() {
         return new ByteBuffer[0];
     }
 
     @Override
+    /** 获取Width */
     public int getWidth() {
         return width;
     }
 
     @Override
+    /** 获取Height */
     public int getHeight() {
         return height;
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         initialized = false;
         codecId = 0;

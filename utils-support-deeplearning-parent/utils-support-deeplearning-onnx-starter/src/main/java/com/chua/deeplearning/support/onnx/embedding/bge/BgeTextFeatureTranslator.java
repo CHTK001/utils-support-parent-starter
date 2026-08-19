@@ -34,10 +34,12 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     /** 是否已加载 */
     private volatile boolean loaded;
 
+    /** 创建 BgeTextFeatureTranslator 实例 */
     public BgeTextFeatureTranslator() {
         this.translator = new BgeEmbeddingTranslator();
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -85,11 +87,13 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "bge-text-feature";
     }
 
     @Override
+    /** Translate */
     public float[] translate(String input) {
         try {
             prepare();

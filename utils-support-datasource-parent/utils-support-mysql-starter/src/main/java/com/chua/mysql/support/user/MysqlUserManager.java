@@ -21,16 +21,19 @@ public class MysqlUserManager implements UserManager, DataSourceAware {
     private DataSource dataSource;
 
     @Override
+    /** Type */
     public String type() {
         return "mysql";
     }
 
     @Override
+    /** 设置DataSource */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
+    /** ListUsers */
     public List<UserInfo> listUsers() {
         List<UserInfo> list = new ArrayList<>();
         try (Connection c = dataSource.getConnection();
@@ -50,11 +53,13 @@ public class MysqlUserManager implements UserManager, DataSourceAware {
     }
 
     @Override
+    /** 创建User */
     public CreateUserStep createUser(String username) {
         return new MysqlCreateUserStep(dataSource, username);
     }
 
     @Override
+    /** DropUser */
     public DropUserStep dropUser(String username) {
         return () -> {
             try (Connection c = dataSource.getConnection();
@@ -67,6 +72,7 @@ public class MysqlUserManager implements UserManager, DataSourceAware {
     }
 
     @Override
+    /** AlterUser */
     public AlterUserStep alterUser(String username) {
         return new MysqlAlterUserStep(dataSource, username);
     }

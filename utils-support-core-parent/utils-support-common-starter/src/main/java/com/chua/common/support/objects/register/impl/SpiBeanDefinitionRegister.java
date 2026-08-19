@@ -35,50 +35,59 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
     private volatile boolean closed;
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "spi";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 20;
     }
 
     @Override
+    /** 是否Support */
     public boolean isSupport(BeanDefinition beanDefinition) {
         // SPI 注册器不支持手动注册，由 ServiceProvider 自动发现服务
         return false;
     }
 
     @Override
+    /** 注册 */
     public boolean register(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException(
                 "SPI Bean 定义注册器不支持手动注册，Bean 应由 ServiceProvider 自动发现");
     }
 
     @Override
+    /** 注销 */
     public boolean unregister(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException(
                 "SPI Bean 定义注册器不支持手动注销");
     }
 
     @Override
+    /** 注销 */
     public boolean unregister(String beanName) {
         throw new UnsupportedOperationException(
                 "SPI Bean 定义注册器不支持手动注销");
     }
 
     @Override
+    /** 是否Writable */
     public boolean isWritable() {
         return false;
     }
 
     @Override
+    /** 获取BeanDefinition */
     public BeanDefinition getBeanDefinition(String beanName) {
         return beanName != null && !closed ? beanDefinitions.get(beanName) : null;
     }
 
     @Override
+    /** 获取BeanDefinitionOfType */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -96,6 +105,7 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
     }
 
     @Override
+    /** 获取BeanDefinitionOfType */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -112,16 +122,19 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
     }
 
     @Override
+    /** ContainsBean */
     public boolean containsBean(String beanName) {
         return beanName != null && !closed && beanDefinitions.containsKey(beanName);
     }
 
     @Override
+    /** 获取BeanDefinitionNames */
     public Collection<String> getBeanDefinitionNames() {
         return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
     }
 
     @Override
+    /** 获取BeansWithAnnotation */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -142,6 +155,7 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
     }
 
     @Override
+    /** 获取BeansWithMethodAnnotation */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -162,11 +176,13 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
     }
 
     @Override
+    /** 初始化 */
     public void initialize() {
         closed = false;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         destroySingletons();
@@ -174,6 +190,7 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
     }
 
     @Override
+    /** 是否Closed */
     public boolean isClosed() {
         return closed;
     }

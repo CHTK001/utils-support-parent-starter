@@ -58,6 +58,14 @@ public class SmbServer extends AbstractServer {
      */
     private volatile long serverHandle = -1;
 
+    /**
+     * 创建 SmbServer 实例
+     * @param setting setting
+     * @param user user
+     * @param password password
+     * @param shareName shareName
+     * @param rootPath rootPath
+     */
     protected SmbServer(ServerSetting setting, String user, String password,
                         String shareName, String rootPath) {
         super(setting);
@@ -68,11 +76,13 @@ public class SmbServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.SMB;
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             RustSmbServerBridge.loadLibrary();
@@ -92,6 +102,7 @@ public class SmbServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (serverHandle > 0) {
             try {
@@ -107,6 +118,7 @@ public class SmbServer extends AbstractServer {
 
     // ==================== 构建器 ====================
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -138,36 +150,43 @@ public class SmbServer extends AbstractServer {
          */
         private String rootPath = "/tmp/smbroot";
 
+        /** Port */
         public Builder port(int port) {
             this.port = port;
             return this;
         }
 
+        /** Host */
         public Builder host(String host) {
             this.host = host;
             return this;
         }
 
+        /** User */
         public Builder user(String user) {
             this.user = user;
             return this;
         }
 
+        /** Password */
         public Builder password(String password) {
             this.password = password;
             return this;
         }
 
+        /** ShareName */
         public Builder shareName(String shareName) {
             this.shareName = shareName;
             return this;
         }
 
+        /** RootPath */
         public Builder rootPath(String rootPath) {
             this.rootPath = rootPath;
             return this;
         }
 
+        /** 构建 */
         public SmbServer build() {
             ServerSetting setting = ServerSetting.defaults();
             setting.setHost(host);

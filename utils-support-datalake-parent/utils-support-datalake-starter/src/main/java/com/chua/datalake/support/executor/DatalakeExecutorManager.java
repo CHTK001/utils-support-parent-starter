@@ -32,6 +32,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
         executor.setDispatcherProvider(dispatcherProvider);
     }
 
+    /** 创建 DatalakeExecutorManager 实例 */
     public DatalakeExecutorManager() {
         this.executor = new DatalakeReactorExecutor("datalake", true);
     }
@@ -61,16 +62,19 @@ public class DatalakeExecutorManager implements ExecutorManager {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         log.info("[datalake-server] ExecutorManager 启动");
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         log.info("[datalake-server] ExecutorManager 停止");
     }
 
     @Override
+    /** 获取Executor */
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executor;
     }

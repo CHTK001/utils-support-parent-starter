@@ -38,16 +38,28 @@ public class RetryConfig {
         void onRetry(int attemptNumber, Throwable cause);
     }
 
+    /** 获取最大值Retries */
     public int getMaxRetries() { return maxRetries; }
+    /** 设置最大值Retries */
     public RetryConfig setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; return this; }
+    /** 获取Delay */
     public long getDelay() { return delay; }
+    /** 设置Delay */
     public RetryConfig setDelay(long delay) { this.delay = delay; return this; }
+    /** 获取Multiplier */
     public double getMultiplier() { return multiplier; }
+    /** 设置Multiplier */
     public RetryConfig setMultiplier(double multiplier) { this.multiplier = multiplier; return this; }
+    /** 获取BackoffStrategy */
     public BackoffStrategy getBackoffStrategy() { return backoffStrategy; }
+    /** 设置BackoffStrategy */
     public RetryConfig setBackoffStrategy(BackoffStrategy backoffStrategy) { this.backoffStrategy = backoffStrategy; return this; }
+    /** 获取RetryOnException */
     public Predicate<Throwable> getRetryOnException() { return retryOnException; }
+    /** 设置RetryOnException */
     public RetryConfig setRetryOnException(Predicate<Throwable> retryOnException) { this.retryOnException = retryOnException; return this; }
+    /** 获取RetryListener */
     public RetryListenerCallback getRetryListener() { return retryListener; }
+    /** 设置RetryListener */
     public RetryConfig setRetryListener(RetryListenerCallback retryListener) { this.retryListener = retryListener; return this; }
 }

@@ -79,6 +79,7 @@ public class TerminalUtils {
     /** OS名称 */
     private static String osName;
 
+    /** 是否Windows */
     private static boolean isWindows() {
         if (osName == null) {
             osName = System.getProperty("os.name").toLowerCase();
@@ -86,6 +87,7 @@ public class TerminalUtils {
         return osName.contains("win");
     }
 
+    /** 是否Unix */
     private static boolean isUnix() {
         if (osName == null) {
             osName = System.getProperty("os.name").toLowerCase();
@@ -165,23 +167,28 @@ public class TerminalUtils {
         return DEFAULT_TERMINAL_WIDTH;
     }
 
+    /** 是否拥有CursorMovementSupport */
     static boolean hasCursorMovementSupport() {
         return cursorMovementSupported;
     }
 
+    /** 关闭Terminal */
     synchronized static void closeTerminal() {
     }
 
+    /** 过滤ActiveConsumers */
     static <T extends ProgressBarConsumer> Stream<T> filterActiveConsumers(Class<T> clazz) {
         return activeConsumers.stream()
             .filter(clazz::isInstance)
             .map(clazz::cast);
     }
 
+    /** 移动CursorUp */
     static String moveCursorUp(int count) {
         return ESCAPE_CHAR + "[" + count + "A" + CARRIAGE_RETURN;
     }
 
+    /** 移动CursorDown */
     static String moveCursorDown(int count) {
         return ESCAPE_CHAR + "[" + count + "B" + CARRIAGE_RETURN;
     }

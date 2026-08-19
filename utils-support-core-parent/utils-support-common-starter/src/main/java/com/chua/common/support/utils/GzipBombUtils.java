@@ -89,6 +89,7 @@ public class GzipBombUtils {
      */
     private static final byte[] GZIP_FOOTER = new byte[GZIP_FOOTER_LENGTH];
 
+    /** 创建 GzipBombUtils 实例 */
     public GzipBombUtils() {
     }
 

@@ -34,6 +34,13 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
 
     @Override
     @SneakyThrows
+    /**
+     * 创建Proxy
+     * @param target target
+     * @param interfaces interfaces
+     * @param classLoader classLoader
+     * @param intercept intercept
+     */
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
                         MethodIntercept<T> intercept) {
         javassist.util.proxy.ProxyFactory proxyFactory = new javassist.util.proxy.ProxyFactory();
@@ -46,6 +53,7 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
 
         proxyObject.setHandler(new MethodHandler() {
             @Override
+            /** 调用 */
             public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
                 intercept.before(self, thisMethod, args, (T) self);
 

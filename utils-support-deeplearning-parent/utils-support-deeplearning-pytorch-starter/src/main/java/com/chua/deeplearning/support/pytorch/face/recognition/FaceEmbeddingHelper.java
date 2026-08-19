@@ -11,6 +11,7 @@ import ai.djl.ndarray.NDList;
  */
 final class FaceEmbeddingHelper {
 
+    /** 创建 FaceEmbeddingHelper 实例 */
     private FaceEmbeddingHelper() {
     }
 

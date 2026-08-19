@@ -48,10 +48,23 @@ public class AgentHookAdapter implements Hook {
     /** Plan最大值任务 */
     private final int planMaxTask;
 
+    /**
+     * 创建 AgentHookAdapter 实例
+     * @param agentId agentId
+     * @param AgentDebugHook AgentDebugHook
+     * @param AgentPlanHook AgentPlanHook
+     */
     public AgentHookAdapter(String agentId, AgentDebugHook debugHook, AgentPlanHook planHook) {
         this(agentId, debugHook, planHook, 0);
     }
 
+    /**
+     * 创建 AgentHookAdapter 实例
+     * @param agentId agentId
+     * @param debugHook debugHook
+     * @param planHook planHook
+     * @param planMaxTask planMaxTask
+     */
     public AgentHookAdapter(String agentId, AgentDebugHook debugHook,
                             AgentPlanHook planHook, int planMaxTask) {
         this.agentId = agentId;
@@ -61,6 +74,7 @@ public class AgentHookAdapter implements Hook {
     }
 
     @Override
+    /** OnEvent */
     public <T extends HookEvent> Mono<T> onEvent(T event) {
         if (event == null) {
             return Mono.empty();
@@ -137,6 +151,7 @@ public class AgentHookAdapter implements Hook {
         }
     }
 
+    /** 解析ToolName */
     private static String resolveToolName(HookEvent event) {
         if (event instanceof ActingEvent acting) {
             ToolUseBlock use = acting.getToolUse();
@@ -145,6 +160,7 @@ public class AgentHookAdapter implements Hook {
         return null;
     }
 
+    /** 解析Type */
     private static String resolveType(HookEvent event, String toolName) {
         if (toolName != null) {
             String lower = toolName.toLowerCase(Locale.ROOT);
@@ -182,6 +198,7 @@ public class AgentHookAdapter implements Hook {
         return event.getClass().getSimpleName();
     }
 
+    /** 解析Message */
     private static String resolveMessage(HookEvent event, String toolName) {
         if (event instanceof ErrorEvent errorEvent) {
             Throwable err = errorEvent.getError();
@@ -200,6 +217,7 @@ public class AgentHookAdapter implements Hook {
         return event.getClass().getSimpleName();
     }
 
+    /** 是否PlanRelated */
     private static boolean isPlanRelated(String type, String toolName) {
         if (type != null) {
             String upper = type.toUpperCase(Locale.ROOT);

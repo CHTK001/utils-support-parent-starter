@@ -15,9 +15,11 @@ import java.util.List;
  */
 public final class OcrQualityGateDiag {
 
+    /** 创建 OcrQualityGateDiag 实例 */
     private OcrQualityGateDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String[] files = {
                 "很不清楚的文字图片用于测试文字高清修复模型.png",

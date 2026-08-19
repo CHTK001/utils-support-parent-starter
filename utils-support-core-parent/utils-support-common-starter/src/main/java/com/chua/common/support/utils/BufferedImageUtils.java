@@ -40,6 +40,7 @@ public class BufferedImageUtils {
      */
     private static final String DEFAULT_ASCII_CHARS = "@%#*+=-:. ";
 
+    /** ToBufferedImage */
     public static BufferedImage toBufferedImage(Object obj) {
         if (obj instanceof BufferedImage) {
             return (BufferedImage) obj;
@@ -62,6 +63,7 @@ public class BufferedImageUtils {
         throw new IllegalArgumentException("Unsupported image type: " + (obj != null ? obj.getClass() : "null"));
     }
 
+    /** ToBufferedImage */
     public static BufferedImage toBufferedImage(File file) {
         try {
             return ImageIO.read(file);
@@ -70,6 +72,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ToBufferedImage */
     public static BufferedImage toBufferedImage(InputStream inputStream) {
         try {
             return ImageIO.read(inputStream);
@@ -78,6 +81,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ToBufferedImage */
     public static BufferedImage toBufferedImage(byte[] bytes) {
         try {
             return ImageIO.read(new ByteArrayInputStream(bytes));
@@ -86,6 +90,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ToBufferedImage */
     public static BufferedImage toBufferedImage(String path) {
         try {
             File file = new File(path);
@@ -98,6 +103,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ToBufferedImage */
     public static BufferedImage toBufferedImage(URL url) {
         try {
             return ImageIO.read(url);
@@ -106,6 +112,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ScaleImage */
     public static BufferedImage scaleImage(BufferedImage image, int width, int height) {
         BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = scaled.createGraphics();
@@ -115,6 +122,7 @@ public class BufferedImageUtils {
         return scaled;
     }
 
+    /** ScaleImage */
     public static BufferedImage scaleImage(BufferedImage image, float scale) {
         int width = Math.round(image.getWidth() * scale);
         int height = Math.round(image.getHeight() * scale);
@@ -691,6 +699,7 @@ public class BufferedImageUtils {
         return result;
     }
 
+    /** 写入ToStream */
     public static void writeToStream(BufferedImage image, String format, OutputStream outputStream) {
         try {
             ImageIO.write(image, format, outputStream);
@@ -699,6 +708,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** FillShape */
     public static void fillShape(Graphics2D g, CodePointStyle style, int unitWidth, int arg2, int arg3, int i, int j) {
         int x = unitWidth + i * unitWidth;
         int y = unitWidth + j * unitWidth;
@@ -715,6 +725,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ChangeColor */
     public static void changeColor(BufferedImage image, Color newColor) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -730,6 +741,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** 获取GradientColor */
     public static Color[] getGradientColor(Color from, Color to, int steps) {
         Color[] gradient = new Color[steps];
         float[] fromComponents = from.getRGBColorComponents(null);
@@ -744,6 +756,7 @@ public class BufferedImageUtils {
         return gradient;
     }
 
+    /** 处理GradientQRCodeOblique */
     public static BufferedImage handleGradientQRCodeOblique(BufferedImage image, Color[] gradient) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -759,6 +772,7 @@ public class BufferedImageUtils {
         return result;
     }
 
+    /** 获取BufferedImage */
     public static BufferedImage getBufferedImage(byte[] bytes) throws IOException {
         if (bytes == null) {
             return null;
@@ -766,6 +780,7 @@ public class BufferedImageUtils {
         return ImageIO.read(new ByteArrayInputStream(bytes));
     }
 
+    /** 获取BufferedImage */
     public static BufferedImage getBufferedImage(File file) throws IOException {
         if (file == null) {
             return null;
@@ -773,6 +788,7 @@ public class BufferedImageUtils {
         return ImageIO.read(file);
     }
 
+    /** 获取BufferedImage */
     public static BufferedImage getBufferedImage(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return null;
@@ -780,10 +796,12 @@ public class BufferedImageUtils {
         return ImageIO.read(inputStream);
     }
 
+    /** ToBufferedImageArray */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage) throws IOException {
         return toBufferedImageArray(bufferedImage, "png");
     }
 
+    /** ToBufferedImageArray */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage, String format) throws IOException {
         if (bufferedImage == null || format == null) {
             return new byte[0];
@@ -794,10 +812,12 @@ public class BufferedImageUtils {
         }
     }
 
+    /** ZoomImage */
     public static BufferedImage zoomImage(BufferedImage src, int width, int height) {
         return scaleImage(src, width, height);
     }
 
+    /** 获取SubImage */
     public static BufferedImage getSubImage(BufferedImage bufferedImage, int x, int y, int width, int height) {
         if (bufferedImage == null) {
             return null;
@@ -805,6 +825,7 @@ public class BufferedImageUtils {
         return bufferedImage.getSubimage(x, y, width, height);
     }
 
+    /** Rotate */
     public static BufferedImage rotate(BufferedImage src, int angle) {
         if (src == null) {
             return null;
@@ -823,6 +844,7 @@ public class BufferedImageUtils {
         return result;
     }
 
+    /** GrayImage */
     public static BufferedImage grayImage(BufferedImage src) {
         if (src == null) {
             return null;
@@ -834,6 +856,7 @@ public class BufferedImageUtils {
         return grayImage;
     }
 
+    /** BrightnessImage */
     public static BufferedImage brightnessImage(BufferedImage src, float brightness) {
         if (src == null || brightness == 1.0f) {
             return src;
@@ -854,6 +877,7 @@ public class BufferedImageUtils {
         return dest;
     }
 
+    /** BlurImage */
     public static BufferedImage blurImage(BufferedImage src, float radius) {
         if (src == null || radius <= 0) {
             return src;
@@ -868,10 +892,12 @@ public class BufferedImageUtils {
         return dest;
     }
 
+    /** Clamp */
     public static int clamp(float value) {
         return Math.min(255, Math.max(0, (int) value));
     }
 
+    /** 获取Rgb */
     public static int[] getRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
         int type = image.getType();
         if (type == BufferedImage.TYPE_INT_ARGB || type == BufferedImage.TYPE_INT_RGB) {
@@ -880,6 +906,7 @@ public class BufferedImageUtils {
         return image.getRGB(x, y, width, height, pixels, 0, width);
     }
 
+    /** 写入ToFile */
     public static void writeToFile(BufferedImage image, String format, File file) {
         try {
             ImageIO.write(image, format, file);
@@ -888,6 +915,7 @@ public class BufferedImageUtils {
         }
     }
 
+    /** 保存ToStream */
     public static void saveToStream(BufferedImage image, String format, OutputStream outputStream) {
         writeToStream(image, format, outputStream);
     }

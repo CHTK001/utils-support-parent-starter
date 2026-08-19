@@ -49,21 +49,25 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     private WebSocketClient webSocketClient;
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 45;
     }
 
     @Override
+    /** SupportPath */
     public String supportPath() {
         return null;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.WS};
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         // 后端 WebSocket 客户端性能配置:TcpNoDelay 减小包延迟,帧大小上限放大,
@@ -77,6 +81,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         if (webSocketClient != null) {
             webSocketClient.close();
@@ -88,6 +93,12 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (tryProxyWebSocket(request, response)) {
@@ -97,6 +108,12 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (tryProxyWebSocket(request, response)) {
@@ -181,6 +198,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
                 clientWs.path(), backendWs.remoteAddress());
     }
 
+    /** 发送记录错误 */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);

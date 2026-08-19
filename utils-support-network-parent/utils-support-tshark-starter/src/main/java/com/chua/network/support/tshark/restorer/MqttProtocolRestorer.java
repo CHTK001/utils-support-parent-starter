@@ -14,16 +14,19 @@ package com.chua.network.support.tshark.restorer;
 public class MqttProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "mqtt";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 160;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 2) {
             return false;
@@ -34,6 +37,7 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 2) {
             return "[MQTT] empty";
@@ -97,6 +101,7 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToPacketTypeName */
     private static String toPacketTypeName(int type) {
         return switch (type) {
             case 1 -> "CONNECT";

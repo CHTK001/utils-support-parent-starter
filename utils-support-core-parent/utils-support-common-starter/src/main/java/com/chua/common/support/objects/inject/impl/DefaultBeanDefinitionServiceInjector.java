@@ -22,12 +22,21 @@ import java.util.function.Function;
 public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(AutoInject.class);
     }
 
     @Override
+    /**
+     * Inject
+     * @param field field
+     * @param bean bean
+     * @param beanDefinition beanDefinition
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,
                          Function<Class<?>, Object> typeProvider) {

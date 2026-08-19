@@ -108,26 +108,31 @@ public class ChronicleMapKv implements KvEngine {
     }
 
     @Override
+    /** 获取 */
     public String get(String key) {
         return map.get(key);
     }
 
     @Override
+    /** Put */
     public void put(String key, String value) {
         map.put(key, value);
     }
 
     @Override
+    /** ContainsKey */
     public boolean containsKey(String key) {
         return map.containsKey(key);
     }
 
     @Override
+    /** 删除 */
     public boolean delete(String key) {
         return map.remove(key) != null;
     }
 
     @Override
+    /** Incr */
     public long incr(String key) {
         // 基于 ConcurrentMap.compute 在 ChronicleMap 内部锁保护下完成原子递增
         String updated = map.compute(key, (k, v) ->

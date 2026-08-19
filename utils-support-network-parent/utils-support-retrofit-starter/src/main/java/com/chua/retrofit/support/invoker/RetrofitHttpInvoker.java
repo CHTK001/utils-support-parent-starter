@@ -48,6 +48,7 @@ public class RetrofitHttpInvoker implements Invoker {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 创建 */
     public <T> T create(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -57,6 +58,7 @@ public class RetrofitHttpInvoker implements Invoker {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 创建New */
     public <T> T createNew(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());

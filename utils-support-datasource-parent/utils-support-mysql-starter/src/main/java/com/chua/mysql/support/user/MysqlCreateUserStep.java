@@ -25,18 +25,21 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
     }
 
     @Override
+    /** WithPassword */
     public UserManager.CreateUserStep withPassword(String password) {
         this.password = password;
         return this;
     }
 
     @Override
+    /** WithHost */
     public UserManager.CreateUserStep withHost(String host) {
         this.host = host;
         return this;
     }
 
     @Override
+    /** 执行 */
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {

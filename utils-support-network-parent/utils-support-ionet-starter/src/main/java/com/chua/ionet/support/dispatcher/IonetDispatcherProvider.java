@@ -41,11 +41,16 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     /** 分发器客户端 */
     private IonetSyncClient client;
 
+    /**
+     * 创建 IonetDispatcherProvider 实例
+     * @param config config
+     */
     public IonetDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     @Override
+    /** 开始 */
     public void start() {
         int port = resolvePort(config.getUrl());
         server = IonetSyncServer.builder()
@@ -55,6 +60,7 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
         // 服务端监听所有消息，按主题分发到订阅定义（SyncServerListener 为全 default 方法，需匿名类）
         server.addListener(new com.chua.common.support.network.server.SyncServerListener() {
             @Override
+            /** OnMessage */
             public void onMessage(String clientId, String topic, Object message) {
                 dispatchToDefinitions(topic, message);
             }
@@ -74,6 +80,7 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         var definitions = definitionMap.get(topic);
         System.err.println("[IonetDispatcher] publish topic=" + topic + " definitions="
@@ -95,6 +102,7 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -102,6 +110,7 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             List<DispatcherDefinition> definitions = definitionMap.get(topic);
@@ -115,6 +124,7 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (client != null) {
             try {
@@ -180,6 +190,7 @@ public class IonetDispatcherProvider extends AbstractDispatcherProvider {
      */
     static class EventRegion extends AbstractInputCommandRegion {
         @Override
+        /** 初始化InputCommand */
         public void initInputCommand() {
             // 空实现，不注册命令
         }

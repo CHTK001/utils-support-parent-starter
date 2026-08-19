@@ -32,32 +32,38 @@ public class SentinelHandler extends AbstractAppHandler {
     private static final String[] EXIT_METHODS = {"exit"};
 
     @Override
+    /** Name */
     public String name() {
         return "sentinel-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "sentinel.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SENTINEL;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(SPH_U, ENTRY_METHODS);
         registerAll(SPH_ENTRY, EXIT_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

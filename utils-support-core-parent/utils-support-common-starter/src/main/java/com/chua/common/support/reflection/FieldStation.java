@@ -26,19 +26,28 @@ public final class FieldStation {
     private final Object instance;
     private final Class<?> type;
 
+    /**
+     * 创建 FieldStation 实例
+     * @param instance instance
+     * @param Class Class
+     * @param type type
+     */
     private FieldStation(Object instance, Class<?> type) {
         this.instance = instance;
         this.type = type;
     }
 
+    /** Of */
     public static FieldStation of(Class<?> type) {
         return new FieldStation(null, type);
     }
 
+    /** Of */
     public static FieldStation of(Object instance) {
         return new FieldStation(instance, instance.getClass());
     }
 
+    /** 获取Value */
     public Object getValue(String name) {
         try {
             Field field = findField(type, toCamelCase(name));
@@ -57,6 +66,7 @@ public final class FieldStation {
         }
     }
 
+    /** 设置IgnoreNameValue */
     public void setIgnoreNameValue(String name, Object value) {
         try {
             Field field = findField(type, toCamelCase(name));
@@ -71,6 +81,7 @@ public final class FieldStation {
         }
     }
 
+    /** ToCamelCase */
     private String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;

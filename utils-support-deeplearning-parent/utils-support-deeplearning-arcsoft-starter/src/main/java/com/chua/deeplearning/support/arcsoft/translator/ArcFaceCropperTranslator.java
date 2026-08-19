@@ -26,16 +26,22 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
+    /**
+     * 创建 ArcFaceCropperTranslator 实例
+     * @param faceEngine faceEngine
+     */
     public ArcFaceCropperTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }
 
     @Override
+    /** Name */
     public String name() {
         return "arcface-cropper";
     }
 
     @Override
+    /** Translate */
     public BufferedImage translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

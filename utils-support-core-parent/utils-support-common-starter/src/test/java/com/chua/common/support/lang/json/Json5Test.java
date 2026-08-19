@@ -33,26 +33,36 @@ class Json5Test {
         /** AGE */
         private int age;
 
+        /** 创建 User 实例 */
         public User() {
         }
 
+        /**
+         * 创建 User 实例
+         * @param name name
+         * @param int int
+         */
         public User(String name, int age) {
             this.name = name;
             this.age = age;
         }
 
+        /** 获取Name */
         public String getName() {
             return name;
         }
 
+        /** 设置Name */
         public void setName(String name) {
             this.name = name;
         }
 
+        /** 获取Age */
         public int getAge() {
             return age;
         }
 
+        /** 设置Age */
         public void setAge(int age) {
             this.age = age;
         }
@@ -184,121 +194,145 @@ class Json5Test {
      */
     static class StubJsonProvider implements JsonProvider {
         @Override
+        /** 解析 */
         public JsonNode parse(String json) {
             return new JsonNode(new JsonObject());
         }
 
         @Override
+        /** 解析 */
         public JsonNode parse(byte[] json) {
             return parse(new String(json));
         }
 
         @Override
+        /** 构建 */
         public JsonNode build() {
             return new JsonNode(new JsonObject());
         }
 
         @Override
+        /** 构建Array */
         public JsonNode buildArray() {
             return new JsonNode(new JsonArray());
         }
 
         @Override
+        /** 获取JsonObject */
         public JsonObject getJsonObject(String json) {
             return new JsonObject();
         }
 
         @Override
+        /** 获取JsonReference */
         public JsonReference getJsonReference(String json) {
             return new JsonReference(json);
         }
 
         @Override
+        /** 获取JsonArray */
         public JsonArray getJsonArray(byte[] jsonArray) {
             return new JsonArray();
         }
 
         @Override
+        /** 获取JsonArray */
         public JsonArray getJsonArray(String json) {
             return new JsonArray();
         }
 
         @Override
+        /** 获取JsonObject */
         public JsonObject getJsonObject(byte[] bytes) {
             return new JsonObject();
         }
 
         @Override
+        /** 获取JsonObject */
         public JsonObject getJsonObject(java.io.InputStreamReader inputStreamReader) {
             return new JsonObject();
         }
 
         @Override
+        /** 获取JsonObject */
         public JsonObject getJsonObject(java.io.InputStream inputStream) {
             return new JsonObject();
         }
 
         @Override
+        /** 获取JsonObject */
         public JsonObject getJsonObject(java.io.InputStream inputStream, String charset) {
             return new JsonObject();
         }
 
         @Override
+        /** FromJsonToList */
         public <T> List<T> fromJsonToList(java.io.InputStream inputStream, Class<T> targetType) {
             return List.of();
         }
 
         @Override
+        /** FromJsonToList */
         public <T> List<T> fromJsonToList(String json, Class<T> targetType) {
             return List.of();
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(String json, Class<T> target) {
             return target.cast(new User("stub", 1));
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(byte[] bytes, Class<T> target) {
             return fromJson(new String(bytes), target);
         }
 
         @Override
+        /** FromJson */
         public JsonObject fromJson(byte[] bytes, Charset charset) {
             return new JsonObject();
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(java.io.InputStreamReader inputStreamReader, Class<T> target) {
             return fromJson("", target);
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(java.io.InputStream inputStream, Class<T> target) {
             return fromJson("", target);
         }
 
         @Override
+        /** ToJson */
         public String toJson(Object object, String... ignores) {
             return "{\"provider\":\"stub\"}";
         }
 
         @Override
+        /** Pretty格式化 */
         public String prettyFormat(Object object) {
             return toJson(object);
         }
 
         @Override
+        /** ToPrettyJson */
         public String toPrettyJson(Object obj) {
             return prettyFormat(obj);
         }
 
         @Override
+        /** ToJsonByte */
         public byte[] toJsonByte(Object object) {
             return toJson(object).getBytes();
         }
 
         @Override
+        /** 是否Json */
         public boolean isJson(Object ext) {
             return false;
         }
@@ -309,36 +343,43 @@ class Json5Test {
         }
 
         @Override
+        /** ToJSONBytes */
         public byte[] toJSONBytes(Object object) {
             return toJsonByte(object);
         }
 
         @Override
+        /** ToJSONString */
         public String toJSONString(Object object) {
             return toJson(object);
         }
 
         @Override
+        /** 校验 */
         public boolean validate(String jsonStr) {
             return true;
         }
 
         @Override
+        /** FromJson */
         public Map<String, Object> fromJson(String string) {
             return Map.of();
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(String stringValue, java.lang.reflect.Type type) {
             return fromJson(stringValue, (Class<T>) Object.class);
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(java.io.Reader reader, Class<T> target) {
             return fromJson("", target);
         }
 
         @Override
+        /** ToJson */
         public void toJson(Object object, java.io.Writer writer) {
             try {
                 writer.write(toJson(object));
@@ -348,11 +389,13 @@ class Json5Test {
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(java.io.InputStream stream, java.lang.reflect.Type type) {
             return fromJson("", (Class<T>) Object.class);
         }
 
         @Override
+        /** FromJson */
         public <T> T fromJson(java.io.Reader reader, java.lang.reflect.Type type) {
             return fromJson("", (Class<T>) Object.class);
         }

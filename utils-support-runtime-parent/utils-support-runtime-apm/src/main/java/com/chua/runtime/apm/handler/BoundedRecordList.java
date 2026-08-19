@@ -29,6 +29,10 @@ public class BoundedRecordList<T> implements Iterable<T> {
      */
     private final int maxSize;
 
+    /**
+     * 创建 BoundedRecordList 实例
+     * @param maxSize maxSize
+     */
     public BoundedRecordList(int maxSize) {
         this.maxSize = maxSize;
         this.delegate = new ArrayList<>(Math.min(maxSize, 64));

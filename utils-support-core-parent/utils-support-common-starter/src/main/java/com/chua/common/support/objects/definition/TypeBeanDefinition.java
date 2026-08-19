@@ -143,6 +143,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 类加载器 ====================
 
     @Override
+    /** 获取ClassLoader */
     public ClassLoader getClassLoader() {
         if (classLoader != null) {
             return classLoader;
@@ -157,6 +158,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 实例创建 ====================
 
     @Override
+    /** 创建Instance */
     public Object createInstance() {
         Class<?> bc = getBeanClass();
         if (bc == null) {
@@ -261,6 +263,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
         return args;
     }
 
+    /** 获取ConstructorResolvers */
     private List<BeanConstructorResolver> getConstructorResolvers() {
         if (constructorResolvers == null) {
             synchronized (this) {
@@ -298,11 +301,13 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 单例缓存 ====================
 
     @Override
+    /** Do获取Bean */
     protected Object doGetBean() {
         return singletonInstance;
     }
 
     @Override
+    /** 设置Bean */
     protected void setBean(Object bean) {
         if (BeanScope.SINGLETON == getScope()) {
             this.singletonInstance = bean;
@@ -310,6 +315,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
+    /** 销毁Bean */
     public void destroyBean() {
         if (isDestroyed()) {
             return;
@@ -321,6 +327,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== Bean 获取 ====================
 
     @Override
+    /** 获取Bean */
     public Object getBean() {
         if (BeanScope.SINGLETON == getScope()) {
             return super.getBean();
@@ -329,6 +336,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
+    /** 初始化Bean */
     public Object initializeBean() {
         if (initialized.get()) {
             return doGetBean();

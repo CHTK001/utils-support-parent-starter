@@ -37,6 +37,7 @@ public class BcTwofishCipher implements TwofishCipher {
     }
 
     @Override
+    /** Encrypt */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[16];
@@ -57,6 +58,7 @@ public class BcTwofishCipher implements TwofishCipher {
     }
 
     @Override
+    /** Decrypt */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             byte[] iv = new byte[16];

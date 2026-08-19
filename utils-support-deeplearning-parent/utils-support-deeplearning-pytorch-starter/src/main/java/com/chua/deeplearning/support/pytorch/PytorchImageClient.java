@@ -32,6 +32,7 @@ public class PytorchImageClient extends AbstractLocalImageClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, ai.djl.modality.cv.Image.class);
     }

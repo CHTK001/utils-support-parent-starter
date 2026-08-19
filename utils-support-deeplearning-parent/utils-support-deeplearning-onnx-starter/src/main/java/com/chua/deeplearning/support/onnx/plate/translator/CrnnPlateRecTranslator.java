@@ -50,6 +50,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     private static final String PROVINCES = "                                                                                             ";
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -71,6 +72,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     @Override
+    /** 处理Output */
     public PlateResult processOutput(TranslatorContext ctx, NDList list) {
         //                         plate logits + color logits
         // (0);  // shape: [1, T, num_classes]
@@ -96,6 +98,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return new PlateResult(plateNo, plateColor);
     }
 
+    /** 解码Plate */
     private String decodePlate(int[] preds) {
         int pre = 0;
         List<Integer> newPreds = new ArrayList<>();
@@ -115,6 +118,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return sb.toString();
     }
 
+    /** NormalizePlateText */
     private String normalizePlateText(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";
@@ -157,6 +161,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return cleaned;
     }
 
+    /** 查找ProvinceIndex */
     private int findProvinceIndex(String text) {
         for (int i = 0; i < text.length(); i++) {
             if (isProvince(text.charAt(i))) {
@@ -166,11 +171,13 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return -1;
     }
 
+    /** 是否Province */
     private boolean isProvince(char c) {
         return PROVINCES.indexOf(c) >= 0;
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

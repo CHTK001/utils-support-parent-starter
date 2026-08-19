@@ -46,6 +46,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         String capacity = config.getInitParameter("ipRateLimit.bucketCapacity");
         if (capacity != null && !capacity.isEmpty()) {
@@ -58,6 +59,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         TokenBucket bucket = buckets.computeIfAbsent(ip,
@@ -70,15 +72,18 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 25;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "IpRateLimitServerFilter";
     }
 
+    /** 解析ClientIp */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isEmpty()) {
@@ -112,6 +117,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
             this.lastRefillTime = System.currentTimeMillis();
         }
 
+        /** TryConsume */
         synchronized boolean tryConsume() {
             refill();
             long current = tokens.get();
@@ -122,6 +128,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
             return false;
         }
 
+        /** Refill */
         private void refill() {
             long now = System.currentTimeMillis();
             long elapsed = now - lastRefillTime;

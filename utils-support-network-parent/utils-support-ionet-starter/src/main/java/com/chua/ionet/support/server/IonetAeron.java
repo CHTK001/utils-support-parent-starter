@@ -61,6 +61,7 @@ public class IonetAeron {
      */
     private final Aeron aeron;
 
+    /** 创建 IonetAeron 实例 */
     private IonetAeron() {
         String aeronDirectoryName = "%s-%s".formatted(CommonContext.getAeronDirectoryName(), "ionet");
 
@@ -109,6 +110,7 @@ public class IonetAeron {
         return Holder.INSTANCE.aeron;
     }
 
+    /** 销毁 */
     private void destroy() {
         log.info("[IonetAeron] Shutting down Aeron...");
         try {

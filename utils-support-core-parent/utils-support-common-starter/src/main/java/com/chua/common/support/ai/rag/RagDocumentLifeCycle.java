@@ -287,11 +287,13 @@ public class RagDocumentLifeCycle implements AutoCloseable {
 
     // ==================== 内部方法 ====================
 
+    /** 添加Document */
     private synchronized void addDocument(RagDocument doc) {
         documents.add(doc);
         saveDb();
     }
 
+    /** 保存Db */
     private void saveDb() {
         try {
             MAPPER.writerWithDefaultPrettyPrinter().writeValue(dbFile.toFile(), documents);
@@ -300,6 +302,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         }
     }
 
+    /** 加载Db */
     private List<RagDocument> loadDb() {
         if (!Files.exists(dbFile)) {
             return new ArrayList<>();
@@ -312,6 +315,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         }
     }
 
+    /** ExtractText */
     private String extractText(byte[] data, String fileName) {
         if (textExtractor == null) {
             return new String(data, StandardCharsets.UTF_8);
@@ -328,12 +332,14 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         }
     }
 
+    /** ExtractExtension */
     private static String extractExtension(String fileName) {
         int idx = fileName.lastIndexOf('.');
         return idx >= 0 ? fileName.substring(idx + 1).toLowerCase() : "";
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         saveDb();
         log.info("[RagDocumentLifeCycle] 已关闭");

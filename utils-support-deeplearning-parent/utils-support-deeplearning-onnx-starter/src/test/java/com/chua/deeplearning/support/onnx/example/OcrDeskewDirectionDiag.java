@@ -19,9 +19,11 @@ import java.util.List;
  */
 public final class OcrDeskewDirectionDiag {
 
+    /** 创建 OcrDeskewDirectionDiag 实例 */
     private OcrDeskewDirectionDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String src = args.length > 0 ? args[0] : "G:\\images\\倾斜角的文字.jpg";
         byte[] img = Files.readAllBytes(Path.of(src));

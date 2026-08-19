@@ -59,6 +59,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     }
 
     @Override
+    /** Do过滤 */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response) {
         // 全部过滤器已执行完，调用目标处理器
         if (index >= filters.size()) {

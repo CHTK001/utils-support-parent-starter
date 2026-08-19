@@ -163,6 +163,7 @@ public class CmdResult {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return "CmdResult{" +
                 "command='" + command + '\'' +
@@ -174,6 +175,7 @@ public class CmdResult {
                 '}';
     }
 
+    /** Truncate */
     private static String truncate(String str, int max) {
         if (str == null || str.length() <= max) {
             return str;
@@ -210,46 +212,55 @@ public class CmdResult {
 
         CmdResultBuilder() {}
 
+        /** ExitCode */
         public CmdResultBuilder exitCode(int exitCode) {
             this.exitCode = exitCode;
             return this;
         }
 
+        /** Stdout */
         public CmdResultBuilder stdout(String stdout) {
             this.stdout = stdout;
             return this;
         }
 
+        /** Stderr */
         public CmdResultBuilder stderr(String stderr) {
             this.stderr = stderr;
             return this;
         }
 
+        /** Command */
         public CmdResultBuilder command(String command) {
             this.command = command;
             return this;
         }
 
+        /** 开始Time */
         public CmdResultBuilder startTime(long startTime) {
             this.startTime = startTime;
             return this;
         }
 
+        /** EndTime */
         public CmdResultBuilder endTime(long endTime) {
             this.endTime = endTime;
             return this;
         }
 
+        /** Timeout */
         public CmdResultBuilder timeout(boolean timeout) {
             this.timeout = timeout;
             return this;
         }
 
+        /** Throwable */
         public CmdResultBuilder throwable(Throwable throwable) {
             this.throwable = throwable;
             return this;
         }
 
+        /** 构建 */
         public CmdResult build() {
             return new CmdResult(exitCode, stdout, stderr, command, startTime, endTime, timeout, throwable);
         }

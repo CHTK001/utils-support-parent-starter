@@ -38,11 +38,16 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     /** ConnectionIDSEQ */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
+    /**
+     * 创建 NettyWebSocketSyncServer 实例
+     * @param setting setting
+     */
     public NettyWebSocketSyncServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -55,6 +60,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
@@ -79,6 +85,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         for (Connection conn : connections) {
@@ -93,6 +100,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
+    /** 发送 */
     public void send(String clientId, String topic, Object message) {
         String payload = topic + ":" + message.toString();
         for (Connection conn : connections) {
@@ -110,31 +118,37 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
+    /** 获取ConnectedClients */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
+    /** 获取ClientMetadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
 
+    /** AcceptLoop */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
@@ -154,6 +168,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         }
     }
 
+    /** 处理Connection */
     private void handleConnection(Connection conn) {
         try {
             if (!performHandshake(conn)) {
@@ -168,6 +183,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         }
     }
 
+    /** PerformHandshake */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
@@ -204,6 +220,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         return true;
     }
 
+    /** 读取Frames */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -264,6 +281,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         }
     }
 
+    /** ComputeWebSocketAccept */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -271,6 +289,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         return Base64.getEncoder().encodeToString(digest);
     }
 
+    /** 构建TextFrame */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -296,6 +315,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         return out.toByteArray();
     }
 
+    /** 关闭Connection */
     private void closeConnection(Connection conn) {
         try {
             conn.close();
@@ -309,6 +329,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         notifyListener(l -> l.onClientDisconnected(sessionId));
     }
 
+    /** 通知Listener */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

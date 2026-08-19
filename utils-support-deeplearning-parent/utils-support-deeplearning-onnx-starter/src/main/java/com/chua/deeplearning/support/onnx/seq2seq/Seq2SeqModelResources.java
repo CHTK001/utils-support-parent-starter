@@ -60,6 +60,7 @@ public final class Seq2SeqModelResources {
      */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) chua-deeplearning/4.0.0.42";
 
+    /** 创建 Seq2SeqModelResources 实例 */
     private Seq2SeqModelResources() {
     }
 

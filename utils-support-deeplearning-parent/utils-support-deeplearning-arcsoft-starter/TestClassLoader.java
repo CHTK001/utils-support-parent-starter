@@ -5,6 +5,7 @@
  * @since 4.0.0
  */
 public class TestClassLoader {
+    /** Main */
     public static void main(String[] args) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         System.out.println("ContextClassLoader: " + cl);

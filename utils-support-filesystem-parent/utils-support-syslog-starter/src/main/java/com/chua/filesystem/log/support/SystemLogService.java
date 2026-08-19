@@ -52,6 +52,7 @@ public class SystemLogService {
     /** initialized */
     private volatile boolean initialized;
 
+    /** 创建 SystemLogService 实例 */
     public SystemLogService() {
         SystemLogProvider p = null;
 
@@ -86,6 +87,7 @@ public class SystemLogService {
         this.initialized = true;
     }
 
+    /** 获取Instance */
     public static SystemLogService getInstance() {
         if (INSTANCE == null) {
             synchronized (SystemLogService.class) {
@@ -97,18 +99,22 @@ public class SystemLogService {
         return INSTANCE;
     }
 
+    /** 是否Available */
     public boolean isAvailable() {
         return provider != null && provider.isPlatformSupported();
     }
 
+    /** 搜索 */
     public List<LogEntry> search(String pattern) {
         return search(pattern, null);
     }
 
+    /** 搜索 */
     public List<LogEntry> search(String pattern, LogLevel minLevel) {
         return search(pattern, minLevel, 100);
     }
 
+    /** 搜索 */
     public List<LogEntry> search(String pattern, LogLevel minLevel, int maxResults) {
         LogQuery query = LogQuery.builder()
                 .pattern(pattern)
@@ -118,6 +124,7 @@ public class SystemLogService {
         return search(query);
     }
 
+    /** 搜索 */
     public List<LogEntry> search(LogQuery query) {
         if (!isAvailable()) {
             log.warn("SystemLogService not available on {}", PlatformSystems.getOsName());
@@ -131,6 +138,7 @@ public class SystemLogService {
         }
     }
 
+    /** 获取Sources */
     public List<String> getSources() {
         if (!isAvailable()) {
             return Collections.emptyList();
@@ -138,6 +146,7 @@ public class SystemLogService {
         return provider.getSources();
     }
 
+    /** 获取Provider */
     public SystemLogProvider getProvider() {
         return provider;
     }

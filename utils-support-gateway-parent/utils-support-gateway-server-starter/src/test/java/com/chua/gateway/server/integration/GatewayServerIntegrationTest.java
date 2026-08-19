@@ -71,6 +71,7 @@ class GatewayServerIntegrationTest {
     private static final int CONNECT_TIMEOUT_MS = 500;
 
     @BeforeAll
+    /** 开始Server */
     static void startServer() throws Exception {
         // 用 InMemoryConnectionStore（避免 sqlite 路径 + 反射注入 ConnectionStore）
         com.chua.gateway.server.store.ConnectionStore memStore =
@@ -129,6 +130,7 @@ class GatewayServerIntegrationTest {
     }
 
     @AfterAll
+    /** 停止Server */
     static void stopServer() {
         if (server != null) {
             try {
@@ -198,6 +200,7 @@ class GatewayServerIntegrationTest {
         assertEquals(401, status, "不存在的 key 应返回 401");
     }
 
+    /** Http获取 */
     private static String httpGet(String path) throws Exception {
         HttpURLConnection conn = (HttpURLConnection) new URL(baseUrl + path).openConnection();
         conn.setRequestMethod("GET");
@@ -206,6 +209,7 @@ class GatewayServerIntegrationTest {
         return readResponse(conn);
     }
 
+    /** HttpPost */
     private static String httpPost(String path, String body) throws Exception {
         HttpURLConnection conn = (HttpURLConnection) new URL(baseUrl + path).openConnection();
         conn.setRequestMethod("POST");
@@ -219,6 +223,7 @@ class GatewayServerIntegrationTest {
         return readResponse(conn);
     }
 
+    /** HttpPostStatus */
     private static int httpPostStatus(String path, String body) throws Exception {
         HttpURLConnection conn = (HttpURLConnection) new URL(baseUrl + path).openConnection();
         conn.setRequestMethod("POST");
@@ -236,6 +241,7 @@ class GatewayServerIntegrationTest {
         }
     }
 
+    /** 读取Response */
     private static String readResponse(HttpURLConnection conn) throws java.io.IOException {
         int code = conn.getResponseCode();
         try (var is = (code >= 400 ? conn.getErrorStream() : conn.getInputStream());

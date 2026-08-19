@@ -27,11 +27,23 @@ import javax.annotation.Nullable;
  */
 @Spi("IMAGE_V2")
 public class ImageDrawResolver extends AbstractDrawResolver{
+    /**
+     * 创建 ImageDrawResolver 实例
+     * @param g2 g2
+     * @param Color Color
+     * @param Color Color
+     * @param QrCodeOptions QrCodeOptions
+     * @param BitMatrixEx BitMatrixEx
+     * @param QrCodeOptions QrCodeOptions
+     * @param drawOptions drawOptions
+     * @param QrSetting QrSetting
+     */
     public ImageDrawResolver(Graphics2D g2, Color detectInnerColor, Color detectOutColor, QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrCodeOptions.DrawOptions drawOptions, QrSetting setting) {
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);
     }
 
     @Override
+    /** Draw */
     public void draw() {
         DrawEyeResolver drawEyeResolver = ServiceProvider.of(DrawEyeResolver.class)
                 .getNewExtension(setting.getCodeEyeSetting().getCodeEye());

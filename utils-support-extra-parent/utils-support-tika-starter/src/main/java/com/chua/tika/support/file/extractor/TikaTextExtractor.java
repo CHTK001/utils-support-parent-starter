@@ -43,6 +43,7 @@ public class TikaTextExtractor implements TextExtractor {
     private final Parser parser = new AutoDetectParser();
 
     @Override
+    /** ExtractText */
     public List<TextExtractResult> extractText(File file) {
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
@@ -104,6 +105,7 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "tika";
     }

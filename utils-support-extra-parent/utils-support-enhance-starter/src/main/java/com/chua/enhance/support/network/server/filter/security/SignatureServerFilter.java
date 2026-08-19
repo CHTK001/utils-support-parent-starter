@@ -52,6 +52,7 @@ public class SignatureServerFilter implements ServerFilter {
     private final Set<String> excludePaths = new HashSet<>();
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         this.secret = config.getInitParameter("signature.secret");
         String alg = config.getInitParameter("signature.algorithm");
@@ -74,6 +75,7 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (secret == null || isExcluded(request.getPath())) {
             chain.doFilter(request, response);
@@ -94,15 +96,18 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 15;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "SignatureServerFilter";
     }
 
+    /** ComputeSignature */
     private String computeSignature(byte[] data) {
         try {
             if ("HMAC-SHA256".equalsIgnoreCase(algorithm)) {
@@ -126,6 +131,7 @@ public class SignatureServerFilter implements ServerFilter {
         return "";
     }
 
+    /** 是否Excluded */
     private boolean isExcluded(String path) {
         if (path == null) {
             return false;

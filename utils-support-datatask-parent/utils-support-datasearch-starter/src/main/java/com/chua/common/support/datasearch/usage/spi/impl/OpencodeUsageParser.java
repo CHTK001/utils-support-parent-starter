@@ -24,11 +24,13 @@ public class OpencodeUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), "AppData", "Roaming", "ai.opencode.desktop", "logs");
 
     @Override
+    /** Name */
     public String name() {
         return "opencode";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(LOGS_DIR)) {
             log.debug("[opencode] 日志目录不存在: {}", LOGS_DIR);

@@ -23,6 +23,15 @@ import javax.annotation.Nullable;
  */
 @Spi("ROUND_DOT")
 public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {
+    /**
+     * 创建 RoundedCircleDrawPointResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param g2 g2
+     * @param bitMatrix bitMatrix
+     * @param leftPadding leftPadding
+     * @param topPadding topPadding
+     * @param infoSize infoSize
+     */
     public RoundedCircleDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix,
             int leftPadding, int topPadding, int infoSize) {
         super(qrCodeConfig, g2, bitMatrix, leftPadding, topPadding, infoSize);
@@ -124,6 +133,7 @@ public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {
     }
 
     @Override
+    /** Finish */
     public void finish() {
         // 二阶段：按连通关系合并并重绘整图，得到顺滑外轮廓
         ByteMatrix m = bitMatrix.getByteMatrix();

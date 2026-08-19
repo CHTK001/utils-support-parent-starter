@@ -24,31 +24,37 @@ public class GraphQLHandler extends AbstractAppHandler {
     private static final String[] EXECUTE_METHODS = {"execute", "executeAsync"};
 
     @Override
+    /** Name */
     public String name() {
         return "graphql-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "graphql.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.GRAPHQL_JAVA;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(GRAPHQL, EXECUTE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

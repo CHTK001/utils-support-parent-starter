@@ -49,6 +49,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     @Override
+    /** Name */
     public String name() {
         return modelName;
     }
@@ -72,6 +73,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         }
     }
 
+    /** 构建Input */
     private Map<String, Object> buildInput(Object input) {
         if (input instanceof String text) {
             return Map.of("text", text);
@@ -100,6 +102,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return Map.of();
     }
 
+    /** 构建Params */
     private Map<String, Object> buildParams() {
         if ("document_ocr".equals(modelType)) {
             return Map.of("max_new_tokens", 2048);
@@ -107,6 +110,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return Map.of();
     }
 
+    /** ExtractOutput */
     private Object extractOutput(Map<String, Object> result) {
         if (result == null) {
             return null;
@@ -128,6 +132,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         };
     }
 
+    /** 解析Embedding */
     private Object parseEmbedding(Map<String, Object> result) {
         Object emb = result.get("embedding");
         if (emb instanceof List<?> list) {
@@ -147,6 +152,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return null;
     }
 
+    /** 解析FaceDetection */
     private Object parseFaceDetection(Map<String, Object> result) {
         Object faces = result.get("faces");
         if (faces instanceof List<?> list) {
@@ -158,6 +164,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return List.of();
     }
 
+    /** 解析Detection */
     private Object parseDetection(Map<String, Object> result) {
         Object items = result.get("items");
         if (items instanceof List<?> list) {
@@ -176,6 +183,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return List.of();
     }
 
+    /** 解析ImageOutput */
     private Object parseImageOutput(Map<String, Object> result) {
         Object image = result.get("image");
         if (image instanceof String base64) {
@@ -185,6 +193,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return null;
     }
 
+    /** 解析AudioOutput */
     private Object parseAudioOutput(Map<String, Object> result) {
         Object audio = result.get("audio");
         if (audio instanceof String base64) {
@@ -194,6 +203,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return null;
     }
 
+    /** ToPredictRectangle */
     private PredictRectangle toPredictRectangle(Map<String, Object> faceMap) {
         float confidence = ((Number) faceMap.getOrDefault("confidence", 0f)).floatValue();
         float x = ((Number) faceMap.getOrDefault("x", 0f)).floatValue();
@@ -205,6 +215,7 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return new PredictRectangle(x, y, width, height, confidence, label, labelName);
     }
 
+    /** ToDetectionInfo */
     private DetectionInfo toDetectionInfo(Map<String, Object> itemMap) {
         String label = (String) itemMap.getOrDefault("label", "unknown");
         float confidence = ((Number) itemMap.getOrDefault("confidence", 0f)).floatValue();

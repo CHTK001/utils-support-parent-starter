@@ -30,11 +30,13 @@ import java.util.Map;
 public class RequestMethodServerHandlerParser implements ServerHandlerAnnotationParser {
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 0;
     }
 
     @Override
+    /** 解析 */
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if(!(serverFilter instanceof UrlMappingServerFilter)) {
             return List.of();
@@ -81,6 +83,7 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
         return result;
     }
 
+    /** 前置Base */
     private static String[] prependBase(String basePath, String[] subPaths) {
         String[] result = new String[subPaths.length];
         for (int i = 0; i < subPaths.length; i++) {
@@ -90,6 +93,14 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
         return result;
     }
 
+    /**
+     * 添加ReflectiveHandlers
+     * @param result result
+     * @param bean bean
+     * @param method method
+     * @param paths paths
+     * @param httpMethods httpMethods
+     */
     private static void addReflectiveHandlers(List<ServerHandler> result, Object bean, Method method,
                                               String[] paths, HttpMethod[] httpMethods) {
         for (String path : paths) {

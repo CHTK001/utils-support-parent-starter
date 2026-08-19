@@ -141,6 +141,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final ThreadLocal<TransmissionRecord> TRANSMISSION_HOLDER =
             new ThreadLocal<>();
 
+    /** 创建 TransmissionHandler 实例 */
     public TransmissionHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.connectionCount = new ConcurrentHashMap<>();
@@ -148,16 +149,19 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Name */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
+    /** Version */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_TRANSMISSION_ENABLED, DEFAULT_ENABLED));
@@ -165,6 +169,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -177,6 +182,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -186,15 +192,18 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("TransmissionHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled && started.get();
     }
 
+    /** 注册SocketInterceptors */
     private void registerSocketInterceptors() {
         for (String method : SOCKET_METHODS) {
             RuntimeSpy.registerInterceptor(SOCKET, method, "", InterceptPoint.ENTRY, this);
@@ -219,6 +228,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** OnIntercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -240,6 +250,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private static volatile int LOCAL_PORT_HINT = -1;
 
+    /** 解析LocalHost */
     private static String resolveLocalHost() {
         if (LOCAL_HOST != null) {
             return LOCAL_HOST;
@@ -252,6 +263,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         return LOCAL_HOST;
     }
 
+    /** 处理Entry */
     private void handleEntry(InterceptContext ctx) {
         try {
             String className = ctx.getClassName();
@@ -329,6 +341,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** 处理Exit */
     private void handleExit(InterceptContext ctx) {
         try {
             TransmissionRecord record = TRANSMISSION_HOLDER.get();
@@ -405,6 +418,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** EnrichSocketEndpoint */
     private void enrichSocketEndpoint(InterceptContext ctx, TransmissionRecord record) {
         try {
             // 反射获取 Socket 实例（从 InterceptContext 的 userData 或自身）
@@ -440,6 +454,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** EnrichDatagramEndpoint */
     private void enrichDatagramEndpoint(InterceptContext ctx, TransmissionRecord record) {
         // DatagramSocket 的 send/receive 目标地址来自 DatagramPacket 参数
         // 此处通过栈分析已有 software 信息，protocol 已设为 UDP
@@ -452,6 +467,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** EnrichHttpEndpoint */
     private void enrichHttpEndpoint(InterceptContext ctx, TransmissionRecord record) {
         try {
             Object conn = resolveHttpConnection(ctx);
@@ -543,6 +559,7 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
         }
     }
 
+    /** InferProtocolFromClass */
     private Protocol inferProtocolFromClass(String internalName) {
         if (internalName == null) {
             return Protocol.UNKNOWN;
@@ -559,23 +576,28 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
         return Protocol.UNKNOWN;
     }
 
+    /** 解析SocketObject */
     private Object resolveSocketObject(InterceptContext ctx) {
         // 从 userData 优先；否则从 ctx 自身的 this 引用尝试获取
         return ctx.getUserData() != null ? ctx.getUserData() : null;
     }
 
+    /** 解析HttpConnection */
     private Object resolveHttpConnection(InterceptContext ctx) {
         return ctx.getUserData() != null ? ctx.getUserData() : null;
     }
 
+    /** 获取Records */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }
 
+    /** 获取Connection计算数量 */
     public Map<String, Long> getConnectionCount() {
         return Collections.unmodifiableMap(connectionCount);
     }
 
+    /** Clear */
     public void clear() {
         records.clear();
         connectionCount.clear();

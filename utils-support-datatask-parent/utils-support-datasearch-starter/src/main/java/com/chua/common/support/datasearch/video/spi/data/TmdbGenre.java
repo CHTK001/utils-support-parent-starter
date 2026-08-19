@@ -49,10 +49,12 @@ public enum TmdbGenre {
         return null;
     }
 
+    /** 获取Id */
     public int getId() {
         return id;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }

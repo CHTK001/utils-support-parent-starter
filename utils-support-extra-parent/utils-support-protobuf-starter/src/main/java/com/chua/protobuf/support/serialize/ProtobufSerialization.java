@@ -44,11 +44,13 @@ public class ProtobufSerialization implements Serialization {
             ThreadLocal.withInitial(() -> LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE));
 
     @Override
+    /** Name */
     public String name() {
         return "protobuf";
     }
 
     @Override
+    /** 序列化 */
     public byte[] serialize(Object obj) throws Exception {
         if (obj == null) {
             return new byte[0];
@@ -64,6 +66,7 @@ public class ProtobufSerialization implements Serialization {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 反序列化 */
     public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
         if (data == null || data.length == 0) {
             return null;

@@ -24,6 +24,21 @@ import javax.annotation.Nullable;
 @Spi("ROUND_RECTANGLE_DOT")
 public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
 
+    /**
+     * 创建 RoundRectDotDrawEyeResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param g2 g2
+     * @param bitMatrix bitMatrix
+     * @param matrixW matrixW
+     * @param matrixH matrixH
+     * @param leftPadding leftPadding
+     * @param topPadding topPadding
+     * @param infoSize infoSize
+     * @param detectCornerSize detectCornerSize
+     * @param detectOutColor detectOutColor
+     * @param detectInnerColor detectInnerColor
+     * @param codeEyeSetting codeEyeSetting
+     */
     public RoundRectDotDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                        Graphics2D g2,
                                        BitMatrixEx bitMatrix,
@@ -40,6 +55,7 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
+    /** Draw */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         // 外层圆角方框（实心），再清空内层形成 ring
         double outerArc = infoSize * detectCornerSize / 2D;
@@ -74,6 +90,7 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
+    /** Finish */
     public void finish() {
         // 无需额外操作
     }

@@ -66,6 +66,7 @@ public class Ip2regionIpPosition implements IpPosition {
     }
 
     @Override
+    /** 查询 */
     public IpLocation query(String ip) {
         if (ip == null || ip.isBlank()) {
             return null;

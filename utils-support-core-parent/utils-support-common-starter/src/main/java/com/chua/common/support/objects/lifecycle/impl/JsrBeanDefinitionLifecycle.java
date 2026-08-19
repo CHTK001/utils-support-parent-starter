@@ -39,11 +39,13 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     private static final String PRE_DESTROY_JAKARTA = "jakarta.annotation.PreDestroy";
 
     @Override
+    /** 是否Support */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
     @Override
+    /** 初始化 */
     public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -52,6 +54,7 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     @Override
+    /** 销毁 */
     public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -59,6 +62,7 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         invokeAnnotatedMethods(bean, PRE_DESTROY_JAVAX, PRE_DESTROY_JAKARTA);
     }
 
+    /** 调用AnnotatedMethods */
     private void invokeAnnotatedMethods(Object bean, String... annotationNames) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.getParameterCount() > 0) {
@@ -75,6 +79,7 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         }
     }
 
+    /** 是否拥有AnyAnnotation */
     private boolean hasAnyAnnotation(Method method, String... annotationNames) {
         for (Annotation ann : method.getAnnotations()) {
             String name = ann.annotationType().getName();

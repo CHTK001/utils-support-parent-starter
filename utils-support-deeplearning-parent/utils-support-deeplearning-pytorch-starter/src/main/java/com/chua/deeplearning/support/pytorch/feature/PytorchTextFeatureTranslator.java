@@ -45,20 +45,27 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
      */
     private BertFullTokenizer tokenizer;
 
+    /** 创建 PytorchTextFeatureTranslator 实例 */
     public PytorchTextFeatureTranslator() {
         this(false);
     }
 
+    /**
+     * 创建 PytorchTextFeatureTranslator 实例
+     * @param chinese chinese
+     */
     public PytorchTextFeatureTranslator(boolean chinese) {
         this.chinese = chinese;
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return new StackBatchifier();
     }
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         URL url = model.getArtifact("vocab.txt");
@@ -71,11 +78,13 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.get(0).toFloatArray();
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         List<String> tokens = tokenizer.tokenize(input);
         if (tokens.size() > maxSequenceLength - 2) {

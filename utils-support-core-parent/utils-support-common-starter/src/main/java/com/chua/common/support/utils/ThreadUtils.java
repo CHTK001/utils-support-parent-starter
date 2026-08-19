@@ -1116,6 +1116,7 @@ public class ThreadUtils {
             return e.schedule(command, delay, unit);
         }
         @Override
+        /** Schedule */
         public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
             return e.schedule(callable, delay, unit);
         }
@@ -1138,16 +1139,22 @@ public class ThreadUtils {
         private final ExecutorService e;
         DelegatedExecutorService(ExecutorService executor) { e = executor; }
         @Override
+        /** 执行 */
         public void execute(Runnable command) { e.execute(command); }
         @Override
+        /** 关闭 */
         public void shutdown() { e.shutdown(); }
         @Override
+        /** 关闭Now */
         public List<Runnable> shutdownNow() { return e.shutdownNow(); }
         @Override
+        /** 是否关闭 */
         public boolean isShutdown() { return e.isShutdown(); }
         @Override
+        /** 是否Terminated */
         public boolean isTerminated() { return e.isTerminated(); }
         @Override
+        /** AwaitTermination */
         public boolean awaitTermination(long timeout, TimeUnit unit)
                 throws InterruptedException {
             return e.awaitTermination(timeout, unit);
@@ -1157,30 +1164,46 @@ public class ThreadUtils {
             return e.submit(task);
         }
         @Override
+        /** 提交 */
         public <T> Future<T> submit(Callable<T> task) {
             return e.submit(task);
         }
         @Override
+        /** 提交 */
         public <T> Future<T> submit(Runnable task, T result) {
             return e.submit(task, result);
         }
         @Override
+        /** 调用All */
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
                 throws InterruptedException {
             return e.invokeAll(tasks);
         }
         @Override
+        /**
+         * 调用All
+         * @param tasks tasks
+         * @param timeout timeout
+         * @param unit unit
+         */
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
                                              long timeout, TimeUnit unit)
                 throws InterruptedException {
             return e.invokeAll(tasks, timeout, unit);
         }
         @Override
+        /** 调用Any */
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
                 throws InterruptedException, ExecutionException {
             return e.invokeAny(tasks);
         }
         @Override
+        /**
+         * 调用Any
+         * @param tasks tasks
+         * @param timeout timeout
+         * @param unit unit
+         */
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                                long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -1202,16 +1225,26 @@ public class ThreadUtils {
         /** 名称prefix */
         private final String namePrefix;
 
+        /** 创建 DefaultThreadFactory 实例 */
         public DefaultThreadFactory() {
             group = Thread.currentThread().getThreadGroup();
             namePrefix = "pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
         }
 
+        /**
+         * 创建 DefaultThreadFactory 实例
+         * @param name name
+         */
         public DefaultThreadFactory(String name) {
             group = Thread.currentThread().getThreadGroup();
             namePrefix = name + "-" + POOL_NUMBER.getAndIncrement() + "-";
         }
 
+        /**
+         * 创建 DefaultThreadFactory 实例
+         * @param name name
+         * @param int int
+         */
         public DefaultThreadFactory(String name, int index) {
             POOL_NUMBER.set(index);
             group = Thread.currentThread().getThreadGroup();
@@ -1219,6 +1252,7 @@ public class ThreadUtils {
         }
 
         @Override
+        /** NewThread */
         public Thread newThread(Runnable r) {
             Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
             if (t.isDaemon()) {

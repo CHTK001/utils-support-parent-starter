@@ -20,15 +20,27 @@ import java.util.List;
 
 public class MysqlMetaProcedure extends AbstractMetaProcedure {
 
+    /**
+     * 创建 MysqlMetaProcedure 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     */
     protected MysqlMetaProcedure(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
+    /**
+     * 创建 MysqlMetaProcedure 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     * @param String String
+     */
     protected MysqlMetaProcedure(AbstractMetaData metaData, Engine engine, String procedureName) {
         super(metaData, engine, procedureName);
     }
 
     @Override
+    /** List */
     public List<ProcedureDef> list() {
         List<ProcedureDef> result = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -48,6 +60,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     }
 
     @Override
+    /** 获取 */
     public ProcedureDef get(String procedureName) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement();
@@ -65,15 +78,18 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     }
 
     @Override
+    /** 创建 */
     public ProcedureCreateBuilder create(String procedureName) {
         return new MysqlProcedureCreateBuilder(this, procedureName);
     }
 
     @Override
+    /** Drop */
     public boolean drop(String procedureName) {
         return executeUpdate("DROP PROCEDURE IF EXISTS `" + procedureName + "`");
     }
 
+    /** 获取Connection */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -86,6 +102,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
+    /** 执行更新 */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -119,6 +136,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
+        /** In */
         public ProcedureCreateBuilder in(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -128,6 +146,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
+        /** Out */
         public ProcedureCreateBuilder out(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -137,6 +156,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
+        /** Inout */
         public ProcedureCreateBuilder inout(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -146,6 +166,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
+        /** Param */
         public ProcedureCreateBuilder param(String name, String type, String direction) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -155,35 +176,41 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
+        /** Body */
         public ProcedureCreateBuilder body(String body) {
             this.body.append(body);
             return this;
         }
 
         @Override
+        /** Language */
         public ProcedureCreateBuilder language(String language) {
             this.language = language;
             return this;
         }
 
         @Override
+        /** SecurityType */
         public ProcedureCreateBuilder securityType(String securityType) {
             this.securityType = securityType;
             return this;
         }
 
         @Override
+        /** Comment */
         public ProcedureCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
+        /** OrReplace */
         public ProcedureCreateBuilder orReplace() {
             return this;
         }
 
         @Override
+        /** 执行 */
         public ProcedureDef execute() {
             StringBuilder sb = new StringBuilder();
             sb.append("CREATE PROCEDURE `").append(procedureName).append("`(");

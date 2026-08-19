@@ -61,6 +61,7 @@ public interface ImageEnhancer {
         return this;
     }
 
+    /** 创建 */
     static ImageEnhancer create(String name) {
         return new DefaultImageEnhancer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -166,12 +167,14 @@ class DefaultImageEnhancer implements ImageEnhancer {
     }
 
     @Override
+    /** ModelPath */
     public ImageEnhancer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageEnhancer device(String device) {
         this.device = device;
         return this;
@@ -179,6 +182,7 @@ class DefaultImageEnhancer implements ImageEnhancer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Enhance */
     public byte[] enhance(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

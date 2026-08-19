@@ -69,6 +69,14 @@ public class JdkCertificateProvider implements AcmeProvider {
     private String accountPrivateKeyPem;
 
     @Override
+    /**
+     * 连接
+     * @param serverUrl serverUrl
+     * @param email email
+     * @param privateKeyPem privateKeyPem
+     * @param eabKid eabKid
+     * @param eabHmacKey eabHmacKey
+     */
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                          String eabKid, String eabHmacKey) {
         try {
@@ -83,6 +91,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     @Override
+    /** 获取ValidationInfo */
     public List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType) {
         // JDK 自签名证书无需域名验证
         log.info("JDK 自签名证书无需域名验证，直接返回空列表");
@@ -90,6 +99,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     @Override
+    /** RequestCertificate */
     public AcmeCertificateResult requestCertificate(List<String> domains, String challengeType) {
         if (domains == null || domains.isEmpty()) {
             return AcmeCertificateResult.fail("域名列表不能为空");
@@ -123,6 +133,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     @Override
+    /** RenewCertificate */
     public AcmeCertificateResult renewCertificate(List<String> domains, String challengeType) {
         // 续签即重新生成
         log.info("JDK 自签名证书续签，将重新生成证书");
@@ -130,6 +141,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     @Override
+    /** RevokeCertificate */
     public boolean revokeCertificate(String certificatePem) {
         // JDK 自签名证书无需吊销
         log.info("JDK 自签名证书无需吊销操作");
@@ -137,11 +149,13 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     @Override
+    /** 获取AccountPrivateKeyPem */
     public String getAccountPrivateKeyPem() {
         return accountPrivateKeyPem;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 清理临时目录
         if (tempDir != null) {

@@ -32,10 +32,15 @@ public class PreviewPdfCache {
     /** 缓存目录 */
     private final Path cacheDir;
 
+    /** 创建 PreviewPdfCache 实例 */
     public PreviewPdfCache() {
         this(DEFAULT_CACHE_DIR);
     }
 
+    /**
+     * 创建 PreviewPdfCache 实例
+     * @param cacheDir cacheDir
+     */
     public PreviewPdfCache(Path cacheDir) {
         this.cacheDir = cacheDir;
         try {
@@ -115,6 +120,7 @@ public class PreviewPdfCache {
         }
     }
 
+    /** 构建CacheKey */
     private String buildCacheKey(String storageName, String key) {
         return storageName + ":" + key + ":pdf";
     }

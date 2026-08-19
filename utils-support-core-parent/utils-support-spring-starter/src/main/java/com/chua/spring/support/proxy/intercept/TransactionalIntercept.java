@@ -17,16 +17,19 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class TransactionalIntercept implements MethodAnnotationIntercept<Transactional> {
 
     @Override
+    /** AnnotationType */
     public Class<Transactional> annotationType() {
         return Transactional.class;
     }
 
     @Override
+    /** Order */
     public int order() {
         return 200;
     }
 
     @Override
+    /** Intercept */
     public Object intercept(Transactional annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         boolean hasTransaction = TransactionSynchronizationManager.isActualTransactionActive();
         if (hasTransaction) {

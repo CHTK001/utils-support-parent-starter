@@ -7,6 +7,7 @@ package com.chua.common.support.datasearch.video.spi.data;
  * @since 4.0.0.42
  */
 public class TmdbCountry {
+    /** 创建 TmdbCountry 实例 */
     private TmdbCountry() {
     }
 
@@ -290,6 +291,7 @@ public class TmdbCountry {
             this.nativeName = nativeName;
         }
 
+        /** NativeName */
         public String nativeName() {
             return nativeName;
         }

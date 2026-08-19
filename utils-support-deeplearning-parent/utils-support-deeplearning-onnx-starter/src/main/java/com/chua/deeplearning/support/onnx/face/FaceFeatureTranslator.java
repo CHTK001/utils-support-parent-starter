@@ -17,10 +17,12 @@ import ai.djl.translate.TranslatorContext;
 */
 public class FaceFeatureTranslator implements Translator<Image, float[]> {
 
+    /** 创建 FaceFeatureTranslator 实例 */
     public FaceFeatureTranslator() {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = array.transpose(2, 0, 1).flip(0);
@@ -29,12 +31,14 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.get(0);
         return array.toFloatArray();
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

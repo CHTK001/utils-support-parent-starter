@@ -24,31 +24,37 @@ public class SpringMvcHandler extends AbstractAppHandler {
     private static final String[] DO_DISPATCH = {"doDispatch"};
 
     @Override
+    /** Name */
     public String name() {
         return "spring-mvc-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "spring-mvc.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SPRING_MVC;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(DISPATCHER_SERVLET, DO_DISPATCH);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

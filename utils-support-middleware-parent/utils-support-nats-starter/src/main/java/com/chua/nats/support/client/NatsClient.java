@@ -86,6 +86,10 @@ public class NatsClient implements AutoCloseable {
     /** 活跃的订阅列表 */
     private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
 
+    /**
+     * 创建 NatsClient 实例
+     * @param b b
+     */
     private NatsClient(Builder b) {
         this.url = b.url;
         this.username = b.username;
@@ -99,14 +103,17 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** 创建 */
     public static NatsClient create() {
         return builder().build();
     }
 
+    /** 创建 */
     public static NatsClient create(String url) {
         return builder().url(url).build();
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -136,6 +143,7 @@ public class NatsClient implements AutoCloseable {
                     })
                     .errorListener(new ErrorListener() {
                         @Override
+                        /** 记录错误Occurred */
                         public void errorOccurred(Connection conn, String error) {
                             log.error("NATS 错误: error={}", error);
                         }
@@ -194,6 +202,7 @@ public class NatsClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         shutdown();
     }
@@ -355,47 +364,56 @@ public class NatsClient implements AutoCloseable {
         /** Pedantic */
         private boolean pedantic;
 
+        /** Url */
         public Builder url(String url) {
             this.url = url;
             return this;
         }
 
+        /** Credentials */
         public Builder credentials(String username, String password) {
             this.username = username;
             this.password = password;
             return this;
         }
 
+        /** Token */
         public Builder token(String token) {
             this.token = token;
             return this;
         }
 
+        /** ConnectionTimeout */
         public Builder connectionTimeout(Duration timeout) {
             this.connectionTimeout = timeout;
             return this;
         }
 
+        /** ConnectionTimeoutMillis */
         public Builder connectionTimeoutMillis(long ms) {
             this.connectionTimeout = Duration.ofMillis(ms);
             return this;
         }
 
+        /** ReconnectWait */
         public Builder reconnectWait(Duration wait) {
             this.reconnectWait = wait;
             return this;
         }
 
+        /** 最大值Reconnects */
         public Builder maxReconnects(int max) {
             this.maxReconnects = max;
             return this;
         }
 
+        /** Pedantic */
         public Builder pedantic(boolean pedantic) {
             this.pedantic = pedantic;
             return this;
         }
 
+        /** 构建 */
         public NatsClient build() {
             return new NatsClient(this);
         }
@@ -419,26 +437,31 @@ public class NatsClient implements AutoCloseable {
             this.client = client;
         }
 
+        /** Subject */
         public PublishOperation subject(String s) {
             this.subject = s;
             return this;
         }
 
+        /** Body */
         public PublishOperation body(byte[] b) {
             this.body = b;
             return this;
         }
 
+        /** Body */
         public PublishOperation body(String s) {
             this.body = toBytes(s);
             return this;
         }
 
+        /** ReplyTo */
         public PublishOperation replyTo(String r) {
             this.replyTo = r;
             return this;
         }
 
+        /** Header */
         public PublishOperation header(String key, String value) {
             if (headers == null) {
                 headers = new LinkedHashMap<>();
@@ -447,6 +470,7 @@ public class NatsClient implements AutoCloseable {
             return this;
         }
 
+        /** Headers */
         public PublishOperation headers(Map<String, String> h) {
             this.headers = h;
             return this;
@@ -469,6 +493,7 @@ public class NatsClient implements AutoCloseable {
             return CompletableFuture.runAsync(this::send);
         }
 
+        /** 构建Message */
         private Message buildMessage() {
             io.nats.client.impl.NatsMessage.Builder builder = io.nats.client.impl.NatsMessage.builder()
                     .subject(subject)
@@ -501,16 +526,19 @@ public class NatsClient implements AutoCloseable {
             this.client = client;
         }
 
+        /** Subject */
         public SubscribeOperation subject(String s) {
             this.subject = s;
             return this;
         }
 
+        /** Queue */
         public SubscribeOperation queue(String q) {
             this.queue = q;
             return this;
         }
 
+        /** AutoAck */
         public SubscribeOperation autoAck(boolean a) {
             this.autoAck = a;
             return this;
@@ -1103,6 +1131,7 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== 工具方法 ====================
 
+    /** ToBytes */
     private static byte[] toBytes(String s) {
         return s != null ? s.getBytes(StandardCharsets.UTF_8) : new byte[0];
     }
@@ -1113,10 +1142,19 @@ public class NatsClient implements AutoCloseable {
      * NATS 客户端异常。
      */
     public static class NatsClientException extends RuntimeException {
+        /**
+         * 创建 NatsClientException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public NatsClientException(String message, Throwable cause) {
             super(message, cause);
         }
 
+        /**
+         * 创建 NatsClientException 实例
+         * @param message message
+         */
         public NatsClientException(String message) {
             super(message);
         }

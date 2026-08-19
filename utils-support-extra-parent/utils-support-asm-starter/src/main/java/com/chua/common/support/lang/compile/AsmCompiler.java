@@ -89,6 +89,7 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
+        /** 获取CharContent */
         public CharSequence getCharContent(boolean ignoreEncodingErrors) {
             return code;
         }
@@ -117,6 +118,7 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
+        /** 打开OutputStream */
         public OutputStream openOutputStream() {
             return baos;
         }
@@ -173,11 +175,19 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
+        /** 获取ClassLoader */
         public ClassLoader getClassLoader(Location location) {
             return classLoader;
         }
 
         @Override
+        /**
+         * 获取JavaFileForOutput
+         * @param location location
+         * @param className className
+         * @param kind kind
+         * @param sibling sibling
+         */
         public JavaFileObject getJavaFileForOutput(Location location, String className,
                                                     JavaFileObject.Kind kind, FileObject sibling) {
             InMemoryByteCode bc = new InMemoryByteCode(className);

@@ -35,27 +35,32 @@ public abstract class AbstractServerRequest implements ServerRequest {
     private boolean bodyRead;
 
     @Override
+    /** 获取Params */
     public Map<String, String> getParams() {
         return Collections.emptyMap();
     }
 
     @Override
+    /** 获取Param */
     public String getParam(String name) {
         return getParams().get(name);
     }
 
     @Override
+    /** 获取ContentType */
     public String getContentType() {
         return getHeader("Content-Type");
     }
 
     @Override
+    /** 获取Content获取长度 */
     public long getContentLength() {
         String len = getHeader("Content-Length");
         return len != null ? Long.parseLong(len) : -1;
     }
 
     @Override
+    /** 获取Body */
     public byte[] getBody() {
         if (!bodyRead) {
             cachedBody = readBody();
@@ -65,26 +70,31 @@ public abstract class AbstractServerRequest implements ServerRequest {
     }
 
     @Override
+    /** 获取BodyString */
     public String getBodyString() {
         return new String(getBody(), StandardCharsets.UTF_8);
     }
 
     @Override
+    /** 获取InputStream */
     public InputStream getInputStream() {
         return new ByteArrayInputStream(getBody());
     }
 
     @Override
+    /** 获取Attributes */
     public Map<String, Object> getAttributes() {
         return new HashMap<>(attributes);
     }
 
     @Override
+    /** 获取Attribute */
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
 
     @Override
+    /** 设置Attribute */
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }

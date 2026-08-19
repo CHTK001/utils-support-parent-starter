@@ -72,6 +72,10 @@ public class CommandLine {
  */
  private String programName = "java";
 
+ /**
+  * 创建 CommandLine 实例
+  * @param args args
+  */
  private CommandLine(String[] args) {
  this.args = args == null ? new String[0] : args;
  parse();
@@ -239,6 +243,7 @@ public class CommandLine {
  return positional;
  }
 
+ /** 解析 */
  private void parse() {
  int index = 0;
  while (index < args.length) {
@@ -256,6 +261,7 @@ public class CommandLine {
  }
  }
 
+/** ConsumeValue */
 private int consumeValue(int index, String token) {
   String value = null;
   String key = token;
@@ -270,6 +276,7 @@ private int consumeValue(int index, String token) {
   return ++index;
   }
 
+ /** 注册Long */
  private void registerLong(String token) {
  String base = token.substring(2);
  int eq = base.indexOf('=');
@@ -279,6 +286,7 @@ private int consumeValue(int index, String token) {
  longToBase.put(base, base);
  }
 
+ /** 注册Short */
  private void registerShort(String token) {
  String base = token.substring(1);
  int eq = base.indexOf('=');
@@ -288,6 +296,7 @@ private int consumeValue(int index, String token) {
  shortToBase.put(base, base);
  }
 
+ /** 解析 */
  private String resolve(String name) {
  if (name == null) {
  return null;

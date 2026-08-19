@@ -139,10 +139,15 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     /** PADY坐标 */
     private int padY;
 
+    /** 创建 Owlv2ZeroShotDetectorTranslator 实例 */
     public Owlv2ZeroShotDetectorTranslator() {
         this(DetectionConfiguration.DEFAULT);
     }
 
+    /**
+     * 创建 Owlv2ZeroShotDetectorTranslator 实例
+     * @param configuration configuration
+     */
     public Owlv2ZeroShotDetectorTranslator(DetectionConfiguration configuration) {
         DetectionConfiguration cfg = configuration == null ? DetectionConfiguration.DEFAULT : configuration;
         this.threshold = readDouble(cfg.systemOption(), "threshold", DEFAULT_THRESHOLD);
@@ -151,6 +156,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     }
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         tokenizer = HuggingFaceTokenizer.builder()
@@ -165,6 +171,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         originalWidth = original.getWidth();
@@ -198,6 +205,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
 
     @Override
     @Nonnull
+    /** 处理Output */
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (lowInformationImage) {
             return emptyDetections();
@@ -260,10 +268,12 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
 
     @Override
     @Nullable
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 加载PreprocessorConfig */
     private void loadPreprocessorConfig(Path configPath) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(configPath.toFile());
         JsonNode size = root.path("size");
@@ -274,6 +284,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         rescaleFactor = (float) root.path("rescale_factor").asDouble(1d / 255d);
     }
 
+    /** 解析Candidates */
     private void resolveCandidates() {
         List<String> source = requestedCandidates.isEmpty() ? DEFAULT_CANDIDATES : requestedCandidates;
         LinkedHashMap<String, String> normalized = new LinkedHashMap<>();
@@ -292,6 +303,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         candidateOutputLabels = new ArrayList<>(normalized.values());
     }
 
+    /** NormalizeCandidate */
     private String normalizeCandidate(String label) {
         if (!CHINESE_PATTERN.matcher(label).matches()) {
             return label.trim().toLowerCase(Locale.ROOT);
@@ -303,6 +315,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         return mapped;
     }
 
+    /** 构建TextInputs */
     private void buildTextInputs() {
         List<long[]> idsList = new ArrayList<>(candidateModelLabels.size());
         int maxLength = 1;
@@ -326,6 +339,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         }
     }
 
+    /** Letterbox */
     private BufferedImage letterbox(BufferedImage image) {
         double widthScale = inputWidth / (double) image.getWidth();
         double heightScale = inputHeight / (double) image.getHeight();
@@ -349,6 +363,7 @@ finally {
         return canvas;
     }
 
+    /** 解码Rectangle */
     private Rectangle decodeRectangle(NDArray boxesArray, int boxIndex) {
         double centerX = boxesArray.getFloat(boxIndex, 0) * inputWidth;
         double centerY = boxesArray.getFloat(boxIndex, 1) * inputHeight;
@@ -381,6 +396,7 @@ finally {
        );
     }
 
+    /** 应用Nms */
     private List<DetectionCandidate> applyNms(List<DetectionCandidate> candidates) {
         if (candidates.isEmpty()) {
             return Collections.emptyList();
@@ -402,6 +418,7 @@ finally {
         return kept;
     }
 
+    /** CalculateIoU */
     private double calculateIoU(Rectangle first, Rectangle second) {
         double x1 = Math.max(first.getX(), second.getX());
         double y1 = Math.max(first.getY(), second.getY());
@@ -412,6 +429,7 @@ finally {
         return union <= 0d ? 0d : intersection / union;
     }
 
+    /** 是否LowInformationImage */
     private boolean isLowInformationImage(BufferedImage image) {
         long samples = 0L;
         double sum = 0d;
@@ -438,6 +456,7 @@ finally {
         return variance < DEFAULT_LOW_INFO_VARIANCE;
     }
 
+    /** 读取FloatArray */
     private float[] readFloatArray(JsonNode node, float[] defaults) {
         if (node == null || !node.isArray() || node.size() != defaults.length) {
             return defaults;
@@ -449,6 +468,7 @@ finally {
         return values;
     }
 
+    /** 解析Candidates */
     private List<String> parseCandidates(String rawCandidates) {
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
@@ -463,6 +483,7 @@ finally {
         return new ArrayList<>(values);
     }
 
+    /** 读取Argument */
     private String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -471,6 +492,7 @@ finally {
         return value == null ? null : String.valueOf(value);
     }
 
+    /** 读取Double */
     private double readDouble(Map<String, ?> arguments, String key, double defaultValue) {
         String value = readArgument(arguments, key);
         if (StringUtils.isBlank(value)) {
@@ -483,10 +505,12 @@ finally {
         }
     }
 
+    /** 格式化Prompt */
     private String formatPrompt(String candidate) {
         return candidate;
     }
 
+    /** 解析ModelRoot */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -503,6 +527,7 @@ finally {
         return modelPath;
     }
 
+    /** 解析RequiredFile */
     private Path resolveRequiredFile(Path root, String name) throws IOException {
         Path file = root.resolve(name);
         if (Files.exists(file)) {
@@ -511,6 +536,7 @@ finally {
         throw new IOException("          OWLv2             : " + file);
     }
 
+    /** Sigmoid */
     private double sigmoid(double value) {
         if (value >= 0d) {
             double exp = Math.exp(-value);
@@ -520,14 +546,17 @@ finally {
         return exp / (1d + exp);
     }
 
+    /** Clip */
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
+    /** EmptyDetections */
     private DetectedObjects emptyDetections() {
         return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
+    /** DetectionCandidate */
     private record DetectionCandidate(String label, double score, Rectangle rectangle) {
     }
 }

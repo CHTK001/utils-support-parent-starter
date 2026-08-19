@@ -39,11 +39,13 @@ public class EndNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "end";
     }
 
     @Override
+    /** 执行 */
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
         context.setAction(Action.EXIT);

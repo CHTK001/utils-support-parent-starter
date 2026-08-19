@@ -511,11 +511,13 @@ public class TaskDefinition {
         PipelineNode original = this.handler;
         this.handler = new PipelineNode() {
             @Override
+            /** 执行 */
             public String execute(com.chua.common.support.task.pipeline.core.PipelineContext<?> context) {
                 return original.execute(context);
             }
 
             @Override
+            /** 获取Params */
             public Map<String, Object> getParams() {
                 return params;
             }

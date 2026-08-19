@@ -59,6 +59,13 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     /** 缓存的基线摘要 */
     private String cachedBaselineSummary = null;
 
+    /**
+     * 创建 AgentContextCompressionService 实例
+     * @param config config
+     * @param compressionChatClient compressionChatClient
+     * @param fallbackChatClient fallbackChatClient
+     * @param workspace workspace
+     */
     public AgentContextCompressionService(AgentCompressionConfig config,
                                           ChatClient compressionChatClient,
                                           ChatClient fallbackChatClient,
@@ -69,6 +76,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         this.workspace = workspace;
     }
 
+    /**
+     * 创建 AgentContextCompressionService 实例
+     * @param config config
+     * @param fallbackChatClient fallbackChatClient
+     * @param workspace workspace
+     */
     public AgentContextCompressionService(AgentCompressionConfig config,
                                           ChatClient fallbackChatClient,
                                           String workspace) {
@@ -80,6 +93,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     }
 
     @Override
+    /** OnFirstCompression */
     public void onFirstCompression(List<ChatMessage> fullContext) {
         if (!config.isEnabled() || baselineSaved) {
             return;
@@ -97,6 +111,11 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     }
 
     @Override
+    /**
+     * OnDeviationCompression
+     * @param baselineContext baselineContext
+     * @param currentContext currentContext
+     */
     public List<ChatMessage> onDeviationCompression(List<ChatMessage> baselineContext,
                                                      List<ChatMessage> currentContext) {
         if (!config.isEnabled()) {
@@ -130,6 +149,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
+    /** 压缩Context */
     public List<ChatMessage> compressContext(List<ChatMessage> fullContext) {
         if (fullContext == null || fullContext.isEmpty()) {
             return fullContext;
@@ -168,6 +188,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return result;
     }
 
+    /** 是否应该TriggerDeviationCorrection */
     public boolean shouldTriggerDeviationCorrection() {
         if (!config.isEnabled() || !baselineSaved) {
             return false;
@@ -182,10 +203,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return shouldTrigger;
     }
 
+    /** 是否BaselineSaved */
     public boolean isBaselineSaved() {
         return baselineSaved;
     }
 
+    /** 保存Baseline */
     private void saveBaseline(List<ChatMessage> fullContext) {
         try {
             String json = Json.toJson(fullContext);
@@ -208,6 +231,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
+    /** 加载Baseline */
     public List<ChatMessage> loadBaseline() {
         try {
             MemoryManager memoryManager = createMemoryManager();
@@ -229,6 +253,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return Collections.emptyList();
     }
 
+    /** 保存BaselineSummary */
     private void saveBaselineSummary(String summary) {
         try {
             MemoryEntry entry = MemoryEntry.builder()
@@ -248,6 +273,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
+    /** 加载BaselineSummary */
     private String loadBaselineSummary() {
         try {
             MemoryManager memoryManager = createMemoryManager();
@@ -265,6 +291,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return null;
     }
 
+    /** 保存RoundsAfterBaseline */
     private void saveRoundsAfterBaseline() {
         try {
             MemoryEntry entry = MemoryEntry.builder()
@@ -284,6 +311,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
+    /** 加载RoundsAfterBaseline */
     private int loadRoundsAfterBaseline() {
         try {
             MemoryManager memoryManager = createMemoryManager();
@@ -305,6 +333,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return 0;
     }
 
+    /** SummarizeBaseline */
     private String summarizeBaseline(ChatClient client, List<ChatMessage> baseline) {
         ChatClient freshClient = client.newChat();
         freshClient.system("You are a context compression assistant. "
@@ -318,6 +347,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return summary != null ? summary : "";
     }
 
+    /**
+     * CorrectDeviation
+     * @param client client
+     * @param baselineSummary baselineSummary
+     * @param currentContext currentContext
+     */
     private List<ChatMessage> correctDeviation(ChatClient client,
                                                 String baselineSummary,
                                                 List<ChatMessage> currentContext) {
@@ -339,6 +374,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return parseMessages(correctedText, currentContext);
     }
 
+    /** 构建CompressedText */
     private String buildCompressedText(List<ChatMessage> messages) {
         StringBuilder sb = new StringBuilder();
         int count = 0;
@@ -351,6 +387,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return sb.toString();
     }
 
+    /** 格式化Messages */
     private String formatMessages(List<ChatMessage> messages) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < messages.size(); i++) {
@@ -361,6 +398,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return sb.toString();
     }
 
+    /** 解析Messages */
     private List<ChatMessage> parseMessages(String correctedText, List<ChatMessage> fallback) {
         if (correctedText == null || correctedText.isBlank()) {
             return fallback;
@@ -397,10 +435,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return result;
     }
 
+    /** 解析CompressionClient */
     private ChatClient resolveCompressionClient() {
         return compressionChatClient != null ? compressionChatClient : fallbackChatClient;
     }
 
+    /** 创建MemoryManager */
     private MemoryManager createMemoryManager() {
         try {
             MemoryConfig memConfig = MemoryConfig.builder()
@@ -413,6 +453,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
+    /** GenerateBaselineId */
     private static String generateBaselineId() {
         return "baseline-" + System.currentTimeMillis();
     }

@@ -49,16 +49,26 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     /** flashService */
     protected transient FlashTokenService flashService;
 
+    /**
+     * 创建 AbstractFileStorageServerFilter 实例
+     * @param setting setting
+     */
     public AbstractFileStorageServerFilter(FileStorageSetting setting) {
         this(setting, null);
     }
 
+    /**
+     * 创建 AbstractFileStorageServerFilter 实例
+     * @param setting setting
+     * @param PreviewPdfCache PreviewPdfCache
+     */
     public AbstractFileStorageServerFilter(FileStorageSetting setting, PreviewPdfCache pdfCache) {
         this.setting = setting;
         this.pdfCache = pdfCache != null ? pdfCache : new PreviewPdfCache(Path.of(setting.getCache().getPdfCacheDir()));
         loadSpis();
     }
 
+    /** 加载Spis */
     private void loadSpis() {
         String fsKey = StringUtils.isEmpty(setting.getFileSettingKey()) ? "jdk" : setting.getFileSettingKey();
         this.fileSetting = ServiceProvider.of(FileStorageFileSetting.class).getNewExtension(fsKey);
@@ -70,10 +80,12 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         this.imageOperation = ServiceProvider.of(ImageOperation.class).getExtension(imgOpKey);
     }
 
+    /** 添加FileStorage */
     public void addFileStorage(String name, FileStorage storage) {
         storageMap.put(name, storage);
     }
 
+    /** 获取FileStorage */
     public FileStorage getFileStorage(String name) {
         FileStorage storage = storageMap.get(name);
         if (storage != null) {
@@ -107,6 +119,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
                 filterSetting != null ? filterSetting.getClass().getSimpleName() : "unchanged");
     }
 
+    /** 应用Image过滤 */
     protected byte[] applyImageFilter(byte[] imageBytes, FileOperationSetting ops, String path, String ext) throws Exception {
         if (imageOperation == null) {
             log.warn("[FileStorageFilter] 未找到 ImageOperation SPI，跳过滤镜");
@@ -143,6 +156,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         return imageBytes;
     }
 
+    /** Guess格式化 */
     private String guessFormat(String ext) {
         if (ext == null) {
             return "jpg";
@@ -156,10 +170,12 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         };
     }
 
+    /** 解析Int */
     private Integer parseInt(String s) {
         try { return Integer.valueOf(s); } catch (Exception e) { return null; }
     }
 
+    /** 获取FlashService */
     protected FlashTokenService getFlashService() {
         if (flashService == null) {
             Path flashDir = Path.of(setting.getCache().getFlashDir());
@@ -169,15 +185,18 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 80;
     }
 
     @Override
+    /** SupportPath */
     public String supportPath() {
         return "/**";
     }
 
+    /** 设置StorageMap */
     public void setStorageMap(Map<String, FileStorage> map) {
         if (map == null || map.isEmpty()) {
             throw new IllegalArgumentException("FileStorageMap must not be empty");

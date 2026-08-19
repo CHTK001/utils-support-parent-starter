@@ -85,6 +85,7 @@ public class JcefWebviewWindow implements WebViewWindow {
     private IpcProtocolServer ipcServer;
 
     @Override
+    /** 打开 */
     public void open(String url, String title, int width, int height) {
         try {
             cefApp = new CefAppBuilder().build();
@@ -96,6 +97,7 @@ public class JcefWebviewWindow implements WebViewWindow {
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
+                /** WindowClosing */
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -108,10 +110,12 @@ catch (Throwable e) {
     }
 
     @Override
+    /** SupportsIpc */
     public boolean supportsIpc() {
         return true;
     }
 
+    /** 打开 */
     public void open(ProtocolServer server, String title, int width, int height) {
         ProtocolType type = server.getProtocolType();
         if (type == ProtocolType.IPC) {
@@ -158,6 +162,7 @@ catch (Throwable e) {
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
+                /** WindowClosing */
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -170,6 +175,7 @@ catch (Throwable e) {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         try {
             if (browser != null) {
@@ -205,6 +211,15 @@ finally {
         }
 
         @Override
+        /**
+         * On查询
+         * @param browser browser
+         * @param frame frame
+         * @param queryId queryId
+         * @param request request
+         * @param persistent persistent
+         * @param callback callback
+         */
         public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId,
                                String request, boolean persistent, CefQueryCallback callback) {
             try {

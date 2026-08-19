@@ -111,6 +111,7 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
+    /** 销毁Bean */
     public void destroyBean() {
         if (isDestroyed()) {
             return;
@@ -122,6 +123,7 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
+    /** 是否Destroyed */
     public boolean isDestroyed() {
         // 父类 destroyed 标志即销毁完成
         return super.isDestroyed();

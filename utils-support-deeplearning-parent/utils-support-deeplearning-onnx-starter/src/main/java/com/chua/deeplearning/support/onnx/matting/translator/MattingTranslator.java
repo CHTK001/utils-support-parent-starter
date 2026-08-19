@@ -191,6 +191,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         };
     }
 
+    /** ToBufferedImage */
     private BufferedImage toBufferedImage(Image input, TranslatorContext ctx) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof BufferedImage bufferedImage) {
@@ -205,6 +206,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         throw new IllegalStateException("                               BufferedImage");
     }
 
+    /** ToAlphaMask */
     private BufferedImage toAlphaMask(NDArray alpha) {
         Shape shape = alpha.getShape();
         int alphaHeight = (int) shape.get(0);
@@ -238,6 +240,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return resized;
     }
 
+    /** 创建AlphaOnlyImage */
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -250,6 +253,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** 创建RgbaImage */
     private Image createRgbaImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -262,6 +266,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** 创建RgbImage */
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -278,15 +283,18 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** BlendChannel */
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
         return (foreground * alpha + background * inverseAlpha + 127) / 255;
     }
 
+    /** ToAlpha */
     private int toAlpha255(float value) {
         float clipped = Math.max(0f, Math.min(1f, value));
         return Math.round(clipped * 255f);
     }
 
+    /** 创建LowInformationFallback */
     private Image createLowInformationFallback() {
         return switch (mode) {
             case RGBA -> ImageFactory.getInstance()
@@ -307,6 +315,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         };
     }
 
+    /** 是否LowInformationImage */
     private boolean isLowInformationImage(BufferedImage image) {
         if (image == null) {
             return false;
@@ -345,6 +354,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return Batchifier.STACK;
     }
 
+    /** 解析Target获取大小 */
     private static int resolveTargetSize(DetectionConfiguration configuration) {
         if (configuration == null || configuration.modelName() == null) {
             return DEFAULT_TARGET_SIZE;
@@ -356,6 +366,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return DEFAULT_TARGET_SIZE;
     }
 
+    /** 解析Mode */
     private static MattingMode resolveMode(DetectionConfiguration configuration) {
         if (configuration == null || configuration.modelName() == null) {
             return MattingMode.RGBA;

@@ -12,6 +12,10 @@ package com.chua.common.support.objects.exception;
  */
 public class BeanTypeMismatchException extends RuntimeException {
 
+    /**
+     * 创建 BeanTypeMismatchException 实例
+     * @param msg msg
+     */
     public BeanTypeMismatchException(String msg) {
         super(msg);
     }

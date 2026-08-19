@@ -111,6 +111,7 @@ public class TaskNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "task";
     }
@@ -125,6 +126,7 @@ public class TaskNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Params */
     public Map<String, Object> getParams() {
         return params;
     }
@@ -139,6 +141,7 @@ public class TaskNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Env */
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }
@@ -153,6 +156,7 @@ public class TaskNode implements PipelineNode {
     }
 
     @Override
+    /** 获取RetryConfig */
     public RetryConfig getRetryConfig() {
         return retryConfig;
     }
@@ -167,11 +171,13 @@ public class TaskNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Units */
     public Set<String> getUnits() {
         return units != null ? units : Collections.emptySet();
     }
 
     @Override
+    /** 执行 */
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
         return handler.execute(context);

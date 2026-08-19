@@ -38,18 +38,22 @@ public class OffsetConfig {
         this.persistent = persistent;
     }
 
+    /** 获取BasePath */
     public Path getBasePath() {
         return basePath;
     }
 
+    /** 是否Persistent */
     public boolean isPersistent() {
         return persistent;
     }
 
+    /** 获取刷新Interval */
     public long getFlushInterval() {
         return flushInterval;
     }
 
+    /** 获取Provider */
     public String getProvider() {
         return provider;
     }

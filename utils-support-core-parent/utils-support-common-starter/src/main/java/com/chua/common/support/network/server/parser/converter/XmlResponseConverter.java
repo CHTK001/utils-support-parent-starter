@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 public class XmlResponseConverter implements ResponseConverter {
 
     @Override
+    /** 转换 */
     public void convert(ServerResponse response, Object data) throws Exception {
         response.setContentType(contentType());
         if (data instanceof String s) {
@@ -33,16 +34,19 @@ public class XmlResponseConverter implements ResponseConverter {
     }
 
     @Override
+    /** ContentType */
     public String contentType() {
         return "application/xml; charset=utf-8";
     }
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         return data instanceof String s && s.trim().startsWith("<?xml");
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 2;
     }

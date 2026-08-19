@@ -22,15 +22,27 @@ import java.util.List;
 
 public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
 
+    /**
+     * 创建 MysqlMetaForeignKey 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     */
     protected MysqlMetaForeignKey(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
+    /**
+     * 创建 MysqlMetaForeignKey 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     * @param String String
+     */
     protected MysqlMetaForeignKey(AbstractMetaData metaData, Engine engine, String fkName) {
         super(metaData, engine, fkName);
     }
 
     @Override
+    /** List */
     public List<ForeignKeyDef> list() {
         List<ForeignKeyDef> result = new ArrayList<>();
         if (tableName == null) {
@@ -60,6 +72,7 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     @Override
+    /** 获取 */
     public ForeignKeyDef get(String fkName) {
         List<ForeignKeyDef> all = list();
         return all.stream()
@@ -69,15 +82,18 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     @Override
+    /** 添加 */
     public ForeignKeyCreateBuilder add(String fkName) {
         return new MysqlForeignKeyCreateBuilder(this, fkName);
     }
 
     @Override
+    /** Drop */
     public boolean drop(String fkName) {
         return executeUpdate("ALTER TABLE " + quote(tableName) + " DROP FOREIGN KEY " + quote(fkName));
     }
 
+    /** 获取Connection */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -90,10 +106,12 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
+    /** Quote */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
+    /** 执行更新 */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -104,6 +122,7 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
         }
     }
 
+    /** 解析Rule */
     private static String resolveRule(short rule) {
         return switch (rule) {
             case java.sql.DatabaseMetaData.importedKeyCascade -> "CASCADE";
@@ -137,12 +156,14 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
         }
 
         @Override
+        /** Column */
         public ForeignKeyCreateBuilder column(String columnName) {
             this.columnName = columnName;
             return this;
         }
 
         @Override
+        /** References */
         public ForeignKeyCreateBuilder references(String table, String column) {
             this.refTable = table;
             this.refColumn = column;
@@ -150,18 +171,21 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
         }
 
         @Override
+        /** On删除 */
         public ForeignKeyCreateBuilder onDelete(String action) {
             this.onDelete = action;
             return this;
         }
 
         @Override
+        /** On更新 */
         public ForeignKeyCreateBuilder onUpdate(String action) {
             this.onUpdate = action;
             return this;
         }
 
         @Override
+        /** 执行 */
         public ForeignKeyDef execute() {
             if (metaFk.tableName == null) {
                 throw new IllegalStateException("未指定表名，请先调用 onTable()");

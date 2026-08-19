@@ -60,6 +60,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     @Override
+    /** 查找 */
     public Set<Resource> find(String name) {
         String fullName = CLASSPATH_URL_PREFIX + name;
         if (isPattern(name)) {
@@ -295,6 +296,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         }
 
         @Override
+        /** PreVisitDirectory */
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             String dirPath = StringUtils.replace(dir.toString(), File.separator, "/");
             if (!matcher.matchStart(fullPattern, dirPath + "/")) {
@@ -307,6 +309,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         }
 
         @Override
+        /** VisitFile */
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             scannedCount.incrementAndGet();
             String filePath = StringUtils.replace(file.toString(), File.separator, "/");
@@ -322,11 +325,13 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         }
 
         @Override
+        /** VisitFileFailed */
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             return FileVisitResult.CONTINUE;
         }
 
         @Override
+        /** PostVisitDirectory */
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
             return FileVisitResult.CONTINUE;
         }

@@ -47,6 +47,11 @@ public class CompressedFileSystem implements AutoCloseable {
     /** Readonly */
     private final boolean readOnly;
 
+    /**
+     * 创建 CompressedFileSystem 实例
+     * @param zipPath zipPath
+     * @param boolean boolean
+     */
     private CompressedFileSystem(Path zipPath, boolean readOnly) {
         this.zipPath = zipPath;
         this.readOnly = readOnly;
@@ -208,6 +213,7 @@ public class CompressedFileSystem implements AutoCloseable {
         return zipPath;
     }
 
+    /** 校验Writable */
     private void checkWritable() {
         if (readOnly) {
             throw new IllegalStateException("只读模式，无法写入");
@@ -215,6 +221,7 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // ZIP 操作完成后无需特殊关闭
     }

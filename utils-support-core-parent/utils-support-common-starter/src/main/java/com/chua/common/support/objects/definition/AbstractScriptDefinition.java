@@ -66,16 +66,19 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
+    /** 获取ScriptClassLoader */
     public ClassLoader getScriptClassLoader() {
         return scriptClassLoader.get();
     }
 
     @Override
+    /** 设置ScriptClassLoader */
     public void setScriptClassLoader(ClassLoader classLoader) {
         this.scriptClassLoader.set(classLoader);
     }
 
     @Override
+    /** 获取ScriptMarker */
     public ScriptMarker getScriptMarker() {
         return scriptMarker;
     }
@@ -90,6 +93,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
+    /** 获取Listener */
     public Listener getListener() {
         return listener;
     }
@@ -104,6 +108,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
+    /** 创建Instance */
     public Object createInstance() {
         if (listener == null || scriptMarker == null) {
             return null;
@@ -141,6 +146,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
+    /** 是否AssignableFrom */
     public boolean isAssignableFrom(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -158,6 +164,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
+    /** 是否AssignableFrom */
     public boolean isAssignableFrom(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -194,11 +201,13 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
+    /** Do获取Bean */
     protected Object doGetBean() {
         return scriptInstance;
     }
 
     @Override
+    /** 设置Bean */
     protected void setBean(Object bean) {
         this.scriptInstance = bean;
     }

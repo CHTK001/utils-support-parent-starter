@@ -49,6 +49,7 @@ final class LanzouAntiCrawler {
     private static final Pattern ARG1_PATTERN =
             Pattern.compile("arg1\\s*=\\s*['\"]([0-9A-Fa-f]+)['\"]");
 
+    /** 创建 LanzouAntiCrawler 实例 */
     private LanzouAntiCrawler() {
     }
 

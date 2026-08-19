@@ -21,11 +21,13 @@ import java.util.Locale;
 public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
+    /** Supports */
     public boolean supports(String extension, String mimeType) {
         return "md".equalsIgnoreCase(extension) || "text/markdown".equals(mimeType);
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String md = new String(content, StandardCharsets.UTF_8);
         String html = renderToHtml(md);
@@ -45,6 +47,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /** RenderToHtml */
     private static String renderToHtml(String md) {
         StringBuilder sb = new StringBuilder();
         boolean inCodeBlock = false;
@@ -96,6 +99,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
+    /** EscapeHtml */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

@@ -16,12 +16,14 @@ import java.util.*;
 public class PropertiesConfigFileParser implements ConfigFileParser {
 
     @Override
+    /** Supports */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".properties");
     }
 
     @Override
+    /** 解析 */
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         Properties props = new Properties();
         try (InputStream is = Files.newInputStream(file)) {
@@ -36,6 +38,7 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
     }
 
     @SuppressWarnings("unchecked")
+    /** 构建NestedMap */
     private static Map<String, Object> buildNestedMap(Map<String, Object> flat) {
         Map<String, Object> result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : flat.entrySet()) {

@@ -23,11 +23,13 @@ public class CodyUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".cody");
 
     @Override
+    /** Name */
     public String name() {
         return "cody";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[cody] 数据目录不存在: {}", DATA_DIR);

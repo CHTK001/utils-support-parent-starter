@@ -27,16 +27,19 @@ import java.util.List;
 public class Zip4jFileSystem implements FileSystem {
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "zip4j";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new Zip4jReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new Zip4jWriteBuilder(file);
     }
@@ -70,16 +73,19 @@ public class Zip4jFileSystem implements FileSystem {
             return setPassword(password);
         }
 
+        /** 设置Password */
         public Zip4jReadBuilder setPassword(String password) {
             this.password = password != null ? password.toCharArray() : null;
             return this;
         }
 
+        /** 设置Password */
         public Zip4jReadBuilder setPassword(char[] password) {
             this.password = password;
             return this;
         }
 
+        /** ListEntries */
         public List<String> listEntries() {
             List<String> entries = new ArrayList<>();
             try (ZipFile zipFile = openZip()) {
@@ -90,14 +96,17 @@ public class Zip4jFileSystem implements FileSystem {
             return entries;
         }
 
+        /** ExtractAll */
         public void extractAll(File targetDir) {
             extract(targetDir);
         }
 
+        /** Extract */
         public void extract(String entryName, File targetDir) {
             extract(targetDir, entryName);
         }
 
+        /** Extract */
         public void extract(File targetDir, String... entryNames) {
             try (ZipFile zipFile = openZip()) {
                 if (!targetDir.exists()) {
@@ -117,6 +126,7 @@ public class Zip4jFileSystem implements FileSystem {
             }
         }
 
+        /** 读取Entry */
         public String readEntry(String entryName) {
             try (ZipFile zipFile = openZip();
                  InputStream is = zipFile.getInputStream(zipFile.getFileHeader(entryName));
@@ -135,6 +145,7 @@ public class Zip4jFileSystem implements FileSystem {
             }
         }
 
+        /** 打开Zip */
         private ZipFile openZip() {
             ZipFile zf = new ZipFile(file);
             if (password != null) {
@@ -144,11 +155,13 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return listEntries();
         }
 
         @Override
+        /** AsString */
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -167,11 +180,13 @@ public class Zip4jFileSystem implements FileSystem {
             super(file);
         }
 
+        /** 设置Password */
         public Zip4jWriteBuilder setPassword(String password) {
             this.password = password != null ? password.toCharArray() : null;
             return this;
         }
 
+        /** 设置Password */
         public Zip4jWriteBuilder setPassword(char[] password) {
             this.password = password;
             return this;
@@ -207,27 +222,32 @@ public class Zip4jFileSystem implements FileSystem {
             return setCompressionLevel(level);
         }
 
+        /** 设置CompressionLevel */
         public Zip4jWriteBuilder setCompressionLevel(CompressionLevel level) {
             this.compressionLevel = level;
             return this;
         }
 
+        /** 添加File */
         public Zip4jWriteBuilder addFile(String entryName, File source) {
             entries.add(new EntryData(entryName, source));
             return this;
         }
 
+        /** 添加Stream */
         public Zip4jWriteBuilder addStream(String entryName, InputStream in) {
             entries.add(new EntryData(entryName, in));
             return this;
         }
 
+        /** 添加Bytes */
         public Zip4jWriteBuilder addBytes(String entryName, byte[] bytes) {
             entries.add(new EntryData(entryName, bytes));
             return this;
         }
 
         @Override
+        /** Finish */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -259,6 +279,7 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         @Override
+        /** 写入 */
         public Zip4jWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);

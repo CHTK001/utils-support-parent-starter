@@ -32,32 +32,38 @@ public class NettyHandler extends AbstractAppHandler {
     private static final String[] CONTEXT_METHODS = {"fireChannelRead", "fireChannelActive", "fireChannelInactive"};
 
     @Override
+    /** Name */
     public String name() {
         return "netty-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "netty.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.NETTY;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.TCP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(CHANNEL, CHANNEL_METHODS);
         registerAll(CHANNEL_HANDLER_CONTEXT, CONTEXT_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

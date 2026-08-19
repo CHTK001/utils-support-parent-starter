@@ -26,6 +26,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     private ProcessingEnvironment pe;
 
     @Override
+    /** 初始化 */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -38,6 +39,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     }
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) { return false; }
 
@@ -70,6 +72,15 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return false;
     }
 
+    /**
+     * 应用TraceTransform
+     * @param methodTree methodTree
+     * @param className className
+     * @param packageName packageName
+     * @param methodName methodName
+     * @param methodElement methodElement
+     * @param trace trace
+     */
     private void applyTraceTransform(com.sun.source.tree.MethodTree methodTree,
             String className, String packageName, String methodName,
             ExecutableElement methodElement, Trace trace) throws Exception {
@@ -143,6 +154,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return sb.toString();
     }
 
+    /** 是否StringType */
     private boolean isStringType(TypeMirror type) {
         String name = type.toString();
         return "java.lang.String".equals(name) || "java.lang.CharSequence".equals(name);
@@ -220,6 +232,24 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return result;
     }
 
+    /**
+     * 构建调用
+     * @param maker maker
+     * @param names names
+     * @param className className
+     * @param methodName methodName
+     * @param names names
+     * @param className className
+     * @param select select
+     * @param maker maker
+     * @param names names
+     * @param qualifiedName qualifiedName
+     * @param methodElement methodElement
+     * @param typeElement typeElement
+     * @param methodElement methodElement
+     * @param TypeElement TypeElement
+     * @param typeElement typeElement
+     */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildCall(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names,
             String className, String methodName) {
@@ -231,6 +261,17 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return maker.Exec(call);
     }
 
+    /**
+     * 构建QualifiedName
+     * @param maker maker
+     * @param names names
+     * @param qualifiedName qualifiedName
+     * @param methodElement methodElement
+     * @param typeElement typeElement
+     * @param methodElement methodElement
+     * @param TypeElement TypeElement
+     * @param typeElement typeElement
+     */
     private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedName(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String qualifiedName) {
 
@@ -242,6 +283,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return expr;
     }
 
+    /** 获取SimpleClassName */
     private String getSimpleClassName(ExecutableElement methodElement) {
         Element enclosing = methodElement.getEnclosingElement();
         if (enclosing instanceof TypeElement typeElement) {
@@ -250,6 +292,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return "Unknown";
     }
 
+    /** 获取PackageName */
     private String getPackageName(ExecutableElement methodElement) {
         Element enclosing = methodElement.getEnclosingElement();
         while (enclosing != null && !(enclosing instanceof TypeElement)) {

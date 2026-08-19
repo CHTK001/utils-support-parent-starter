@@ -21,9 +21,11 @@ final class MethodCache {
     private static final Map<Class<?>, Map<String, MethodHandle>> GETTERS = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Map<String, MethodHandle>> SETTERS = new ConcurrentHashMap<>();
 
+    /** 创建 MethodCache 实例 */
     private MethodCache() {
     }
 
+    /** 获取Value */
     static Object getValue(Object obj, String field) {
         MethodHandle mh = getter(obj.getClass(), field);
         if (mh == null) {
@@ -36,6 +38,7 @@ final class MethodCache {
         }
     }
 
+    /** 设置Value */
     static void setValue(Object obj, String field, Object value) {
         MethodHandle mh = setter(obj.getClass(), field);
         if (mh == null) {
@@ -47,16 +50,19 @@ final class MethodCache {
         }
     }
 
+    /** Getter */
     private static MethodHandle getter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = GETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
         return classCache.computeIfAbsent(field, k -> findGetter(clazz, field));
     }
 
+    /** Setter */
     private static MethodHandle setter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = SETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
         return classCache.computeIfAbsent(field, k -> findSetter(clazz, field));
     }
 
+    /** 查找Getter */
     private static MethodHandle findGetter(Class<?> clazz, String field) {
         try {
             String camel = toCamelCase(field);
@@ -79,6 +85,7 @@ final class MethodCache {
         return null;
     }
 
+    /** 查找Setter */
     private static MethodHandle findSetter(Class<?> clazz, String field) {
         try {
             String camel = toCamelCase(field);
@@ -94,6 +101,7 @@ final class MethodCache {
         return null;
     }
 
+    /** ToCamelCase */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;

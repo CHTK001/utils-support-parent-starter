@@ -29,11 +29,13 @@ public class MiniCpm5Translator implements ITranslator<String, String>, AutoClos
     private volatile boolean initialized;
 
     @Override
+    /** Name */
     public String name() {
         return "minicpm5";
     }
 
     @Override
+    /** Translate */
     public String translate(String input) {
         if (!initialized) {
             synchronized (this) {
@@ -64,6 +66,7 @@ public class MiniCpm5Translator implements ITranslator<String, String>, AutoClos
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (model != null) {
             try {

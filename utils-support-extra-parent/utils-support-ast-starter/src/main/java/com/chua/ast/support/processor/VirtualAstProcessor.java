@@ -29,6 +29,7 @@ public final class VirtualAstProcessor extends AbstractProcessor {
     private ProcessingEnvironment pe;
 
     @Override
+    /** 初始化 */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -42,6 +43,7 @@ public final class VirtualAstProcessor extends AbstractProcessor {
     }
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) { return false; }
 
@@ -72,6 +74,7 @@ public final class VirtualAstProcessor extends AbstractProcessor {
         return false;
     }
 
+    /** 应用VirtualTransform */
     private void applyVirtualTransform(com.sun.source.tree.MethodTree methodTree) throws Exception {
 
         var jcMethod = AstUtils.asJcMethodDecl(methodTree);

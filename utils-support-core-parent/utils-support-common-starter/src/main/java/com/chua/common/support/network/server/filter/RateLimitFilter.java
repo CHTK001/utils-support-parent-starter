@@ -69,6 +69,13 @@ public class RateLimitFilter implements ServerFilter {
         this(providerName, qps, KeyStrategy.GLOBAL, null);
     }
 
+    /**
+     * 创建 RateLimitFilter 实例
+     * @param providerName providerName
+     * @param double double
+     * @param KeyStrategy KeyStrategy
+     * @param String String
+     */
     private RateLimitFilter(String providerName, double qps, KeyStrategy keyStrategy, String pathPrefix) {
         this.providerName = providerName;
         this.qps = qps;
@@ -91,16 +98,19 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MIN_VALUE + 30;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         RateLimitProvider provider = ServiceProvider.of(RateLimitProvider.class).getExtension(providerName);
         if (provider == null) {
@@ -114,6 +124,12 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (limiter == null) {
@@ -139,6 +155,7 @@ public class RateLimitFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
+    /** 解析Key */
     private String resolveKey(ServerRequest request) {
         return switch (keyStrategy) {
             case GLOBAL -> "__global__";

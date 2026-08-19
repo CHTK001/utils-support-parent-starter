@@ -75,6 +75,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     private static final String OP_IS_NOT_NULL = "IS NOT NULL";
 
     @Override
+    /** Judge */
     public boolean judge(BTreeNode node, Map<String, Object> context) {
         if (node == null || context == null) {
             return false;

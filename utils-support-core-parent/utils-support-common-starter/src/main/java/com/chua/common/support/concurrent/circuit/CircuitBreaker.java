@@ -93,6 +93,10 @@ public class CircuitBreaker {
      */
     private final String expressionType;
 
+    /**
+     * 创建 CircuitBreaker 实例
+     * @param builder builder
+     */
     private CircuitBreaker(Builder builder) {
         this.expression = builder.expression;
         this.context = builder.context;

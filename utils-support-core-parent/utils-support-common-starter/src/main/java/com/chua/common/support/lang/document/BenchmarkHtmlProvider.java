@@ -39,16 +39,19 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
             "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js";
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "benchmark-html";
     }
 
     @Override
+    /** 获取Extensions */
     public String[] getExtensions() {
         return new String[]{".html", ".htm"};
     }
 
     @Override
+    /** Export */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         if (!(data instanceof BenchmarkDocumentData benchmark)) {
             throw new IllegalArgumentException(

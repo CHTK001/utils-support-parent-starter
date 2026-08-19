@@ -42,6 +42,10 @@ public class AgentModelDefinition implements ChatClient {
     /** 最近一次 Agent 响应 */
     private AgentResponse lastResponse;
 
+    /**
+     * 创建 AgentModelDefinition 实例
+     * @param agent agent
+     */
     public AgentModelDefinition(Agent agent) {
         this.agent = agent;
     }
@@ -56,23 +60,33 @@ public class AgentModelDefinition implements ChatClient {
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model != null ? model : DEFAULT_MODEL;
         return this;
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         lastResponse = agent.run(prompt);
         return lastResponse != null ? lastResponse.getOutput() : "";
     }
 
     @Override
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -99,6 +113,7 @@ public class AgentModelDefinition implements ChatClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return List.of(ModelDefinition.builder()
                 .id(DEFAULT_MODEL)
@@ -110,6 +125,7 @@ public class AgentModelDefinition implements ChatClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         agent.close();
     }

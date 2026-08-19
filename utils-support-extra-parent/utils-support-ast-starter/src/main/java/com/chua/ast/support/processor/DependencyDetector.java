@@ -30,6 +30,10 @@ public class DependencyDetector {
     /** 缓存映射 */
     private final Map<String, Boolean> cache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 DependencyDetector 实例
+     * @param processingEnv processingEnv
+     */
     public DependencyDetector(ProcessingEnvironment processingEnv) {
         this.elementUtils = processingEnv.getElementUtils();
     }

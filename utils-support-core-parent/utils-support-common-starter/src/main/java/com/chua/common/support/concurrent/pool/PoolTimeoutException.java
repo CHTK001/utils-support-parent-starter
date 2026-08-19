@@ -11,10 +11,19 @@ package com.chua.common.support.concurrent.pool;
  */
 public class PoolTimeoutException extends RuntimeException {
 
+    /**
+     * 创建 PoolTimeoutException 实例
+     * @param message message
+     */
     public PoolTimeoutException(String message) {
         super(message);
     }
 
+    /**
+     * 创建 PoolTimeoutException 实例
+     * @param message message
+     * @param Throwable Throwable
+     */
     public PoolTimeoutException(String message, Throwable cause) {
         super(message, cause);
     }

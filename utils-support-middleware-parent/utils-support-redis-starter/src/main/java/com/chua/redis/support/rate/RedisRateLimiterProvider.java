@@ -29,6 +29,12 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     /** 比率limiter */
     private final RRateLimiter rateLimiter;
 
+    /**
+     * 创建 RedisRateLimiterProvider 实例
+     * @param name name
+     * @param String String
+     * @param double double
+     */
     public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {
         this.name = name;
         Config config = new Config();
@@ -38,6 +44,12 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
         this.rateLimiter.trySetRate(RateType.OVERALL, (long) permitsPerSecond, 1, RateIntervalUnit.SECONDS);
     }
 
+    /**
+     * 创建 RedisRateLimiterProvider 实例
+     * @param name name
+     * @param RedissonClient RedissonClient
+     * @param double double
+     */
     public RedisRateLimiterProvider(String name, RedissonClient redissonClient, double permitsPerSecond) {
         this.name = name;
         this.redissonClient = redissonClient;
@@ -46,16 +58,19 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
+    /** Try获取 */
     public boolean tryAcquire() {
         return rateLimiter.tryAcquire();
     }
 
     @Override
+    /** Try获取 */
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         return rateLimiter.tryAcquire(timeout, timeUnit);
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return name;
     }

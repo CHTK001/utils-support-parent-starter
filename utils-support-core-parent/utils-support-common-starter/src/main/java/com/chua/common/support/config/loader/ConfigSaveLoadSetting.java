@@ -86,5 +86,6 @@ public class ConfigSaveLoadSetting {
     /** 内容类型 */
     private String contentType = "application/octet-stream";
 
+    /** 获取ContentType */
     public String getContentType() { return contentType; }
 }

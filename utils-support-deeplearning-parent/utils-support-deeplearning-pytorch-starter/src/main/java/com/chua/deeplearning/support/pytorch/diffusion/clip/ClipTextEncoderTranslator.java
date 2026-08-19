@@ -37,15 +37,21 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
      */
     private HuggingFaceTokenizer tokenizer;
 
+    /** 创建 ClipTextEncoderTranslator 实例 */
     public ClipTextEncoderTranslator() {
         this(null);
     }
 
+    /**
+     * 创建 ClipTextEncoderTranslator 实例
+     * @param tokenizerPath tokenizerPath
+     */
     public ClipTextEncoderTranslator(String tokenizerPath) {
         this.tokenizerPath = tokenizerPath;
     }
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         HuggingFaceTokenizer.Builder builder = HuggingFaceTokenizer.builder()
                 .optPadding(true)
@@ -61,6 +67,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
         }
     }
 
+    /** 解析TokenizerPath */
     private Path resolveTokenizerPath() {
         if (tokenizerPath != null && !tokenizerPath.isBlank()) {
             Path p = Paths.get(tokenizerPath);
@@ -76,6 +83,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] ids = encoding.getIds();
@@ -89,6 +97,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     }
 
     @Override
+    /** 处理Output */
     public NDList processOutput(TranslatorContext ctx, NDList list) {
         list.detach();
         return list;

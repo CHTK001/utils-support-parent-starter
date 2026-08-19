@@ -35,56 +35,67 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
     }
 
     @Override
+    /** Name */
     public String name() {
         return name;
     }
 
     @Override
+    /** 获取Source */
     public Object getSource() {
         return nitrite;
     }
 
     @Override
+    /** 获取Source */
     public <R> R getSource(Class<R> type) {
         return type.cast(nitrite);
     }
 
     @Override
+    /** 设置Source */
     public EngineDataSource<Object> setSource(Object source) {
         return this;
     }
 
     @Override
+    /** 获取Dialect */
     public Dialect getDialect() {
         return null;
     }
 
     @Override
+    /** 设置Dialect */
     public EngineDataSource<Object> setDialect(Dialect dialect) {
         return this;
     }
 
     @Override
+    /** TunnelPort */
     public int tunnelPort() {
         return 0;
     }
 
     @Override
+    /** 设置TunnelPort */
     public EngineDataSource<Object> setTunnelPort(int tunnelPort) {
         return this;
     }
 
     @Override
+    /** Url */
     public String url() {
         return filePath;
     }
 
     @Override
+    /** Username */
     public String username() {
         return null;
     }
 
     @Override
+    /** Password */
     public String password() {
         return null;
     }

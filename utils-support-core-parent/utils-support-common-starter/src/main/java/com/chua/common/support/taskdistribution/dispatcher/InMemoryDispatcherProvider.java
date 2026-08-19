@@ -138,6 +138,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** 接收 */
     public void receive(Task<?> task) {
         if (task == null || cancelledTasks.contains(task.getTaskId())) {
             return;
@@ -150,6 +151,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** 接收 */
     public void receive(TaskResult<?> result) {
         if (result == null) {
             return;
@@ -158,6 +160,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** Cancel */
     public boolean cancel(String taskId) {
         if (taskId == null) {
             return false;
@@ -168,6 +171,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** 暂停 */
     public boolean pause(String taskId) {
         if (taskId == null) {
             return false;
@@ -177,6 +181,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** 恢复 */
     public boolean resume(String taskId) {
         if (taskId == null) {
             return false;
@@ -186,18 +191,21 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** 暂停All */
     public void pauseAll() {
         globallyPaused = true;
         log.info("全局派发已暂停");
     }
 
     @Override
+    /** 恢复All */
     public void resumeAll() {
         globallyPaused = false;
         log.info("全局派发已恢复");
     }
 
     @Override
+    /** 设置Batch获取大小 */
     public void setBatchSize(int batchSize) {
         if (batchSize > 0) {
             this.batchSize = batchSize;
@@ -205,17 +213,20 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** Pending计算数量 */
     public int pendingCount() {
         return queue.size();
     }
 
     @Override
+    /** Listener */
     public DispatcherProvider listener(DispatcherListener listener) {
         this.listener = listener;
         return this;
     }
 
     @Override
+    /** 开始 */
     public synchronized void start() {
         if (running) {
             return;
@@ -306,6 +317,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** Await */
     public void await() throws InterruptedException {
         if (executor != null) {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -313,6 +325,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         running = false;
         queue.clear();

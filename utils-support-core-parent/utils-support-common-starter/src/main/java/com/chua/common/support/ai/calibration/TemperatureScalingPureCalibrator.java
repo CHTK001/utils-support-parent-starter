@@ -53,6 +53,7 @@ public class TemperatureScalingPureCalibrator implements PureCalibrator {
     private double temperature = 1.0;
 
     @Override
+    /** Calibrate */
     public double calibrate(double rawScore) {
         // 确保分数在0~1之间
         double clamped = Math.clamp(rawScore, 0.0, 1.0);
@@ -64,11 +65,13 @@ public class TemperatureScalingPureCalibrator implements PureCalibrator {
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "温度缩放纯校准";
     }
 
     @Override
+    /** 获取Description */
     public String getDescription() {
         return "基于温度参数的分数缩放。T=1不变，T>1压缩（更保守），T<1拉伸（更激进）。";
     }

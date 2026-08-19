@@ -57,6 +57,7 @@ public interface ImageDetector {
         return this;
     }
 
+    /** 创建 */
     static ImageDetector create(String name) {
         return new DefaultImageDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -206,24 +207,28 @@ class DefaultImageDetector implements ImageDetector {
     }
 
     @Override
+    /** Threshold */
     public ImageDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** Nms */
     public ImageDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageDetector device(String device) {
         this.device = device;
         return this;
@@ -231,6 +236,7 @@ class DefaultImageDetector implements ImageDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

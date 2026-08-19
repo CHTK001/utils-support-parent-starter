@@ -29,6 +29,7 @@ import java.util.Map;
 public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Method method, int parameterIndex, ServerRequest request) {
         Class<?> type = method.getParameterTypes()[parameterIndex];
         return type == ServerRequest.class ||
@@ -40,6 +41,7 @@ public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgume
     }
 
     @Override
+    /** 解析 */
     public Object resolve(Method method, int parameterIndex, ServerRequest request, ServerResponse response) {
         Class<?> type = method.getParameterTypes()[parameterIndex];
         if (type == ServerRequest.class) {
@@ -64,6 +66,7 @@ public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgume
         return null;
     }
 
+    /** 解析StringParam */
     private static String resolveStringParam(ServerRequest request, Method method, int index) {
         java.lang.reflect.Parameter param = method.getParameters()[index];
         String name = param.isNamePresent() ? param.getName() : param.getType().getSimpleName().toLowerCase();

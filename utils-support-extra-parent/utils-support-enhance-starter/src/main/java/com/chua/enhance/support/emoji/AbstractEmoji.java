@@ -20,6 +20,7 @@ public abstract class AbstractEmoji {
     /** Html_entity_pattern */
     protected static final Pattern HTML_ENTITY_PATTERN = Pattern.compile("&#x?\\w+;");
 
+    /** HtmlHelper */
     protected static String htmlHelper(String text, boolean hex, boolean asSurrogate) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {

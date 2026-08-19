@@ -50,6 +50,7 @@ public class RestoreResult {
     /** 错误信息 */
     private String errorMessage;
 
+    /** Success */
     public static RestoreResult success(Path target, List<Path> files, long size, long duration) {
         return RestoreResult.builder()
                 .success(true)
@@ -61,6 +62,7 @@ public class RestoreResult {
                 .build();
     }
 
+    /** Failure */
     public static RestoreResult failure(String errorMessage) {
         return RestoreResult.builder()
                 .success(false)

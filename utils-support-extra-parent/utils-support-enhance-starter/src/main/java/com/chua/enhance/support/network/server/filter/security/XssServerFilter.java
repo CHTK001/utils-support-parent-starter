@@ -43,6 +43,7 @@ public class XssServerFilter implements ServerFilter {
             Pattern.CASE_INSENSITIVE);
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         byte[] body = request.getBody();
         if (body != null && body.length > 0) {
@@ -59,15 +60,18 @@ public class XssServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 30;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "XssServerFilter";
     }
 
+    /** 是否TextContent */
     private boolean isTextContent(String contentType) {
         if (contentType == null) {
             return true;
@@ -77,6 +81,7 @@ public class XssServerFilter implements ServerFilter {
                 || lower.contains("form-urlencoded");
     }
 
+    /** Sanitize */
     private String sanitize(String input) {
         if (input == null) {
             return null;

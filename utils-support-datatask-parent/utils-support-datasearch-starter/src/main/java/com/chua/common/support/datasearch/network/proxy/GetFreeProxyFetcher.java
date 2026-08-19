@@ -31,6 +31,7 @@ public class GetFreeProxyFetcher implements ProxyFetcher {
             "<td>\\s*(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\s*</td>\\s*<td>\\s*(\\d{2,5})\\s*</td>");
 
     @Override
+    /** FetchProxies */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -45,6 +46,7 @@ public class GetFreeProxyFetcher implements ProxyFetcher {
     }
 
     @Override
+    /** 获取SourceName */
     public String getSourceName() {
         return "getfreeproxy";
     }

@@ -21,6 +21,7 @@ import java.nio.file.Path;
  */
 public class HlsTranscodeExample {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         System.out.println("===== HLS 转码示例 =====\n");
 

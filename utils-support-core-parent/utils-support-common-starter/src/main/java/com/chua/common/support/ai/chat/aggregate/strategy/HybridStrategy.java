@@ -30,22 +30,39 @@ public class HybridStrategy implements RouterStrategy {
     /** 健康状态过滤器 */
     private final Predicate<WeightedClient> healthFilter;
 
+    /**
+     * 创建 HybridStrategy 实例
+     * @param groups groups
+     * @param Predicate Predicate
+     * @param healthFilter healthFilter
+     */
     public HybridStrategy(List<GroupRouter> groups, Predicate<WeightedClient> healthFilter) {
         this.groups = groups;
         this.healthFilter = healthFilter == null ? wc -> true : healthFilter;
     }
 
+    /**
+     * 创建 HybridStrategy 实例
+     * @param groups groups
+     */
     public HybridStrategy(List<GroupRouter> groups) {
         this(groups, null);
     }
 
     @Override
+    /** 选择 */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         throw new UnsupportedOperationException(
                 "HybridStrategy: use executeSync/executeStream, not select()");
     }
 
     @Override
+    /**
+     * 执行Sync
+     * @param clients clients
+     * @param prompt prompt
+     * @param usageCallback usageCallback
+     */
     public String executeSync(List<WeightedClient> clients, String prompt,
                               Consumer<AiUsage> usageCallback) throws Exception {
         if (groups.isEmpty()) {
@@ -76,6 +93,12 @@ public class HybridStrategy implements RouterStrategy {
     }
 
     @Override
+    /**
+     * 执行流式输出
+     * @param clients clients
+     * @param prompt prompt
+     * @param consumer consumer
+     */
     public void executeStream(List<WeightedClient> clients, String prompt,
                               Consumer<ChatResponse> consumer) throws Exception {
         if (groups.isEmpty()) {
@@ -123,6 +146,7 @@ public class HybridStrategy implements RouterStrategy {
             RouterStrategy strategy,
             List<WeightedClient> clients
     ) {
+        /** Matches */
         public boolean matches(String prompt) {
             return condition == null || condition.test(prompt);
         }

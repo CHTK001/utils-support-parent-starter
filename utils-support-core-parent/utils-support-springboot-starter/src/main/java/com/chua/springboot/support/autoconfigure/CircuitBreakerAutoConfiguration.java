@@ -21,18 +21,21 @@ public class CircuitBreakerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    /** CircuitBreakerProvider */
     public CircuitBreakerProvider circuitBreakerProvider() {
         return new InMemoryCircuitBreakerProvider("default", 5, 2, 60000);
     }
 
     @Bean
     @ConditionalOnMissingBean
+    /** CircuitBreakerIntercept */
     public CircuitBreakerIntercept circuitBreakerIntercept() {
         return new CircuitBreakerIntercept();
     }
 
     @Bean
     @ConditionalOnMissingBean
+    /** CircuitBreakerAdvisor */
     public CircuitBreakerAdvisor circuitBreakerAdvisor(CircuitBreakerIntercept intercept) {
         return new CircuitBreakerAdvisor(intercept);
     }

@@ -240,21 +240,25 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取注册 */
     public BeanDefinitionRegister getRegister() {
         return register;
     }
 
     @Override
+    /** 设置注册 */
     public void setRegister(BeanDefinitionRegister register) {
         this.register = register;
     }
 
     @Override
+    /** 是否Initialized */
     public boolean isInitialized() {
         return initialized.get();
     }
 
     @Override
+    /** 是否Destroyed */
     public boolean isDestroyed() {
         return destroyed.get();
     }
@@ -262,6 +266,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 注解检测 ====================
 
     @Override
+    /** 是否AnnotationPresent */
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return false;
@@ -280,6 +285,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否AnnotationPresent */
     public boolean isAnnotationPresent(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return false;
@@ -293,6 +299,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取Annotation */
     public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
         if (annotationType == null) {
             return null;
@@ -315,6 +322,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取Annotation */
     public Annotation getAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return null;
@@ -333,6 +341,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 类型判断 ====================
 
     @Override
+    /** 是否AssignableFrom */
     public boolean isAssignableFrom(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -350,6 +359,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否AssignableFrom */
     public boolean isAssignableFrom(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -363,6 +373,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否AssignableTo */
     public boolean isAssignableTo(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -380,6 +391,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否AssignableTo */
     public boolean isAssignableTo(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -393,6 +405,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否Type */
     public boolean isType(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -410,6 +423,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否Type */
     public boolean isType(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -425,6 +439,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 方法查询 ====================
 
     @Override
+    /** 获取MethodsWithAnnotation */
     public List<Method> getMethodsWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return Collections.emptyList();
@@ -433,6 +448,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取MethodsWithAnnotation */
     public List<Method> getMethodsWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return Collections.emptyList();
@@ -447,6 +463,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取MethodDefinitions */
     public List<MethodDefinition> getMethodDefinitions() {
         Class<?> beanClass = getBeanClass();
         if (beanClass == null) {
@@ -458,6 +475,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取MethodDefinition */
     public MethodDefinition getMethodDefinition(Method method) {
         if (method == null || getBeanClass() == null) {
             return null;
@@ -466,6 +484,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取MethodWithAnnotation */
     public Method getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return null;
@@ -474,6 +493,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 获取MethodWithAnnotation */
     public Method getMethodWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return null;
@@ -489,6 +509,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否拥有MethodWithAnnotation */
     public boolean hasMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return false;
@@ -497,6 +518,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 是否拥有MethodWithAnnotation */
     public boolean hasMethodWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return false;
@@ -512,6 +534,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== Bean 生命周期 ====================
 
     @Override
+    /** 初始化Bean */
     public Object initializeBean() {
         // 已初始化则直接返回
         if (initialized.get()) {
@@ -545,6 +568,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** 销毁Bean */
     public void destroyBean() {
         if (destroyed.get()) {
             return;
@@ -915,6 +939,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return getType();
     }

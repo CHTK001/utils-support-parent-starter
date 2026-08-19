@@ -25,6 +25,7 @@ import java.util.Set;
 public final class PadTruncateAstProcessor extends AbstractAstProcessor {
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || !isTreeApiAvailable()) {
             return false;
@@ -40,6 +41,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         return false;
     }
 
+    /** 处理Parameter */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {
@@ -87,6 +89,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         }
     }
 
+    /** 是否StringType */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) {
             return false;
@@ -95,6 +98,14 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         return "java.lang.String".equals(typeName) || "java.lang.CharSequence".equals(typeName);
     }
 
+    /**
+     * 构建PadTruncateStatement
+     * @param maker maker
+     * @param names names
+     * @param paramName paramName
+     * @param minLength minLength
+     * @param maxLength maxLength
+     */
     private JCTree.JCStatement buildPadTruncateStatement(TreeMaker maker, Names names,
                                                           String paramName, int minLength, int maxLength) {
         JCTree.JCIdent paramIdent = maker.Ident(names.fromString(paramName));
@@ -157,6 +168,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         return maker.If(notNullCheck, ifBody, null);
     }
 
+    /** 前置Statement */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

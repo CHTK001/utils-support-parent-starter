@@ -22,21 +22,25 @@ import java.util.Map;
 public class JdbcSink implements DataSink {
 
     @Override
+    /** Type */
     public String type() {
         return "jdbc";
     }
 
     @Override
+    /** 开始 */
     public void start() {
         log.info("[datalake-sink] JdbcSink 启动");
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         log.info("[datalake-sink] JdbcSink 停止");
     }
 
     @Override
+    /** 写入 */
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (envelope == null) {
             return false;

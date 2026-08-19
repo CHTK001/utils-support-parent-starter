@@ -22,6 +22,13 @@ public class SyncDataOffset implements Serializable {
     /** 映射标识 */
     private final String mappingId;
 
+    /**
+     * 创建 SyncDataOffset 实例
+     * @param sourceId sourceId
+     * @param Object Object
+     * @param long long
+     * @param String String
+     */
     public SyncDataOffset(String sourceId, Object offsetValue, long timestamp, String mappingId) {
         this.sourceId = sourceId;
         this.offsetValue = offsetValue;
@@ -29,23 +36,28 @@ public class SyncDataOffset implements Serializable {
         this.mappingId = mappingId;
     }
 
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
+    /** OffsetValue */
     public Object offsetValue() {
         return offsetValue;
     }
 
+    /** Timestamp */
     public long timestamp() {
         return timestamp;
     }
 
+    /** MappingId */
     public String mappingId() {
         return mappingId;
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return "SyncDataOffset{sourceId=" + sourceId + ", offset=" + offsetValue + ", ts=" + timestamp + ", mapping=" + mappingId + "}";
     }

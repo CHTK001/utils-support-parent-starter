@@ -21,25 +21,30 @@ import java.util.Map;
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillProvider {
 
     @Override
+    /** Name */
     public String name() {
         return NAME;
     }
 
     @Override
+    /** 获取Skills */
     public List<SkillDefinition> getSkills() {
         return List.of(searchSkill());
     }
 
     @Override
+    /** Install */
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
     @Override
+    /** Uninstall */
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }
 
+    /** ListInstalled */
     public Map<String, Boolean> listInstalled() {
         Map<String, Boolean> result = new HashMap<>();
         result.put("skillsmp", true);
@@ -47,6 +52,7 @@ public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillProv
     }
 
     @Override
+    /** ListAvailable */
     public List<String> listAvailable() {
         return List.of(NAME);
     }

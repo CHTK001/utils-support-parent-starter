@@ -27,6 +27,10 @@ public final class NativeFunctionRegistry {
     /** handleCache */
     private final Map<String, MethodHandle> handleCache;
 
+    /**
+     * 创建 NativeFunctionRegistry 实例
+     * @param lookup lookup
+     */
     public NativeFunctionRegistry(SymbolLookup lookup) {
         this.linker = Linker.nativeLinker();
         this.lookup = lookup;
@@ -50,6 +54,7 @@ public final class NativeFunctionRegistry {
         }
     }
 
+    /** Try加载 */
     private static NativeFunctionRegistry tryLoad(String libName) {
         NativeFunctionRegistry reg = tryCreate(libName);
         if (reg != null) {
@@ -70,6 +75,7 @@ public final class NativeFunctionRegistry {
         return null;
     }
 
+    /** Try创建 */
     private static NativeFunctionRegistry tryCreate(String fullName) {
         try {
             SymbolLookup lookup = SymbolLookup.libraryLookup(
@@ -82,6 +88,7 @@ public final class NativeFunctionRegistry {
         }
     }
 
+    /** Try加载ViaJvm */
     private static NativeFunctionRegistry tryLoadViaJvm(String libraryName) {
         try {
             System.loadLibrary(libraryName);
@@ -92,6 +99,7 @@ public final class NativeFunctionRegistry {
         }
     }
 
+    /** MapLibraryName */
     private static String mapLibraryName(String libraryName) {
         if (PlatformSystems.isLinux()) {
             if (!libraryName.endsWith(".so") && !libraryName.contains("/")) {
@@ -101,6 +109,7 @@ public final class NativeFunctionRegistry {
         return libraryName;
     }
 
+    /** 注册 */
     public MethodHandle register(String name, FunctionDescriptor descriptor) {
         return handleCache.computeIfAbsent(key(name, descriptor), k -> {
             var symbol = lookup.find(name);
@@ -111,6 +120,7 @@ public final class NativeFunctionRegistry {
         });
     }
 
+    /** Require */
     public MethodHandle require(String name, FunctionDescriptor descriptor) {
         MethodHandle handle = register(name, descriptor);
         if (handle == null) {
@@ -121,18 +131,22 @@ public final class NativeFunctionRegistry {
         return handle;
     }
 
+    /** 是否拥有Symbol */
     public boolean hasSymbol(String name) {
         return lookup.find(name).isPresent();
     }
 
+    /** 获取SymbolLookup */
     public SymbolLookup getSymbolLookup() {
         return lookup;
     }
 
+    /** 获取Linker */
     public Linker getLinker() {
         return linker;
     }
 
+    /** Key */
     private static String key(String name, FunctionDescriptor descriptor) {
         return name + "@" + descriptor.toMethodType().toMethodDescriptorString();
     }

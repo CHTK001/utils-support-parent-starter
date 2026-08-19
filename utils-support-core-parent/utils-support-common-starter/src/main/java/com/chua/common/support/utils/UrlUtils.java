@@ -42,6 +42,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
  * @see URLDecoder
  */
 public class UrlUtils {
+    /** 创建 UrlUtils 实例 */
     private UrlUtils() {
     }
 

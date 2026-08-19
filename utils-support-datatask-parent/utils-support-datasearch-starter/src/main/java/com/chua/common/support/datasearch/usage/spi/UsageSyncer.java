@@ -36,6 +36,7 @@ public final class UsageSyncer {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(UsageSyncer.class);
 
+    /** 创建 UsageSyncer 实例 */
     private UsageSyncer() {}
 
     /**
@@ -160,6 +161,7 @@ public final class UsageSyncer {
         return result;
     }
 
+    /** PersistToEngine */
     private static void persistToEngine(List<AiUsage> usages, Engine engine) {
         for (AiUsage usage : usages) {
             if (usage == null) {

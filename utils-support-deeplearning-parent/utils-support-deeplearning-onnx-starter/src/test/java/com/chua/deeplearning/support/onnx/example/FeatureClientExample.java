@@ -18,9 +18,11 @@ import com.chua.common.support.ai.feature.FeatureClient;
  */
 public final class FeatureClientExample extends ExampleBase {
 
+    /** 创建 FeatureClientExample 实例 */
     private FeatureClientExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             printModels("feature", "onnx", FeatureClient.create("onnx", "").models());

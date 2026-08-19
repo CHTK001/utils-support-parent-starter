@@ -24,12 +24,14 @@ public class JsonConfigFileParser implements ConfigFileParser {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
+    /** Supports */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".json");
     }
 
     @Override
+    /** 解析 */
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         try (InputStream is = Files.newInputStream(file)) {
             Map<String, Object> map = MAPPER.readValue(is, new TypeReference<Map<String, Object>>() {});

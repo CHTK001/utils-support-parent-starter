@@ -49,6 +49,10 @@ public final class RetryFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 RetryFlow 实例
+     * @param name name
+     */
     private RetryFlow(String name) {
         this.name = name;
     }
@@ -174,6 +178,7 @@ public final class RetryFlow {
         });
     }
 
+    /** 解析Backoff */
     private BackoffProvider resolveBackoff() {
         if (backoff != null) {
             return backoff;

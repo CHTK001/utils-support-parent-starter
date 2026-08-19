@@ -82,6 +82,13 @@ public final class W3CTraceContext {
      */
     private final byte flags;
 
+    /**
+     * 创建 W3CTraceContext 实例
+     * @param version version
+     * @param String String
+     * @param String String
+     * @param byte byte
+     */
     private W3CTraceContext(String version, String traceId, String spanId, byte flags) {
         this.version = version;
         this.traceId = traceId;
@@ -273,18 +280,22 @@ public final class W3CTraceContext {
         return !INVALID_PARENT_ID.equals(spanId);
     }
 
+    /** 获取Version */
     public String getVersion() {
         return version;
     }
 
+    /** 获取TraceId */
     public String getTraceId() {
         return traceId;
     }
 
+    /** 获取SpanId */
     public String getSpanId() {
         return spanId;
     }
 
+    /** 获取Flags */
     public byte getFlags() {
         return flags;
     }
@@ -297,6 +308,7 @@ public final class W3CTraceContext {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return String.format("W3C[ver=%s, traceId=%s, spanId=%s, flags=%02x]",
                 version, traceId, spanId, flags & 0xff);

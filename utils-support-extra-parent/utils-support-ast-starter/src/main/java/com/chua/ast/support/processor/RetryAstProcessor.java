@@ -26,6 +26,7 @@ import java.util.Set;
 public final class RetryAstProcessor extends AbstractAstProcessor {
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || !isTreeApiAvailable()) {
             return false;
@@ -41,6 +42,7 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
         return false;
     }
 
+    /** 处理Method */
     private void processMethod(ExecutableElement methodElement) {
         com.sun.source.tree.Tree tree = trees.getTree(methodElement);
         if (!(tree instanceof JCTree.JCMethodDecl jcMethod)) {
@@ -89,6 +91,16 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
         }
     }
 
+    /**
+     * 构建RetryStatement
+     * @param maker maker
+     * @param names names
+     * @param originalBody originalBody
+     * @param times times
+     * @param delay delay
+     * @param maxDelay maxDelay
+     * @param strategy strategy
+     */
     private JCTree.JCStatement buildRetryStatement(TreeMaker maker, Names names,
                                                      JCTree.JCBlock originalBody, int times, long delay, long maxDelay,
                                                      Retry.RetryStrategy strategy) {
@@ -170,6 +182,7 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
         return maker.Block(0, stats.toList());
     }
 
+    /** 构建ThreadSleep */
     private JCTree.JCStatement buildThreadSleep(TreeMaker maker, Names names, JCTree.JCExpression delayExpr) {
         JCTree.JCExpression sleepCall = maker.Apply(
                 com.sun.tools.javac.util.List.nil(),

@@ -18,43 +18,54 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxFeatureExtractor 实例
+     * @param apiKey apiKey
+     */
     public OnnxFeatureExtractor(String apiKey) {
     }
 
     @Override
+    /** Model */
     public FeatureExtractor model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "dino-v2";
     }
 
     @Override
+    /** ModelPath */
     public FeatureExtractor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Normalize */
     public FeatureExtractor normalize(boolean normalize) {
         this.normalize = normalize;
         return this;
     }
 
     @Override
+    /** Device */
     public FeatureExtractor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Extract */
     public float[] extract(byte[] imageData) {
         return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(imageData);
     }
 
     @Override
+    /** Extract */
     public float[] extract(String text) {
         return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(text);
     }

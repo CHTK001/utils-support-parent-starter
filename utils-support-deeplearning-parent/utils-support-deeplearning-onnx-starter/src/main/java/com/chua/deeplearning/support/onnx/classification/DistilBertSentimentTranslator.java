@@ -45,6 +45,7 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     private HuggingFaceTokenizer tokenizer;
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {
@@ -64,6 +65,7 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("HuggingFaceTokenizer             ");
@@ -86,6 +88,7 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
 
     @Override
     @Nonnull
+    /** 处理Output */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) {
@@ -99,10 +102,12 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
 
     @Override
     @Nullable
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 查找TokenizerPath */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
         if (root == null) { return null; }
@@ -115,6 +120,7 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
         return null;
     }
 
+    /** Softmax */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float l : logits) { max = Math.max(max, l); }

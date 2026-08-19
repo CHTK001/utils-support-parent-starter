@@ -49,17 +49,27 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     /** Previewproviders */
     private final List<FileStoragePreviewProvider> previewProviders;
 
+    /**
+     * 创建 FileStorageViewServerFilter 实例
+     * @param setting setting
+     */
     public FileStorageViewServerFilter(FileStorageSetting setting) {
         super(setting);
         this.previewProviders = ServiceProvider.of(FileStoragePreviewProvider.class).getNewExtensions(null);
     }
 
+    /**
+     * 创建 FileStorageViewServerFilter 实例
+     * @param setting setting
+     * @param Path Path
+     */
     public FileStorageViewServerFilter(FileStorageSetting setting, Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
         this.previewProviders = ServiceProvider.of(FileStoragePreviewProvider.class).getNewExtensions(null);
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String preview = request.getParam("preview");
         if (preview == null) {
@@ -167,6 +177,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
 
     // ==================== 内部方法 ====================
 
+    /** 是否MediaType */
     private boolean isMediaType(String mime) {
         if (mime == null) {
             return false;
@@ -177,6 +188,15 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
                 || mime.startsWith("video/"));
     }
 
+    /**
+     * 流式输出And过滤Image
+     * @param request request
+     * @param response response
+     * @param storage storage
+     * @param key key
+     * @param ext ext
+     * @param ops ops
+     */
     private byte[] streamAndFilterImage(ServerRequest request, ServerResponse response,
                                         FileStorage storage, String key, String ext, FileOperationSetting ops) throws Exception {
         var getResult = storage.getObject(key);
@@ -188,6 +208,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return applyImageFilter(original, ops, key, ext);
     }
 
+    /** 读取Content */
     private byte[] readContent(FileStorage storage, String key) throws Exception {
         var getResult = storage.getObject(key);
         if (getResult == null || getResult.getInputStream() == null) {
@@ -196,6 +217,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return getResult.getInputStream().readAllBytes();
     }
 
+    /** 转换AndCachePdf */
     private byte[] convertAndCachePdf(FileStorage storage, String key, String ext, FileOperationSetting ops) {
         String cacheKey = key + buildOpsSuffix(ops);
         try {
@@ -226,6 +248,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         }
     }
 
+    /** 查找Provider */
     private FileStoragePreviewProvider findProvider(String ext, String mime) {
         for (FileStoragePreviewProvider p : previewProviders) {
             if (p.supports(ext, mime)) {
@@ -235,6 +258,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return null;
     }
 
+    /** WrapPreviewPage */
     private String wrapPreviewPage(PreviewResult result) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
@@ -263,10 +287,12 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return sb.toString();
     }
 
+    /** EscapeAttr */
     private static String escapeAttr(String s) {
         return s.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;");
     }
 
+    /** 获取Ext */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
             return "";
@@ -274,6 +300,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(Locale.ENGLISH);
     }
 
+    /** 构建OpsSuffix */
     private static String buildOpsSuffix(FileOperationSetting ops) {
         if (ops == null || !ops.hasOperation()) {
             return "";

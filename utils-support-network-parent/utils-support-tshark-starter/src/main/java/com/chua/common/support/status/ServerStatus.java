@@ -13,6 +13,7 @@ public enum ServerStatus {
      */
     STARTING {
         @Override
+        /** 是否可以AcceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -23,6 +24,7 @@ public enum ServerStatus {
      */
     RUNNING {
         @Override
+        /** 是否可以AcceptRequests */
         public boolean canAcceptRequests() {
             return true;
         }
@@ -33,6 +35,7 @@ public enum ServerStatus {
      */
     STOPPING {
         @Override
+        /** 是否可以AcceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -43,6 +46,7 @@ public enum ServerStatus {
      */
     STOPPED {
         @Override
+        /** 是否可以AcceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -53,6 +57,7 @@ public enum ServerStatus {
      */
     PAUSED {
         @Override
+        /** 是否可以AcceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -63,6 +68,7 @@ public enum ServerStatus {
      */
     ERROR {
         @Override
+        /** 是否可以AcceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }

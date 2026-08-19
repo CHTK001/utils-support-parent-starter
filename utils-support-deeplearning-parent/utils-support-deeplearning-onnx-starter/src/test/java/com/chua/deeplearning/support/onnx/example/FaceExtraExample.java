@@ -20,9 +20,11 @@ import java.util.List;
  */
 public final class FaceExtraExample extends ExampleBase {
 
+    /** 创建 FaceExtraExample 实例 */
     private FaceExtraExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String model = args.length > 0 ? args[0] : "anime-face-detector";
         String imagePath = args.length > 1 ? args[1] : "G:\\images\\anime_test.jpg";

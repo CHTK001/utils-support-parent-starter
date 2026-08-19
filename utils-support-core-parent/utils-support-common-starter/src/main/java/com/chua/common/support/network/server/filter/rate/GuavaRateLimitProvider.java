@@ -17,16 +17,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GuavaRateLimitProvider implements RateLimitProvider {
 
     @Override
+    /** 创建 */
     public RateLimiter create(double qps) {
         return new GuavaRateLimiter(qps);
     }
 
     @Override
+    /** 创建PerKey */
     public RateLimiter createPerKey(double qps) {
         return new PerKeyGuavaRateLimiter(qps);
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "guava";
     }
@@ -48,21 +51,25 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
         }
 
         @Override
+        /** Try获取 */
         public boolean tryAcquire(String key) {
             return limiter.tryAcquire();
         }
 
         @Override
+        /** Try获取 */
         public boolean tryAcquire(String key, long timeout) {
             return limiter.tryAcquire(timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
 
         @Override
+        /** 获取Remaining */
         public long getRemaining(String key) {
             return (long) capacity;
         }
 
         @Override
+        /** 获取Capacity */
         public double getCapacity() {
             return capacity;
         }
@@ -82,25 +89,30 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
         }
 
         @Override
+        /** Try获取 */
         public boolean tryAcquire(String key) {
             return getOrCreate(key).tryAcquire();
         }
 
         @Override
+        /** Try获取 */
         public boolean tryAcquire(String key, long timeout) {
             return getOrCreate(key).tryAcquire(timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
 
         @Override
+        /** 获取Remaining */
         public long getRemaining(String key) {
             return (long) qps;
         }
 
         @Override
+        /** 获取Capacity */
         public double getCapacity() {
             return qps;
         }
 
+        /** 获取Or创建 */
         private com.google.common.util.concurrent.RateLimiter getOrCreate(String key) {
             return limiters.computeIfAbsent(key, k -> com.google.common.util.concurrent.RateLimiter.create(qps));
         }

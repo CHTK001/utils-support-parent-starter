@@ -21,11 +21,13 @@ import com.chua.common.support.spi.annotations.Spi;
 public class HttpInvoker implements Invoker {
 
     @Override
+    /** 创建 */
     public <T> T create(Class<T> apiClass) {
         return HttpApiFactory.create(apiClass);
     }
 
     @Override
+    /** 创建New */
     public <T> T createNew(Class<T> apiClass) {
         return HttpApiFactory.createNew(apiClass);
     }

@@ -46,32 +46,38 @@ public class ElasticsearchHandler extends AbstractAppHandler {
     private static final String[] REST_METHODS = {"performRequest"};
 
     @Override
+    /** Name */
     public String name() {
         return "elasticsearch-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "elasticsearch.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.ELASTICSEARCH;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.ELASTICSEARCH;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(HIGH_LEVEL_CLIENT, HIGH_LEVEL_METHODS);
         registerAll(REST_CLIENT, REST_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object host = findField(instance, "hosts");
         String url = host != null ? String.valueOf(host) : null;

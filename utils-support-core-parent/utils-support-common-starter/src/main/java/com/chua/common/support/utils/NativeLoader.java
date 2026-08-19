@@ -78,6 +78,10 @@ public class NativeLoader {
      */
     private String basePath;
 
+    /**
+     * 创建 NativeLoader 实例
+     * @param taskId taskId
+     */
     private NativeLoader(String taskId) {
         this.taskId = taskId;
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -186,6 +190,7 @@ public class NativeLoader {
         return targetDir.toAbsolutePath().toString();
     }
 
+    /** Do加载 */
     private void doLoad() {
         if (targetDir == null) {
             throw new IllegalStateException("targetDir 未设置，请先调用 toTarget()");
@@ -230,6 +235,7 @@ public class NativeLoader {
         }
     }
 
+    /** ListClasspathResources */
     private List<ResourceItem> listClasspathResources(String resourceBase) throws Exception {
         List<ResourceItem> result = new ArrayList<>();
         Enumeration<URL> urls = classLoader.getResources(resourceBase);
@@ -272,6 +278,7 @@ public class NativeLoader {
         return result;
     }
 
+    /** Match */
     private static boolean match(String name, String glob) {
         if (name == null) {
             return false;
@@ -282,6 +289,7 @@ public class NativeLoader {
         return name.matches(regex);
     }
 
+    /** ComputeResourcesMd */
     private static String computeResourcesMd5(List<ResourceItem> items) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
         List<ResourceItem> sorted = new ArrayList<>(items);
@@ -293,6 +301,7 @@ public class NativeLoader {
         return bytesToHex(md.digest());
     }
 
+    /** BytesToHex */
     private static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
@@ -314,12 +323,19 @@ public class NativeLoader {
         /** 供应商 */
         private final StreamSupplier supplier;
 
+        /**
+         * 创建 ResourceItem 实例
+         * @param name name
+         * @param long long
+         * @param StreamSupplier StreamSupplier
+         */
         private ResourceItem(String name, long size, StreamSupplier supplier) {
             this.name = name;
             this.size = size;
             this.supplier = supplier;
         }
 
+        /** 打开 */
         private InputStream open() throws Exception {
             InputStream in = supplier.open();
             if (in == null) {

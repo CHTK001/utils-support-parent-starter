@@ -30,6 +30,7 @@ import java.util.Map;
 public class CustomListenerParser implements ListenerParser {
 
     @Override
+    /** 解析 */
     public Map<String, Method> parse(Class<?> clazz) {
         Map<String, Method> result = new LinkedHashMap<>();
         for (Method method : clazz.getDeclaredMethods()) {
@@ -43,6 +44,7 @@ public class CustomListenerParser implements ListenerParser {
     }
 
     @Override
+    /** Support */
     public boolean support(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(OnEventOpen.class)
@@ -56,10 +58,12 @@ public class CustomListenerParser implements ListenerParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 100;
     }
 
+    /** MatchAnnotation */
     private String matchAnnotation(Method method) {
         if (method.isAnnotationPresent(OnEventOpen.class)) {
             return "open";

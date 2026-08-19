@@ -37,6 +37,7 @@ import java.util.Map;
 public class StringTypeConverter implements TypeConverter<String> {
 
     @Override
+    /** 获取Type */
     public Class<String> getType() {
         return String.class;
     }

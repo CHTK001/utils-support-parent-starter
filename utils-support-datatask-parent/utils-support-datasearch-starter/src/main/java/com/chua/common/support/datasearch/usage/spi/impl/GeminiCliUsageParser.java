@@ -23,11 +23,13 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".gemini");
 
     @Override
+    /** Name */
     public String name() {
         return "gemini-cli";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[gemini-cli] 数据目录不存在: {}", DATA_DIR);

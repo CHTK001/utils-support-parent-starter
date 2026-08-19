@@ -19,16 +19,22 @@ import com.chua.elasticsearch.support.engine.ElasticsearchEngine;
  */
 public class EsMetaData extends DefaultMetaData {
 
+    /**
+     * 创建 EsMetaData 实例
+     * @param engine engine
+     */
     public EsMetaData(ElasticsearchEngine engine) {
         super(engine);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search() {
         return new EsMeta(this, (ElasticsearchEngine) engine);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search(String indexName) {
         return new EsMeta(this, (ElasticsearchEngine) engine);
     }

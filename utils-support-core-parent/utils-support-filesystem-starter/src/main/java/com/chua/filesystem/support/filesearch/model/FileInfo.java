@@ -46,6 +46,18 @@ public record FileInfo(
         }
     }
 
+    /**
+     * 创建 FileInfo 实例
+     * @param name name
+     * @param path path
+     * @param size size
+     * @param sizeFormatted sizeFormatted
+     * @param parentDir parentDir
+     * @param percentage percentage
+     * @param lastModified lastModified
+     * @param isDirectory isDirectory
+     * @param extension extension
+     */
     public FileInfo(String name, String path, long size, String sizeFormatted,
                     String parentDir, double percentage, long lastModified, boolean isDirectory,
                     String extension) {

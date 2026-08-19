@@ -42,6 +42,7 @@ public class WhisperMelExtractor {
     /** Window */
     private final float[] window;
 
+    /** 创建 WhisperMelExtractor 实例 */
     public WhisperMelExtractor() {
         // Hann window (periodic, length n_fft)
         this.window = new float[N_FFT];
@@ -125,6 +126,7 @@ public class WhisperMelExtractor {
         return mel;
     }
 
+    /** 应用MelFilterbank */
     private float[][] applyMelFilterbank(float[][] mag) {
         float[][] mel = new float[N_MELS][N_FRAMES];
         int nFreq = mag.length;
@@ -160,14 +162,17 @@ public class WhisperMelExtractor {
         return mel;
     }
 
+    /** HzToMel */
     private static float hzToMel(float hz) {
         return (float) (2595.0 * Math.log10(1.0 + hz / 700.0));
     }
 
+    /** MelToHz */
     private static float melToHz(float mel) {
         return (float) (700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0));
     }
 
+    /** Fft */
     private static void fft(float[] in, float[] realOut, float[] imagOut) {
         // pad to next power of 2 for radix-2 FFT
         int nIn = in.length;

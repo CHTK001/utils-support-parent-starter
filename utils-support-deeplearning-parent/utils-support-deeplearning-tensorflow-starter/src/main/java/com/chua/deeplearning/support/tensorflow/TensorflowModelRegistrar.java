@@ -23,10 +23,12 @@ public class TensorflowModelRegistrar implements ModelRegistrar {
     }
 
     @Override
+    /** 注册 */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
+    /** 注册All */
     private static void registerAll() {
         // 分类
         reg("tf-mobilenet",

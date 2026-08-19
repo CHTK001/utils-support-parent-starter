@@ -33,6 +33,7 @@ public class WordTextExtractor implements TextExtractor {
             "Heading4", "Heading5", "Heading6", "heading1", "heading2", "heading3"};
 
     @Override
+    /** ExtractText */
     public List<TextExtractResult> extractText(File file) {
         List<TextExtractResult> results = new ArrayList<>();
         String currentSection = "";
@@ -109,6 +110,7 @@ public class WordTextExtractor implements TextExtractor {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "docx";
     }

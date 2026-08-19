@@ -20,32 +20,58 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     /** 信号量 */
     private final Semaphore semaphore;
 
+    /** 创建 SemaphoreLockProvider 实例 */
     public SemaphoreLockProvider() {
         this(false);
     }
 
+    /**
+     * 创建 SemaphoreLockProvider 实例
+     * @param fair fair
+     */
     public SemaphoreLockProvider(boolean fair) {
         this("default", 1, fair);
     }
 
+    /**
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     */
     public SemaphoreLockProvider(String name) {
         this(name, 1);
     }
 
+    /**
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     * @param boolean boolean
+     */
     public SemaphoreLockProvider(String name, boolean fair) {
         this(name, 1, fair);
     }
 
+    /**
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     * @param int int
+     */
     public SemaphoreLockProvider(String name, int permits) {
         this(name, permits, false);
     }
 
+    /**
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     * @param int int
+     * @param boolean boolean
+     */
     public SemaphoreLockProvider(String name, int permits, boolean fair) {
         this.name = name;
         this.semaphore = new Semaphore(permits, fair);
     }
 
     @Override
+    /** DoTry锁 */
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
         try {
             return semaphore.tryAcquire(timeout, timeUnit);
@@ -56,16 +82,19 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     }
 
     @Override
+    /** Do解锁 */
     protected void doUnlock() {
         semaphore.release();
     }
 
     @Override
+    /** Do获取Name */
     protected String doGetName() {
         return name;
     }
 
     @Override
+    /** Do获取Type */
     protected String doGetType() {
         return "semaphore";
     }

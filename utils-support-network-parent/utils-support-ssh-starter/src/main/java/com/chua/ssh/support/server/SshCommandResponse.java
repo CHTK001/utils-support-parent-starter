@@ -65,28 +65,33 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 设置Status */
     public ServerResponse setStatus(int statusCode) {
         this.statusCode = statusCode;
         return this;
     }
 
     @Override
+    /** 获取Status */
     public int getStatus() {
         return statusCode;
     }
 
     @Override
+    /** 设置Header */
     public ServerResponse setHeader(String name, String value) {
         headers.put(name, value);
         return this;
     }
 
     @Override
+    /** 获取Header */
     public String getHeader(String name) {
         return headers.get(name);
     }
 
     @Override
+    /** 获取Headers */
     public HttpHeader getHeaders() {
         HttpHeader result = new HttpHeader();
         for (var entry : headers.entrySet()) {
@@ -96,17 +101,20 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 设置ContentType */
     public ServerResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
     @Override
+    /** 获取ContentType */
     public String getContentType() {
         return contentType;
     }
 
     @Override
+    /** 设置Body */
     public ServerResponse setBody(byte[] body) {
         try {
             bodyBuffer.reset();
@@ -118,6 +126,7 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 设置Body */
     public ServerResponse setBody(String body) {
         try {
             bodyBuffer.reset();
@@ -130,22 +139,26 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 获取Body */
     public byte[] getBody() {
         return bodyBuffer.toByteArray();
     }
 
     @Override
+    /** 获取OutputStream */
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
     @Override
+    /** 发送Redirect */
     public ServerResponse sendRedirect(String location) {
         setBody("Redirect: " + location);
         return this;
     }
 
     @Override
+    /** 发送记录错误 */
     public ServerResponse sendError(int statusCode, String message) {
         this.statusCode = statusCode;
         String errorMsg = "ERROR (" + statusCode + "): " + message;
@@ -159,6 +172,7 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 刷新 */
     public void flush() {
         try {
             byte[] data = bodyBuffer.toByteArray();
@@ -173,27 +187,32 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 是否Committed */
     public boolean isCommitted() {
         return ended.get();
     }
 
     @Override
+    /** 是否Ended */
     public boolean isEnded() {
         return ended.get();
     }
 
     @Override
+    /** 设置Result */
     public ServerResponse setResult(Object result) {
         this.result = result;
         return this;
     }
 
     @Override
+    /** 获取Result */
     public Object getResult() {
         return result;
     }
 
     @Override
+    /** 重置 */
     public ServerResponse reset() {
         bodyBuffer.reset();
         statusCode = 200;
@@ -205,6 +224,7 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** End */
     public void end() {
         if (ended.compareAndSet(false, true)) {
             flush();
@@ -218,6 +238,7 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
+    /** 写入Raw */
     public void writeRaw(byte[] bytes) {
         try {
             outputStream.write(bytes);

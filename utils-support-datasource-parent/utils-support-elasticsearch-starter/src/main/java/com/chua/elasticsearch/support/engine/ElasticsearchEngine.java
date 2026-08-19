@@ -58,6 +58,7 @@ public class ElasticsearchEngine implements Engine {
     private ElasticsearchClient client;
 
     @Override
+    /** 添加DataSource */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof String url) {
@@ -85,78 +86,194 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
+    /** 设置DefaultDataSourceName */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
+    /** 获取DefaultDataSourceName */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
+    /** Meta */
     public MetaData meta() {
         return new EsMetaData(this);
     }
 
+    /** 获取Client */
     public ElasticsearchClient getClient() {
         return client;
     }
 
     @Override
+    /** Store */
     public <T> Engine store(String name, List<T> data) {
         log.info("[elasticsearch-datasource] 引擎暂不支持 store 操作: name={}, size={}", name, data == null ? 0 : data.size());
         return this;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
     @Override
+    /** 获取Dialect */
     public Dialect getDialect(String n) {
         return null;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         dataSources.clear();
     }
 
     @Override
+    /** 查询 */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
             @Override
+            /**
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param pn pn
+             * @param ps ps
+             * @param ps ps
+             * @param ps ps
+             * @param to to
+             * @param entityClass entityClass
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param m m
+             * @param entityClass entityClass
+             * @param e e
+             * @param conditions conditions
+             * @param m m
+             * @param c c
+             * @param m m
+             * @param m m
+             * @param op op
+             * @param m m
+             * @param field field
+             * @param values values
+             * @param m m
+             * @param field field
+             * @param values values
+             * @param m m
+             * @param value value
+             * @param s s
+             * @param l l
+             * @param i i
+             * @param s s
+             * @param b b
+             * @param d d
+             * @param f f
+             * @param b b
+             * @param value value
+             * @param source source
+             * @param entityClass entityClass
+             * @param converted converted
+             * @param e e
+             * @param e e
+             * @param value value
+             * @param targetType targetType
+             * @param num num
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
                     @Override
+                    /**
+                     * 解析Column
+                     * @param col col
+                     * @param pn pn
+                     * @param ps ps
+                     * @param ps ps
+                     * @param ps ps
+                     * @param to to
+                     * @param entityClass entityClass
+                     * @param col col
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param col col
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param m m
+                     * @param entityClass entityClass
+                     * @param e e
+                     * @param conditions conditions
+                     * @param m m
+                     * @param c c
+                     * @param m m
+                     * @param m m
+                     * @param op op
+                     * @param m m
+                     * @param field field
+                     * @param values values
+                     * @param m m
+                     * @param field field
+                     * @param values values
+                     * @param m m
+                     * @param value value
+                     * @param s s
+                     * @param l l
+                     * @param i i
+                     * @param s s
+                     * @param b b
+                     * @param d d
+                     * @param f f
+                     * @param b b
+                     * @param value value
+                     * @param source source
+                     * @param entityClass entityClass
+                     * @param converted converted
+                     * @param e e
+                     * @param e e
+                     * @param value value
+                     * @param targetType targetType
+                     * @param num num
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -165,11 +282,13 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
+            /** List */
             public List<T> list() {
                 return search(entityClass, getConditions());
             }
 
             @Override
+            /** One */
             public T one() {
                 List<T> results = search(entityClass, getConditions());
                 if (results.isEmpty()) {
@@ -179,6 +298,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
+            /** Page */
             public Page<T> page(int pn, int ps) {
                 List<T> all = search(entityClass, getConditions());
                 int from = (pn - 1) * ps;
@@ -192,20 +312,109 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
+    /** 更新 */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
             @Override
+            /**
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param m m
+             * @param entityClass entityClass
+             * @param e e
+             * @param conditions conditions
+             * @param m m
+             * @param c c
+             * @param m m
+             * @param m m
+             * @param op op
+             * @param m m
+             * @param field field
+             * @param values values
+             * @param m m
+             * @param field field
+             * @param values values
+             * @param m m
+             * @param value value
+             * @param s s
+             * @param l l
+             * @param i i
+             * @param s s
+             * @param b b
+             * @param d d
+             * @param f f
+             * @param b b
+             * @param value value
+             * @param source source
+             * @param entityClass entityClass
+             * @param converted converted
+             * @param e e
+             * @param e e
+             * @param value value
+             * @param targetType targetType
+             * @param num num
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
                     @Override
+                    /**
+                     * 解析Column
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param col col
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param m m
+                     * @param entityClass entityClass
+                     * @param e e
+                     * @param conditions conditions
+                     * @param m m
+                     * @param c c
+                     * @param m m
+                     * @param m m
+                     * @param op op
+                     * @param m m
+                     * @param field field
+                     * @param values values
+                     * @param m m
+                     * @param field field
+                     * @param values values
+                     * @param m m
+                     * @param value value
+                     * @param s s
+                     * @param l l
+                     * @param i i
+                     * @param s s
+                     * @param b b
+                     * @param d d
+                     * @param f f
+                     * @param b b
+                     * @param value value
+                     * @param source source
+                     * @param entityClass entityClass
+                     * @param converted converted
+                     * @param e e
+                     * @param e e
+                     * @param value value
+                     * @param targetType targetType
+                     * @param num num
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -214,6 +423,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
+            /** 更新 */
             public int update() {
                 return 0;
             }
@@ -221,20 +431,103 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
+    /** 删除 */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
             @Override
+            /**
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param entityClass entityClass
+             * @param conditions conditions
+             * @param m m
+             * @param entityClass entityClass
+             * @param e e
+             * @param conditions conditions
+             * @param m m
+             * @param c c
+             * @param m m
+             * @param m m
+             * @param op op
+             * @param m m
+             * @param field field
+             * @param values values
+             * @param m m
+             * @param field field
+             * @param values values
+             * @param m m
+             * @param value value
+             * @param s s
+             * @param l l
+             * @param i i
+             * @param s s
+             * @param b b
+             * @param d d
+             * @param f f
+             * @param b b
+             * @param value value
+             * @param source source
+             * @param entityClass entityClass
+             * @param converted converted
+             * @param e e
+             * @param e e
+             * @param value value
+             * @param targetType targetType
+             * @param num num
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
                     @Override
+                    /**
+                     * 解析Column
+                     * @param col col
+                     * @param entityClass entityClass
+                     * @param conditions conditions
+                     * @param m m
+                     * @param entityClass entityClass
+                     * @param e e
+                     * @param conditions conditions
+                     * @param m m
+                     * @param c c
+                     * @param m m
+                     * @param m m
+                     * @param op op
+                     * @param m m
+                     * @param field field
+                     * @param values values
+                     * @param m m
+                     * @param field field
+                     * @param values values
+                     * @param m m
+                     * @param value value
+                     * @param s s
+                     * @param l l
+                     * @param i i
+                     * @param s s
+                     * @param b b
+                     * @param d d
+                     * @param f f
+                     * @param b b
+                     * @param value value
+                     * @param source source
+                     * @param entityClass entityClass
+                     * @param converted converted
+                     * @param e e
+                     * @param e e
+                     * @param value value
+                     * @param targetType targetType
+                     * @param num num
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -243,6 +536,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
+            /** 移除 */
             public int remove() {
                 return 0;
             }

@@ -59,6 +59,10 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     /** 腾讯云 COS 客户端 */
     private final COSClient cosClient;
 
+    /**
+     * 创建 TencentCosFileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public TencentCosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BasicCOSCredentials credentials = new BasicCOSCredentials(accessKeyId, accessKeySecret);
@@ -67,6 +71,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** PutObject */
     public PutObjectResult putObject(com.chua.common.support.storage.request.PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -98,6 +103,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(com.chua.common.support.storage.request.GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -124,6 +130,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -131,6 +138,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 删除Object */
     public DeleteObjectResult deleteObject(String key) {
         try {
             cosClient.deleteObject(bucket, key);
@@ -146,6 +154,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ExistObject */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = cosClient.doesObjectExist(bucket, request.getKey());
@@ -168,6 +177,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ListObject */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsRequest listReq = new ListObjectsRequest();
@@ -208,6 +218,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (cosClient != null) {
             cosClient.shutdown();

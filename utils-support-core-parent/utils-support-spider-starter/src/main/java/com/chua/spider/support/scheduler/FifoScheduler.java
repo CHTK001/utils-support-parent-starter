@@ -36,6 +36,7 @@ public class FifoScheduler implements SpiderScheduler {
     private final AtomicInteger count = new AtomicInteger(0);
 
     @Override
+    /** 入队 */
     public void enqueue(SpiderRequest request) {
         if (request == null) {
             return;
@@ -45,6 +46,7 @@ public class FifoScheduler implements SpiderScheduler {
     }
 
     @Override
+    /** 出队 */
     public SpiderRequest dequeue() {
         SpiderRequest request = queue.poll();
         if (request != null) {
@@ -54,16 +56,19 @@ public class FifoScheduler implements SpiderScheduler {
     }
 
     @Override
+    /** 是否拥有Next */
     public boolean hasNext() {
         return count.get() > 0;
     }
 
     @Override
+    /** 获取大小 */
     public int size() {
         return count.get();
     }
 
     @Override
+    /** Clear */
     public void clear() {
         queue.clear();
         count.set(0);

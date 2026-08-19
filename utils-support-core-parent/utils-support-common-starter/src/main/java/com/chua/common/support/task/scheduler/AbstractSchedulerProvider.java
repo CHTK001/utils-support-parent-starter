@@ -22,11 +22,13 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     protected volatile boolean running = true;
 
     @Override
+    /** Schedule */
     public ScheduledTask schedule(Runnable task, Trigger trigger) {
         return schedule(UUID.randomUUID().toString(), task, trigger);
     }
 
     @Override
+    /** Schedule */
     public ScheduledTask schedule(String id, Runnable task, Trigger trigger) {
         var scheduledTask = new ScheduledTask(id, task, trigger);
         taskMap.put(id, scheduledTask);
@@ -35,6 +37,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     @Override
+    /** Reschedule */
     public ScheduledTask reschedule(String id, Trigger trigger) {
         var task = taskMap.get(id);
         if (task == null) {
@@ -46,6 +49,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     @Override
+    /** Cancel */
     public boolean cancel(String id) {
         var task = taskMap.remove(id);
         if (task == null) {
@@ -57,22 +61,26 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning(String id) {
         var task = taskMap.get(id);
         return task != null && !task.isCancelled();
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running;
     }
 
     @Override
+    /** 获取ScheduledTasks */
     public List<ScheduledTask> getScheduledTasks() {
         return List.copyOf(taskMap.values());
     }
 
     @Override
+    /** 关闭 */
     public void shutdown() {
         running = false;
         taskMap.values().forEach(ScheduledTask::cancel);
@@ -80,8 +88,12 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
         doShutdown();
     }
 
+    /** DoSchedule */
     protected abstract void doSchedule(String id, Runnable task, Trigger trigger);
+    /** DoReschedule */
     protected abstract void doReschedule(String id, Trigger trigger);
+    /** DoCancel */
     protected abstract void doCancel(String id);
+    /** Do关闭 */
     protected abstract void doShutdown();
 }

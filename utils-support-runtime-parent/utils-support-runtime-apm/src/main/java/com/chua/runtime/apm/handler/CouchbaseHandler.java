@@ -32,32 +32,38 @@ public class CouchbaseHandler extends AbstractAppHandler {
     private static final String[] COLLECTION_METHODS = {"get", "insert", "upsert", "replace", "remove", "query"};
 
     @Override
+    /** Name */
     public String name() {
         return "couchbase-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "couchbase.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.COUCHBASE;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.COUCHBASE;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(BUCKET, BUCKET_METHODS);
         registerAll(COLLECTION, COLLECTION_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

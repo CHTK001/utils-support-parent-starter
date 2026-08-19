@@ -31,16 +31,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
     @Override
+    /** 获取Protocol */
     public String getProtocol() {
         return "websocket";
     }
 
     @Override
+    /** 创建Server */
     public SyncServer createServer(ServerSetting setting) {
         return new WebSocketSyncServer(setting);
     }
 
     @Override
+    /** 创建Client */
     public SyncClient createClient(Object setting) {
         String url = "ws://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
         return new WebSocketSyncClient(url);
@@ -98,6 +101,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -110,6 +114,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
@@ -134,6 +139,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         for (Connection conn : connections) {
@@ -148,6 +154,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** 发送 */
     public void send(String clientId, String topic, Object message) {
         String messageBody = message instanceof String value ? value : Json.toJson(message);
         String payload = topic + ":" + messageBody;
@@ -166,27 +173,32 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
+    /** 获取ConnectedClients */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
+    /** 获取ClientMetadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }

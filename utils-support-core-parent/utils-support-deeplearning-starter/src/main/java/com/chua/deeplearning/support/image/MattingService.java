@@ -126,6 +126,7 @@ class DefaultMattingService implements MattingService {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Matte */
     public byte[] matte(byte[] imageData) {
         ITranslator<Object, Object> t = engine.get(modelName, ITranslator.class);
         if (t == null) {

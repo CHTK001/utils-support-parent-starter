@@ -162,11 +162,13 @@ public class HighlightConfig {
 
     // ==================== Getter/Setter ====================
 
+    /** 设置Type */
     public HighlightConfig setType(HighlightType type) {
         this.type = type;
         return this;
     }
 
+    /** 设置Enabled */
     public HighlightConfig setEnabled(boolean enabled) {
         this.enabled = enabled;
         return this;

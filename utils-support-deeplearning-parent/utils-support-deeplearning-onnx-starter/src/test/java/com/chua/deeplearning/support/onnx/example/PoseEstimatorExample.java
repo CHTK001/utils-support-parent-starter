@@ -20,9 +20,11 @@ import java.util.List;
  */
 public final class PoseEstimatorExample extends ExampleBase {
 
+    /** 创建 PoseEstimatorExample 实例 */
     private PoseEstimatorExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String model = args.length > 0 ? args[0] : "yolov8n-pose";
         String imagePath = args.length > 1 ? args[1] : null;

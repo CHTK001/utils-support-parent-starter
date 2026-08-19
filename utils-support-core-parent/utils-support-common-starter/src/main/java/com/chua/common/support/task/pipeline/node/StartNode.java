@@ -46,11 +46,13 @@ public class StartNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "start";
     }
 
     @Override
+    /** 执行 */
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
         return nextNodeId;

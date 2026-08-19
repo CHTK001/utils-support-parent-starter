@@ -101,6 +101,10 @@ public class IonetSyncClient implements SyncClient {
     /** OnError 注解方法列表 */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
+    /**
+     * 创建 IonetSyncClient 实例
+     * @param builder builder
+     */
     private IonetSyncClient(Builder builder) {
         this.host = builder.host;
         this.port = builder.port;
@@ -113,6 +117,7 @@ public class IonetSyncClient implements SyncClient {
     }
 
     @Override
+    /** 连接 */
     public void connect() {
         startup();
     }
@@ -172,6 +177,7 @@ public class IonetSyncClient implements SyncClient {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         connected.set(false);
         // @OnClose 注解分发
@@ -179,16 +185,19 @@ public class IonetSyncClient implements SyncClient {
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected.get();
     }
 
     @Override
+    /** 获取ClientId */
     public String getClientId() {
         return "ionet-client-" + host + ":" + port;
     }
 
     @Override
+    /** 发送 */
     public void send(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("ionet 客户端未连接");
@@ -197,6 +206,7 @@ public class IonetSyncClient implements SyncClient {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
         if (topic != null && handler != null) {
             subscriptions.put(topic, handler);
@@ -204,11 +214,13 @@ public class IonetSyncClient implements SyncClient {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncFlowListener listener) {
         if (listener != null) {
             listeners.add(listener);
@@ -216,16 +228,19 @@ public class IonetSyncClient implements SyncClient {
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取Metadata */
     public Map<String, Object> getMetadata() {
         return Collections.unmodifiableMap(metadata);
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }
@@ -398,6 +413,7 @@ public class IonetSyncClient implements SyncClient {
 
     // ========== Builder ==========
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -436,17 +452,28 @@ public class IonetSyncClient implements SyncClient {
          */
         private Consumer<ClientRunOne> configurer;
 
+        /** Host */
         public Builder host(String host) { this.host = host; return this; }
+        /** Port */
         public Builder port(int port) { this.port = port; return this; }
+        /** 合并Type */
         public Builder joinType(ExternalJoinEnum joinType) { this.joinType = joinType; return this; }
+        /** 添加Region */
         public Builder addRegion(InputCommandRegion region) { this.regions.add(region); return this; }
+        /** Regions */
         public Builder regions(List<InputCommandRegion> regions) { this.regions.addAll(regions); return this; }
+        /** ClientUser */
         public Builder clientUser(ClientUser clientUser) { this.clientUser = clientUser; return this; }
+        /** UserId */
         public Builder userId(long userId) { this.clientUser = new DefaultClientUser(); this.clientUser.setJwt(String.valueOf(userId)); return this; }
+        /** 关闭记录日志 */
         public Builder closeLog(boolean close) { this.closeLog = close; return this; }
+        /** 关闭Scanner */
         public Builder closeScanner(boolean close) { this.closeScanner = close; return this; }
+        /** Configurer */
         public Builder configurer(Consumer<ClientRunOne> configurer) { this.configurer = configurer; return this; }
 
+        /** 构建 */
         public IonetSyncClient build() {
             if (regions.isEmpty()) {
                 throw new IllegalArgumentException("At least one InputCommandRegion is required: call .addRegion(region)");

@@ -1673,6 +1673,7 @@ public class FacePipeline {
         return vectorStorage;
     }
 
+    /** LivenessResult */
     private record LivenessResult(boolean live, float score) {
     }
 

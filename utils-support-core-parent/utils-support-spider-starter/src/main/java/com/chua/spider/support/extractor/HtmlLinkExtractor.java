@@ -38,6 +38,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     };
 
     @Override
+    /** Extract */
     public List<String> extract(SpiderResponse response) {
         List<String> links = new ArrayList<>();
         String content = response.getContent();
@@ -73,6 +74,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     }
 
     @Override
+    /** SupportedContentTypes */
     public String[] supportedContentTypes() {
         return new String[]{"text/html", "application/xhtml+xml"};
     }

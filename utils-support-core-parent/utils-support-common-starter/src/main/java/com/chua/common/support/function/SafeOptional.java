@@ -28,6 +28,11 @@ public class SafeOptional<T, R> {
      */
     private final R apply;
 
+    /**
+     * 创建 SafeOptional 实例
+     * @param isNone isNone
+     * @param R R
+     */
     public SafeOptional(boolean isNone, R apply) {
         this.isNone = isNone;
         this.apply = apply;

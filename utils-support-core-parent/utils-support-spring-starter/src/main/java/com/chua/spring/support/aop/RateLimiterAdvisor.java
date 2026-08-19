@@ -22,11 +22,16 @@ import java.lang.reflect.Method;
 @RequiredArgsConstructor
 public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
+    /**
+     * 创建 RateLimiterAdvisor 实例
+     * @param intercept intercept
+     */
     public RateLimiterAdvisor(RateLimiterIntercept intercept) {
         super(new RateLimiterAdvice(intercept));
     }
 
     @Override
+    /** Matches */
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(RateLimiter.class);
     }
@@ -38,6 +43,7 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
         private final RateLimiterIntercept intercept;
 
         @Override
+        /** 调用 */
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
             RateLimiter annotation = method.getAnnotation(RateLimiter.class);
