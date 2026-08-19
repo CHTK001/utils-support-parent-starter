@@ -1,0 +1,5 @@
+[
+  ["com.chua.common.support.concurrent.lock.LockProvider"],
+  ["com.chua.common.support.lang.datasource.kv.KvEngine"],
+  ["com.chua.common.support.lang.datasource.kv.KvOperations"]
+]

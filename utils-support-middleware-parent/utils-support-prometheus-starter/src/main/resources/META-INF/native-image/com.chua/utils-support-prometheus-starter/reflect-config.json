@@ -1,0 +1,9 @@
+{
+  "name": "com.chua.prometheus.support.engine.PrometheusEngine",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}

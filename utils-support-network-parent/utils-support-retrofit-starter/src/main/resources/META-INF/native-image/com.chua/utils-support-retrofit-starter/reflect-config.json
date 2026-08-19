@@ -1,0 +1,9 @@
+{
+  "name": "com.chua.retrofit.support.invoker.RetrofitHttpInvoker",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
