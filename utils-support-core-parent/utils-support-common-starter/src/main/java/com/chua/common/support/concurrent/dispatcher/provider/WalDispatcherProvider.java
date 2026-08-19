@@ -81,9 +81,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * 快速队列容量
+     * 快速队列类型
      */
-    private static final int FAST_QUEUE_CAPACITY = 65536;
+    private static final QueueType FAST_QUEUE_TYPE = QueueType.UNBOUNDED;
 
     /**
      * WAL 帧头大小（魔数 4 字节 + 长度 4 字节）
@@ -142,7 +142,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
      * 获取或创建主题的无锁快速队列。
      */
     private LockFreeQueue<byte[]> fastQueue(String topic) {
-        return fastQueues.computeIfAbsent(topic, t -> LockFreeQueueFlow.create(QueueType.MPMC, FAST_QUEUE_CAPACITY));
+        return fastQueues.computeIfAbsent(topic, t -> LockFreeQueueFlow.create(FAST_QUEUE_TYPE, 0));
     }
 
     @Override
