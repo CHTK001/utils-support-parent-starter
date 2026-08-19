@@ -31,10 +31,31 @@ public record DetectionInfo(
         float cx,
         float cy) {
 
+    /**
+     * 构造轴对齐检测框（无旋转角度），自动计算中心坐标和旋转框宽高。
+     *
+     * @param label      标签
+     * @param confidence 置信度
+     * @param x          左上角 x
+     * @param y          左上角 y
+     * @param width      宽度
+     * @param height     高度
+     */
     public DetectionInfo(String label, float confidence, float x, float y, float width, float height) {
         this(label, confidence, x, y, width, height, 0f, width, height, x + width / 2f, y + height / 2f);
     }
 
+    /**
+     * 构造旋转检测框，自动计算旋转框宽高和中心坐标。
+     *
+     * @param label      标签
+     * @param confidence 置信度
+     * @param x          左上角 x
+     * @param y          左上角 y
+     * @param width      宽度
+     * @param height     高度
+     * @param angle      旋转角度（度）
+     */
     public DetectionInfo(String label, float confidence, float x, float y, float width, float height, float angle) {
         this(label, confidence, x, y, width, height, angle, width, height, x + width / 2f, y + height / 2f);
     }
