@@ -9,7 +9,8 @@ import org.apache.fury.config.Language;
  * Apache Fory（Fury）二进制序列化实现。
  *
  * <p>直接使用 Apache Fury 进行编解码，支持对象引用跟踪（循环引用）、跨语言互操作与模式演化。
- * Fury 实例为线程安全单例，配置完成后可被多线程并发使用。
+ * 采用单个共享 Fury 实例 + 调用方 {@code synchronized} 保证线程安全，避免
+ * {@link ThreadLocal} 每线程冷启动建 schema 的性能开销。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -18,13 +19,22 @@ import org.apache.fury.config.Language;
 public class ForySerialization implements Serialization {
 
     /**
-     * 线程安全：Fury 实例配置后内部使用 ThreadLocal 缓冲区，可安全并发调用
+     * 全局共享 Fury 实例（调用方通过 synchronized 保证线程安全）
      */
     private static final Fury FURY = Fury.builder()
             .withLanguage(Language.JAVA)
             .withRefTracking(true)
             .requireClassRegistration(false)
             .build();
+
+    /**
+     * 获取共享 Fury 实例。
+     *
+     * @return Fury 实例
+     */
+    private static Fury fury() {
+        return FURY;
+    }
 
     @Override
     public String name() {
@@ -36,7 +46,7 @@ public class ForySerialization implements Serialization {
         if (obj == null) {
             return new byte[0];
         }
-        return FURY.serialize(obj);
+        return fury().serialize(obj);
     }
 
     /**
@@ -56,6 +66,6 @@ public class ForySerialization implements Serialization {
         if (data == null || data.length == 0) {
             return null;
         }
-        return (T) FURY.deserialize(data);
+        return (T) fury().deserialize(data);
     }
 }
