@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 /**
  * SIP 服务器配置。
  *
- * <p>配置信令服务器的主机、TCP 与 KCP 双传输监听端口及启用开关。</p>
+ * <p>单端口模式：信令与 frp 数据平面共用同一监听端口，
+ * 连接建立后按首行握手前缀分流。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,19 +21,9 @@ import lombok.NoArgsConstructor;
 public class SipConfig {
 
     /**
-     * 默认 TCP 监听端口
+     * 默认监听端口
      */
-    public static final int DEFAULT_TCP_PORT = 19460;
-
-    /**
-     * 默认 KCP 监听端口
-     */
-    public static final int DEFAULT_KCP_PORT = 19461;
-
-    /**
-     * 默认数据平面监听端口
-     */
-    public static final int DEFAULT_DATA_PORT = 19462;
+    public static final int DEFAULT_PORT = 19460;
 
     /**
      * 监听主机
@@ -42,46 +33,11 @@ public class SipConfig {
     private String host = "0.0.0.0";
 
     /**
-     * 是否启用 TCP 传输
+     * 监听端口（信令与数据平面共用）
      */
     @Builder.Default
-    /** TCP是否启用 */
-    private boolean tcpEnabled = true;
-
-    /**
-     * TCP 监听端口
-     */
-    @Builder.Default
-    /** TCP端口 */
-    private int tcpPort = DEFAULT_TCP_PORT;
-
-    /**
-     * 是否启用 KCP 传输
-     */
-    @Builder.Default
-    /** KCP是否启用 */
-    private boolean kcpEnabled = true;
-
-    /**
-     * KCP 监听端口
-     */
-    @Builder.Default
-    /** KCP端口 */
-    private int kcpPort = DEFAULT_KCP_PORT;
-
-    /**
-     * 是否启用 frp 数据平面
-     */
-    @Builder.Default
-    /** 数据平面是否启用 */
-    private boolean dataPlaneEnabled = true;
-
-    /**
-     * 数据平面监听端口
-     */
-    @Builder.Default
-    /** 数据平面端口 */
-    private int dataPort = DEFAULT_DATA_PORT;
+    /** 端口 */
+    private int port = DEFAULT_PORT;
 
     /**
      * 认证令牌：注册与数据平面握手均需携带

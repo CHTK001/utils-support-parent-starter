@@ -4,6 +4,9 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
 import com.chua.common.support.lang.datasource.dialect.TriggerDefinition;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
+import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -113,6 +116,123 @@ public abstract class JdbcEngine extends AbstractEngine {
             }
         } catch (Exception e) {
             // ignore
+        }
+    }
+
+    // ==================== 执行器 / 方言 ====================
+
+    /**
+     * 获取指定数据源的 SQL 执行器，非 JDBC 数据源返回 null。
+     *
+     * @param n 数据源名称
+     * @return SQL 执行器
+     */
+    @Override
+    public SqlExecutor getExecutor(String n) {
+        EngineDataSource<?> ds = getDataSource(n);
+        if (ds == null || !(ds.getSource() instanceof DataSource)) {
+            return null;
+        }
+        return new JdbcSqlExecutor(this);
+    }
+
+    /**
+     * 获取默认数据源的 SQL 执行器，非 JDBC 数据源返回 null。
+     *
+     * @return SQL 执行器
+     */
+    @Override
+    public SqlExecutor getExecutor() {
+        return getExecutor(getDefaultDataSourceName());
+    }
+
+    /**
+     * 获取指定数据源的方言。
+     *
+     * @param n 数据源名称
+     * @return 方言实例，数据源不存在或非 SQL 数据源返回 null
+     */
+    @Override
+    public Dialect getDialect(String n) {
+        EngineDataSource<?> ds = getDataSource(n);
+        return ds != null ? ds.getDialect() : null;
+    }
+
+    // ==================== 更新 / 删除（真实 JDBC 执行） ====================
+
+    /**
+     * 基于 JDBC 执行更新操作，利用方言生成 UPDATE 语句。
+     *
+     * <p>当默认数据源未配置方言时，回退到父类的内存实现。</p>
+     *
+     * @param sql 更新 SQL 信息
+     * @param <T> 实体类型
+     * @return 受影响行数
+     */
+    @Override
+    public <T> int executeUpdate(UpdateSql<T> sql) {
+        // 生成表名（驼峰转下划线）
+        String tableName = getTableName(sql.entityClass());
+        Dialect dialect = dialect();
+        String updateSql = dialect != null
+                ? dialect.getUpdateSql(tableName, sql.setClause(), sql.whereClause())
+                : null;
+        if (updateSql == null || updateSql.isEmpty()) {
+            // 无方言，回退内存实现
+            return super.executeUpdate(sql);
+        }
+        try (Connection conn = getJdbcConnection();
+             PreparedStatement ps = conn.prepareStatement(updateSql)) {
+            bindParams(ps, sql.params());
+            return ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("执行更新失败: " + updateSql, e);
+        }
+    }
+
+    /**
+     * 基于 JDBC 执行删除操作，利用方言生成 DELETE 语句。
+     *
+     * <p>当默认数据源未配置方言时，回退到父类的内存实现。</p>
+     *
+     * @param sql 删除 SQL 信息
+     * @param <T> 实体类型
+     * @return 受影响行数
+     */
+    @Override
+    public <T> int executeDelete(DeleteSql<T> sql) {
+        // 生成表名（驼峰转下划线）
+        String tableName = getTableName(sql.entityClass());
+        Dialect dialect = dialect();
+        String deleteSql = dialect != null
+                ? dialect.getDeleteSql(tableName, sql.whereClause())
+                : null;
+        if (deleteSql == null || deleteSql.isEmpty()) {
+            // 无方言，回退内存实现
+            return super.executeDelete(sql);
+        }
+        try (Connection conn = getJdbcConnection();
+             PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+            bindParams(ps, sql.params());
+            return ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("执行删除失败: " + deleteSql, e);
+        }
+    }
+
+    /**
+     * 绑定参数到预编译语句，索引从 1 开始。
+     *
+     * @param ps     预编译语句
+     * @param params 参数列表
+     * @throws SQLException 绑定失败
+     */
+    private static void bindParams(PreparedStatement ps, List<Object> params) throws SQLException {
+        if (params == null) {
+            return;
+        }
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
         }
     }
 
