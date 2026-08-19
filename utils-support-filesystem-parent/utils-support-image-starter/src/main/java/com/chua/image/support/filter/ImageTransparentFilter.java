@@ -10,48 +10,49 @@ import javax.annotation.Nullable;
 
 /**
  * @author CH
- * @since 2024/10/29
+ * @since 4.0.0.42
  */
 /**
- * 图像透明度处理滤镜
+ * 透明度背景移除滤镜
  *
- * 对图像进行透明度处理，将不透明的图像转换为具有透明背景的图像。
- * 通过分析像素的颜色值来判断哪些区域应该变为透明，常用于背景移除和图像合成。
+ * 检测图像中的透明区域并将其设置为完全透明，实现背景移除效果。
+ * 主要用于处理带有Alpha通道的PNG图像，将纯黑或指定颜色的背景设为透明。
+ * 适用于图标、Logo等需要透明背景的图像处理场景。
  *
  * 技术原理：
- * - 分析每个像素的RGB值
- * - 根据颜色相似度判断是否为背景
- * - 将背景像素的Alpha通道设置为透明
- * - 保持前景像素的原始颜色和不透明度
+ * - 检测图像中每个像素的RGB值
+ * - 将符合条件（如纯黑）的像素设为完全透明
+ * - 利用Alpha通道实现透明效果
+ * - 保留非背景区域的原始颜色
  *
  * 算法流程：
  * 1. 遍历图像的每个像素
- * 2. 提取像素的RGB颜色值
- * 3. 判断是否为背景颜色（通常是白色或其他单一颜色）
- * 4. 设置背景像素为完全透明
- * 5. 保持前景像素的原始颜色
+ * 2. 获取当前像素的RGB值
+ * 3. 检查是否为背景色（如纯黑：R=0,G=0,B=0）
+ * 4. 将背景像素的Alpha设为0（完全透明）
+ * 5. 将处理后的像素写入新的BufferedImage
  *
- * 处理特点：
- * - 自动背景检测：基于颜色相似度
- * - 边缘保持：保持前景对象的清晰边缘
- * - 透明度渐变：支持半透明效果
- * - 颜色保真：保持前景颜色不变
+ * 默认行为：
+ * - 将纯黑像素（R=0,G=0,B=0）设为透明
+ * - 保留所有非纯黑像素的原始颜色和透明度
+ * - 输出TYPE_INT_ARGB格式以支持Alpha通道
  *
  * 应用场景：
- * - 背景移除：去除图像的单色背景
- * - 图像合成：为图像叠加准备透明背景
- * - Logo处理：创建透明背景的标志图像
- * - 产品摄影：去除产品照片的背景
- * - 网页设计：创建透明背景的图标和元素
+ * - 图标处理：移除图标背景使其透明
+ * - Logo处理：去除Logo背景用于叠加
+ * - 证件照处理：简化背景替换流程
+ * - 电商图片：商品图背景移除
+ * - UI设计：制作透明背景素材
  *
  * 注意事项：
- * - 当前实现主要针对白色背景
- * - 对于复杂背景可能需要更高级的算法
- * - 建议输入图像具有清晰的前景和背景对比
+ * - 仅对纯黑(R=0,G=0,B=0)像素生效
+ * - 输出图像为TYPE_INT_ARGB格式以保留透明度
+ * - 近似黑色的像素不会被处理，需预处理调整阈值
+ * - 对于复杂背景可能需要更高级的背景分割算法
  *
  * @author CH
  * @version 1.0.0
- * @since 2024/10/29
+ * @since 4.0.0.42
  */
 @Spi("transparent")
 @SpiDescribe("透明度背景移除滤镜")
@@ -61,28 +62,28 @@ public class ImageTransparentFilter extends AbstractImageFilter{
      * 此方法旨在被子类覆盖，以实现具体的透明度过滤逻辑。
      * 当前实现返回 null，表示尚未实现具体的过滤逻辑。
      *
-     * @param src 原始图像，将对此图像进行透明度处理
-     * @param dst 目标图像，处理后的图像将存储在此参数中如果为 null，应创建一个新的图像对象来存储结果。
-     * @return 返回经过透明度处理的图像当前实现返回 null。
+     * @param src 源图像，包含需要处理的像素数据
+     * @param dst 目标图像，用于存储过滤后的结果，可以为null
+     * @return 处理后的透明度过滤图像，当前实现返回null
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        // 遍历每个像素
+        // 遍历图像像素
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 // 获取当前像素的RGB值
                 int rgba = src.getRGB(x, y);
 
-                // 将RGB值转换为颜色对象
+                // 创建Color对象并解析RGB分量
                 Color color = new Color(rgba, true);
 
-                // 如果当前像素是黑色，则将Alpha通道值设置为0
+                // 检查是否为纯黑背景像素，将纯黑设为完全透明
                 if (color.getRed() == 0 && color.getGreen() == 0 && color.getBlue() == 0) {
                     color = new Color(0, 0, 0, 0);
                 }
 
-                // 将修改后的颜色设置到新的BufferedImage中
+                // 将处理后的像素写入新的BufferedImage
                 newImage.setRGB(x, y, color.getRGB());
             }
         }
