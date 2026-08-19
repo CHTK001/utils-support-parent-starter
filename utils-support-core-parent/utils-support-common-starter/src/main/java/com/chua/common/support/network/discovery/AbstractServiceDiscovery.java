@@ -226,6 +226,10 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         }
         LoadBalance balancer = lb.create();
         for (Discovery d : services) {
+            // seed 引导节点不参与业务负载均衡，仅用于发现引导
+            if (isSeedNode(d)) {
+                continue;
+            }
             // 如果指定了协议，则只添加匹配协议的服务
             if (StringUtils.isNotBlank(protocol) && !protocol.equalsIgnoreCase(d.getProtocol())) {
                 continue;

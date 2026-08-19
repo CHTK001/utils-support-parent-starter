@@ -397,24 +397,6 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return padded;
     }
 
-    // ==================== 工具方法 ====================
-
-    /**
-     * 将二维 long 数组展平为一维。
-     *
-     * @param data 二维 long 数组
-     * @return 一维 long 数组
-     */
-    private static long[] flattenLong(long[][] data) {
-        long[] flat = new long[data.length * data[0].length];
-        int idx = 0;
-        for (long[] row : data) {
-            System.arraycopy(row, 0, flat, idx, row.length);
-            idx += row.length;
-        }
-        return flat;
-    }
-
     // ==================== NMS ====================
 
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, float iouThreshold) {
