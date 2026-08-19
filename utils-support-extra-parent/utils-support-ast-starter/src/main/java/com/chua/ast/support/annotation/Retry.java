@@ -57,6 +57,9 @@ public @interface Retry {
 
     /**
      * 重试策略枚举
+     *
+     * @author CH
+     * @since 4.0.0.42
      */
     enum RetryStrategy {
         /** 固定间隔 */
