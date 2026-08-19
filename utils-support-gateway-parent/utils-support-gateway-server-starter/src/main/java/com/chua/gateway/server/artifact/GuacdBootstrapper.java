@@ -733,9 +733,42 @@ public final class GuacdBootstrapper {
     }
 
     /**
-     * 检测本地端口是否在监听。
+     * 等待 Docker 容器中的 guacd 端口就绪。
+     *
+     * @param port  guacd 端口
+     * @return GuacdHandle（端口就绪时返回）
+     */
+    private static GuacdHandle waitForDockerGuacdReady(int port) {
+        long deadline = System.currentTimeMillis() + GUACD_READY_TIMEOUT_MS;
+        while (System.currentTimeMillis() < deadline) {
+            if (isPortListening(port)) {
+                log.info("[guacd-bootstrapper] ✓ docker guacd 已监听 :{}", port);
+                return new GuacdHandle(null, null, port, "docker-container");
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+                break;
+            }
+        }
+        log.warn("[guacd-bootstrapper] docker guacd 端口 {} 未就绪", port);
+        return null;
+    }
 
     /**
+     * 检测本地端口是否在监听。
+     *
+     * @param port 端口号
+     * @return 是否监听中
+     */
+    private static boolean isPortListening(int port) {
+        try (java.net.Socket s = new java.net.Socket()) {
+            s.connect(new java.net.InetSocketAddress("127.0.0.1", port), 200);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
      * 解压 zip 流到目标目录（带路径穿越防护）。
      */
     private static int extractZip(ZipInputStream zis, Path targetDir) throws IOException {
