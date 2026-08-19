@@ -1,17 +1,14 @@
 package com.chua.deeplearning.support.onnx.seq2seq;
 
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClient;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.time.Duration;
 
 /**
  * Seq2Seq 模型资源定位器。
@@ -44,21 +41,6 @@ public final class Seq2SeqModelResources {
      * modelscope 下载基础地址。
      */
     private static final String MODEL_SCOPE_BASE = "https://www.modelscope.cn/models/%s/resolve/master/%s";
-
-    /**
-     * 连接超时。
-     */
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(20);
-
-    /**
-     * 请求超时。
-     */
-    private static final Duration REQUEST_TIMEOUT = Duration.ofMinutes(30);
-
-    /**
-     * 用户代理。
-     */
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) chua-deeplearning/4.0.0.42";
 
     /** 创建 Seq2SeqModelResources 实例 */
     private Seq2SeqModelResources() {
@@ -165,28 +147,26 @@ public final class Seq2SeqModelResources {
         } catch (Exception e) {
             throw new IllegalStateException("[seq2seq] 创建缓存目录失败: " + target, e);
         }
-        HttpClient client = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(CONNECT_TIMEOUT)
-                .build();
-        for (int i = 0; i < def.downloadFiles().size(); i++) {
-            String remote = def.downloadFiles().get(i);
-            Path local = target.resolve(def.requiredFiles().get(i));
-            boolean present;
-            try {
-                present = Files.isRegularFile(local) && Files.size(local) > 0L;
-            } catch (IOException e) {
-                present = false;
-            }
-            if (present) {
-                continue;
-            }
-            String url = String.format(MODEL_SCOPE_BASE, def.modelscopeRepo(), remote);
-            log.info("[seq2seq] {} 开始下载: {} -> {}", def.modelId(), remote, local);
-            try {
-                download(client, url, local);
-            } catch (Exception e) {
-                throw new IllegalStateException("[seq2seq] 模型[" + def.modelId() + "] 下载失败: " + url + ", " + e.getMessage(), e);
+        try (HttpClient client = HttpClientFactory.getClient()) {
+            for (int i = 0; i < def.downloadFiles().size(); i++) {
+                String remote = def.downloadFiles().get(i);
+                Path local = target.resolve(def.requiredFiles().get(i));
+                boolean present;
+                try {
+                    present = Files.isRegularFile(local) && Files.size(local) > 0L;
+                } catch (IOException e) {
+                    present = false;
+                }
+                if (present) {
+                    continue;
+                }
+                String url = String.format(MODEL_SCOPE_BASE, def.modelscopeRepo(), remote);
+                log.info("[seq2seq] {} 开始下载: {} -> {}", def.modelId(), remote, local);
+                try {
+                    download(client, url, local);
+                } catch (Exception e) {
+                    throw new IllegalStateException("[seq2seq] 模型[" + def.modelId() + "] 下载失败: " + url + ", " + e.getMessage(), e);
+                }
             }
         }
         log.info("[seq2seq] {} 模型文件就绪: {}", def.modelId(), target);
@@ -201,17 +181,11 @@ public final class Seq2SeqModelResources {
      * @throws Exception 下载异常
      */
     private static void download(HttpClient client, String url, Path target) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("User-Agent", USER_AGENT)
-                .timeout(REQUEST_TIMEOUT)
-                .GET()
-                .build();
-        HttpResponse<Path> response = client.send(request, HttpResponse.BodyHandlers.ofFile(target));
-        if (response.statusCode() >= 400) {
-            Files.deleteIfExists(target);
-            throw new IllegalStateException("HTTP " + response.statusCode());
+        ClientResponse response = client.get(url);
+        if (response.getStatusCode() >= 400) {
+            throw new IllegalStateException("HTTP " + response.getStatusCode());
         }
+        Files.write(target, response.getBody());
     }
 
     /**
