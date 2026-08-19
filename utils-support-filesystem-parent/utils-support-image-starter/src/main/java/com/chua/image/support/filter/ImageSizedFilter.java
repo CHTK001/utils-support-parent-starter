@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * 大小滤镜
+ * 澶у皬婊ら暅
  *
  * @author CH
  * @version 1.0.0
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@SpiDescribe("大小滤镜")
+@SpiDescribe("澶у皬婊ら暅")
 @Spi("size")
 @Accessors(chain = true)
 @NoArgsConstructor
@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 public class ImageSizedFilter extends AbstractImageFilter {
 
 
-    /** 尺寸 */
+    /** 灏哄 */
     private double size = 0.5d;
 
     public ImageSizedFilter(double size) {
@@ -47,24 +47,24 @@ public class ImageSizedFilter extends AbstractImageFilter {
 
 
     /**
-     * 按比例对图片进行缩放.
+     * 鎸夋瘮渚嬪鍥剧墖杩涜缂╂斁.
      *
-     * @param scale 缩放比率
+     * @param scale 缂╂斁姣旂巼
      * @param img   BufferedImage
      */
     public static BufferedImage zoomByScale(double scale, BufferedImage img) {
-        //获取缩放后的长和宽
+        //鑾峰彇缂╂斁鍚庣殑闀垮拰瀹?
         int width = (int) (scale * img.getWidth());
         int height = (int) (scale * img.getHeight());
-        //获取缩放后的Image对象
+        //鑾峰彇缂╂斁鍚庣殑Image瀵硅薄
         Image img1 = img.getScaledInstance(width, height, Image.SCALE_DEFAULT);
-        //新建一个和Image对象相同大小的画布
+        //鏂板缓涓€涓拰Image瀵硅薄鐩稿悓澶у皬鐨勭敾甯?
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        //获取画笔
+        //鑾峰彇鐢荤瑪
         Graphics2D graphics = image.createGraphics();
-        //将Image对象画在画布上,最后一个参数,ImageObserver:接收有关 Image 信息通知的异步更新接口,没用到直接传空
+        //灏咺mage瀵硅薄鐢诲湪鐢诲竷涓?鏈€鍚庝竴涓弬鏁?ImageObserver:鎺ユ敹鏈夊叧 Image 淇℃伅閫氱煡鐨勫紓姝ユ洿鏂版帴鍙?娌＄敤鍒扮洿鎺ヤ紶绌?
         graphics.drawImage(img1, 0, 0, null);
-        //释放资源
+        //閲婃斁璧勬簮
         graphics.dispose();
         return image;
     }

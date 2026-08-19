@@ -10,79 +10,79 @@ import javax.annotation.Nullable;
 
 
 /**
- * 像素化图像滤镜
+ * 鍍忕礌鍖栧浘鍍忔护闀?
  *
- * 将图像转换为像素艺术风格，通过降低图像分辨率并使用方形像素块
- * 来重现图像内容，创建复古的8位游戏风格视觉效果。
+ * 灏嗗浘鍍忚浆鎹负鍍忕礌鑹烘湳椋庢牸锛岄€氳繃闄嶄綆鍥惧儚鍒嗚鲸鐜囧苟浣跨敤鏂瑰舰鍍忕礌鍧?
+ * 鏉ラ噸鐜板浘鍍忓唴瀹癸紝鍒涘缓澶嶅彜鐨?浣嶆父鎴忛鏍艰瑙夋晥鏋溿€?
  *
- * 技术原理：
- * - 网格采样：按指定步长对图像进行网格采样
- * - 像素块填充：用采样点的颜色填充整个像素块
- * - 分辨率降低：通过增大像素块尺寸降低图像分辨率
- * - 颜色简化：减少图像中的颜色细节
+ * 鎶€鏈師鐞嗭細
+ * - 缃戞牸閲囨牱锛氭寜鎸囧畾姝ラ暱瀵瑰浘鍍忚繘琛岀綉鏍奸噰鏍?
+ * - 鍍忕礌鍧楀～鍏咃細鐢ㄩ噰鏍风偣鐨勯鑹插～鍏呮暣涓儚绱犲潡
+ * - 鍒嗚鲸鐜囬檷浣庯細閫氳繃澧炲ぇ鍍忕礌鍧楀昂瀵搁檷浣庡浘鍍忓垎杈ㄧ巼
+ * - 棰滆壊绠€鍖栵細鍑忓皯鍥惧儚涓殑棰滆壊缁嗚妭
  *
- * 算法流程：
- * 1. 按指定步长遍历图像像素
- * 2. 获取采样点的RGB颜色值
- * 3. 用该颜色填充对应的矩形像素块
- * 4. 重复直到覆盖整个图像
+ * 绠楁硶娴佺▼锛?
+ * 1. 鎸夋寚瀹氭闀块亶鍘嗗浘鍍忓儚绱?
+ * 2. 鑾峰彇閲囨牱鐐圭殑RGB棰滆壊鍊?
+ * 3. 鐢ㄨ棰滆壊濉厖瀵瑰簲鐨勭煩褰㈠儚绱犲潡
+ * 4. 閲嶅鐩村埌瑕嗙洊鏁翠釜鍥惧儚
  *
- * 视觉效果特点：
- * - 复古风格：模拟早期电子游戏的像素艺术
- * - 简化细节：减少图像的细节复杂度
- * - 方块效果：明显的方形像素块结构
- * - 色彩保持：保留原图像的主要色彩信息
+ * 瑙嗚鏁堟灉鐗圭偣锛?
+ * - 澶嶅彜椋庢牸锛氭ā鎷熸棭鏈熺數瀛愭父鎴忕殑鍍忕礌鑹烘湳
+ * - 绠€鍖栫粏鑺傦細鍑忓皯鍥惧儚鐨勭粏鑺傚鏉傚害
+ * - 鏂瑰潡鏁堟灉锛氭槑鏄剧殑鏂瑰舰鍍忕礌鍧楃粨鏋?
+ * - 鑹插僵淇濇寔锛氫繚鐣欏師鍥惧儚鐨勪富瑕佽壊褰╀俊鎭?
  *
- * 参数控制：
- * - 步长值越小：像素化程度越高，效果越明显
- * - 步长值越大：保留更多细节，效果越轻微
- * - 建议范围：3-20像素，根据图像大小调整
+ * 鍙傛暟鎺у埗锛?
+ * - 姝ラ暱鍊艰秺灏忥細鍍忕礌鍖栫▼搴﹁秺楂橈紝鏁堟灉瓒婃槑鏄?
+ * - 姝ラ暱鍊艰秺澶э細淇濈暀鏇村缁嗚妭锛屾晥鏋滆秺杞诲井
+ * - 寤鸿鑼冨洿锛?-20鍍忕礌锛屾牴鎹浘鍍忓ぇ灏忚皟鏁?
  *
- * 应用场景：
- * - 游戏开发：创建复古像素游戏的艺术风格
- * - 艺术创作：制作像素艺术作品
- * - 网页设计：创建独特的视觉元素
- * - 社交媒体：为照片添加复古滤镜效果
- * - 品牌设计：营造怀旧、复古的品牌形象
+ * 搴旂敤鍦烘櫙锛?
+ * - 娓告垙寮€鍙戯細鍒涘缓澶嶅彜鍍忕礌娓告垙鐨勮壓鏈鏍?
+ * - 鑹烘湳鍒涗綔锛氬埗浣滃儚绱犺壓鏈綔鍝?
+ * - 缃戦〉璁捐锛氬垱寤虹嫭鐗圭殑瑙嗚鍏冪礌
+ * - 绀句氦濯掍綋锛氫负鐓х墖娣诲姞澶嶅彜婊ら暅鏁堟灉
+ * - 鍝佺墝璁捐锛氳惀閫犳€€鏃с€佸鍙ょ殑鍝佺墝褰㈣薄
  *
- * 性能特点：
- * - 高效处理：通过跳跃采样减少计算量
- * - 内存友好：生成的图像保持原始尺寸
- * - 可调节性：通过步长参数控制效果强度
- * - 实时性：适合实时图像处理应用
+ * 鎬ц兘鐗圭偣锛?
+ * - 楂樻晥澶勭悊锛氶€氳繃璺宠穬閲囨牱鍑忓皯璁＄畻閲?
+ * - 鍐呭瓨鍙嬪ソ锛氱敓鎴愮殑鍥惧儚淇濇寔鍘熷灏哄
+ * - 鍙皟鑺傛€э細閫氳繃姝ラ暱鍙傛暟鎺у埗鏁堟灉寮哄害
+ * - 瀹炴椂鎬э細閫傚悎瀹炴椂鍥惧儚澶勭悊搴旂敤
  *
  * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */
 @Spi("pixel")
-@SpiDescribe("像素化滤镜")
+@SpiDescribe("鍍忕礌鍖栨护闀?)
 public class ImagePixelImageFilter extends AbstractImageFilter{
 
     /**
-     * 默认像素步长，值越小像素化程度越高
-     * 推荐值：5像素，适合大多数图像
+     * 榛樿鍍忕礌姝ラ暱锛屽€艰秺灏忓儚绱犲寲绋嬪害瓒婇珮
+     * 鎺ㄨ崘鍊硷細5鍍忕礌锛岄€傚悎澶у鏁板浘鍍?
      */
     private static final int DEFAULT_STEP = 5;
 
     /**
-     * 当前使用的像素步长
+     * 褰撳墠浣跨敤鐨勫儚绱犳闀?
      */
     private int stepValue = DEFAULT_STEP;
 
     /**
-     * 默认构造函数
+     * 榛樿鏋勯€犲嚱鏁?
      *
-     * 使用默认的像素步长（5像素）创建像素化滤镜。
+     * 浣跨敤榛樿鐨勫儚绱犳闀匡紙5鍍忕礌锛夊垱寤哄儚绱犲寲婊ら暅銆?
      */
     public ImagePixelImageFilter() {
-        // 使用默认步长
+        // 浣跨敤榛樿姝ラ暱
     }
 
     /**
-     * 带参数的构造函数
+     * 甯﹀弬鏁扮殑鏋勯€犲嚱鏁?
      *
-     * @param stepValue 像素步长，控制像素化程度值越小效果越明显，建议范围3-20
+     * @param stepValue 鍍忕礌姝ラ暱锛屾帶鍒跺儚绱犲寲绋嬪害鍊艰秺灏忔晥鏋滆秺鏄庢樉锛屽缓璁寖鍥?-20
      */
     public ImagePixelImageFilter(int stepValue) {
         this.stepValue = stepValue;
@@ -90,11 +90,11 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
 
 
     /**
-     * 执行像素化滤镜处理
+     * 鎵ц鍍忕礌鍖栨护闀滃鐞?
      *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 像素化处理后的图像
+     * @param src 婧愬浘鍍?
+     * @param dst 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
+     * @return 鍍忕礌鍖栧鐞嗗悗鐨勫浘鍍?
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
@@ -104,14 +104,14 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
     }
 
     /**
-     * 生成像素化图像
+     * 鐢熸垚鍍忕礌鍖栧浘鍍?
      *
-     * 通过网格采样和像素块填充的方式将普通图像转换为像素艺术风格。
-     * 算法会按指定步长遍历图像，用采样点的颜色填充对应的矩形区域。
+     * 閫氳繃缃戞牸閲囨牱鍜屽儚绱犲潡濉厖鐨勬柟寮忓皢鏅€氬浘鍍忚浆鎹负鍍忕礌鑹烘湳椋庢牸銆?
+     * 绠楁硶浼氭寜鎸囧畾姝ラ暱閬嶅巻鍥惧儚锛岀敤閲囨牱鐐圭殑棰滆壊濉厖瀵瑰簲鐨勭煩褰㈠尯鍩熴€?
      *
-     * @param sourceImage 输入的源图像
-     * @param pixelStep 像素步长，控制像素化程度值越小像素化效果越明显
-     * @return 像素化处理后的图像
+     * @param sourceImage 杈撳叆鐨勬簮鍥惧儚
+     * @param pixelStep 鍍忕礌姝ラ暱锛屾帶鍒跺儚绱犲寲绋嬪害鍊艰秺灏忓儚绱犲寲鏁堟灉瓒婃槑鏄?
+     * @return 鍍忕礌鍖栧鐞嗗悗鐨勫浘鍍?
      */
     public BufferedImage getPixelImage(BufferedImage sourceImage, int pixelStep) {
         int width = sourceImage.getWidth();
@@ -119,32 +119,32 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
         int minX = sourceImage.getMinX();
         int minY = sourceImage.getMinY();
 
-        // 创建输出图像
+        // 鍒涘缓杈撳嚭鍥惧儚
         BufferedImage pixelizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = pixelizedImage.createGraphics();
 
-        // 设置渲染质量（可选）
+        // 璁剧疆娓叉煋璐ㄩ噺锛堝彲閫夛級
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        // 按步长遍历图像，创建像素块
+        // 鎸夋闀块亶鍘嗗浘鍍忥紝鍒涘缓鍍忕礌鍧?
         for (int x = minX; x < width; x += pixelStep) {
             for (int y = minY; y < height; y += pixelStep) {
-                // 获取采样点的颜色
+                // 鑾峰彇閲囨牱鐐圭殑棰滆壊
                 int pixelRGB = sourceImage.getRGB(x, y);
                 int red = (pixelRGB >> 16) & 0xff;
                 int green = (pixelRGB >> 8) & 0xff;
                 int blue = pixelRGB & 0xff;
 
-                // 设置画笔颜色
+                // 璁剧疆鐢荤瑪棰滆壊
                 graphics.setColor(new Color(red, green, blue));
 
-                // 填充像素块（使用圆角矩形创建更柔和的像素效果）
-                // 参数-1表示圆角半径为0，即普通矩形
+                // 濉厖鍍忕礌鍧楋紙浣跨敤鍦嗚鐭╁舰鍒涘缓鏇存煍鍜岀殑鍍忕礌鏁堟灉锛?
+                // 鍙傛暟-1琛ㄧず鍦嗚鍗婂緞涓?锛屽嵆鏅€氱煩褰?
                 graphics.fillRoundRect(x, y, pixelStep, pixelStep, -1, -1);
             }
         }
 
-        // 释放图形资源
+        // 閲婃斁鍥惧舰璧勬簮
         graphics.dispose();
         return pixelizedImage;
     }

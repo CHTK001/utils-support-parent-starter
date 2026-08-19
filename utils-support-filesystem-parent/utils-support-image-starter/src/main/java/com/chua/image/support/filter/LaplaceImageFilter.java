@@ -9,65 +9,65 @@ import javax.annotation.Nullable;
 
 
 /**
- * 拉普拉斯图像锐化滤镜
+ * 鎷夋櫘鎷夋柉鍥惧儚閿愬寲婊ら暅
  *
- * 基于拉普拉斯算子的图像锐化滤镜，提供多种图像增强处理模式。
- * 拉普拉斯算子是一种二阶微分算子，能够检测图像中的边缘并进行锐化处理。
+ * 鍩轰簬鎷夋櫘鎷夋柉绠楀瓙鐨勫浘鍍忛攼鍖栨护闀滐紝鎻愪緵澶氱鍥惧儚澧炲己澶勭悊妯″紡銆?
+ * 鎷夋櫘鎷夋柉绠楀瓙鏄竴绉嶄簩闃跺井鍒嗙畻瀛愶紝鑳藉妫€娴嬪浘鍍忎腑鐨勮竟缂樺苟杩涜閿愬寲澶勭悊銆?
  *
- * 技术原理：
- * - 拉普拉斯算子：二阶微分算子，对图像进行边缘检测
- * - 图像锐化：通过增强边缘来提高图像清晰度
- * - 多算法融合：结合拉普拉斯、Sobel、均值滤波等多种算法
- * - 伽马校正：调整图像的亮度和对比度
+ * 鎶€鏈師鐞嗭細
+ * - 鎷夋櫘鎷夋柉绠楀瓙锛氫簩闃跺井鍒嗙畻瀛愶紝瀵瑰浘鍍忚繘琛岃竟缂樻娴?
+ * - 鍥惧儚閿愬寲锛氶€氳繃澧炲己杈圭紭鏉ユ彁楂樺浘鍍忔竻鏅板害
+ * - 澶氱畻娉曡瀺鍚堬細缁撳悎鎷夋櫘鎷夋柉銆丼obel銆佸潎鍊兼护娉㈢瓑澶氱绠楁硶
+ * - 浼介┈鏍℃锛氳皟鏁村浘鍍忕殑浜害鍜屽姣斿害
  *
- * 拉普拉斯算子（3x3）：
+ * 鎷夋櫘鎷夋柉绠楀瓙锛?x3锛夛細
  * [ 0 -1  0]
  * [-1  4 -1]
  * [ 0 -1  0]
  *
- * 处理模式：
- * 1. 基础拉普拉斯处理：直接应用拉普拉斯算子
- * 2. 拉普拉斯叠加处理：拉普拉斯结果与原图叠加
- * 3. Sobel边缘检测：使用Sobel算子进行边缘检测
- * 4. 均值滤波处理：5x5均值滤波平滑处理
- * 5. 数学运算处理：多种算法结果的数学组合
- * 6. 伽马校正处理：最终的亮度和对比度调整
+ * 澶勭悊妯″紡锛?
+ * 1. 鍩虹鎷夋櫘鎷夋柉澶勭悊锛氱洿鎺ュ簲鐢ㄦ媺鏅媺鏂畻瀛?
+ * 2. 鎷夋櫘鎷夋柉鍙犲姞澶勭悊锛氭媺鏅媺鏂粨鏋滀笌鍘熷浘鍙犲姞
+ * 3. Sobel杈圭紭妫€娴嬶細浣跨敤Sobel绠楀瓙杩涜杈圭紭妫€娴?
+ * 4. 鍧囧€兼护娉㈠鐞嗭細5x5鍧囧€兼护娉㈠钩婊戝鐞?
+ * 5. 鏁板杩愮畻澶勭悊锛氬绉嶇畻娉曠粨鏋滅殑鏁板缁勫悎
+ * 6. 浼介┈鏍℃澶勭悊锛氭渶缁堢殑浜害鍜屽姣斿害璋冩暣
  *
- * 算法特点：
- * - 边缘增强：有效增强图像的边缘和细节
- * - 噪声敏感：对噪声比较敏感，可能放大噪声
- * - 多级处理：提供从简单到复杂的多种处理级别
- * - 自适应处理：可根据图像特点选择合适的处理模式
+ * 绠楁硶鐗圭偣锛?
+ * - 杈圭紭澧炲己锛氭湁鏁堝寮哄浘鍍忕殑杈圭紭鍜岀粏鑺?
+ * - 鍣０鏁忔劅锛氬鍣０姣旇緝鏁忔劅锛屽彲鑳芥斁澶у櫔澹?
+ * - 澶氱骇澶勭悊锛氭彁渚涗粠绠€鍗曞埌澶嶆潅鐨勫绉嶅鐞嗙骇鍒?
+ * - 鑷€傚簲澶勭悊锛氬彲鏍规嵁鍥惧儚鐗圭偣閫夋嫨鍚堥€傜殑澶勭悊妯″紡
  *
- * 应用场景：
- * - 图像锐化：提高图像的清晰度和细节
- * - 边缘增强：突出显示图像中的边缘信息
- * - 医学影像：医学图像的边缘增强和细节提升
- * - 工业检测：产品表面缺陷检测和边缘分析
- * - 图像预处理：为后续处理准备高质量图像
- * - 印刷出版：提高印刷图像的清晰度
+ * 搴旂敤鍦烘櫙锛?
+ * - 鍥惧儚閿愬寲锛氭彁楂樺浘鍍忕殑娓呮櫚搴﹀拰缁嗚妭
+ * - 杈圭紭澧炲己锛氱獊鍑烘樉绀哄浘鍍忎腑鐨勮竟缂樹俊鎭?
+ * - 鍖诲褰卞儚锛氬尰瀛﹀浘鍍忕殑杈圭紭澧炲己鍜岀粏鑺傛彁鍗?
+ * - 宸ヤ笟妫€娴嬶細浜у搧琛ㄩ潰缂洪櫡妫€娴嬪拰杈圭紭鍒嗘瀽
+ * - 鍥惧儚棰勫鐞嗭細涓哄悗缁鐞嗗噯澶囬珮璐ㄩ噺鍥惧儚
+ * - 鍗板埛鍑虹増锛氭彁楂樺嵃鍒峰浘鍍忕殑娓呮櫚搴?
  *
- * 使用建议：
- * - 对于噪声较多的图像，建议先进行降噪处理
- * - 可根据图像特点选择合适的处理强度
- * - 建议与其他滤镜组合使用以获得最佳效果
+ * 浣跨敤寤鸿锛?
+ * - 瀵逛簬鍣０杈冨鐨勫浘鍍忥紝寤鸿鍏堣繘琛岄檷鍣鐞?
+ * - 鍙牴鎹浘鍍忕壒鐐归€夋嫨鍚堥€傜殑澶勭悊寮哄害
+ * - 寤鸿涓庡叾浠栨护闀滅粍鍚堜娇鐢ㄤ互鑾峰緱鏈€浣虫晥鏋?
  *
  * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */
 @Spi("laplace")
-@SpiDescribe("拉普拉斯图像锐化滤镜")
+@SpiDescribe("鎷夋櫘鎷夋柉鍥惧儚閿愬寲婊ら暅")
 public class LaplaceImageFilter extends AbstractImageFilter{
     /**
-     * 执行拉普拉斯滤镜处理
+     * 鎵ц鎷夋櫘鎷夋柉婊ら暅澶勭悊
      *
-     * 默认使用拉普拉斯叠加处理模式，将拉普拉斯算子的结果与原图像叠加，
-     * 实现图像锐化效果。
+     * 榛樿浣跨敤鎷夋櫘鎷夋柉鍙犲姞澶勭悊妯″紡锛屽皢鎷夋櫘鎷夋柉绠楀瓙鐨勭粨鏋滀笌鍘熷浘鍍忓彔鍔狅紝
+     * 瀹炵幇鍥惧儚閿愬寲鏁堟灉銆?
      *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 处理后的图像
+     * @param src 婧愬浘鍍?
+     * @param dst 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
+     * @return 澶勭悊鍚庣殑鍥惧儚
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
@@ -77,17 +77,17 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     }
 
     /**
-     * 基础拉普拉斯处理
+     * 鍩虹鎷夋櫘鎷夋柉澶勭悊
      *
-     * 直接应用拉普拉斯算子对图像进行边缘检测和锐化处理。
-     * 使用标准的3x3拉普拉斯卷积核进行处理。
+     * 鐩存帴搴旂敤鎷夋櫘鎷夋柉绠楀瓙瀵瑰浘鍍忚繘琛岃竟缂樻娴嬪拰閿愬寲澶勭悊銆?
+     * 浣跨敤鏍囧噯鐨?x3鎷夋櫘鎷夋柉鍗风Н鏍歌繘琛屽鐞嗐€?
      *
-     * @param src 源图像
-     * @return 拉普拉斯处理后的图像
+     * @param src 婧愬浘鍍?
+     * @return 鎷夋櫘鎷夋柉澶勭悊鍚庣殑鍥惧儚
      */
     public BufferedImage laplaceProcess(BufferedImage src) {
 
-        // 拉普拉斯算子
+        // 鎷夋櫘鎷夋柉绠楀瓙
         int[] LAPLACE = new int[] { 0, -1, 0, -1, 4, -1, 0, -1, 0 };
 
         int width = src.getWidth();
@@ -179,22 +179,22 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
     /**
-     * 拉普拉斯叠加原图像处理
+     * 鎷夋櫘鎷夋柉鍙犲姞鍘熷浘鍍忓鐞?
      *
-     * 将拉普拉斯算子的处理结果与原图像进行叠加，实现图像锐化效果。
-     * 这种方法能够在保持原图像信息的同时增强边缘和细节。
+     * 灏嗘媺鏅媺鏂畻瀛愮殑澶勭悊缁撴灉涓庡師鍥惧儚杩涜鍙犲姞锛屽疄鐜板浘鍍忛攼鍖栨晥鏋溿€?
+     * 杩欑鏂规硶鑳藉鍦ㄤ繚鎸佸師鍥惧儚淇℃伅鐨勫悓鏃跺寮鸿竟缂樺拰缁嗚妭銆?
      *
-     * 处理流程：
-     * 1. 对图像应用拉普拉斯算子
-     * 2. 将拉普拉斯结果与原图像像素值相加
-     * 3. 限制结果在有效颜色范围内
+     * 澶勭悊娴佺▼锛?
+     * 1. 瀵瑰浘鍍忓簲鐢ㄦ媺鏅媺鏂畻瀛?
+     * 2. 灏嗘媺鏅媺鏂粨鏋滀笌鍘熷浘鍍忓儚绱犲€肩浉鍔?
+     * 3. 闄愬埗缁撴灉鍦ㄦ湁鏁堥鑹茶寖鍥村唴
      *
-     * @param src 源图像
-     * @return 拉普拉斯叠加处理后的图像
+     * @param src 婧愬浘鍍?
+     * @return 鎷夋櫘鎷夋柉鍙犲姞澶勭悊鍚庣殑鍥惧儚
      */
     public BufferedImage laplaceAddProcess(BufferedImage src) {
 
-        // 拉普拉斯算子
+        // 鎷夋櫘鎷夋柉绠楀瓙
         int[] LAPLACE = new int[] { 0, -1, 0, -1, 4, -1, 0, -1, 0 };
 
         int width = src.getWidth();
@@ -266,7 +266,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                         * (pixels[offset + width + col - 1] & 0xff) + k7
                         * (pixels[offset + width + col] & 0xff) + k8
                         * (pixels[offset + width + col + 1] & 0xff);
-                // 运算后的像素值和原图像素叠加
+                // 杩愮畻鍚庣殑鍍忕礌鍊煎拰鍘熷浘鍍忕礌鍙犲姞
                 r += sr;
                 g += sg;
                 b += sb;
@@ -293,7 +293,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     }
     public BufferedImage sobelProcess(BufferedImage src) {
 
-        // Sobel算子
+        // Sobel绠楀瓙
         int[] sobel_y = new int[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
         int[] sobel_x = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
 
@@ -405,7 +405,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                         * (pixels[offset + width + col] & 0xff) + x8
                         * (pixels[offset + width + col + 1] & 0xff);
 
-                // 索贝尔梯度
+                // 绱㈣礉灏旀搴?
                 r = (int) Math.sqrt(yr * yr + xr * xr);
                 g = (int) Math.sqrt(yg * yg + xg * xg);
                 b = (int) Math.sqrt(yb * yb + xb * xb);
@@ -428,11 +428,11 @@ public class LaplaceImageFilter extends AbstractImageFilter{
 
     }
     /**
-     * 均值滤波 *
+     * 鍧囧€兼护娉?*
      */
     public BufferedImage meanValueProcess(BufferedImage src) {
 
-        // 已经索贝尔处理的图像
+        // 宸茬粡绱㈣礉灏斿鐞嗙殑鍥惧儚
         BufferedImage image = this.sobelProcess(src);
 
         int width = image.getWidth();
@@ -448,7 +448,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         }
         image.getRGB(0, 0, width, height, pixels, 0, width);
 
-        // 均值滤波使用的卷积模板半径，这里使用5*5均值，所以半径使用2
+        // 鍧囧€兼护娉娇鐢ㄧ殑鍗风Н妯℃澘鍗婂緞锛岃繖閲屼娇鐢?*5鍧囧€硷紝鎵€浠ュ崐寰勪娇鐢?
         int radius = 2;
         int total = (2 * radius + 1) * (2 * radius + 1);
 
@@ -497,21 +497,21 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
     /**
-     * 数学运算
+     * 鏁板杩愮畻
      */
     public BufferedImage mathProcess(BufferedImage src) {
 
-        // 获取经拉普拉斯运算后与原图叠加的图片
+        // 鑾峰彇缁忔媺鏅媺鏂繍绠楀悗涓庡師鍥惧彔鍔犵殑鍥剧墖
         BufferedImage lapsImage = this.laplaceAddProcess(src);
 
-        // 获取索贝尔5*5均值滤波后的图像
+        // 鑾峰彇绱㈣礉灏?*5鍧囧€兼护娉㈠悗鐨勫浘鍍?
         BufferedImage meanImage = this.meanValueProcess(src);
 
         int type = src.getType();
         int width = src.getWidth();
         int height = src.getHeight();
 
-        // 原始图像的像素信息
+        // 鍘熷鍥惧儚鐨勫儚绱犱俊鎭?
         int[] pixels = new int[width * height];
         if (type == BufferedImage.TYPE_INT_ARGB
                 || type == BufferedImage.TYPE_INT_RGB) {
@@ -519,7 +519,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         }
         src.getRGB(0, 0, width, height, pixels, 0, width);
 
-        // 拉普拉斯锐化后的像素信息
+        // 鎷夋櫘鎷夋柉閿愬寲鍚庣殑鍍忕礌淇℃伅
         int[] lapsPixels = new int[width * height];
         if (type == BufferedImage.TYPE_INT_ARGB
                 || type == BufferedImage.TYPE_INT_RGB) {
@@ -528,7 +528,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         }
         lapsImage.getRGB(0, 0, width, height, lapsPixels, 0, width);
 
-        // Sobel和均值滤波后的像素信息
+        // Sobel鍜屽潎鍊兼护娉㈠悗鐨勫儚绱犱俊鎭?
         int[] meanPixels = new int[width * height];
         if (type == BufferedImage.TYPE_INT_ARGB
                 || type == BufferedImage.TYPE_INT_RGB) {
@@ -539,7 +539,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
 
         int[] outPixels = new int[width * height];
 
-        // 图像相乘
+        // 鍥惧儚鐩镐箻
         int lr = 0, lg = 0, lb = 0;
         int mr = 0, mg = 0, mb = 0;
         int or = 0, og = 0, ob = 0;
@@ -549,7 +549,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 int lpixel = lapsPixels[row * width + col];
                 int mpixel = meanPixels[row * width + col];
 
-                // 原始图像
+                // 鍘熷鍥惧儚
                 int opixel = pixels[row * width + col];
 
                 lr = (lpixel >> 16) & 0XFF;
@@ -564,12 +564,12 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 mb = (mpixel) & 0XFF;
                 ob = (opixel) & 0XFF;
 
-                /** 图像相乘 标定到0~255 */
+                /** 鍥惧儚鐩镐箻 鏍囧畾鍒?~255 */
                 r = (lr * mr) / 255;
                 g = (lg * mg) / 255;
                 b = (lb * mb) / 255;
 
-                // 相乘后图像与原图相加
+                // 鐩镐箻鍚庡浘鍍忎笌鍘熷浘鐩稿姞
                 r = r + or;
                 g = g + og;
                 b = b + ob;
@@ -597,21 +597,21 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return value > 255 ? 255 : (value < 0 ? 0 : value);
     }
     /**
-     * 伽马变化
+     * 浼介┈鍙樺寲
      */
     public BufferedImage gammaProcess(BufferedImage src) {
 
         BufferedImage image = this.mathProcess(src);
 
-        // 幂级数
-        // 伽马值 (gamma) = 0.5;
+        // 骞傜骇鏁?
+        // 浼介┈鍊?(gamma) = 0.5;
         double gamma = 0.5;
 
         int type = image.getType();
         int width = src.getWidth();
         int height = src.getHeight();
 
-        // 经过数学变换后的像素信息
+        // 缁忚繃鏁板鍙樻崲鍚庣殑鍍忕礌淇℃伅
         int[] pixels = new int[width * height];
         if (type == BufferedImage.TYPE_INT_ARGB
                 || type == BufferedImage.TYPE_INT_RGB) {
@@ -621,7 +621,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
 
         int[] outPixels = new int[width * height];
 
-        // 建立LUT查找表
+        // 寤虹珛LUT鏌ユ壘琛?
         int[] lut = new int[256];
         for (int i = 0; i < 256; i++) {
 

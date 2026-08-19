@@ -5,35 +5,32 @@ import com.chua.common.support.ai.image.ImageClient;
 import java.awt.image.BufferedImage;
 
 /**
- * 支持 AI 客户端注入的图像滤镜抽象基类
+ * 鏀寔 AI 瀹㈡埛绔敞鍏ョ殑鍥惧儚婊ら暅鎶借薄鍩虹被
  *
- * <p>继承 {@link AbstractImageFilter}, 额外持有 {@link ImageClient} 引用,
- * 子类可在 {@link #filter(BufferedImage, BufferedImage)} 内部调用 AI 客户端
- * 对图像进行转换、重生成、风格迁移等高级操作。
- *
- * <p>使用示例:
+ * <p>缁ф壙 {@link AbstractImageFilter}, 棰濆鎸佹湁 {@link ImageClient} 寮曠敤,
+ * 瀛愮被鍙湪 {@link #filter(BufferedImage, BufferedImage)} 鍐呴儴璋冪敤 AI 瀹㈡埛绔? * 瀵瑰浘鍍忚繘琛岃浆鎹€侀噸鐢熸垚銆侀鏍艰縼绉荤瓑楂樼骇鎿嶄綔銆? *
+ * <p>浣跨敤绀轰緥:
  * <pre>{@code
- *   // 创建 AI 客户端 (任意 provider)
+ *   // 鍒涘缓 AI 瀹㈡埛绔?(浠绘剰 provider)
  *   ImageClient client = ImageClient.create("openai", "sk-xxx")
  *       .model("dall-e-3")
  *       .size(1024, 1024);
  *
- *   // 注入到滤镜
- *   MyFilter filter = new MyFilter().imageClient(client);
+ *   // 娉ㄥ叆鍒版护闀? *   MyFilter filter = new MyFilter().imageClient(client);
  *
- *   // 应用滤镜
+ *   // 搴旂敤婊ら暅
  *   BufferedImage result = filter.converter(sourceImage);
  * }</pre>
  *
- * <p>子类的典型实现:
+ * <p>瀛愮被鐨勫吀鍨嬪疄鐜?
  * <pre>{@code
  *   public class MyAiFilter extends AbstractImageClientFilter {
  *       &#64;Override
  *       public BufferedImage filter(BufferedImage src, BufferedImage dst) {
- *           // 调用 AI 客户端将 src 转换为新图像
+ *           // 璋冪敤 AI 瀹㈡埛绔皢 src 杞崲涓烘柊鍥惧儚
  *           ImageClient c = requireClient();
  *           return c.referenceImage(src)
- *                    .prompt("水彩画风格")
+ *                    .prompt("姘村僵鐢婚鏍?)
  *                    .generate();
  *       }
  *   }
@@ -45,21 +42,20 @@ import java.awt.image.BufferedImage;
 public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
     /**
-     * AI 图像生成客户端, 用于在 filter() 内部调用 AI 能力
+     * AI 鍥惧儚鐢熸垚瀹㈡埛绔? 鐢ㄤ簬鍦?filter() 鍐呴儴璋冪敤 AI 鑳藉姏
      */
     private ImageClient imageClient;
 
 
     /**
-     * 设置 AI 图像生成客户端
-     *
-     * <p>支持链式调用, 便于在创建后立即注入:
+     * 璁剧疆 AI 鍥惧儚鐢熸垚瀹㈡埛绔?     *
+     * <p>鏀寔閾惧紡璋冪敤, 渚夸簬鍦ㄥ垱寤哄悗绔嬪嵆娉ㄥ叆:
      * <pre>{@code
      *   new MyFilter().imageClient(client);
      * }</pre>
      *
-     * @param imageClient AI 客户端实例, 传 null 表示移除引用
-     * @return 当前滤镜实例
+     * @param imageClient AI 瀹㈡埛绔疄渚? 浼?null 琛ㄧず绉婚櫎寮曠敤
+     * @return 褰撳墠婊ら暅瀹炰緥
      */
     public AbstractImageClientFilter imageClient(ImageClient imageClient) {
         this.imageClient = imageClient;
@@ -68,9 +64,8 @@ public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
 
     /**
-     * 获取当前持有的 AI 客户端
-     *
-     * @return imageClient, 可能为 null
+     * 鑾峰彇褰撳墠鎸佹湁鐨?AI 瀹㈡埛绔?     *
+     * @return imageClient, 鍙兘涓?null
      */
     public ImageClient getImageClient() {
         return imageClient;
@@ -78,18 +73,15 @@ public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
 
     /**
-     * 获取当前持有的 AI 客户端, 若为 null 则抛出异常
-     *
-     * <p>子类在 {@link #filter(BufferedImage, BufferedImage)} 内调用此方法可保证
-     * imageClient 已注入, 避免 NullPointerException。
-     *
-     * @return 非空的 imageClient
-     * @throws IllegalStateException 当 imageClient 未注入时
+     * 鑾峰彇褰撳墠鎸佹湁鐨?AI 瀹㈡埛绔? 鑻ヤ负 null 鍒欐姏鍑哄紓甯?     *
+     * <p>瀛愮被鍦?{@link #filter(BufferedImage, BufferedImage)} 鍐呰皟鐢ㄦ鏂规硶鍙繚璇?     * imageClient 宸叉敞鍏? 閬垮厤 NullPointerException銆?     *
+     * @return 闈炵┖鐨?imageClient
+     * @throws IllegalStateException 褰?imageClient 鏈敞鍏ユ椂
      */
     protected ImageClient requireClient() {
         if (imageClient == null) {
             throw new IllegalStateException(
-                    getClass().getSimpleName() + " 需要先注入 ImageClient, 请调用 imageClient(...) 设置");
+                    getClass().getSimpleName() + " 闇€瑕佸厛娉ㄥ叆 ImageClient, 璇疯皟鐢?imageClient(...) 璁剧疆");
         }
         return imageClient;
     }

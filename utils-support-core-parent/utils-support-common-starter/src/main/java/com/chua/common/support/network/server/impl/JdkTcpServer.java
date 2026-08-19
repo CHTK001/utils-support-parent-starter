@@ -63,7 +63,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2026/07/26
  */
 @Slf4j
-@Spi({"jdk-tcp"})
+@Spi({"jdk-tcp", "tcp"})
 public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /**

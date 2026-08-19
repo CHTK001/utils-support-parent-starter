@@ -74,7 +74,15 @@ public class VertxHttpProxyServer extends AbstractServer {
             vertx = Vertx.vertx(opts);
             httpClient = vertx.createHttpClient(new HttpClientOptions()
                     .setTcpNoDelay(true)
-                    .setConnectTimeout(setting.getReadTimeout()));
+                    .setConnectTimeout(setting.getReadTimeout())
+                    // 连接池/keep-alive 复用：proxy 高并发转发关键，避免每请求新建后端连接
+                    .setKeepAlive(true)
+                    .setKeepAliveTimeout(60)
+                    .setPipelining(false)
+                    .setHttp2MultiplexingLimit(128)
+                    .setTcpFastOpen(true)
+                    .setTcpCork(true)
+                    .setTcpQuickAck(true));
 
             HttpServerOptions options = new HttpServerOptions()
                     .setHost(setting.getHost())

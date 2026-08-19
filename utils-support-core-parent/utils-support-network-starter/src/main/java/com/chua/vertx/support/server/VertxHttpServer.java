@@ -110,6 +110,14 @@ public class VertxHttpServer extends AbstractServer {
                 .setMaxWebSocketFrameSize(setting.getMaxFrameSize())
                 .setMaxWebSocketMessageSize(setting.getMaxFrameSize() * 4)
                 .setLogActivity(false);
+        // HTTP/2 (h2c) 流上限放大:Vert.x 5 默认开启 h2c 且 maxConcurrentStreams=100,
+        // JDK HttpClient 会把高并发虚拟线程请求复用进同一连接的多路流,超过 100 即 RST_STREAM,
+        // 实测 256/512 并发下 50%+ 请求失败(IOException: too many concurrent streams)。
+        // 放大到与 maxConnections 对齐,使多路复用真正承载高并发(HTTP/1.1 不受影响)。
+        httpOpts.setInitialSettings(new io.vertx.core.http.Http2Settings()
+                .setMaxConcurrentStreams(Math.max(setting.getMaxConnections(), 1024)));
+        // 显式开启 h2c 明文多路复用(HTTP/2 多路流共享单连接,单连接并发吞吐数倍于 HTTP/1.1)
+        httpOpts.setHttp2ClearTextEnabled(true);
 
         if (setting.getSsl() != null && setting.getSsl().isEnabled()) {
             httpOpts.setSsl(true);

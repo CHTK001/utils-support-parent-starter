@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * <h2>使用方式</h2>
  * <pre>{@code
  * // TCP 传输
- * SipClient client = SipClient.tcp("A", "tcp://127.0.0.1:19460");
+ * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460");
  * client.onMessage((fromId, content) -> System.out.println(fromId + " -> " + content));
  * client.connect();
  * client.register("192.168.1.10", 10001);

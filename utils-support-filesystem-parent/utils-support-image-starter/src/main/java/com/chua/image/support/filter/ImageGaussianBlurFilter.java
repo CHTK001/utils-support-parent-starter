@@ -17,61 +17,61 @@ import javax.annotation.Nullable;
 
 
 /**
- * 高斯模糊图像滤镜
+ * 楂樻柉妯＄硦鍥惧儚婊ら暅
  *
- * 实现高斯模糊效果的图像滤镜，通过应用高斯核函数对图像进行卷积运算，
- * 产生平滑的模糊效果。支持多线程并行处理以提高性能。
+ * 瀹炵幇楂樻柉妯＄硦鏁堟灉鐨勫浘鍍忔护闀滐紝閫氳繃搴旂敤楂樻柉鏍稿嚱鏁板鍥惧儚杩涜鍗风Н杩愮畻锛?
+ * 浜х敓骞虫粦鐨勬ā绯婃晥鏋溿€傛敮鎸佸绾跨▼骞惰澶勭悊浠ユ彁楂樻€ц兘銆?
  *
- * 技术原理：
- * - 基于高斯分布函数生成卷积核
- * - 分别进行水平和垂直方向的一维卷积
- * - 使用可分离卷积提高计算效率
- * - 多线程并行处理RGB三个颜色通道
+ * 鎶€鏈師鐞嗭細
+ * - 鍩轰簬楂樻柉鍒嗗竷鍑芥暟鐢熸垚鍗风Н鏍?
+ * - 鍒嗗埆杩涜姘村钩鍜屽瀭鐩存柟鍚戠殑涓€缁村嵎绉?
+ * - 浣跨敤鍙垎绂诲嵎绉彁楂樿绠楁晥鐜?
+ * - 澶氱嚎绋嬪苟琛屽鐞哛GB涓変釜棰滆壊閫氶亾
  *
- * 算法特点：
- * - 可调节模糊强度（sigma参数）
- * - 自适应核大小计算
- * - 边界像素处理
- * - 内存优化的实现方式
+ * 绠楁硶鐗圭偣锛?
+ * - 鍙皟鑺傛ā绯婂己搴︼紙sigma鍙傛暟锛?
+ * - 鑷€傚簲鏍稿ぇ灏忚绠?
+ * - 杈圭晫鍍忕礌澶勭悊
+ * - 鍐呭瓨浼樺寲鐨勫疄鐜版柟寮?
  *
- * 应用场景：
- * - 图像降噪：去除图像中的高频噪声
- * - 艺术效果：创建柔和、梦幻的视觉效果
- * - 背景虚化：突出主体，模糊背景
- * - 图像预处理：为后续处理准备平滑的图像
- * - 缩略图生成：减少细节以适应小尺寸显示
+ * 搴旂敤鍦烘櫙锛?
+ * - 鍥惧儚闄嶅櫔锛氬幓闄ゅ浘鍍忎腑鐨勯珮棰戝櫔澹?
+ * - 鑹烘湳鏁堟灉锛氬垱寤烘煍鍜屻€佹ⅵ骞荤殑瑙嗚鏁堟灉
+ * - 鑳屾櫙铏氬寲锛氱獊鍑轰富浣擄紝妯＄硦鑳屾櫙
+ * - 鍥惧儚棰勫鐞嗭細涓哄悗缁鐞嗗噯澶囧钩婊戠殑鍥惧儚
+ * - 缂╃暐鍥剧敓鎴愶細鍑忓皯缁嗚妭浠ラ€傚簲灏忓昂瀵告樉绀?
  *
  * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */
 @Slf4j
-@SpiDescribe("高斯模糊滤镜")
+@SpiDescribe("楂樻柉妯＄硦婊ら暅")
 @Spi("gaussianBlur")
 @NoArgsConstructor
 public class ImageGaussianBlurFilter extends AbstractImageFilter {
 
     /**
-     * 高斯卷积核数组
+     * 楂樻柉鍗风Н鏍告暟缁?
      */
     private float[] kernel = new float[0];
 
     /**
-     * 高斯分布的标准差，控制模糊程度
+     * 楂樻柉鍒嗗竷鐨勬爣鍑嗗樊锛屾帶鍒舵ā绯婄▼搴?
      */
     private double sigma = 2;
 
-    /** 线程池执行器 */
+    /** 绾跨▼姹犳墽琛屽櫒 */
     ExecutorService mExecutor;
 
-    /** 完成服务，管理并发任务 */
+    /** 瀹屾垚鏈嶅姟锛岀鐞嗗苟鍙戜换鍔?*/
     CompletionService<Void> service;
 
     /**
-     * 构造函数，使用自定义的卷积核和标准差
+     * 鏋勯€犲嚱鏁帮紝浣跨敤鑷畾涔夌殑鍗风Н鏍稿拰鏍囧噯宸?
      *
-     * @param kernel 高斯卷积核数组
-     * @param sigma  高斯分布的标准差
+     * @param kernel 楂樻柉鍗风Н鏍告暟缁?
+     * @param sigma  楂樻柉鍒嗗竷鐨勬爣鍑嗗樊
      */
     public ImageGaussianBlurFilter(float[] kernel, double sigma) {
         this.kernel = kernel;
@@ -79,15 +79,15 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     }
 
     /**
-     * 执行一维高斯模糊卷积
+     * 鎵ц涓€缁撮珮鏂ā绯婂嵎绉?
      *
-     * 对图像的一个颜色通道进行一维高斯卷积运算。通过分离的水平和垂直卷积
-     * 来实现二维高斯模糊，这种方法比直接二维卷积更高效。
+     * 瀵瑰浘鍍忕殑涓€涓鑹查€氶亾杩涜涓€缁撮珮鏂嵎绉繍绠椼€傞€氳繃鍒嗙鐨勬按骞冲拰鍨傜洿鍗风Н
+     * 鏉ュ疄鐜颁簩缁撮珮鏂ā绯婏紝杩欑鏂规硶姣旂洿鎺ヤ簩缁村嵎绉洿楂樻晥銆?
      *
-     * @param inPixels  输入像素数据数组
-     * @param outPixels 输出像素数据数组
-     * @param width     图像宽度
-     * @param height    图像高度
+     * @param inPixels  杈撳叆鍍忕礌鏁版嵁鏁扮粍
+     * @param outPixels 杈撳嚭鍍忕礌鏁版嵁鏁扮粍
+     * @param width     鍥惧儚瀹藉害
+     * @param height    鍥惧儚楂樺害
      */
     private void blur(byte[] inPixels, byte[] outPixels, int width, int height) {
         int subCol = 0;
@@ -95,20 +95,20 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
         float sum = 0;
         int k = kernel.length - 1;
 
-        // 逐行处理图像
+        // 閫愯澶勭悊鍥惧儚
         for (int row = 0; row < height; row++) {
             int c = 0;
             index = row;
 
-            // 逐列处理像素
+            // 閫愬垪澶勭悊鍍忕礌
             for (int col = 0; col < width; col++) {
                 sum = 0;
 
-                // 应用高斯卷积核
+                // 搴旂敤楂樻柉鍗风Н鏍?
                 for (int m = -k; m < kernel.length; m++) {
                     subCol = col + m;
 
-                    // 边界处理：超出边界时使用边界像素值
+                    // 杈圭晫澶勭悊锛氳秴鍑鸿竟鐣屾椂浣跨敤杈圭晫鍍忕礌鍊?
                     if (subCol < 0 || subCol >= width) {
                         subCol = 0;
                     }
@@ -118,7 +118,7 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
                     sum += c * kernel[Math.abs(m)];
                 }
 
-                // 限制结果在有效范围内并存储
+                // 闄愬埗缁撴灉鍦ㄦ湁鏁堣寖鍥村唴骞跺瓨鍌?
                 outPixels[index] = (byte) BufferedImageUtils.clamp(sum);
                 index += height;
             }
@@ -126,30 +126,30 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     }
 
     /**
-     * 执行高斯模糊滤镜处理
+     * 鎵ц楂樻柉妯＄硦婊ら暅澶勭悊
      *
-     * 对输入图像应用高斯模糊效果。使用多线程并行处理RGB三个颜色通道，
-     * 先进行水平方向的模糊，再进行垂直方向的模糊，实现完整的二维高斯模糊。
+     * 瀵硅緭鍏ュ浘鍍忓簲鐢ㄩ珮鏂ā绯婃晥鏋溿€備娇鐢ㄥ绾跨▼骞惰澶勭悊RGB涓変釜棰滆壊閫氶亾锛?
+     * 鍏堣繘琛屾按骞虫柟鍚戠殑妯＄硦锛屽啀杩涜鍨傜洿鏂瑰悜鐨勬ā绯婏紝瀹炵幇瀹屾暣鐨勪簩缁撮珮鏂ā绯娿€?
      *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 应用高斯模糊后的图像
+     * @param src 婧愬浘鍍?
+     * @param dst 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
+     * @return 搴旂敤楂樻柉妯＄硦鍚庣殑鍥惧儚
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         final int size = width * height;
-        // RGB三个颜色通道
+        // RGB涓変釜棰滆壊閫氶亾
         // = 3;
         int dims = 3;
 
-        // 生成高斯卷积核
+        // 鐢熸垚楂樻柉鍗风Н鏍?
         makeGaussianKernel(sigma, 0.002, Math.min(width, height));
 
-        // 创建线程池进行并行处理
+        // 鍒涘缓绾跨▼姹犺繘琛屽苟琛屽鐞?
         mExecutor = ThreadUtils.newFixedThreadExecutor(dims, "gaussian-blur-task");
         service = new ExecutorCompletionService<>(mExecutor);
 
-        // 为每个颜色通道提交处理任务
+        // 涓烘瘡涓鑹查€氶亾鎻愪氦澶勭悊浠诲姟
         for (int i = 0; i < dims; i++) {
             final int channelIndex = i;
             service.submit(new Callable<Void>() {
@@ -158,10 +158,10 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
                     byte[] inPixels = toColorByte(channelIndex);
                     byte[] tempPixels = new byte[size];
 
-                    // 先进行水平方向的高斯模糊
+                    // 鍏堣繘琛屾按骞虫柟鍚戠殑楂樻柉妯＄硦
                     blur(inPixels, tempPixels, width, height);
 
-                    // 再进行垂直方向的高斯模糊
+                    // 鍐嶈繘琛屽瀭鐩存柟鍚戠殑楂樻柉妯＄硦
                     blur(tempPixels, inPixels, height, width);
 
                     return null;
@@ -169,72 +169,72 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
             });
         }
 
-        // 等待所有任务完成
+        // 绛夊緟鎵€鏈変换鍔″畬鎴?
         for (int i = 0; i < dims; i++) {
             try {
                 service.take();
             } catch (InterruptedException e) {
-                log.error("高斯模糊处理线程被中断", e);
+                log.error("楂樻柉妯＄硦澶勭悊绾跨▼琚腑鏂?, e);
                 Thread.currentThread().interrupt();
             }
         }
 
-        // 关闭线程池
+        // 鍏抽棴绾跨▼姹?
         mExecutor.shutdown();
 
-        // 将处理后的RGB数据转换为BufferedImage
+        // 灏嗗鐞嗗悗鐨凴GB鏁版嵁杞崲涓築ufferedImage
         return toBitmap();
     }
 
 
     /**
-     * 生成高斯卷积核
+     * 鐢熸垚楂樻柉鍗风Н鏍?
      *
-     * 根据给定的标准差和精度要求生成一维高斯卷积核。
-     * 卷积核的大小会根据标准差自动计算，确保在指定精度下的高斯分布近似。
+     * 鏍规嵁缁欏畾鐨勬爣鍑嗗樊鍜岀簿搴﹁姹傜敓鎴愪竴缁撮珮鏂嵎绉牳銆?
+     * 鍗风Н鏍哥殑澶у皬浼氭牴鎹爣鍑嗗樊鑷姩璁＄畻锛岀‘淇濆湪鎸囧畾绮惧害涓嬬殑楂樻柉鍒嗗竷杩戜技銆?
      *
-     * @param sigma     高斯分布的标准差，控制模糊程度
-     * @param accuracy  精度要求，确定卷积核的截断点
-     * @param maxRadius 最大卷积核半径，防止卷积核过大
+     * @param sigma     楂樻柉鍒嗗竷鐨勬爣鍑嗗樊锛屾帶鍒舵ā绯婄▼搴?
+     * @param accuracy  绮惧害瑕佹眰锛岀‘瀹氬嵎绉牳鐨勬埅鏂偣
+     * @param maxRadius 鏈€澶у嵎绉牳鍗婂緞锛岄槻姝㈠嵎绉牳杩囧ぇ
      */
     public void makeGaussianKernel(final double sigma, final double accuracy, int maxRadius) {
-        // 根据精度要求计算卷积核半径
+        // 鏍规嵁绮惧害瑕佹眰璁＄畻鍗风Н鏍稿崐寰?
         int kRadius = (int) Math.ceil(sigma * Math.sqrt(-2 * Math.log(accuracy))) + 1;
 
-        // 确保最大半径不小于50
+        // 纭繚鏈€澶у崐寰勪笉灏忎簬50
         if (maxRadius < 50) {
             maxRadius = 50;
         }
 
-        // 限制卷积核大小
+        // 闄愬埗鍗风Н鏍稿ぇ灏?
         if (kRadius > maxRadius) {
             kRadius = maxRadius;
         }
 
-        // 创建卷积核数组
+        // 鍒涘缓鍗风Н鏍告暟缁?
         kernel = new float[kRadius];
 
-        // 计算高斯函数值
+        // 璁＄畻楂樻柉鍑芥暟鍊?
         for (int i = 0; i < kRadius; i++) {
             kernel[i] = (float) (Math.exp(-0.5 * i * i / sigma / sigma));
         }
 
-        // 计算归一化因子
+        // 璁＄畻褰掍竴鍖栧洜瀛?
         double sum;
         if (kRadius < maxRadius) {
-            // 精确计算归一化因子
+            // 绮剧‘璁＄畻褰掍竴鍖栧洜瀛?
             sum = kernel[0];
             for (int i = 1; i < kRadius; i++) {
-                // 对称性，每个非零项计算两次
+                // 瀵圭О鎬э紝姣忎釜闈為浂椤硅绠椾袱娆?
                 // * kernel[i];
                 sum += 2 * kernel[i];
             }
         } else {
-            // 使用理论值作为归一化因子
+            // 浣跨敤鐞嗚鍊间綔涓哄綊涓€鍖栧洜瀛?
             sum = sigma * Math.sqrt(2 * Math.PI);
         }
 
-        // 归一化卷积核，确保所有权重之和为1
+        // 褰掍竴鍖栧嵎绉牳锛岀‘淇濇墍鏈夋潈閲嶄箣鍜屼负1
         for (int i = 0; i < kRadius; i++) {
             kernel[i] = (float) (kernel[i] / sum);
         }

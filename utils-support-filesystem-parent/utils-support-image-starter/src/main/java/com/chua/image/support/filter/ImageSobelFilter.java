@@ -12,113 +12,113 @@ import javax.annotation.Nullable;
 
 
 /**
- * Sobel 边缘检测图像滤镜
+ * Sobel 杈圭紭妫€娴嬪浘鍍忔护闀?
  *
- * 实现 Sobel 算子进行边缘检测，通过计算图像梯度来识别和突出显示图像中的边缘。
- * Sobel 算子是一种经典的边缘检测算法，在计算机视觉和图像处理中广泛应用。
+ * 瀹炵幇 Sobel 绠楀瓙杩涜杈圭紭妫€娴嬶紝閫氳繃璁＄畻鍥惧儚姊害鏉ヨ瘑鍒拰绐佸嚭鏄剧ず鍥惧儚涓殑杈圭紭銆?
+ * Sobel 绠楀瓙鏄竴绉嶇粡鍏哥殑杈圭紭妫€娴嬬畻娉曪紝鍦ㄨ绠楁満瑙嗚鍜屽浘鍍忓鐞嗕腑骞挎硾搴旂敤銆?
  *
- * 技术原理：
- * - 使用 3x3 卷积核计算图像梯度
- * - 分别计算水平方向（X方向）和垂直方向（Y方向）的梯度
- * - 通过一阶导数近似检测边缘
- * - 对噪声具有一定的抑制能力
+ * 鎶€鏈師鐞嗭細
+ * - 浣跨敤 3x3 鍗风Н鏍歌绠楀浘鍍忔搴?
+ * - 鍒嗗埆璁＄畻姘村钩鏂瑰悜锛圶鏂瑰悜锛夊拰鍨傜洿鏂瑰悜锛圷鏂瑰悜锛夌殑姊害
+ * - 閫氳繃涓€闃跺鏁拌繎浼兼娴嬭竟缂?
+ * - 瀵瑰櫔澹板叿鏈変竴瀹氱殑鎶戝埗鑳藉姏
  *
- * Sobel 算子：
- * X方向（水平边缘检测）：
+ * Sobel 绠楀瓙锛?
+ * X鏂瑰悜锛堟按骞宠竟缂樻娴嬶級锛?
  * [-1  0  1]
  * [-2  0  2]
  * [-1  0  1]
  *
- * Y方向（垂直边缘检测）：
+ * Y鏂瑰悜锛堝瀭鐩磋竟缂樻娴嬶級锛?
  * [-1 -2 -1]
  * [ 0  0  0]
  * [ 1  2  1]
  *
- * 算法特点：
- * - 计算效率高，适合实时处理
- * - 对噪声有一定的平滑作用
- * - 能够检测不同方向的边缘
- * - 边缘定位精度较好
+ * 绠楁硶鐗圭偣锛?
+ * - 璁＄畻鏁堢巼楂橈紝閫傚悎瀹炴椂澶勭悊
+ * - 瀵瑰櫔澹版湁涓€瀹氱殑骞虫粦浣滅敤
+ * - 鑳藉妫€娴嬩笉鍚屾柟鍚戠殑杈圭紭
+ * - 杈圭紭瀹氫綅绮惧害杈冨ソ
  *
- * 应用场景：
- * - 边缘检测：识别图像中的物体轮廓
- * - 特征提取：为后续图像分析提供特征
- * - 图像分割：基于边缘信息进行区域分割
- * - 目标识别：辅助物体识别和跟踪
- * - 医学影像：医学图像的边缘增强
- * - 工业检测：产品质量检测中的边缘分析
+ * 搴旂敤鍦烘櫙锛?
+ * - 杈圭紭妫€娴嬶細璇嗗埆鍥惧儚涓殑鐗╀綋杞粨
+ * - 鐗瑰緛鎻愬彇锛氫负鍚庣画鍥惧儚鍒嗘瀽鎻愪緵鐗瑰緛
+ * - 鍥惧儚鍒嗗壊锛氬熀浜庤竟缂樹俊鎭繘琛屽尯鍩熷垎鍓?
+ * - 鐩爣璇嗗埆锛氳緟鍔╃墿浣撹瘑鍒拰璺熻釜
+ * - 鍖诲褰卞儚锛氬尰瀛﹀浘鍍忕殑杈圭紭澧炲己
+ * - 宸ヤ笟妫€娴嬶細浜у搧璐ㄩ噺妫€娴嬩腑鐨勮竟缂樺垎鏋?
  *
  * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */
-@SpiDescribe("Sobel边缘检测滤镜")
+@SpiDescribe("Sobel杈圭紭妫€娴嬫护闀?)
 @Spi("sobel")
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImageSobelFilter extends AbstractImageFilter {
 
     /**
-     * Sobel Y方向（垂直边缘检测）卷积核
+     * Sobel Y鏂瑰悜锛堝瀭鐩磋竟缂樻娴嬶級鍗风Н鏍?
      */
     public static int[] sobelY = new int[]{-1, -2, -1, 0, 0, 0, 1, 2, 1};
 
     /**
-     * Sobel X方向（水平边缘检测）卷积核
+     * Sobel X鏂瑰悜锛堟按骞宠竟缂樻娴嬶級鍗风Н鏍?
      */
     public static int[] sobelX = new int[]{-1, 0, 1, -2, 0, 2, -1, 0, 1};
 
     /**
-     * 是否使用X方向检测，true为X方向（检测垂直边缘），false为Y方向（检测水平边缘）
+     * 鏄惁浣跨敤X鏂瑰悜妫€娴嬶紝true涓篨鏂瑰悜锛堟娴嬪瀭鐩磋竟缂橈級锛宖alse涓篩鏂瑰悜锛堟娴嬫按骞宠竟缂橈級
      */
     private boolean xdirect = true;
 
     /**
-     * 执行 Sobel 边缘检测滤镜处理
+     * 鎵ц Sobel 杈圭紭妫€娴嬫护闀滃鐞?
      *
-     * 对图像应用 Sobel 算子进行边缘检测。根据 xdirect 参数选择检测方向：
-     * - true：使用 X 方向算子，检测垂直边缘
-     * - false：使用 Y 方向算子，检测水平边缘
+     * 瀵瑰浘鍍忓簲鐢?Sobel 绠楀瓙杩涜杈圭紭妫€娴嬨€傛牴鎹?xdirect 鍙傛暟閫夋嫨妫€娴嬫柟鍚戯細
+     * - true锛氫娇鐢?X 鏂瑰悜绠楀瓙锛屾娴嬪瀭鐩磋竟缂?
+     * - false锛氫娇鐢?Y 鏂瑰悜绠楀瓙锛屾娴嬫按骞宠竟缂?
      *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 边缘检测后的图像
+     * @param src 婧愬浘鍍?
+     * @param dst 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
+     * @return 杈圭紭妫€娴嬪悗鐨勫浘鍍?
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int total = width * height;
-        // RGB三个通道的输出数组
+        // RGB涓変釜閫氶亾鐨勮緭鍑烘暟缁?
         byte[][] output = new byte[3][total];
 
         int offset = 0;
-        // Sobel 卷积核的9个系数
+        // Sobel 鍗风Н鏍哥殑9涓郴鏁?
         int k0 = 0, k1 = 0, k2 = 0;
         int k3 = 0, k4 = 0, k5 = 0;
         int k6 = 0, k7 = 0, k8 = 0;
 
-        // 根据检测方向选择相应的 Sobel 算子
+        // 鏍规嵁妫€娴嬫柟鍚戦€夋嫨鐩稿簲鐨?Sobel 绠楀瓙
         if (xdirect) {
-            // X方向算子：检测垂直边缘
+            // X鏂瑰悜绠楀瓙锛氭娴嬪瀭鐩磋竟缂?
             k0 = sobelX[0]; k1 = sobelX[1]; k2 = sobelX[2];
             k3 = sobelX[3]; k4 = sobelX[4]; k5 = sobelX[5];
             k6 = sobelX[6]; k7 = sobelX[7]; k8 = sobelX[8];
         } else {
-            // Y方向算子：检测水平边缘
+            // Y鏂瑰悜绠楀瓙锛氭娴嬫按骞宠竟缂?
             k0 = sobelY[0]; k1 = sobelY[1]; k2 = sobelY[2];
             k3 = sobelY[3]; k4 = sobelY[4]; k5 = sobelY[5];
             k6 = sobelY[6]; k7 = sobelY[7]; k8 = sobelY[8];
         }
 
-        // 梯度计算结果
+        // 姊害璁＄畻缁撴灉
         int sr = 0, sg = 0, sb = 0;
         int r = 0, g = 0, b = 0;
 
-        // 遍历图像像素（跳过边界像素，因为需要3x3邻域）
+        // 閬嶅巻鍥惧儚鍍忕礌锛堣烦杩囪竟鐣屽儚绱狅紝鍥犱负闇€瑕?x3閭诲煙锛?
         for (int row = 1; row < height - 1; row++) {
             offset = row * width;
             for (int col = 1; col < width - 1; col++) {
 
-        // 计算红色通道的 Sobel 梯度，方向顺序：左上、上、右上、左、中心、右、左下、下、右下
+        // 璁＄畻绾㈣壊閫氶亾鐨?Sobel 姊害锛屾柟鍚戦『搴忥細宸︿笂銆佷笂銆佸彸涓娿€佸乏銆佷腑蹇冦€佸彸銆佸乏涓嬨€佷笅銆佸彸涓?
         sr = k0 * (rArr[offset - width + col - 1] & 0xff)
                 + k1 * (rArr[offset - width + col] & 0xff)
                 + k2 * (rArr[offset - width + col + 1] & 0xff)
@@ -129,7 +129,7 @@ public class ImageSobelFilter extends AbstractImageFilter {
                 + k7 * (rArr[offset + width + col] & 0xff)
                 + k8 * (rArr[offset + width + col + 1] & 0xff);
 
-                // 计算绿色通道的 Sobel 梯度
+                // 璁＄畻缁胯壊閫氶亾鐨?Sobel 姊害
                 sg = k0 * (gArr[offset - width + col - 1] & 0xff)
                         + k1 * (gArr[offset - width + col] & 0xff)
                         + k2 * (gArr[offset - width + col + 1] & 0xff)
@@ -140,7 +140,7 @@ public class ImageSobelFilter extends AbstractImageFilter {
                         + k7 * (gArr[offset + width + col] & 0xff)
                         + k8 * (gArr[offset + width + col + 1] & 0xff);
 
-                // 计算蓝色通道的 Sobel 梯度
+                // 璁＄畻钃濊壊閫氶亾鐨?Sobel 姊害
                 sb = k0 * (bArr[offset - width + col - 1] & 0xff)
                         + k1 * (bArr[offset - width + col] & 0xff)
                         + k2 * (bArr[offset - width + col + 1] & 0xff)
@@ -151,24 +151,24 @@ public class ImageSobelFilter extends AbstractImageFilter {
                         + k7 * (bArr[offset + width + col] & 0xff)
                         + k8 * (bArr[offset + width + col + 1] & 0xff);
 
-                // 保存梯度计算结果
+                // 淇濆瓨姊害璁＄畻缁撴灉
                 r = sr;
                 g = sg;
                 b = sb;
 
-                // 将结果限制在有效范围内并存储
+                // 灏嗙粨鏋滈檺鍒跺湪鏈夋晥鑼冨洿鍐呭苟瀛樺偍
                 output[0][offset + col] = (byte) BufferedImageUtils.clamp(r);
                 output[1][offset + col] = (byte) BufferedImageUtils.clamp(g);
                 output[2][offset + col] = (byte) BufferedImageUtils.clamp(b);
 
-                // 重置梯度值，准备处理下一个像素
+                // 閲嶇疆姊害鍊硷紝鍑嗗澶勭悊涓嬩竴涓儚绱?
                 sr = 0;
                 sg = 0;
                 sb = 0;
             }
         }
 
-        // 将处理后的RGB数据设置回图像
+        // 灏嗗鐞嗗悗鐨凴GB鏁版嵁璁剧疆鍥炲浘鍍?
         putRgb(output[0], output[1], output[2]);
         return toBitmap();
     }
