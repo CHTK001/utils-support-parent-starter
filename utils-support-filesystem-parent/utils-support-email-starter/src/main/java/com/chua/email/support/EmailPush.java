@@ -72,11 +72,16 @@ public class EmailPush implements MessagePush {
     }
 
     @Override
+    /** 获取Provider */
     public String getProvider() {
         return "email";
     }
 
     @Override
+    /**
+     * 发送
+     * @param request request
+     */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -121,11 +126,16 @@ public class EmailPush implements MessagePush {
     }
 
     @Override
+    /** ListTemplates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
 
     @Override
+    /**
+     * 获取Template
+     * @param templateId templateId
+     */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

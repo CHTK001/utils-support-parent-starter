@@ -226,6 +226,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     @Override
+    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         if (inferEngine == null || !inferEngine.isInitialized()) {
             throw new IllegalStateException("LaMa推理器未初始化，请先设置配置");
@@ -253,17 +254,20 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     @Override
+    /** Converter */
     public BufferedImage converter(BufferedImage image) throws IOException {
         return filter(image, null);
     }
 
     @Override
+    /** 获取Image格式化 */
     public String getImageFormat() {
         // png"; // LaMa输出通常使用PNG格式以保持质量
         return "png";
     }
 
     @Override
+    /** 获取Image格式化 */
     public String getImageFormat(String name) {
         
         return name != null ? name : getImageFormat();
@@ -347,6 +351,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         cleanup();
     }

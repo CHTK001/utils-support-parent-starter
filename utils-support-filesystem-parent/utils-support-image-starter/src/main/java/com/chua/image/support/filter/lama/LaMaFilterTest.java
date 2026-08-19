@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 @Slf4j
 public class LaMaFilterTest {
 
+    /** Main */
     public static void main(String[] args) {
         System.out.println("🧪 LaMa滤镜测试");
         System.out.println("=" .repeat(40));

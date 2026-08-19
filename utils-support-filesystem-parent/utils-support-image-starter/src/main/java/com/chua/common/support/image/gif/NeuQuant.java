@@ -228,6 +228,7 @@ public class NeuQuant {
         }
     }
 
+    /** ColorMap */
     public byte[] colorMap() {
         byte[] map = new byte[3 * NETSIZE];
         int[] index = new int[NETSIZE];
@@ -479,6 +480,7 @@ public class NeuQuant {
         return (best);
     }
 
+    /** 处理 */
     public byte[] process() {
         learn();
         unbiasnet();

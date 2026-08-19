@@ -209,6 +209,10 @@ public class PocketTtsTranslator {
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
+    /**
+     * 是否拥有ModelFiles
+     * @param modelDir modelDir
+     */
     private boolean hasModelFiles(Path modelDir) {
         return Files.exists(modelDir.resolve(textEncoderFile()))
                 && Files.exists(modelDir.resolve(flowFile()))
@@ -274,18 +278,22 @@ public class PocketTtsTranslator {
 
     // ==================== config.json 解析 ====================
 
+    /** TextEncoderFile */
     private String textEncoderFile() {
         return configStr("model_files.text_encoder", "text_encoder.onnx");
     }
 
+    /** FlowFile */
     private String flowFile() {
         return configStr("model_files.flow", "flow.onnx");
     }
 
+    /** MimiDecoderFile */
     private String mimiDecoderFile() {
         return configStr("model_files.mimi_decoder", "mimi_decoder.onnx");
     }
 
+    /** MimiEncoderFile */
     private String mimiEncoderFile() {
         return configStr("model_files.mimi_encoder", "mimi_encoder.onnx");
     }
@@ -295,10 +303,20 @@ public class PocketTtsTranslator {
      */
     private final Map<String, String> configCache = new LinkedHashMap<>();
 
+    /**
+     * ConfigStr
+     * @param dotPath dotPath
+     * @param def def
+     */
     private String configStr(String dotPath, String def) {
         return configCache.getOrDefault(dotPath, def);
     }
 
+    /**
+     * ConfigInt
+     * @param dotPath dotPath
+     * @param def def
+     */
     private int configInt(String dotPath, int def) {
         String v = configCache.get(dotPath);
         if (v == null) {
@@ -311,6 +329,11 @@ public class PocketTtsTranslator {
         }
     }
 
+    /**
+     * ConfigDouble
+     * @param dotPath dotPath
+     * @param def def
+     */
     private double configDouble(String dotPath, double def) {
         String v = configCache.get(dotPath);
         if (v == null) {
@@ -436,6 +459,10 @@ public class PocketTtsTranslator {
 
     // ==================== tokenizer ====================
 
+    /**
+     * 加载Tokenizer
+     * @param tokenizerPath tokenizerPath
+     */
     private void loadTokenizer(Path tokenizerPath) throws Exception {
         if (tokenizerPath == null || !Files.exists(tokenizerPath)) {
             throw new IllegalStateException("Pocket-TTS tokenizer.json 缺失: " + tokenizerPath);

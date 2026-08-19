@@ -1982,6 +1982,10 @@ public class ClassUtils {
     public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
         return cacheMethod.computeIfAbsent(clazz.hashCode() + name.hashCode() + paramTypes.hashCode(), new Function<Integer, Method>() {
             @Override
+            /**
+             * 应用
+             * @param integer integer
+             */
             public Method apply(Integer integer) {
                 Method[] allMethod = getAllMethod(clazz);
                 for (Method method : allMethod) {
@@ -2020,6 +2024,10 @@ public class ClassUtils {
     private static Method[] getAllMethod(Class<?> clazz) {
         return DECLARED_METHODS_CACHE.computeIfAbsent(clazz, new Function<Class<?>, Method[]>() {
             @Override
+            /**
+             * 应用
+             * @param aClass aClass
+             */
             public Method[] apply(Class<?> aClass) {
                 List<Method> rs = new LinkedList<>();
                 List<Class<?>> validate = new LinkedList<>();
@@ -2028,6 +2036,12 @@ public class ClassUtils {
 
             }
 
+            /**
+             * Do注册Method
+             * @param rs rs
+             * @param aClass aClass
+             * @param validate validate
+             */
             private void doRegisterMethod(List<Method> rs, Class<?> aClass, List<Class<?>> validate) {
                 if(validate.contains(aClass)) {
                     return;
@@ -2760,6 +2774,10 @@ public class ClassUtils {
         Map<String, Method> rs = new LinkedHashMap<>();
         doWithMethods(type, new SafeConsumer<Method>() {
             @Override
+            /**
+             * SafeAccept
+             * @param method method
+             */
             public void safeAccept(Method method) throws Throwable {
                 if (!predicate.test(method)) {
                     return;
@@ -3154,6 +3172,7 @@ public class ClassUtils {
         }
 
         @Override
+        /** 运行 */
         public T run() {
             setAccessible(obj);
             return obj;

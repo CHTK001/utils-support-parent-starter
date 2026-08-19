@@ -113,6 +113,10 @@ public class DhtNettyServer {
                 .option(ChannelOption.SO_SNDBUF, 65536)
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
                     @Override
+                    /**
+                     * 初始化Channel
+                     * @param ch ch
+                     */
                     protected void initChannel(NioDatagramChannel ch) {
                         ch.pipeline().addLast(new DhtPacketHandler());
                     }
@@ -287,6 +291,11 @@ public class DhtNettyServer {
      */
     private class DhtPacketHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         @Override
+        /**
+         * Channel读取
+         * @param ctx ctx
+         * @param packet packet
+         */
         protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             SocketAddress sender = packet.sender();
             ByteBuf buf = packet.content();
@@ -302,6 +311,11 @@ public class DhtNettyServer {
         }
 
         @Override
+        /**
+         * ExceptionCaught
+         * @param ctx ctx
+         * @param cause cause
+         */
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             log.debug("DHT Netty server error", cause);
             ctx.close();

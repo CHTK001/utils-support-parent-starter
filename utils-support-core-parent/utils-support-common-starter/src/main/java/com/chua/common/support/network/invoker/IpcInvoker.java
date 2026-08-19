@@ -104,6 +104,11 @@ public class IpcInvoker implements Invoker {
     }
 
     @Override
+    /**
+     * 添加Inject
+     * @param target target
+     * @param callback callback
+     */
     public Invoker addInject(String target, InjectCallback callback) {
         globalInjectRules.add(new SharedInvocationContext.InjectRule(target, callback));
         return this;
@@ -141,6 +146,12 @@ public class IpcInvoker implements Invoker {
         }
 
         @Override
+        /**
+         * 调用
+         * @param proxy proxy
+         * @param method method
+         * @param args args
+         */
         public Object invoke(Object proxy, Method method, Object[] args) {
             if (method.getDeclaringClass() == Object.class) {
                 try { return method.invoke(this, args); } catch (Exception e) { return null; }
@@ -182,6 +193,12 @@ public class IpcInvoker implements Invoker {
             return result;
         }
 
+        /**
+         * 处理RemoteHeaders
+         * @param ctx ctx
+         * @param method method
+         * @param args args
+         */
         private void processRemoteHeaders(InvocationContext ctx, Method method, Object[] args) {
             RemoteHeader[] headers = method.getAnnotationsByType(RemoteHeader.class);
             for (RemoteHeader rh : headers) {
@@ -199,6 +216,12 @@ public class IpcInvoker implements Invoker {
             }
         }
 
+        /**
+         * 处理RemoteInject
+         * @param ctx ctx
+         * @param method method
+         * @param args args
+         */
         private void processRemoteInject(InvocationContext ctx, Method method, Object[] args) {
             RemoteInject[] injects = method.getAnnotationsByType(RemoteInject.class);
             if (injects.length == 0) return;
@@ -237,6 +260,12 @@ public class IpcInvoker implements Invoker {
             return beanPath.getValue(ctx, source);
         }
 
+        /**
+         * 应用Target
+         * @param target target
+         * @param value value
+         * @param beanPath beanPath
+         */
         private void applyTarget(String target, String value, BeanPath beanPath) {
             if (target.startsWith("headers.")) {
                 sharedContext.addDefaultHeader(target.substring(8), value);
@@ -245,6 +274,10 @@ public class IpcInvoker implements Invoker {
             }
         }
 
+        /**
+         * 解析Placeholders
+         * @param text text
+         */
         private String resolvePlaceholders(String text) {
             if (StringUtils.isEmpty(text) || !text.contains("${")) return text;
             return propertyResolver.resolvePlaceholders(text);
@@ -261,6 +294,11 @@ public class IpcInvoker implements Invoker {
                 /** 索引 */
                 private int index = 0;
                 @Override
+                /**
+                 * Do过滤
+                 * @param request request
+                 * @param response response
+                 */
                 public void doFilter(com.chua.common.support.network.server.request.ServerRequest request,
                                      com.chua.common.support.network.server.response.ServerResponse response) {
                     if (index < filters.size()) {

@@ -31,11 +31,20 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     private final Environment delegate;
 
     @Override
+    /**
+     * 获取Property
+     * @param key key
+     */
     public String getProperty(String key) {
         return delegate.getProperty(key);
     }
 
     @Override
+    /**
+     * 获取Property
+     * @param key key
+     * @param defaultValue defaultValue
+     */
     public String getProperty(String key, String defaultValue) {
         return delegate.getProperty(key, defaultValue);
     }
@@ -51,6 +60,10 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     }
 
     @Override
+    /**
+     * 获取RequiredProperty
+     * @param key key
+     */
     public String getRequiredProperty(String key) throws IllegalStateException {
         String value = delegate.getProperty(key);
         if (value == null) {
@@ -69,6 +82,10 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     }
 
     @Override
+    /**
+     * 解析Placeholders
+     * @param text text
+     */
     public String resolvePlaceholders(String text) {
         return HELPER.replacePlaceholders(text, key -> {
             Object value = delegate.getProperty(key);
@@ -77,6 +94,10 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     }
 
     @Override
+    /**
+     * 解析RequiredPlaceholders
+     * @param text text
+     */
     public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
         String resolved = resolvePlaceholders(text);
         if (resolved != null && resolved.contains("${")) {
@@ -86,27 +107,41 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     }
 
     @Override
+    /**
+     * ContainsProperty
+     * @param key key
+     */
     public boolean containsProperty(String key) {
         return delegate.containsProperty(key);
     }
 
     @Override
+    /** 获取ActiveProfiles */
     public String[] getActiveProfiles() {
         return new String[0];
     }
 
     @Override
+    /** 获取DefaultProfiles */
     public String[] getDefaultProfiles() {
         return new String[0];
     }
 
     @Override
+    /**
+     * AcceptsProfiles
+     * @param profiles profiles
+     */
     public boolean acceptsProfiles(String... profiles) {
         return false;
     }
 
     @Override
     @SuppressWarnings("deprecation")
+    /**
+     * AcceptsProfiles
+     * @param profiles profiles
+     */
     public boolean acceptsProfiles(org.springframework.core.env.Profiles profiles) {
         return false;
     }

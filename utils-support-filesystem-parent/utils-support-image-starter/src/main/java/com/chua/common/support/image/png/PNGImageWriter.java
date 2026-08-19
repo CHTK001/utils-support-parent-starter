@@ -113,6 +113,10 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 设置Output
+     * @param output output
+     */
     public void setOutput(Object output) {
         super.setOutput(output);
         if (output != null) {
@@ -126,6 +130,7 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /** 获取Default写入Param */
     public ImageWriteParam getDefaultWriteParam() {
         
         return new PNGImageWriteParam(getLocale());
@@ -133,6 +138,10 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 获取Default流式输出Metadata
+     * @param param param
+     */
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
         
         return null;
@@ -140,6 +149,11 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 获取DefaultImageMetadata
+     * @param imageType imageType
+     * @param param param
+     */
     public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier imageType,
                                                ImageWriteParam param) {
         PNGMetadata m = new PNGMetadata();
@@ -148,6 +162,11 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 转换流式输出Metadata
+     * @param inData inData
+     * @param param param
+     */
     public IIOMetadata convertStreamMetadata(IIOMetadata inData,
                                              ImageWriteParam param) {
         
@@ -156,6 +175,12 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 转换ImageMetadata
+     * @param inData inData
+     * @param imageType imageType
+     * @param param param
+     */
     public IIOMetadata convertImageMetadata(IIOMetadata inData,
                                             ImageTypeSpecifier imageType,
                                             ImageWriteParam param) {
@@ -166,12 +191,14 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入magic */
     private void write_magic() throws IOException {
         // Write signature
         byte[] magic = { (byte)137, 80, 78, 71, 13, 10, 26, 10 };
         stream.write(magic);
     }
 
+    /** 写入IHDR */
     private void write_IHDR() throws IOException {
         // Write IHDR chunk
         ChunkStream cs = new ChunkStream(PNGImageReader.IHDR_TYPE, stream);
@@ -198,6 +225,7 @@ public final class PNGImageWriter extends ImageWriter {
         cs.finish();
     }
 
+    /** 写入cHRM */
     private void write_cHRM() throws IOException {
         if (metadata.cHRM_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.cHRM_TYPE, stream);
@@ -213,6 +241,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入cICP */
     private void write_cICP() throws IOException {
         if (metadata.cICP_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.cICP_TYPE, stream);
@@ -224,6 +253,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入gAMA */
     private void write_gAMA() throws IOException {
         if (metadata.gAMA_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.gAMA_TYPE, stream);
@@ -232,6 +262,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入iCCP */
     private void write_iCCP() throws IOException {
         if (metadata.iCCP_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.iCCP_TYPE, stream);
@@ -248,6 +279,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入sBIT */
     private void write_sBIT() throws IOException {
         if (metadata.sBIT_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.sBIT_TYPE, stream);
@@ -278,6 +310,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入sRGB */
     private void write_sRGB() throws IOException {
         if (metadata.sRGB_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.sRGB_TYPE, stream);
@@ -286,6 +319,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入PLTE */
     private void write_PLTE() throws IOException {
         if (metadata.PLTE_present) {
             if (metadata.IHDR_colorType == PNG.PNG_COLOR_GRAY ||
@@ -314,6 +348,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入hIST */
     private void write_hIST() throws IOException {
         if (metadata.hIST_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.hIST_TYPE, stream);
@@ -328,6 +363,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入tRNS */
     private void write_tRNS() throws IOException {
         if (metadata.tRNS_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.tRNS_TYPE, stream);
@@ -371,6 +407,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入bKGD */
     private void write_bKGD() throws IOException {
         if (metadata.bKGD_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.bKGD_TYPE, stream);
@@ -414,6 +451,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入pHYs */
     private void write_pHYs() throws IOException {
         if (metadata.pHYs_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.pHYs_TYPE, stream);
@@ -424,6 +462,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入sPLT */
     private void write_sPLT() throws IOException {
         if (metadata.sPLT_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.sPLT_TYPE, stream);
@@ -460,6 +499,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入tIME */
     private void write_tIME() throws IOException {
         if (metadata.tIME_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.tIME_TYPE, stream);
@@ -473,6 +513,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入tEXt */
     private void write_tEXt() throws IOException {
         Iterator<String> keywordIter = metadata.tEXt_keyword.iterator();
         Iterator<String> textIter = metadata.tEXt_text.iterator();
@@ -492,6 +533,10 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /**
+     * Deflate
+     * @param b b
+     */
     private byte[] deflate(byte[] b) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DeflaterOutputStream dos = new DeflaterOutputStream(baos);
@@ -500,6 +545,7 @@ public final class PNGImageWriter extends ImageWriter {
         return baos.toByteArray();
     }
 
+    /** 写入iTXt */
     private void write_iTXt() throws IOException {
         Iterator<String> keywordIter = metadata.iTXt_keyword.iterator();
         Iterator<Boolean> flagIter = metadata.iTXt_compressionFlag.iterator();
@@ -541,6 +587,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入zTXt */
     private void write_zTXt() throws IOException {
         Iterator<String> keywordIter = metadata.zTXt_keyword.iterator();
         Iterator<Integer> methodIter = metadata.zTXt_compressionMethod.iterator();
@@ -564,6 +611,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入eXIf */
     private void write_eXIf() throws IOException {
         if (metadata.eXIf_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.eXIf_TYPE, stream);
@@ -572,6 +620,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入UnknownChunks */
     private void writeUnknownChunks() throws IOException {
         Iterator<String> typeIter = metadata.unknownChunkType.iterator();
         Iterator<byte[]> dataIter = metadata.unknownChunkData.iterator();
@@ -595,6 +644,15 @@ public final class PNGImageWriter extends ImageWriter {
         return type;
     }
 
+    /**
+     * 编码Pass
+     * @param os os
+     * @param image image
+     * @param xOffset xOffset
+     * @param yOffset yOffset
+     * @param xSkip xSkip
+     * @param ySkip ySkip
+     */
     private void encodePass(ImageOutputStream os,
                             RenderedImage image,
                             int xOffset, int yOffset,
@@ -761,6 +819,11 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     // Use sourceXOffset, etc.
+    /**
+     * 写入IDAT
+     * @param image image
+     * @param deflaterLevel deflaterLevel
+     */
     private void write_IDAT(RenderedImage image, int deflaterLevel)
         throws IOException
     {
@@ -786,6 +849,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入IEND */
     private void write_IEND() throws IOException {
         ChunkStream cs = new ChunkStream(PNGImageReader.IEND_TYPE, stream);
         cs.finish();
@@ -793,6 +857,11 @@ public final class PNGImageWriter extends ImageWriter {
 
     // Check two int arrays for value equality, always returns false
     // if either array is null
+    /**
+     * 判断相等
+     * @param s0 s0
+     * @param s1 s1
+     */
     private boolean equals(int[] s0, int[] s1) {
         if (s0 == null || s1 == null) {
             return false;
@@ -811,6 +880,10 @@ public final class PNGImageWriter extends ImageWriter {
     // Initialize the scale/scale0 or scaleh/scalel arrays to
     // hold the results of scaling an input value to the desired
     // output bit depth
+    /**
+     * 初始化ScaleTables
+     * @param sampleSize sampleSize
+     */
     private void initializeScaleTables(int[] sampleSize) {
         int bitDepth = metadata.IHDR_bitDepth;
 
@@ -859,6 +932,12 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 写入
+     * @param streamMetadata streamMetadata
+     * @param image image
+     * @param param param
+     */
     public void write(IIOMetadata streamMetadata,
                       IIOImage image,
                       ImageWriteParam param) throws IIOException {
@@ -882,6 +961,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /** 写入acTL */
     private void write_acTL() throws IOException {
         if (metadata.acTL_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.acTL_TYPE, stream);
@@ -891,6 +971,12 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /**
+     * 写入fdAT
+     * @param image image
+     * @param deflaterLevel deflaterLevel
+     * @param currentSequence currentSequence
+     */
     private void write_fdAT(RenderedImage image, int deflaterLevel, int currentSequence)
             throws IOException
     {
@@ -917,6 +1003,10 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /**
+     * 写入fcTL
+     * @param metadata metadata
+     */
     private void write_fcTL(PNGMetadata metadata) throws IOException {
         if (metadata.fcTL_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.fcTL_TYPE, stream);
@@ -934,6 +1024,7 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /** 是否可以写入Sequence */
     public boolean canWriteSequence() {
         
         return true;
@@ -941,6 +1032,10 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * Prepare写入Sequence
+     * @param streamMetadata streamMetadata
+     */
     public void prepareWriteSequence(IIOMetadata streamMetadata) throws IOException {
 
         if (stream == null) {
@@ -952,6 +1047,12 @@ public final class PNGImageWriter extends ImageWriter {
         this.isWritingSequence = true;
     }
 
+    /**
+     * 写入ToSequence
+     * @param image image
+     * @param param param
+     * @param acTL_present acTL_present
+     */
     private void writeToSequence0(IIOImage image, ImageWriteParam param, boolean acTL_present) throws IOException {
 
         if (stream == null) {
@@ -1170,11 +1271,17 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /**
+     * 写入ToSequence
+     * @param image image
+     * @param param param
+     */
     public void writeToSequence(IIOImage image, ImageWriteParam param) throws IOException {
         writeToSequence0(image, param, true);
     }
 
     @Override
+    /** End写入Sequence */
     public void endWriteSequence() throws IOException {
         if (stream == null) {
             throw new IllegalStateException("output == null!");
@@ -1189,11 +1296,13 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     @Override
+    /** Reset */
     public void reset() {
         super.reset();
         resetStreamSettings();
     }
 
+    /** Reset流式输出Settings */
     private void resetStreamSettings() {
         this.isWritingSequence = false;
         this.wroteSequenceHeader = false;

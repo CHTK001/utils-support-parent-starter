@@ -342,6 +342,11 @@ public class JsonObject extends LinkedHashMap<String, Object> {
     public void forEach(BiConsumer<? super String, ? super Object> action) {
         super.forEach(new BiConsumer<String, Object>() {
             @Override
+            /**
+             * Accept
+             * @param s s
+             * @param o o
+             */
             public void accept(String s, Object o) {
                 if (o instanceof Map) {
                     action.accept(s, Json.createJsonObject((Map) o));

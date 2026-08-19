@@ -39,6 +39,7 @@ public class ImageFilterPoolTest {
     private static final List<BufferedImage> generatedImages = new ArrayList<>();
 
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         System.out.println("=" .repeat(70));
         System.out.println("ImageClient / ImageFilter 池化 + AI 滤镜注入测试");
@@ -365,6 +366,7 @@ public class ImageFilterPoolTest {
 
 
         @Override
+        /** Generate */
         public BufferedImage generate(String prompt) {
             generateCount.incrementAndGet();
             BufferedImage img = new BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB);
@@ -374,12 +376,14 @@ public class ImageFilterPoolTest {
 
 
         @Override
+        /** 创建Task */
         public String createTask(String prompt) {
             return "task-" + System.nanoTime();
         }
 
 
         @Override
+        /** 查询Task */
         public com.chua.common.support.ai.image.ImageResponse queryTask(String taskId) {
             return com.chua.common.support.ai.image.ImageResponse.builder()
                     .taskId(taskId)
@@ -389,6 +393,7 @@ public class ImageFilterPoolTest {
     }
 
 
+    /** AssertEqual */
     private static void assertEqual(Object expected, Object actual, String msg) {
         if (expected == null ? actual != null : !expected.equals(actual)) {
             throw new AssertionError(msg + " - 预期: " + expected + ", 实际: " + actual);

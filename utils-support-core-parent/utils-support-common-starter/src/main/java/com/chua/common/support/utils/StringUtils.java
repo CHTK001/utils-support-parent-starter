@@ -72,6 +72,7 @@ public class StringUtils {
     /** Thread_local_builders */
     private static final ThreadLocal<Stack<StringBuilder>> THREAD_LOCAL_BUILDERS = new ThreadLocal<Stack<StringBuilder>>() {
         @Override
+        /** InitialValue */
         protected Stack<StringBuilder> initialValue() {
             return new Stack<>();
         }
@@ -666,6 +667,10 @@ public class StringUtils {
     public static String trim(CharSequence str, int mode) {
         return trim(str, mode, new Predicate<Character>() {
             @Override
+            /**
+             * Test
+             * @param c c
+             */
             public boolean test(Character c) {
                 return isBlankChar(c);
             }
@@ -4759,6 +4764,15 @@ public class StringUtils {
     }
 
 
+    /**
+     * RegionMatches
+     * @param cs cs
+     * @param ignoreCase ignoreCase
+     * @param thisStart thisStart
+     * @param substring substring
+     * @param start start
+     * @param length length
+     */
     static boolean regionMatches(final CharSequence cs, final boolean ignoreCase, final int thisStart,
                                  final CharSequence substring, final int start, final int length) {
         if (cs instanceof String && substring instanceof String) {

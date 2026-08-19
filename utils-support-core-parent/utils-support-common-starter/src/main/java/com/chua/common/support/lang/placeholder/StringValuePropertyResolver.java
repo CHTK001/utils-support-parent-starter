@@ -62,6 +62,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     }
 
     @Override
+    /** 获取PlaceholderSupport */
     public PlaceholderSupport getPlaceholderSupport() {
         return placeholderSupport;
     }

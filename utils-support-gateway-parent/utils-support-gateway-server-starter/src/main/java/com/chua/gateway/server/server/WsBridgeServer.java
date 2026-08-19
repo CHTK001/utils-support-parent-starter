@@ -45,6 +45,7 @@ public final class WsBridgeServer {
         this.registry = registry;
     }
 
+    /** 开始 */
     public void start() throws Exception {
         serverSocket = new ServerSocket(PORT);
         running = true;
@@ -54,6 +55,7 @@ public final class WsBridgeServer {
         acceptThread.start();
     }
 
+    /** 停止 */
     public void stop() {
         running = false;
         try {
@@ -63,6 +65,7 @@ public final class WsBridgeServer {
         } catch (Exception ignored) {}
     }
 
+    /** AcceptLoop */
     private void acceptLoop() {
         while (running) {
             try {
@@ -76,6 +79,10 @@ public final class WsBridgeServer {
         }
     }
 
+    /**
+     * 处理Connection
+     * @param socket socket
+     */
     private void handleConnection(Socket socket) {
         try {
             var in = socket.getInputStream();
@@ -209,6 +216,10 @@ public final class WsBridgeServer {
         byte[] payload;
     }
 
+    /**
+     * 读取WsFrame
+     * @param in in
+     */
     private WsFrame readWsFrame(InputStream in) throws Exception {
         int b0 = in.read();
         if (b0 < 0) {
@@ -252,6 +263,12 @@ public final class WsBridgeServer {
     }
 
     // WebSocket 帧写入（服务端不发 masked 帧）
+    /**
+     * 发送WsFrame
+     * @param out out
+     * @param opcode opcode
+     * @param data data
+     */
     private void sendWsFrame(OutputStream out, byte opcode, byte[] data) throws Exception {
         int b0 = 0x80 | opcode; // FIN + opcode
         out.write(b0);

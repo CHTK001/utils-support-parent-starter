@@ -184,6 +184,7 @@ final class ReaderUtils {
         return vals;
     }
 
+    /** 读取MultiByteInteger */
     public static int readMultiByteInteger(ImageInputStream iis)
         throws IOException
     {

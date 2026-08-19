@@ -33,6 +33,12 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
+    /**
+     * Preview
+     * @param content content
+     * @param ext ext
+     * @param mime mime
+     */
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
         String type = ext.toLowerCase();
@@ -63,6 +69,13 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * 构建Script
+     * @param b64 b64
+     * @param ext ext
+     * @param isSheet isSheet
+     * @param isDoc isDoc
+     */
     private String buildScript(String b64, String ext, boolean isSheet, boolean isDoc) {
         String s = "(function(){";
         s += "var B64='" + b64 + "';";

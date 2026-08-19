@@ -43,6 +43,7 @@ public class ImageWidthFilter extends AbstractImageFilter {
     }
 
     @Override
+    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return zoomBySize(width, height, src);

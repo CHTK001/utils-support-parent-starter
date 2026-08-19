@@ -270,6 +270,10 @@ public final class CliOption {
     }
 
     @Override
+    /**
+     * 判断相等
+     * @param o o
+     */
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CliOption)) return false;
@@ -279,11 +283,13 @@ public final class CliOption {
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         return Objects.hash(longName, shortName);
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return "CliOption{" +
                 "longName='" + longName + '\'' +

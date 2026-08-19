@@ -72,6 +72,7 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
     public static final int[] SOBEL_Y = new int[]{-1, 0, 1, -2, 0, 2, -1, 0, 1};
 
     @Override
+    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         // 计算图像总像素数
         int total = width * height;

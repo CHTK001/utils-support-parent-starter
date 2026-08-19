@@ -213,11 +213,13 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     }
 
     @Override
+    /** Name */
     public String name() {
         return modelId;
     }
 
     @Override
+    /** Translate */
     public String translate(String text) {
         if (text == null || text.isBlank()) {
             return text;
@@ -380,6 +382,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         for (OrtSession session : List.of(encoderSession, decoderSession, decoderPastSession)) {
             if (session != null) {

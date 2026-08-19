@@ -205,11 +205,13 @@ class LzwEncoder {
         }
     }
 
+    /** Maxcode */
     final int maxcode(int nBits) {
         return (1 << nBits) - 1;
     }
 
 
+    /** NextPixel */
     private int nextPixel() {
         if (remaining == 0) {
             return EOF;

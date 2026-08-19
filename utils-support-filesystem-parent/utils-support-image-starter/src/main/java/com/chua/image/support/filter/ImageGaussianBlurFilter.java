@@ -153,6 +153,7 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
             final int channelIndex = i;
             service.submit(new Callable<Void>() {
                 @Override
+                /** 调用 */
                 public Void call() throws Exception {
                     byte[] inPixels = toColorByte(channelIndex);
                     byte[] tempPixels = new byte[size];
