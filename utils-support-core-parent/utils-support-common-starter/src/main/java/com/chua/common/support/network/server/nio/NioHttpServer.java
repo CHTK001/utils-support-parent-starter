@@ -321,7 +321,16 @@ public class NioHttpServer extends AbstractServer {
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         try {
             NioServerResponse response = new NioServerResponse(st.channel);
-            response.setAsyncWriter(this::inlineWrite);
+            response.setAsyncWriter((header, body) -> {
+                synchronized (st.writeQueue) {
+                    st.writeQueue.add(header);
+                    if (body != null && body.hasRemaining()) {
+                        st.writeQueue.add(body);
+                    }
+                }
+                // 事件循环线程同步尽力写出
+                flushInlineWrite(st, key);
+            });
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
@@ -352,16 +361,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 内联路径的写出回调:在事件循环线程尽力同步写出,未写完部分留在 writeQueue。
+     * 事件循环线程同步写缓冲队列;写不完整时交由 OP_WRITE 续写。
      */
-    private void inlineWrite(ByteBuffer header, ByteBuffer body) {
-        // 同步写出必须直接从事件循环线程执行;若被其他线程调用(不应发生)则回退异步
-        synchronized (st_writeLockHolder == null ? this : this) {
-            // no-op placeholder (真实逻辑在下面)
-        }
-    }
-
-    /** 事件循环线程同步写缓冲队列;写不完整时交由 OP_WRITE 续写 */
     private void flushInlineWrite(ConnectionState st, SelectionKey key) {
         synchronized (st.writeQueue) {
             while (true) {
@@ -384,6 +385,18 @@ public class NioHttpServer extends AbstractServer {
                 }
                 st.writeQueue.poll();
             }
+        }
+    }
+
+    /**
+     * 写完后的收尾:Keep-Alive 重挂 OP_READ,否则关闭连接。
+     */
+    private void finishAfterWrite(ConnectionState st, SelectionKey key) {
+        if (st.keepAlive && running) {
+            key.interestOps(SelectionKey.OP_READ);
+            st.inWorker = false;
+        } else {
+            closeConn(key, st);
         }
     }
 
@@ -467,12 +480,7 @@ public class NioHttpServer extends AbstractServer {
             }
         }
         // 写完:Keep-Alive 则重新注册 OP_READ,否则关闭
-        if (st.keepAlive && running) {
-            key.interestOps(SelectionKey.OP_READ);
-            st.inWorker = false;
-        } else {
-            closeConn(key, st);
-        }
+        finishAfterWrite(st, key);
     }
 
     private void closeConn(SelectionKey key, ConnectionState st) {
