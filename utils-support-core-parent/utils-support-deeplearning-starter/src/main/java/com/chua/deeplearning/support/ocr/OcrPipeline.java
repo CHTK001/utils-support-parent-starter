@@ -3,7 +3,7 @@ package com.chua.deeplearning.support.ocr;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
-import com.chua.deeplearning.support.draw.DrawerPipeline;
+import com.chua.deeplearning.support.ocr.DrawerPipeline;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.image.ImageDetector;
@@ -1005,10 +1005,7 @@ public class OcrPipeline {
         List<DetectionInfo> allBoxes = detector.detect(corrected);
         // 整图识别模式（一体化 OCR 模型 det+rec 同时出框与文本），避免管线二次裁剪导致识别失真
         List<OcrResult> results = recognizer.recognizeDetail(imageData);
-        List<String> labels = results.stream()
-                .map(r -> r.text() + " " + String.format("%.2f", r.confidence()))
-                .toList();
-        return withInitDrawer().target(corrected).boxes(allBoxes, labels).done();
+        return withInitDrawer().target(corrected).boxes(allBoxes, results).done();
     }
 
     /**
