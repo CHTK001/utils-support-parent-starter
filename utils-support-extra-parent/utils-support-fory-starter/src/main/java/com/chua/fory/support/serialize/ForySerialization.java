@@ -18,13 +18,17 @@ import org.apache.fury.config.Language;
 public class ForySerialization implements Serialization {
 
     /**
-     * 线程安全：Fury 实例配置后内部使用 ThreadLocal 缓冲区，可安全并发调用
+     * ThreadLocal 隔离的 Fury 实例，保证线程安全。
+     * Fury 自身的 serialize/deserialize 在并发调用时仍可能抛出 Nested call，
+     * 因此每个线程持有独立实例。
      */
-    private static final Fury FURY = Fury.builder()
-            .withLanguage(Language.JAVA)
-            .withRefTracking(true)
-            .requireClassRegistration(false)
-            .build();
+    private static final ThreadLocal<Fury> FURY = ThreadLocal.withInitial(() ->
+            Fury.builder()
+                    .withLanguage(Language.JAVA)
+                    .withRefTracking(true)
+                    .requireClassRegistration(false)
+                    .build()
+    );
 
     @Override
     public String name() {
@@ -36,7 +40,7 @@ public class ForySerialization implements Serialization {
         if (obj == null) {
             return new byte[0];
         }
-        return FURY.serialize(obj);
+        return FURY.get().serialize(obj);
     }
 
     /**
@@ -56,6 +60,6 @@ public class ForySerialization implements Serialization {
         if (data == null || data.length == 0) {
             return null;
         }
-        return (T) FURY.deserialize(data);
+        return (T) FURY.get().deserialize(data);
     }
 }
