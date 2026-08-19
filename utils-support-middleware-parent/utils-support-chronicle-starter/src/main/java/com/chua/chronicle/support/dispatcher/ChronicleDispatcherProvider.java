@@ -142,7 +142,7 @@ executor.submit(() -> {
             if (type == Void.TYPE) {
                 return null;
             }
-            return SERIALIZER.fallback.readValue(text, type);
+            return SERIALIZER.mapper.readValue(text, type);
         } catch (Exception e) {
             log.warn("Chronicle 反序列化失败，原始字符串：{}", text, e);
             return text;
@@ -235,33 +235,18 @@ executor.submit(() -> {
     }
 
     /**
-     * 序列化工具：优先使用 Fury（性能最优），不可用时降级到 Jackson。
+     * 序列化工具：使用 Jackson（Fury 二进制与 Chronicle Wire bytes() 不兼容）
      */
     static class ChronicleQueueSerializer {
-        /** Fury */
-        private final com.chua.common.support.base.serialize.Serialization fury;
-        final com.fasterxml.jackson.databind.ObjectMapper fallback;
-        /** USEfury */
-        private final boolean useFury;
+        final com.fasterxml.jackson.databind.ObjectMapper mapper;
 
         ChronicleQueueSerializer() {
-            com.chua.common.support.base.serialize.Serialization f = null;
-            try {
-                f = new com.chua.fory.support.serialize.ForySerialization();
-            } catch (Throwable t) {
-                log.info("Fury 不可用，降级为 Jackson 序列化: {}", t.getMessage());
-            }
-            this.fury = f;
-            this.useFury = f != null;
-            this.fallback = new com.fasterxml.jackson.databind.ObjectMapper();
+            this.mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         }
 
         byte[] serialize(Object obj) {
             try {
-                if (useFury) {
-                    return fury.serialize(obj);
-                }
-                return fallback.writeValueAsBytes(obj);
+                return mapper.writeValueAsBytes(obj);
             } catch (Exception e) {
                 throw new RuntimeException("序列化失败", e);
             }
@@ -269,17 +254,9 @@ executor.submit(() -> {
 
         Object deserialize(byte[] data) {
             try {
-                if (useFury) {
-                    return fury.deserialize(data, Object.class);
-                }
-                return fallback.readValue(data, Object.class);
+                return mapper.readValue(data, Object.class);
             } catch (Exception e) {
-                log.warn("反序列化失败，尝试 Jackson 降级", e);
-                try {
-                    return fallback.readValue(data, Object.class);
-                } catch (Exception ex) {
-                    throw new RuntimeException("反序列化失败", ex);
-                }
+                throw new RuntimeException("反序列化失败", e);
             }
         }
     }

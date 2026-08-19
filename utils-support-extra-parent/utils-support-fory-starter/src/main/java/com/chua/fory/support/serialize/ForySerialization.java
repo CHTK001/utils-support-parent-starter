@@ -18,13 +18,13 @@ import org.apache.fury.config.Language;
 public class ForySerialization implements Serialization {
 
     /**
- * 线程安全：Fury 实例配置后内部使用 ThreadLocal 缓冲区，可安全并发调用
- */
-private static final Fury FURY = Fury.builder()
-        .withLanguage(Language.JAVA)
-        .withRefTracking(true)
-        .requireClassRegistration(false)
-        .build();
+     * 线程安全：Fury 实例配置后内部使用 ThreadLocal 缓冲区，可安全并发调用
+     */
+    private static final Fury FURY = Fury.builder()
+            .withLanguage(Language.JAVA)
+            .withRefTracking(true)
+            .requireClassRegistration(false)
+            .build();
 
     @Override
     public String name() {
@@ -36,7 +36,7 @@ private static final Fury FURY = Fury.builder()
         if (obj == null) {
             return new byte[0];
         }
-        return FURY.get().serialize(obj);
+        return FURY.serialize(obj);
     }
 
     /**
@@ -56,6 +56,6 @@ private static final Fury FURY = Fury.builder()
         if (data == null || data.length == 0) {
             return null;
         }
-        return (T) FURY.get().deserialize(data);
+        return (T) FURY.deserialize(data);
     }
 }

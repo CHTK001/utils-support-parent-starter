@@ -3,8 +3,9 @@ package com.chua.common.support.network.rpc;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.server.impl.JdkTcpServer;
 import com.chua.common.support.network.tcp.TcpServer;
-import com.chua.common.support.network.tcp.NativeTcpServer;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
@@ -22,9 +23,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 原生 TCP NIO RPC 服务端，复用 {@link TcpServer} 长度帧传输层。
+ * 原生 TCP NIO RPC 服务端，复用 {@link JdkTcpServer} 长度帧传输层。
  *
- * <p>传输层（连接接收、拼帧、响应回写）由 {@link NativeTcpServer} 承担，
+ * <p>传输层（连接接收、拼帧、响应回写）由 {@link JdkTcpServer} 承担，
  * 本类只负责 RPC 语义：反序列化请求、方法查找调用、序列化响应。</p>
  *
  * <p>支持直连和注册中心两种模式：
@@ -128,9 +129,15 @@ public class NativeRpcServer implements RpcServer {
     @Override
     public void afterPropertiesSet() {
         // 传输层只负责帧收发，RPC 语义（反序列化/方法调用/序列化）在这里挂接
-        this.tcpServer = new NativeTcpServer(host, port, ioThreadsCount, workerThreads)
-                .setHandler(this::handleRequest)
-                .start();
+        ServerSetting serverSetting = ServerSetting.defaults();
+        serverSetting.setAuto(false);
+        serverSetting.setHost(host);
+        serverSetting.setPort(port);
+        serverSetting.setWorkerThreads(workerThreads);
+        this.tcpServer = new JdkTcpServer(serverSetting)
+                .setIoThreads(ioThreadsCount)
+                .setHandler(this::handleRequest);
+        this.tcpServer.start();
         log.info("NativeRpcServer started on {}:{} (ioThreads={}, workers={})",
                 host, tcpServer.getPort(), ioThreadsCount, workerThreads);
     }

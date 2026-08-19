@@ -187,6 +187,27 @@ public class ServerSetting {
     private int maxConcurrency = 0;
 
     /**
+     * NIO 事件循环(Selector)数量，0 表示自动按 CPU 核数。
+     *
+     * <p>控制 {@code nio} 实现的事件循环线程数，影响读写 CPU 并行度与吞吐上限。
+     * 自动模式：Windows 默认 2（{@code WindowsSelectorImpl} 多 Selector 并发稳定性限制），
+     * Linux/macOS 默认 = CPU 核数（epoll/kqueue 可安全扩展）。</p>
+     */
+    @Builder.Default
+    private int eventLoops = 0;
+
+    /**
+     * 是否在事件循环线程内联执行 handler（跳过虚拟线程提交与 Selector 唤醒往返）。
+     *
+     * <p>启用后简单非阻塞 handler 直接在事件循环线程执行并同步写出，省去
+     * 虚拟线程提交 + Selector 唤醒往返，显著提升小响应吞吐（QPS 可翻倍）。
+     * 仅适用于不阻塞的 handler（如回显、静态映射）；阻塞型 handler（DB/IO 调用）
+     * 会阻塞事件循环，应保持关闭。</p>
+     */
+    @Builder.Default
+    private boolean inlineDispatch = false;
+
+    /**
      * 响应超时时间（毫秒）
      */
     @Builder.Default
