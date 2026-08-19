@@ -276,6 +276,18 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("randeng-bart", "com.chua.deeplearning.support.onnx.seq2seq.RandengBartTranslator", String.class, String.class, Object.class, "nlp/seq2seq/randeng-bart-139m/model.onnx", "https://huggingface.co/IDEA-CCNL/Randeng-BART-139M/resolve/main/model.onnx", false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx");
+        // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译中文
+        reg("opus-mt-en-zh", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnZhTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
+        // 机器翻译(opus-mt-zh-ja)：Helsinki-NLP 中译日 MarianMT，ONNX 自动下载（~30MB 量化）；适用中文翻译日文
+        reg("opus-mt-zh-ja", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhJaTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
+        // 机器翻译(opus-mt-en-fr)：Helsinki-NLP 英译法 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译法文
+        reg("opus-mt-en-fr", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnFrTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
+        // 机器翻译(opus-mt-en-de)：Helsinki-NLP 英译德 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译德文
+        reg("opus-mt-en-de", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnDeTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
+        // 机器翻译(opus-mt-en-es)：Helsinki-NLP 英译西 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译西班牙文
+        reg("opus-mt-en-es", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnEsTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
+        // 机器翻译(opus-mt-en-ru)：Helsinki-NLP 英译俄 MarianMT，ONNX 自动下载（~30MB 量化）；适用英文翻译俄文
+        reg("opus-mt-en-ru", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnRuTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, null);
         // 动漫人脸检测(YOLOv8n)：检测动漫/二次元图片中的人脸（YOLOv8 v1.4_n）；适用动漫人脸检测、二次元内容分析。模型内嵌 jar（utils-support-models-onnx-anime-face）
         reg("anime-face-detector", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/anime-face/model.onnx");
         // 零样本分割(CLIPSeg)：用文本描述分割图像（如"分割出汽车"），无需训练；适用零样本语义分割、文本引导分割
