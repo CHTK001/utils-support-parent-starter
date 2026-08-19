@@ -3,13 +3,14 @@ package com.chua.fory.support.serialize;
 import com.chua.common.support.base.serialize.Serialization;
 import com.chua.common.support.spi.annotations.Spi;
 import org.apache.fury.Fury;
+import org.apache.fury.ThreadLocalFury;
 import org.apache.fury.config.Language;
 
 /**
  * Apache Fory（Fury）二进制序列化实现。
  *
- * <p>直接使用 Apache Fury 进行编解码，支持对象引用跟踪（循环引用）、跨语言互操作与模式演化。
- * Fury 实例为线程安全单例，配置完成后可被多线程并发使用。
+ * <p>使用 ThreadLocalFury 包装，每个线程持有独立 Fury 实例，保证线程安全。
+ * 支持对象引用跟踪（循环引用）、跨语言互操作与模式演化。
  *
  * @author CH
  * @since 4.0.0.42
@@ -18,13 +19,13 @@ import org.apache.fury.config.Language;
 public class ForySerialization implements Serialization {
 
     /**
-     * 线程安全：Fury 实例配置后内部使用 ThreadLocal 缓冲区，可安全并发调用
+     * ThreadLocalFury：每个线程独立 Fury 实例，并发安全，跨线程可互反序列化
      */
-    private static final Fury FURY = Fury.builder()
+    private static final ThreadLocalFury FURY = Fury.builder()
             .withLanguage(Language.JAVA)
             .withRefTracking(true)
             .requireClassRegistration(false)
-            .build();
+            .buildThreadLocalFury();
 
     @Override
     public String name() {
