@@ -45,6 +45,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 风格迁移(Udnie)：将照片转换为抽象表现主义风格（色彩块面、半抽象效果）；适用艺术创作、特效处理
         reg("style-udnie", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/udnie-9.onnx");
         // 风格迁移(Pointilism)：将照片转换为点彩画风格（用小点构成图像）；适用艺术特效、复古风格处理
+                // 水下图像增强(LU2Net)：基于轻量级U-Net的水下图像增强，改善水下颜色失真和对比度，适用于水下摄影、水下监控
+                reg("lu2net", "com.chua.deeplearning.support.onnx.lu2net.Lu2NetTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/lu2net/lu2net.onnx");
         reg("style-pointilism", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/pointilism-9.onnx");
         // 动漫风格迁移(AnimeGANv2-Hayao)：将照片转换为宫崎骏风格动画（细腻、明亮）；适用动漫化、图片特效
         reg("anime-gan-v2-hayao", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/hayao.onnx");
@@ -440,5 +442,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         }
     }
 }
+
 
 

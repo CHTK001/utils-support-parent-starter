@@ -308,8 +308,6 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-                    <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-animegan-hayao</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -358,10 +356,17 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-lu2net</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-arcface</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
+
 

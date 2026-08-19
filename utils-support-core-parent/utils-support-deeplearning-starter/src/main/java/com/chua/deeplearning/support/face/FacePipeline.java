@@ -5,7 +5,8 @@ import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.vector.VectorStorage;
-import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.deeplearning.support.draw.DrawerPipeline;
+import com\.chua\.deeplearning\.support\.engine\.ModelRegistry;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.image.ImageEnhancer;
@@ -1675,4 +1676,13 @@ public class FacePipeline {
 
     private record LivenessResult(boolean live, float score) {
     }
-}
+
+    /**
+     * 创建标注管线，支持一键绘制检测结果。
+     *
+     * @return DrawerPipeline 实例
+     */
+    public DrawerPipeline withInitDrawer() {
+        return new DrawerPipeline(0.5f);
+    }
+\}

@@ -111,6 +111,17 @@ public class RpcConsumerConfig {
     /** 序列化协议 */
     /** Serialization */
     private String serialization;
+
+    /**
+     * 是否启用同 JVM 直调（Inline 模式）。
+     *
+     * <p>开启后，若目标服务已在本进程内通过 {@link RpcServer#register(String, Object)}
+     * 注册，客户端代理将<b>直接调用本地服务对象</b>，跳过 TCP 网络与序列化，
+     * 可获得极大吞吐与极低延迟（适合单机部署/同进程服务间调用）。</p>
+     *
+     * <p>本机无该服务时自动回退到远程 RPC，不影响分布式部署。</p>
+     */
+    private Boolean inline;
     /** 连接超时（毫秒） */
     /**
      * 连接超时时间（毫秒）
