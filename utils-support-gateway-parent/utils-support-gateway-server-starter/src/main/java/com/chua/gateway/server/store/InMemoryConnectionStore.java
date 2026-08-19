@@ -44,14 +44,9 @@ public final class InMemoryConnectionStore implements ConnectionStore {
         String tkey = protocol + "@" + host + ":" + port;
         Connection existing = byTarget.get(tkey);
         if (existing != null) {
-            // Update user/password/key to latest request (custom mode may change between requests)
-            Connection updated = new Connection(
-                existing.protocol(), existing.host(), existing.port(),
-                user != null ? user : existing.user(),
-                password != null ? password : existing.password(),
-                existing.key());
-            byTarget.put(tkey, updated);
-            return updated;
+            // 同 target 复用已有连接，不重新插入，避免密码被覆盖导致会话对象漂移
+            log.debug("[gateway-server] InMemory 复用连接: {}", tkey);
+            return existing;
         }
         Connection conn = new Connection(protocol, host, port, user, password, null);
         byTarget.put(tkey, conn);
