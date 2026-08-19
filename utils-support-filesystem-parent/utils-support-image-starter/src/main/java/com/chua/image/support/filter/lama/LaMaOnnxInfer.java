@@ -394,6 +394,7 @@ if (tensorValue instanceof float[][][]) {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (initialized && ortSession != null) {
             try {

@@ -563,11 +563,17 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
         addObjectValue("UnknownChunk", byte.class, 0, Integer.MAX_VALUE);
     }
 
+    /**
+     * 是否可以NodeAppear
+     * @param elementName elementName
+     * @param imageType imageType
+     */
     public boolean canNodeAppear(String elementName,
                                  ImageTypeSpecifier imageType) {
         return true;
     }
 
+    /** 获取Instance */
     public static synchronized IIOMetadataFormat getInstance() {
         if (instance == null) {
             instance = new PNGMetadataFormat();

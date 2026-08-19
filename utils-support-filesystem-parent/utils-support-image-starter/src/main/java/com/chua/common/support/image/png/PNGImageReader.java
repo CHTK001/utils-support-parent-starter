@@ -49,6 +49,7 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     }
 
     @Override
+    /** NextElement */
     public InputStream nextElement() {
         try {
             firstTime = false;
@@ -60,6 +61,7 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     }
 
     @Override
+    /** 是否拥有MoreElements */
     public boolean hasMoreElements() {
         if (firstTime) {
             return true;
@@ -197,6 +199,12 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /**
+     * 设置Input
+     * @param input input
+     * @param seekForwardOnly seekForwardOnly
+     * @param ignoreMetadata ignoreMetadata
+     */
     public void setInput(Object input,
                          boolean seekForwardOnly,
                          boolean ignoreMetadata) {
@@ -207,6 +215,11 @@ public class PNGImageReader extends ImageReader {
         resetStreamSettings();
     }
 
+    /**
+     * 读取NullTerminatedString
+     * @param charset charset
+     * @param maxLen maxLen
+     */
     private String readNullTerminatedString(String charset, int maxLen) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int b = 0;
@@ -223,6 +236,7 @@ public class PNGImageReader extends ImageReader {
         return baos.toString(charset);
     }
 
+    /** 读取Header */
     private void readHeader() throws IIOException {
         if (gotHeader) {
             return;
@@ -321,6 +335,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** 解析acTchunk */
     private void parse_acTL_chunk() throws IOException {
         if (metadata.acTL_present) {
             processWarningOccurred(
@@ -336,6 +351,7 @@ public class PNGImageReader extends ImageReader {
         metadata.acTL_present = true;
     }
 
+    /** 解析fcTchunk */
     private void parse_fcTL_chunk() throws IOException {
         if (!frameMetadata.containsKey(nextImageIndex)) {
             PNGMetadata metadata = new PNGMetadata();
@@ -363,6 +379,10 @@ public class PNGImageReader extends ImageReader {
         nextImageIndex ++;
     }
 
+    /**
+     * 解析PLTchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_PLTE_chunk(int chunkLength) throws IOException {
         if (metadata.PLTE_present) {
             processWarningOccurred(
@@ -416,6 +436,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** 解析bKGchunk */
     private void parse_bKGD_chunk() throws IOException {
         if (metadata.IHDR_colorType == PNG_COLOR_PALETTE) {
             metadata.bKGD_colorType = PNG_COLOR_PALETTE;
@@ -434,6 +455,7 @@ public class PNGImageReader extends ImageReader {
         metadata.bKGD_present = true;
     }
 
+    /** 解析cHRchunk */
     private void parse_cHRM_chunk() throws IOException {
         metadata.cHRM_whitePointX = stream.readInt();
         metadata.cHRM_whitePointY = stream.readInt();
@@ -447,6 +469,7 @@ public class PNGImageReader extends ImageReader {
         metadata.cHRM_present = true;
     }
 
+    /** 解析gAMchunk */
     private void parse_gAMA_chunk() throws IOException {
         int gamma = stream.readInt();
         metadata.gAMA_gamma = gamma;
@@ -454,6 +477,10 @@ public class PNGImageReader extends ImageReader {
         metadata.gAMA_present = true;
     }
 
+    /**
+     * 解析h是否chunk
+     * @param chunkLength chunkLength
+     */
     private void parse_hIST_chunk(int chunkLength) throws IOException {
         if (!metadata.PLTE_present) {
             throw new IIOException("hIST chunk without prior PLTE chunk!");
@@ -471,6 +498,10 @@ public class PNGImageReader extends ImageReader {
         metadata.hIST_present = true;
     }
 
+    /**
+     * 解析iCCchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_iCCP_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int compressedProfileLength = chunkLength - keyword.length() - 2;
@@ -489,6 +520,10 @@ public class PNGImageReader extends ImageReader {
         metadata.iCCP_present = true;
     }
 
+    /**
+     * 解析iTXtchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_iTXt_chunk(int chunkLength) throws IOException {
         long chunkStart = stream.getStreamPosition();
 
@@ -540,6 +575,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** 解析pHYschunk */
     private void parse_pHYs_chunk() throws IOException {
         metadata.pHYs_pixelsPerUnitXAxis = stream.readInt();
         metadata.pHYs_pixelsPerUnitYAxis = stream.readInt();
@@ -548,6 +584,7 @@ public class PNGImageReader extends ImageReader {
         metadata.pHYs_present = true;
     }
 
+    /** 解析sBIchunk */
     private void parse_sBIT_chunk() throws IOException {
         int colorType = metadata.IHDR_colorType;
         if (colorType == PNG_COLOR_GRAY ||
@@ -570,6 +607,10 @@ public class PNGImageReader extends ImageReader {
         metadata.sBIT_present = true;
     }
 
+    /**
+     * 解析sPLchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_sPLT_chunk(int chunkLength)
         throws IOException {
         metadata.sPLT_paletteName = readNullTerminatedString("ISO-8859-1", 80);
@@ -612,12 +653,14 @@ public class PNGImageReader extends ImageReader {
         metadata.sPLT_present = true;
     }
 
+    /** 解析sRGchunk */
     private void parse_sRGB_chunk() throws IOException {
         metadata.sRGB_renderingIntent = stream.readUnsignedByte();
 
         metadata.sRGB_present = true;
     }
 
+    /** 解析cICchunk */
     private void parse_cICP_chunk() throws IOException {
         metadata.cICP_colourPrimaries = stream.readUnsignedByte();
         metadata.cICP_transferFunction = stream.readUnsignedByte();
@@ -627,6 +670,10 @@ public class PNGImageReader extends ImageReader {
         metadata.cICP_present = true;
     }
 
+    /**
+     * 解析tEXtchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_tEXt_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int textLength = chunkLength - keyword.length() - 1;
@@ -648,6 +695,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** 解析tIMchunk */
     private void parse_tIME_chunk() throws IOException {
         metadata.tIME_year = stream.readUnsignedShort();
         metadata.tIME_month = stream.readUnsignedByte();
@@ -659,6 +707,10 @@ public class PNGImageReader extends ImageReader {
         metadata.tIME_present = true;
     }
 
+    /**
+     * 解析tRNchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_tRNS_chunk(int chunkLength) throws IOException {
         int colorType = metadata.IHDR_colorType;
         if (colorType == PNG_COLOR_PALETTE) {
@@ -725,6 +777,10 @@ public class PNGImageReader extends ImageReader {
         return baos.toByteArray();
     }
 
+    /**
+     * 解析eXIfchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_eXIf_chunk(int chunkLength) throws IOException {
         byte[] b = new byte[chunkLength];
         stream.readFully(b);
@@ -733,6 +789,10 @@ public class PNGImageReader extends ImageReader {
         metadata.eXIf_present = true;
     }
 
+    /**
+     * 解析zTXtchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_zTXt_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int textLength = chunkLength - keyword.length() - 2;
@@ -757,6 +817,7 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /** 读取Metadata */
     private void readMetadata() throws IIOException {
         if (gotMetadata) {
             return;
@@ -1131,6 +1192,14 @@ public class PNGImageReader extends ImageReader {
         { 0, 1, 2, 3 } // RGBA in RGBA order
     };
 
+    /**
+     * 创建Raster
+     * @param width width
+     * @param height height
+     * @param bands bands
+     * @param scanlineStride scanlineStride
+     * @param bitDepth bitDepth
+     */
     private WritableRaster createRaster(int width, int height, int bands,
                                         int scanlineStride,
                                         int bitDepth) {
@@ -1165,6 +1234,11 @@ public class PNGImageReader extends ImageReader {
         return ras;
     }
 
+    /**
+     * SkipPass
+     * @param passWidth passWidth
+     * @param passHeight passHeight
+     */
     private void skipPass(int passWidth, int passHeight)
         throws IOException {
         if ((passWidth == 0) || (passHeight == 0)) {
@@ -1183,11 +1257,25 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /**
+     * 更新ImageProgress
+     * @param newPixels newPixels
+     */
     private void updateImageProgress(int newPixels) {
         pixelsDone += newPixels;
         processImageProgress(100.0F*pixelsDone/totalPixels);
     }
 
+    /**
+     * 解码Pass
+     * @param passNum passNum
+     * @param xStart xStart
+     * @param yStart yStart
+     * @param xStep xStep
+     * @param yStep yStep
+     * @param passWidth passWidth
+     * @param passHeight passHeight
+     */
     private void decodePass(int passNum,
                             int xStart, int yStart,
                             int xStep, int yStep,
@@ -1491,6 +1579,11 @@ public class PNGImageReader extends ImageReader {
         processPassComplete(theImage);
     }
 
+    /**
+     * 解码Image
+     * @param width width
+     * @param height height
+     */
     private void decodeImage(int width, int height)
         throws IOException {
 
@@ -1532,6 +1625,11 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /**
+     * 读取Image
+     * @param imageIndex imageIndex
+     * @param param param
+     */
     private void readImage(int imageIndex, ImageReadParam param) throws IIOException {
         readMetadata();
 
@@ -1680,6 +1778,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /**
+     * 获取NumImages
+     * @param allowSearch allowSearch
+     */
     public int getNumImages(boolean allowSearch) throws IIOException {
         if (stream == null) {
             throw new IllegalStateException("No input source set!");
@@ -1693,6 +1795,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /**
+     * 获取Width
+     * @param imageIndex imageIndex
+     */
     public int getWidth(int imageIndex) throws IIOException {
 
         readMetadata();
@@ -1711,6 +1817,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /**
+     * 获取Height
+     * @param imageIndex imageIndex
+     */
     public int getHeight(int imageIndex) throws IIOException {
 
         readMetadata();
@@ -1729,6 +1839,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /**
+     * 获取ImageTypes
+     * @param imageIndex imageIndex
+     */
     public Iterator<ImageTypeSpecifier> getImageTypes(int imageIndex)
       throws IIOException
     {
@@ -1980,6 +2094,7 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /** 获取Default读取Param */
     public ImageReadParam getDefaultReadParam() {
         
         return new PNGImageReadParam();
@@ -1987,12 +2102,17 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /** 获取流式输出Metadata */
     public IIOMetadata getStreamMetadata()
         throws IIOException {
         return null;
     }
 
     @Override
+    /**
+     * 获取ImageMetadata
+     * @param imageIndex imageIndex
+     */
     public IIOMetadata getImageMetadata(int imageIndex) throws IIOException {
         readMetadata();
 
@@ -2010,6 +2130,11 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /**
+     * 读取
+     * @param imageIndex imageIndex
+     * @param param param
+     */
     public BufferedImage read(int imageIndex, ImageReadParam param)
         throws IIOException {
 
@@ -2027,11 +2152,13 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
+    /** Reset */
     public void reset() {
         super.reset();
         resetStreamSettings();
     }
 
+    /** Reset流式输出Settings */
     private void resetStreamSettings() {
         gotHeader = false;
         gotMetadata = false;

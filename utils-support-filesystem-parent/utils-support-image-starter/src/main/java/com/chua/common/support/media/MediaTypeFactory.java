@@ -29,6 +29,7 @@ public class MediaTypeFactory {
         MEDIA_TYPES.put("js", new MediaType("application", "javascript"));
     }
 
+    /** 获取MediaType */
     public static MediaType getMediaType(String name) {
         MediaType mt = MEDIA_TYPES.get(name.toLowerCase());
         if (mt == null) {
@@ -37,6 +38,7 @@ public class MediaTypeFactory {
         return mt;
     }
 
+    /** 获取MediaTypeNullable */
     public static MediaType getMediaTypeNullable(String name) {
         if (name == null || name.trim().isEmpty()) {
             return null;

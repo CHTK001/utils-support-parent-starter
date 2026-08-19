@@ -105,11 +105,13 @@ public final class CommandLine {
     }
 
     @Nonnull
+    /** ProgramName */
     public String programName() {
         return programName;
     }
 
     @Nonnull
+    /** ProgramDescription */
     public String programDescription() {
         return programDescription;
     }

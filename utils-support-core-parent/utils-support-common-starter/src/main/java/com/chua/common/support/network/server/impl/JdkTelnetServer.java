@@ -101,6 +101,7 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -120,6 +121,7 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         running = false;
         // 关闭所有会话
@@ -145,10 +147,12 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
+    /** AcceptLoop */
     private void acceptLoop() {
         while (running) {
             try {
@@ -162,6 +166,10 @@ public class JdkTelnetServer extends AbstractServer {
         }
     }
 
+    /**
+     * 处理Connection
+     * @param socket socket
+     */
     private void handleConnection(Socket socket) {
         String clientId = socket.getRemoteSocketAddress().toString();
         log.info("Telnet 连接: {}", clientId);
@@ -226,6 +234,7 @@ public class JdkTelnetServer extends AbstractServer {
         }
     }
 
+    /** 注册BuiltinCommands */
     private void registerBuiltinCommands() {
         registerCommand("help", (session, args) -> {
             session.println("可用命令:");

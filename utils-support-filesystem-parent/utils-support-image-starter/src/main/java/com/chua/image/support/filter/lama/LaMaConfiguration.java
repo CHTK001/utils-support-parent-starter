@@ -301,6 +301,7 @@ public class LaMaConfiguration {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         
         return String.format("LaMaConfiguration{modelPath='%s', inputSize=%d, threads=%d, useGpu=%s}",

@@ -61,6 +61,7 @@ public abstract class AbstractFileStorage implements FileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 子类可覆盖实现资源释放
     }
@@ -96,6 +97,10 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         @Override
+        /**
+         * Initiate
+         * @param request request
+         */
         public MultipartPartResult initiate(PutObjectRequest request) {
             String uploadId = IdUtils.simpleUuid();
             try {
@@ -114,6 +119,10 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         @Override
+        /**
+         * UploadPart
+         * @param request request
+         */
         public MultipartPartResult uploadPart(com.chua.common.support.storage.request.MultipartUploadPartRequest request) {
             MultipartContext ctx = contexts.get(request.getUploadId());
             if (ctx == null) {
@@ -140,6 +149,11 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         @Override
+        /**
+         * 完成
+         * @param uploadId uploadId
+         * @param parts parts
+         */
         public PutObjectResult complete(String uploadId, List<PartETag> parts) {
             MultipartContext ctx = contexts.remove(uploadId);
             if (ctx == null) {
@@ -170,6 +184,10 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         @Override
+        /**
+         * Abort
+         * @param uploadId uploadId
+         */
         public DeleteObjectResult abort(String uploadId) {
             MultipartContext ctx = contexts.remove(uploadId);
             if (ctx == null) {
@@ -183,6 +201,11 @@ public abstract class AbstractFileStorage implements FileStorage {
                     .build();
         }
 
+        /**
+         * 合并Parts
+         * @param ctx ctx
+         * @param parts parts
+         */
         private byte[] mergeParts(MultipartContext ctx, List<PartETag> parts) throws IOException {
             parts.sort((a, b) -> Integer.compare(a.getPartNumber(), b.getPartNumber()));
             long totalSize = parts.stream().mapToLong(p -> {
@@ -203,6 +226,10 @@ public abstract class AbstractFileStorage implements FileStorage {
             return merged;
         }
 
+        /**
+         * 删除TempDir
+         * @param tempDir tempDir
+         */
         private void deleteTempDir(Path tempDir) {
             try {
                 if (Files.exists(tempDir)) {

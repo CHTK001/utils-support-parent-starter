@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 @SpiDescribe("抗锯齿滤镜")
 public class ImageAntiAliasingImageFilter extends AbstractImageFilter {
     @Override
+    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         BufferedImage distImage = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
         Graphics2D graphics2d = null;

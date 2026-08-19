@@ -40,6 +40,7 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
     }
 
     @Override
+    /** 开始Chunk */
     protected void startChunk() throws IOException {
         crc.reset();
         this.startPos = stream.getStreamPosition();

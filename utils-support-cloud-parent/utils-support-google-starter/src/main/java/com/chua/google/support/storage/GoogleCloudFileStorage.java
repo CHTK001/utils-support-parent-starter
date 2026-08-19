@@ -93,6 +93,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * PutObject
+     * @param request request
+     */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -115,6 +119,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * 获取Object
+     * @param request request
+     */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -145,6 +153,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * 获取Object
+     * @param key key
+     */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -152,6 +164,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * 删除Object
+     * @param key key
+     */
     public DeleteObjectResult deleteObject(String key) {
         try {
             storage.delete(BlobId.of(bucket, key));
@@ -167,6 +183,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * ExistObject
+     * @param request request
+     */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             Blob blob = storage.get(BlobId.of(bucket, request.getKey()));
@@ -183,6 +203,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * ListObject
+     * @param request request
+     */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             // 构建 GCS 列表选项：前缀 + 页大小
@@ -229,6 +253,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // Google Cloud Storage 客户端由 SDK 内部管理连接池
     }

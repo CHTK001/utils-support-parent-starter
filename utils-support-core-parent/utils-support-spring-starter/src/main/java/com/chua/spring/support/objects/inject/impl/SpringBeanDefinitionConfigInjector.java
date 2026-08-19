@@ -38,11 +38,23 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     private volatile org.springframework.core.env.Environment springEnv;
 
     @Override
+    /**
+     * 是否Support
+     * @param field field
+     * @param beanDefinition beanDefinition
+     */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Value.class);
     }
 
     @Override
+    /**
+     * Inject
+     * @param field field
+     * @param bean bean
+     * @param beanDefinition beanDefinition
+     * @param environment environment
+     */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null) {
             return null;
@@ -55,6 +67,11 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     }
 
     @Override
+    /**
+     * 是否Support
+     * @param method method
+     * @param beanDefinition beanDefinition
+     */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -68,6 +85,13 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     }
 
     @Override
+    /**
+     * Inject
+     * @param method method
+     * @param bean bean
+     * @param beanDefinition beanDefinition
+     * @param environment environment
+     */
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null) {
             return null;
@@ -89,6 +113,10 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
         return hit ? result : null;
     }
 
+    /**
+     * 获取SpringEnv
+     * @param frameworkEnv frameworkEnv
+     */
     private org.springframework.core.env.Environment getSpringEnv(Environment frameworkEnv) {
         org.springframework.core.env.Environment env = this.springEnv;
         if (env instanceof SpringEnvironmentAdapter adapter && adapter.getDelegate() == frameworkEnv) {
@@ -100,6 +128,12 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * 解析Value
+     * @param expression expression
+     * @param targetType targetType
+     * @param frameworkEnv frameworkEnv
+     */
     private Object resolveValue(String expression, Class<?> targetType, Environment frameworkEnv) {
         if (expression == null) {
             return null;

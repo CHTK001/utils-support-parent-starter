@@ -13,10 +13,15 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi
 public interface BeanPath {
 
+    /** 获取Instance */
     static BeanPath getInstance() {
         return ServiceProvider.of(BeanPath.class).getPriority();
     }
 
+    /**
+     * Value创建
+     * @param source source
+     */
     static BeanPath valueOf(Object source) {
         if (source instanceof String s) {
             String trimmed = s.trim();

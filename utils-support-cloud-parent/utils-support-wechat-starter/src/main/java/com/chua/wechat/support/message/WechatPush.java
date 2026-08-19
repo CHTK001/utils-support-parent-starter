@@ -135,11 +135,16 @@ public class WechatPush implements MessagePush {
     }
 
     @Override
+    /** 获取Provider */
     public String getProvider() {
         return "wechat";
     }
 
     @Override
+    /**
+     * 发送
+     * @param request request
+     */
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
         String type = resolveType(request);
@@ -424,11 +429,16 @@ public class WechatPush implements MessagePush {
     }
 
     @Override
+    /** ListTemplates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
 
     @Override
+    /**
+     * 获取Template
+     * @param templateId templateId
+     */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

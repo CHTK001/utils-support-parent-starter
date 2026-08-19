@@ -30,30 +30,35 @@ public class DefaultImaging implements Imaging{
     private String type;
 
     @Override
+    /** Image */
     public Imaging image(BufferedImage image) {
         this.bufferedImage = image;
         return this;
     }
 
     @Override
+    /** Image */
     public Imaging image(byte[] image) {
         this.bufferedImage = BufferedImageUtils.toBufferedImage(image);
         return this;
     }
 
     @Override
+    /** Image */
     public Imaging image(File file) {
         this.bufferedImage = BufferedImageUtils.toBufferedImage(file);
         return this;
     }
 
     @Override
+    /** Type */
     public Imaging type(String type) {
         this.type = type;
         return this;
     }
 
     @Override
+    /** OutputQuality */
     public Imaging outputQuality(float outputQuality) {
         ImageWriter imageWriter = ImageIO.getImageWritersByFormatName(type).next();
         ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
@@ -75,6 +80,7 @@ public class DefaultImaging implements Imaging{
 
 
     @Override
+    /** MediaType */
     public MediaType mediaType() {
         
         return MediaTypeFactory.getMediaTypeNullable(type);
@@ -83,6 +89,7 @@ public class DefaultImaging implements Imaging{
 
 
     @Override
+    /** 获取BufferedImage */
     public BufferedImage getBufferedImage() {
         
         return this.bufferedImage;

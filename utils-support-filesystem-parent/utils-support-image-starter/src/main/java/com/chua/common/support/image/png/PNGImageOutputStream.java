@@ -53,8 +53,10 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         //startChunk();
     }
 
+    /** 开始Chunk */
     protected abstract void startChunk() throws IOException;
 
+    /** FinishChunk */
     protected void finishChunk() throws IOException {
         // Write CRC
         stream.writeInt(crc.getValue());
@@ -80,16 +82,19 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     }
 
     @Override
+    /** 读取 */
     public int read() throws IOException {
         throw new RuntimeException("Method not available");
     }
 
     @Override
+    /** 读取 */
     public int read(byte[] b, int off, int len) throws IOException {
         throw new RuntimeException("Method not available");
     }
 
     @Override
+    /** 写入 */
     public void write(byte[] b, int off, int len) throws IOException {
         if (len == 0) {
             return;
@@ -124,6 +129,7 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     }
 
     @Override
+    /** 写入 */
     public void write(int b) throws IOException {
         wbuf1[0] = (byte)b;
         write(wbuf1, 0, 1);

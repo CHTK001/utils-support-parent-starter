@@ -82,6 +82,7 @@ public class ImageUsmFilterImage extends ImageGaussianBlurFilter {
     }
 
     @Override
+    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         initial(src);
         int total = width * height;

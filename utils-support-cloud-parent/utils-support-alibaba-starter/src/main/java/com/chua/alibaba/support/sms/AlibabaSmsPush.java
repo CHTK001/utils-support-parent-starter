@@ -71,11 +71,16 @@ public class AlibabaSmsPush implements MessagePush {
     }
 
     @Override
+    /** 获取Provider */
     public String getProvider() {
         return "alibaba-sms";
     }
 
     @Override
+    /**
+     * 发送
+     * @param request request
+     */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -134,20 +139,35 @@ public class AlibabaSmsPush implements MessagePush {
     }
 
     @Override
+    /** ListTemplates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
 
     @Override
+    /**
+     * 获取Template
+     * @param templateId templateId
+     */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
 
+    /**
+     * 注册Template
+     * @param template template
+     */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
     }
 
     @Override
+    /**
+     * 发送Template
+     * @param templateId templateId
+     * @param to to
+     * @param params params
+     */
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .to(to)

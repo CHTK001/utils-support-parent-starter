@@ -117,11 +117,20 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * 获取Property
+     * @param key key
+     */
     public String getProperty(String key) {
         return getProperty(key, String.class, null);
     }
 
     @Override
+    /**
+     * 获取Property
+     * @param key key
+     * @param defaultValue defaultValue
+     */
     public String getProperty(String key, String defaultValue) {
         String value = getProperty(key, String.class, null);
         if (value != null) {
@@ -176,6 +185,11 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * 设置Property
+     * @param key key
+     * @param value value
+     */
     public void setProperty(String key, Object value) {
         // 参数校验：key 不可为 null
         if (key == null) {
@@ -190,6 +204,10 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * ContainsProperty
+     * @param key key
+     */
     public boolean containsProperty(String key) {
         // 参数校验：key 不可为 null
         if (key == null) {
@@ -211,6 +229,10 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * 添加ChangeListener
+     * @param listener listener
+     */
     public void addChangeListener(EnvironmentChangeListener listener) {
         // 参数校验：listener 不可为 null
         if (listener != null) {
@@ -219,6 +241,10 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * 移除ChangeListener
+     * @param listener listener
+     */
     public void removeChangeListener(EnvironmentChangeListener listener) {
         // 参数校验：listener 不可为 null
         if (listener != null) {
@@ -227,6 +253,10 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * 添加ConfigSource
+     * @param propertySource propertySource
+     */
     public void addConfigSource(PropertySource propertySource) {
         if (propertySource == null) {
             return;
@@ -238,6 +268,10 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    /**
+     * 移除ConfigSource
+     * @param propertySource propertySource
+     */
     public void removeConfigSource(PropertySource propertySource) {
         if (propertySource == null) {
             return;
@@ -250,6 +284,7 @@ public class DefaultEnvironment implements Environment {
 
 
     @Override
+    /** Refresh */
     public void refresh() {
         // 步骤一：依次刷新所有配置源
         for (PropertySource propertySource : propertySources) {

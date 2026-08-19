@@ -321,20 +321,50 @@ public class AgentEditorProvider {
         /** 类型 */
         private String type;
 
+        /** 获取Name */
         public String getName() { return name; }
+        /**
+         * 设置Name
+         * @param name name
+         */
         public void setName(String name) { this.name = name; }
+        /** 获取Command */
         public String getCommand() { return command; }
+        /**
+         * 设置Command
+         * @param command command
+         */
         public void setCommand(String command) { this.command = command; }
+        /** 获取Args */
         public List<String> getArgs() { return args; }
+        /**
+         * 设置Args
+         * @param args args
+         */
         public void setArgs(List<String> args) { this.args = args; }
         public Map<String, String> getEnv() { return env; }
+        /**
+         * 设置Env
+         * @param env env
+         */
         public void setEnv(Map<String, String> env) { this.env = env; }
+        /** 获取Url */
         public String getUrl() { return url; }
+        /**
+         * 设置Url
+         * @param url url
+         */
         public void setUrl(String url) { this.url = url; }
+        /** 获取Type */
         public String getType() { return type; }
+        /**
+         * 设置Type
+         * @param type type
+         */
         public void setType(String type) { this.type = type; }
 
         @Override
+        /** ToString */
         public String toString() {
             return name + " [" + (command != null ? command : url) + "]";
         }

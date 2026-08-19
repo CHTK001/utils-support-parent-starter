@@ -186,6 +186,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * PutObject
+     * @param request request
+     */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             byte[] content = request.getContent();
@@ -221,6 +225,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * 获取Object
+     * @param request request
+     */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String fileId = resolveFileId(request.getKey());
@@ -261,6 +269,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * 获取Object
+     * @param key key
+     */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -268,6 +280,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * 删除Object
+     * @param key key
+     */
     public DeleteObjectResult deleteObject(String key) {
         try {
             String fileId = resolveFileId(key);
@@ -291,6 +307,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * ExistObject
+     * @param request request
+     */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             String fileId = resolveFileId(request.getKey());
@@ -310,6 +330,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /**
+     * ListObject
+     * @param request request
+     */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String folderId = request.getFilePath();

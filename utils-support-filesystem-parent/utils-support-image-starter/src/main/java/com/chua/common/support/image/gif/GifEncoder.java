@@ -355,6 +355,7 @@ public class GifEncoder {
         return started = ok;
     }
 
+    /** 是否Started */
     public boolean isStarted() {
         return started;
     }

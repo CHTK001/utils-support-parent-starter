@@ -25,18 +25,22 @@ public class MediaType implements Serializable {
         this(type, subtype, null);
     }
 
+    /** 获取Type */
     public String getType() {
         return type;
     }
 
+    /** 获取Subtype */
     public String getSubtype() {
         return subtype;
     }
 
+    /** 获取Charset */
     public String getCharset() {
         return charset;
     }
 
+    /** ToString */
     public String toString() {
         if (charset != null) {
             return type + "/" + subtype + "; charset=" + charset;

@@ -72,6 +72,11 @@ public class JRebelHttpServer extends AbstractServer {
 
     // ==================== 创建租约 ====================
 
+    /**
+     * 处理创建Lease
+     * @param request request
+     * @param response response
+     */
     private void handleCreateLease(ServerRequest request, ServerResponse response) throws Exception {
         String body = request.getBodyString();
         Map<String, Object> params = parseBody(body);
@@ -95,6 +100,11 @@ public class JRebelHttpServer extends AbstractServer {
 
     // ==================== 验证连接 ====================
 
+    /**
+     * 处理校验Connection
+     * @param request request
+     * @param response response
+     */
     private void handleValidateConnection(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> result = new HashMap<>();
         result.put("serverVersion", "3.2.4");
@@ -115,6 +125,11 @@ public class JRebelHttpServer extends AbstractServer {
 
     // ==================== Ping ====================
 
+    /**
+     * 处理Ping
+     * @param request request
+     * @param response response
+     */
     private void handlePing(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> result = licenseService.createPingResponse();
 
@@ -125,6 +140,11 @@ public class JRebelHttpServer extends AbstractServer {
 
     // ==================== 生成 GUID ====================
 
+    /**
+     * 处理GenerateGuid
+     * @param request request
+     * @param response response
+     */
     private void handleGenerateGuid(ServerRequest request, ServerResponse response) throws Exception {
         String clientId = request.getParam("clientId");
         String guid = licenseService.generateGuid(clientId);
@@ -140,6 +160,11 @@ public class JRebelHttpServer extends AbstractServer {
 
     // ==================== 获取票据 ====================
 
+    /**
+     * 处理ObtainTicket
+     * @param request request
+     * @param response response
+     */
     private void handleObtainTicket(ServerRequest request, ServerResponse response) throws Exception {
         String salt = request.getParam("salt");
         String username = request.getParam("userName");
@@ -169,6 +194,11 @@ licenseType=0
 
     // ==================== 释放票据 ====================
 
+    /**
+     * 处理释放Ticket
+     * @param request request
+     * @param response response
+     */
     private void handleReleaseTicket(ServerRequest request, ServerResponse response) throws Exception {
         String ticketId = request.getParam("ticketId");
 
@@ -185,6 +215,7 @@ licenseType=0
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -209,6 +240,7 @@ licenseType=0
      */
     private com.sun.net.httpserver.HttpServer httpServer;
 
+    /** 创建Executor */
     private java.util.concurrent.Executor createExecutor() {
         return new java.util.concurrent.ThreadPoolExecutor(
                 setting.getWorkerThreads(),
@@ -219,6 +251,10 @@ licenseType=0
         );
     }
 
+    /**
+     * 处理Exchange
+     * @param exchange exchange
+     */
     private void handleExchange(HttpExchange exchange) {
         com.chua.common.support.network.server.impl.HttpServerRequest request =
                 new com.chua.common.support.network.server.impl.HttpServerRequest(
@@ -233,11 +269,13 @@ licenseType=0
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (httpServer != null) {
             httpServer.stop(0);
@@ -259,6 +297,12 @@ licenseType=0
         }
     }
 
+    /**
+     * 获取String
+     * @param params params
+     * @param key key
+     * @param defaultValue defaultValue
+     */
     private String getString(Map<String, Object> params, String key, String defaultValue) {
         if (params.containsKey(key)) {
             Object value = params.get(key);
@@ -267,6 +311,12 @@ licenseType=0
         return defaultValue;
     }
 
+    /**
+     * 获取Boolean
+     * @param params params
+     * @param key key
+     * @param defaultValue defaultValue
+     */
     private boolean getBoolean(Map<String, Object> params, String key, boolean defaultValue) {
         if (params.containsKey(key)) {
             Object value = params.get(key);
@@ -279,6 +329,12 @@ licenseType=0
         return defaultValue;
     }
 
+    /**
+     * 获取Long
+     * @param params params
+     * @param key key
+     * @param defaultValue defaultValue
+     */
     private long getLong(Map<String, Object> params, String key, long defaultValue) {
         if (params.containsKey(key)) {
             Object value = params.get(key);

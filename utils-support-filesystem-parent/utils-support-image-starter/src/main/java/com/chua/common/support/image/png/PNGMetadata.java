@@ -463,6 +463,7 @@ public boolean tRNS_present;
         // TODO -- implement
     }
 
+    /** 初始化 */
     public void initialize(ImageTypeSpecifier imageType, int numBands) {
         initialize(imageType.getColorModel(), imageType.getSampleModel(), numBands);
     }
@@ -634,10 +635,12 @@ public boolean tRNS_present;
         IHDR_present = true;
     }
 
+    /** 是否读取Only */
     public boolean isReadOnly() {
         return false;
     }
 
+    /** CloneBytesArrayList */
     private ArrayList<byte[]> cloneBytesArrayList(ArrayList<byte[]> in) {
         if (in == null) {
             return null;
@@ -651,6 +654,7 @@ public boolean tRNS_present;
     }
 
     // Deep clone
+    /** Clone */
     public Object clone() {
         PNGMetadata metadata;
         try {
@@ -666,6 +670,7 @@ public boolean tRNS_present;
         return metadata;
     }
 
+    /** 获取AsTree */
     public Node getAsTree(String formatName) {
         if (formatName.equals(nativeMetadataFormatName)) {
             return getNativeTree();
@@ -677,6 +682,7 @@ public boolean tRNS_present;
         }
     }
 
+    /** 获取NativeTree */
     private Node getNativeTree() {
         // scratch node
         // null;
@@ -1067,6 +1073,7 @@ public boolean tRNS_present;
         return root;
     }
 
+    /** 获取NumChannels */
     private int getNumChannels() {
         // Determine number of channels
         // Be careful about palette color with transparency
@@ -1078,6 +1085,7 @@ public boolean tRNS_present;
         return numChannels;
     }
 
+    /** 获取StandardChromaNode */
     public IIOMetadataNode getStandardChromaNode() {
         IIOMetadataNode chroma_node = new IIOMetadataNode("Chroma");
         // scratch node
@@ -1152,6 +1160,7 @@ public boolean tRNS_present;
         return chroma_node;
     }
 
+    /** 获取StandardCompressionNode */
     public IIOMetadataNode getStandardCompressionNode() {
         IIOMetadataNode compression_node = new IIOMetadataNode("Compression");
         // scratch node
@@ -1174,6 +1183,7 @@ public boolean tRNS_present;
         return compression_node;
     }
 
+    /** Repeat */
     private String repeat(String s, int times) {
         if (times == 1) {
             return s;
@@ -1187,6 +1197,7 @@ public boolean tRNS_present;
         return sb.toString();
     }
 
+    /** 获取StandardDataNode */
     public IIOMetadataNode getStandardDataNode() {
         IIOMetadataNode data_node = new IIOMetadataNode("Data");
         // scratch node
@@ -1234,6 +1245,7 @@ public boolean tRNS_present;
         return data_node;
     }
 
+    /** 获取StandardDimensionNode */
     public IIOMetadataNode getStandardDimensionNode() {
         IIOMetadataNode dimension_node = new IIOMetadataNode("Dimension");
         // scratch node
@@ -1275,6 +1287,7 @@ public boolean tRNS_present;
         return dimension_node;
     }
 
+    /** 获取StandardDocumentNode */
     public IIOMetadataNode getStandardDocumentNode() {
         IIOMetadataNode document_node = null;
 
@@ -1315,6 +1328,7 @@ public boolean tRNS_present;
         return document_node;
     }
 
+    /** 获取StandardTextNode */
     public IIOMetadataNode getStandardTextNode() {
         int numEntries = tEXt_keyword.size() +
             iTXt_keyword.size() + zTXt_keyword.size();
@@ -1364,6 +1378,7 @@ public boolean tRNS_present;
         return text_node;
     }
 
+    /** 获取StandardTransparencyNode */
     public IIOMetadataNode getStandardTransparencyNode() {
         IIOMetadataNode transparency_node =
             new IIOMetadataNode("Transparency");
@@ -1399,6 +1414,7 @@ public boolean tRNS_present;
     }
 
     // Shorthand for throwing an IIOInvalidTreeException
+    /** Fatal */
     private static void fatal(Node node, String reason)
         throws IIOInvalidTreeException {
         throw new IIOInvalidTreeException(reason, node);
@@ -1443,12 +1459,14 @@ public boolean tRNS_present;
     }
 
     // Get a required integer-valued attribute
+    /** 获取IntAttribute */
     private static int getIntAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getIntAttribute(node, name, -1, true);
     }
 
     // Get a required float-valued attribute
+    /** 获取FloatAttribute */
     private static float getFloatAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getFloatAttribute(node, name, -1.0F, true);
@@ -1480,6 +1498,7 @@ public boolean tRNS_present;
     }
 
     // Get a required boolean-valued attribute
+    /** 获取BooleanAttribute */
     private static boolean getBooleanAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getBooleanAttribute(node, name, false, true);
@@ -1532,6 +1551,7 @@ public boolean tRNS_present;
     }
 
     // Get a required String-valued attribute
+    /** 获取Attribute */
     private static String getAttribute(Node node, String name)
         throws IIOInvalidTreeException {
             return getAttribute(node, name, null, true);
@@ -1603,6 +1623,7 @@ public boolean tRNS_present;
         return intValue;
     }
 
+    /** 合并Tree */
     public void mergeTree(String formatName, Node root)
         throws IIOInvalidTreeException {
         if (formatName.equals(nativeMetadataFormatName)) {
@@ -1621,6 +1642,7 @@ public boolean tRNS_present;
         }
     }
 
+    /** 合并NativeTree */
     private void mergeNativeTree(Node root)
         throws IIOInvalidTreeException {
         Node node = root;
@@ -2216,6 +2238,7 @@ public boolean tRNS_present;
         return true;
     }
 
+    /** 合并StandardTree */
     private void mergeStandardTree(Node root)
         throws IIOInvalidTreeException {
         Node node = root;
@@ -2597,6 +2620,7 @@ public boolean tRNS_present;
         }
     }
 
+    /** 设置CreationTimeChunk */
     private void setCreationTimeChunk(ListIterator<String> iter) {
         // Check for iterator's valid state
         if (iter != null && iter.hasNext()) {
@@ -2605,6 +2629,7 @@ public boolean tRNS_present;
         }
     }
 
+    /** 设置EncodedTime */
     private void setEncodedTime(String encodedTime) {
         if (tEXt_creation_time_iter != null
                 && tEXt_creation_time_iter.hasNext()
@@ -2616,6 +2641,7 @@ public boolean tRNS_present;
         }
     }
 
+    /** 获取EncodedTime */
     private String getEncodedTime() {
         String encodedTime = null;
         if (tEXt_creation_time_iter != null
@@ -2627,6 +2653,7 @@ public boolean tRNS_present;
         return encodedTime;
     }
 
+    /** 解析EncodedTime */
     private OffsetDateTime parseEncodedTime(String encodedTime) {
         OffsetDateTime retVal = null;
         boolean timeDecoded = false;
@@ -2677,6 +2704,7 @@ public boolean tRNS_present;
     }
 
     // Reset all instance variables to their initial state
+    /** 重置 */
     public void reset() {
         IHDR_present = false;
         PLTE_present = false;

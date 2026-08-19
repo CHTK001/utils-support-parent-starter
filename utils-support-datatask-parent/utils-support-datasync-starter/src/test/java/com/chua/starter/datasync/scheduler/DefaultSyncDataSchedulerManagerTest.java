@@ -116,6 +116,10 @@ class DefaultSyncDataSchedulerManagerTest {
                 null, List.of(), 100, "", "", Map.of(), null);
     }
 
+    /**
+     * SourceImpl
+     * @param sourceId sourceId
+     */
     private record SourceImpl(String sourceId) implements DataSyncAgentSource {
         @Override public String inputId() { return sourceId; }
         @Override public Flux<Map<String, Object>> read(Map<String, Object> p) { return Flux.empty(); }
@@ -127,18 +131,32 @@ class DefaultSyncDataSchedulerManagerTest {
      */
     private static class AlwaysFireTrigger implements Trigger {
         @Override
+        /** NextExecutionTime */
         public LocalDateTime nextExecutionTime() {
             return null;
         }
         @Override
+        /**
+         * NextExecutionTime
+         * @param from from
+         */
         public LocalDateTime nextExecutionTime(LocalDateTime from) {
             return from.minusSeconds(1);
         }
         @Override
+        /**
+         * 获取FireTimes
+         * @param count count
+         */
         public List<LocalDateTime> getFireTimes(int count) {
             return List.of();
         }
         @Override
+        /**
+         * 获取FireTimes
+         * @param count count
+         * @param from from
+         */
         public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
             return List.of();
         }
@@ -154,6 +172,7 @@ class DefaultSyncDataSchedulerManagerTest {
         List<Map<String, Object>> readCalls
     ) implements DataSyncAgentSource, Directional {
         @Override
+        /** InputId */
         public String inputId() {
             return sourceId;
         }
@@ -164,9 +183,11 @@ class DefaultSyncDataSchedulerManagerTest {
             return Flux.just(Map.of("id", 1L, "name", "test"));
         }
         @Override
+        /** 关闭 */
         public void close() {
         }
         @Override
+        /** Direction */
         public Direction direction() {
             return direction;
         }
@@ -182,6 +203,10 @@ class DefaultSyncDataSchedulerManagerTest {
         Direction direction
     ) implements DataSyncAgentSink, Directional {
         @Override
+        /**
+         * 写入
+         * @param data data
+         */
         public void write(Flux<Map<String, Object>> data) {
             data.collectList().subscribe(list -> {
                 receivedData.addAll(list);
@@ -189,9 +214,11 @@ class DefaultSyncDataSchedulerManagerTest {
             });
         }
         @Override
+        /** 关闭 */
         public void close() {
         }
         @Override
+        /** Direction */
         public Direction direction() {
             return direction;
         }
@@ -206,6 +233,7 @@ class DefaultSyncDataSchedulerManagerTest {
         List<com.chua.datasync.agent.support.model.SyncDataOffset> offsets
     ) implements DataSyncAgentSource, Directional {
         @Override
+        /** InputId */
         public String inputId() {
             return sourceId;
         }
@@ -214,13 +242,19 @@ class DefaultSyncDataSchedulerManagerTest {
             return Flux.just(Map.of("id", 1L, "name", "test"));
         }
         @Override
+        /** 关闭 */
         public void close() {
         }
         @Override
+        /** Direction */
         public Direction direction() {
             return Direction.INPUT;
         }
         @Override
+        /**
+         * 写入Offset
+         * @param offset offset
+         */
         public void writeOffset(com.chua.datasync.agent.support.model.SyncDataOffset offset) {
             offsets.add(offset);
             writeOffsetLatch.countDown();

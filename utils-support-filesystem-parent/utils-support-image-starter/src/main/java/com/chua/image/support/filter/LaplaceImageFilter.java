@@ -291,6 +291,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         }
         return dest;
     }
+    /** Sobel处理 */
     public BufferedImage sobelProcess(BufferedImage src) {
 
         // Sobel算子
@@ -593,6 +594,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
 
+    /** Clamp */
     private int clamp(int value) {
         return value > 255 ? 255 : (value < 0 ? 0 : value);
     }

@@ -50,12 +50,14 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         
         return "image";
     
     }
 
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -85,6 +87,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
+    /** Do初始化 */
     protected void doInitialize() throws IOException {
         if (file == null) {
             throw new IOException("文件对象为null");
@@ -95,11 +98,13 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
+    /** Do写入Line */
     protected void doWriteLine(String line) throws IOException {
         throw new UnsupportedOperationException("图片文件系统不支持按行写入");
     }
 
     @Override
+    /** Do写入Text */
     protected void doWriteText(String text) throws IOException {
         if (text == null || text.isEmpty()) {
             return;
@@ -109,6 +114,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
+    /** Do写入Bytes */
     protected void doWriteBytes(byte[] bytes) throws IOException {
         if (bytes == null || bytes.length == 0) {
             return;
@@ -117,6 +123,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
+    /** Do写入 */
     protected void doWrite(Map<String, Object> data) throws IOException {
         if (data == null || data.isEmpty()) {
             return;
@@ -149,15 +156,18 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
+    /** Do刷新 */
     protected void doFlush() throws IOException {
         // 文件写入为一次性覆盖，flush 由底层 NIO 处理
     }
 
     @Override
+    /** DoFinish */
     protected void doFinish() throws IOException {
         // 无需额外收尾
     }
 
+    /** 解析格式化 */
     private String resolveFormat() {
         if (file == null) {
             return "png";

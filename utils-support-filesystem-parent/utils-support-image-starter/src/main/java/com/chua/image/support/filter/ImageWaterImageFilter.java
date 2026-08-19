@@ -106,6 +106,7 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     }
 
     @Override
+    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return waterFilter(src, dst);
@@ -113,6 +114,7 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     }
 
 
+    /** Water过滤 */
     private BufferedImage waterFilter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth(), height = src.getHeight();
         BufferedImage buf2;

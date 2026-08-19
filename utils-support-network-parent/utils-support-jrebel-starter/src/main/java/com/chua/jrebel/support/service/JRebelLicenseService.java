@@ -237,22 +237,27 @@ public class JRebelLicenseService {
             this.offline = offline;
         }
 
+        /** 获取Guid */
         public String getGuid() {
             return guid;
         }
 
+        /** 获取Username */
         public String getUsername() {
             return username;
         }
 
+        /** 获取Valid从创建 */
         public String getValidFrom() {
             return validFrom;
         }
 
+        /** 获取ValidUntil */
         public String getValidUntil()        {
             return validUntil;
         }
 
+        /** 是否Offline */
         public boolean isOffline() {
             return offline;
         }
