@@ -50,8 +50,6 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
      * ImageNet 均值（BGR 顺序，读光使用）。
      */
     private static final float[] MEAN = {123.68f, 116.78f, 103.94f};
-    /** 标准差数组 */
-    private static final float[] STD = {58.395f, 57.12f, 57.375f}; // 0.229*255, 0.224*255, 0.225*255
 
     /**
      * 缩放最大边（防止超大图内存爆炸）。
