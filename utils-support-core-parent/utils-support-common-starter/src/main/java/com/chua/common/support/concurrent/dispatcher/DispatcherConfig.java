@@ -86,4 +86,11 @@ public class DispatcherConfig {
     @Builder.Default
     /** Block尺寸 */
     private long blockSize = 64L * 1024 * 1024;
+
+    /**
+     * 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），
+     * 为空时使用默认 Jackson 实现。各派发提供者统一通过该参数初始化序列化器。
+     */
+    /** Serializer名 */
+    private String serializer;
 }
