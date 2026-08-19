@@ -1,0 +1,9 @@
+{
+  "name": "com.chua.shardingv5.support.conversion.ShardingV5Conversion",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}

@@ -1,0 +1,4 @@
+[
+  ["com.chua.common.support.ai.train.ModelTrainer"],
+  ["com.chua.deeplearning.support.engine.ModelProvider"]
+]

@@ -1,0 +1,9 @@
+{
+  "name": "com.chua.metrics.support.MetricsDataSyncAgent",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}

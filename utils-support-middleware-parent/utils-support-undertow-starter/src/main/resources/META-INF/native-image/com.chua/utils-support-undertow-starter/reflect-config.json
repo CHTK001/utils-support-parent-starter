@@ -1,0 +1,9 @@
+{
+  "name": "com.chua.undertow.support.container.UndertowWebContainer",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}

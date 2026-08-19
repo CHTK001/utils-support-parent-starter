@@ -1,0 +1,9 @@
+{
+  "name": "com.chua.rabbitmq.support.dispatcher.RabbitmqDispatcherProvider",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}

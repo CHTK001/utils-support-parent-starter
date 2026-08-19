@@ -1,0 +1,14 @@
+[
+  ["com.chua.common.support.ai.mcp.McpProvider"],
+  ["com.chua.common.support.datasearch.express.spi.ExpressProvider"],
+  ["com.chua.common.support.datasearch.holiday.spi.HolidayProvider"],
+  ["com.chua.common.support.datasearch.music.spi.MusicSourceProvider"],
+  ["com.chua.common.support.datasearch.pricing.spi.PricingProvider"],
+  ["com.chua.common.support.datasearch.region.spi.RegionProvider"],
+  ["com.chua.common.support.datasearch.skill.spi.SkillProvider"],
+  ["com.chua.common.support.datasearch.software.spi.SoftwareProvider"],
+  ["com.chua.common.support.datasearch.usage.spi.UsageParser"],
+  ["com.chua.common.support.datasearch.usage.spi.UsageProvider"],
+  ["com.chua.common.support.datasearch.video.spi.ResourceProvider"],
+  ["com.chua.common.support.datasearch.video.spi.SubtitleSearchProvider"]
+]
