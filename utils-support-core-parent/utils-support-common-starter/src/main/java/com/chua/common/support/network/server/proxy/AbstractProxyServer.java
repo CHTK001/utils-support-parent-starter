@@ -130,10 +130,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
             serverSocket.bind(addr, backlog);
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
-            // 多 acceptor：使用 bossThreads 控制并行 accept 线程数(默认至少 min(CPU,4),
-            // 高并发下支撑百万级连接建立;同一 ServerSocket 多线程 accept 为 JDK 支持用法)
-            int acceptors = Math.max(setting.getBossThreads(),
-                    Math.min(Runtime.getRuntime().availableProcessors(), 4));
+            // 多 acceptor：使用 bossThreads 控制并行 accept 线程数（ServerSetting.auto() 已按平台生成最优值，
+            // 高并发下支撑百万级连接建立;同一 ServerSocket 多线程 accept 为 JDK 支持用法）
+            int acceptors = Math.max(1, setting.getBossThreads());
             for (int i = 0; i < acceptors; i++) {
                 proxyPool.submit(this::acceptLoop);
             }

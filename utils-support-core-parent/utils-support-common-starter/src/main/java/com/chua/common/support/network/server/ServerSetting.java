@@ -70,6 +70,12 @@ public class ServerSetting {
         this.workerThreads = Math.max(2, cpus * 2);
         this.bossThreads = 1;
 
+        // IO Selector 事件循环：Windows 受 WindowsSelectorImpl 稳定性限制收敛到 2，
+        // Linux/macOS 可按核数扩展；eventLoops 与 ioThreads 保持一致
+        int io = os.contains("win") ? Math.min(Math.max(cpus, 2), 2) : Math.max(cpus, 2);
+        this.ioThreads = io;
+        this.eventLoops = io;
+
         // 等待队列：Windows 语义较弱适当收敛，Unix 系可放大
         this.backlog = os.contains("win")
                 ? Math.min(Math.max(cpus * 64, 128), 1024)
@@ -136,6 +142,17 @@ public class ServerSetting {
     @Builder.Default
     /** Workerthreads */
     private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
+
+    /**
+     * IO Selector 事件循环线程数（Reactor 模式，仅支持 IO 多路复用的实现使用）。
+     *
+     * <p>默认 0 表示由实现自行确定；{@link #autoConfig()} 会根据 CPU 核数与平台
+     * 自动生成最优值。Windows 平台受 {@code WindowsSelectorImpl} 稳定性限制取 2，
+     * Linux/macOS 可按核数扩展。</p>
+     */
+    @Builder.Default
+    /** IoThreads */
+    private int ioThreads = 0;
 
     /**
      * 等待队列长度

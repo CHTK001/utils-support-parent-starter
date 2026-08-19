@@ -67,8 +67,8 @@ public class JdkUdpServer extends AbstractServer {
             datagramSocket.setReceiveBufferSize(bufferSize);
             datagramSocket.setSoTimeout(1000);
             workerPool = new ThreadPoolExecutor(
-                    Math.max(8, setting.getWorkerThreads()),
                     setting.getWorkerThreads(),
+                    Math.max(1, setting.getWorkerThreads()),
                     60L, TimeUnit.SECONDS,
                     new java.util.concurrent.SynchronousQueue<>()
             );
