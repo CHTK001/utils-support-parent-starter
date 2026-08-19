@@ -5,42 +5,96 @@ import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.nio.MappedByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * WAL（Write-Ahead Log）分发器提供者。
+ *
+ * <p>基于内存映射文件（mmap）实现发布-订阅模式，数据直接写入 mmap 缓冲区，
+ * 消费者从 mmap 读取，消除队列和线程上下文切换开销。
+ *
+ * <p>支持 Jackson 和 Fury 两种序列化方式，通过构造参数注入。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class WalDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
 
+    /**
+     * WAL 帧头魔数：WAL1
+     */
     private static final int MAGIC = 0x57414C31;
 
+    /**
+     * 序列化器实例
+     */
     private volatile com.chua.common.support.base.serialize.Serialization serializer;
 
+    /**
+     * 主题 -> WAL 日志文件映射
+     */
     private final Map<String, WalLog> logs = new ConcurrentHashMap<>();
+
+    /**
+     * 主题 -> 订阅者列表映射
+     */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
+
+    /**
+     * 消费者线程池（虚拟线程）
+     */
     private final ExecutorService consumerExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("wal-consumer-", 0).factory());
+
+    /**
+     * WAL 日志文件存储目录
+     */
     private final Path logDir;
+
+    /**
+     * 关闭标志
+     */
     private final AtomicBoolean closed = new AtomicBoolean(false);
+
+    /**
+     * 空闲自旋上限，超过后切换为 nanos 休眠
+     */
+    private static final int IDLE_SPIN_LIMIT = 1_000_000;
+
+    /**
+     * WAL 帧头大小（魔数 4 字节 + 长度 4 字节）
+     */
+    private static final int FRAME_HEADER_SIZE = 8;
+
+    /**
+     * mmap 每次扩容大小：64MB
+     */
+    private static final long MMAP_GROW = 64L * 1024 * 1024;
 
     public WalDispatcherProvider(DispatcherConfig config) {
         this(config, null);
     }
 
+    /**
+     * 构造 WAL 分发器提供者。
+     *
+     * @param config     分发器配置
+     * @param serializer 序列化器（null 时使用 Jackson）
+     */
     public WalDispatcherProvider(DispatcherConfig config,
                                  com.chua.common.support.base.serialize.Serialization serializer) {
         super(config);
@@ -61,8 +115,13 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     @Override
     public void publish(String topic, Object body) {
-        if (closed.get()) return;
-        getLog(topic).appendBytes(writeBody(body));
+        if (closed.get()) {
+            return;
+        }
+        byte[] data = writeBody(body);
+        if (data != null) {
+            getLog(topic).writeFrame(data);
+        }
     }
 
     @Override
@@ -97,34 +156,42 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         definitionMap.clear();
     }
 
+    /**
+     * 获取或创建指定主题的 WAL 日志。
+     *
+     * @param topic 主题名称
+     * @return WAL 日志实例
+     */
     private WalLog getLog(String topic) {
-        WalLog wal = logs.computeIfAbsent(topic, t -> {
-            WalLog w = new WalLog(logDir.resolve("wal-" + t + ".log"));
-            w.startWriter();
-            return w;
-        });
-        if (!wal.writerStarted) {
-            wal.startWriter();
-        }
-        return wal;
+        return logs.computeIfAbsent(topic, t -> new WalLog(logDir.resolve("wal-" + t + ".log")));
     }
 
-private void startConsumer(String topic) {
+    /**
+     * 启动指定主题的消费者虚拟线程。
+     * <p>消费者通过 mmap 读取已提交数据，空闲时自旋后切换 nanos 休眠。</p>
+     *
+     * @param topic 主题名称
+     */
+    private void startConsumer(String topic) {
         var wal = getLog(topic);
         consumerExecutor.submit(() -> {
             log.info("WAL 消费者已启动 topic={} file={}", topic, wal.file.getFileName());
             try {
-                wal.reset();
-                long pos = wal.initialIndex();
+                long pos = 0;
+                int idle = 0;
                 while (!closed.get()) {
                     long commitEnd = wal.commitPos.get();
                     if (commitEnd <= pos) {
-                        Thread.sleep(1);
+                        if (++idle > IDLE_SPIN_LIMIT) {
+                            Thread.sleep(0, 1);
+                            idle = 0;
+                        }
                         continue;
                     }
+                    idle = 0;
                     MappedByteBuffer reader = wal.channel.map(FileChannel.MapMode.READ_ONLY, 0, commitEnd);
                     reader.position((int) pos);
-                    while (reader.remaining() >= 8) {
+                    while (reader.remaining() >= FRAME_HEADER_SIZE) {
                         int mark = reader.position();
                         int magic = reader.getInt();
                         int len = reader.getInt();
@@ -135,7 +202,7 @@ private void startConsumer(String topic) {
                         }
                         byte[] data = new byte[len];
                         reader.get(data);
-                        pos = mark + 8L + len;
+                        pos = mark + FRAME_HEADER_SIZE + len;
                         dispatch(topic, data);
                     }
                 }
@@ -150,9 +217,17 @@ private void startConsumer(String topic) {
         });
     }
 
+    /**
+     * 分发已反序列化的消息到所有订阅者。
+     *
+     * @param topic 主题名称
+     * @param data  序列化后的字节数据
+     */
     private void dispatch(String topic, byte[] data) {
         var definitions = definitionMap.get(topic);
-        if (definitions == null) return;
+        if (definitions == null) {
+            return;
+        }
         Object payload = readBody(data);
         for (var def : definitions) {
             try {
@@ -163,7 +238,13 @@ private void startConsumer(String topic) {
         }
     }
 
-private byte[] writeBody(Object body) {
+    /**
+     * 序列化消息体。
+     *
+     * @param body 消息对象
+     * @return 序列化后的字节数组，失败返回 null
+     */
+    private byte[] writeBody(Object body) {
         try {
             if (serializer == null) {
                 return JacksonSerialization.INSTANCE.serialize(body);
@@ -172,10 +253,17 @@ private byte[] writeBody(Object body) {
                 return serializer.serialize(body);
             }
         } catch (Exception e) {
-            throw new RuntimeException("WAL 序列化失败", e);
+            log.warn("WAL 序列化失败", e);
+            return null;
         }
     }
 
+    /**
+     * 反序列化消息体。
+     *
+     * @param data 字节数据
+     * @return 反序列化后的对象
+     */
     private Object readBody(byte[] data) {
         try {
             if (serializer == null) {
@@ -194,173 +282,174 @@ private byte[] writeBody(Object body) {
         }
     }
 
-static class WalLog {
+    /**
+     * WAL 日志文件，封装 mmap 写入和提交位置追踪。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
+    static class WalLog {
+
+        /**
+         * WAL 日志文件路径
+         */
         final Path file;
-        final LinkedBlockingQueue<byte[]> queue = new LinkedBlockingQueue<>();
+
+        /**
+         * 文件通道
+         */
         private FileChannel channel;
+
+        /**
+         * mmap 读写缓冲区
+         */
         private MappedByteBuffer mappedBuf;
+
+        /**
+         * 当前 mmap 映射大小
+         */
         private long mappedSize = 0;
+
+        /**
+         * 是否启用 mmap
+         */
         private volatile boolean useMmap = true;
-        private static final long MMAP_GROW = 64L * 1024 * 1024;
-        private final ByteBuffer header = ByteBuffer.allocate(8);
-        private volatile boolean writerStarted = false;
+
+        /**
+         * 日志记录器
+         */
         private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WalLog.class);
+
+        /**
+         * 写入端已确认的提交位置，消费者仅读到该位置
+         */
         final AtomicLong commitPos = new AtomicLong(0);
-        private static final int BATCH_MAX = 100;
+
+        /**
+         * 写入锁，保证多线程并发 publish 时 mmap 写入原子性
+         */
+        private final Object writeLock = new Object();
 
         WalLog(Path file) {
             this.file = file;
             try {
-                if (!Files.exists(file)) Files.createFile(file);
+                if (!Files.exists(file)) {
+                    Files.createFile(file);
+                }
                 channel = FileChannel.open(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.READ);
-                channel.position(channel.size());
                 tryMmap();
             } catch (Exception e) {
                 throw new RuntimeException("WAL 文件打开失败: " + file, e);
             }
         }
 
+        /**
+         * 尝试初始化 mmap 映射。
+         */
         private void tryMmap() {
             try {
-                long pos = channel.size();
-                long size = Math.max(MMAP_GROW, pos + MMAP_GROW);
+                long size = MMAP_GROW;
                 mappedBuf = channel.map(FileChannel.MapMode.READ_WRITE, 0, size);
-                mappedBuf.position((int) pos);
                 mappedSize = size;
                 LOG.info("WAL mmap 已启用 file={}", file.getFileName());
             } catch (Throwable t) {
-                LOG.warn("WAL mmap 不可用，降级 FileChannel I/O cause={}", t.getMessage());
+                LOG.warn("WAL mmap 不可用，降级 I/O cause={}", t.getMessage());
                 useMmap = false;
                 mappedBuf = null;
             }
         }
 
-        private void ensureMmap(long needed) {
-            if (!useMmap || mappedBuf == null) return;
-            long pos = (long) mappedBuf.position();
-            if (pos + needed <= mappedSize) return;
+        /**
+         * 确保 mmap 缓冲区有足够空间写入指定大小的数据。
+         * 空间不足时自动扩容 64MB。
+         *
+         * @param needed 需要写入的字节数
+         */
+        private void ensureMmap(int needed) {
+            if (!useMmap || mappedBuf == null) {
+                return;
+            }
+            int pos = mappedBuf.position();
+            if (pos + needed <= mappedSize) {
+                return;
+            }
             try {
                 long newSize = mappedSize + Math.max(MMAP_GROW, needed);
                 mappedBuf.force();
                 mappedBuf = channel.map(FileChannel.MapMode.READ_WRITE, 0, newSize);
-                mappedBuf.position((int) pos);
+                mappedBuf.position(pos);
                 mappedSize = newSize;
             } catch (Throwable t) {
-                LOG.warn("WAL mmap 扩容失败，降级 FileChannel I/O cause={}", t.getMessage());
+                LOG.warn("WAL mmap 扩容失败，降级 I/O cause={}", t.getMessage());
                 useMmap = false;
                 mappedBuf = null;
             }
         }
 
-        void startWriter() {
-            if (writerStarted) return;
-            synchronized (this) {
-                if (writerStarted) return;
-                writerStarted = true;
-                Thread.ofVirtual().name("wal-writer-" + file.getFileName()).start(() -> {
-                    var batch = new ArrayList<byte[]>(BATCH_MAX);
-                    while (!Thread.currentThread().isInterrupted()) {
-                        try {
-                            byte[] first = queue.poll(100, java.util.concurrent.TimeUnit.MILLISECONDS);
-                            if (first == null) {
-                                continue;
-                            }
-                            batch.add(first);
-                            queue.drainTo(batch, BATCH_MAX - 1);
-                            writeBatch(batch);
-                            batch.clear();
-                        } catch (InterruptedException e) { break; }
-                    }
-                });
-            }
-        }
-
-        void appendBytes(byte[] payload) {
-            try {
-                queue.put(payload);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        private void writeBatch(List<byte[]> batch) {
+        /**
+         * 写入一帧数据到 mmap。
+         * <p>帧格式：魔数(4B) + 负载长度(4B) + 负载数据。</p>
+         * <p>写入完成后更新 commitPos，消费者据此读取。</p>
+         *
+         * @param payload 已序列化的负载数据
+         */
+        void writeFrame(byte[] payload) {
+            int frameSize = FRAME_HEADER_SIZE + payload.length;
             if (useMmap && mappedBuf != null) {
-                writeBatchMmap(batch);
-            } else {
-                writeBatchFileChannel(batch);
+                synchronized (writeLock) {
+                    if (useMmap && mappedBuf != null) {
+                        ensureMmap(frameSize);
+                        if (useMmap) {
+                            int pos = mappedBuf.position();
+                            mappedBuf.putInt(pos, MAGIC);
+                            mappedBuf.putInt(pos + 4, payload.length);
+                            mappedBuf.position(pos + FRAME_HEADER_SIZE);
+                            mappedBuf.put(payload);
+                            mappedBuf.position(pos + frameSize);
+                            commitPos.set(pos + frameSize);
+                            mappedBuf.force();
+                            return;
+                        }
+                    }
+                }
+            }
+            synchronized (writeLock) {
+                writeFileChannel(payload);
             }
         }
 
-        private void writeBatchMmap(List<byte[]> batch) {
-            int totalSize = 0;
-            for (var p : batch) totalSize += 8 + p.length;
-            ensureMmap(totalSize);
-            if (!useMmap) {
-                writeBatchFileChannel(batch);
-                return;
-            }
-            int writePos = mappedBuf.position();
-            int endPos = writePos;
-            for (var p : batch) {
-                int frameStart = endPos;
-                mappedBuf.putInt(frameStart, MAGIC);
-                mappedBuf.putInt(frameStart + 4, p.length);
-                mappedBuf.position(frameStart + 8);
-                mappedBuf.put(p);
-                endPos = frameStart + 8 + p.length;
-                mappedBuf.position(endPos);
-            }
-            mappedBuf.force();
-            commitPos.set(endPos);
-        }
-
-        private void writeBatchFileChannel(List<byte[]> batch) {
+        /**
+         * 通过 FileChannel 写入一帧数据（mmap 不可用时的降级方案）。
+         *
+         * @param payload 已序列化的负载数据
+         */
+        private void writeFileChannel(byte[] payload) {
             try {
                 long pos = channel.position();
-                for (var p : batch) {
-                    header.clear(); header.putInt(MAGIC); header.putInt(p.length); header.flip();
-                    channel.write(header);
-                    channel.write(ByteBuffer.wrap(p));
-                }
+                ByteBuffer hdr = ByteBuffer.allocate(FRAME_HEADER_SIZE);
+                hdr.putInt(MAGIC).putInt(payload.length).flip();
+                channel.write(hdr);
+                channel.write(ByteBuffer.wrap(payload));
                 channel.force(false);
-                long total = 0;
-                for (var p : batch) total += 8L + p.length;
-                commitPos.set(pos + total);
-            } catch (IOException e) {
-                LOG.warn("WAL batch 写入失败 file={}", file, e);
+                commitPos.set(pos + FRAME_HEADER_SIZE + payload.length);
+            } catch (Exception e) {
+                LOG.warn("WAL 写入失败 file={}", file, e);
             }
         }
 
-        long initialIndex() {
-            return 0;
-        }
-
-        void reset() {
-            try {
-                if (channel.size() < 8) {
-                    header.clear();
-                    header.putInt(MAGIC);
-                    header.putInt(0);
-                    header.flip();
-                    channel.write(header);
-                    channel.force(false);
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
+        /**
+         * 关闭 WAL 日志，强制刷新 mmap 并释放文件通道。
+         */
         void close() {
             try {
-                if (mappedBuf != null) mappedBuf.force();
-                if (channel != null) channel.close();
+                if (mappedBuf != null) {
+                    mappedBuf.force();
+                }
+                if (channel != null) {
+                    channel.close();
+                }
             } catch (Exception ignored) {
             }
         }
     }
 }
-
-
-
-
-
-

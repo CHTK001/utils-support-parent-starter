@@ -1029,4 +1029,17 @@ public class OcrPipeline {
         }
         return com.chua.deeplearning.support.utils.ImageUtils.drawDetectionsWithLabels(corrected, boxes, labels);
     }
+
+    /**
+     * 创建标注管线，支持自定义绘制流程。
+     *
+     * <p>通过 {@link DrawerPipeline#target(byte[])} 设置矫正图，
+     * {@link DrawerPipeline#onProcess(DetectionInfo, String, float)} 逐框标注，
+     * {@link DrawerPipeline#done()} 完成绘制。</p>
+     *
+     * @return DrawerPipeline 实例
+     */
+    public DrawerPipeline withInitDrawer() {
+        return new DrawerPipeline(minConfidence);
+    }
 }
