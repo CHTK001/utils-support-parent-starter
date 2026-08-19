@@ -30,7 +30,6 @@ import java.util.concurrent.Semaphore;
  *   <li>运行时指标 — {@link #getMetrics()} 提供请求计数、活跃数、错误数</li>
  * </ul>
  *
- * @author CH
  * @version 2.1
  * @since 2026/07/16
  */

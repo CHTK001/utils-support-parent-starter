@@ -35,7 +35,6 @@ import lombok.extern.slf4j.Slf4j;
  *   sms.signName    短信签名（必填）
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Spi("tencent-sms")

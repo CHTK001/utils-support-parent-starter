@@ -16,7 +16,6 @@ import java.nio.file.Path;
  *   ImageClassifierExample efficient-net-lite0-classification cat.jpg
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImageClassifierExample extends ExampleBase {

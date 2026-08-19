@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * @author CH
  * @since 4.0.0.42
  */
 /**

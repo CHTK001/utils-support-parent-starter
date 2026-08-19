@@ -18,7 +18,6 @@ import java.util.function.Supplier;
  * LockFlow.of("orderLock").fair(true).waitTime(3000).fallback(() -> fallbackResult).execute(() -> doSomething());
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")

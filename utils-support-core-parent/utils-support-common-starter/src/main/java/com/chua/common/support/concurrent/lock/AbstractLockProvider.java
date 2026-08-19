@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
  * {@link #doTryLock(int, TimeUnit)}、{@link #doUnlock()}、
  * {@link #doGetName()}、{@link #doGetType()}。
  *
- * @author CH
  * @since 1.0.0
  */
 public abstract class AbstractLockProvider implements LockProvider {

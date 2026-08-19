@@ -20,7 +20,6 @@ import java.awt.image.WritableRaster;
 /**
  *                            
  *
- * @author CH
  * @since 2025/10/22
  */
 public final class MattingTranslator implements Translator<Image, Image> {

@@ -23,7 +23,6 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  * @see RemoteMethod
  * @see RemoteService

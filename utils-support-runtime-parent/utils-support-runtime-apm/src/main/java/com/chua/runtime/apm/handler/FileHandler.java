@@ -258,7 +258,6 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 文件操作记录。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

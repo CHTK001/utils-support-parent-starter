@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * 网络连接关闭事件注解。
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Target(ElementType.METHOD)

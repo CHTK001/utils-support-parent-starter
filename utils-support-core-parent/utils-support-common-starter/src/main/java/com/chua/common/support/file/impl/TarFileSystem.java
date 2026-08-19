@@ -106,7 +106,6 @@ public class TarFileSystem implements FileSystem {
     /**
      * TAR 文件读取构建器。
      *
-     * @author CH
      * @since 1.0.0
      */
     public static class TarReadBuilder extends ReadBuilder {
@@ -276,7 +275,6 @@ public class TarFileSystem implements FileSystem {
      *
      * <p>支持链式调用添加文件、流、字节数组到归档包；调用 {@link #finish()} 完成写入。</p>
      *
-     * @author CH
      * @since 1.0.0
      */
     public static class TarWriteBuilder extends WriteBuilder {
@@ -453,7 +451,6 @@ public class TarFileSystem implements FileSystem {
      * <p>流式数据通过 {@link TarWriteBuilder#addStream(String, InputStream)} 构造时立即
      * 读取为字节数组，避免在 {@code finish()} 阶段持有已关闭的 InputStream。</p>
      *
-     * @author CH
      * @since 1.0.0
      */
     @Getter

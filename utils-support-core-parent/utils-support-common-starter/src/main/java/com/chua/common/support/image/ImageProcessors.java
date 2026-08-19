@@ -13,7 +13,6 @@ import com.chua.common.support.spi.ServiceProvider;
  * <p>返回的处理器为按优先级自动降级的代理实现：调用任一方法时依次尝试各实现，
  * 当前实现失败（异常）时自动降级到下一优先级实现，全部失败则抛出异常。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImageProcessors {

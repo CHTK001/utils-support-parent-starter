@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
  * 通过 {@link #getTreeMaker()} 和 {@link #getNames(TreeMaker)} 获取 javac 编译树 API 的工具实例。
  * </p>
  *
- * @author CH
  * @since 2024
  */
 public abstract class AbstractAstProcessor extends AbstractProcessor {

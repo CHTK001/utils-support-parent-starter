@@ -30,7 +30,6 @@ public class QqBotClientFactory implements BotClient.Factory {
     /**
      * QQ Builder 内部类
      *
- * @author CH
      */
     static class QqBuilder implements BotClient.Builder {
 

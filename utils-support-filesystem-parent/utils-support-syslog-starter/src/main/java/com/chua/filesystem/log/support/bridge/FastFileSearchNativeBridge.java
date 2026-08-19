@@ -23,7 +23,6 @@ import java.util.function.BiConsumer;
  * Windows NTFS MFT 直读搜索（需要管理员权限）。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

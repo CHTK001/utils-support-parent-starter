@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>数据存在 JVM 堆内存中，进程重启后丢失。适合单机临时场景。</p>
  * <p>通过 {@code @Spi} 默认值 "memory" 注册，优先级低于 {@link SqliteConnectionStore}。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

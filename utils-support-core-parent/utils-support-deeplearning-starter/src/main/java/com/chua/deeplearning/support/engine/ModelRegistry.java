@@ -34,7 +34,6 @@ import java.util.zip.ZipInputStream;
  * 主框架启动时扫描 SPI 触发注册；Translator 类在首次推理时懒加载。</p>
  * <p>模型路径解析顺序：绝对路径 → 模型根目录相对路径 → classpath/JAR 内嵌资源（必要时解压到临时目录）。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

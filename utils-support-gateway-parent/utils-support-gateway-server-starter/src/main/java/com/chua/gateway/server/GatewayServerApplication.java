@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
  * <p>用户只需执行 {@code run-gateway.bat}（Windows）或 {@code start-gateway.sh}（Linux），
  * gateway 自动处理 guacd 缺失场景。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

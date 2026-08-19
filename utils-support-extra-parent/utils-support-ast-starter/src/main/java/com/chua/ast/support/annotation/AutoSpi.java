@@ -33,7 +33,6 @@ import java.lang.annotation.*;
  * 其 value 会被自动用作别名写入索引文件；未标注时按「类名去掉接口名」推导
  * （如 {@code MiniLMEmbeddingClient} 实现 {@code EmbeddingClient} 推导为 {@code MiniLM}）。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Documented

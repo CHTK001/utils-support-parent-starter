@@ -1,4 +1,4 @@
-﻿package com.chua.video.processor.support;
+package com.chua.video.processor.support;
 
 import com.chua.video.processor.support.bridge.VideoProcessorBridge;
 import org.junit.jupiter.api.Test;

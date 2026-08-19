@@ -16,7 +16,6 @@ import java.util.List;
  * 为各本地 {@code XxxClient} 的 {@code models()} 提供一致的模型列表来源。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class DeeplearningModels {

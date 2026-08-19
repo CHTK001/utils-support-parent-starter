@@ -31,7 +31,6 @@ import java.util.Map;
  * <p>支持通过 {@link FieldProperty @FieldProperty} 注解控制字段映射行为，
  * 包括列名映射、日期格式化、默认值、自定义转换器等。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")

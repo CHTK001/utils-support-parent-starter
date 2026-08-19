@@ -14,7 +14,6 @@ import com.chua.common.support.ai.embedding.EmbeddingClient;
  *   EmbeddingClientExample minilm minilm "hello world"
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class EmbeddingClientExample extends ExampleBase {

@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * {@link RemoteHeader} 的容器注解，支持在单个方法上重复使用 {@code @RemoteHeader}。
  *
- * @author CH
  * @since 4.0.0.42
  * @see RemoteHeader
  */

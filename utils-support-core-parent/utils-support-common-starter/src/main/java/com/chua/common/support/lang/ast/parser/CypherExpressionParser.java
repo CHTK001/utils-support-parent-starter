@@ -296,7 +296,6 @@ public class CypherExpressionParser implements ExpressionParser {
      *   <li>支持方括号列表语法 [1, 2, 3] 用于 IN 表达式</li>
      * </ul>
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private static class CypherParser {

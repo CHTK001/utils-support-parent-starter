@@ -22,7 +22,6 @@ import java.nio.file.StandardCopyOption;
  * 子类只需实现 {@link #doTranslate(Object)} 完成具体模型推理逻辑。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

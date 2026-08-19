@@ -9,7 +9,6 @@ import java.util.Objects;
  * Scatter 对等节点视图。
  * <p>从 {@link Discovery} 转换而来，提供节点访问端点与动态权重等元数据。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ScatterNode {

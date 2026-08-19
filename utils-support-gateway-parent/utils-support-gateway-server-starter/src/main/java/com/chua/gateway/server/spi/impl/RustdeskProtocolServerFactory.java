@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * <p>本轮仅占位，避免 SPI 注册时丢实现。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

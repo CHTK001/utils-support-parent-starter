@@ -75,7 +75,6 @@ import java.util.function.Consumer;
  * String[] args2 = composer.build();
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class CommandLine {

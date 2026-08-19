@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.onnx;
+package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.ocr.OcrRecognizer;
 import com.chua.deeplearning.support.ocr.OcrResult;

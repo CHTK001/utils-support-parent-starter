@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.onnx.example;
+package com.chua.deeplearning.support.onnx.example;
 
 import com.chua.common.support.ai.feature.FeatureClient;
 

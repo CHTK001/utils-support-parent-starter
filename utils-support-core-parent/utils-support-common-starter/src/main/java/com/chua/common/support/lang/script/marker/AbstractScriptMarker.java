@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
  *   <li>重写 {@link #getType} 返回最近编译的类类型</li>
  * </ul>
  *
- * @author CH
  * @since 2024/12/12
  * @see ScriptMarker
  * @see Listener

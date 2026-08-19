@@ -18,7 +18,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * <h2>线程安全</h2>
  * <p>所有方法均为静态方法，依赖 {@link ThreadLocalRandom#current()}，可在多线程中并发调用。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class RandomUtils {

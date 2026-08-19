@@ -306,7 +306,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     /**
      * WAL 日志文件，封装 mmap 写入和提交位置追踪。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     static class WalLog {

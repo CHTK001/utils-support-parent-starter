@@ -1,4 +1,4 @@
-﻿package com.chua.test.spi;
+package com.chua.test.spi;
 
 /**
  * @author CH

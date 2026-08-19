@@ -36,7 +36,6 @@ import java.awt.image.BufferedImage;
  *   }
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractImageClientFilter extends AbstractImageFilter {

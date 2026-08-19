@@ -27,7 +27,6 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     /**
      * 快照包装类，用于 DiffPolledDirectory 的泛型参数。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

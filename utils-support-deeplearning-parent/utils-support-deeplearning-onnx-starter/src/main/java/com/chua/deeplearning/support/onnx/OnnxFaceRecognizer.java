@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.onnx;
+package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.face.FaceRecognizer;
 import com.chua.deeplearning.support.face.FaceFeature;

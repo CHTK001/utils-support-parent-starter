@@ -9,7 +9,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * DataSync Agent 服务器默认实现，统一管理本地与远程 Agent 的注册、数据推送。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class DefaultDataSyncAgentServer extends DataSyncAgentServer {

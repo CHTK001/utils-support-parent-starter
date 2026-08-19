@@ -14,7 +14,6 @@ import java.util.concurrent.TimeoutException;
  *
  * <p>子类需实现 {@link #submitTasks()} 方法以提交任务并返回 Future 列表。</p>
  *
- * @author CH
  * @since 2026/08/15
  */
 public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {

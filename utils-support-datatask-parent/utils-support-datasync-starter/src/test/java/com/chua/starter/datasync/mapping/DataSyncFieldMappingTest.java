@@ -1,4 +1,4 @@
-﻿package com.chua.starter.datasync.mapping;
+package com.chua.starter.datasync.mapping;
 
 import org.junit.jupiter.api.Test;
 

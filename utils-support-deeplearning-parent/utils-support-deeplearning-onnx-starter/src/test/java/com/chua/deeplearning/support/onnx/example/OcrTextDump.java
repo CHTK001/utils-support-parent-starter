@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * 全量识别文本统计：列出每张图全部识别文本，核对是否有明显错字/乱码。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OcrTextDump {

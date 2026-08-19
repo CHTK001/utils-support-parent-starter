@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
  *
  * <p>占位符格式：{@code #key#}。复杂结构通过 {@code #dataJson#} / {@code #tablesMarkdown#} 注入。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractClasspathDocumentTemplate implements DocumentTemplate {

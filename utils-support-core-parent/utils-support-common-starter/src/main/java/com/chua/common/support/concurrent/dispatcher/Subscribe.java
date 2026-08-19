@@ -9,7 +9,6 @@ import java.lang.annotation.*;
  * 当有消息发布到对应主题时，该方法将被反射调用。
  * </p>
  *
- * @author CH
  * @since 2025-11-26
  */
 @Target(ElementType.METHOD)

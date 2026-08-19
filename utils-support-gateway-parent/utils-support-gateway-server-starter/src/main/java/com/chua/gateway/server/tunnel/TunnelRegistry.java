@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *   </ul>
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

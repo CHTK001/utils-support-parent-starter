@@ -44,7 +44,6 @@ import java.util.Map;
  * String result = MethodInvoker.invoke(method, target, String.class, arg1);
  * }</pre>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025/12/03
  */

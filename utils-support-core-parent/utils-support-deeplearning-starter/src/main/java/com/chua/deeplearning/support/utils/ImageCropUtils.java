@@ -6,7 +6,6 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 /**
  * 图片裁剪工具（基于检测框），统一委托 {@link ImageUtils}。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImageCropUtils {

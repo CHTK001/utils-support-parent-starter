@@ -544,7 +544,6 @@ public class SipServer {
     /**
      * 传输层事件监听器，将各传输（TCP/KCP）的信令统一交给 {@link SipServer} 处理。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private final class SipTransportListener implements SyncServerListener {
@@ -596,7 +595,6 @@ public class SipServer {
      * @param host        客户端上报的可达地址
      * @param port        客户端上报的可达端口
      * @param connectedAt 注册时间（毫秒时间戳）
-     * @author CH
      * @since 4.0.0.42
      */
     private record SipPeer(SyncServer transport, String host, int port, long connectedAt) {
@@ -607,7 +605,6 @@ public class SipServer {
      *
      * @param aId 访问方客户端标识
      * @param bId 服务提供方客户端标识
-     * @author CH
      * @since 4.0.0.42
      */
     private record TunnelChannel(String aId, String bId) {

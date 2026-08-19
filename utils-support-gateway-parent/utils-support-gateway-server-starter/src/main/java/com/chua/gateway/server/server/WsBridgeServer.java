@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
  * <p>监听 8091 端口，处理 /ws/ssh/{tunnelId} 路径的 WebSocket 升级，
  * 桥接数据到 SSH 目标（通过 TunnelRegistry 查询隧道配置）。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -341,7 +341,6 @@ public class RuntimeBoot {
     /**
      * 启动器配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

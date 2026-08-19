@@ -334,7 +334,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     /**
      * DiskStrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
      *
-     * @author CH
      */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
@@ -601,7 +600,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      * LargerThanMemoryStrategy: LARGER_THAN_MEMORY 模式，使用 PQ 压缩向量构建图，
      * 搜索时使用两阶段策略（粗排 + 精排）。
      *
-     * @author CH
      */
     private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */

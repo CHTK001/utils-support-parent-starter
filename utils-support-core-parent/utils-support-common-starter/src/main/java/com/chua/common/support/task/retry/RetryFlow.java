@@ -15,7 +15,6 @@ import java.util.function.Supplier;
  * RetryFlow.of("api").maxRetries(3).fallback(() -> fallbackResult).execute(() -> callApi());
  * }</pre>
  *
- * @author CH
  * @since 2026/07/24
  */
 public final class RetryFlow {

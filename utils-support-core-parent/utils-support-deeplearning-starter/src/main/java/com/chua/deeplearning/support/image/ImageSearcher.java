@@ -70,7 +70,6 @@ public class ImageSearcher {
     /**
      * 图片检索构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static final class Builder {

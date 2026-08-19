@@ -1,5 +1,6 @@
    package com.chua.ast.support.annotation;
-
+
+
 import java.lang.annotation.*;
 
 /**
@@ -51,7 +52,6 @@ import java.lang.annotation.*;
  *
  * <p>耗时单位为毫秒，使用 {@code System.nanoTime()} 保证高精度计时。</p>
  *
- * @author CH
  * @since 2024
  */
 @Documented

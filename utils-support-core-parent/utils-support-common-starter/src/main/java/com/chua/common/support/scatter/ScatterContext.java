@@ -9,7 +9,6 @@ import java.util.Objects;
  * 一次 Scatter 查询的上下文。
  * <p>封装单次查询的元数据，包括请求ID、路径、超时及属性。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ScatterContext {

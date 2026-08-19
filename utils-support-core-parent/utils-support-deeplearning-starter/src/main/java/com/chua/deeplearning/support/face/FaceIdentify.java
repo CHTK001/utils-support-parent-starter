@@ -131,7 +131,6 @@ public class FaceIdentify {
     /**
      * 链式构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static final class Builder {
@@ -505,7 +504,6 @@ public class FaceIdentify {
     /**
      * 活体检测结果记录。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private record LivenessResult(boolean live, float score) {

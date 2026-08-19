@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.langchain4j;
+package com.chua.deeplearning.support.langchain4j;
 
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;

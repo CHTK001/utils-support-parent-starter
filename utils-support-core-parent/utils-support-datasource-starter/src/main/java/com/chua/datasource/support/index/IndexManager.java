@@ -13,7 +13,7 @@ public interface IndexManager {
     /**
      * 创建索引步骤接口。
      *
- * @author CH
+     * @author CH
      */
     interface CreateIndexStep {
 
@@ -33,7 +33,7 @@ public interface IndexManager {
     /**
      * 删除索引步骤接口。
      *
- * @author CH
+     * @author CH
      */
     interface DropIndexStep {
 

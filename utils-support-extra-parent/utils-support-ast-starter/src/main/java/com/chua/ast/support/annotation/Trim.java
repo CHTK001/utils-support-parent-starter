@@ -9,7 +9,6 @@ import java.lang.annotation.*;
  * 通常与 {@code @NonNull} 和 {@code @DefaultValue} 配合使用。
  * <b>仅支持 String 类型参数。</b></p>
  *
- * @author CH
  * @since 2024
  */
 @Documented

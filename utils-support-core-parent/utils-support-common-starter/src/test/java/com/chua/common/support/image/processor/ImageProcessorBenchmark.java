@@ -1,4 +1,4 @@
-﻿package com.chua.common.support.image.processor;
+package com.chua.common.support.image.processor;
 
 import com.chua.common.support.image.ImageProcessor;
 import com.chua.common.support.image.ImageProcessors;

@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
  * </ul>
  * 过滤器链通过检查这两个状态决定是否继续执行。
  *
- * @author CH
  * @since 2026/07/16
  */
 public abstract class AbstractServerResponse implements ServerResponse {

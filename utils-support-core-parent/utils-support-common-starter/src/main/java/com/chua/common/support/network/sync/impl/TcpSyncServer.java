@@ -331,7 +331,6 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     /**
      * 客户端连接封装（NIO 非阻塞）。
      *
-     * @author CH
      */
     private final class ClientConnection {
 

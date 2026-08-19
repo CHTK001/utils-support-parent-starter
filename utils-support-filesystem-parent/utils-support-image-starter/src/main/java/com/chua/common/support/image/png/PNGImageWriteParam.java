@@ -8,7 +8,6 @@ import java.util.Locale;
 /**
  * PNG 图像写入参数类，继承自 ImageWriteParam，配置 PNG 图像的压缩参数。
  *
- * @author CH
  * @since 4.0.0.42
 */
 @EqualsAndHashCode(callSuper = true)

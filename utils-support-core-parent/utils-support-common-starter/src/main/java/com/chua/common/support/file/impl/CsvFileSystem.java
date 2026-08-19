@@ -82,7 +82,6 @@ public class CsvFileSystem implements FileSystem {
     /**
      * CSV 文件读取构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Slf4j
@@ -203,7 +202,6 @@ public class CsvFileSystem implements FileSystem {
     /**
      * CSV 文件写入构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Slf4j

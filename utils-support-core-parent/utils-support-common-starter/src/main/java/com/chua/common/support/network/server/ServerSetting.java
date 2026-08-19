@@ -343,7 +343,6 @@ public class ServerSetting {
     /**
      * CORS 跨域配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data
@@ -384,7 +383,6 @@ public class ServerSetting {
     /**
      * SSL/TLS 配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data
@@ -489,7 +487,6 @@ public class ServerSetting {
     /**
      * HTTP 协议专用配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

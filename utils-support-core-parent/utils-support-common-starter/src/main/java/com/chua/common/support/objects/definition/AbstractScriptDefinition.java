@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *   <li>保存新的 ClassLoader 供下次热重载使用</li>
  * </ol></p>
  *
- * @author CH
  * @since 4.0.0.42
  * @see ScriptDefinition
  * @see AbstractBeanDefinition

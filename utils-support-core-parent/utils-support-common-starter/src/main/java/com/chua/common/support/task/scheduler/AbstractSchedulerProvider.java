@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 子类只需实现核心调度逻辑：{@link #doSchedule(String, Runnable, Trigger)}、
  * {@link #doReschedule(String, Trigger)}、{@link #doCancel(String)}、{@link #doShutdown()}。
  *
- * @author CH
  * @since 1.0.0
  */
 public abstract class AbstractSchedulerProvider implements SchedulerProvider {

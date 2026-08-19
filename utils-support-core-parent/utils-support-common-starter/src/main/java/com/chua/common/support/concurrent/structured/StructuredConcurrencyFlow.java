@@ -52,7 +52,6 @@ import java.util.stream.IntStream;
  *         .collect();
  * }</pre>
  *
- * @author CH
  * @since 2026/07/24
  */
 @SuppressWarnings("unchecked")

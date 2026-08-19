@@ -302,7 +302,6 @@ public class NativeRpcServer implements RpcServer {
      * @param service    服务名
      * @param method     方法名
      * @param paramTypes 参数类型名数组
-     * @author CH
      * @since 4.0.0.42
      */
     private record MethodKey(String service, String method, String[] paramTypes) {

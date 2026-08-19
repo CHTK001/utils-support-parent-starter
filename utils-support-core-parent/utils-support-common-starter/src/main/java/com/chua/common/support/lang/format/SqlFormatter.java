@@ -17,7 +17,6 @@ import java.util.*;
  * 采用模板方法模式，将通用的格式化流程和工具方法提取到基类中，
  * 具体的格式化逻辑（如DDL、DML）交由子类实现。
  *
- * @author CH
  * @since 1.0.0
  */
 public abstract class SqlFormatter implements Formatter {

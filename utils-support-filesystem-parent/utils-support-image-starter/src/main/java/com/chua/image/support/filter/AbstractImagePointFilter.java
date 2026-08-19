@@ -23,7 +23,6 @@ import java.awt.image.WritableRaster;
  * - 闃堝€煎鐞嗘护闀滐紙浜屽€煎寲銆佽壊褰╁垎绂荤瓑锛?
  * - 绠€鍗曠壒鏁堟护闀滐紙鍍忕礌鍖栥€侀┈璧涘厠绛夛級
  *
- * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */

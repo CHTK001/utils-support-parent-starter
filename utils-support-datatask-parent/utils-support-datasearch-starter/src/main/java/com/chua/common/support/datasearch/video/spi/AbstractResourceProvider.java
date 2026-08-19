@@ -2,7 +2,6 @@ package com.chua.common.support.datasearch.video.spi;
 
 import com.chua.common.support.datasearch.video.model.VideoSource;
 /**
- * @author CH
  * @since 4.0.0.42
  */
 

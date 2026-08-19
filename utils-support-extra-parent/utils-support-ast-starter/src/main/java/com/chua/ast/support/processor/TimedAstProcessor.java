@@ -22,7 +22,6 @@ import java.util.Set;
  *   <li>slf4j 不存在 → 使用 {@code System.out.println()}</li>
  * </ul>
  *
- * @author CH
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Timed")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)

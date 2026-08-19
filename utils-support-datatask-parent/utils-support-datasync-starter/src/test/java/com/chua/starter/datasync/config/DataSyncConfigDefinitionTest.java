@@ -1,4 +1,4 @@
-﻿package com.chua.starter.datasync.config;
+package com.chua.starter.datasync.config;
 
 import com.chua.starter.datasync.mapping.DataSyncFieldMapping;
 import org.junit.jupiter.api.Test;

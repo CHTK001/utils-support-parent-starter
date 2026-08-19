@@ -14,7 +14,6 @@ import com.chua.common.support.utils.BeanUtils;
  * <p>提供文件写入的通用配置，子类通过覆盖各方法实现具体格式的写入逻辑。
  * 支持字符集设置、模板文件和数据填充功能。</p>
  *
- * @author CH
  * @since 1.0.0
  */
 public abstract class WriteBuilder {

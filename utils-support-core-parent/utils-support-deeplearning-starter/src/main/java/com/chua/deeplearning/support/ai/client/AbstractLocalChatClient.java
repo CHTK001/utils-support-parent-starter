@@ -19,7 +19,6 @@ import java.util.List;
  * 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractLocalChatClient implements ChatClient {

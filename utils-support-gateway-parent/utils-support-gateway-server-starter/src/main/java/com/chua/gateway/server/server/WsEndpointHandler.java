@@ -31,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 本类以 HTTP tunnel 形式实现 — 前端用 fetch + ReadableStream，
  * 或迁移到 Netty 大型实现）。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -453,7 +453,6 @@ public class NgrokClient implements AutoCloseable {
      * <p>可通过 {@code .domain(...)}、{@code .metadata(...)} 等链式配置后，
      * 调用 {@link #listenHttp()} 或 {@link #forwardHttp(URL)} 启动隧道。</p>
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static final class HttpBuilderStage {
@@ -703,7 +702,6 @@ public class NgrokClient implements AutoCloseable {
     /**
      * TCP 端点构建阶段。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static final class TcpBuilderStage {
@@ -810,7 +808,6 @@ public class NgrokClient implements AutoCloseable {
     /**
      * TLS 端点构建阶段。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static final class TlsBuilderStage {

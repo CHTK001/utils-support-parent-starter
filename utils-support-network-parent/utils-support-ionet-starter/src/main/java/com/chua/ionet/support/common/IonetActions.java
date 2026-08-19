@@ -10,7 +10,6 @@ import com.iohao.net.framework.core.BarSkeletonBuilder;
  * ionet 的 Action 需要使用 {@link ActionController} 和 {@link ActionMethod} 注解，
  * 本类提供辅助方法简化 BarSkeletonBuilder 的配置。
  *
- * @author CH
  */
 public final class IonetActions {
 

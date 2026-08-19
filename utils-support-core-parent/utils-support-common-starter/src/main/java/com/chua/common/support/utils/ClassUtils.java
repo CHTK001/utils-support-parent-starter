@@ -328,7 +328,6 @@ public class ClassUtils {
      * 将常见 Java 类型注册到名称缓存中，便于后续通过类名快速定位。
      *
      * @param commonClasses 需要注册的常见类集合
- * @author CH
      * @since 1.0
      */
     private static void registerCommonClasses(Class<?>... commonClasses) {
@@ -343,7 +342,6 @@ public class ClassUtils {
      * @param value 待判断的类对象
      * @param <T> 类型参数
      * @return 如果类型为 {@code void}、{@link Void} 或 {@code null}，则返回 {@code true}
- * @author CH
      * @since 1.0
      */
     public static <T> boolean isVoid(Class<T> value) {
@@ -356,7 +354,6 @@ public class ClassUtils {
      * @param value 待判断的对象
      * @param <T> 类型参数
      * @return 如果对象为 {@code null}，或其实际类型为 {@code void}/{@link Void}，则返回 {@code true}
- * @author CH
      * @since 1.0
      */
     public static <T> boolean isVoid(T value) {
@@ -372,7 +369,6 @@ public class ClassUtils {
      * 3.                                           
      *
      * @return                                                                    null
- * @author CH
      * @since 1.0
      */
     public static ClassLoader getDefaultClassLoader() {
@@ -489,7 +485,6 @@ public class ClassUtils {
      *
      * @param className 待检查的类名
      * @param consumer 解析成功后的回调，接收 {@link Class} 对象
- * @author CH
      * @since 1.0
      */
     public static void ifPresent(String className, Consumer<Class<?>> consumer) {
@@ -502,7 +497,6 @@ public class ClassUtils {
      * 检查指定类名是否存在，但不执行任何额外处理。
      *
      * @param className 待检查的类名
- * @author CH
      * @since 1.0
      */
     public static void ifPresent(String className) {
@@ -517,7 +511,6 @@ public class ClassUtils {
      * @param type                                                                   
      * @param consumer                                                             
      * @param <T>                            
- * @author CH
      * @since 1.0
      */
     public static <T> void isPresent(final String className, Class<T> type, Consumer<T> consumer) {
@@ -534,7 +527,6 @@ public class ClassUtils {
      *
      * @param className 待判断的类名
      * @return 如果类可被解析则返回 {@code true}，否则返回 {@code false}
- * @author CH
      * @since 1.0
      */
     public static boolean isPresent(final String className) {
@@ -552,7 +544,6 @@ public class ClassUtils {
      * @param className                   
      * @param classLoader                               
      * @return                          true                false
- * @author CH
      * @since 1.0
      */
     public static boolean isPresent(final String className, final ClassLoader classLoader) {
@@ -577,7 +568,6 @@ public class ClassUtils {
      *
      * @param name                             null
      * @return              Class                                                  null
- * @author CH
      * @since 1.0
      */
     public static Class<?> forName(String name) {
@@ -597,7 +587,6 @@ public class ClassUtils {
      * @return              Class       
      * @throws ClassNotFoundException                                  
      * @throws RuntimeException     ClassNotFoundException                         
- * @author CH
      * @since 1.0
      */
     public static Class<?> toClassConfident(String name, ClassLoader classLoader) {
@@ -622,7 +611,6 @@ public class ClassUtils {
      * @param name 待解析的类名
      * @return 解析得到的 {@link Class} 对象
      * @throws RuntimeException 如果解析失败，则抛出包装后的运行时异常
- * @author CH
      * @since 1.0
      */
     public static Class<?> toClassConfident(String name) {
@@ -636,7 +624,6 @@ public class ClassUtils {
      * @param returnType 期望的返回类型
      * @param <T> 泛型类型参数
      * @return 如果解析成功且类型兼容，则返回对应 {@link Class}，否则返回 {@code null}
- * @author CH
      * @since 1.0
      */
     public static <T> Class<T> forName(String name, Class<T> returnType) {
@@ -661,7 +648,6 @@ public class ClassUtils {
      * @param name                   
      * @param classLoader                                         null                            
      * @return              Class                                                  null
- * @author CH
      * @since 1.0
      */
     public static Class<?> forName(String name, ClassLoader classLoader) {
@@ -750,7 +736,6 @@ public class ClassUtils {
      *
      * @param name 基本类型名称，如 {@code int}、{@code boolean} 等
      * @return 如果名称对应基本类型则返回对应 {@link Class}，否则返回 {@code null}
- * @author CH
      * @since 1.0
      */
     public static Class<?> resolvePrimitiveClassName(String name) {
@@ -768,7 +753,6 @@ public class ClassUtils {
      * @param params                                                 
      * @param <T>                               
      * @return                                                     null
- * @author CH
      * @since 1.0
      */
     public static <T> T forObject(String name, Object... params) {
@@ -787,7 +771,6 @@ public class ClassUtils {
      * @param params                                                 
      * @param <T>                               
      * @return                                                                             null
- * @author CH
      * @since 1.0
      */
     public static <T> T forObjectWithType(String typeName, Class<T> type, Object... params) {
@@ -809,7 +792,6 @@ public class ClassUtils {
      * @param params 构造参数
      * @param <T> 返回类型泛型
      * @return 创建成功的对象，失败时返回 {@code null}
- * @author CH
      * @since 1.0
      */
     public static <T> T forObject(Class<T> type, Object... params) {
@@ -838,7 +820,6 @@ public class ClassUtils {
      * @param <T>                               
      * @return                                                     null
      * @throws Exception                                  
- * @author CH
      * @since 1.0
      */
     public static <T> T forObject(Class<T> tClass, ClassLoader classLoader, Object... params) throws Exception {
@@ -883,7 +864,6 @@ public class ClassUtils {
      * @param declaredConstructor 目标构造器
      * @param <T> 构造器声明类型
      * @return 转换后的参数数组
- * @author CH
      * @since 1.0
      */
     private static <T> Object[] createArgs(Object[] params, Constructor<T> declaredConstructor) {
@@ -897,7 +877,6 @@ public class ClassUtils {
      * @param params 原始参数数组
      * @param parameterTypes 目标方法或构造器参数类型
      * @return 转换后的参数数组
- * @author CH
      * @since 1.0
      */
     public static Object[] createArgs(Object[] params, Class<?>[] parameterTypes) {
@@ -1335,7 +1314,6 @@ public class ClassUtils {
      *
      * @param aClass                
      * @param callback                                           
- * @author CH
      * @since 1.0
      */
     public static void doWithFields(final Class<?> aClass, final Consumer<Field> callback) {
@@ -1359,7 +1337,6 @@ public class ClassUtils {
      * @param obj       
      * @param fieldName             
      * @return           Field                                   null
- * @author CH
      * @since 1.0
      */
     public static Field getFields(final Object obj, String fieldName) {
@@ -1380,7 +1357,6 @@ public class ClassUtils {
      *
      * @param obj       
      * @return                 List                   null              List
- * @author CH
      * @since 1.0
      */
     public static List<Field> getFields(final Object obj) {
@@ -1410,7 +1386,6 @@ public class ClassUtils {
      *
      * @param aClass                
      * @param callback                                           
- * @author CH
      * @since 1.0
      */
     public static void doWithLocalFields(final Class<?> aClass, final Consumer<Field> callback) {
@@ -1428,7 +1403,6 @@ public class ClassUtils {
      *
      * @param obj       
      * @return                                   List
- * @author CH
      * @since 1.0
      */
     public static List<Field> getLocalFields(final Object obj) {
@@ -1446,7 +1420,6 @@ public class ClassUtils {
      *
      * @param aClass                
      * @return                 List                               List
- * @author CH
      * @since 1.0
      */
     public static List<Field> getFields(final Class<?> aClass) {
@@ -1475,7 +1448,6 @@ public class ClassUtils {
      * @param type                
      * @param name             
      * @return           Field                                   null
- * @author CH
      * @since 1.0
      */
     public static Field findField(Class<?> type, String name) {
@@ -2005,7 +1977,6 @@ public class ClassUtils {
      * @param name             
      * @param paramTypes                                   null                      
      * @return           Method                                   null
- * @author CH
      * @since 1.0
      */
     public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
@@ -2030,7 +2001,6 @@ public class ClassUtils {
      * @param name                
      * @param paramTypes                         
      * @return           Method                                   null
- * @author CH
      * @since 1.0
      */
     public static Method findDeclaredMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
@@ -2263,7 +2233,6 @@ public class ClassUtils {
      * @param fieldName                                     
      * @param value                
      * @param bean                         
- * @author CH
      * @since 1.0
      */
     public static void setIgnoreNameValue(String fieldName, Object value, Object bean) {
@@ -2288,7 +2257,6 @@ public class ClassUtils {
      * @param type                      
      * @param value                
      * @param bean                         
- * @author CH
      * @since 1.0
      */
     public static void setFieldValue(String fieldName, Class<?> type, Object value, Object bean) {
@@ -2317,7 +2285,6 @@ public class ClassUtils {
      * @param field                          null
      * @param value                
      * @param bean                                   null                         
- * @author CH
      * @since 1.0
      */
     public static void setFieldValue(Field field, Object value, Object bean) {
@@ -2352,7 +2319,6 @@ public class ClassUtils {
      * @param target                      
      * @param value                
      * @param bean                         
- * @author CH
      * @since 1.0
      */
     public static void setFieldValue(Field field, Class<?> target, Object value, Object bean) {
@@ -2935,7 +2901,6 @@ public class ClassUtils {
      *
      * @param s                 classpath          
      * @return                                                     null
- * @author CH
      * @since 1.0
      */
     public static InputStream getResourceAsStream(String s) {
@@ -2957,7 +2922,6 @@ public class ClassUtils {
      *
      * @param targetType             
      * @return                         
- * @author CH
      * @since 1.0
      */
     public static Object memberDefault(Class<?> targetType) {
@@ -3121,7 +3085,6 @@ public class ClassUtils {
      * @param targetType                 Class       
      * @param <T>                            
      * @return                         
- * @author CH
      * @since 1.0
      */
     public static <T> T mapToObject(Map<String, Object> item, Class<T> targetType) {
@@ -3310,7 +3273,6 @@ public class ClassUtils {
      * @param index                         0-based                                    
      * @return                                                                       null
      * @throws IllegalArgumentException     index             
- * @author CH
      * @since 2024/12/21
      */
     public static Class<?> getGenericType(Class<?> clazz, int index) {
@@ -3353,7 +3315,6 @@ public class ClassUtils {
      *
      * @param clazz                            
      * @return                                                                               
- * @author CH
      * @since 2024/12/21
      */
     public static Class<?>[] getGenericTypes(Class<?> clazz) {
@@ -3477,7 +3438,6 @@ public class ClassUtils {
      *
      *                                                       
      *
- * @author CH
      * @since 2024/12/21
      */
     public static void clearGenericTypeCache() {

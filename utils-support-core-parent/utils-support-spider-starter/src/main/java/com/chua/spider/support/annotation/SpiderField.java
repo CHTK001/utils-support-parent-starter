@@ -40,7 +40,6 @@ import java.lang.annotation.Target;
  * private String summary;
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  * @see SpiderAi
  */

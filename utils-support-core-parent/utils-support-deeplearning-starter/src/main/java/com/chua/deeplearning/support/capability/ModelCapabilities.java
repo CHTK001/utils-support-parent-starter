@@ -44,7 +44,6 @@ import java.util.Map;
  * 写入 {@link com.chua.common.support.ai.chat.ModelDefinition#getCapabilities()}，
  * 供统一能力清单、前端按能力筛选与分组使用。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ModelCapabilities {

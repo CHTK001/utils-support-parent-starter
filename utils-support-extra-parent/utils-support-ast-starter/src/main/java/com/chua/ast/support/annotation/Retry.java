@@ -19,7 +19,6 @@ import java.lang.annotation.*;
  * public void process() { ... }
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Documented

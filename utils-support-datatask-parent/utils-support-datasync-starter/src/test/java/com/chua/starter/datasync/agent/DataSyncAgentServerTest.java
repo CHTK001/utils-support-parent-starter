@@ -1,4 +1,4 @@
-﻿package com.chua.starter.datasync.agent;
+package com.chua.starter.datasync.agent;
 
 import com.chua.datasync.agent.support.DataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncAgentSink;

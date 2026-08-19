@@ -3,7 +3,6 @@ package com.chua.filesystem.log.support.bridge;
 /**
  * 平台检测工具类
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class PlatformSystems {

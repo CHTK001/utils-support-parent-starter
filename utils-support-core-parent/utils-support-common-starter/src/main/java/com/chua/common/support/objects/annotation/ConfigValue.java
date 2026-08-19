@@ -21,7 +21,6 @@ import java.lang.annotation.Target;
  *   private String appName;
  * </pre>
  *
- * @author CH
  * @since 2024/12/20
  */
 @Target({ElementType.FIELD, ElementType.METHOD})

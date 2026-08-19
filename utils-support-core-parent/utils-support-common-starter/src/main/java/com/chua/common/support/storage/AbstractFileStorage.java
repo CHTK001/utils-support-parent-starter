@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>提供 Bucket 初始化、检查等公共逻辑，简化具体实现的开发。</p>
  *
- * @author CH
  * @since 1.0
  */
 public abstract class AbstractFileStorage implements FileStorage {

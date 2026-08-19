@@ -9,7 +9,6 @@ package com.chua.common.support.task.loader;
  * </p>
  *
  * @param <T> 被加载的对象类型
- * @author CH
  * @since 2026/07/18
  */
 public abstract class AbstractLoaderProvider<T> implements Loader<T> {

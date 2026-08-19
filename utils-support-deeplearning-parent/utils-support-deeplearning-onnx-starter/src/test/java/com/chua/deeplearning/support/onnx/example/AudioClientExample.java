@@ -16,7 +16,6 @@ import java.nio.file.Path;
  *   AudioClientExample onnx whisper-tiny audio.wav
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class AudioClientExample extends ExampleBase {

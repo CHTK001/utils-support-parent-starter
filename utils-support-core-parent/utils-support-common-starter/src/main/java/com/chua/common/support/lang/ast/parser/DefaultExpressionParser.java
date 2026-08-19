@@ -280,7 +280,6 @@ public class DefaultExpressionParser implements ExpressionParser {
      *
      * <p>解析优先级：OR &lt; AND &lt; NOT &lt; 比较 &lt; 原子</p>
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private static class Parser {

@@ -27,7 +27,6 @@ import java.util.List;
  *   FaceDetectDrawExample
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class FaceDetectDrawExample extends ExampleBase {

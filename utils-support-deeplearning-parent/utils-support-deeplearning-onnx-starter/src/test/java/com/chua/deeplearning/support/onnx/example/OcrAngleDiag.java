@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * OCR 旋转诊断：验证车票各旋转角度的方向分类 → 整图矫正 → 检测框角度 → 识别。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OcrAngleDiag {

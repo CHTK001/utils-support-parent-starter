@@ -5,7 +5,6 @@ import java.lang.annotation.*;
 /**
  * 列定义注解。
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Documented

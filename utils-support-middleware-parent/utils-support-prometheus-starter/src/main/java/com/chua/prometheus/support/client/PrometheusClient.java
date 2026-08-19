@@ -738,7 +738,6 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * Builder
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class Builder {

@@ -18,7 +18,6 @@ import java.util.Map;
 /**
  * OCR 检测诊断：打印概率图统计（对照 Python 验证 Java 端预处理一致性）。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OcrDetDiag {

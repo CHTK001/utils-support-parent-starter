@@ -77,7 +77,6 @@ import java.lang.annotation.*;
  *   <li>SpiParam - 配置 SPI 实现的参数</li>
  * </ul>
  *
- * @author CH
  * @since 1.0.0
  */
 @Documented

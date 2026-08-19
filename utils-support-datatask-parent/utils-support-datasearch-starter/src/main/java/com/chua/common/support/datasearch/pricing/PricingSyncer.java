@@ -29,7 +29,6 @@ import java.util.Map;
  *   List<ModelDefinition> all = PricingSyncer.loadAll(loader);
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class PricingSyncer {

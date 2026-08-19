@@ -35,7 +35,6 @@ import java.util.zip.ZipInputStream;
  * <p>找到 guacd 后调用 {@link #start()} 启动子进程，
  * 注册 JVM shutdown hook 关闭 guacd。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

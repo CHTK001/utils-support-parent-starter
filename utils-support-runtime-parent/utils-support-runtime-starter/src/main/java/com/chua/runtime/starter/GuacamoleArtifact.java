@@ -23,7 +23,6 @@ import java.nio.file.Paths;
  *     .run();
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class GuacamoleArtifact {
@@ -80,7 +79,6 @@ public final class GuacamoleArtifact {
     /**
      * Guacamole 构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class GuacamoleBuilder {

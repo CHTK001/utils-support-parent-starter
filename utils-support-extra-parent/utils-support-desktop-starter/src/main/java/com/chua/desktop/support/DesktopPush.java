@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *           └── LinuxDesktopNotifier (notify-send)
  * </pre>
  *
- * @author CH
  * @since 2026/07/17
  */
 @Spi("desktop")

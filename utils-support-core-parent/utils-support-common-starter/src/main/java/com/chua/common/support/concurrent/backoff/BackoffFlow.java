@@ -17,7 +17,6 @@ import java.util.function.Supplier;
  * BackoffFlow.of("ws").fallback(() -> logError()).maxAttempts(3).execute(() -> sendMessage());
  * }</pre>
  *
- * @author CH
  * @since 2026/07/24
  */
 public final class BackoffFlow {

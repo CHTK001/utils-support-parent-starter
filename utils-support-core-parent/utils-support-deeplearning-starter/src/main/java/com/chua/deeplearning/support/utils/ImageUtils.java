@@ -35,7 +35,6 @@ import com.chua.deeplearning.support.model.PredictRectangle;
  * （按 {@code @SpiOrder} 优先级：Rust &gt; OpenCV &gt; AWT，失败自动降级），
  * 代理执行失败时回退到本地 OpenCV 实现，保证兼容性。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImageUtils {

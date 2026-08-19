@@ -1,4 +1,4 @@
-﻿package com.chua.common.support.media.codec;
+package com.chua.common.support.media.codec;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.bytedeco.javacv.Frame;

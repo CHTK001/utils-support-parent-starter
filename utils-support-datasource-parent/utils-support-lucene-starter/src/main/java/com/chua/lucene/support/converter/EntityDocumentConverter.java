@@ -18,7 +18,6 @@ import java.util.*;
  * <p>负责将 Java 实体对象序列化为 Lucene {@link Document}，
  * 以及从 {@link Document} 反序列化为实体对象。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class EntityDocumentConverter {

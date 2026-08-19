@@ -29,7 +29,6 @@ import java.util.Map;
  *     <li>{@link JsonFormat} — 日期时间字段的格式化 pattern</li>
  * </ul>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class JsonBeanMapper {

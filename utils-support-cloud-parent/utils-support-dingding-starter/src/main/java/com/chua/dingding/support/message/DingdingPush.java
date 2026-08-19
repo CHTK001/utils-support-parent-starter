@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
  *   dingding.secret       加签密钥（可选）
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

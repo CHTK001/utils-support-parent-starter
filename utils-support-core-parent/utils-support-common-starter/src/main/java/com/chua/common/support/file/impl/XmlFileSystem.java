@@ -158,7 +158,6 @@ public class XmlFileSystem implements FileSystem {
     /**
      * XML 文件读取构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class XmlReadBuilder extends ReadBuilder {
@@ -315,7 +314,6 @@ public class XmlFileSystem implements FileSystem {
     /**
      * XML 文件写入构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class XmlWriteBuilder extends WriteBuilder {

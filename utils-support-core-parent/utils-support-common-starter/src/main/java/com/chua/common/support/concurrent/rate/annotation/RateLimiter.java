@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
  *
  * <p>所有数值属性支持 {@code ${...}} 占位符和 {@code #{...}} SpEL 表达式。</p>
  *
- * @author CH
  * @since 2026/07/24
  */
 @Target(ElementType.METHOD)

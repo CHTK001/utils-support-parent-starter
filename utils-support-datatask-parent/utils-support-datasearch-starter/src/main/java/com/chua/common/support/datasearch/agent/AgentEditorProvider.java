@@ -1256,7 +1256,6 @@ public class AgentEditorProvider {
      * <p>工具调用按 toolName 分发到外部类的 handle* 方法，
      * 支持的工具详见 {@link #toolDescriptors()}。</p>
      *
-     * @author CH
      */
     protected class DatasearchMcpClient implements McpClient {
 
@@ -1632,7 +1631,6 @@ public class AgentEditorProvider {
      *
      * <p>用于读取编辑器 MCP 配置文件，避免引入第三方 JSON 库依赖。</p>
      *
-     * @author CH
      */
     static class JsonParser {
 

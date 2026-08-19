@@ -17,7 +17,6 @@ import java.util.Base64;
  * 服务器复用，例如 {@code NioHttpServer} 在请求头携带
  * {@code Upgrade: websocket} 时将连接升级为 WebSocket。</p>
  *
- * @author CH
  * @since 2026/08/15
  */
 public final class WebSocketProtocol {

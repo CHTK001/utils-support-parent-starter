@@ -85,7 +85,6 @@ public class MessageResponse {
     /**
      * 构建器类，用于构建 MessageResponse 对象。
      *
- * @author CH
      */
     public static class Builder {
 

@@ -9,7 +9,6 @@ import java.lang.annotation.*;
  * 常用于释放资源（如关闭连接、停止线程等）。
  * 与 {@link jakarta.annotation.PreDestroy} 语义类似。</p>
  *
- * @author CH
  * @since 2024/12/20
  */
 @Target(ElementType.METHOD)

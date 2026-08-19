@@ -41,7 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *   webhook.url  Webhook 地址（必填）
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Spi("webhook")

@@ -9,7 +9,6 @@ import java.util.List;
  *
  * <p>提供模型列表打印与计时工具，各能力 Example 复用。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class ExampleBase {

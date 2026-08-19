@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *   smtp.starttls   是否启用 STARTTLS（默认 true）
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Spi("email")

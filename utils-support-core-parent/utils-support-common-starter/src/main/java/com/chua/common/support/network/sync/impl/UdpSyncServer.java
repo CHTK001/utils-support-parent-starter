@@ -245,7 +245,6 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     /**
      * 客户端信息。
      *
-     * @author CH
      */
     private static final class ClientInfo {
 

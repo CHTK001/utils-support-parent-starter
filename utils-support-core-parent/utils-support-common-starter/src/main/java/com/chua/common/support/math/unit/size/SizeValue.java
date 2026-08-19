@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
  * <p>提供从字符串解析数据大小、格式化为可读字符串、不同单位间转换的能力。</p>
  *
  * @author Sam Brannen, Stephane Nicoll
- * @author CH
  * @since 4.0.0.42
  */
 public final class SizeValue implements Comparable<SizeValue> {
