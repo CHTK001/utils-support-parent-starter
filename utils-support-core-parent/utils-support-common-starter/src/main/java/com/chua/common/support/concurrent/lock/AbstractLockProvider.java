@@ -14,37 +14,47 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractLockProvider implements LockProvider {
 
     @Override
+    /** Try锁 */
     public boolean tryLock(int timeout, TimeUnit timeUnit) {
         return doTryLock(timeout, timeUnit);
     }
 
     @Override
+    /** Try锁 */
     public boolean tryLock(int timeout) {
         return doTryLock(timeout, TimeUnit.MILLISECONDS);
     }
 
     @Override
+    /** 解锁 */
     public void unlock() {
         doUnlock();
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return doGetName();
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return doGetType();
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         doUnlock();
     }
 
+    /** DoTry锁 */
     protected abstract boolean doTryLock(int timeout, TimeUnit timeUnit);
+    /** Do解锁 */
     protected abstract void doUnlock();
+    /** Do获取Name */
     protected abstract String doGetName();
+    /** Do获取Type */
     protected abstract String doGetType();
 }

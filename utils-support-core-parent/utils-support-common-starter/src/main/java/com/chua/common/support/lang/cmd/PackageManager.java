@@ -41,8 +41,11 @@ public class PackageManager {
  this.available = available;
  }
 
+ /** 获取Command */
  public String getCommand() { return command; }
+ /** 获取InstallTemplate */
  public String getInstallTemplate() { return installTemplate; }
+ /** 是否Available */
  public boolean isAvailable() { return available; }
  }
 

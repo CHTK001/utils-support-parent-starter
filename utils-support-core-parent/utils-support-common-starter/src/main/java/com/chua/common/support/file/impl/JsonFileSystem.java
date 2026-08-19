@@ -47,16 +47,19 @@ public class JsonFileSystem implements FileSystem {
     private static final int EMPTY_RESULT_ROW_COUNT = 0;
 
     @Override
+    /** 获取Type */
     public String getType() {
         return TYPE_JSON;
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new JsonReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new JsonWriteBuilder(file);
     }
@@ -73,6 +76,7 @@ public class JsonFileSystem implements FileSystem {
         }
 
         @Override
+        /** WithCharset */
         public JsonReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -174,6 +178,7 @@ public class JsonFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return rows();
         }
@@ -206,12 +211,14 @@ public class JsonFileSystem implements FileSystem {
         }
 
         @Override
+        /** WithCharset */
         public JsonWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
         }
 
         @Override
+        /** 写入 */
         public JsonWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);
@@ -242,6 +249,7 @@ public class JsonFileSystem implements FileSystem {
         }
 
         @Override
+        /** Finish */
         public void finish() {
             callback.onStart();
             callback.onBeginWrite();

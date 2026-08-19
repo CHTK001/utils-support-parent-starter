@@ -36,31 +36,37 @@ public class RestTemplateHandler extends AbstractAppHandler {
     };
 
     @Override
+    /** Name */
     public String name() {
         return "resttemplate-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "resttemplate.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.REST_TEMPLATE;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(REST_TEMPLATE, TEMPLATE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         // RestTemplate 目标 host 通常从方法参数的 URL 提取，此处无法直接获取，
         // 兜底返回本机 HTTP

@@ -38,12 +38,18 @@ public class CompressionChatClientModelAdapter implements Model {
     /** 模型名称 */
     private final String modelName;
 
+    /**
+     * 创建 CompressionChatClientModelAdapter 实例
+     * @param compressionChatClient compressionChatClient
+     * @param String String
+     */
     public CompressionChatClientModelAdapter(ChatClient compressionChatClient, String modelName) {
         this.compressionChatClient = compressionChatClient;
         this.modelName = modelName != null ? modelName : "compression-model";
     }
 
     @Override
+    /** Stream */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractLastUserPrompt(messages);
 
@@ -65,10 +71,12 @@ public class CompressionChatClientModelAdapter implements Model {
     }
 
     @Override
+    /** 获取ModelName */
     public String getModelName() {
         return modelName;
     }
 
+    /** ExtractLastUserPrompt */
     private static String extractLastUserPrompt(List<Msg> messages) {
         if (messages == null || messages.isEmpty()) {
             return "";

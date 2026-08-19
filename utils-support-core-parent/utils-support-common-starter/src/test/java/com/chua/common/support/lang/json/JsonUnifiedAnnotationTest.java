@@ -45,9 +45,17 @@ class JsonUnifiedAnnotationTest {
         /** Amount */
         private double amount;
 
+        /** 创建 Order 实例 */
         public Order() {
         }
 
+        /**
+         * 创建 Order 实例
+         * @param orderId orderId
+         * @param String String
+         * @param LocalDateTime LocalDateTime
+         * @param double double
+         */
         public Order(String orderId, String internal, LocalDateTime createTime, double amount) {
             this.orderId = orderId;
             this.internal = internal;
@@ -55,34 +63,42 @@ class JsonUnifiedAnnotationTest {
             this.amount = amount;
         }
 
+        /** 获取OrderId */
         public String getOrderId() {
             return orderId;
         }
 
+        /** 设置OrderId */
         public void setOrderId(String orderId) {
             this.orderId = orderId;
         }
 
+        /** 获取Internal */
         public String getInternal() {
             return internal;
         }
 
+        /** 设置Internal */
         public void setInternal(String internal) {
             this.internal = internal;
         }
 
+        /** 获取创建Time */
         public LocalDateTime getCreateTime() {
             return createTime;
         }
 
+        /** 设置创建Time */
         public void setCreateTime(LocalDateTime createTime) {
             this.createTime = createTime;
         }
 
+        /** 获取Amount */
         public double getAmount() {
             return amount;
         }
 
+        /** 设置Amount */
         public void setAmount(double amount) {
             this.amount = amount;
         }

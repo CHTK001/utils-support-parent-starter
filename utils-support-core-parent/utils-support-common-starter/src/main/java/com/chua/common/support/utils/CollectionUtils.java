@@ -836,6 +836,7 @@ public class CollectionUtils {
         return result;
     }
 
+    /** DescartesRecursive */
     private static <T> void descartesRecursive(List<List<T>> lists, int depth, LinkedList<T> current, List<List<T>> result) {
         if (depth == lists.size()) {
             result.add(new LinkedList<>(current));

@@ -24,24 +24,32 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxOcrRecognizer 实例
+     * @param apiKey apiKey
+     */
     public OnnxOcrRecognizer(String apiKey) {
     }
 
     @Override
+    /** Model */
     public OcrRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "paddleocrv6";
     }
 
+    /** DetectorModel */
     private String detectorModel() {
         String m = resolveModel();
         return m.contains("-det") ? m : m + "-det";
     }
 
+    /** RecognizerModel */
     private String recognizerModel() {
         String m = resolveModel();
         if (m.contains("-rec")) return m;
@@ -50,30 +58,35 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
+    /** Lang */
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public OcrRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** UseGpu */
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
     @Override
+    /** Device */
     public OcrRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Recognize */
     public String recognize(byte[] imageData) {
         return OcrPipeline.builder()
                 .detector(detectorModel())
@@ -83,6 +96,7 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
+    /** RecognizeDetail */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return OcrPipeline.builder()
                 .detector(detectorModel())

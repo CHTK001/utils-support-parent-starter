@@ -71,11 +71,13 @@ public class UndertowWebContainer extends AbstractWebContainer {
     private final PathHandler pathHandler = Handlers.path();
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "undertow";
     }
 
     @Override
+    /** DoDeploy */
     protected void doDeploy(String archivePath, String contextPath, DeployUnitType type) {
         if (undertow != null && undertow.getListenerInfo().isEmpty()) {
             throw new ContainerException("Undertow 服务器尚未启动，无法动态部署");
@@ -173,6 +175,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     @Override
+    /** DoUndeploy */
     protected void doUndeploy(String contextPath) {
         DeploymentManager manager = deployments.remove(contextPath);
         if (manager != null) {
@@ -188,6 +191,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             servletContainer = ServletContainer.Factory.newInstance();
@@ -215,6 +219,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         try {
             // 先停止所有部署

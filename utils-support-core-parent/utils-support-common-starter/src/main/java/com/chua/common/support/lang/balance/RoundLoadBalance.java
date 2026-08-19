@@ -30,6 +30,7 @@ public class RoundLoadBalance implements LoadBalance {
  private final List<Node> nodes = new ArrayList<>();
 
  @Override
+ /** 选择Node */
  public Node selectNode() {
  if (nodes.isEmpty()) {
  return null;
@@ -39,17 +40,20 @@ public class RoundLoadBalance implements LoadBalance {
  }
 
  @Override
+ /** 创建 */
  public LoadBalance create() {
  return new RoundLoadBalance();
  }
 
  @Override
+ /** Clear */
  public synchronized LoadBalance clear() {
  nodes.clear();
  return this;
  }
 
  @Override
+ /** 添加Node */
  public LoadBalance addNode(Node node) {
  if (node != null) {
  nodes.add(node);
@@ -58,6 +62,7 @@ public class RoundLoadBalance implements LoadBalance {
  }
 
  @Override
+ /** 选择 */
  public <T> T select(List<T> values) {
  if (values == null || values.isEmpty()) {
  return null;

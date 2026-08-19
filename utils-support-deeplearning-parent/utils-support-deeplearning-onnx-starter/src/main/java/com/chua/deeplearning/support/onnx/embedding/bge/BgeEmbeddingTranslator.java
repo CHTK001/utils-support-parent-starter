@@ -93,6 +93,7 @@ public class BgeEmbeddingTranslator {
         createSession(modelPath);
     }
 
+    /** 创建Session */
     private void createSession(String modelPath) throws IOException {
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();

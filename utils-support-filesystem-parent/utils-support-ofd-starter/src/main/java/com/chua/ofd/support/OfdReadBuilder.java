@@ -17,6 +17,10 @@ import java.util.zip.ZipInputStream;
  */
 public class OfdReadBuilder extends ReadBuilder {
 
+    /**
+     * 创建 OfdReadBuilder 实例
+     * @param file file
+     */
     public OfdReadBuilder(File file) { super(file); }
 
     /**

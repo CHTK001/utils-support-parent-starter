@@ -24,11 +24,13 @@ public class ClineUsageParser extends BaseUsageParser {
             ".vscode-server", "data", "User", "globalStorage", "saoudrizwan.claude-dev", "settings");
 
     @Override
+    /** Name */
     public String name() {
         return "cline";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[cline] 数据目录不存在: {}", DATA_DIR);

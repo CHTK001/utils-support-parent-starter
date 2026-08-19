@@ -173,10 +173,12 @@ public class MultipartBody {
         return out.toByteArray();
     }
 
+    /** 写入 */
     private static void write(ByteArrayOutputStream out, byte[] data) {
         out.write(data, 0, data.length);
     }
 
+    /** 写入 */
     private static void write(ByteArrayOutputStream out, String str) {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
         out.write(bytes, 0, bytes.length);

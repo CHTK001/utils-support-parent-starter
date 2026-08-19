@@ -45,12 +45,18 @@ public class NetAddress implements Serializable {
      */
     private String password;
 
+    /** 创建 NetAddress 实例 */
     public NetAddress() {}
 
+    /**
+     * 创建 NetAddress 实例
+     * @param url url
+     */
     private NetAddress(String url) {
         parse(url);
     }
 
+    /** 解析 */
     private void parse(String url) {
         if (StringUtils.isNullOrEmpty(url)) { return; }
         try {
@@ -102,33 +108,40 @@ public class NetAddress implements Serializable {
         }
     }
 
+    /** Of */
     public static NetAddress of(String url) {
         return new NetAddress(url);
     }
 
+    /** Of */
     public static NetAddress of(String host, int port) {
         return new NetAddress(host + ":" + port);
     }
 
+    /** ToInetSocketAddress */
     public InetSocketAddress toInetSocketAddress() {
         if (host != null && port != null) { return new InetSocketAddress(host, port); }
         return null;
     }
 
+    /** 获取Port */
     public int getPort(int defaultPort) {
         return port != null && port > 0 ? port : defaultPort;
     }
 
+    /** 获取Host */
     public String getHost(String defaultHost) {
         return StringUtils.isNullOrEmpty(host) || "127.0.0.1".equals(host)
                 ? (defaultHost != null ? defaultHost : "127.0.0.1")
                 : host;
     }
 
+    /** 获取Protocol */
     public String getProtocol(String defaultProtocol) {
         return StringUtils.isNullOrEmpty(protocol) ? defaultProtocol : protocol;
     }
 
+    /** 获取DefaultPort */
     private static int getDefaultPort(String protocol) {
         if (StringUtils.isNullOrEmpty(protocol)) { return -1; }
         return switch (protocol.toLowerCase()) {
@@ -147,6 +160,7 @@ public class NetAddress implements Serializable {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(protocol)) {

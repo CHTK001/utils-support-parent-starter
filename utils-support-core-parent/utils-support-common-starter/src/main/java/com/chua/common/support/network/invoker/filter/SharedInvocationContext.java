@@ -20,39 +20,48 @@ public class SharedInvocationContext {
     /** Injectrules */
     private final List<InjectRule> injectRules = new CopyOnWriteArrayList<>();
 
+    /** InjectRule */
     public record InjectRule(String target, InjectCallback callback) {}
 
+    /** 添加InjectRule */
     public void addInjectRule(String target, InjectCallback callback) {
         injectRules.add(new InjectRule(target, callback));
     }
 
+    /** 获取InjectRules */
     public List<InjectRule> getInjectRules() {
         return injectRules;
     }
 
+    /** 设置Attribute */
     public void setAttribute(String key, Object value) {
         attributes.put(key, value);
     }
 
     @SuppressWarnings("unchecked")
+    /** 获取Attribute */
     public <T> T getAttribute(String key) {
         return (T) attributes.get(key);
     }
 
+    /** 添加DefaultHeader */
     public void addDefaultHeader(String name, String value) {
         if (name != null && value != null) {
             defaultHeaders.put(name, value);
         }
     }
 
+    /** 获取DefaultHeaders */
     public Map<String, String> getDefaultHeaders() {
         return defaultHeaders;
     }
 
+    /** 应用To */
     public void applyTo(InvocationContext ctx) {
         defaultHeaders.forEach(ctx::addHeader);
     }
 
+    /** Clear */
     public void clear() {
         attributes.clear();
         defaultHeaders.clear();

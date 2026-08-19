@@ -104,6 +104,7 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
+    /** 初始化 */
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = width;
@@ -115,24 +116,29 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 获取CodecName */
     public String getCodecName() {
         return "h266";
     }
 
     @Override
+    /** 获取CodecId */
     public int getCodecId() {
         return 276;
     }
 
     @Override
+    /** 是否HardwareAccelerated */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
+    /** ForceKeyFrame */
     public void forceKeyFrame() {
     }
 
+    /** EnsureInitialized */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || encoderHandle == 0) {
             init(w, h, f);
@@ -140,6 +146,7 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(BufferedImage image) {
         if (image == null) {
             return new byte[0];
@@ -158,6 +165,7 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(org.bytedeco.javacv.Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -179,6 +187,7 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         if (encoderHandle != 0) {
             NativeVideoCodec.h266EncoderFree(encoderHandle);

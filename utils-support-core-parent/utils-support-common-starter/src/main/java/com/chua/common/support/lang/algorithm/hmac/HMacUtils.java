@@ -17,6 +17,7 @@ import java.io.InputStream;
  */
 public class HMacUtils {
 
+    /** 创建 HMacUtils 实例 */
     private HMacUtils() {
         // 私有构造函数，防止实例化，该类仅提供静态工具方法
     }

@@ -56,6 +56,10 @@ public final class BackoffFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 BackoffFlow 实例
+     * @param name name
+     */
     private BackoffFlow(String name) {
         this.name = name;
     }
@@ -165,6 +169,7 @@ public final class BackoffFlow {
         execute(task, 0);
     }
 
+    /** 执行 */
     private <T> T execute(Callable<T> task, int attempt) throws Exception {
         try {
             return task.call();
@@ -180,6 +185,7 @@ public final class BackoffFlow {
         }
     }
 
+    /** 执行 */
     private void execute(Runnable task, int attempt) {
         try {
             task.run();

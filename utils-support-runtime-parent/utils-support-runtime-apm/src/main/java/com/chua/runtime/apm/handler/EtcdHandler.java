@@ -24,31 +24,37 @@ public class EtcdHandler extends AbstractAppHandler {
     private static final String[] KV_METHODS = {"put", "get", "delete", "compact"};
 
     @Override
+    /** Name */
     public String name() {
         return "etcd-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "etcd.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.ETCD;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.ETCD;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(KV_CLIENT, KV_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

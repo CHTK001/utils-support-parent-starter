@@ -39,6 +39,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     private int originalHeight;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -60,6 +61,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         Shape outShape = output.getShape();
@@ -84,14 +86,17 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.fromString("none");
     }
 
+    /** Clip */
     private static int clip(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
     }
 
+    /** HwcPixels */
     private static float[] hwcPixels(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof java.awt.image.BufferedImage bi) {
@@ -109,6 +114,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
         throw new IllegalStateException("无法提取 BufferedImage 像素");
     }
 
+    /** 调整大小Hwc */
     private static float[] resizeHwc(float[] src, int sw, int sh, int dw, int dh) {
         float[] out = new float[dw * dh * 3];
         float xs = (float) sw / dw;
@@ -127,6 +133,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
         return out;
     }
 
+    /** 调整大小Buffered */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
         return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
     }

@@ -56,6 +56,10 @@ public final class WsEndpointHandler {
      */
     private final Map<String, ActiveSession> sessions = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 WsEndpointHandler 实例
+     * @param registry registry
+     */
     public WsEndpointHandler(TunnelRegistry registry) {
         this.registry = registry;
     }

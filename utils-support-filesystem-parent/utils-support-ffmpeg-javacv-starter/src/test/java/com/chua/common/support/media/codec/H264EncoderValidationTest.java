@@ -9,6 +9,7 @@ import java.util.List;
 
 /** @author CH */
 public class H264EncoderValidationTest {
+    /** Main */
     public static void main(String[] args) throws Exception {
         int w = 320, h = 240;
         // Test software encoder (works without GPU)

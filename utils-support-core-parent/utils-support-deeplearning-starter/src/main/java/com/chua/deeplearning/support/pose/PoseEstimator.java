@@ -55,6 +55,7 @@ public interface PoseEstimator {
         return this;
     }
 
+    /** 创建 */
     static PoseEstimator create(String name) {
         return new DefaultPoseEstimator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -194,18 +195,21 @@ class DefaultPoseEstimator implements PoseEstimator {
     }
 
     @Override
+    /** Threshold */
     public PoseEstimator threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public PoseEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public PoseEstimator device(String device) {
         this.device = device;
         return this;
@@ -213,6 +217,7 @@ class DefaultPoseEstimator implements PoseEstimator {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Estimate */
     public List<PoseKeypoint> estimate(byte[] imageData) {
         ITranslator<byte[], List<PoseKeypoint>> t =
                 (ITranslator<byte[], List<PoseKeypoint>>) engine.get(modelName, ITranslator.class);
@@ -224,6 +229,7 @@ class DefaultPoseEstimator implements PoseEstimator {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** EstimateMulti */
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
         ITranslator<byte[], List<List<PoseKeypoint>>> t =
                 (ITranslator<byte[], List<List<PoseKeypoint>>>) engine.get(modelName, ITranslator.class);

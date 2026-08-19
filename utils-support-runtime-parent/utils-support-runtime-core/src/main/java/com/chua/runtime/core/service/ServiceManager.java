@@ -36,6 +36,7 @@ public interface ServiceManager extends AutoCloseable {
     boolean isInstalled(String serviceName);
 
     @Override
+    /** 关闭 */
     default void close() throws Exception {
     }
 }

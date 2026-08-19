@@ -60,10 +60,12 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     /** Image_std */
     private static final float IMAGE_STD = 128.0f;
 
+    /** 创建 FacePluginDetectTranslator 实例 */
     public FacePluginDetectTranslator() {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_HEIGHT || input.getWidth() != INPUT_WIDTH) {
             input = input.resize(INPUT_WIDTH, INPUT_HEIGHT, false);
@@ -76,6 +78,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -145,6 +148,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         return new DetectedObjects(names, probs, boxes);
     }
 
+    /** Clip */
     private float clip(float v) {
         return Math.max(0f, Math.min(1f, v));
     }
@@ -193,11 +197,13 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
 @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         // 输入已包含 batch 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;
     }
 
+    /** Candidate */
     private record Candidate(Rectangle rect, float score) {
     }
 }

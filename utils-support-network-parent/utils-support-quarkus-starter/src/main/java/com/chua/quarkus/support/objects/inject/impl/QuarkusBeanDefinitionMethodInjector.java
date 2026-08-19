@@ -22,11 +22,20 @@ import java.util.function.Function;
 public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         return method != null && method.isAnnotationPresent(Inject.class);
     }
 
     @Override
+    /**
+     * Inject
+     * @param method method
+     * @param instance instance
+     * @param beanDefinition beanDefinition
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {

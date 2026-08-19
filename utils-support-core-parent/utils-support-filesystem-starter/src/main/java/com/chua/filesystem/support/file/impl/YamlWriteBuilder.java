@@ -16,11 +16,16 @@ import java.io.*;
  */
 public class YamlWriteBuilder extends WriteBuilder {
 
+    /**
+     * 创建 YamlWriteBuilder 实例
+     * @param file file
+     */
     public YamlWriteBuilder(File file) {
         super(file);
     }
 
     @Override
+    /** WithCharset */
     public YamlWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

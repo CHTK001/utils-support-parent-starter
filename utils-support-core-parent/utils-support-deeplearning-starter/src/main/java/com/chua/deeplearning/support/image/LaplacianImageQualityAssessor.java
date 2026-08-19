@@ -59,22 +59,26 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
+    /** BlurThreshold */
     public ImageQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageQualityAssessor modelPath(String path) {
         return this;
     }
 
     @Override
+    /** Device */
     public ImageQualityAssessor device(String device) {
         return this;
     }
 
     @Override
+    /** Assess */
     public ImageQualityInfo assess(byte[] imageData) {
         double blurScore = ImageUtils.blurScore(imageData);
         double brightness = ImageUtils.meanGray(imageData);

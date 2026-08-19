@@ -34,6 +34,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
         String type = ext.toLowerCase();
@@ -48,6 +49,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /** 构建PreviewHtml */
     private String buildPreviewHtml(String b64, String type) {
         String fileName = "uploaded." + type;
         String mimeType = getMimeType(type);
@@ -84,6 +86,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
+    /** 获取MimeType */
     private String getMimeType(String type) {
         return switch (type) {
             case "odt" -> "application/vnd.oasis.opendocument.text";

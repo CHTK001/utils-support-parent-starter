@@ -24,31 +24,37 @@ public class SpringBatchHandler extends AbstractAppHandler {
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override
+    /** Name */
     public String name() {
         return "spring-batch-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "spring-batch.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SPRING_BATCH;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(STEP, EXECUTE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

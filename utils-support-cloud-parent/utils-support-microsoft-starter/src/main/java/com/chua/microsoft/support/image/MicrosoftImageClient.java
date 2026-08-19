@@ -112,12 +112,14 @@ public class MicrosoftImageClient implements ImageClient {
     }
 
     @Override
+    /** Model */
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** 获取大小 */
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
@@ -125,62 +127,73 @@ public class MicrosoftImageClient implements ImageClient {
     }
 
     @Override
+    /** Prompt */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
+    /** NegativePrompt */
     public ImageClient negativePrompt(String negativePrompt) {
         this.negativePrompt = negativePrompt;
         return this;
     }
 
     @Override
+    /** Quality */
     public ImageClient quality(String quality) {
         this.quality = quality;
         return this;
     }
 
     @Override
+    /** Style */
     public ImageClient style(String style) {
         this.style = style;
         return this;
     }
 
     @Override
+    /** Seed */
     public ImageClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
+    /** Steps */
     public ImageClient steps(Integer steps) {
         this.steps = steps;
         return this;
     }
 
     @Override
+    /** ReferenceImage */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
+    /** ReferenceImage */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
+    /** ImageStrength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
+    /** ControlType */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
 
     @Override
+/** Generate */
 public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -259,20 +272,24 @@ public BufferedImage generate(String prompt) {
     }
 
     @Override
+    /** 创建Task */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("Azure OpenAI DALL-E 不支持异步任务模式，请使用 generate() 方法同步生成");
     }
 
     @Override
+    /** 查询Task */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("Azure OpenAI DALL-E 不支持异步任务模式");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         throw new UnsupportedOperationException("Azure OpenAI 不支持模型列表查询");
     }

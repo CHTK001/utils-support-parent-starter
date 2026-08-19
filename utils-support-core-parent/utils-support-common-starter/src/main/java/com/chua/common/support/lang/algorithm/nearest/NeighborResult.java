@@ -82,6 +82,7 @@ public class NeighborResult {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return String.format("NeighborResult{index=%d, distance=%.6f}", index, distance);
     }

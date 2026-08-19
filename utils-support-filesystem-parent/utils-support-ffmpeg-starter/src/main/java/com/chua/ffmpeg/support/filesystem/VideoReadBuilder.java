@@ -21,12 +21,18 @@ public class VideoReadBuilder extends ReadBuilder {
     /** 处理器 */
     private final FFmpegProcessor processor;
 
+    /**
+     * 创建 VideoReadBuilder 实例
+     * @param file file
+     * @param FFmpegProcessor FFmpegProcessor
+     */
     public VideoReadBuilder(File file, FFmpegProcessor processor) {
         super(file);
         this.processor = processor;
     }
 
     @Override
+    /** WithCharset */
     public VideoReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

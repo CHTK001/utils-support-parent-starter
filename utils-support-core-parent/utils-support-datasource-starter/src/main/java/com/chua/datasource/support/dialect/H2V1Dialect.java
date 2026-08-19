@@ -16,31 +16,37 @@ public class H2V1Dialect extends AbstractDialect {
     public static final String VERSION = "H2 1.x";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return "h2v1";
     }
 
     @Override
+    /** Driver */
     public String driver() {
         return "org.h2.Driver";
     }
 
     @Override
+    /** Url */
     public String url() {
         return "jdbc:h2:<DATABASE>";
     }
 
     @Override
+    /** 打开Quote */
     public char openQuote() {
         return '"';
     }
 
     @Override
+    /** 关闭Quote */
     public char closeQuote() {
         return '"';
     }
 
     @Override
+    /** 处理Sql */
     public String processSql(String sql, Pagination pagination) {
         int offset = pagination.getOffset();
         int limit = pagination.getLimit();
@@ -51,6 +57,7 @@ public class H2V1Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         return switch (jdbcType) {
             case java.sql.Types.INTEGER -> "INT";
@@ -75,21 +82,25 @@ public class H2V1Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取AutoIncrementKeyword */
     public String getAutoIncrementKeyword() {
         return "AUTO_INCREMENT";
     }
 
     @Override
+    /** SupportsUpsert */
     public boolean supportsUpsert() {
         return false;
     }
 
     @Override
+    /** 获取AlterColumnString */
     public String getAlterColumnString() {
         return "ALTER COLUMN";
     }
 
     @Override
+    /** 获取CurrentTimestamp选择String */
     public String getCurrentTimestampSelectString() {
         return "SELECT CURRENT_TIMESTAMP()";
     }
@@ -97,6 +108,7 @@ public class H2V1Dialect extends AbstractDialect {
     // ==================== 触发器查询 SQL（H2 不支持存储过程） ====================
 
     @Override
+    /** 获取TriggerListSql */
     public String getTriggerListSql(String schema) {
         StringBuilder sql = new StringBuilder(
                 "SELECT TRIGGER_NAME, TRIGGER_SCHEMA, EVENT_OBJECT_TABLE AS TABLE_NAME, "
@@ -109,6 +121,7 @@ public class H2V1Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取TriggerSql */
     public String getTriggerSql(String triggerName, String schema) {
         if (triggerName == null || triggerName.isEmpty()) {
             return null;

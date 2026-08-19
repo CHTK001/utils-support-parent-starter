@@ -144,6 +144,7 @@ public class DecisionNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "decision";
     }
@@ -158,6 +159,7 @@ public class DecisionNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Params */
     public Map<String, Object> getParams() {
         return params;
     }
@@ -172,6 +174,7 @@ public class DecisionNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Env */
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }
@@ -186,11 +189,13 @@ public class DecisionNode implements PipelineNode {
     }
 
     @Override
+    /** 获取RetryConfig */
     public RetryConfig getRetryConfig() {
         return retryConfig;
     }
 
     @Override
+    /** 执行 */
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
         return router.execute(context);

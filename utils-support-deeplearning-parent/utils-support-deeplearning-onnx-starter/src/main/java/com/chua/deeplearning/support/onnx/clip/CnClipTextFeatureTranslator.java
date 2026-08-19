@@ -34,10 +34,12 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
+    /** 创建 CnClipTextFeatureTranslator 实例 */
     public CnClipTextFeatureTranslator() {
     }
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokPath = resolveFirstExisting(modelRoot,
@@ -48,6 +50,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] inputIds = truncate(encoding.getIds(), TEXT_MAX_LENGTH);
@@ -55,16 +58,19 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray textEmbeds = list.singletonOrThrow();
         return textEmbeds.squeeze().toFloatArray();
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -73,6 +79,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
         return parent != null ? parent : Paths.get("models/onnx");
     }
 
+    /** 解析FirstExisting */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -83,6 +90,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
         throw new IOException("找不到必需文件，尝试: " + Arrays.toString(names) + "，根目录: " + modelRoot);
     }
 
+    /** Truncate */
     private static long[] truncate(long[] ids, int maxLen) {
         long[] out = new long[maxLen];
         System.arraycopy(ids, 0, out, 0, Math.min(ids.length, maxLen));

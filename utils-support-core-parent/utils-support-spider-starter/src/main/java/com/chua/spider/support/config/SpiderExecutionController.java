@@ -47,6 +47,12 @@ public class SpiderExecutionController {
      */
     private final SpiderRunner runner;
 
+    /**
+     * 创建 SpiderExecutionController 实例
+     * @param executionStore executionStore
+     * @param definitionStore definitionStore
+     * @param runner runner
+     */
     public SpiderExecutionController(SpiderExecutionStore executionStore,
                                      SpiderDefinitionStore definitionStore,
                                      SpiderRunner runner) {
@@ -162,6 +168,7 @@ public class SpiderExecutionController {
                 .toList();
     }
 
+    /** 读取Field */
     private Object readField(Object target, String name) {
         try {
             var f = target.getClass().getDeclaredField(name);

@@ -40,16 +40,23 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
      */
     private int height;
 
+    /** 创建 MidasDepthTranslator 实例 */
     public MidasDepthTranslator() {
         this(512, 512);
     }
 
+    /**
+     * 创建 MidasDepthTranslator 实例
+     * @param detectResolution detectResolution
+     * @param int int
+     */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
         this.imageResolution = imageResolution;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -62,6 +69,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
         NDArray min = depthPt.min();
@@ -77,10 +85,12 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }
 
+    /** ToDisplayNdArray */
     private NDArray toDisplayNdArray(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) {
@@ -105,6 +115,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         throw new IllegalArgumentException("Unsupported MiDaS depth shape: " + normalized.getShape());
     }
 
+    /** 调整大小 */
     private int[] resize64(double h, double w, double resolution) {
         double k = resolution / Math.min(h, w);
         h *= k;

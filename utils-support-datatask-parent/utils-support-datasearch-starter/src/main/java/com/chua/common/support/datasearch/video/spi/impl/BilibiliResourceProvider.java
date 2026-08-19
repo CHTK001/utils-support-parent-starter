@@ -40,15 +40,21 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     /** JSON 对象映射器 */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /** 创建 BilibiliResourceProvider 实例 */
     public BilibiliResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 BilibiliResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public BilibiliResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
     @Override
+    /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
@@ -142,6 +148,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
         }
     }
 
+    /** 获取搜索Type */
     private String getSearchType(VideoSearch videoSearch) {
         //0=综合（默认），1=视频，2=番剧，3=影视，5=用户，6=专栏，7=直播，8=相簿，9=话题，12=课程
         String category = videoSearch.getVideoType();

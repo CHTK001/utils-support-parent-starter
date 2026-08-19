@@ -98,6 +98,14 @@ public class PlaywrightBusinessBenchmark {
          */
         private final long timeoutMs;
 
+        /**
+         * 创建 BusinessStep 实例
+         * @param name name
+         * @param StepType StepType
+         * @param String String
+         * @param String String
+         * @param long long
+         */
         private BusinessStep(String name, StepType type, String selector, String value, long timeoutMs) {
             this.name = name;
             this.type = type;
@@ -106,46 +114,57 @@ public class PlaywrightBusinessBenchmark {
             this.timeoutMs = timeoutMs;
         }
 
+        /** 获取Name */
         public String getName() {
             return name;
         }
 
+        /** 获取Type */
         public StepType getType() {
             return type;
         }
 
+        /** 获取Selector */
         public String getSelector() {
             return selector;
         }
 
+        /** 获取Value */
         public String getValue() {
             return value;
         }
 
+        /** 获取TimeoutMs */
         public long getTimeoutMs() {
             return timeoutMs;
         }
 
+        /** 打开 */
         public static BusinessStep open(String name, String url) {
             return new BusinessStep(name, StepType.OPEN, null, url, 30000);
         }
 
+        /** Fill */
         public static BusinessStep fill(String name, String selector, String value) {
             return new BusinessStep(name, StepType.FILL, selector, value, 10000);
         }
 
+        /** Click */
         public static BusinessStep click(String name, String selector) {
             return new BusinessStep(name, StepType.CLICK, selector, null, 10000);
         }
 
+        /** WaitFor */
         public static BusinessStep waitFor(String name, String selector, long timeoutMs) {
             return new BusinessStep(name, StepType.WAIT_FOR, selector, null, timeoutMs);
         }
 
+        /** AssertText */
         public static BusinessStep assertText(String name, String selector, String expected) {
             return new BusinessStep(name, StepType.ASSERT_TEXT, selector, expected, 10000);
         }
 
+        /** Screenshot */
         public static BusinessStep screenshot(String name) {
             return new BusinessStep(name, StepType.SCREENSHOT, null, null, 0);
         }
@@ -182,22 +201,27 @@ public class PlaywrightBusinessBenchmark {
             this.detail = detail;
         }
 
+        /** 获取Name */
         public String getName() {
             return name;
         }
 
+        /** 获取Type */
         public StepType getType() {
             return type;
         }
 
+        /** 是否Success */
         public boolean isSuccess() {
             return success;
         }
 
+        /** 获取LatencyMs */
         public long getLatencyMs() {
             return latencyMs;
         }
 
+        /** 获取Detail */
         public String getDetail() {
             return detail;
         }
@@ -229,18 +253,22 @@ public class PlaywrightBusinessBenchmark {
             this.screenshotBase64 = screenshotBase64;
         }
 
+        /** 获取StepResults */
         public List<StepResult> getStepResults() {
             return stepResults;
         }
 
+        /** 获取总计LatencyMs */
         public long getTotalLatencyMs() {
             return totalLatencyMs;
         }
 
+        /** 是否Success */
         public boolean isSuccess() {
             return success;
         }
 
+        /** 获取ScreenshotBase */
         public String getScreenshotBase64() {
             return screenshotBase64;
         }
@@ -281,6 +309,17 @@ public class PlaywrightBusinessBenchmark {
      */
     private final long waitAfterStepMs;
 
+    /**
+     * 创建 PlaywrightBusinessBenchmark 实例
+     * @param baseUrl baseUrl
+     * @param steps steps
+     * @param concurrency concurrency
+     * @param iterations iterations
+     * @param reportPath reportPath
+     * @param headless headless
+     * @param executablePath executablePath
+     * @param waitAfterStepMs waitAfterStepMs
+     */
     private PlaywrightBusinessBenchmark(String baseUrl, List<BusinessStep> steps, int concurrency,
                                         int iterations, String reportPath, boolean headless,
                                         String executablePath, long waitAfterStepMs) {
@@ -294,6 +333,7 @@ public class PlaywrightBusinessBenchmark {
         this.waitAfterStepMs = waitAfterStepMs;
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -332,51 +372,61 @@ public class PlaywrightBusinessBenchmark {
          */
         private long waitAfterStepMs = 0;
 
+        /** BaseUrl */
         public Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
+        /** Step */
         public Builder step(BusinessStep step) {
             this.steps.add(step);
             return this;
         }
 
+        /** Steps */
         public Builder steps(List<BusinessStep> steps) {
             this.steps.addAll(steps);
             return this;
         }
 
+        /** Concurrency */
         public Builder concurrency(int concurrency) {
             this.concurrency = concurrency;
             return this;
         }
 
+        /** Iterations */
         public Builder iterations(int iterations) {
             this.iterations = iterations;
             return this;
         }
 
+        /** ReportPath */
         public Builder reportPath(String reportPath) {
             this.reportPath = reportPath;
             return this;
         }
 
+        /** Headless */
         public Builder headless(boolean headless) {
             this.headless = headless;
             return this;
         }
 
+        /** ExecutablePath */
         public Builder executablePath(String executablePath) {
             this.executablePath = executablePath;
             return this;
         }
 
+        /** WaitAfterStepMs */
         public Builder waitAfterStepMs(long waitAfterStepMs) {
             this.waitAfterStepMs = waitAfterStepMs;
             return this;
         }
 
+        /** 构建 */
         public PlaywrightBusinessBenchmark build() {
             if (steps.isEmpty()) {
                 throw new IllegalArgumentException("至少需要一个业务测试点");
@@ -590,66 +640,82 @@ public class PlaywrightBusinessBenchmark {
             this.stddev = stddev(lat, mean);
         }
 
+        /** 获取Runs */
         public List<BusinessRun> getRuns() {
             return runs;
         }
 
+        /** 获取ElapsedMs */
         public long getElapsedMs() {
             return elapsedMs;
         }
 
+        /** 获取总计 */
         public long getTotal() {
             return total;
         }
 
+        /** 获取Errors */
         public long getErrors() {
             return errors;
         }
 
+        /** 获取SuccessRate */
         public double getSuccessRate() {
             return total > 0 ? (total - errors) * 100.0 / total : 0;
         }
 
+        /** Rps */
         public double rps() {
             return elapsedMs > 0 ? total * 1000.0 / elapsedMs : 0;
         }
 
+        /** 获取 */
         public double getP50() {
             return p50;
         }
 
+        /** 获取 */
         public double getP95() {
             return p95;
         }
 
+        /** 获取 */
         public double getP99() {
             return p99;
         }
 
+        /** 获取 */
         public double getP999() {
             return p999;
         }
 
+        /** 获取最大值 */
         public double getMax() {
             return max;
         }
 
+        /** 获取Mean */
         public double getMean() {
             return mean;
         }
 
+        /** 获取Stddev */
         public double getStddev() {
             return stddev;
         }
 
+        /** 获取Concurrency */
         public int getConcurrency() {
             return concurrency;
         }
 
+        /** 获取Iterations */
         public int getIterations() {
             return iterations;
         }
 
+        /** Percentile */
         private static double percentile(long[] sortedMs, double p) {
             if (sortedMs.length == 0) {
                 return 0;
@@ -659,6 +725,7 @@ public class PlaywrightBusinessBenchmark {
             return sortedMs[idx];
         }
 
+        /** Stddev */
         private static double stddev(long[] sortedMs, double meanMs) {
             if (sortedMs.length == 0) {
                 return 0;
@@ -786,6 +853,7 @@ public class PlaywrightBusinessBenchmark {
         }
     }
 
+    /** Esc */
     private static String esc(String s) {
         if (s == null) {
             return "";

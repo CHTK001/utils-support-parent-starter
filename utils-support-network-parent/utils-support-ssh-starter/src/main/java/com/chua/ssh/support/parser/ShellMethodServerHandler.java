@@ -47,6 +47,15 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
      */
     private final String produce;
 
+    /**
+     * 创建 ShellMethodServerHandler 实例
+     * @param objectContext objectContext
+     * @param Class Class
+     * @param targetClass targetClass
+     * @param Method Method
+     * @param String String
+     * @param String String
+     */
     public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path, String produce) {
         this.objectContext = objectContext;
         this.targetClass = targetClass;
@@ -56,16 +65,19 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     @Override
+    /** Path */
     public String path() {
         return path;
     }
 
     @Override
+    /** Method */
     public HttpMethod method() {
         return null;
     }
 
     @Override
+    /** 处理 */
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         Object bean = objectContext.getBeanOfType(targetClass);
         if (bean == null) {
@@ -99,6 +111,7 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         }
     }
 
+    /** 解析Args */
     private static String[] resolveArgs(ServerRequest request) {
         List<String> args = new java.util.ArrayList<>();
         for (int i = 0; ; i++) {
@@ -111,6 +124,7 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         return args.toArray(new String[0]);
     }
 
+    /** 构建Args */
     private static Object[] buildArgs(Class<?>[] paramTypes, String[] args, SshCommandResponse sshRes) {
         Object[] result = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
@@ -125,6 +139,7 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         return result;
     }
 
+    /** RenderView */
     private static String renderView(Object data, String produce) {
         if (data == null) {
             return "";

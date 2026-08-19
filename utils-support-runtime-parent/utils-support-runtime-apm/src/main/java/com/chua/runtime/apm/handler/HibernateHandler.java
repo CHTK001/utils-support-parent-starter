@@ -24,31 +24,37 @@ public class HibernateHandler extends AbstractAppHandler {
     private static final String[] SESSION_METHODS = {"save", "update", "delete", "load", "get", "merge", "persist"};
 
     @Override
+    /** Name */
     public String name() {
         return "hibernate-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "hibernate.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.HIBERNATE;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(SESSION, SESSION_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

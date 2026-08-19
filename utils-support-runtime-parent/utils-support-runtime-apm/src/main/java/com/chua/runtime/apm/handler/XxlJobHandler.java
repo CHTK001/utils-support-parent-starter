@@ -32,32 +32,38 @@ public class XxlJobHandler extends AbstractAppHandler {
     private static final String[] START_METHODS = {"start", "stop"};
 
     @Override
+    /** Name */
     public String name() {
         return "xxl-job-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "xxl-job.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.XXL_JOB;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(JOB_HANDLER, EXECUTE_METHODS);
         registerAll(EXECUTOR, START_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

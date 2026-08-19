@@ -34,6 +34,7 @@ public enum PanType {
         this.name = name;
     }
 
+    /** FromCode */
     public static PanType fromCode(String code) {
         if (code == null) {
             return OTHERS;
@@ -46,18 +47,22 @@ public enum PanType {
         return OTHERS;
     }
 
+    /** 获取Code */
     public String getCode() {
         return code;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 是否MagnetType */
     public boolean isMagnetType() {
         return this == MAGNET || this == ED2K;
     }
 
+    /** 是否PanType */
     public boolean isPanType() {
         return !isMagnetType() && this != OTHERS;
     }

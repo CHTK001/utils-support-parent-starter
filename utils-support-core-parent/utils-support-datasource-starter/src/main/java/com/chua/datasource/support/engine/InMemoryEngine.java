@@ -38,11 +38,13 @@ public class InMemoryEngine extends AbstractEngine {
     private final Map<String, Map<String, Map<Object, List<Object>>>> indexes = new ConcurrentHashMap<>();
 
     @Override
+    /** Store */
     public <T> Engine store(String name, List<T> data) {
         super.store(name, data);
         return this;
     }
 
+    /** Index */
     public InMemoryEngine index() {
         for (Map.Entry<String, List<?>> e : dataStores.entrySet()) {
             buildIndex(e.getKey(), e.getValue());
@@ -50,6 +52,7 @@ public class InMemoryEngine extends AbstractEngine {
         return this;
     }
 
+    /** 构建Index */
     private <T> void buildIndex(String name, List<T> data) {
         if (data == null || data.isEmpty()) {
             return;
@@ -71,6 +74,7 @@ public class InMemoryEngine extends AbstractEngine {
         }
     }
 
+    /** 获取Getters */
     private static List<String> getGetters(Class<?> clazz) {
         List<String> fields = new ArrayList<>();
         for (var m : clazz.getMethods()) {
@@ -91,21 +95,25 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @Override
+    /** 查询 */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new InMemQueryWrapper<>(entityClass);
     }
 
     @Override
+    /** 更新 */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new InMemUpdateWrapper<>(entityClass);
     }
 
     @Override
+    /** 删除 */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new InMemDeleteWrapper<>(entityClass);
     }
 
     @Override
+    /** 执行New查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
         throw new UnsupportedOperationException();
     }
@@ -135,6 +143,7 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
+    /** TryIndexLookup */
     private <T> List<T> tryIndexLookup(Class<T> clazz, List<Condition> conditions, List<T> data) {
         Condition first = conditions.get(0);
         if (!"=".equals(first.getOperator())) {
@@ -161,6 +170,7 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
+    /** 查找IndexForData */
     private <T> Map<String, Map<Object, List<Object>>> findIndexForData(List<T> data) {
         for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
             for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
@@ -225,6 +235,7 @@ public class InMemoryEngine extends AbstractEngine {
         return removed;
     }
 
+    /** 构建Predicate */
     private static <T> Predicate<T> buildPredicate(List<Condition> conditions) {
         Predicate<T> result = t -> true;
         for (Condition c : conditions) {
@@ -234,6 +245,7 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** ToPredicate */
     private static <T> Predicate<T> toPredicate(Condition c) {
         String field = c.getColumnName();
         String op = c.getOperator();
@@ -266,6 +278,7 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** 比较 */
     private static int compare(Comparable fieldVal, Object paramVal) {
         if (fieldVal == null) {
             return -1;
@@ -274,6 +287,7 @@ public class InMemoryEngine extends AbstractEngine {
         return fieldVal.compareTo(cv);
     }
 
+    /** Like */
     private static boolean like(Object fieldVal, Object patternVal) {
         if (fieldVal == null || patternVal == null) {
             return false;
@@ -283,6 +297,7 @@ public class InMemoryEngine extends AbstractEngine {
         return val.contains(pattern);
     }
 
+    /** 转换ToMatch */
     private static Object convertToMatch(Object fieldValue, Object paramValue) {
         if (fieldValue == null || paramValue == null) {
             return paramValue;
@@ -321,6 +336,7 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** 比较Ordered */
     private static <T> int compareOrdered(T a, T b, List<String> orderBys) {
         for (String ob : orderBys) {
             String[] parts = ob.trim().split("\\s+");
@@ -353,17 +369,20 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
+        /** List */
         public List<T> list() {
             return evaluateQuery(this);
         }
 
         @Override
+        /** One */
         public T one() {
             List<T> list = list();
             return list.isEmpty() ? null : list.get(0);
         }
 
         @Override
+        /** Page */
         public Page<T> page(int pn, int ps) {
             return evaluatePage(this, pn, ps);
         }
@@ -375,6 +394,7 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
+        /** 更新 */
         public int update() {
             return evaluateUpdate(this);
         }
@@ -386,6 +406,7 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
+        /** 移除 */
         public int remove() {
             return evaluateDelete(this);
         }

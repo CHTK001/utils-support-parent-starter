@@ -20,43 +20,54 @@ public class OnnxImageClassifier implements ImageClassifier {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxImageClassifier 实例
+     * @param apiKey apiKey
+     */
     public OnnxImageClassifier(String apiKey) {
     }
 
     @Override
+    /** Model */
     public ImageClassifier model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "efficient-net-lite4-classification";
     }
 
     @Override
+    /** TopK */
     public ImageClassifier topK(int topK) {
         this.topK = topK;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageClassifier modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageClassifier device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Classify */
     public String classify(byte[] imageData) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classify(imageData);
     }
 
     @Override
+    /** ClassifyTopK */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData, k);
     }

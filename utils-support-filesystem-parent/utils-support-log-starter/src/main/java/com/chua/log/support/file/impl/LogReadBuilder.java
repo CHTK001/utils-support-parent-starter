@@ -188,6 +188,7 @@ public class LogReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** WithCharset */
     public LogReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -237,16 +238,19 @@ public class LogReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** AsLines */
     public List<String> asLines() {
         return lines();
     }
 
     @Override
+    /** AsString */
     public String asString() {
         return String.join(System.lineSeparator(), lines());
     }
 
     @Override
+    /** 读取 */
     public Object read() {
         return lines();
     }

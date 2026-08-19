@@ -75,11 +75,13 @@ class KcpAnnotationTest {
         final AtomicReference<String> lastTopic = new AtomicReference<>();
 
         @OnOpen
+        /** On打开 */
         public void onOpen() {
             openCount.incrementAndGet();
         }
 
         @OnMessage("echo/#")
+        /** OnEcho */
         public void onEcho(String payload) {
             received.add(payload);
             lastTopic.set("echo/ann");
@@ -103,6 +105,7 @@ class KcpAnnotationTest {
         final CountDownLatch latch = new CountDownLatch(1);
 
         @OnMessage("echo/#")
+        /** OnEcho */
         public void onEcho(String payload) {
             received.add(payload);
             latch.countDown();
@@ -131,17 +134,20 @@ class KcpAnnotationTest {
         final AtomicInteger errorCount = new AtomicInteger();
 
         @OnOpen
+        /** On打开 */
         public void onOpen() {
             openCount.incrementAndGet();
         }
 
         @OnMessage("reply/#")
+        /** OnReply */
         public void onReply(String payload) {
             received.add(payload);
             latch.countDown();
         }
 
         @OnError
+        /** On记录错误 */
         public void onError(Throwable throwable) {
             errorCount.incrementAndGet();
         }

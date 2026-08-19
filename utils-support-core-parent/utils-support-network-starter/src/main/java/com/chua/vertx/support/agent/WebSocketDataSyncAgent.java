@@ -71,6 +71,13 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
      */
     private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
+    /**
+     * 创建 WebSocketDataSyncAgent 实例
+     * @param agentId agentId
+     * @param String String
+     * @param String String
+     * @param DataSyncSource DataSyncSource
+     */
     public WebSocketDataSyncAgent(String agentId, String sourceId, String serverUri, DataSyncSource source) {
         this.agentId = agentId;
         this.sourceId = sourceId;
@@ -79,6 +86,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (running) {
             return;
@@ -90,6 +98,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         CompletableFuture<WebSocket> cf = httpClient.newWebSocketBuilder()
                 .buildAsync(URI.create(serverUri), new WebSocket.Listener() {
                     @Override
+                    /** On打开 */
                     public void onOpen(WebSocket webSocket) {
                         WebSocketDataSyncAgent.this.webSocket = webSocket;
                         sendRegister();
@@ -102,6 +111,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
                     }
 
                     @Override
+                    /** On记录错误 */
                     public void onError(WebSocket webSocket, Throwable error) {
                     }
                 });
@@ -113,6 +123,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running = false;
         if (webSocket != null) {
@@ -122,25 +133,30 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** AgentId */
     public String agentId() {
         return agentId;
     }
 
     @Override
+    /** ToSource */
     public DataSyncSource toSource() {
         return source;
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running;
     }
 
     @Override
+    /** DataUrl */
     public String dataUrl() {
         return "";
     }
 
+    /** 发送注册 */
     private void sendRegister() {
         sendJson(Map.of(
                 "type", "register",
@@ -150,6 +166,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         ));
     }
 
+    /** 开始MessageLoop */
     private void startMessageLoop() {
         Thread t = new Thread(() -> {
             while (running && !Thread.currentThread().isInterrupted()) {
@@ -166,6 +183,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         t.start();
     }
 
+    /** 处理ServerMessage */
     private void handleServerMessage(String msg) {
         try {
             Map<String, Object> map = Json.fromJson(msg, Map.class);
@@ -196,6 +214,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         }
     }
 
+    /** 发送Json */
     private void sendJson(Map<String, Object> body) {
         if (webSocket == null) {
             return;

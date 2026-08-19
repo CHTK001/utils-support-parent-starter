@@ -92,18 +92,21 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Model */
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Dimensions */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
     }
 
     @Override
+    /** Embedding */
     public float[] embedding(String text) {
         if (text == null || text.isBlank()) {
             return new float[dimension()];
@@ -114,6 +117,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -135,6 +139,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingWithResponse */
     public EmbeddingResponse embeddingWithResponse(String text) {
         if (text == null || text.isBlank()) {
             return buildEmptyResponse();
@@ -144,6 +149,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatchWithResponse */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         if (texts == null || texts.length == 0) {
             return EmbeddingResponse.builder()
@@ -178,6 +184,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // OpenAI SDK 客户端在每次请求中通过 try-with-resources 自动创建和关闭，无需额外清理
         log.debug("OpenAiEmbeddingClient 已关闭");

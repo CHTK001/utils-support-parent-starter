@@ -27,18 +27,22 @@ public class ReturnPageResult<T> implements Serializable {
     /** Success */
     private boolean success;
 
+    /** Of */
     public static <T> ReturnPageResult<T> of(PageResult<T> data) {
         return new ReturnPageResult<>(data, null, true);
     }
 
+    /** Ok */
     public static <T> ReturnPageResult<T> ok(PageResult<T> data) {
         return of(data);
     }
 
+    /** 记录错误 */
     public static <T> ReturnPageResult<T> error(String message) {
         return new ReturnPageResult<T>(null, message, false);
     }
 
+    /** Empty */
     public static <T> ReturnPageResult<T> empty() {
         return new ReturnPageResult<T>(PageResult.<T>empty(), null, true);
     }

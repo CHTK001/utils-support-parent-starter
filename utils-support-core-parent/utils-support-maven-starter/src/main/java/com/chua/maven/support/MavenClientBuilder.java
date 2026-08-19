@@ -116,54 +116,67 @@ public class MavenClientBuilder {
 
     // ==================== Getter ====================
 
+    /** 获取ProjectPath */
     public String getProjectPath() {
         return projectPath;
     }
 
+    /** 获取Goals */
     public List<String> getGoals() {
         return goals;
     }
 
+    /** 获取EffectiveGoals */
     public List<String> getEffectiveGoals() {
         return goals.isEmpty() ? DEFAULT_GOALS : goals;
     }
 
+    /** 获取Profiles */
     public List<String> getProfiles() {
         return profiles;
     }
 
+    /** 是否跳过Tests */
     public boolean isSkipTests() {
         return skipTests;
     }
 
+    /** 是否Quiet */
     public boolean isQuiet() {
         return quiet;
     }
 
+    /** 是否调试 */
     public boolean isDebug() {
         return debug;
     }
 
+    /** 是否Offline */
     public boolean isOffline() {
         return offline;
     }
 
+    /** 获取JdkVersion */
     public String getJdkVersion() {
         return jdkVersion;
     }
 
+    /** 获取ProgressCallback */
     public MavenCompilerProgress getProgressCallback() {
         return progressCallback;
     }
 
+    /** 获取CompilerCallback */
     public MavenCompilerCallback getCompilerCallback() {
         return compilerCallback;
     }
 
+    /** 获取Properties */
     public Properties getProperties() {
         return properties;
     }
 
+    /** 获取Executor */
     public ExecutorService getExecutor() {
         return executor;
     }

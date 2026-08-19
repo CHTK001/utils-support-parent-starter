@@ -23,10 +23,15 @@ public class LinuxExecClient implements AutoCloseable {
      */
     private SshClient sshClient;
 
+    /**
+     * 创建 LinuxExecClient 实例
+     * @param setting setting
+     */
     public LinuxExecClient(ClientSetting setting) {
         this.setting = setting;
     }
 
+    /** 连接 */
     public void connect() {
         this.sshClient = SshClient.builder()
                 .host(setting.getHost())
@@ -39,6 +44,7 @@ public class LinuxExecClient implements AutoCloseable {
         this.sshClient.connect();
     }
 
+    /** 执行Command */
     public SshClient.ExecResult executeCommand(String command, int timeoutMs) {
         if (sshClient == null) {
             throw new IllegalStateException("SSH 客户端未连接，请先调用 connect()");
@@ -52,10 +58,12 @@ public class LinuxExecClient implements AutoCloseable {
         }
     }
 
+    /** 执行Command */
     public SshClient.ExecResult executeCommand(String command) {
         return executeCommand(command, 30_000);
     }
 
+    /** 关闭Quietly */
     public void closeQuietly() {
         try {
             close();
@@ -64,6 +72,7 @@ public class LinuxExecClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         if (sshClient != null) {
             sshClient.close();

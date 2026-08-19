@@ -36,6 +36,7 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String svgContent = new String(content, StandardCharsets.UTF_8);
         String b64 = Base64.getEncoder().encodeToString(content);
@@ -50,6 +51,7 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /** 构建PreviewHtml */
     private String buildPreviewHtml(String svgContent, String b64) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>SVG Preview</title></head><body>");

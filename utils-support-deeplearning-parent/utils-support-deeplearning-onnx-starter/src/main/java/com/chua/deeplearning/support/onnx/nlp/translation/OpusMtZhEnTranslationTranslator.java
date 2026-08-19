@@ -155,11 +155,13 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     }
 
     @Override
+    /** Name */
     public String name() {
         return "opus-mt-zh-en";
     }
 
     @Override
+    /** Translate */
     public String translate(String text) {
         if (text == null || text.isBlank()) {
             return text;
@@ -323,6 +325,7 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         for (OrtSession session : List.of(encoderSession, decoderSession, decoderPastSession)) {
             if (session != null) {

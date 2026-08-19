@@ -33,6 +33,7 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
 
     @Override
     @Nullable
+    /** 获取NextEntry */
     public ArchiveEntry getNextEntry() throws IOException {
         var entry = delegate.getNextEntry();
         if (entry == null) {
@@ -42,46 +43,55 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
+    /** 读取 */
     public int read() throws IOException {
         return delegate.read();
     }
 
     @Override
+    /** 读取 */
     public int read(byte[] b) throws IOException {
         return delegate.read(b);
     }
 
     @Override
+    /** 读取 */
     public int read(byte[] b, int off, int len) throws IOException {
         return delegate.read(b, off, len);
     }
 
     @Override
+    /** 跳过 */
     public long skip(long n) throws IOException {
         return delegate.skip(n);
     }
 
     @Override
+    /** Available */
     public int available() throws IOException {
         return delegate.available();
     }
 
     @Override
+    /** 标记 */
     public void mark(int readlimit) {
         delegate.mark(readlimit);
     }
 
     @Override
+    /** 重置 */
     public void reset() throws IOException {
         delegate.reset();
     }
 
     @Override
+    /** 标记Supported */
     public boolean markSupported() {
         return delegate.markSupported();
     }
 
     @Override
+    /** 关闭 */
     public void close() throws IOException {
         delegate.close();
     }

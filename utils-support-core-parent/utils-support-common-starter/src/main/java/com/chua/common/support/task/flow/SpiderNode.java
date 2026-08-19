@@ -29,6 +29,7 @@ package com.chua.common.support.task.flow;
 public interface SpiderNode extends FlowNode {
 
     @Override
+    /** Type */
     default String type() {
         return "spider";
     }

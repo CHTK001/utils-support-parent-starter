@@ -112,6 +112,7 @@ public class BoundFinderV2 {
                 .collect(Collectors.toList());
     }
 
+    /** Bfs */
     private List<Point> bfs(boolean[][] grid, int x, int y, boolean[][] visited) {
         Queue<Point> queue = new ArrayDeque<>();
         queue.offer(new Point(x, y));
@@ -133,6 +134,7 @@ public class BoundFinderV2 {
         return points;
     }
 
+    /** 是否Valid */
     private boolean isValid(boolean[][] grid, int x, int y, boolean[][] visited) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return false;

@@ -58,6 +58,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
+    /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
         String e = ext.toLowerCase(Locale.ENGLISH);
         List<EntryInfo> entries = new ArrayList<>();
@@ -125,6 +126,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /** WrapDecompressor */
     private static InputStream wrapDecompressor(InputStream in, String ext) throws IOException {
         String compType = switch (ext) {
             case "tgz", "tar.gz" -> "gz";
@@ -143,6 +145,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return in;
     }
 
+    /** 构建Html */
     private String buildHtml(String ext, List<EntryInfo> entries, int dirs, long totalSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<div class=\"header\"><h2>").append(ext.toUpperCase(Locale.ENGLISH))
@@ -168,11 +171,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
+    /** ExtFromName */
     private static String extFromName(String name) {
         int dot = name.lastIndexOf('.');
         return dot > 0 && dot < name.length() - 1 ? name.substring(dot + 1).toLowerCase(Locale.ENGLISH) : null;
     }
 
+    /** 格式化获取大小 */
     private static String formatSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
@@ -186,9 +191,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return String.format("%.1f GB", bytes / (1024.0 * 1024 * 1024));
     }
 
+    /** EscapeHtml */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /** EntryInfo */
     private record EntryInfo(String name, long size, Date date, boolean compressOnly) {}
 }

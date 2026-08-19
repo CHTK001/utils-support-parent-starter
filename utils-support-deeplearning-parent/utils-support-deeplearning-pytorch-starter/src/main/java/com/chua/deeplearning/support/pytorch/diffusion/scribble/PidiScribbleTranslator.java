@@ -44,10 +44,17 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
      */
     private int height;
 
+    /** 创建 PidiScribbleTranslator 实例 */
     public PidiScribbleTranslator() {
         this(512, 512, true);
     }
 
+    /**
+     * 创建 PidiScribbleTranslator 实例
+     * @param imageResolution imageResolution
+     * @param int int
+     * @param boolean boolean
+     */
     public PidiScribbleTranslator(int imageResolution, int detectResolution, boolean safe) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;
@@ -55,6 +62,7 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -68,6 +76,7 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray edge = list.get(list.size() - 1);
         if (edge.getShape().dimension() == 4 && edge.getShape().get(0) == 1) {
@@ -87,6 +96,7 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(result.toType(DataType.UINT8, false));
     }
 
+    /** SafeStep */
     private NDArray safeStep(NDArray edge, int step) {
         edge = edge.toType(DataType.FLOAT32, false);
         edge = edge.mul((float) (step + 1));
@@ -95,6 +105,7 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

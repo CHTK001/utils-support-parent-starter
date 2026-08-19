@@ -36,16 +36,19 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
     private static final AtomicLong ID_GEN = new AtomicLong(System.nanoTime());
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "html";
     }
 
     @Override
+    /** 获取Extensions */
     public String[] getExtensions() {
         return new String[]{".html", ".htm"};
     }
 
     @Override
+    /** Export */
     public void export(OpenApiDocumentData data, File outputFile) {
         if (data == null) {
             throw new IllegalArgumentException("OpenApiDocumentData 不能为空");
@@ -166,6 +169,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         return sb.toString();
     }
 
+    /** RenderEndpoint */
     private void renderEndpoint(StringBuilder sb, OpenApiEndpoint ep) {
         String docId = "doc-" + ID_GEN.incrementAndGet();
         sb.append("<section class=\"doc-section\" id=\"sec-").append(docId).append("\">");
@@ -244,10 +248,12 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         sb.append("<hr></section>");
     }
 
+    /** SafeStr */
     private static String safeStr(String s) {
         return s == null ? "" : s;
     }
 
+    /** Escape */
     private String escape(String s) {
         if (s == null) return "";
         StringBuilder sb = new StringBuilder(s.length());

@@ -493,6 +493,7 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
+    /** 比较To */
     public final int compareTo(Version version) {
         return compareTo(version, false);
     }
@@ -520,6 +521,7 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
+    /** 判断相等 */
     public final boolean equals(Object o) {
         if (o instanceof Version && isEqual((Version) o)) {
             return true;
@@ -528,6 +530,7 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
+    /** HashCode */
     public final int hashCode() {
         int result = trimmedSubversionNumbers.hashCode();
         result = 31 * result + releaseType.hashCode();
@@ -536,6 +539,7 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return String.valueOf(originalString);
     }

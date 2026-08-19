@@ -84,16 +84,19 @@ import java.util.stream.Collectors;
 public class ExcelFileSystem implements FileSystem {
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "excel";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new ExcelReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new ExcelWriteBuilder(file);
     }
@@ -115,17 +118,20 @@ public class ExcelFileSystem implements FileSystem {
 
         // ==================== 链式配置 ====================
 
+        /** WithSheetName */
         public ExcelReadBuilder withSheetName(String sheetName) {
             this.sheetName = sheetName;
             return this;
         }
 
+        /** WithSheetIndex */
         public ExcelReadBuilder withSheetIndex(int sheetIndex) {
             this.sheetIndex = sheetIndex;
             return this;
         }
 
         @Override
+        /** 过滤 */
         public ExcelReadBuilder filter(Predicate<Map<String, Object>> filter) {
             super.filter(filter);
             return this;
@@ -158,6 +164,7 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
+        /** WithCharset */
         public ExcelReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -271,12 +278,14 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return rows();
         }
 
         // ==================== 内部方法 ====================
 
+        /** 解析Sheet */
         private Sheet resolveSheet(Workbook wb) {
             if (sheetName != null && !sheetName.isEmpty()) {
                 Sheet sheet = wb.getSheet(sheetName);
@@ -292,6 +301,7 @@ public class ExcelFileSystem implements FileSystem {
             return sheet;
         }
 
+        /** 构建MergedCache */
         private java.util.Map<String, Object> buildMergedCache(Sheet sheet) {
             java.util.Map<String, Object> cache = new java.util.HashMap<>();
             for (CellRangeAddress region : sheet.getMergedRegions()) {
@@ -310,6 +320,7 @@ public class ExcelFileSystem implements FileSystem {
             return cache;
         }
 
+        /** 获取CellValue */
         private Object getCellValue(Cell cell) {
             return switch (cell.getCellType()) {
                 case STRING -> cell.getStringCellValue();
@@ -429,6 +440,7 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
+        /** 写入 */
         public ExcelWriteBuilder write(Object data) {
             if (data instanceof Map<?, ?> m) {
                 @SuppressWarnings("unchecked")
@@ -453,12 +465,14 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 当前 Sheet 配置 ====================
 
         @Override
+        /** WithHeader */
         public ExcelWriteBuilder withHeader(boolean withHeader) {
             activeSheet.withHeader = withHeader;
             return this;
         }
 
         @Override
+        /** WithHeaders */
         public ExcelWriteBuilder withHeaders(List<String> headerColumns) {
             activeSheet.headerColumns = headerColumns;
             return this;
@@ -560,6 +574,7 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
+        /** WithCharset */
         public ExcelWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -590,6 +605,7 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
+        /** Finish */
         public void finish() {
             if (sheets.isEmpty()) {
                 return;

@@ -39,6 +39,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
     @Override
+    /** 搜索Subtitles */
     public ReturnPageResult<SubtitleSearchResult> searchSubtitles(SubtitleSearchRequest request) {
         String keyword = request.getKeyword();
         if (!StringUtils.hasText(keyword)) {
@@ -67,6 +68,11 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
         }
     }
 
+    /**
+     * 解析SubHdResponse
+     * @param body body
+     * @param request request
+     */
     private ReturnPageResult<SubtitleSearchResult> parseSubHdResponse(String body,
                                                                       SubtitleSearchRequest request) {
         try {
@@ -121,6 +127,12 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
         }
     }
 
+    /**
+     * 解析HtmlFallback
+     * @param html html
+     * @param keyword keyword
+     * @param request request
+     */
     private ReturnPageResult<SubtitleSearchResult> parseHtmlFallback(String html,
                                                                       String keyword,
                                                                       SubtitleSearchRequest request) {
@@ -147,6 +159,11 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
         return buildPageResult(items, request);
     }
 
+    /**
+     * 构建分页Result
+     * @param items items
+     * @param request request
+     */
     private ReturnPageResult<SubtitleSearchResult> buildPageResult(List<SubtitleSearchResult> items,
                                                                     SubtitleSearchRequest request) {
         int total = items.size();

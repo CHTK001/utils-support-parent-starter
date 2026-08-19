@@ -21,6 +21,7 @@ import com.chua.spider.support.model.SpiderResult;
 public class ConsolePipeline implements SpiderPipeline {
 
     @Override
+    /** 处理 */
     public void process(SpiderResult result) {
         if (result == null) {
             return;

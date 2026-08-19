@@ -65,10 +65,18 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     /** 图片高度 */
     private int imageHeight;
 
+    /** 创建 YoloV8sTranslator 实例 */
     public YoloV8sTranslator() {
         this(DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, CLASSES);
     }
 
+    /**
+     * 创建 YoloV8sTranslator 实例
+     * @param threshold threshold
+     * @param float float
+     * @param List List
+     * @param classes classes
+     */
     public YoloV8sTranslator(float threshold, float nmsThreshold, List<String> classes) {
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
@@ -77,6 +85,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -89,6 +98,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.get(0);
 
@@ -197,14 +207,17 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** Sigmoid */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
+    /** ToNormalizedChw */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

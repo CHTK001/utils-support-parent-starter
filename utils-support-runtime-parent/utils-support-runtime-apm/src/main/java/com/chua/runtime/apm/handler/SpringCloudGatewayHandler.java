@@ -24,31 +24,37 @@ public class SpringCloudGatewayHandler extends AbstractAppHandler {
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override
+    /** Name */
     public String name() {
         return "spring-cloud-gateway-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "spring-cloud-gateway.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SPRING_CLOUD_GATEWAY;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(FILTERING_HANDLER, HANDLE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

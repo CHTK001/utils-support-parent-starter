@@ -21,6 +21,13 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     /** 代理服务地址 */
     private final String agentUrl;
 
+    /**
+     * 创建 HttpAgentDataSyncSource 实例
+     * @param sourceId sourceId
+     * @param String String
+     * @param String String
+     * @param String String
+     */
     public HttpAgentDataSyncSource(String sourceId, String inputId, String agentId, String agentUrl) {
         this.sourceId = sourceId;
         this.inputId = inputId;
@@ -29,22 +36,26 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** InputId */
     public String inputId() {
         return inputId;
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         // TODO: 从远程 Agent 拉取数据
         return Flux.empty();
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

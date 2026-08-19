@@ -186,18 +186,21 @@ class DefaultPedestrianDetector implements PedestrianDetector {
     }
 
     @Override
+    /** Threshold */
     public PedestrianDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public PedestrianDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public PedestrianDetector device(String device) {
         this.device = device;
         return this;
@@ -205,6 +208,7 @@ class DefaultPedestrianDetector implements PedestrianDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);

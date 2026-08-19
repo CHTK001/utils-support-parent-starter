@@ -53,10 +53,12 @@ public abstract class ReadBuilder {
         this.file = file;
     }
 
+    /** 获取File */
     public File getFile() {
         return file;
     }
 
+    /** 获取Charset */
     public Charset getCharset() {
         return charset;
     }

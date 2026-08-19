@@ -69,6 +69,7 @@ class KcpServerFilterTest {
         final CountDownLatch latch = new CountDownLatch(1);
 
         @Override
+        /** Do过滤 */
         public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
             paths.add(request.getPath());
             bodies.add(request.getBodyString());
@@ -77,6 +78,7 @@ class KcpServerFilterTest {
         }
 
         @Override
+        /** SupportProtocols */
         public ProtocolType[] supportProtocols() {
             return new ProtocolType[]{ProtocolType.KCP};
         }
@@ -96,6 +98,7 @@ class KcpServerFilterTest {
         final CountDownLatch latch = new CountDownLatch(1);
 
         @Override
+        /** Do过滤 */
         public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
             paths.add(request.getPath());
             latch.countDown();
@@ -103,6 +106,7 @@ class KcpServerFilterTest {
         }
 
         @Override
+        /** SupportProtocols */
         public ProtocolType[] supportProtocols() {
             return new ProtocolType[]{ProtocolType.UDP};
         }

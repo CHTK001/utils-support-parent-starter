@@ -42,6 +42,10 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
      */
     private volatile boolean closed = false;
 
+    /**
+     * 创建 OracleDispatcherProvider 实例
+     * @param config config
+     */
     public OracleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }

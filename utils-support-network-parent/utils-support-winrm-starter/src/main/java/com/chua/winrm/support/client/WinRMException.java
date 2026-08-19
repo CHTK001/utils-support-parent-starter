@@ -8,10 +8,19 @@ package com.chua.winrm.support.client;
  */
 public class WinRMException extends RuntimeException {
 
+    /**
+     * 创建 WinRMException 实例
+     * @param message message
+     * @param Throwable Throwable
+     */
     public WinRMException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * 创建 WinRMException 实例
+     * @param message message
+     */
     public WinRMException(String message) {
         super(message);
     }

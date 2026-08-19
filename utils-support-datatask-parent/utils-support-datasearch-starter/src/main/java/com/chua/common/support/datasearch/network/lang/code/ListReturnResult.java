@@ -28,14 +28,17 @@ public class ListReturnResult<T> implements Serializable {
     /** Success */
     private boolean success;
 
+    /** Ok */
     public static <T> ListReturnResult<T> ok(List<T> data) {
         return new ListReturnResult<>(data, null, true);
     }
 
+    /** Empty */
     public static <T> ListReturnResult<T> empty() {
         return new ListReturnResult<T>(Collections.<T>emptyList(), null, true);
     }
 
+    /** 记录错误 */
     public static <T> ListReturnResult<T> error(String message) {
         return new ListReturnResult<T>(null, message, false);
     }

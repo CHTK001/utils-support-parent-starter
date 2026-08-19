@@ -197,6 +197,12 @@ public class QqBotClient implements BotClient {
     private static final double BACKOFF_MULTIPLIER = 2.0;
 
     @Override
+    /**
+     * 配置
+     * @param token token
+     * @param secret secret
+     * @param encodingAesKey encodingAesKey
+     */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (StringUtils.isNotEmpty(token)) {
@@ -212,24 +218,28 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** Token */
     public BotClient token(String token) {
         this.appId = token;
         return this;
     }
 
     @Override
+    /** Secret */
     public BotClient secret(String secret) {
         this.appSecret = secret;
         return this;
     }
 
     @Override
+    /** EncodingAesKey */
     public BotClient encodingAesKey(String encodingAesKey) {
         this.botToken = encodingAesKey;
         return this;
     }
 
     @Override
+    /** BaseUrl */
     public BotClient baseUrl(String baseUrl) {
         if (StringUtils.isNotEmpty(baseUrl)) {
             this.baseUrl = baseUrl;
@@ -238,6 +248,171 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 连接TimeoutMillis
+     * @param connectTimeoutMillis connectTimeoutMillis
+     * @param readTimeoutMillis readTimeoutMillis
+     * @param configSaveOrLoader configSaveOrLoader
+     * @param intents intents
+     * @param token token
+     * @param ignored ignored
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param appId appId
+     * @param appSecret appSecret
+     * @param authToken authToken
+     * @param authToken authToken
+     * @param sessionId sessionId
+     * @param WS_OP_IDENTIFY WS_OP_IDENTIFY
+     * @param payload payload
+     * @param array array
+     * @param ws ws
+     * @param ws ws
+     * @param data data
+     * @param last last
+     * @param e e
+     * @param ws ws
+     * @param error error
+     * @param error error
+     * @param ws ws
+     * @param statusCode statusCode
+     * @param reason reason
+     * @param ws ws
+     * @param message message
+     * @param ws ws
+     * @param message message
+     * @param rawMessage rawMessage
+     * @param d d
+     * @param intervalMs intervalMs
+     * @param 10_000 10_000
+     * @param interval interval
+     * @param interval interval
+     * @param ignored ignored
+     * @param message message
+     * @param true true
+     * @param eventType eventType
+     * @param data data
+     * @param data data
+     * @param e e
+     * @param e e
+     * @param eventType eventType
+     * @param e e
+     * @param eventType eventType
+     * @param data data
+     * @param List List
+     * @param Map Map
+     * @param timestamp timestamp
+     * @param e e
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public BotClient connectTimeoutMillis(
             long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
@@ -245,12 +420,176 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** 读取TimeoutMillis */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
     }
 
     @Override
+    /**
+     * Config保存OrLoader
+     * @param configSaveOrLoader configSaveOrLoader
+     * @param intents intents
+     * @param token token
+     * @param ignored ignored
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param appId appId
+     * @param appSecret appSecret
+     * @param authToken authToken
+     * @param authToken authToken
+     * @param sessionId sessionId
+     * @param WS_OP_IDENTIFY WS_OP_IDENTIFY
+     * @param payload payload
+     * @param array array
+     * @param ws ws
+     * @param ws ws
+     * @param data data
+     * @param last last
+     * @param e e
+     * @param ws ws
+     * @param error error
+     * @param error error
+     * @param ws ws
+     * @param statusCode statusCode
+     * @param reason reason
+     * @param ws ws
+     * @param message message
+     * @param ws ws
+     * @param message message
+     * @param rawMessage rawMessage
+     * @param d d
+     * @param intervalMs intervalMs
+     * @param 10_000 10_000
+     * @param interval interval
+     * @param interval interval
+     * @param ignored ignored
+     * @param message message
+     * @param true true
+     * @param eventType eventType
+     * @param data data
+     * @param data data
+     * @param e e
+     * @param e e
+     * @param eventType eventType
+     * @param e e
+     * @param eventType eventType
+     * @param data data
+     * @param List List
+     * @param Map Map
+     * @param timestamp timestamp
+     * @param e e
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public BotClient configSaveOrLoader(
             ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
@@ -280,6 +619,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** 开始 */
     public BotClient start() {
         if (appId == null || appId.isBlank()) {
             throw new IllegalStateException(
@@ -303,6 +643,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running.set(false);
         if (heartbeatExecutor != null) {
@@ -325,6 +666,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return running.get();
     }
@@ -455,6 +797,7 @@ public class QqBotClient implements BotClient {
         sendWsMessage(Json.toJson(frame));
     }
 
+    /** 获取EffectiveAuthToken */
     private String getEffectiveAuthToken() {
         if (botToken != null && !botToken.isBlank()) {
             return "QQBot " + botToken;
@@ -489,6 +832,7 @@ public class QqBotClient implements BotClient {
                 = new StringBuilder();
 
         @Override
+        /** On打开 */
         public void onOpen(WebSocket ws) {
             webSocket = ws;
             ws.request(1);
@@ -514,6 +858,7 @@ public class QqBotClient implements BotClient {
         }
 
         @Override
+        /** On记录错误 */
         public void onError(WebSocket ws, Throwable error) {
             notifyError(error);
             log.error("WebSocket error: {}",
@@ -763,12 +1108,125 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Text
+     * @param toUser toUser
+     * @param content content
+     */
     public BotSendResult sendText(String toUser,
             String content) {
         return send(BotOutboundMessage.text(toUser, content));
     }
 
     @Override
+    /**
+     * 发送TextAsync
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser,
             String content) {
@@ -777,12 +1235,119 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Image
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.image(toUser, mediaPath));
     }
 
     @Override
+    /**
+     * 发送ImageAsync
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param message message
+     * @param e e
+     * @param e e
+     * @param message message
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser,
             String mediaPath) {
@@ -791,12 +1356,24 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Voice
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.voice(toUser, mediaPath));
     }
 
     @Override
+    /**
+     * 发送Video
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param title title
+     * @param desc desc
+     */
     public BotSendResult sendVideo(String toUser,
             String mediaPath,
             String title,
@@ -809,12 +1386,18 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送File
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
         return sendFileViaUpload(toUser, mediaPath);
     }
 
     @Override
+    /** 发送 */
     public BotSendResult send(BotOutboundMessage message) {
         if (!running.get()) {
             return BotSendResult.fail(-1,
@@ -864,11 +1447,102 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送Async
+     * @param message message
+     * @param toUser toUser
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
     }
 
+    /**
+     * 发送TextInternal
+     * @param toUser toUser
+     * @param content content
+     */
     private BotSendResult sendTextInternal(String toUser,
             String content) {
         JsonObject body = new JsonObject()
@@ -880,6 +1554,86 @@ public class QqBotClient implements BotClient {
                 body);
     }
 
+    /**
+     * 发送分组TextInternal
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param 0 0
+     * @param body body
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     private BotSendResult sendGroupTextInternal(
             String groupId, String content) {
         JsonObject body = new JsonObject()
@@ -891,6 +1645,81 @@ public class QqBotClient implements BotClient {
                 body);
     }
 
+    /**
+     * 发送分组MentionInternal
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param 0 0
+     * @param messageReference messageReference
+     * @param mentionedUserIds mentionedUserIds
+     * @param mentionedList mentionedList
+     * @param body body
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 1 1
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param 2 2
+     * @param base64 base64
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     private BotSendResult sendGroupMentionInternal(
             String groupId,
             String content,
@@ -912,6 +1741,11 @@ public class QqBotClient implements BotClient {
                 body);
     }
 
+    /**
+     * 发送ImageInternal
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     private BotSendResult sendImageInternal(String toUser,
             String mediaPath) {
         try {
@@ -935,6 +1769,11 @@ public class QqBotClient implements BotClient {
         }
     }
 
+    /**
+     * 发送VoiceInternal
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     */
     private BotSendResult sendVoiceInternal(String toUser,
             String mediaPath) {
         try {
@@ -959,6 +1798,58 @@ public class QqBotClient implements BotClient {
         }
     }
 
+    /**
+     * 发送FileViaUpload
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param mediaPath mediaPath
+     * @param 7 7
+     * @param fileUuid fileUuid
+     * @param body body
+     * @param e e
+     * @param e e
+     * @param toUser toUser
+     * @param mediaPath mediaPath
+     * @param path path
+     * @param body body
+     * @param 0 0
+     * @param e e
+     * @param e e
+     * @param baseUrl baseUrl
+     * @param useWebhookMode useWebhookMode
+     * @param userStore userStore
+     * @param e e
+     * @param e e
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     private BotSendResult sendFileViaUpload(
             String toUser, String mediaPath) {
         try {
@@ -1074,6 +1965,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** 获取Config */
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("appId", appId != null ? appId : "");
@@ -1086,6 +1978,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** UserStore */
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -1094,11 +1987,13 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** ListUsers */
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
     @Override
+    /** ListGroups */
     public List<BotGroupInfo> listGroups() {
         if (!running.get()) {
             return Collections.emptyList();
@@ -1143,12 +2038,46 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送To分组
+     * @param groupId groupId
+     * @param content content
+     */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         return send(BotOutboundMessage.groupText(groupId, content));
     }
 
     @Override
+    /**
+     * 发送To分组Async
+     * @param groupId groupId
+     * @param content content
+     * @param content content
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId,
             String content) {
@@ -1157,6 +2086,32 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 发送To分组Mention
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param groupId groupId
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param content content
+     * @param mentionedUserIds mentionedUserIds
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -1177,6 +2132,22 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 添加MessageListener
+     * @param listener listener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public BotClient addMessageListener(
             BotMessageListener listener) {
         if (listener != null) {
@@ -1186,6 +2157,21 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /**
+     * 移除MessageListener
+     * @param listener listener
+     * @param listener listener
+     * @param challengeToken challengeToken
+     * @param currentBackoff currentBackoff
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param e e
+     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param value value
+     * @param defaultValue defaultValue
+     * @param n n
+     * @param e e
+     * @param ignored ignored
+     */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
@@ -1193,6 +2179,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
+    /** 添加记录错误Listener */
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);
@@ -1224,6 +2211,7 @@ public class QqBotClient implements BotClient {
         return useWebhookMode;
     }
 
+    /** SleepBackoff */
     private long sleepBackoff(long currentBackoff) {
         long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
         try {
@@ -1236,6 +2224,7 @@ public class QqBotClient implements BotClient {
                 BACKOFF_MAX_MS);
     }
 
+    /** ToInt */
     private static int toInt(Object value, int defaultValue) {
         if (value instanceof Number n) {
             return n.intValue();
@@ -1243,6 +2232,7 @@ public class QqBotClient implements BotClient {
         return defaultValue;
     }
 
+    /** 通知记录错误 */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {

@@ -36,16 +36,22 @@ public class NoVncBridge implements RemoteBridge {
      */
     private volatile Socket socket;
 
+    /**
+     * 创建 NoVncBridge 实例
+     * @param connection connection
+     */
     public NoVncBridge(Connection connection) {
         this.connection = connection;
     }
 
     @Override
+    /** Connection */
     public Connection connection() {
         return connection;
     }
 
     @Override
+    /** 连接 */
     public void connect() throws Exception {
         if (isConnected()) {
             return;
@@ -60,6 +66,7 @@ public class NoVncBridge implements RemoteBridge {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (socket != null && !socket.isClosed()) {
             try {
@@ -72,6 +79,7 @@ public class NoVncBridge implements RemoteBridge {
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return socket != null && !socket.isClosed() && socket.isConnected();
     }

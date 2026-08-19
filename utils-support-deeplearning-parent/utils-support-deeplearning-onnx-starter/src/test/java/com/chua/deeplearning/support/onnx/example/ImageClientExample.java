@@ -21,9 +21,11 @@ import java.nio.file.Path;
  */
 public final class ImageClientExample extends ExampleBase {
 
+    /** 创建 ImageClientExample 实例 */
     private ImageClientExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             printModels("image", "onnx", ImageClient.create("onnx", "").models());

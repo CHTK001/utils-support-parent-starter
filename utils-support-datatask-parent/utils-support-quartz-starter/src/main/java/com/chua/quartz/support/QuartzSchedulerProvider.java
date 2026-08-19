@@ -74,6 +74,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
+    /** DoSchedule */
     public synchronized void doSchedule(String id, Runnable task, Trigger trigger) {
         try {
             TASK_CACHE.put(id, task);
@@ -97,6 +98,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
+    /** DoReschedule */
     public synchronized void doReschedule(String id, Trigger trigger) {
         try {
             var oldTriggerKey = TriggerKey.triggerKey(id, "default");
@@ -112,6 +114,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
+    /** DoCancel */
     public synchronized void doCancel(String id) {
         try {
             scheduler.deleteJob(JobKey.jobKey(id, "default"));
@@ -122,6 +125,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
+    /** Do关闭 */
     protected synchronized void doShutdown() {
         try {
             if (scheduler != null && !scheduler.isShutdown()) {
@@ -155,6 +159,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
         throw new IllegalArgumentException("Unsupported trigger type: " + trigger.getClass());
     }
 
+    /** ToDate */
     private static Date toDate(LocalDateTime ldt) {
         return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
     }
@@ -164,6 +169,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
      */
     public static class DelegateJob implements Job {
         @Override
+        /** 执行 */
         public void execute(JobExecutionContext context) {
             String taskId = context.getJobDetail().getKey().getName();
             Runnable task = TASK_CACHE.get(taskId);

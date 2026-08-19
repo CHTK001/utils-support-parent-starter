@@ -65,6 +65,10 @@ public class DoubaoChatClient implements ChatClient {
     /** 技能管理器 */
     private SkillManager skillManager;
 
+    /**
+     * 创建 DoubaoChatClient 实例
+     * @param setting setting
+     */
     public DoubaoChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -90,78 +94,91 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Temperature */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
+    /** 最大值Tokens */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
+    /** System */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
+    /** Thinking */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
+    /** ThinkingEffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
+    /** Smart搜索 */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
+    /** Skill */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
+    /** 添加UserHistory */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
+    /** 添加AssistantHistory */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
+    /** Session */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
+    /** NewChat */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -169,6 +186,7 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -180,11 +198,19 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -287,6 +313,7 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         try {
             arkService.shutdownExecutor();
@@ -295,6 +322,7 @@ public class DoubaoChatClient implements ChatClient {
         }
     }
 
+    /** ToProxy */
     private static java.net.Proxy toProxy(String proxyStr) {
         try {
             java.net.Proxy.Type proxyType;

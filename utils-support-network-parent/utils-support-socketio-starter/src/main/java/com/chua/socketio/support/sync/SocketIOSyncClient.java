@@ -75,6 +75,7 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
+    /** 连接 */
     public void connect() {
         if (connected) {
             return;
@@ -87,6 +88,7 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (!connected) {
             return;
@@ -101,16 +103,19 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected && socket != null && socket.connected();
     }
 
     @Override
+    /** 获取ClientId */
     public String getClientId() {
         return clientId;
     }
 
     @Override
+    /** 发送 */
     public void send(String topic, Object message) {
         if (!connected || socket == null) {
             throw new IllegalStateException("客户端未连接");
@@ -119,6 +124,7 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
         if (connected && socket != null) {
@@ -127,6 +133,7 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         SyncMessageHandler removed = subscriptions.remove(topic);
         if (removed != null && socket != null) {
@@ -135,25 +142,30 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取Metadata */
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "socketio");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }
 
+    /** Do连接 */
     private void doConnect() throws Exception {
         URI uri = URI.create(serverUrl);
         IO.Options options = new IO.Options();
@@ -187,6 +199,7 @@ public class SocketIOSyncClient implements SyncClient {
         }
     }
 
+    /** EnsureTopicListener */
     private void ensureTopicListener(String topic) {
         if (socket == null) {
             return;
@@ -199,6 +212,7 @@ public class SocketIOSyncClient implements SyncClient {
         });
     }
 
+    /** 通知Listeners */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

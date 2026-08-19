@@ -35,6 +35,7 @@ public class ServerBuilder {
     /** 服务器 */
     private Server server;
 
+    /** 创建 ServerBuilder 实例 */
     private ServerBuilder() {
     }
 
@@ -148,6 +149,7 @@ public class ServerBuilder {
         return server;
     }
 
+    /** EnsureServer */
     private void ensureServer() {
         if (server == null) {
             if (setting == null) {

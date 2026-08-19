@@ -41,20 +41,29 @@ public class FireSmokeDetectionYolov8Translator extends AbstractMultiClassYolov8
             "smoke"
     );
 
+    /** 创建 FireSmokeDetectionYolov8Translator 实例 */
     public FireSmokeDetectionYolov8Translator() {
         super();
     }
 
+    /**
+     * 创建 FireSmokeDetectionYolov8Translator 实例
+     * @param inputSize inputSize
+     * @param float float
+     * @param float float
+     */
     public FireSmokeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }
 
     @Override
+    /** ClassNamesResourcePath */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
+    /** DefaultClassNames */
     protected List<String> defaultClassNames() {
         return DEFAULT_CLASSES;
     }

@@ -26,6 +26,7 @@ public final class ConfigValueResolvers {
         RESOLVERS = list;
     }
 
+    /** 创建 ConfigValueResolvers 实例 */
     private ConfigValueResolvers() {
     }
 

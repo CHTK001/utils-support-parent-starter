@@ -67,6 +67,10 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     /** getLastErrorHandle */
     private volatile MethodHandle getLastErrorHandle;
 
+    /**
+     * 创建 WindowsEventLogProvider 实例
+     * @param bridge bridge
+     */
     public WindowsEventLogProvider(SystemLogBridge bridge) {
         if (bridge != null) {
             this.registry = bridge.getWin32Registry();
@@ -87,6 +91,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
+    /** 是否PlatformSupported */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isWindows() && registry != null;
@@ -94,6 +99,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
+    /** 获取Sources */
     public List<String> getSources() {
         
         return SOURCES;
@@ -101,6 +107,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
+    /** 搜索 */
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             log.warn("WindowsEventLogProvider not supported on current platform");
@@ -189,6 +196,39 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return results;
     }
 
+    /**
+     * 解析EventLogRecords
+     * @param buffer buffer
+     * @param bytesRead bytesRead
+     * @param source source
+     * @param regex regex
+     * @param minLevel minLevel
+     * @param remaining remaining
+     * @param results results
+     * @param remaining remaining
+     * @param offset offset
+     * @param bytesRead bytesRead
+     * @param offset offset
+     * @param stringOffset stringOffset
+     * @param message message
+     * @param level level
+     * @param source source
+     * @param message message
+     * @param null null
+     * @param buffer buffer
+     * @param recordOffset recordOffset
+     * @param stringOffset stringOffset
+     * @param i i
+     * @param eventType eventType
+     * @param glob glob
+     * @param e e
+     * @param glob glob
+     * @param handleObj handleObj
+     * @param seg seg
+     * @param num num
+     * @param e e
+     * @param e e
+     */
     public static int parseEventLogRecords(
             MemorySegment buffer, int bytesRead,
             String source,
@@ -241,6 +281,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return parsed;
     }
 
+    /** ExtractString */
     public static String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
         int stringsStart = recordOffset + stringOffset;
         if (stringsStart <= 0 || stringsStart >= (int) buffer.byteSize()) {
@@ -258,6 +299,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return sb.toString().trim();
     }
 
+    /** MapEventTypeToLevel */
     public static LogLevel mapEventTypeToLevel(short eventType) {
         return switch (eventType) {
             case 1  -> LogLevel.ERROR;
@@ -267,6 +309,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         };
     }
 
+    /** CompilePattern */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) {
             return null;
@@ -284,6 +327,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @SuppressWarnings("unchecked")
+    /** 绑定Functions */
     private void bindFunctions() {
         if (openEventLog == null) {
             synchronized (this) {
@@ -304,6 +348,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         }
     }
 
+    /** CoerceToMemorySegment */
     private static MemorySegment coerceToMemorySegment(Object handleObj) {
         if (handleObj instanceof MemorySegment seg) {
             return seg;
@@ -314,6 +359,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return null;
     }
 
+    /** 获取Last记录错误 */
     private int getLastError() {
         if (getLastErrorHandle == null) {
             return 0;

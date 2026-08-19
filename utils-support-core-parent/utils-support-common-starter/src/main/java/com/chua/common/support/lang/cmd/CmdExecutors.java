@@ -48,6 +48,7 @@ public final class CmdExecutors {
     /** 缓存的 CmdExecutor 实例 */
     private static volatile CmdExecutor executor;
 
+    /** 创建 CmdExecutors 实例 */
     private CmdExecutors() {}
 
     /**
@@ -178,11 +179,13 @@ public final class CmdExecutors {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, new CmdCallback() {
             @Override
+            /** OnComplete */
             public void onComplete(CmdResult result) {
                 future.complete(result);
             }
 
             @Override
+            /** On记录错误 */
             public void onError(String cmd, Throwable throwable) {
                 future.completeExceptionally(throwable);
             }
@@ -202,11 +205,13 @@ public final class CmdExecutors {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, timeout, unit, new CmdCallback() {
             @Override
+            /** OnComplete */
             public void onComplete(CmdResult result) {
                 future.complete(result);
             }
 
             @Override
+            /** On记录错误 */
             public void onError(String cmd, Throwable throwable) {
                 future.completeExceptionally(throwable);
             }

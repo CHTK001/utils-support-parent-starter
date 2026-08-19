@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
  */
 public final class ImagePipelineVerify {
 
+    /** 创建 ImagePipelineVerify 实例 */
     private ImagePipelineVerify() {
     }
 

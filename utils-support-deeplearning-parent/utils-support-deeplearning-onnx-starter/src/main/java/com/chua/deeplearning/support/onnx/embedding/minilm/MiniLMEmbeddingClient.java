@@ -49,28 +49,36 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     /** Translator */
     private MiniLMEmbeddingTranslator translator;
 
+    /**
+     * 创建 MiniLMEmbeddingClient 实例
+     * @param setting setting
+     */
     public MiniLMEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
     }
 
     @Override
+    /** Provider */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
+    /** Model */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         return this;
     }
 
     @Override
+    /** Dimensions */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
+    /** Translator */
     private synchronized MiniLMEmbeddingTranslator translator() {
         if (translator == null) {
             translator = new MiniLMEmbeddingTranslator();
@@ -79,6 +87,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Embedding */
     public float[] embedding(String text) {
         try {
             int maxLen = setting.getMaxLen() != null && setting.getMaxLen() > 0 ? setting.getMaxLen() : DEFAULT_MAX_LEN;
@@ -89,6 +98,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -101,6 +111,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingWithResponse */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -113,6 +124,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatchWithResponse */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -130,16 +142,19 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingAsync */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
+    /** EmbeddingBatchAsync */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         if (translator != null) {
             translator.close();

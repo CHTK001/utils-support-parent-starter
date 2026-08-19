@@ -21,11 +21,16 @@ import java.util.Base64;
  */
 public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
 
+    /**
+     * 创建 ForgeStyleApiModel3DGenerator 实例
+     * @param config config
+     */
     public ForgeStyleApiModel3DGenerator(Model3DConfig config) {
         super(config);
     }
 
     @Override
+    /** 构建TextRequestBody */
     protected String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
@@ -44,6 +49,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
+    /** 构建ImageRequestBody */
     protected String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(image);
@@ -64,6 +70,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
+    /** 构建MultiViewRequestBody */
     protected String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
@@ -86,6 +93,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
+    /** 构建SketchRequestBody */
     protected String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(sketch);
@@ -107,6 +115,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
+    /** 构建StylizeRequestBody */
     protected String buildStylizeRequestBody(Model3D model, Model3DStyle style, int resolution) {
         try {
             String modelBase64 = Base64.getEncoder().encodeToString(model.getData().readAllBytes());

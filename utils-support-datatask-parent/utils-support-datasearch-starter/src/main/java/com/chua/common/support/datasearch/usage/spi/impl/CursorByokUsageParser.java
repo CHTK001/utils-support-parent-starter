@@ -23,11 +23,13 @@ public class CursorByokUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".cursor");
 
     @Override
+    /** Name */
     public String name() {
         return "cursor-byok";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[cursor-byok] 数据目录不存在: {}", DATA_DIR);

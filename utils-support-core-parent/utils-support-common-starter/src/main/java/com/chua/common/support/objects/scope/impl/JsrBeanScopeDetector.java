@@ -28,6 +28,7 @@ import java.lang.annotation.Annotation;
 public class JsrBeanScopeDetector implements BeanScopeDetector {
 
     @Override
+    /** Detect */
     public BeanScope detect(Class<?> beanClass) {
         if (beanClass == null) {
             return null;

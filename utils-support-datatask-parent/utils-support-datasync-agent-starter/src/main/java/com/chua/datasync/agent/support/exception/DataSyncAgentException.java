@@ -111,6 +111,7 @@ public class DataSyncAgentException extends RuntimeException {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return errorCode.codeString() + " " + getMessage();
     }

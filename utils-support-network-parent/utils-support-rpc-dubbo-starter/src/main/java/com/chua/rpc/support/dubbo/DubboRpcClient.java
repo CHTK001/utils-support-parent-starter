@@ -46,6 +46,12 @@ public class DubboRpcClient implements RpcClient {
      */
     private final Map<Class<?>, ReferenceConfig<?>> referenceCache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 DubboRpcClient 实例
+     * @param rpcRegistryConfigs rpcRegistryConfigs
+     * @param RpcConsumerConfig RpcConsumerConfig
+     * @param String String
+     */
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;
         applicationConfig = DubboConfigs.get(name);
@@ -62,6 +68,7 @@ public class DubboRpcClient implements RpcClient {
         this.consumerConfig = buildConsumerConfig(consumerCfg);
     }
 
+    /** 构建ConsumerConfig */
     private ConsumerConfig buildConsumerConfig(RpcConsumerConfig cfg) {
         if (cfg == null) {
             return null;
@@ -82,6 +89,7 @@ public class DubboRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取 */
     public <T> T get(Class<T> targetType) {
         ReferenceConfig<T> reference = (ReferenceConfig<T>) referenceCache.computeIfAbsent(targetType, type -> {
             ReferenceConfig<T> ref = new ReferenceConfig<>();
@@ -114,6 +122,7 @@ public class DubboRpcClient implements RpcClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         for (ReferenceConfig<?> reference : referenceCache.values()) {
             try {

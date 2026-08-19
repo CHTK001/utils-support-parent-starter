@@ -244,6 +244,7 @@ public class SvtrExtractorTranslator implements Translator<Image, String> {
         return Batchifier.fromString(batchifier);
     }
 
+    /** 读取Vocab */
     private List<String> readVocab(Model model) throws IOException {
         IOException lastError = null;
         for (String artifact : List.of("dict.txt", "vocab.txt", "ppocr_keys_v1.txt")) {
@@ -267,6 +268,7 @@ public class SvtrExtractorTranslator implements Translator<Image, String> {
         throw lastError == null ? new IOException("Unable to load OCR vocab artifact") : lastError;
     }
 
+    /** 解析FallbackVocabPaths */
     private List<Path> resolveFallbackVocabPaths(Path modelPath) {
         Path modelDir = resolveModelDir(modelPath);
         if (modelDir == null) {
@@ -288,6 +290,7 @@ public class SvtrExtractorTranslator implements Translator<Image, String> {
         return candidates;
     }
 
+    /** 解析ModelDir */
     private Path resolveModelDir(Path modelPath) {
         if (modelPath == null) {
             return null;
@@ -298,6 +301,7 @@ public class SvtrExtractorTranslator implements Translator<Image, String> {
         return modelPath.getParent();
     }
 
+    /** 构建AsciiFallbackTable */
     private List<String> buildAsciiFallbackTable() {
         List<String> fallback = new ArrayList<>();
         for (char c : "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray()) {

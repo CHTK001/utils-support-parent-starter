@@ -92,31 +92,37 @@ public class SshCommandRequest implements ServerRequest {
     }
 
     @Override
+    /** 获取Uri */
     public String getUri() {
         return commandLine;
     }
 
     @Override
+    /** 获取Path */
     public String getPath() {
         return commandName;
     }
 
     @Override
+    /** 获取Method */
     public HttpMethod getMethod() {
         return HttpMethod.GET;
     }
 
     @Override
+    /** 获取Header */
     public String getHeader(String name) {
         return null;
     }
 
     @Override
+    /** 获取Headers */
     public HttpHeader getHeaders() {
         return new HttpHeader();
     }
 
     @Override
+    /** 获取Params */
     public Map<String, String> getParams() {
         Map<String, String> result = new LinkedHashMap<>();
         for (int i = 0; i < args.length; i++) {
@@ -126,6 +132,7 @@ public class SshCommandRequest implements ServerRequest {
     }
 
     @Override
+    /** 获取Param */
     public String getParam(String name) {
         if (name == null) {
             return null;
@@ -148,61 +155,73 @@ public class SshCommandRequest implements ServerRequest {
     }
 
     @Override
+    /** 获取ContentType */
     public String getContentType() {
         return "text/plain";
     }
 
     @Override
+    /** 获取Content获取长度 */
     public long getContentLength() {
         return commandLine.length();
     }
 
     @Override
+    /** 获取Body */
     public byte[] getBody() {
         return commandLine.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
+    /** 获取BodyString */
     public String getBodyString() {
         return commandLine;
     }
 
     @Override
+    /** 获取InputStream */
     public InputStream getInputStream() {
         return new ByteArrayInputStream(getBody());
     }
 
     @Override
+    /** 获取RemoteAddress */
     public String getRemoteAddress() {
         return null;
     }
 
     @Override
+    /** 获取RemotePort */
     public int getRemotePort() {
         return 0;
     }
 
     @Override
+    /** 获取Attributes */
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
     @Override
+    /** 获取Attribute */
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
 
     @Override
+    /** 设置Attribute */
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }
 
     @Override
+    /** 获取FormData */
     public Map<String, String> getFormData() {
         return Map.of();
     }
 
     @Override
+    /** 获取Files */
     public List<FormFile> getFiles() {
         return List.of();
     }

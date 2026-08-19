@@ -50,16 +50,19 @@ public class SqlExpressionParser implements ExpressionParser {
     private final DefaultExpressionParser delegate = new DefaultExpressionParser();
 
     @Override
+    /** Type */
     public String type() {
         return TYPE;
     }
 
     @Override
+    /** 解析 */
     public BTreeNode parse(String expression) {
         return delegate.parse(expression);
     }
 
     @Override
+    /** Generate */
     public String generate(BTreeNode tree) {
         return delegate.generate(tree);
     }

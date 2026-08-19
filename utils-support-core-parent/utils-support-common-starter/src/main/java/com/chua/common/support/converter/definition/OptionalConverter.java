@@ -15,6 +15,7 @@ import java.util.Optional;
 public class OptionalConverter implements TypeConverter<Optional> {
 
     @Override
+    /** 获取Type */
     public Class<Optional> getType() {
         return Optional.class;
     }

@@ -48,11 +48,16 @@ public class AiTokenServerFilter implements ServerFilter {
      */
     private boolean enabled = true;
 
+    /**
+     * 创建 AiTokenServerFilter 实例
+     * @param tokenProvider tokenProvider
+     */
     public AiTokenServerFilter(AiTokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         // 未启用或无 token → 直接放行
         if (!enabled || tokenProvider == null || tokenProvider.count() == 0) {
@@ -89,6 +94,7 @@ public class AiTokenServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
+    /** 发送Unauthorized */
     private void sendUnauthorized(ServerResponse response, String message) {
         response.setStatus(401);
         response.setContentType("application/json; charset=utf-8");
@@ -97,16 +103,19 @@ public class AiTokenServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 50;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "AiTokenServerFilter";
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

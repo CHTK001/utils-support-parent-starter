@@ -42,16 +42,22 @@ public class AlipayProvider implements PaymentChannel {
     /** 配置对象 */
     private final AlipayConfig config;
 
+    /** 创建 AlipayProvider 实例 */
     public AlipayProvider() {
         this(null);
     }
 
+    /**
+     * 创建 AlipayProvider 实例
+     * @param config config
+     */
     public AlipayProvider(AlipayConfig config) {
         this.config = config;
         this.client = buildClient();
     }
 
     @Override
+    /** Pay */
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case APP:
@@ -68,6 +74,7 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
+    /** 构建Client */
     private AlipayClient buildClient() {
         if (config == null) {
             return null;
@@ -83,6 +90,7 @@ public class AlipayProvider implements PaymentChannel {
         );
     }
 
+    /** AppPay */
     private PaymentResponse appPay(PaymentRequest request) {
         AlipayTradeAppPayRequest payRequest = new AlipayTradeAppPayRequest();
         setNotifyUrl(payRequest, request);
@@ -129,6 +137,7 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
+    /** WapPay */
     private PaymentResponse wapPay(PaymentRequest request) {
         AlipayTradeWapPayRequest payRequest = new AlipayTradeWapPayRequest();
         setNotifyUrl(payRequest, request);
@@ -166,6 +175,7 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
+    /** BarCodePay */
     private PaymentResponse barCodePay(PaymentRequest request) {
         AlipayTradePayRequest payRequest = new AlipayTradePayRequest();
         setNotifyUrl(payRequest, request);
@@ -204,6 +214,7 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
+    /** Precreate */
     private PaymentResponse precreate(PaymentRequest request) {
         AlipayTradePrecreateRequest payRequest = new AlipayTradePrecreateRequest();
         setNotifyUrl(payRequest, request);
@@ -238,6 +249,7 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
+    /** 设置通知Url */
     private void setNotifyUrl(com.alipay.api.AlipayRequest<?> payRequest, PaymentRequest request) {
         if (config != null && config.getNotifyUrl() != null) {
             payRequest.setNotifyUrl(config.getNotifyUrl());
@@ -247,6 +259,7 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
+    /** ToUrlStr */
     private static String toUrlStr(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
             return null;

@@ -344,10 +344,12 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         return sb.toString();
     }
 
+    /** NullToEmpty */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
+    /** NullToEmpty */
     private static String nullToEmpty(String value, String defaultValue) {
         return (value == null || value.isBlank()) ? defaultValue : value;
     }

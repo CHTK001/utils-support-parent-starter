@@ -56,6 +56,7 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     private int originalHeight;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -80,6 +81,7 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     }
 
     @Override
+    /** 处理Output */
     public float[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray heatmaps = list.singletonOrThrow();
 
@@ -128,6 +130,7 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

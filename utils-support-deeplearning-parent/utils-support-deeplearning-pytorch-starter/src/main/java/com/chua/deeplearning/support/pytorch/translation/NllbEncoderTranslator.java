@@ -18,6 +18,7 @@ import java.util.Arrays;
 public class NllbEncoderTranslator implements NoBatchifyTranslator<long[], NDArray> {
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, long[] input) {
         NDManager manager = ctx.getNDManager();
         NDArray inputIdArray = manager.create(input).expandDims(0);
@@ -34,6 +35,7 @@ public class NllbEncoderTranslator implements NoBatchifyTranslator<long[], NDArr
     }
 
     @Override
+    /** 处理Output */
     public NDArray processOutput(TranslatorContext ctx, NDList list) {
         NDArray encoderHiddenStates = list.get(0);
         encoderHiddenStates.detach();

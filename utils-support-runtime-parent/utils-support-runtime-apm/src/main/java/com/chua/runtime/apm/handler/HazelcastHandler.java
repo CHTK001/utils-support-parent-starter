@@ -31,31 +31,37 @@ public class HazelcastHandler extends AbstractAppHandler {
     private static final String[] MAP_METHODS = {"get", "put", "remove", "replace", "putIfAbsent", "delete", "containsKey", "size"};
 
     @Override
+    /** Name */
     public String name() {
         return "hazelcast-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "hazelcast.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.HAZELCAST;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HAZELCAST;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(IMAP_CLASS, MAP_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

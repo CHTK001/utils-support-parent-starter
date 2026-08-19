@@ -16,9 +16,11 @@ import java.util.List;
  */
 public final class OcrAngleStatsDiag {
 
+    /** 创建 OcrAngleStatsDiag 实例 */
     private OcrAngleStatsDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         OcrPipeline ocr = OcrPipeline.builder()
                 .detector("paddleocrv6-medium-det")

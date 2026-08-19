@@ -113,26 +113,32 @@ public class ColumnConfig {
 
     // ==================== Getter ====================
 
+    /** 获取FieldName */
     public String getFieldName() {
         return fieldName;
     }
 
+    /** 获取DisplayName */
     public String getDisplayName() {
         return displayName != null ? displayName : fieldName;
     }
 
+    /** 获取Width */
     public Integer getWidth() {
         return width;
     }
 
+    /** 获取Style */
     public CellStyleConfig getStyle() {
         return style;
     }
 
+    /** 获取HeaderStyle */
     public CellStyleConfig getHeaderStyle() {
         return headerStyle;
     }
 
+    /** 是否Hidden */
     public boolean isHidden() {
         return hidden;
     }

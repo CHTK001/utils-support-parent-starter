@@ -97,6 +97,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     private static final Map<String, MusicPlaylistDetail> PLAYLISTS = createPlaylists();
 
     @Override
+    /** 获取Source */
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("demo")
@@ -107,6 +108,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 获取Overview */
     public MusicOverview getOverview() {
         return MusicOverview.builder()
                 .hotKeywords(List.of("city pop", "ambient", "late night", "synthwave", "vocal"))
@@ -117,6 +119,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 搜索 */
     public MusicSearchResult search(String keyword, int page, int pageSize) {
         String actualKeyword = keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
         List<MusicTrackSummary> matched = TRACKS.stream()
@@ -141,6 +144,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 搜索Playlists */
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
         String actualKeyword = keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
         List<MusicPlaylistSummary> matched = PLAYLISTS.values().stream()
@@ -165,6 +169,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 获取PlaylistCategoryCatalog */
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
         return MusicPlaylistCategoryCatalog.builder()
                 .source("demo")
@@ -174,6 +179,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 获取CategoryPlaylists */
     public MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
         String actualTagId = tagId == null ? "" : tagId.trim();
         List<String> playlistIds = CATEGORY_PLAYLISTS.getOrDefault(actualTagId, CATEGORY_PLAYLISTS.getOrDefault("", List.of()));
@@ -199,6 +205,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 获取PlaylistDetail */
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         MusicPlaylistDetail detail = PLAYLISTS.get(playlistId);
         if (detail == null) {
@@ -208,6 +215,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    /** 获取TrackDetail */
     public MusicTrackDetail getTrackDetail(String trackId) {
         return TRACKS.stream()
                 .filter(it -> it.getTrackId().equals(trackId))
@@ -215,6 +223,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                  .orElseThrow(() -> new IllegalArgumentException("歌曲不存在 " + trackId));
     }
 
+    /** ToPlaylistSummary */
     private MusicPlaylistSummary toPlaylistSummary(MusicPlaylistDetail detail) {
         return MusicPlaylistSummary.builder()
                 .playlistId(detail.getPlaylistId())
@@ -228,6 +237,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                 .build();
     }
 
+    /** ToTrackSummary */
     private MusicTrackSummary toTrackSummary(MusicTrackDetail detail) {
         return MusicTrackSummary.builder()
                 .trackId(detail.getTrackId())
@@ -240,6 +250,17 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                 .build();
     }
 
+    /**
+     * Track
+     * @param trackId trackId
+     * @param title title
+     * @param artist artist
+     * @param album album
+     * @param durationSeconds durationSeconds
+     * @param coverUrl coverUrl
+     * @param streamUrl streamUrl
+     * @param lyrics lyrics
+     */
     private static MusicTrackDetail track(String trackId, String title, String artist, String album,
                                           int durationSeconds, String coverUrl, String streamUrl, String lyrics) {
         return MusicTrackDetail.builder()
@@ -255,6 +276,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                 .build();
     }
 
+    /** 创建Playlists */
     private static Map<String, MusicPlaylistDetail> createPlaylists() {
         Map<String, MusicPlaylistDetail> result = new LinkedHashMap<>();
         result.put("after-neon", playlist(
@@ -276,6 +298,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
         return result;
     }
 
+    /** 创建CategoryPlaylists */
     private static Map<String, List<String>> createCategoryPlaylists() {
         Map<String, List<String>> result = new LinkedHashMap<>();
         result.put("", List.of("after-neon", "velvet-transit"));
@@ -289,6 +312,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
         return result;
     }
 
+    /** Tag */
     private static MusicPlaylistCategory tag(String tagId, String name, boolean hot) {
         return MusicPlaylistCategory.builder()
                 .tagId(tagId)
@@ -297,6 +321,7 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                 .build();
     }
 
+    /** 解析CategoryName */
     private String resolveCategoryName(String tagId) {
         if (tagId == null || tagId.isBlank()) {
             return "热门";
@@ -313,6 +338,15 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                         .orElse("分类歌单"));
     }
 
+    /**
+     * Playlist
+     * @param playlistId playlistId
+     * @param title title
+     * @param description description
+     * @param author author
+     * @param coverUrl coverUrl
+     * @param trackIds trackIds
+     */
     private static MusicPlaylistDetail playlist(String playlistId, String title, String description,
                                                 String author, String coverUrl, List<String> trackIds) {
         List<MusicTrackSummary> tracks = new ArrayList<>();

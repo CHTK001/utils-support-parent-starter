@@ -108,6 +108,7 @@ class PooledObject<T> {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return "PooledObject{status=" + status
                 + ", borrowCount=" + borrowCount

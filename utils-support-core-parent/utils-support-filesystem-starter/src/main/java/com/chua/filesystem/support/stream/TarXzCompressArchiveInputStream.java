@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 public class TarXzCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -30,6 +31,7 @@ public class TarXzCompressArchiveInputStream implements CompressArchiveInputStre
     }
 
     @Override
+    /** 创建InputStream */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var xzInputStream = new XZCompressorInputStream(inputStream);
         var tarInputStream = new TarArchiveInputStream(xzInputStream);
@@ -37,6 +39,7 @@ public class TarXzCompressArchiveInputStream implements CompressArchiveInputStre
     }
 
     @Override
+    /** 获取格式化Name */
     public String getFormatName() {
         return "tar.xz";
     }

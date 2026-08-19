@@ -91,6 +91,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         doLoadFromFile();
     }
 
+    /** Do加载FromFile */
     private synchronized void doLoadFromFile() {
         if (!Files.exists(filePath)) {
             log.warn("[FileAiTokenProvider] 令牌文件不存在，创建空文件: {}", filePath);
@@ -238,6 +239,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     // ======================== AiTokenProvider 接口 ========================
 
     @Override
+    /** 获取ValidToken */
     public AiToken getValidToken(String tokenValue) {
         if (tokenValue == null || tokenValue.isBlank()) return null;
         AiToken token = tokenMap.get(tokenValue);
@@ -248,16 +250,19 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
+    /** AllTokens */
     public Map<String, AiToken> allTokens() {
         return Map.copyOf(tokenMap);
     }
 
     @Override
+    /** 计算数量 */
     public int count() {
         return tokenMap.size();
     }
 
     @Override
+    /** Put */
     public synchronized void put(AiToken token) {
         if (token == null || token.getToken() == null || token.getToken().isBlank()) return;
         tokenMap.put(token.getToken(), token);
@@ -266,6 +271,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
+    /** PutAll */
     public synchronized void putAll(List<AiToken> tokens) {
         if (tokens == null) return;
         for (AiToken token : tokens) {
@@ -278,6 +284,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
+    /** 移除 */
     public synchronized AiToken remove(String tokenValue) {
         if (tokenValue == null || tokenValue.isBlank()) return null;
         AiToken removed = tokenMap.remove(tokenValue);
@@ -289,6 +296,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
+    /** Clear */
     public synchronized void clear() {
         tokenMap.clear();
         flushToFile();

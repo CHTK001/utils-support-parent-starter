@@ -70,6 +70,10 @@ public final class WsEndpointHandler {
      */
     private final AtomicLong connectionCount = new AtomicLong();
 
+    /**
+     * 创建 WsEndpointHandler 实例
+     * @param tunnelRegistry tunnelRegistry
+     */
     public WsEndpointHandler(TunnelRegistry tunnelRegistry) {
         this.tunnelRegistry = tunnelRegistry;
         this.bridgeExecutor = Executors.newCachedThreadPool(r -> {

@@ -59,17 +59,20 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Provider */
     public EmbeddingClient provider(String provider) {
         return this;
     }
 
     @Override
+    /** Model */
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Dimensions */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -92,6 +95,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Embedding */
     public float[] embedding(String text) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -115,6 +119,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -127,6 +132,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingWithResponse */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -136,6 +142,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingBatchWithResponse */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -148,16 +155,19 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** EmbeddingAsync */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
+    /** EmbeddingBatchAsync */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

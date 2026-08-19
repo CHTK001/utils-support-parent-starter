@@ -22,11 +22,13 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
     private int dimensions = DEFAULT_DIMENSIONS;
 
     @Override
+    /** Embedding */
     public float[] embedding(String text) {
         return generatePseudoVector(text, dimensions);
     }
 
     @Override
+    /** EmbeddingBatch */
     public float[][] embeddingBatch(String[] texts) {
         float[][] results = new float[texts.length][];
         for (int i = 0; i < texts.length; i++) {
@@ -36,11 +38,13 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
+    /** Dimensions */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
     }
 
+    /** GeneratePseudoVector */
     private float[] generatePseudoVector(String text, int dim) {
         float[] vector = new float[dim];
         int hash = text != null ? text.hashCode() : 0;
@@ -52,6 +56,7 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
         return vector;
     }
 
+    /** Normalize */
     private void normalize(float[] vector) {
         float norm = 0;
         for (float v : vector) {

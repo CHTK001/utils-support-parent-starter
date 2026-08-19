@@ -50,10 +50,12 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     /** Read_timeout_env */
     private static final String READ_TIMEOUT_ENV = "MUSIC_HTTP_READ_TIMEOUT_MILLIS";
 
+    /** 获取Json */
     protected JsonNode getJson(String url) {
         return getJson(url, null);
     }
 
+    /** 获取Json */
     protected JsonNode getJson(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -71,10 +73,12 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
+    /** 获取Text */
     protected String getText(String url) {
         return getText(url, null);
     }
 
+    /** 获取Text */
     protected String getText(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -92,6 +96,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
+    /** PostJson */
     protected JsonNode postJson(String url, Object body, Consumer<HttpClientBuilder> customizer) {
         String jsonBody;
         try {
@@ -117,6 +122,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
+    /** PostForm */
     protected JsonNode postForm(String url, Map<String, ?> form, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -141,6 +147,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
+    /** 获取Response */
     protected ClientResponse getResponse(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -158,6 +165,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
+    /** OverviewOf */
     protected MusicOverview overviewOf(List<String> hotKeywords, List<MusicPlaylistSummary> featuredPlaylists) {
         return MusicOverview.builder()
                 .hotKeywords(hotKeywords == null ? List.of() : hotKeywords)
@@ -165,6 +173,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
                 .build();
     }
 
+    /** 搜索Result */
     protected MusicSearchResult searchResult(String keyword, int page, int pageSize, long total, List<MusicTrackSummary> tracks) {
         return MusicSearchResult.builder()
                 .source(getSource().getCode())
@@ -176,21 +185,25 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
                 .build();
     }
 
+    /** Text */
     protected String text(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? "" : current.asText("");
     }
 
+    /** Integer */
     protected int integer(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? 0 : current.asInt(0);
     }
 
+    /** LongValue */
     protected long longValue(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? 0L : current.asLong(0L);
     }
 
+    /** Path */
     protected JsonNode path(JsonNode node, String... fields) {
         JsonNode current = node;
         for (String field : fields) {
@@ -202,6 +215,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         return current;
     }
 
+    /** Elements */
     protected List<JsonNode> elements(JsonNode node) {
         if (node == null || !node.isArray()) {
             return List.of();
@@ -211,10 +225,12 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         return result;
     }
 
+    /** 编码 */
     protected String encode(String value) {
         return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
 
+    /** FirstNonBlank */
     protected String firstNonBlank(String... values) {
         for (String value : values) {
             if (StringUtils.hasText(value)) {
@@ -224,20 +240,24 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         return "";
     }
 
+    /** AssertOk */
     protected void assertOk(ClientResponse response, String url) {
         if (response == null || !response.isSuccess()) {
             throw new IllegalStateException("音乐接口请求失败: " + url);
         }
     }
 
+    /** 连接TimeoutMillis */
     protected int connectTimeoutMillis() {
         return resolveTimeoutMillis(CONNECT_TIMEOUT_PROPERTY, CONNECT_TIMEOUT_ENV, DEFAULT_CONNECT_TIMEOUT_MILLIS);
     }
 
+    /** 读取TimeoutMillis */
     protected int readTimeoutMillis() {
         return resolveTimeoutMillis(READ_TIMEOUT_PROPERTY, READ_TIMEOUT_ENV, DEFAULT_READ_TIMEOUT_MILLIS);
     }
 
+    /** 解析TimeoutMillis */
     private int resolveTimeoutMillis(String propertyName, String envName, int defaultValue) {
         String configured = System.getProperty(propertyName);
         if (!StringUtils.hasText(configured)) {

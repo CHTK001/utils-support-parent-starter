@@ -48,46 +48,55 @@ public class SqliteEngine extends JdbcEngine {
         ds.setMaximumPoolSize(5);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
             @Override
+            /** Name */
             public String name() {
                 return name;
             }
 
             @Override
+            /** 获取Source */
             public Object getSource() {
                 return ds;
             }
 
             @Override
+            /** 获取Source */
             public <R> R getSource(Class<R> type) {
                 return type.cast(ds);
             }
 
             @Override
+            /** 设置Source */
             public EngineDataSource<Object> setSource(Object source) {
                 return this;
             }
 
             @Override
+            /** 获取Dialect */
             public SqliteDialect getDialect() {
                 return new SqliteDialect();
             }
 
             @Override
+            /** 设置Dialect */
             public EngineDataSource<Object> setDialect(com.chua.common.support.lang.datasource.dialect.Dialect dialect) {
                 return this;
             }
 
             @Override
+            /** Url */
             public String url() {
                 return ds.getJdbcUrl();
             }
 
             @Override
+            /** Username */
             public String username() {
                 return ds.getUsername();
             }
 
             @Override
+            /** Password */
             public String password() {
                 return ds.getPassword();
             }

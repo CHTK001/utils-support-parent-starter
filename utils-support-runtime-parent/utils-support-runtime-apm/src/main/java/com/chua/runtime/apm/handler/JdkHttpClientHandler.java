@@ -24,31 +24,37 @@ public class JdkHttpClientHandler extends AbstractAppHandler {
     private static final String[] CONNECT_METHODS = {"connect", "getInputStream", "getOutputStream", "getResponseCode"};
 
     @Override
+    /** Name */
     public String name() {
         return "jdk-http-client-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "jdk-http-client.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.JDK_HTTP_CLIENT;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(HTTP_URL_CONNECTION, CONNECT_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

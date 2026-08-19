@@ -54,16 +54,26 @@ public class KcpSyncClient implements SyncClient {
      */
     private final Map<String, SyncMessageHandler> pendingSubscriptions = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 KcpSyncClient 实例
+     * @param serverUrl serverUrl
+     */
     public KcpSyncClient(String serverUrl) {
         this("kcp-sync-client", serverUrl);
     }
 
+    /**
+     * 创建 KcpSyncClient 实例
+     * @param clientId clientId
+     * @param String String
+     */
     public KcpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl;
     }
 
     @Override
+    /** 连接 */
     public synchronized void connect() {
         if (connected) {
             return;
@@ -79,6 +89,7 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 断开 */
     public synchronized void disconnect() {
         if (!connected) {
             return;
@@ -93,10 +104,12 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected && kcpClient != null && kcpClient.isConnected();
     }
 
+    /** 执行 */
     public String execute(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -104,6 +117,7 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient.execute(topic, message, 5000);
     }
 
+    /** 执行 */
     public String execute(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -111,6 +125,7 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient.execute(topic, message, timeoutMs);
     }
 
+    /** 执行Async */
     public CompletableFuture<String> executeAsync(String topic, Object message) {
         if (!isConnected()) {
             CompletableFuture<String> failed = new CompletableFuture<>();
@@ -120,6 +135,7 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient.executeAsync(topic, message);
     }
 
+    /** 执行Async */
     public CompletableFuture<String> executeAsync(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
             CompletableFuture<String> failed = new CompletableFuture<>();
@@ -143,6 +159,7 @@ public class KcpSyncClient implements SyncClient {
         kcpClient.send(topic, message);
     }
 
+    /** 发布 */
     public void publish(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -183,6 +200,7 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
         // 允许连接前注册订阅（ConnectionPool 在连接建立前调用 responseSubscriber）
         if (topic != null && handler != null) {
@@ -194,6 +212,7 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         pendingSubscriptions.remove(topic);
         if (kcpClient != null) {
@@ -227,14 +246,17 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }
 
+    /** 获取ClientId */
     public String getClientId() {
         return clientId;
     }
 
+    /** 获取ServerUrl */
     public String getServerUrl() {
         return serverUrl;
     }

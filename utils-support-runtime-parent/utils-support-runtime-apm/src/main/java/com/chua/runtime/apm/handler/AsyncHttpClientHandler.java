@@ -24,31 +24,37 @@ public class AsyncHttpClientHandler extends AbstractAppHandler {
     private static final String[] EXECUTE_METHODS = {"executeRequest", "execute"};
 
     @Override
+    /** Name */
     public String name() {
         return "async-http-client-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "async-http-client.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.ASYNC_HTTP_CLIENT;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(ASYNC_HTTP_CLIENT, EXECUTE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

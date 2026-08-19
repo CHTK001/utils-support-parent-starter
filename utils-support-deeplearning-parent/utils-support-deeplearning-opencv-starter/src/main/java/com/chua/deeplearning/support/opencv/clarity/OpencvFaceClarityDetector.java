@@ -53,40 +53,47 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
+    /** Model */
     public FaceClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "opencv-face-quality";
     }
 
     @Override
+    /** BlurThreshold */
     public FaceClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** 最小值FaceRatio */
     public FaceClarityDetector minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceClarityDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Assess */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)
@@ -97,6 +104,7 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
+    /** 是否Acceptable */
     public boolean isAcceptable(byte[] imageData) {
         return assess(imageData).faceOk()
                 && assess(imageData).sizeOk()

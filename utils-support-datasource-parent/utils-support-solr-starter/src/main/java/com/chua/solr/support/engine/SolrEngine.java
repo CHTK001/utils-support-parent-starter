@@ -49,6 +49,7 @@ public class SolrEngine extends AbstractEngine {
     private String defaultDataSourceName;
 
     @Override
+    /** 添加DataSource */
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         Object src = dataSource.getSource();
         if (src instanceof SolrClient sc) {
@@ -64,12 +65,14 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @Override
+    /** 设置DefaultDataSourceName */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
+    /** Store */
     public <T> Engine store(String name, List<T> data) {
         SolrClient sc = getClient();
         if (sc == null) {
@@ -107,31 +110,37 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
+    /** 获取Dialect */
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
     @Override
+    /** 获取DefaultDataSourceName */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
+    /** Meta */
     public MetaData meta() {
         return new SolrMetaData(this);
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (client != null) {
             try {
@@ -144,6 +153,7 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @Override
+    /** 执行New查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
         SolrClient sc = getClient();
         if (sc == null) {
@@ -195,11 +205,13 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @Override
+    /** 执行更新 */
     public <T> int executeUpdate(com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql<T> sql) {
         return 0;
     }
 
     @Override
+    /** 执行删除 */
     public <T> int executeDelete(com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql<T> sql) {
         return 0;
     }
@@ -207,18 +219,22 @@ public class SolrEngine extends AbstractEngine {
     // ==================== ORM：Condition -> Solr 查询 ====================
 
     @Override
+    /** 查询 */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
             @Override
+            /** 解析Column */
             protected String resolveColumn(SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
                     @Override
+                    /** 解析Column */
                     protected String resolveColumn(SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
                     }
@@ -226,11 +242,13 @@ public class SolrEngine extends AbstractEngine {
             }
 
             @Override
+            /** List */
             public List<T> list() {
                 return search(entityClass, getConditions());
             }
 
             @Override
+            /** One */
             public T one() {
                 List<T> results = search(entityClass, getConditions());
                 if (results.isEmpty()) {
@@ -240,6 +258,7 @@ public class SolrEngine extends AbstractEngine {
             }
 
             @Override
+            /** Page */
             public Page<T> page(int pn, int ps) {
                 int from = (pn - 1) * ps;
                 SearchResult<T> sr = search(entityClass, getConditions(), from, ps);
@@ -298,41 +317,49 @@ public class SolrEngine extends AbstractEngine {
             }
         }
 
+        /** 选择 */
         public GroupByQueryWrapper<T> select(String... cols) {
             selectCols.addAll(List.of(cols));
             return this;
         }
 
+        /** Eq */
         public GroupByQueryWrapper<T> eq(String col, Object val) {
             where.add(escape(col) + ":" + escapeValue(val));
             return this;
         }
 
+        /** Ne */
         public GroupByQueryWrapper<T> ne(String col, Object val) {
             where.add("-" + escape(col) + ":" + escapeValue(val));
             return this;
         }
 
+        /** Gt */
         public GroupByQueryWrapper<T> gt(String col, Object val) {
             where.add(escape(col) + ":{" + escapeValue(val) + " TO *}");
             return this;
         }
 
+        /** Ge */
         public GroupByQueryWrapper<T> ge(String col, Object val) {
             where.add(escape(col) + ":[" + escapeValue(val) + " TO *]");
             return this;
         }
 
+        /** Lt */
         public GroupByQueryWrapper<T> lt(String col, Object val) {
             where.add(escape(col) + ":{* TO " + escapeValue(val) + "}");
             return this;
         }
 
+        /** Le */
         public GroupByQueryWrapper<T> le(String col, Object val) {
             where.add(escape(col) + ":[* TO " + escapeValue(val) + "]");
             return this;
         }
 
+        /** Like */
         public GroupByQueryWrapper<T> like(String col, String pattern) {
             String p = pattern;
             if (p.contains("%")) {
@@ -348,6 +375,7 @@ public class SolrEngine extends AbstractEngine {
             return this;
         }
 
+        /** In */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
             StringBuilder sb = new StringBuilder();
             sb.append(escape(col)).append(":(");
@@ -363,26 +391,31 @@ public class SolrEngine extends AbstractEngine {
             return this;
         }
 
+        /** OrderBy */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
             return this;
         }
 
+        /** Limit */
         public GroupByQueryWrapper<T> limit(int limit) {
             this.limit = Math.max(1, limit);
             return this;
         }
 
+        /** Offset */
         public GroupByQueryWrapper<T> offset(int offset) {
             this.offset = Math.max(0, offset);
             return this;
         }
 
+        /** List */
         public List<Map<String, Object>> list() {
             return executeGroupBy();
         }
 
+        /** Page */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<Map<String, Object>> all = executeGroupBy();
             int from = (pn - 1) * ps;
@@ -394,6 +427,7 @@ public class SolrEngine extends AbstractEngine {
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
+        /** 执行分组By */
         private List<Map<String, Object>> executeGroupBy() {
             SolrClient sc = engine.getClient();
             if (sc == null || groupByCols.isEmpty()) {
@@ -430,6 +464,7 @@ public class SolrEngine extends AbstractEngine {
     // ==================== GROUP BY helpers ====================
 
     @SuppressWarnings("unchecked")
+    /** 构建JsonFacet */
     private static String buildJsonFacet(List<String> cols, int idx) {
         if (idx >= cols.size()) {
             return "{\"count\":\"*\"}";
@@ -449,6 +484,66 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /**
+     * 解析FacetResponse
+     * @param facets facets
+     * @param groupByCols groupByCols
+     * @param depth depth
+     * @param nf0 nf0
+     * @param nf nf
+     * @param groupByCols groupByCols
+     * @param children children
+     * @param entityClass entityClass
+     * @param col col
+     * @param col col
+     * @param q q
+     * @param id id
+     * @param value value
+     * @param newDoc newDoc
+     * @param e e
+     * @param e e
+     * @param entityClass entityClass
+     * @param col col
+     * @param col col
+     * @param query query
+     * @param e e
+     * @param e e
+     * @param entityClass entityClass
+     * @param conditions conditions
+     * @param conditions conditions
+     * @param 0 0
+     * @param 1000 1000
+     * @param list list
+     * @param total total
+     * @param entityClass entityClass
+     * @param conditions conditions
+     * @param start start
+     * @param rows rows
+     * @param 0 0
+     * @param collectionName collectionName
+     * @param query query
+     * @param start start
+     * @param rows rows
+     * @param solrQuery solrQuery
+     * @param total total
+     * @param doc doc
+     * @param total total
+     * @param e e
+     * @param 0 0
+     * @param conditions conditions
+     * @param 0 0
+     * @param c c
+     * @param 0 0
+     * @param value value
+     * @param value value
+     * @param sc sc
+     * @param url url
+     * @param value value
+     * @param targetType targetType
+     * @param num num
+     * @param str str
+     * @param ignored ignored
+     */
     private static List<Map<String, Object>> parseFacetResponse(
             Object facets, List<String> groupByCols, int depth) {
         if (facets == null || groupByCols == null || depth >= groupByCols.size()) {
@@ -490,18 +585,22 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @Override
+    /** 更新 */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
             @Override
+            /** 解析Column */
             protected String resolveColumn(SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
                     @Override
+                    /** 解析Column */
                     protected String resolveColumn(SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
                     }
@@ -509,6 +608,7 @@ public class SolrEngine extends AbstractEngine {
             }
 
             @Override
+            /** 更新 */
             public int update() {
                 SolrClient sc = getClient();
                 if (sc == null) {
@@ -568,18 +668,22 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @Override
+    /** 删除 */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
             @Override
+            /** 解析Column */
             protected String resolveColumn(SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
             @Override
+            /** NewInstance */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
                     @Override
+                    /** 解析Column */
                     protected String resolveColumn(SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
                     }
@@ -587,6 +691,7 @@ public class SolrEngine extends AbstractEngine {
             }
 
             @Override
+            /** 移除 */
             public int remove() {
                 SolrClient sc = getClient();
                 if (sc == null) {
@@ -607,6 +712,7 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
+    /** 搜索 */
     private <T> List<T> search(Class<T> entityClass, List<Condition> conditions) {
         return search(entityClass, conditions, 0, 1000).list();
     }
@@ -615,6 +721,7 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
+    /** 搜索 */
     private <T> SearchResult<T> search(Class<T> entityClass, List<Condition> conditions, int start, int rows) {
         SolrClient sc = getClient();
         if (sc == null) {
@@ -659,6 +766,7 @@ public class SolrEngine extends AbstractEngine {
         }
     }
 
+    /** 构建Solr查询 */
     static String buildSolrQuery(List<Condition> conditions) {
         if (CollectionUtils.isEmpty(conditions)) {
             return "*:*";
@@ -674,6 +782,7 @@ public class SolrEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** 构建Condition查询 */
     static String buildConditionQuery(Condition c) {
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
@@ -785,6 +894,7 @@ public class SolrEngine extends AbstractEngine {
         }
     }
 
+    /** Escape */
     private static String escape(String value) {
         if (value == null) {
             return "";
@@ -819,6 +929,7 @@ public class SolrEngine extends AbstractEngine {
         return sb.toString();
     }
 
+    /** EscapeValue */
     private static String escapeValue(Object value) {
         if (value == null) {
             return "\\*";
@@ -830,6 +941,7 @@ public class SolrEngine extends AbstractEngine {
         return escape(str);
     }
 
+    /** 获取Client */
     public SolrClient getClient() {
         if (client != null) {
             return client;
@@ -851,6 +963,7 @@ public class SolrEngine extends AbstractEngine {
         return null;
     }
 
+    /** 转换Value */
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null) {
             return null;

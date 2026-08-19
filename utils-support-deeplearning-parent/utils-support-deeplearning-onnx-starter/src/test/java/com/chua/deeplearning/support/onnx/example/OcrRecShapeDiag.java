@@ -18,9 +18,11 @@ import java.util.Map;
  */
 public final class OcrRecShapeDiag {
 
+    /** 创建 OcrRecShapeDiag 实例 */
     private OcrRecShapeDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         Path tmpDir = Files.createTempDirectory("rec-shape-");
         tmpDir.toFile().deleteOnExit();

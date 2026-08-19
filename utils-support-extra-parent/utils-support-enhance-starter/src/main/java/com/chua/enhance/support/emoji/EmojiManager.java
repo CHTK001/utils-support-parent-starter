@@ -38,6 +38,7 @@ public class EmojiManager {
         initDefaultEmojis();
     }
 
+    /** 初始化DefaultEmojis */
     private static void initDefaultEmojis() {
     }
 

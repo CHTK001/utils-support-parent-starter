@@ -34,6 +34,7 @@ import java.nio.FloatBuffer;
  */
 public final class OnnxImageProcessor {
 
+    /** 创建 OnnxImageProcessor 实例 */
     private OnnxImageProcessor() {
     }
 

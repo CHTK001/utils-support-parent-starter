@@ -46,6 +46,13 @@ public class SshTunnel implements Tunnel {
      */
     private int actualPort = -1;
 
+    /**
+     * 创建 SshTunnel 实例
+     * @param sshClient sshClient
+     * @param SshClient SshClient
+     * @param definition definition
+     * @param String String
+     */
     public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {
         this.sshClient = sshClient;
         this.definition = definition;
@@ -53,6 +60,7 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
+    /** 打开 */
     public int open() {
         if (open) {
             return actualPort;
@@ -95,6 +103,7 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (!open) {
             return;
@@ -123,6 +132,7 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
+    /** 获取Info */
     public TunnelInfo getInfo() {
         return TunnelInfo.of(
                 actualPort,
@@ -135,15 +145,18 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
+    /** OnInfo */
     public void onInfo(Consumer<TunnelInfo> callback) {
         this.callback = callback;
     }
 
     @Override
+    /** 是否打开 */
     public boolean isOpen() {
         return open;
     }
 
+    /** ToTunnelType */
     private static TunnelType toTunnelType(SshClient.TunnelDefinition.Type type) {
         if (type == null) {
             return null;

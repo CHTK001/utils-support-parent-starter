@@ -127,6 +127,7 @@ public class DinoV2Translator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         // 用 Java 层手动处理：取 CLS token（第 0 行）

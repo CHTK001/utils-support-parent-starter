@@ -44,23 +44,39 @@ public class VertxTcpProxyServer extends AbstractServer {
     /** NET客户端 */
     private NetClient netClient;
 
+    /**
+     * 创建 VertxTcpProxyServer 实例
+     * @param setting setting
+     */
     public VertxTcpProxyServer(ServerSetting setting) {
         super(setting);
         // 与 TcpProxyServer 一致:SPI 加载时 resolver 未提供,拒绝所有连接,调用方自行注入
         this.targetResolver = remote -> null;
     }
 
+    /**
+     * 创建 VertxTcpProxyServer 实例
+     * @param setting setting
+     * @param ProxyTargetResolver ProxyTargetResolver
+     * @param targetResolver targetResolver
+     */
     public VertxTcpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
         this.targetResolver = targetResolver;
     }
 
+    /**
+     * 创建 VertxTcpProxyServer 实例
+     * @param setting setting
+     * @param InetSocketAddress InetSocketAddress
+     */
     public VertxTcpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);
         this.targetResolver = remote -> backend;
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -114,6 +130,7 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -137,10 +154,12 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
+    /** 处理Proxy */
     private void handleProxy(NetSocket front) {
         InetSocketAddress backend;
         try {

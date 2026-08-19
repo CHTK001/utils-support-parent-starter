@@ -836,9 +836,13 @@ public final class GuacdBootstrapper {
             this.source = source;
         }
 
+        /** 处理 */
         public Process process() { return process; }
+        /** BinaryPath */
         public Path binaryPath() { return binaryPath; }
+        /** Port */
         public int port() { return port; }
+        /** Source */
         public String source() { return source; }
     }
 }

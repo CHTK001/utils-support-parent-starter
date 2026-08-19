@@ -32,71 +32,85 @@ public class DefaultMetaData extends AbstractMetaData {
     }
 
     @Override
+    /** Table */
     public MetaTable table() {
         throw new UnsupportedOperationException("当前引擎不支持表元数据操作");
     }
 
     @Override
+    /** Table */
     public MetaTable table(String tableName) {
         throw new UnsupportedOperationException("当前引擎不支持表元数据操作");
     }
 
     @Override
+    /** View */
     public MetaView view() {
         throw new UnsupportedOperationException("当前引擎不支持视图元数据操作");
     }
 
     @Override
+    /** View */
     public MetaView view(String viewName) {
         throw new UnsupportedOperationException("当前引擎不支持视图元数据操作");
     }
 
     @Override
+    /** Index */
     public MetaIndex index() {
         throw new UnsupportedOperationException("当前引擎不支持索引入口操作");
     }
 
     @Override
+    /** Index */
     public MetaIndex index(String indexName) {
         throw new UnsupportedOperationException("当前引擎不支持索引入口操作");
     }
 
     @Override
+    /** Trigger */
     public MetaTrigger trigger() {
         throw new UnsupportedOperationException("当前引擎不支持触发器元数据操作");
     }
 
     @Override
+    /** Trigger */
     public MetaTrigger trigger(String triggerName) {
         throw new UnsupportedOperationException("当前引擎不支持触发器元数据操作");
     }
 
     @Override
+    /** Procedure */
     public MetaProcedure procedure() {
         throw new UnsupportedOperationException("当前引擎不支持存储过程元数据操作");
     }
 
     @Override
+    /** Procedure */
     public MetaProcedure procedure(String procedureName) {
         throw new UnsupportedOperationException("当前引擎不支持存储过程元数据操作");
     }
 
     @Override
+    /** Fk */
     public MetaForeignKey fk() {
         throw new UnsupportedOperationException("当前引擎不支持外键元数据操作");
     }
 
     @Override
+    /** Fk */
     public MetaForeignKey fk(String fkName) {
         throw new UnsupportedOperationException("当前引擎不支持外键元数据操作");
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search() {
         throw new UnsupportedOperationException("当前引擎不支持搜索引擎索引操作");
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search(String indexName) {
         throw new UnsupportedOperationException("当前引擎不支持搜索引擎索引操作");
     }

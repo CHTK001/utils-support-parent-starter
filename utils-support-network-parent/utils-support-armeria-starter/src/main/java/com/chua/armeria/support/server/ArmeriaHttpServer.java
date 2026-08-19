@@ -46,16 +46,22 @@ public class ArmeriaHttpServer extends AbstractServer {
      */
     private com.linecorp.armeria.server.Server server;
 
+    /**
+     * 创建 ArmeriaHttpServer 实例
+     * @param setting setting
+     */
     public ArmeriaHttpServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** SupportsReactor */
     public boolean supportsReactor() {
         return true;
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
@@ -67,6 +73,7 @@ public class ArmeriaHttpServer extends AbstractServer {
             java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         ServerBuilder sb = com.linecorp.armeria.server.Server.builder();
 
@@ -113,6 +120,7 @@ public class ArmeriaHttpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         requestExecutor.shutdown();
         if (server != null) {
@@ -177,6 +185,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 设置Status */
         public ServerResponse setStatus(int code) {
             if (!committed) {
                 this.status = code;
@@ -185,11 +194,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Status */
         public int getStatus() {
             return status;
         }
 
         @Override
+        /** 设置Header */
         public ServerResponse setHeader(String name, String value) {
             if (!committed) {
                 headers.put(name, value);
@@ -198,11 +209,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
+        /** 获取Headers */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             headers.forEach(h::add);
@@ -210,17 +223,20 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 设置ContentType */
         public ServerResponse setContentType(String ct) {
             this.contentType = ct;
             return this;
         }
 
         @Override
+        /** 获取ContentType */
         public String getContentType() {
             return contentType;
         }
 
         @Override
+        /** 设置Body */
         public ServerResponse setBody(byte[] b) {
             if (!committed) {
                 this.body = b;
@@ -229,6 +245,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 设置Body */
         public ServerResponse setBody(String b) {
             if (!committed) {
                 this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : null;
@@ -237,27 +254,32 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Body */
         public byte[] getBody() {
             return body;
         }
 
         @Override
+        /** 获取OutputStream */
         public OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
+        /** 设置Result */
         public ServerResponse setResult(Object r) {
             this.result = r;
             return this;
         }
 
         @Override
+        /** 获取Result */
         public Object getResult() {
             return result;
         }
 
         @Override
+        /** 发送Redirect */
         public ServerResponse sendRedirect(String location) {
             setStatus(302);
             headers.put("Location", location);
@@ -267,6 +289,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 发送记录错误 */
         public ServerResponse sendError(int code, String msg) {
             if (ended) {
                 return this;
@@ -279,20 +302,24 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 刷新 */
         public void flush() {
         }
 
         @Override
+        /** 是否Committed */
         public boolean isCommitted() {
             return committed;
         }
 
         @Override
+        /** 是否Ended */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
+        /** End */
         public void end() {
             if (ended) {
                 return;
@@ -301,6 +328,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 重置 */
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -313,6 +341,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 写入Raw */
         public void writeRaw(byte[] bytes) {
         }
 
@@ -386,26 +415,31 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Uri */
         public String getUri() {
             return ctx.request().uri().toString();
         }
 
         @Override
+        /** 获取Path */
         public String getPath() {
             return ctx.path();
         }
 
         @Override
+        /** 获取Method */
         public HttpMethod getMethod() {
             return HttpMethod.valueOf(ctx.method().name());
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return aggReq.headers().get(name);
         }
 
         @Override
+        /** 获取Headers */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             aggReq.headers().forEach(e -> h.add(e.getKey().toString(), e.getValue()));
@@ -413,6 +447,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Params */
         public Map<String, String> getParams() {
             Map<String, String> result = new java.util.LinkedHashMap<>();
             ctx.queryParams().forEach((k, v) -> result.put(k, v));
@@ -420,11 +455,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Param */
         public String getParam(String name) {
             return ctx.queryParam(name);
         }
 
         @Override
+        /** 获取ContentType */
         public String getContentType() {
             var ct = aggReq.headers().contentType();
             if (ct != null) {
@@ -434,6 +471,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Content获取长度 */
         public long getContentLength() {
             if (bodyBytes != null) {
                 return bodyBytes.length;
@@ -442,11 +480,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Body */
         public byte[] getBody() {
             return bodyBytes;
         }
 
         @Override
+        /** 获取BodyString */
         public String getBodyString() {
             if (bodyBytes != null) {
                 return new String(bodyBytes, StandardCharsets.UTF_8);
@@ -455,36 +495,43 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取InputStream */
         public InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(getBody());
         }
 
         @Override
+        /** 获取RemoteAddress */
         public String getRemoteAddress() {
             return ctx.remoteAddress().getAddress().getHostAddress();
         }
 
         @Override
+        /** 获取RemotePort */
         public int getRemotePort() {
             return ctx.remoteAddress().getPort();
         }
 
         @Override
+        /** 获取Attributes */
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
         @Override
+        /** 获取Attribute */
         public Object getAttribute(String n) {
             return attributes.get(n);
         }
 
         @Override
+        /** 设置Attribute */
         public void setAttribute(String n, Object v) {
             attributes.put(n, v);
         }
 
         @Override
+        /** 获取FormData */
         public Map<String, String> getFormData() {
             String ct = getContentType();
             if (ct == null) {
@@ -523,6 +570,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Files */
         public List<FormFile> getFiles() {
             String ct = getContentType();
             if (ct == null || !ct.toLowerCase().startsWith("multipart/form-data")) {

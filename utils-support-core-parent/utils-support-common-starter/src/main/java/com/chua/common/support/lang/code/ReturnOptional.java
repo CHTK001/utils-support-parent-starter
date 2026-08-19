@@ -57,6 +57,10 @@ public class ReturnOptional<T> {
      */
     private Function<Exception, String> messageFunction;
 
+    /**
+     * 创建 ReturnOptional 实例
+     * @param supplier supplier
+     */
     public ReturnOptional(Supplier<T> supplier) {
         if (null == supplier) {
             this.result = null;

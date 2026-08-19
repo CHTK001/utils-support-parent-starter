@@ -32,6 +32,7 @@ public class LlamaTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, byte[].class);
     }

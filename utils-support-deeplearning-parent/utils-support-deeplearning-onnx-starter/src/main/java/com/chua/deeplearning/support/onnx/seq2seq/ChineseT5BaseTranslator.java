@@ -53,6 +53,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
     private HuggingFaceTokenizer tokenizer;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
@@ -69,6 +70,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("ChineseT5Base tokenizer not initialized");
@@ -89,6 +91,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
     }
 
     @Override
+    /** 处理Output */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -107,10 +110,12 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -121,6 +126,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
         return modelPath;
     }
 
+    /** 查找File */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

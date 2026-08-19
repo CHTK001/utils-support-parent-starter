@@ -44,6 +44,7 @@ public class VehicleTranslator implements Translator<Image, DetectedObjects> {
     private List<String> className;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = model.getArtifact("label_file.txt").openStream()) {
@@ -52,6 +53,7 @@ public class VehicleTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -75,6 +77,7 @@ public class VehicleTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, 608, 608);
@@ -93,6 +96,7 @@ public class VehicleTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

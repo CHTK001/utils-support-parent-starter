@@ -118,6 +118,10 @@ public class RabbitmqClient implements AutoCloseable {
     /** Confirm模式 */
     private final AtomicBoolean confirmMode = new AtomicBoolean(false);
 
+    /**
+     * 创建 RabbitmqClient 实例
+     * @param b b
+     */
     private RabbitmqClient(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -132,11 +136,14 @@ public class RabbitmqClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** 创建 */
     public static RabbitmqClient create() { return builder().build(); }
+    /** Builder */
     public static Builder builder() { return new Builder(); }
 
     // ==================== 启动/停止 ====================
 
+    /** 开始 */
     public RabbitmqClient start() {
         try {
             factory = new ConnectionFactory();
@@ -166,6 +173,7 @@ public class RabbitmqClient implements AutoCloseable {
         return this;
     }
 
+    /** 关闭 */
     public RabbitmqClient shutdown() {
         if (closed.compareAndSet(false, true)) {
             try {
@@ -185,14 +193,17 @@ public class RabbitmqClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() { shutdown(); }
 
     // ==================== Channel 管理 ====================
 
+    /** 获取Channel */
     public Channel getChannel() {
         return getChannel("default");
     }
 
+    /** 获取Channel */
     public Channel getChannel(String name) {
         return channelCache.computeIfAbsent(name, k -> {
             try {
@@ -207,6 +218,7 @@ public class RabbitmqClient implements AutoCloseable {
         });
     }
 
+    /** 关闭Channel */
     public void closeChannel(String name) {
         Channel ch = channelCache.remove(name);
         if (ch != null) {
@@ -216,11 +228,17 @@ public class RabbitmqClient implements AutoCloseable {
 
     // ==================== 操作入口 ====================
 
+    /** Exchange */
     public ExchangeOperation exchange() { return new ExchangeOperation(this); }
+    /** Queue */
     public QueueOperation queue() { return new QueueOperation(this); }
+    /** 绑定 */
     public BindOperation bind() { return new BindOperation(this); }
+    /** 发布 */
     public PublishOperation publish() { return new PublishOperation(this); }
+    /** Consume */
     public ConsumeOperation consume() { return new ConsumeOperation(this); }
+    /** Tx */
     public TxOperation tx() { return new TxOperation(this); }
 
     // ==================== Builder ====================
@@ -245,16 +263,26 @@ public class RabbitmqClient implements AutoCloseable {
         /** Prefetch数量 */
         private int prefetchCount = 0;
 
+        /** Host */
         public Builder host(String h) { this.host = h; return this; }
+        /** Port */
         public Builder port(int p) { this.port = p; return this; }
+        /** Username */
         public Builder username(String u) { this.username = u; return this; }
+        /** Password */
         public Builder password(String p) { this.password = p; return this; }
+        /** VirtualHost */
         public Builder virtualHost(String vh) { this.virtualHost = vh; return this; }
+        /** ConnectionTimeout */
         public Builder connectionTimeout(int ms) { this.connectionTimeout = ms; return this; }
+        /** Heartbeat */
         public Builder heartbeat(int sec) { this.heartbeat = sec; return this; }
+        /** AutomaticRecovery */
         public Builder automaticRecovery(boolean r) { this.automaticRecovery = r; return this; }
+        /** Prefetch */
         public Builder prefetch(int count) { this.prefetchCount = count; return this; }
 
+        /** 构建 */
         public RabbitmqClient build() { return new RabbitmqClient(this); }
     }
 
@@ -276,27 +304,39 @@ public class RabbitmqClient implements AutoCloseable {
 
         ExchangeOperation(RabbitmqClient client) { this.client = client; }
 
+        /** Name */
         public ExchangeOperation name(String n) { this.name = n; return this; }
+        /** Type */
         public ExchangeOperation type(String t) { this.type = t; return this; }
+        /** Durable */
         public ExchangeOperation durable(boolean d) { this.durable = d; return this; }
+        /** Auto删除 */
         public ExchangeOperation autoDelete(boolean ad) { this.autoDelete = ad; return this; }
+        /** Arguments */
         public ExchangeOperation arguments(Map<String, Object> a) { this.arguments = a; return this; }
+        /** Direct */
         public ExchangeOperation direct() { this.type = "direct"; return this; }
+        /** Topic */
         public ExchangeOperation topic() { this.type = "topic"; return this; }
+        /** Fanout */
         public ExchangeOperation fanout() { this.type = "fanout"; return this; }
+        /** Headers */
         public ExchangeOperation headers() { this.type = "headers"; return this; }
 
+        /** Declare */
         public void declare() {
             try {
                 client.getChannel().exchangeDeclare(name, type, durable, autoDelete, arguments);
             } catch (IOException e) { throw new RabbitmqClientException("声明交换机失败: " + name, e); }
         }
 
+        /** 删除 */
         public void delete() {
             try { client.getChannel().exchangeDelete(name); }
             catch (IOException e) { throw new RabbitmqClientException("删除交换机失败: " + name, e); }
         }
 
+        /** 是否存在 */
         public boolean exists() {
             try { client.getChannel().exchangeDeclarePassive(name); return true; }
             catch (IOException e) { return false; }
@@ -321,10 +361,15 @@ public class RabbitmqClient implements AutoCloseable {
 
         QueueOperation(RabbitmqClient client) { this.client = client; }
 
+        /** Name */
         public QueueOperation name(String n) { this.name = n; return this; }
+        /** Durable */
         public QueueOperation durable(boolean d) { this.durable = d; return this; }
+        /** Exclusive */
         public QueueOperation exclusive(boolean e) { this.exclusive = e; return this; }
+        /** Auto删除 */
         public QueueOperation autoDelete(boolean ad) { this.autoDelete = ad; return this; }
+        /** Arguments */
         public QueueOperation arguments(Map<String, Object> a) { this.arguments.putAll(a); return this; }
 
         /**
@@ -402,21 +447,25 @@ public class RabbitmqClient implements AutoCloseable {
             } catch (IOException e) { throw new RabbitmqClientException("声明队列失败: " + name, e); }
         }
 
+        /** 删除 */
         public void delete() {
             try { client.getChannel().queueDelete(name); }
             catch (IOException e) { throw new RabbitmqClientException("删除队列失败: " + name, e); }
         }
 
+        /** Purge */
         public void purge() {
             try { client.getChannel().queuePurge(name); }
             catch (IOException e) { throw new RabbitmqClientException("清空队列失败: " + name, e); }
         }
 
+        /** Message计算数量 */
         public long messageCount() {
             try { return client.getChannel().queueDeclarePassive(name).getMessageCount(); }
             catch (IOException e) { throw new RabbitmqClientException("获取队列消息数失败: " + name, e); }
         }
 
+        /** Consumer计算数量 */
         public long consumerCount() {
             try { return client.getChannel().queueDeclarePassive(name).getConsumerCount(); }
             catch (IOException e) { throw new RabbitmqClientException("获取消费者数失败: " + name, e); }
@@ -439,16 +488,22 @@ public class RabbitmqClient implements AutoCloseable {
 
         BindOperation(RabbitmqClient client) { this.client = client; }
 
+        /** Queue */
         public BindOperation queue(String q) { this.queue = q; return this; }
+        /** Exchange */
         public BindOperation exchange(String e) { this.exchange = e; return this; }
+        /** RoutingKey */
         public BindOperation routingKey(String k) { this.routingKey = k; return this; }
+        /** Arguments */
         public BindOperation arguments(Map<String, Object> a) { this.arguments = a; return this; }
 
+        /** 绑定 */
         public void bind() {
             try { client.getChannel().queueBind(queue, exchange, routingKey, arguments); }
             catch (IOException e) { throw new RabbitmqClientException("绑定失败", e); }
         }
 
+        /** 解绑 */
         public void unbind() {
             try { client.getChannel().queueUnbind(queue, exchange, routingKey, arguments); }
             catch (IOException e) { throw new RabbitmqClientException("解绑失败", e); }
@@ -475,18 +530,31 @@ public class RabbitmqClient implements AutoCloseable {
 
         PublishOperation(RabbitmqClient client) { this.client = client; }
 
+        /** Exchange */
         public PublishOperation exchange(String e) { this.exchange = e; return this; }
+        /** RoutingKey */
         public PublishOperation routingKey(String k) { this.routingKey = k; return this; }
+        /** Body */
         public PublishOperation body(String b) { this.body = b.getBytes(StandardCharsets.UTF_8); return this; }
+        /** Body */
         public PublishOperation body(byte[] b) { this.body = b; return this; }
+        /** ContentType */
         public PublishOperation contentType(String ct) { propsBuilder.contentType(ct); return this; }
+        /** MessageId */
         public PublishOperation messageId(String id) { propsBuilder.messageId(id); return this; }
+        /** CorrelationId */
         public PublishOperation correlationId(String id) { propsBuilder.correlationId(id); return this; }
+        /** ReplyTo */
         public PublishOperation replyTo(String queue) { propsBuilder.replyTo(queue); return this; }
+        /** Expiration */
         public PublishOperation expiration(String ms) { propsBuilder.expiration(ms); return this; }
+        /** Priority */
         public PublishOperation priority(int p) { propsBuilder.priority(p); return this; }
+        /** Type */
         public PublishOperation type(String t) { propsBuilder.type(t); return this; }
+        /** Headers */
         public PublishOperation headers(Map<String, Object> h) { propsBuilder.headers(h); return this; }
+        /** Header */
         public PublishOperation header(String key, Object value) {
             Map<String, Object> h = propsBuilder.build().getHeaders() != null
                     ? new HashMap<>(propsBuilder.build().getHeaders()) : new HashMap<>();
@@ -495,13 +563,16 @@ public class RabbitmqClient implements AutoCloseable {
             return this;
         }
 
+        /** Persistent */
         public PublishOperation persistent(boolean p) { propsBuilder.deliveryMode(p ? 2 : 1); return this; }
+        /** NonPersistent */
         public PublishOperation nonPersistent(boolean t) { propsBuilder.deliveryMode(t ? 1 : 2); return this; }
 
         /**
          * 开启 Publisher Confirm 模式
          */
         public PublishOperation confirm(boolean c) { this.useConfirm = c; return this; }
+        /** ConfirmTimeout */
         public PublishOperation confirmTimeout(long ms) { this.confirmTimeoutMs = ms; return this; }
 
         /**
@@ -529,10 +600,12 @@ public class RabbitmqClient implements AutoCloseable {
                     long seqNo = ch.getNextPublishSeqNo();
                     ch.addConfirmListener(new ConfirmListener() {
                         @Override
+                        /** 处理Ack */
                         public void handleAck(long deliveryTag, boolean multiple) {
                             callback.accept(true);
                         }
                         @Override
+                        /** 处理Nack */
                         public void handleNack(long deliveryTag, boolean multiple) {
                             callback.accept(false);
                         }
@@ -566,6 +639,13 @@ public class RabbitmqClient implements AutoCloseable {
 
                 ch.basicConsume(replyQueue, true, new DefaultConsumer(ch) {
                     @Override
+                    /**
+                     * 处理Delivery
+                     * @param tag tag
+                     * @param envelope envelope
+                     * @param properties properties
+                     * @param body body
+                     */
                     public void handleDelivery(String tag, Envelope envelope,
                                                AMQP.BasicProperties properties, byte[] body) {
                         if (properties.getCorrelationId().equals(corrId)) {
@@ -611,22 +691,33 @@ public class RabbitmqClient implements AutoCloseable {
 
         ConsumeOperation(RabbitmqClient client) { this.client = client; }
 
+        /** Queue */
         public ConsumeOperation queue(String q) { this.queue = q; return this; }
+        /** AutoAck */
         public ConsumeOperation autoAck(boolean a) { this.autoAck = a; return this; }
+        /** ConsumerTag */
         public ConsumeOperation consumerTag(String t) { this.consumerTag = t; return this; }
+        /** NoLocal */
         public ConsumeOperation noLocal(boolean n) { this.noLocal = n; return this; }
+        /** Exclusive */
         public ConsumeOperation exclusive(boolean e) { this.exclusive = e; return this; }
+        /** Arguments */
         public ConsumeOperation arguments(Map<String, Object> a) { this.arguments = a; return this; }
+        /** Prefetch */
         public ConsumeOperation prefetch(int count) { this.prefetch = count; return this; }
+        /** Channel */
         public ConsumeOperation channel(String name) { this.channelName = name; return this; }
 
+        /** Handler */
         public ConsumeOperation handler(Consumer<MessageHandler> h) { this.handler = h; return this; }
 
+        /** OnMessage */
         public ConsumeOperation onMessage(Consumer<String> h) {
             this.handler = msg -> h.accept(new String(msg.getBody(), StandardCharsets.UTF_8));
             return this;
         }
 
+        /** OnBytes */
         public ConsumeOperation onBytes(Consumer<byte[]> h) {
             this.handler = msg -> h.accept(msg.getBody());
             return this;
@@ -727,15 +818,23 @@ public class RabbitmqClient implements AutoCloseable {
             this.consumerTag = consumerTag;
         }
 
+        /** 获取Body */
         public byte[] getBody() { return delivery.getBody(); }
+        /** 获取BodyAsString */
         public String getBodyAsString() { return new String(delivery.getBody(), StandardCharsets.UTF_8); }
+        /** 获取DeliveryTag */
         public long getDeliveryTag() { return delivery.getEnvelope().getDeliveryTag(); }
+        /** 获取Exchange */
         public String getExchange() { return delivery.getEnvelope().getExchange(); }
+        /** 获取RoutingKey */
         public String getRoutingKey() { return delivery.getEnvelope().getRoutingKey(); }
+        /** 获取Properties */
         public AMQP.BasicProperties getProperties() { return delivery.getProperties(); }
+        /** 获取Headers */
         public Map<String, Object> getHeaders() {
             return delivery.getProperties().getHeaders();
         }
+        /** 获取Header */
         public String getHeader(String name) {
             Object v = delivery.getProperties().getHeaders() != null
                     ? delivery.getProperties().getHeaders().get(name) : null;
@@ -786,7 +885,16 @@ public class RabbitmqClient implements AutoCloseable {
     // ==================== 异常类 ====================
 
     public static class RabbitmqClientException extends RuntimeException {
+        /**
+         * 创建 RabbitmqClientException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public RabbitmqClientException(String message, Throwable cause) { super(message, cause); }
+        /**
+         * 创建 RabbitmqClientException 实例
+         * @param message message
+         */
         public RabbitmqClientException(String message) { super(message); }
     }
 }

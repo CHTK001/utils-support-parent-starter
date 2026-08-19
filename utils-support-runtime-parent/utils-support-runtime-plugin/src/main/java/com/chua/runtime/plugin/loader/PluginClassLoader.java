@@ -168,14 +168,17 @@ public class PluginClassLoader extends URLClassLoader {
         return plugins;
     }
 
+    /** 获取PluginName */
     public String getPluginName() {
         return pluginName;
     }
 
+    /** 获取PluginDir */
     public Path getPluginDir() {
         return pluginDir;
     }
 
+    /** 获取LoadedClasses */
     public Set<String> getLoadedClasses() {
         return Collections.unmodifiableSet(loadedClasses);
     }

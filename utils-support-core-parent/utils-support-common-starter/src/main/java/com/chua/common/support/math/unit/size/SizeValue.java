@@ -49,6 +49,10 @@ public final class SizeValue implements Comparable<SizeValue> {
      */
     private final long bytes;
 
+    /**
+     * 创建 SizeValue 实例
+     * @param bytes bytes
+     */
     private SizeValue(long bytes) {
         this.bytes = bytes;
     }
@@ -205,37 +209,45 @@ public final class SizeValue implements Comparable<SizeValue> {
         return this.bytes < 0;
     }
 
+    /** ToByte获取大小 */
     public long toByteSize() {
         return this.bytes;
     }
 
+    /** ToKilobyte获取大小 */
     public long toKilobyteSize() {
         return this.bytes / BYTES_PER_KB;
     }
 
+    /** ToMegabyte获取大小 */
     public long toMegabyteSize() {
         return this.bytes / BYTES_PER_MB;
     }
 
+    /** ToGigabyte获取大小 */
     public long toGigabyteSize() {
         return this.bytes / BYTES_PER_GB;
     }
 
+    /** ToTerabyte获取大小 */
     public long toTerabyteSize() {
         return this.bytes / BYTES_PER_TB;
     }
 
     @Override
+    /** 比较To */
     public int compareTo(SizeValue other) {
         return Long.compare(this.bytes, other.bytes);
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return String.format("%dB", this.bytes);
     }
 
     @Override
+    /** 判断相等 */
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -248,6 +260,7 @@ public final class SizeValue implements Comparable<SizeValue> {
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         return Long.hashCode(this.bytes);
     }

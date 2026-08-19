@@ -25,6 +25,7 @@ import java.util.List;
 public class ServiceLoaderServiceResolver implements ServiceResolver {
 
     @Override
+    /** 解析 */
     public List<ServiceDefinition> resolve(Class<?> type, ClassLoader classLoader) {
         List<ServiceDefinition> result = new ArrayList<>();
         String fileName = "META-INF/services/" + type.getName();

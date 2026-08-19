@@ -24,6 +24,7 @@ public class JsonPathBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取Value */
     public <T> T getValue(Object source, String path) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();
@@ -36,6 +37,7 @@ public class JsonPathBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 设置Value */
     public void setValue(Object source, String path, Object value) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();
@@ -48,6 +50,7 @@ public class JsonPathBeanPath implements BeanPath {
     }
 
     @Override
+    /** 是否存在 */
     public boolean exists(Object source, String path) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();

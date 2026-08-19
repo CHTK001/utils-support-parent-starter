@@ -32,6 +32,11 @@ public class AppImagePackager {
     /** 安装器 */
     private final AppImageInstaller installer;
 
+    /**
+     * 创建 AppImagePackager 实例
+     * @param properties properties
+     * @param AppImageInstaller AppImageInstaller
+     */
     public AppImagePackager(AppImageProperties properties, AppImageInstaller installer) {
         this.properties = properties;
         this.installer = installer;
@@ -285,6 +290,7 @@ public class AppImagePackager {
         }
     }
 
+    /** 删除Recursively */
     private void deleteRecursively(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             try (var entries = Files.list(path)) {
@@ -296,6 +302,7 @@ public class AppImagePackager {
         Files.deleteIfExists(path);
     }
 
+    /** MakeExecutable */
     private void makeExecutable(File file) throws IOException {
         if (!file.setExecutable(true, false)) {
             log.warn("设置可执行权限失败: {}", file.getAbsolutePath());
@@ -311,10 +318,12 @@ public class AppImagePackager {
         }
     }
 
+    /** 获取Version */
     private String getVersion() {
         return "1.0.0";
     }
 
+    /** 是否Windows */
     private boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().contains("win");
     }

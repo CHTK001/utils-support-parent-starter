@@ -42,6 +42,10 @@ public final class ProxyFetcherFlow {
      */
     private Supplier<String> fallback;
 
+    /**
+     * 创建 ProxyFetcherFlow 实例
+     * @param sourceName sourceName
+     */
     private ProxyFetcherFlow(String sourceName) {
         this.sourceName = sourceName;
     }
@@ -114,6 +118,7 @@ public final class ProxyFetcherFlow {
         return fetchProxies();
     }
 
+    /** FetchProxies */
     private List<String> fetchProxies() {
         Map<String, ProxyFetcher> fetchers = ServiceProvider.of(ProxyFetcher.class).list();
         if (fetchers.isEmpty()) {
@@ -137,6 +142,7 @@ public final class ProxyFetcherFlow {
      */
     private static final Map<String, AtomicInteger> ROUND_ROBIN_CACHE = new ConcurrentHashMap<>();
 
+    /** RoundRobin选择 */
     private String roundRobinSelect(List<String> proxies) {
         String key = sourceName != null ? sourceName : "all";
         AtomicInteger counter = ROUND_ROBIN_CACHE.computeIfAbsent(key, k -> new AtomicInteger(0));

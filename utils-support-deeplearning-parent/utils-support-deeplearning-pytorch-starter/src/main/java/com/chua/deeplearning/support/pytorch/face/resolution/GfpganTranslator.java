@@ -42,6 +42,7 @@ public class GfpganTranslator implements Translator<Image, Image> {
     private static final int INPUT_SIZE = 512;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager).toType(DataType.FLOAT32, false);
@@ -54,6 +55,7 @@ public class GfpganTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.get(0);
         if (array.getShape().dimension() == 4 && array.getShape().get(0) == 1) {
@@ -66,6 +68,7 @@ public class GfpganTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

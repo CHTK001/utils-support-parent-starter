@@ -107,6 +107,7 @@ public class JdkTcpClient implements TcpClient {
     }
 
     @Override
+    /** 调用 */
     public byte[] call(String host, int port, byte[] request) throws Exception {
         String addr = host + ":" + port;
         // 复用长连接避免高并发下反复建连耗尽 Windows 临时端口；先借用再归还
@@ -175,6 +176,7 @@ public class JdkTcpClient implements TcpClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         pools.values().forEach(PooledConnections::closeAll);
         pools.clear();

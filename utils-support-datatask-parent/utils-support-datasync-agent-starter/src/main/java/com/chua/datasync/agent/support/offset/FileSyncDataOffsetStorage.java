@@ -17,10 +17,15 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     /** 存储目录 */
     private final Path storageDir;
 
+    /** 创建 FileSyncDataOffsetStorage 实例 */
     public FileSyncDataOffsetStorage() {
         this(Path.of(System.getProperty("java.io.tmpdir"), "datasync-offsets"));
     }
 
+    /**
+     * 创建 FileSyncDataOffsetStorage 实例
+     * @param storageDir storageDir
+     */
     public FileSyncDataOffsetStorage(Path storageDir) {
         this.storageDir = storageDir;
         try {
@@ -31,6 +36,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
+    /** 读取 */
     public SyncDataOffset read(String sourceId, SyncDataOffset defaultValue) {
         if (sourceId == null) {
             return defaultValue;
@@ -55,6 +61,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
+    /** 写入 */
     public void write(SyncDataOffset offset) {
         if (offset == null || offset.sourceId() == null) {
             return;
@@ -69,6 +76,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
+    /** 删除 */
     public void delete(String sourceId) {
         if (sourceId == null) {
             return;
@@ -81,6 +89,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
+    /** ListAll */
     public java.util.List<SyncDataOffset> listAll() {
         try {
             return Files.list(storageDir)

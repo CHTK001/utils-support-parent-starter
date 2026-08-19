@@ -41,6 +41,10 @@ public final class TimeoutFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 TimeoutFlow 实例
+     * @param name name
+     */
     private TimeoutFlow(String name) {
         this.name = name;
     }

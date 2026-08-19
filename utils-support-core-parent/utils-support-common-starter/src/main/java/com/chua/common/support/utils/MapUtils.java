@@ -2396,6 +2396,7 @@ public class MapUtils {
         return Converter.parseLocalDateTimeSafe(item.get(key));
     }
 
+    /** BeanToMap */
     private static Map<String, Object> beanToMap(Object bean) {
         if (bean instanceof Map) {
             return (Map<String, Object>) bean;

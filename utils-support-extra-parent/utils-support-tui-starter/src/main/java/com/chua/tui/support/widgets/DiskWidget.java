@@ -38,6 +38,7 @@ public class DiskWidget extends TuiWidget {
     }
 
     @Override
+    /** Render */
     public String render(String data) {
         if (data == null || data.isEmpty() || "N/A".equals(data)) {
             return MordantHelper.panel("无磁盘数据", getTitle(), "single");
@@ -74,6 +75,7 @@ public class DiskWidget extends TuiWidget {
     }
 
     @Override
+    /** 获取DefaultData */
     protected String getDefaultData() {
         return "C:\\|0|0|0.0";
     }

@@ -279,109 +279,133 @@ public class PlaywrightScreenshot {
          */
         private String executablePath;
 
+        /** 获取ViewportWidth */
         public int getViewportWidth() {
             return viewportWidth;
         }
 
+        /** 设置ViewportWidth */
         public ScreenshotConfig setViewportWidth(int viewportWidth) {
             this.viewportWidth = viewportWidth;
             return this;
         }
 
+        /** 获取ViewportHeight */
         public int getViewportHeight() {
             return viewportHeight;
         }
 
+        /** 设置ViewportHeight */
         public ScreenshotConfig setViewportHeight(int viewportHeight) {
             this.viewportHeight = viewportHeight;
             return this;
         }
 
+        /** 获取FullPage */
         public boolean getFullPage() {
             return fullPage;
         }
 
+        /** 设置FullPage */
         public ScreenshotConfig setFullPage(boolean fullPage) {
             this.fullPage = fullPage;
             return this;
         }
 
+        /** 获取WaitSelector */
         public String getWaitSelector() {
             return waitSelector;
         }
 
+        /** 设置WaitSelector */
         public ScreenshotConfig setWaitSelector(String waitSelector) {
             this.waitSelector = waitSelector;
             return this;
         }
 
+        /** 获取WaitTimeout */
         public long getWaitTimeout() {
             return waitTimeout;
         }
 
+        /** 设置WaitTimeout */
         public ScreenshotConfig setWaitTimeout(long waitTimeout) {
             this.waitTimeout = waitTimeout;
             return this;
         }
 
+        /** 获取ExtraWaitMillis */
         public long getExtraWaitMillis() {
             return extraWaitMillis;
         }
 
+        /** 设置ExtraWaitMillis */
         public ScreenshotConfig setExtraWaitMillis(long extraWaitMillis) {
             this.extraWaitMillis = extraWaitMillis;
             return this;
         }
 
+        /** 获取Locale */
         public String getLocale() {
             return locale;
         }
 
+        /** 设置Locale */
         public ScreenshotConfig setLocale(String locale) {
             this.locale = locale;
             return this;
         }
 
+        /** 获取TimezoneId */
         public String getTimezoneId() {
             return timezoneId;
         }
 
+        /** 设置TimezoneId */
         public ScreenshotConfig setTimezoneId(String timezoneId) {
             this.timezoneId = timezoneId;
             return this;
         }
 
+        /** 获取BaseUrl */
         public String getBaseUrl() {
             return baseUrl;
         }
 
+        /** 设置BaseUrl */
         public ScreenshotConfig setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
+        /** 获取ExtraHttpHeaders */
         public java.util.Map<String, String> getExtraHttpHeaders() {
             return extraHttpHeaders;
         }
 
+        /** 设置ExtraHttpHeaders */
         public ScreenshotConfig setExtraHttpHeaders(java.util.Map<String, String> extraHttpHeaders) {
             this.extraHttpHeaders = extraHttpHeaders;
             return this;
         }
 
+        /** 获取SlowMo */
         public long getSlowMo() {
             return slowMo;
         }
 
+        /** 设置SlowMo */
         public ScreenshotConfig setSlowMo(long slowMo) {
             this.slowMo = slowMo;
             return this;
         }
 
+        /** 获取ExecutablePath */
         public String getExecutablePath() {
             return executablePath;
         }
 
+        /** 设置ExecutablePath */
         public ScreenshotConfig setExecutablePath(String executablePath) {
             this.executablePath = executablePath;
             return this;

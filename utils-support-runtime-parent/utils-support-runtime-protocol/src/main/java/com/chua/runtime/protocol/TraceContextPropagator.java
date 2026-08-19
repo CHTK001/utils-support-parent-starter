@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public final class TraceContextPropagator {
 
+    /** 创建 TraceContextPropagator 实例 */
     private TraceContextPropagator() {
     }
 

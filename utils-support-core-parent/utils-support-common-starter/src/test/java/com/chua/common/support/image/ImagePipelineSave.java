@@ -14,6 +14,7 @@ import java.nio.file.Paths;
  */
 public final class ImagePipelineSave {
 
+    /** 创建 ImagePipelineSave 实例 */
     private ImagePipelineSave() {
     }
 

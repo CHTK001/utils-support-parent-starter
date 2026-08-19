@@ -31,14 +31,17 @@ public class VideoProcessorBridge {
         }
     }
 
+    /** 是否Loaded */
     public static boolean isLoaded() {
         return loaded;
     }
 
+    /** 获取加载记录错误 */
     public static Throwable getLoadError() {
         return loadError;
     }
 
+    /** EnsureLoaded */
     public static void ensureLoaded() {
         if (!loaded) {
             throw new UnsupportedOperationException(
@@ -47,7 +50,9 @@ public class VideoProcessorBridge {
         }
     }
 
+    /** TranscodeToHls */
     public static native boolean transcodeToHls(String inputPath, String outputDir);
 
+    /** 获取Version */
     public static native String getVersion();
 }

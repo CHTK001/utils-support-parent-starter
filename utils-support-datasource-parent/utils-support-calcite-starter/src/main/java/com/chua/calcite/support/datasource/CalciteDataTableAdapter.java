@@ -84,12 +84,17 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return new CalciteDataTableAdapter(dataTable);
     }
 
+    /**
+     * 创建 CalciteDataTableAdapter 实例
+     * @param dataTable dataTable
+     */
     public CalciteDataTableAdapter(DataTable dataTable) {
         this.dataTable = dataTable;
         this.filterable = dataTable instanceof SourceDataTable;
     }
 
     @Override
+    /** 获取RowType */
     public RelDataType getRowType(RelDataTypeFactory typeFactory) {
         if (rowType == null) {
             List<String> names = dataTable.getColumnNames();
@@ -110,6 +115,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /** 扫描 */
     public Enumerable<Object[]> scan(DataContext root, List<RexNode> filters) {
         if (filterable && CollectionUtils.isNotEmpty(filters)) {
             SourceDataTable source = (SourceDataTable) dataTable;
@@ -140,10 +146,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return fullScan();
     }
 
+    /** 扫描 */
     public Enumerable<Object[]> scan(DataContext root) {
         return fullScan();
     }
 
+    /** Full扫描 */
     private Enumerable<Object[]> fullScan() {
         List<Object[]> rows = dataTable.getData().stream()
                 .map(this::rowToArray)
@@ -152,6 +160,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return Linq4j.asEnumerable(rows);
     }
 
+    /** RowToArray */
     private Object[] rowToArray(Map<String, Object> row) {
         List<String> names = dataTable.getColumnNames();
         Object[] result = new Object[names.size()];
@@ -165,6 +174,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     // RexNode → Condition 翻译
     // ---------------------------------------------------------------
 
+    /** TranslateRexNodes */
     private List<Condition> translateRexNodes(List<RexNode> filters, List<String> columnNames) {
         List<Condition> result = new ArrayList<>();
         for (RexNode filter : filters) {
@@ -176,6 +186,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return result.isEmpty() ? null : result;
     }
 
+    /** TranslateCondition */
     private Condition translateCondition(RexNode node, List<String> columnNames) {
         if (node == null) {
             return null;
@@ -250,6 +261,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return Condition.of(colName, op, value);
     }
 
+    /** ExtractColumn */
     private String extractColumn(RexNode node, List<String> columnNames) {
         if (node instanceof RexInputRef) {
             int idx = ((RexInputRef) node).getIndex();
@@ -260,6 +272,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return null;
     }
 
+    /** ExtractValue */
     private Object extractValue(RexNode node) {
         if (node instanceof RexLiteral) {
             RexLiteral literal = (RexLiteral) node;
@@ -291,6 +304,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return null;
     }
 
+    /** SqlKindToOperator */
     private static String sqlKindToOperator(SqlKind kind) {
         switch (kind) {
             case EQUALS:
@@ -318,6 +332,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
     }
 
+    /** FlipOp */
     private static String flipOp(String op) {
         if (">".equals(op)) {
             return "<";
@@ -334,6 +349,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return op;
     }
 
+    /** NegateOp */
     private static String negateOp(String op) {
         if ("=".equals(op)) {
             return "!=";
@@ -372,6 +388,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     // 实体 → Object[] 转换
     // ---------------------------------------------------------------
 
+    /** ToObjectArrays */
     private static List<Object[]> toObjectArrays(List<?> entities, List<String> columnNames) {
         if (CollectionUtils.isEmpty(entities)) {
             return Collections.emptyList();
@@ -398,6 +415,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return result;
     }
 
+    /** 解析Getters */
     private static List<Method> resolveGetters(Class<?> entityClass) {
         List<Method> result = new ArrayList<>();
         for (Method method : entityClass.getMethods()) {
@@ -422,6 +440,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return result;
     }
 
+    /** ToGetterMap */
     private static Map<String, Method> toGetterMap(List<Method> getters) {
         Map<String, Method> map = new LinkedHashMap<>();
         for (Method getter : getters) {
@@ -430,6 +449,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return map;
     }
 
+    /** GetterToColumnName */
     private static String getterToColumnName(Method getter) {
         String methodName = getter.getName();
         String prop = methodName.startsWith("is") ? methodName.substring(2) : methodName.substring(3);
@@ -451,11 +471,68 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 获取ModifiableCollection */
         public Collection getModifiableCollection() {
             return new ObjectArrayMutableCollection(dataTable);
         }
 
         @Override
+        /**
+         * ToModificationRel
+         * @param cluster cluster
+         * @param table table
+         * @param catalogReader catalogReader
+         * @param child child
+         * @param operation operation
+         * @param updateColumnList updateColumnList
+         * @param sourceExpressionList sourceExpressionList
+         * @param flattened flattened
+         * @param catalogReader catalogReader
+         * @param child child
+         * @param operation operation
+         * @param updateColumnList updateColumnList
+         * @param sourceExpressionList sourceExpressionList
+         * @param flattened flattened
+         * @param queryProvider queryProvider
+         * @param schema schema
+         * @param tableName tableName
+         * @param schema schema
+         * @param this this
+         * @param tableName tableName
+         * @param schema schema
+         * @param tableName tableName
+         * @param clazz clazz
+         * @param tableName tableName
+         * @param clazz clazz
+         * @param dataTable dataTable
+         * @param index index
+         * @param element element
+         * @param index index
+         * @param element element
+         * @param index index
+         * @param o o
+         * @param c c
+         * @param index index
+         * @param element element
+         * @param element element
+         * @param row row
+         * @param arr arr
+         * @param v v
+         * @param source source
+         * @param mutable mutable
+         * @param values values
+         * @param o o
+         * @param other other
+         * @param typeFactory typeFactory
+         * @param names names
+         * @param types types
+         * @param typeFactory typeFactory
+         * @param names names
+         * @param clazz clazz
+         * @param typeFactory typeFactory
+         * @param true true
+         * @param data data
+         */
         public TableModify toModificationRel(
                 RelOptCluster cluster,
                 RelOptTable table,
@@ -472,10 +549,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
 
         @Override
         @SuppressWarnings("unchecked")
+        /** AsQueryable */
         public <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema, String tableName) {
             final DataTable source = this.dataTable;
             return new AbstractTableQueryable<T>(queryProvider, schema, this, tableName) {
                 @Override
+                /** Enumerator */
                 public Enumerator<T> enumerator() {
                     List<String> names = source.getColumnNames();
                     List<Object[]> rows = new ArrayList<>();
@@ -492,11 +571,13 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 获取ElementType */
         public Type getElementType() {
             return Object[].class;
         }
 
         @Override
+        /** 获取Expression */
         public Expression getExpression(SchemaPlus schema, String tableName, Class clazz) {
             // 第 4 参必须是调用方传入的 clazz（Queryable/Enumerable），不能写死 Object[]
             return Schemas.tableExpression(schema, getElementType(), tableName, clazz);
@@ -530,16 +611,19 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 获取 */
         public Object get(int index) {
             return rows.get(index).values;
         }
 
         @Override
+        /** 获取大小 */
         public int size() {
             return rows.size();
         }
 
         @Override
+        /** 添加 */
         public boolean add(Object element) {
             rows.add(toRow(element));
             flush();
@@ -547,12 +631,14 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 添加 */
         public void add(int index, Object element) {
             rows.add(index, toRow(element));
             flush();
         }
 
         @Override
+        /** 移除 */
         public Object remove(int index) {
             Row removed = rows.remove(index);
             flush();
@@ -560,6 +646,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 移除 */
         public boolean remove(Object o) {
             boolean ok = rows.remove(toRow(o));
             if (ok) {
@@ -569,6 +656,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 移除All */
         public boolean removeAll(Collection<?> c) {
             boolean changed = false;
             for (Object o : c) {
@@ -583,6 +671,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 设置 */
         public Object set(int index, Object element) {
             Row old = rows.set(index, toRow(element));
             flush();
@@ -590,11 +679,13 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** Clear */
         public void clear() {
             rows.clear();
             flush();
         }
 
+        /** ToRow */
         private static Row toRow(Object element) {
             if (element instanceof Row row) {
                 return row;
@@ -605,6 +696,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return new Row(new Object[]{element});
         }
 
+        /** 刷新 */
         private void flush() {
             List<Map<String, Object>> maps = new ArrayList<>(rows.size());
             for (Row row : rows) {
@@ -635,6 +727,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** 判断相等 */
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -646,6 +739,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
+        /** HashCode */
         public int hashCode() {
             return Arrays.hashCode(values);
         }
@@ -655,6 +749,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     // 类型工具
     // ---------------------------------------------------------------
 
+    /**
+     * 构建RowType
+     * @param typeFactory typeFactory
+     * @param names names
+     * @param types types
+     */
     static RelDataType buildRowType(RelDataTypeFactory typeFactory,
                                      List<String> names, List<Class<?>> types) {
         List<RelDataType> sqlTypes = types.stream()
@@ -663,6 +763,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return typeFactory.createStructType(sqlTypes, names);
     }
 
+    /** JavaClassToSqlType */
     static RelDataType javaClassToSqlType(Class<?> clazz, RelDataTypeFactory typeFactory) {
         SqlTypeName sqlTypeName;
         if (clazz == String.class) {

@@ -31,6 +31,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     private static final int INPUT_SIZE = 112;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         int w = input.getWidth();
         int h = input.getHeight();
@@ -49,6 +50,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     }
 
     @Override
+    /** 处理Output */
     public Float processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.get(0);
         float[] values = out.toFloatArray();
@@ -62,6 +64,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

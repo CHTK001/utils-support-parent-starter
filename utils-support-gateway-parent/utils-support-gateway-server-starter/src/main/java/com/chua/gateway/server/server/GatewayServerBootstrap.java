@@ -244,6 +244,7 @@ public final class GatewayServerBootstrap {
      * 静态 inner class。
      */
     private static final class ServerProvider {
+        /** Of */
         static Server of(String type, ServerSetting setting) {
             Server raw = ServiceProvider.of(Server.class).getNewExtension(type, setting);
             if (raw == null) {

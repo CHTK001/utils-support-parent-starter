@@ -20,16 +20,19 @@ package com.chua.network.support.tshark.restorer;
 public class CoapProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "coap";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 270;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return false;
@@ -41,6 +44,7 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return "[CoAP] empty";
@@ -63,6 +67,7 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToTypeName */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "CON";
@@ -73,6 +78,7 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
+    /** ToCodeName */
     private static String toCodeName(int cls, int detail) {
         if (cls == 0) {
             return switch (detail) {

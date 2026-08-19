@@ -36,10 +36,23 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     /** 是否追加写入 */
     private final boolean append;
 
+    /**
+     * 创建 DelimitedDataSyncAgentSink 实例
+     * @param sinkId sinkId
+     * @param String String
+     * @param String String
+     */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter) {
         this(sinkId, filePath, delimiter, false);
     }
 
+    /**
+     * 创建 DelimitedDataSyncAgentSink 实例
+     * @param sinkId sinkId
+     * @param String String
+     * @param String String
+     * @param boolean boolean
+     */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter, boolean append) {
         this.sinkId = sinkId;
         this.filePath = Paths.get(filePath);
@@ -48,11 +61,13 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     }
 
     @Override
+    /** SinkId */
     public String sinkId() {
         return sinkId;
     }
 
     @Override
+    /** 写入 */
     public void write(Flux<Map<String, Object>> data) {
         try (BufferedWriter writer = openWriter()) {
             log.info("[DelimitedDataSyncAgentSink] 开始写入, sinkId={}, path={}, append={}", sinkId, filePath, append);
@@ -74,6 +89,7 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
         }
     }
 
+    /** 打开Writer */
     private BufferedWriter openWriter() throws java.io.IOException {
         if (append) {
             return Files.newBufferedWriter(filePath, StandardCharsets.UTF_8,
@@ -86,11 +102,13 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 每次 write 都是 try-with-resources，无需额外关闭
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.OUTPUT;
     }

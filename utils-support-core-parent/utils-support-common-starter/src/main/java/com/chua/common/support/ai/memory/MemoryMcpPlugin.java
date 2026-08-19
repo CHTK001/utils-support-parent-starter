@@ -53,6 +53,10 @@ public class MemoryMcpPlugin {
     /** 记忆管理器 */
     private final MemoryManager manager;
 
+    /**
+     * 创建 MemoryMcpPlugin 实例
+     * @param manager manager
+     */
     public MemoryMcpPlugin(MemoryManager manager) {
         this.manager = manager;
     }
@@ -71,9 +75,11 @@ public class MemoryMcpPlugin {
             private boolean initialized = false;
 
             @Override
+            /** 初始化 */
             public void init() { initialized = true; }
 
             @Override
+            /** ListTools */
             public List<McpToolDescriptor> listTools() {
                 return List.of(
                     new McpToolDescriptor(PREFIX + "save",
@@ -116,6 +122,7 @@ public class MemoryMcpPlugin {
             }
 
             @Override
+            /** 调用Tool */
             public McpToolResult callTool(McpToolCall toolCall) {
                 String toolName = toolCall.getToolName();
                 Map<String, Object> args = toolCall.getArguments();
@@ -130,13 +137,16 @@ public class MemoryMcpPlugin {
             }
 
             @Override
+            /** 是否Initialized */
             public boolean isInitialized() { return initialized; }
 
             @Override
+            /** 关闭 */
             public void close() {}
         });
     }
 
+    /** 处理保存 */
     private McpToolResult handleSave(Map<String, Object> args) {
         String content = (String) args.get("content");
         if (content == null || content.isBlank()) {
@@ -154,6 +164,7 @@ public class MemoryMcpPlugin {
         return McpToolResult.success(Map.of("success", true, "id", id));
     }
 
+    /** 处理搜索 */
     private McpToolResult handleSearch(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
         int limit = toInt(args.get("limit"), 10);
@@ -161,6 +172,7 @@ public class MemoryMcpPlugin {
         return McpToolResult.success(results);
     }
 
+    /** 处理List */
     private McpToolResult handleList(Map<String, Object> args) {
         String type = (String) args.get("type");
         int limit = toInt(args.get("limit"), 20);
@@ -168,16 +180,19 @@ public class MemoryMcpPlugin {
         return McpToolResult.success(results);
     }
 
+    /** 处理删除 */
     private McpToolResult handleDelete(Map<String, Object> args) {
         String id = (String) args.get("id");
         boolean deleted = manager.delete(id);
         return McpToolResult.success(Map.of("deleted", deleted));
     }
 
+    /** 处理计算数量 */
     private McpToolResult handleCount() {
         return McpToolResult.success(Map.of("count", manager.count()));
     }
 
+    /** ToDouble */
     private double toDouble(Object obj) {
         if (obj instanceof Number n) {
             return n.doubleValue();
@@ -185,6 +200,7 @@ public class MemoryMcpPlugin {
         return 0.5;
     }
 
+    /** ToInt */
     private int toInt(Object obj, int defaultVal) {
         if (obj instanceof Number n) {
             return n.intValue();
@@ -192,6 +208,7 @@ public class MemoryMcpPlugin {
         return defaultVal;
     }
 
+    /** ToTagList */
     private List<String> toTagList(Object obj) {
         if (obj instanceof List<?> list) {
             return list.stream().map(String::valueOf).toList();

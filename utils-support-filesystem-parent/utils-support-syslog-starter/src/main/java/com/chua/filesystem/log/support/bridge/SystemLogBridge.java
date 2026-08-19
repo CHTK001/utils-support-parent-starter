@@ -32,13 +32,16 @@ public final class SystemLogBridge {
     /** initialized */
     private volatile boolean initialized;
 
+    /** 创建 SystemLogBridge 实例 */
     private SystemLogBridge() {
     }
 
+    /** 获取Instance */
     public static SystemLogBridge getInstance() {
         return INSTANCE;
     }
 
+    /** 初始化 */
     public void initialize() {
         if (initialized) {
             return;
@@ -58,14 +61,17 @@ public final class SystemLogBridge {
         }
     }
 
+    /** 获取WinRegistry */
     public NativeFunctionRegistry getWin32Registry() {
         return win32Registry;
     }
 
+    /** 获取LinuxRegistry */
     public NativeFunctionRegistry getLinuxRegistry() {
         return linuxRegistry;
     }
 
+    /** 创建Provider */
     public SystemLogProvider createProvider() {
         if (PlatformSystems.isWindows()) {
             return new WindowsEventLogProvider(this);
@@ -79,6 +85,7 @@ public final class SystemLogBridge {
         throw new UnsupportedOperationException("Unsupported platform for system log");
     }
 
+    /** 初始化Windows */
     private NativeFunctionRegistry initializeWindows() {
         try {
             return NativeFunctionRegistry.ofLibrary("Advapi32");
@@ -88,6 +95,7 @@ public final class SystemLogBridge {
         }
     }
 
+    /** 初始化Linux */
     private NativeFunctionRegistry initializeLinux() {
         try {
             return NativeFunctionRegistry.ofLibrary("systemd");

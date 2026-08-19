@@ -36,6 +36,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     private static final String NAMED_JAKARTA = "jakarta.inject.Named";
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -51,6 +52,14 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     }
 
     @Override
+    /**
+     * Inject
+     * @param method method
+     * @param instance instance
+     * @param beanDefinition beanDefinition
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {
@@ -70,6 +79,12 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
         }
     }
 
+    /**
+     * 解析Args
+     * @param method method
+     * @param beanProvider beanProvider
+     * @param typeProvider typeProvider
+     */
     private Object[] resolveArgs(Method method,
                                  Function<String, Object> beanProvider,
                                  Function<Class<?>, Object> typeProvider) {
@@ -105,6 +120,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
         return args;
     }
 
+    /** 解析Name */
     private String resolveName(Method method, Class<?> paramType) {
         for (Annotation ann : method.getAnnotations()) {
             String name = ann.annotationType().getName();

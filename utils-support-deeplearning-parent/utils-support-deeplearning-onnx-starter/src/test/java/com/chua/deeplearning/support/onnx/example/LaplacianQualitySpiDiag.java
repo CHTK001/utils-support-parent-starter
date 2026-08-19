@@ -13,9 +13,11 @@ import java.nio.file.Path;
  */
 public final class LaplacianQualitySpiDiag {
 
+    /** 创建 LaplacianQualitySpiDiag 实例 */
     private LaplacianQualitySpiDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         ImageQualityAssessor assessor = ImageQualityAssessor.create("laplacian", (String) null);
         System.out.println("SPI 创建成功: " + assessor.getClass().getSimpleName());

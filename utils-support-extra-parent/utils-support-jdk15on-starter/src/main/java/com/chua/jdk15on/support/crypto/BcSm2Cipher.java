@@ -38,6 +38,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
+    /** GenerateKeyPair */
     public KeyPair generateKeyPair() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(EC_ALGORITHM, PROVIDER);
@@ -49,6 +50,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
+    /** Encrypt */
     public byte[] encrypt(byte[] publicKey, byte[] data) {
         try {
             AsymmetricKeyParameter pubKey = PublicKeyFactory.createKey(publicKey);
@@ -61,6 +63,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
+    /** Decrypt */
     public byte[] decrypt(byte[] privateKey, byte[] ciphertext) {
         try {
             AsymmetricKeyParameter privKey = PrivateKeyFactory.createKey(privateKey);
@@ -73,6 +76,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
+    /** Sign */
     public byte[] sign(byte[] privateKey, byte[] data) {
         try {
             AsymmetricKeyParameter privKey = PrivateKeyFactory.createKey(privateKey);
@@ -86,6 +90,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
+    /** 验证 */
     public boolean verify(byte[] publicKey, byte[] data, byte[] signature) {
         try {
             AsymmetricKeyParameter pubKey = PublicKeyFactory.createKey(publicKey);

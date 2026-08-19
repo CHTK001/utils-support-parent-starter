@@ -142,22 +142,26 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private PluginContext context;
 
+    /** 创建 LogHandler 实例 */
     public LogHandler() {
         this.logEntries = new com.chua.runtime.apm.handler.BoundedRecordList<>(MAX_LOGS);
         this.streamsHijacked = new AtomicBoolean(false);
     }
 
     @Override
+    /** Name */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
+    /** Version */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LOG_ENABLED, DEFAULT_ENABLED));
@@ -165,6 +169,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -189,6 +194,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         // 恢复 System.out/err
@@ -204,11 +210,13 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("LogHandler[enabled=%s, logs=%d]", enabled, logEntries.size());
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled;
     }
@@ -479,11 +487,13 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         }
 
         @Override
+        /** Println */
         public void println(String x) {
             super.println(x);
         }
 
         @Override
+        /** Println */
         public void println(Object x) {
             super.println(x);
         }

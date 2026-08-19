@@ -33,31 +33,37 @@ public class RedissonHandler extends AbstractAppHandler {
     private static final String[] COMMAND_METHODS = {"writeAsync", "readAsync", "executorAsync"};
 
     @Override
+    /** Name */
     public String name() {
         return "redisson-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "redisson.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.REDISSON;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.REDIS;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(COMMAND_SERVICE_CLASS, COMMAND_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object config = findField(instance, "config");
         String url = config != null ? String.valueOf(findField(config, "address")) : null;

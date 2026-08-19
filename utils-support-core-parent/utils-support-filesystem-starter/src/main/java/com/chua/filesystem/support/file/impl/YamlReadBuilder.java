@@ -17,11 +17,16 @@ import java.util.Map;
  */
 public class YamlReadBuilder extends ReadBuilder {
 
+    /**
+     * 创建 YamlReadBuilder 实例
+     * @param file file
+     */
     public YamlReadBuilder(File file) {
         super(file);
     }
 
     @Override
+    /** WithCharset */
     public YamlReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

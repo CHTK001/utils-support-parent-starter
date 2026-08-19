@@ -24,15 +24,21 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      */
     private final int imageSize;
 
+    /** 创建 ClipImageFeatureTranslator 实例 */
     public ClipImageFeatureTranslator() {
         this(224);
     }
 
+    /**
+     * 创建 ClipImageFeatureTranslator 实例
+     * @param imageSize imageSize
+     */
     public ClipImageFeatureTranslator(int imageSize) {
         this.imageSize = imageSize;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR)
                 .toType(DataType.FLOAT32, false);
@@ -45,6 +51,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray emb = list.get(0);
         if (emb.getShape().dimension() > 1 && emb.getShape().get(0) == 1) {
@@ -63,6 +70,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

@@ -20,11 +20,27 @@ import javax.annotation.Nullable;
 public class RectDrawEyeResolver extends AbstractDrawEyeResolver{
 
 
+    /**
+     * 创建 RectDrawEyeResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param Graphics2D Graphics2D
+     * @param BitMatrixEx BitMatrixEx
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param Color Color
+     * @param Color Color
+     * @param CodeEyeSetting CodeEyeSetting
+     */
     public RectDrawEyeResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW, int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize, Color detectOutColor, Color detectInnerColor, CodeEyeSetting codeEyeSetting) {
         super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
     @Override
+    /** Finish */
     public void finish() {
 
     }

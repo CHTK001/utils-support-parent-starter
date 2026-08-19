@@ -94,22 +94,12 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         this.modelName = modelName;
     }
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
         }
-        Path tmpDir = Files.createTempDirectory("duguang-det-");
-        tmpDir.toFile().deleteOnExit();
-        Path modelDir = tmpDir.resolve("det");
-        Files.createDirectories(modelDir);
-        NativeLoader.of(modelName)
-                .from(DuguangDetTranslator.class.getClassLoader())
-                .basePath(resourceBase)
-                .toTarget(modelDir)
-                .glob("*.onnx")
-                .withMd5(true)
-                .extractOnly(true)
-                .load();
+        Path modelDir = resolveModelDir();
         Path modelPath = modelDir.resolve("det_512.onnx");
         if (!Files.isRegularFile(modelPath)) {
             throw new IllegalArgumentException("读光 OCR 检测模型缺失: " + modelPath);
@@ -121,12 +111,36 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         System.out.println("[DuguangOCR-det] ONNX loaded: " + modelPath.getFileName());
     }
 
+    /**
+     * 解析模型目录：优先复用已提取的缓存（按 modelName 区分），避免 NativeLoader taskId 去重导致空目录。
+     *
+     * @return 模型目录
+     */
+    private Path resolveModelDir() throws Exception {
+        Path cache = Path.of(System.getProperty("java.io.tmpdir")).resolve("duguang-models").resolve(modelName).resolve("det");
+        if (Files.isRegularFile(cache.resolve("det_512.onnx"))) {
+            return cache;
+        }
+        Files.createDirectories(cache);
+        NativeLoader.of("duguang-det-extract-" + modelName)
+                .from(DuguangDetTranslator.class.getClassLoader())
+                .basePath(resourceBase)
+                .toTarget(cache)
+                .glob("*.onnx")
+                .withMd5(true)
+                .extractOnly(true)
+                .load();
+        return cache;
+    }
+
     @Override
+    /** Name */
     public String name() {
         return modelName;
     }
 
     @Override
+    /** Translate */
     public synchronized List<PredictRectangle> translate(byte[] imageData) {
         try {
             prepare();
@@ -136,6 +150,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         }
     }
 
+    /** Detect */
     private List<PredictRectangle> detect(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -385,6 +400,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         return out;
     }
 
+    /** 最小值X */
     private double minX(Point[] pts) {
         double m = Double.MAX_VALUE;
         for (Point p : pts) {
@@ -393,6 +409,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         return m;
     }
 
+    /** 最大值X */
     private double maxX(Point[] pts) {
         double m = Double.MIN_VALUE;
         for (Point p : pts) {
@@ -401,6 +418,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         return m;
     }
 
+    /** 最小值Y */
     private double minY(Point[] pts) {
         double m = Double.MAX_VALUE;
         for (Point p : pts) {
@@ -409,6 +427,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         return m;
     }
 
+    /** 最大值Y */
     private double maxY(Point[] pts) {
         double m = Double.MIN_VALUE;
         for (Point p : pts) {
@@ -417,6 +436,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         return m;
     }
 
+    /** Clip */
     private double clip(double v, double min, double max) {
         return Math.max(min, Math.min(max, v));
     }

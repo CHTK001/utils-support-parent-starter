@@ -237,6 +237,7 @@ public class MultiProgressBar implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (scheduledTask != null && !scheduledTask.isCancelled()) {
             scheduledTask.cancel(false);
@@ -251,6 +252,7 @@ public class MultiProgressBar implements AutoCloseable {
         consumer.close();
     }
 
+    /** Refresh */
     private void refresh() {
         if (!rendered) {
             // 首次渲染：直接输出所有行
@@ -269,6 +271,7 @@ public class MultiProgressBar implements AutoCloseable {
         }
     }
 
+    /** IndexOf */
     private int indexOf(String name) {
         for (int i = 0; i < tasks.size(); i++) {
             if (tasks.get(i).state.getTaskName().equals(name)) {

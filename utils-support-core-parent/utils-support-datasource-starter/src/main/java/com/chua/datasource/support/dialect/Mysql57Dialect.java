@@ -16,36 +16,43 @@ public class Mysql57Dialect extends AbstractDialect {
     public static final String VERSION = "MySQL 5.7";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return "mysql57";
     }
 
     @Override
+    /** Driver */
     public String driver() {
         return "com.mysql.jdbc.Driver";
     }
 
     @Override
+    /** Url */
     public String url() {
         return "jdbc:mysql://<IP>:<PORT>/<DATABASE>?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai";
     }
 
     @Override
+    /** 打开Quote */
     public char openQuote() {
         return '`';
     }
 
     @Override
+    /** 关闭Quote */
     public char closeQuote() {
         return '`';
     }
 
     @Override
+    /** 处理Sql */
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
     @Override
+    /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         return switch (jdbcType) {
             case java.sql.Types.INTEGER -> "INT";
@@ -70,52 +77,62 @@ public class Mysql57Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取AutoIncrementKeyword */
     public String getAutoIncrementKeyword() {
         return "AUTO_INCREMENT";
     }
 
     @Override
+    /** SupportsUpsert */
     public boolean supportsUpsert() {
         return true;
     }
 
     @Override
+    /** 获取UpsertSql */
     public String getUpsertSql(String tableName, String columns, String values, String updateSet) {
         return "insert into " + quote(tableName) + " (" + columns + ") values (" + values
                 + ") on duplicate key update " + updateSet;
     }
 
     @Override
+    /** 获取AlterColumnString */
     public String getAlterColumnString() {
         return "MODIFY COLUMN";
     }
 
     @Override
+    /** 获取CurrentTimestamp选择String */
     public String getCurrentTimestampSelectString() {
         return "SELECT NOW()";
     }
 
     @Override
+    /** SupportsInlineComment */
     public boolean supportsInlineComment() {
         return true;
     }
 
     @Override
+    /** SupportsPartition */
     public boolean supportsPartition() {
         return true;
     }
 
     @Override
+    /** 获取EngineKeyword */
     public String getEngineKeyword() {
         return "ENGINE";
     }
 
     @Override
+    /** 获取TableTypeString */
     public String getTableTypeString() {
         return " ENGINE=InnoDB DEFAULT CHARSET=utf8";
     }
 
     @Override
+    /** 获取写入锁String */
     public String getWriteLockString(int timeout) {
         return " for update";
     }
@@ -123,6 +140,7 @@ public class Mysql57Dialect extends AbstractDialect {
     // ==================== 触发器 / 存储过程查询 SQL ====================
 
     @Override
+    /** 获取TriggerListSql */
     public String getTriggerListSql(String schema) {
         StringBuilder sql = new StringBuilder(
                 "SELECT TRIGGER_NAME, TRIGGER_SCHEMA, EVENT_OBJECT_TABLE AS TABLE_NAME, "
@@ -135,6 +153,7 @@ public class Mysql57Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取TriggerSql */
     public String getTriggerSql(String triggerName, String schema) {
         if (triggerName == null || triggerName.isEmpty()) {
             return null;
@@ -144,6 +163,7 @@ public class Mysql57Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取ProcedureListSql */
     public String getProcedureListSql(String schema) {
         StringBuilder sql = new StringBuilder(
                 "SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, DATA_TYPE, "
@@ -156,6 +176,7 @@ public class Mysql57Dialect extends AbstractDialect {
     }
 
     @Override
+    /** 获取ProcedureSql */
     public String getProcedureSql(String procedureName, String schema) {
         if (procedureName == null || procedureName.isEmpty()) {
             return null;

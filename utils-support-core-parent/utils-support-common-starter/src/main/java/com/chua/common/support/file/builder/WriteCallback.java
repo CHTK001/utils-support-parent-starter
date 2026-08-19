@@ -8,9 +8,12 @@ package com.chua.common.support.file.builder;
 public interface WriteCallback {
     void onComplete(boolean success);
 
+    /** On开始 */
     default void onStart() {}
 
+    /** OnBegin写入 */
     default void onBeginWrite() {}
 
+    /** OnProgress */
     default void onProgress(int current, int total) {}
 }

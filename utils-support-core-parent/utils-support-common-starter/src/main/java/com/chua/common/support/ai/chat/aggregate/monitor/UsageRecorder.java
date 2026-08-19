@@ -29,6 +29,7 @@ public interface UsageRecorder extends Consumer<AiUsage> {
     }
 
     @Override
+    /** Accept */
     default void accept(AiUsage usage) {
         if (usage != null) {
             record(usage);

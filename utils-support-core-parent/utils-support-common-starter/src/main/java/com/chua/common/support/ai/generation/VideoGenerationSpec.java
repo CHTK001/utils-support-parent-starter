@@ -37,42 +37,57 @@ public class VideoGenerationSpec {
     /** 超时时间（秒） */
     private int timeoutSeconds = 300;
 
+    /**
+     * 创建 VideoGenerationSpec 实例
+     * @param client client
+     */
     public VideoGenerationSpec(ChatClient client) {
         this.client = client;
     }
 
+    /** Prompt */
     public VideoGenerationSpec prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
+    /** Ratio */
     public VideoGenerationSpec ratio(String ratio) {
         this.ratio = ratio;
         return this;
     }
 
+    /** CameraMovement */
     public VideoGenerationSpec cameraMovement(String cameraMovement) {
         this.cameraMovement = cameraMovement;
         return this;
     }
 
+    /** RefImageKey */
     public VideoGenerationSpec refImageKey(String refImageKey) {
         this.refImageKey = refImageKey;
         return this;
     }
 
+    /** TimeoutSeconds */
     public VideoGenerationSpec timeoutSeconds(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
         return this;
     }
 
+    /** Generate */
     public VideoGenerationResult generate() {
         return client.generateVideo(prompt, ratio, cameraMovement, refImageKey, timeoutSeconds);
     }
 
+    /** Prompt */
     public String prompt() { return prompt; }
+    /** Ratio */
     public String ratio() { return ratio; }
+    /** CameraMovement */
     public String cameraMovement() { return cameraMovement; }
+    /** RefImageKey */
     public String refImageKey() { return refImageKey; }
+    /** TimeoutSeconds */
     public int timeoutSeconds() { return timeoutSeconds; }
 }

@@ -171,6 +171,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
+    /** 初始化 */
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = ensureEven(width);
@@ -208,25 +209,30 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 获取CodecName */
     public String getCodecName() {
         return CODEC_NAME_H265;
     }
 
     @Override
+    /** 获取CodecId */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H265;
     }
 
     @Override
+    /** 是否HardwareAccelerated */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
+    /** ForceKeyFrame */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
 
+    /** EnsureInitialized */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || recorder == null) {
             init(w, h, f);
@@ -234,6 +240,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(BufferedImage image) {
         if (image == null) {
             return new byte[0];
@@ -259,6 +266,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -317,6 +325,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         started = false;
         if (recorder != null) {
@@ -358,16 +367,19 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
         }
 
         @Override
+        /** 写入 */
         public void write(int b) {
             backing.write(b);
         }
 
         @Override
+        /** 写入 */
         public void write(byte[] b, int off, int len) {
             backing.write(b, off, len);
         }
 
         @Override
+        /** 关闭 */
         public void close() {
         }
     }

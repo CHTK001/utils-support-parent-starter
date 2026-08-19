@@ -46,6 +46,10 @@ public final class OffsetFlow implements AutoCloseable {
      */
     private OffsetConfig config;
 
+    /**
+     * 创建 OffsetFlow 实例
+     * @param config config
+     */
     private OffsetFlow(OffsetConfig config) {
         this.config = config;
     }
@@ -194,10 +198,12 @@ public final class OffsetFlow implements AutoCloseable {
         return store;
     }
 
+    /** 查找Provider */
     private OffsetStore findProvider(String providerName) {
         return ServiceProvider.of(OffsetStore.class).getNewExtension(providerName, config);
     }
 
+    /** Sleep */
     private void sleep() {
         try {
             Thread.sleep(RETRY_DELAY_MS);
@@ -207,6 +213,7 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (store != null) {
             store.close();

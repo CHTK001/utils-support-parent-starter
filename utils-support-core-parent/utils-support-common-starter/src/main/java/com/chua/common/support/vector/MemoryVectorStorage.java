@@ -31,6 +31,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** 添加 */
     public boolean add(Vector vector) {
         checkNotClosed();
         if (vector.data() != null && vector.data().length != dimension()) {
@@ -45,6 +46,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** Do添加 */
     protected boolean doAdd(String id, float[] vector) {
         if (store.containsKey(id)) {
             return false;
@@ -54,12 +56,14 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** 移除 */
     public boolean remove(String id) {
         checkNotClosed();
         return store.remove(id) != null;
     }
 
     @Override
+    /** 更新 */
     public boolean update(String id, float[] vector) {
         checkNotClosed();
         // 与 JVector/Milvus 及基类 add/search 惯例一致：先校验维度（编程错误 fail-fast），再查 id 存在性
@@ -75,6 +79,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** Do搜索 */
     protected List<Vector> doSearch(float[] query, int topK) {
         var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
         return store.values().stream()
@@ -85,6 +90,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
                 .toList();
     }
 
+    /** 合并Metadata */
     private static Map<String, Object> mergeMetadata(Vector v, double score) {
         var meta = new java.util.LinkedHashMap<String, Object>();
         meta.put("score", score);
@@ -95,11 +101,13 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** 获取大小 */
     public int size() {
         return store.size();
     }
 
     @Override
+    /** Clear */
     public void clear() {
         store.clear();
     }

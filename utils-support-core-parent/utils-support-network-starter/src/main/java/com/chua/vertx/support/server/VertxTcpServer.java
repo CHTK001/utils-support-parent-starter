@@ -47,11 +47,16 @@ public class VertxTcpServer extends AbstractServer {
     /** handlers */
     private final Map<String, JdkTcpServer.TcpHandler> handlers = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 VertxTcpServer 实例
+     * @param setting setting
+     */
     public VertxTcpServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -101,6 +106,7 @@ public class VertxTcpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -121,10 +127,12 @@ public class VertxTcpServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
+    /** 处理Socket */
     private void handleSocket(NetSocket socket) {
         String clientKey = socket.remoteAddress() != null ? socket.remoteAddress().toString() : "";
         JdkTcpServer.TcpHandler handler = findHandler(clientKey);
@@ -149,6 +157,7 @@ public class VertxTcpServer extends AbstractServer {
         }
     }
 
+    /** 查找Handler */
     private JdkTcpServer.TcpHandler findHandler(String clientKey) {
         JdkTcpServer.TcpHandler handler = handlers.get(clientKey);
         if (handler != null) {
@@ -210,12 +219,14 @@ public class VertxTcpServer extends AbstractServer {
         }
 
         @Override
+        /** 读取 */
         public int read() throws IOException {
             byte[] b = new byte[1];
             return read(b, 0, 1) == -1 ? -1 : b[0] & 0xFF;
         }
 
         @Override
+        /** 读取 */
         public int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
@@ -243,6 +254,7 @@ public class VertxTcpServer extends AbstractServer {
         }
 
         @Override
+        /** Available */
         public int available() {
             Segment c = current;
             int avail = (c == null || c.pos >= c.data.length) ? 0 : (c.data.length - c.pos);
@@ -261,11 +273,13 @@ public class VertxTcpServer extends AbstractServer {
         }
 
         @Override
+        /** 写入 */
         public void write(int b) {
             socket.write(io.vertx.core.buffer.Buffer.buffer(1).appendByte((byte) b));
         }
 
         @Override
+        /** 写入 */
         public void write(byte[] b, int off, int len) {
             if (off == 0 && len == b.length) {
                 socket.write(io.vertx.core.buffer.Buffer.buffer(b));

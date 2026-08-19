@@ -25,12 +25,14 @@ import java.lang.reflect.Parameter;
 public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(ConfigValue.class);
     }
 
     @Override
+    /** Inject */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null || environment == null) { return null; }
         ConfigValue configValue = field.getAnnotation(ConfigValue.class);
@@ -39,6 +41,7 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -52,6 +55,7 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
+    /** Inject */
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null || environment == null) {
             return null;

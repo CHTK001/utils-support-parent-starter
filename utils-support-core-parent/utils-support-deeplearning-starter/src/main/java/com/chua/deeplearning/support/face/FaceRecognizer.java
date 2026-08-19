@@ -56,6 +56,7 @@ public interface FaceRecognizer {
         return this;
     }
 
+    /** 创建 */
     static FaceRecognizer create(String name) {
         return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -205,18 +206,21 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     }
 
     @Override
+    /** Threshold */
     public FaceRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceRecognizer device(String device) {
         this.device = device;
         return this;
@@ -224,6 +228,7 @@ class DefaultFaceRecognizer implements FaceRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** ExtractFeature */
     public float[] extractFeature(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -234,6 +239,7 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     }
 
     @Override
+    /** 比较 */
     public float compare(float[] feature1, float[] feature2) {
         float dot = 0, n1 = 0, n2 = 0;
         for (int i = 0; i < feature1.length; i++) {
@@ -245,6 +251,7 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     }
 
     @Override
+    /** Recognize */
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
         float[] query = extractFeature(imageData);
         List<FaceFeature> result = new ArrayList<>();

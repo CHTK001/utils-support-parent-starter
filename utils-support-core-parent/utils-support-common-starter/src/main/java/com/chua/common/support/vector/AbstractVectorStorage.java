@@ -50,12 +50,14 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     }
 
     @Override
+    /** Dimension */
     public int dimension() {
         checkNotClosed();
         return dimension;
     }
 
     @Override
+    /** 添加 */
     public boolean add(String id, float[] vector) {
         checkNotClosed();
         if (vector.length != dimension) {
@@ -66,6 +68,7 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     }
 
     @Override
+    /** 搜索 */
     public List<Vector> search(float[] query, int topK) {
         checkNotClosed();
         if (query.length != dimension) {
@@ -117,6 +120,7 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         this.closed = true;
     }

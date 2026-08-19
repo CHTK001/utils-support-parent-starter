@@ -56,6 +56,7 @@ public interface LayoutDetector {
         return this;
     }
 
+    /** 创建 */
     static LayoutDetector create() {
         return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), "", ModelSetting.builder().build());
     }
@@ -215,24 +216,28 @@ class DefaultLayoutDetector implements LayoutDetector {
     }
 
     @Override
+    /** Threshold */
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public LayoutDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public LayoutDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** UseGpu */
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
@@ -240,6 +245,7 @@ class DefaultLayoutDetector implements LayoutDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         ITranslator<byte[], Map<String, List<PredictRectangle>>> t =
                 (ITranslator<byte[], Map<String, List<PredictRectangle>>>) engine.get(modelName, ITranslator.class);
@@ -251,6 +257,7 @@ class DefaultLayoutDetector implements LayoutDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 解析 */
     public String parse(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
         if (t == null) {

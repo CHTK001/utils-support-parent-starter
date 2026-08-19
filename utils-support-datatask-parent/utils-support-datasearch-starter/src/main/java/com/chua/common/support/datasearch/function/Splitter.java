@@ -13,14 +13,20 @@ public class Splitter {
     /** Delimiter */
     private final String delimiter;
 
+    /**
+     * 创建 Splitter 实例
+     * @param delimiter delimiter
+     */
     private Splitter(String delimiter) {
         this.delimiter = delimiter;
     }
 
+    /** On */
     public static Splitter on(String delimiter) {
         return new Splitter(delimiter);
     }
 
+    /** 分割ToList */
     public List<String> splitToList(String input) {
         if (input == null || input.isEmpty()) {
             return Collections.emptyList();

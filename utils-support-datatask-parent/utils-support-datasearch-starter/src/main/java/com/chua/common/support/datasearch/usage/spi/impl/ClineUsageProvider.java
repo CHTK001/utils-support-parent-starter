@@ -15,5 +15,6 @@ import java.util.List;
 @Spi("cline")
 public class ClineUsageProvider implements UsageProvider {
     @Override
+    /** 获取Usage */
     public List<AiUsage> getUsage() { return List.of(); }
 }

@@ -56,6 +56,7 @@ public interface ImageQualityAssessor {
         return this;
     }
 
+    /** 创建 */
     static ImageQualityAssessor create(String name) {
         return new DefaultImageQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -198,18 +199,21 @@ class DefaultImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
+    /** BlurThreshold */
     public ImageQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageQualityAssessor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageQualityAssessor device(String device) {
         this.device = device;
         return this;
@@ -217,6 +221,7 @@ class DefaultImageQualityAssessor implements ImageQualityAssessor {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Assess */
     public ImageQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], ImageQualityInfo> t =
                 (ITranslator<byte[], ImageQualityInfo>) engine.get(modelName, ITranslator.class);

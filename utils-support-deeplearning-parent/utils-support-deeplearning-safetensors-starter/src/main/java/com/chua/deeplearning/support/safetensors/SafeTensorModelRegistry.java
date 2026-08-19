@@ -18,6 +18,7 @@ import java.util.Set;
  */
 public final class SafeTensorModelRegistry {
 
+    /** 创建 SafeTensorModelRegistry 实例 */
     private SafeTensorModelRegistry() {
     }
 
@@ -93,6 +94,7 @@ public final class SafeTensorModelRegistry {
         return byId(modelId).map(e -> e.type).orElseGet(() -> guessType(modelId));
     }
 
+    /** GuessType */
     private static String guessType(String name) {
         if (name.contains("qwen") || name.contains("llama") || name.contains("minimind") || name.contains("phi")) {
             if (name.contains("minimind-3v")) {
@@ -154,6 +156,7 @@ public final class SafeTensorModelRegistry {
         return "llm";
     }
 
+    /** 构建Registry */
     private static List<ModelEntry> buildRegistry() {
         List<ModelEntry> list = new ArrayList<>();
 

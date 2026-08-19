@@ -21,21 +21,28 @@ public class FelixOsgiBundle implements OsgiBundle {
     private final Bundle bundle;
     private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>();
 
+    /**
+     * 创建 FelixOsgiBundle 实例
+     * @param bundle bundle
+     */
     public FelixOsgiBundle(Bundle bundle) {
         this.bundle = bundle;
     }
 
     @Override
+    /** 获取SymbolicName */
     public String getSymbolicName() {
         return bundle.getSymbolicName();
     }
 
     @Override
+    /** 获取Version */
     public String getVersion() {
         return bundle.getVersion().toString();
     }
 
     @Override
+    /** 获取State */
     public String getState() {
         return switch (bundle.getState()) {
             case Bundle.ACTIVE -> "ACTIVE";
@@ -49,6 +56,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         try {
             bundle.start();
@@ -58,6 +66,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         try {
             for (ServiceRegistration<?> reg : registrations) {
@@ -72,6 +81,7 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 注册Service */
     public <T> void registerService(Class<T> type, T service) {
         ServiceRegistration<?> registration = bundle.getBundleContext()
                 .registerService(type.getName(), service, null);
@@ -80,6 +90,7 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 注销Service */
     public <T> void unregisterService(Class<T> type, T service) {
         registrations.removeIf(reg -> {
             try {
@@ -106,6 +117,7 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取Services */
     public <T> List<T> getServices(Class<T> type) {
         try {
             org.osgi.framework.ServiceReference<?>[] refs =

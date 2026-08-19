@@ -27,6 +27,21 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     Color detectInnerColor;
     CodeEyeSetting codeEyeSetting;
 
+    /**
+     * 创建 AbstractDrawEyeResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param g2 g2
+     * @param bitMatrix bitMatrix
+     * @param matrixW matrixW
+     * @param matrixH matrixH
+     * @param leftPadding leftPadding
+     * @param topPadding topPadding
+     * @param infoSize infoSize
+     * @param detectCornerSize detectCornerSize
+     * @param detectOutColor detectOutColor
+     * @param detectInnerColor detectInnerColor
+     * @param codeEyeSetting codeEyeSetting
+     */
     public AbstractDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                    Graphics2D g2,
                                    BitMatrixEx bitMatrix,
@@ -54,6 +69,7 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     }
 
     @Override
+    /** Draw */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         if (inOuterDetectCornerArea(x, y, matrixW, matrixH, detectCornerSize)) {
             // 外层的框

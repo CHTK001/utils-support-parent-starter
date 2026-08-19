@@ -749,6 +749,7 @@ public final class ModelRegistry {
         }
     }
 
+    /** ExtractClasspathResource */
     private static Path extractClasspathResource(String resourcePath, URL url) throws IOException {
         Path target = extractRoot.resolve(resourcePath);
         Files.createDirectories(target.getParent());
@@ -835,12 +836,19 @@ public final class ModelRegistry {
         private final String translatorClassName;
         private volatile ITranslator<Object, Object> delegate;
 
+        /**
+         * 创建 LazyDjlTranslator 实例
+         * @param modelId modelId
+         * @param Path Path
+         * @param String String
+         */
         private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName) {
             this.modelId = modelId;
             this.modelPath = modelPath;
             this.translatorClassName = translatorClassName;
         }
 
+        /** Ensure */
         private ITranslator<Object, Object> ensure() {
             if (delegate == null) {
                 synchronized (this) {
@@ -865,16 +873,19 @@ public final class ModelRegistry {
         }
 
         @Override
+        /** Name */
         public String name() {
             return modelId;
         }
 
         @Override
+        /** Translate */
         public Object translate(Object input) {
             return ensure().translate(input);
         }
 
         @Override
+        /** 关闭 */
         public void close() {
             if (delegate != null) {
                 if (delegate instanceof AutoCloseable closeable) {
@@ -897,6 +908,7 @@ public final class ModelRegistry {
     }
 
     @SuppressWarnings("unchecked")
+    /** NewTranslatorInstance */
     private static Object newTranslatorInstance(String translatorClassName) {
         try {
             Class<?> translatorClass = Class.forName(translatorClassName);
@@ -925,23 +937,33 @@ public final class ModelRegistry {
         private final String modelId;
         private final ITranslator<?, ?> translator;
 
+        /**
+         * 创建 ITranslatorDelegate 实例
+         * @param modelId modelId
+         * @param Path Path
+         * @param ITranslator ITranslator
+         * @param translator translator
+         */
         private ITranslatorDelegate(String modelId, Path modelPath, ITranslator<?, ?> translator) {
             this.modelId = modelId;
             this.translator = translator;
         }
 
         @Override
+        /** Name */
         public String name() {
             return modelId;
         }
 
         @Override
         @SuppressWarnings("unchecked")
+        /** Translate */
         public Object translate(Object input) {
             return ((ITranslator<Object, Object>) translator).translate(input);
         }
 
         @Override
+        /** 关闭 */
         public void close() {
             if (translator instanceof AutoCloseable closeable) {
                 try {
@@ -984,6 +1006,7 @@ public final class ModelRegistry {
     public static final class DefaultModelDownloader implements ModelDownloader {
 
         @Override
+        /** Download */
         public Path download(String url, Path target) throws Exception {
             HttpURLConnection conn = null;
             try {

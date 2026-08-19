@@ -47,6 +47,7 @@ public class JdkAsyncProvider extends AbstractAsyncProvider {
     }
 
     @Override
+    /** Do运行 */
     protected CompletableFuture<Void> doRun(Runnable runnable) {
         return CompletableFuture.runAsync(runnable, VIRTUAL_EXECUTOR);
     }

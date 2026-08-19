@@ -31,6 +31,13 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
      */
     private final AtomicLong callStartNs = new AtomicLong(-1);
 
+    /**
+     * 创建 Resilience4jCircuitBreakerProvider 实例
+     * @param name name
+     * @param int int
+     * @param int int
+     * @param long long
+     */
     public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold((float) failureThreshold / 100)
@@ -42,6 +49,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
+    /** Try获取 */
     public boolean tryAcquire() {
         boolean acquired = circuitBreaker.tryAcquirePermission();
         if (acquired) {
@@ -51,6 +59,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
+    /** RecordSuccess */
     public void recordSuccess() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -60,6 +69,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
+    /** RecordFailure */
     public void recordFailure() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -70,16 +80,19 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
+    /** 重置 */
     public void reset() {
         circuitBreaker.reset();
     }
 
     @Override
+    /** 是否打开 */
     public boolean isOpen() {
         return circuitBreaker.getState() == io.github.resilience4j.circuitbreaker.CircuitBreaker.State.OPEN;
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return circuitBreaker.getName();
     }

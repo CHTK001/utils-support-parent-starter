@@ -21,12 +21,20 @@ import java.util.Set;
 public class StyleTransferTranslatorFactory implements TranslatorFactory {
 
     @Override
+    /** 获取SupportedTypes */
     public Set<Pair<Type, Type>> getSupportedTypes() {
         return Collections.singleton(new Pair<>(Image.class, Image.class));
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /**
+     * NewInstance
+     * @param input input
+     * @param output output
+     * @param model model
+     * @param arguments arguments
+     */
     public <I, O> Translator<I, O> newInstance(Class<I> input,
                                                Class<O> output,
                                                Model model,

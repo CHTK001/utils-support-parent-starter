@@ -22,6 +22,7 @@ import java.util.Base64;
  */
 final class SafeTensorImageUtils {
 
+    /** 创建 SafeTensorImageUtils 实例 */
     private SafeTensorImageUtils() {}
 
     /**

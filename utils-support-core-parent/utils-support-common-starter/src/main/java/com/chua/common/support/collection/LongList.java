@@ -116,16 +116,19 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     // ==================== List 接口实现 ====================
 
     @Override
+    /** 获取大小 */
     public int size() {
         return size;
     }
 
     @Override
+    /** 是否Empty */
     public boolean isEmpty() {
         return size == 0;
     }
 
     @Override
+    /** Contains */
     public boolean contains(Object o) {
         if (!(o instanceof Long)) {
             return false;
@@ -140,12 +143,14 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 获取 */
     public Long get(int index) {
         checkElementIndex(index);
         return elements[index];
     }
 
     @Override
+    /** 设置 */
     public Long set(int index, Long element) {
         checkElementIndex(index);
         long old = elements[index];
@@ -154,6 +159,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 添加 */
     public void add(int index, Long element) {
         checkPositionIndex(index);
         ensureCapacity(size + 1);
@@ -163,6 +169,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 添加 */
     public boolean add(Long element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
@@ -170,6 +177,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 添加All */
     public boolean addAll(Collection<? extends Long> c) {
         ensureCapacity(size + c.size());
         for (Long l : c) {
@@ -179,6 +187,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 添加All */
     public boolean addAll(int index, Collection<? extends Long> c) {
         checkPositionIndex(index);
         ensureCapacity(size + c.size());
@@ -195,6 +204,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 移除 */
     public Long remove(int index) {
         checkElementIndex(index);
         long old = elements[index];
@@ -204,6 +214,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 移除 */
     public boolean remove(Object o) {
         if (!(o instanceof Long)) {
             return false;
@@ -219,6 +230,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 移除All */
     public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         for (int i = size - 1; i >= 0; i--) {
@@ -231,6 +243,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** RetainAll */
     public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         for (int i = size - 1; i >= 0; i--) {
@@ -243,12 +256,14 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** Clear */
     public void clear() {
         Arrays.fill(elements, 0, size, 0L);
         size = 0;
     }
 
     @Override
+    /** IndexOf */
     public int indexOf(Object o) {
         if (!(o instanceof Long)) {
             return -1;
@@ -263,6 +278,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** LastIndexOf */
     public int lastIndexOf(Object o) {
         if (!(o instanceof Long)) {
             return -1;
@@ -277,17 +293,20 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** Iterator */
     public Iterator<Long> iterator() {
         return new Iterator<Long>() {
             /** 索引位置 */
             private int index = 0;
 
             @Override
+            /** 是否拥有Next */
             public boolean hasNext() {
                 return index < size;
             }
 
             @Override
+            /** Next */
             public Long next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -296,6 +315,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
             }
 
             @Override
+            /** 移除 */
             public void remove() {
                 if (index == 0) {
                     throw new IllegalStateException();
@@ -307,6 +327,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** SubList */
     public List<Long> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("长整数列表不支持子列表视图");
     }
@@ -465,6 +486,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** 判断相等 */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -488,6 +510,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         int result = 1;
         for (int i = 0; i < size; i++) {
@@ -498,6 +521,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');

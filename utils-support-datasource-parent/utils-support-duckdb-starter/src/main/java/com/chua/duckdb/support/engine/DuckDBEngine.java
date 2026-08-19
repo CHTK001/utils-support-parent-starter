@@ -52,6 +52,13 @@ public class DuckDBEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /**
+     * 执行New查询
+     * @param where where
+     * @param params params
+     * @param entityClass entityClass
+     * @param paramList paramList
+     */
     protected <T> List<T> executeNewQuery(
             String where, Object[] params, Class<T> entityClass) {
         List<T> data = getData(entityClass);

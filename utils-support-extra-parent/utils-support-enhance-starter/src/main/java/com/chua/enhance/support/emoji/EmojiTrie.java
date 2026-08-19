@@ -134,32 +134,44 @@ public class EmojiTrie {
         /** Impossiblematch */
         private final boolean impossibleMatch;
 
+        /**
+         * 创建 Matches 实例
+         * @param exactMatch exactMatch
+         * @param boolean boolean
+         * @param boolean boolean
+         */
         private Matches(boolean exactMatch, boolean prefixMatch, boolean impossibleMatch) {
             this.exactMatch = exactMatch;
             this.prefixMatch = prefixMatch;
             this.impossibleMatch = impossibleMatch;
         }
 
+        /** Exact */
         public static Matches exact() {
             return new Matches(true, false, false);
         }
 
+        /** Prefix */
         public static Matches prefix() {
             return new Matches(false, true, false);
         }
 
+        /** Impossible */
         public static Matches impossible() {
             return new Matches(false, false, true);
         }
 
+        /** ExactMatch */
         public boolean exactMatch() {
             return exactMatch;
         }
 
+        /** PrefixMatch */
         public boolean prefixMatch() {
             return prefixMatch;
         }
 
+        /** ImpossibleMatch */
         public boolean impossibleMatch() {
             return impossibleMatch;
         }

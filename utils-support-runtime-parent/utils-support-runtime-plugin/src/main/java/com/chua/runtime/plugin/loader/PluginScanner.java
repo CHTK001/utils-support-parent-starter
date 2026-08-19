@@ -43,10 +43,19 @@ public class PluginScanner {
      */
     private final List<PluginInfo> plugins;
 
+    /**
+     * 创建 PluginScanner 实例
+     * @param pluginRoot pluginRoot
+     */
     public PluginScanner(Path pluginRoot) {
         this(pluginRoot, ClassLoader.getSystemClassLoader());
     }
 
+    /**
+     * 创建 PluginScanner 实例
+     * @param pluginRoot pluginRoot
+     * @param ClassLoader ClassLoader
+     */
     public PluginScanner(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;
         this.parentLoader = parentLoader;
@@ -141,6 +150,7 @@ public class PluginScanner {
         }
     }
 
+    /** 获取Plugins */
     public List<PluginInfo> getPlugins() {
         return Collections.unmodifiableList(plugins);
     }

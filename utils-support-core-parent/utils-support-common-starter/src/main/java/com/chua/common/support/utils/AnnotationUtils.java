@@ -15,6 +15,13 @@ public class AnnotationUtils {
     /**
      * 鑾峰彇娉ㄨВ灞炴€?     *
      * @param clazz 绫?     * @param annotationClass 娉ㄨВ绫?     * @return 娉ㄨВ灞炴€ф槧灏?     */
+    /**
+     * 获取AnnotationAttributes
+     * @param clazz clazz
+     * @param Class Class
+     * @param Annotation Annotation
+     * @param annotationClass annotationClass
+     */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new HashMap<>();
         Annotation annotation = clazz.getAnnotation(annotationClass);

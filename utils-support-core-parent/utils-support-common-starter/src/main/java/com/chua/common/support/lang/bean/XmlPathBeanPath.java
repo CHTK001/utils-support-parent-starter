@@ -19,6 +19,7 @@ import com.chua.common.support.spi.annotations.Spi;
 public class XmlPathBeanPath implements BeanPath {
 
     @Override
+    /** 获取Value */
     public <T> T getValue(Object source, String path) {
         if (!(source instanceof String xml)) return null;
         XmlPath xmlPath = XmlPath.getInstance();
@@ -28,10 +29,12 @@ public class XmlPathBeanPath implements BeanPath {
     }
 
     @Override
+    /** 设置Value */
     public void setValue(Object source, String path, Object value) {
     }
 
     @Override
+    /** 是否存在 */
     public boolean exists(Object source, String path) {
         if (!(source instanceof String xml)) return false;
         XmlPath xmlPath = XmlPath.getInstance();

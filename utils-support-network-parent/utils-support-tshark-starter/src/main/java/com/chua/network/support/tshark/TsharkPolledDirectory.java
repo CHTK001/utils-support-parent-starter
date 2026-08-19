@@ -136,11 +136,13 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 开始 */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         this.environment = environment;
 
@@ -167,6 +169,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** Upgrade */
     public void upgrade() {
         File dir = new File(listenPath);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -208,6 +211,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (executor != null) {
             executor.close();
@@ -321,6 +325,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @SuppressWarnings("unchecked")
+    /** TryRestoreProtocol */
     private static String tryRestoreProtocol(String packetJson, PacketRecord record) {
         if (RESTORERS.isEmpty()) {
             return null;
@@ -357,6 +362,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @SuppressWarnings("unchecked")
+    /** ExtractRawBytes */
     private static byte[] extractRawBytes(Map<String, Object> layers) {
         // tshark -T json -x 输出 frame_raw: [hex, offset, length]，第一个元素是 hex 字符串
         Object frameRaw = findDeep(layers, "frame_raw");
@@ -391,6 +397,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @SuppressWarnings("unchecked")
+    /** 查找Deep */
     private static Object findDeep(Map<String, Object> map, String key) {
         if (map == null) {
             return null;

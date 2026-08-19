@@ -20,10 +20,12 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     }
 
     @Override
+    /** 注册 */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
+    /** 注册All */
     private static void registerAll() {
         // 通用动作识别：识别图片中人物动作（跑步、跳跃等），输出动作类别+置信度；适用安防监控、体育分析
         reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx", "https://huggingface.co/onnx-community/action-recognition/resolve/main/onnx/model.onnx", false, null);
@@ -258,6 +260,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 注意：T5 为 encoder-decoder 自回归多文件模型（encoder/decoder/decoder_with_past + tokenizer），
         // 由 T5Seq2SeqOrtTranslator 按"嵌入/缓存/modelscope 下载"自行组装，注册不设 downloadUrl 避免单文件预下载。
         reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/t5-small/encoder_model_int8.onnx", null, null, false, null);
+        // 多语言摘要/生成(mT5)：mt5-small 中文/多语言文本摘要与生成，encoder-decoder 自回归；适用中文多句→一句总结
+        reg("mt5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-small/encoder_model_fp16.onnx", null, null, false, null);
+        // 多语言摘要/生成(mT5-base)：中文多句→一句总结，12 层 12 头，效果优于 mt5-small；适用正式/长文本
+        reg("mt5-base-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5BaseSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-base/encoder_model_fp16.onnx", null, null, false, null);
         // 文本摘要(Chinese-T5-base)：中文 T5-base 文本摘要，中文优化；适用中文文本摘要、生成
         reg("chinese-t5-base", "com.chua.deeplearning.support.onnx.seq2seq.ChineseT5BaseTranslator", String.class, String.class, Object.class, "nlp/seq2seq/chinese-t5-base/encoder_model.onnx", "https://huggingface.co/hfl/chinese-t5-base/resolve/main/encoder_model.onnx", false, null);
         // 文本摘要(Chinese-BART-base)：中文 BART-base 文本摘要；适用中文文本摘要、文章概括
@@ -379,8 +385,12 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("paddleocrv6-medium-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorMediumTranslator", byte[].class, String.class, Object.class, "ocr/PP-OCRv6/medium/rec_infer/inference.onnx");
         // 读光OCR(small)：读光中英文文字识别（DBNet检测+LightweightEdge识别，嵌入式），轻量快速；适用通用中英文OCR
         reg("duguang-ocr-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/small/det_512.onnx");
+        // 读光OCR检测(small)：读光 DBNet 文本行检测，输出旋转框；供 OcrPipeline detector 使用
+        reg("duguang-det-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/duguang/small/det_512.onnx");
         // 读光OCR(large)：读光中英文文字识别（DBNet检测+ConvNeXT识别，嵌入式），精度更高；适用高精度中英文OCR
         reg("duguang-ocr-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/large/det_512.onnx");
+        // 读光OCR检测(large)：读光 DBNet 文本行检测（大模型），输出旋转框；供 OcrPipeline detector 使用
+        reg("duguang-det-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/duguang/large/det_512.onnx");
 
         // ==================== 语音合成 TTS ====================
         // MMS-TTS-English（VITS）：英文语音合成，输入文本输出 WAV 音频；适用英文朗读、语音播报。
@@ -429,6 +439,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 false, null);
     }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {
@@ -437,6 +456,18 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         }
     }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     * @param downloadUrl downloadUrl
+     * @param compress compress
+     * @param downloadFileName downloadFileName
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,
@@ -446,6 +477,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         }
     }
 
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     * @param downloadUrl downloadUrl
+     * @param downloadMirrors downloadMirrors
+     * @param compress compress
+     * @param downloadFileName downloadFileName
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,

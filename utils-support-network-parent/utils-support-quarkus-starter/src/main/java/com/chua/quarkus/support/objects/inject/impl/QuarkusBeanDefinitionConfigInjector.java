@@ -34,6 +34,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     private static final String UNCONFIGURED_VALUE = "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) {
             return false;
@@ -42,6 +43,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
+    /** Inject */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null || environment == null) {
             return null;
@@ -54,6 +56,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
+    /** 是否Support */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -67,6 +70,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
+    /** Inject */
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null || environment == null) {
             return null;
@@ -88,6 +92,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return hit ? result : null;
     }
 
+    /** 是否拥有ConfigProperty */
     private boolean hasConfigProperty(Annotation[] annotations) {
         for (Annotation ann : annotations) {
             if (CONFIG_PROPERTY.equals(ann.annotationType().getName())) {
@@ -97,6 +102,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return false;
     }
 
+    /** 查找ConfigProperty */
     private Annotation findConfigProperty(Annotation[] annotations) {
         for (Annotation ann : annotations) {
             if (CONFIG_PROPERTY.equals(ann.annotationType().getName())) {
@@ -106,6 +112,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return null;
     }
 
+    /** 解析Value */
     private Object resolveValue(Annotation annotation, Class<?> targetType, Environment environment) {
         try {
             String name = (String) annotation.annotationType().getMethod("name").invoke(annotation);

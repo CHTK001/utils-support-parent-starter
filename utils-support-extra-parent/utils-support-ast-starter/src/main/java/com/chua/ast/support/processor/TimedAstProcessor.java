@@ -46,6 +46,7 @@ public final class TimedAstProcessor extends AbstractProcessor {
     private DependencyDetector dependencyDetector;
 
     @Override
+    /** 初始化 */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -60,6 +61,7 @@ public final class TimedAstProcessor extends AbstractProcessor {
     }
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) {
             return false;
@@ -161,6 +163,78 @@ public final class TimedAstProcessor extends AbstractProcessor {
                 new com.sun.tools.javac.tree.JCTree.JCStatement[]{startVarDecl, tryFinally}));
     }
 
+    /**
+     * 构建NanoTimeVarDecl
+     * @param maker maker
+     * @param names names
+     * @param varName varName
+     * @param nanoTimeSelect nanoTimeSelect
+     * @param nanoTimeCall nanoTimeCall
+     * @param maker maker
+     * @param names names
+     * @param methodName methodName
+     * @param startVarName startVarName
+     * @param slf4jAvailable slf4jAvailable
+     * @param hasLogField hasLogField
+     * @param nanoTimeSelect nanoTimeSelect
+     * @param nanoTimeCall nanoTimeCall
+     * @param startIdent startIdent
+     * @param subtraction subtraction
+     * @param 1_000_000L 1_000_000L
+     * @param elapsedIdent elapsedIdent
+     * @param divisor divisor
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param names names
+     * @param logInfoStmt logInfoStmt
+     * @param stdoutFallback stdoutFallback
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param names names
+     * @param loggerInfoStmt loggerInfoStmt
+     * @param stdoutFallback stdoutFallback
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param msValue msValue
+     * @param maker maker
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param infoSelect infoSelect
+     * @param msValue msValue
+     * @param maker maker
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param getLoggerSelect getLoggerSelect
+     * @param infoSelect infoSelect
+     * @param maker maker
+     * @param names names
+     * @param methodName methodName
+     * @param msValue msValue
+     * @param prefix prefix
+     * @param msValue msValue
+     * @param concat1 concat1
+     * @param suffix suffix
+     * @param printlnSelect printlnSelect
+     * @param maker maker
+     * @param names names
+     * @param guardedStmt guardedStmt
+     * @param fallbackStmt fallbackStmt
+     * @param ncdfeType ncdfeType
+     * @param null null
+     * @param catchBlock catchBlock
+     * @param null null
+     */
     private com.sun.tools.javac.tree.JCTree.JCVariableDecl buildNanoTimeVarDecl(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String varName) {
 

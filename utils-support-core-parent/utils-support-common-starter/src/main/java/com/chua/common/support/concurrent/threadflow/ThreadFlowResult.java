@@ -55,6 +55,17 @@ public class ThreadFlowResult<T> {
      */
     private final ThreadStrategy strategy;
 
+    /**
+     * 创建 ThreadFlowResult 实例
+     * @param success success
+     * @param results results
+     * @param errors errors
+     * @param totalCount totalCount
+     * @param successCount successCount
+     * @param failCount failCount
+     * @param costMillis costMillis
+     * @param strategy strategy
+     */
     public ThreadFlowResult(boolean success, List<T> results, List<Throwable> errors,
                             int totalCount, int successCount, int failCount,
                             long costMillis, ThreadStrategy strategy) {

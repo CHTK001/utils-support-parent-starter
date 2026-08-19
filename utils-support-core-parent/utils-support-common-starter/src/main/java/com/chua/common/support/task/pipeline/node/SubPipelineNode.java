@@ -109,6 +109,7 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "subPipeline";
     }
@@ -219,12 +220,14 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     @Override
+    /** 获取Env */
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 执行 */
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
 

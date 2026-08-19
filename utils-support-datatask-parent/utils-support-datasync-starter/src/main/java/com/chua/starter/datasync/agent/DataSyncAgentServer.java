@@ -74,6 +74,12 @@ public class DataSyncAgentServer implements AgentServerManager {
      */
     private final SyncServerListener listener = new AgentSyncListener();
 
+    /**
+     * 创建 DataSyncAgentServer 实例
+     * @param dataSyncServer dataSyncServer
+     * @param SyncServer SyncServer
+     * @param String String
+     */
     public DataSyncAgentServer(DataSyncServer dataSyncServer, SyncServer syncServer, String serverId) {
         this.dataSyncServer = dataSyncServer;
         this.syncServer = syncServer;
@@ -81,6 +87,7 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         executor.start();
         if (syncServer != null) {
@@ -93,6 +100,7 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         if (syncServer != null) {
             syncServer.removeListener(listener);
@@ -103,6 +111,7 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     @Override
+    /** 注册 */
     public void register(DataSyncAgent agent) {
         agents.put(agent.agentId(), agent);
         registerAgentResources(agent);
@@ -110,6 +119,7 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     @Override
+    /** 注销 */
     public void unregister(String agentId) {
         DataSyncAgent removed = agents.remove(agentId);
         if (removed != null) {
@@ -119,16 +129,19 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     @Override
+    /** 获取Agent */
     public DataSyncAgent getAgent(String agentId) {
         return agents.get(agentId);
     }
 
     @Override
+    /** 获取Agents */
     public List<DataSyncAgent> getAgents() {
         return new ArrayList<>(agents.values());
     }
 
     @Override
+    /** 推送 */
     public void push(String agentId, String sinkId, List<Map<String, Object>> data) {
         DataSyncAgent agent = agents.get(agentId);
         if (agent != null) {
@@ -145,6 +158,7 @@ public class DataSyncAgentServer implements AgentServerManager {
      */
     private static final int REMOTE_SOURCE_READ_TIMEOUT_SECONDS = 30;
 
+    /** 注册AgentResources */
     private void registerAgentResources(DataSyncAgent agent) {
         List<DataSyncAgentSource> sources = new ArrayList<>();
         sources.addAll(agent.sources());
@@ -163,6 +177,7 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
     }
 
+    /** 注销AgentResources */
     private void unregisterAgentResources(DataSyncAgent agent) {
         // 从 DataSyncServer 注销 Agent 持有的 Source 和 Sink
         for (DataSyncAgentSource source : agent.sources()) {
@@ -181,6 +196,7 @@ public class DataSyncAgentServer implements AgentServerManager {
 
     private class AgentSyncListener implements SyncServerListener {
         @Override
+        /** OnMessage */
         public void onMessage(String clientId, String topic, Object message) {
             if (topic != null && topic.startsWith(TOPIC_REGISTER_PREFIX)) {
                 String agentId = topic.substring(TOPIC_REGISTER_PREFIX.length());
@@ -244,19 +260,23 @@ public class DataSyncAgentServer implements AgentServerManager {
     private record RemoteAgentProxy(String agentId, List<String> sourceIds, List<String> sinkIds, SyncServer syncServer) implements DataSyncAgent {
 
         @Override
+        /** AgentId */
         public String agentId() {
             return agentId;
         }
 
         @Override
+        /** 开始 */
         public void start() {
         }
 
         @Override
+        /** 停止 */
         public void stop() {
         }
 
         @Override
+        /** Sources */
         public List<DataSyncAgentSource> sources() {
             return sourceIds.stream()
                     .<DataSyncAgentSource>map(id -> new RemoteAgentSource(agentId, id, syncServer))
@@ -264,11 +284,13 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         @Override
+        /** 获取Source */
         public DataSyncAgentSource getSource(String sourceId) {
             return sourceIds.contains(sourceId) ? new RemoteAgentSource(agentId, sourceId, syncServer) : null;
         }
 
         @Override
+        /** Sinks */
         public List<DataSyncAgentSink> sinks() {
             return sinkIds.stream()
                     .<DataSyncAgentSink>map(id -> new RemoteAgentSink(agentId, id, syncServer))
@@ -276,11 +298,13 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         @Override
+        /** 获取Sink */
         public DataSyncAgentSink getSink(String sinkId) {
             return sinkIds.contains(sinkId) ? new RemoteAgentSink(agentId, sinkId, syncServer) : null;
         }
 
         @Override
+        /** OnDataReceived */
         public void onDataReceived(List<Map<String, Object>> data) {
         }
     }
@@ -319,16 +343,19 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         @Override
+        /** SourceId */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
+        /** InputId */
         public String inputId() {
             return sourceId;
         }
 
         @Override
+        /** 读取 */
         public Flux<Map<String, Object>> read(Map<String, Object> params) {
             String requestTopic = "source:" + agentId;
             String responseTopic = TOPIC_SOURCE_DATA_PREFIX + agentId + ":" + sourceId;
@@ -339,6 +366,7 @@ public class DataSyncAgentServer implements AgentServerManager {
             return Flux.<Map<String, Object>>create(sink -> {
                 SyncServerListener listener = new SyncServerListener() {
                     @Override
+                    /** OnMessage */
                     public void onMessage(String clientId, String topic, Object message) {
                         if (topic.equals(responseTopic)) {
                             if (message instanceof List) {
@@ -391,6 +419,7 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         @Override
+        /** 关闭 */
         public void close() {
         }
     }
@@ -429,11 +458,13 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         @Override
+        /** SinkId */
         public String sinkId() {
             return sinkId;
         }
 
         @Override
+        /** 写入 */
         public void write(Flux<Map<String, Object>> data) {
             data.collectList().subscribe(list -> {
                 Map<String, Object> message = Map.of(
@@ -445,6 +476,7 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         @Override
+        /** 关闭 */
         public void close() {
         }
     }

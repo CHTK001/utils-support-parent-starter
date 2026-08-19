@@ -38,6 +38,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     private static final int CHANNELS = 12;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
@@ -58,6 +59,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     }
 
     @Override
+    /** 处理Output */
     public Float processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.get(0);
         float[] values = out.toFloatArray();
@@ -70,6 +72,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

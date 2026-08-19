@@ -67,6 +67,12 @@ public class ReturnPreconditioning<T> {
      */
     private ResultCode errorCode;
 
+    /**
+     * 创建 ReturnPreconditioning 实例
+     * @param data data
+     * @param Predicate Predicate
+     * @param condition condition
+     */
     protected ReturnPreconditioning(T data, Predicate<T> condition) {
         this.data = data;
         this.condition = condition;

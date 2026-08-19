@@ -31,6 +31,7 @@ public final class Oshi {
     /** Operating_system */
     private static final OperatingSystem OPERATING_SYSTEM = SYSTEM_INFO.getOperatingSystem();
 
+    /** 创建 Oshi 实例 */
     private Oshi() {
     }
 
@@ -156,6 +157,7 @@ public final class Oshi {
         return list;
     }
 
+    /** 获取LocalIp */
     private static String getLocalIp() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -178,6 +180,7 @@ public final class Oshi {
         }
     }
 
+    /** Sleep */
     private static void sleep(long millis) {
         try {
             Thread.sleep(millis);
@@ -186,14 +189,17 @@ public final class Oshi {
         }
     }
 
+    /** 获取SystemInfo */
     public static SystemInfo getSystemInfo() {
         return SYSTEM_INFO;
     }
 
+    /** 获取Hardware */
     public static HardwareAbstractionLayer getHardware() {
         return HARDWARE;
     }
 
+    /** 获取OperatingSystem */
     public static OperatingSystem getOperatingSystem() {
         return OPERATING_SYSTEM;
     }

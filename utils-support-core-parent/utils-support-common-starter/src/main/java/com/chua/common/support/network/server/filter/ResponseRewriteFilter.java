@@ -112,11 +112,18 @@ public class ResponseRewriteFilter implements ServerFilter {
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 先放行完整链路
@@ -185,32 +192,39 @@ public class ResponseRewriteFilter implements ServerFilter {
          */
         private boolean endImmediately;
 
+        /** 创建 RewriteRule 实例 */
         private RewriteRule() {}
 
+        /** Builder */
         public static RewriteRule builder() {
             return new RewriteRule();
         }
 
+        /** Condition */
         public RewriteRule condition(Predicate<ServerRequest> condition) {
             this.condition = condition;
             return this;
         }
 
+        /** StatusRewrite */
         public RewriteRule statusRewrite(java.util.function.IntUnaryOperator statusRewrite) {
             this.statusRewrite = statusRewrite;
             return this;
         }
 
+        /** BodyRewrite */
         public RewriteRule bodyRewrite(java.util.function.BiFunction<ServerRequest, String, String> bodyRewrite) {
             this.bodyRewrite = bodyRewrite;
             return this;
         }
 
+        /** BodyRewriteBytes */
         public RewriteRule bodyRewriteBytes(java.util.function.BiFunction<ServerRequest, byte[], byte[]> bodyRewrite) {
             this.bodyRewriteBytes = bodyRewrite;
             return this;
         }
 
+        /** EndImmediately */
         public RewriteRule endImmediately(boolean endImmediately) {
             this.endImmediately = endImmediately;
             return this;

@@ -89,6 +89,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, inputSize, inputSize);
@@ -98,6 +99,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         int[] classIds = null;
         float[] probabilities = null;

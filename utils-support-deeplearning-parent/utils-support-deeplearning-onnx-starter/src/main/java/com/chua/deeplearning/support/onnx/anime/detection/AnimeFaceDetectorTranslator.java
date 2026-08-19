@@ -82,6 +82,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     private int imageHeight;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -116,6 +117,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.get(0);
         long[] shape = output.getShape().getShape();
@@ -255,6 +257,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

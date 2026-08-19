@@ -27,16 +27,22 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     /** 配置根路径 */
     private final Path rootPath;
 
+    /** 创建 FileConfigSaveOrLoader 实例 */
     public FileConfigSaveOrLoader() {
         this(ConfigSaveLoadSetting.builder().build());
     }
 
+    /**
+     * 创建 FileConfigSaveOrLoader 实例
+     * @param setting setting
+     */
     public FileConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         super(setting);
         this.rootPath = Paths.get(this.setting.getRootPath()).toAbsolutePath().normalize();
     }
 
     @Override
+    /** 保存Bytes */
     public ConfigSaveResult saveBytes(String key, byte[] content) {
         String normalizedKey = normalizeKey(key);
         byte[] bytes = content == null ? new byte[0] : content;
@@ -60,6 +66,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
+    /** 加载Bytes */
     public Optional<byte[]> loadBytes(String key) {
         String normalizedKey = normalizeKey(key);
         try {
@@ -74,6 +81,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
+    /** 删除 */
     public boolean delete(String key) {
         String normalizedKey = normalizeKey(key);
         try {
@@ -83,6 +91,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
     }
 
+    /** 解析 */
     private Path resolve(String key) {
         Path target = rootPath.resolve(key).normalize();
         if (!target.startsWith(rootPath)) {

@@ -24,6 +24,7 @@ public class IpLocation {
     private String isp;
 
     @Override
+    /** ToString */
     public String toString() {
         return String.format("%s%s%s %s",
                 country != null ? country : "",

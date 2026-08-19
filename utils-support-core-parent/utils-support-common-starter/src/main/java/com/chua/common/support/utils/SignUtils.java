@@ -70,6 +70,7 @@ public class SignUtils {
     private static final Set<String> WECHAT_EXCLUDE_KEYS = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList("sign", "sign_type")));
 
+    /** 创建 SignUtils 实例 */
     private SignUtils() {
     }
 
@@ -121,11 +122,26 @@ public class SignUtils {
         return signDirectKey(params, secretKey, DEFAULT_KEY_VALUE_SEPARATOR, DEFAULT_PARAM_SEPARATOR);
     }
 
+    /**
+     * SignDirectKey
+     * @param params params
+     * @param secretKey secretKey
+     * @param kvSeparator kvSeparator
+     * @param paramSeparator paramSeparator
+     */
     public static String signDirectKey(Map<String, ?> params, String secretKey,
                                        String kvSeparator, String paramSeparator) {
         return signDirectKey(params, secretKey, kvSeparator, paramSeparator, null);
     }
 
+    /**
+     * SignDirectKey
+     * @param params params
+     * @param secretKey secretKey
+     * @param kvSeparator kvSeparator
+     * @param paramSeparator paramSeparator
+     * @param excludeKeys excludeKeys
+     */
     public static String signDirectKey(Map<String, ?> params, String secretKey,
                                        String kvSeparator, String paramSeparator,
                                        Set<String> excludeKeys) {
@@ -135,15 +151,31 @@ public class SignUtils {
 
     // ==================== SHA256 签名 ====================
 
+    /** SignSha */
     public static String signSha256(Map<String, ?> params, String secretKey) {
         return signSha256(params, secretKey, DEFAULT_KEY_VALUE_SEPARATOR, DEFAULT_PARAM_SEPARATOR);
     }
 
+    /**
+     * SignSha
+     * @param params params
+     * @param secretKey secretKey
+     * @param kvSeparator kvSeparator
+     * @param paramSeparator paramSeparator
+     */
     public static String signSha256(Map<String, ?> params, String secretKey,
                                     String kvSeparator, String paramSeparator) {
         return signSha256(params, secretKey, kvSeparator, paramSeparator, null);
     }
 
+    /**
+     * SignSha
+     * @param params params
+     * @param secretKey secretKey
+     * @param kvSeparator kvSeparator
+     * @param paramSeparator paramSeparator
+     * @param excludeKeys excludeKeys
+     */
     public static String signSha256(Map<String, ?> params, String secretKey,
                                     String kvSeparator, String paramSeparator,
                                     Set<String> excludeKeys) {
@@ -233,6 +265,13 @@ public class SignUtils {
 
     // ==================== 构建待签名字符串 ====================
 
+    /**
+     * 构建SignContent
+     * @param params params
+     * @param secretKey secretKey
+     * @param kvSeparator kvSeparator
+     * @param paramSeparator paramSeparator
+     */
     public static String buildSignContent(Map<String, ?> params, String secretKey,
                                           String kvSeparator, String paramSeparator) {
         return buildSignContent(params, secretKey, kvSeparator, paramSeparator, null, false, true);
@@ -336,10 +375,18 @@ public class SignUtils {
         return buildSortedParamString(params, DEFAULT_EXCLUDE_KEYS);
     }
 
+    /** 构建SortedParamString */
     public static String buildSortedParamString(Map<String, ?> params, Set<String> excludeKeys) {
         return buildSortedParamString(params, excludeKeys, DEFAULT_PARAM_SEPARATOR, DEFAULT_KEY_VALUE_SEPARATOR);
     }
 
+    /**
+     * 构建SortedParamString
+     * @param params params
+     * @param excludeKeys excludeKeys
+     * @param separator separator
+     * @param kvSeparator kvSeparator
+     */
     public static String buildSortedParamString(Map<String, ?> params, Set<String> excludeKeys,
                                                 String separator, String kvSeparator) {
         return buildSortedParamString(params, excludeKeys, separator, kvSeparator, true);
@@ -363,6 +410,7 @@ public class SignUtils {
 
     // ==================== 签名验证 ====================
 
+    /** 验证 */
     public static boolean verify(Map<String, ?> params, String sign, String secretKey) {
         if (sign == null) {
             return false;
@@ -372,10 +420,18 @@ public class SignUtils {
         return sign.equalsIgnoreCase(calculated);
     }
 
+    /** 验证DirectKey */
     public static boolean verifyDirectKey(Map<String, ?> params, String sign, String secretKey) {
         return verifyDirectKey(params, sign, secretKey, DEFAULT_EXCLUDE_KEYS);
     }
 
+    /**
+     * VerifyDirectKey
+     * @param params params
+     * @param sign sign
+     * @param secretKey secretKey
+     * @param excludeKeys excludeKeys
+     */
     public static boolean verifyDirectKey(Map<String, ?> params, String sign, String secretKey,
                                           Set<String> excludeKeys) {
         if (sign == null) {
@@ -386,10 +442,18 @@ public class SignUtils {
         return sign.equalsIgnoreCase(calculated);
     }
 
+    /** 验证Sha */
     public static boolean verifySha256(Map<String, ?> params, String sign, String secretKey) {
         return verifySha256(params, sign, secretKey, DEFAULT_EXCLUDE_KEYS);
     }
 
+    /**
+     * VerifySha
+     * @param params params
+     * @param sign sign
+     * @param secretKey secretKey
+     * @param excludeKeys excludeKeys
+     */
     public static boolean verifySha256(Map<String, ?> params, String sign, String secretKey,
                                        Set<String> excludeKeys) {
         if (sign == null) {
@@ -402,10 +466,12 @@ public class SignUtils {
 
     // ==================== 构建签名参数 Map ====================
 
+    /** 构建SignedParams */
     public static Map<String, Object> buildSignedParams(Map<String, ?> params, String secretKey) {
         return buildSignedParams(params, secretKey, "sign");
     }
 
+    /** 构建SignedParams */
     public static Map<String, Object> buildSignedParams(Map<String, ?> params, String secretKey, String signKey) {
         Map<String, Object> signedParams = params != null ? new HashMap<>(params) : new HashMap<>();
         String signValue = signDirectKey(params, secretKey);
@@ -413,6 +479,7 @@ public class SignUtils {
         return signedParams;
     }
 
+    /** 构建ShaSignedParams */
     public static Map<String, Object> buildSha256SignedParams(Map<String, ?> params, String secretKey) {
         Map<String, Object> signedParams = params != null ? new HashMap<>(params) : new HashMap<>();
         String signValue = signSha256(params, secretKey);
@@ -422,10 +489,12 @@ public class SignUtils {
 
     // ==================== 提取并验证签名 ====================
 
+    /** ExtractAnd验证Sign */
     public static boolean extractAndVerifySign(Map<String, Object> params, String secretKey) {
         return extractAndVerifySign(params, secretKey, "sign");
     }
 
+    /** ExtractAnd验证Sign */
     public static boolean extractAndVerifySign(Map<String, Object> params, String secretKey, String signKey) {
         if (params == null || !params.containsKey(signKey)) {
             return false;
@@ -439,6 +508,7 @@ public class SignUtils {
 
     // ==================== 内部工具方法 ====================
 
+    /** NormalizeExcludeKeys */
     private static Set<String> normalizeExcludeKeys(Set<String> excludeKeys) {
         if (excludeKeys == null || excludeKeys.isEmpty()) {
             return Collections.emptySet();

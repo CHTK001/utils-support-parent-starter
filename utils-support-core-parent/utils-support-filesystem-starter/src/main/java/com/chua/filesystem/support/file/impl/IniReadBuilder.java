@@ -26,11 +26,16 @@ import java.util.stream.Collectors;
  */
 public class IniReadBuilder extends ReadBuilder {
 
+    /**
+     * 创建 IniReadBuilder 实例
+     * @param file file
+     */
     public IniReadBuilder(File file) {
         super(file);
     }
 
     @Override
+    /** WithCharset */
     public IniReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -123,6 +128,7 @@ public class IniReadBuilder extends ReadBuilder {
     }
 
     @Override
+    /** 读取 */
     public Object read() {
         return rows();
     }

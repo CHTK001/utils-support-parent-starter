@@ -42,10 +42,12 @@ class AgentScopeAgentTest {
         System.setOut(originalOut);
     }
 
+    /** Captured */
     private String captured() {
         return captureOut.toString();
     }
 
+    /** MathAgent */
     private static AgentDefinition mathAgent() {
         return AgentDefinition.builder()
                 .id("math-agent")
@@ -56,6 +58,7 @@ class AgentScopeAgentTest {
                 .build();
     }
 
+    /** ImageAgent */
     private static AgentDefinition imageAgent() {
         AgentDefinition base = AgentDefinition.builder()
                 .id("image-gen")
@@ -67,22 +70,32 @@ class AgentScopeAgentTest {
         return ImageDefinition.wrap(base, "mock-image-model", new MockImageClient());
     }
 
+    /** MockChatClient */
     private static ChatClient mockChatClient() {
         return new MockChatClient();
     }
 
     private static class MockChatClient implements ChatClient {
         @Override
+        /** ChatSync */
         public String chatSync(String prompt) {
             return "[Mock] 收到: " + prompt;
         }
 
         @Override
+        /** Chat */
         public void chat(String prompt, Consumer<ChatResponse> consumer) {
             chat(prompt, consumer, () -> {}, e -> {});
         }
 
         @Override
+        /**
+         * 对话
+         * @param prompt prompt
+         * @param consumer consumer
+         * @param onComplete onComplete
+         * @param onError onError
+         */
         public void chat(String prompt, Consumer<ChatResponse> consumer,
                          Runnable onComplete, Consumer<Throwable> onError) {
             consumer.accept(ChatResponse.builder().state(ChatResponse.State.START).build());
@@ -93,15 +106,18 @@ class AgentScopeAgentTest {
         }
 
         @Override
+        /** Models */
         public List<com.chua.common.support.ai.chat.ModelDefinition> models() {
             return List.of();
         }
 
         @Override
+        /** 关闭 */
         public void close() {
         }
 
         @Override
+        /** ToString */
         public String toString() {
             return "MockChatClient";
         }
@@ -309,21 +325,25 @@ class AgentScopeAgentTest {
 
         private static class MockImageClient implements ImageClient {
         @Override
+        /** Generate */
         public BufferedImage generate(String prompt) {
             return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         }
 
         @Override
+        /** 创建Task */
         public String createTask(String prompt) {
             throw new UnsupportedOperationException("Mock image client does not support async tasks");
         }
 
         @Override
+        /** 查询Task */
         public com.chua.common.support.ai.image.ImageResponse queryTask(String taskId) {
             throw new UnsupportedOperationException("Mock image client does not support async tasks");
         }
 
         @Override
+        /** ToString */
         public String toString() {
             return "MockImageClient{}";
         }

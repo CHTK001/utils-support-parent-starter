@@ -89,6 +89,10 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
      */
     private volatile long startTime;
 
+    /**
+     * 创建 DefaultRuntimeInstance 实例
+     * @param artifact artifact
+     */
     public DefaultRuntimeInstance(RuntimeArtifact artifact) {
         this.artifact = artifact;
         this.status = new AtomicReference<>(RuntimeStatus.STOPPED);
@@ -98,16 +102,19 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** Artifact */
     public RuntimeArtifact artifact() {
         return artifact;
     }
 
     @Override
+    /** Status */
     public RuntimeStatus status() {
         return status.get();
     }
 
     @Override
+    /** Pid */
     public long pid() {
         Process p = processRef.get();
         if (p != null && p.isAlive()) {
@@ -117,6 +124,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** 开始 */
     public synchronized CmdResult start() {
         if (status.get() == RuntimeStatus.RUNNING) {
             return CmdResult.builder()
@@ -203,6 +211,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** 停止 */
     public synchronized CmdResult stop() {
         // 优先通过 SPI RuntimeLauncher 停止
         RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
@@ -244,12 +253,14 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** Restart */
     public synchronized CmdResult restart() {
         stop();
         return start();
     }
 
     @Override
+    /** Health校验 */
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String cmd = artifact.getHealthCheckCommand();
@@ -268,21 +279,25 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** 记录日志Stream */
     public LogStream logStream() {
         return logStream;
     }
 
     @Override
+    /** OnExit */
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         stop();
         logStream.close();
     }
 
+    /** 构建Command */
     private List<String> buildCommand() {
         List<String> cmd = new ArrayList<>();
         Path exec = artifact.getExecutable();
@@ -313,11 +328,13 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         return cmd;
     }
 
+    /** 是否拥有Health校验 */
     private boolean hasHealthCheck() {
         return StringUtils.isNotEmpty(artifact.getHealthCheckUrl())
                 || StringUtils.isNotEmpty(artifact.getHealthCheckCommand());
     }
 
+    /** Health校验Http */
     private CmdResult healthCheckHttp(String url) {
         try {
             HttpClient client = HttpClient.newBuilder()
@@ -335,6 +352,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
     }
 
+    /** 开始记录日志Reader */
     private void startLogReader(Process process) {
         stopLogReader();
         Thread t = new Thread(() -> {
@@ -356,6 +374,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         t.start();
     }
 
+    /** 停止记录日志Reader */
     private void stopLogReader() {
         Thread t = this.logThread;
         if (t != null && t.isAlive()) {
@@ -364,6 +383,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
     }
 
+    /** WaitForExitAsync */
     private void waitForExitAsync(Process process) {
         CompletableFuture.runAsync(() -> {
             try {

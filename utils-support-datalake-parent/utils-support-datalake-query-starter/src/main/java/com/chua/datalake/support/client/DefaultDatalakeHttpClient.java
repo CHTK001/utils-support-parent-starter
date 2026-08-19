@@ -11,6 +11,10 @@ import java.util.Map;
  */
 public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
 
+    /**
+     * 创建 DefaultDatalakeHttpClient 实例
+     * @param baseUrl baseUrl
+     */
     public DefaultDatalakeHttpClient(String baseUrl) {
         super(baseUrl);
     }

@@ -15,6 +15,7 @@ public class OsgiLauncherHolder {
     /** INSTANCE */
     private static volatile OsgiLauncher INSTANCE;
 
+    /** 创建 OsgiLauncherHolder 实例 */
     private OsgiLauncherHolder() {}
 
     /**

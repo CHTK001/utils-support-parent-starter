@@ -49,6 +49,11 @@ public class ConvertSupport {
      */
     private ConvertSetting setting = new ConvertSetting();
 
+    /**
+     * 创建 ConvertSupport 实例
+     * @param sourceType sourceType
+     * @param String String
+     */
     private ConvertSupport(String sourceType, String targetType) {
         this.sourceType = sourceType;
         this.targetType = targetType;

@@ -32,6 +32,7 @@ public class SafeTensorChatClient extends AbstractLocalChatClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("llm", "vlm");
     }
@@ -42,6 +43,7 @@ public class SafeTensorChatClient extends AbstractLocalChatClient {
  */
 final class SafeTensorModels {
 
+    /** 创建 SafeTensorModels 实例 */
     private SafeTensorModels() {
     }
 

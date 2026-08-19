@@ -20,6 +20,7 @@ package com.chua.common.support.task.flow;
 public interface TransformNode extends FlowNode {
 
     @Override
+    /** Type */
     default String type() {
         return "transform";
     }

@@ -36,6 +36,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     /** Playlist_ids_property */
     private static final String PLAYLIST_IDS_PROPERTY = "music.bd.playlist-ids";
     @Override
+    /** 获取Source */
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("bd")
@@ -46,6 +47,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 获取Overview */
     public MusicOverview getOverview() {
         List<MusicPlaylistSummary> featured = new ArrayList<>();
         for (String playlistId : configuredPlaylistIds()) {
@@ -58,6 +60,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 搜索 */
     public MusicSearchResult search(String keyword, int page, int pageSize) {
         JsonNode root = getJson("https://bd-api.kuwo.cn/api/search/searchKey?key=" + encode(keyword)
                 + "&pn=" + page + "&rn=" + pageSize, this::applyHeaders);
@@ -79,6 +82,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 搜索Playlists */
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
         List<MusicPlaylistSummary> playlists = new ArrayList<>();
         if (StringUtils.hasText(keyword) && keyword.chars().allMatch(Character::isDigit)) {
@@ -98,6 +102,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 获取PlaylistCategoryCatalog */
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
         return MusicPlaylistCategoryCatalog.builder()
                 .source(getSource().getCode())
@@ -107,6 +112,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 获取CategoryPlaylists */
     public MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
         List<MusicPlaylistSummary> playlists = new ArrayList<>();
         for (String playlistId : configuredPlaylistIds()) {
@@ -129,6 +135,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 获取PlaylistDetail */
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         String requestId = String.valueOf(System.nanoTime());
         JsonNode infoRoot = getJson("https://bd-api.kuwo.cn/api/service/playlist/info/" + encode(playlistId)
@@ -169,6 +176,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
     }
 
     @Override
+    /** 获取TrackDetail */
     public MusicTrackDetail getTrackDetail(String trackId) {
         JsonNode root = getJson("https://bd-api.kuwo.cn/api/service/song/detail/" + encode(trackId)
                 + "?reqId=" + System.nanoTime() + "&source=5", this::applyHeaders);
@@ -191,12 +199,14 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
                 .build();
     }
 
+    /** 应用Headers */
     private void applyHeaders(HttpClientBuilder builder) {
         builder.header("User-Agent", MOBILE_UA)
                 .header("plat", "h5")
                 .header("Referer", "https://bd.kuwo.cn/");
     }
 
+    /** ToSummary */
     private MusicPlaylistSummary toSummary(MusicPlaylistDetail detail) {
         return MusicPlaylistSummary.builder()
                 .playlistId(detail.getPlaylistId())
@@ -210,6 +220,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
                 .build();
     }
 
+    /** ConfiguredPlaylistIds */
     private List<String> configuredPlaylistIds() {
         String value = System.getProperty(PLAYLIST_IDS_PROPERTY);
         if (!StringUtils.hasText(value)) {
@@ -225,6 +236,7 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
                 .collect(Collectors.toList());
     }
 
+    /** 合并Artists */
     private String joinArtists(JsonNode node) {
         List<String> names = new ArrayList<>();
         for (JsonNode item : elements(node)) {

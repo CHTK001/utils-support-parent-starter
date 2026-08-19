@@ -100,11 +100,13 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** 是否DelegatedOperatingSystem */
     public boolean isDelegatedOperatingSystem() {
         return false;
     }
 
     @Override
+    /** 开始 */
     public void start(DirectoryPollerEnvironment env, DirectoryPollerExecutor executor) {
         if (running) {
             log.warn("DhtPolledDirectory is already running");
@@ -145,6 +147,7 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** Upgrade */
     public void upgrade() {
         if (running && scheduler != null) {
             scheduler.execute(this::pollDirectories);
@@ -152,6 +155,7 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(PolledListener listener) {
         if (listener != null) {
             listeners.add(listener);
@@ -159,6 +163,7 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (!running) {
             return;

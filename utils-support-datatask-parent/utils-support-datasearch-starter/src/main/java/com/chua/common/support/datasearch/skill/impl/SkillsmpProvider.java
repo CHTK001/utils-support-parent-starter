@@ -175,17 +175,20 @@ public class SkillsmpProvider {
         private volatile boolean initialized = false;
 
         @Override
+        /** 初始化 */
         public void init() {
             initialized = true;
             log.info("skillsmp MCP 客户端已初始化");
         }
 
         @Override
+        /** ListTools */
         public List<McpToolDescriptor> listTools() {
             return toolDescriptors();
         }
 
         @Override
+        /** 调用Tool */
         public McpToolResult callTool(McpToolCall toolCall) {
             try {
                 if ((PREFIX + "search").equals(toolCall.getToolName())) {
@@ -199,6 +202,7 @@ public class SkillsmpProvider {
         }
 
         @Override
+        /** 是否Initialized */
         public boolean isInitialized() {
             return initialized;
         }

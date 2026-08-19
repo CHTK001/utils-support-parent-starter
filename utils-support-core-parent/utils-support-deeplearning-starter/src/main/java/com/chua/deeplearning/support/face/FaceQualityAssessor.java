@@ -56,6 +56,7 @@ public interface FaceQualityAssessor {
         return this;
     }
 
+    /** 创建 */
     static FaceQualityAssessor create(String name) {
         return new DefaultFaceQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -202,24 +203,28 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
+    /** BlurThreshold */
     public FaceQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** 最小值FaceRatio */
     public FaceQualityAssessor minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceQualityAssessor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceQualityAssessor device(String device) {
         this.device = device;
         return this;
@@ -227,6 +232,7 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Assess */
     public FaceQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], FaceQualityInfo> t =
                 (ITranslator<byte[], FaceQualityInfo>) engine.get(modelName, ITranslator.class);

@@ -39,6 +39,7 @@ public class CorsServerFilter implements ServerFilter {
     private boolean allowCredentials;
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         String origin = config.getInitParameter("cors.allowOrigin");
         if (origin != null && !origin.isEmpty()) {
@@ -63,6 +64,7 @@ public class CorsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         response.setHeader("Access-Control-Allow-Origin", allowOrigin);
         response.setHeader("Access-Control-Allow-Methods", allowMethods);
@@ -80,16 +82,19 @@ public class CorsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 5;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "CorsServerFilter";
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

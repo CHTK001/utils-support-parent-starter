@@ -84,30 +84,35 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
+    /** System */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Tools */
     public ChatClient tools(List<ChatTool> tools) {
         // Needle 引擎暂不支持工具调用
         return this;
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         return chatSync(prompt, 0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** ChatSync */
     public String chatSync(String prompt, long timeoutMillis) {
         NeedleNative.init(system, "[]", null);
         String raw = NeedleNative.complete(prompt, maxTokens);
@@ -115,6 +120,7 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSyncWithResponse */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -123,11 +129,13 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         return this;
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         ModelDefinition definition = ModelDefinition.builder()
                 .id(model != null ? model : "needle2")

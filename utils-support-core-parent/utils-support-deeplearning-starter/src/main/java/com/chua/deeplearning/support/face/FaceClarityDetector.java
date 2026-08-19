@@ -217,24 +217,28 @@ class DefaultFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
+    /** BlurThreshold */
     public FaceClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** 最小值FaceRatio */
     public FaceClarityDetector minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public FaceClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceClarityDetector device(String device) {
         this.device = device;
         return this;
@@ -242,6 +246,7 @@ class DefaultFaceClarityDetector implements FaceClarityDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Assess */
     public FaceQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], FaceQualityInfo> t =
                 (ITranslator<byte[], FaceQualityInfo>) engine.get(modelName, ITranslator.class);

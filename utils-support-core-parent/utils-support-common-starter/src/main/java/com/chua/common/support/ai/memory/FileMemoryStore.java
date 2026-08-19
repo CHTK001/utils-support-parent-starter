@@ -42,6 +42,10 @@ public class FileMemoryStore implements MemoryStore {
     /** 内存存储目录 */
     private final Path memoryDir;
 
+    /**
+     * 创建 FileMemoryStore 实例
+     * @param config config
+     */
     public FileMemoryStore(MemoryConfig config) {
         this.config = config;
         this.memoryDir = Paths.get(config.getWorkspace(), "memory");
@@ -53,6 +57,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** 保存 */
     public void save(MemoryEntry entry) {
         String id = entry.getId();
         long createdAt = entry.getCreatedAt();
@@ -80,6 +85,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** 搜索 */
     public List<MemoryEntry> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return listAll(limit);
@@ -94,6 +100,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** ListByType */
     public List<MemoryEntry> listByType(String type, int limit) {
         return listAll(Integer.MAX_VALUE).stream()
                 .filter(e -> type.equals(e.getType()))
@@ -103,6 +110,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** ListBySession */
     public List<MemoryEntry> listBySession(String sessionId) {
         return listAll(Integer.MAX_VALUE).stream()
                 .filter(e -> sessionId.equals(e.getSessionId()))
@@ -111,6 +119,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** 删除 */
     public boolean delete(String id) {
         Path file = memoryDir.resolve(id + ".json");
         try {
@@ -121,6 +130,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** 计算数量 */
     public int count() {
         try {
             return (int) Files.list(memoryDir)
@@ -132,6 +142,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** Backup */
     public void backup(String backupPath) {
         try {
             Path target = Paths.get(backupPath);
@@ -145,6 +156,7 @@ public class FileMemoryStore implements MemoryStore {
     }
 
     @Override
+    /** Restore */
     public void restore(String backupPath) {
         try {
             String json = Files.readString(Paths.get(backupPath));
@@ -158,6 +170,7 @@ public class FileMemoryStore implements MemoryStore {
         }
     }
 
+    /** ListAll */
     private List<MemoryEntry> listAll(int limit) {
         List<MemoryEntry> result = new ArrayList<>();
         try {
@@ -182,6 +195,7 @@ public class FileMemoryStore implements MemoryStore {
         return result;
     }
 
+    /** EvictIfNeeded */
     private void evictIfNeeded() {
         int current = count();
         if (current <= config.getMaxEntries()) {

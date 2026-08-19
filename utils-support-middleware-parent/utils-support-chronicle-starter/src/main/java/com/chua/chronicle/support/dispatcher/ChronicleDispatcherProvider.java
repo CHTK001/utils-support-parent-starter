@@ -44,10 +44,15 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     /** closed */
     private volatile boolean closed = false;
 
+    /**
+     * 创建 ChronicleDispatcherProvider 实例
+     * @param config config
+     */
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
+    /** 获取Or创建Queue */
     private ChronicleQueue getOrCreateQueue(String topic) {
         try {
             return queueMap.computeIfAbsent(topic, t -> {
@@ -66,6 +71,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         var queue = getOrCreateQueue(topic);
         try {
@@ -80,6 +86,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -90,6 +97,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
+    /** 开始Consumer */
     private void startConsumer(String topic) {
         ChronicleQueue queue = getOrCreateQueue(topic);
 executor.submit(() -> {
@@ -216,6 +224,7 @@ executor.submit(() -> {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -229,6 +238,7 @@ executor.submit(() -> {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         executor.shutdown();

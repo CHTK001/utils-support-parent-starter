@@ -24,31 +24,37 @@ public class OpenSearchHandler extends AbstractAppHandler {
     private static final String[] CLIENT_METHODS = {"search", "get", "index", "delete", "update", "bulk", "count", "exists"};
 
     @Override
+    /** Name */
     public String name() {
         return "opensearch-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "opensearch.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.OPENSEARCH;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.ELASTICSEARCH;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(REST_CLIENT, CLIENT_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

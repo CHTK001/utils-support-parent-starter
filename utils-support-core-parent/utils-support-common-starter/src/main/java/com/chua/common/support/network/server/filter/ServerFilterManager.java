@@ -59,6 +59,10 @@ public class ServerFilterManager {
      */
     private volatile boolean dirty = true;
 
+    /**
+     * 创建 ServerFilterManager 实例
+     * @param protocolType protocolType
+     */
     public ServerFilterManager(ProtocolType protocolType) {
         this.protocolType = protocolType;
     }

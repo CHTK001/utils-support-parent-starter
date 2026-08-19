@@ -209,6 +209,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 解析 */
     public JsonNode parse(String json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -222,6 +223,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 解析 */
     public JsonNode parse(byte[] json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -230,16 +232,19 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 构建 */
     public JsonNode build() {
         return createJsonNode(createJsonObject());
     }
 
     @Override
+    /** 构建Array */
     public JsonNode buildArray() {
         return createJsonNode(createJsonArray());
     }
 
     @Override
+    /** 获取JsonObject */
     public JsonObject getJsonObject(String json) {
         try {
             return createJsonObject(getMapper().readValue(json, Map.class));
@@ -249,11 +254,13 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 获取JsonReference */
     public JsonReference getJsonReference(String json) {
         return new JsonReference(json);
     }
 
     @Override
+    /** 获取JsonArray */
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
             return createJsonArray();
@@ -262,6 +269,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 获取JsonArray */
     public JsonArray getJsonArray(String json) {
         if (null == json) {
             return createJsonArray();
@@ -274,6 +282,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 获取JsonObject */
     public JsonObject getJsonObject(byte[] bytes) {
         try {
             return createJsonObject(getMapper().readValue(bytes, Map.class));
@@ -283,6 +292,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 获取JsonObject */
     public JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         try {
             return createJsonObject(getMapper().readValue(inputStreamReader, Map.class));
@@ -292,11 +302,13 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 获取JsonObject */
     public JsonObject getJsonObject(InputStream inputStream) {
         return getJsonObject(new InputStreamReader(inputStream, UTF_8));
     }
 
     @Override
+    /** 获取JsonObject */
     public JsonObject getJsonObject(InputStream inputStream, String charset) {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
@@ -306,12 +318,14 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJsonToList */
     public <T> List<T> fromJsonToList(InputStream inputStream, Class<T> targetType) {
         return fromJsonToList(IoUtils.asString(new InputStreamReader(inputStream, UTF_8)), targetType);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** FromJsonToList */
     public <T> List<T> fromJsonToList(String json, Class<T> targetType) {
         if (null == json) {
             return Collections.emptyList();
@@ -325,6 +339,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(String json, Class<T> target) {
         try {
             return getMapper().readValue(json, target);
@@ -334,6 +349,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(byte[] bytes, Class<T> target) {
         try {
             return getMapper().readValue(bytes, target);
@@ -343,6 +359,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public JsonObject fromJson(byte[] bytes, Charset charset) {
         try {
             return createJsonObject(getMapper().readValue(new String(bytes, charset), Map.class));
@@ -352,6 +369,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> target) {
         try {
             return getMapper().readValue(inputStreamReader, target);
@@ -361,6 +379,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(InputStream inputStream, Class<T> target) {
         try {
             return getMapper().readValue(inputStream, target);
@@ -370,6 +389,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** ToJson */
     public String toJson(Object object, String... ignores) {
         try {
             // 收集需要忽略的字段名
@@ -427,6 +447,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** Pretty格式化 */
     public String prettyFormat(Object object) {
         try {
             return getPrettyFormatMapper().writeValueAsString(object);
@@ -436,11 +457,13 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** ToPrettyJson */
     public String toPrettyJson(Object obj) {
         return prettyFormat(obj);
     }
 
     @Override
+    /** ToJsonByte */
     public byte[] toJsonByte(Object object) {
         try {
             return getMapper().writeValueAsBytes(object);
@@ -450,6 +473,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** 是否Json */
     public boolean isJson(Object ext) {
         if (null == ext) {
             return false;
@@ -474,16 +498,19 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** ToJSONBytes */
     public byte[] toJSONBytes(Object object) {
         return toJsonByte(object);
     }
 
     @Override
+    /** ToJSONString */
     public String toJSONString(Object object) {
         return toJson(object);
     }
 
     @Override
+    /** 校验 */
     public boolean validate(String jsonStr) {
         try {
             getMapper().readTree(jsonStr);
@@ -494,6 +521,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public Map<String, Object> fromJson(String string) {
         try {
             return getMapper().readerForMapOf(Object.class).readValue(string);
@@ -503,6 +531,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(String stringValue, Type type) {
         try {
             ObjectMapper mapper = getMapper();
@@ -514,6 +543,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(Reader reader, Class<T> target) {
         try {
             return getMapper().readValue(reader, target);
@@ -523,6 +553,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** ToJson */
     public void toJson(Object object, Writer writer) {
         try {
             getMapper().writeValue(writer, object);
@@ -532,6 +563,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(InputStream stream, Type type) {
         try (stream) {
             ObjectMapper mapper = getMapper();
@@ -542,6 +574,7 @@ public class JacksonJsonProvider implements JsonProvider {
     }
 
     @Override
+    /** FromJson */
     public <T> T fromJson(Reader reader, Type type) {
         try {
             ObjectMapper mapper = getMapper();

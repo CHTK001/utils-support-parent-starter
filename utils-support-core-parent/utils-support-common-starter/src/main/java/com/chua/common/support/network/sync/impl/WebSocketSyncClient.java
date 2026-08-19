@@ -106,6 +106,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
+    /** 连接 */
     public void connect() {
         if (connected) {
             return;
@@ -122,6 +123,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (!connected) {
             return;
@@ -134,16 +136,19 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
+    /** 获取ClientId */
     public String getClientId() {
         return clientId;
     }
 
     @Override
+    /** 发送 */
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -180,37 +185,44 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取Metadata */
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "websocket");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }
 
     // ==================== 连接管理 ====================
 
+    /** Do连接 */
     private void doConnect() throws Exception {
         String url = serverUrl;
         if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
@@ -245,6 +257,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     // ==================== 接收线程 ====================
 
+    /** 开始接收Thread */
     private void startReceiveThread() {
         receiveThread = ThreadUtils.newThread(() -> {
             while (connected && socket != null && !socket.isClosed()) {
@@ -263,6 +276,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         receiveThread.start();
     }
 
+    /** 停止接收Thread */
     private void stopReceiveThread() {
         if (receiveThread != null) {
             receiveThread.interrupt();
@@ -270,6 +284,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         }
     }
 
+    /** 读取Frames */
     private void readFrames() throws IOException {
         InputStream in = socket.getInputStream();
         while (connected && !socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -336,6 +351,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     // ==================== 重连 ====================
 
+    /** AttemptReconnect */
     private void attemptReconnect() {
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;
@@ -361,6 +377,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     // ==================== 工具方法 ====================
 
+    /** 关闭Silently */
     private void closeSilently(Socket s) {
         if (s != null && !s.isClosed()) {
             try {
@@ -371,6 +388,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         }
     }
 
+    /** 通知Listeners */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

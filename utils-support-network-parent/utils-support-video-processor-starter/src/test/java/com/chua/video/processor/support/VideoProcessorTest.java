@@ -19,6 +19,7 @@ public class VideoProcessorTest {
      */
     private static int failed = 0;
 
+    /** Main */
     public static void main(String[] args) {
         testBridgeLoad();
         testBridgeNative();
@@ -33,6 +34,7 @@ public class VideoProcessorTest {
         if (failed > 0) System.exit(1);
     }
 
+    /** TestBridge加载 */
     private static void testBridgeLoad() {
         System.out.println("--- 1. Bridge 加载状态测试 ---");
 
@@ -44,6 +46,7 @@ public class VideoProcessorTest {
         }
     }
 
+    /** TestBridgeNative */
     private static void testBridgeNative() {
         System.out.println("--- 2. Bridge native 调用测试 ---");
 
@@ -62,6 +65,7 @@ public class VideoProcessorTest {
         }
     }
 
+    /** TestFileSourcePath */
     private static void testFileSourcePath() {
         System.out.println("--- 3. FileSource path 测试 ---");
 
@@ -72,6 +76,7 @@ public class VideoProcessorTest {
         assertTest("getPath", "/tmp/input.mp4".equals(src.getPath()));
     }
 
+    /** TestFileSourceStream */
     private static void testFileSourceStream() {
         System.out.println("--- 4. FileSource stream 测试 ---");
 
@@ -85,6 +90,7 @@ public class VideoProcessorTest {
         assertTest("out type", "hls".equals(out.getType()));
     }
 
+    /** TestFileSourceUrl */
     private static void testFileSourceUrl() {
         System.out.println("--- 5. FileSource url 测试 ---");
 
@@ -104,6 +110,7 @@ public class VideoProcessorTest {
         }
     }
 
+    /** AssertTest */
     private static void assertTest(String name, boolean condition) {
         if (condition) {
             System.out.println("  [PASS] " + name);

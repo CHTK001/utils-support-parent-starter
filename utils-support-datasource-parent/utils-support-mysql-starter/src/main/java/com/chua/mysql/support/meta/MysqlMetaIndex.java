@@ -21,15 +21,27 @@ import java.util.List;
 
 public class MysqlMetaIndex extends AbstractMetaIndex {
 
+    /**
+     * 创建 MysqlMetaIndex 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
+    /**
+     * 创建 MysqlMetaIndex 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     * @param String String
+     */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine, String indexName) {
         super(metaData, engine, indexName);
     }
 
     @Override
+    /** List */
     public List<IndexMetadata> list() {
         List<IndexMetadata> result = new ArrayList<>();
         if (tableName == null) {
@@ -86,6 +98,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     @Override
+    /** 获取 */
     public IndexMetadata get(String indexName) {
         List<IndexMetadata> all = list();
         return all.stream()
@@ -95,16 +108,19 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     @Override
+    /** 创建 */
     public IndexCreateBuilder create(String indexName) {
         return new MysqlIndexCreateBuilder(this, indexName);
     }
 
     @Override
+    /** Drop */
     public boolean drop(String indexName) {
         String sql = "ALTER TABLE " + quote(tableName) + " DROP INDEX " + quote(indexName);
         return executeUpdate(sql);
     }
 
+    /** 获取Connection */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -117,10 +133,12 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
+    /** Quote */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
+    /** 执行更新 */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -154,12 +172,14 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
 
         @Override
+        /** Column */
         public IndexCreateBuilder column(String columnName) {
             columns.add(columnName);
             return this;
         }
 
         @Override
+        /** Columns */
         public IndexCreateBuilder columns(String... columnNames) {
             for (String col : columnNames) {
                 columns.add(col);
@@ -168,36 +188,42 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
 
         @Override
+        /** Unique */
         public IndexCreateBuilder unique() {
             this.unique = true;
             return this;
         }
 
         @Override
+        /** Type */
         public IndexCreateBuilder type(String type) {
             this.type = type;
             return this;
         }
 
         @Override
+        /** Using */
         public IndexCreateBuilder using(String algorithm) {
             this.type = algorithm;
             return this;
         }
 
         @Override
+        /** Comment */
         public IndexCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
+        /** Visible */
         public IndexCreateBuilder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
         @Override
+        /** 执行 */
         public IndexMetadata execute() {
             if (columns.isEmpty()) {
                 throw new IllegalStateException("索引列不能为空");
@@ -228,6 +254,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
     }
 
+    /** EscapeSql */
     private static String escapeSql(String value) {
         if (value == null) {
             return "";

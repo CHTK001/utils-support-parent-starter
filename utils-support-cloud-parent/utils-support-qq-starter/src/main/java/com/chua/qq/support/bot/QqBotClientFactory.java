@@ -16,12 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 public class QqBotClientFactory implements BotClient.Factory {
 
     @Override
+    /** 创建 */
     public BotClient create() {
         log.debug("Creating QQ Bot client");
         return new QqBotClient();
     }
 
     @Override
+    /** Builder */
     public BotClient.Builder builder() {
         log.debug("Creating QQ Bot client builder");
         return new QqBuilder();
@@ -69,18 +71,30 @@ public class QqBotClientFactory implements BotClient.Factory {
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
+        /** Token */
         public BotClient.Builder token(String token) {
             this.appId = token;
             return this;
         }
 
         @Override
+        /** Secret */
         public BotClient.Builder secret(String secret) {
             this.appSecret = secret;
             return this;
         }
 
         @Override
+        /**
+         * EncodingAesKey
+         * @param encodingAesKey encodingAesKey
+         * @param baseUrl baseUrl
+         * @param connectTimeoutMillis connectTimeoutMillis
+         * @param readTimeoutMillis readTimeoutMillis
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param appId appId
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             this.botToken = encodingAesKey;
@@ -88,12 +102,21 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /** BaseUrl */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
         @Override
+        /**
+         * 连接TimeoutMillis
+         * @param connectTimeoutMillis connectTimeoutMillis
+         * @param readTimeoutMillis readTimeoutMillis
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param appId appId
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
@@ -101,6 +124,13 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /**
+         * 读取TimeoutMillis
+         * @param readTimeoutMillis readTimeoutMillis
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param appId appId
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -108,6 +138,12 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /**
+         * Config保存OrLoader
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param appId appId
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             this.configSaveOrLoader = configSaveOrLoader;
@@ -115,6 +151,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /** 构建 */
         public BotClient build() {
             QqBotClient client = new QqBotClient();
             if (appId != null) {

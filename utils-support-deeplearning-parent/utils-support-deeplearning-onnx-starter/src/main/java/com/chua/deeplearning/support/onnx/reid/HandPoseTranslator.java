@@ -43,6 +43,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     private static final int NUM_KEYPOINTS = 21;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -69,6 +70,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // Identity: [1, 63]     21              3 (x,y,z)
         NDArray landmarks = list.get(0);
@@ -97,6 +99,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

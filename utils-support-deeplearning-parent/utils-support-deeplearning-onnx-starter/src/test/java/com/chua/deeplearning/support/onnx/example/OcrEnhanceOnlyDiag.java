@@ -13,9 +13,11 @@ import java.nio.file.Path;
  */
 public final class OcrEnhanceOnlyDiag {
 
+    /** 创建 OcrEnhanceOnlyDiag 实例 */
     private OcrEnhanceOnlyDiag() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         ImageEnhancer enhancer = ImageEnhancer.create("text-bsr");
         String[] files = {

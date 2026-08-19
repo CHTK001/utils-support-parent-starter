@@ -148,11 +148,13 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     @Override
+    /** 比较To */
     public int compareTo(KademliaNodeId o) {
         return this.getInt().compareTo(o.getInt());
     }
 
     @Override
+    /** 判断相等 */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -165,11 +167,13 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         return Arrays.hashCode(id);
     }
 
     @Override
+    /** ToString */
     public String toString() {
         StringBuilder sb = new StringBuilder(40);
         for (byte b : id) {

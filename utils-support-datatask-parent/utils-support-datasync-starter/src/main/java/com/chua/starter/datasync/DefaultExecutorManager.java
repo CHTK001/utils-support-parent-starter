@@ -33,22 +33,33 @@ public class DefaultExecutorManager implements ExecutorManager {
     /** 是否已启动 */
     private final AtomicBoolean started = new AtomicBoolean(false);
 
+    /**
+     * 创建 DefaultExecutorManager 实例
+     * @param serverId serverId
+     */
     public DefaultExecutorManager(String serverId) {
         this(serverId, false);
     }
 
+    /**
+     * 创建 DefaultExecutorManager 实例
+     * @param serverId serverId
+     * @param boolean boolean
+     */
     public DefaultExecutorManager(String serverId, boolean directDispatch) {
         this.serverId = serverId;
         this.directDispatch = directDispatch;
     }
 
     @Override
+    /** 开始 */
     public void start() {
         started.set(true);
         log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}, directDispatch={}", serverId, executors.size(), directDispatch);
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         started.set(false);
         executors.values().forEach(executor -> {
@@ -63,6 +74,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     }
 
     @Override
+    /** 获取Executor */
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
             ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);
@@ -75,6 +87,7 @@ public class DefaultExecutorManager implements ExecutorManager {
         });
     }
 
+    /** 获取Executor计算数量 */
     public int getExecutorCount() {
         return executors.size();
     }

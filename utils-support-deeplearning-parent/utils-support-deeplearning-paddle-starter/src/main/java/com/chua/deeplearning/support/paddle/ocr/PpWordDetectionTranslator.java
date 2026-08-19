@@ -30,15 +30,21 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
      */
     private final int maxSideLen;
 
+    /** 创建 PpWordDetectionTranslator 实例 */
     public PpWordDetectionTranslator() {
         this(960);
     }
 
+    /**
+     * 创建 PpWordDetectionTranslator 实例
+     * @param maxSideLen maxSideLen
+     */
     public PpWordDetectionTranslator(int maxSideLen) {
         this.maxSideLen = maxSideLen;
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         result = result.squeeze().mul(255f).toType(DataType.UINT8, true).gt(0.3);
@@ -61,6 +67,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager());
         int h = input.getHeight();
@@ -88,6 +95,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         return new NDList(img);
     }
 
+    /** Align */
     private int align32(int value) {
         if (value % 32 == 0) {
             return value;
@@ -99,6 +107,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

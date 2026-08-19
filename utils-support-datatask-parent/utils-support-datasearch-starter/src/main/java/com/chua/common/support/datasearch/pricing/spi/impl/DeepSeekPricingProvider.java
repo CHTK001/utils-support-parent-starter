@@ -27,6 +27,7 @@ public class DeepSeekPricingProvider extends AbstractPricingProvider {
     private static final String PRICING_URL = "https://api-docs.deepseek.com/quick_start/pricing/";
 
     @Override
+    /** FetchOnlinePricing */
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(PRICING_URL);
         if (html == null || html.isEmpty()) {

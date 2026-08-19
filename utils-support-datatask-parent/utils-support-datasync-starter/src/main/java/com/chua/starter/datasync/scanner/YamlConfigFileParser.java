@@ -25,12 +25,14 @@ import java.util.Map;
 public class YamlConfigFileParser implements ConfigFileParser {
 
     @Override
+    /** Supports */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".yaml") || name.endsWith(".yml");
     }
 
     @Override
+    /** 解析 */
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         Yaml yaml = new Yaml();
         try (InputStream is = Files.newInputStream(file)) {
@@ -112,11 +114,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         );
     }
 
+    /** 获取String */
     private static String getString(Map<String, Object> map, String key) {
         Object v = map.get(key);
         return v != null ? String.valueOf(v) : null;
     }
 
+    /** 获取Int */
     private static int getInt(Map<String, Object> map, String key, int defaultValue) {
         Object v = map.get(key);
         if (v instanceof Number n) {
@@ -137,16 +141,19 @@ public class YamlConfigFileParser implements ConfigFileParser {
     private record DefaultDataSyncFieldMapping(String sourceField, String targetField, String converter)
             implements DataSyncFieldMapping {
         @Override
+        /** SourceField */
         public String sourceField() {
             return sourceField;
         }
 
         @Override
+        /** TargetField */
         public String targetField() {
             return targetField;
         }
 
         @Override
+        /** Converter */
         public String converter() {
             return converter;
         }
@@ -169,46 +176,55 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String directoryPath
     ) implements DirectoryConfigDefinition {
         @Override
+        /** SourceId */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
+        /** OutputId */
         public String outputId() {
             return outputId;
         }
 
         @Override
+        /** SinkId */
         public String sinkId() {
             return sinkId;
         }
 
         @Override
+        /** Mappings */
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
         @Override
+        /** Batch */
         public int batch() {
             return batch;
         }
 
         @Override
+        /** CronType */
         public String cronType() {
             return cronType;
         }
 
         @Override
+        /** Cron */
         public String cron() {
             return cron;
         }
 
         @Override
+        /** Params */
         public Map<String, Object> params() {
             return params;
         }
 
         @Override
+        /** DirectoryPath */
         public String directoryPath() {
             return directoryPath;
         }
@@ -231,46 +247,55 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String filePath
     ) implements FileConfigDefinition {
         @Override
+        /** SourceId */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
+        /** OutputId */
         public String outputId() {
             return outputId;
         }
 
         @Override
+        /** SinkId */
         public String sinkId() {
             return sinkId;
         }
 
         @Override
+        /** Mappings */
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
         @Override
+        /** Batch */
         public int batch() {
             return batch;
         }
 
         @Override
+        /** CronType */
         public String cronType() {
             return cronType;
         }
 
         @Override
+        /** Cron */
         public String cron() {
             return cron;
         }
 
         @Override
+        /** Params */
         public Map<String, Object> params() {
             return params;
         }
 
         @Override
+        /** FilePath */
         public String filePath() {
             return filePath;
         }
@@ -293,46 +318,55 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String text
     ) implements TextConfigDefinition {
         @Override
+        /** SourceId */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
+        /** OutputId */
         public String outputId() {
             return outputId;
         }
 
         @Override
+        /** SinkId */
         public String sinkId() {
             return sinkId;
         }
 
         @Override
+        /** Mappings */
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
         @Override
+        /** Batch */
         public int batch() {
             return batch;
         }
 
         @Override
+        /** CronType */
         public String cronType() {
             return cronType;
         }
 
         @Override
+        /** Cron */
         public String cron() {
             return cron;
         }
 
         @Override
+        /** Params */
         public Map<String, Object> params() {
             return params;
         }
 
         @Override
+        /** Text */
         public String text() {
             return text;
         }
@@ -353,41 +387,49 @@ public class YamlConfigFileParser implements ConfigFileParser {
             Map<String, Object> params
     ) implements DataSyncConfigDefinition {
         @Override
+        /** SourceId */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
+        /** OutputId */
         public String outputId() {
             return outputId;
         }
 
         @Override
+        /** SinkId */
         public String sinkId() {
             return sinkId;
         }
 
         @Override
+        /** Mappings */
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
         @Override
+        /** Batch */
         public int batch() {
             return batch;
         }
 
         @Override
+        /** CronType */
         public String cronType() {
             return cronType;
         }
 
         @Override
+        /** Cron */
         public String cron() {
             return cron;
         }
 
         @Override
+        /** Params */
         public Map<String, Object> params() {
             return params;
         }

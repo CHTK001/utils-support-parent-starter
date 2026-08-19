@@ -17,26 +17,31 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
 public abstract class AbstractDialect implements Dialect {
 
     @Override
+    /** SupportsLimit */
     public boolean supportsLimit() {
         return true;
     }
 
     @Override
+    /** 处理Sql */
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
     @Override
+    /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         return "VARCHAR";
     }
 
     @Override
+    /** Driver */
     public String driver() {
         return null;
     }
 
     @Override
+    /** Url */
     public String url() {
         return null;
     }

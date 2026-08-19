@@ -22,6 +22,7 @@ import java.util.Map;
 public class NativeFileStorageFilterSetting implements FileStorageFilterSetting {
 
     @Override
+    /** Capabilities */
     public List<String> capabilities() {
         if (!RustFileStorageBridge.isInitialized()) {
             log.debug("[FileStorageFilterSetting] Rust 库未初始化，降级使用 JDK 能力列表");
@@ -31,6 +32,7 @@ public class NativeFileStorageFilterSetting implements FileStorageFilterSetting 
     }
 
     @Override
+    /** 获取过滤Chain */
     public List<ImageFilterConfig> getFilterChain() {
         if (!RustFileStorageBridge.isInitialized()) {
             log.debug("[FileStorageFilterSetting] Rust 库未初始化，降级使用 JDK 滤镜链");
@@ -40,6 +42,7 @@ public class NativeFileStorageFilterSetting implements FileStorageFilterSetting 
     }
 
     @Override
+    /** 是否Excluded */
     public boolean isExcluded(String path, String extension) {
         if (!RustFileStorageBridge.isInitialized()) {
             return new JdkFileStorageFilterSetting().isExcluded(path, extension);

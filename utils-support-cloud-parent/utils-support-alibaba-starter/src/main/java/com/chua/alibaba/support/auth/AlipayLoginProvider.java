@@ -30,6 +30,10 @@ public class AlipayLoginProvider implements LoginChannel {
     /** 客户端 */
     private final AlipayClient client;
 
+    /**
+     * 创建 AlipayLoginProvider 实例
+     * @param config config
+     */
     public AlipayLoginProvider(AlipayConfig config) {
         this.client = new DefaultAlipayClient(
                 config.getGateway() != null ? config.getGateway() : "https://openapi.alipay.com/gateway.do",
@@ -43,6 +47,7 @@ public class AlipayLoginProvider implements LoginChannel {
     }
 
     @Override
+    /** Login */
     public LoginResponse login(LoginRequest request) {
         String authCode = request.getAuthCode();
         if (StringUtils.isEmpty(authCode)) {
@@ -77,6 +82,7 @@ public class AlipayLoginProvider implements LoginChannel {
     }
 
     @Override
+    /** RefreshToken */
     public LoginResponse refreshToken(String refreshToken) {
         if (StringUtils.isEmpty(refreshToken)) {
             throw new LoginException("缺少刷新令牌 refreshToken");

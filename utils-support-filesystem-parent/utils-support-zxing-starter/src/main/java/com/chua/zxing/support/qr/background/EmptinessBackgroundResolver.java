@@ -27,6 +27,7 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     static final int UNIT_WIDTH = 54;
 
     @Override
+    /** 解析 */
     public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix) {
         int width = setting.getWidth();
         int height = setting.getHeight();
@@ -72,6 +73,7 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
         return BufferedImageUtils.scaleImage(bufferedImage, width, height);
     }
 
+    /** Render */
     private void render(Graphics2D g, Color whiteColor, Color blackColor, BufferedImage bufferedImage, byte[][] rect, int i, int j, CodePointStyle codePointStyle) {
         if (rect[i][j] == 1) {
             // 画黑色的点
@@ -88,6 +90,18 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
             }
         }
     }
+    /**
+     * FillPositionDetectionShape
+     * @param g g
+     * @param eyeDf eyeDf
+     * @param lf lf
+     * @param lb lb
+     * @param qrCodeWidth qrCodeWidth
+     * @param startX startX
+     * @param startY startY
+     * @param version version
+     * @param fillPositionDetectionShapeModel fillPositionDetectionShapeModel
+     */
     private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf,Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version,
                                                    CodeEyeStyle fillPositionDetectionShapeModel) {
         ServiceProvider.of(CodeEyeResolver.class).getNewExtension(fillPositionDetectionShapeModel)

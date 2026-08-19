@@ -35,16 +35,22 @@ public class RustdeskBridge implements RemoteBridge {
      */
     private volatile boolean connected;
 
+    /**
+     * 创建 RustdeskBridge 实例
+     * @param connection connection
+     */
     public RustdeskBridge(Connection connection) {
         this.connection = connection;
     }
 
     @Override
+    /** Connection */
     public Connection connection() {
         return connection;
     }
 
     @Override
+    /** 连接 */
     public void connect() throws Exception {
         // 预留：后续接入 RustDesk hbbs/hbbr 协议
         log.warn("[gateway-server] RustdeskBridge 连接尚未实现，预留给后续 Phase E");
@@ -52,21 +58,25 @@ public class RustdeskBridge implements RemoteBridge {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         connected = false;
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
+    /** 写入ToRemote */
     public void writeToRemote(byte[] bytes) throws IOException {
         throw new IOException("RustdeskBridge 协议尚未实现（Phase E 占位）");
     }
 
     @Override
+    /** 读取FromRemote */
     public byte[] readFromRemote() throws IOException {
         throw new IOException("RustdeskBridge 协议尚未实现（Phase E 占位）");
     }

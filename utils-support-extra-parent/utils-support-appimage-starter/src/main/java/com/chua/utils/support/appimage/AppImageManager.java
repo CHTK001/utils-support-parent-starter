@@ -50,6 +50,10 @@ public class AppImageManager {
      */
     private final Map<String, AppImageInstance> instances = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 AppImageManager 实例
+     * @param properties properties
+     */
     public AppImageManager(AppImageProperties properties) {
         this.properties = properties;
         this.installer = new AppImageInstaller(properties);

@@ -136,6 +136,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) {
         //                         
         labels = RAW_LABELS.replace("'", "").split(",");
@@ -146,6 +147,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -158,6 +160,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         var output = list.singletonOrThrow();
         output = output.softmax(0);
@@ -165,6 +168,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

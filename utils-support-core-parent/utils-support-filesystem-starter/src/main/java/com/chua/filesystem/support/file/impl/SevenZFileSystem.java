@@ -29,16 +29,19 @@ import java.util.List;
 public class SevenZFileSystem implements FileSystem {
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "7z";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new SevenZReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new SevenZWriteBuilder(file);
     }
@@ -49,6 +52,7 @@ public class SevenZFileSystem implements FileSystem {
             super(file);
         }
 
+        /** ListEntries */
         public List<String> listEntries() {
             List<String> entries = new ArrayList<>();
             try (SevenZFile szFile = new SevenZFile(file)) {
@@ -62,14 +66,17 @@ public class SevenZFileSystem implements FileSystem {
             return entries;
         }
 
+        /** ExtractAll */
         public void extractAll(File targetDir) {
             extract(targetDir);
         }
 
+        /** Extract */
         public void extract(String entryName, File targetDir) {
             extract(targetDir, entryName);
         }
 
+        /** Extract */
         public void extract(File targetDir, String... entryNames) {
             try (SevenZFile szFile = new SevenZFile(file)) {
                 if (!targetDir.exists()) {
@@ -114,6 +121,7 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return listEntries();
         }
@@ -147,6 +155,7 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         @Override
+        /** AsString */
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -189,22 +198,26 @@ public class SevenZFileSystem implements FileSystem {
             return this;
         }
 
+        /** 添加File */
         public SevenZWriteBuilder addFile(String entryName, File source) {
             entries.add(new EntryData(entryName, source));
             return this;
         }
 
+        /** 添加Stream */
         public SevenZWriteBuilder addStream(String entryName, InputStream in) {
             entries.add(new EntryData(entryName, in));
             return this;
         }
 
+        /** 添加Bytes */
         public SevenZWriteBuilder addBytes(String entryName, byte[] bytes) {
             entries.add(new EntryData(entryName, bytes));
             return this;
         }
 
         @Override
+        /** Finish */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -249,12 +262,14 @@ public class SevenZFileSystem implements FileSystem {
             return szOut;
         }
 
+        /** 写入File */
         private void writeFile(SevenZOutputFile out, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {
                 writeStream(out, fis);
             }
         }
 
+        /** 写入Stream */
         private void writeStream(SevenZOutputFile out, InputStream in) throws IOException {
             byte[] buffer = new byte[8192];
             int len;
@@ -265,6 +280,7 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         @Override
+        /** 写入 */
         public SevenZWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);

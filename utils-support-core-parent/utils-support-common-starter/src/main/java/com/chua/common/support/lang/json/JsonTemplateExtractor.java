@@ -128,6 +128,14 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  this(DEFAULT_PREFIX, DEFAULT_SUFFIX, true, ArrayMatchStrategy.ELEMENT_WISE, false);
  }
 
+ /**
+  * 创建 JsonTemplateExtractor 实例
+  * @param prefix prefix
+  * @param suffix suffix
+  * @param lenient lenient
+  * @param arrayStrategy arrayStrategy
+  * @param tolerantType tolerantType
+  */
  private JsonTemplateExtractor(String prefix, String suffix, boolean lenient,
  ArrayMatchStrategy arrayStrategy, boolean tolerantType) {
  this.prefix = prefix;

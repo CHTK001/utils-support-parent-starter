@@ -27,6 +27,7 @@ public class BaichuanPricingProvider extends AbstractPricingProvider {
     private static final String PRICING_URL = "https://platform.baichuan-ai.com/docs/pricing";
 
     @Override
+    /** FetchOnlinePricing */
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(PRICING_URL);
         if (html == null || html.isEmpty()) {

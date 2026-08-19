@@ -55,6 +55,7 @@ public interface ImageGenerator {
         return this;
     }
 
+    /** 创建 */
     static ImageGenerator create(String name) {
         return new DefaultImageGenerator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -160,12 +161,14 @@ class DefaultImageGenerator implements ImageGenerator {
     }
 
     @Override
+    /** ModelPath */
     public ImageGenerator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageGenerator device(String device) {
         this.device = device;
         return this;
@@ -173,6 +176,7 @@ class DefaultImageGenerator implements ImageGenerator {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Generate */
     public byte[] generate(long classId) {
         ITranslator<Long, byte[]> t =
                 (ITranslator<Long, byte[]>) engine.get(modelName, ITranslator.class);

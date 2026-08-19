@@ -34,16 +34,19 @@ public class HttpClient5Executor implements HttpClientExecutor {
      */
     private CloseableHttpClient client;
 
+    /** 创建 HttpClient5Executor 实例 */
     public HttpClient5Executor() {
         this.client = HttpClients.createDefault();
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "httpclient5";
     }
 
     @Override
+    /** 是否Available */
     public boolean isAvailable() {
         try {
             Class.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
@@ -53,6 +56,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
         }
     }
 
+    /** ToRequest */
     private org.apache.hc.client5.http.classic.methods.HttpUriRequestBase toRequest(ClientRequest request) {
         String method = request.getMethod().name();
         HttpUriRequestBase req = switch (method) {
@@ -101,6 +105,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     @Override
+    /** 执行 */
     public ClientResponse execute(ClientRequest request) {
         try {
             if (client == null) {
@@ -115,6 +120,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
         }
     }
 
+    /** ToClientResponse */
     private ClientResponse toClientResponse(CloseableHttpResponse resp) throws Exception {
         ClientResponse cr = new ClientResponse();
         cr.setStatusCode(resp.getCode());
@@ -128,9 +134,11 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() { return 1; }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (client != null) {
             try { client.close(); } catch (Exception ignored) {}

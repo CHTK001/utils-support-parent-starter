@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 public class DumpCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -32,12 +33,14 @@ public class DumpCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     @Override
+    /** 创建InputStream */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var dumpInputStream = new DumpArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(dumpInputStream);
     }
 
     @Override
+    /** 获取格式化Name */
     public String getFormatName() {
         return "dump";
     }

@@ -33,9 +33,11 @@ public final class FaceRestorationExample {
      */
     private static final String OUT_DIR = "G:\\images\\output";
 
+    /** 创建 FaceRestorationExample 实例 */
     private FaceRestorationExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\三个人.jpg";
         String detectorId = args.length > 1 ? args[1] : "pytorch-retinaface";

@@ -22,6 +22,7 @@ import java.util.List;
  */
 public final class FacePluginExample extends ExampleBase {
 
+    /** 创建 FacePluginExample 实例 */
     private FacePluginExample() {
     }
 

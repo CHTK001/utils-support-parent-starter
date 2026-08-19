@@ -59,6 +59,7 @@ public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (!running.compareAndSet(false, true)) {
             return;
@@ -89,6 +90,7 @@ public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         running.set(false);
         if (executor != null) {

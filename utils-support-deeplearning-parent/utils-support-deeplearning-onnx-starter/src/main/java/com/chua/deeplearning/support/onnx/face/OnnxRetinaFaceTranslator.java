@@ -75,6 +75,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     private int height;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -97,6 +98,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 3) {
             return empty();
@@ -259,6 +261,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

@@ -33,11 +33,13 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "npm";
 
     @Override
+    /** Name */
     public String name() {
         return NAME;
     }
 
     @Override
+    /** 搜索 */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
         String cmd = "npm search " + keyword + " --json 2>nul";
@@ -46,16 +48,19 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
+            /** OnLine */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
+            /** OnComplete */
             public void onComplete(int exitCode) {
                 log.info("npm 搜索完成, exitCode={}", exitCode);
             }
 
             @Override
+            /** On记录错误 */
             public void onError(String command, Throwable throwable) {
                 log.warn("npm 搜索异常: {}", throwable.getMessage());
             }
@@ -69,6 +74,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
+    /** Install */
     public boolean install(String packageId) {
         String cmd = "npm install -g " + packageId;
         log.info("npm 安装: {}", packageId);
@@ -76,25 +82,30 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
+    /** Uninstall */
     public boolean uninstall(String packageId) {
         String cmd = "npm uninstall -g " + packageId;
         log.info("npm 卸载: {}", packageId);
         return executeCommand(cmd, "卸载", packageId);
     }
 
+    /** 执行Command */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
+            /** OnLine */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
+            /** OnComplete */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
 
             @Override
+            /** On记录错误 */
             public void onError(String command, Throwable throwable) {
                 log.error("  [{}] 异常: {}", action, throwable.getMessage());
             }
@@ -104,6 +115,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
+    /** 解析NpmOutput */
     private List<SoftwareInfo> parseNpmOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -128,6 +140,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         return results;
     }
 
+    /** ExtractJsonValue */
     private String extractJsonValue(String json, String key) {
         String searchKey = "\"" + key + "\"";
         int keyIndex = json.indexOf(searchKey);

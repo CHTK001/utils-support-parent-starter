@@ -19,9 +19,11 @@ import java.nio.file.Path;
  */
 public final class MattingExample extends ExampleBase {
 
+    /** 创建 MattingExample 实例 */
     private MattingExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String model = args.length > 0 ? args[0] : "modnet";
         String imagePath = args.length > 1 ? args[1] : null;

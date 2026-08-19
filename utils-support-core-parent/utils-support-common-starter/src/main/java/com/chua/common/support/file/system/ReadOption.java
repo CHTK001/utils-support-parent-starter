@@ -43,10 +43,12 @@ public class ReadOption {
         return new ReadOption();
     }
 
+    /** 是否AsMap */
     public boolean isAsMap() {
         return asMap;
     }
 
+    /** 获取开始Row */
     public int getStartRow() {
         return startRow;
     }
@@ -62,6 +64,7 @@ public class ReadOption {
         return this;
     }
 
+    /** 获取Limit */
     public int getLimit() {
         return limit;
     }

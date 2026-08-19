@@ -179,12 +179,14 @@ class DefaultSmileDetector implements SmileDetector {
     }
 
     @Override
+    /** ModelPath */
     public SmileDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public SmileDetector device(String device) {
         this.device = device;
         return this;
@@ -192,6 +194,7 @@ class DefaultSmileDetector implements SmileDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);

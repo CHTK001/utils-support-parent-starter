@@ -134,6 +134,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
 
@@ -157,6 +158,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -179,6 +181,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         // YOLO-World 端到端输出：pred_boxes [1, N, 4] + pred_scores [1, N, num_classes]
         NDArray predBoxes = null;
@@ -286,6 +289,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     @javax.annotation.Nullable
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }
@@ -399,7 +403,8 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     // ==================== NMS ====================
 
-    private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, float iouThreshold) {
+    /** Nms */
+    private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouThreshold) {
         List<Integer> keep = new ArrayList<>();
         if (boxes.isEmpty()) {
             return keep;
@@ -443,6 +448,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     // ==================== 工具方法 ====================
 
+    /** 解析Candidates */
     private static List<String> parseCandidates(String raw) {
         if (StringUtils.isBlank(raw)) {
             return Collections.emptyList();
@@ -457,6 +463,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return result;
     }
 
+    /** 读取Argument */
     private static String readArgument(Map<String, ?> args, String key) {
         if (args == null || args.isEmpty()) {
             return null;
@@ -465,6 +472,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return v == null ? null : String.valueOf(v);
     }
 
+    /** 读取Double */
     private static double readDouble(Map<String, ?> args, String key, double defaultVal) {
         String v = readArgument(args, key);
         if (StringUtils.isBlank(v)) {
@@ -477,6 +485,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         }
     }
 
+    /** 读取Int */
     private static int readInt(Map<String, ?> args, String key, int defaultVal) {
         String v = readArgument(args, key);
         if (StringUtils.isBlank(v)) {
@@ -489,6 +498,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         }
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -496,6 +506,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return Files.isRegularFile(modelPath) ? modelPath.getParent() : modelPath;
     }
 
+    /** 解析File */
     private static Path resolveFile(Path root, String fileName) throws IOException {
         if (root == null) {
             throw new IOException("模型根路径为空");

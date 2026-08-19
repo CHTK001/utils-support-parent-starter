@@ -80,6 +80,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
+    /** Voice */
     public TextToAudioClient voice(String voice) {
         this.voice = voice;
         return this;
@@ -109,6 +110,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
+    /** Synthesize */
     public byte[] synthesize(String text) {
         if (text != null) {
             this.text = text;
@@ -145,6 +147,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (mmsTtsTranslator != null) {
             mmsTtsTranslator.close();
@@ -162,6 +165,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, byte[].class);
     }

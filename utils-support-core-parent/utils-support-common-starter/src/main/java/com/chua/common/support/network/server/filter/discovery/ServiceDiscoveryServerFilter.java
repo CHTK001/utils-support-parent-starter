@@ -87,10 +87,18 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
      */
     private volatile ServiceDiscovery serviceDiscovery;
 
+    /**
+     * 创建 ServiceDiscoveryServerFilter 实例
+     * @param discoveryName discoveryName
+     */
     public ServiceDiscoveryServerFilter(String discoveryName) {
         this.discoveryName = discoveryName;
     }
 
+    /**
+     * 创建 ServiceDiscoveryServerFilter 实例
+     * @param serviceDiscovery serviceDiscovery
+     */
     public ServiceDiscoveryServerFilter(ServiceDiscovery serviceDiscovery) {
         this.discoveryName = null;
         this.serviceDiscovery = serviceDiscovery;
@@ -154,16 +162,19 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 300;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         if (serviceDiscovery == null && discoveryName != null) {
             serviceDiscovery = ServiceProvider.of(ServiceDiscovery.class).getExtension(discoveryName);
@@ -177,6 +188,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         if (serviceDiscovery != null) {
             try {
@@ -188,6 +200,12 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         String path = request.getPath();

@@ -27,15 +27,25 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     private RedissonClient redissonClient;
 
 
+    /**
+     * 创建 RedisServiceDiscovery 实例
+     * @param discoveryOption discoveryOption
+     */
     public RedisServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
 
+    /**
+     * 创建 RedisServiceDiscovery 实例
+     * @param discoveryOption discoveryOption
+     * @param String String
+     */
     public RedisServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
 
     @Override
+    /** 开始 */
     public void start() {
         Config config = new Config();
         config.useSingleServer().setAddress(discoveryOption.getAddress());
@@ -43,6 +53,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 注册Service */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixedPath = addClusterPrefix(path);
         discovery.setUriSpec(prefixedPath);
@@ -56,6 +67,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** Do注销 */
     protected void doUnregister(String path, Discovery discovery) {
         String mapKey = "discovery:" + path;
         String entryKey = discovery.getHost() + ":" + discovery.getPort();
@@ -64,6 +76,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** Do更新 */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         String mapKey = "discovery:" + path;
         String entryKey = newDiscovery.getHost() + ":" + newDiscovery.getPort();
@@ -72,16 +85,19 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 是否Support订阅 */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         log.warn("RedisServiceDiscovery subscribe is not fully implemented without Pub/Sub");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (redissonClient != null) {
             redissonClient.shutdown();

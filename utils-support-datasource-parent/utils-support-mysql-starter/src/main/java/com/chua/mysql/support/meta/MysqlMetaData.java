@@ -45,71 +45,85 @@ public class MysqlMetaData extends AbstractMetaData {
     }
 
     @Override
+    /** Table */
     public MetaTable table() {
         return new MysqlMetaTable(this, engine);
     }
 
     @Override
+    /** Table */
     public MetaTable table(String tableName) {
         return new MysqlMetaTable(this, engine, tableName);
     }
 
     @Override
+    /** View */
     public MetaView view() {
         return new MysqlMetaView(this, engine);
     }
 
     @Override
+    /** View */
     public MetaView view(String viewName) {
         return new MysqlMetaView(this, engine, viewName);
     }
 
     @Override
+    /** Index */
     public MetaIndex index() {
         return new MysqlMetaIndex(this, engine);
     }
 
     @Override
+    /** Index */
     public MetaIndex index(String indexName) {
         return new MysqlMetaIndex(this, engine, indexName);
     }
 
     @Override
+    /** Trigger */
     public MetaTrigger trigger() {
         return new MysqlMetaTrigger(this, engine);
     }
 
     @Override
+    /** Trigger */
     public MetaTrigger trigger(String triggerName) {
         return new MysqlMetaTrigger(this, engine, triggerName);
     }
 
     @Override
+    /** Procedure */
     public MetaProcedure procedure() {
         return new MysqlMetaProcedure(this, engine);
     }
 
     @Override
+    /** Procedure */
     public MetaProcedure procedure(String procedureName) {
         return new MysqlMetaProcedure(this, engine, procedureName);
     }
 
     @Override
+    /** Fk */
     public MetaForeignKey fk() {
         return new MysqlMetaForeignKey(this, engine);
     }
 
     @Override
+    /** Fk */
     public MetaForeignKey fk(String fkName) {
         return new MysqlMetaForeignKey(this, engine, fkName);
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search() {
         throw new UnsupportedOperationException("MySQL 暂不支持搜索引擎元数据");
     }
 
     @Override
+    /** 搜索 */
     public MetaSearch search(String indexName) {
         throw new UnsupportedOperationException("MySQL 暂不支持搜索引擎元数据");
     }

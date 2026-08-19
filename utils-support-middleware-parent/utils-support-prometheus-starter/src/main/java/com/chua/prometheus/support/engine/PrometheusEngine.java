@@ -184,69 +184,82 @@ public class PrometheusEngine implements Engine {
     }
 
     @Override
+    /** Store */
     public <T> Engine store(String name, List<T> data) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持数据存储");
     }
 
     @Override
+    /** 设置DefaultDataSourceName */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
+    /** 获取DefaultDataSourceName */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
+    /** 获取Executor */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return (EngineDataSource<T>) dataSources.get(name);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取DataSource */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
     @Override
+    /** 查询 */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持 Lambda 查询, 请使用 query(promql)");
     }
 
     @Override
+    /** 更新 */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持 Lambda 更新");
     }
 
     @Override
+    /** 删除 */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持 Lambda 删除");
     }
 
     @Override
+    /** 获取Dialect */
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
     @Override
+    /** Meta */
     public MetaData meta() {
         return null;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         dataSources.clear();
     }

@@ -38,6 +38,11 @@ public class WhisperTokenizer {
     /** Vocab尺寸 */
     private final int vocabSize;
 
+    /**
+     * 创建 WhisperTokenizer 实例
+     * @param Integer Integer
+     * @param vocab vocab
+     */
     public WhisperTokenizer(Map<String, Integer> vocab) {
         this.vocabSize = vocab.size();
         this.idToToken = new String[vocabSize];
@@ -48,12 +53,14 @@ public class WhisperTokenizer {
         }
     }
 
+    /** 加载 */
     public static WhisperTokenizer load(Path vocabJson) throws IOException {
         try (InputStream in = Files.newInputStream(vocabJson)) {
             return loadFromJson(in);
         }
     }
 
+    /** 加载FromJson */
     public static WhisperTokenizer loadFromJson(InputStream in) throws IOException {
         JsonNode root = MAPPER.readTree(in);
         Map<String, Integer> vocab = new HashMap<>();
@@ -61,15 +68,18 @@ public class WhisperTokenizer {
         return new WhisperTokenizer(vocab);
     }
 
+    /** Vocab获取大小 */
     public int vocabSize() {
         return vocabSize;
     }
 
+    /** TokenToId */
     public int tokenToId(String token) {
         Integer id = tokenToId.get(token);
         return id == null ? -1 : id;
     }
 
+    /** IdToToken */
     public String idToToken(int id) {
         if (id < 0 || id >= vocabSize) return null;
         return idToToken[id];
@@ -101,6 +111,7 @@ public class WhisperTokenizer {
         return sb.toString().trim();
     }
 
+    /** 是否Special */
     private static boolean isSpecial(String token) {
         return token.startsWith("<") && token.endsWith(">");
     }

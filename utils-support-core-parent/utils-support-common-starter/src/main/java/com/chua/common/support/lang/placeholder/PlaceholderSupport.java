@@ -89,6 +89,7 @@ public class PlaceholderSupport {
      */
     private final Map<String, Function<String, String>> functions = new HashMap<>();
 
+    /** 创建 PlaceholderSupport 实例 */
     public PlaceholderSupport() {
         registerFunction("now", this::nowFunction);
         registerFunction("uuid", this::uuidFunction);
@@ -98,6 +99,12 @@ public class PlaceholderSupport {
         registerFunction("length", this::lengthFunction);
     }
 
+    /**
+     * 创建 PlaceholderSupport 实例
+     * @param placeholderPrefix placeholderPrefix
+     * @param String String
+     * @param String String
+     */
     public PlaceholderSupport(String placeholderPrefix, String placeholderSuffix, String valueSeparator) {
         this();
         this.placeholderPrefix = placeholderPrefix;

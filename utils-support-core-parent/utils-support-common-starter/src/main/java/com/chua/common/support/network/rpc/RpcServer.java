@@ -42,6 +42,13 @@ import java.util.Set;
  */
 public interface RpcServer extends AutoCloseable, InitializingAware {
 
+    /**
+     * 创建Service
+     * @param name name
+     * @param registryConfig registryConfig
+     * @param protocolConfig protocolConfig
+     * @param appName appName
+     */
     static RpcServer createService(String name, RpcRegistryConfig registryConfig,
                                    RpcProtocolConfig protocolConfig, String appName) {
         return createService(name, Collections.singletonList(registryConfig), protocolConfig, appName);

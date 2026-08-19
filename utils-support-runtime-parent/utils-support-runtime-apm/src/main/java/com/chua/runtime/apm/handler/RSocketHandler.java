@@ -24,31 +24,37 @@ public class RSocketHandler extends AbstractAppHandler {
     private static final String[] RSOCKET_METHODS = {"requestResponse", "requestStream", "requestChannel", "requestFireAndForget"};
 
     @Override
+    /** Name */
     public String name() {
         return "rsocket-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "rsocket.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.RSOCKET;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.RSOCKET;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(RSOCKET_REQUESTS, RSOCKET_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

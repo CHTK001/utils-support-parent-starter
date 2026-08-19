@@ -14,6 +14,7 @@ import ai.djl.translate.Translator;
 /** @author CH */
 public class Lu2NetTranslator implements Translator<Image, Image> {
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -25,6 +26,7 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.singletonOrThrow();
         // clip and convert to [0,255]

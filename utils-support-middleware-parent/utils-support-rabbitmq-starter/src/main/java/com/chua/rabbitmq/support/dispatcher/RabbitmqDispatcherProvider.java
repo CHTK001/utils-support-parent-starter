@@ -56,11 +56,16 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
      */
     private volatile boolean closed = false;
 
+    /**
+     * 创建 RabbitmqDispatcherProvider 实例
+     * @param config config
+     */
     public RabbitmqDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     @Override
+    /** 开始 */
     public void start() {
         try {
             var factory = new ConnectionFactory();
@@ -74,6 +79,7 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         try {
             var value = body == null ? "" : body.toString();
@@ -84,6 +90,7 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -118,6 +125,7 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -131,6 +139,7 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         try {

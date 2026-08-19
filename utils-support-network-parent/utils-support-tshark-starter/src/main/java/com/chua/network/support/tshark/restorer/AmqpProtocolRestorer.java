@@ -12,16 +12,19 @@ package com.chua.network.support.tshark.restorer;
 public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "amqp";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 170;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 7) {
             return false;
@@ -39,6 +42,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 7) {
             return "[AMQP] empty";
@@ -83,6 +87,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToFrameType */
     private static String toFrameType(int type) {
         return switch (type) {
             case 0x01 -> "METHOD";
@@ -93,6 +98,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
+    /** ToClassName */
     private static String toClassName(int classId) {
         return switch (classId) {
             case 10 -> "Connection";
@@ -105,6 +111,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
+    /** ToMethodName */
     private static String toMethodName(int classId, int methodId) {
         if (classId == 10) {
             return switch (methodId) {

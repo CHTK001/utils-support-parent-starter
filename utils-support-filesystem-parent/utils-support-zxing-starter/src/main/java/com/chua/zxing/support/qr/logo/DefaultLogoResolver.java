@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 public class DefaultLogoResolver implements LogoResolver {
 
     @Override
+    /** 解析 */
     public BufferedImage resolve(BufferedImage bufferedImage, LogoSetting logoSetting, QrSetting setting) throws IOException {
         if(null == logoSetting) {
             return bufferedImage;

@@ -77,6 +77,7 @@ public class FastSamSegmentTranslator {
     /** SRC高度 */
     private int srcHeight;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) return;
         Path tmpDir = Files.createTempDirectory("fastsam-onnx-");
@@ -108,6 +109,7 @@ public class FastSamSegmentTranslator {
         }
     }
 
+    /** Segment */
     public Image segment(Image input) throws Exception {
         prepare();
         srcWidth = input.getWidth();
@@ -148,6 +150,7 @@ public class FastSamSegmentTranslator {
         }
     }
 
+    /** Postprocess */
     private Image postprocess(float[] detections, float[][][] protos) throws Exception {
         int numPreds = detections.length / 37;
         int numDetections = 0;
@@ -230,6 +233,7 @@ public class FastSamSegmentTranslator {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /** Nms */
     private int[] nms(float[][] boxes, float[] scores, float threshold) {
         int n = boxes.length;
         Integer[] idx = new Integer[n];
@@ -253,6 +257,7 @@ public class FastSamSegmentTranslator {
         return result;
     }
 
+    /** Iou */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
         float y1 = Math.max(a[1], b[1]);
@@ -264,12 +269,14 @@ public class FastSamSegmentTranslator {
         return inter / (areaA + areaB - inter + 1e-9f);
     }
 
+    /** ToBufferedImage */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof BufferedImage b) return b;
         return (BufferedImage) ImageFactory.getInstance().fromImage(input).getWrappedImage();
     }
 
+    /** 关闭 */
     public synchronized void close() {
         try { if (session != null) session.close(); } catch (Exception ignore) {}
         session = null;

@@ -25,11 +25,13 @@ public class VscodeUsageParser extends BaseUsageParser {
             "globalStorage", "github.copilot-chat");
 
     @Override
+    /** Name */
     public String name() {
         return "vscode";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[vscode] Copilot 数据目录不存在: {}", DATA_DIR);

@@ -20,6 +20,7 @@ import com.chua.common.support.spi.annotations.Spi;
 public class InvokerInjectServerFilter implements ServerFilter {
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (request instanceof InvocationContext ctx) {
             SharedInvocationContext shared = getSharedContext(ctx);
@@ -36,15 +37,18 @@ public class InvokerInjectServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MIN_VALUE + 1000;
     }
 
+    /** 获取SharedContext */
     private static SharedInvocationContext getSharedContext(InvocationContext ctx) {
         Object shared = ctx.getAttribute("sharedContext");
         return shared instanceof SharedInvocationContext s ? s : null;
     }
 
+    /** 应用Target */
     private static void applyTarget(String target, String value, InvocationContext ctx, SharedInvocationContext shared) {
         if (target.startsWith("headers.")) {
             ctx.addHeader(target.substring(8), value);
@@ -56,6 +60,7 @@ public class InvokerInjectServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 是否Enabled */
     public boolean isEnabled() {
         return true;
     }

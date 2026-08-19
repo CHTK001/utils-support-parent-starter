@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 
 public final class ArcFaceExample extends ExampleBase {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "C:\\\\Users\\\\Administrator\\\\AppData\\\\Local\\\\Temp\\\\opencode\\\\face_test.jpg";
         byte[] img = Files.readAllBytes(Paths.get(imagePath));

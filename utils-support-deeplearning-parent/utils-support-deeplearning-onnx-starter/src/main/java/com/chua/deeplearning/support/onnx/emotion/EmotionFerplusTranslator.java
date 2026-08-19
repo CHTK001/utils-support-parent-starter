@@ -36,15 +36,21 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     /** Emotionlabels */
     private final String[] emotionLabels;
 
+    /** 创建 EmotionFerplusTranslator 实例 */
     public EmotionFerplusTranslator() {
         this(new String[]{"angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"});
     }
 
+    /**
+     * 创建 EmotionFerplusTranslator 实例
+     * @param emotionLabels emotionLabels
+     */
     public EmotionFerplusTranslator(String[] emotionLabels) {
         this.emotionLabels = emotionLabels;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, 224, 224);
@@ -59,6 +65,7 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     @Override
+    /** 处理Output */
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         float[] scores = logits.toFloatArray();
@@ -111,6 +118,7 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

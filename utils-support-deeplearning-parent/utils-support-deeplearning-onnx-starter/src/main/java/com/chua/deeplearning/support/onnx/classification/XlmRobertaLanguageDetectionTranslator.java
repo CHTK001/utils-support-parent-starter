@@ -67,6 +67,7 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     private HuggingFaceTokenizer tokenizer;
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {
@@ -86,6 +87,7 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("HuggingFaceTokenizer             ");
@@ -108,6 +110,7 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
 
     @Override
     @Nonnull
+    /** 处理Output */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) {
@@ -121,6 +124,7 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
 
     @Override
     @Nullable
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

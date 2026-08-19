@@ -18,11 +18,13 @@ public class Decoder2Translator implements NoBatchifyTranslator<NDList, CausalLM
      */
     private final String tupleName;
 
+    /** 创建 Decoder2Translator 实例 */
     public Decoder2Translator() {
         this.tupleName = "past_key_values(" + 12 + ',' + 4 + ')';
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray placeholder = ctx.getNDManager().create(0);
         placeholder.setName("module_method:decoder2");
@@ -31,6 +33,7 @@ public class Decoder2Translator implements NoBatchifyTranslator<NDList, CausalLM
     }
 
     @Override
+    /** 处理Output */
     public CausalLMOutput processOutput(TranslatorContext ctx, NDList output) {
         NDArray logitsOutput = output.get(0);
         NDList pastKeyValuesOutput = output.subNDList(1, 12 * 4 + 1);

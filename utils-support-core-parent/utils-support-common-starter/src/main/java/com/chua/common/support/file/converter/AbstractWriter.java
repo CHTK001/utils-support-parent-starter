@@ -28,12 +28,17 @@ public abstract class AbstractWriter implements FileSystem {
      */
     protected File file;
 
+    /** 创建 AbstractWriter 实例 */
     protected AbstractWriter() {
         this.headers = new ArrayList<>();
         this.writeOption = WriteOption.maps();
         this.initialized = false;
     }
 
+    /**
+     * 创建 AbstractWriter 实例
+     * @param file file
+     */
     protected AbstractWriter(File file) {
         this.file = file;
         this.headers = new ArrayList<>();
@@ -41,6 +46,10 @@ public abstract class AbstractWriter implements FileSystem {
         this.initialized = false;
     }
 
+    /**
+     * 创建 AbstractWriter 实例
+     * @param filePath filePath
+     */
     protected AbstractWriter(String filePath) {
         this.file = filePath != null ? new File(filePath) : null;
         this.headers = new ArrayList<>();
@@ -48,6 +57,7 @@ public abstract class AbstractWriter implements FileSystem {
         this.initialized = false;
     }
 
+    /** WithFile */
     public AbstractWriter withFile(File file) {
         this.file = file;
         this.initialized = false;
@@ -55,30 +65,36 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "unknown";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         throw new UnsupportedOperationException();
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         throw new UnsupportedOperationException();
     }
 
+    /** WithHeader */
     public AbstractWriter withHeader(List<String> headers) {
         this.headers = headers != null ? new ArrayList<>(headers) : new ArrayList<>();
         return this;
     }
 
+    /** With写入Option */
     public AbstractWriter withWriteOption(WriteOption writeOption) {
         this.writeOption = writeOption;
         return this;
     }
 
+    /** WithAuto关闭Stream */
     public AbstractWriter withAutoCloseStream(boolean autoCloseStream) {
         if (writeOption == null) {
             writeOption = WriteOption.maps();
@@ -87,6 +103,7 @@ public abstract class AbstractWriter implements FileSystem {
         return this;
     }
 
+    /** 写入 */
     public <T> AbstractWriter write(T... item) throws IOException {
         if (item == null || item.length == 0) {
             return this;
@@ -105,6 +122,7 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     @SuppressWarnings("unchecked")
+    /** 写入Single */
     private void writeSingle(Object item) throws IOException {
         if (item instanceof Map) {
             doWrite((Map<String, Object>) item);
@@ -117,6 +135,7 @@ public abstract class AbstractWriter implements FileSystem {
         }
     }
 
+    /** EnsureInitialized */
     protected void ensureInitialized() throws IOException {
         if (initialized) {
             return;
@@ -128,19 +147,28 @@ public abstract class AbstractWriter implements FileSystem {
         initialized = true;
     }
 
+    /** Do初始化 */
     protected abstract void doInitialize() throws IOException;
+    /** Do写入Line */
     protected abstract void doWriteLine(String line) throws IOException;
+    /** Do写入Text */
     protected abstract void doWriteText(String text) throws IOException;
+    /** Do写入Bytes */
     protected abstract void doWriteBytes(byte[] bytes) throws IOException;
+    /** Do写入 */
     protected abstract void doWrite(Map<String, Object> data) throws IOException;
+    /** Do刷新 */
     protected abstract void doFlush() throws IOException;
+    /** DoFinish */
     protected abstract void doFinish() throws IOException;
 
+    /** Finish */
     public void finish() {
         try { doFinish(); } catch (IOException e) { throw new RuntimeException(e); }
         try { close(); } catch (IOException e) { throw new RuntimeException(e); }
     }
 
+    /** 关闭 */
     public void close() throws IOException {
         try {
             if (initialized) {

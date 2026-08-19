@@ -236,6 +236,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         return null;
     }
 
+    /** Determine计算数量 */
     private int determineCount(NDList list, NDArray rows) {
         int maxCount = (int) rows.getShape().get(0);
         if (list.size() < 2 || list.get(1) == null || list.get(1).isEmpty()) {
@@ -260,6 +261,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         return maxCount;
     }
 
+    /** ExtractThreshold */
     private Float extractThreshold(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -277,6 +279,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         return null;
     }
 
+    /** 解析DefaultThreshold */
     private float resolveDefaultThreshold(Path modelPath) {
         String path = modelPath == null ? "" : modelPath.toString().replace('\\', '/').toLowerCase();
         if (path.contains("pp-doclayoutv3")) {
@@ -285,6 +288,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         return 0.5f;
     }
 
+    /** 是否LowInformationBuffered */
     private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -335,6 +339,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         return chw;
     }
 
+    /** Clip */
     private float clip(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }

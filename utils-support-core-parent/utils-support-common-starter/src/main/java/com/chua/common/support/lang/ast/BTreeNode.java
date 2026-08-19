@@ -75,6 +75,12 @@ public class BTreeNode {
     /** 子节点列表（FUNCTION 参数等） */
     private final List<BTreeNode> children = new ArrayList<>();
 
+    /**
+     * 创建 BTreeNode 实例
+     * @param type type
+     * @param String String
+     * @param Object Object
+     */
     public BTreeNode(Type type, String operator, Object value) {
         this.type = type;
         this.operator = operator;
@@ -186,26 +192,32 @@ public class BTreeNode {
 
     // ==================== 属性方法 ====================
 
+    /** 获取Type */
     public Type getType() {
         return type;
     }
 
+    /** 获取Operator */
     public String getOperator() {
         return operator;
     }
 
+    /** 获取Value */
     public Object getValue() {
         return value;
     }
 
+    /** 获取Left */
     public BTreeNode getLeft() {
         return left;
     }
 
+    /** 获取Right */
     public BTreeNode getRight() {
         return right;
     }
 
+    /** 获取Children */
     public List<BTreeNode> getChildren() {
         return children;
     }
@@ -264,6 +276,7 @@ public class BTreeNode {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return switch (type) {
             case LOGIC -> "(" + left + " " + operator + " " + right + ")";

@@ -77,6 +77,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
     /** 表缓存 */
     private TableCache tableCache;
 
+    /** AutoDiscover */
     public ShardingV5Conversion autoDiscover(boolean auto) { this.autoDiscover = auto; return this; }
 
     /**
@@ -147,10 +148,18 @@ public class ShardingV5Conversion implements DataSourceConversion {
         return this;
     }
 
+    /** Table */
     public ShardingV5Conversion table(String prefix, String shardingColumn, int shardCount) {
         return table(prefix, shardingColumn, shardCount, "MOD");
     }
 
+    /**
+     * TableTimeRange
+     * @param shardingColumn shardingColumn
+     * @param start start
+     * @param end end
+     * @param realTables realTables
+     */
     public ShardingV5Conversion tableTimeRange(String shardingColumn,
                                                 String start, String end,
                                                 List<String> realTables) {
@@ -159,6 +168,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     @Override
+    /** 转换 */
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment env) {
         if (dataSources.isEmpty()) {
             throw new IllegalArgumentException("至少需要一个实际数据源");
@@ -356,12 +366,14 @@ public class ShardingV5Conversion implements DataSourceConversion {
         return all;
     }
 
+    /** ToMap */
     private Map<String, String> toMap(Properties props) {
         var map = new LinkedHashMap<String, String>();
         props.forEach((k, v) -> map.put((String) k, (String) v));
         return map;
     }
 
+    /** DiscoverTables */
     private Set<String> discoverTables(DataSource ds) {
         var tables = new LinkedHashSet<String>();
         try (var conn = ds.getConnection()) {
@@ -375,12 +387,14 @@ public class ShardingV5Conversion implements DataSourceConversion {
         return tables;
     }
 
+    /** 合并DiscoveredTables */
     private Set<String> mergeDiscoveredTables(Map<String, Set<String>> discovered) {
         var all = new LinkedHashSet<String>();
         discovered.values().forEach(all::addAll);
         return all;
     }
 
+    /** 构建DataNodes */
     private String buildDataNodes(String table, Set<String> dsNames) {
         return dsNames.stream().map(ds -> ds + "." + table).collect(Collectors.joining(","));
     }
@@ -400,16 +414,19 @@ public class ShardingV5Conversion implements DataSourceConversion {
         return dbConfigs.stream().filter(d -> d.prefix.equals(prefix)).findFirst().orElse(null);
     }
 
+    /** 是否BuiltinAlgo */
     private boolean isBuiltinAlgo(String name) {
         return List.of("MOD", "HASH_MOD", "INTERVAL", "CLASS_BASED", "STANDARD",
                 "INLINE", "COMPLEX_INLINE", "HINT_INLINE", "COSID", "SNOWFLAKE",
                 "UUID", "NANOID").contains(name.toUpperCase());
     }
 
+    /** Natural比较 */
     private int naturalCompare(String a, String b) {
         return extractSuffix(a).compareTo(extractSuffix(b));
     }
 
+    /** ExtractSuffix */
     private String extractSuffix(String name) {
         var m = java.util.regex.Pattern.compile("\\d+$").matcher(name);
         if (m.find()) {

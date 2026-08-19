@@ -117,15 +117,19 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     }
 
     /**
-     * 判断是否为 seed 引导节点。
-     * <p>seed 仅用于引导发现，不参与业务负载均衡路由。</p>
+     * 判断是否为 seed 引导节点或不参与业务路由的标记节点。
+     * <p>seed 仅用于引导发现；metadata 标记 self=true 的节点（如网关自身）同样不参与业务负载均衡，
+     * 避免网关把流量转发回自身形成回环。</p>
      *
      * @param discovery 服务发现数据
-     * @return true 表示 seed 节点
+     * @return true 表示不参与业务路由
      */
     protected boolean isSeedNode(Discovery discovery) {
-        return discovery != null && discovery.getMetadata() != null
-                && Boolean.parseBoolean(discovery.getMetadata().get("seed"));
+        if (discovery == null || discovery.getMetadata() == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(discovery.getMetadata().get("seed"))
+                || Boolean.parseBoolean(discovery.getMetadata().get("self"));
     }
 
     /**

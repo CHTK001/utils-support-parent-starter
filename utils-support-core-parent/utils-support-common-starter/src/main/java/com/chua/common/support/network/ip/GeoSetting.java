@@ -20,12 +20,19 @@ public class GeoSetting {
     /** MaxMind License Key（用于自动下载 GeoLite2 数据库） */
     private final String licenseKey;
 
+    /**
+     * 创建 GeoSetting 实例
+     * @param databaseFile databaseFile
+     * @param String String
+     */
     public GeoSetting(String databaseFile, String licenseKey) {
         this.databaseFile = databaseFile;
         this.licenseKey = licenseKey;
     }
 
+    /** 获取DatabaseFile */
     public String getDatabaseFile() { return databaseFile; }
+    /** 获取LicenseKey */
     public String getLicenseKey() { return licenseKey; }
 
     /**
@@ -41,8 +48,11 @@ public class GeoSetting {
         /** License密钥 */
         private String licenseKey = "";
 
+        /** DatabaseFile */
         public Builder databaseFile(String databaseFile) { this.databaseFile = databaseFile; return this; }
+        /** LicenseKey */
         public Builder licenseKey(String licenseKey) { this.licenseKey = licenseKey; return this; }
+        /** 构建 */
         public GeoSetting build() { return new GeoSetting(databaseFile, licenseKey); }
     }
 }

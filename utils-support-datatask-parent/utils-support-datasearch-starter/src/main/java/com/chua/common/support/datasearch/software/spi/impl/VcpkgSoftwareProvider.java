@@ -33,11 +33,13 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "vcpkg";
 
     @Override
+    /** Name */
     public String name() {
         return NAME;
     }
 
     @Override
+    /** 搜索 */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
         String cmd = "vcpkg search " + keyword + " 2>&1";
@@ -46,16 +48,19 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
+            /** OnLine */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
+            /** OnComplete */
             public void onComplete(int exitCode) {
                 log.info("vcpkg 搜索完成, exitCode={}", exitCode);
             }
 
             @Override
+            /** On记录错误 */
             public void onError(String command, Throwable throwable) {
                 log.warn("vcpkg 搜索异常: {}", throwable.getMessage());
             }
@@ -69,6 +74,7 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
+    /** Install */
     public boolean install(String packageId) {
         String cmd = "vcpkg install " + packageId;
         log.info("vcpkg 安装: {}", packageId);
@@ -76,25 +82,30 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
+    /** Uninstall */
     public boolean uninstall(String packageId) {
         String cmd = "vcpkg remove " + packageId;
         log.info("vcpkg 卸载: {}", packageId);
         return executeCommand(cmd, "卸载", packageId);
     }
 
+    /** 执行Command */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
+            /** OnLine */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
+            /** OnComplete */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
 
             @Override
+            /** On记录错误 */
             public void onError(String command, Throwable throwable) {
                 log.error("  [{}] 异常: {}", action, throwable.getMessage());
             }
@@ -104,6 +115,7 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
+    /** 解析VcpkgOutput */
     private List<SoftwareInfo> parseVcpkgOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -142,6 +154,7 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
         return results;
     }
 
+    /** LooksLikeVersion */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");
     }

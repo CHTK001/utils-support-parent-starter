@@ -38,6 +38,7 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -49,6 +50,7 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         while (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
@@ -66,6 +68,7 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

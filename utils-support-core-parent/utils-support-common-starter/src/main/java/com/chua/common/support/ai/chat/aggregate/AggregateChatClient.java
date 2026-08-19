@@ -436,6 +436,7 @@ public class AggregateChatClient implements ChatClient {
     /**
      * 同步对话并返回完整响应（含用量信息）。
     @Override
+    /** ChatSyncWithResponse */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder().text(text).usage(aggregateUsage()).build();

@@ -55,6 +55,12 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     /** ID 序列号 */
     private long idSequence = 0;
 
+    /**
+     * 创建 DefaultWechatOpenPlatformService 实例
+     * @param componentAppId componentAppId
+     * @param String String
+     * @param String String
+     */
     public DefaultWechatOpenPlatformService(String componentAppId, String componentAppSecret, String storagePath) {
         this.componentAppId = componentAppId;
         this.wxOpenService = buildWxOpenService(componentAppId, componentAppSecret);
@@ -62,6 +68,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         loadFromEngine();
     }
 
+    /** 构建Wx打开Service */
     private WxOpenService buildWxOpenService(String componentAppId, String componentAppSecret) {
         WxOpenInMemoryConfigStorage config = new WxOpenInMemoryConfigStorage();
         config.setWxOpenInfo(componentAppId, componentAppSecret, null, null);
@@ -70,6 +77,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         return service;
     }
 
+    /** 初始化Engine */
     private WechatFileEngine initEngine(String storagePath) {
         WechatFileEngine fileEngine = new WechatFileEngine();
         fileEngine.load(TABLE_NAME, storagePath, "json");
@@ -95,6 +103,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         log.info("从持久化文件加载 {} 条用户映射", users.size());
     }
 
+    /** 构建Index */
     private void buildIndex(WechatPlatformUser user) {
         // 更新unionid索引
         unionUserMap.compute(user.getUnionId(), (key, list) -> {
@@ -111,6 +120,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
+    /** 获取All打开IdsByUnionId */
     public List<WechatPlatformUser> getAllOpenIdsByUnionId(String unionId) {
         if (StringUtils.isEmpty(unionId)) {
             return Collections.emptyList();
@@ -120,6 +130,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
+    /** 获取打开IdByUnionId */
     public WechatPlatformUser getOpenIdByUnionId(String unionId, WechatPlatformUser.PlatformType platformType) {
         List<WechatPlatformUser> users = getAllOpenIdsByUnionId(unionId);
         return users.stream()
@@ -129,18 +140,21 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
+    /** 获取OfficialAccount打开Id */
     public String getOfficialAccountOpenId(String unionId) {
         WechatPlatformUser user = getOpenIdByUnionId(unionId, WechatPlatformUser.PlatformType.OFFICIAL_ACCOUNT);
         return user != null ? user.getOpenId() : null;
     }
 
     @Override
+    /** 获取MiniApp打开Id */
     public String getMiniAppOpenId(String unionId) {
         WechatPlatformUser user = getOpenIdByUnionId(unionId, WechatPlatformUser.PlatformType.MINI_APP);
         return user != null ? user.getOpenId() : null;
     }
 
     @Override
+    /** 保存Or更新 */
     public void saveOrUpdate(WechatPlatformUser user) {
         if (user == null || user.getUnionId() == null || user.getOpenId() == null) {
             return;
@@ -179,6 +193,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
+    /** 转换ToOfficial打开Id */
     public String convertToOfficialOpenId(String miniAppOpenId) {
         if (StringUtils.isEmpty(miniAppOpenId)) {
             return null;
@@ -194,6 +209,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
+    /** 转换ToOfficial打开Id */
     public String convertToOfficialOpenId(String miniAppId, String miniAppOpenId) {
         if (StringUtils.isEmpty(miniAppId) || StringUtils.isEmpty(miniAppOpenId)) {
             return null;
@@ -225,6 +241,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         return null;
     }
 
+    /** 获取UnionIdFromWechatApi */
     private String getUnionIdFromWechatApi(String authorizerAppId, String openid) {
         try {
             WxOpenComponentService componentService = wxOpenService.getWxOpenComponentService();
@@ -255,6 +272,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         }
     }
 
+    /** DoPost */
     private String doPost(String urlStr, String body) throws Exception {
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

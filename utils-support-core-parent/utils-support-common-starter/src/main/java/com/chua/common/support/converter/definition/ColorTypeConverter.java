@@ -208,6 +208,13 @@ public class ColorTypeConverter implements TypeConverter<Color> {
          */
         public String name;
 
+        /**
+         * 创建 ColorName 实例
+         * @param name name
+         * @param int int
+         * @param int int
+         * @param int int
+         */
         public ColorName(String name, int r, int g, int b) {
             this.r = r;
             this.g = g;

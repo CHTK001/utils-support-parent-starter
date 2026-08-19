@@ -26,20 +26,31 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     /** Naming服务 */
     private NamingService namingService;
 
+    /**
+     * 创建 NacosServiceDiscovery 实例
+     * @param discoveryOption discoveryOption
+     */
     public NacosServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
 
+    /**
+     * 创建 NacosServiceDiscovery 实例
+     * @param discoveryOption discoveryOption
+     * @param String String
+     */
     public NacosServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
 
     @Override
+    /** NeedsPathPrefixIsolation */
     protected boolean needsPathPrefixIsolation() {
         return false;
     }
 
     @Override
+    /** 获取 */
     protected Set<Discovery> get(String path) {
         if (path == null || path.trim().isEmpty() || "/".equals(path)) {
             return Collections.emptySet();
@@ -76,11 +87,13 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
+    /** 获取Meta */
     private static String getMeta(Instance it, String key) {
         return it.getMetadata() != null ? it.getMetadata().get(key) : null;
     }
 
     @Override
+    /** 注册Service */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         discovery.setUriSpec(path);
         Instance instance = new Instance();
@@ -113,6 +126,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** Do注销 */
     protected void doUnregister(String path, Discovery discovery) {
         try {
             String name = path.startsWith("/") ? path.substring(1) : path;
@@ -123,12 +137,14 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** Do更新 */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         doUnregister(path, oldDiscovery);
         registerService(path, newDiscovery);
     }
 
     @Override
+    /** 开始 */
     public void start() {
         try {
             if (clusterName != null && !clusterName.isEmpty()) {
@@ -145,15 +161,18 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 是否Support订阅 */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         try {
             namingService.subscribe(serviceName, new EventListener() {
                 @Override
+                /** OnEvent */
                 public void onEvent(com.alibaba.nacos.api.naming.listener.Event event) {
                     if (event instanceof NamingEvent ne) {
                         String name = ne.getServiceName();
@@ -178,6 +197,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         clearCache();
         if (namingService != null) {

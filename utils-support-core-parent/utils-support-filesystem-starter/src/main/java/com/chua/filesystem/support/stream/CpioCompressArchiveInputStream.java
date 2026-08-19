@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 public class CpioCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -32,12 +33,14 @@ public class CpioCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     @Override
+    /** 创建InputStream */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var cpioInputStream = new CpioArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(cpioInputStream);
     }
 
     @Override
+    /** 获取格式化Name */
     public String getFormatName() {
         return "cpio";
     }

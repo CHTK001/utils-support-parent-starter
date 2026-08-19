@@ -12,16 +12,19 @@ package com.chua.network.support.tshark.restorer;
 public class KafkaProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "kafka";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 220;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return false;
@@ -36,6 +39,7 @@ public class KafkaProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return "[Kafka] empty";
@@ -55,6 +59,7 @@ public class KafkaProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToApiKeyName */
     private static String toApiKeyName(int apiKey) {
         return switch (apiKey) {
             case 0 -> "Produce";

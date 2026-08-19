@@ -46,6 +46,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     private ProcessingEnvironment pe;
 
     @Override
+    /** 初始化 */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -59,6 +60,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) {
             return false;

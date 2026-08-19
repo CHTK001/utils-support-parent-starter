@@ -18,6 +18,7 @@ public class WeightedStrategy implements RouterStrategy {
     private final Random random = new Random();
 
     @Override
+    /** 选择 */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

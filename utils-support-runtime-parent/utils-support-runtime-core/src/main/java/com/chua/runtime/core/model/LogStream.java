@@ -39,10 +39,15 @@ public class LogStream implements LineCallback, AutoCloseable {
      */
     private volatile boolean closed;
 
+    /** 创建 LogStream 实例 */
     public LogStream() {
         this(DEFAULT_MAX_LINES);
     }
 
+    /**
+     * 创建 LogStream 实例
+     * @param maxLines maxLines
+     */
     public LogStream(int maxLines) {
         this.maxLines = maxLines;
         this.buffer = new LinkedList<>();
@@ -50,6 +55,7 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
+    /** OnLine */
     public synchronized void onLine(String line) {
         if (closed) {
             return;
@@ -64,6 +70,7 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
+    /** OnComplete */
     public synchronized void onComplete(int exitCode) {
         if (closed) {
             return;
@@ -74,6 +81,7 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
+    /** On记录错误 */
     public synchronized void onError(String command, Throwable throwable) {
         if (closed) {
             return;
@@ -83,20 +91,24 @@ public class LogStream implements LineCallback, AutoCloseable {
         }
     }
 
+    /** 订阅 */
     public void subscribe(LineCallback callback) {
         if (!closed) {
             subscribers.add(callback);
         }
     }
 
+    /** 取消订阅 */
     public void unsubscribe(LineCallback callback) {
         subscribers.remove(callback);
     }
 
+    /** 获取Buffer */
     public synchronized List<String> getBuffer() {
         return new LinkedList<>(buffer);
     }
 
+    /** Tail */
     public synchronized List<String> tail(int n) {
         int size = buffer.size();
         if (n >= size) {
@@ -105,17 +117,20 @@ public class LogStream implements LineCallback, AutoCloseable {
         return new LinkedList<>(buffer.subList(size - n, size));
     }
 
+    /** Clear */
     public synchronized void clear() {
         buffer.clear();
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         this.closed = true;
         subscribers.clear();
         buffer.clear();
     }
 
+    /** 是否Closed */
     public boolean isClosed() {
         return closed;
     }

@@ -24,31 +24,37 @@ public class PahoMqttHandler extends AbstractAppHandler {
     private static final String[] OPERATIONS = {"connect", "publish", "subscribe", "unsubscribe", "disconnect"};
 
     @Override
+    /** Name */
     public String name() {
         return "paho-mqtt-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "paho-mqtt.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.PAHO_MQTT;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.MQTT;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(MQTT_CLIENT, OPERATIONS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

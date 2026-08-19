@@ -106,92 +106,110 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
+    /** 获取FlowId */
     public String getFlowId() {
         return flowId;
     }
 
     @Override
+    /** 获取CurrentNodeId */
     public String getCurrentNodeId() {
         return currentNodeId;
     }
 
     @Override
+    /** 设置CurrentNodeId */
     public void setCurrentNodeId(String nodeId) {
         this.currentNodeId = nodeId;
     }
 
     @Override
+    /** 获取Data */
     public Object getData() {
         return data;
     }
 
     @Override
+    /** 设置Data */
     public void setData(Object data) {
         this.data = data;
     }
 
     @Override
+    /** 获取Attributes */
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
     @Override
+    /** 设置Attribute */
     public void setAttribute(String key, Object value) {
         attributes.put(key, value);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取Attribute */
     public <T> T getAttribute(String key) {
         return (T) attributes.get(key);
     }
 
     @Override
+    /** CurrentNodeProps */
     public FlowProps currentNodeProps() {
         return flow.nodeProps(currentNodeId);
     }
 
     @Override
+    /** 获取NextNodeId */
     public String getNextNodeId() {
         return nextNodeId;
     }
 
     @Override
+    /** 设置NextNodeId */
     public void setNextNodeId(String nodeId) {
         this.nextNodeId = nodeId;
     }
 
     @Override
+    /** WaitFor恢复 */
     public void waitForResume() {
         this.action = Action.WAIT;
     }
 
     @Override
+    /** Exit */
     public void exit() {
         this.action = Action.EXIT;
     }
 
     @Override
+    /** 获取ExecutionTrace */
     public List<String> getExecutionTrace() {
         return new ArrayList<>(executionTrace);
     }
 
     @Override
+    /** 获取Traces */
     public List<FlowTrace> getTraces() {
         return new ArrayList<>(traces);
     }
 
     @Override
+    /** 获取执行计算数量 */
     public int getExecuteCount(String nodeId) {
         return executeCounts.getOrDefault(nodeId, 0);
     }
 
     @Override
+    /** 获取最大值Loop计算数量 */
     public int getMaxLoopCount() {
         return maxLoopCount;
     }
 
     @Override
+    /** 设置最大值Loop计算数量 */
     public void setMaxLoopCount(int maxLoopCount) {
         if (maxLoopCount <= 0) {
             throw new IllegalArgumentException("maxLoopCount 必须大于 0");
@@ -200,6 +218,7 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
+    /** 获取PendingNodeIds */
     public List<String> getPendingNodeIds() {
         return new ArrayList<>(pendingSnapshot);
     }

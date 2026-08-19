@@ -43,16 +43,19 @@ public class IpcServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 200;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.IPC};
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null || !path.startsWith("/ipc")) {
@@ -62,6 +65,7 @@ public class IpcServerFilter implements ServerFilter {
         handleIpcRequest(request, response);
     }
 
+    /** 处理IpcRequest */
     private void handleIpcRequest(ServerRequest request, ServerResponse response) {
         try {
             String body = request.getBodyString();
@@ -99,6 +103,7 @@ public class IpcServerFilter implements ServerFilter {
         }
     }
 
+    /** NormalizePath */
     private static String normalizePath(String methodName) {
         if (methodName == null || methodName.isBlank()) {
             return "/";
@@ -106,6 +111,7 @@ public class IpcServerFilter implements ServerFilter {
         return methodName.startsWith("/") ? methodName : "/" + methodName;
     }
 
+    /** 发送记录错误 */
     private void sendError(ServerResponse res, int status, String msg) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("success", false);

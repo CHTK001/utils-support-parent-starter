@@ -45,16 +45,28 @@ public class KcpHttpClient {
      */
     private KcpClient client;
 
+    /**
+     * 创建 KcpHttpClient 实例
+     * @param host host
+     * @param int int
+     */
     public KcpHttpClient(String host, int port) {
         this(host, port, 5000L);
     }
 
+    /**
+     * 创建 KcpHttpClient 实例
+     * @param host host
+     * @param int int
+     * @param long long
+     */
     public KcpHttpClient(String host, int port, long timeoutMs) {
         this.host = host;
         this.port = port;
         this.timeoutMs = timeoutMs;
     }
 
+    /** 连接 */
     public void connect() throws Exception {
         client = new KcpClient("kcp-http-client", "kcp://" + host + ":" + port);
         try {
@@ -64,6 +76,7 @@ public class KcpHttpClient {
         }
     }
 
+    /** Request */
     public HttpResponse request(String method, String path, Map<String, String> headers, byte[] body) throws Exception {
         if (!isConnected()) {
             throw new IllegalStateException("KCP HTTP 客户端未连接");
@@ -97,18 +110,22 @@ public class KcpHttpClient {
         return resp;
     }
 
+    /** 获取 */
     public HttpResponse get(String path) throws Exception {
         return request("GET", path, null, null);
     }
 
+    /** Post */
     public HttpResponse post(String path, byte[] body) throws Exception {
         return request("POST", path, null, body);
     }
 
+    /** 是否Connected */
     public boolean isConnected() {
         return client != null && client.isConnected();
     }
 
+    /** 关闭 */
     public void close() {
         if (client != null) {
             try {
@@ -137,31 +154,38 @@ public class KcpHttpClient {
          */
         private byte[] body = new byte[0];
 
+        /** 获取Status */
         public int getStatus() {
             return status;
         }
 
+        /** 设置Status */
         public void setStatus(int status) {
             this.status = status;
         }
 
+        /** 获取Headers */
         public Map<String, String> getHeaders() {
             return headers;
         }
 
+        /** 获取Header */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
+        /** 获取Body */
         public byte[] getBody() {
             return body;
         }
 
+        /** 获取BodyString */
         public String getBodyString() {
             return body != null ? new String(body, StandardCharsets.UTF_8) : "";
         }
 
         @Override
+        /** ToString */
         public String toString() {
             return "HttpResponse{status=" + status + ", body=" + getBodyString() + "}";
         }

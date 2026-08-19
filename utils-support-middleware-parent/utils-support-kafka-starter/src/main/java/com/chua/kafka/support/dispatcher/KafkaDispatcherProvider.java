@@ -58,11 +58,16 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
      */
     private volatile boolean closed = false;
 
+    /**
+     * 创建 KafkaDispatcherProvider 实例
+     * @param config config
+     */
     public KafkaDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     @Override
+    /** 开始 */
     public void start() {
         this.producer = createProducer();
     }
@@ -81,12 +86,14 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         var value = body == null ? "" : body.toString();
         producer.send(new ProducerRecord<>(topic, value));
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -142,6 +149,7 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -155,6 +163,7 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         producer.close();

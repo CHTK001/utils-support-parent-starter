@@ -167,6 +167,7 @@ public final class SeedAddress {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return portSpecified ? host + ":" + port : host;
     }

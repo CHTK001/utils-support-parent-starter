@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 public class TarArchiveOutputStreamProvider implements CompressArchiveOutputStream {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -28,11 +29,13 @@ public class TarArchiveOutputStreamProvider implements CompressArchiveOutputStre
     }
 
     @Override
+    /** 创建OutputStream */
     public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
         return new TarArchiveOutputStream(outputStream);
     }
 
     @Override
+    /** 获取格式化Name */
     public String getFormatName() {
         return "tar";
     }

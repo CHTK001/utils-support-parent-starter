@@ -24,31 +24,37 @@ public class TomcatHandler extends AbstractAppHandler {
     private static final String[] INVOKE_METHODS = {"invoke"};
 
     @Override
+    /** Name */
     public String name() {
         return "tomcat-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "tomcat.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.TOMCAT;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(STANDARD_WRAPPER_VALVE, INVOKE_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

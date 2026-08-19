@@ -57,6 +57,13 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
      */
     private final BlockingQueue<Map<String, Object>> messageQueue = new LinkedBlockingQueue<>();
 
+    /**
+     * 创建 SocketIODataSyncAgent 实例
+     * @param agentId agentId
+     * @param String String
+     * @param String String
+     * @param DataSyncSource DataSyncSource
+     */
     public SocketIODataSyncAgent(String agentId, String sourceId, String serverUrl, DataSyncSource source) {
         this.agentId = agentId;
         this.sourceId = sourceId;
@@ -65,6 +72,7 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (running) {
             return;
@@ -81,6 +89,7 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         running = false;
         if (socket != null) {
@@ -90,17 +99,22 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     }
 
     @Override
+    /** AgentId */
     public String agentId() { return agentId; }
 
     @Override
+    /** ToSource */
     public DataSyncSource toSource() { return source; }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() { return running; }
 
     @Override
+    /** DataUrl */
     public String dataUrl() { return ""; }
 
+    /** 处理拉取 */
     private void handlePull(Object[] args) {
         if (args.length == 0) {
             return;
@@ -118,6 +132,7 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         ));
     }
 
+    /** 处理推送 */
     private void handlePush(Object[] args) {
         if (args.length == 0) {
             return;
@@ -134,6 +149,7 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         emit(Map.of("type", "push_result", "status", "ok"));
     }
 
+    /** 发送 */
     private void emit(Map<String, Object> data) {
         if (socket == null || !socket.connected()) {
             return;

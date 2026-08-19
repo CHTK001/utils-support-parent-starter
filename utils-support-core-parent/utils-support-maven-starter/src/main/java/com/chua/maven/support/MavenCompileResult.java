@@ -78,9 +78,23 @@ public class MavenCompileResult {
      */
     private List<String> artifacts;
 
+    /** 创建 MavenCompileResult 实例 */
     public MavenCompileResult() {
     }
 
+    /**
+     * 创建 MavenCompileResult 实例
+     * @param success success
+     * @param exitCode exitCode
+     * @param output output
+     * @param errors errors
+     * @param durationMillis durationMillis
+     * @param projectPath projectPath
+     * @param projectDir projectDir
+     * @param goals goals
+     * @param profiles profiles
+     * @param artifacts artifacts
+     */
     private MavenCompileResult(boolean success, int exitCode, String output, List<String> errors,
                                long durationMillis, String projectPath, String projectDir,
                                List<String> goals, List<String> profiles, List<String> artifacts) {
@@ -98,38 +112,47 @@ public class MavenCompileResult {
 
     // ==================== Getter ====================
 
+    /** 是否Success */
     public boolean isSuccess() {
         return success;
     }
 
+    /** 获取ExitCode */
     public int getExitCode() {
         return exitCode;
     }
 
+    /** 获取Output */
     public String getOutput() {
         return output;
     }
 
+    /** 获取Errors */
     public List<String> getErrors() {
         return errors;
     }
 
+    /** 获取DurationMillis */
     public long getDurationMillis() {
         return durationMillis;
     }
 
+    /** 获取ProjectPath */
     public String getProjectPath() {
         return projectPath;
     }
 
+    /** 获取ProjectDir */
     public String getProjectDir() {
         return projectDir;
     }
 
+    /** 获取Goals */
     public List<String> getGoals() {
         return goals;
     }
 
+    /** 获取Profiles */
     public List<String> getProfiles() {
         return profiles;
     }
@@ -315,6 +338,7 @@ public class MavenCompileResult {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return "MavenCompileResult{" +
                 "success=" + success +

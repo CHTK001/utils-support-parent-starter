@@ -55,6 +55,10 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      */
     private final ReentrantReadWriteLock routeLock = new ReentrantReadWriteLock();
 
+    /**
+     * 创建 ServerHandlerFactory 实例
+     * @param objectContext objectContext
+     */
     public ServerHandlerFactory(ObjectContext objectContext) {
         this.objectContext = objectContext;
     }

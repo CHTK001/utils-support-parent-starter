@@ -98,6 +98,7 @@ public interface MavenDeployTarget extends AutoCloseable {
     void disconnect();
 
     @Override
+    /** 关闭 */
     default void close() {
         disconnect();
     }

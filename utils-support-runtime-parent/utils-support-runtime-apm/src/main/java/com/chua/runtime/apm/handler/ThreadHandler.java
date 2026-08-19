@@ -68,32 +68,38 @@ public class ThreadHandler extends AbstractAppHandler {
      */
     private final AtomicBoolean started;
 
+    /** 创建 ThreadHandler 实例 */
     public ThreadHandler() {
         super();
         this.started = new AtomicBoolean(false);
     }
 
     @Override
+    /** Name */
     public String name() {
         return "thread-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "thread.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.THREAD;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(THREAD_POOL_EXECUTOR, POOL_METHODS);
         registerAll(THREAD_CLASS, THREAD_METHODS);
@@ -101,6 +107,7 @@ public class ThreadHandler extends AbstractAppHandler {
     }
 
     @Override
+    /** OnIntercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -109,6 +116,7 @@ public class ThreadHandler extends AbstractAppHandler {
     }
 
     @Override
+    /** DeriveOperation */
     protected String deriveOperation(InterceptContext ctx) {
         String method = ctx.getMethodName();
         if ("execute".equals(method) || "submit".equals(method)) {
@@ -124,6 +132,7 @@ public class ThreadHandler extends AbstractAppHandler {
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

@@ -83,22 +83,26 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
+    /** 创建 NetHandler 实例 */
     public NetHandler() {
         this.records = new BoundedRecordList<>(MAX_RECORDS);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
+    /** Name */
     public String name() {
         return "net-handler";
     }
 
     @Override
+    /** Version */
     public String version() {
         return "1.0.0";
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = "true".equals(context.getProperty("net.enabled", "true"));
@@ -106,6 +110,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -120,6 +125,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -129,11 +135,13 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("NetHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled && started.get();
     }

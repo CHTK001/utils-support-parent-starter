@@ -56,6 +56,13 @@ public class ApolloClient implements AutoCloseable {
     /** configCache */
     private final Map<String, Config> configCache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 ApolloClient 实例
+     * @param appId appId
+     * @param String String
+     * @param List List
+     * @param namespaces namespaces
+     */
     private ApolloClient(String appId, String meta, List<String> namespaces) {
         this.appId = appId;
         this.meta = meta;
@@ -64,16 +71,19 @@ public class ApolloClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** 创建 */
     public static ApolloClient create(String appId, String meta) {
         return builder().appId(appId).meta(meta).build();
     }
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
 
     // ==================== 启动/停止 ====================
 
+    /** 开始 */
     public ApolloClient start() {
         System.setProperty("app.id", appId);
         if (meta != null && !meta.isEmpty()) {
@@ -97,6 +107,7 @@ public class ApolloClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         configCache.clear();
         log.info("Apollo 客户端关闭");
@@ -112,24 +123,30 @@ public class ApolloClient implements AutoCloseable {
         /** Namespaces */
         private List<String> namespaces = new ArrayList<>(List.of("application"));
 
+        /** AppId */
         public Builder appId(String appId) { this.appId = appId; return this; }
+        /** Meta */
         public Builder meta(String meta) { this.meta = meta; return this; }
 
+        /** Namespaces */
         public Builder namespaces(String... namespaces) {
             this.namespaces = new ArrayList<>(List.of(namespaces));
             return this;
         }
 
+        /** Namespaces */
         public Builder namespaces(List<String> namespaces) {
             this.namespaces = new ArrayList<>(namespaces);
             return this;
         }
 
+        /** 添加Namespace */
         public Builder addNamespace(String namespace) {
             this.namespaces.add(namespace);
             return this;
         }
 
+        /** 构建 */
         public ApolloClient build() {
             if (appId == null || appId.isEmpty()) {
                 throw new IllegalArgumentException("appId 不能为空");
@@ -267,6 +284,7 @@ public class ApolloClient implements AutoCloseable {
             });
         }
 
+        /** 获取Config */
         private Config getConfig() {
             Config config = client.configCache.get(namespace);
             if (config == null) {
@@ -284,10 +302,19 @@ public class ApolloClient implements AutoCloseable {
     // ==================== 异常类 ====================
 
     public static class ApolloClientException extends RuntimeException {
+        /**
+         * 创建 ApolloClientException 实例
+         * @param message message
+         */
         public ApolloClientException(String message) {
             super(message);
         }
 
+        /**
+         * 创建 ApolloClientException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public ApolloClientException(String message, Throwable cause) {
             super(message, cause);
         }

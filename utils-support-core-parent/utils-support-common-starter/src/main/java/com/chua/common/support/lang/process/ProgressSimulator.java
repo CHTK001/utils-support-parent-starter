@@ -243,6 +243,7 @@ public final class ProgressSimulator {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return "ProgressSimulator{" +
                 "type=" + type +

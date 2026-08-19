@@ -103,31 +103,37 @@ public class LuceneDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.OUTPUT;
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** AgentId */
     public String agentId() {
         return agentId;
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.empty();
     }
 
     @Override
+    /** CurrentOffset */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
+    /** 写入 */
     public void write(Flux<Map<String, Object>> data) {
         List<Map<String, Object>> rows = data.collectList().block();
         if (rows == null || rows.isEmpty()) {
@@ -162,6 +168,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

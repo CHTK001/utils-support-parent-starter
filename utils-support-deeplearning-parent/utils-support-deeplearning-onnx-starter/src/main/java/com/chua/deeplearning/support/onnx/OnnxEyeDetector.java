@@ -15,26 +15,34 @@ public class OnnxEyeDetector implements EyeDetector {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxEyeDetector 实例
+     * @param apiKey apiKey
+     */
     public OnnxEyeDetector(String apiKey) {
     }
 
     @Override
+    /** Model */
     public EyeDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "ultra-face";
     }
 
     @Override
+    /** Device */
     public EyeDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         return EyeDetector.create(resolveModel()).device(device).detect(imageData);
     }

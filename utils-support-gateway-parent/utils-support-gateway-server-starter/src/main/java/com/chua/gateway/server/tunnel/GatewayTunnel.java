@@ -97,6 +97,7 @@ public class GatewayTunnel implements Tunnel {
     }
 
     @Override
+    /** 打开 */
     public int open() {
         if (bridge == null) {
             updateStatus(TunnelStatus.OPEN);
@@ -118,6 +119,7 @@ public class GatewayTunnel implements Tunnel {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (bridge == null) {
             updateStatus(TunnelStatus.CLOSED);
@@ -134,11 +136,13 @@ public class GatewayTunnel implements Tunnel {
     }
 
     @Override
+    /** 是否打开 */
     public boolean isOpen() {
         return status == TunnelStatus.OPEN;
     }
 
     @Override
+    /** 获取Info */
     public TunnelInfo getInfo() {
         return TunnelInfo.of(
                 0,
@@ -150,12 +154,14 @@ public class GatewayTunnel implements Tunnel {
     }
 
     @Override
+    /** OnInfo */
     public void onInfo(Consumer<TunnelInfo> callback) {
         if (callback != null) {
             callbacks.add(callback);
         }
     }
 
+    /** 更新Status */
     private void updateStatus(TunnelStatus newStatus) {
         TunnelStatus old = this.status;
         if (old == newStatus) {

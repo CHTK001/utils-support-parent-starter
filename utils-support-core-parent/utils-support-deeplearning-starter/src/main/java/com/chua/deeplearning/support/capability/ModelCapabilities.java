@@ -188,6 +188,7 @@ public final class ModelCapabilities {
             Map.entry(FeatureClient.class, FEATURE)
     );
 
+    /** 创建 ModelCapabilities 实例 */
     private ModelCapabilities() {
     }
 

@@ -35,6 +35,10 @@ public class AppImageInstaller {
     /** 应用配置属性 */
     private final AppImageProperties properties;
 
+    /**
+     * 创建 AppImageInstaller 实例
+     * @param properties properties
+     */
     public AppImageInstaller(AppImageProperties properties) {
         this.properties = properties;
     }

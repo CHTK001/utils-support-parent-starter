@@ -30,6 +30,10 @@ import java.util.List;
  */
 public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDeleteWrapper<T>> {
 
+    /**
+     * 创建 LambdaDeleteWrapper 实例
+     * @param entityClass entityClass
+     */
     public LambdaDeleteWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -67,11 +71,13 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     }
 
     @Override
+    /** NewInstance */
     protected LambdaDeleteWrapper<T> newInstance() {
         return new LambdaDeleteWrapper<>(entityClass);
     }
 
     @Override
+    /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> column) {
         return null;
     }

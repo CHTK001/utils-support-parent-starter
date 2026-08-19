@@ -93,6 +93,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
+    /** 初始化 */
     public synchronized void init(int width, int height, int fps) {
         // 重置编码质量为默认值
         this.quality = DEFAULT_QUALITY;
@@ -101,25 +102,30 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 获取CodecName */
     public String getCodecName() {
         return CODEC_NAME_JPEG;
     }
 
     @Override
+    /** 获取CodecId */
     public int getCodecId() {
         return 0;
     }
 
     @Override
+    /** 是否HardwareAccelerated */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
+    /** ForceKeyFrame */
     public void forceKeyFrame() {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(BufferedImage image) {
         if (!started || image == null) {
             return new byte[0];
@@ -135,6 +141,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 编码 */
     public synchronized byte[] encode(Frame frame) {
         if (!started || frame == null) {
             return new byte[0];
@@ -150,6 +157,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         started = false;
     }

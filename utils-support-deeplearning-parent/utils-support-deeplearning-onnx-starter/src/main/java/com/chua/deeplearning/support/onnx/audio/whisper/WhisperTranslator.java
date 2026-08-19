@@ -74,6 +74,7 @@ public class WhisperTranslator {
     /** 解码器会话 */
     private OrtSession decoderSession;
 
+    /** Prepare */
     public void prepare(Path modelDir) throws Exception {
         Path onnxDir = modelDir.resolve("onnx");
         Path encoderPath = Files.isDirectory(onnxDir) ? findOnnx(onnxDir, "encoder_model") : null;
@@ -109,6 +110,7 @@ public class WhisperTranslator {
         }
     }
 
+    /** 查找Onnx */
     private static Path findOnnx(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
             Path result = stream
@@ -184,6 +186,7 @@ public class WhisperTranslator {
         }
     }
 
+    /** Transcribe */
     public String transcribe(Path audioPath) throws Exception {
         long start = System.currentTimeMillis();
         log.info("[Whisper] loadAudio start");
@@ -200,6 +203,7 @@ public class WhisperTranslator {
         }
     }
 
+    /** DoTranscribe */
     private String doTranscribe(float[][] mel) throws Exception {
 
         // encoder input: (1, 80, 3000) flat
@@ -223,6 +227,7 @@ public class WhisperTranslator {
         return tokenizer.decode(generated);
     }
 
+    /** Greedy解码 */
     private int[] greedyDecode(float[] encoderHidden) {
         List<Integer> tokens = new ArrayList<>();
         tokens.add(WhisperTokenizer.SOT);
@@ -294,6 +299,7 @@ public class WhisperTranslator {
         return tokens.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    /** Argmax */
     private static int argmax(float[] arr, int offset, int length) {
         int idx = 0;
         float max = arr[offset];
@@ -307,6 +313,7 @@ public class WhisperTranslator {
         return idx;
     }
 
+    /** 加载Audio */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();

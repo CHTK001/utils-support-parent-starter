@@ -57,6 +57,7 @@ public class JavaCVScreenCapture implements ScreenCature {
     private volatile Frame reusableResultFrame;
 
     @Override
+    /** 初始化 */
     public boolean init(int width, int height, int fps) {
         close();
         try {
@@ -97,6 +98,7 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
+    /** GrabFrame */
     public Frame grabFrame() {
         if (!initialized || grabber == null) {
             return null;
@@ -196,16 +198,19 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
+    /** 获取Width */
     public int getWidth() {
         return width;
     }
 
     @Override
+    /** 获取Height */
     public int getHeight() {
         return height;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         initialized = false;
         try {

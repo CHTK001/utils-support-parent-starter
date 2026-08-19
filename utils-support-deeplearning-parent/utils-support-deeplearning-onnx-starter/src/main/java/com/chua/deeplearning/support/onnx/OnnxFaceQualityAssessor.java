@@ -31,15 +31,21 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
      */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxFaceQualityAssessor 实例
+     * @param apiKey apiKey
+     */
     public OnnxFaceQualityAssessor(String apiKey) {
     }
 
     @Override
+    /** Model */
     public FaceQualityAssessor model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + FaceQualityAssessor.listModels());
@@ -48,18 +54,21 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
+    /** BlurThreshold */
     public FaceQualityAssessor blurThreshold(double blurThreshold) {
         this.blurThreshold = blurThreshold;
         return this;
     }
 
     @Override
+    /** Device */
     public FaceQualityAssessor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Assess */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).device(device).assess(imageData);
     }

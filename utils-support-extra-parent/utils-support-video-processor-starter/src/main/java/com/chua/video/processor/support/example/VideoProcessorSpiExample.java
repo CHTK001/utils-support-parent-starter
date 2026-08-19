@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class VideoProcessorSpiExample {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         System.out.println("===== 视频处理 SPI 示例 =====\n");
 

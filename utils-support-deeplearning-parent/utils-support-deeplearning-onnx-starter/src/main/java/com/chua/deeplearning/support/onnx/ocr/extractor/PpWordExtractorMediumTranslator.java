@@ -10,6 +10,7 @@ package com.chua.deeplearning.support.onnx.ocr.extractor;
  */
 public class PpWordExtractorMediumTranslator extends PpWordExtractorTranslator {
 
+    /** 创建 PpWordExtractorMediumTranslator 实例 */
     public PpWordExtractorMediumTranslator() {
         super("ocr/PP-OCRv6/medium/rec_infer/", "paddleocrv6-medium-rec");
     }

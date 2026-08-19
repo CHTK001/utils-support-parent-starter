@@ -31,6 +31,10 @@ public class SpiderRequestFactory {
      */
     private final SpiderProxyPoolStore proxyPoolStore;
 
+    /**
+     * 创建 SpiderRequestFactory 实例
+     * @param proxyPoolStore proxyPoolStore
+     */
     public SpiderRequestFactory(SpiderProxyPoolStore proxyPoolStore) {
         this.proxyPoolStore = proxyPoolStore;
     }

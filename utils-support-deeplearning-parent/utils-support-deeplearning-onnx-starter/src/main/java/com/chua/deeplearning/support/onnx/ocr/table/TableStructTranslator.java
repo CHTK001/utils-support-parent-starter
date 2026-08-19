@@ -66,6 +66,7 @@ public class TableStructTranslator implements Translator<Image, TableStructureRe
     private final List<String> tdToken = new ArrayList<>();
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = model.getArtifact("table_structure_dict_ch.txt").openStream()) {
@@ -86,6 +87,7 @@ public class TableStructTranslator implements Translator<Image, TableStructureRe
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         height = input.getHeight();
@@ -102,6 +104,7 @@ public class TableStructTranslator implements Translator<Image, TableStructureRe
     }
 
     @Override
+    /** 处理Output */
     public TableStructureResult processOutput(TranslatorContext ctx, NDList list) {
         NDArray bboxPreds = list.get(0);
         NDArray structureProbs = list.get(1);
@@ -179,6 +182,7 @@ public class TableStructTranslator implements Translator<Image, TableStructureRe
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

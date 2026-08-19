@@ -30,10 +30,27 @@ public class McpToolDescriptor {
     /** 参数 schema（JSON Schema 格式） */
     private final Map<String, Object> inputSchema;
 
+    /**
+     * 创建 McpToolDescriptor 实例
+     * @param name name
+     * @param String String
+     * @param Map Map
+     * @param Object Object
+     * @param inputSchema inputSchema
+     */
     public McpToolDescriptor(String name, String description, Map<String, Object> inputSchema) {
         this(name, null, description, inputSchema);
     }
 
+    /**
+     * 创建 McpToolDescriptor 实例
+     * @param name name
+     * @param String String
+     * @param String String
+     * @param Map Map
+     * @param Object Object
+     * @param inputSchema inputSchema
+     */
     public McpToolDescriptor(String name, String serverName, String description, Map<String, Object> inputSchema) {
         this.name = name;
         this.serverName = serverName;
@@ -41,18 +58,22 @@ public class McpToolDescriptor {
         this.inputSchema = inputSchema;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取ServerName */
     public String getServerName() {
         return serverName;
     }
 
+    /** 获取Description */
     public String getDescription() {
         return description;
     }
 
+    /** 获取InputSchema */
     public Map<String, Object> getInputSchema() {
         return inputSchema;
     }

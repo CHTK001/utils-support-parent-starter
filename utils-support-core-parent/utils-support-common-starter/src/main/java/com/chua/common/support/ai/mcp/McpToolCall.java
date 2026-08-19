@@ -18,15 +18,24 @@ public class McpToolCall {
     /** 调用参数 */
     private final Map<String, Object> arguments;
 
+    /**
+     * 创建 McpToolCall 实例
+     * @param toolName toolName
+     * @param Map Map
+     * @param Object Object
+     * @param arguments arguments
+     */
     public McpToolCall(String toolName, Map<String, Object> arguments) {
         this.toolName = toolName;
         this.arguments = arguments;
     }
 
+    /** 获取ToolName */
     public String getToolName() {
         return toolName;
     }
 
+    /** 获取Arguments */
     public Map<String, Object> getArguments() {
         return arguments;
     }

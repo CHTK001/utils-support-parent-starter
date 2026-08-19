@@ -77,6 +77,10 @@ public class AlibabaChatClient implements ChatClient {
     /** 技能管理器 */
     private SkillManager skillManager;
 
+    /**
+     * 创建 AlibabaChatClient 实例
+     * @param setting setting
+     */
     public AlibabaChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -86,6 +90,7 @@ public class AlibabaChatClient implements ChatClient {
         this.generation = buildGeneration(setting);
     }
 
+    /** 构建Generation */
     private static Generation buildGeneration(ChatClientSetting setting) {
         var proxyStr = setting.getProxy();
         if (proxyStr == null || proxyStr.isBlank()) {
@@ -95,6 +100,7 @@ public class AlibabaChatClient implements ChatClient {
         return new Generation(setting.getAppKey(), null, connOpts);
     }
 
+    /** 构建ConnectionOptions */
     private static ConnectionOptions buildConnectionOptions(String proxyStr) {
         String hostPort;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
@@ -113,94 +119,110 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Temperature */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
+    /** 最大值Tokens */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
+    /** System */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
+    /** Thinking */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
+    /** ThinkingEffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
+    /** Smart搜索 */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
+    /** Skill */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
+    /** 添加Image */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
+    /** 添加UserHistory */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role(Role.USER.getValue()).content(content).build());
         return this;
     }
 
     @Override
+    /** 添加AssistantHistory */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role(Role.ASSISTANT.getValue()).content(content).build());
         return this;
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
+    /** Session */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
+    /** 添加Attachment */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持文件附件");
     }
 
     @Override
+    /** 添加AttachmentUrl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
+    /** NewChat */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -209,6 +231,7 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         var result = new StringBuilder();
         chat(prompt, response -> {
@@ -221,6 +244,7 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -229,6 +253,13 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
+    /**
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -334,6 +365,7 @@ public class AlibabaChatClient implements ChatClient {
         }
     }
 
+    /** 构建Messages */
     private List<Message> buildMessages(String prompt, String actualSystem) {
         var messages = new ArrayList<Message>();
         if (actualSystem != null && !actualSystem.isEmpty()) {

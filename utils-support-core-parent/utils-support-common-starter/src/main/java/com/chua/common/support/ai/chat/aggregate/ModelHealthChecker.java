@@ -33,6 +33,13 @@ public class ModelHealthChecker {
     /** 健康检查间隔（毫秒） */
     private final long checkIntervalMs;
 
+    /**
+     * 创建 ModelHealthChecker 实例
+     * @param checkIntervalMs checkIntervalMs
+     * @param Function Function
+     * @param ModelHealthCheckResult ModelHealthCheckResult
+     * @param healthCheckFunction healthCheckFunction
+     */
     public ModelHealthChecker(long checkIntervalMs, Function<ChatClient, ModelHealthCheckResult> healthCheckFunction) {
         this.checkIntervalMs = checkIntervalMs;
         this.healthCheckFunction = healthCheckFunction;
@@ -186,40 +193,54 @@ public class ModelHealthChecker {
         /** 消息内容 */
         private final String message;
 
+        /**
+         * 创建 ModelHealthCheckResult 实例
+         * @param healthy healthy
+         * @param IssueType IssueType
+         * @param String String
+         */
         public ModelHealthCheckResult(boolean healthy, IssueType issueType, String message) {
             this.healthy = healthy;
             this.issueType = issueType;
             this.message = message;
         }
 
+        /** Healthy */
         public static ModelHealthCheckResult healthy() {
             return new ModelHealthCheckResult(true, IssueType.NONE, null);
         }
 
+        /** Healthy */
         public static ModelHealthCheckResult healthy(String message) {
             return new ModelHealthCheckResult(true, IssueType.NONE, message);
         }
 
+        /** RateLimited */
         public static ModelHealthCheckResult rateLimited(String message) {
             return new ModelHealthCheckResult(false, IssueType.RATE_LIMITED, message);
         }
 
+        /** QuotaExhausted */
         public static ModelHealthCheckResult quotaExhausted(String message) {
             return new ModelHealthCheckResult(false, IssueType.QUOTA_EXHAUSTED, message);
         }
 
+        /** 记录错误 */
         public static ModelHealthCheckResult error(String message) {
             return new ModelHealthCheckResult(false, IssueType.OTHER_ERROR, message);
         }
 
+        /** 是否Healthy */
         public boolean isHealthy() {
             return healthy;
         }
 
+        /** 获取IssueType */
         public IssueType getIssueType() {
             return issueType;
         }
 
+        /** 获取Message */
         public String getMessage() {
             return message;
         }

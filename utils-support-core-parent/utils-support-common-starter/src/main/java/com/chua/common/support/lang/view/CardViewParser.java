@@ -30,6 +30,7 @@ public class CardViewParser implements ViewParser {
     private static final int PADDING = 2;
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
@@ -48,6 +49,7 @@ public class CardViewParser implements ViewParser {
     }
 
     @Override
+    /** Render */
     public String render(Object data) {
         Map<String, String> kv = toKeyValue(data);
         if (kv.isEmpty()) {
@@ -89,6 +91,7 @@ public class CardViewParser implements ViewParser {
         return sb.toString();
     }
 
+    /** ToKeyValue */
     private static Map<String, String> toKeyValue(Object data) {
         Map<String, String> result = new LinkedHashMap<>();
         if (data instanceof Map) {
@@ -114,6 +117,7 @@ public class CardViewParser implements ViewParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 15;
     }

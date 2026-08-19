@@ -109,22 +109,27 @@ public class AggregateChatClientSetting {
      */
     private int maxRetriesOnSameModel = 3;
 
+    /** 获取Compression */
     public ContextCompressionConfig getCompression() {
         return compression;
     }
 
+    /** 获取Strategy */
     public String getStrategy() {
         return strategy;
     }
 
+    /** 获取SkillPaths */
     public List<String> getSkillPaths() {
         return skillPaths;
     }
 
+    /** 获取Groups */
     public List<GroupConfig> getGroups() {
         return groups;
     }
 
+    /** 获取Clients */
     public List<ClientConfig> getClients() {
         return clients;
     }
@@ -173,22 +178,27 @@ public class AggregateChatClientSetting {
         /** 该组的客户端列表 */
         private List<ClientConfig> clients;
 
+        /** 获取Name */
         public String getName() {
             return name;
         }
 
+        /** 获取Strategy */
         public String getStrategy() {
             return strategy;
         }
 
+        /** 获取Condition */
         public String getCondition() {
             return condition;
         }
 
+        /** 获取TokenGroups */
         public List<String> getTokenGroups() {
             return tokenGroups;
         }
 
+        /** 获取Clients */
         public List<ClientConfig> getClients() {
             return clients;
         }
@@ -250,22 +260,27 @@ public class AggregateChatClientSetting {
          */
         private int weight = 1;
 
+        /** 获取Provider */
         public String getProvider() {
             return provider;
         }
 
+        /** 获取ApiKey */
         public String getApiKey() {
             return apiKey;
         }
 
+        /** 获取System */
         public String getSystem() {
             return system;
         }
 
+        /** 获取Model */
         public String getModel() {
             return model;
         }
 
+        /** 获取Weight */
         public int getWeight() {
             return weight;
         }
@@ -309,10 +324,12 @@ public class AggregateChatClientSetting {
          */
         private String expireTime;
 
+        /** 获取Token */
         public String getToken() {
             return token;
         }
 
+        /** 获取分组 */
         public String getGroup() {
             return group;
         }

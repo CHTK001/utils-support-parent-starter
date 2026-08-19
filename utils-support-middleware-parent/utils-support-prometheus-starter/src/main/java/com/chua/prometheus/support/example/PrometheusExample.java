@@ -41,6 +41,7 @@ public class PrometheusExample {
      */
     private static final String DEFAULT_URL = "http://localhost:9090";
 
+    /** Main */
     public static void main(String[] args) {
         String url = DEFAULT_URL;
         for (int i = 0; i < args.length - 1; i++) {

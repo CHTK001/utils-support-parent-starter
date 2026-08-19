@@ -28,14 +28,24 @@ public class FFmpegResult {
     /** 执行耗时（毫秒） */
     private long executionTime;
 
+    /** 是否Success */
     public boolean isSuccess() { return success; }
+    /** 设置Success */
     public void setSuccess(boolean success) { this.success = success; }
+    /** 获取ExitCode */
     public int getExitCode() { return exitCode; }
+    /** 设置ExitCode */
     public void setExitCode(int exitCode) { this.exitCode = exitCode; }
+    /** 获取Stdout */
     public String getStdout() { return stdout; }
+    /** 设置Stdout */
     public void setStdout(String stdout) { this.stdout = stdout; }
+    /** 获取Stderr */
     public String getStderr() { return stderr; }
+    /** 设置Stderr */
     public void setStderr(String stderr) { this.stderr = stderr; }
+    /** 获取ExecutionTime */
     public long getExecutionTime() { return executionTime; }
+    /** 设置ExecutionTime */
     public void setExecutionTime(long executionTime) { this.executionTime = executionTime; }
 }

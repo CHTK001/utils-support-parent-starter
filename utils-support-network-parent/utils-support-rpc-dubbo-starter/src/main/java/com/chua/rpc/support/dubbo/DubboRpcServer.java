@@ -45,12 +45,19 @@ public class DubboRpcServer implements RpcServer {
      */
     private final ApplicationConfig applicationConfig;
 
+    /**
+     * 创建 DubboRpcServer 实例
+     * @param rpcRegistryConfigs rpcRegistryConfigs
+     * @param RpcProtocolConfig RpcProtocolConfig
+     * @param String String
+     */
     public DubboRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig = DubboConfigs.get(name);
         initRegistries(rpcRegistryConfigs);
         initProtocol(protocolConfig);
     }
 
+    /** 初始化Registries */
     private void initRegistries(List<RpcRegistryConfig> configs) {
         if (configs == null) {
             return;
@@ -72,6 +79,7 @@ public class DubboRpcServer implements RpcServer {
         }
     }
 
+    /** 初始化Protocol */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) {
             return;
@@ -104,6 +112,7 @@ public class DubboRpcServer implements RpcServer {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         state.set(false);
         for (ServiceConfig<?> config : serviceConfigs) {
@@ -120,12 +129,14 @@ public class DubboRpcServer implements RpcServer {
     }
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() {
         state.compareAndSet(false, true);
         log.info("DubboRpcServer initialized");
     }
 
     @Override
+    /** 注册 */
     public RpcServer register(String name, Object bean) {
         ServiceConfig<Object> config = new ServiceConfig<>();
         config.setRegistries(registryConfigs);

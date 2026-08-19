@@ -54,9 +54,16 @@ public class ReturnResult<T> implements Serializable {
      */
     private transient volatile Map<String, Object> temp;
 
+    /** 创建 ReturnResult 实例 */
     public ReturnResult() {
     }
 
+    /**
+     * 创建 ReturnResult 实例
+     * @param code code
+     * @param T T
+     * @param String String
+     */
     public ReturnResult(String code, T data, String msg) {
         this.code = code;
         this.data = data;
@@ -427,6 +434,7 @@ public class ReturnResult<T> implements Serializable {
 
     // ==================== 反射填充 ====================
 
+    /** Analysis */
     private T analysis(Class<T> target) {
         T realType = realType(target);
         if (null == realType) {
@@ -443,6 +451,7 @@ public class ReturnResult<T> implements Serializable {
         return realType;
     }
 
+    /** Render */
     private void render(Class<?> aClass, T realType, String entryKey, Object value) {
         Field field = ClassUtils.findField(aClass, entryKey);
         if (null == field) {
@@ -455,6 +464,7 @@ public class ReturnResult<T> implements Serializable {
         }
     }
 
+    /** RealType */
     private T realType(Class<T> target) {
         Class<?> aClass = this.getClass();
         Type superclass = aClass.getGenericSuperclass();

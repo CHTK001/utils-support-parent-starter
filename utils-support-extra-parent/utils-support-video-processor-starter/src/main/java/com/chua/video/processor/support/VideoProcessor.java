@@ -7,20 +7,24 @@ import com.chua.video.processor.support.bridge.VideoProcessorBridge;
 
 public class VideoProcessor {
 
+    /** TranscodeToHls */
     public static boolean transcodeToHls(String inputPath, String outputDir) {
         VideoProcessorBridge.ensureLoaded();
         return VideoProcessorBridge.transcodeToHls(inputPath, outputDir);
     }
 
+    /** 获取Version */
     public static String getVersion() {
         VideoProcessorBridge.ensureLoaded();
         return VideoProcessorBridge.getVersion();
     }
 
+    /** 是否Available */
     public static boolean isAvailable() {
         return VideoProcessorBridge.isLoaded();
     }
 
+    /** Main */
     public static void main(String[] args) {
         if (args.length < 2) {
             System.err.println("Usage: java VideoProcessor <input> <output_dir>");

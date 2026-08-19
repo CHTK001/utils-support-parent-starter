@@ -47,11 +47,13 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
+    /** Type */
     public String type() {
         return TYPE;
     }
 
     @Override
+    /** 执行 */
     public BackupResult execute(BackupConfig config) {
         long start = System.currentTimeMillis();
         try {
@@ -90,6 +92,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     @Override
+    /** CleanExpired */
     public int cleanExpired(BackupConfig config) {
         int count = 0;
         Path archiveDir = config.getBackupDir().resolve(ARCHIVE_DIR);
@@ -133,6 +136,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     @Override
+    /** ListBackups */
     public List<Path> listBackups(BackupConfig config) {
         List<Path> backups = new ArrayList<>();
         Path archiveDir = config.getBackupDir().resolve(ARCHIVE_DIR);
@@ -159,6 +163,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             @Override
+            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
@@ -188,6 +193,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
                 @Override
+                /** VisitFile */
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String entryName = source.relativize(file).toString().replace("\\", "/");
                     zos.putNextEntry(new ZipEntry(entryName));
@@ -208,12 +214,14 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         }
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
             @Override
+            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
+            /** PostVisitDirectory */
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);
                 return FileVisitResult.CONTINUE;

@@ -26,12 +26,21 @@ public class SafeTensorModelDownloadManager {
     /** 模型根级 */
     private final Path modelRoot;
 
+    /**
+     * 创建 SafeTensorModelDownloadManager 实例
+     * @param client client
+     */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client) {
         String root = System.getProperty("safetensor.model.root", "D:/safetensor_models");
         this.modelRoot = Path.of(root);
         this.client = client;
     }
 
+    /**
+     * 创建 SafeTensorModelDownloadManager 实例
+     * @param client client
+     * @param Path Path
+     */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client, Path modelRoot) {
         this.modelRoot = modelRoot;
         this.client = client;

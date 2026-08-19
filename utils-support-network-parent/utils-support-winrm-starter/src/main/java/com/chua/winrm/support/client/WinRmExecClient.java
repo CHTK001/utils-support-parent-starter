@@ -80,6 +80,10 @@ public class WinRmExecClient implements AutoCloseable {
      */
     private boolean connected = false;
 
+    /**
+     * 创建 WinRmExecClient 实例
+     * @param b b
+     */
     private WinRmExecClient(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -92,6 +96,10 @@ public class WinRmExecClient implements AutoCloseable {
 
     // ==================== ClientSetting 风格构造函数 ====================
 
+    /**
+     * 创建 WinRmExecClient 实例
+     * @param setting setting
+     */
     public WinRmExecClient(com.chua.common.support.network.protocol.ClientSetting setting) {
         this.host = setting.getHost();
         this.port = setting.getPort();
@@ -104,16 +112,19 @@ public class WinRmExecClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
 
+    /** 创建 */
     public static WinRmExecClient create(String host, String username, String password) {
         return builder().host(host).username(username).password(password).build();
     }
 
     // ==================== 连接管理 ====================
 
+    /** 连接 */
     public WinRmExecClient connect() {
         try {
             String endpoint = "http://" + host + ":" + port + "/wsman";
@@ -134,6 +145,7 @@ public class WinRmExecClient implements AutoCloseable {
         return this;
     }
 
+    /** 断开 */
     public void disconnect() {
         try {
             if (winRmClient != null) {
@@ -147,14 +159,17 @@ public class WinRmExecClient implements AutoCloseable {
         }
     }
 
+    /** 执行Command */
     public ExecResult executeCommand(String command, int timeoutMs) {
         return exec().command(command).execute();
     }
 
+    /** 执行Command */
     public ExecResult executeCommand(String command) {
         return executeCommand(command, 30_000);
     }
 
+    /** 关闭Quietly */
     public void closeQuietly() {
         try {
             close();
@@ -163,6 +178,7 @@ public class WinRmExecClient implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }
@@ -216,11 +232,13 @@ public class WinRmExecClient implements AutoCloseable {
             this.client = client;
         }
 
+        /** Command */
         public ExecOperation command(String cmd) {
             this.command = cmd;
             return this;
         }
 
+        /** 执行 */
         public ExecResult execute() {
             try {
                 if (!client.isConnected()) {
@@ -239,10 +257,12 @@ public class WinRmExecClient implements AutoCloseable {
             }
         }
 
+        /** 执行And获取Output */
         public String executeAndGetOutput() {
             return execute().stdout();
         }
 
+        /** 执行And获取ExitCode */
         public int executeAndGetExitCode() {
             return execute().exitCode();
         }
@@ -266,6 +286,7 @@ public class WinRmExecClient implements AutoCloseable {
             this.client = client;
         }
 
+        /** 连接 */
         public ShellOperation connect() {
             try {
                 if (!client.isConnected()) {
@@ -279,6 +300,7 @@ public class WinRmExecClient implements AutoCloseable {
             return this;
         }
 
+        /** 发送 */
         public ShellOperation send(String cmd) throws IOException {
             if (shell == null) {
                 throw new WinRMException("Shell 未连接，先调用 connect()", null);
@@ -292,6 +314,7 @@ public class WinRmExecClient implements AutoCloseable {
             return this;
         }
 
+        /** 读取All */
         public String readAll() throws IOException {
             if (shell == null) {
                 throw new WinRMException("Shell 未连接", null);
@@ -300,6 +323,7 @@ public class WinRmExecClient implements AutoCloseable {
             return "";
         }
 
+        /** 关闭 */
         public void close() {
             if (shell != null) {
                 try {
@@ -341,28 +365,34 @@ public class WinRmExecClient implements AutoCloseable {
             this.client = client;
         }
 
+        /** Pty */
         public TerminalOperation pty(boolean v) {
             return this;
         }
 
+        /** Width */
         public TerminalOperation width(int w) {
             return this;
         }
 
+        /** Height */
         public TerminalOperation height(int h) {
             return this;
         }
 
+        /** OnOutput */
         public TerminalOperation onOutput(Consumer<String> callback) {
             this.outputCallback = callback;
             return this;
         }
 
+        /** On关闭 */
         public TerminalOperation onClose(Runnable callback) {
             this.closeCallback = callback;
             return this;
         }
 
+        /** 连接 */
         public TerminalOperation connect() {
             if (!client.isConnected()) {
                 throw new WinRMException("WinRM 未连接，请先调用 connect()", null);
@@ -371,6 +401,7 @@ public class WinRmExecClient implements AutoCloseable {
             return this;
         }
 
+        /** 发送 */
         public TerminalOperation send(String cmd) {
             if (!connected) {
                 throw new WinRMException("终端未连接", null);
@@ -395,12 +426,14 @@ public class WinRmExecClient implements AutoCloseable {
             return this;
         }
 
+        /** 读取Buffer */
         public String readBuffer() {
             String data = outputBuffer.toString();
             outputBuffer.setLength(0);
             return data;
         }
 
+        /** 关闭 */
         public void close() {
             connected = false;
             if (closeCallback != null) {
@@ -408,6 +441,7 @@ public class WinRmExecClient implements AutoCloseable {
             }
         }
 
+        /** 是否Connected */
         public boolean isConnected() {
             return connected;
         }
@@ -415,7 +449,9 @@ public class WinRmExecClient implements AutoCloseable {
 
 // ==================== ExecResult ====================
 
+/** ExecResult */
 public record ExecResult(int exitCode, String stdout, String stderr) {
+    /** 获取Output */
     public String getOutput() {
         return stdout;
     }
@@ -454,41 +490,49 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
          */
         private int sessionTimeout = 30;
 
+        /** Host */
         public Builder host(String h) {
             this.host = h;
             return this;
         }
 
+        /** Port */
         public Builder port(int p) {
             this.port = p;
             return this;
         }
 
+        /** Username */
         public Builder username(String u) {
             this.username = u;
             return this;
         }
 
+        /** Password */
         public Builder password(String p) {
             this.password = p;
             return this;
         }
 
+        /** Domain */
         public Builder domain(String d) {
             this.domain = d;
             return this;
         }
 
+        /** 连接Timeout */
         public Builder connectTimeout(int t) {
             this.connectTimeout = t;
             return this;
         }
 
+        /** SessionTimeout */
         public Builder sessionTimeout(int t) {
             this.sessionTimeout = t;
             return this;
         }
 
+        /** 构建 */
         public WinRmExecClient build() {
             if (host == null || host.trim().isEmpty()) {
                 throw new IllegalArgumentException("host 不能为空");

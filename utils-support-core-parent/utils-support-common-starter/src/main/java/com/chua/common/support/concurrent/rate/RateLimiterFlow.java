@@ -57,6 +57,11 @@ public final class RateLimiterFlow {
      */
     private Supplier<Object> fallback;
 
+    /**
+     * 创建 RateLimiterFlow 实例
+     * @param name name
+     * @param double double
+     */
     private RateLimiterFlow(String name, double permitsPerSecond) {
         this.name = name;
         this.permitsPerSecond = permitsPerSecond;

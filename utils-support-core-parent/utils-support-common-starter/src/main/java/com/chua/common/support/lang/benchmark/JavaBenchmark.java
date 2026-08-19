@@ -63,22 +63,26 @@ public class JavaBenchmark implements Benchmark {
     private BenchmarkResult result;
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "java";
     }
 
     @Override
+    /** Configure */
     public Benchmark configure(BenchmarkConfig config) {
         this.config = config != null ? config : BenchmarkConfig.builder().build();
         return this;
     }
 
     @Override
+    /** Config */
     public BenchmarkConfig config() {
         return config;
     }
 
     @Override
+    /** 运行 */
     public BenchmarkResult run() throws Exception {
         String targetUrl = config.getTargetUrl();
         if (targetUrl == null || targetUrl.isEmpty()) {
@@ -209,6 +213,7 @@ public class JavaBenchmark implements Benchmark {
     }
 
     @Override
+    /** Report */
     public File report(String reportPath) throws Exception {
         if (result == null || result.getRows().isEmpty()) {
             throw new IllegalStateException("请先执行 run() 获取压测结果");
@@ -223,6 +228,7 @@ public class JavaBenchmark implements Benchmark {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 压测线程池在 run() 内已关闭，无需额外资源
     }

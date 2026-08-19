@@ -37,6 +37,7 @@ public class GlobalSettingFactory {
     static final Map<String, List<Object>> GROUP = new ConcurrentHashMap<>();
     static final Map<String, Boolean> GROUP_ENABLED = new ConcurrentHashMap<>();
 
+    /** 获取 */
     public <T> T get(Class<T> type) {
         for (Map.Entry<String, List<Object>> entry : GROUP.entrySet()) {
             for (Object o : entry.getValue()) {
@@ -48,10 +49,12 @@ public class GlobalSettingFactory {
         return null;
     }
 
+    /** 获取 */
     public <T> List<T> get(String group) {
         return (List<T>) GROUP.get(PREFIX + group);
     }
 
+    /** 获取 */
     public String get(String group, String name) {
         List<Object> ts = GROUP.get(PREFIX + group);
         if (null == ts || ts.isEmpty()) {
@@ -70,6 +73,7 @@ public class GlobalSettingFactory {
     }
 
     @SuppressWarnings("unchecked")
+    /** 获取 */
     public <T> T get(String group, Class<T> clazz) {
         List<T> t = (List<T>) GROUP.get(PREFIX + group);
         if (t == null) {
@@ -88,10 +92,12 @@ public class GlobalSettingFactory {
         return null;
     }
 
+    /** 注册 */
     public <T> void register(String group, T t) {
         register(group, t, true);
     }
 
+    /** 注册 */
     public <T> void register(String group, T t, boolean enabled) {
         if (null == t) {
             return;
@@ -109,18 +115,22 @@ public class GlobalSettingFactory {
         }
     }
 
+    /** 获取Instance */
     public static GlobalSettingFactory getInstance() {
         return INSTANCE;
     }
 
+    /** 获取All分组 */
     public Map<String, List<Object>> getAllGroup() {
         return Collections.unmodifiableMap(GROUP);
     }
 
+    /** 获取All分组Enabled */
     public Map<String, Boolean> getAllGroupEnabled() {
         return Collections.unmodifiableMap(GROUP_ENABLED);
     }
 
+    /** 设置IfNoChange */
     public synchronized <T> void setIfNoChange(String group, String name, Object value) {
         if (CONFIG.containsKey(PREFIX + group + name)) {
             return;
@@ -129,6 +139,7 @@ public class GlobalSettingFactory {
         CONFIG.put(PREFIX + group + name, CommonConstant.SYMBOL_EMPTY);
     }
 
+    /** 设置 */
     public synchronized <T> void set(String group, Map<String, Object> params) {
         if (MapUtils.isEmpty(params)) {
             return;
@@ -152,6 +163,7 @@ public class GlobalSettingFactory {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
+    /** 设置 */
     public synchronized <T> void set(String group, String name, Object value) {
         List<T> ts = get(group);
         if (null == ts) {
@@ -169,6 +181,7 @@ public class GlobalSettingFactory {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
+    /** 设置 */
     public synchronized <T> void set(String group, Class<T> type, String name, Object value) {
         T t = get(group, type);
         if (null == t) {
@@ -180,6 +193,7 @@ public class GlobalSettingFactory {
         }
     }
 
+    /** 设置And发布 */
     public synchronized <T> void setAndPublish(String group, String name, Object value, T bean) {
         set(group, name, value);
     }

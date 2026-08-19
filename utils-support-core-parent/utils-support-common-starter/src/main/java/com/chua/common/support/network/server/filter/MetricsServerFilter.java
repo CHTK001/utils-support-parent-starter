@@ -65,6 +65,22 @@ public class MetricsServerFilter implements ServerFilter {
         /** UptimeMS */
         private final long uptimeMs;
 
+        /**
+         * 创建 MetricsSnapshot 实例
+         * @param totalRequests totalRequests
+         * @param errorCount errorCount
+         * @param activeRequests activeRequests
+         * @param avgLatencyMs avgLatencyMs
+         * @param maxLatencyMs maxLatencyMs
+         * @param p50Ms p50Ms
+         * @param p75Ms p75Ms
+         * @param p90Ms p90Ms
+         * @param p95Ms p95Ms
+         * @param p99Ms p99Ms
+         * @param qps qps
+         * @param tps tps
+         * @param uptimeMs uptimeMs
+         */
         public MetricsSnapshot(long totalRequests, long errorCount, long activeRequests,
                                double avgLatencyMs, long maxLatencyMs,
                                double p50Ms, double p75Ms, double p90Ms, double p95Ms, double p99Ms,
@@ -84,21 +100,35 @@ public class MetricsServerFilter implements ServerFilter {
             this.uptimeMs = uptimeMs;
         }
 
+        /** 获取总计Requests */
         public long getTotalRequests() { return totalRequests; }
+        /** 获取记录错误计算数量 */
         public long getErrorCount() { return errorCount; }
+        /** 获取ActiveRequests */
         public long getActiveRequests() { return activeRequests; }
+        /** 获取平均值LatencyMs */
         public double getAvgLatencyMs() { return avgLatencyMs; }
+        /** 获取最大值LatencyMs */
         public long getMaxLatencyMs() { return maxLatencyMs; }
+        /** 获取Ms */
         public double getP50Ms() { return p50Ms; }
+        /** 获取Ms */
         public double getP75Ms() { return p75Ms; }
+        /** 获取Ms */
         public double getP90Ms() { return p90Ms; }
+        /** 获取Ms */
         public double getP95Ms() { return p95Ms; }
+        /** 获取Ms */
         public double getP99Ms() { return p99Ms; }
+        /** 获取Qps */
         public double getQps() { return qps; }
+        /** 获取Tps */
         public double getTps() { return tps; }
+        /** 获取UptimeMs */
         public long getUptimeMs() { return uptimeMs; }
 
         @Override
+        /** ToString */
         public String toString() {
             return "MetricsSnapshot{" +
                     "totalRequests=" + totalRequests +
@@ -161,11 +191,13 @@ public class MetricsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MIN_VALUE + 100;
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) throws Exception {
         ScheduledExecutorService scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("metrics-scheduler");
         scheduledFuture = scheduler.scheduleAtFixedRate(
@@ -173,6 +205,7 @@ public class MetricsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
@@ -181,6 +214,7 @@ public class MetricsServerFilter implements ServerFilter {
     }
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         totalRequests.increment();
         long start = System.nanoTime();
@@ -198,6 +232,7 @@ public class MetricsServerFilter implements ServerFilter {
         }
     }
 
+    /** ComputeAndCallback */
     private void computeAndCallback() {
         long now = System.currentTimeMillis();
         long total = totalRequests.sum();
@@ -246,6 +281,7 @@ public class MetricsServerFilter implements ServerFilter {
         callback.onMetrics(snap);
     }
 
+    /** 获取Percentile */
     private static long getPercentile(List<Long> sorted, double percentile) {
         if (sorted.isEmpty()) {
             return 0;

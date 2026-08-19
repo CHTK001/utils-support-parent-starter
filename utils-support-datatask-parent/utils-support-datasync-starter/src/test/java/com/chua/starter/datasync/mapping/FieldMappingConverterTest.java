@@ -95,6 +95,7 @@ class FieldMappingConverterTest {
         assertSame(record, converter.applyMappings(record, null));
     }
 
+    /** SimpleMapping */
     private record SimpleMapping(String sourceField, String targetField, String converter) implements DataSyncFieldMapping {}
 }
 

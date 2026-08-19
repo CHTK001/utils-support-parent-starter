@@ -22,15 +22,27 @@ import java.util.List;
 
 public class MysqlMetaTrigger extends AbstractMetaTrigger {
 
+    /**
+     * 创建 MysqlMetaTrigger 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     */
     protected MysqlMetaTrigger(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
+    /**
+     * 创建 MysqlMetaTrigger 实例
+     * @param metaData metaData
+     * @param Engine Engine
+     * @param String String
+     */
     protected MysqlMetaTrigger(AbstractMetaData metaData, Engine engine, String triggerName) {
         super(metaData, engine, triggerName);
     }
 
     @Override
+    /** List */
     public List<TriggerDef> list() {
         List<TriggerDef> result = new ArrayList<>();
         try (Connection conn = getConnection()) {
@@ -53,6 +65,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
     }
 
     @Override
+    /** 获取 */
     public TriggerDef get(String triggerName) {
         try (Connection conn = getConnection()) {
             return getTriggerDefinition(conn, metaData.getSchema(), triggerName);
@@ -62,25 +75,30 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
     }
 
     @Override
+    /** 创建 */
     public TriggerCreateBuilder create(String triggerName) {
         return new MysqlTriggerCreateBuilder(this, triggerName);
     }
 
     @Override
+    /** Drop */
     public boolean drop(String triggerName) {
         return executeUpdate("DROP TRIGGER IF EXISTS " + quote(triggerName));
     }
 
     @Override
+    /** 启用 */
     public boolean enable(String triggerName) {
         return executeUpdate("ALTER TABLE " + quote(tableName) + " ENABLE TRIGGER `" + triggerName + "`");
     }
 
     @Override
+    /** 禁用 */
     public boolean disable(String triggerName) {
         return executeUpdate("ALTER TABLE " + quote(tableName) + " DISABLE TRIGGER `" + triggerName + "`");
     }
 
+    /** 获取Connection */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -93,6 +111,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
+    /** 获取TriggerDefinition */
     private TriggerDef getTriggerDefinition(Connection conn, String triggerSchema, String triggerName) throws Exception {
         String sql = "SHOW CREATE TRIGGER " + quote(triggerSchema != null ? triggerSchema + "." + triggerName : triggerName);
         try (java.sql.Statement stmt = conn.createStatement();
@@ -144,10 +163,12 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         return null;
     }
 
+    /** Quote */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
+    /** 执行更新 */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -185,12 +206,14 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
+        /** OnTable */
         public TriggerCreateBuilder onTable(String tableName) {
             this.tableName = tableName;
             return this;
         }
 
         @Override
+        /** Before */
         public TriggerCreateBuilder before(String event) {
             this.timing = "BEFORE";
             this.event = event;
@@ -198,6 +221,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
+        /** After */
         public TriggerCreateBuilder after(String event) {
             this.timing = "AFTER";
             this.event = event;
@@ -205,47 +229,55 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
+        /** InsteadOf */
         public TriggerCreateBuilder insteadOf(String event) {
             throw new UnsupportedOperationException("MySQL 不支持 INSTEAD OF 触发器");
         }
 
         @Override
+        /** ForEachRow */
         public TriggerCreateBuilder forEachRow() {
             this.forEachRow = true;
             return this;
         }
 
         @Override
+        /** ForEachStatement */
         public TriggerCreateBuilder forEachStatement() {
             this.forEachRow = false;
             return this;
         }
 
         @Override
+        /** Body */
         public TriggerCreateBuilder body(String body) {
             this.body = body;
             return this;
         }
 
         @Override
+        /** 启用 */
         public TriggerCreateBuilder enable() {
             this.enable = true;
             return this;
         }
 
         @Override
+        /** 禁用 */
         public TriggerCreateBuilder disable() {
             this.enable = false;
             return this;
         }
 
         @Override
+        /** Comment */
         public TriggerCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
+        /** 执行 */
         public TriggerDef execute() {
             if (tableName == null) {
                 throw new IllegalStateException("未指定表名，请先调用 onTable()");

@@ -27,6 +27,7 @@ public class TogetherAiPricingProvider extends AbstractPricingProvider {
     private static final String PRICING_URL = "https://www.together.ai/pricing";
 
     @Override
+    /** FetchOnlinePricing */
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(PRICING_URL);
         if (html == null || html.isEmpty()) {

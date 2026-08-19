@@ -14,11 +14,13 @@ import com.chua.common.support.spi.annotations.Spi;
 public class JsonViewParser implements ViewParser {
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         return true;
     }
 
     @Override
+    /** Render */
     public String render(Object data) {
         try {
             return Json.toPrettyJson(data);
@@ -28,6 +30,7 @@ public class JsonViewParser implements ViewParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE;
     }

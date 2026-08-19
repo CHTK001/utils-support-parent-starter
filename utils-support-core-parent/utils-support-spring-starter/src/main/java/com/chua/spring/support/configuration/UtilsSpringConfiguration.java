@@ -24,11 +24,13 @@ import org.springframework.context.annotation.Import;
 public class UtilsSpringConfiguration {
 
     @Bean
+    /** Distributed锁Intercept */
     public DistributedLockIntercept distributedLockIntercept() {
         return new DistributedLockIntercept();
     }
 
     @Bean
+    /** Distributed锁Advisor */
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {
         return new DistributedLockAdvisor(intercept);
     }

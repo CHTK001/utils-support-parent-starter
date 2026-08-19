@@ -43,31 +43,49 @@ public class GeoCity {
 
     // ==================== getter/setter ====================
 
+    /** 获取Country */
     public String getCountry() { return country; }
+    /** 设置Country */
     public void setCountry(String country) { this.country = country; }
 
+    /** 获取Province */
     public String getProvince() { return province; }
+    /** 设置Province */
     public void setProvince(String province) { this.province = province; }
 
+    /** 获取City */
     public String getCity() { return city; }
+    /** 设置City */
     public void setCity(String city) { this.city = city; }
 
+    /** 获取Isp */
     public String getIsp() { return isp; }
+    /** 设置Isp */
     public void setIsp(String isp) { this.isp = isp; }
 
+    /** 获取Ip */
     public String getIp() { return ip; }
+    /** 设置Ip */
     public void setIp(String ip) { this.ip = ip; }
 
+    /** 获取Latitude */
     public Double getLatitude() { return latitude; }
+    /** 设置Latitude */
     public void setLatitude(Double latitude) { this.latitude = latitude; }
 
+    /** 获取Longitude */
     public Double getLongitude() { return longitude; }
+    /** 设置Longitude */
     public void setLongitude(Double longitude) { this.longitude = longitude; }
 
+    /** 获取Postal */
     public String getPostal() { return postal; }
+    /** 设置Postal */
     public void setPostal(String postal) { this.postal = postal; }
 
+    /** 获取TimeZone */
     public String getTimeZone() { return timeZone; }
+    /** 设置TimeZone */
     public void setTimeZone(String timeZone) { this.timeZone = timeZone; }
 
     /**
@@ -90,6 +108,7 @@ public class GeoCity {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return getFullAddress();
     }

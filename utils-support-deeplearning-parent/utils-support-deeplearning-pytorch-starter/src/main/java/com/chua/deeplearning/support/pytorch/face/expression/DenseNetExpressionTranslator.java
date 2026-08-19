@@ -33,15 +33,21 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     /** 图片尺寸 */
     private final int imageSize;
 
+    /** 创建 DenseNetExpressionTranslator 实例 */
     public DenseNetExpressionTranslator() {
         this(224);
     }
 
+    /**
+     * 创建 DenseNetExpressionTranslator 实例
+     * @param imageSize imageSize
+     */
     public DenseNetExpressionTranslator(int imageSize) {
         this.imageSize = imageSize;
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Shape shape = array.getShape();
@@ -59,6 +65,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
@@ -77,10 +84,12 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }
 
+    /** DefaultLabels */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {

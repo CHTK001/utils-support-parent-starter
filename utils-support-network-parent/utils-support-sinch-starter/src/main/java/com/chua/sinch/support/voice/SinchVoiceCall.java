@@ -15,11 +15,13 @@ import com.chua.common.support.spi.annotations.Spi;
 public class SinchVoiceCall implements VoiceCall {
 
     @Override
+    /** 获取Provider */
     public String getProvider() {
         return "sinch";
     }
 
     @Override
+    /** 调用 */
     public CallResponse call(CallRequest request) throws Exception {
         // TODO: 使用 Sinch SDK 发起语音呼叫
         // SinchClient sinch = SinchClientBuilder.create()
@@ -36,11 +38,13 @@ public class SinchVoiceCall implements VoiceCall {
     }
 
     @Override
+    /** 获取调用Status */
     public CallResponse getCallStatus(String callId) throws Exception {
         throw new UnsupportedOperationException("Sinch 呼叫状态查询尚未实现");
     }
 
     @Override
+    /** Hangup */
     public CallResponse hangup(String callId) throws Exception {
         throw new UnsupportedOperationException("Sinch 挂断呼叫尚未实现");
     }

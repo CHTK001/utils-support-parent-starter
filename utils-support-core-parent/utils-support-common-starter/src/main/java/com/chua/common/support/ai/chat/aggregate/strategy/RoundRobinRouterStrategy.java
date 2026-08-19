@@ -18,6 +18,7 @@ public class RoundRobinRouterStrategy implements RouterStrategy {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     @Override
+    /** 选择 */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

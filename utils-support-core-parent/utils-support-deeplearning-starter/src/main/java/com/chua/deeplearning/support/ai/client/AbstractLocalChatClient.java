@@ -51,6 +51,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -73,11 +74,13 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt) {
         return chatSync(prompt, 0);
     }
 
     @Override
+    /** ChatSync */
     public String chatSync(String prompt, long timeoutMillis) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -91,6 +94,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
+    /** ChatSyncWithResponse */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -99,11 +103,13 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         return this;
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

@@ -70,18 +70,21 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
     }
 
     @Override
+    /** Model */
     public AudioClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
+    /** Language */
     public AudioClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
+    /** Audio */
     public AudioClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -89,6 +92,7 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
     }
 
     @Override
+    /** Audio */
     public AudioClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -96,6 +100,7 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
     }
 
     @Override
+    /** Audio */
     public AudioClient audio(InputStream input) {
         try {
             this.audio = input != null ? input.readAllBytes() : null;
@@ -123,6 +128,7 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
     }
 
     @Override
+    /** Transcribe */
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -160,11 +166,13 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
     }
 
     @Override
+    /** 创建Task */
     public String createTask(Path path) {
         return "asr-" + UUID.randomUUID();
     }
 
     @Override
+    /** 查询Task */
     public AudioResponse queryTask(String taskId) {
         try {
             String transcript = transcribe(audioPath);
@@ -183,6 +191,7 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

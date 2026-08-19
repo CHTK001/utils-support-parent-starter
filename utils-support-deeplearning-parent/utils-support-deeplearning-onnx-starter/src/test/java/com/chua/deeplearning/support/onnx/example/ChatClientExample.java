@@ -18,9 +18,11 @@ import com.chua.common.support.ai.chat.ChatClient;
  */
 public final class ChatClientExample extends ExampleBase {
 
+    /** 创建 ChatClientExample 实例 */
     private ChatClientExample() {
     }
 
+    /** Main */
     public static void main(String[] args) {
         if (args.length == 0) {
             printModels("chat", "onnx", ChatClient.create("onnx", "").models());

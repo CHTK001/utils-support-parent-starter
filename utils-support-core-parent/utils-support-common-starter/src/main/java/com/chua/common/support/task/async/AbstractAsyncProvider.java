@@ -16,11 +16,13 @@ import java.util.function.Supplier;
 public abstract class AbstractAsyncProvider implements AsyncProvider {
 
     @Override
+    /** Supply */
     public <T> CompletableFuture<T> supply(Supplier<T> supplier) {
         return doSupply(supplier);
     }
 
     @Override
+    /** 运行 */
     public CompletableFuture<Void> run(Runnable runnable) {
         return doRun(runnable);
     }
@@ -28,6 +30,7 @@ public abstract class AbstractAsyncProvider implements AsyncProvider {
     @Override
     @SafeVarargs
     @SuppressWarnings("unchecked")
+    /** SupplyAll */
     public final <T> CompletableFuture<List<T>> supplyAll(Supplier<T>... suppliers) {
         List<CompletableFuture<T>> futures = new ArrayList<>(suppliers.length);
         for (Supplier<T> s : suppliers) {
@@ -38,10 +41,13 @@ public abstract class AbstractAsyncProvider implements AsyncProvider {
     }
 
     @Override
+    /** SupplyAll */
     public <T> CompletableFuture<List<T>> supplyAll(List<Supplier<T>> suppliers) {
         return supplyAll(suppliers.toArray(new Supplier[0]));
     }
 
+    /** DoSupply */
     protected abstract <T> CompletableFuture<T> doSupply(Supplier<T> supplier);
+    /** Do运行 */
     protected abstract CompletableFuture<Void> doRun(Runnable runnable);
 }

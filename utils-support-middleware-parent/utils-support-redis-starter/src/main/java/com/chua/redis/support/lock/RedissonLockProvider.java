@@ -116,6 +116,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
     }
 
     @Override
+    /** Do解锁 */
     protected void doUnlock() {
         if (lock.isHeldByCurrentThread()) {
             lock.unlock();
@@ -123,16 +124,19 @@ public class RedissonLockProvider extends AbstractLockProvider {
     }
 
     @Override
+    /** Do获取Name */
     protected String doGetName() {
         return name;
     }
 
     @Override
+    /** Do获取Type */
     protected String doGetType() {
         return "redis";
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         super.close();
         redissonClient.shutdown();

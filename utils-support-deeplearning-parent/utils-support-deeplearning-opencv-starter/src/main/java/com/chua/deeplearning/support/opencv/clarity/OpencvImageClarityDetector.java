@@ -43,34 +43,40 @@ public class OpencvImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
+    /** Model */
     public ImageClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "opencv-image-quality";
     }
 
     @Override
+    /** BlurThreshold */
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageClarityDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Assess */
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

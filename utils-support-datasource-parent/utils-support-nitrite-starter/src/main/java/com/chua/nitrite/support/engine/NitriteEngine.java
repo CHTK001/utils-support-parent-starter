@@ -91,6 +91,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 执行New查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
         List<T> memoryData = getData(entityClass);
         if (!memoryData.isEmpty()) {
@@ -109,6 +110,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 创建FulltextIndex */
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -127,12 +129,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 搜索 */
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 搜索 */
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -158,6 +162,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** DropFulltextIndex */
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -176,6 +181,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 插入 */
     public <T> T insert(String collection, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -189,6 +195,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 查找ById */
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -218,6 +225,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 更新 */
     public <T> T update(String collection, Object id, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -247,6 +255,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
+    /** 删除 */
     public boolean delete(String collection, Object id) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -261,6 +270,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 查找All */
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -339,6 +349,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         for (Nitrite nitrite : databases.values()) {
             try {

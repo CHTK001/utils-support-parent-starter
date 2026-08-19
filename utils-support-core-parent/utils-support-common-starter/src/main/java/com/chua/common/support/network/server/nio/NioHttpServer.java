@@ -92,11 +92,16 @@ public class NioHttpServer extends AbstractServer {
      */
     private final List<WsConnection> wsConnections = new CopyOnWriteArrayList<>();
 
+    /**
+     * 创建 NioHttpServer 实例
+     * @param setting setting
+     */
     public NioHttpServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             ServerSetting.SslConfig ssl = setting.getSsl();
@@ -261,6 +266,7 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    /** 处理Accept */
     private void handleAccept(SelectionKey key) throws IOException {
         SocketChannel accepted = serverChannel.accept();
         if (accepted == null) {
@@ -295,6 +301,7 @@ public class NioHttpServer extends AbstractServer {
         log.debug("nio accepted -> shard={}", shard);
     }
 
+    /** 处理读取 */
     private void handleRead(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
         // 请求已在 worker 处理中:摘除读兴趣,避免事件循环空转与重复提交 worker;
@@ -572,6 +579,7 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    /** 处理写入 */
     private void handleWrite(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
         // 与 worker 的 asyncWriter 共用同一把锁排空队列:
@@ -605,6 +613,7 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    /** 关闭Conn */
     private void closeConn(SelectionKey key, ConnectionState st) {
         try {
             key.cancel();
@@ -814,6 +823,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
+    /** 注册Bean */
     public NioHttpServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -1022,6 +1032,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止Accepting */
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -1032,6 +1043,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (selectors != null) {
             for (Selector sel : selectors) {
@@ -1058,6 +1070,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

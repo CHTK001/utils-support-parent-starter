@@ -46,10 +46,15 @@ public class FileResourceFinder implements ResourceFinder {
     /** Configuration */
     private final ResourceConfiguration configuration;
 
+    /**
+     * 创建 FileResourceFinder 实例
+     * @param configuration configuration
+     */
     public FileResourceFinder(ResourceConfiguration configuration) {
         this.configuration = configuration;
     }
 
+    /** 创建 FileResourceFinder 实例 */
     public FileResourceFinder() {
         this(ResourceConfiguration.DEFAULT);
     }
@@ -58,6 +63,7 @@ public class FileResourceFinder implements ResourceFinder {
     private static final String PROTOCOL = "file";
 
     @Override
+    /** 查找 */
     public Set<Resource> find(String name) {
         name = name.replace("\\", "/");
         if (name.startsWith(PROTOCOL + ":")) {
@@ -99,6 +105,7 @@ public class FileResourceFinder implements ResourceFinder {
         return results;
     }
 
+    /** 搜索WithNativeTool */
     private Set<Resource> searchWithNativeTool(String name, String fullPath, String matchPath, Set<String> dirs) {
         try {
             if (PlatformSystems.isLinux()) {
@@ -116,6 +123,7 @@ public class FileResourceFinder implements ResourceFinder {
         return null;
     }
 
+    /** 搜索LinuxLocate */
     private Set<Resource> searchLinuxLocate(String name, String fullPath, String matchPath) throws Exception {
         if (!isCommandAvailable("locate")) {
             tryInstallLocate();
@@ -187,6 +195,7 @@ public class FileResourceFinder implements ResourceFinder {
         return results;
     }
 
+    /** 搜索WindowsWhere */
     private Set<Resource> searchWindowsWhere(String name, String fullPath, String matchPath) throws Exception {
         String searchRoot = fullPath.isEmpty() ? "C:\\" : fullPath;
         String filePattern = matchPath.contains("/")
@@ -219,6 +228,7 @@ public class FileResourceFinder implements ResourceFinder {
         return results;
     }
 
+    /** 搜索MacMdfind */
     private Set<Resource> searchMacMdfind(String name, String fullPath, String matchPath) throws Exception {
         String searchRoot = fullPath.isEmpty() ? "/" : fullPath;
         String nameOnly = matchPath.contains("/")
@@ -252,6 +262,14 @@ public class FileResourceFinder implements ResourceFinder {
         return results;
     }
 
+    /**
+     * WalkDirectory
+     * @param dirPath dirPath
+     * @param fullPath fullPath
+     * @param matchPath matchPath
+     * @param results results
+     * @param scannedCount scannedCount
+     */
     private void walkDirectory(String dirPath, String fullPath, String matchPath,
                                Set<Resource> results, AtomicLong scannedCount) {
         Path startPath = Paths.get(dirPath);
@@ -272,12 +290,14 @@ public class FileResourceFinder implements ResourceFinder {
         }
     }
 
+    /** Calculate最大值Depth */
     private int calculateMaxDepth(String matchPath) {
         if (StringUtils.isEmpty(matchPath)) { return 1; }
         if (matchPath.contains("**")) { return DEFAULT_MAX_DEPTH; }
         return (int) matchPath.chars().filter(c -> c == '/').count() + 1;
     }
 
+    /** 获取Dir */
     private Set<String> getDir(String fullPath) {
         if (StringUtils.isEmpty(fullPath)) {
             Set<String> roots = ConcurrentHashMap.newKeySet();
@@ -289,6 +309,7 @@ public class FileResourceFinder implements ResourceFinder {
         return Collections.singleton(fullPath);
     }
 
+    /** 获取FullPath */
     private String getFullPath(String path) {
         path = path.replace("\\", "/");
         StringBuilder sb = new StringBuilder();
@@ -301,6 +322,7 @@ public class FileResourceFinder implements ResourceFinder {
         return sb.toString().replace("//", "/");
     }
 
+    /** 获取MatchPath */
     private String getMatchPath(String path) {
         path = path.replace("\\", "/");
         if (path.startsWith("/")) { path = path.substring(1); }
@@ -314,6 +336,7 @@ public class FileResourceFinder implements ResourceFinder {
         return sb.toString();
     }
 
+    /** 获取RealName */
     private String getRealName(String filePath, String rootPath) {
         if (StringUtils.isNullOrEmpty(rootPath)) {
             return filePath.replace("\\", "/");
@@ -326,6 +349,7 @@ public class FileResourceFinder implements ResourceFinder {
         return filePath;
     }
 
+    /** 是否Match */
     private boolean isMatch(String name, String matchPath) {
         if (StringUtils.isEmpty(matchPath) || "*".equals(matchPath) || "**".equals(matchPath)) { return true; }
         if (matchPath.contains("*") || matchPath.contains("?")) {
@@ -334,6 +358,7 @@ public class FileResourceFinder implements ResourceFinder {
         return name.contains(matchPath);
     }
 
+    /** 是否CommandAvailable */
     private static boolean isCommandAvailable(String cmd) {
         try {
             ProcessBuilder pb = new ProcessBuilder("which", cmd);
@@ -351,6 +376,7 @@ public class FileResourceFinder implements ResourceFinder {
         }
     }
 
+    /** TryInstallLocate */
     private static void tryInstallLocate() {
         try {
             if (log.isInfoEnabled()) {
@@ -406,6 +432,7 @@ public class FileResourceFinder implements ResourceFinder {
         }
     }
 
+    /** 构建Updatedb */
     private static void buildUpdatedb() {
         if (log.isInfoEnabled()) {
             log.info("Building locate database (updatedb) - this may take a minute...");
@@ -417,10 +444,12 @@ public class FileResourceFinder implements ResourceFinder {
         }
     }
 
+    /** 运行AndForget */
     private static void runAndForget(String... cmd) {
         runAndForget(30, cmd);
     }
 
+    /** 运行AndForget */
     private static void runAndForget(int timeoutSecs, String... cmd) {
         try {
             ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -433,6 +462,7 @@ public class FileResourceFinder implements ResourceFinder {
         } catch (Exception ignored) {}
     }
 
+    /** GlobToRegex */
     private static String globToRegex(String glob) {
         return glob
                 .replace(".", "\\.")
@@ -458,6 +488,7 @@ public class FileResourceFinder implements ResourceFinder {
         }
 
         @Override
+        /** VisitFile */
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             scannedCount.incrementAndGet();
             String realName = getRealName(file.toString(), fullPath);
@@ -471,6 +502,7 @@ public class FileResourceFinder implements ResourceFinder {
         }
 
         @Override
+        /** VisitFileFailed */
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             if (log.isDebugEnabled()) { log.debug("Failed to access: {}", file, exc); }
             return FileVisitResult.CONTINUE;

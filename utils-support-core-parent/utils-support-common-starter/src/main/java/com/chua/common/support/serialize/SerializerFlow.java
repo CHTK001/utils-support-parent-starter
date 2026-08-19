@@ -143,11 +143,13 @@ public class SerializerFlow {
     public class SerializerConfigBuilder {
         private Serializer<? extends Serializable> serializer;
 
+        /** Json */
         public SerializerConfigBuilder json() {
             this.serializer = new JsonSerializer<>(Object.class);
             return this;
         }
 
+        /** Java */
         public SerializerConfigBuilder java() {
             this.serializer = new JavaSerializer<>();
             return this;

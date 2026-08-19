@@ -56,6 +56,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
     private static final int INPUT_SIZE = 512;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         NDManager manager = ctx.getNDManager();
 
@@ -69,6 +70,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray array = list.get(0);
 
@@ -114,6 +116,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         //        STACK             
         return Batchifier.STACK;

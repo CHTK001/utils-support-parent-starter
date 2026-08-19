@@ -13,14 +13,17 @@ import java.util.concurrent.Callable;
 public abstract class AbstractRetryProvider implements RetryProvider {
 
     @Override
+    /** 执行 */
     public void execute(Runnable task, RetryConfig config) throws Exception {
         doExecute(() -> { task.run(); return null; }, config);
     }
 
     @Override
+    /** 执行 */
     public <T> T execute(Callable<T> task, RetryConfig config) throws Exception {
         return doExecute(task, config);
     }
 
+    /** Do执行 */
     protected abstract <T> T doExecute(Callable<T> task, RetryConfig config) throws Exception;
 }

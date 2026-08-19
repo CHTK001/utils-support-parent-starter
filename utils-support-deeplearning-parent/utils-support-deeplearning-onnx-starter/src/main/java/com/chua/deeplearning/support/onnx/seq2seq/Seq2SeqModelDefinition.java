@@ -86,4 +86,54 @@ public record Seq2SeqModelDefinition(
             64,
             1L,
             0L);
+
+    /**
+     * mt5-small 模型定义（modelscope: Xenova/mt5-small，多语言 T5，支持中文）。
+     * <p>8 层 6 头（实际解码参数由模型输出维度动态解析，此处仅作文档参考）；词表 250112。
+     * 编码器使用 fp16（int8 动态量化在 mt5 上会使编码上下文退化，实测生成 <extra_id_0>）。</p>
+     */
+    public static final Seq2SeqModelDefinition MT5_SMALL = new Seq2SeqModelDefinition(
+            "mt5-seq2seq",
+            "nlp/seq2seq/mt5-small/",
+            "Xenova/mt5-small",
+            List.of(
+                    "onnx/encoder_model_fp16.onnx",
+                    "onnx/decoder_model_int8.onnx",
+                    "onnx/decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            List.of(
+                    "encoder_model_fp16.onnx",
+                    "decoder_model_int8.onnx",
+                    "decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            8,
+            6,
+            64,
+            1L,
+            0L);
+
+    /**
+     * mt5-base 模型定义（modelscope: Xenova/mt5-base，多语言 T5，中文摘要效果优于 small）。
+     * <p>12 层 12 头（实际解码参数由模型输出维度动态解析）；d_model=768、词表 250112。
+     * 编码器 fp16 + 解码器 int8（small 验证：int8 编码器在 mT5 上会使上下文退化）。</p>
+     */
+    public static final Seq2SeqModelDefinition MT5_BASE = new Seq2SeqModelDefinition(
+            "mt5-base-seq2seq",
+            "nlp/seq2seq/mt5-base/",
+            "Xenova/mt5-base",
+            List.of(
+                    "onnx/encoder_model_fp16.onnx",
+                    "onnx/decoder_model_int8.onnx",
+                    "onnx/decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            List.of(
+                    "encoder_model_fp16.onnx",
+                    "decoder_model_int8.onnx",
+                    "decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            12,
+            12,
+            64,
+            1L,
+            0L);
 }

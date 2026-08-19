@@ -81,6 +81,7 @@ public class GaussianPureCalibrator implements PureCalibrator {
     private double priorPos = 0.5;
 
     @Override
+    /** Calibrate */
     public double calibrate(double rawScore) {
         double pPos = gaussianPdf(rawScore, muPos, stdPos) * priorPos;
         double pNeg = gaussianPdf(rawScore, muNeg, stdNeg) * (1 - priorPos);
@@ -105,11 +106,13 @@ public class GaussianPureCalibrator implements PureCalibrator {
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "双高斯纯校准";
     }
 
     @Override
+    /** 获取Description */
     public String getDescription() {
         return "基于双高斯分布的贝叶斯概率校准。参数：正类均值/标准差、负类均值/标准差、先验概率。";
     }

@@ -55,15 +55,25 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
      */
     private String root;
 
+    /**
+     * 创建 ZookeeperServiceDiscovery 实例
+     * @param discoveryOption discoveryOption
+     */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
 
+    /**
+     * 创建 ZookeeperServiceDiscovery 实例
+     * @param discoveryOption discoveryOption
+     * @param String String
+     */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
 
     @Override
+    /** 注册Service */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         discovery.setUriSpec(prefixed);
@@ -85,6 +95,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** Do注销 */
     protected void doUnregister(String path, Discovery discovery) {
         String host = discovery.getHost();
         int port = discovery.getPort();
@@ -130,6 +141,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** Do更新 */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         String zkPath = root + path + "/" + newDiscovery.getHost() + ":" + newDiscovery.getPort();
         try {
@@ -140,6 +152,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (started.get()) {
             return;
@@ -170,11 +183,13 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         watchChildren(root);
     }
 
+    /** WatchChildren */
     private void watchChildren(String zkPath) {
         try {
             List<String> children = client.getChildren()
                     .usingWatcher(new Watcher() {
                         @Override
+                        /** 处理 */
                         public void process(WatchedEvent event) {
                             if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
                                 refreshPath(zkPath);
@@ -191,6 +206,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
+    /** RefreshPath */
     private void refreshPath(String zkPath) {
         String discoveryPath = zkPath.substring(root.length());
         if (discoveryPath.isEmpty()) {
@@ -216,6 +232,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
+    /** FetchAllInstances */
     private List<Discovery> fetchAllInstances(String zkPath) {
         for (int attempt = 0; attempt < 5; attempt++) {
             try {
@@ -267,6 +284,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         return null;
     }
 
+    /** 通知Listeners */
     private void notifyListeners(String path, Set<Discovery> oldSet, List<Discovery> newList) {
         List<ServiceDiscoveryListener> pathListeners = listeners.get(path);
         if (pathListeners == null || pathListeners.isEmpty()) {
@@ -297,17 +315,20 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 是否Support订阅 */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         String path = StringUtils.startWithAppend(serviceName, "/");
         listeners.computeIfAbsent(path, k -> new ArrayList<>()).add(listener);
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String serviceName, ServiceDiscoveryListener listener) {
         String path = StringUtils.startWithAppend(serviceName, "/");
         List<ServiceDiscoveryListener> pathListeners = listeners.get(path);
@@ -317,6 +338,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (client != null && client.getState() == CuratorFrameworkState.STARTED) {
             client.close();

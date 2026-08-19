@@ -42,6 +42,7 @@ public abstract class WriteBuilder {
     /** 写入回调 */
     protected WriteCallback callback = new WriteCallback() {
         @Override
+        /** OnComplete */
         public void onComplete(boolean success) {}
     };
 
@@ -63,18 +64,22 @@ public abstract class WriteBuilder {
         this.file = file;
     }
 
+    /** 获取File */
     public File getFile() {
         return file;
     }
 
+    /** 获取Charset */
     public Charset getCharset() {
         return charset;
     }
 
+    /** 获取TemplateFile */
     public File getTemplateFile() {
         return templateFile;
     }
 
+    /** 获取TemplateData */
     public Map<String, Object> getTemplateData() {
         return templateData;
     }

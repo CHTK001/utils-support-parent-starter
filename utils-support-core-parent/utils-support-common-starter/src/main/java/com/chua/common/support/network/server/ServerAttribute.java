@@ -55,6 +55,7 @@ public final class ServerAttribute {
     /** 底层 Vert.x RoutingContext（VertxHttpServer 存入，供 WebSocket 代理升级使用） */
     public static final String VERTX_ROUTING_CONTEXT = "__vertx_routing_context";
 
+    /** 创建 ServerAttribute 实例 */
     private ServerAttribute() {
     }
 

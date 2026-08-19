@@ -21,11 +21,16 @@ public class ObjectDescribe {
     private final Object object;
     private final Class<?> objectClass;
 
+    /**
+     * 创建 ObjectDescribe 实例
+     * @param object object
+     */
     private ObjectDescribe(Object object) {
         this.object = object;
         this.objectClass = object != null ? object.getClass() : null;
     }
 
+    /** Of */
     public static ObjectDescribe of(Object object) {
         return new ObjectDescribe(object);
     }

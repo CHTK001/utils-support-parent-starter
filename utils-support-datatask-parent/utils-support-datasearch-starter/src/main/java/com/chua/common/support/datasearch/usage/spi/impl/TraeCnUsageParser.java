@@ -23,11 +23,13 @@ public class TraeCnUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".trae-cn");
 
     @Override
+    /** Name */
     public String name() {
         return "trae-cn";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[trae-cn] 数据目录不存在: {}", DATA_DIR);

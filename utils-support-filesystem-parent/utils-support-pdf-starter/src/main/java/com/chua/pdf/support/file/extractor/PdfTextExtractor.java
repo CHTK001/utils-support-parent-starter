@@ -32,6 +32,7 @@ import java.util.Map;
 public class PdfTextExtractor implements TextExtractor {
 
     @Override
+    /** ExtractText */
     public List<TextExtractResult> extractText(File file) {
         List<TextExtractResult> results = new ArrayList<>();
 
@@ -120,6 +121,7 @@ public class PdfTextExtractor implements TextExtractor {
     }
 
     @Override
+    /** Type */
     public String type() {
         return "pdf";
     }

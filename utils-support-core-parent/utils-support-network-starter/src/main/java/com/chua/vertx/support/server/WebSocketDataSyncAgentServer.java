@@ -66,12 +66,17 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
      */
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 WebSocketDataSyncAgentServer 实例
+     * @param port port
+     */
     public WebSocketDataSyncAgentServer(int port) {
         super("websocket");
         this.port = port;
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (running) {
             return;
@@ -89,6 +94,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
@@ -105,6 +111,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         log.info("[WebSocketDataSyncAgentServer] 已停止");
     }
 
+    /** AcceptLoop */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
@@ -120,6 +127,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
     }
 
+    /** 处理Connection */
     private void handleConnection(Socket socket) {
         String agentId = null;
         try {
@@ -196,6 +204,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
     }
 
+    /** 发送Request */
     public String sendRequest(String agentId, String request) {
         Connection conn = connections.get(agentId);
         if (conn == null) {
@@ -217,6 +226,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
     }
 
+    /** 读取TextFrame */
     private static String readTextFrame(InputStream in) throws IOException {
         int b0 = in.read();
         if (b0 < 0) {
@@ -272,6 +282,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         return new String(payload, StandardCharsets.UTF_8);
     }
 
+    /** 写入TextFrame */
     private static void writeTextFrame(OutputStream out, String payload) throws IOException {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         out.write(0x81);
@@ -294,6 +305,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         out.flush();
     }
 
+    /** ComputeWebSocketAccept */
     private static String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -314,14 +326,18 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
             this.sourceId = sourceId;
         }
 
+        /** 发送TextFrame */
         public void sendTextFrame(String text) throws IOException {
             synchronized (socket) {
                 writeTextFrame(socket.getOutputStream(), text);
             }
         }
 
+        /** 获取AgentId */
         public String getAgentId() { return agentId; }
+        /** 获取SourceId */
         public String getSourceId() { return sourceId; }
+        /** 关闭 */
         public void close() {
             try { socket.close(); } catch (IOException ignored) {}
         }

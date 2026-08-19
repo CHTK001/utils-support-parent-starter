@@ -118,10 +118,15 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     /** PADY坐标 */
     private int padY;
 
+    /** 创建 GroundingDinoTranslator 实例 */
     public GroundingDinoTranslator() {
         this(DetectionConfiguration.DEFAULT);
     }
 
+    /**
+     * 创建 GroundingDinoTranslator 实例
+     * @param configuration configuration
+     */
     public GroundingDinoTranslator(DetectionConfiguration configuration) {
         DetectionConfiguration cfg = configuration == null ? DetectionConfiguration.DEFAULT : configuration;
         this.threshold = readDouble(cfg.systemOption(), "threshold", DEFAULT_THRESHOLD);
@@ -130,6 +135,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     }
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = resolveRequiredFile(modelRoot, "tokenizer.json");
@@ -149,6 +155,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
     @Override
     @Nonnull
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -182,6 +189,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
     @Override
     @Nonnull
+    /** 处理Output */
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (list.size() < 2) {
             return emptyDetections();
@@ -257,10 +265,12 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
     @Override
     @Nullable
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 加载PreprocessorConfig */
     private void loadPreprocessorConfig(Path configPath) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(configPath.toFile());
         JsonNode size = root.path("size");
@@ -271,6 +281,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         rescaleFactor = (float) root.path("rescale_factor").asDouble(1d / 255d);
     }
 
+    /** 解析Candidates */
     private void resolveCandidates() {
         List<String> source = requestedCandidates.isEmpty() ? List.of("person", "flower", "dog", "car") : requestedCandidates;
         candidateOutputLabels = new ArrayList<>();
@@ -284,6 +295,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         }
     }
 
+    /** 构建TextInputs */
     private void buildTextInputs() throws Exception {
         List<long[]> idsList = new ArrayList<>();
         int maxLength = 0;
@@ -309,6 +321,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         }
     }
 
+    /** Letterbox */
     private BufferedImage letterbox(BufferedImage image) {
         double widthScale = inputWidth / (double) image.getWidth();
         double heightScale = inputHeight / (double) image.getHeight();
@@ -331,6 +344,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return canvas;
     }
 
+    /** 解码Rectangle */
     private Rectangle decodeRectangle(NDArray boxesArray, int boxIndex) {
         double centerX = boxesArray.getFloat(boxIndex, 0) * inputWidth;
         double centerY = boxesArray.getFloat(boxIndex, 1) * inputHeight;
@@ -363,6 +377,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         );
     }
 
+    /** CalculateIoU */
     private double calculateIoU(Rectangle first, Rectangle second) {
         double x1 = Math.max(first.getX(), second.getX());
         double y1 = Math.max(first.getY(), second.getY());
@@ -373,6 +388,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return union <= 0d ? 0d : intersection / union;
     }
 
+    /** Sigmoid */
     private double sigmoid(double value) {
         if (value >= 0d) {
             double exp = Math.exp(-value);
@@ -382,10 +398,12 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return exp / (1d + exp);
     }
 
+    /** Clip */
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
+    /** 读取FloatArray */
     private float[] readFloatArray(JsonNode node, float[] defaults) {
         if (node == null || !node.isArray() || node.size() != defaults.length) {
             return defaults;
@@ -397,6 +415,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return values;
     }
 
+    /** 解析Candidates */
     private List<String> parseCandidates(String rawCandidates) {
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
@@ -410,6 +429,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return new ArrayList<>(values);
     }
 
+    /** 读取Argument */
     private String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -418,6 +438,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return value == null ? null : String.valueOf(value);
     }
 
+    /** 读取Double */
     private double readDouble(Map<String, ?> arguments, String key, double defaultValue) {
         String value = readArgument(arguments, key);
         if (StringUtils.isBlank(value)) {
@@ -430,6 +451,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         }
     }
 
+    /** 解析ModelRoot */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -446,6 +468,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return modelPath;
     }
 
+    /** 解析RequiredFile */
     private Path resolveRequiredFile(Path root, String name) throws IOException {
         Path file = root.resolve(name);
         if (Files.exists(file)) {
@@ -454,10 +477,12 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         throw new IOException("          Grounding DINO            : " + file);
     }
 
+    /** EmptyDetections */
     private DetectedObjects emptyDetections() {
         return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
+    /** DetectionCandidate */
     private record DetectionCandidate(String label, double score, Rectangle rectangle) {
     }
 }

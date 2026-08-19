@@ -16,9 +16,11 @@ import java.nio.file.Path;
  */
 public final class OcrPipelineScaleExample {
 
+    /** 创建 OcrPipelineScaleExample 实例 */
     private OcrPipelineScaleExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\blurry_text.png";
         byte[] img = Files.readAllBytes(Path.of(imagePath));

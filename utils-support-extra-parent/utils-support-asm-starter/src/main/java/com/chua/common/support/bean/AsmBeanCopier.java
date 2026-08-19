@@ -39,11 +39,13 @@ public class AsmBeanCopier implements BeanCopier {
     private static final BeanCopier FALLBACK = new JdkBeanCopier();
 
     @Override
+    /** 复制Properties */
     public void copyProperties(Object source, Object target) {
         copyProperties(source, target, (String[]) null);
     }
 
     @Override
+    /** 复制Properties */
     public void copyProperties(Object source, Object target, String... ignoreProperties) {
         if (source == null || target == null) {
             return;
@@ -60,15 +62,18 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
+    /** 复制Properties */
     public void copyProperties(Map<String, Object> sourceMap, Object target) {
         FALLBACK.copyProperties(sourceMap, target);
     }
 
     @Override
+    /** 复制Properties */
     public void copyProperties(Object source, Map<String, Object> target) {
         FALLBACK.copyProperties(source, target);
     }
 
+    /** GenerateCopier */
     private BeanCopier generateCopier(Class<?> sourceClass, Class<?> targetClass) {
         try {
             Map<String, PropertyDescriptor> sourceReads = new LinkedHashMap<>();
@@ -98,6 +103,12 @@ public class AsmBeanCopier implements BeanCopier {
         }
     }
 
+    /**
+     * 创建CopierClass
+     * @param sourceClass sourceClass
+     * @param targetClass targetClass
+     * @param matched matched
+     */
     private BeanCopier createCopierClass(Class<?> sourceClass, Class<?> targetClass,
                                           List<PropertyPair> matched) throws Exception {
         String generatedName = "com/chua/common/support/bean/GeneratedCopier_"
@@ -299,6 +310,12 @@ public class AsmBeanCopier implements BeanCopier {
         return (BeanCopier) copierClass.getDeclaredConstructor().newInstance();
     }
 
+    /**
+     * 解析Properties
+     * @param clazz clazz
+     * @param reads reads
+     * @param writes writes
+     */
     private void resolveProperties(Class<?> clazz,
                                     Map<String, PropertyDescriptor> reads,
                                     Map<String, PropertyDescriptor> writes) {
@@ -316,6 +333,7 @@ public class AsmBeanCopier implements BeanCopier {
         }
     }
 
+    /** 获取PropertyName */
     private static String getPropertyName(Method getter) {
         String name = getter.getName();
         if (name.startsWith("get") && name.length() > 3) {
@@ -351,6 +369,7 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
+    /** 判断相等 */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -359,6 +378,7 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         return getClass().hashCode();
     }

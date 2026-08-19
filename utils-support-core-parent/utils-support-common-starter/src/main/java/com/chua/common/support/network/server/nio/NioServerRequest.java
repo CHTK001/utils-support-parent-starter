@@ -84,6 +84,12 @@ public class NioServerRequest implements ServerRequest {
     /** chunked:是否正在读 chunk 头部行 */
     private boolean chunkHeaderPending = false;
 
+    /**
+     * 创建 NioServerRequest 实例
+     * @param channel channel
+     * @param long long
+     * @param String String
+     */
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {
         this.channel = channel;
         this.maxRequestSize = maxRequestSize;
@@ -280,6 +286,7 @@ public class NioServerRequest implements ServerRequest {
         }
     }
 
+    /** 追加Body */
     private byte[] appendBody(byte[] src, int off, int len) {
         int newLen = (body != null ? body.length : 0) + len;
         byte[] out = new byte[newLen];
@@ -323,6 +330,7 @@ public class NioServerRequest implements ServerRequest {
         return null;
     }
 
+    /** 解析RequestLine */
     private void parseRequestLine(String line) {
         int s1 = line.indexOf(' ');
         if (s1 < 0) {
@@ -415,7 +423,9 @@ public class NioServerRequest implements ServerRequest {
         return parser.parse(getBody(), ct);
     }
 
+    /** 解码 */
     private String decode(String value) { return URLDecoder.decode(value, defaultCharset); }
+    /** 解析Charset */
     private Charset resolveCharset() {
         String contentType = getContentType();
         if (contentType != null) {

@@ -39,6 +39,7 @@ public class RobotScreenCapture implements ScreenCature {
     private java.awt.image.BufferedImage captureBuf;
 
     @Override
+    /** 初始化 */
     public boolean init(int width, int height, int fps) {
         try {
             this.robot = new Robot();
@@ -59,6 +60,7 @@ public class RobotScreenCapture implements ScreenCature {
     }
 
     @Override
+    /** GrabFrame */
     public Frame grabFrame() {
         if (!initialized || robot == null) {
             log.warn("[RobotScreenCapture] 未初始化，无法采集");
@@ -77,16 +79,19 @@ public class RobotScreenCapture implements ScreenCature {
     }
 
     @Override
+    /** 获取Width */
     public int getWidth() {
         return width;
     }
 
     @Override
+    /** 获取Height */
     public int getHeight() {
         return height;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         this.initialized = false;
         this.robot = null;

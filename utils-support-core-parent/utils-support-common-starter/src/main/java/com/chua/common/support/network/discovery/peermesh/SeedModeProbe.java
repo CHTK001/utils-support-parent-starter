@@ -58,6 +58,7 @@ public class SeedModeProbe implements ProbeStrategy {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         List<String> seeds = config.getSeeds();
         if (seeds == null || seeds.isEmpty()) {
@@ -72,11 +73,13 @@ public class SeedModeProbe implements ProbeStrategy {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         stopped = true;
     }
 
     @Override
+    /** 获取DiscoveredNodes */
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return Collections.unmodifiableList(discovered);
     }

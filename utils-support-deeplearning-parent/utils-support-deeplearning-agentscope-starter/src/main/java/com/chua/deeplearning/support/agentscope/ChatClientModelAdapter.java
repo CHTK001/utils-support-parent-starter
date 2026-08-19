@@ -35,12 +35,18 @@ public class ChatClientModelAdapter implements Model {
     /** 模型名称 */
     private final String modelName;
 
+    /**
+     * 创建 ChatClientModelAdapter 实例
+     * @param chatClient chatClient
+     * @param String String
+     */
     public ChatClientModelAdapter(ChatClient chatClient, String modelName) {
         this.chatClient = chatClient;
         this.modelName = modelName != null ? modelName : "chat-client";
     }
 
     @Override
+    /** Stream */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         List<ChatMessage> history = new ArrayList<>();
         String prompt = "";
@@ -116,10 +122,12 @@ public class ChatClientModelAdapter implements Model {
     }
 
     @Override
+    /** 获取ModelName */
     public String getModelName() {
         return modelName;
     }
 
+    /** 关闭 */
     public void close() {
         try {
             chatClient.close();

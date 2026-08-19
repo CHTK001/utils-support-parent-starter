@@ -42,10 +42,19 @@ public class DefaultDataSyncServer implements DataSyncServer {
     /** 代理注册表 */
     private final Map<String, DataSyncAgent> agentRegistry = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 DefaultDataSyncServer 实例
+     * @param agentServerManager agentServerManager
+     */
     public DefaultDataSyncServer(AgentServerManager agentServerManager) {
         this(agentServerManager, DefaultSyncDataSchedulerManager.SchedulerConfig.builder().build());
     }
 
+    /**
+     * 创建 DefaultDataSyncServer 实例
+     * @param agentServerManager agentServerManager
+     * @param schedulerConfig schedulerConfig
+     */
     public DefaultDataSyncServer(AgentServerManager agentServerManager,
                                   DefaultSyncDataSchedulerManager.SchedulerConfig schedulerConfig) {
         this.agentServerManager = agentServerManager;
@@ -73,31 +82,37 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** MappingManager */
     public DataSyncMappingManager mappingManager() {
         return mappingManager;
     }
 
     @Override
+    /** SchedulerManager */
     public SyncDataSchedulerManager schedulerManager() {
         return schedulerManager;
     }
 
     @Override
+    /** AgentServerManager */
     public AgentServerManager agentServerManager() {
         return agentServerManager;
     }
 
     @Override
+    /** ExecutorManager */
     public ExecutorManager executorManager() {
         return executorManager;
     }
 
     @Override
+    /** 添加Mapping */
     public void addMapping(DataSyncMapping mapping) {
         mappingManager.addMapping(mapping);
     }
 
     @Override
+    /** 注册Source */
     public void registerSource(DataSyncAgentSource source) {
         if (source == null || source.sourceId() == null) {
             return;
@@ -107,6 +122,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 注销Source */
     public void unregisterSource(String sourceId) {
         if (sourceId == null) {
             return;
@@ -118,6 +134,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 注册Sink */
     public void registerSink(DataSyncAgentSink sink) {
         if (sink == null || sink.sinkId() == null) {
             return;
@@ -127,6 +144,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 注销Sink */
     public void unregisterSink(String sinkId) {
         if (sinkId == null) {
             return;
@@ -138,26 +156,31 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 获取Source */
     public DataSyncAgentSource getSource(String sourceId) {
         return sourceRegistry.get(sourceId);
     }
 
     @Override
+    /** 获取Sink */
     public DataSyncAgentSink getSink(String sinkId) {
         return sinkRegistry.get(sinkId);
     }
 
     @Override
+    /** 获取Sources */
     public List<DataSyncAgentSource> getSources() {
         return List.copyOf(sourceRegistry.values());
     }
 
     @Override
+    /** 获取Sinks */
     public List<DataSyncAgentSink> getSinks() {
         return List.copyOf(sinkRegistry.values());
     }
 
     @Override
+    /** 注册Agent */
     public void registerAgent(DataSyncAgent agent) {
         if (agent == null || agent.agentId() == null) {
             return;
@@ -167,6 +190,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 注销Agent */
     public void unregisterAgent(String agentId) {
         if (agentId == null) {
             return;
@@ -178,16 +202,19 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 获取Agent */
     public DataSyncAgent getAgent(String agentId) {
         return agentRegistry.get(agentId);
     }
 
     @Override
+    /** 获取Agents */
     public List<DataSyncAgent> getAgents() {
         return List.copyOf(agentRegistry.values());
     }
 
     @Override
+    /** 开始 */
     public void start() {
         log.info("DataSync Server 启动中...");
         executorManager.start();
@@ -197,6 +224,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         log.info("DataSync Server 停止中...");
         schedulerManager.stop();

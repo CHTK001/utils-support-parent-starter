@@ -187,6 +187,7 @@ public class PutObjectRequest {
         }
     }
 
+    /** 读取Bytes */
     private static byte[] readBytes(File file) {
         try (var fis = new java.io.FileInputStream(file)) {
             return fis.readAllBytes();

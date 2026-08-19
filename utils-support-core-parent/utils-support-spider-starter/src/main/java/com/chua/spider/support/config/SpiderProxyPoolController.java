@@ -33,12 +33,33 @@ public class SpiderProxyPoolController {
      */
     private final SpiderProxyTester tester;
 
+    /**
+     * 创建 SpiderProxyPoolController 实例
+     * @param store store
+     * @param SpiderProxyTester SpiderProxyTester
+     */
     public SpiderProxyPoolController(SpiderProxyPoolStore store, SpiderProxyTester tester) {
         this.store = store;
         this.tester = tester;
     }
 
     @GetMapping("/page")
+    /**
+     * Page
+     * @param pageNo pageNo
+     * @param pageSize pageSize
+     * @param keyword keyword
+     * @param pageSize pageSize
+     * @param keyword keyword
+     * @param poolCode poolCode
+     * @param pool pool
+     * @param poolCode poolCode
+     * @param poolCode poolCode
+     * @param poolStatus poolStatus
+     * @param true true
+     * @param false false
+     * @param poolCode poolCode
+     */
     public SpiderProxyPoolStore.PageResult<SpiderProxyPool> page(
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "20") int pageSize,
@@ -47,16 +68,19 @@ public class SpiderProxyPoolController {
     }
 
     @GetMapping("/detail")
+    /** Detail */
     public SpiderProxyPool detail(@RequestParam String poolCode) {
         return store.get(poolCode);
     }
 
     @PostMapping("/save")
+    /** 保存 */
     public SpiderProxyPool save(@RequestBody SpiderProxyPool pool) {
         return store.save(pool);
     }
 
     @DeleteMapping("/delete")
+    /** 删除 */
     public Map<String, Object> delete(@RequestParam String poolCode) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("deleted", store.remove(poolCode));
@@ -64,6 +88,11 @@ public class SpiderProxyPoolController {
     }
 
     @PostMapping("/status")
+    /**
+     * Status
+     * @param poolCode poolCode
+     * @param poolStatus poolStatus
+     */
     public Map<String, Object> status(@RequestParam String poolCode,
                                        @RequestParam int poolStatus) {
         SpiderProxyPool pool = store.get(poolCode);

@@ -100,14 +100,32 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     // ==================== 构造函数 ====================
 
+    /**
+     * 创建 Socks5ProxyServer 实例
+     * @param setting setting
+     */
     public Socks5ProxyServer(ServerSetting setting) {
         this(setting, null, null);
     }
 
+    /**
+     * 创建 Socks5ProxyServer 实例
+     * @param setting setting
+     * @param String String
+     * @param String String
+     */
     public Socks5ProxyServer(ServerSetting setting, String username, String password) {
         this(setting, username, password, 5000, 30000);
     }
 
+    /**
+     * 创建 Socks5ProxyServer 实例
+     * @param setting setting
+     * @param username username
+     * @param password password
+     * @param connectTimeoutMs connectTimeoutMs
+     * @param readTimeoutMs readTimeoutMs
+     */
     public Socks5ProxyServer(ServerSetting setting, String username, String password,
                              int connectTimeoutMs, int readTimeoutMs) {
         super(setting);
@@ -118,12 +136,14 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     }
 
     @Override
+    /** 添加过滤 */
     public Socks5ProxyServer addFilter(ServerFilter filter) {
         super.addFilter(filter);
         return this;
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
@@ -159,6 +179,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     // ==================== SOCKS5 协议实现 ====================
 
+    /** NegotiateAuth */
     protected boolean negotiateAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
         if (ver != VERSION) {
@@ -204,6 +225,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         return true;
     }
 
+    /** DoUserPassAuth */
     protected boolean doUserPassAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
         if (ver != USER_PASS_VERSION) {
@@ -227,6 +249,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         return ok;
     }
 
+    /** 读取Request */
     protected Socks5Request readRequest(InputStream in) throws IOException {
         int ver = in.read();
         int cmd = in.read();
@@ -265,6 +288,13 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         return new Socks5Request((byte) cmd, target);
     }
 
+    /**
+     * 处理Command
+     * @param clientSocket clientSocket
+     * @param in in
+     * @param out out
+     * @param request request
+     */
     protected void handleCommand(Socket clientSocket, InputStream in, OutputStream out,
                                  Socks5Request request) throws IOException {
         if (request.command == CMD_CONNECT) {
@@ -274,6 +304,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         }
     }
 
+    /** 处理连接 */
     protected void handleConnect(Socket clientSocket, OutputStream out, InetSocketAddress target) throws IOException {
         if (target == null || target.isUnresolved()) {
             writeReply(out, REP_HOST_UNREACHABLE, new InetSocketAddress(0));
@@ -300,6 +331,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         forwardBidirectional(clientSocket, backend);
     }
 
+    /** 写入Reply */
     protected void writeReply(OutputStream out, byte rep, InetSocketAddress bindAddr) throws IOException {
         out.write(new byte[]{VERSION, rep, 0x00, ATYP_IPV4, 0, 0, 0, 0, 0, 0});
         out.flush();

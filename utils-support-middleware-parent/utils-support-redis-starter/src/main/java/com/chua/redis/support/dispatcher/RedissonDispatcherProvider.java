@@ -38,6 +38,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     /** closed */
     private volatile boolean closed = false;
 
+    /**
+     * 创建 RedissonDispatcherProvider 实例
+     * @param config config
+     */
     public RedissonDispatcherProvider(DispatcherConfig config) {
         super(config);
         var redisUri = config.getUrl() != null ? config.getUrl() : "redis://127.0.0.1:6379";
@@ -47,12 +51,18 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         log.info("Redisson 客户端已创建，连接：{}", redisUri);
     }
 
+    /**
+     * 创建 RedissonDispatcherProvider 实例
+     * @param config config
+     * @param RedissonClient RedissonClient
+     */
     public RedissonDispatcherProvider(DispatcherConfig config, RedissonClient redissonClient) {
         super(config);
         this.redissonClient = redissonClient;
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         var value = body == null ? "" : body.toString();
         var rt = getOrCreateTopic(topic);
@@ -61,6 +71,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -68,6 +79,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
                 var rt = getOrCreateTopic(topic);
                 var listenerId = rt.addListener(String.class, new MessageListener<String>() {
                     @Override
+                    /** OnMessage */
                     public void onMessage(CharSequence channel, String msg) {
                         var definitions = definitionMap.get(topic);
                         if (definitions != null) {
@@ -88,6 +100,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -109,6 +122,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         listenerIdMap.clear();
@@ -117,6 +131,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         redissonClient.shutdown();
     }
 
+    /** 获取Or创建Topic */
     private RTopic getOrCreateTopic(String topic) {
         return topicMap.computeIfAbsent(topic, redissonClient::getTopic);
     }

@@ -30,6 +30,14 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
     /** 路径 */
     private final String path;
 
+    /**
+     * 创建 IpcMethodServerHandler 实例
+     * @param objectContext objectContext
+     * @param Class Class
+     * @param targetClass targetClass
+     * @param Method Method
+     * @param String String
+     */
     public IpcMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path) {
         this.objectContext = objectContext;
         this.targetClass = targetClass;
@@ -38,16 +46,19 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     @Override
+    /** Path */
     public String path() {
         return path;
     }
 
     @Override
+    /** Method */
     public HttpMethod method() {
         return null;
     }
 
     @Override
+    /** 处理 */
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         Object bean = objectContext.getBeanOfType(targetClass);
         if (bean == null) {
@@ -77,6 +88,7 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         }
     }
 
+    /** 解析Args */
     private static Object[] resolveArgs(Object params, Parameter[] parameters) {
         if (params == null) {
             return new Object[parameters.length];
@@ -89,6 +101,7 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         return args;
     }
 
+    /** 转换Param */
     private static Object convertParam(Object v, Class<?> t) {
         if (v == null) {
             return null;
@@ -115,6 +128,7 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         return v;
     }
 
+    /** 发送记录错误 */
     private static void sendError(ServerResponse response, int status, String msg) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("success", false);

@@ -42,6 +42,17 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     /** 数据源 */
     private final HikariDataSource dataSource;
 
+    /**
+     * 创建 JdbcDataSyncAgentSource 实例
+     * @param sourceId sourceId
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param columnNames columnNames
+     */
     public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this.sourceId = sourceId;
         this.inputId = inputId;
@@ -53,6 +64,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         this.dataSource = createDataSource(jdbcUrl, username, password);
     }
 
+    /** 创建DataSource */
     private HikariDataSource createDataSource(String url, String user, String pass) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -67,16 +79,19 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** InputId */
     public String inputId() {
         return inputId;
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         Object offsetObj = null;
         if (params != null) {
@@ -119,6 +134,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
@@ -127,10 +143,12 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.INPUT;
     }
 
+    /** 构建SqlWithOffset */
     private String buildSqlWithOffset(Object offsetValue) {
         if (offsetValue == null) {
             return sql;

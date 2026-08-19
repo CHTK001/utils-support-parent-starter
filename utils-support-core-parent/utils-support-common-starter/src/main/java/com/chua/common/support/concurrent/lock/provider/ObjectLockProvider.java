@@ -74,16 +74,19 @@ public class ObjectLockProvider extends AbstractLockProvider {
     }
 
     @Override
+    /** Do解锁 */
     protected void doUnlock() {
         reentrantLock.unlock();
     }
 
     @Override
+    /** Do获取Name */
     protected String doGetName() {
         return name;
     }
 
     @Override
+    /** Do获取Type */
     protected String doGetType() {
         return "object";
     }

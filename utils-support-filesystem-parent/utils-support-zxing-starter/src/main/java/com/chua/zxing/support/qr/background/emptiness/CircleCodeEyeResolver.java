@@ -19,14 +19,20 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
     /** 单位宽度 */
     private int unitWidth = 54;
 
+    /** 创建 CircleCodeEyeResolver 实例 */
     public CircleCodeEyeResolver() {
     }
 
+    /**
+     * 创建 CircleCodeEyeResolver 实例
+     * @param unitWidth unitWidth
+     */
     public CircleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;
     }
 
     @Override
+    /** 解析 */
     public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version) {
         // 画四个圆滑的大码眼
         Stroke stroke = g.getStroke();

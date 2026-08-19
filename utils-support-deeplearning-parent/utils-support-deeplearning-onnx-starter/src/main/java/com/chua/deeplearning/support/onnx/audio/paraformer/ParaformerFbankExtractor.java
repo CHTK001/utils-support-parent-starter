@@ -105,6 +105,7 @@ public class ParaformerFbankExtractor {
     /** Has_cmvn */
     private boolean hasCmvn;
 
+    /** 创建 ParaformerFbankExtractor 实例 */
     public ParaformerFbankExtractor() {
         this.window = buildWindow();
         MelBank bank = buildMelBank();

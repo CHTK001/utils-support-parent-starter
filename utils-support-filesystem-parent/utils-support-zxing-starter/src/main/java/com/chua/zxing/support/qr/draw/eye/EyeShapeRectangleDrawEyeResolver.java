@@ -22,12 +22,28 @@ import javax.annotation.Nullable;
 @Spi("EYE_SHAPE")
 public class EyeShapeRectangleDrawEyeResolver extends AbstractDrawEyeResolver {
 
+    /**
+     * 创建 EyeShapeRectangleDrawEyeResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param Graphics2D Graphics2D
+     * @param BitMatrixEx BitMatrixEx
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param int int
+     * @param Color Color
+     * @param Color Color
+     * @param CodeEyeSetting CodeEyeSetting
+     */
     public EyeShapeRectangleDrawEyeResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW, int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize, Color detectOutColor, Color detectInnerColor, CodeEyeSetting codeEyeSetting) {
         super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
 
     @Override
+    /** Draw */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         int x1 =  leftPadding + x * infoSize;
         int y1 =  topPadding + y * infoSize;
@@ -115,6 +131,7 @@ public class EyeShapeRectangleDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
+    /** Finish */
     public void finish() {
         //绘制LT
     }

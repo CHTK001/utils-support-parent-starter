@@ -11,6 +11,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 
 /** @author CH */
 public class TestRunner {
+    /** Main */
     public static void main(String[] args) {
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
                 .selectors(selectClass(LangChain4jAgentTest.class))

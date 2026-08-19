@@ -29,10 +29,12 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     /** Runtimelabels */
     private List<String> runtimeLabels = defaultLabels(DEFAULT_CLASS_COUNT);
 
+    /** 创建 EfficientNetLite4ClassificationTranslator 实例 */
     public EfficientNetLite4ClassificationTranslator() {
     }
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws Exception {
         List<String> labels = loadLabels(ctx.getModel().getModelPath());
         if (!labels.isEmpty()) {
@@ -41,6 +43,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         // OpenCV 预处理：resize 224 + CHW 归一化 → float[] → create() 喂入 djl-onnx
         float[] pixels = com.chua.deeplearning.support.utils.ImageUtils.toTensor(input, 224);
@@ -50,6 +53,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         // toFloatArray 已扁平化，无需 squeeze
@@ -70,10 +74,12 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 加载Labels */
     private static List<String> loadLabels(Path modelPath) {
         try {
             if (modelPath == null) {
@@ -103,6 +109,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
         }
     }
 
+    /** DefaultLabels */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
@@ -111,6 +118,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
         return labels;
     }
 
+    /** Softmax */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float logit : logits) {

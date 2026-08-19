@@ -19,21 +19,25 @@ public class DefaultPipelineManager implements PipelineManager {
     private final Map<String, String> store = new ConcurrentHashMap<>();
 
     @Override
+    /** 保存Pipeline */
     public void savePipeline(String pipelineId, String jsonDsl) {
         store.put(pipelineId, jsonDsl);
     }
 
     @Override
+    /** 获取Pipeline */
     public String getPipeline(String pipelineId) {
         return store.get(pipelineId);
     }
 
     @Override
+    /** 删除Pipeline */
     public void deletePipeline(String pipelineId) {
         store.remove(pipelineId);
     }
 
     @Override
+    /** PipelineIds */
     public Iterable<String> pipelineIds() {
         return Collections.unmodifiableSet(store.keySet());
     }

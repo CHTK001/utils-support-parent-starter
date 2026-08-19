@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
  */
 public class JsonObjectTypeConverter implements TypeConverter<Map> {
     @Override
+    /** 获取Type */
     public Class<Map> getType() {
         return Map.class;
     }

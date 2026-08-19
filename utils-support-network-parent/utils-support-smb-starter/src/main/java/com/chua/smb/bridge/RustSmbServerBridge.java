@@ -74,10 +74,12 @@ public final class RustSmbServerBridge {
 
     static { loadLibrary(); }
 
+    /** 创建 RustSmbServerBridge 实例 */
     private RustSmbServerBridge() { throw new UnsupportedOperationException("Utility class"); }
 
     // ==================== 生命周期 ====================
 
+    /** 加载Library */
     public static void loadLibrary() {
         if (loaded) {
             return;
@@ -114,6 +116,7 @@ public final class RustSmbServerBridge {
     }
 
     @SuppressWarnings("unchecked")
+    /** 绑定Functions */
     private static void bindFunctions() throws Throwable {
         if (LIBRARY == null || ARENA == null) {
             throw new IllegalStateException("Native library not loaded");
@@ -225,6 +228,7 @@ public final class RustSmbServerBridge {
         return loaded;
     }
 
+    /** 校验Loaded */
     private static void checkLoaded() {
         if (!loaded) {
             throw new IllegalStateException(

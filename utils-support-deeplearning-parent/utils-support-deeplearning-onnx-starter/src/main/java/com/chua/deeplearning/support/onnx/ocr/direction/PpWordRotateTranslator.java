@@ -55,6 +55,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     /** 会话 */
     private OrtSession session;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -83,11 +84,13 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     }
 
     @Override
+    /** Name */
     public String name() {
         return "pp-word-rotate";
     }
 
     @Override
+    /** Translate */
     public DirectionInfo translate(byte[] imageData) {
         try {
             prepare();
@@ -97,6 +100,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
         }
     }
 
+    /** Classify */
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();

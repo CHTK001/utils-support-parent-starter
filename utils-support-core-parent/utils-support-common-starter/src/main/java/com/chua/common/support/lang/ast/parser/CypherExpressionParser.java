@@ -191,11 +191,13 @@ public class CypherExpressionParser implements ExpressionParser {
     private static final String OP_EQUAL = "=";
 
     @Override
+    /** Type */
     public String type() {
         return TYPE;
     }
 
     @Override
+    /** 解析 */
     public BTreeNode parse(String expression) {
         if (StringUtils.isEmpty(expression) || expression.isBlank()) {
             throw new IllegalArgumentException(MSG_EXPRESSION_EMPTY);
@@ -210,6 +212,7 @@ public class CypherExpressionParser implements ExpressionParser {
     }
 
     @Override
+    /** Generate */
     public String generate(BTreeNode tree) {
         if (tree == null) {
             return "";

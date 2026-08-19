@@ -23,16 +23,19 @@ import java.math.BigInteger;
 public class WordDocumentRenderer implements DocumentProvider {
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "word";
     }
 
     @Override
+    /** 获取Extensions */
     public String[] getExtensions() {
         return new String[]{".docx", ".doc"};
     }
 
     @Override
+    /** Export */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         try (XWPFDocument doc = new XWPFDocument()) {
             writeTitle(doc, data);
@@ -51,6 +54,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
+    /** 写入Title */
     private void writeTitle(XWPFDocument doc, DocumentData data) {
         XWPFParagraph titlePara = doc.createParagraph();
         titlePara.setAlignment(ParagraphAlignment.CENTER);
@@ -60,6 +64,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         titleRun.setFontSize(18);
     }
 
+    /** 写入Meta */
     private void writeMeta(XWPFDocument doc, DocumentData data) {
         addInfoLine(doc, "数据库: " + nullToEmpty(data.getDatabaseName()));
     addInfoLine(doc, "产品: " + nullToEmpty(data.getProductName()) + " " + nullToEmpty(data.getProductVersion()));
@@ -70,6 +75,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         addInfoLine(doc, "");
     }
 
+    /** 写入Tables */
     private void writeTables(XWPFDocument doc, DocumentData data) {
         if (data.getTables() == null) {
             return;
@@ -122,6 +128,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
+    /** 添加InfoLine */
     private void addInfoLine(XWPFDocument doc, String text) {
         XWPFParagraph para = doc.createParagraph();
         XWPFRun run = para.createRun();
@@ -130,6 +137,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         run.setFontFamily("微软雅黑");
     }
 
+    /** StyleHeaderRow */
     private void styleHeaderRow(XWPFTableRow row) {
         for (int i = 0; i < row.getTableCells().size(); i++) {
             XWPFTableCell cell = row.getCell(i);
@@ -152,6 +160,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
+    /** 设置TableBorders */
     private void setTableBorders(XWPFTable table) {
         CTTbl ctTbl = table.getCTTbl();
         CTTblPr tblPr = ctTbl.getTblPr() != null ? ctTbl.getTblPr() : ctTbl.addNewTblPr();
@@ -165,12 +174,14 @@ public class WordDocumentRenderer implements DocumentProvider {
         setBorder(borders.addNewInsideV(), "1", STBorder.SINGLE, "auto");
     }
 
+    /** 设置Border */
     private void setBorder(CTBorder border, String size, STBorder.Enum type, String color) {
         border.setSz(BigInteger.valueOf(Long.parseLong(size)));
         border.setVal(type);
         border.setColor(color);
     }
 
+    /** 设置CellValue */
     private void setCellValue(XWPFTableRow row, int cellIndex, String value) {
         XWPFTableCell cell = row.getCell(cellIndex);
         if (cell != null) {
@@ -178,6 +189,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
+    /** NullToEmpty */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }

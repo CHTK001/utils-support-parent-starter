@@ -18,16 +18,19 @@ package com.chua.network.support.tshark.restorer;
 public class RedisProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "redis";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 200;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length == 0) {
             return false;
@@ -37,6 +40,7 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length == 0) {
             return "[Redis] empty";
@@ -70,6 +74,7 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** 解析获取长度 */
     private static int parseLength(byte[] data, int offset) {
         int value = 0;
         int idx = offset;
@@ -87,6 +92,7 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
         return value;
     }
 
+    /** 解析Long */
     private static long parseLong(byte[] data, int offset) {
         long value = 0;
         boolean negative = false;

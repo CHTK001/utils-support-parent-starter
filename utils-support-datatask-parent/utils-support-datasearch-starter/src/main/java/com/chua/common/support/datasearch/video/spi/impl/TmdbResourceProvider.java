@@ -34,15 +34,21 @@ import java.util.stream.Collectors;
 public class TmdbResourceProvider extends AbstractResourceProvider {
     static final String IMAGE_URL = "https://image.tmdb.org/t/p/w500";
 
+    /** 创建 TmdbResourceProvider 实例 */
     public TmdbResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 TmdbResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public TmdbResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
     @Override
+    /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         try {
             String url = videoSource.getVideoSourceUrl();

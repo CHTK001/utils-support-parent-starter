@@ -81,6 +81,10 @@ public class ThreadFlow {
      */
     private final List<Callable<Object>> callableTasks = new ArrayList<>();
 
+    /**
+     * 创建 ThreadFlow 实例
+     * @param name name
+     */
     private ThreadFlow(String name) {
         this.name = name;
     }

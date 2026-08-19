@@ -7,7 +7,9 @@ import java.util.List;
  */
 
 public interface ReadCallback {
+    /** OnHeader */
     default void onHeader(List<String> headers) {}
     void onBody(Object row);
+    /** OnComplete */
     default void onComplete(long total) {}
 }

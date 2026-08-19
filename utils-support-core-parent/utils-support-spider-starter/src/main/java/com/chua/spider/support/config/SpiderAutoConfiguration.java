@@ -80,17 +80,35 @@ public class SpiderAutoConfiguration {
     }
 
     @Bean
+    /** SpiderController */
     public SpiderController spiderController(SpiderDefinitionStore store) {
         return new SpiderController(store);
     }
 
     @Bean
+    /**
+     * SpiderProxyPoolController
+     * @param poolStore poolStore
+     * @param poolTester poolTester
+     * @param poolTester poolTester
+     * @param execStore execStore
+     * @param defStore defStore
+     * @param runner runner
+     * @param defStore defStore
+     * @param runner runner
+     */
     public SpiderProxyPoolController spiderProxyPoolController(
             SpiderProxyPoolStore poolStore, SpiderProxyTester poolTester) {
         return new SpiderProxyPoolController(poolStore, poolTester);
     }
 
     @Bean
+    /**
+     * SpiderExecutionController
+     * @param execStore execStore
+     * @param defStore defStore
+     * @param runner runner
+     */
     public SpiderExecutionController spiderExecutionController(SpiderExecutionStore execStore,
                                                               SpiderDefinitionStore defStore,
                                                               SpiderRunner runner) {

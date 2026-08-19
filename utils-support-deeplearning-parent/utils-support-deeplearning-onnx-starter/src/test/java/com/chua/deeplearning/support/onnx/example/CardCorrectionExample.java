@@ -18,9 +18,11 @@ import java.util.List;
  */
 public final class CardCorrectionExample extends ExampleBase {
 
+    /** 创建 CardCorrectionExample 实例 */
     private CardCorrectionExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\card_test.jpg";
         byte[] img = Files.readAllBytes(Path.of(imagePath));

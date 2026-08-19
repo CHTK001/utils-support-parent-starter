@@ -41,6 +41,15 @@ public class SkillArgumentSchema {
     /** 枚举值列表（仅 type=enum 时有效） */
     private final List<String> enumValues;
 
+    /**
+     * 创建 SkillArgumentSchema 实例
+     * @param name name
+     * @param String String
+     * @param String String
+     * @param boolean boolean
+     * @param List List
+     * @param enumValues enumValues
+     */
     public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {
         this.name = name;
         this.description = description;
@@ -49,26 +58,32 @@ public class SkillArgumentSchema {
         this.enumValues = enumValues;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取Description */
     public String getDescription() {
         return description;
     }
 
+    /** 获取Type */
     public String getType() {
         return type;
     }
 
+    /** 是否Required */
     public boolean isRequired() {
         return required;
     }
 
+    /** 获取EnumValues */
     public List<String> getEnumValues() {
         return enumValues;
     }
 
+    /** ToMap */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);

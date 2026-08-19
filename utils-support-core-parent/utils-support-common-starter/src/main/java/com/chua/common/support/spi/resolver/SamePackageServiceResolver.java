@@ -236,6 +236,14 @@ public class SamePackageServiceResolver implements ServiceResolver {
         }
     }
 
+    /**
+     * DoAnalysisJarUrlInner
+     * @param result result
+     * @param url url
+     * @param packageDirName packageDirName
+     * @param service service
+     * @param classLoader classLoader
+     */
     private void doAnalysisJarUrlInner(Collection<Class<?>> result,
                                        URL url,
                                        String packageDirName,

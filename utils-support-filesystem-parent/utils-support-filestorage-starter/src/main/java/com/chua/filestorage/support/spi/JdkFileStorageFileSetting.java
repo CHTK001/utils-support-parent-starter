@@ -19,6 +19,7 @@ import java.util.Map;
 public class JdkFileStorageFileSetting implements FileStorageFileSetting {
 
     @Override
+    /** Capabilities */
     public List<String> capabilities() {
         return List.of(
                 "size", "format", "quality", "crop", "rotate",
@@ -29,6 +30,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     @Override
+    /** 解析 */
     public FileOperationSetting parse(ServerRequest request) {
         return FileOperationSetting.builder()
                 .size(getFirst(request, "size", "w", "width"))
@@ -51,6 +53,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
                 .build();
     }
 
+    /** 获取First */
     private String getFirst(ServerRequest request, String... names) {
         for (String name : names) {
             String v = request.getParam(name);
@@ -61,6 +64,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         return null;
     }
 
+    /** 解析Int */
     private Integer parseInt(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {
@@ -74,6 +78,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         }
     }
 
+    /** 解析Long */
     private Long parseLong(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {
@@ -86,6 +91,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         }
     }
 
+    /** 解析Float */
     private Float parseFloat(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {
@@ -98,6 +104,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         }
     }
 
+    /** 解析Bool */
     private Boolean parseBool(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {

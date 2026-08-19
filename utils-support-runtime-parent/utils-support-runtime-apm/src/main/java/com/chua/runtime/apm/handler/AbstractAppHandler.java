@@ -48,23 +48,27 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
      */
     protected final AtomicBoolean started;
 
+    /** 创建 AbstractAppHandler 实例 */
     protected AbstractAppHandler() {
         this.records = new BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
+    /** Version */
     public String version() {
         return "1.0.0";
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.enabled = "true".equals(context.getProperty(enabledKey(), "true"));
         LOG.log(Level.INFO, String.format("%s 初始化完成，启用状态: %s", name(), enabled));
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -77,6 +81,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -86,16 +91,19 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("%s[enabled=%s, records=%d]", name(), enabled, records.size());
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled && started.get();
     }
 
     @Override
+    /** OnIntercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -114,6 +122,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
+    /** 处理Entry */
     private void handleEntry(InterceptContext ctx) {
         try {
             TransmissionRecord record = new TransmissionRecord();
@@ -141,6 +150,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         }
     }
 
+    /** 处理Exit */
     private void handleExit(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -157,6 +167,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         }
     }
 
+    /** 处理Exception */
     private void handleException(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -459,6 +470,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         return "/";
     }
 
+    /** 获取Records */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }

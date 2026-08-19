@@ -19,6 +19,7 @@ import java.util.List;
 public class DataSearchModelPricingProvider implements ModelPricingProvider {
 
     @Override
+    /** 获取ModelPricing */
     public ModelDefinition getModelPricing(String provider, String model) {
         if (provider == null || model == null) {
             return null;

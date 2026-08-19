@@ -14,9 +14,11 @@ import java.util.List;
  */
 public final class OcrTextDump {
 
+    /** 创建 OcrTextDump 实例 */
     private OcrTextDump() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         OcrPipeline ocr = OcrPipeline.builder()
                 .detector("paddleocrv6-medium-det")

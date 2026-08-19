@@ -29,6 +29,13 @@ import java.util.List;
  */
 public interface RpcClient extends AutoCloseable {
 
+    /**
+     * 创建Client
+     * @param name name
+     * @param registryConfig registryConfig
+     * @param consumerConfig consumerConfig
+     * @param appName appName
+     */
     static RpcClient createClient(String name, RpcRegistryConfig registryConfig,
                                   RpcConsumerConfig consumerConfig, String appName) {
         return createClient(name, Collections.singletonList(registryConfig), consumerConfig, appName);

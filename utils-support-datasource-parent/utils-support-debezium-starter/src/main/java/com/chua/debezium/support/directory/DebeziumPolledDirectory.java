@@ -71,11 +71,13 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 开始 */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor pollerExecutor) {
         // event-driven, executor 传 null 即可
 
@@ -166,6 +168,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         log.info("[debezium-cdc] CDC 已启动: listenPath={}, connectorClass={}", listenPath, connectorClass);
     }
 
+    /** 分发 */
     private void dispatch(String value) {
         String op = extractOp(value);
         String table = extractTable(value);
@@ -193,6 +196,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         }
     }
 
+    /** ExtractTable */
     private String extractTable(String value) {
         int idx = value.indexOf("\"table\":\"");
         if (idx < 0) {
@@ -203,6 +207,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         return end > start ? value.substring(start, end) : null;
     }
 
+    /** ExtractOp */
     private String extractOp(String value) {
         int idx = value.indexOf("\"op\":\"");
         if (idx < 0) {
@@ -212,16 +217,19 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     @Override
+    /** Upgrade */
     public void upgrade() {
         // 由事件驱动，无需轮询
     }
 
     @Override
+    /** 是否DelegatedOperatingSystem */
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (engine != null) {
             try {

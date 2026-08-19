@@ -81,6 +81,7 @@ class WsEndpointIntegrationTest {
     private static int mockPort;
 
     @BeforeAll
+    /** 开始Servers */
     static void startServers() throws Exception {
         // 0. 启动 mock VNC server（占 15900，循环回写）—— 加端口探测避开残留
         mockPort = findFreePort(15900, 15999);
@@ -133,6 +134,7 @@ class WsEndpointIntegrationTest {
     }
 
     @AfterAll
+    /** 停止Servers */
     static void stopServers() {
         if (gateway != null) {
             gateway.stop();
@@ -205,6 +207,7 @@ class WsEndpointIntegrationTest {
                 .connectTimeout(Duration.ofSeconds(3))
                 .buildAsync(uri, new WebSocket.Listener() {
                     @Override
+                    /** On打开 */
                     public void onOpen(WebSocket webSocket) {
                         connectedFuture.complete(webSocket);
                         WebSocket.Listener.super.onOpen(webSocket);
@@ -272,6 +275,7 @@ class WsEndpointIntegrationTest {
                 .connectTimeout(Duration.ofSeconds(3))
                 .buildAsync(uri, new WebSocket.Listener() {
                     @Override
+                    /** On打开 */
                     public void onOpen(WebSocket webSocket) {
                         connectedFuture.complete(webSocket);
                         WebSocket.Listener.super.onOpen(webSocket);
@@ -352,6 +356,7 @@ class WsEndpointIntegrationTest {
             }
         }
 
+        /** AcceptLoop */
         private void acceptLoop() {
             while (running && serverSocket != null && !serverSocket.isClosed()) {
                 try {
@@ -368,6 +373,7 @@ class WsEndpointIntegrationTest {
             }
         }
 
+        /** ServeClient */
         private void serveClient(java.net.Socket client) {
             try {
                 java.io.InputStream in = client.getInputStream();

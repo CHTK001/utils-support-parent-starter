@@ -68,6 +68,10 @@ public class PdfWriteBuilder extends WriteBuilder {
      */
     private float lineSpacing = 16;
 
+    /**
+     * 创建 PdfWriteBuilder 实例
+     * @param file file
+     */
     public PdfWriteBuilder(File file) {
         super(file);
     }
@@ -160,6 +164,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     @Override
+    /** 写入 */
     public PdfWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -210,6 +215,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     @Override
+    /** Finish */
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
@@ -263,6 +269,7 @@ public class PdfWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** 设置Metadata */
     private void setMetadata(PDDocument doc) {
         PDDocumentInformation info = new PDDocumentInformation();
         if (title != null) {
@@ -274,6 +281,7 @@ public class PdfWriteBuilder extends WriteBuilder {
         doc.setDocumentInformation(info);
     }
 
+    /** Do写入Text */
     private void doWriteText(List<String> lines) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
@@ -299,6 +307,7 @@ public class PdfWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** Do写入Map */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
@@ -332,6 +341,7 @@ public class PdfWriteBuilder extends WriteBuilder {
         }
     }
 
+    /** 解析Template */
     private void resolveTemplate() {
         try {
             TemplateFileSystem engine = ServiceProvider.of(TemplateFileSystem.class).getExtension("txt");

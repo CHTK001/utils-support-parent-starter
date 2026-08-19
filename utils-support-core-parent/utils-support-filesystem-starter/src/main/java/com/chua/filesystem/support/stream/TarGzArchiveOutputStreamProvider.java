@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 public class TarGzArchiveOutputStreamProvider implements CompressArchiveOutputStream {
 
     @Override
+    /** 是否Support */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -29,12 +30,14 @@ public class TarGzArchiveOutputStreamProvider implements CompressArchiveOutputSt
     }
 
     @Override
+    /** 创建OutputStream */
     public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
         var gzipOutputStream = new GzipCompressorOutputStream(outputStream);
         return new TarArchiveOutputStream(gzipOutputStream);
     }
 
     @Override
+    /** 获取格式化Name */
     public String getFormatName() {
         return "tar.gz";
     }

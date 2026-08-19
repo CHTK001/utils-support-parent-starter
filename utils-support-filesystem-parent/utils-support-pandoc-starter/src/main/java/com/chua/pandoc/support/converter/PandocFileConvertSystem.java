@@ -104,6 +104,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
+    /** 是否Supported */
     public boolean isSupported(String source, String target) {
         if (source == null || target == null) {
             return false;
@@ -117,6 +118,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     }
 
     @Override
+    /** 转换 */
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         Path tempInput = null;
         Path tempOutput = null;

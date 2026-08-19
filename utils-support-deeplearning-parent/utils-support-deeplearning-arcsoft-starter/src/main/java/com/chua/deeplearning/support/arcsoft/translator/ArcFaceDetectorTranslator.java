@@ -26,16 +26,22 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
+    /**
+     * 创建 ArcFaceDetectorTranslator 实例
+     * @param faceEngine faceEngine
+     */
     public ArcFaceDetectorTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }
 
     @Override
+    /** Name */
     public String name() {
         return "arcface-detector";
     }
 
     @Override
+    /** Translate */
     public List<DetectionInfo> translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

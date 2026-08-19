@@ -49,14 +49,20 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /** 配置saveORloader */
     private ConfigSaveOrLoader configSaveOrLoader;
 
+    /** 创建 AbstractPricingProvider 实例 */
     protected AbstractPricingProvider() {
     }
 
+    /**
+     * 创建 AbstractPricingProvider 实例
+     * @param configSaveOrLoader configSaveOrLoader
+     */
     protected AbstractPricingProvider(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
     }
 
     @Override
+    /** Name */
     public String name() {
         Spi spi = this.getClass().getAnnotation(Spi.class);
         if (spi != null && spi.value().length > 0) {
@@ -66,6 +72,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     }
 
     @Override
+    /** 获取Pricing */
     public List<ModelDefinition> getPricing() {
         if (configSaveOrLoader == null) {
             return Collections.emptyList();
@@ -89,6 +96,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     }
 
     @Override
+    /** SyncFromOnline */
     public void syncFromOnline() {
         List<ModelDefinition> pricing = fetchOnlinePricing();
         if (pricing == null || pricing.isEmpty()) {

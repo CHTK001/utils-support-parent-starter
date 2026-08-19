@@ -17,15 +17,23 @@ public class TableStructureResult {
     /** StructureSTR列表 */
     private final List<String> structureStrList;
 
+    /**
+     * 创建 TableStructureResult 实例
+     * @param ocrItemList ocrItemList
+     * @param List List
+     * @param structureStrList structureStrList
+     */
     public TableStructureResult(List<OcrItem> ocrItemList, List<String> structureStrList) {
         this.ocrItemList = ocrItemList;
         this.structureStrList = structureStrList;
     }
 
+    /** 获取OcrItemList */
     public List<OcrItem> getOcrItemList() {
         return ocrItemList;
     }
 
+    /** 获取StructureStrList */
     public List<String> getStructureStrList() {
         return structureStrList;
     }

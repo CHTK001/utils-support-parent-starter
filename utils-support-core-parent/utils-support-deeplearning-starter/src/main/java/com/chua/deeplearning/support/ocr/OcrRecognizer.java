@@ -204,24 +204,28 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
+    /** Lang */
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public OcrRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public OcrRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** UseGpu */
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
@@ -229,17 +233,24 @@ class DefaultOcrRecognizer implements OcrRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Recognize */
     public String recognize(byte[] imageData) {
-        ITranslator<byte[], String> t =
-                (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
-        if (t == null) {
-            throw new IllegalStateException("模型未注册: " + modelName);
+        List<OcrResult> results = recognizeDetail(imageData);
+        if (results == null || results.isEmpty()) {
+            return "";
         }
-        return t.translate(imageData);
+        // 拼接所有识别结果文本
+        StringBuilder sb = new StringBuilder();
+        for (OcrResult r : results) {
+            if (sb.length() > 0) sb.append("\n");
+            sb.append(r.text());
+        }
+        return sb.toString();
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** RecognizeDetail */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<OcrResult>> t =
                 (ITranslator<byte[], List<OcrResult>>) engine.get(modelName, ITranslator.class);

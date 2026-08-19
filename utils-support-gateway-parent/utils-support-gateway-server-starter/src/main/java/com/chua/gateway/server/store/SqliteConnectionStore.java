@@ -118,6 +118,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
      */
     private final String jdbcUrl;
 
+    /** 创建 SqliteConnectionStore 实例 */
     public SqliteConnectionStore() {
         this.jdbcUrl = GatewayProperties.dbUrl();
     }
@@ -213,6 +214,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
     }
 
     @Override
+    /** 查找ByKey */
     public Optional<Connection> findByKey(String key) {
         if (key == null || key.isBlank()) {
             return Optional.empty();
@@ -233,6 +235,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
     }
 
     @Override
+    /** UpsertByTarget */
     public Connection upsertByTarget(String protocol, String host, int port, String user, String password) {
         Connection existing = findByTarget(protocol, host, port);
         if (existing != null) {
@@ -308,6 +311,7 @@ public final class SqliteConnectionStore implements ConnectionStore {
     }
 
     @Override
+    /** ListKeys */
     public List<String> listKeys() {
         List<String> keys = new ArrayList<>();
         try (java.sql.Connection conn = openConnection();

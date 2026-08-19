@@ -49,6 +49,7 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     private HuggingFaceTokenizer tokenizer;
 
     @Override
+    /** Prepare */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = modelRoot.resolve("tokenizer.json");
@@ -68,6 +69,7 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("BartSeq2Seq tokenizer not initialized");
@@ -88,6 +90,7 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
+    /** 处理Output */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -101,10 +104,12 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");

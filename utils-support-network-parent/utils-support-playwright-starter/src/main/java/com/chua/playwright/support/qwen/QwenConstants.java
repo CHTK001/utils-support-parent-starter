@@ -37,6 +37,7 @@ public final class QwenConstants {
      */
     public static final String COOKIE_TOKEN = "token";
 
+    /** 创建 QwenConstants 实例 */
     private QwenConstants() {
     }
 }

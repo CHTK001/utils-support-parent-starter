@@ -100,6 +100,10 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
      */
     private static final long MMAP_GROW = 64L * 1024 * 1024;
 
+    /**
+     * 创建 WalDispatcherProvider 实例
+     * @param config config
+     */
     public WalDispatcherProvider(DispatcherConfig config) {
         this(config, (String) null);
     }
@@ -167,6 +171,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         if (closed.get()) {
             return;
@@ -189,6 +194,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -200,6 +206,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var list = definitionMap.get(topic);
@@ -213,6 +220,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed.set(true);
         logs.values().forEach(WalLog::close);
@@ -271,6 +279,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
+    /** 写入Body */
     private byte[] writeBody(Object body) {
         try {
             if (serializer == null) {
@@ -285,6 +294,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
+    /** 读取Body */
     private Object readBody(byte[] data) {
         try {
             if (serializer == null) {

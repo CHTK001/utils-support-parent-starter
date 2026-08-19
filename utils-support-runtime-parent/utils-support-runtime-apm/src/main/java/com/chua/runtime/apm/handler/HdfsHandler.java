@@ -24,31 +24,37 @@ public class HdfsHandler extends AbstractAppHandler {
     private static final String[] FS_METHODS = {"open", "create", "delete", "rename", "listStatus", "mkdirs", "exists", "getFileStatus"};
 
     @Override
+    /** Name */
     public String name() {
         return "hdfs-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "hdfs.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.HDFS;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(FILE_SYSTEM, FS_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

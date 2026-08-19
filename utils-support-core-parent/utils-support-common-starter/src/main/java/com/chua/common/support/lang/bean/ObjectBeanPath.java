@@ -27,12 +27,14 @@ public class ObjectBeanPath implements BeanPath {
     private NamingStyle namingStyle = NamingStyle.RAW;
 
     @Override
+    /** IgnoreCase */
     public ObjectBeanPath ignoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
         return this;
     }
 
     @Override
+    /** NamingStyle */
     public ObjectBeanPath namingStyle(NamingStyle style) {
         this.namingStyle = style != null ? style : NamingStyle.RAW;
         return this;
@@ -40,6 +42,7 @@ public class ObjectBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取Value */
     public <T> T getValue(Object source, String path) {
         if (source == null || path == null || path.isEmpty()) {
             return null;
@@ -50,6 +53,7 @@ public class ObjectBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 设置Value */
     public void setValue(Object source, String path, Object value) {
         if (source == null || path == null || path.isEmpty()) {
             return;
@@ -85,11 +89,13 @@ public class ObjectBeanPath implements BeanPath {
     }
 
     @Override
+    /** 是否存在 */
     public boolean exists(Object source, String path) {
         return getValue(source, path) != null;
     }
 
     @SuppressWarnings("unchecked")
+    /** 解析 */
     private Object resolve(Object source, String[] parts, int start, int end) {
         Object current = source;
         for (int i = start; i < end; i++) {
@@ -122,6 +128,7 @@ public class ObjectBeanPath implements BeanPath {
         return current;
     }
 
+    /** 解析Field */
     private Object resolveField(Object bean, String prop) {
         try {
             return ClassUtils.getFieldValue(prop, bean);
@@ -130,6 +137,7 @@ public class ObjectBeanPath implements BeanPath {
         }
     }
 
+    /** NormalizeProp */
     private String normalizeProp(String prop) {
         if (StringUtils.isEmpty(prop) || namingStyle == NamingStyle.RAW) {
             return prop;
@@ -138,6 +146,7 @@ public class ObjectBeanPath implements BeanPath {
         return ignoreCase ? camel.toLowerCase() : camel;
     }
 
+    /** ExtractIndex */
     private static int extractIndex(String part) {
         int start = part.indexOf('[');
         if (start < 0) {

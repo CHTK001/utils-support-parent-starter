@@ -263,66 +263,79 @@ public class LiteRawMap implements Map<String, Object> {
     // ==================== Map 接口实现 ====================
 
     @Override
+    /** 获取大小 */
     public int size() {
         return delegate.size();
     }
 
     @Override
+    /** 是否Empty */
     public boolean isEmpty() {
         return delegate.isEmpty();
     }
 
     @Override
+    /** ContainsKey */
     public boolean containsKey(Object key) {
         return delegate.containsKey(key);
     }
 
     @Override
+    /** ContainsValue */
     public boolean containsValue(Object value) {
         return delegate.containsValue(value);
     }
 
     @Override
+    /** 获取 */
     public Object get(Object key) {
         return delegate.get(key);
     }
 
     @Override
+    /** Put */
     public Object put(String key, Object value) {
         return delegate.put(key, value);
     }
 
     @Override
+    /** 移除 */
     public Object remove(Object key) {
         return delegate.remove(key);
     }
 
     @Override
+    /** PutAll */
     public void putAll(Map<? extends String, ?> m) {
         delegate.putAll(m);
     }
 
     @Override
+    /** Clear */
     public void clear() {
         delegate.clear();
     }
 
     @Override
+    /** Key设置 */
     public Set<String> keySet() {
         return delegate.keySet();
     }
 
     @Override
+    /** Values */
     public Collection<Object> values() {
         return delegate.values();
     }
 
     @Override
+    /** Entry设置 */
     public Set<Map.Entry<String, Object>> entrySet() {
         return delegate.entrySet();
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return delegate.toString();
     }

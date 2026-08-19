@@ -37,10 +37,15 @@ import java.util.stream.Collectors;
  */
 @Spi("xiaoji")
 public class XiaoJiResourceProvider extends AbstractResourceProvider implements DownloadLinkProvider {
+    /** 创建 XiaoJiResourceProvider 实例 */
     public XiaoJiResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 XiaoJiResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public XiaoJiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }

@@ -65,6 +65,10 @@ public class MavenDeployClient {
      */
     private MavenDeployCallback deployCallback;
 
+    /**
+     * 创建 MavenDeployClient 实例
+     * @param result result
+     */
     public MavenDeployClient(MavenCompileResult result) {
         this.result = result;
     }
@@ -240,6 +244,7 @@ public class MavenDeployClient {
 
     // ==================== 回调通知 ====================
 
+    /** 通知开始 */
     private void notifyStart(String info) {
         if (deployCallback != null) {
             try {
@@ -250,6 +255,7 @@ public class MavenDeployClient {
         }
     }
 
+    /** 通知Progress */
     private void notifyProgress(String message, int percent) {
         if (deployCallback != null) {
             try {
@@ -260,6 +266,7 @@ public class MavenDeployClient {
         }
     }
 
+    /** 通知Success */
     private void notifySuccess(List<String> deployedPaths) {
         if (deployCallback != null) {
             try {
@@ -270,6 +277,7 @@ public class MavenDeployClient {
         }
     }
 
+    /** 通知Failure */
     private void notifyFailure(Exception exception) {
         if (deployCallback != null) {
             try {

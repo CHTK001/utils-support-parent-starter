@@ -161,12 +161,14 @@ class DefaultEmbeddingService implements EmbeddingService {
     }
 
     @Override
+    /** ModelPath */
     public EmbeddingService modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public EmbeddingService device(String device) {
         this.device = device;
         return this;
@@ -174,6 +176,7 @@ class DefaultEmbeddingService implements EmbeddingService {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Embed */
     public float[] embed(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);
@@ -185,6 +188,7 @@ class DefaultEmbeddingService implements EmbeddingService {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Embed */
     public float[] embed(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -195,6 +199,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     }
 
     @Override
+    /** EmbedBatch */
     public List<float[]> embedBatch(List<String> texts) {
         int size = texts.size();
         List<float[]> result = new ArrayList<>(size);

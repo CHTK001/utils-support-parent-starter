@@ -25,15 +25,21 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
     /** 是否已关闭 */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    /** 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例 */
     public ShutdownOnSuccessStructuredConcurrencyProvider() {
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
 
+    /**
+     * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
+     * @param executor executor
+     */
     public ShutdownOnSuccessStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;
     }
 
     @Override
+    /** 提交 */
     public <T> T submit(Callable<T> task) throws Exception {
         if (closed.get()) {
             throw new IllegalStateException("结构化并发已关闭");
@@ -47,6 +53,7 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
     }
 
     @Override
+    /** 提交 */
     public void submit(Runnable task) throws Exception {
         if (closed.get()) {
             throw new IllegalStateException("结构化并发已关闭");
@@ -60,12 +67,14 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
     }
 
     @Override
+    /** 合并 */
     public void join() throws Exception {
         executor.shutdown();
         executor.awaitTermination(60, TimeUnit.SECONDS);
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
             executor.shutdownNow();

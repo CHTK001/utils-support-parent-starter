@@ -57,6 +57,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     private static final int HEAD_DIM = 64;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, DecoderInput input) throws Exception {
         NDManager manager = ctx.getNDManager();
 
@@ -134,6 +135,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     @Override
+    /** 处理Output */
     public DecoderStepOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("             Decoder             : {}          ", list.size());
@@ -198,6 +200,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         //                   
         return null;

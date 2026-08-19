@@ -49,11 +49,13 @@ public class TableDetectionYolov8Translator extends AbstractSingleClassYolov8Tra
     }
 
     @Override
+    /** ClassNamesResourcePath */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
+    /** DefaultClassName */
     protected String defaultClassName() {
         return "table";
     }

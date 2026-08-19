@@ -69,6 +69,7 @@ public class Word {
     private Float weight;
 
     @Override
+    /** ToString */
     public String toString() {
         return word + "(" + nature + ")";
     }

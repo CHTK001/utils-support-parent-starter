@@ -236,6 +236,7 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("JSON root must be an object");
     }
 
+    /** 解析Value */
     private static Object parseValue(String json, int[] pos) {
         skipWhitespace(json, pos);
         if (pos[0] >= json.length()) {
@@ -258,6 +259,7 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Unexpected character at position " + pos[0] + ": " + c);
     }
 
+    /** 解析Object */
     private static Map<String, Object> parseObject(String json, int[] pos) {
         Map<String, Object> map = new LinkedHashMap<>();
         // 跳过 '{'
@@ -285,6 +287,7 @@ public class PipelineJsonParser {
         return map;
     }
 
+    /** 解析Array */
     private static List<Object> parseArray(String json, int[] pos) {
         List<Object> list = new ArrayList<>();
         // 跳过 '['
@@ -307,6 +310,7 @@ public class PipelineJsonParser {
         return list;
     }
 
+    /** 解析String */
     private static String parseString(String json, int[] pos) {
         skipWhitespace(json, pos);
         if (json.charAt(pos[0]) != '"') {
@@ -342,6 +346,7 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Unterminated string");
     }
 
+    /** 解析Boolean */
     private static Boolean parseBoolean(String json, int[] pos) {
         if (json.startsWith("true", pos[0])) {
             pos[0] += 4;
@@ -353,6 +358,7 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Invalid boolean at position " + pos[0]);
     }
 
+    /** 解析Null */
     private static Object parseNull(String json, int[] pos) {
         if (json.startsWith("null", pos[0])) {
             pos[0] += 4;
@@ -361,6 +367,7 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Invalid null at position " + pos[0]);
     }
 
+    /** 解析Number */
     private static Number parseNumber(String json, int[] pos) {
         int start = pos[0];
         while (pos[0] < json.length()) {
@@ -378,12 +385,14 @@ public class PipelineJsonParser {
         return Long.parseLong(numStr);
     }
 
+    /** 跳过Whitespace */
     private static void skipWhitespace(String json, int[] pos) {
         while (pos[0] < json.length() && Character.isWhitespace(json.charAt(pos[0]))) {
             pos[0]++;
         }
     }
 
+    /** ExpectChar */
     private static void expectChar(String json, int[] pos, char expected) {
         if (pos[0] >= json.length() || json.charAt(pos[0]) != expected) {
             throw new IllegalArgumentException(

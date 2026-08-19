@@ -58,10 +58,25 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
      */
     protected ThreadFlowListener listener;
 
+    /**
+     * 创建 AbstractThreadExecutor 实例
+     * @param strategy strategy
+     * @param int int
+     * @param long long
+     * @param TimeUnit TimeUnit
+     */
     protected AbstractThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
 
+    /**
+     * 创建 AbstractThreadExecutor 实例
+     * @param strategy strategy
+     * @param threshold threshold
+     * @param timeout timeout
+     * @param timeUnit timeUnit
+     * @param maxConcurrent maxConcurrent
+     */
     protected AbstractThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                      int maxConcurrent) {
         this.strategy = strategy;
@@ -73,6 +88,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     }
 
     @Override
+    /** 添加Task */
     public ThreadExecutor<Object> addTask(Runnable runnable) {
         tasks.add(wrapWithConcurrency(wrapWithContext(() -> {
             runnable.run();
@@ -82,18 +98,21 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     }
 
     @Override
+    /** 添加Callable */
     public ThreadExecutor<Object> addCallable(Callable<Object> callable) {
         tasks.add(wrapWithConcurrency(wrapWithContext(callable)));
         return this;
     }
 
     @Override
+    /** Listener */
     public ThreadExecutor<Object> listener(ThreadFlowListener listener) {
         this.listener = listener;
         return this;
     }
 
     @Override
+    /** 执行 */
     public ThreadFlowResult<Object> execute() throws Exception {
         long start = System.currentTimeMillis();
         if (listener != null) {

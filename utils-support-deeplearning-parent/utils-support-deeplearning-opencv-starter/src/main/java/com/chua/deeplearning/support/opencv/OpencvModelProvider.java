@@ -60,12 +60,14 @@ public class OpencvModelProvider implements BulkModelProvider {
     private static final String PROFILE = "models/opencv/haarcascade_profileface.xml";
 
     @Override
+    /** 获取Definition */
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
         return all.isEmpty() ? null : all.get(0);
     }
 
     @Override
+    /** 获取All */
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> list = new ArrayList<>();
         add(list, "opencv-face-detector", FACE, () -> new OpencvFaceDetector(FACE));

@@ -11,16 +11,19 @@ package com.chua.network.support.tshark.restorer;
 public class NtpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "ntp";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 90;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 48) {
             return false;
@@ -31,6 +34,7 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 48) {
             return "[NTP] empty";
@@ -58,6 +62,7 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToModeName */
     private static String toModeName(int mode) {
         return switch (mode) {
             case 0 -> "Reserved";
@@ -72,6 +77,7 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
+    /** ToLeapName */
     private static String toLeapName(int li) {
         return switch (li) {
             case 0 -> "NoWarning";

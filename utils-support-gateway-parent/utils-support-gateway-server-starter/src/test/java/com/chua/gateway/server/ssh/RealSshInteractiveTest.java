@@ -50,6 +50,7 @@ class RealSshInteractiveTest {
     private static GatewayServerBootstrap gateway;
 
     @BeforeAll
+    /** 开始Gateway */
     static void startGateway() throws Exception {
         int candidate = 8181;
         boolean started = false;
@@ -76,6 +77,7 @@ class RealSshInteractiveTest {
     }
 
     @AfterAll
+    /** 停止Gateway */
     static void stopGateway() {
         if (gateway != null) {
             gateway.stop();

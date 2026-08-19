@@ -563,11 +563,13 @@ public class SipServer {
         }
 
         @Override
+        /** OnClientConnected */
         public void onClientConnected(String clientId, Map<String, Object> metadata) {
             log.debug("SIP 客户端连接: {}", clientId);
         }
 
         @Override
+        /** OnClientDisconnected */
         public void onClientDisconnected(String clientId) {
             if (registry.remove(clientId) != null) {
                 notifyDisconnectListeners(clientId);
@@ -576,6 +578,7 @@ public class SipServer {
         }
 
         @Override
+        /** OnMessage */
         public void onMessage(String clientId, String topic, Object message) {
             if (topic != null && topic.startsWith(SipProtocol.TOPIC_PREFIX)) {
                 handleSignal(transport, clientId, topic, message);
@@ -583,6 +586,7 @@ public class SipServer {
         }
 
         @Override
+        /** On记录错误 */
         public void onError(String clientId, Throwable cause) {
             log.debug("SIP 传输异常: {}", cause.getMessage());
         }

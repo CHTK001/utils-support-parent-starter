@@ -78,11 +78,13 @@ class OnXxxAnnotationTest {
         final CountDownLatch errorLatch = new CountDownLatch(1);
 
         @OnOpen
+        /** On打开 */
         public void onOpen() {
             openCount.incrementAndGet();
         }
 
         @OnMessage("onnx/#")
+        /** OnMessage */
         public void onMessage(String payload) {
             messageCount.incrementAndGet();
             messageLatch.countDown();
@@ -93,11 +95,13 @@ class OnXxxAnnotationTest {
         }
 
         @OnClose
+        /** On关闭 */
         public void onClose() {
             closeCount.incrementAndGet();
         }
 
         @OnError
+        /** On记录错误 */
         public void onError(Throwable throwable) {
             errorCount.incrementAndGet();
             errorLatch.countDown();

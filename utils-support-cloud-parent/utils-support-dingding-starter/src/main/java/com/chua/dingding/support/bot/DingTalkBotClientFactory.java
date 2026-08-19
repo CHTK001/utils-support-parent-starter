@@ -18,12 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 public class DingTalkBotClientFactory implements BotClient.Factory {
 
     @Override
+    /** 创建 */
     public BotClient create() {
         log.debug("Creating DingTalk Bot client");
         return new DingTalkBotClient();
     }
 
     @Override
+    /** Builder */
     public BotClient.Builder builder() {
         log.debug("Creating DingTalk Bot client builder");
         return new DingTalkBuilder();
@@ -66,30 +68,51 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
+        /** Token */
         public BotClient.Builder token(String token) {
             this.token = token;
             return this;
         }
 
         @Override
+        /** Secret */
         public BotClient.Builder secret(String secret) {
             this.secret = secret;
             return this;
         }
 
         @Override
+        /**
+         * EncodingAesKey
+         * @param encodingAesKey encodingAesKey
+         * @param baseUrl baseUrl
+         * @param connectTimeoutMillis connectTimeoutMillis
+         * @param readTimeoutMillis readTimeoutMillis
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param token token
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             return this;
         }
 
         @Override
+        /** BaseUrl */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
         @Override
+        /**
+         * 连接TimeoutMillis
+         * @param connectTimeoutMillis connectTimeoutMillis
+         * @param readTimeoutMillis readTimeoutMillis
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param token token
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
@@ -97,6 +120,13 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /**
+         * 读取TimeoutMillis
+         * @param readTimeoutMillis readTimeoutMillis
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param token token
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -104,6 +134,12 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /**
+         * Config保存OrLoader
+         * @param configSaveOrLoader configSaveOrLoader
+         * @param token token
+         * @param baseUrl baseUrl
+         */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             this.configSaveOrLoader = configSaveOrLoader;
@@ -111,6 +147,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         }
 
         @Override
+        /** 构建 */
         public BotClient build() {
             DingTalkBotClient client = new DingTalkBotClient();
             if (token != null) {

@@ -73,6 +73,7 @@ public class JitterBackoffProvider implements BackoffProvider {
     }
 
     @Override
+    /** NextDelay */
     public long nextDelay(int attempt) {
         long base = (long) (initialDelay * Math.pow(multiplier, attempt));
         long capped = Math.min(base, maxDelay);

@@ -54,15 +54,21 @@ public class PanSouResourceProvider extends AbstractResourceProvider {
     /** 磁力链接匹配正则 */
     private static final Pattern MAGNET_PATTERN = Pattern.compile("(magnet:\\?xt=urn:[a-z0-9]+:[a-z0-9]{32,40})");
 
+    /** 创建 PanSouResourceProvider 实例 */
     public PanSouResourceProvider() {
         super();
     }
 
+    /**
+     * 创建 PanSouResourceProvider 实例
+     * @param videoSource videoSource
+     */
     public PanSouResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
     @Override
+    /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
@@ -270,6 +276,7 @@ public class PanSouResourceProvider extends AbstractResourceProvider {
         return videoInfo;
     }
 
+    /** 创建DownloadList */
     private List<VideoDownload> createDownloadList(PanResource panResource) {
         List<VideoDownload> downloadList = new ArrayList<>();
 

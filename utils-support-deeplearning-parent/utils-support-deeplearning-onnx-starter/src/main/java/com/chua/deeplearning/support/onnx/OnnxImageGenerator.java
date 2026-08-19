@@ -20,15 +20,21 @@ public class OnnxImageGenerator implements ImageGenerator {
      */
     private String modelName;
 
+    /**
+     * 创建 OnnxImageGenerator 实例
+     * @param apiKey apiKey
+     */
     public OnnxImageGenerator(String apiKey) {
     }
 
     @Override
+    /** Model */
     public ImageGenerator model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + ImageGenerator.listModels());
@@ -37,6 +43,7 @@ public class OnnxImageGenerator implements ImageGenerator {
     }
 
     @Override
+    /** Generate */
     public byte[] generate(long classId) {
         return ImageGenerator.create(resolveModel()).generate(classId);
     }

@@ -127,5 +127,6 @@ public interface KnowledgeClient extends AutoCloseable {
     List<QueryResult> search(float[] vector, int topK);
 
     @Override
+    /** 关闭 */
     default void close() {}
 }

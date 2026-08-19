@@ -46,45 +46,59 @@ public abstract class AbstractMetaData implements MetaData {
     }
 
     @Override
+    /** Table */
     public abstract MetaTable table();
 
     @Override
+    /** Table */
     public abstract MetaTable table(String tableName);
 
     @Override
+    /** View */
     public abstract MetaView view();
 
     @Override
+    /** View */
     public abstract MetaView view(String viewName);
 
     @Override
+    /** Index */
     public abstract MetaIndex index();
 
     @Override
+    /** Index */
     public abstract MetaIndex index(String indexName);
 
     @Override
+    /** Trigger */
     public abstract MetaTrigger trigger();
 
     @Override
+    /** Trigger */
     public abstract MetaTrigger trigger(String triggerName);
 
     @Override
+    /** Procedure */
     public abstract MetaProcedure procedure();
 
     @Override
+    /** Procedure */
     public abstract MetaProcedure procedure(String procedureName);
 
     @Override
+    /** Fk */
     public abstract MetaForeignKey fk();
 
     @Override
+    /** Fk */
     public abstract MetaForeignKey fk(String fkName);
 
     @Override
+    /** 搜索 */
     public abstract MetaSearch search();
 
     @Override
+    /** 搜索 */
     public abstract MetaSearch search(String indexName);
 
     /**

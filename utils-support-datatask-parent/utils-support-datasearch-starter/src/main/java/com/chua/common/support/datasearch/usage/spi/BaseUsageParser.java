@@ -33,6 +33,7 @@ public abstract class BaseUsageParser implements UsageParser {
     public abstract List<AiUsage> parseAll();
 
     @Override
+    /** 解析Daily */
     public List<AiUsage> parseDaily() {
         List<AiUsage> all = parseAll();
         if (all.isEmpty()) {
@@ -41,6 +42,7 @@ public abstract class BaseUsageParser implements UsageParser {
         return aggregateByDay(all);
     }
 
+    /** AggregateByDay */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {
         Map<String, DayAggregator> dayMap = new LinkedHashMap<>();
         for (AiUsage usage : records) {
@@ -54,6 +56,7 @@ public abstract class BaseUsageParser implements UsageParser {
         return result;
     }
 
+    /** ToDay */
     private String toDay(Long millis) {
         if (millis == null) {
             return "";
@@ -121,6 +124,7 @@ public abstract class BaseUsageParser implements UsageParser {
                     .build();
         }
 
+        /** ToMillis */
         private long toMillis(String d) {
             try {
                 return LocalDate.parse(d, DAY_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();

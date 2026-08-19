@@ -100,16 +100,19 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** Artifact */
     public RuntimeArtifact artifact() {
         return artifact;
     }
 
     @Override
+    /** Status */
     public RuntimeStatus status() {
         return status.get();
     }
 
     @Override
+    /** Pid */
     public long pid() {
         Process process = processRef.get();
         if (process != null && process.isAlive()) {
@@ -119,6 +122,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** 开始 */
     public synchronized CmdResult start() {
         if (status.get() == RuntimeStatus.RUNNING) {
             log.warn("[runtime] 工件[{}] 已在运行中，跳过启动", artifact.getId());
@@ -217,6 +221,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** 停止 */
     public synchronized CmdResult stop() {
         Process process = processRef.get();
         if (process == null || !process.isAlive()) {
@@ -269,6 +274,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** Restart */
     public synchronized CmdResult restart() {
         log.info("[runtime] 正在重启工件[{}]: {}", artifact.getId(), artifact.getName());
         CmdResult stopResult = stop();
@@ -279,6 +285,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** Health校验 */
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String command = artifact.getHealthCheckCommand();
@@ -301,16 +308,19 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
+    /** 记录日志Stream */
     public LogStream logStream() {
         return logStream;
     }
 
     @Override
+    /** OnExit */
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         stop();
         logStream.close();

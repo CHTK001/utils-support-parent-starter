@@ -72,6 +72,7 @@ public class KcpScatterNodeServer implements ScatterNodeServer {
         if (syncServer != null) {
             syncServer.addListener(new SyncServerListener() {
                 @Override
+                /** OnMessage */
                 public void onMessage(String clientId, String messageTopic, Object message) {
                     if (topic == null || topic.equals(messageTopic)) {
                         handler.handle(topic != null ? topic : messageTopic, message);

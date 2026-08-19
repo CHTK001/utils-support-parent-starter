@@ -167,6 +167,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      */
     private int lengthIncludesHeaderCount = 1;
 
+    /**
+     * 创建 JdkTcpServer 实例
+     * @param setting setting
+     */
     public JdkTcpServer(ServerSetting setting) {
         super(setting);
     }
@@ -239,12 +243,14 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
+    /** 设置Handler */
     public JdkTcpServer setHandler(TcpServerHandler handler) {
         this.frameHandler = handler;
         return this;
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -295,6 +301,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         running = false;
         try {
@@ -327,6 +334,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
@@ -391,6 +399,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
+    /** DoAccept */
     private void doAccept(SelectionKey key) throws IOException {
         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
         if (sc == null) {
@@ -417,6 +426,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
+    /** Do读取 */
     private void doRead(SelectionKey key) throws IOException {
         SocketChannel sc = (SocketChannel) key.channel();
         Attachment att = (Attachment) key.attachment();
@@ -427,6 +437,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
+    /** 读取Frame */
     private boolean readFrame(SocketChannel sc, Attachment att) throws IOException {
         if (att.state == State.HEADER) {
             // 只在起始位置清空 header，避免半包场景下把已读字节清掉导致数据丢失
@@ -458,10 +469,12 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         return !att.bodyBuf.hasRemaining();
     }
 
+    /** KeyFor */
     private SelectionKey keyFor(SocketChannel sc, Attachment att) {
         return sc.keyFor(att.ioSelector);
     }
 
+    /** 处理Request */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
         try {
             byte[] respData = frameHandler.handle(reqData);
@@ -502,6 +515,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
+    /** 关闭Channel */
     private void closeChannel(SelectionKey key) {
         if (key != null) {
             try {
@@ -512,6 +526,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
+    /** 处理Connection */
     private void handleConnection(Socket socket) {
         String clientKey = socket.getRemoteSocketAddress().toString();
         log.debug("TCP 连接: {}", clientKey);
@@ -545,6 +560,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
+    /** 查找Handler */
     private TcpHandler findHandler(String clientKey) {
         TcpHandler handler = handlers.get(clientKey);
         if (handler != null) {

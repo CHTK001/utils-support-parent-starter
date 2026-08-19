@@ -195,6 +195,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         return new NDList(array);
     }
 
+    /** ToNormalizedChw */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {
@@ -521,10 +522,12 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         return Batchifier.STACK;
     }
 
+    /** MaterializeArray */
     protected NDArray materializeArray(TranslatorContext ctx, NDArray array) {
         return ctx.getNDManager().create(array.toFloatArray(), array.getShape());
     }
 
+    /** Transposed */
     protected NDArray transpose2d(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 2) {
@@ -546,6 +549,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         return ctx.getNDManager().create(transposed, new Shape(cols, rows));
     }
 
+    /** 读取MatrixValue */
     protected float readMatrixValue(float[] data, int rows, int cols, boolean transposedView, long row, long col) {
         int rowIndex = Math.toIntExact(row);
         int colIndex = Math.toIntExact(col);
@@ -554,6 +558,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
                 : data[rowIndex * cols + colIndex];
     }
 
+    /** 解析ClassName */
     private String resolveClassName(int classId, long numFeatures, int classStartIndex) {
         if (classId >= 0 && classId < classes.size()) {
             return classes.get(classId);

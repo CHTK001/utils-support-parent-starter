@@ -23,6 +23,7 @@ public final class MatcherUtils {
     /** Path_matcher */
     private static final PathMatcher PATH_MATCHER = new AntPathMatcher();
 
+    /** 创建 MatcherUtils 实例 */
     private MatcherUtils() {
     }
 

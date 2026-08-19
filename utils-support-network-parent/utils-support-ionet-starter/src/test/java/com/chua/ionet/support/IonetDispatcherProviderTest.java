@@ -50,6 +50,7 @@ class IonetDispatcherProviderTest {
         final CountDownLatch userLatch = new CountDownLatch(1);
 
         @Subscribe(topic = "order/created")
+        /** OnOrderCreated */
         public void onOrderCreated(String message) {
             System.err.println("[DiagSubscriber] onOrderCreated called: " + message);
             orderCount.incrementAndGet();
@@ -57,6 +58,7 @@ class IonetDispatcherProviderTest {
         }
 
         @Subscribe(topic = "user/login")
+        /** OnUserLogin */
         public void onUserLogin(String message) {
             System.err.println("[DiagSubscriber] onUserLogin called: " + message);
             userCount.incrementAndGet();

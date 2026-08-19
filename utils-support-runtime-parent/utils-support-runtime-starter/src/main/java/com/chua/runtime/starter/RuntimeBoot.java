@@ -78,6 +78,10 @@ public class RuntimeBoot {
      */
     private boolean running;
 
+    /**
+     * 创建 RuntimeBoot 实例
+     * @param config config
+     */
     private RuntimeBoot(BootConfig config) {
         this.config = config;
         this.manager = new DefaultRuntimeManager();
@@ -191,11 +195,13 @@ public class RuntimeBoot {
             LOG.log(Level.INFO, String.format("工件[%s] 已注册，下载中...", id));
             manager.download(id, new LineCallback() {
                 @Override
+                /** OnLine */
                 public void onLine(String line) {
                     LOG.log(Level.INFO, String.valueOf(line));
                 }
 
                 @Override
+                /** On记录错误 */
                 public void onError(String key, Throwable e) {
                     LOG.log(Level.SEVERE, String.format("下载失败: \" + ke", e));
                 }

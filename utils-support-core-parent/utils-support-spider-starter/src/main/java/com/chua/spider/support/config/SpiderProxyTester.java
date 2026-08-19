@@ -134,11 +134,13 @@ public class SpiderProxyTester {
         }
 
         @Override
+        /** 选择 */
         public List<Proxy> select(URI uri) {
             return java.util.Collections.singletonList(proxy);
         }
 
         @Override
+        /** 连接Failed */
         public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
             // no-op
         }

@@ -17,6 +17,7 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 public class LoggingServerFilter implements ServerFilter {
 
     @Override
+    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         long startTime = System.currentTimeMillis();
         String method = request.getMethod() != null ? request.getMethod().name() : "UNKNOWN";
@@ -33,11 +34,13 @@ public class LoggingServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 0;
     }
 
     @Override
+    /** 获取过滤Id */
     public String getFilterId() {
         return "LoggingServerFilter";
     }

@@ -77,10 +77,15 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     /** Candidates */
     private List<String> candidates = DEFAULT_CANDIDATES;
 
+    /** 创建 CnClipZeroShotClassificationTranslator 实例 */
     public CnClipZeroShotClassificationTranslator() {
         this(Collections.emptyMap());
     }
 
+    /**
+     * 创建 CnClipZeroShotClassificationTranslator 实例
+     * @param arguments arguments
+     */
     public CnClipZeroShotClassificationTranslator(Map<String, ?> arguments) {
         String rawCandidates = readArgument(arguments, "candidates");
         this.requestedCandidates = parseCandidates(rawCandidates);
@@ -89,6 +94,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
+    /** Prepare */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokPath = resolveFirstExisting(modelRoot,
@@ -101,6 +107,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -126,6 +133,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
+    /** 处理Output */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         float[] imageVec = normalize(imageEmbeds.squeeze().toFloatArray());
@@ -167,10 +175,12 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }
 
+    /** Normalize */
     private static float[] normalize(float[] vec) {
         float norm = 0f;
         for (float v : vec) {
@@ -187,6 +197,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return out;
     }
 
+    /** CosineSimilarity */
     private static float cosineSimilarity(float[] a, float[] b) {
         float dot = 0f;
         int len = Math.min(a.length, b.length);
@@ -196,6 +207,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return dot;
     }
 
+    /** Truncate */
     private static long[] truncate(long[] ids, int maxLen) {
         if (ids.length <= maxLen) {
             return ids;
@@ -205,6 +217,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return out;
     }
 
+    /** 解析ModelRoot */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -213,6 +226,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return parent != null ? parent : Paths.get("models/onnx");
     }
 
+    /** 解析FirstExisting */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -223,6 +237,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         throw new IOException("找不到必需文件，尝试: " + Arrays.toString(names) + "，根目录: " + modelRoot);
     }
 
+    /** 解析Candidates */
     private static List<String> parseCandidates(@Nullable String raw) {
         if (raw == null || raw.isBlank()) {
             return Collections.emptyList();
@@ -237,6 +252,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return list;
     }
 
+    /** 读取Argument */
     private static String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null) {
             return null;

@@ -59,6 +59,7 @@ public class SpyBootstrap {
      */
     private static volatile boolean initialized;
 
+    /** 创建 SpyBootstrap 实例 */
     private SpyBootstrap() {
     }
 

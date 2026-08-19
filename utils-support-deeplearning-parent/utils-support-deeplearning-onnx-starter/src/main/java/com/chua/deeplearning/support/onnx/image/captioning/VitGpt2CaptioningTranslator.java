@@ -212,11 +212,13 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     @Override
+    /** Name */
     public String name() {
         return NAME;
     }
 
     @Override
+    /** Translate */
     public String translate(byte[] input) {
         return caption(input, null);
     }

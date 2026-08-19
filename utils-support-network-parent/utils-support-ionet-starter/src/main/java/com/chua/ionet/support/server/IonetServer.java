@@ -61,6 +61,10 @@ public class IonetServer extends AbstractServer {
     /** RunOne 实例 */
     private RunOne runOne;
 
+    /**
+     * 创建 IonetServer 实例
+     * @param builder builder
+     */
     private IonetServer(Builder builder) {
         // 由 joinType 映射底层协议，构造期即可用（AbstractServer 构造会调用 getProtocolType()）
         super(ServerSetting.builder()
@@ -132,6 +136,7 @@ public class IonetServer extends AbstractServer {
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         Locale.setDefault(Locale.CHINA);
 
@@ -171,6 +176,7 @@ public class IonetServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (runOne != null) {
             // RunOne 未暴露 stop API，通过关闭钩子释放；此处仅置空引用
@@ -180,11 +186,13 @@ public class IonetServer extends AbstractServer {
     }
 
     @Override
+    /** 获取Protocol */
     public String getProtocol() {
         return getProtocolType().name().toLowerCase();
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         // 基于构造传入的 setting（AbstractServer 构造期调用本方法时 setting 已赋值）
         return switch (setting.getProtocol()) {
@@ -216,6 +224,7 @@ public class IonetServer extends AbstractServer {
     private final class IonetFilterInOut implements ActionMethodInOut {
 
         @Override
+        /** FuckIn */
         public void fuckIn(FlowContext flowContext) {
             long userId = flowContext.getUserId();
             int cmdMerge = flowContext.getCmdMerge();
@@ -237,6 +246,7 @@ public class IonetServer extends AbstractServer {
         }
 
         @Override
+        /** FuckOut */
         public void fuckOut(FlowContext flowContext) {
             // 响应阶段无额外处理
         }
@@ -267,41 +277,49 @@ public class IonetServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Headers */
         public HttpHeader getHeaders() {
             return HttpHeader.create();
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
+        /** 获取Uri */
         public String getUri() {
             return path;
         }
 
         @Override
+        /** 获取Path */
         public String getPath() {
             return path;
         }
 
         @Override
+        /** 获取Method */
         public HttpMethod getMethod() {
             return HttpMethod.POST;
         }
 
         @Override
+        /** 获取RemoteAddress */
         public String getRemoteAddress() {
             return remoteAddress;
         }
 
         @Override
+        /** 获取RemotePort */
         public int getRemotePort() {
             return 0;
         }
 
         @Override
+        /** 读取Body */
         protected byte[] readBody() {
             return payload;
         }
@@ -313,11 +331,13 @@ public class IonetServer extends AbstractServer {
     private static final class IonetServerResponse extends AbstractServerResponse {
 
         @Override
+        /** 获取OutputStream */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
+        /** 写入Raw */
         public void writeRaw(byte[] bytes) {
             // ionet 响应由 Action 返回值承载，忽略原始写回
         }
@@ -325,6 +345,7 @@ public class IonetServer extends AbstractServer {
 
     // ========== Builder ==========
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -363,15 +384,24 @@ public class IonetServer extends AbstractServer {
          */
         private Consumer<RunOne> runOneConfigurer;
 
+        /** Port */
         public Builder port(int port) { this.port = port; return this; }
+        /** 合并Type */
         public Builder joinType(ExternalJoinEnum joinType) { this.joinType = joinType; return this; }
+        /** LogicServerName */
         public Builder logicServerName(String name) { this.logicServerName = name; return this; }
+        /** 扫描ActionPackage */
         public Builder scanActionPackage(Class<?> scanClass) { this.scanActionClass = scanClass; return this; }
+        /** 启用CenterServer */
         public Builder enableCenterServer(boolean enable) { this.enableCenterServer = enable; return this; }
+        /** 调试Mode */
         public Builder debugMode(boolean debug) { this.debugMode = debug; return this; }
+        /** SkeletonConfigurer */
         public Builder skeletonConfigurer(Consumer<BarSkeletonBuilder> configurer) { this.skeletonConfigurer = configurer; return this; }
+        /** 运行OneConfigurer */
         public Builder runOneConfigurer(Consumer<RunOne> configurer) { this.runOneConfigurer = configurer; return this; }
 
+        /** 构建 */
         public IonetServer build() {
             if (scanActionClass == null) {
                 throw new IllegalArgumentException("scanActionPackage is required: call .scanActionPackage(YourAction.class)");

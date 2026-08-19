@@ -64,6 +64,10 @@ public class IonetClient {
      */
     private final Consumer<ClientRunOne> configurer;
 
+    /**
+     * 创建 IonetClient 实例
+     * @param builder builder
+     */
     private IonetClient(Builder builder) {
         this.host = builder.host;
         this.port = builder.port;
@@ -106,6 +110,7 @@ public class IonetClient {
 
     // ========== Builder ==========
 
+    /** Builder */
     public static Builder builder() {
         return new Builder();
     }
@@ -144,17 +149,28 @@ public class IonetClient {
          */
         private Consumer<ClientRunOne> configurer;
 
+        /** Host */
         public Builder host(String host) { this.host = host; return this; }
+        /** Port */
         public Builder port(int port) { this.port = port; return this; }
+        /** 合并Type */
         public Builder joinType(ExternalJoinEnum joinType) { this.joinType = joinType; return this; }
+        /** 添加Region */
         public Builder addRegion(InputCommandRegion region) { this.regions.add(region); return this; }
+        /** Regions */
         public Builder regions(List<InputCommandRegion> regions) { this.regions.addAll(regions); return this; }
+        /** ClientUser */
         public Builder clientUser(ClientUser clientUser) { this.clientUser = clientUser; return this; }
+        /** UserId */
         public Builder userId(long userId) { this.clientUser = new DefaultClientUser(); this.clientUser.setJwt(String.valueOf(userId)); return this; }
+        /** 关闭记录日志 */
         public Builder closeLog(boolean close) { this.closeLog = close; return this; }
+        /** 关闭Scanner */
         public Builder closeScanner(boolean close) { this.closeScanner = close; return this; }
+        /** Configurer */
         public Builder configurer(Consumer<ClientRunOne> configurer) { this.configurer = configurer; return this; }
 
+        /** 构建 */
         public IonetClient build() {
             if (regions.isEmpty()) {
                 throw new IllegalArgumentException("At least one InputCommandRegion is required: call .addRegion(region)");

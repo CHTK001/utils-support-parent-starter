@@ -30,11 +30,13 @@ public final class RdpProtocolServerFactory implements ProtocolServerFactory {
     private static final String PROTOCOL_RDP = "rdp";
 
     @Override
+    /** Protocol */
     public String protocol() {
         return PROTOCOL_RDP;
     }
 
     @Override
+    /** 创建Tunnel */
     public GatewayTunnel createTunnel(Connection connection, String tunnelId) throws Exception {
         String host = GatewayProperties.guacdHost();
         int port = GatewayProperties.guacdPort();

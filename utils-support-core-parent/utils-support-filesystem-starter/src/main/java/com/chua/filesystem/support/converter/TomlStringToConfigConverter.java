@@ -22,6 +22,7 @@ import java.util.Map;
 public class TomlStringToConfigConverter implements StringToConfigConverter {
 
     @Override
+    /** 转换 */
     public Map<String, Object> convert(String value) {
         try {
             // 使用 Jackson 的 TomlFactory 解析 TOML

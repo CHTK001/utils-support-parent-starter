@@ -27,6 +27,7 @@ public class ProgressiveEmptinessBackgroundResolver implements BackgroundResolve
 
 
     @Override
+    /** 解析 */
     public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix) {
         Color fromColor = Converter.convertIfNecessary(backgroundSetting.getFromColor(), Color.class);
         if (null == fromColor) {

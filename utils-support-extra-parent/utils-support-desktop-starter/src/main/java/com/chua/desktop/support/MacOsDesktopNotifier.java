@@ -5,6 +5,7 @@ package com.chua.desktop.support;
 
 public class MacOsDesktopNotifier implements NativeDesktopNotifier {
     @Override
+    /** 通知 */
     public void notify(String title, String content, String icon) throws Exception {
         String script = String.format("display notification \"%s\" with title \"%s\"",
             content.replace("\\", "\\\\").replace("\"", "\\\""),

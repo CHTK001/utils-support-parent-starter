@@ -12,6 +12,7 @@ public class RegexUtils {
     /** Number_pattern */
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
+    /** 获取FirstNumber */
     public static Integer getFirstNumber(String text) {
         if (text == null || text.isEmpty()) {
             return null;

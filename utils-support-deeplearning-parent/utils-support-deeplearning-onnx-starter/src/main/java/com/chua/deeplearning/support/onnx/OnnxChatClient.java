@@ -39,6 +39,7 @@ public class OnnxChatClient extends AbstractLocalChatClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, String.class);
     }

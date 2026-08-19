@@ -32,12 +32,14 @@ public class DefaultConfigValueExpressionResolver implements ConfigValueExpressi
     private static final String SEPARATOR = ":";
 
     @Override
+    /** 是否Support */
     public boolean isSupport(String expression) {
         return expression != null && expression.startsWith(PREFIX) && expression.endsWith(SUFFIX);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 解析 */
     public <T> T resolve(String expression, Class<T> targetType, Environment environment) {
         if (expression == null || environment == null) {
             return null;

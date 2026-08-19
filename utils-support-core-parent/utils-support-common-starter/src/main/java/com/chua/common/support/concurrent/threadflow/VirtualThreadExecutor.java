@@ -23,10 +23,25 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
      */
     private final ExecutorService executor;
 
+    /**
+     * 创建 VirtualThreadExecutor 实例
+     * @param strategy strategy
+     * @param int int
+     * @param long long
+     * @param TimeUnit TimeUnit
+     */
     public VirtualThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
 
+    /**
+     * 创建 VirtualThreadExecutor 实例
+     * @param strategy strategy
+     * @param threshold threshold
+     * @param timeout timeout
+     * @param timeUnit timeUnit
+     * @param maxConcurrent maxConcurrent
+     */
     public VirtualThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                  int maxConcurrent) {
         super(strategy, threshold, timeout, timeUnit, maxConcurrent);
@@ -34,6 +49,7 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
+    /** 提交Tasks */
     protected List<Future<Object>> submitTasks() {
         List<Future<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -43,6 +59,7 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         executor.shutdownNow();
     }

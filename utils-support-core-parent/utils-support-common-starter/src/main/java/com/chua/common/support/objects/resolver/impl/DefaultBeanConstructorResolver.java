@@ -20,6 +20,15 @@ import java.util.function.Function;
 public class DefaultBeanConstructorResolver implements BeanConstructorResolver {
 
     @Override
+    /**
+     * 解析
+     * @param paramType paramType
+     * @param paramName paramName
+     * @param annotations annotations
+     * @param typeProvider typeProvider
+     * @param nameProvider nameProvider
+     * @param beanDefinition beanDefinition
+     */
     public Object resolve(Class<?> paramType, String paramName, Annotation[] annotations,
                           Function<Class<?>, Object> typeProvider,
                           Function<String, Object> nameProvider,

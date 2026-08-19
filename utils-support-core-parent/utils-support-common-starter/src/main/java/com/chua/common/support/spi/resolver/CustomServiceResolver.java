@@ -207,6 +207,7 @@ public class CustomServiceResolver implements ServiceResolver {
     }
 
     @Override
+    /** 解析 */
     public List<ServiceDefinition> resolve(Class<?> type, ClassLoader classLoader) {
         if (ClassUtils.isJavaType(type)) {
             return Collections.emptyList();

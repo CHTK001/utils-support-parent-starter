@@ -17,9 +17,11 @@ import java.nio.file.Path;
  */
 public final class TextBsrExample {
 
+    /** 创建 TextBsrExample 实例 */
     private TextBsrExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\很不清楚的文字图片用于测试文字高清修复模型.png";
         int scale = args.length > 1 ? Integer.parseInt(args[1]) : 2;

@@ -65,6 +65,7 @@ public class ShellSession implements Runnable {
     }
 
     @Override
+    /** 运行 */
     public void run() {
         try (Socket s = socket;
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

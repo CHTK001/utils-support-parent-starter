@@ -23,6 +23,7 @@ import java.util.Map;
 public class NativeFileStorageFileSetting implements FileStorageFileSetting {
 
     @Override
+    /** Capabilities */
     public List<String> capabilities() {
         if (!RustFileStorageBridge.isInitialized()) {
             log.debug("[NativeFileStorageFileSetting] Rust 库未初始化，降级 JDK");
@@ -32,6 +33,7 @@ public class NativeFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     @Override
+    /** 解析 */
     public FileOperationSetting parse(ServerRequest request) {
         if (!RustFileStorageBridge.isInitialized()) {
             log.debug("[NativeFileStorageFileSetting] Rust 库未初始化，降级 JDK 解析");
@@ -43,6 +45,7 @@ public class NativeFileStorageFileSetting implements FileStorageFileSetting {
         return RustFileStorageBridge.nativeParseParams(json);
     }
 
+    /** ParamsToJson */
     private String paramsToJson(Map<String, String> params) {
         if (params == null || params.isEmpty()) return "{}";
         StringBuilder sb = new StringBuilder("{");

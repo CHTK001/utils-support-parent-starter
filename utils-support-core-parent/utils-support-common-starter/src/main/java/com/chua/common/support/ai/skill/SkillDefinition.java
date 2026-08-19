@@ -34,6 +34,14 @@ public class SkillDefinition {
     /** 技能处理器 */
     private final SkillHandler handler;
 
+    /**
+     * 创建 SkillDefinition 实例
+     * @param name name
+     * @param String String
+     * @param List List
+     * @param arguments arguments
+     * @param SkillHandler SkillHandler
+     */
     public SkillDefinition(String name, String description, List<SkillArgumentSchema> arguments, SkillHandler handler) {
         this.name = name;
         this.description = description;
@@ -41,18 +49,22 @@ public class SkillDefinition {
         this.handler = handler;
     }
 
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
+    /** 获取Description */
     public String getDescription() {
         return description;
     }
 
+    /** 获取Arguments */
     public List<SkillArgumentSchema> getArguments() {
         return arguments;
     }
 
+    /** 获取Handler */
     public SkillHandler getHandler() {
         return handler;
     }

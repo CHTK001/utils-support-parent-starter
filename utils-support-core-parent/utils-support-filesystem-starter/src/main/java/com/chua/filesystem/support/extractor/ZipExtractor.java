@@ -33,11 +33,13 @@ public class ZipExtractor implements Extractor {
     private static final int BUFFER_SIZE = 8192;
 
     @Override
+    /** SupportedExtensions */
     public String[] supportedExtensions() {
         return new String[]{".zip"};
     }
 
     @Override
+    /** Extract */
     public boolean extract(File sourceFile, File targetDir) {
         return extract(sourceFile, targetDir, null);
     }

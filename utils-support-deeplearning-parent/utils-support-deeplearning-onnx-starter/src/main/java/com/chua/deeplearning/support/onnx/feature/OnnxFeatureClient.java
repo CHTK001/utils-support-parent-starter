@@ -25,17 +25,23 @@ public class OnnxFeatureClient implements FeatureClient {
     /** Resolved模型ID */
     private String resolvedModelId;
 
+    /**
+     * 创建 OnnxFeatureClient 实例
+     * @param setting setting
+     */
     public OnnxFeatureClient(FeatureClientSetting setting) {
         this.setting = setting;
     }
 
     @Override
+    /** Model */
     public FeatureClient model(String model) {
         setting.setModel(model);
         translator = null;
         return this;
     }
 
+    /** 获取Translator */
     private synchronized ITranslator<Object, Object> getTranslator() throws Exception {
         if (translator == null) {
             String modelId = setting.getModel();
@@ -50,11 +56,13 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
+    /** Extract */
     public float[] extract(String text) {
         throw new UnsupportedOperationException("文本特征提取请使用 EmbeddingClient");
     }
 
     @Override
+    /** ExtractImage */
     public float[] extractImage(byte[] imageData) {
         try {
             BufferedImage img = ImageUtils.toBufferedImage(imageData);
@@ -68,6 +76,7 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (translator != null) {
             try { ((AutoCloseable) translator).close(); } catch (Exception ignore) {}

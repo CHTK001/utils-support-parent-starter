@@ -8,6 +8,7 @@ package com.chua.deeplearning.support.pytorch.biggan;
  */
 public class BigGAN512Translator extends BigGANTranslator {
 
+    /** 创建 BigGAN512Translator 实例 */
     public BigGAN512Translator() {
         super(512, 0.4f);
     }

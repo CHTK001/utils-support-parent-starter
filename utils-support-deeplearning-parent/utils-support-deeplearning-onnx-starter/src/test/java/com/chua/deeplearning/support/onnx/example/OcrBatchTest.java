@@ -40,9 +40,11 @@ public final class OcrBatchTest {
             "很不清楚的文字图片用于测试文字高清修复模型2.png"
     );
 
+    /** 创建 OcrBatchTest 实例 */
     private OcrBatchTest() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String dir = "G:\\images";
         String outDir = "G:\\images\\output\\paddleocrv6-medium";
@@ -112,6 +114,7 @@ public final class OcrBatchTest {
         System.out.printf("[ocr-batch] 总计=%d  识别成功=%d  失败/跳过=%d  输出目录=%s%n", total, pass, fail, outDir);
     }
 
+    /** ReplaceExt */
     private static String replaceExt(String name) {
         int dot = name.lastIndexOf('.');
         return (dot > 0 ? name.substring(0, dot) : name) + ".png";

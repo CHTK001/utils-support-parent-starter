@@ -24,31 +24,37 @@ public class SpringCloudStreamHandler extends AbstractAppHandler {
     private static final String[] SEND_METHODS = {"send"};
 
     @Override
+    /** Name */
     public String name() {
         return "spring-cloud-stream-handler";
     }
 
     @Override
+    /** EnabledKey */
     protected String enabledKey() {
         return "spring-cloud-stream.enabled";
     }
 
     @Override
+    /** Software */
     protected Software software() {
         return Software.SPRING_CLOUD_STREAM;
     }
 
     @Override
+    /** Protocol */
     protected Protocol protocol() {
         return Protocol.MESSAGE;
     }
 
     @Override
+    /** 注册Interceptors */
     protected void registerInterceptors() {
         registerAll(MESSAGE_CHANNEL, SEND_METHODS);
     }
 
     @Override
+    /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

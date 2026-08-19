@@ -235,6 +235,7 @@ public class RedisEngine {
         }
     }
 
+    /** ToCamelCase */
     private String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;
@@ -254,6 +255,7 @@ public class RedisEngine {
         return sb.toString();
     }
 
+    /** 转换Value */
     private Object convertValue(String value, Class<?> targetType) {
         if (value == null) {
             return null;

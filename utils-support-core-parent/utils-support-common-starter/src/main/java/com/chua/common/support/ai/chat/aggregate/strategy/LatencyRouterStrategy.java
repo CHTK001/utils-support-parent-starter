@@ -41,6 +41,7 @@ public class LatencyRouterStrategy implements RouterStrategy {
     private static final String EMPTY_TEXT = "";
 
     @Override
+    /** 选择 */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

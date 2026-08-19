@@ -31,19 +31,23 @@ public class StorageConfig {
     /** 配置项 map */
     private Map<String, String> properties = new HashMap<>();
 
+    /** Put */
     public StorageConfig put(String key, String value) {
         properties.put(key, value);
         return this;
     }
 
+    /** 获取 */
     public String get(String key) {
         return properties.get(key);
     }
 
+    /** 获取 */
     public String get(String key, String defaultValue) {
         return properties.getOrDefault(key, defaultValue);
     }
 
+    /** 获取Long */
     public long getLong(String key, long defaultValue) {
         String v = properties.get(key);
         if (v == null || v.isEmpty()) {
@@ -56,6 +60,7 @@ public class StorageConfig {
         }
     }
 
+    /** 获取Int */
     public int getInt(String key, int defaultValue) {
         return (int) getLong(key, defaultValue);
     }

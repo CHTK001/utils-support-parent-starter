@@ -33,9 +33,11 @@ public final class OnnxFaceRestorationExample {
      */
     private static final String OUT_DIR = "G:\\images\\output";
 
+    /** 创建 OnnxFaceRestorationExample 实例 */
     private OnnxFaceRestorationExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\三个人.jpg";
         byte[] img = Files.readAllBytes(Path.of(imagePath));

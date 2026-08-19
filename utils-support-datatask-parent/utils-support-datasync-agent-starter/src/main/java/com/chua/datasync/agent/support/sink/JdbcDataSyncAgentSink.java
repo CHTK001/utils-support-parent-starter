@@ -45,10 +45,31 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     /** 是否已初始化 */
     private volatile boolean initialized = false;
 
+    /**
+     * 创建 JdbcDataSyncAgentSink 实例
+     * @param sinkId sinkId
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param columnNames columnNames
+     */
     public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this(sinkId, jdbcUrl, username, password, sql, 100, columnNames);
     }
 
+    /**
+     * 创建 JdbcDataSyncAgentSink 实例
+     * @param sinkId sinkId
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param String String
+     * @param int int
+     * @param String String
+     * @param columnNames columnNames
+     */
     public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, int batchSize, String... columnNames) {
         this.sinkId = sinkId;
         this.jdbcUrl = jdbcUrl;
@@ -60,6 +81,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         this.dataSource = createDataSource(jdbcUrl, username, password);
     }
 
+    /** 创建DataSource */
     private HikariDataSource createDataSource(String url, String user, String pass) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -74,11 +96,13 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     }
 
     @Override
+    /** SinkId */
     public String sinkId() {
         return sinkId;
     }
 
     @Override
+    /** 写入 */
     public void write(Flux<Map<String, Object>> data) {
         log.info("[JdbcDataSyncAgentSink] 开始写入数据, sinkId={}, batchSize={}, sql={}", sinkId, batchSize, sql);
 
@@ -98,6 +122,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         }
     }
 
+    /** 处理Batch */
     private void processBatch(java.util.List<Map<String, Object>> batch, PreparedStatement ps, Connection conn, AtomicLong totalCount) {
         try {
             for (Map<String, Object> row : batch) {
@@ -119,17 +144,20 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         }
     }
 
+    /** 处理记录错误 */
     private void handleError(Throwable error, Connection conn) {
         log.error("[JdbcDataSyncAgentSink] " + DataSyncErrorCode.DB_WRITE_FAILED.formatWithCode(sinkId, sql, error.getMessage()), error);
         rollbackQuietly(conn);
     }
 
+    /** 处理Complete */
     private void handleComplete(Connection conn, PreparedStatement ps, long totalCount) {
         log.info("[JdbcDataSyncAgentSink] 写入完成, sinkId={}, totalCount={}", sinkId, totalCount);
         closeQuietly(ps);
         closeQuietly(conn);
     }
 
+    /** 回滚Quietly */
     private void rollbackQuietly(Connection conn) {
         if (conn != null) {
             try {
@@ -139,6 +167,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         }
     }
 
+    /** 关闭Quietly */
     private void closeQuietly(Statement stmt) {
         if (stmt != null) {
             try {
@@ -148,6 +177,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         }
     }
 
+    /** 关闭Quietly */
     private void closeQuietly(Connection conn) {
         if (conn != null) {
             try {
@@ -159,6 +189,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
@@ -167,6 +198,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     }
 
     @Override
+    /** Direction */
     public Direction direction() {
         return Direction.OUTPUT;
     }

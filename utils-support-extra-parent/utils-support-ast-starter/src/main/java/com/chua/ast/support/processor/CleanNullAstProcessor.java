@@ -25,6 +25,7 @@ import java.util.Set;
 public final class CleanNullAstProcessor extends AbstractAstProcessor {
 
     @Override
+    /** 处理 */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || !isTreeApiAvailable()) {
             return false;
@@ -40,6 +41,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         return false;
     }
 
+    /** 处理Parameter */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {
@@ -84,6 +86,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         }
     }
 
+    /** 是否StringType */
     private boolean isStringType(VariableElement element) {
         TypeMirror type = element.asType();
         if (type.getKind() != TypeKind.DECLARED) {
@@ -93,6 +96,14 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         return "java.lang.String".equals(typeName) || "java.lang.CharSequence".equals(typeName);
     }
 
+    /**
+     * 构建CleanStatement
+     * @param maker maker
+     * @param names names
+     * @param paramName paramName
+     * @param keywords keywords
+     * @param isString isString
+     */
     private JCTree.JCStatement buildCleanStatement(TreeMaker maker, Names names,
                                                      String paramName, String[] keywords, boolean isString) {
         JCTree.JCIdent paramIdent = maker.Ident(names.fromString(paramName));
@@ -143,6 +154,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         return maker.If(condition, assignStmt, null);
     }
 
+    /** 前置Statement */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

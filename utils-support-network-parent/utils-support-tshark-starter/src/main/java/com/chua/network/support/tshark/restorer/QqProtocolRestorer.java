@@ -13,16 +13,19 @@ package com.chua.network.support.tshark.restorer;
 public class QqProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
+    /** 获取ProtocolName */
     public String getProtocolName() {
         return "qq";
     }
 
     @Override
+    /** 获取Priority */
     public int getPriority() {
         return 120;
     }
 
     @Override
+    /** 是否可以Restore */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 7) {
             return false;
@@ -36,6 +39,7 @@ public class QqProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
+    /** Restore */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 7) {
             return "[QQ] empty";
@@ -60,6 +64,7 @@ public class QqProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
+    /** ToCommandName */
     private static String toCommandName(int command) {
         return switch (command) {
             case 0x0001 -> "LoginConfirm";

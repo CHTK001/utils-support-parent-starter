@@ -28,16 +28,19 @@ import java.lang.reflect.Method;
 public class BulkheadIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Bulkhead> {
 
     @Override
+    /** AnnotationType */
     public Class<Bulkhead> annotationType() {
         return Bulkhead.class;
     }
 
     @Override
+    /** Order */
     public int order() {
         return 100;
     }
 
     @Override
+    /** Intercept */
     public Object intercept(Bulkhead annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         // 解析隔离名称（支持 SpEL），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

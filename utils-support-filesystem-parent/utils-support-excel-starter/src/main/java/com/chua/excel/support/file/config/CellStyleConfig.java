@@ -92,50 +92,60 @@ public class CellStyleConfig {
     /** 行高度 */
     private Float rowHeight;
 
+    /** 创建 CellStyleConfig 实例 */
     private CellStyleConfig() {
     }
 
+    /** 创建 */
     public static CellStyleConfig create() {
         return new CellStyleConfig();
     }
 
     // ==================== 字体链式方法 ====================
 
+    /** FontName */
     public CellStyleConfig fontName(String fontName) {
         this.fontName = fontName;
         return this;
     }
 
+    /** Font获取大小 */
     public CellStyleConfig fontSize(int fontSize) {
         this.fontSize = (short) fontSize;
         return this;
     }
 
+    /** Bold */
     public CellStyleConfig bold() {
         this.bold = true;
         return this;
     }
 
+    /** Bold */
     public CellStyleConfig bold(boolean bold) {
         this.bold = bold;
         return this;
     }
 
+    /** Italic */
     public CellStyleConfig italic() {
         this.italic = true;
         return this;
     }
 
+    /** Strikeout */
     public CellStyleConfig strikeout() {
         this.strikeout = true;
         return this;
     }
 
+    /** Underline */
     public CellStyleConfig underline(byte underline) {
         this.underline = underline;
         return this;
     }
 
+    /** FontColor */
     public CellStyleConfig fontColor(String color) {
         this.fontColor = color;
         return this;
@@ -143,11 +153,13 @@ public class CellStyleConfig {
 
     // ==================== 背景链式方法 ====================
 
+    /** BackgroundColor */
     public CellStyleConfig backgroundColor(String color) {
         this.backgroundColor = color;
         return this;
     }
 
+    /** FillPattern */
     public CellStyleConfig fillPattern(FillPatternType fillPattern) {
         this.fillPattern = fillPattern;
         return this;
@@ -155,6 +167,7 @@ public class CellStyleConfig {
 
     // ==================== 边框链式方法 ====================
 
+    /** Border */
     public CellStyleConfig border(BorderStyle border) {
         this.borderTop = border;
         this.borderBottom = border;
@@ -163,26 +176,31 @@ public class CellStyleConfig {
         return this;
     }
 
+    /** BorderTop */
     public CellStyleConfig borderTop(BorderStyle border) {
         this.borderTop = border;
         return this;
     }
 
+    /** BorderBottom */
     public CellStyleConfig borderBottom(BorderStyle border) {
         this.borderBottom = border;
         return this;
     }
 
+    /** BorderLeft */
     public CellStyleConfig borderLeft(BorderStyle border) {
         this.borderLeft = border;
         return this;
     }
 
+    /** BorderRight */
     public CellStyleConfig borderRight(BorderStyle border) {
         this.borderRight = border;
         return this;
     }
 
+    /** BorderColor */
     public CellStyleConfig borderColor(String color) {
         this.borderColor = color;
         return this;
@@ -190,56 +208,67 @@ public class CellStyleConfig {
 
     // ==================== 对齐链式方法 ====================
 
+    /** HorizontalLeft */
     public CellStyleConfig horizontalLeft() {
         this.horizontalAlignment = HorizontalAlignment.LEFT;
         return this;
     }
 
+    /** HorizontalCenter */
     public CellStyleConfig horizontalCenter() {
         this.horizontalAlignment = HorizontalAlignment.CENTER;
         return this;
     }
 
+    /** HorizontalRight */
     public CellStyleConfig horizontalRight() {
         this.horizontalAlignment = HorizontalAlignment.RIGHT;
         return this;
     }
 
+    /** HorizontalAlignment */
     public CellStyleConfig horizontalAlignment(HorizontalAlignment alignment) {
         this.horizontalAlignment = alignment;
         return this;
     }
 
+    /** VerticalTop */
     public CellStyleConfig verticalTop() {
         this.verticalAlignment = VerticalAlignment.TOP;
         return this;
     }
 
+    /** VerticalCenter */
     public CellStyleConfig verticalCenter() {
         this.verticalAlignment = VerticalAlignment.CENTER;
         return this;
     }
 
+    /** VerticalBottom */
     public CellStyleConfig verticalBottom() {
         this.verticalAlignment = VerticalAlignment.BOTTOM;
         return this;
     }
 
+    /** VerticalAlignment */
     public CellStyleConfig verticalAlignment(VerticalAlignment alignment) {
         this.verticalAlignment = alignment;
         return this;
     }
 
+    /** WrapText */
     public CellStyleConfig wrapText(boolean wrap) {
         this.wrapText = wrap;
         return this;
     }
 
+    /** Indention */
     public CellStyleConfig indention(int indention) {
         this.indention = indention;
         return this;
     }
 
+    /** Rotation */
     public CellStyleConfig rotation(int rotation) {
         this.rotation = rotation;
         return this;
@@ -247,6 +276,7 @@ public class CellStyleConfig {
 
     // ==================== 数据格式 ====================
 
+    /** Data格式化 */
     public CellStyleConfig dataFormat(String format) {
         this.dataFormat = format;
         return this;
@@ -254,6 +284,7 @@ public class CellStyleConfig {
 
     // ==================== 行高 ====================
 
+    /** RowHeight */
     public CellStyleConfig rowHeight(float height) {
         this.rowHeight = height;
         return this;
@@ -261,6 +292,7 @@ public class CellStyleConfig {
 
     // ==================== Getter ====================
 
+    /** 获取RowHeight */
     public Float getRowHeight() {
         return rowHeight;
     }
@@ -420,6 +452,7 @@ public class CellStyleConfig {
         }
     }
 
+    /** 应用TopBorderColor */
     private void applyTopBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setTopBorderColor(hexToXssfColor(borderColor));
@@ -428,6 +461,7 @@ public class CellStyleConfig {
         }
     }
 
+    /** 应用BottomBorderColor */
     private void applyBottomBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setBottomBorderColor(hexToXssfColor(borderColor));
@@ -436,6 +470,7 @@ public class CellStyleConfig {
         }
     }
 
+    /** 应用LeftBorderColor */
     private void applyLeftBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setLeftBorderColor(hexToXssfColor(borderColor));
@@ -444,6 +479,7 @@ public class CellStyleConfig {
         }
     }
 
+    /** 应用RightBorderColor */
     private void applyRightBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setRightBorderColor(hexToXssfColor(borderColor));

@@ -21,6 +21,7 @@ import java.util.List;
 public class SpringConfigSourceProvider implements ConfigSourceProvider {
 
     @Override
+    /** 获取PropertySources */
     public List<com.chua.common.support.config.source.PropertySource> getPropertySources() {
         List<com.chua.common.support.config.source.PropertySource> result = new ArrayList<>();
         try {
@@ -65,6 +66,7 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
         }
 
         @Override
+        /** 获取Property */
         public Object getProperty(String key) {
             try {
                 return delegate.getProperty(key);
@@ -74,11 +76,13 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
         }
 
         @Override
+        /** 获取Name */
         public String getName() {
             return name;
         }
 
         @Override
+        /** 获取Priority */
         public int getPriority() {
             return priority;
         }

@@ -171,12 +171,14 @@ class DefaultEyeDetector implements EyeDetector {
     }
 
     @Override
+    /** ModelPath */
     public EyeDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public EyeDetector device(String device) {
         this.device = device;
         return this;
@@ -184,6 +186,7 @@ class DefaultEyeDetector implements EyeDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);

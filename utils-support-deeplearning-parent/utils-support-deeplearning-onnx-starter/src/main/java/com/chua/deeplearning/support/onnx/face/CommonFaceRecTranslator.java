@@ -63,6 +63,10 @@ public class CommonFaceRecTranslator implements Translator<Image, float[]> {
         this(FaceRecPreprocessConfig.builder().build());
     }
 
+    /**
+     * 创建 CommonFaceRecTranslator 实例
+     * @param preprocessConfig preprocessConfig
+     */
     public CommonFaceRecTranslator(FaceRecPreprocessConfig preprocessConfig) {
         this.preprocessConfig = preprocessConfig;
         log.info("                                     -             : {}x{},          : {},        Pipeline: {}",
@@ -243,42 +247,50 @@ public class CommonFaceRecTranslator implements Translator<Image, float[]> {
             /** 输出索引 */
             private int outputIndex = 0;
 
+            /** Input获取大小 */
             public Builder inputSize(int width, int height) {
                 this.inputWidth = width;
                 this.inputHeight = height;
                 return this;
             }
 
+            /** ImageFlag */
             public Builder imageFlag(Image.Flag flag) {
                 this.imageFlag = flag;
                 return this;
             }
 
+            /** UsePipeline */
             public Builder usePipeline(boolean usePipeline) {
                 this.usePipeline = usePipeline;
                 return this;
             }
 
+            /** Normalize */
             public Builder normalize(boolean normalize) {
                 this.normalize = normalize;
                 return this;
             }
 
+            /** Mean */
             public Builder mean(float... mean) {
                 this.mean = mean;
                 return this;
             }
 
+            /** Std */
             public Builder std(float... std) {
                 this.std = std;
                 return this;
             }
 
+            /** OutputIndex */
             public Builder outputIndex(int outputIndex) {
                 this.outputIndex = outputIndex;
                 return this;
             }
 
+            /** 构建 */
             public FaceRecPreprocessConfig build() {
                 return new FaceRecPreprocessConfig(this);
             }

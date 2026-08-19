@@ -174,6 +174,17 @@ public class NMSUtils {
         return keep.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    /**
+     * Nms
+     * @param boxes boxes
+     * @param probabilities probabilities
+     * @param nmsThreshold nmsThreshold
+     * @param i2 i2
+     * @param box2 box2
+     * @param nmsThreshold nmsThreshold
+     * @param rect1 rect1
+     * @param rect2 rect2
+     */
     public static List<Integer> nms(
             List<ai.djl.modality.cv.output.BoundingBox> boxes,
             List<Double> probabilities,
@@ -210,6 +221,11 @@ public class NMSUtils {
         return indices;
     }
 
+    /**
+     * CalculateIoU
+     * @param rect1 rect1
+     * @param rect2 rect2
+     */
     private static double calculateIoU(
             ai.djl.modality.cv.output.Rectangle rect1,
             ai.djl.modality.cv.output.Rectangle rect2) {

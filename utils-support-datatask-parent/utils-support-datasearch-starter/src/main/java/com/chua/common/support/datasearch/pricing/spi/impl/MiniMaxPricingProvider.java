@@ -27,6 +27,7 @@ public class MiniMaxPricingProvider extends AbstractPricingProvider {
     private static final String PRICING_URL = "https://www.minimaxi.com/pricing";
 
     @Override
+    /** FetchOnlinePricing */
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(PRICING_URL);
         if (html == null || html.isEmpty()) {

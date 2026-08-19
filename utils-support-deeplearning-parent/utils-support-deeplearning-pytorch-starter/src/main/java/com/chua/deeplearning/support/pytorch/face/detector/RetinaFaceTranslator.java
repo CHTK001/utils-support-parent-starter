@@ -78,6 +78,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     private int height;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -95,6 +96,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
         double scaleXY = VARIANCE[0];
@@ -267,6 +269,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

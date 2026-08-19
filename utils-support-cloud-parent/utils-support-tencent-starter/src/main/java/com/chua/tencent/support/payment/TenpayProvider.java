@@ -35,16 +35,22 @@ public class TenpayProvider implements PaymentChannel {
     /** 配置对象 */
     private final TenpayConfig config;
 
+    /** 创建 TenpayProvider 实例 */
     public TenpayProvider() {
         this(null);
     }
 
+    /**
+     * 创建 TenpayProvider 实例
+     * @param config config
+     */
     public TenpayProvider(TenpayConfig config) {
         this.config = config;
         this.wxPayService = buildService();
     }
 
     @Override
+    /** Pay */
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case JSAPI:
@@ -63,6 +69,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** 构建Service */
     private WxPayService buildService() {
         if (config == null) {
             return null;
@@ -78,6 +85,7 @@ public class TenpayProvider implements PaymentChannel {
         return payService;
     }
 
+    /** JsapiPay */
     private PaymentResponse jsapiPay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("JSAPI");
@@ -98,6 +106,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** AppPay */
     private PaymentResponse appPay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("APP");
@@ -115,6 +124,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** HPay */
     private PaymentResponse h5Pay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("MWEB");
@@ -142,6 +152,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** NativePay */
     private PaymentResponse nativePay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("NATIVE");
@@ -164,6 +175,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** BarCodePay */
     private PaymentResponse barCodePay(PaymentRequest request) {
         WxPayMicropayRequest micropayRequest = new WxPayMicropayRequest();
         if (request.getExtParams() != null) {
@@ -189,6 +201,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** 构建OrderRequest */
     private WxPayUnifiedOrderRequest buildOrderRequest(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
         orderRequest.setBody(request.getSubject());
@@ -207,6 +220,7 @@ public class TenpayProvider implements PaymentChannel {
         return orderRequest;
     }
 
+    /** 校验Result */
     private void checkResult(BaseWxPayResult result) {
         if (!"SUCCESS".equals(result.getReturnCode())) {
             throw new PayException("WXPAY_ERROR", result.getReturnMsg());
@@ -216,6 +230,7 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
+    /** ToJson */
     private static String toJson(Map<String, String> map) {
         if (map == null || map.isEmpty()) {
             return "{}";

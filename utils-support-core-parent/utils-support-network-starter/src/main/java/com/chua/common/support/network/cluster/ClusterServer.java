@@ -29,6 +29,10 @@ public class ClusterServer implements AutoCloseable {
     /** 节点 */
     private final ClusterNode node;
 
+    /**
+     * 创建 ClusterServer 实例
+     * @param clusterSetting clusterSetting
+     */
     private ClusterServer(ClusterSetting clusterSetting) throws Exception {
         this.clusterSetting = clusterSetting;
         this.node = new ClusterNode(clusterSetting);
@@ -68,15 +72,18 @@ public class ClusterServer implements AutoCloseable {
         return node.discovery();
     }
 
+    /** 获取HttpPort */
     public int getHttpPort() {
         return node.getHttpPort();
     }
 
+    /** 获取TcpPort */
     public int getTcpPort() {
         return node.getTcpPort();
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         node.close();
     }

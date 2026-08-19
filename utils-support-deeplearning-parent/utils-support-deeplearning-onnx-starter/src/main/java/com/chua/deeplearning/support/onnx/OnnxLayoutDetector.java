@@ -27,44 +27,55 @@ public class OnnxLayoutDetector implements LayoutDetector {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxLayoutDetector 实例
+     * @param apiKey apiKey
+     */
     public OnnxLayoutDetector(String apiKey) {
     }
 
     @Override
+    /** Model */
     public LayoutDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "doc-layout-yolo-imgsz640";
     }
 
     @Override
+    /** Threshold */
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public LayoutDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** UseGpu */
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
     @Override
+    /** Device */
     public LayoutDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Detect */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         List<DetectionInfo> detections = ImageDetector.create(resolveModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
@@ -78,6 +89,7 @@ public class OnnxLayoutDetector implements LayoutDetector {
     }
 
     @Override
+    /** 解析 */
     public String parse(byte[] imageData) {
         Map<String, List<PredictRectangle>> regions = detect(imageData);
         StringBuilder sb = new StringBuilder();

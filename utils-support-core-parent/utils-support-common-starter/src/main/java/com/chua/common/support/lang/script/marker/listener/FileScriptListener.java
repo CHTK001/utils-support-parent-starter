@@ -49,6 +49,7 @@ public class FileScriptListener implements Listener {
     }
 
     @Override
+    /** 是否Change */
     public boolean isChange() {
         if (!Files.exists(scriptPath)) {
             return false;
@@ -67,6 +68,7 @@ public class FileScriptListener implements Listener {
     }
 
     @Override
+    /** 获取Source */
     public String getSource() {
         if (lastContent == null) {
             isChange();

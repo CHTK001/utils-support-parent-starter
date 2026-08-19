@@ -32,6 +32,7 @@ public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, ai.djl.modality.cv.Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), ai.djl.modality.cv.Image.Flag.COLOR);
         array = ai.djl.modality.cv.util.NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -57,12 +58,14 @@ public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         return imageEmbeds.squeeze().toFloatArray();
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

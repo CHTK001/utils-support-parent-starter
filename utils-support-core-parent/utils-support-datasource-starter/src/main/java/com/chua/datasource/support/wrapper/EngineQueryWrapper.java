@@ -42,123 +42,144 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @Override
+    /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> col) {
         return LambdaUtils.resolveObject(col);
     }
 
     @Override
+    /** NewInstance */
     protected LambdaQueryWrapper<T> newInstance() {
         return new EngineQueryWrapper<>(engine, entityClass);
     }
 
     @Override
+    /** Eq */
     public EngineQueryWrapper<T> eq(SFunction<T, ?> column, Object value) {
         super.eq(column, value);
         return this;
     }
 
     @Override
+    /** Ne */
     public EngineQueryWrapper<T> ne(SFunction<T, ?> column, Object value) {
         super.ne(column, value);
         return this;
     }
 
     @Override
+    /** Gt */
     public EngineQueryWrapper<T> gt(SFunction<T, ?> column, Object value) {
         super.gt(column, value);
         return this;
     }
 
     @Override
+    /** Ge */
     public EngineQueryWrapper<T> ge(SFunction<T, ?> column, Object value) {
         super.ge(column, value);
         return this;
     }
 
     @Override
+    /** Lt */
     public EngineQueryWrapper<T> lt(SFunction<T, ?> column, Object value) {
         super.lt(column, value);
         return this;
     }
 
     @Override
+    /** Le */
     public EngineQueryWrapper<T> le(SFunction<T, ?> column, Object value) {
         super.le(column, value);
         return this;
     }
 
     @Override
+    /** Like */
     public EngineQueryWrapper<T> like(SFunction<T, ?> column, Object value) {
         super.like(column, value);
         return this;
     }
 
     @Override
+    /** LikeLeft */
     public EngineQueryWrapper<T> likeLeft(SFunction<T, ?> column, Object value) {
         super.likeLeft(column, value);
         return this;
     }
 
     @Override
+    /** LikeRight */
     public EngineQueryWrapper<T> likeRight(SFunction<T, ?> column, Object value) {
         super.likeRight(column, value);
         return this;
     }
 
     @Override
+    /** In */
     public EngineQueryWrapper<T> in(SFunction<T, ?> column, Collection<?> values) {
         super.in(column, values);
         return this;
     }
 
     @Override
+    /** NotIn */
     public EngineQueryWrapper<T> notIn(SFunction<T, ?> column, Collection<?> values) {
         super.notIn(column, values);
         return this;
     }
 
     @Override
+    /** 是否Null */
     public EngineQueryWrapper<T> isNull(SFunction<T, ?> column) {
         super.isNull(column);
         return this;
     }
 
     @Override
+    /** 是否NotNull */
     public EngineQueryWrapper<T> isNotNull(SFunction<T, ?> column) {
         super.isNotNull(column);
         return this;
     }
 
     @Override
+    /** Between */
     public EngineQueryWrapper<T> between(SFunction<T, ?> column, Object start, Object end) {
         super.between(column, start, end);
         return this;
     }
 
     @Override
+    /** OrderByAsc */
     public EngineQueryWrapper<T> orderByAsc(SFunction<T, ?> column) {
         super.orderByAsc(column);
         return this;
     }
 
     @Override
+    /** OrderByDesc */
     public EngineQueryWrapper<T> orderByDesc(SFunction<T, ?> column) {
         super.orderByDesc(column);
         return this;
     }
 
     @Override
+    /** TableAlias */
     public EngineQueryWrapper<T> tableAlias(String alias) {
         super.tableAlias(alias);
         return this;
     }
 
     @Override
+    /** List */
     public List<T> list() {
         return engine.executeQuery(this, entityClass);
     }
 
     @Override
+    /** One */
     public T one() {
         List<T> list = list();
         if (list.isEmpty()) {
@@ -168,6 +189,7 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @Override
+    /** Page */
     public Page<T> page(int pn, int ps) {
         return engine.executePage(this, entityClass, pn, ps);
     }

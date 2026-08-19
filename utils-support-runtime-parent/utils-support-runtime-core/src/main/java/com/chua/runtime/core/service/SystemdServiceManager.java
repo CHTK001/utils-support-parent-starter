@@ -36,11 +36,13 @@ public class SystemdServiceManager implements ServiceManager {
     private static final int CMD_TIMEOUT = 30;
 
     @Override
+    /** Name */
     public String name() {
         return "systemd";
     }
 
     @Override
+    /** 是否Supported */
     public boolean isSupported() {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (!os.contains("nix") && !os.contains("nux")) {
@@ -50,6 +52,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
+    /** Install */
     public CmdResult install(ManagedService service) {
         LOG.log(Level.INFO, String.format("正在安装 systemd 服务[%s]", service.getServiceName()));
         try {
@@ -91,6 +94,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
+    /** Uninstall */
     public CmdResult uninstall(String serviceName) {
         stop(serviceName);
         CmdExecutors.execute("systemctl disable \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
@@ -105,36 +109,43 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
+    /** 开始 */
     public CmdResult start(String serviceName) {
         return CmdExecutors.execute("systemctl start \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
+    /** 停止 */
     public CmdResult stop(String serviceName) {
         return CmdExecutors.execute("systemctl stop \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
+    /** Restart */
     public CmdResult restart(String serviceName) {
         return CmdExecutors.execute("systemctl restart \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
+    /** Status */
     public CmdResult status(String serviceName) {
         return CmdExecutors.execute("systemctl status \"" + serviceName + "\" 2>&1", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
+    /** 启用 */
     public CmdResult enable(String serviceName) {
         return CmdExecutors.execute("systemctl enable \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
+    /** 禁用 */
     public CmdResult disable(String serviceName) {
         return CmdExecutors.execute("systemctl disable \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
+    /** 是否Enabled */
     public boolean isEnabled(String serviceName) {
         CmdResult r = CmdExecutors.execute("systemctl is-enabled \"" + serviceName + "\" 2>&1",
                 CMD_TIMEOUT, TimeUnit.SECONDS);
@@ -142,6 +153,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
+    /** 是否Installed */
     public boolean isInstalled(String serviceName) {
         Path svc = Paths.get(SYSTEMD_DIR, serviceName + ".service");
         CmdResult r = CmdExecutors.execute(
@@ -149,6 +161,7 @@ public class SystemdServiceManager implements ServiceManager {
         return r.isSuccess() && "yes".equals(r.getStdout().trim());
     }
 
+    /** GenerateServiceFile */
     private String generateServiceFile(ManagedService service) {
         StringBuilder sb = new StringBuilder();
         sb.append("[Unit]\n");

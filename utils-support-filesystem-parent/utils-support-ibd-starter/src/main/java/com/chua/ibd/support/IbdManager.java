@@ -147,6 +147,7 @@ public class IbdManager {
         }
     }
 
+    /** ExtractFromJar */
     private void extractFromJar(String jarPath) throws IOException {
         Path jar = Path.of(jarPath);
         try (var fs = FileSystems.newFileSystem(jar)) {
@@ -156,6 +157,7 @@ public class IbdManager {
             }
             Files.walkFileTree(root, new SimpleFileVisitor<>() {
                 @Override
+                /** VisitFile */
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     try {
                         Path target = workDir.resolve(root.relativize(file).toString());
@@ -170,6 +172,7 @@ public class IbdManager {
         }
     }
 
+    /** ExtractFromClasspath */
     private void extractFromClasspath(String classPath) {
         // classpath 目录模式下，资源已在原位，无需解压
     }

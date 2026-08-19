@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class DatalakeWeatherTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         log.info("[datalake-server] === 数据中台 Weather 测试开始 ===");
 
@@ -54,11 +55,13 @@ public class DatalakeWeatherTest {
         List<DataEnvelope> receivedSinkData = new CopyOnWriteArrayList<>();
         DataSink testSink = new LogSink() {
             @Override
+            /** Type */
             public String type() {
                 return "test";
             }
 
             @Override
+            /** 写入 */
             public boolean write(DataEnvelope envelope, Map<String, Object> config) {
                 receivedSinkData.add(envelope);
                 return super.write(envelope, config);

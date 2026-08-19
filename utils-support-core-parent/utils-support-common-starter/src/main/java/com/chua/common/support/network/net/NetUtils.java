@@ -29,6 +29,7 @@ public final class NetUtils {
         LOCAL_HOST_CACHE = host;
     }
 
+    /** 创建 NetUtils 实例 */
     private NetUtils() {
     }
 
@@ -98,6 +99,7 @@ public final class NetUtils {
         return ANY_HOST.equals(host) || "0.0.0.0".equals(host);
     }
 
+    /** 解析LocalHost */
     private static String resolveLocalHost() {
         try {
             InetAddress localHost = InetAddress.getLocalHost();

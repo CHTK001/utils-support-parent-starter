@@ -44,22 +44,27 @@ public class Emoji {
      */
     private List<String> emoticons = new ArrayList<>();
 
+    /** 获取EmojiChar */
     public String getEmojiChar() {
         return unicode;
     }
 
+    /** 获取DecimalSurrogateHtml */
     public String getDecimalSurrogateHtml() {
         return getDecimalHtml();
     }
 
+    /** 获取HexHtmlShort */
     public String getHexHtmlShort() {
         return getHexHtml();
     }
 
+    /** 获取DecimalHtmlShort */
     public String getDecimalHtmlShort() {
         return getDecimalHtml();
     }
 
+    /** 获取Emoticons */
     public List<String> getEmoticons() {
         return emoticons;
     }

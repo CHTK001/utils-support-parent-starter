@@ -70,6 +70,10 @@ public class SpiderTimerService {
      */
     private ScheduledFuture<?> scanFuture;
 
+    /**
+     * 创建 SpiderTimerService 实例
+     * @param definitionStore definitionStore
+     */
     public SpiderTimerService(SpiderDefinitionStore definitionStore) {
         this.scheduler = Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE,
                 r -> {

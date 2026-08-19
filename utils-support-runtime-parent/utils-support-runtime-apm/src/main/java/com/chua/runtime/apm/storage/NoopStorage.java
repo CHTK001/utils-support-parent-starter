@@ -25,11 +25,13 @@ public class NoopStorage implements ApmStorage {
     private static final Logger LOG = Logger.getLogger(NoopStorage.class.getName());
 
     @Override
+    /** 开始 */
     public void start(StorageConfig config) {
         LOG.log(Level.FINE, "NoopStorage 启动 — 所有写入将被丢弃");
     }
 
     @Override
+    /** 停止 */
     public void stop() {
     }
 

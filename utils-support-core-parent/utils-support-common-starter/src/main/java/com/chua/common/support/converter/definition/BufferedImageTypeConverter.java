@@ -33,6 +33,7 @@ public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> 
     private static final String BUFFERED_IMAGE_CLASS = "com.chua.deeplearning.support.ml.BufferedImagePredictResult";
 
     @Override
+    /** 获取Type */
     public Class<BufferedImage> getType() {
         return BufferedImage.class;
     }

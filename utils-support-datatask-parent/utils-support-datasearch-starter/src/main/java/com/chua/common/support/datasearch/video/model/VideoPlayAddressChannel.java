@@ -13,21 +13,26 @@ public class VideoPlayAddressChannel {
     /** 视频play地址URL */
     private String videoPlayAddressUrl;
 
+    /** 创建 VideoPlayAddressChannel 实例 */
     public VideoPlayAddressChannel() {
     }
 
+    /** 获取VideoPlayAddressChannelName */
     public String getVideoPlayAddressChannelName() {
         return videoPlayAddressChannelName;
     }
 
+    /** 设置VideoPlayAddressChannelName */
     public void setVideoPlayAddressChannelName(String videoPlayAddressChannelName) {
         this.videoPlayAddressChannelName = videoPlayAddressChannelName;
     }
 
+    /** 获取VideoPlayAddressUrl */
     public String getVideoPlayAddressUrl() {
         return videoPlayAddressUrl;
     }
 
+    /** 设置VideoPlayAddressUrl */
     public void setVideoPlayAddressUrl(String videoPlayAddressUrl) {
         this.videoPlayAddressUrl = videoPlayAddressUrl;
     }

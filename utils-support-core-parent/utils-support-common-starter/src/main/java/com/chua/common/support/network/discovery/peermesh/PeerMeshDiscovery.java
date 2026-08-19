@@ -147,6 +147,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     // ======================== 生命周期 ========================
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!running.compareAndSet(false, true)) {
             return;
@@ -404,6 +405,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         if (!running.compareAndSet(true, false)) {
             return;
@@ -763,6 +765,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         incrementServiceVersion();
     }
 
+    /** Node获取大小 */
     public int nodeSize() {
         return nodeTable.size();
     }

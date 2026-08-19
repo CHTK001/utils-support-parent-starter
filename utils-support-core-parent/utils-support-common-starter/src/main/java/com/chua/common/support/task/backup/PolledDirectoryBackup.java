@@ -74,19 +74,26 @@ public class PolledDirectoryBackup implements BackupStrategy {
     /** Transformer */
     private RecordTransformer transformer = DEFAULT_TRANSFORMER;
 
+    /** 创建 PolledDirectoryBackup 实例 */
     public PolledDirectoryBackup() {
     }
 
+    /**
+     * 创建 PolledDirectoryBackup 实例
+     * @param transformer transformer
+     */
     public PolledDirectoryBackup(RecordTransformer transformer) {
         this.transformer = transformer;
     }
 
     @Override
+    /** Type */
     public String type() {
         return TYPE;
     }
 
     @Override
+    /** 执行 */
     public BackupResult execute(BackupConfig config) {
         long start = System.currentTimeMillis();
         try {
@@ -130,6 +137,7 @@ public class PolledDirectoryBackup implements BackupStrategy {
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             @Override
+            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
@@ -164,12 +172,14 @@ public class PolledDirectoryBackup implements BackupStrategy {
     }
 
     @Override
+    /** CleanExpired */
     public int cleanExpired(BackupConfig config) {
         DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
         return delegate.cleanExpired(config);
     }
 
     @Override
+    /** ListBackups */
     public List<Path> listBackups(BackupConfig config) {
         DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
         return delegate.listBackups(config);

@@ -210,16 +210,19 @@ public class KcpServer extends AbstractServer {
     }
 
     @Override
+    /** 获取Protocol */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         setting.setProtocol("kcp");
         channelConfig = new ChannelConfig();
@@ -300,6 +303,7 @@ public class KcpServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         if (kcpBaseServer != null) {
             for (Ukcp ukcp : sessions.values()) {
@@ -358,6 +362,7 @@ public class KcpServer extends AbstractServer {
         }
         sendTo(ukcp, topic + ":" + message);
     }
+    /** 发送To */
     private void sendTo(Ukcp ukcp, String text) {
         // 统一以 \n 结尾：客户端按行切分（批量聚合后跨包缓冲依赖 \n 边界），
         // 注册确认 registered:xxx 也必须带 \n，否则客户端永远等不到 registered
@@ -392,27 +397,33 @@ public class KcpServer extends AbstractServer {
         return this;
     }
 
+    /** 添加Listener */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
+    /** 移除Listener */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
+    /** On连接 */
     public void onConnect(Consumer<String> listener) {
         connectListeners.add(listener);
     }
 
+    /** On断开 */
     public void onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
     }
 
+    /** On记录错误 */
     public void onError(Consumer<Throwable> listener) {
         errorListeners.add(listener);
     }
 
     @Override
+    /** 注册Bean */
     public KcpServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -442,6 +453,7 @@ public class KcpServer extends AbstractServer {
         return this;
     }
 
+    /** 通知Listeners */
     private void notifyListeners(Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {
@@ -451,6 +463,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** 通知连接Listeners */
     private void notifyConnectListeners(String clientId) {
         for (Consumer<String> listener : connectListeners) {
             try {
@@ -461,6 +474,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** 通知断开Listeners */
     private void notifyDisconnectListeners(String clientId) {
         for (Consumer<String> listener : disconnectListeners) {
             try {
@@ -471,6 +485,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** 通知记录错误Listeners */
     private void notifyErrorListeners(Throwable cause) {
         for (Consumer<Throwable> listener : errorListeners) {
             try {
@@ -481,6 +496,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** 分发AnnotatedMethods */
     private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods) {
         ObjectContext context = getObjectContext();
         if (context == null) {
@@ -494,6 +510,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** 分发Annotated发布 */
     private void dispatchAnnotatedPublish(String topic, String payload) {
         ObjectContext context = getObjectContext();
         if (context == null) {
@@ -509,6 +526,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** Safe调用 */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             method.invoke(bean, args);
@@ -522,6 +540,7 @@ public class KcpServer extends AbstractServer {
         }
     }
 
+    /** MatchTopic */
     private static boolean matchTopic(String pattern, String topic) {
         if (TOPIC_WILDCARD.equals(pattern)) {
             return true;
@@ -553,6 +572,7 @@ public class KcpServer extends AbstractServer {
     private final class OAuthKcpListener implements KcpListener {
 
         @Override
+        /** OnConnected */
         public void onConnected(Ukcp ukcp) {
             // kcp-base 1.6.2 的 Ukcp 未暴露 remoteAddress()，用 hashCode 兜底，由客户端 register: 重命名
             String initialId = "client-" + System.nanoTime() + "-" + ukcp.hashCode();
@@ -579,6 +599,7 @@ public class KcpServer extends AbstractServer {
         }
 
         @Override
+        /** 处理接收 */
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
             // kcp-base 1.6.2 ReadTask 自行管理 ByteBuf 引用计数，此处不可 release（双重释放会 IllegalReferenceCountException）
             String line = byteBuf.toString(StandardCharsets.UTF_8).trim();
@@ -586,12 +607,14 @@ public class KcpServer extends AbstractServer {
         }
 
         @Override
+        /** 处理Exception */
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 连接处理异常: {}", ex.getMessage(), ex);
             notifyErrorListeners(ex);
         }
 
         @Override
+        /** 处理关闭 */
         public void handleClose(Ukcp ukcp) {
             kcp.User user = ukcp.user();
             String clientId = user != null && user.getCache() instanceof String
@@ -605,6 +628,7 @@ public class KcpServer extends AbstractServer {
             }
         }
 
+        /** 处理Line */
         private void handleLine(Ukcp ukcp, String line) {
             if (line.isEmpty()) {
                 return;
@@ -633,6 +657,7 @@ public class KcpServer extends AbstractServer {
             dispatchMessage(clientId, topic, payload);
         }
 
+        /** 处理注册 */
         private void handleRegister(Ukcp ukcp, String clientId) {
             kcp.User user = ukcp.user();
             String oldId = user != null && user.getCache() instanceof String
@@ -659,6 +684,7 @@ public class KcpServer extends AbstractServer {
             notifyConnectListeners(clientId);
         }
 
+        /** 分发Message */
         private void dispatchMessage(String clientId, String topic, String payload) {
             // 消息链路接入 ServerFilter 体系：构造协议无关的 request/response，走统一过滤器链，
             // 链尾执行订阅分发/注解分发/监听器通知
@@ -725,41 +751,49 @@ public class KcpServer extends AbstractServer {
         }
 
         @Override
+        /** 获取Headers */
         public HttpHeader getHeaders() {
             return HttpHeader.create();
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
+        /** 获取Uri */
         public String getUri() {
             return topic;
         }
 
         @Override
+        /** 获取Path */
         public String getPath() {
             return topic;
         }
 
         @Override
+        /** 获取Method */
         public HttpMethod getMethod() {
             return HttpMethod.POST;
         }
 
         @Override
+        /** 获取RemoteAddress */
         public String getRemoteAddress() {
             return clientId;
         }
 
         @Override
+        /** 获取RemotePort */
         public int getRemotePort() {
             return 0;
         }
 
         @Override
+        /** 读取Body */
         protected byte[] readBody() {
             return payload;
         }
@@ -771,19 +805,23 @@ public class KcpServer extends AbstractServer {
     private static final class KcpServerResponse extends AbstractServerResponse {
 
         @Override
+        /** 获取OutputStream */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
+        /** 写入Raw */
         public void writeRaw(byte[] bytes) {
             // KCP 文本协议无原始响应写回，忽略
         }
     }
 
+    /** AnnotatedMethod */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {
     }
 
+    /** AnnotatedMessage */
     private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {
     }
 

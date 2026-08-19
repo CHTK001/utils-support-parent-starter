@@ -28,6 +28,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
+    /** 创建 ArcFaceModelProvider 实例 */
     public ArcFaceModelProvider() {
         FaceEngine engine = null;
         try {
@@ -39,6 +40,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     }
 
     @Override
+    /** 获取All */
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> definitions = new ArrayList<>();
 
@@ -80,6 +82,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     }
 
     @Override
+    /** 获取Definition */
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
         return all != null && !all.isEmpty() ? all.get(0) : null;

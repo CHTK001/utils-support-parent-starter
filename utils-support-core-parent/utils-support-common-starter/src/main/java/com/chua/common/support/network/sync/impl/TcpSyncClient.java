@@ -93,6 +93,7 @@ public class TcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 连接 */
     public void connect() {
         if (connected) {
             return;
@@ -129,6 +130,7 @@ public class TcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (!connected) {
             return;
@@ -149,47 +151,56 @@ public class TcpSyncClient implements SyncClient {
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
+    /** 获取ClientId */
     public String getClientId() {
         return clientId;
     }
 
     @Override
+    /** 发送 */
     public void send(String topic, Object message) {
         checkConnected();
         sendLine(topic + ":" + message);
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
+    /** 获取Metadata */
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "tcp");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         disconnect();
     }

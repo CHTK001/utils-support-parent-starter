@@ -58,6 +58,7 @@ public class FibonacciBackoffProvider implements BackoffProvider {
     }
 
     @Override
+    /** NextDelay */
     public long nextDelay(int attempt) {
         long delay = initialDelay * fib(attempt + 1);
         return Math.min(delay, maxDelay);
@@ -70,6 +71,7 @@ public class FibonacciBackoffProvider implements BackoffProvider {
         attempt.set(0);
     }
 
+    /** Fib */
     private static long fib(int n) {
         if (n <= 1) {
             return n;

@@ -86,6 +86,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (protocol == null) {
             throw new IllegalStateException("DhtProtocol not set");
@@ -95,6 +96,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 注册Service */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         registeredServices.computeIfAbsent(fullPath, k -> ConcurrentHashMap.newKeySet()).add(discovery);
@@ -107,6 +109,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 获取Service */
     public Discovery getService(String path, String balance, String protocolType) {
         Set<Discovery> all = getServiceAll(path);
         if (all.isEmpty()) {
@@ -116,6 +119,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 获取ServiceAll */
     public Set<Discovery> getServiceAll(String path) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         Set<Discovery> cached = registeredServices.get(fullPath);
@@ -139,11 +143,13 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 是否Support订阅 */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         if (listener != null) {
             listeners.add(listener);
@@ -199,6 +205,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         running = false;
         registeredServices.clear();
@@ -209,6 +216,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
+    /** 获取 */
     protected Set<Discovery> get(String path) {
         return getServiceAll(path.replace(DHT_PREFIX, ""));
     }

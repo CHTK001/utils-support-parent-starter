@@ -102,16 +102,19 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "SSH:" + host + ":" + port + " -> " + remoteRoot;
     }
 
     @Override
+    /** 是否Ready */
     public boolean isReady() {
         return ready;
     }
 
     @Override
+    /** 连接 */
     public void connect() {
         try {
             // 通过 Class.forName 动态加载避免编译时强依赖
@@ -143,6 +146,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** Upload */
     public void upload(String localPath, String targetPath) {
         ensureReady();
         try {
@@ -161,6 +165,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** 创建Directory */
     public void createDirectory(String path) {
         if (path == null || ".".equals(path)) {
             return;
@@ -179,6 +184,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** 是否存在 */
     public boolean exists(String path) {
         try {
             String remote = remoteRoot + "/" + path;
@@ -192,6 +198,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** 删除 */
     public void delete(String path) {
         ensureReady();
         try {
@@ -208,6 +215,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (sftpClient != null) {
             try {
@@ -221,11 +229,13 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
+    /** 设置Callback */
     public void setCallback(MavenDeployCallback callback) {
         this.callback = callback;
     }
 
     @Override
+    /** UploadBatch */
     public int uploadBatch(List<String> files, String targetDir) {
         ensureReady();
         int count = 0;

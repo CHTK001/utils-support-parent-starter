@@ -21,6 +21,7 @@ public class UsageStats {
     /** 平均延迟（毫秒） */
     private double avgLatencyMs;
 
+    /** 平均值TokensPer调用 */
     public double avgTokensPerCall() {
         return totalCalls == 0 ? 0 : (double) totalTokens / totalCalls;
     }

@@ -86,6 +86,11 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
+    /**
+     * 开始
+     * @param environment environment
+     * @param executor executor
+     */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         try {
@@ -108,6 +113,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
+    /** ListAndModified */
     protected List<SftpClient.DirEntry> listAndModified(String path) {
         try {
             Iterable<SftpClient.DirEntry> dirEntries = sftp.readDir(path);
@@ -122,11 +128,13 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
+    /** 获取FileName */
     protected String getFileName(SftpClient.DirEntry item) {
         return item.getFilename();
     }
 
     @Override
+    /** 获取Modified */
     protected Long getModified(SftpClient.DirEntry item) {
         try {
             var attrs = item.getAttributes();
@@ -137,6 +145,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         super.close();
         try { if (sftp != null) { sftp.close(); } } catch (Exception ignored) {}

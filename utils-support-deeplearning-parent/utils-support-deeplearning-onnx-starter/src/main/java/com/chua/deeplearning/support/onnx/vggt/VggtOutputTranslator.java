@@ -29,6 +29,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
     private static final int INPUT_SIZE = 518;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -57,6 +58,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
     }
 
     @Override
+    /** 处理Output */
     public VggtOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}          ", list.size());
@@ -90,6 +92,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         //                   
         return null;

@@ -37,20 +37,27 @@ public class AlibabaVoiceCall implements VoiceCall {
     /** 消息环境 */
     private final MessageEnvironment environment;
 
+    /** 创建 AlibabaVoiceCall 实例 */
     public AlibabaVoiceCall() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 AlibabaVoiceCall 实例
+     * @param environment environment
+     */
     public AlibabaVoiceCall(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
+    /** 获取Provider */
     public String getProvider() {
         return "alibaba-voice";
     }
 
     @Override
+    /** 调用 */
     public CallResponse call(CallRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -127,6 +134,7 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     @Override
+    /** 获取调用Status */
     public CallResponse getCallStatus(String callId) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -177,6 +185,7 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     @Override
+    /** Hangup */
     public CallResponse hangup(String callId) throws Exception {
         String accessKey = environment.get("voice.accessKey");
         String secretKey = environment.get("voice.secretKey");

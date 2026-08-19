@@ -30,31 +30,37 @@ public class FrameworkBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
+    /** 获取Bean */
     public Object getBean() {
         return instance;
     }
 
     @Override
+    /** Do获取Bean */
     protected Object doGetBean() {
         return instance;
     }
 
     @Override
+    /** 设置Bean */
     protected void setBean(Object bean) {
         this.instance = bean;
     }
 
     @Override
+    /** 创建Instance */
     public Object createInstance() {
         return instance;
     }
 
     @Override
+    /** 初始化Bean */
     public Object initializeBean() {
         return instance;
     }
 
     @Override
+    /** 销毁Bean */
     public void destroyBean() {
         if (isDestroyed()) {
             return;

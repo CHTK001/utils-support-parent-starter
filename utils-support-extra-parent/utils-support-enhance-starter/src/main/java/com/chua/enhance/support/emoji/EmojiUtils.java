@@ -65,6 +65,7 @@ public class EmojiUtils extends AbstractEmoji {
         return EmojiManager.EMOJIS_BY_ALIAS.get(trimAlias(alias));
     }
 
+    /** 去空格Alias */
     private static String trimAlias(String alias) {
         int len = alias.length();
         return alias.substring(
@@ -92,12 +93,14 @@ public class EmojiUtils extends AbstractEmoji {
         return emojify(text, 0);
     }
 
+    /** Emojify */
     private static String emojify(String text, int startIndex) {
         text = processStringWithRegex(text, SHORT_CODE_OR_HTML_ENTITY_PATTERN, startIndex, true);
         text = processStringWithRegex(text, EmojiManager.getEmoticonRegexPattern(), startIndex, true);
         return text;
     }
 
+    /** 处理StringWithRegex */
     private static String processStringWithRegex(String text, Pattern pattern, int startIndex, boolean recurseEmojify) {
         Matcher matcher = pattern.matcher(text);
         StringBuffer sb = new StringBuffer();

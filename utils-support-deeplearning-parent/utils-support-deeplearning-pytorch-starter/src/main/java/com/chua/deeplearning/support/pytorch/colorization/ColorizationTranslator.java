@@ -38,6 +38,7 @@ public class ColorizationTranslator implements Translator<Image, Image> {
     private int height;
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -54,6 +55,7 @@ public class ColorizationTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 处理Output */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         if (output.getShape().dimension() == 4 && output.getShape().get(0) == 1) {
@@ -71,6 +73,7 @@ public class ColorizationTranslator implements Translator<Image, Image> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

@@ -23,6 +23,7 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 执行New查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
         List<T> data = getData(clazz);
         if (!data.isEmpty()) {
@@ -90,6 +91,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         return result;
     }
 
+    /** 设置FieldValue */
     private static <T> void setFieldValue(T instance, String columnName, Object value) {
         try {
             Field field = instance.getClass().getDeclaredField(columnName);

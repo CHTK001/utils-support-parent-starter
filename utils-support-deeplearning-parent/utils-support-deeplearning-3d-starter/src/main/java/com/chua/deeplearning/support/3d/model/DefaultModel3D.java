@@ -25,6 +25,13 @@ public class DefaultModel3D implements Model3D {
     /** Texture */
     private byte[] texture;
 
+    /**
+     * 创建 DefaultModel3D 实例
+     * @param name name
+     * @param Model3DFormat Model3DFormat
+     * @param byte byte
+     * @param data data
+     */
     public DefaultModel3D(String name, Model3DFormat format, byte[] data) {
         this.name = name;
         this.format = format;
@@ -32,51 +39,61 @@ public class DefaultModel3D implements Model3D {
     }
 
     @Override
+    /** 获取Name */
     public String getName() {
         return name;
     }
 
     @Override
+    /** 设置Name */
     public void setName(String name) {
         this.name = name;
     }
 
     @Override
+    /** 获取格式化 */
     public Model3DFormat getFormat() {
         return format;
     }
 
     @Override
+    /** 设置格式化 */
     public void setFormat(Model3DFormat format) {
         this.format = format;
     }
 
     @Override
+    /** 获取Data */
     public InputStream getData() {
         return new ByteArrayInputStream(data != null ? data : new byte[0]);
     }
 
     @Override
+    /** 设置Data */
     public void setData(byte[] data) {
         this.data = data;
     }
 
     @Override
+    /** 获取获取大小 */
     public long getSize() {
         return data != null ? data.length : 0;
     }
 
     @Override
+    /** 获取Texture */
     public byte[] getTexture() {
         return texture;
     }
 
     @Override
+    /** 设置Texture */
     public void setTexture(byte[] texture) {
         this.texture = texture;
     }
 
     @Override
+    /** 写入To */
     public void writeTo(OutputStream out) throws Exception {
         if (data != null) {
             out.write(data);

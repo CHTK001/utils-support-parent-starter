@@ -15,37 +15,47 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     /** Device */
     private String device = "cpu";
 
+    /**
+     * 创建 OnnxImageSegmenter 实例
+     * @param apiKey apiKey
+     */
     public OnnxImageSegmenter(String apiKey) {
     }
 
     @Override
+    /** Model */
     public ImageSegmenter model(String model) {
         this.modelName = model;
         return this;
     }
 
+    /** 解析Model */
     private String resolveModel() {
         return modelName != null ? modelName : "fastsam";
     }
 
     @Override
+    /** ModelPath */
     public ImageSegmenter modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
+    /** Device */
     public ImageSegmenter device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Segment */
     public byte[] segment(byte[] imageData) {
         return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData);
     }
 
     @Override
+    /** Segment */
     public byte[] segment(byte[] imageData, int targetClass) {
         return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData, targetClass);
     }

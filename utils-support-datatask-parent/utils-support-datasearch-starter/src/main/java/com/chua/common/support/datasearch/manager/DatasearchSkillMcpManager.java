@@ -268,26 +268,32 @@ public class DatasearchSkillMcpManager {
 
     // ==================== Getters ====================
 
+    /** 获取SkillManager */
     public SkillManager getSkillManager() {
         return skillManager;
     }
 
+    /** 获取McpManager */
     public McpManager getMcpManager() {
         return mcpManager;
     }
 
+    /** 获取SkillProviders */
     public Map<String, SkillProvider> getSkillProviders() {
         return new LinkedHashMap<>(skillProviders);
     }
 
+    /** 获取McpProviders */
     public Map<String, McpProvider> getMcpProviders() {
         return new LinkedHashMap<>(mcpProviders);
     }
 
+    /** 获取McpClients */
     public Map<String, McpClient> getMcpClients() {
         return mcpManager.getAll();
     }
 
+    /** 是否Initialized */
     public boolean isInitialized() {
         return initialized;
     }

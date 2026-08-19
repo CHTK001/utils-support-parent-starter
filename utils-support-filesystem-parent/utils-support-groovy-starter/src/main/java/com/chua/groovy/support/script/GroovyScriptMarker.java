@@ -86,6 +86,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     }
 
     @Override
+    /** 创建Object */
     public synchronized Object createObject(Listener listener, ClassLoader classLoader, Object[] args) {
         if (listener == null) {
             return null;
@@ -123,6 +124,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     }
 
     @Override
+    /** 获取ScriptClassLoader */
     public ClassLoader getScriptClassLoader() {
         return lastClassLoader;
     }

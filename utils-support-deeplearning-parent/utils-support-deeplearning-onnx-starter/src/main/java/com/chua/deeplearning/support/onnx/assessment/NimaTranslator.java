@@ -49,6 +49,7 @@ public class NimaTranslator implements Translator<Image, float[]> {
     private static final float[] IMAGE_STD = {0.229f, 0.224f, 0.225f};
 
     @Override
+    /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：resize 224 + ImageNet 归一化 + CHW → float[] → create() 喂入 djl-onnx
         float[] pixels = ImageUtils.toTensor(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false);
@@ -58,6 +59,7 @@ public class NimaTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 处理Output */
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         float[] logits = output.toFloatArray();
@@ -83,6 +85,7 @@ public class NimaTranslator implements Translator<Image, float[]> {
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

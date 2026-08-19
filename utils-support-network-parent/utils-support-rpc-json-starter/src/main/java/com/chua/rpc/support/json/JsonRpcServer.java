@@ -128,6 +128,7 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
+    /** 注册 */
     public RpcServer register(String name, Object bean) {
         if (name == null || bean == null) {
             log.warn("JsonRpcServer ignore invalid register: name={}, bean={}", name, bean);
@@ -140,6 +141,7 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() {
         if (state.compareAndSet(false, true)) {
             try {
@@ -318,6 +320,7 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         state.set(false);
         if (httpServer != null) {

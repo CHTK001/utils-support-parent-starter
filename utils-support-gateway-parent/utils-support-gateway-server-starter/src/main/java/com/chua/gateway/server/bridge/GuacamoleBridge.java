@@ -76,6 +76,12 @@ public class GuacamoleBridge implements RemoteBridge {
      */
     private volatile Socket socket;
 
+    /**
+     * 创建 GuacamoleBridge 实例
+     * @param connection connection
+     * @param String String
+     * @param int int
+     */
     public GuacamoleBridge(Connection connection, String guacdHost, int guacdPort) {
         this.connection = connection;
         this.guacdHost = guacdHost;
@@ -83,11 +89,13 @@ public class GuacamoleBridge implements RemoteBridge {
     }
 
     @Override
+    /** Connection */
     public Connection connection() {
         return connection;
     }
 
     @Override
+    /** 连接 */
     public void connect() throws Exception {
         if (socket != null && !socket.isClosed()) {
             return;
@@ -101,6 +109,7 @@ public class GuacamoleBridge implements RemoteBridge {
     }
 
     @Override
+    /** 断开 */
     public void disconnect() {
         if (socket != null && !socket.isClosed()) {
             try {
@@ -113,6 +122,7 @@ public class GuacamoleBridge implements RemoteBridge {
     }
 
     @Override
+    /** 是否Connected */
     public boolean isConnected() {
         return socket != null && !socket.isClosed() && socket.isConnected();
     }
@@ -351,6 +361,7 @@ public class GuacamoleBridge implements RemoteBridge {
     }
 
     @Override
+    /** 写入ToRemote */
     public void writeToRemote(byte[] bytes) throws IOException {
         Objects.requireNonNull(socket, "guacd socket 未连接");
         OutputStream out = socket.getOutputStream();
@@ -359,6 +370,7 @@ public class GuacamoleBridge implements RemoteBridge {
     }
 
     @Override
+    /** 读取FromRemote */
     public byte[] readFromRemote() throws IOException {
         Objects.requireNonNull(socket, "guacd socket 未连接");
         InputStream in = socket.getInputStream();

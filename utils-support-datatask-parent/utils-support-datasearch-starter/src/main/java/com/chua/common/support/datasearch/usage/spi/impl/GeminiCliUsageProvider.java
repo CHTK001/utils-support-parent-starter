@@ -15,5 +15,6 @@ import java.util.List;
 @Spi("gemini-cli")
 public class GeminiCliUsageProvider implements UsageProvider {
     @Override
+    /** 获取Usage */
     public List<AiUsage> getUsage() { return List.of(); }
 }

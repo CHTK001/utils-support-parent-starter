@@ -20,16 +20,19 @@ import java.io.*;
 public class OfdFileSystem implements FileSystem {
 
     @Override
+    /** 获取Type */
     public String getType() {
          return "ofd"; 
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
          return new OfdReadBuilder(file); 
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) { throw new UnsupportedOperationException("OFD write not yet supported"); }
 }
 

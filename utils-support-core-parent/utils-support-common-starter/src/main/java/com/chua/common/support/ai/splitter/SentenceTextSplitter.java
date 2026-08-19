@@ -48,14 +48,24 @@ public class SentenceTextSplitter implements TextSplitter {
      */
     private final int chunkOverlap;
 
+    /** 创建 SentenceTextSplitter 实例 */
     public SentenceTextSplitter() {
         this(DEFAULT_MAX_CHUNK_SIZE, 0);
     }
 
+    /**
+     * 创建 SentenceTextSplitter 实例
+     * @param maxChunkSize maxChunkSize
+     */
     public SentenceTextSplitter(int maxChunkSize) {
         this(maxChunkSize, 0);
     }
 
+    /**
+     * 创建 SentenceTextSplitter 实例
+     * @param maxChunkSize maxChunkSize
+     * @param int int
+     */
     public SentenceTextSplitter(int maxChunkSize, int chunkOverlap) {
         this.maxChunkSize = Math.max(1, maxChunkSize);
         this.chunkOverlap = Math.max(0, chunkOverlap);
@@ -63,6 +73,7 @@ public class SentenceTextSplitter implements TextSplitter {
 
     @Override
     @Nonnull
+    /** 分割 */
     public List<TextChunk> split(@Nonnull String text) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();

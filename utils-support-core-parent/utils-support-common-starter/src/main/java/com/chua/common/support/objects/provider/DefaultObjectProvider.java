@@ -21,12 +21,19 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
      */
     private final Class<T> type;
 
+    /**
+     * 创建 DefaultObjectProvider 实例
+     * @param ctx ctx
+     * @param Class Class
+     * @param type type
+     */
     public DefaultObjectProvider(ObjectContext ctx, Class<T> type) {
         this.ctx = ctx;
         this.type = type;
     }
 
     @Override
+    /** 获取Object */
     public T getObject() {
         return ctx.getBeanOfTypeSafely(type);
     }

@@ -38,11 +38,16 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     /** 队列容量 */
     private static final int QUEUE_CAPACITY = 50000;
 
+    /**
+     * 创建 InMemoryDispatcherProvider 实例
+     * @param config config
+     */
     public InMemoryDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object body) {
         if (closed) return;
         var queue = topicQueues.computeIfAbsent(topic, t -> new LinkedBlockingQueue<>(QUEUE_CAPACITY));
@@ -52,6 +57,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
+    /** 订阅 */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -63,6 +69,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
+    /** 取消订阅 */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var list = definitionMap.get(topic);
@@ -76,12 +83,14 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         closed = true;
         topicQueues.clear();
         definitionMap.clear();
     }
 
+    /** 开始Consumer */
     private void startConsumer(String topic) {
         executor.submit(() -> {
             var queue = topicQueues.computeIfAbsent(topic, t -> new LinkedBlockingQueue<>(QUEUE_CAPACITY));

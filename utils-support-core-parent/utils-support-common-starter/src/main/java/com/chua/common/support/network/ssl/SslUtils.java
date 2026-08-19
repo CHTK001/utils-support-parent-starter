@@ -47,6 +47,7 @@ import java.util.List;
 @Slf4j
 public final class SslUtils {
 
+    /** 创建 SslUtils 实例 */
     private SslUtils() {
     }
 

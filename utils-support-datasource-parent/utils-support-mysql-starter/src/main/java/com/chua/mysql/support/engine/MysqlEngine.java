@@ -50,6 +50,7 @@ public class MysqlEngine extends JdbcEngine {
         return addDataSource(name, host, port, database, username, password, null);
     }
 
+    /** 添加DataSource */
     public Engine addDataSource(String name, String host, int port, String database, String username, String password, Tunnel tunnel) {
         HikariDataSource ds = new HikariDataSource();
         final int[] tunnelPortCapture = {0};

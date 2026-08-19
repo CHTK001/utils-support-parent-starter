@@ -35,10 +35,21 @@ public class ClusterManager {
     /** 分组ID */
     private final String groupId;
 
+    /**
+     * 创建 ClusterManager 实例
+     * @param discovery discovery
+     * @param String String
+     */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance) {
         this(discovery, balance, null);
     }
 
+    /**
+     * 创建 ClusterManager 实例
+     * @param discovery discovery
+     * @param String String
+     * @param String String
+     */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance, String selfServerId) {
         this.discovery = discovery;
         this.balance = balance == null || balance.isBlank() ? "weight" : balance;

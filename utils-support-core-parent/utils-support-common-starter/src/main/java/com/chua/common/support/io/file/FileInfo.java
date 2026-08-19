@@ -48,6 +48,7 @@ public class FileInfo {
     /** 文件权限字符串 */
     private String permissions;
 
+    /** From */
     public static FileInfo from(Path path) {
         File file = path.toFile();
         return FileInfo.builder()

@@ -158,6 +158,7 @@ class LangChain4jAgentTest {
         }
 
         @Override
+        /** Chat */
         public ChatResponse chat(ChatRequest chatRequest) {
             return ChatResponse.builder()
                     .aiMessage(AiMessage.from(text))
@@ -179,6 +180,7 @@ class LangChain4jAgentTest {
         }
 
         @Override
+        /** Chat */
         public ChatResponse chat(ChatRequest chatRequest) {
             if (index >= messages.size()) {
                 return ChatResponse.builder()

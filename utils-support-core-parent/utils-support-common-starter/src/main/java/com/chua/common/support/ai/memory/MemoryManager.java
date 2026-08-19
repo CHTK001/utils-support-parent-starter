@@ -99,6 +99,7 @@ public class MemoryManager implements AutoCloseable {
         return new MemoryManager(cfg, new EngineMemoryStore(engine, cfg));
     }
 
+    /** 创建Store */
     private static MemoryStore createStore(MemoryConfig config) {
         if (config != null && "engine".equalsIgnoreCase(config.getStoreType())
                 && config.getEngine() != null) {
@@ -225,6 +226,7 @@ public class MemoryManager implements AutoCloseable {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         store.close();
     }
@@ -307,6 +309,7 @@ public class MemoryManager implements AutoCloseable {
         }
     }
 
+    /** ExtractJson */
     private String extractJson(String text) {
         if (text == null || text.isBlank()) return "{}";
         // 尝试直接解析整段文本
@@ -357,6 +360,7 @@ public class MemoryManager implements AutoCloseable {
         return "{}";
     }
 
+    /** ToTagList */
     private List<String> toTagList(Object obj) {
         if (obj instanceof List<?> list) {
             return list.stream().map(String::valueOf).toList();
@@ -364,6 +368,7 @@ public class MemoryManager implements AutoCloseable {
         return List.of();
     }
 
+    /** ToDouble */
     private Double toDouble(Object obj) {
         if (obj instanceof Number n) {
             return n.doubleValue();

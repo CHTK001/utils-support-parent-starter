@@ -41,6 +41,12 @@ public class SofaRpcClient implements RpcClient {
      */
     private final Map<Class<?>, ConsumerConfig<?>> consumerCache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 SofaRpcClient 实例
+     * @param rpcRegistryConfigs rpcRegistryConfigs
+     * @param RpcConsumerConfig RpcConsumerConfig
+     * @param String String
+     */
     public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.rpcConsumerConfig = consumerConfig;
         applicationConfig.setAppName(name);
@@ -61,6 +67,7 @@ public class SofaRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取 */
     public <T> T get(Class<T> targetType) {
         ConsumerConfig<T> config = (ConsumerConfig<T>) consumerCache.computeIfAbsent(targetType, type -> {
             ConsumerConfig<T> c = new ConsumerConfig<>();
@@ -87,6 +94,7 @@ public class SofaRpcClient implements RpcClient {
     }
 
     @Override
+    /** 关闭 */
     public void close() throws Exception {
         for (ConsumerConfig<?> config : consumerCache.values()) {
             try {

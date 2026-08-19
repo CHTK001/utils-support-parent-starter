@@ -39,6 +39,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
+    /** 保存Task */
     public void saveTask(Task<?> task, TaskStatus status) {
         if (task != null && task.getTaskId() != null) {
             tasks.compute(task.getTaskId(), (k, v) -> {
@@ -53,6 +54,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
+    /** 更新Status */
     public void updateStatus(String taskId, TaskStatus status) {
         TaskEntry entry = tasks.get(taskId);
         if (entry != null) {
@@ -61,6 +63,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
+    /** 保存Result */
     public void saveResult(TaskResult<?> result) {
         if (result != null && result.getTaskId() != null) {
             TaskEntry entry = tasks.computeIfAbsent(result.getTaskId(),
@@ -76,6 +79,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
+    /** 获取Status */
     public TaskStatus getStatus(String taskId) {
         TaskEntry entry = tasks.get(taskId);
         return entry != null ? entry.status : null;
@@ -99,16 +103,19 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
+    /** 移除Task */
     public void removeTask(String taskId) {
         tasks.remove(taskId);
     }
 
     @Override
+    /** Clear */
     public void clear() {
         tasks.clear();
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         tasks.clear();
     }

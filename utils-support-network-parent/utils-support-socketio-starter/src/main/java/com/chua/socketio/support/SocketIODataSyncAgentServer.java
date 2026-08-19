@@ -33,12 +33,17 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
      */
     private com.corundumstudio.socketio.SocketIOServer server;
 
+    /**
+     * 创建 SocketIODataSyncAgentServer 实例
+     * @param port port
+     */
     public SocketIODataSyncAgentServer(int port) {
         super("socketio");
         this.port = port;
     }
 
     @Override
+    /** 开始 */
     public void start() {
         if (running) {
             return;
@@ -71,6 +76,7 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         if (server != null) {
             server.stop();
@@ -80,6 +86,7 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     }
 
     @Override
+    /** 转换ToSource */
     public DataSyncSource convertToSource(DataSyncAgent agent, Object data) {
         if (agent == null) {
             return null;

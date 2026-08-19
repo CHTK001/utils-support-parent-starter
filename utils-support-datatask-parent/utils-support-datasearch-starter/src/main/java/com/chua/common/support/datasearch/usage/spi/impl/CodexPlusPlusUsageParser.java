@@ -23,11 +23,13 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".codex");
 
     @Override
+    /** Name */
     public String name() {
         return "codex++";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[codex++] 数据目录不存在: {}", DATA_DIR);

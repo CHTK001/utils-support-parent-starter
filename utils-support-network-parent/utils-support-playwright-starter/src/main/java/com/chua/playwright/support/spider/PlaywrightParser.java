@@ -66,6 +66,7 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     @Override
+    /** 解析 */
     public SpiderResult parse(SpiderResponse response) {
         String content = response.getContent();
         if (content == null || content.isEmpty()) {
@@ -102,6 +103,7 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     @Override
+    /** SupportedContentTypes */
     public String[] supportedContentTypes() {
         return SUPPORTED_TYPES;
     }

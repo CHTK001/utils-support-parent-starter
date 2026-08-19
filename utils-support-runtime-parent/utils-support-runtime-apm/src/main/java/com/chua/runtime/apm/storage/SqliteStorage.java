@@ -110,6 +110,7 @@ public class SqliteStorage implements ApmStorage {
     private final Object writeLock = new Object();
 
     @Override
+    /** 开始 */
     public void start(StorageConfig config) {
         this.dbPath = config.get(KEY_PATH, DEFAULT_DB_PATH);
         this.retentionMillis = config.getLong(KEY_RETENTION_MS, DEFAULT_RETENTION_MS);
@@ -126,11 +127,13 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         log.info(String.format("SqliteStorage 停止: %s", dbPath));
     }
 
     @Override
+    /** 追加Transmission */
     public void appendTransmission(TransmissionEvent event) {
         if (event == null) {
             return;
@@ -179,6 +182,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 追加Dependency */
     public void appendDependency(DependencyEdge edge) {
         if (edge == null || edge.getSource() == null || edge.getTarget() == null) {
             return;
@@ -232,6 +236,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 追加Leak */
     public void appendLeak(LeakRecord record) {
         if (record == null) {
             return;
@@ -256,6 +261,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 追加记录日志 */
     public void appendLog(LogRecord record) {
         if (record == null) {
             return;
@@ -280,6 +286,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Transmissions */
     public List<TransmissionEvent> queryTransmissions(Query query) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, trace_id, span_id, parent_span_id, "
@@ -319,6 +326,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Dependencies */
     public List<DependencyEdge> queryDependencies(Query query) {
         List<DependencyEdge> result = new ArrayList<>();
         try (Connection conn = open();
@@ -336,6 +344,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Leaks */
     public List<LeakRecord> queryLeaks(Query query) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, handle_id, kind, name, thread, created_at, closed_at, stack_trace FROM leaks WHERE 1=1");
@@ -370,6 +379,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** 查询Logs */
     public List<LogRecord> queryLogs(Query query) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, timestamp, level, logger, class_name, method_name, message, trace_id FROM logs WHERE 1=1");
@@ -405,6 +415,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** Stats */
     public Map<String, Long> stats() {
         Map<String, Long> result = new HashMap<>();
         try (Connection conn = open()) {
@@ -419,6 +430,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** Cleanup */
     public long cleanup(long retentionMillis) {
         long cutoff = System.currentTimeMillis() - retentionMillis;
         long removed = 0;
@@ -435,6 +447,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
+    /** Name */
     public String name() {
         return "sqlite";
     }

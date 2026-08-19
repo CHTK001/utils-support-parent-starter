@@ -56,6 +56,14 @@ public class Acme4jProvider implements AcmeProvider {
     private String accountPrivateKeyPem;
 
     @Override
+    /**
+     * 连接
+     * @param serverUrl serverUrl
+     * @param email email
+     * @param privateKeyPem privateKeyPem
+     * @param eabKid eabKid
+     * @param eabHmacKey eabHmacKey
+     */
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                         String eabKid, String eabHmacKey) {
         try {
@@ -89,6 +97,7 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     @Override
+    /** 获取ValidationInfo */
     public List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType) {
         List<AcmeValidationInfo> result = new ArrayList<>();
 
@@ -126,6 +135,7 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     @Override
+    /** RequestCertificate */
     public AcmeCertificateResult requestCertificate(List<String> domains, String challengeType) {
         try {
             // 创建订单
@@ -185,11 +195,13 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     @Override
+    /** RenewCertificate */
     public AcmeCertificateResult renewCertificate(List<String> domains, String challengeType) {
         return requestCertificate(domains, challengeType);
     }
 
     @Override
+    /** RevokeCertificate */
     public boolean revokeCertificate(String certificatePem) {
         try {
             // 简化实现
@@ -202,23 +214,27 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     @Override
+    /** 获取AccountPrivateKeyPem */
     public String getAccountPrivateKeyPem() {
         return accountPrivateKeyPem;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         session = null;
         account = null;
         accountKeyPair = null;
     }
 
+    /** GenerateKeyPair */
     private KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         return keyGen.generateKeyPair();
     }
 
+    /** 处理Authorization */
     private void processAuthorization(Authorization auth) throws AcmeException {
         for (var challenge : auth.getChallenges()) {
             if (challenge instanceof Http01Challenge httpChallenge) {
@@ -239,6 +255,7 @@ public class Acme4jProvider implements AcmeProvider {
         }
     }
 
+    /** 创建Csr */
     private byte[] createCsr(List<String> domains) {
         try {
             CSRBuilder csrBuilder = new CSRBuilder();
@@ -254,6 +271,7 @@ public class Acme4jProvider implements AcmeProvider {
         }
     }
 
+    /** 转换ToPem */
     private String convertToPem(X509Certificate cert) throws Exception {
         StringBuilder pem = new StringBuilder();
         pem.append("-----BEGIN CERTIFICATE-----\n");

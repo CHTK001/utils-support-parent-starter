@@ -70,14 +70,21 @@ public class TcpProxyServerFilter implements ServerFilter {
     /** NET客户端 */
     private NetClient netClient;
 
+    /** 创建 TcpProxyServerFilter 实例 */
     public TcpProxyServerFilter() {
         this(5000, 30000, null);
     }
 
+    /**
+     * 创建 TcpProxyServerFilter 实例
+     * @param connectTimeoutMs connectTimeoutMs
+     * @param int int
+     */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs) {
         this(connectTimeoutMs, readTimeoutMs, null);
     }
 
+    /** StaticRoutes */
     public static TcpProxyServerFilter staticRoutes(Map<String, InetSocketAddress> routes) {
         Objects.requireNonNull(routes, "routes must not be null");
         if (routes.isEmpty()) {
@@ -93,10 +100,17 @@ public class TcpProxyServerFilter implements ServerFilter {
         return new TcpProxyServerFilter(5000, 30000, resolver);
     }
 
+    /** Of */
     public static TcpProxyServerFilter of(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         return new TcpProxyServerFilter(connectTimeoutMs, readTimeoutMs, targetResolver);
     }
 
+    /**
+     * 创建 TcpProxyServerFilter 实例
+     * @param connectTimeoutMs connectTimeoutMs
+     * @param int int
+     * @param ProxyTargetResolver ProxyTargetResolver
+     */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         this.connectTimeoutMs = connectTimeoutMs;
         this.readTimeoutMs = readTimeoutMs;
@@ -104,16 +118,19 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE - 30;
     }
 
     @Override
+    /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.TCP};
     }
 
     @Override
+    /** 初始化 */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         this.netClient = vertx.createNetClient(new NetClientOptions()
@@ -125,6 +142,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         running.set(false);
         stopProxy();
@@ -138,11 +156,18 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     @Override
+    /**
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);
     }
 
+    /** 停止Proxy */
     public void stopProxy() {
         running.set(false);
         if (netServer != null) {
@@ -150,14 +175,17 @@ public class TcpProxyServerFilter implements ServerFilter {
         }
     }
 
+    /** 获取ActiveConnections */
     public int getActiveConnections() {
         return activeConnections.get();
     }
 
+    /** 开始Proxy */
     public void startProxy(int listenPort) {
         startProxy(listenPort, 0);
     }
 
+    /** 开始Proxy */
     public void startProxy(int listenPort, int backlog) {
         if (vertx == null) {
             this.vertx = Vertx.vertx();
@@ -179,6 +207,7 @@ public class TcpProxyServerFilter implements ServerFilter {
                 .onFailure(err -> log.error("[network-proxy] TCP 代理启动失败: port={}", listenPort, err));
     }
 
+    /** 处理Connection */
     private void handleConnection(NetSocket clientSocket) {
         InetSocketAddress remote = remoteAddress(clientSocket);
         Discovery discovery = targetResolver.resolve(remote);
@@ -205,6 +234,7 @@ public class TcpProxyServerFilter implements ServerFilter {
                 });
     }
 
+    /** RemoteAddress */
     private static InetSocketAddress remoteAddress(NetSocket socket) {
         io.vertx.core.net.SocketAddress addr = socket.remoteAddress();
         return new InetSocketAddress(addr.host(), addr.port());

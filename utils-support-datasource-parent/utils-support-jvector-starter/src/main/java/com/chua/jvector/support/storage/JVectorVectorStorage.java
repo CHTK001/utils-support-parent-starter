@@ -107,43 +107,51 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** Do添加 */
     protected synchronized boolean doAdd(String id, float[] vector) {
         return delegate.doAdd(id, vector);
     }
 
     @Override
+    /** Do搜索 */
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
         return delegate.doSearch(query, topK);
     }
 
     @Override
+    /** 获取大小 */
     public synchronized int size() {
         return delegate.size();
     }
 
     @Override
+    /** Clear */
     public synchronized void clear() {
         delegate.clear();
     }
 
     @Override
+    /** 关闭 */
     public synchronized void close() {
         delegate.close();
     }
 
     @Override
+    /** Rebuild */
     public synchronized void rebuild() {
         checkNotClosed();
         delegate.rebuild();
     }
 
     @Override
+    /** 移除 */
     public synchronized boolean remove(String id) {
         checkNotClosed();
         return delegate.doRemove(id);
     }
 
     @Override
+    /** 更新 */
     public synchronized boolean update(String id, float[] vector) {
         checkNotClosed();
         if (vector.length != dimension()) {
@@ -153,6 +161,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         return delegate.doUpdate(id, vector);
     }
 
+    /** ToJVectorSim */
     private static VectorSimilarityFunction toJVectorSim(VectorCompareAlgorithm algo) {
         if (algo == null) {
             return VectorSimilarityFunction.EUCLIDEAN;
@@ -196,6 +205,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Rebuild */
         public synchronized void rebuild() {
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -204,6 +214,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do添加 */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -219,6 +230,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do搜索 */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
                 return List.of();
@@ -246,6 +258,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do移除 */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -274,6 +287,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do更新 */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -289,9 +303,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** 获取大小 */
         public synchronized int size() { return vectors.size(); }
 
         @Override
+        /** Clear */
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
             resetOrdinals();
@@ -302,6 +318,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** 关闭 */
         public synchronized void close() {
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -309,6 +326,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
+        /** 构建Graph */
         private void buildGraph() {
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
@@ -361,6 +379,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             tryLoadExistingIndex();
         }
 
+        /** Try加载ExistingIndex */
         private void tryLoadExistingIndex() {
             if (!Files.exists(indexPath)) {
                 return;
@@ -375,6 +394,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
+        /** 加载Vectors */
         private void loadVectors() {
             if (!Files.exists(vectorDataPath)) {
                 return;
@@ -404,6 +424,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
+        /** 保存Vectors */
         private void saveVectors() {
             try {
                 Files.createDirectories(vectorDataPath.getParent());
@@ -432,6 +453,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
 
         @Override
+        /** Do添加 */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -446,6 +468,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do搜索 */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (diskGraph != null && vectors.isEmpty()) {
                 loadVectors();
@@ -482,6 +505,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do移除 */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -507,6 +531,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do更新 */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -520,9 +545,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** 获取大小 */
         public synchronized int size() { return vectors.size(); }
 
         @Override
+        /** Clear */
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
             resetOrdinals();
@@ -535,6 +562,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** 关闭 */
         public synchronized void close() {
             if (vectorsDirty || diskGraph == null) {
                 ensureGraphBuilt();
@@ -549,6 +577,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Rebuild */
         public synchronized void rebuild() {
             if (diskGraph != null) {
                 try { diskGraph.close(); } catch (Exception ignored) {}
@@ -558,6 +587,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             ensureGraphBuilt();
         }
 
+        /** EnsureGraphBuilt */
         private void ensureGraphBuilt() {
             if (diskGraph != null) {
                 return;
@@ -615,6 +645,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Rebuild */
         public synchronized void rebuild() {
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -624,6 +655,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do添加 */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -638,6 +670,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do搜索 */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
                 return List.of();
@@ -680,6 +713,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do移除 */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -705,6 +739,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** Do更新 */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -718,9 +753,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** 获取大小 */
         public synchronized int size() { return vectors.size(); }
 
         @Override
+        /** Clear */
         public synchronized void clear() {
             vectors.clear(); rawVectors.clear();
             resetOrdinals();
@@ -732,6 +769,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
+        /** 关闭 */
         public synchronized void close() {
             if (graph != null) {
                 try { graph.close(); } catch (Exception ignored) {}
@@ -740,6 +778,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             pqVectors = null;
         }
 
+        /** EnsureGraphBuilt */
         private void ensureGraphBuilt() {
             if (graph != null && pqVectors != null) {
                 return;

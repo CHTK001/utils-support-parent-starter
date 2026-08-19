@@ -34,6 +34,7 @@ public class ImageProcessorBenchmark {
     /** 测量迭代次数 */
     private static final int MEASURE_ITERATIONS = 5;
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         if (args.length > 0 && "stress".equalsIgnoreCase(args[0])) {
             // 并发压力测试模式
@@ -51,6 +52,7 @@ public class ImageProcessorBenchmark {
 
     // ==================== 并发压力测试 ====================
 
+    /** 运行StressTest */
     private static void runStressTest(String inputPath, int threads, int totalOps) throws Exception {
         System.out.println("===== ImageProcessor 并发压力测试 =====");
         System.out.println("输入图片: " + inputPath);
@@ -134,6 +136,15 @@ public class ImageProcessorBenchmark {
         }
     }
 
+    /**
+     * 运行SingleOpStress
+     * @param impl impl
+     * @param imageData imageData
+     * @param opName opName
+     * @param opParams opParams
+     * @param threads threads
+     * @param totalOps totalOps
+     */
     private static void runSingleOpStress(ImageProcessor impl, byte[] imageData,
                                            String opName, Map<String, Object> opParams,
                                            int threads, int totalOps) {
@@ -142,6 +153,15 @@ public class ImageProcessorBenchmark {
         printStressResult(result);
     }
 
+    /**
+     * 运行MixedOpStress
+     * @param impl impl
+     * @param imageData imageData
+     * @param opNames opNames
+     * @param opParams opParams
+     * @param threads threads
+     * @param totalOps totalOps
+     */
     private static void runMixedOpStress(ImageProcessor impl, byte[] imageData,
                                           String[] opNames, Map<String, Object>[] opParams,
                                           int threads, int totalOps) {
@@ -209,6 +229,15 @@ public class ImageProcessorBenchmark {
                 avg, min, p50, p90, p99, max);
     }
 
+    /**
+     * 运行StressInternal
+     * @param impl impl
+     * @param imageData imageData
+     * @param opName opName
+     * @param opParams opParams
+     * @param threads threads
+     * @param totalOps totalOps
+     */
     private static StressResult runStressInternal(ImageProcessor impl, byte[] imageData,
                                                    String opName, Map<String, Object> opParams,
                                                    int threads, int totalOps) {
@@ -268,6 +297,7 @@ public class ImageProcessorBenchmark {
         return new StressResult(totalOps, successes, elapsed, throughput, avg, min, p50, p90, p99, max);
     }
 
+    /** PrintStressResult */
     private static void printStressResult(StressResult r) {
         if (r.successes == 0) {
             System.out.println("    全部失败! failures=" + (r.totalOps - r.successes));
@@ -284,6 +314,7 @@ public class ImageProcessorBenchmark {
 
     // ==================== 基准测试 ====================
 
+    /** 运行Benchmark */
     private static void runBenchmark(String inputPath, int iterations) throws Exception {
         System.out.println("===== ImageProcessor 性能基准测试 v0.2 =====");
         System.out.println("输入图片: " + inputPath);
@@ -382,6 +413,7 @@ public class ImageProcessorBenchmark {
 
     // ==================== 工具方法 ====================
 
+    /** 读取Image */
     private static byte[] readImage(String path) {
         try {
             Path p = Paths.get(path);
@@ -392,6 +424,7 @@ public class ImageProcessorBenchmark {
         }
     }
 
+    /** 获取UniqueExtensions */
     private static List<ImageProcessor> getUniqueExtensions() {
         ServiceProvider<ImageProcessor> provider = ServiceProvider.of(ImageProcessor.class);
         List<ImageProcessor> raw = provider.getNewExtensions("image-processor");
@@ -404,6 +437,7 @@ public class ImageProcessorBenchmark {
         return new ArrayList<>(unique.values());
     }
 
+    /** Params */
     private static Map<String, Object> params(Object... keyValues) {
         Map<String, Object> map = new HashMap<>();
         for (int i = 0; i < keyValues.length; i += 2) {

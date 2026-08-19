@@ -31,16 +31,19 @@ public class ArchiveEntryAdapter implements ArchiveEntry {
 
     @Override
     @Nonnull
+    /** 获取Name */
     public String getName() {
         return delegate.getName();
     }
 
     @Override
+    /** 是否Directory */
     public boolean isDirectory() {
         return delegate.isDirectory();
     }
 
     @Override
+    /** 获取获取大小 */
     public long getSize() {
         return delegate.getSize();
     }

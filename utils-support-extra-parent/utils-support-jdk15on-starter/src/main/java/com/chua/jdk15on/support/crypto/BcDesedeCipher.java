@@ -37,6 +37,7 @@ public class BcDesedeCipher implements DesedeCipher {
     }
 
     @Override
+    /** Encrypt */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[8];
@@ -57,6 +58,7 @@ public class BcDesedeCipher implements DesedeCipher {
     }
 
     @Override
+    /** Decrypt */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             byte[] iv = new byte[8];

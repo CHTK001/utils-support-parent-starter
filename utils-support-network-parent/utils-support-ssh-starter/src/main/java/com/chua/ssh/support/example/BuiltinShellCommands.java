@@ -297,6 +297,7 @@ public class BuiltinShellCommands {
         }
     }
 
+    /** 复制Recursive */
     private static void copyRecursive(Path source, Path target) throws IOException {
         Files.walk(source).forEach(src -> {
             try {

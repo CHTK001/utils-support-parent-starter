@@ -12,6 +12,7 @@ import com.chua.common.support.utils.NativeUtils;
  * - com.fasterxml.jackson.core:jackson-databind (JSON 解析)
  */
 public class DataRecoveryTest {
+    /** Main */
     public static void main(String[] args) {
         String targetPath = "F:\\";
         if (args.length > 0) {

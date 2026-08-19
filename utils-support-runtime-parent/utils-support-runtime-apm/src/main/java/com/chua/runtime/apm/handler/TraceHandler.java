@@ -255,6 +255,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
+    /** 创建 TraceHandler 实例 */
     public TraceHandler() {
         this.traceContext = new TraceContext();
         this.spans = Collections.synchronizedList(new ArrayList<>());
@@ -263,16 +264,19 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Name */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
+    /** Version */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
+    /** 初始化 */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_TRACE_ENABLED.equals(context.getProperty(PROP_TRACE_ENABLED, DEFAULT_TRACE_ENABLED));
@@ -281,6 +285,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 开始 */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -308,6 +313,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -317,11 +323,13 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
+    /** Status */
     public String status() {
         return String.format("TraceHandler[enabled=%s, spans=%d, http=%s]", enabled, spans.size(), httpTracingEnabled);
     }
 
     @Override
+    /** 是否Running */
     public boolean isRunning() {
         return enabled && started.get();
     }
@@ -667,50 +675,62 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
          */
         private String traceId;
 
+        /** 获取RequestPath */
         public String getRequestPath() {
             return requestPath;
         }
 
+        /** 设置RequestPath */
         public void setRequestPath(String requestPath) {
             this.requestPath = requestPath;
         }
 
+        /** 获取ClientIp */
         public String getClientIp() {
             return clientIp;
         }
 
+        /** 设置ClientIp */
         public void setClientIp(String clientIp) {
             this.clientIp = clientIp;
         }
 
+        /** 获取Accept */
         public String getAccept() {
             return accept;
         }
 
+        /** 设置Accept */
         public void setAccept(String accept) {
             this.accept = accept;
         }
 
+        /** 获取开始Time */
         public long getStartTime() {
             return startTime;
         }
 
+        /** 设置开始Time */
         public void setStartTime(long startTime) {
             this.startTime = startTime;
         }
 
+        /** 获取SpanId */
         public String getSpanId() {
             return spanId;
         }
 
+        /** 设置SpanId */
         public void setSpanId(String spanId) {
             this.spanId = spanId;
         }
 
+        /** 获取TraceId */
         public String getTraceId() {
             return traceId;
         }
 
+        /** 设置TraceId */
         public void setTraceId(String traceId) {
             this.traceId = traceId;
         }
@@ -728,16 +748,19 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
          */
         private final ThreadLocal<Span> currentSpan = new ThreadLocal<>();
 
+        /** CurrentSpan */
         public Span currentSpan() {
             return currentSpan.get();
         }
 
+        /** 设置Span */
         public Span setSpan(Span span) {
             Span old = currentSpan.get();
             currentSpan.set(span);
             return old;
         }
 
+        /** Clear */
         public void clear() {
             currentSpan.remove();
         }

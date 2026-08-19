@@ -66,6 +66,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         ServiceProvider.CACHE.clear();
     }
 
+    /** 创建 AbstractIdentificationEngine 实例 */
     public AbstractIdentificationEngine() {
         ImageUtils.load();
         discoverModels();
@@ -148,6 +149,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
+    /** 获取Models */
     public List<ModelDefinition> getModels() {
         List<ModelDefinition> result = new ArrayList<>();
         for (TranslatorModelDefinition def : modelMap.values()) {
@@ -159,11 +161,13 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
+    /** 获取TranslatorModels */
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return new ArrayList<>(modelMap.values());
     }
 
     @Override
+    /** 注册 */
     public void register(TranslatorModelDefinition definition) {
         if (definition == null) {
             return;
@@ -177,6 +181,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
+    /** 获取ModelNamesByCapability */
     public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
         String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(capabilityInterface);
         if (label != null) {
@@ -187,6 +192,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
+    /** 获取ModelNamesByCapability */
     public List<String> getModelNamesByCapability(String capability) {
         if (capability == null || capability.isBlank()) {
             List<String> all = new ArrayList<>();
@@ -207,6 +213,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取 */
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
@@ -221,6 +228,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取 */
     public <T> T get(Class<T> target) {
         for (TranslatorModelDefinition def : modelMap.values()) {
             Object translator = def.getTranslator();
@@ -296,6 +304,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return labels;
     }
 
+    /** NameContains */
     private static boolean nameContains(String name, String... keywords) {
         for (String keyword : keywords) {
             if (name.contains(keyword)) {
@@ -305,6 +314,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return false;
     }
 
+    /** 解析Provider */
     private static String resolveProvider(String relativePath) {
         if (relativePath == null) {
             return DEFAULT_PROVIDER;
@@ -329,6 +339,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         modelMap.clear();
         INSTANCE = null;

@@ -349,6 +349,7 @@ public class ResourceFlow {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return String.format("ResourceFlow{name='%s', finder=%s}",
                 name, resourceFinder.getClass().getSimpleName());
@@ -365,6 +366,7 @@ public class ResourceFlow {
         static final EmptyResourceFinder INSTANCE = new EmptyResourceFinder();
 
         @Override
+        /** 查找 */
         public Set<Resource> find(String name) {
             return Collections.emptySet();
         }

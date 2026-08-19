@@ -230,6 +230,7 @@ public class FileSize {
     }
 
     @Override
+    /** 判断相等 */
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
@@ -238,11 +239,13 @@ public class FileSize {
     }
 
     @Override
+    /** HashCode */
     public int hashCode() {
         return Long.hashCode(bytes);
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return toHumanReadable();
     }

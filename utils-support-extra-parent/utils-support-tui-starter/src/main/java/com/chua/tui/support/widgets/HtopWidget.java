@@ -49,6 +49,7 @@ public class HtopWidget extends TuiWidget {
     }
 
     @Override
+    /** Render */
     public String render(String data) {
         if (data == null || data.isEmpty() || "N/A".equals(data)) {
             return MordantHelper.panel("等待数据...", getTitle(), "single");
@@ -116,6 +117,7 @@ public class HtopWidget extends TuiWidget {
     }
 
     @Override
+    /** 获取DefaultData */
     protected String getDefaultData() {
         return "0.0|0.0|0|16\njava|1|0.0|0.0";
     }

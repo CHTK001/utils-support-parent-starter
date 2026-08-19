@@ -23,11 +23,13 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".claude");
 
     @Override
+    /** Name */
     public String name() {
         return "claude-code";
     }
 
     @Override
+    /** 解析All */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(DATA_DIR)) {
             log.debug("[claude-code] 数据目录不存在: {}", DATA_DIR);

@@ -91,6 +91,7 @@ public class EfficientSamSegmentTranslator {
     /** SRC高度 */
     private int srcHeight;
 
+    /** Prepare */
     private synchronized void prepare() throws Exception {
         if (encoderSession != null && decoderSession != null) {
             return;
@@ -155,6 +156,7 @@ public class EfficientSamSegmentTranslator {
         return ImageFactory.getInstance().fromImage(mask);
     }
 
+    /** ExtendScale */
     private void extendScale(Image input) {
         srcWidth = input.getWidth();
         srcHeight = input.getHeight();
@@ -183,6 +185,7 @@ public class EfficientSamSegmentTranslator {
         return out;
     }
 
+    /** 编码 */
     private float[][][][] encode(float[][] normalized) {
         long[] shape = new long[]{1, 3, INPUT_SIZE, INPUT_SIZE};
         try (OnnxTensor imageTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(normalized)), shape)) {
@@ -196,6 +199,14 @@ public class EfficientSamSegmentTranslator {
         }
     }
 
+    /**
+     * 解码
+     * @param embeddings embeddings
+     * @param coords coords
+     * @param labels labels
+     * @param origSize origSize
+     * @param iouOut iouOut
+     */
     private float[][][][][] decode(float[][][][] embeddings, float[][] coords,
                                    float[][] labels, long[] origSize, float[] iouOut) {
         long[] embShape = new long[]{1, 256, EMBED_SIZE, EMBED_SIZE};
@@ -239,6 +250,7 @@ public class EfficientSamSegmentTranslator {
         };
     }
 
+    /** Argmax */
     private int argmax(float[] scores) {
         int best = 0;
         for (int i = 1; i < scores.length; i++) {
@@ -266,6 +278,7 @@ public class EfficientSamSegmentTranslator {
         return result;
     }
 
+    /** ToBufferedImage */
     private BufferedImage toBufferedImage(Image input) {
         if (input == null) {
             throw new IllegalArgumentException("EfficientSAM 输入图像为空");
@@ -281,6 +294,7 @@ public class EfficientSamSegmentTranslator {
         throw new IllegalStateException("EfficientSAM 无法将输入转换为 BufferedImage");
     }
 
+    /** 扁平化 */
     private static float[] flatten(float[][] arr) {
         int n = 0;
         for (float[] row : arr) {
@@ -296,6 +310,7 @@ public class EfficientSamSegmentTranslator {
         return out;
     }
 
+    /** 扁平化 */
     private static float[] flatten4(float[][][][] arr) {
         int n = 0;
         for (float[][][] a : arr) {

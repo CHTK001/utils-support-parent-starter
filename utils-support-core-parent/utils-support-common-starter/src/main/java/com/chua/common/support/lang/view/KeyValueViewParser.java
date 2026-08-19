@@ -21,12 +21,14 @@ import java.util.*;
 public class KeyValueViewParser implements ViewParser {
 
     @Override
+    /** Support */
     public boolean support(Object data) {
         return data instanceof Map || isPojo(data);
     }
 
     @Override
 @SuppressWarnings("unchecked")
+    /** Render */
     public String render(Object data) {
         Map<String, String> map = toKeyValue(data);
         if (map.isEmpty()) {
@@ -97,6 +99,7 @@ public class KeyValueViewParser implements ViewParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 10;
     }

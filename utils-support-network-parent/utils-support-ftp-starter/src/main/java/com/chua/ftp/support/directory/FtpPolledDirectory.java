@@ -76,6 +76,11 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
+    /**
+     * 开始
+     * @param environment environment
+     * @param executor executor
+     */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         client = new FTPClient();
@@ -94,6 +99,7 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
+    /** ListAndModified */
     protected List<FTPFile> listAndModified(String path) {
         try {
             FTPFile[] files = client.listFiles(path);
@@ -105,17 +111,20 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
+    /** 获取FileName */
     protected String getFileName(FTPFile item) {
         return item.getName();
     }
 
     @Override
+    /** 获取Modified */
     protected Long getModified(FTPFile item) {
         long t = item.getTimestamp() != null ? item.getTimestamp().getTimeInMillis() : 0L;
         return t;
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         super.close();
         if (client != null && client.isConnected()) {

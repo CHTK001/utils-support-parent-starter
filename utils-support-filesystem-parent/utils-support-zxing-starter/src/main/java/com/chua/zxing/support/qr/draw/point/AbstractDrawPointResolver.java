@@ -23,6 +23,15 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
     int topPadding;
     int infoSize;
 
+    /**
+     * 创建 AbstractDrawPointResolver 实例
+     * @param qrCodeConfig qrCodeConfig
+     * @param Graphics2D Graphics2D
+     * @param BitMatrixEx BitMatrixEx
+     * @param int int
+     * @param int int
+     * @param int int
+     */
     public AbstractDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
         this.qrCodeConfig = qrCodeConfig;
         this.g2 = g2;
@@ -33,6 +42,7 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
     }
 
     @Override
+    /** Draw */
     public void draw(int x, int y) {
         if (!qrCodeConfig.getDrawOptions().isEnableScale()) {
             // 用几何图形进行填充时，如果不支持多个像素点渲染一个几何图形时，直接返回即可

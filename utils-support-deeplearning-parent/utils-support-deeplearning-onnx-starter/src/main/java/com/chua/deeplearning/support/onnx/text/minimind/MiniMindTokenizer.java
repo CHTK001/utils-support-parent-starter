@@ -57,6 +57,12 @@ public class MiniMindTokenizer {
     /** 已添加标记数量映射 */
     private final Map<String, Integer> addedTokens;
 
+    /**
+     * 创建 MiniMindTokenizer 实例
+     * @param vocab vocab
+     * @param addedTokens addedTokens
+     * @param merges merges
+     */
     private MiniMindTokenizer(Map<String, Integer> vocab,
                               Map<String, Integer> addedTokens,
                               List<String> merges) {
@@ -147,10 +153,12 @@ public class MiniMindTokenizer {
         return new MiniMindTokenizer(vocab, addedTokens, merges);
     }
 
+    /** Vocab获取大小 */
     public int vocabSize() {
         return vocabSize;
     }
 
+    /** AddedTokenId */
     public int addedTokenId(String token) {
         Integer id = addedTokens.get(token);
         return id == null ? -1 : id;
@@ -233,6 +241,7 @@ public class MiniMindTokenizer {
                     + "|\\s+"
     );
 
+    /** ByteLevelPreTokenize */
     private List<String> byteLevelPreTokenize(String text) {
         List<String> tokens = new ArrayList<>();
         java.util.regex.Matcher m = BYTE_LEVEL_PATTERN.matcher(text);

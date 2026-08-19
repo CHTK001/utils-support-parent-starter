@@ -73,10 +73,16 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
      */
     private final int[] steps;
 
+    /** 创建 UltraFaceTranslator 实例 */
     public UltraFaceTranslator() {
         this(0.7d, 0.3d);
     }
 
+    /**
+     * 创建 UltraFaceTranslator 实例
+     * @param confThresh confThresh
+     * @param double double
+     */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this.confThresh = confThresh;
         this.nmsThresh = nmsThresh;
@@ -89,6 +95,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         long height = array.getShape().get(0);
@@ -106,6 +113,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -167,6 +175,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(names, probs, boxes);
     }
 
+    /** SqueezeBatch */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
             return array.squeeze(0);
@@ -174,6 +183,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return array;
     }
 
+    /** BoxRecover */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
         for (int index = 0; index < steps.length; index++) {
@@ -199,19 +209,23 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return boxes;
     }
 
+    /** Clip */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
+    /** Clip获取大小 */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }
 
+    /** Candidate */
     private record Candidate(Rectangle rectangle, double probability) {
     }
 }

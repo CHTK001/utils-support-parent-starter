@@ -102,6 +102,7 @@ public class FurthestPair {
     }
 
     @Override
+    /** ToString */
     public String toString() {
         return String.format("FurthestPair{first=%d, second=%d, distance=%.6f}", firstIndex, secondIndex, distance);
     }

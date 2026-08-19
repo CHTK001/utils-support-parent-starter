@@ -104,11 +104,16 @@ public class MqttServer extends AbstractServer {
      */
     private ServerSocket serverSocket;
 
+    /**
+     * 创建 MqttServer 实例
+     * @param setting setting
+     */
     public MqttServer(ServerSetting setting) {
         super(setting);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -131,6 +136,7 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         running = false;
         if (serverSocket != null) {
@@ -157,6 +163,7 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.MQTT;
     }
@@ -213,6 +220,7 @@ public class MqttServer extends AbstractServer {
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     @Override
+    /** 注册Bean */
     public MqttServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -242,9 +250,12 @@ public class MqttServer extends AbstractServer {
         return this;
     }
 
+    /** AnnotatedMethod */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {}
+    /** AnnotatedMessage */
     private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {}
 
+    /** 分发AnnotatedMethods */
     private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods, Object... args) {
         ObjectContext ctx = getObjectContext();
         if (ctx == null) {
@@ -258,6 +269,7 @@ public class MqttServer extends AbstractServer {
         }
     }
 
+    /** 分发Annotated发布 */
     private void dispatchAnnotatedPublish(String topic, String payload) {
         ObjectContext ctx = getObjectContext();
         if (ctx == null) {
@@ -273,6 +285,7 @@ public class MqttServer extends AbstractServer {
         }
     }
 
+    /** Safe调用 */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             method.invoke(bean, args);
@@ -293,6 +306,7 @@ public class MqttServer extends AbstractServer {
         }
     }
 
+    /** 调用Method */
     private void invokeMethod(Object handler, Method method, Object... args) {
         try {
             method.invoke(handler, args);
@@ -318,6 +332,7 @@ public class MqttServer extends AbstractServer {
         }
     }
 
+    /** MatchTopic */
     private static boolean matchTopic(String pattern, String topic) {
         if ("#".equals(pattern)) {
             return true;
@@ -343,6 +358,7 @@ public class MqttServer extends AbstractServer {
         return p == pp.length && t == tp.length;
     }
 
+    /** AcceptLoop */
     private void acceptLoop() {
         while (running) {
             try {
@@ -418,6 +434,7 @@ public class MqttServer extends AbstractServer {
             }
         }
 
+        /** 处理发布 */
         private void handlePublish(int firstByte) throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -471,6 +488,7 @@ public class MqttServer extends AbstractServer {
             }
         }
 
+        /** 处理连接 */
         private void handleConnect() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -509,6 +527,7 @@ public class MqttServer extends AbstractServer {
             dispatchAnnotatedMethods(onOpenMethods);
         }
 
+        /** 处理断开 */
         private void handleDisconnect() {
             for (Consumer<String> listener : disconnectListeners) {
                 try {
@@ -527,6 +546,7 @@ public class MqttServer extends AbstractServer {
             dispatchAnnotatedMethods(onCloseMethods);
         }
 
+        /** 处理订阅 */
         private void handleSubscribe() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -550,6 +570,7 @@ public class MqttServer extends AbstractServer {
             sendSuback(packetId);
         }
 
+        /** 处理取消订阅 */
         private void handleUnsubscribe() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -571,6 +592,7 @@ public class MqttServer extends AbstractServer {
             sendUnsuback(packetId);
         }
 
+        /** 发送Suback */
         private void sendSuback(int packetId) throws IOException {
             out.write(0x70);
             out.write(0x03);
@@ -580,6 +602,7 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
+        /** 发送Unsuback */
         private void sendUnsuback(int packetId) throws IOException {
             out.write(0xB0);
             out.write(0x02);
@@ -588,12 +611,14 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
+        /** 处理Pingreq */
         private void handlePingreq() throws IOException {
             out.write(0xD0);
             out.write(0x00);
             out.flush();
         }
 
+        /** 发送Connack */
         private void sendConnack() throws IOException {
             out.write(0x20);
             out.write(0x02);
@@ -602,6 +627,7 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
+        /** 发送Puback */
         private void sendPuback(int packetId) throws IOException {
             out.write(0x40);
             out.write(0x02);
@@ -610,6 +636,7 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
+        /** BroadcastToSubscribers */
         private void broadcastToSubscribers(String topic, String message, int qos) {
             for (ClientSession other : clients.values()) {
                 for (String sub : other.subscriptions) {
@@ -625,6 +652,7 @@ public class MqttServer extends AbstractServer {
             }
         }
 
+        /** 发送发布 */
         private void sendPublish(String topic, String payload, int qos) throws IOException {
             byte[] topicBytes = topic.getBytes(StandardCharsets.UTF_8);
             byte[] payloadBytes = payload.getBytes(StandardCharsets.UTF_8);
@@ -639,6 +667,7 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
+        /** 读取Remaining获取长度 */
         private int readRemainingLength() throws IOException {
             int multiplier = 1;
             int value = 0;
@@ -651,6 +680,7 @@ public class MqttServer extends AbstractServer {
             return value;
         }
 
+        /** 写入Remaining获取长度 */
         private void writeRemainingLength(int length) throws IOException {
             do {
                 int digit = length % 128;
@@ -662,6 +692,7 @@ public class MqttServer extends AbstractServer {
             } while (length > 0);
         }
 
+        /** 跳过Packet */
         private void skipPacket() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] skip = new byte[remainingLength];
@@ -680,6 +711,11 @@ public class MqttServer extends AbstractServer {
     // ==================== 异常类 ====================
 
     public static class MqttServerException extends RuntimeException {
+        /**
+         * 创建 MqttServerException 实例
+         * @param message message
+         * @param Throwable Throwable
+         */
         public MqttServerException(String message, Throwable cause) {
             super(message, cause);
         }

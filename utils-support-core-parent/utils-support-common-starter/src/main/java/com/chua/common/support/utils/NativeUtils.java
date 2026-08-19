@@ -32,10 +32,12 @@ public class NativeUtils {
     /** Loaded_paths */
     private static final Set<String> LOADED_PATHS = new LinkedHashSet<>();
 
+    /** 创建 NativeUtils 实例 */
     private NativeUtils() {}
 
     // ==================== 架构归一化 ====================
 
+    /** NormalizeArch */
     private static String normalizeArch(String arch) {
         return switch (arch) {
             case "amd64", "x86_64", "x64", "em64t", "k8" -> "x86_64";
@@ -55,6 +57,7 @@ public class NativeUtils {
         };
     }
 
+    /** 获取OsPrefix */
     private static String getOsPrefix() {
         if (OS_NAME.contains("linux")) {
             return "linux";
@@ -80,6 +83,7 @@ public class NativeUtils {
         throw new UnsupportedOperationException("不支持的操作系统: " + OS_NAME);
     }
 
+    /** 构建FallbackArches */
     private static String[] buildFallbackArches() {
         Set<String> arches = new LinkedHashSet<>();
         arches.add(OS_ARCH);
@@ -96,10 +100,12 @@ public class NativeUtils {
 
     // ==================== 公共 API ====================
 
+    /** 获取OsPrefixName */
     public static String getOsPrefixName() {
         return OS_PREFIX;
     }
 
+    /** 获取ArchName */
     public static String getArchName() {
         return OS_ARCH;
     }
@@ -288,6 +294,7 @@ public class NativeUtils {
 
     // ==================== 内部方法 ====================
 
+    /** 加载FromClasspathInternal */
     private static void loadFromClasspathInternal(String libraryName, String subDir, String libFileName) {
         String classpathLib = subDir != null ? "/native/" + subDir + "/" + libFileName : "/native/" + libFileName;
         InputStream is = NativeUtils.class.getResourceAsStream(classpathLib);
@@ -306,6 +313,7 @@ public class NativeUtils {
         }
     }
 
+    /** 加载FromPathInternal */
     static void loadFromPathInternal(String libraryName, String libPath) {
         File libFile = new File(libPath);
         if (!libFile.exists()) {
@@ -321,6 +329,7 @@ public class NativeUtils {
         }
     }
 
+    /** 标记Loaded */
     private static void markLoaded(String key, String libraryName, String source) {
         LOADED.put(key, true);
     }

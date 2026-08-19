@@ -54,6 +54,7 @@ public interface SpeechSynthesizer {
         return this;
     }
 
+    /** 创建 */
     static SpeechSynthesizer create(String name) {
         return new DefaultSpeechSynthesizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -221,30 +222,35 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     }
 
     @Override
+    /** Lang */
     public SpeechSynthesizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public SpeechSynthesizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public SpeechSynthesizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** Speed */
     public SpeechSynthesizer speed(float speed) {
         this.speed = speed;
         return this;
     }
 
     @Override
+    /** Pitch */
     public SpeechSynthesizer pitch(float pitch) {
         this.pitch = pitch;
         return this;
@@ -252,6 +258,7 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Synthesize */
     public byte[] synthesize(String text) {
         ITranslator<String, byte[]> t =
                 (ITranslator<String, byte[]>) engine.get(modelName, ITranslator.class);

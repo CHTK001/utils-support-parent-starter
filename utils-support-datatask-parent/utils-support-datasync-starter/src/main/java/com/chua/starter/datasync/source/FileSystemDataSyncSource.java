@@ -19,6 +19,12 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     /** 文件路径 */
     private final String filePath;
 
+    /**
+     * 创建 FileSystemDataSyncSource 实例
+     * @param sourceId sourceId
+     * @param String String
+     * @param String String
+     */
     public FileSystemDataSyncSource(String sourceId, String inputId, String filePath) {
         this.sourceId = sourceId;
         this.inputId = inputId;
@@ -26,22 +32,26 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     }
 
     @Override
+    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
+    /** InputId */
     public String inputId() {
         return inputId;
     }
 
     @Override
+    /** 读取 */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         // TODO: 从文件系统读取数据
         return Flux.empty();
     }
 
     @Override
+    /** 关闭 */
     public void close() {
     }
 }

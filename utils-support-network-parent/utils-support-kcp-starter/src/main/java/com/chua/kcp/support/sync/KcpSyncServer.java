@@ -46,62 +46,74 @@ public class KcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     @Override
+    /** 获取Protocol */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
+    /** 获取ProtocolType */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
+    /** 创建Server */
     public SyncServer createServer(ServerSetting setting) {
         return new KcpSyncServer(setting);
     }
 
     @Override
+    /** 创建Client */
     public SyncClient createClient(Object setting) {
         String url = setting instanceof String ? (String) setting : DEFAULT_URL;
         return new KcpSyncClient(url);
     }
 
     @Override
+    /** Do开始 */
     protected void doStart() {
         delegate.start();
     }
 
     @Override
+    /** Do停止 */
     protected void doStop() {
         delegate.stop();
     }
 
     @Override
+    /** 发布 */
     public void publish(String topic, Object message) {
         delegate.publish(topic, message);
     }
 
     @Override
+    /** 发送 */
     public void send(String clientId, String topic, Object message) {
         delegate.send(clientId, topic, message);
     }
 
     @Override
+    /** 获取ConnectedClients */
     public List<String> getConnectedClients() {
         return delegate.getConnectedClients();
     }
 
     @Override
+    /** 获取ClientMetadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         return delegate.getClientMetadata(clientId);
     }
 
     @Override
+    /** 添加Listener */
     public void addListener(SyncServerListener listener) {
         delegate.addListener(listener);
     }
 
     @Override
+    /** 移除Listener */
     public void removeListener(SyncServerListener listener) {
         delegate.removeListener(listener);
     }

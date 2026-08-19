@@ -31,6 +31,7 @@ import java.util.Map;
 public class ObjectContextListenerParser implements ListenerParser {
 
     @Override
+    /** 解析 */
     public Map<String, Method> parse(Class<?> clazz) {
         Map<String, Method> result = new LinkedHashMap<>();
         for (Method method : clazz.getDeclaredMethods()) {
@@ -44,6 +45,7 @@ public class ObjectContextListenerParser implements ListenerParser {
     }
 
     @Override
+    /** Support */
     public boolean support(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(OnOpen.class)
@@ -57,10 +59,12 @@ public class ObjectContextListenerParser implements ListenerParser {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return 50;
     }
 
+    /** MatchAnnotation */
     private String matchAnnotation(Method method) {
         if (method.isAnnotationPresent(OnOpen.class)) {
             return "open";

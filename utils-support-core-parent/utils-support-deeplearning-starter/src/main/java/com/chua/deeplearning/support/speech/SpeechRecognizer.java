@@ -54,6 +54,7 @@ public interface SpeechRecognizer {
         return this;
     }
 
+    /** 创建 */
     static SpeechRecognizer create(String name) {
         return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -212,24 +213,28 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
+    /** Lang */
     public SpeechRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public SpeechRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public SpeechRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
+    /** SampleRate */
     public SpeechRecognizer sampleRate(int rate) {
         this.sampleRate = rate;
         return this;
@@ -237,6 +242,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Recognize */
     public String recognize(byte[] audioData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
@@ -248,6 +254,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** Recognize */
     public String recognize(byte[] audioData, String language) {
         this.lang = language;
         return recognize(audioData);

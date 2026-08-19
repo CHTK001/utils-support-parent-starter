@@ -89,16 +89,19 @@ public class TarFileSystem implements FileSystem {
     private static final String ERROR_ENTRY_OUTSIDE_TARGET = "TAR entry outside target: ";
 
     @Override
+    /** 获取Type */
     public String getType() {
         return "tar";
     }
 
     @Override
+    /** 读取 */
     public ReadBuilder read(File file) {
         return new TarReadBuilder(file);
     }
 
     @Override
+    /** 写入 */
     public WriteBuilder write(File file) {
         return new TarWriteBuilder(file);
     }
@@ -259,11 +262,13 @@ public class TarFileSystem implements FileSystem {
         }
 
         @Override
+        /** 读取 */
         public Object read() {
             return listEntries();
         }
 
         @Override
+        /** AsString */
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -354,6 +359,7 @@ public class TarFileSystem implements FileSystem {
         /**
          * 完成写入：遍历 entries 写入 TarOutputStream，自动写入 EOF 块。
          */        @Override
+        /** Finish */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -406,6 +412,7 @@ public class TarFileSystem implements FileSystem {
         }
 
         @Override
+        /** 写入 */
         public TarWriteBuilder write(Object data) {
             if (data == null) {
                 return this;

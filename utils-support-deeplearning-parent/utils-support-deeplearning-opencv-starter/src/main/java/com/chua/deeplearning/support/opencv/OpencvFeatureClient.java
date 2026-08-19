@@ -32,6 +32,7 @@ public class OpencvFeatureClient extends AbstractLocalFeatureClient {
     }
 
     @Override
+    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

@@ -26,16 +26,22 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
+    /**
+     * 创建 ArcFaceFeatureTranslator 实例
+     * @param faceEngine faceEngine
+     */
     public ArcFaceFeatureTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }
 
     @Override
+    /** Name */
     public String name() {
         return "arcface-feature";
     }
 
     @Override
+    /** Translate */
     public float[] translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

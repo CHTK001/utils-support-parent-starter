@@ -54,6 +54,7 @@ public interface LivenessDetector {
         return this;
     }
 
+    /** 创建 */
     static LivenessDetector create(String name) {
         return new DefaultLivenessDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -193,18 +194,21 @@ class DefaultLivenessDetector implements LivenessDetector {
     }
 
     @Override
+    /** Threshold */
     public LivenessDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
+    /** ModelPath */
     public LivenessDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
+    /** Device */
     public LivenessDetector device(String device) {
         this.device = device;
         return this;
@@ -212,6 +216,7 @@ class DefaultLivenessDetector implements LivenessDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 是否Live */
     public boolean isLive(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
@@ -236,6 +241,7 @@ class DefaultLivenessDetector implements LivenessDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /** LiveScore */
     public float liveScore(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

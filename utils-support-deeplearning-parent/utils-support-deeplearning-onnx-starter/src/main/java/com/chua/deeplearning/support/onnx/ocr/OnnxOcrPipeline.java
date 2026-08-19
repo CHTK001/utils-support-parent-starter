@@ -21,6 +21,23 @@ public class OnnxOcrPipeline {
     /** Delegate */
     private final OcrPipeline delegate;
 
+    /**
+     * 创建 OnnxOcrPipeline 实例
+     * @param detector detector
+     * @param recognizer recognizer
+     * @param direction direction
+     * @param enhancer enhancer
+     * @param enhanceInPipeline enhanceInPipeline
+     * @param sortReadingOrder sortReadingOrder
+     * @param minConfidence minConfidence
+     * @param cropPadding cropPadding
+     * @param cropMinHeight cropMinHeight
+     * @param cropRotateThreshold cropRotateThreshold
+     * @param qualityGate qualityGate
+     * @param blurThreshold blurThreshold
+     * @param sigmoidDetect sigmoidDetect
+     * @param sigmoidRecognize sigmoidRecognize
+     */
     public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                            ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                            boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
@@ -33,30 +50,37 @@ public class OnnxOcrPipeline {
                 sigmoidDetect, sigmoidRecognize);
     }
 
+    /** Recognize */
     public String recognize(byte[] imageData) {
         return delegate.recognize(imageData);
     }
 
+    /** RecognizeDetail */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return delegate.recognizeDetail(imageData);
     }
 
+    /** RecognizeDetailWithImage */
     public OcrPipeline.OcrRecognizeResult recognizeDetailWithImage(byte[] imageData) {
         return delegate.recognizeDetailWithImage(imageData);
     }
 
+    /** Correct */
     public byte[] correct(byte[] imageData) {
         return delegate.correct(imageData);
     }
 
+    /** Enhance */
     public byte[] enhance(byte[] imageData) {
         return delegate.enhance(imageData);
     }
 
+    /** Detector */
     public ImageDetector detector() {
         return delegate.detector();
     }
 
+    /** Recognizer */
     public OcrRecognizer recognizer() {
         return delegate.recognizer();
     }

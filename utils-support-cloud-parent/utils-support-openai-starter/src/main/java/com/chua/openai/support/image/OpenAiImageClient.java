@@ -102,25 +102,35 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     @Override
+    /** Model */
     public ImageClient model(String model) { this.model = model; return this; }
     @Override
+    /** 获取大小 */
     public ImageClient size(int width, int height) { this.width = width; this.height = height; return this; }
     @Override
+    /** Prompt */
     public ImageClient prompt(String prompt) { this.prompt = prompt; return this; }
     @Override
+    /** Quality */
     public ImageClient quality(String quality) { this.quality = quality; return this; }
     @Override
+    /** Style */
     public ImageClient style(String style) { this.style = style; return this; }
     @Override
+    /** ReferenceImage */
     public ImageClient referenceImage(byte[] image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
     @Override
+    /** ReferenceImage */
     public ImageClient referenceImage(BufferedImage image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
     @Override
+    /** ImageStrength */
     public ImageClient imageStrength(double strength) { throw new UnsupportedOperationException("该服务商不支持参考图强度"); }
     @Override
+    /** ControlType */
     public ImageClient controlType(String controlType) { throw new UnsupportedOperationException("该服务商不支持ControlNet"); }
 
     @Override
+    /** Generate */
     public BufferedImage generate(String prompt) {
         // 优先使用方法参数，其次使用链式设置的值
         String actualPrompt = prompt != null ? prompt : this.prompt;
@@ -190,16 +200,19 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     @Override
+    /** 创建Task */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("请使用 generate() 方法同步生成图片");
     }
 
     @Override
+    /** 查询Task */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("不支持异步任务查询，请使用 generate() 方法同步生成");
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         // 使用 HttpClientFactory 创建的 HTTP 客户端由框架自动管理，无需手动关闭
     }

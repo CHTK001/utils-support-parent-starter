@@ -16,21 +16,25 @@ import java.util.Properties;
 public class InfoCommand implements Command {
 
     @Override
+    /** Name */
     public String name() {
         return "info";
     }
 
     @Override
+    /** Aliases */
     public String[] aliases() {
         return new String[]{"env", "version"};
     }
 
     @Override
+    /** Description */
     public String description() {
         return "显示 JVM 与环境信息";
     }
 
     @Override
+    /** 执行 */
     public int execute(String[] args, Console console) {
         Properties props = System.getProperties();
         console.header("环境信息");

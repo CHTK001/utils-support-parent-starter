@@ -37,12 +37,17 @@ public class AliYunFileStorage extends AbstractFileStorage {
     /** 阿里云 OSS 客户端 */
     private final OSS ossClient;
 
+    /**
+     * 创建 AliYunFileStorage 实例
+     * @param bucketSetting bucketSetting
+     */
     public AliYunFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
     }
 
     @Override
+    /** PutObject */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -64,6 +69,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -88,6 +94,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 获取Object */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -95,6 +102,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 删除Object */
     public DeleteObjectResult deleteObject(String key) {
         try {
             ossClient.deleteObject(bucket, key);
@@ -110,6 +118,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ExistObject */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = ossClient.doesObjectExist(bucket, request.getKey());
@@ -126,6 +135,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** ListObject */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsRequest listReq = new ListObjectsRequest(bucket);
@@ -163,6 +173,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     }
 
     @Override
+    /** 关闭 */
     public void close() {
         if (ossClient != null) {
             ossClient.shutdown();

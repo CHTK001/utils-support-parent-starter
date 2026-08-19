@@ -41,32 +41,45 @@ public class RedisDeduplicator implements Deduplicator {
     /** TTLMS */
     private final long ttlMs;
 
+    /**
+     * 创建 RedisDeduplicator 实例
+     * @param redisson redisson
+     */
     public RedisDeduplicator(RedissonClient redisson) {
         this(redisson, DEFAULT_TTL_MS);
     }
 
+    /**
+     * 创建 RedisDeduplicator 实例
+     * @param redisson redisson
+     * @param long long
+     */
     public RedisDeduplicator(RedissonClient redisson, long ttlMs) {
         this.redisson = redisson;
         this.ttlMs = ttlMs;
     }
 
     @Override
+    /** 是否Duplicate */
     public boolean isDuplicate(String key) {
         return redisson.getBucket(KEY_PREFIX + key).isExists();
     }
 
     @Override
+    /** 标记Processed */
     public void markProcessed(String key) {
         RBucket<String> bucket = redisson.getBucket(KEY_PREFIX + key);
         bucket.set("1", ttlMs, TimeUnit.MILLISECONDS);
     }
 
     @Override
+    /** Clear */
     public void clear() {
         // Redis 不支持批量按前缀删除的原子操作，保留为空实现
     }
 
     @Override
+    /** 获取大小 */
     public int size() {
         return 0;
     }

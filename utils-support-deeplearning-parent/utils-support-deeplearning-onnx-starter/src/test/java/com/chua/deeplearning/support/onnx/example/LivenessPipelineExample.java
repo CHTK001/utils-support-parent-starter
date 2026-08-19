@@ -18,9 +18,11 @@ import java.util.List;
  */
 public final class LivenessPipelineExample extends ExampleBase {
 
+    /** 创建 LivenessPipelineExample 实例 */
     private LivenessPipelineExample() {
     }
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String imagePath = args.length > 0 ? args[0] : "G:\\images\\三个人.jpg";
         byte[] img = Files.readAllBytes(Path.of(imagePath));

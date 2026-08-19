@@ -24,17 +24,20 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
         }
 
         @Override
+        /** Name */
         public String name() {
             return name;
         }
 
         @Override
+        /** 获取Source */
         public JedisPool getSource() {
             return pool;
         }
 
         @Override
         @SuppressWarnings("unchecked")
+        /** 获取Source */
         public <T> T getSource(Class<T> type) {
             // 类型与底层源一致时直接返回
             if (type.isInstance(pool)) {
@@ -49,37 +52,44 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
         }
 
         @Override
+        /** 设置Source */
         public EngineDataSource<JedisPool> setSource(Object source) {
             return this;
         }
 
         @Override
+        /** 获取Dialect */
         public Dialect getDialect() {
             return dialect;
         }
 
         @Override
+        /** 设置Dialect */
         public EngineDataSource<JedisPool> setDialect(Dialect dialect) {
             this.dialect = dialect;
             return this;
         }
 
         @Override
+        /** Url */
         public String url() {
             return null;
         }
 
         @Override
+        /** Username */
         public String username() {
             return null;
         }
 
         @Override
+        /** Password */
         public String password() {
             return null;
         }
 
         @Override
+        /** 关闭 */
         public void close() {
             pool.close();
         }

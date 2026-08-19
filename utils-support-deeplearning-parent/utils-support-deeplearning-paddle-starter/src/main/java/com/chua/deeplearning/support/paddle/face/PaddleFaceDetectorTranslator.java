@@ -40,10 +40,16 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
      */
     private final List<String> className;
 
+    /** 创建 PaddleFaceDetectorTranslator 实例 */
     public PaddleFaceDetectorTranslator() {
         this(0.5f, 0.7f);
     }
 
+    /**
+     * 创建 PaddleFaceDetectorTranslator 实例
+     * @param shrink shrink
+     * @param float float
+     */
     public PaddleFaceDetectorTranslator(float shrink, float threshold) {
         this.shrink = shrink;
         this.threshold = threshold;
@@ -51,11 +57,13 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     @Override
+    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return processImageInput(ctx.getNDManager(), input, shrink);
     }
 
     @Override
+    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -75,6 +83,7 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
         return new DetectedObjects(objectNames, probabilitiesResult, boxes);
     }
 
+    /** 处理ImageInput */
     private NDList processImageInput(NDManager manager, Image input, float currentShrink) {
         NDArray array = input.toNDArray(manager);
         Shape shape = array.getShape();
@@ -86,6 +95,7 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     @Override
+    /** 获取Batchifier */
     public Batchifier getBatchifier() {
         return null;
     }

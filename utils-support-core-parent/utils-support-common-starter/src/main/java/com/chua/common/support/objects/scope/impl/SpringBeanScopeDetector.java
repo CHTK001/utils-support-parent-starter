@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 public class SpringBeanScopeDetector implements BeanScopeDetector {
 
     @Override
+    /** Detect */
     public BeanScope detect(Class<?> beanClass) {
         if (beanClass == null) {
             return null;
@@ -49,6 +50,7 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
     }
 
     @SuppressWarnings("unchecked")
+    /** 获取AnnotationValue */
     private static <T> T getAnnotationValue(Annotation annotation, String attribute, T defaultValue) {
         try {
             Method method = annotation.annotationType().getMethod(attribute);

@@ -65,6 +65,7 @@ public class ExponentialBackoffProvider implements BackoffProvider {
     }
 
     @Override
+    /** NextDelay */
     public long nextDelay(int attempt) {
         long delay = (long) (initialDelay * Math.pow(multiplier, attempt));
         return Math.min(delay, maxDelay);

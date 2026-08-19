@@ -20,21 +20,31 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
      */
     private final Type type;
 
+    /**
+     * 创建 JsonSerializer 实例
+     * @param clazz clazz
+     */
     public JsonSerializer(Class<T> clazz) {
         this.type = clazz;
     }
 
+    /**
+     * 创建 JsonSerializer 实例
+     * @param type type
+     */
     public JsonSerializer(Type type) {
         this.type = type;
     }
 
     @Override
+    /** 序列化 */
     public byte[] serialize(T object) {
         return Json.toJsonByte(object);
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 反序列化 */
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;

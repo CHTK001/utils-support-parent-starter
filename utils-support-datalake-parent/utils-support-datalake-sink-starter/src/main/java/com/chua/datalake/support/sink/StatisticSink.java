@@ -19,21 +19,25 @@ import java.util.Map;
 public class StatisticSink implements AccessSink {
 
     @Override
+    /** Type */
     public String type() {
         return "statistic";
     }
 
     @Override
+    /** 开始 */
     public void start() {
         log.info("[datalake-sink] StatisticSink 启动");
     }
 
     @Override
+    /** 停止 */
     public void stop() {
         log.info("[datalake-sink] StatisticSink 停止");
     }
 
     @Override
+    /** 写入 */
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (envelope == null) {
             return false;
