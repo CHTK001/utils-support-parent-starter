@@ -92,6 +92,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
      */
     private double saturationAdjustment = 0.9;
 
+    /** 随机数生成器 */
     private Random random = new Random();
 
     @Override

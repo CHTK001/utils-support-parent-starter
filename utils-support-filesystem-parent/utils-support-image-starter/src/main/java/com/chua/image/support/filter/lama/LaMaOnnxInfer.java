@@ -40,9 +40,13 @@ import javax.annotation.Nullable;
 @Slf4j
 public class LaMaOnnxInfer implements AutoCloseable {
 
+    /** 配置 */
     private final LaMaConfiguration config;
+    /** ortEnvironment */
     private Object ortEnvironment;
+    /** ortSession */
     private Object ortSession;
+    /** 是否已初始化 */
     private boolean initialized = false;
 
     /**

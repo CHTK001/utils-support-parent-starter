@@ -66,9 +66,13 @@ public final class ModelRegistry {
 
     /** REGISTRY */
     private static final Map<String, Entry> REGISTRY = new ConcurrentHashMap<>();
+    /** CLASSPATCACHE */
     private static final Map<String, Path> CLASSPATH_CACHE = new ConcurrentHashMap<>();
+    /** modelRootDir */
     private static volatile String modelRootDir = initModelRootDir();
+    /** extractRoot */
     private static volatile Path extractRoot = initExtractRoot();
+    /** downloader */
     private static volatile ModelDownloader downloader = new DefaultModelDownloader();
 
     /**
@@ -834,6 +838,7 @@ public final class ModelRegistry {
         private final Path modelPath;
         /** Translatorclass名称 */
         private final String translatorClassName;
+        /** delegate */
         private volatile ITranslator<Object, Object> delegate;
 
         /**

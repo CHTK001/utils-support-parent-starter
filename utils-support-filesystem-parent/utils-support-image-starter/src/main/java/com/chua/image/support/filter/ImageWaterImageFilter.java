@@ -34,9 +34,13 @@ import javax.annotation.Nullable;
 @SpiIgnore
 public class ImageWaterImageFilter extends AbstractImageFilter {
 
+    /** 水印方向 */
     private final Position direction;
+    /** DEFAUL水印位置点 */
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
+    /** 水印图片字节数组 */
     private final byte[] bytes;
+    /** 水印位置点 */
     private ImagePoint point = DEFAULT_POINT;
 
     public ImageWaterImageFilter(InputStream stream) throws IOException {

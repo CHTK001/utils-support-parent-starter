@@ -6,7 +6,6 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
-import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -103,6 +102,11 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
      */
     private final String resourceBase;
 
+    /**
+     * HF 模型仓库 onnx 目录 URL（downloadUrl 模式，如 {@code https://huggingface.co/Xenova/opus-mt-en-zh/resolve/main/onnx}）。
+     */
+    private final String downloadBaseUrl;
+
     /** ONNX 运行时环境 */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
@@ -119,18 +123,20 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     /**
      * 构造通用 MarianMT 翻译器。
      *
-     * @param modelId      模型 ID（registry 标识）
-     * @param resourceBase 嵌入式 jar 资源根目录；为空时走 downloadUrl 下载
+     * @param modelId         模型 ID（registry 标识）
+     * @param resourceBase    嵌入式 jar 资源根目录；为空时走 downloadUrl 下载
+     * @param downloadBaseUrl HF 模型仓库 onnx 目录 URL；为空时表示仅嵌入式
      */
-    public OpusMtTranslationTranslator(String modelId, String resourceBase) {
+    public OpusMtTranslationTranslator(String modelId, String resourceBase, String downloadBaseUrl) {
         this.modelId = modelId;
         this.resourceBase = resourceBase;
+        this.downloadBaseUrl = downloadBaseUrl;
     }
 
     /**
      * 懒加载模型与 tokenizer。
      *
-     * <p>优先从 classpath/jar 内嵌资源解压；否则从 ModelRegistry 解析下载缓存。</p>
+     * <p>优先从 classpath/jar 内嵌资源解压；否则从 downloadBaseUrl 下载四文件到缓存目录。</p>
      */
     private synchronized void prepare() throws Exception {
         if (loaded) {
@@ -161,7 +167,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     }
 
     /**
-     * 解析模型目录：嵌入式 jar → 解压临时目录；否则 ModelRegistry 解析（含 downloadUrl 下载）。
+     * 解析模型目录：嵌入式 jar → 解压临时目录；否则从 HF 下载四文件到缓存目录。
      *
      * @return 模型目录
      * @throws Exception 解析异常
@@ -182,15 +188,28 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
                     .load();
             return modelDir;
         }
-        // downloadUrl 模式：ModelRegistry 按 modelId 解析下载缓存目录
-        Path modelPath = ModelRegistry.resolveModelPath(modelId);
-        if (modelPath != null) {
-            Path resolved = Files.isRegularFile(modelPath) ? modelPath.getParent() : modelPath;
-            if (resolved != null && Files.isDirectory(resolved)) {
-                return resolved;
-            }
+        if (downloadBaseUrl == null || downloadBaseUrl.isBlank()) {
+            throw new IllegalArgumentException(modelId + " 未配置资源位置");
         }
-        throw new IllegalArgumentException(modelId + " 模型无法解析: " + modelPath);
+        // downloadUrl 模式：下载四文件到缓存目录 %TEMP%/chua-dl-models/{modelId}
+        Path cacheDir = Path.of(System.getProperty("java.io.tmpdir"), "chua-dl-models", modelId);
+        Files.createDirectories(cacheDir);
+        String[] files = {ENCODER_FILE, DECODER_FILE, DECODER_PAST_FILE, "tokenizer.json"};
+        for (String file : files) {
+            Path target = cacheDir.resolve(file);
+            if (Files.exists(target) && Files.size(target) > 0) {
+                continue;
+            }
+            String url = downloadBaseUrl + "/" + file;
+            log.info("[{}] 下载模型文件: {}", modelId, url);
+            Path tmp = cacheDir.resolve(file + ".part");
+            try (java.io.InputStream in = new java.net.URL(url).openStream()) {
+                Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+            Files.move(tmp, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            log.info("[{}] 模型文件下载完成: {}", modelId, target);
+        }
+        return cacheDir;
     }
 
     @Override
