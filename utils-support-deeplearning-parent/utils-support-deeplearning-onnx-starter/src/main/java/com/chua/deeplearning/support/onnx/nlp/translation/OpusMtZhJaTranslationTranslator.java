@@ -12,6 +12,7 @@ public class OpusMtZhJaTranslationTranslator extends OpusMtTranslationTranslator
     private static final String HF_BASE_URL =
             "https://huggingface.co/Xenova/opus-mt-zh-ja/resolve/main/onnx";
 
+    /** 创建 OpusMtZhJaTranslationTranslator 实例 */
     public OpusMtZhJaTranslationTranslator() {
         super("opus-mt-zh-ja", null, HF_BASE_URL);
     }

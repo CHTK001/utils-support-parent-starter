@@ -47,10 +47,19 @@ public class JRebelHttpServer extends AbstractServer {
      */
     private final JRebelLicenseService licenseService;
 
+    /**
+     * 创建 JRebelHttpServer 实例
+     * @param setting setting
+     */
     public JRebelHttpServer(ServerSetting setting) {
         this(setting, new JRebelLicenseService());
     }
 
+    /**
+     * 创建 JRebelHttpServer 实例
+     * @param setting setting
+     * @param licenseService licenseService
+     */
     public JRebelHttpServer(ServerSetting setting, JRebelLicenseService licenseService) {
         super(setting);
         this.licenseService = licenseService != null ? licenseService : new JRebelLicenseService();

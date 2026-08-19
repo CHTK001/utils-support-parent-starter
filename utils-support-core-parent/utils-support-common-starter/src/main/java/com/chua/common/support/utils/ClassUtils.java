@@ -3167,6 +3167,10 @@ public class ClassUtils {
         /** OBJ */
         private final T obj;
 
+        /**
+         * 创建 SetAccessibleAction 实例
+         * @param obj obj
+         */
         public SetAccessibleAction(T obj) {
             this.obj = obj;
         }

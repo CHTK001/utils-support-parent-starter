@@ -35,36 +35,81 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     private Font font = DEFAULT_FONT;
 
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     */
     public TextWaterImageFilter(String text) {
         this(text, Position.RIGHT_BOTTOM, DEFAULT_FONT, DEFAULT_FONT_SIZE);
     }
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param position position
+     */
     public TextWaterImageFilter(String text, Position position) {
         this(text, position, DEFAULT_FONT, DEFAULT_FONT_SIZE);
     }
 
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param font font
+     */
     public TextWaterImageFilter(String text, Font font) {
         this(text, Position.RIGHT_BOTTOM, font, DEFAULT_FONT_SIZE);
     }
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param color color
+     */
     public TextWaterImageFilter(String text, Color color) {
         this(text, Position.RIGHT_BOTTOM, DEFAULT_FONT, DEFAULT_FONT_SIZE, color);
     }
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param font font
+     * @param color color
+     */
     public TextWaterImageFilter(String text, Font font, Color color) {
         this(text, Position.RIGHT_BOTTOM, font, DEFAULT_FONT_SIZE, color);
     }
 
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param position position
+     * @param font font
+     */
     public TextWaterImageFilter(String text, Position position, Font font) {
         this(text, position, font, DEFAULT_FONT_SIZE);
     }
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param position position
+     * @param font font
+     * @param color color
+     */
     public TextWaterImageFilter(String text, Position position, Font font, Color color) {
         this(text, position, font, DEFAULT_FONT_SIZE, color);
     }
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param position position
+     * @param font font
+     * @param fontSize fontSize
+     */
     public TextWaterImageFilter(String text, Position position, Font font, int fontSize) {
         this.text = text;
         this.position = position;
@@ -72,6 +117,14 @@ public class TextWaterImageFilter extends AbstractImageFilter {
         this.fontSize = fontSize;
     }
 
+    /**
+     * 创建 TextWaterImageFilter 实例
+     * @param text text
+     * @param position position
+     * @param font font
+     * @param fontSize fontSize
+     * @param color color
+     */
     public TextWaterImageFilter(String text, Position position, Font font, int fontSize, Color color) {
         this.text = text;
         this.position = position;

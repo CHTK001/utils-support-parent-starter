@@ -108,6 +108,10 @@ public final class PNGImageWriter extends ImageWriter {
     // ;
     int pixelsDone = 0;
 
+    /**
+     * 创建 PNGImageWriter 实例
+     * @param originatingProvider originatingProvider
+     */
     public PNGImageWriter(ImageWriterSpi originatingProvider) {
         super(originatingProvider);
     }

@@ -50,6 +50,7 @@ public class JRebelLicenseService {
      */
     private final Map<String, LicenseInfo> licenseCache = new ConcurrentHashMap<>();
 
+    /** 创建 JRebelLicenseService 实例 */
     public JRebelLicenseService() {
         this.jRebelSign = new JRebelSign();
     }
@@ -228,6 +229,14 @@ public class JRebelLicenseService {
          */
         private final boolean offline;
 
+        /**
+         * 创建 LicenseInfo 实例
+         * @param guid guid
+         * @param username username
+         * @param validFrom validFrom
+         * @param validUntil validUntil
+         * @param offline offline
+         */
         public LicenseInfo(String guid, String username, String validFrom,
                            String validUntil, boolean offline) {
             this.guid = guid;

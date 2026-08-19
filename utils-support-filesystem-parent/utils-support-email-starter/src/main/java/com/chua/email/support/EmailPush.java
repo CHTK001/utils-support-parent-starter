@@ -63,10 +63,15 @@ public class EmailPush implements MessagePush {
     /** templates */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
+    /** 创建 EmailPush 实例 */
     public EmailPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 EmailPush 实例
+     * @param environment environment
+     */
     public EmailPush(MessageEnvironment environment) {
         this.environment = environment;
     }

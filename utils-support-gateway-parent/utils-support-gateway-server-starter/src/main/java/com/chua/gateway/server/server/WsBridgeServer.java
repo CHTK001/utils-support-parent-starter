@@ -41,6 +41,10 @@ public final class WsBridgeServer {
     /** running */
     private volatile boolean running;
 
+    /**
+     * 创建 WsBridgeServer 实例
+     * @param registry registry
+     */
     public WsBridgeServer(TunnelRegistry registry) {
         this.registry = registry;
     }

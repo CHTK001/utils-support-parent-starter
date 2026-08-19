@@ -47,30 +47,64 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     private ImagePoint imagePoint = DEFAULT_POINT;
 
 
+    /**
+     * 创建 TextImgWaterImageFilter 实例
+     * @param text text
+     * @param stream stream
+     * @param position position
+     */
     public TextImgWaterImageFilter(String text, InputStream stream, Position position) throws IOException {
         this.text = text;
         this.position = position;
         this.imageBytes = IoUtils.toByteArray(stream);
     }
 
+    /**
+     * 创建 TextImgWaterImageFilter 实例
+     * @param text text
+     * @param imageBytes imageBytes
+     * @param position position
+     */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position) {
         this.text = text;
         this.position = position;
         this.imageBytes = imageBytes;
     }
 
+    /**
+     * 创建 TextImgWaterImageFilter 实例
+     * @param text text
+     * @param stream stream
+     * @param imagePoint imagePoint
+     */
     public TextImgWaterImageFilter(String text, InputStream stream, ImagePoint imagePoint) throws IOException {
         this.text = text;
         this.imagePoint = imagePoint;
         this.imageBytes = IoUtils.toByteArray(stream);
     }
 
+    /**
+     * 创建 TextImgWaterImageFilter 实例
+     * @param text text
+     * @param imageBytes imageBytes
+     * @param imagePoint imagePoint
+     */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, ImagePoint imagePoint) {
         this.text = text;
         this.imagePoint = imagePoint;
         this.imageBytes = imageBytes;
     }
 
+    /**
+     * 创建 TextImgWaterImageFilter 实例
+     * @param text text
+     * @param imageBytes imageBytes
+     * @param position position
+     * @param fontSize fontSize
+     * @param color color
+     * @param font font
+     * @param imagePoint imagePoint
+     */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position, int fontSize, Color color, Font font, ImagePoint imagePoint) {
         this.text = text;
         this.imageBytes = imageBytes;

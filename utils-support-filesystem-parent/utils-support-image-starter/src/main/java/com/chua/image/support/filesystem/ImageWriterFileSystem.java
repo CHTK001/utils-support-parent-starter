@@ -37,14 +37,23 @@ public class ImageWriterFileSystem extends AbstractWriter {
     /** Key_image */
     private static final String KEY_IMAGE = "image";
 
+    /** 创建 ImageWriterFileSystem 实例 */
     public ImageWriterFileSystem() {
         super();
     }
 
+    /**
+     * 创建 ImageWriterFileSystem 实例
+     * @param file file
+     */
     public ImageWriterFileSystem(File file) {
         super(file);
     }
 
+    /**
+     * 创建 ImageWriterFileSystem 实例
+     * @param filePath filePath
+     */
     public ImageWriterFileSystem(String filePath) {
         super(filePath);
     }

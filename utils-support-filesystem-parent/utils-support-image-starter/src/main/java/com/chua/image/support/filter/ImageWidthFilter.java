@@ -37,6 +37,11 @@ public class ImageWidthFilter extends AbstractImageFilter {
     /** 目标高度 */
     private int height = 100;
 
+    /**
+     * 创建 ImageWidthFilter 实例
+     * @param width width
+     * @param height height
+     */
     public ImageWidthFilter(int width, int height) {
         this.width = width;
         this.height = height;

@@ -97,6 +97,10 @@ public final class CommandLine {
     /** 是否启用帮助选项 */
     private final boolean helpOptionEnabled;
 
+    /**
+     * 创建 CommandLine 实例
+     * @param builder builder
+     */
     private CommandLine(Builder builder) {
         this.options = Collections.unmodifiableList(new ArrayList<>(builder.options));
         this.programName = builder.programName;
@@ -675,6 +679,7 @@ public final class CommandLine {
         /** 是否启用帮助选项 */
         private boolean helpOptionEnabled = true;
 
+        /** 创建 Builder 实例 */
         private Builder() {
         }
 
@@ -819,6 +824,13 @@ public final class CommandLine {
         /** 已解析选项集合 */
         private final Set<String> seenOptions;
 
+        /**
+         * 创建 Result 实例
+         * @param options options
+         * @param values values
+         * @param positionalArgs positionalArgs
+         * @param seenOptions seenOptions
+         */
         private Result(List<CliOption> options, Map<String, Object> values,
                        List<String> positionalArgs, Set<String> seenOptions) {
             this.options = options;
@@ -1071,6 +1083,10 @@ public final class CommandLine {
         /** 是否使用等号格式 */
         private boolean useEqualsFormat = false;
 
+        /**
+         * 创建 Composer 实例
+         * @param commandLine commandLine
+         */
         private Composer(CommandLine commandLine) {
             this.commandLine = commandLine;
         }

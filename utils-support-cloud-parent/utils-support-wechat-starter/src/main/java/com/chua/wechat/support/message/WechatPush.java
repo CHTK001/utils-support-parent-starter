@@ -126,10 +126,15 @@ public class WechatPush implements MessagePush {
     private record TokenCache(String token, long expireAt) {
     }
 
+    /** 创建 WechatPush 实例 */
     public WechatPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 WechatPush 实例
+     * @param environment environment
+     */
     public WechatPush(MessageEnvironment environment) {
         this.environment = environment;
     }

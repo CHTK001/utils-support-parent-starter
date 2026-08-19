@@ -97,6 +97,10 @@ public final class CliOption {
     /** 是否忽略枚举大小写 */
     private final boolean enumIgnoreCase;
 
+    /**
+     * 创建 CliOption 实例
+     * @param builder builder
+     */
     private CliOption(Builder builder) {
         this.longName = builder.longName;
         this.shortName = builder.shortName;
@@ -329,6 +333,7 @@ public final class CliOption {
         /** 是否忽略枚举大小写 */
         private boolean enumIgnoreCase;
 
+        /** 创建 Builder 实例 */
         private Builder() {
         }
 

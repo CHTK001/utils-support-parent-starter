@@ -75,6 +75,7 @@ public final class BeanUtils {
         COPIER = copier;
     }
 
+    /** 创建 BeanUtils 实例 */
     private BeanUtils() {
     }
 

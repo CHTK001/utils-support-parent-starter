@@ -15,12 +15,23 @@ public class MediaType implements Serializable {
     /** 字符集 */
     private final String charset;
 
+    /**
+     * 创建 MediaType 实例
+     * @param type type
+     * @param subtype subtype
+     * @param charset charset
+     */
     public MediaType(String type, String subtype, String charset) {
         this.type = type;
         this.subtype = subtype;
         this.charset = charset;
     }
 
+    /**
+     * 创建 MediaType 实例
+     * @param type type
+     * @param subtype subtype
+     */
     public MediaType(String type, String subtype) {
         this(type, subtype, null);
     }

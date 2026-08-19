@@ -72,10 +72,15 @@ public class BaiduSmsPush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
+    /** 创建 BaiduSmsPush 实例 */
     public BaiduSmsPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 BaiduSmsPush 实例
+     * @param environment environment
+     */
     public BaiduSmsPush(MessageEnvironment environment) {
         this.environment = environment;
     }

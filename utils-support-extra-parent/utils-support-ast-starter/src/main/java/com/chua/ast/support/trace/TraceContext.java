@@ -83,6 +83,7 @@ public final class TraceContext {
         }
     }
 
+    /** 创建 TraceContext 实例 */
     private TraceContext() {
     }
 

@@ -452,6 +452,7 @@ public boolean tRNS_present;
     /** Unknownchunk数据 */
     public ArrayList<byte[]> unknownChunkData = new ArrayList<byte[]>();
 
+    /** 创建 PNGMetadata 实例 */
     public PNGMetadata() {
         super(true,
               nativeMetadataFormatName,
@@ -459,6 +460,10 @@ public boolean tRNS_present;
               null, null);
     }
 
+    /**
+     * 创建 PNGMetadata 实例
+     * @param metadata metadata
+     */
     public PNGMetadata(IIOMetadata metadata) {
         // TODO -- implement
     }

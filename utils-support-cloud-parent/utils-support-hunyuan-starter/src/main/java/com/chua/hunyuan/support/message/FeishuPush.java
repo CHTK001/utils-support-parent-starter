@@ -62,10 +62,15 @@ public class FeishuPush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
+    /** 创建 FeishuPush 实例 */
     public FeishuPush() {
         this(new MessageEnvironment());
     }
 
+    /**
+     * 创建 FeishuPush 实例
+     * @param environment environment
+     */
     public FeishuPush(MessageEnvironment environment) {
         this.environment = environment;
     }

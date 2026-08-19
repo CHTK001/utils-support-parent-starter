@@ -48,6 +48,10 @@ public class StringValuePropertyResolver implements PropertyResolver {
      */
     private Set<String> visitedPlaceholders;
 
+    /**
+     * 创建 StringValuePropertyResolver 实例
+     * @param placeholderSupport placeholderSupport
+     */
     public StringValuePropertyResolver(PlaceholderSupport placeholderSupport) {
         this.placeholderSupport = placeholderSupport;
         // 根据配置的占位符前缀，查找对应的简化前缀（如从 "}" 获取 "{"）
