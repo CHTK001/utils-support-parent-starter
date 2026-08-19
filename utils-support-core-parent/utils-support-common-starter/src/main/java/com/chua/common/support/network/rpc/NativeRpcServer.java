@@ -124,15 +124,9 @@ public class NativeRpcServer implements RpcServer {
         this.ioThreadsCount = protocolConfig != null && protocolConfig.ioThreads() != null
                 && protocolConfig.ioThreads() > 0
                 ? protocolConfig.ioThreads() : Runtime.getRuntime().availableProcessors();
-        try {
-            this.rpcSerialization = new RpcSerialization(
-                    protocolConfig != null ? protocolConfig.serialization() : null);
-            log.info("NativeRpcServer serialization: {}", rpcSerialization.name());
-        } catch (Throwable t) {
-            System.err.println("[NativeRpcServer] rpcSerialization init FAILED: " + t);
-            t.printStackTrace(System.err);
-            throw t;
-        }
+        this.rpcSerialization = new RpcSerialization(
+                protocolConfig != null ? protocolConfig.serialization() : null);
+        log.info("NativeRpcServer serialization: {}", rpcSerialization.name());
         initServiceDiscovery();
     }
 

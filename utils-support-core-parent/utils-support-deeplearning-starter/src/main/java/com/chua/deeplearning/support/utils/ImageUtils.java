@@ -45,6 +45,9 @@ public final class ImageUtils {
      */
     private static volatile boolean loaded;
 
+    /**
+     * 工具类私有构造，防止实例化。
+     */
     private ImageUtils() {
     }
 

@@ -33,17 +33,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 年龄+种族+性别多任务识别：单模型同时输出年龄区间、种族、性别；适用人脸属性综合分析、安防
         reg("age-race-gender", "com.chua.deeplearning.support.onnx.agegender.AgeRaceGenderTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/attribute/age_gender/AgeRaceGenderNet_v1.onnx");
         // 动漫风格迁移(AnimeGANv3)：将真实照片转换为宫崎骏/新海诚等动漫风格，v3 版质量更高；适用图片特效、二次元创作
-        reg("anime-gan-v3", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/AnimeGANv3/AnimeGANv3_Hayao_36.onnx");
+        reg("anime-gan-v3", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_Hayao_36.onnx");
+        reg("anime-gan-v3-shinkai", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx");
+        reg("anime-gan-v3-ghibli", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx");
         // 风格迁移(Candy)：将照片转换为糖果风格（色彩鲜艳、弯曲扭曲的效果）；适用艺术特效、创意图片处理
-        reg("style-candy", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/fast_neural_style/candy-9.onnx");
+        reg("style-candy", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/candy-9.onnx");
         // 风格迁移(Mosaic)：将照片转换为马赛克拼贴风格；适用艺术特效、装饰性图片处理
-        reg("style-mosaic", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/fast_neural_style/mosaic-9.onnx");
+        reg("style-mosaic", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/mosaic-9.onnx");
         // 风格迁移(Rain Princess)：将照片转换为水彩手绘风格（柔和、梦幻）；适用艺术特效、插画风格转换
-        reg("style-rain-princess", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/fast_neural_style/rain-princess-9.onnx");
+        reg("style-rain-princess", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/rain-princess-9.onnx");
         // 风格迁移(Udnie)：将照片转换为抽象表现主义风格（色彩块面、半抽象效果）；适用艺术创作、特效处理
-        reg("style-udnie", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/fast_neural_style/udnie-9.onnx");
+        reg("style-udnie", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/udnie-9.onnx");
         // 风格迁移(Pointilism)：将照片转换为点彩画风格（用小点构成图像）；适用艺术特效、复古风格处理
-        reg("style-pointilism", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/fast_neural_style/pointilism-9.onnx");
+        reg("style-pointilism", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/pointilism-9.onnx");
         // 动漫风格迁移(AnimeGANv2-Hayao)：将照片转换为宫崎骏风格动画（细腻、明亮）；适用动漫化、图片特效
         reg("anime-gan-v2-hayao", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/hayao.onnx");
         // 动漫风格迁移(AnimeGANv2-Shinkai)：将照片转换为新海诚风格动画（唯美、光影感强）；适用动漫化、风景美化
@@ -438,3 +440,5 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         }
     }
 }
+
+

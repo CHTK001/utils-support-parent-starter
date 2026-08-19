@@ -1,7 +1,6 @@
 package com.chua.common.support.network.rpc;
 
 import com.chua.common.support.base.serialize.Serialization;
-import com.chua.common.support.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,17 +8,26 @@ import java.io.IOException;
 import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * RPC 请求/响应编解码适配器。
  *
- * <p>序列化实现通过 SPI 加载（{@link Serialization}），默认优先 Apache Fury
- * （SPI 名 {@code fury}/{@code fory}），classpath 无 Fury 时回退到 {@code jackson}，
- * 两者均不可用时降级为 JDK 原生序列化（保留 {@link ObjectInputFilter} 反序列化安全防护）。</p>
+ * <p>序列化实现按优先级自动选择：</p>
+ * <ol>
+ *   <li><strong>Apache Fury</strong>：优先加载 {@code com.chua.fory.support.serialize.ForySerialization}，
+ *       classpath 含 fory-starter 时启用（多语言二进制、JIT 零反射、性能最高）</li>
+ *   <li><strong>Jackson</strong>：内置 jackson-databind 的 JSON 实现，无 fory-starter 时启用</li>
+ *   <li><strong>JDK 原生</strong>：最后兜底，语义与旧版 {@code ObjectOutputStream} 方案一致</li>
+ * </ol>
  *
- * <p>客户端与服务端必须选用同一套序列化实现，否则互相无法解码。可通过
- * {@link RpcConsumerConfig#getSerialization()} / {@link RpcProtocolConfig#serialization()}
- * 显式指定 SPI 名（如 {@code fury}、{@code jackson}），未指定时按上述优先级自动选择。</p>
+ * <p>实现类按全限定类名反射加载，不依赖 SPI 配置注册，故 common-starter 无需
+ * 反向依赖 fory-starter。客户端与服务端必须选用同一套序列化实现，否则互相无法解码。
+ * 可通过 {@link RpcConsumerConfig#getSerialization()} / {@link RpcProtocolConfig#serialization()}
+ * 显式指定名称（{@code fury} / {@code fory} / {@code jackson} / {@code java}），
+ * 未指定时按上述优先级自动选择。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,12 +35,21 @@ import java.io.ObjectOutputStream;
 public final class RpcSerialization {
 
     /**
-     * 序列化器选择优先级（Fury 最高）
+     * 日志
      */
-    private static final String[] FALLBACK_NAMES = {"fury", "fory", "jackson"};
+    private static final Logger log = LoggerFactory.getLogger(RpcSerialization.class);
 
     /**
-     * 缓存的序列化实现
+     * 支持的序列化名称（映射到实现类全限定名）
+     */
+    private static final String[][] SUPPORTED = {
+            {"fury", "com.chua.fory.support.serialize.ForySerialization"},
+            {"fory", "com.chua.fory.support.serialize.ForySerialization"},
+            {"jackson", "com.chua.common.support.concurrent.dispatcher.provider.JacksonSerialization"}
+    };
+
+    /**
+     * 缓存解析出的序列化实现
      */
     private final Serialization serialization;
 
@@ -45,49 +62,32 @@ public final class RpcSerialization {
      * 构造 RPC 编解码器，按优先级自动选择序列化实现。
      */
     public RpcSerialization() {
-        this((String) null);
+        this(null);
     }
 
     /**
      * 构造 RPC 编解码器。
      *
-     * @param configuredName 显式指定的序列化 SPI 名，为空时按默认优先级选择
+     * @param configuredName 显式指定的序列化名称，为空时按默认优先级选择
      */
     public RpcSerialization(String configuredName) {
         Serialization picked = null;
         if (configuredName != null && !configuredName.isBlank()) {
-            picked = load(configuredName);
+            picked = loadByName(configuredName);
         }
         if (picked == null) {
-            for (String candidate : FALLBACK_NAMES) {
-                picked = load(candidate);
+            for (String[] supported : SUPPORTED) {
+                picked = loadByName(supported[0]);
                 if (picked != null) {
                     break;
                 }
             }
         }
         if (picked == null) {
-            throw new IllegalStateException("No serialization implementation available "
-                    + "(expected SPI: fury/fory/jackson)");
+            picked = new JdkSerialization();
         }
         this.serialization = picked;
         this.name = picked.name();
-    }
-
-    /**
-     * 从 SPI 加载指定名称的序列化实现。
-     *
-     * @param spiName SPI 名称
-     * @return 序列化实现，未找到时返回 {@code null}
-     */
-    private static Serialization load(String spiName) {
-        try {
-            return ServiceProvider.of(Serialization.class).getNewExtension(spiName);
-        } catch (Exception e) {
-            System.err.println("[RpcSerialization] load failed for '" + spiName + "': " + e);
-            e.printStackTrace(System.err);
-            return null;
-        }
     }
 
     /**
@@ -139,10 +139,33 @@ public final class RpcSerialization {
     /**
      * 当前使用的序列化实现名称。
      *
-     * @return 序列化 SPI 名称
+     * @return 序列化名称
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * 按名称加载序列化实现。
+     *
+     * @param name 序列化名称
+     * @return 序列化实现，加载失败时返回 {@code null}
+     */
+    private static Serialization loadByName(String name) {
+        for (String[] supported : SUPPORTED) {
+            if (!supported[0].equalsIgnoreCase(name)) {
+                continue;
+            }
+            try {
+                Class<?> implClass = Class.forName(supported[1]);
+                Constructor<?> constructor = implClass.getDeclaredConstructor();
+                constructor.setAccessible(true);
+                return (Serialization) constructor.newInstance();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     /**
@@ -158,7 +181,8 @@ public final class RpcSerialization {
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-            throw new IOException("Serialize failed via SPI [" + name + "]", e);
+            log.error("Serialize failed via [{}]", name, e);
+            throw new IOException("Serialize failed via [" + name + "]", e);
         }
     }
 
@@ -172,35 +196,21 @@ public final class RpcSerialization {
      * @throws IOException            反序列化 IO 异常
      * @throws ClassNotFoundException 类型不存在异常
      */
-    @SuppressWarnings("unchecked")
     private <T> T doDeserialize(byte[] data, Class<T> type) throws IOException, ClassNotFoundException {
         if (data == null || data.length == 0) {
             return null;
         }
-        // Fury / Jackson 等外部实现序列化失败时统一包装，避免上层按 IO 异常误判
         try {
             return serialization.deserialize(data, type);
         } catch (IOException | ClassNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            throw new IOException("Deserialize failed via SPI [" + name + "]", e);
+            throw new IOException("Deserialize failed via [" + name + "]", e);
         }
     }
 
     /**
-     * 创建 JDK 原生序列化回退实现（带反序列化安全过滤）。
-     *
-     * <p>SPI 中无 {@code fury}/{@code jackson} 实现时使用，语义与项目旧版
-     * {@code ObjectOutputStream} 方案完全一致。</p>
-     *
-     * @return JDK 原生序列化实现
-     */
-    static Serialization jdkFallback() {
-        return new JdkSerialization();
-    }
-
-    /**
-     * JDK 原生序列化实现（带安全过滤）。
+     * JDK 原生序列化实现（带反序列化安全过滤）。
      *
      * @author CH
      * @since 4.0.0.42

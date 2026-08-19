@@ -17,13 +17,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface OcrRecognizer {
 
     /**
-     * 创建 OCR 识别器。
-     *
-     * @param name 模型名称
-     * @return 识别器
-     */
-
-    /**
      * 通过 SPI 创建实例（provider="onnx" 等）。
      *
      * @param provider provider 名称
@@ -55,6 +48,12 @@ public interface OcrRecognizer {
         return this;
     }
 
+    /**
+     * 创建本地默认 OCR 识别器。
+     *
+     * @param name 模型名称
+     * @return 识别器
+     */
     static OcrRecognizer create(String name) {
         return new DefaultOcrRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
