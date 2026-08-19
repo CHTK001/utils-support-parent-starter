@@ -258,6 +258,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             acceptSelector = Selector.open();
             serverChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
 
+            // 必须先置运行标志再启动线程，否则 IO/接收线程读到 false 立即退出
+            running = true;
+
             ioSelectors = new Selector[ioThreadsCount];
             ioThreads = new Thread[ioThreadsCount];
             for (int i = 0; i < ioThreadsCount; i++) {
@@ -274,7 +277,6 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                     Math.max(setting.getWorkerThreads(), 2), "jdk-tcp-worker");
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
 
-            running = true;
             acceptThread = new Thread(this::acceptLoop, "jdk-tcp-accept");
             acceptThread.setDaemon(true);
             acceptThread.start();

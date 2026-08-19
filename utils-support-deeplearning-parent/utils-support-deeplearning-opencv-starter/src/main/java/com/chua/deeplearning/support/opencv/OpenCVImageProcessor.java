@@ -129,7 +129,14 @@ public class OpenCVImageProcessor implements ImageProcessor {
      */
     private Mat rotate(Mat src, Map<String, Object> params) {
         int angle = toInt(params.get("angle"), 90) % 360;
+        if (angle < 0) {
+            angle += 360;
+        }
         Mat dst = new Mat();
+        if (angle == 0) {
+            src.copyTo(dst);
+            return dst;
+        }
         if (angle == 90) {
             Core.rotate(src, dst, Core.ROTATE_90_CLOCKWISE);
         } else if (angle == 180) {
@@ -137,10 +144,21 @@ public class OpenCVImageProcessor implements ImageProcessor {
         } else if (angle == 270) {
             Core.rotate(src, dst, Core.ROTATE_90_COUNTERCLOCKWISE);
         } else {
-            // 任意角度旋转
+            // 任意角度旋转：计算旋转后外接矩形尺寸，避免裁剪
             Point center = new Point(src.cols() / 2.0, src.rows() / 2.0);
             Mat rotMat = Imgproc.getRotationMatrix2D(center, angle, 1.0);
-            Imgproc.warpAffine(src, dst, rotMat, src.size());
+            double radians = Math.toRadians(angle);
+            double sin = Math.abs(Math.sin(radians));
+            double cos = Math.abs(Math.cos(radians));
+            int newW = (int) Math.floor(src.cols() * cos + src.rows() * sin);
+            int newH = (int) Math.floor(src.cols() * sin + src.rows() * cos);
+            // 调整旋转矩阵的平移分量，使图像居中
+            double[] m = new double[6];
+            rotMat.get(0, 0, m);
+            m[2] += (newW - src.cols()) / 2.0;
+            m[5] += (newH - src.rows()) / 2.0;
+            rotMat.put(0, 0, m);
+            Imgproc.warpAffine(src, dst, rotMat, new Size(newW, newH));
             rotMat.release();
         }
         return dst;

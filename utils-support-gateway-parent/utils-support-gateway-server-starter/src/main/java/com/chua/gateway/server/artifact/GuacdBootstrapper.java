@@ -247,7 +247,19 @@ public final class GuacdBootstrapper {
             }
         }
 
-        // 4. Linux 包管理器安装
+        // 4. Docker API 拉起 guacd 容器（远程 Docker 场景，无需本地二进制）
+        if (guacdBin == null) {
+            String dockerContainerId = startGuacdViaDocker();
+            if (dockerContainerId != null) {
+                log.info("[guacd-bootstrapper] ✓ 通过 Docker API 启动 guacd: container={}", dockerContainerId);
+                // 容器方式端口已由 Docker 映射，视为成功（网关通过 127.0.0.1:4822 访问）
+                source = "docker-container";
+                guacdBin = Paths.get("/dev/null");  // 占位，后续启动检查端口即可
+                return waitForDockerGuacdReady(GatewayProperties.guacdPort());
+            }
+        }
+
+        // 5. Linux 包管理器安装
         if (guacdBin == null && isLinux) {
             log.info("[guacd-bootstrapper] 尝试 Linux 包管理器安装 guacd...");
             try {
@@ -265,7 +277,7 @@ public final class GuacdBootstrapper {
             }
         }
 
-        // 5. 兜底：Linux 常见系统路径
+        // 6. 兜底：Linux 常见系统路径
         if (guacdBin == null && (isLinux || isMac)) {
             for (String p : new String[]{"/usr/sbin/guacd", "/usr/local/sbin/guacd", "/opt/guacamole/sbin/guacd"}) {
                 if (Files.exists(Paths.get(p))) {
@@ -277,17 +289,18 @@ public final class GuacdBootstrapper {
             }
         }
 
-        // 6. 全部失败
+        // 7. 全部失败
         if (guacdBin == null) {
             log.warn("[guacd-bootstrapper] ✗ 未找到 guacd。RDP/VNC 协议不可用，但 SSH / WebSocket 仍可用。");
             log.warn("[guacd-bootstrapper] 提示:");
             log.warn("[guacd-bootstrapper]   - Linux:  apt-get install guacd  /  yum install guacd");
+            log.warn("[guacd-bootstrapper]   - Docker: 配置 gateway.guacd.docker-host 指向 Docker API，自动拉起 guacd 容器");
             log.warn("[guacd-bootstrapper]   - Windows: 准备 guacd-windows-x86_64.zip 放到");
             log.warn("[guacd-bootstrapper]           {}/guacd/{}/sbin/guacd.exe", GatewayProperties.localOverrideDir(), DEFAULT_VERSION);
             return null;
         }
 
-        // 7. 启动 guacd 子进程
+        // 8. 启动 guacd 子进程
         try {
             return startGuacd(guacdBin, source);
         } catch (IOException ex) {
@@ -299,21 +312,236 @@ public final class GuacdBootstrapper {
     /**
      * Docker fallback：通过 Docker API 拉起 guacd 容器（解决 guacd 二进制无 release 的问题）。
      * 优先级：local-override → classpath → package manager → docker api → 系统路径
-     * Docker 启动不返回进程路径，而是返回 container id，调用方需自行 poll 端口。
+     * Docker 启动不返回进程路径，而是返回容器 id，调用方需自行 poll 端口。
+     *
+     * <p>实现基于 Docker Engine REST API（v1.24+，兼容 20.10）：
+     *   <ol>
+     *     <li>检查是否已有 guacd 容器运行（按镜像名匹配）→ 复用</li>
+     *     <li>否则 {@code POST /containers/create} 创建（端口映射 4822:4822）</li>
+     *     <li>{@code POST /containers/{id}/start} 启动</li>
+     *   </ol>
+     * </p>
      *
      * @return 容器 id 或 null
      */
     public static String startGuacdViaDocker() {
-        String dockerHost = System.getenv("DOCKER_HOST");
-        String host = dockerHost != null ? dockerHost : "unix:///var/run/docker.sock";
-        if (host.startsWith("unix://")) {
-            // Linux/macOS socket
-            try {
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL("http://localhost/containers/json").openConnection();
-                // ... too complex, skip
-            } catch (Exception ignored) {}
+        String dockerHost = GatewayProperties.dockerHost();
+        String image = GatewayProperties.guacdDockerImage();
+        if (dockerHost == null || dockerHost.trim().isEmpty()) {
+            log.warn("[guacd-bootstrapper] Docker API 地址未配置，跳过 docker 方案");
+            return null;
+        }
+        String base = dockerHost.trim();
+        if (base.startsWith("unix://")) {
+            log.warn("[guacd-bootstrapper] 暂不支持 unix socket Docker API，跳过 docker 方案: {}", base);
+            return null;
+        }
+        if (!base.startsWith("http://") && !base.startsWith("https://")) {
+            base = "http://" + base;
+        }
+        base = base.endsWith("/") ? base.substring(0, base.length() - 1) : base;
+        log.info("[guacd-bootstrapper] Docker API 地址: {} 镜像: {}", base, image);
+
+        // 1. 检查已有运行中的 guacd 容器（按镜像名匹配）
+        try {
+            String foundId = findRunningGuacdContainer(base, image);
+            if (foundId != null) {
+                log.info("[guacd-bootstrapper] ✓ 已有 guacd 容器运行中: {}", foundId);
+                return foundId;
+            }
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] 查询运行容器失败: {}", ex.getMessage());
+        }
+
+        // 2. 检查镜像是否存在，不存在则 pull
+        try {
+            String check = httpGet(base + "/images/" + urlEncode(image) + "/json");
+            if (check == null) {
+                log.info("[guacd-bootstrapper] 镜像 {} 不存在，尝试拉取...", image);
+                String pull = httpPost(base + "/images/create?fromImage=" + urlEncode(image), "");
+                if (pull == null) {
+                    log.warn("[guacd-bootstrapper] 镜像拉取失败（可能网络受限），跳过 docker 方案");
+                    return null;
+                }
+            }
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] 检查镜像失败: {}", ex.getMessage());
+        }
+
+        // 3. 创建容器（端口映射 4822:4822）
+        String containerId;
+        try {
+            String createBody = "{\"Image\":\"" + image + "\","
+                    + "\"HostConfig\":{\"PortBindings\":{\"4822/tcp\":[{\"HostPort\":\"4822\"}]}},"
+                    + "\"ExposedPorts\":{\"4822/tcp\":{}}}";
+            String resp = httpPost(base + "/containers/create?name=" + urlEncode("chua-guacd"), createBody);
+            if (resp == null) {
+                log.warn("[guacd-bootstrapper] 创建容器失败，跳过 docker 方案");
+                return null;
+            }
+            containerId = extractContainerId(resp);
+            if (containerId == null) {
+                log.warn("[guacd-bootstrapper] 创建容器响应异常: {}", resp);
+                return null;
+            }
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] 创建容器异常: {}", ex.getMessage());
+            return null;
+        }
+
+        // 4. 启动容器
+        try {
+            String startResp = httpPost(base + "/containers/" + containerId + "/start", "");
+            if (startResp == null) {
+                log.warn("[guacd-bootstrapper] 启动容器失败，跳过 docker 方案");
+                return null;
+            }
+            log.info("[guacd-bootstrapper] ✓ guacd 容器已启动: {}", containerId);
+            return containerId;
+        } catch (Exception ex) {
+            log.warn("[guacd-bootstrapper] 启动容器异常: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 查找已运行的 guacd 容器（按镜像名匹配）。
+     *
+     * @param base  Docker API 基地址
+     * @param image 镜像名
+     * @return 容器 id；未找到返回 null
+     */
+    private static String findRunningGuacdContainer(String base, String image) {
+        String json = httpGet(base + "/containers/json");
+        if (json == null) {
+            return null;
+        }
+        // 简单解析：遍历容器列表，匹配 Image 字段
+        String target = image;
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("\"Image\":\"([^\"]*)\"")
+                .matcher(json);
+        while (m.find()) {
+            String img = m.group(1);
+            if (img != null && img.contains("guacd")) {
+                java.util.regex.Matcher idm = java.util.regex.Pattern
+                        .compile("\"Id\":\"([^\"]+)\"")
+                        .matcher(json);
+                // 粗略返回第一个 guacd 容器 id（Id 字段在容器 json 中位于开头）
+                if (idm.find()) {
+                    return idm.group(1);
+                }
+            }
         }
         return null;
+    }
+
+    /**
+     * 从容器创建响应中提取容器 id。
+     *
+     * @param resp 创建容器响应体
+     * @return 容器 id
+     */
+    private static String extractContainerId(String resp) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("\"Id\":\"([^\"]+)\"")
+                .matcher(resp);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+
+    /**
+     * URL 编码（Docker API 查询参数用）。
+     *
+     * @param s 待编码字符串
+     * @return 编码结果
+     */
+    private static String urlEncode(String s) {
+        try {
+            return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+        } catch (Exception e) {
+            return s;
+        }
+    }
+
+    /**
+     * HTTP GET（返回响应体；状态非 2xx 返回 null）。
+     *
+     * @param url 完整 URL
+     * @return 响应体或 null
+     */
+    private static String httpGet(String url) {
+        try {
+            java.net.HttpURLConnection conn = openConn(url, "GET");
+            int code = conn.getResponseCode();
+            if (code >= 200 && code < 300) {
+                return readBody(conn);
+            }
+            log.warn("[guacd-bootstrapper] GET {} -> {}", url, code);
+            return null;
+        } catch (Exception ex) {
+            log.debug("[guacd-bootstrapper] GET {} 异常: {}", url, ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * HTTP POST（返回响应体；状态非 2xx 返回 null）。
+     *
+     * @param url  完整 URL
+     * @param body 请求体（可为空串）
+     * @return 响应体或 null
+     */
+    private static String httpPost(String url, String body) {
+        try {
+            java.net.HttpURLConnection conn = openConn(url, "POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+            if (body != null && !body.isEmpty()) {
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+            int code = conn.getResponseCode();
+            if (code >= 200 && code < 300) {
+                return readBody(conn);
+            }
+            log.warn("[guacd-bootstrapper] POST {} -> {}", url, code);
+            return null;
+        } catch (Exception ex) {
+            log.debug("[guacd-bootstrapper] POST {} 异常: {}", url, ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 打开 HTTP 连接（统一超时）。
+     *
+     * @param url    完整 URL
+     * @param method HTTP 方法
+     * @return HttpURLConnection
+     */
+    private static java.net.HttpURLConnection openConn(String url, String method) throws IOException {
+        java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod(method);
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(15000);
+        conn.setRequestProperty("Accept", "application/json");
+        return conn;
+    }
+
+    /**
+     * 读取响应体。
+     *
+     * @param conn 已打开的连接
+     * @return 响应体字符串
+     */
+    private static String readBody(java.net.HttpURLConnection conn) throws IOException {
+        try (InputStream in = conn.getInputStream()) {
+            return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        }
     }
 
     /**
@@ -506,15 +734,6 @@ public final class GuacdBootstrapper {
 
     /**
      * 检测本地端口是否在监听。
-     */
-    private static boolean isPortListening(int port) {
-        try (java.net.Socket s = new java.net.Socket()) {
-            s.connect(new java.net.InetSocketAddress("127.0.0.1", port), 200);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
 
     /**
      * 解压 zip 流到目标目录（带路径穿越防护）。

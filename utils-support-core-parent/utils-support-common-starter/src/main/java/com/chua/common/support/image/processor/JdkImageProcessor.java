@@ -97,16 +97,40 @@ public class JdkImageProcessor implements ImageProcessor {
      */
     private BufferedImage rotate(BufferedImage image, Map<String, Object> params) {
         int angle = toInt(params.get("angle"), 90) % 360;
+        if (angle < 0) {
+            angle += 360;
+        }
         int w = image.getWidth();
         int h = image.getHeight();
+        if (angle == 0) {
+            return image;
+        }
         if (angle == 180) {
             return rotate180(image);
         }
-        BufferedImage result = new BufferedImage(h, w, BufferedImage.TYPE_INT_ARGB);
+        // 90° / 270°：宽高互换
+        if (angle == 90 || angle == 270) {
+            BufferedImage result = new BufferedImage(h, w, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = result.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.translate(result.getWidth() / 2.0, result.getHeight() / 2.0);
+            g.rotate(Math.toRadians(angle));
+            g.translate(-w / 2.0, -h / 2.0);
+            g.drawImage(image, 0, 0, null);
+            g.dispose();
+            return result;
+        }
+        // 任意角度：计算旋转后的外接矩形
+        double radians = Math.toRadians(angle);
+        double sin = Math.abs(Math.sin(radians));
+        double cos = Math.abs(Math.cos(radians));
+        int newW = (int) Math.floor(w * cos + h * sin);
+        int newH = (int) Math.floor(w * sin + h * cos);
+        BufferedImage result = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = result.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.translate(result.getWidth() / 2.0, result.getHeight() / 2.0);
-        g.rotate(Math.toRadians(angle));
+        g.translate(newW / 2.0, newH / 2.0);
+        g.rotate(radians);
         g.translate(-w / 2.0, -h / 2.0);
         g.drawImage(image, 0, 0, null);
         g.dispose();
