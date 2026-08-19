@@ -1,4 +1,6 @@
-﻿package com.recovery;
+package com.recovery;
+
+import com.chua.datarecovery.support.DataRecovery;
 
 /**
  * 恢复文件测试类
