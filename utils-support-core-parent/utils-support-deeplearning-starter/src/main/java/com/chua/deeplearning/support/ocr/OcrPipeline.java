@@ -1003,7 +1003,8 @@ public class OcrPipeline {
     public byte[] toDrawer(byte[] imageData) {
         byte[] corrected = correct(imageData);
         List<DetectionInfo> allBoxes = detector.detect(corrected);
-        List<OcrResult> results = recognizeDetail(imageData);
+        // 整图识别模式（一体化 OCR 模型 det+rec 同时出框与文本），避免管线二次裁剪导致识别失真
+        List<OcrResult> results = recognizer.recognizeDetail(imageData);
         List<String> labels = results.stream()
                 .map(r -> r.text() + " " + String.format("%.2f", r.confidence()))
                 .toList();
