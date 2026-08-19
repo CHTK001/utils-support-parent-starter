@@ -28,10 +28,8 @@ public interface TcpServer extends Closeable {
 
     /**
      * 启动 TCP 服务，开始监听端口并接收连接。
-     *
-     * @return 当前实例自身（支持链式调用）
      */
-    TcpServer start();
+    void start();
 
     /**
      * 获取实际监听端口（端口为 0 时由系统分配，启动后可查询实际值）。

@@ -990,4 +990,43 @@ public class OcrPipeline {
     public boolean sigmoidRecognize() {
         return sigmoidRecognize;
     }
+
+    /**
+     * 绘制检测结果标注图（含旋转框 + 识别文字）。
+     *
+     * <p>对输入图执行检测+识别管线，返回标注了旋转框和识别文字的图片。
+     * 仅标注有对应识别结果的检测框（无识别结果的框不标注）。</p>
+     *
+     * @param imageData 原图
+     * @return 标注后 JPEG 字节
+     */
+    public byte[] toDrawer(byte[] imageData) {
+        byte[] corrected = correct(imageData);
+        List<DetectionInfo> allBoxes = detector.detect(corrected);
+        List<OcrResult> results = recognizeDetail(imageData);
+        List<DetectionInfo> boxes = new java.util.ArrayList<>();
+        List<String> labels = new java.util.ArrayList<>();
+        for (DetectionInfo b : allBoxes) {
+            String bestText = "";
+            float bestConf = 0;
+            double bestDist = Double.MAX_VALUE;
+            double bx = b.x() + b.width() / 2.0, by = b.y() + b.height() / 2.0;
+            for (OcrResult r : results) {
+                PredictRectangle rb = r.boundingBox();
+                double rx = rb.x() + rb.width() / 2.0, ry = rb.y() + rb.height() / 2.0;
+                double dist = Math.abs(bx - rx) + Math.abs(by - ry);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    bestText = r.text();
+                    bestConf = r.confidence();
+                }
+            }
+            double maxDist = (b.width() + b.height()) * 0.5;
+            if (bestDist <= maxDist && !bestText.isEmpty() && bestConf >= minConfidence) {
+                boxes.add(b);
+                labels.add(bestText + " " + String.format("%.2f", bestConf));
+            }
+        }
+        return com.chua.deeplearning.support.utils.ImageUtils.drawDetectionsWithLabels(corrected, boxes, labels);
+    }
 }

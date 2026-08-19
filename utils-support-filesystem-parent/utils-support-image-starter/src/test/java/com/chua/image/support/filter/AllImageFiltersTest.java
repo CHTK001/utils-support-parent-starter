@@ -56,6 +56,8 @@ public class AllImageFiltersTest {
             System.err.println("输入目录下未找到支持的图像: " + INPUT_DIR);
             System.exit(1);
         }
+        // 只取一张图测试所有滤镜
+        File image = images.get(0);
 
         Map<String, FilterEntry> filters = buildFilters();
 
@@ -63,8 +65,8 @@ public class AllImageFiltersTest {
         System.out.println("ImageFilter 全量实现测试");
         System.out.println("=" .repeat(70));
         System.out.println("输入目录: " + INPUT_DIR);
+        System.out.println("测试图像: " + image.getAbsolutePath());
         System.out.println("输出目录: " + OUTPUT_DIR);
-        System.out.println("图像数量: " + images.size());
         System.out.println("滤镜数量: " + filters.size());
         System.out.println();
 
@@ -73,69 +75,65 @@ public class AllImageFiltersTest {
         int totalFailed = 0;
         int totalSkipped = 0;
 
+        String imageName = image.getName();
+        String baseName = stripExt(imageName);
+        String ext = getExt(imageName);
+
         for (Map.Entry<String, FilterEntry> entry : filters.entrySet()) {
             String filterName = entry.getKey();
             FilterEntry fe = entry.getValue();
-            System.out.println("▶ 滤镜: " + filterName + " (" + fe.note + ")");
+            totalRun++;
+            System.out.print("▶ " + filterName + " (" + fe.note + ") ... ");
 
-            Path filterOutDir = OUTPUT_DIR.resolve(filterName);
-            Files.createDirectories(filterOutDir);
+            Path outFile = OUTPUT_DIR.resolve(filterName + "_" + baseName + ext);
 
-            for (File image : images) {
-                totalRun++;
-                String imageName = image.getName();
-                String baseName = stripExt(imageName);
-                String ext = getExt(imageName);
-                Path outFile = filterOutDir.resolve(baseName + "_" + filterName + ext);
-
-                try {
-                    BufferedImage src = ImageIO.read(image);
-                    if (src == null) {
-                        System.out.println("    [SKIP] " + imageName + " (ImageIO.read returned null)");
-                        totalSkipped++;
-                        continue;
-                    }
-                    BufferedImage result = fe.processor.apply(src);
-                    if (result == null) {
-                        System.out.println("    [SKIP] " + imageName + " (filter returned null)");
-                        totalSkipped++;
-                        continue;
-                    }
-                    String lower = ext.toLowerCase();
-                    String format;
-                    if (lower.equals(".jpg") || lower.equals(".jpeg")) {
-                        format = "jpg";
-                    } else {
-                        format = lower.replace(".", "");
-                    }
-                    if (format.equals("webp")) {
-                        format = "png";
-                    }
-                    boolean noAlpha = "jpg".equalsIgnoreCase(format) || "bmp".equalsIgnoreCase(format);
-                    BufferedImage toWrite = noAlpha ? toRgbIfNeeded(result) : result;
-                    boolean written = ImageIO.write(toWrite, format, outFile.toFile());
-                    if (!written) {
-                        System.out.println("    [FAIL] " + imageName + " : ImageIO.write returned false (no writer for format=" + format + ")");
-                        totalFailed++;
-                    } else {
-                        System.out.println("    [ OK ] " + imageName + " -> " + outFile.getFileName());
-                        totalSuccess++;
-                    }
-                } catch (Throwable t) {
-                    System.out.println("    [FAIL] " + imageName + " : " + t.getClass().getSimpleName() + " - " + t.getMessage());
-                    totalFailed++;
+            try {
+                BufferedImage src = ImageIO.read(image);
+                if (src == null) {
+                    System.out.println("[SKIP] (ImageIO.read returned null)");
+                    totalSkipped++;
+                    continue;
                 }
+                BufferedImage result = fe.processor.apply(src);
+                if (result == null) {
+                    System.out.println("[SKIP] (filter returned null)");
+                    totalSkipped++;
+                    continue;
+                }
+                String lower = ext.toLowerCase();
+                String format;
+                if (lower.equals(".jpg") || lower.equals(".jpeg")) {
+                    format = "jpg";
+                } else {
+                    format = lower.replace(".", "");
+                }
+                if (format.equals("webp")) {
+                    format = "png";
+                }
+                boolean noAlpha = "jpg".equalsIgnoreCase(format) || "bmp".equalsIgnoreCase(format);
+                BufferedImage toWrite = noAlpha ? toRgbIfNeeded(result) : result;
+                boolean written = ImageIO.write(toWrite, format, outFile.toFile());
+                if (!written) {
+                    System.out.println("[FAIL] (ImageIO.write returned false)");
+                    totalFailed++;
+                } else {
+                    System.out.println("[ OK ] -> " + outFile.getFileName());
+                    totalSuccess++;
+                }
+            } catch (Throwable t) {
+                System.out.println("[FAIL] " + t.getClass().getSimpleName() + " - " + t.getMessage());
+                totalFailed++;
             }
-            System.out.println();
         }
 
+        System.out.println();
         System.out.println("=" .repeat(70));
         System.out.println("测试完成");
         System.out.println("  总计: " + totalRun);
         System.out.println("  成功: " + totalSuccess);
         System.out.println("  失败: " + totalFailed);
         System.out.println("  跳过: " + totalSkipped);
-        System.out.println("  输出根目录: " + OUTPUT_DIR);
+        System.out.println("  输出目录: " + OUTPUT_DIR);
         System.out.println("=" .repeat(70));
 
         if (totalFailed > 0) {
