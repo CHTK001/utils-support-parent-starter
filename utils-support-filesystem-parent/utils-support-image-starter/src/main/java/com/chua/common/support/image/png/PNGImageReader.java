@@ -19,6 +19,12 @@ import java.util.zip.InflaterInputStream;
 import static com.chua.common.support.image.png.PNG.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+/**
+ * class PNGImageDataEnumeration implements Enumeration<InputStream> {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 
 
 

@@ -102,11 +102,14 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     private final boolean large;
 
     /** 检测翻译器 */
+    /** DETtranslator */
     private final DuguangDetTranslator detTranslator;
 
     /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 识别会话 */
+    /** REC会话 */
     private OrtSession recSession;
     /** 词表映射 */
     private Map<Integer, String> vocab;
@@ -345,6 +348,11 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                     for (int c = 0; c < Math.min(batch, CHUNK_COUNT); c++) {
                         texts[c] = decode(logits[c]);
                     }
+                    if (Boolean.getBoolean("duguang.rec.debug")) {
+                        System.out.println("  [rec-debug] chunk0='" + (texts[0] == null ? "" : texts[0])
+                                + "' chunk1='" + (texts[1] == null ? "" : texts[1])
+                                + "' chunk2='" + (texts[2] == null ? "" : texts[2]) + "'");
+                    }
                 }
              }
          }
@@ -358,10 +366,9 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         StringBuilder sb = new StringBuilder();
         int last = 0;
         for (float[] step : logits) {
-            // argmax 含 blank(0)（与 Python np.argmax 一致），decode 时再跳过 blank
             int best = 0;
             float bestScore = Float.NEGATIVE_INFINITY;
-            for (int i = 0; i < step.length; i++) {
+            for (int i = 1; i < step.length; i++) {
                 if (step[i] > bestScore) {
                     bestScore = step[i];
                     best = i;

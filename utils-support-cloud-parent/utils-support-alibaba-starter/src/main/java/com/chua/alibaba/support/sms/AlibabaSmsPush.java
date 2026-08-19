@@ -48,6 +48,12 @@ import lombok.extern.slf4j.Slf4j;
                 @SpiParam(value = "sms.templateCode", desc = "短信模板编码", type = "String")
         }
 )
+/**
+ * public class AlibabaSmsPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class AlibabaSmsPush implements MessagePush {
 

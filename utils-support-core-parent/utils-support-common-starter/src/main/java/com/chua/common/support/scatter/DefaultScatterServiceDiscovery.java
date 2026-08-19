@@ -70,6 +70,11 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
     private long probeRound;
 
     /**
+     * 节点连续心跳失败计数：serverId -> 连续失败次数，用于剔除死节点
+     */
+    private final Map<String, Integer> heartbeatFailCounts = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
      * 远程客户端
      */
     private ScatterRemoteClient<Discovery> remoteClient = (context, node, timeoutMillis) ->
@@ -293,10 +298,9 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                         ScatterResult<Discovery> result = remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
                         if (result != null && result.isSuccess() && result.getData() != null) {
                             Discovery remote = result.getData();
-                            // 仅合并同分组节点
+                            // 仅合并同分组节点；updateService 按 serverId 幂等覆盖，避免同一节点重复累积
                             if (getGroupId().equals(remote.getScatterId())) {
-                                addToCache(addClusterPrefix(setting.getServicePath()), remote);
-                                incrementServiceVersion();
+                                updateService(setting.getServicePath(), remote);
                                 log.debug("gossip 发现: 从 {} 合并服务 {}:{}", node.getEndpoint(),
                                         remote.getHost(), remote.getPort());
                             }
@@ -310,6 +314,8 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
                     .get(setting.getTimeoutMillis(), TimeUnit.MILLISECONDS);
             // 同步完成:将有效节点定时持久化到本地文件,后续启动直接加载进 hash 表
             persistNodes();
+            // 心跳探活:对表内非自身/非 seed 节点发 ping,连续失败达阈值即剔除死节点
+            healthCheckRemoteNodes();
         } catch (Exception e) {
             log.debug("自动发现异常: {}", e.getMessage());
         }

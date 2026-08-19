@@ -39,8 +39,10 @@ public enum Model3DFormat {
     STL("stl", "model/stl");
 
     /** 扩展名 */
+    /** Extension */
     private final String extension;
     /** MIME 类型 */
+    /** Mime类型 */
     private final String mimeType;
 
     Model3DFormat(String extension, String mimeType) {

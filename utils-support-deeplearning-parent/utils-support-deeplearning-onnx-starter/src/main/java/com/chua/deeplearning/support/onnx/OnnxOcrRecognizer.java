@@ -13,12 +13,15 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     /** 模型名称 */
     private String modelName;
     /** 语言 */
+    /** Lang */
     private String lang = "zh";
     /** 模型路径 */
     private String modelPath;
     /** 是否使用 GPU */
+    /** USEGPU */
     private boolean useGpu = false;
     /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxOcrRecognizer(String apiKey) {

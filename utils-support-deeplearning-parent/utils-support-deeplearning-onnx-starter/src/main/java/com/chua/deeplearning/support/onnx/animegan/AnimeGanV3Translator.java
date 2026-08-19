@@ -40,6 +40,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
      */
     private int originalWidth;
     /** 原始高度 */
+    /** Original高度 */
     private int originalHeight;
 
     /**

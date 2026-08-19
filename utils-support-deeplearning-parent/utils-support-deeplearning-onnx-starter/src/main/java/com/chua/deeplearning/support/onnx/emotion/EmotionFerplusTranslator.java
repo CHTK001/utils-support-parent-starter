@@ -33,6 +33,7 @@ import com.chua.deeplearning.support.ai.result.PredictResult;
 public class EmotionFerplusTranslator implements Translator<Image, PredictResult> {
 
     /** 情感标签数组 */
+    /** Emotionlabels */
     private final String[] emotionLabels;
 
     public EmotionFerplusTranslator() {

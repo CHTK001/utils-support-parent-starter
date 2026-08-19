@@ -12,6 +12,7 @@ public class OnnxEyeDetector implements EyeDetector {
     /** 模型名称 */
     private String modelName;
     /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxEyeDetector(String apiKey) {

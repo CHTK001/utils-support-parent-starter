@@ -23,6 +23,7 @@ public class SafeTensorModelDownloadManager {
     private final SafeTensorServiceClient client;
 
     /** 模型根目录 */
+    /** 模型根级 */
     private final Path modelRoot;
 
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client) {

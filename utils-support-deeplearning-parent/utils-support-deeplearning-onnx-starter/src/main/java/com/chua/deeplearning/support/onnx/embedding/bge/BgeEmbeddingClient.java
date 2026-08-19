@@ -37,10 +37,13 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     /** 设置 */
     private final EmbeddingClientSetting setting;
     /** 翻译器 */
+    /** Translator */
     private BgeEmbeddingTranslator translator;
     /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 是否已加载 */
+    /** Loaded */
     private boolean loaded;
 
     /**
@@ -48,8 +51,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
      */
     private String embeddedBase;
     /** 嵌入式模型名称 */
+    /** Embedded模型 */
     private final String embeddedModel;
     /** 嵌入式分词器名称 */
+    /** Embeddedtokenizer */
     private final String embeddedTokenizer;
 
     /**
@@ -57,6 +62,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
      */
     private Path localModelRoot;
     /** 嵌入式本地目录 */
+    /** Embedded本地目录 */
     private Path embeddedLocalDir;
     /** 模型路径 */
     private Path modelPath;

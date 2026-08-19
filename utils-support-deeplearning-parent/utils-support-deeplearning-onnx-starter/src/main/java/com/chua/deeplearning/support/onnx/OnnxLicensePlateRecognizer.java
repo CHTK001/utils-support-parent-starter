@@ -20,6 +20,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxLicensePlateRecognizer(String apiKey) {

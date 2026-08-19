@@ -48,6 +48,12 @@ import lombok.extern.slf4j.Slf4j;
                 @SpiParam(value = "feishu.appSecret", desc = "飞书应用密钥", type = "String")
         }
 )
+/**
+ * public class FeishuPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class FeishuPush implements MessagePush {
 

@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class VggAgeRecognitionTranslator implements Translator<Image, PredictResult> {
 
     /** 日志记录器 */
+    /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(VggAgeRecognitionTranslator.class);
 
     /**

@@ -194,6 +194,7 @@ public final class WebSocketProtocol {
      * WebSocket 帧：opcode + 已去掩码的 payload。
      *
      * @param opcode  操作码（0x1 文本、0x2 二进制、0x8 关闭、0x9 ping、0xA pong）
+      * @author CH
      * @param payload 载荷
      */
     public record Frame(int opcode, byte[] payload) {

@@ -90,6 +90,7 @@ public class EdgeSamSegmentTranslator {
     private static final String DECODER_FILE = "edge_sam_decoder.onnx";
 
     /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
     private OrtSession encoderSession;
@@ -101,12 +102,16 @@ public class EdgeSamSegmentTranslator {
      */
     private int srcWidth;
     /** 源图像高度 */
+    /** SRC高度 */
     private int srcHeight;
     /** 缩放系数 */
+    /** 比例尺 */
     private float scale;
     /** X 轴填充值 */
+    /** PADX坐标 */
     private int padX;
     /** Y 轴填充值 */
+    /** PADY坐标 */
     private int padY;
 
     private synchronized void prepare() throws Exception {

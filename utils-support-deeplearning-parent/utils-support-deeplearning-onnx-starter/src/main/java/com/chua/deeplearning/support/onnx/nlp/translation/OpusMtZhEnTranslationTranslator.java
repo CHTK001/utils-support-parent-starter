@@ -98,14 +98,17 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     private static final String DECODER_PAST_FILE = "decoder_with_past_model_quantized.onnx";
 
     /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
     private OrtSession encoderSession;
     /** 解码器会话 */
     private OrtSession decoderSession;
     /** 解码器历史会话 */
+    /** 解码器past会话 */
     private OrtSession decoderPastSession;
     /** 分词器 */
+    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 是否已加载 */
     private volatile boolean loaded;

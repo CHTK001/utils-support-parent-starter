@@ -18,6 +18,7 @@ import java.util.List;
 public class OnnxOcrPipeline {
 
     /** 委托对象 */
+    /** Delegate */
     private final OcrPipeline delegate;
 
     public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,

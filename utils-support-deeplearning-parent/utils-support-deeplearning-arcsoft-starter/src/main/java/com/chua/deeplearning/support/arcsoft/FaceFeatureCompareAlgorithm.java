@@ -29,6 +29,7 @@ import java.nio.file.Path;
 public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, AutoCloseable {
 
     /** 人脸引擎 */
+    /** Face引擎 */
     private final FaceEngine faceEngine;
 
     public FaceFeatureCompareAlgorithm() {

@@ -14,6 +14,7 @@ public class OnnxLivenessDetector implements LivenessDetector {
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
+    /** Device */
     private String device = "cpu";
 
     public OnnxLivenessDetector(String apiKey) {

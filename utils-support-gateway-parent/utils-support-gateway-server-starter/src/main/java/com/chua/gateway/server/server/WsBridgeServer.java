@@ -198,6 +198,12 @@ public final class WsBridgeServer {
     }
 
     // WebSocket 帧读取
+    /**
+     * static class WsFrame {
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     static class WsFrame {
         byte opcode;
         byte[] payload;

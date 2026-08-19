@@ -26,16 +26,20 @@ import java.util.List;
 public class OnnxFaceDetector implements FaceDetector {
 
     /** API 密钥 */
+    /** API密钥 */
     private final String apiKey;
     /** 模型名称 */
     private String modelName;
     /** 阈值 */
     private float threshold = DEFAULT_THRESHOLD;
     /** NMS 阈值 */
+    /** NMS */
     private float nms = DEFAULT_NMS;
     /** 最小人脸尺寸 */
+    /** 最小值face尺寸 */
     private int minFaceSize = DEFAULT_MIN_FACE_SIZE;
     /** 设备类型 */
+    /** Device */
     private String device = DEFAULT_DEVICE;
 
     public OnnxFaceDetector(String apiKey) {

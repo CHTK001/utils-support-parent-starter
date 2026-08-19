@@ -62,6 +62,12 @@ import java.util.concurrent.ConcurrentMap;
                 @SpiParam(value = "wechat.templateId", desc = "默认模板 ID", type = "String")
         }
 )
+/**
+ * public class WechatPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class WechatPush implements MessagePush {
 

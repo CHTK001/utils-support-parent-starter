@@ -50,6 +50,12 @@ import java.util.concurrent.ConcurrentHashMap;
                 @SpiParam(value = "smtp.from", desc = "发件人地址", type = "String")
         }
 )
+/**
+ * public class EmailPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class EmailPush implements MessagePush {
 
     /** 环境 */
