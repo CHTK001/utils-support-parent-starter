@@ -1004,30 +1004,7 @@ public class OcrPipeline {
         byte[] corrected = correct(imageData);
         List<DetectionInfo> allBoxes = detector.detect(corrected);
         List<OcrResult> results = recognizeDetail(imageData);
-        List<DetectionInfo> boxes = new java.util.ArrayList<>();
-        List<String> labels = new java.util.ArrayList<>();
-        for (DetectionInfo b : allBoxes) {
-            String bestText = "";
-            float bestConf = 0;
-            double bestDist = Double.MAX_VALUE;
-            double bx = b.x() + b.width() / 2.0, by = b.y() + b.height() / 2.0;
-            for (OcrResult r : results) {
-                PredictRectangle rb = r.boundingBox();
-                double rx = rb.x() + rb.width() / 2.0, ry = rb.y() + rb.height() / 2.0;
-                double dist = Math.abs(bx - rx) + Math.abs(by - ry);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    bestText = r.text();
-                    bestConf = r.confidence();
-                }
-            }
-            double maxDist = (b.width() + b.height()) * 0.5;
-            if (bestDist <= maxDist && !bestText.isEmpty() && bestConf >= minConfidence) {
-                boxes.add(b);
-                labels.add(bestText + " " + String.format("%.2f", bestConf));
-            }
-        }
-        return com.chua.deeplearning.support.utils.ImageUtils.drawDetectionsWithLabels(corrected, boxes, labels);
+        return withInitDrawer().target(corrected).boxes(allBoxes, results).done();
     }
 
     /**

@@ -1,26 +1,43 @@
 package com.chua.deeplearning.support.ocr;
 
 import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OCR 标注管线 — 独立管理检测结果的绘制生命周期。
+ * OCR 标注管线 — 自动匹配检测框与识别结果，支持进度回调。
  *
- * <p>通过 {@link OcrPipeline#withInitDrawer()} 创建，支持自定义绘制流程：</p>
+ * <p>通过 {@link OcrPipeline#withInitDrawer()} 创建：</p>
  * <pre>{@code
- * OcrPipeline ocr = OcrPipeline.builder()...build();
- * OcrPipeline.DrawerPipeline drawer = ocr.withInitDrawer();
- * drawer.target(imageData)       // 设置目标图
- *        .onProcess(box, result) // 逐框处理
- *        .done();                // 完成绘制，返回标注图
+ * DrawerPipeline drawer = ocr.withInitDrawer();
+ * byte[] drawn = drawer.target(corrected)
+ *        .boxes(allBoxes)
+ *        .results(ocrResults)
+ *        .onProcess((box, text, conf, idx, total) ->
+ *            System.out.println(idx + "/" + total + ": " + text))
+ *        .done();
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class DrawerPipeline {
+
+    /**
+     * 处理进度回调。
+     *
+     * @param box   当前检测框
+     * @param text  识别文字
+     * @param conf  识别置信度
+     * @param index 当前进度（从 0 开始）
+     * @param total 总检测框数
+     */
+    @FunctionalInterface
+    public interface ProcessCallback {
+        void onProcess(DetectionInfo box, String text, float conf, int index, int total);
+    }
 
     /**
      * 矫正后的目标图
@@ -43,6 +60,11 @@ public class DrawerPipeline {
     private float minConfidence;
 
     /**
+     * 进度回调
+     */
+    private ProcessCallback callback;
+
+    /**
      * 构造标注管线。
      *
      * @param minConfidence 最小置信度
@@ -63,6 +85,57 @@ public class DrawerPipeline {
     }
 
     /**
+     * 设置检测框列表（自动匹配识别结果）。
+     *
+     * @param boxes   检测框列表
+     * @param results 识别结果列表
+     * @return this
+     */
+    public DrawerPipeline boxes(List<DetectionInfo> boxes, List<OcrResult> results) {
+        this.boxes.clear();
+        this.labels.clear();
+        int total = boxes.size();
+        for (int i = 0; i < total; i++) {
+            DetectionInfo b = boxes.get(i);
+            String bestText = "";
+            float bestConf = 0;
+            double bestDist = Double.MAX_VALUE;
+            double bx = b.x() + b.width() / 2.0, by = b.y() + b.height() / 2.0;
+            for (OcrResult r : results) {
+                PredictRectangle rb = r.boundingBox();
+                double rx = rb.x() + rb.width() / 2.0, ry = rb.y() + rb.height() / 2.0;
+                double dist = Math.abs(bx - rx) + Math.abs(by - ry);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    bestText = r.text();
+                    bestConf = r.confidence();
+                }
+            }
+            double maxDist = (b.width() + b.height()) * 0.5;
+            boolean matched = bestDist <= maxDist && !bestText.isEmpty() && bestConf >= minConfidence;
+            if (matched) {
+                this.boxes.add(b);
+                this.labels.add(bestText + " " + String.format("%.2f", bestConf));
+            }
+            if (callback != null) {
+                callback.onProcess(b, matched ? bestText : "", bestConf, i, total);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 设置进度回调。
+     *
+     * @param callback 回调函数
+     * @return this
+     */
+    public DrawerPipeline onProcess(ProcessCallback callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    /**
      * 清空当前标注结果。
      *
      * @return this
@@ -70,22 +143,6 @@ public class DrawerPipeline {
     public DrawerPipeline clean() {
         boxes.clear();
         labels.clear();
-        return this;
-    }
-
-    /**
-     * 处理单个检测框，添加到标注列表。
-     *
-     * @param box   检测框
-     * @param text  识别文字
-     * @param conf  识别置信度
-     * @return this
-     */
-    public DrawerPipeline onProcess(DetectionInfo box, String text, float conf) {
-        if (conf >= minConfidence && text != null && !text.isEmpty()) {
-            boxes.add(box);
-            labels.add(text + " " + String.format("%.2f", conf));
-        }
         return this;
     }
 

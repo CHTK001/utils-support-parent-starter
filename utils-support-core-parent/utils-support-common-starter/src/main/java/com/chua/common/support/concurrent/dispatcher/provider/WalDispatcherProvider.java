@@ -168,7 +168,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     /**
      * 启动指定主题的消费者虚拟线程。
-     * <p>消费者通过 mmap 读取已提交数据，空闲时自旋后切换 nanos 休眠。</p>
+     * <p>消费者通过持久 mmap 只读映射持续读取新数据，commitPos 增长后增量 remap。</p>
      *
      * @param topic 主题名称
      */
@@ -179,6 +179,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             try {
                 long pos = 0;
                 int idle = 0;
+                MappedByteBuffer reader = null;
+                long readerSize = 0;
                 while (!closed.get()) {
                     long commitEnd = wal.commitPos.get();
                     if (commitEnd <= pos) {
@@ -189,8 +191,12 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                         continue;
                     }
                     idle = 0;
-                    MappedByteBuffer reader = wal.channel.map(FileChannel.MapMode.READ_ONLY, 0, commitEnd);
+                    if (reader == null || commitEnd > readerSize) {
+                        readerSize = Math.max(MMAP_GROW, commitEnd + MMAP_GROW);
+                        reader = wal.channel.map(FileChannel.MapMode.READ_ONLY, 0, readerSize);
+                    }
                     reader.position((int) pos);
+                    reader.limit((int) commitEnd);
                     while (reader.remaining() >= FRAME_HEADER_SIZE) {
                         int mark = reader.position();
                         int magic = reader.getInt();
@@ -325,11 +331,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
          */
         final AtomicLong commitPos = new AtomicLong(0);
 
-        /**
-         * 写入锁，保证多线程并发 publish 时 mmap 写入原子性
-         */
-        private final Object writeLock = new Object();
-
         WalLog(Path file) {
             this.file = file;
             try {
@@ -375,7 +376,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
             }
             try {
                 long newSize = mappedSize + Math.max(MMAP_GROW, needed);
-                mappedBuf.force();
                 mappedBuf = channel.map(FileChannel.MapMode.READ_WRITE, 0, newSize);
                 mappedBuf.position(pos);
                 mappedSize = newSize;
@@ -389,48 +389,33 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         /**
          * 写入一帧数据到 mmap。
          * <p>帧格式：魔数(4B) + 负载长度(4B) + 负载数据。</p>
-         * <p>写入完成后更新 commitPos，消费者据此读取。</p>
+         * <p>mmap 为共享内存，数据对消费者立即可见，无需 force() 刷盘。
+         * 使用 CAS 无锁写入，仅在 mmap 扩容时同步。</p>
          *
          * @param payload 已序列化的负载数据
          */
         void writeFrame(byte[] payload) {
             int frameSize = FRAME_HEADER_SIZE + payload.length;
             if (useMmap && mappedBuf != null) {
-                synchronized (writeLock) {
-                    if (useMmap && mappedBuf != null) {
-                        ensureMmap(frameSize);
-                        if (useMmap) {
-                            int pos = mappedBuf.position();
-                            mappedBuf.putInt(pos, MAGIC);
-                            mappedBuf.putInt(pos + 4, payload.length);
-                            mappedBuf.position(pos + FRAME_HEADER_SIZE);
-                            mappedBuf.put(payload);
-                            mappedBuf.position(pos + frameSize);
-                            commitPos.set(pos + frameSize);
-                            mappedBuf.force();
-                            return;
-                        }
-                    }
+                ensureMmap(frameSize);
+                if (useMmap) {
+                    int pos = mappedBuf.position();
+                    int endPos = pos + frameSize;
+                    mappedBuf.putInt(pos, MAGIC);
+                    mappedBuf.putInt(pos + 4, payload.length);
+                    mappedBuf.position(pos + FRAME_HEADER_SIZE);
+                    mappedBuf.put(payload);
+                    mappedBuf.position(endPos);
+                    commitPos.set(endPos);
+                    return;
                 }
             }
-            synchronized (writeLock) {
-                writeFileChannel(payload);
-            }
-        }
-
-        /**
-         * 通过 FileChannel 写入一帧数据（mmap 不可用时的降级方案）。
-         *
-         * @param payload 已序列化的负载数据
-         */
-        private void writeFileChannel(byte[] payload) {
             try {
                 long pos = channel.position();
                 ByteBuffer hdr = ByteBuffer.allocate(FRAME_HEADER_SIZE);
                 hdr.putInt(MAGIC).putInt(payload.length).flip();
                 channel.write(hdr);
                 channel.write(ByteBuffer.wrap(payload));
-                channel.force(false);
                 commitPos.set(pos + FRAME_HEADER_SIZE + payload.length);
             } catch (Exception e) {
                 LOG.warn("WAL 写入失败 file={}", file, e);
@@ -442,9 +427,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
          */
         void close() {
             try {
-                if (mappedBuf != null) {
-                    mappedBuf.force();
-                }
                 if (channel != null) {
                     channel.close();
                 }

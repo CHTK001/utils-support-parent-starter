@@ -207,6 +207,41 @@ public final class GatewayProperties {
     }
 
     /**
+     * 默认 Docker API 地址（TCP）占位符
+     */
+    public static final String DEFAULT_DOCKER_HOST = "http://127.0.0.1:2375";
+
+    /**
+     * Docker API 地址（用于通过远程 Docker 拉起 guacd 容器，一键式方案）。
+     * 可通过 {@code gateway.guacd.docker-host} 或环境变量 {@code DOCKER_HOST} 覆盖。
+     *
+     * @return Docker API 地址
+     */
+    public static String dockerHost() {
+        String env = System.getenv("DOCKER_HOST");
+        if (env != null && !env.trim().isEmpty()) {
+            if (env.contains("://")) {
+                return env;
+            }
+            return "http://" + env;
+        }
+        String sys = System.getProperty("gateway.guacd.docker-host");
+        if (sys != null && !sys.trim().isEmpty()) {
+            return sys;
+        }
+        return getOrDefault("gateway.guacd.docker-host", DEFAULT_DOCKER_HOST);
+    }
+
+    /**
+     * 通过 Docker 拉起 guacd 时使用的容器镜像。
+     *
+     * @return 镜像名（默认 guacamole/guacd:latest）
+     */
+    public static String guacdDockerImage() {
+        return getOrDefault("gateway.guacd.docker-image", "guacamole/guacd:latest");
+    }
+
+    /**
      * 嵌入式数据库 JDBC URL（默认 sqlite）。
      *
      * @return JDBC URL 字符串（已展开 {@code ${user.home}}）
