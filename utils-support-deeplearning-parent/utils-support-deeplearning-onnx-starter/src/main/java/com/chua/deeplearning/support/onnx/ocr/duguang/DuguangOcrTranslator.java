@@ -87,6 +87,11 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
     private static final int VOCAB_START_ID = 2;
 
     /**
+     * 输入高度 ≤ 该值视为单行文本裁剪块（跳过检测直接识别）。
+     */
+    private static final int CROP_AS_SINGLE_LINE = 160;
+
+    /**
      * jar 内资源目录。
      */
     private final String resourceBase;
@@ -212,6 +217,16 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                 throw new IllegalArgumentException("无法解码图像");
             }
             try {
+                // 输入是单行文本裁剪块（OcrPipeline 传入）时跳过检测，直接识别整块
+                if (src.rows() <= CROP_AS_SINGLE_LINE) {
+                    String text = recognizeLine(src);
+                    if (!text.isEmpty()) {
+                        float conf = 1.0f;
+                        return List.of(new OcrResult(text, conf,
+                                new PredictRectangle(0, 0, src.cols(), src.rows(), conf, -1, "text")));
+                    }
+                    return List.of();
+                }
                 List<PredictRectangle> boxes = detTranslator.translate(imageData);
                 List<OcrResult> results = new ArrayList<>();
                 for (PredictRectangle box : boxes) {
