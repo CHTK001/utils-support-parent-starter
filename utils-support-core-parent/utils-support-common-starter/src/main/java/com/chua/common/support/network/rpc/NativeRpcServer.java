@@ -12,11 +12,7 @@ import com.chua.common.support.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +103,11 @@ public class NativeRpcServer implements RpcServer {
     private final Map<MethodKey, java.lang.reflect.Method> methodCache = new ConcurrentHashMap<>();
 
     /**
+     * 请求/响应编解码器（SPI 序列化，Fury 优先）
+     */
+    private final RpcSerialization rpcSerialization;
+
+    /**
      * 创建原生 TCP NIO RPC 服务端。
      *
      * @param registryConfigs 注册中心配置列表
@@ -123,6 +124,15 @@ public class NativeRpcServer implements RpcServer {
         this.ioThreadsCount = protocolConfig != null && protocolConfig.ioThreads() != null
                 && protocolConfig.ioThreads() > 0
                 ? protocolConfig.ioThreads() : Runtime.getRuntime().availableProcessors();
+        try {
+            this.rpcSerialization = new RpcSerialization(
+                    protocolConfig != null ? protocolConfig.serialization() : null);
+            log.info("NativeRpcServer serialization: {}", rpcSerialization.name());
+        } catch (Throwable t) {
+            System.err.println("[NativeRpcServer] rpcSerialization init FAILED: " + t);
+            t.printStackTrace(System.err);
+            throw t;
+        }
         initServiceDiscovery();
     }
 
@@ -150,12 +160,12 @@ public class NativeRpcServer implements RpcServer {
      */
     private byte[] handleRequest(byte[] reqData) throws Exception {
         try {
-            RpcRequest request = deserialize(reqData);
+            RpcRequest request = rpcSerialization.deserializeRequest(reqData);
             RpcResponse response = invoke(request);
-            return serialize(response);
+            return rpcSerialization.serialize(response);
         } catch (Exception e) {
             log.error("Process request error", e);
-            return serialize(buildErrorResponse(e));
+            return rpcSerialization.serialize(buildErrorResponse(e));
         }
     }
 
@@ -280,23 +290,6 @@ public class NativeRpcServer implements RpcServer {
         }
         methodCache.clear();
         log.info("NativeRpcServer closed");
-    }
-
-    private static byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
-        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-            oos.writeObject(obj);
-        }
-        return bos.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T deserialize(byte[] data) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
-            // 复用客户端包级过滤策略，拒绝已知高危 gadget 类，防止反序列化攻击
-            ois.setObjectInputFilter(NativeRpcClient.objectInputFilter());
-            return (T) ois.readObject();
-        }
     }
 
     /**
