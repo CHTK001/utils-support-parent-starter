@@ -110,7 +110,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     /**
      * IO Selector 线程数
      */
-    private int ioThreadsCount = Runtime.getRuntime().availableProcessors();
+    private int ioThreadsCount = 0;
 
     /**
      * 接收连接专用线程
@@ -178,7 +178,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @return 当前服务器实例，支持链式调用
      */
     public JdkTcpServer setIoThreads(int ioThreads) {
-        this.ioThreadsCount = ioThreads > 0 ? ioThreads : Runtime.getRuntime().availableProcessors();
+        this.ioThreadsCount = ioThreads;
         return this;
     }
 
@@ -260,6 +260,13 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
             // 必须先置运行标志再启动线程，否则 IO/接收线程读到 false 立即退出
             running = true;
+
+            // IO Selector 线程数：优先 ServerSetting.auto() 生成的最优值，其次显式 setIoThreads，最后兜底 CPU 核数
+            int ioCount = ioThreadsCount > 0 ? ioThreadsCount : setting.getIoThreads();
+            if (ioCount <= 0) {
+                ioCount = Math.max(1, Runtime.getRuntime().availableProcessors());
+            }
+            ioThreadsCount = ioCount;
 
             ioSelectors = new Selector[ioThreadsCount];
             ioThreads = new Thread[ioThreadsCount];

@@ -62,7 +62,10 @@ public class RpcConsumerConfig {
 
         this.timeout = Math.min(Math.max(cpus * 1500, 3000), 15000);
         this.connectTimeout = Math.max(this.timeout / 3, 1000);
-        this.connections = Math.max(cpus * 4, 4);
+        // 连接池需 ≥ 客户端并发线程数：同步独占模型下并发在途请求数 = 连接数。
+        // CPU×8（12 核→96）在 64 线程并发实测稳定突破 10 万 QPS；连接过少会因
+        // borrow 排队拖垮吞吐（32 线程 + 48 连接仅约 7.9 万 QPS）
+        this.connections = Math.max(cpus * 8, 16);
         this.retryDelay = heapMb >= 4096 ? 200 : 500;
 
         return this;
