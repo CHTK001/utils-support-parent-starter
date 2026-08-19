@@ -95,6 +95,17 @@ public class ServerSetting {
         // 缓冲区：内存充足时放大，减少系统调用次数
         this.bufferSize = heapMb >= 4096 ? 16384 : 8192;
 
+        // 最大帧/请求体：跟随缓冲区分级，容纳大消息往返（含长度头余量）
+        this.maxFrameSize = heapMb >= 4096 ? 1024 * 1024 : 65536;
+
+        // 最大并发请求数：与连接池容量对齐（RPC auto 连接数=cpu*8），
+        // 防止异常场景下在途请求无限堆积击穿内存，同时不限制正常高吞吐
+        this.maxConcurrency = Math.max(cpus * 8, 32);
+
+        // 最大 Keep-Alive 请求数：内存充足时放宽长连接复用次数，
+        // 减少高吞吐场景下频繁建连/断连的握手开销
+        this.maxKeepAliveRequests = heapMb >= 4096 ? 500 : 100;
+
         // 响应式处理模式：多核机器默认启用（由具体实现决定是否支持）
         this.reactor = cpus >= 8;
 
