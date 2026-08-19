@@ -769,7 +769,13 @@ public final class GuacdBootstrapper {
             return false;
         }
     }
+
+    /**
      * 解压 zip 流到目标目录（带路径穿越防护）。
+     *
+     * @param zis       Zip 输入流
+     * @param targetDir 解压目标目录
+     * @return 解压条目数
      */
     private static int extractZip(ZipInputStream zis, Path targetDir) throws IOException {
         int count = 0;

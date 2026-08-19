@@ -383,12 +383,7 @@ public class AsyncLogWriter implements AutoCloseable {
         while (segment.inFlight[index].get() != 0) {
             Thread.onSpinWait();
         }
-        try {
-            segment.buffers[index].force();
-        } catch (IOException e) {
-            // 刷盘失败不中断后台线程，等待下次尝试
-            return;
-        }
+        segment.buffers[index].force();
         synchronized (segment.switchLock) {
             segment.clean[index] = true;
             segment.switchLock.notifyAll();
@@ -408,12 +403,8 @@ public class AsyncLogWriter implements AutoCloseable {
             return;
         }
         int written = (int) (cursor - lastForced);
-        try {
-            segment.buffers[index].force((int) lastForced, written);
-            segment.lastForced[index] = cursor;
-        } catch (IOException e) {
-            // 刷盘失败不中断后台线程，等待下次尝试
-        }
+        segment.buffers[index].force((int) lastForced, written);
+        segment.lastForced[index] = cursor;
     }
 
     /**
