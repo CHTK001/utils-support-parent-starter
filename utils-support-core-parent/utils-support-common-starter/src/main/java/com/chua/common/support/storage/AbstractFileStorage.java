@@ -220,6 +220,12 @@ public abstract class AbstractFileStorage implements FileStorage {
                 // ignore
             }
         }
+        /**
+         * private record MultipartContext(PutObjectRequest request, Path tempDir) {
+         *
+         * @author CH
+         * @since 4.0.0.42
+         */
 
         private record MultipartContext(PutObjectRequest request, Path tempDir) {
         }

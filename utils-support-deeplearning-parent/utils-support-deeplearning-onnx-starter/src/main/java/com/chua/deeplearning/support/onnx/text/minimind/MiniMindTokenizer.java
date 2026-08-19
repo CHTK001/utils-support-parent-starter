@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class MiniMindTokenizer {
 
     /** JSON 对象映射器 */
+    /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /** 词表映射 */
@@ -51,6 +52,7 @@ public class MiniMindTokenizer {
     /** Unicode 到字节映射 */
     private final Map<Character, Integer> unicodeToByte;
     /** 词表大小 */
+    /** Vocab尺寸 */
     private final int vocabSize;
     /** 已添加标记数量映射 */
     private final Map<String, Integer> addedTokens;

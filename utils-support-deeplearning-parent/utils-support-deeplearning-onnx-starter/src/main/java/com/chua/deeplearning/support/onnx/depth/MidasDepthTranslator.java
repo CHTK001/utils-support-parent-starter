@@ -28,6 +28,7 @@ import java.awt.image.BufferedImage;
 public class MidasDepthTranslator implements Translator<Image, Image> {
 
     /** 模型图像尺寸 */
+    /** Model_image_size */
     private static final int MODEL_IMAGE_SIZE = 256;
     
     /**

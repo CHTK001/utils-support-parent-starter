@@ -516,6 +516,12 @@ public final class TraceContext {
     }
 
     // ==================== 内部类 ====================
+    /**
+     * static class TraceNode {
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
 
     static class TraceNode {
         final String traceId, className, methodName;

@@ -150,6 +150,7 @@ class LangChain4jAgentTest {
 
     private static class FixedChatModel implements ChatModel {
         /** 文本内容 */
+        /** 文本 */
         private final String text;
 
         FixedChatModel(String text) {
@@ -168,6 +169,7 @@ class LangChain4jAgentTest {
 
     private static class SequentialChatModel implements ChatModel {
         /** 消息列表 */
+        /** Messages */
         private final List<AiMessage> messages;
         /** 索引 */
         private int index = 0;

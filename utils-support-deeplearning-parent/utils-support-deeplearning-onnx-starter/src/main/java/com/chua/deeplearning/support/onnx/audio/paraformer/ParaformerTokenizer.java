@@ -28,24 +28,31 @@ import java.util.Map;
 public class ParaformerTokenizer {
 
     /** EOS token 名 */
+    /** Eos */
     private static final String EOS_TOKEN = "</s>";
 
     /** BPE 合并标记后缀 */
+    /** Merge_suffix */
     private static final String MERGE_SUFFIX = "@@";
 
     /** BPE 合并标记后缀长度 */
+    /** Merge_suffix_len */
     private static final int MERGE_SUFFIX_LEN = 2;
 
     /** token id → token 字符串 */
+    /** IdToToken */
     private final String[] idToToken;
 
     /** token 字符串 → token id */
+    /** TokenToId */
     private final Map<String, Integer> tokenToId;
 
     /** 词表大小 */
+    /** Vocab_size */
     private final int vocabSize;
 
     /** EOS token id */
+    /** Eos_id */
     private final int eosId;
 
     /**

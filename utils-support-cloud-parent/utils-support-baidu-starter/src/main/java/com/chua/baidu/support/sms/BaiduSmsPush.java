@@ -53,6 +53,12 @@ import lombok.extern.slf4j.Slf4j;
                 @SpiParam(value = "sms.signName", desc = "短信签名", type = "String")
         }
 )
+/**
+ * public class BaiduSmsPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class BaiduSmsPush implements MessagePush {
 

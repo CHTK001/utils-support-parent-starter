@@ -54,28 +54,38 @@ import java.util.*;
 public class GroundingDinoTranslator implements Translator<Image, DetectedObjects> {
 
     /** JSON 对象映射器 */
+    /** Object_mapper */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /** 默认阈值 */
+    /** Default_threshold */
     private static final double DEFAULT_THRESHOLD = 0.35d;
     /** 默认 NMS 阈值 */
+    /** Default_nms_threshold */
     private static final double DEFAULT_NMS_THRESHOLD = 0.50d;
     /** 默认输入尺寸 */
+    /** Default_input_size */
     private static final int DEFAULT_INPUT_SIZE = 800;
 
     /** 阈值 */
     private final double threshold;
     /** NMS 阈值 */
+    /** NMS阈值 */
     private final double nmsThreshold;
     /** 请求的候选列表 */
+    /** Requestedcandidates */
     private final List<String> requestedCandidates;
 
     /** 分词器 */
+    /** Tokenizer */
     private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
     /** 候选输入标识 */
+    /** Candidate输入IDS */
     private long[][] candidateInputIds;
     /** 候选注意力掩码 */
+    /** Candidateattentionmasks */
     private long[][] candidateAttentionMasks;
     /** 候选输出标签 */
+    /** Candidate输出labels */
     private List<String> candidateOutputLabels;
 
     /** 输入高度 */
@@ -83,21 +93,29 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     /** 输入宽度 */
     private int inputWidth = DEFAULT_INPUT_SIZE;
     /** 图像均值数组 */
+    /** 图片mean */
     private float[] imageMean = {0.485f, 0.456f, 0.406f};
     /** 图像标准差数组 */
+    /** 图片STD */
     private float[] imageStd = {0.229f, 0.224f, 0.225f};
     /** 重缩放系数 */
+    /** Rescale系数 */
     private float rescaleFactor = 1f / 255f;
 
     /** 原始宽度 */
+    /** Original宽度 */
     private int originalWidth;
     /** 原始高度 */
+    /** Original高度 */
     private int originalHeight;
     /** 缩放比例 */
+    /** Resize比例尺 */
     private double resizeScale = 1d;
     /** X 轴填充值 */
+    /** PADX坐标 */
     private int padX;
     /** Y 轴填充值 */
+    /** PADY坐标 */
     private int padY;
 
     public GroundingDinoTranslator() {

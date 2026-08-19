@@ -50,6 +50,12 @@ import lombok.extern.slf4j.Slf4j;
                 @SpiParam(value = "dingding.secret", desc = "加签密钥", type = "String")
         }
 )
+/**
+ * public class DingdingPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class DingdingPush implements MessagePush {
 
     /** 消息环境 */

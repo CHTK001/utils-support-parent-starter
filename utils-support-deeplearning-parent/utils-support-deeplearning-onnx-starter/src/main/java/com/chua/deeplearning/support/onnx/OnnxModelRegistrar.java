@@ -255,7 +255,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本摘要(BART)：BART-large-cnn 文本摘要，输入长文本输出摘要；适用文章摘要、新闻概括
         reg("bart-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.BartSeq2SeqTranslator", String.class, String.class, Object.class, "vision/generation/bart-large-cnn/model.onnx", "https://huggingface.co/Xenova/bart-large-cnn/resolve/main/onnx/model.onnx", false, null);
         // 文本摘要(T5)：T5-small 文本摘要/翻译，多任务 seq2seq；适用文本生成、翻译、摘要
-        reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqTranslator", String.class, String.class, Object.class, "vision/generation/t5-small/encoder_model.onnx", "https://modelscope.cn/models/Xenova/t5-small/resolve/master/onnx/encoder_model_int8.onnx", java.util.List.of("https://huggingface.co/Xenova/t5-small/resolve/main/onnx/encoder_model.onnx"), false, null);
+        // 注意：T5 为 encoder-decoder 自回归多文件模型（encoder/decoder/decoder_with_past + tokenizer），
+        // 由 T5Seq2SeqOrtTranslator 按"嵌入/缓存/modelscope 下载"自行组装，注册不设 downloadUrl 避免单文件预下载。
+        reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/t5-small/encoder_model_int8.onnx", null, null, false, null);
         // 文本摘要(Chinese-T5-base)：中文 T5-base 文本摘要，中文优化；适用中文文本摘要、生成
         reg("chinese-t5-base", "com.chua.deeplearning.support.onnx.seq2seq.ChineseT5BaseTranslator", String.class, String.class, Object.class, "nlp/seq2seq/chinese-t5-base/encoder_model.onnx", "https://huggingface.co/hfl/chinese-t5-base/resolve/main/encoder_model.onnx", false, null);
         // 文本摘要(Chinese-BART-base)：中文 BART-base 文本摘要；适用中文文本摘要、文章概括
@@ -391,6 +393,31 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
         reg("pocket-tts", null, String.class, byte[].class, Object.class, "audio/tts/pocket-tts/config.json");
 
+        // ==================== 零样本检测 YOLO-World（嵌入式友好） ====================
+        // YOLO-World Small：开放词表检测，文本提示（中/英文）→ 检测框+类别；模型 ~40MB，适合嵌入式/边缘部署
+        reg("yolov8s-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",
+                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
+                com.chua.deeplearning.support.image.ImageDetector.class,
+                "vision/detection/yoloworld/yolov8s-world.onnx",
+                "https://huggingface.co/onnx-community/YOLOWorld-s/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/YOLOWorld-s/resolve/main/onnx/model.onnx"),
+                false, "model.onnx");
+        // YOLO-World Medium：开放词表检测，精度与速度平衡；模型 ~70MB
+        reg("yolov8m-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",
+                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
+                com.chua.deeplearning.support.image.ImageDetector.class,
+                "vision/detection/yoloworld/yolov8m-world.onnx",
+                "https://huggingface.co/onnx-community/YOLOWorld-m/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/YOLOWorld-m/resolve/main/onnx/model.onnx"),
+                false, "model.onnx");
+        // YOLO-World Large：开放词表检测，高精度；模型 ~130MB
+        reg("yolov8l-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",
+                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
+                com.chua.deeplearning.support.image.ImageDetector.class,
+                "vision/detection/yoloworld/yolov8l-world.onnx",
+                "https://huggingface.co/onnx-community/YOLOWorld-l/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/YOLOWorld-l/resolve/main/onnx/model.onnx"),
+                false, "model.onnx");
         // ==================== 图像描述 Image Captioning ====================
         // ViT-GPT2：图像内容文字描述。encoder 打包在 utils-support-models-onnx-vit-gpt2-captioning jar，
         // decoder 较大（~151MB）自动下载（modelscope Xenova/vit-gpt2-image-captioning）。

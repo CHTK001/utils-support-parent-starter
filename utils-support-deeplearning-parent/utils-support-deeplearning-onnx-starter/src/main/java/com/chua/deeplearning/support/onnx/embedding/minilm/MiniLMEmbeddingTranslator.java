@@ -51,15 +51,20 @@ public class MiniLMEmbeddingTranslator {
     public static final int DEFAULT_MAX_LEN = 128;
 
     /** 资源基础路径 */
+    /** Resource_base */
     private static final String RESOURCE_BASE = "nlp/embedding/minilm/";
     /** 模型文件路径 */
+    /** Model_file */
     private static final String MODEL_FILE = "model_quantized.onnx";
     /** 词表文件路径 */
+    /** Vocab_file */
     private static final String VOCAB_FILE = "vocab.txt";
 
     /** 分词器 */
+    /** Tokenizer */
     private MiniLMTokenizer tokenizer;
     /** ONNX 运行时环境 */
+    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;

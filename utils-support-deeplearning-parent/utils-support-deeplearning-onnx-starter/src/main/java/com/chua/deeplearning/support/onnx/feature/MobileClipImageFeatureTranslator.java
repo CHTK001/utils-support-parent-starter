@@ -28,10 +28,13 @@ import java.awt.image.BufferedImage;
 public class MobileClipImageFeatureTranslator implements Translator<Image, float[]> {
 
     /** 图像均值 */
+    /** Image_mean */
     private static final float[] IMAGE_MEAN = {0.48145466f, 0.4578275f, 0.40821073f};
     /** 图像标准差 */
+    /** Image_std */
     private static final float[] IMAGE_STD = {0.26862954f, 0.26130258f, 0.27577711f};
     /** 图像尺寸 */
+    /** Image_size */
     private static final int IMAGE_SIZE = 256;
 
     @Override

@@ -53,6 +53,12 @@ import java.util.concurrent.ConcurrentHashMap;
                 @SpiParam(value = "webhook.url", desc = "Webhook 地址", type = "String")
         }
 )
+/**
+ * public class WebhookPush implements MessagePush {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class WebhookPush implements MessagePush {
 

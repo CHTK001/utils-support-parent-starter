@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.example;
 
-import com.chua.deeplearning.support.onnx.ocr.OcrPipeline;
+import com.chua.deeplearning.support.ocr.OcrPipeline;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -33,22 +33,31 @@ import java.util.List;
 public class FacePluginDetectTranslator implements Translator<Image, DetectedObjects> {
 
     /** 输入宽度 */
+    /** Input_width */
     private static final int INPUT_WIDTH = 320;
     /** 输入高度 */
+    /** Input_height */
     private static final int INPUT_HEIGHT = 240;
     /** 置信度阈值 */
+    /** Confidence_threshold */
     private static final float CONFIDENCE_THRESHOLD = 0.6f;
     /** NMS 阈值 */
+    /** Nms_threshold */
     private static final double NMS_THRESHOLD = 0.3d;
     /** 最大候选数量 */
+    /** Max_candidates */
     private static final int MAX_CANDIDATES = 1500;
     /** 中心点方差 */
+    /** Center_variance */
     private static final float CENTER_VARIANCE = 0.1f;
     /** 尺寸方差 */
+    /** Size_variance */
     private static final float SIZE_VARIANCE = 0.2f;
     /** 图像均值 */
+    /** Image_mean */
     private static final float IMAGE_MEAN = 127.0f;
     /** 图像标准差 */
+    /** Image_std */
     private static final float IMAGE_STD = 128.0f;
 
     public FacePluginDetectTranslator() {

@@ -143,6 +143,11 @@ public class ScatterSetting {
     private boolean heartbeatEnabled = true;
 
     /**
+     * 失败剔除阈值：心跳连续失败超过该次数即从服务表剔除该节点，防止死节点被持续路由，默认 3 次
+     */
+    private int failRemoveCount = 3;
+
+    /**
      * 自动发现间隔（毫秒）
      */
     private long autoDiscoveryIntervalMillis = DEFAULT_AUTO_DISCOVERY_INTERVAL_MILLIS;

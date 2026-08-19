@@ -10,9 +10,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** @author CH */
+/**
+ * public class AllPipelinesDrawerVerify {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class AllPipelinesDrawerVerify {
 
-    /** 管道列表 */
+    /** PIPELINES */
     private static final List<String> PIPELINES = List.of(
             "com.chua.deeplearning.support.face.FacePipeline",
             "com.chua.deeplearning.support.ocr.OcrPipeline",

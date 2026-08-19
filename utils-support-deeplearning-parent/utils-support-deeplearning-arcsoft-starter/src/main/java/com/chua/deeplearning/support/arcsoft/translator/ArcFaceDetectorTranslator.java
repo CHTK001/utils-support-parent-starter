@@ -23,6 +23,7 @@ import java.util.List;
 public class ArcFaceDetectorTranslator implements ITranslator<Object, List<DetectionInfo>> {
 
     /** 人脸引擎 */
+    /** Face引擎 */
     private final FaceEngine faceEngine;
 
     public ArcFaceDetectorTranslator(FaceEngine faceEngine) {

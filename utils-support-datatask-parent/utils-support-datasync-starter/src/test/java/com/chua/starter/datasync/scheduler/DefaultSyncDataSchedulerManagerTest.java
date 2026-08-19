@@ -23,6 +23,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * class DefaultSyncDataSchedulerManagerTest {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 
 class DefaultSyncDataSchedulerManagerTest {
 

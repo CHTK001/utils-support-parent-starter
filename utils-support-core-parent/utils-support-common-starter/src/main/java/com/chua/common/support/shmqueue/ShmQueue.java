@@ -31,6 +31,7 @@ public abstract class ShmQueue implements AutoCloseable {
 
     /**
      * 等待模式
+      * @author CH
      */
     public enum Mode {
         /**
@@ -77,6 +78,7 @@ public abstract class ShmQueue implements AutoCloseable {
      * C 端错误码（与 SHMQ_ERR_* 宏对齐，跨实现统一）
      */
     public static final int ERR_OK              = 0;
+    /** ERINVALIARG */
     public static final int ERR_INVALID_ARG     = -1;
     public static final int ERR_NOMEM           = -2;
     public static final int ERR_OPEN_SHM        = -3;

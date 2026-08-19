@@ -33,10 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 public class SamImageEncoderTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
+    /** Input_size */
     private static final int INPUT_SIZE = 1024;
     /** 均值数组 */
+    /** Mean */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
     /** 标准差数组 */
+    /** STD */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     @Override
