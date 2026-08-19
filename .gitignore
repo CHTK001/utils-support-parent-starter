@@ -173,3 +173,10 @@ dependency-reduced-pom.xml
 
 # Rust
 **/Cargo.lock
+
+# 临时文件与目录（不提交）
+*.diff
+*.stderr
+*.stdout
+std_probe2*
+模型测试报告.md
