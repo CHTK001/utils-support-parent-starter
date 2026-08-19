@@ -18,33 +18,22 @@ import javax.annotation.Nullable;
 
 
 /**
- * 姘村嵃
+ * 水印
  *
  * @author CH
- * @since 4.0.0.42
  */
 @SpiIgnore
 public class TextImgWaterImageFilter extends AbstractImageFilter {
 
-    /** Default_font_size */
     private static final int DEFAULT_FONT_SIZE = 18;
-    /** Default_font */
-    private static final Font DEFAULT_FONT = new Font("榛戜綋", Font.PLAIN, DEFAULT_FONT_SIZE);
-    /** Default_point */
+    private static final Font DEFAULT_FONT = new Font("黑体", Font.PLAIN, DEFAULT_FONT_SIZE);
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
-    /** 鍥剧墖bytes */
     private final byte[] imageBytes;
-    /** 鏂囨湰 */
     private String text;
-    /** 浣嶇疆 */
     private Position position = Position.RIGHT_BOTTOM;
-    /** Font灏哄 */
     private int fontSize = DEFAULT_FONT_SIZE;
-    /** 棰滆壊 */
     private Color color = Color.WHITE;
-    /** Font */
     private Font font = DEFAULT_FONT;
-    /** 鍥剧墖point */
     private ImagePoint imagePoint = DEFAULT_POINT;
 
 
@@ -83,14 +72,13 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 鑾峰彇瀛楃涓插崰鐢ㄧ殑瀹藉害
+     * 获取字符串占用的宽度
      * <br>
      *
-     * @param str      瀛楃涓?
-     * @param fontSize 鏂囧瓧澶у皬
-     * @return 瀛楃涓插崰鐢ㄧ殑瀹藉害
+     * @param str      字符串
+     * @param fontSize 文字大小
+     * @return 字符串占用的宽度
      * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
-     * @since 4.0.0.42
      */
     public static int getStrWidth(String str, int fontSize) {
         char[] chars = str.toCharArray();
@@ -100,8 +88,8 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
 
         for (char c : chars) {
             int len = String.valueOf(c).getBytes().length;
-            // 姹夊瓧涓?,鍏朵綑1
-            // 鍙兘杩樻湁涓€浜涚壒娈婂瓧绗﹀崰鐢?绛夌瓑,缁熺粺璁′负姹夊瓧
+            // 汉字为3,其余1
+            // 可能还有一些特殊字符占用2等等,统统计为汉字
             if (len != 1) {
                 width += fontSize;
             } else {
@@ -126,11 +114,11 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
         g.drawImage(src, 0, 0, w, h, null);
-        // 鍥剧墖涓爣璇?start
+        // 图片中标识 start
         g.setFont(font);
 
         g.setColor(color);
-        //鍥剧墖浣嶇疆瀹氫綅璁＄畻骞朵笖缁樺埗
+        //图片位置定位计算并且绘制
         imageCountProcess(g, text, w, h, position);
         imageImageCountProcess(g, imageBytes, w, h, imagePoint);
         // draw end
@@ -140,10 +128,10 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-     * 鍥剧墖浣嶇疆瀹氫綅璁＄畻鍥剧墖浣嶇疆
-     * @param g 鍥惧儚
-     * @param imageBytes 鍥剧墖
-     * @param imagePoint 浣嶇疆
+     * 图片位置定位计算图片位置
+     * @param g 图像
+     * @param imageBytes 图片
+     * @param imagePoint 位置
      */
     private void imageImageCountProcess(Graphics2D g, byte[] imageBytes, int width, int height, ImagePoint imagePoint) {
         BufferedImage image;
@@ -181,12 +169,12 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-     * 鍥剧墖浣嶇疆瀹氫綅璁＄畻
-     * @param g 鍥惧儚
-     * @param text 鏂囨湰
-     * @param width 瀹?
-     * @param height 楂?
-     * @param direction 浣嶇疆
+     * 图片位置定位计算
+     * @param g 图像
+     * @param text 文本
+     * @param width 宽
+     * @param height 高
+     * @param direction 位置
      */
     private void imageCountProcess(Graphics2D g, String text, int width, int height, Position direction) {
         //LOWER_RIGHT

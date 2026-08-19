@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
  * 视觉效果：
  * - 创建规整的九宫格布局
  * - 增强图像的结构感
- * - 适合摄影构图参考线
+ * - 适合摄影构图参考
  * - 可用于艺术设计效果
  *
  * 应用场景：
@@ -48,7 +48,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
 @Spi("Sudoku")
 @SpiDescribe("九宫格网格滤镜")

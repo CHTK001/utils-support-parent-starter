@@ -10,13 +10,12 @@ import javax.annotation.Nullable;
 
 
 /**
- * 浜屽€煎寲
+ * 二值化
  *
  * @author CH
- * @since 4.0.0.42
  */
 @Spi("Bin")
-@SpiDescribe("浜屽€煎寲婊ら暅")
+@SpiDescribe("二值化滤镜")
 public class ImageBinImageFilter extends AbstractImageFilter {
     private static int getImageRgb(int i) {
         String argb = Integer.toHexString(i);

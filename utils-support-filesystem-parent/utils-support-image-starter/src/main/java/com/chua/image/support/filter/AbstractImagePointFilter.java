@@ -6,57 +6,58 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
 /**
- * 鐐规护闀滄娊璞″熀绫?
+ * 点滤镜抽象基类
  *
- * 鎻愪緵鍩轰簬鍍忕礌鐐圭殑鍥惧儚婊ら暅澶勭悊鍔熻兘銆傛绫讳笓闂ㄧ敤浜庡鐞嗘瘡涓儚绱犵偣鐙珛鐨勬护闀滄晥鏋滐紝
- * 濡傞鑹茶皟鏁淬€佷寒搴﹀姣斿害璋冩暣銆佽壊褰╁彉鎹㈢瓑銆傛帴鍙ｈ璁′笌浼犵粺鐨凴GBImageFilter鍏煎銆?
+ * 提供基于像素点的图像滤镜处理功能。此类专门用于处理每个像素点独立的滤镜效果，
+ * 如颜色调整、亮度对比度调整、色彩变换等。接口设计与传统的RGBImageFilter兼容。
  *
- * 涓昏鐗圭偣锛?
- * - 閫愬儚绱犲鐞嗭細瀵规瘡涓儚绱犵偣鐙珛杩涜婊ら暅澶勭悊
- * - 楂樻€ц兘浼樺寲锛氶拡瀵逛笉鍚屽浘鍍忕被鍨嬭繘琛屼紭鍖栧鐞?
- * - 鍐呭瓨鍙嬪ソ锛氶伩鍏嶄笉蹇呰鐨勫浘鍍忔牸寮忚浆鎹?
- * - 鏄撲簬鎵╁睍锛氬瓙绫诲彧闇€瀹炵幇filterRgb鏂规硶鍗冲彲
+ * 主要特点：
+ * - 逐像素处理：对每个像素点独立进行滤镜处理
+ * - 高性能优化：针对不同图像类型进行优化处理
+ * - 内存友好：避免不必要的图像格式转换
+ * - 易于扩展：子类只需实现filterRgb方法即可
  *
- * 閫傜敤鍦烘櫙锛?
- * - 棰滆壊璋冩暣婊ら暅锛堜寒搴︺€佸姣斿害銆侀ケ鍜屽害锛?
- * - 鑹插僵鍙樻崲婊ら暅锛堢伆搴︺€佽礋鐗囥€佸鍙ょ瓑锛?
- * - 闃堝€煎鐞嗘护闀滐紙浜屽€煎寲銆佽壊褰╁垎绂荤瓑锛?
- * - 绠€鍗曠壒鏁堟护闀滐紙鍍忕礌鍖栥€侀┈璧涘厠绛夛級
+ * 适用场景：
+ * - 颜色调整滤镜（亮度、对比度、饱和度）
+ * - 色彩变换滤镜（灰度、负片、复古等）
+ * - 阈值处理滤镜（二值化、色彩分离等）
+ * - 简单特效滤镜（像素化、马赛克等）
  *
+ * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
 public abstract class AbstractImagePointFilter extends AbstractImageFilter {
 
     /**
-     * 鏄惁鍙互杩囨护绱㈠紩棰滆壊妯″瀷
+     * 是否可以过滤索引颜色模型
      */
     protected boolean canFilterIndexColorModel = false;
 
     /**
-     * 甯搁噺锛?56锛岄鑹插€艰绠?
+     * 常量：256，颜色值计算
      */
     public static final int MAX_256 = NumberConstant.MAX_256;
 
     /**
-     * 甯搁噺锛?28锛岄鑹插€艰绠?
+     * 常量：128，颜色值计算
      */
     public static final int MAX_128 = NumberConstant.MAX_128;
 
     /**
-     * 甯搁噺锛?55锛岄鑹插€艰绠?
+     * 常量：255，颜色值计算
      */
     public static final int MAX_255 = NumberConstant.MAX_255;
 
     /**
-     * 鎵ц鐐规护闀滃鐞?
+     * 执行点滤镜处理
      *
-     * 閫愯閫愬儚绱犲湴澶勭悊鍥惧儚锛屽姣忎釜鍍忕礌璋冪敤filterRgb鏂规硶杩涜澶勭悊銆?
-     * 閽堝涓嶅悓鐨勫浘鍍忕被鍨嬭繘琛屼簡鎬ц兘浼樺寲锛岄伩鍏嶄笉蹇呰鐨勬牸寮忚浆鎹€?
+     * 逐行逐像素地处理图像，对每个像素调用filterRgb方法进行处理。
+     * 针对不同的图像类型进行了性能优化，避免不必要的格式转换。
      *
-     * @param src 婧愬浘鍍?
-     * @param dst 鐩爣鍥惧儚锛屽彲浠ヤ负null
-     * @return 澶勭悊鍚庣殑鍥惧儚
+     * @param src 源图像
+     * @param dst 目标图像，可以为null
+     * @return 处理后的图像
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
@@ -74,7 +75,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
 
         int[] inPixels = new int[width];
         for (int y = 0; y < height; y++) {
-            // 閽堝ARGB绫诲瀷鍥惧儚杩涜浼樺寲锛岄伩鍏嶈皟鐢╣etRGB瀵艰嚧鐨勬€ц兘闂
+            // 针对ARGB类型图像进行优化，避免调用getRGB导致的性能问题
             if (type == BufferedImage.TYPE_INT_ARGB) {
                 srcRaster.getDataElements(0, y, width, 1, inPixels);
                 for (int x = 0; x < width; x++) {
@@ -82,7 +83,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
                 }
                 dstRaster.setDataElements(0, y, width, 1, inPixels);
             } else {
-                // 瀵逛簬鍏朵粬绫诲瀷鐨勫浘鍍忥紝浣跨敤鏍囧噯鐨刧etRGB/setRGB鏂规硶
+                // 对于其他类型的图像，使用标准的getRGB/setRGB方法
                 src.getRGB(0, y, width, 1, inPixels, 0, width);
                 for (int x = 0; x < width; x++) {
                     inPixels[x] = filterRgb(x, y, inPixels[x]);
@@ -95,27 +96,27 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
     }
 
     /**
-     * 鎶借薄鐨凴GB鍍忕礌婊ら暅鏂规硶
+     * 抽象的RGB像素滤镜方法
      *
-     * 瀛愮被蹇呴』瀹炵幇姝ゆ柟娉曟潵瀹氫箟鍏蜂綋鐨勬护闀滄晥鏋溿€?
-     * 姝ゆ柟娉曞鍗曚釜鍍忕礌杩涜澶勭悊锛岃繑鍥炲鐞嗗悗鐨凙RGB鍊笺€?
+     * 子类必须实现此方法来定义具体的滤镜效果。
+     * 此方法对单个像素进行处理，返回处理后的ARGB值。
      *
-     * @param x   鍍忕礌鐨刋鍧愭爣
-     * @param y   鍍忕礌鐨刌鍧愭爣
-     * @param rgb 鍘熷ARGB鍍忕礌鍊?
-     * @return 澶勭悊鍚庣殑ARGB鍍忕礌鍊?
+     * @param x   像素的X坐标
+     * @param y   像素的Y坐标
+     * @param rgb 原始ARGB像素值
+     * @return 处理后的ARGB像素值
      */
     public abstract int filterRgb(int x, int y, int rgb);
 
     /**
-     * 璁剧疆鍥惧儚灏哄
+     * 设置图像尺寸
      *
-     * 鍦ㄦ护闀滃鐞嗗紑濮嬪墠璋冪敤锛屽瓙绫诲彲浠ラ噸鍐欐鏂规硶鏉ヨ繘琛屽繀瑕佺殑鍒濆鍖栧伐浣溿€?
+     * 在滤镜处理开始前调用，子类可以重写此方法来进行必要的初始化工作。
      *
-     * @param width  鍥惧儚瀹藉害
-     * @param height 鍥惧儚楂樺害
+     * @param width  图像宽度
+     * @param height 图像高度
      */
     public void setDimensions(int width, int height) {
-        // 榛樿瀹炵幇涓虹┖锛屽瓙绫诲彲鏍规嵁闇€瑕侀噸鍐?
+        // 默认实现为空，子类可根据需要重写
     }
 }

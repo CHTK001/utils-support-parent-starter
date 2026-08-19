@@ -20,85 +20,86 @@ import java.security.SecureRandom;
 
 
 /**
- * 鍥惧儚婊ら暅鎶借薄鍩虹被
+ * 图像滤镜抽象基类
  *
- * 鎻愪緵鍥惧儚婊ら暅澶勭悊鐨勫熀纭€瀹炵幇锛屽寘鍚浘鍍忔暟鎹鐞嗐€侀鑹茬┖闂磋浆鎹€?
- * 鍍忕礌鎿嶄綔绛夐€氱敤鍔熻兘銆傛墍鏈夊叿浣撶殑鍥惧儚婊ら暅閮藉簲缁ф壙姝ょ被銆?
+ * 提供图像滤镜处理的基础实现，包含图像数据处理、颜色空间转换、
+ * 像素操作等通用功能。所有具体的图像滤镜都应继承此类。
  *
- * 涓昏鍔熻兘锛?
- * - 鍥惧儚鏁版嵁鍒濆鍖栧拰棰勫鐞?
- * - RGB 鍜?HSL 棰滆壊绌洪棿杞崲
- * - 鍍忕礌绾у埆鐨勮鍐欐搷浣?
- * - GIF 鍔ㄧ敾澶勭悊鏀寔
- * - 鍥惧儚鏍煎紡璇嗗埆鍜岃浆鎹?
+ * 主要功能：
+ * - 图像数据初始化和预处理
+ * - RGB 和 HSL 颜色空间转换
+ * - 像素级别的读写操作
+ * - GIF 动画处理支持
+ * - 图像格式识别和转换
  *
- * 鎶€鏈壒鐐癸細
- * - 鏀寔澶氱鍥惧儚鏍煎紡锛圝PEG銆丳NG銆丟IF绛夛級
- * - 鎻愪緵楂樻晥鐨勫儚绱犳搷浣滄柟娉?
- * - 鍐呯疆棰滆壊绌洪棿杞崲绠楁硶
- * - 鏀寔鍔ㄦ€佸浘鍍忓鐞?
+ * 技术特点：
+ * - 支持多种图像格式（JPEG、PNG、GIF等）
+ * - 提供高效的像素操作方法
+ * - 内置颜色空间转换算法
+ * - 支持动态图像处理
  *
+ * @author CH
  * @version 1.0.0
- * @since 4.0.0.42
+ * @since 2021/6/11
  */
 public abstract class AbstractImageFilter implements ImageFilter {
 
     /**
-     * 鍥惧儚瀹藉害
+     * 图像宽度
      */
     protected int width;
 
     /**
-     * 鍥惧儚楂樺害
+     * 图像高度
      */
     protected int height;
 
     /**
-     * 绾㈣壊閫氶亾鏁版嵁鏁扮粍
+     * 红色通道数据数组
      */
     protected byte[] rArr;
 
     /**
-     * 缁胯壊閫氶亾鏁版嵁鏁扮粍
+     * 绿色通道数据数组
      */
     protected byte[] gArr;
 
     /**
-     * 钃濊壊閫氶亾鏁版嵁鏁扮粍
+     * 蓝色通道数据数组
      */
     protected byte[] bArr;
 
     /**
-     * 瀹夊叏闅忔満鏁扮敓鎴愬櫒锛岄渶瑕侀殢鏈烘晥鏋滅殑婊ら暅
+     * 安全随机数生成器，需要随机效果的滤镜
      */
     protected SecureRandom randomNumbers = new SecureRandom();
 
     /**
-     * 鍥惧儚鏍煎紡鍚嶇О
+     * 图像格式名称
      */
     private String name;
 
     /**
-     * 甯搁噺锛?/60锛孒SL棰滆壊绌洪棿杞崲
+     * 常量：1/60，HSL颜色空间转换
      */
     public static final double CLO_60 = 1.0 / 60.0;
 
     /**
-     * 甯搁噺锛?/255锛岄鑹插€煎綊涓€鍖?
+     * 常量：1/255，颜色值归一化
      */
     public static final double CLO_255 = 1.0 / 255.0;
 
     /**
-     * 涓存椂RGB棰滆壊鍊硷紝棰滆壊绌洪棿杞崲
+     * 临时RGB颜色值，颜色空间转换
      */
     public int tr = 0, tg = 0, tb = 0;
 
     /**
-     * 杞崲BufferedImage鍥惧儚
+     * 转换BufferedImage图像
      *
-     * @param image 闇€瑕佸鐞嗙殑BufferedImage瀵硅薄
-     * @return 澶勭悊鍚庣殑BufferedImage瀵硅薄
-     * @throws IOException 澶勭悊杩囩▼涓彲鑳藉彂鐢熺殑IO寮傚父
+     * @param image 需要处理的BufferedImage对象
+     * @return 处理后的BufferedImage对象
+     * @throws IOException 处理过程中可能发生的IO异常
      */
     @Override
     public BufferedImage converter(BufferedImage image) throws IOException {
@@ -107,12 +108,12 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 鍒濆鍖栧浘鍍忔暟鎹?
+     * 初始化图像数据
      *
-     * 浠嶣ufferedImage涓彁鍙栧儚绱犳暟鎹紝鍒嗙RGB涓変釜棰滆壊閫氶亾锛?
-     * 涓哄悗缁殑婊ら暅澶勭悊鍋氬噯澶囥€?
+     * 从BufferedImage中提取像素数据，分离RGB三个颜色通道，
+     * 为后续的滤镜处理做准备。
      *
-     * @param image 寰呭鐞嗙殑鍥惧儚瀵硅薄
+     * @param image 待处理的图像对象
      */
     protected void initial(BufferedImage image) {
         width = image.getWidth();
@@ -127,12 +128,12 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 濉厖RGB棰滆壊閫氶亾鏁版嵁
+     * 填充RGB颜色通道数据
      *
-     * 灏咥RGB鏍煎紡鐨勫儚绱犳暟鎹垎绂讳负鐙珛鐨凴GB涓変釜棰滆壊閫氶亾鏁扮粍锛?
-     * 渚夸簬鍚庣画鐨勯鑹插鐞嗗拰婊ら暅绠楁硶搴旂敤銆?
+     * 将ARGB格式的像素数据分离为独立的RGB三个颜色通道数组，
+     * 便于后续的颜色处理和滤镜算法应用。
      *
-     * @param input ARGB鏍煎紡鐨勫儚绱犳暟鎹暟缁?
+     * @param input ARGB格式的像素数据数组
      */
     private void backFillData(int[] input) {
         int c = 0, r = 0, g = 0, b = 0;
@@ -150,14 +151,14 @@ public abstract class AbstractImageFilter implements ImageFilter {
 
 
     /**
-     * 杞崲杈撳叆娴佸舰寮忕殑鍥惧儚鏁版嵁
+     * 转换输入流形式的图像数据
      *
-     * 鏀寔闈欐€佸浘鍍忓拰GIF鍔ㄧ敾鐨勫鐞嗐€傚浜嶨IF鏍煎紡锛屼細閫愬抚澶勭悊骞堕噸鏂扮紪鐮侊紱
-     * 瀵逛簬鍏朵粬鏍煎紡锛岀洿鎺ヨ繘琛屾护闀滃鐞嗐€?
+     * 支持静态图像和GIF动画的处理。对于GIF格式，会逐帧处理并重新编码；
+     * 对于其他格式，直接进行滤镜处理。
      *
-     * @param image 杈撳叆娴佸舰寮忕殑鍥惧儚鏁版嵁
-     * @return 澶勭悊鍚庣殑鍥惧儚鏁版嵁杈撳嚭娴?
-     * @throws IOException 澶勭悊杩囩▼涓彲鑳藉彂鐢熺殑IO寮傚父
+     * @param image 输入流形式的图像数据
+     * @return 处理后的图像数据输出流
+     * @throws IOException 处理过程中可能发生的IO异常
      */
     @Override
     public OutputStream converter(InputStream image) throws IOException {
@@ -165,7 +166,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
             String imageFormat = getImageFormat();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-            // 澶勭悊GIF鍔ㄧ敾
+            // 处理GIF动画
             if (ImageType.GIF.name().equalsIgnoreCase(imageFormat) && !StringUtils.isNullOrEmpty(imageFormat)) {
                 GifDecoder gifDecoder = new GifDecoder();
                 GifEncoder gifEncoder = new GifEncoder();
@@ -183,7 +184,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
                 }
                 gifEncoder.finish();
             } else {
-                // 澶勭悊闈欐€佸浘鍍?
+                // 处理静态图像
                 BufferedImage read = ImageIO.read(image);
                 BufferedImage bufferedImage = converter(read);
                 ImageIO.write(bufferedImage, getImageFormat(), out);
@@ -193,10 +194,10 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 璁剧疆骞惰幏鍙栧浘鍍忔牸寮?
+     * 设置并获取图像格式
      *
-     * @param name 鍥惧儚鏍煎紡鍚嶇О
-     * @return 鍥惧儚鏍煎紡鍚嶇О
+     * @param name 图像格式名称
+     * @return 图像格式名称
      */
     @Override
     public String getImageFormat(String name) {
@@ -205,9 +206,9 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 鑾峰彇褰撳墠璁剧疆鐨勫浘鍍忔牸寮?
+     * 获取当前设置的图像格式
      *
-     * @return 鍥惧儚鏍煎紡鍚嶇О
+     * @return 图像格式名称
      */
     @Override
     public String getImageFormat() {
@@ -217,14 +218,14 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 鍒涘缓鍏煎鐨勭洰鏍囧浘鍍?
+     * 创建兼容的目标图像
      *
-     * 鏍规嵁婧愬浘鍍忓拰鎸囧畾鐨勯鑹叉ā鍨嬪垱寤轰竴涓吋瀹圭殑鐩爣鍥惧儚銆?
-     * 濡傛灉鏈寚瀹氶鑹叉ā鍨嬶紝鍒欎娇鐢ㄦ簮鍥惧儚鐨勯鑹叉ā鍨嬨€?
+     * 根据源图像和指定的颜色模型创建一个兼容的目标图像。
+     * 如果未指定颜色模型，则使用源图像的颜色模型。
      *
-     * @param src        婧愬浘鍍?
-     * @param colorModel 鐩爣棰滆壊妯″瀷锛屽彲浠ヤ负null
-     * @return 鏂板垱寤虹殑鍏煎鍥惧儚
+     * @param src        源图像
+     * @param colorModel 目标颜色模型，可以为null
+     * @return 新创建的兼容图像
      */
     public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel colorModel) {
         if (colorModel == null) {
@@ -234,35 +235,35 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 鎶借薄婊ら暅澶勭悊鏂规硶
+     * 抽象滤镜处理方法
      *
-     * 鍏蜂綋鐨勬护闀滄晥鏋滅敱瀛愮被瀹炵幇銆傛鏂规硶瀹氫箟浜嗘护闀滃鐞嗙殑鏍囧噯鎺ュ彛銆?
+     * 具体的滤镜效果由子类实现。此方法定义了滤镜处理的标准接口。
      *
-     * @param src 婧愬浘鍍?
-     * @param dst 鐩爣鍥惧儚锛屽彲浠ヤ负null
-     * @return 澶勭悊鍚庣殑鍥惧儚
+     * @param src 源图像
+     * @param dst 目标图像，可以为null
+     * @return 处理后的图像
      */
     abstract public BufferedImage filter(BufferedImage src, BufferedImage dst);
 
     /**
-     * 鑾峰彇鍥惧儚鐨勮竟鐣岀煩褰?
+     * 获取图像的边界矩形
      *
-     * @param src 婧愬浘鍍?
-     * @return 鍥惧儚鐨勮竟鐣岀煩褰?
+     * @param src 源图像
+     * @return 图像的边界矩形
      */
     public Rectangle2D getBounds2D(BufferedImage src) {
         return new Rectangle(0, 0, src.getWidth(), src.getHeight());
     }
 
     /**
-     * 鑾峰彇鍙樻崲鍚庣殑鐐瑰潗鏍?
+     * 获取变换后的点坐标
      *
-     * 瀵逛簬澶у鏁版护闀滐紝鐐圭殑浣嶇疆涓嶄細鏀瑰彉锛岀洿鎺ュ鍒跺潗鏍囥€?
-     * 鏌愪簺鍑犱綍鍙樻崲婊ら暅鍙兘浼氶噸鍐欐鏂规硶銆?
+     * 对于大多数滤镜，点的位置不会改变，直接复制坐标。
+     * 某些几何变换滤镜可能会重写此方法。
      *
-     * @param srcPt 婧愮偣鍧愭爣
-     * @param dstPt 鐩爣鐐瑰潗鏍囷紝鍙互涓簄ull
-     * @return 鍙樻崲鍚庣殑鐐瑰潗鏍?
+     * @param srcPt 源点坐标
+     * @param dstPt 目标点坐标，可以为null
+     * @return 变换后的点坐标
      */
     public Point2D getPoint2D(Point2D srcPt, Point2D dstPt) {
         if (dstPt == null) {
@@ -273,18 +274,18 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 楂樻晥鑾峰彇鍥惧儚ARGB鍍忕礌鏁版嵁
+     * 高效获取图像ARGB像素数据
      *
-     * 杩欐槸涓€涓紭鍖栫殑鍍忕礌鑾峰彇鏂规硶锛屽浜嶪NT_ARGB鍜孖NT_RGB绫诲瀷鐨勫浘鍍忥紝
-     * 鐩存帴浠庡厜鏍呮暟鎹幏鍙栵紝閬垮厤BufferedImage.getRGB鐨勬€ц兘鎹熷け銆?
+     * 这是一个优化的像素获取方法，对于INT_ARGB和INT_RGB类型的图像，
+     * 直接从光栅数据获取，避免BufferedImage.getRGB的性能损失。
      *
-     * @param image  BufferedImage瀵硅薄
-     * @param x      鍍忕礌鍖哄煙鐨勫乏涓婅X鍧愭爣
-     * @param y      鍍忕礌鍖哄煙鐨勫乏涓婅Y鍧愭爣
-     * @param width  鍍忕礌鍖哄煙鐨勫搴?
-     * @param height 鍍忕礌鍖哄煙鐨勯珮搴?
-     * @param pixels 瀛樺偍鍍忕礌鏁版嵁鐨勬暟缁勶紝鍙互涓簄ull
-     * @return ARGB鏍煎紡鐨勫儚绱犳暟鎹暟缁?
+     * @param image  BufferedImage对象
+     * @param x      像素区域的左上角X坐标
+     * @param y      像素区域的左上角Y坐标
+     * @param width  像素区域的宽度
+     * @param height 像素区域的高度
+     * @param pixels 存储像素数据的数组，可以为null
+     * @return ARGB格式的像素数据数组
      * @see #setRgb
      */
     public int[] getRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
@@ -296,17 +297,17 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 楂樻晥璁剧疆鍥惧儚ARGB鍍忕礌鏁版嵁
+     * 高效设置图像ARGB像素数据
      *
-     * 杩欐槸涓€涓紭鍖栫殑鍍忕礌璁剧疆鏂规硶锛屽浜嶪NT_ARGB鍜孖NT_RGB绫诲瀷鐨勫浘鍍忥紝
-     * 鐩存帴璁剧疆鍏夋爡鏁版嵁锛岄伩鍏岯ufferedImage.setRGB鐨勬€ц兘鎹熷け銆?
+     * 这是一个优化的像素设置方法，对于INT_ARGB和INT_RGB类型的图像，
+     * 直接设置光栅数据，避免BufferedImage.setRGB的性能损失。
      *
-     * @param image  BufferedImage瀵硅薄
-     * @param x      鍍忕礌鍖哄煙鐨勫乏涓婅X鍧愭爣
-     * @param y      鍍忕礌鍖哄煙鐨勫乏涓婅Y鍧愭爣
-     * @param width  鍍忕礌鍖哄煙鐨勫搴?
-     * @param height 鍍忕礌鍖哄煙鐨勯珮搴?
-     * @param pixels ARGB鏍煎紡鐨勫儚绱犳暟鎹暟缁?
+     * @param image  BufferedImage对象
+     * @param x      像素区域的左上角X坐标
+     * @param y      像素区域的左上角Y坐标
+     * @param width  像素区域的宽度
+     * @param height 像素区域的高度
+     * @param pixels ARGB格式的像素数据数组
      * @see #getRgb
      */
     public void setRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
@@ -319,11 +320,11 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 鏍规嵁绱㈠紩鑾峰彇棰滆壊閫氶亾瀛楄妭鏁扮粍
+     * 根据索引获取颜色通道字节数组
      *
-     * @param index 棰滆壊閫氶亾绱㈠紩锛?-绾㈣壊锛?-缁胯壊锛?-钃濊壊
-     * @return 瀵瑰簲棰滆壊閫氶亾鐨勫瓧鑺傛暟缁?
-     * @throws IllegalArgumentException 褰撶储寮曞€兼棤鏁堟椂鎶涘嚭寮傚父
+     * @param index 颜色通道索引：0-红色，1-绿色，2-蓝色
+     * @return 对应颜色通道的字节数组
+     * @throws IllegalArgumentException 当索引值无效时抛出异常
      */
     public byte[] toColorByte(int index) {
         if (index == 0) {
@@ -333,14 +334,14 @@ public abstract class AbstractImageFilter implements ImageFilter {
         } else if (index == 2) {
             return bArr;
         } else {
-            throw new IllegalArgumentException("鏃犳晥鐨勯鑹查€氶亾绱㈠紩: " + index + "锛屾湁鏁堝€间负0(绾㈣壊)銆?(缁胯壊)銆?(钃濊壊)");
+            throw new IllegalArgumentException("无效的颜色通道索引: " + index + "，有效值为0(红色)、1(绿色)、2(蓝色)");
         }
     }
 
     /**
-     * 灏哛GB棰滆壊閫氶亾鏁版嵁杞崲涓築ufferedImage
+     * 将RGB颜色通道数据转换为BufferedImage
      *
-     * @return 鏍规嵁褰撳墠RGB鏁版嵁鍒涘缓鐨凚ufferedImage瀵硅薄
+     * @return 根据当前RGB数据创建的BufferedImage对象
      */
     public BufferedImage toBitmap() {
         int[] pixels = new int[width * height];
@@ -351,11 +352,11 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 璁剧疆RGB棰滆壊閫氶亾鏁版嵁
+     * 设置RGB颜色通道数据
      *
-     * @param red   绾㈣壊閫氶亾鏁版嵁
-     * @param green 缁胯壊閫氶亾鏁版嵁
-     * @param blue  钃濊壊閫氶亾鏁版嵁
+     * @param red   红色通道数据
+     * @param green 绿色通道数据
+     * @param blue  蓝色通道数据
      */
     public void putRgb(byte[] red, byte[] green, byte[] blue) {
         System.arraycopy(red, 0, rArr, 0, red.length);
@@ -364,14 +365,14 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 灏哛GB瀛楄妭鏁扮粍鍚堝苟涓篈RGB鍍忕礌鏁扮粍
+     * 将RGB字节数组合并为ARGB像素数组
      *
-     * @param width  鍥惧儚瀹藉害
-     * @param height 鍥惧儚楂樺害
-     * @param pixels 杈撳嚭鐨勫儚绱犳暟缁?
-     * @param r      绾㈣壊閫氶亾鏁版嵁
-     * @param g      缁胯壊閫氶亾鏁版嵁
-     * @param b      钃濊壊閫氶亾鏁版嵁
+     * @param width  图像宽度
+     * @param height 图像高度
+     * @param pixels 输出的像素数组
+     * @param r      红色通道数据
+     * @param g      绿色通道数据
+     * @param b      蓝色通道数据
      */
     public void setRgb(int width, int height, int[] pixels, byte[] r, byte[] g, byte[] b) {
         for (int i = 0; i < width * height; i++) {
@@ -381,13 +382,13 @@ public abstract class AbstractImageFilter implements ImageFilter {
 
 
     /**
-     * RGB鑹插僵绌洪棿杞崲涓篐SL鑹插僵绌洪棿
+     * RGB色彩空间转换为HSL色彩空间
      *
-     * 灏哛GB棰滆壊鍊艰浆鎹负HSL锛堣壊鐩搞€侀ケ鍜屽害銆佷寒搴︼級棰滆壊绌洪棿銆?
-     * HSL棰滆壊绌洪棿鏇撮€傚悎杩涜棰滆壊璋冩暣鍜屾护闀滄晥鏋滃鐞嗐€?
+     * 将RGB颜色值转换为HSL（色相、饱和度、亮度）颜色空间。
+     * HSL颜色空间更适合进行颜色调整和滤镜效果处理。
      *
-     * @param hsl RGB棰滆壊鍊兼暟缁勶紝鏍煎紡涓篬R, G, B]锛屽彇鍊艰寖鍥?-255
-     * @return HSL棰滆壊鍊兼暟缁勶紝鏍煎紡涓篬H, S, L]锛屽叾涓璈鍙栧€?-360锛孲鍜孡鍙栧€?-255
+     * @param hsl RGB颜色值数组，格式为[R, G, B]，取值范围0-255
+     * @return HSL颜色值数组，格式为[H, S, L]，其中H取值0-360，S和L取值0-255
      */
     public double[] rgb2Hsl(int[] hsl) {
         double min, max, dif, sum;
@@ -395,12 +396,12 @@ public abstract class AbstractImageFilter implements ImageFilter {
         double h, s, l;
         double[] hsl1 = {0.0, 0.0, 0.0};
 
-        // 鑾峰彇RGB鍒嗛噺
+        // 获取RGB分量
         tr = hsl[0];
         tg = hsl[1];
         tb = hsl[2];
 
-        // 鎵惧埌鏈€灏忓€?
+        // 找到最小值
         min = tr;
         if (tg < min) {
             min = tg;
@@ -409,21 +410,19 @@ public abstract class AbstractImageFilter implements ImageFilter {
             min = tb;
         }
 
-        // 鎵惧埌鏈€澶у€煎苟纭畾涓昏壊璋?
+        // 找到最大值并确定主色调
         max = tr;
         f1 = 0.0;
         f2 = tg - tb;
         if (tg > max) {
             max = tg;
-            // 缁胯壊涓诲
-            // = 120.0;
+            // = 120.0;  // 绿色主导
             f1 = 120.0;
             f2 = tb - tr;
         }
         if (tb > max) {
             max = tb;
-            // 钃濊壊涓诲
-            // = 240.0;
+            // = 240.0;  // 蓝色主导
             f1 = 240.0;
             f2 = tr - tg;
         }
@@ -434,7 +433,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
 
         double f127 = 127.5D;
         if (dif == 0) {
-            // 鐏拌壊锛屾棤鑹茬浉鍜岄ケ鍜屽害
+            // 灰色，无色相和饱和度
             h = 0.0;
             s = 0.0;
         } else if (l < f127) {
@@ -443,7 +442,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
             s = 255.0 * dif / (510.0 - sum);
         }
 
-        // 璁＄畻鑹茬浉
+        // 计算色相
         h = (f1 + 60.0 * f2) / dif;
         if (h < 0.0) {
             h += 360.0;
@@ -453,39 +452,34 @@ public abstract class AbstractImageFilter implements ImageFilter {
             h -= 360.0;
         }
 
-        // 鑹茬浉 (0-360)
-        hsl1[0] = h;
-        // 楗卞拰搴?(0-255)
-        hsl1[1] = s;
-        // 浜害 (0-255)
-        hsl1[2] = l;
+        hsl1[0] = h;  // 色相 (0-360)
+        hsl1[1] = s;  // 饱和度 (0-255)
+        hsl1[2] = l;  // 亮度 (0-255)
         return hsl1;
     }
 
     /**
-     * HSL鑹插僵绌洪棿杞崲涓篟GB鑹插僵绌洪棿
+     * HSL色彩空间转换为RGB色彩空间
      *
-     * 灏咹SL锛堣壊鐩搞€侀ケ鍜屽害銆佷寒搴︼級棰滆壊鍊艰浆鎹㈠洖RGB棰滆壊绌洪棿銆?
-     * 杩欐槸rgb2Hsl鏂规硶鐨勯€嗗悜杞崲銆?
+     * 将HSL（色相、饱和度、亮度）颜色值转换回RGB颜色空间。
+     * 这是rgb2Hsl方法的逆向转换。
      *
-     * @param hsl HSL棰滆壊鍊兼暟缁勶紝鏍煎紡涓篬H, S, L]锛屽叾涓璈鍙栧€?-360锛孲鍜孡鍙栧€?-255
-     * @return RGB棰滆壊鍊兼暟缁勶紝鏍煎紡涓篬R, G, B]锛屽彇鍊艰寖鍥?-255
+     * @param hsl HSL颜色值数组，格式为[H, S, L]，其中H取值0-360，S和L取值0-255
+     * @return RGB颜色值数组，格式为[R, G, B]，取值范围0-255
      */
     public int[] hsl2Rgb(double[] hsl) {
         double h, s, l;
-        // 鑹茬浉
-        // [0];
+        // [0];  // 色相
         h = hsl[0];
-        // 楗卞拰搴?(0-255)
-        s = hsl[1];
-        // 浜害 (0-255)
-        l = hsl[2];
+        // [1];  // 饱和度
+        s = hsl[1];  // 饱和度 (0-255)
+        l = hsl[2];  // 亮度 (0-255)
         int[] rgb1 = {0, 0, 0};
         double v1, v2, v3, h1;
 
-        // HSL 杞崲涓?RGB
+        // HSL 转换为 RGB
         if (s == 0) {
-            // 鏃犻ケ鍜屽害锛屼负鐏拌壊
+            // 无饱和度，为灰色
             tr = (int) l;
             tg = (int) l;
             tb = (int) l;
@@ -499,7 +493,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
             v1 = 2 * l - v2;
             v3 = v2 - v1;
 
-            // 璁＄畻绾㈣壊鍒嗛噺
+            // 计算红色分量
             h1 = h + 120.0;
             double f360 = 360.0D;
             if (h1 >= f360) {
@@ -516,7 +510,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
                 tr = (int) v1;
             }
 
-            // 璁＄畻缁胯壊鍒嗛噺
+            // 计算绿色分量
             h1 = h;
             if (h1 < f60) {
                 tg = (int) (v1 + v3 * h1 * CLO_60);
@@ -528,7 +522,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
                 tg = (int) v1;
             }
 
-            // 璁＄畻钃濊壊鍒嗛噺
+            // 计算蓝色分量
             h1 = h - 120.0;
             if (h1 < 0.0) {
                 h1 += 360.0;
@@ -544,26 +538,23 @@ public abstract class AbstractImageFilter implements ImageFilter {
             }
         }
 
-        // 绾㈣壊鍒嗛噺
-        // tr;
+        // tr;  // 红色分量
         rgb1[0] = tr;
-        // 缁胯壊鍒嗛噺
-        // tg;
+        // tg;  // 绿色分量
         rgb1[1] = tg;
-        // 钃濊壊鍒嗛噺
-        // tb;
+        // tb;  // 蓝色分量
         rgb1[2] = tb;
         return rgb1;
     }
 
     /**
-     * 鍒涘缓鍏煎鐨勭洰鏍囧浘鍍?
+     * 创建兼容的目标图像
      *
-     * 鏍规嵁婧愬浘鍍忕殑灏哄鍒涘缓涓€涓柊鐨凴GB鏍煎紡鍥惧儚銆?
+     * 根据源图像的尺寸创建一个新的RGB格式图像。
      *
-     * @param src  婧愬浘鍍?
-     * @param dest 鐩爣鍥惧儚锛堟鍙傛暟鏈娇鐢級
-     * @return 鏂板垱寤虹殑RGB鏍煎紡鍥惧儚
+     * @param src  源图像
+     * @param dest 目标图像（此参数未使用）
+     * @return 新创建的RGB格式图像
      */
     public BufferedImage creatCompatibleDestImage(BufferedImage src, BufferedImage dest) {
         return new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);

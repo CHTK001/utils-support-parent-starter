@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @since 4.0.0.42
+ * @since 2024/7/29
  */
 @Slf4j
 public class LaMaImageUtils {
@@ -57,12 +57,10 @@ public class LaMaImageUtils {
             float bNorm = (b / 255.0f - means[2]) / stds[2];
             
             // CHW格式存储
-            // R通道
+            // // R通道
             tensorData[i] = rNorm;
-            // G通道
-            tensorData[size * size + i] = gNorm;
-            // B通道
-            tensorData[2 * size * size + i] = bNorm;
+            tensorData[size * size + i] = gNorm;      // G通道
+            tensorData[2 * size * size + i] = bNorm;  // B通道
         }
         
         return tensorData;

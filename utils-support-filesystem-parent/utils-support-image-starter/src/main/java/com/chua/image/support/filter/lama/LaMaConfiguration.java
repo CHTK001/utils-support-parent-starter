@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @since 4.0.0.42
+ * @since 2024/7/29
  */
 @Data
 @Accessors(chain = true)
@@ -103,7 +103,6 @@ public class LaMaConfiguration {
      * 指定需要移除的颜色，格式为RGB
      */
     // 默认白色
-    /** 目标颜色 */
     private int[] targetColor = {255, 255, 255};
 
     /**
@@ -191,8 +190,7 @@ public class LaMaConfiguration {
                 .setModelPath(modelPath)
                 .setUseGpu(true)
                 .setInputSize(512)
-                // GPU模式下通常使用较少的CPU线程
-                .setCpuThreads(1);
+                .setCpuThreads(1); // GPU模式下通常使用较少的CPU线程
     }
 
     /**

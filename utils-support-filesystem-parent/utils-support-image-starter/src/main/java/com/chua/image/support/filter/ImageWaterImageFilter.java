@@ -25,23 +25,18 @@ import javax.annotation.Nullable;
 
 
 /**
- * 姘村嵃
+ * 水印
  *
  * @author CH
- * @since 4.0.0.42
  */
-@SpiDescribe("姘村嵃")
+@SpiDescribe("水印")
 @Spi("water")
 @SpiIgnore
 public class ImageWaterImageFilter extends AbstractImageFilter {
 
-    /** Direction */
     private final Position direction;
-    /** Default_point */
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
-    /** Bytes */
     private final byte[] bytes;
-    /** Point */
     private ImagePoint point = DEFAULT_POINT;
 
     public ImageWaterImageFilter(InputStream stream) throws IOException {
@@ -79,12 +74,12 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-     * 鍥剧墖浣嶇疆瀹氫綅璁＄畻
-     * @param g 鍥惧儚
-     * @param image 鏂囨湰
-     * @param w 瀹?
-     * @param h 楂?
-     * @param position 浣嶇疆
+     * 图片位置定位计算
+     * @param g 图像
+     * @param image 文本
+     * @param w 宽
+     * @param h 高
+     * @param position 位置
      */
     private static void imageCountProcess(Graphics2D g, BufferedImage image, int w, int h, Position position) {
         //LOWER_RIGHT
