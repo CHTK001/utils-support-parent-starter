@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.sqlite.support.directory.SqlitePolledDirectory",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

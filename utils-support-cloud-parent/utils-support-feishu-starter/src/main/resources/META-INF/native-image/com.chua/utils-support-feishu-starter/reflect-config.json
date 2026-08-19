@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.feishu.support.bot.FeishuBotClientFactory",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.neo4j.support.engine.Neo4jEngine",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

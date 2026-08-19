@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.hbase.support.engine.HBaseEngine",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

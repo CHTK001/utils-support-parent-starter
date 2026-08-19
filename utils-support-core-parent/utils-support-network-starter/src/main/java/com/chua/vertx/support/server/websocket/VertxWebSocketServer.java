@@ -42,7 +42,9 @@ public class VertxWebSocketServer extends AbstractServer {
 
     @Override
     protected void doStart() {
-        int eventLoopPoolSize = Math.max(setting.getBossThreads(), 2);
+        // 事件循环数提到 CPU 核数:WebSocket 帧解析/回显都在事件循环执行,
+        // bossThreads 默认 1 会让单事件循环成为高并发吞吐瓶颈
+        int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
         int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);
 
         VertxOptions opts = new VertxOptions()
@@ -81,16 +83,15 @@ public class VertxWebSocketServer extends AbstractServer {
                 if (handlers == null) {
                     return;
                 }
-                vertx.executeBlocking(() -> {
-                    VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
-                    VertxServerResponse response = new VertxServerResponse(ws);
-                    try {
-                        handleRequest(request, response);
-                    } catch (Exception e) {
-                        log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
-                    }
-                    return null;
-                }, false);
+                // 事件循环直跑:WebSocket 回声 handler 为非阻塞回调,无需 executeBlocking 切 worker 线程,
+                // 高并发下省去每消息线程切换 + 队列调度开销,吞吐显著提升
+                VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
+                VertxServerResponse response = new VertxServerResponse(ws);
+                try {
+                    handleRequest(request, response);
+                } catch (Exception e) {
+                    log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
+                }
             });
 
             ws.binaryMessageHandler(data -> {
@@ -109,16 +110,15 @@ public class VertxWebSocketServer extends AbstractServer {
                 if (handlers == null) {
                     return;
                 }
-                vertx.executeBlocking(() -> {
-                    VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
-                    VertxServerResponse response = new VertxServerResponse(ws);
-                    try {
-                        handleRequest(request, response);
-                    } catch (Exception e) {
-                        log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
-                    }
-                    return null;
-                }, false);
+                // 事件循环直跑:WebSocket 回声 handler 为非阻塞回调,无需 executeBlocking 切 worker 线程,
+                // 高并发下省去每消息线程切换 + 队列调度开销,吞吐显著提升
+                VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
+                VertxServerResponse response = new VertxServerResponse(ws);
+                try {
+                    handleRequest(request, response);
+                } catch (Exception e) {
+                    log.warn("Vert.x WebSocket handler error: {}", e.getMessage(), e);
+                }
             });
 
             ws.closeHandler(v -> {

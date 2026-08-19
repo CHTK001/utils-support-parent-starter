@@ -725,11 +725,10 @@ public class PocketTtsTranslator {
             // 按 16-bit PCM 读取全部帧（getFrameLength 可能返回 -1，此时按 8KB 分块读）
             long frameLength = ais.getFrameLength();
             int frameSize = srcFmt.getFrameSize();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            byte[] buf = new byte[8192];
-            int totalRead = 0;
+            byte[] raw;
             if (frameLength > 0) {
-                byte[] raw = new byte[(int) (frameLength * frameSize)];
+                raw = new byte[(int) (frameLength * frameSize)];
+                int totalRead = 0;
                 while (totalRead < raw.length) {
                     int n = ais.read(raw, totalRead, raw.length - totalRead);
                     if (n < 0) break;
@@ -739,18 +738,18 @@ public class PocketTtsTranslator {
                 if (totalRead < raw.length) {
                     raw = java.util.Arrays.copyOf(raw, totalRead);
                 }
-                baos.write(raw);
             } else {
                 // 帧长度未知，分块读取
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
                 int n;
                 while ((n = ais.read(buf)) != -1) {
                     baos.write(buf, 0, n);
-                    totalRead += n;
                 }
+                raw = baos.toByteArray();
             }
-            byte[] raw = baos.toByteArray();
             // PCM → float [-1.0, 1.0]
-            float[] mono = new float[totalRead / 2];
+            float[] mono = new float[raw.length / 2];
             for (int i = 0; i < mono.length; i++) {
                 int lo = raw[i * 2] & 0xFF;
                 int hi = raw[i * 2 + 1];

@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.doubao.support.DoubaoChatClient",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.influxdb.support.engine.InfluxDbEngine",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]
