@@ -424,6 +424,109 @@ public class DefaultScatterServiceDiscovery extends AbstractServiceDiscovery imp
     }
 
     /**
+     * 心跳探活并剔除死节点。
+     * <p>复用 gossip 通道即"同步即心跳"：对本地表中除自身、除 seed 引导节点外的
+     * 全部节点逐一发 sync 查询，成功即重置其连续失败计数并合并其最新数据，
+     * 失败则累计计数，超过 {@link ScatterSetting#getFailRemoveCount()} 次从服务表剔除。</p>
+     */
+    private void healthCheckRemoteNodes() {
+        if (!setting.isHeartbeatEnabled()) {
+            return;
+        }
+        try {
+            Set<Discovery> services = getServiceAll(setting.getServicePath());
+            for (Discovery d : services) {
+                if (d == null || d.getHost() == null || d.getServerId() == null) {
+                    continue;
+                }
+                // 跳过自身
+                if (setting.getNodeId().equals(d.getServerId())) {
+                    continue;
+                }
+                // seed 仅引导，不参与心跳探活与剔除
+                if (isSeedNode(d)) {
+                    continue;
+                }
+                // 不可寻址地址(如未配置 announceHost 时的 0.0.0.0)跳过探活，避免误杀
+                if (isUnroutableHost(d.getHost())) {
+                    continue;
+                }
+                probeNodeHeartbeat(d);
+            }
+        } catch (Exception e) {
+            log.debug("健康检查异常: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 对单个节点心跳探活。
+     *
+     * @param discovery 目标节点
+     */
+    private void probeNodeHeartbeat(Discovery discovery) {
+        ScatterNode node = new ScatterNode(discovery.getServerId(), discovery.getHost(), discovery.getPort(),
+                discovery.getProtocol(), getGroupId(), setting.getServicePath(), Map.of());
+        try {
+            ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
+                    setting.getServicePath(), setting.getTimeoutMillis(), 1, Map.of());
+            ScatterResult<Discovery> result = remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+            if (result != null && result.isSuccess() && result.getData() != null) {
+                // 心跳成功：重置失败计数，并刷新节点最新数据
+                heartbeatFailCounts.remove(node.getNodeId());
+                Discovery remote = result.getData();
+                if (getGroupId().equals(remote.getScatterId())) {
+                    updateService(setting.getServicePath(), remote);
+                    log.debug("心跳存活: {}@{}:{}", node.getNodeId(), node.getHost(), node.getPort());
+                }
+            } else {
+                onHeartbeatFail(node);
+            }
+        } catch (Exception e) {
+            onHeartbeatFail(node);
+        }
+    }
+
+    /**
+     * 心跳失败处理：累计失败次数，达到阈值即从服务表剔除该节点。
+     *
+     * @param node 目标节点
+     */
+    private void onHeartbeatFail(ScatterNode node) {
+        int count = heartbeatFailCounts.merge(node.getNodeId(), 1, Integer::sum);
+        log.debug("节点心跳失败: {}@{}:{} 第 {}/{} 次",
+                node.getNodeId(), node.getHost(), node.getPort(), count, setting.getFailRemoveCount());
+        if (count >= setting.getFailRemoveCount()) {
+            removeFromCache(addClusterPrefix(setting.getServicePath()), node.getNodeId());
+            incrementServiceVersion();
+            heartbeatFailCounts.remove(node.getNodeId());
+            log.info("节点连续 {} 次心跳失败，已从服务表剔除: {}@{}:{}",
+                    setting.getFailRemoveCount(), node.getNodeId(), node.getHost(), node.getPort());
+        }
+    }
+
+    /**
+     * 判断是否为 seed 引导节点（仅引导，不参与心跳与负载均衡）。
+     *
+     * @param discovery 服务发现数据
+     * @return true 表示 seed 节点
+     */
+    private boolean isSeedNode(Discovery discovery) {
+        return discovery.getMetadata() != null
+                && METADATA_VALUE_TRUE.equals(discovery.getMetadata().get(METADATA_SEED));
+    }
+
+    /**
+     * 判断地址是否不可寻址（无法作为连接目标）。
+     *
+     * @param host 地址
+     * @return true 表示不可寻址
+     */
+    private boolean isUnroutableHost(String host) {
+        return "0.0.0.0".equals(host) || "::".equals(host)
+                || "0:0:0:0:0:0:0:0".equals(host);
+    }
+
+    /**
      * 从 seed 地址列表解析节点。
      *
      * @return 节点列表
