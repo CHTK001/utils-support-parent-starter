@@ -1,4 +1,4 @@
-package com.chua.starter.datasync.mapping;
+﻿package com.chua.starter.datasync.mapping;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +8,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class FieldMappingConverterTest {
 
     final FieldMappingConverter converter = new DefaultFieldMappingConverter();
@@ -96,3 +97,4 @@ class FieldMappingConverterTest {
 
     private record SimpleMapping(String sourceField, String targetField, String converter) implements DataSyncFieldMapping {}
 }
+

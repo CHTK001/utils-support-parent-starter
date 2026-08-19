@@ -21,7 +21,6 @@ public class SyncDataOffset implements Serializable {
     /** 偏移值 */
     private final Object offsetValue;
     /** 时间戳 */
-    /** 时间戳 */
     private final long timestamp;
     /** 映射标识 */
     /** MappingID */

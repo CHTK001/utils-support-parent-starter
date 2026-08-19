@@ -46,9 +46,7 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /** 宽度 */
-    /** 宽度 */
     private int width;
-    /** 高度 */
     /** 高度 */
     private int height;
 

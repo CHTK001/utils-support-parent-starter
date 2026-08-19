@@ -33,7 +33,6 @@ public class ChatClientModelAdapter implements Model {
     /** Chat客户端 */
     private final ChatClient chatClient;
     /** 模型名称 */
-    /** 模型名称 */
     private final String modelName;
 
     public ChatClientModelAdapter(ChatClient chatClient, String modelName) {

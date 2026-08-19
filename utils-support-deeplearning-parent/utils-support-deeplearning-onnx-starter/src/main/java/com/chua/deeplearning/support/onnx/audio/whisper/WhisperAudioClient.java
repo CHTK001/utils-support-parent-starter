@@ -64,12 +64,9 @@ public class WhisperAudioClient implements AudioClient {
     private static final String TASK_ID_PREFIX = "whisper-";
 
     /** 设置 */
-    /** 设置 */
     private final AudioClientSetting setting;
     /** 模型 */
-    /** 模型 */
     private String model;
-    /** 语言 */
     /** 语言 */
     private String language;
     /** 覆盖采样率 */

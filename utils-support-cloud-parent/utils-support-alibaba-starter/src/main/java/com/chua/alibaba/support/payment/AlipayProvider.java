@@ -38,7 +38,6 @@ import java.util.Map;
 public class AlipayProvider implements PaymentChannel {
 
     /** 客户端 */
-    /** 客户端 */
     private final AlipayClient client;
     /** 配置对象 */
     /** 配置 */

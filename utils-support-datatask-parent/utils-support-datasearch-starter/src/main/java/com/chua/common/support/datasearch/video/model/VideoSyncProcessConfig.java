@@ -9,7 +9,6 @@ package com.chua.common.support.datasearch.video.model;
 public class VideoSyncProcessConfig {
 
     /** 视频类型 */
-    /** 视频类型 */
     private String videoType;
     /** 当前页内页码 */
     /** 当前页IN页 */
@@ -72,7 +71,6 @@ public class VideoSyncProcessConfig {
     }
 
     public static class VideoSyncProcessConfigBuilder {
-        /** 视频类型 */
         /** 视频类型 */
         private String videoType;
         /** 当前页内页码 */

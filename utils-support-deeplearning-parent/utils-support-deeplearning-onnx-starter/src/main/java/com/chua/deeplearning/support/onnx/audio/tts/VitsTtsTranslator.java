@@ -85,26 +85,20 @@ public class VitsTtsTranslator {
     private static final String INLINE_PUNCS = "，、“、";
 
     /** ONNX 运行时环境 */
-    /** ONNX 运行时环境 */
     private OrtEnvironment ortEnv;
 
-    /** VITS 会话 */
     /** VITS 会话 */
     private OrtSession session;
 
     /** 音素 → id 映射 */
-    /** 音素 → id 映射 */
     private Map<String, Integer> token2id = new LinkedHashMap<>();
 
-    /** 字 → 音素 token id 列表映射 */
     /** 字 → 音素 token id 列表映射 */
     private Map<String, int[]> word2ids = new LinkedHashMap<>();
 
     /** 说话人列表 */
-    /** 说话人列表 */
     private List<String> speakers = new ArrayList<>();
 
-    /** 是否已准备 */
     /** 是否已准备 */
     private volatile boolean prepared;
 

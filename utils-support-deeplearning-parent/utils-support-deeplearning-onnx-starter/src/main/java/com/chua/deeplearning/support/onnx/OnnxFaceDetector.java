@@ -29,9 +29,7 @@ public class OnnxFaceDetector implements FaceDetector {
     /** API密钥 */
     private final String apiKey;
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
-    /** 阈值 */
     /** 阈值 */
     private float threshold = DEFAULT_THRESHOLD;
     /** NMS 阈值 */

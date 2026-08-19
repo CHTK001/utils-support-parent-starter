@@ -55,7 +55,6 @@ public final class TraceContext {
     private static final AtomicLong ID_SEQ = new AtomicLong(0);
 
     /** 是否启用 */
-    /** 是否启用 */
     private static final boolean ENABLED;
     /** 缩进序列 */
     /** Indents */

@@ -1,4 +1,4 @@
-package com.chua.starter.datasync.model;
+﻿package com.chua.starter.datasync.model;
 
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.config.FileConfigDefinition;
@@ -11,6 +11,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class DataSyncMappingTest {
 
     @Test
@@ -55,3 +56,4 @@ class DataSyncMappingTest {
         assertEquals(50, mapping.batch());
     }
 }
+

@@ -1,4 +1,4 @@
-package com.chua.fory.support.serialize;
+﻿package com.chua.fory.support.serialize;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class ForySerializationBenchTest {
 
     @Test

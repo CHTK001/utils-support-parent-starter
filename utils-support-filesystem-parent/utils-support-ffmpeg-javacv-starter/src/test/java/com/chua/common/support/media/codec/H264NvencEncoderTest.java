@@ -1,10 +1,11 @@
-package com.chua.common.support.media.codec;
+﻿package com.chua.common.support.media.codec;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.bytedeco.javacv.Frame;
 
 import java.nio.ByteBuffer;
 
+/** @author CH */
 public class H264NvencEncoderTest {
     public static void main(String[] args) throws Exception {
         System.out.println("=== H264NvencEncoder SPI 测试 (nvenc) ===");
@@ -83,3 +84,4 @@ public class H264NvencEncoderTest {
         System.out.println("测试完成");
     }
 }
+

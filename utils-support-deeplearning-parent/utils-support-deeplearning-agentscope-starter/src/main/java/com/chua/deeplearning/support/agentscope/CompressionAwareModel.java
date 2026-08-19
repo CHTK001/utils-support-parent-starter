@@ -41,7 +41,6 @@ public class CompressionAwareModel implements Model {
     /** Compressor */
     private final ContextCompressor compressor;
     /** 模型名称 */
-    /** 模型名称 */
     private final String modelName;
     /** 压缩模型标识 */
     /** Compression模型ID */

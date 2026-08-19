@@ -317,7 +317,6 @@ public class JdkCompiler implements Compiler {
         private static final String CLASS_FILE_SUFFIX = ".class";
 
         /** 字节数组输出流 */
-        /** 字节数组输出流 */
         private ByteArrayOutputStream byteArrayOutputStream;
 
         public MemoryByteCode(String className) {
@@ -492,7 +491,6 @@ public class JdkCompiler implements Compiler {
         /** 编译警告列表 */
         private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
 
-        /** 写入器 */
         /** 写入器 */
         private final Writer writer;
 

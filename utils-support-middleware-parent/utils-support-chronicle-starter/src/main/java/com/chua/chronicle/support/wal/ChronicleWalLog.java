@@ -1,4 +1,4 @@
-package com.chua.chronicle.support.wal;
+﻿package com.chua.chronicle.support.wal;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.wal.CheckpointMeta;
@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+/** @author CH */
 
 @Spi("chronicle")
 public class ChronicleWalLog implements WalLog {
@@ -355,3 +356,5 @@ public class ChronicleWalLog implements WalLog {
         }
     }
 }
+
+

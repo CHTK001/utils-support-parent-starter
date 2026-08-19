@@ -35,7 +35,6 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     /** Username */
     private final String username;
     /** 密码 */
-    /** 密码 */
     private final String password;
     /** SQL 语句 */
     /** SQL */

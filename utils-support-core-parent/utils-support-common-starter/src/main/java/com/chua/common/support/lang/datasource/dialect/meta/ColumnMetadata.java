@@ -42,7 +42,6 @@ public class ColumnMetadata {
      */
     private boolean nullable = true;
     /** 默认值 */
-    /** 默认值 */
     private String defaultValue;
     /** 注释 */
     /** Comment */

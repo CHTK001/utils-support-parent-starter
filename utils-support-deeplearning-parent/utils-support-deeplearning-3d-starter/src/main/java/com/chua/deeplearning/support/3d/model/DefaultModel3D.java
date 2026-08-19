@@ -14,7 +14,6 @@ import java.io.OutputStream;
 public class DefaultModel3D implements Model3D {
 
     /** 名称 */
-    /** 名称 */
     private String name;
     /** 模型三维格式 */
     /** 格式 */

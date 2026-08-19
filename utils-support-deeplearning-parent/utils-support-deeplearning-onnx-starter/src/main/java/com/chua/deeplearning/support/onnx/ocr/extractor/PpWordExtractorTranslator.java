@@ -68,7 +68,6 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private OrtSession session;
     /** 词典列表 */
     /** Dict */

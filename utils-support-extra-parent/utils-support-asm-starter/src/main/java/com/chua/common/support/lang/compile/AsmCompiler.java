@@ -81,7 +81,6 @@ public class AsmCompiler implements Compiler {
      */
     static class StringSource extends SimpleJavaFileObject {
         /** 代码 */
-        /** 代码 */
         private final String code;
 
         StringSource(String className, String code) {

@@ -411,7 +411,6 @@ public class GitClient implements AutoCloseable {
         /** 远程URL */
         private String remoteUrl;
         /** 本地路径 */
-        /** 本地路径 */
         private java.nio.file.Path localPath;
         /** 用户名 */
         /** Username */

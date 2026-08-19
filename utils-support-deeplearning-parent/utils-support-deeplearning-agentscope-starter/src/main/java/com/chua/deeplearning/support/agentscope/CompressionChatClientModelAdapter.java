@@ -36,7 +36,6 @@ public class CompressionChatClientModelAdapter implements Model {
     /** Compressionchat客户端 */
     private final ChatClient compressionChatClient;
     /** 模型名称 */
-    /** 模型名称 */
     private final String modelName;
 
     public CompressionChatClientModelAdapter(ChatClient compressionChatClient, String modelName) {

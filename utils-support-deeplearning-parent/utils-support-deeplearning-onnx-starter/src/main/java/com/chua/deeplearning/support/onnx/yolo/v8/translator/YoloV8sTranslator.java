@@ -50,7 +50,6 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /** 阈值 */
-    /** 阈值 */
     private final float threshold;
     /** NMS 阈值 */
     /** NMS阈值 */

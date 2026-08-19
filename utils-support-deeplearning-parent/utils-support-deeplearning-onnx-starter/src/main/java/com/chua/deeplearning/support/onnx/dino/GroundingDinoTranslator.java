@@ -67,7 +67,6 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     private static final int DEFAULT_INPUT_SIZE = 800;
 
     /** 阈值 */
-    /** 阈值 */
     private final double threshold;
     /** NMS 阈值 */
     /** NMS阈值 */
@@ -90,9 +89,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     private List<String> candidateOutputLabels;
 
     /** 输入高度 */
-    /** 输入高度 */
     private int inputHeight = DEFAULT_INPUT_SIZE;
-    /** 输入宽度 */
     /** 输入宽度 */
     private int inputWidth = DEFAULT_INPUT_SIZE;
     /** 图像均值数组 */

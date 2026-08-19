@@ -94,7 +94,6 @@ public class FieldMappingContext {
         /** 格式 */
         private String format;
         /** 默认值 */
-        /** 默认值 */
         private String defaultValue;
         /** 上下文对象 */
         private Map<String, Object> context;

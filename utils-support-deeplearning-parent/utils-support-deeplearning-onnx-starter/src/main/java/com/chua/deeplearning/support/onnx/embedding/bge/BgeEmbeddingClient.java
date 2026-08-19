@@ -35,7 +35,6 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private static final int DEFAULT_MAX_LEN = 512;
 
     /** 设置 */
-    /** 设置 */
     private final EmbeddingClientSetting setting;
     /** 翻译器 */
     /** Translator */
@@ -65,7 +64,6 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     /** 嵌入式本地目录 */
     /** Embedded本地目录 */
     private Path embeddedLocalDir;
-    /** 模型路径 */
     /** 模型路径 */
     private Path modelPath;
 

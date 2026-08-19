@@ -454,7 +454,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     protected final class Segment extends ReentrantLock {
 
         /** 引用管理器 */
-        /** 引用管理器 */
         private final ReferenceManager referenceManager;
 
         /** 初始大小 */
@@ -903,7 +902,6 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         /** Segment索引 */
         private int segmentIndex;
 
-        /** 引用索引 */
         /** 引用索引 */
         private int referenceIndex;
 

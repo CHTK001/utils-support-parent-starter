@@ -46,9 +46,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /** 顶部K */
     private final int topK;
     /** 输入宽度 */
-    /** 输入宽度 */
     private final int inputWidth;
-    /** 输入高度 */
     /** 输入高度 */
     private final int inputHeight;
     /** 方差数组 */

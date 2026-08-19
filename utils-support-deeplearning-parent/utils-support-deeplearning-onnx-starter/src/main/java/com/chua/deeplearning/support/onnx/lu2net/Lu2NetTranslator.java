@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx.lu2net;
+﻿package com.chua.deeplearning.support.onnx.lu2net;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
@@ -11,6 +11,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.TranslatorContext;
 import ai.djl.translate.Translator;
 
+/** @author CH */
 public class Lu2NetTranslator implements Translator<Image, Image> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -35,3 +36,4 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(out);
     }
 }
+

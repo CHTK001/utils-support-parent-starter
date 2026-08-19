@@ -1,18 +1,17 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.speech.SpeechSynthesizer;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
 
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
     /** 语言 */
     /** Lang */
     private String lang = "zh";
-    /** 模型路径 */
     /** 模型路径 */
     private String modelPath;
     /** 速度 */
@@ -74,3 +73,5 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
     }
 
 }
+
+

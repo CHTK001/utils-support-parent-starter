@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.langchain4j;
+﻿package com.chua.deeplearning.support.langchain4j;
 
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -9,6 +9,7 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
+/** @author CH */
 public class TestRunner {
     public static void main(String[] args) {
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
@@ -31,3 +32,4 @@ public class TestRunner {
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package com.chua.starter.datasync;
+﻿package com.chua.starter.datasync;
 
 import com.chua.datasync.agent.support.DataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncAgentSink;
@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class DataSyncServerTest {
 
     @Test
@@ -91,3 +92,4 @@ class DataSyncServerTest {
         @Override public void push(String id, String sid, List<Map<String, Object>> d) {}
     }
 }
+

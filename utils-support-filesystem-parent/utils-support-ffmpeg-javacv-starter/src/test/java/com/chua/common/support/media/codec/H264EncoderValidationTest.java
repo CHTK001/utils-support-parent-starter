@@ -1,4 +1,4 @@
-package com.chua.common.support.media.codec;
+﻿package com.chua.common.support.media.codec;
 
 import com.chua.common.support.spi.ServiceProvider;
 import org.bytedeco.javacv.Frame;
@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+/** @author CH */
 public class H264EncoderValidationTest {
     public static void main(String[] args) throws Exception {
         int w = 320, h = 240;
@@ -54,3 +55,4 @@ public class H264EncoderValidationTest {
         else System.out.println("[INFO] Note: keyframe pattern depends on encoder configuration");
     }
 }
+

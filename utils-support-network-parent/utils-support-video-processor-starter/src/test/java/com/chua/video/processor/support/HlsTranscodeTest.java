@@ -1,4 +1,4 @@
-package com.chua.video.processor.support;
+﻿package com.chua.video.processor.support;
 
 import com.chua.video.processor.support.bridge.VideoProcessorBridge;
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 public class HlsTranscodeTest {
 
     /**
@@ -69,3 +70,5 @@ public class HlsTranscodeTest {
         assertFalse(result, "输入文件不存在时应返回 false");
     }
 }
+
+

@@ -37,7 +37,6 @@ public class AiTokenServerFilter implements ServerFilter {
     public static final String ATTR_TOKEN = "_ai_token";
 
     /** 令牌提供者 */
-    /** 令牌提供者 */
     private final AiTokenProvider tokenProvider;
 
     /** 未认证时的错误消息 */

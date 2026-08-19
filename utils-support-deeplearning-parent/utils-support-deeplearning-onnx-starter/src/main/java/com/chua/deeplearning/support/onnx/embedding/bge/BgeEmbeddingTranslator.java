@@ -39,7 +39,6 @@ public class BgeEmbeddingTranslator {
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private OrtSession session;
 
     /**

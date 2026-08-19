@@ -23,7 +23,6 @@ public class DetectionConfiguration {
     private boolean useGpu;
 
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
 
     /** 覆盖加载的模型名称 */

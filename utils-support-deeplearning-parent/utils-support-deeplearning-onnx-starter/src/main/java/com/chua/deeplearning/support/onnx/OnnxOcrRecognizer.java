@@ -1,21 +1,20 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.ocr.OcrRecognizer;
 import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.ocr.OcrPipeline;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxOcrRecognizer implements OcrRecognizer {
 
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
     /** 语言 */
     /** Lang */
     private String lang = "zh";
-    /** 模型路径 */
     /** 模型路径 */
     private String modelPath;
     /** 是否使用 GPU */
@@ -93,3 +92,5 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
 }
+
+

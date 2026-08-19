@@ -30,7 +30,6 @@ public class ImageGenerationModel implements Model {
     /** 图片客户端 */
     private final ImageClient imageClient;
     /** 模型名称 */
-    /** 模型名称 */
     private final String modelName;
 
     public ImageGenerationModel(ImageClient imageClient, String modelName) {

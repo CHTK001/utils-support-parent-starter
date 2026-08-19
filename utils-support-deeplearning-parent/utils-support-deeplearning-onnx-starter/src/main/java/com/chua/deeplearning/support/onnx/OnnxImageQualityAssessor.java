@@ -1,19 +1,18 @@
-package com.chua.deeplearning.support.onnx;
+﻿package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageQualityAssessor;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 import lombok.extern.slf4j.Slf4j;
+/** @author CH */
 
 @Slf4j
 public class OnnxImageQualityAssessor implements ImageQualityAssessor {
 
     /** 模型名称 */
-    /** 模型名称 */
     private String modelName;
     /** 模糊度阈值 */
     /** Blur阈值 */
     private double blurThreshold = 100.0;
-    /** 模型路径 */
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
@@ -57,3 +56,5 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     }
 
 }
+
+

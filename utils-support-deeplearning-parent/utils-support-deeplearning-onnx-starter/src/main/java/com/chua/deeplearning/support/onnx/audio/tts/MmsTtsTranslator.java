@@ -84,7 +84,6 @@ public class MmsTtsTranslator {
     /** ORTENV */
     private ai.onnxruntime.OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private ai.onnxruntime.OrtSession session;
     /** 是否已准备 */
     private volatile boolean prepared;

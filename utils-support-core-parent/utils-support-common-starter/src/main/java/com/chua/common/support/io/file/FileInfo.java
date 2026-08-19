@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 public class FileInfo {
 
     /** 名称 */
-    /** 名称 */
     private String name;
     /** 文件路径 */
     /** 路径 */

@@ -41,7 +41,6 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     /** 输入ID */
     private final String inputId;
     /** 文件路径 */
-    /** 文件路径 */
     private final Path filePath;
     /** 分隔符 */
     /** Delimiter */

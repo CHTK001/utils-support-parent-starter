@@ -70,7 +70,6 @@ public class PocketTtsTranslator {
     /** ORTENV */
     private ai.onnxruntime.OrtEnvironment ortEnv;
     /** 文本编码器会话 */
-    /** 文本编码器会话 */
     private ai.onnxruntime.OrtSession textEncoderSession;
     /** 流程会话 */
     /** Flow会话 */

@@ -214,7 +214,6 @@ public class CircuitBreaker {
         /** Judge */
         private BreakerJudge judge;
         /** 表达式类型 */
-        /** 表达式类型 */
         private String expressionType = "expr";
 
         Builder() {

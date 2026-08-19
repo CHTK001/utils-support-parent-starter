@@ -52,7 +52,6 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     private static final TypeReference<List<RagDocument>> DOC_LIST_TYPE = new TypeReference<>() {};
 
     /** 上传目录 */
-    /** 上传目录 */
     private final Path uploadDir;
     /** 文件存储目录 */
     /** Files目录 */

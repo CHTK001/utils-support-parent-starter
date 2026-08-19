@@ -1,4 +1,4 @@
-package com.chua.video.processor.support;
+﻿package com.chua.video.processor.support;
 
 import com.chua.common.support.file.converter.FileSource;
 import com.chua.video.processor.support.bridge.VideoProcessorBridge;
@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 
+/** @author CH */
 public class VideoProcessorTest {
 
     /**
@@ -113,3 +114,5 @@ public class VideoProcessorTest {
         }
     }
 }
+
+

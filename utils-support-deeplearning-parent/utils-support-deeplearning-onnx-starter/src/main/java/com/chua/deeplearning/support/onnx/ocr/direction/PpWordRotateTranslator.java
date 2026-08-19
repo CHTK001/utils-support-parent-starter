@@ -53,7 +53,6 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
-    /** 会话 */
     private OrtSession session;
 
     private synchronized void prepare() throws Exception {

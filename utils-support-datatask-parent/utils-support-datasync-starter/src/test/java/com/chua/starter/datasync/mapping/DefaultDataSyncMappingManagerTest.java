@@ -1,4 +1,4 @@
-package com.chua.starter.datasync.mapping;
+﻿package com.chua.starter.datasync.mapping;
 
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.mapping.DataSyncFieldMapping;
@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/** @author CH */
 class DefaultDataSyncMappingManagerTest {
 
     @Test
@@ -66,3 +67,4 @@ class DefaultDataSyncMappingManagerTest {
                 null, List.of(), 100, "", "", Map.of(), null);
     }
 }
+

@@ -29,7 +29,6 @@ public enum TmdbGenre {
     /** ID */
     private final int id;
     /** 名称 */
-    /** 名称 */
     private final String name;
 
     TmdbGenre(int id, String name) {
