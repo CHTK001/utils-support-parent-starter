@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.excel.support.file.impl.ExcelFileSystem",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

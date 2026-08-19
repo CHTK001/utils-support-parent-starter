@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.dbf.support.file.impl.DbfFileSystem",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

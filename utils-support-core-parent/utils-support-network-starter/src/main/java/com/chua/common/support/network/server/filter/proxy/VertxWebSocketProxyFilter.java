@@ -66,7 +66,13 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     @Override
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
-        this.webSocketClient = vertx.createWebSocketClient();
+        // 后端 WebSocket 客户端性能配置:TcpNoDelay 减小包延迟,帧大小上限放大,
+        // 连接超时防后端不可达时挂起,提升代理转发吞吐
+        this.webSocketClient = vertx.createWebSocketClient(new io.vertx.core.http.WebSocketClientOptions()
+                .setTcpNoDelay(true)
+                .setConnectTimeout(5000)
+                .setMaxFrameSize(1024 * 1024)
+                .setMaxMessageSize(4 * 1024 * 1024));
         log.info("[network-proxy] VertxWebSocketProxyFilter 初始化完成, vertx=true");
     }
 

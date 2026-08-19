@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.deeplearning.support.agentscope.AgentScopeAgent",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

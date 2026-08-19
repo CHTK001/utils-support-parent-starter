@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.osgi.support.register.impl.OsgiBeanDefinitionRegister",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

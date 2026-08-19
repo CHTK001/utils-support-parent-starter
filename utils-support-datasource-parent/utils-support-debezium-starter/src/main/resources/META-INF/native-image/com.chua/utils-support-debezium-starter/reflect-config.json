@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.debezium.support.directory.DebeziumPolledDirectory",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

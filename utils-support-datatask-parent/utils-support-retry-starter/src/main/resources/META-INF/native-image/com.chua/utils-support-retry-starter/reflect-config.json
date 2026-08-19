@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.retry.support.GuavaRetryProvider",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

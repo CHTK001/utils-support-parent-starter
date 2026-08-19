@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.tablesaw.support.network.server.filter.BuiltinEndpointFilter",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

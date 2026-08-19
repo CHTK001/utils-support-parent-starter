@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.libreoffice.support.converter.LibreOfficeFileConvertSystem",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]

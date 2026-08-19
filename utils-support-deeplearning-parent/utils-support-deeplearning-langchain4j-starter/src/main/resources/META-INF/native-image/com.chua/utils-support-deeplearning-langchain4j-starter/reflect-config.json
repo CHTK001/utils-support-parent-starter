@@ -1,3 +1,4 @@
+[
 {
   "name": "com.chua.deeplearning.support.langchain4j.LangChain4jAgent",
   "allDeclaredConstructors": true,
@@ -7,3 +8,5 @@
   "allDeclaredFields": true,
   "allPublicFields": true
 }
+
+]
