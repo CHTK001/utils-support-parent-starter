@@ -1,0 +1,8 @@
+list=com.chua.common.support.lang.view.ListViewParser
+table=com.chua.common.support.lang.view.TableViewParser
+kv=com.chua.common.support.lang.view.KeyValueViewParser
+card=com.chua.common.support.lang.view.CardViewParser
+tree=com.chua.common.support.lang.view.TreeViewParser
+md=com.chua.common.support.lang.view.MarkdownTableViewParser
+json=com.chua.common.support.lang.view.JsonViewParser
+barchart=com.chua.common.support.lang.view.BarChartViewParser

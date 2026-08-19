@@ -3,7 +3,6 @@ package com.chua.common.support.lang.view;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,28 +21,62 @@ import java.util.Map;
 @Spi("barchart")
 public class BarChartViewParser implements ViewParser {
 
-    /** Default_bar_width */
+    /**
+     * 默认条形图宽度（块数）
+     */
     private static final int DEFAULT_BAR_WIDTH = 20;
 
+    /**
+     * 已填充块字符
+     */
+    private static final char FILLED_BLOCK = '█';
+
+    /**
+     * 未填充块字符
+     */
+    private static final char EMPTY_BLOCK = '░';
+
+    /**
+     * 百分比格式
+     */
+    private static final String PERCENT_FORMAT = "  %.0f%%";
+
+    /**
+     * 全零数据占位文本
+     */
+    private static final String ALL_ZEROS_PLACEHOLDER = "(all zeros)";
+
+    /**
+     * 空数据占位文本
+     */
+    private static final String EMPTY_PLACEHOLDER = "(empty)";
+
+    /**
+     * 判断是否支持渲染指定数据。
+     *
+     * @param data 待渲染的数据
+     * @return 非空 {@link Map} 返回 true
+     */
     @Override
-    /** Support */
     public boolean support(Object data) {
         if (data == null) {
             return false;
         }
-        if (data instanceof Map) {
-            return !((Map<?, ?>) data).isEmpty();
-        }
-        return false;
+        return data instanceof Map && !((Map<?, ?>) data).isEmpty();
     }
 
-    @Override
+    /**
+     * 将 Map 渲染为横向条形图。
+     *
+     * @param data 待渲染的数据（{@link Map}，值为数值）
+     * @return 条形图文本；空数据返回 {@value #EMPTY_PLACEHOLDER}，全零返回 {@value #ALL_ZEROS_PLACEHOLDER}
+     */
     @SuppressWarnings("unchecked")
-    /** Render */
+    @Override
     public String render(Object data) {
         Map<Object, Object> map = (Map<Object, Object>) data;
         if (map.isEmpty()) {
-            return "(empty)";
+            return EMPTY_PLACEHOLDER;
         }
 
         List<Entry> entries = new ArrayList<>();
@@ -59,27 +92,34 @@ public class BarChartViewParser implements ViewParser {
         }
 
         if (maxVal == 0) {
-            return "(all zeros)";
+            return ALL_ZEROS_PLACEHOLDER;
         }
 
         StringBuilder sb = new StringBuilder();
         for (Entry e : entries) {
+            // 按最大值归一化计算填充块数
             double pct = e.value / maxVal * 100;
             int blocks = (int) (pct * DEFAULT_BAR_WIDTH / 100);
             sb.append(e.name);
             sb.append(" ".repeat(maxNameLen - e.name.length() + 1));
-            sb.append("█".repeat(Math.max(0, blocks)));
-            sb.append("░".repeat(Math.max(0, DEFAULT_BAR_WIDTH - blocks)));
-            sb.append(String.format("  %.0f%%", pct));
+            sb.append(String.valueOf(FILLED_BLOCK).repeat(Math.max(0, blocks)));
+            sb.append(String.valueOf(EMPTY_BLOCK).repeat(Math.max(0, DEFAULT_BAR_WIDTH - blocks)));
+            sb.append(String.format(PERCENT_FORMAT, pct));
             sb.append('\n');
         }
+        // 移除末尾换行
         if (sb.length() > 0) {
             sb.setLength(sb.length() - 1);
         }
         return sb.toString();
     }
 
-    /** 解析Double */
+    /**
+     * 将数值对象解析为 double。
+     *
+     * @param val 待解析的对象
+     * @return 解析后的数值，解析失败返回 0
+     */
     private static double parseDouble(Object val) {
         if (val instanceof Number) {
             return ((Number) val).doubleValue();
@@ -91,19 +131,24 @@ public class BarChartViewParser implements ViewParser {
         }
     }
 
-    static class Entry {
-        final String name;
-        final double value;
-
-        Entry(String name, double value) {
-            this.name = name;
-            this.value = value;
-        }
-    }
-
+    /**
+     * 获取解析器顺序。
+     *
+     * @return 顺序值
+     */
     @Override
-    /** 获取Order */
     public int getOrder() {
         return 25;
+    }
+
+    /**
+     * 条形图条目：名称 + 数值。
+     *
+     * @param name  条目名称
+     * @param value 条目数值
+     * @author CH
+     * @since 4.0.0.42
+     */
+    private record Entry(String name, double value) {
     }
 }
