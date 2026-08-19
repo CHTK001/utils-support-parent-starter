@@ -101,7 +101,18 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     private static final long MMAP_GROW = 64L * 1024 * 1024;
 
     public WalDispatcherProvider(DispatcherConfig config) {
-        this(config, null);
+        this(config, (String) null);
+    }
+
+    /**
+     * 构造 WAL 分发器提供者，按 SPI 名称加载序列化器。
+     *
+     * @param config        分发器配置
+     * @param serializerName 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），
+     *                       为空时使用默认 Jackson，Spi 加载失败时回退 Jackson
+     */
+    public WalDispatcherProvider(DispatcherConfig config, String serializerName) {
+        this(config, resolveSerializer(serializerName));
     }
 
     /**
@@ -126,6 +137,40 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         } catch (Exception e) {
             throw new RuntimeException("WAL 日志目录创建失败: " + logDir, e);
         }
+    }
+
+    /**
+     * 支持的序列化别名（映射到实现类全限定名），避免 common-starter 反向依赖 fory-starter
+     */
+    private static final java.util.Map<String, String> SERIALIZER_ALIASES = java.util.Map.of(
+            "fury", "com.chua.fory.support.serialize.ForySerialization",
+            "fory", "com.chua.fory.support.serialize.ForySerialization",
+            "jackson", JacksonSerialization.class.getName());
+
+    /**
+     * 按别名或全限定类名解析序列化器。
+     *
+     * @param name 序列化名称（{@code fury}/{@code fory}/{@code jackson} 或全限定类名），
+     *             为空时使用 Jackson 默认实现
+     * @return 解析出的序列化器，加载失败时回退 Jackson
+     */
+    private static com.chua.common.support.base.serialize.Serialization resolveSerializer(String name) {
+        if (name == null || name.isBlank()) {
+            return new JacksonSerialization();
+        }
+        String className = SERIALIZER_ALIASES.getOrDefault(name.trim().toLowerCase(), name.trim());
+        try {
+            Class<?> implClass = Class.forName(className);
+            java.lang.reflect.Constructor<?> constructor = implClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            com.chua.common.support.base.serialize.Serialization serialization =
+                    (com.chua.common.support.base.serialize.Serialization) constructor.newInstance();
+            log.info("WAL 序列化器已加载: {} -> {}", name, className);
+            return serialization;
+        } catch (Exception e) {
+            log.warn("WAL 序列化器加载失败: {} -> {}，回退 Jackson", name, className, e);
+        }
+        return new JacksonSerialization();
     }
 
     @Override
