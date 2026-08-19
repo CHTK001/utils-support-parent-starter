@@ -9,7 +9,6 @@ import java.lang.annotation.*;
  * 常用于初始化资源、建立连接等启动操作。
  * 与 {@link jakarta.annotation.PostConstruct} 语义类似。</p>
  *
- * @author CH
  * @since 2024/12/20
  */
 @Target(ElementType.METHOD)

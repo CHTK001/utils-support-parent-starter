@@ -24,7 +24,6 @@ import java.util.List;
  *   FaceRestorationExample G:\images\三个人.jpg
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class FaceRestorationExample {

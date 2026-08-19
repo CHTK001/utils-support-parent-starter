@@ -193,7 +193,6 @@ public class RuntimeAgent {
      *
      * @param startupTimeoutMs      启动超时（毫秒）
      * @param healthCheckIntervalSec 健康检查间隔（秒）
-     * @author CH
      * @since 4.0.0.42
      */
     private record AgentParams(

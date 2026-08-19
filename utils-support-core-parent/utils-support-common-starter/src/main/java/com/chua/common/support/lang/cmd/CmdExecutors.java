@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
  * });
  * }</pre>
  *
- * @author CH
  * @since 2026/07/15
  */
 public final class CmdExecutors {

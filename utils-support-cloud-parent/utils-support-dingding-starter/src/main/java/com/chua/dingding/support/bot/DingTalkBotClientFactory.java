@@ -32,7 +32,6 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
     /**
      * 钉钉 Builder 内部类
      *
- * @author CH
      */
     static class DingTalkBuilder implements BotClient.Builder {
 

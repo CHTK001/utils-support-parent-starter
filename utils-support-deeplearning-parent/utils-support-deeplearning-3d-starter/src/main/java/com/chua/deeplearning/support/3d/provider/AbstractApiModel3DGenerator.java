@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * 基于 HTTP API 的 3D 生成器抽象基类
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, TextTo3DGenerator, ImageTo3DGenerator, SketchTo3DGenerator, Model3DStylizer {

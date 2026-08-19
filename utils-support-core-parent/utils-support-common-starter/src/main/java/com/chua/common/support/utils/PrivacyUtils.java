@@ -23,7 +23,6 @@ package com.chua.common.support.utils;
  * <h2>线程安全</h2>
  * <p>所有方法均为静态方法且无共享状态，线程安全。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class PrivacyUtils {

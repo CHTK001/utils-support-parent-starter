@@ -129,7 +129,6 @@ public class ArmeriaHttpServer extends AbstractServer {
      * <p>内部维护响应状态、头、体，最终由 {@link #buildAggregatedResponse()} 生成
      * Armeria 的 {@link AggregatedHttpResponse} 对象。</p>
      *
-     * @author CH
      */
     static class ArmeriaServerResponse implements ServerResponse {
 
@@ -352,7 +351,6 @@ public class ArmeriaHttpServer extends AbstractServer {
      * <p>包装 Armeria 的 {@link com.linecorp.armeria.common.AggregatedHttpRequest}，
      * 提供统一的请求属性、参数、表单、文件上传等访问能力。</p>
      *
- * @author CH
      */
     static class ArmeriaServerRequest implements ServerRequest {
 

@@ -57,7 +57,6 @@ import java.util.function.Function;
  * }
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 /**

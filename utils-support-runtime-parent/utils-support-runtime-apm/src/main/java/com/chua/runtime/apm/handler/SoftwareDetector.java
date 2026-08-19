@@ -16,7 +16,6 @@ import java.util.*;
  *
  * <p>不依赖编译期类加载，零版本绑定，覆盖市面上主流中间件客户端。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class SoftwareDetector {

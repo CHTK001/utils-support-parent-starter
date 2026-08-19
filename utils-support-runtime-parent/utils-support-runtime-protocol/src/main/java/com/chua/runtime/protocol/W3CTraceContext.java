@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
  *       调用 {@code RuntimeSpy.restore(...)} 后继续传递</li>
  * </ul>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class W3CTraceContext {

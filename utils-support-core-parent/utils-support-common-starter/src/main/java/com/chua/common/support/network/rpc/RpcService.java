@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  *   <li>如果都不填，默认取被注解类所实现的第一个接口</li>
  * </ul>
  *
- * @author CH
  * @since 1.0.0
  */
 @Documented

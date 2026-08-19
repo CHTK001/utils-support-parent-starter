@@ -31,7 +31,6 @@ import java.util.function.Consumer;
  *
  * @param <T> 实体类型
  * @param <C> 子类类型（CRTP 模式，支持链式调用返回子类类型）
- * @author CH
  * @since 2024/12/12
  * @see LambdaQueryWrapper
  * @see LambdaUpdateWrapper

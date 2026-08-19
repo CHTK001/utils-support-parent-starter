@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 /**
  * 包装统一 Calcite {@link DataSource}：拦截简单 UPDATE 并路由到 Engine。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class EngineAwareDataSource implements DataSource {

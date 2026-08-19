@@ -67,7 +67,6 @@ public class ZipFileSystem implements FileSystem {
     /**
      * ZIP 文件读取构建器。
      *
- * @author CH
      * @since 1.0.0
      */
     public static class ZipReadBuilder extends ReadBuilder {
@@ -209,7 +208,6 @@ public class ZipFileSystem implements FileSystem {
      *
      * <p>支持链式调用添加文件、流、字节数组到压缩包。</p>
      *
- * @author CH
      * @since 1.0.0
      */
     public static class ZipWriteBuilder extends WriteBuilder {

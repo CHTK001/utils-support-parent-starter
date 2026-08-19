@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 在 {@link #doFilter} 内精准匹配 path + method，避开 common-starter
  * ServerHandlerFactory 复杂的 pattern/lock/bean 解析路径。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

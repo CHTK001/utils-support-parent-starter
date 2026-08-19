@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * 配置值表达式解析工具，按 SPI 链尝试解析表达式。
  *
- * @author CH
  * @since 2024/12/20
  */
 @Slf4j

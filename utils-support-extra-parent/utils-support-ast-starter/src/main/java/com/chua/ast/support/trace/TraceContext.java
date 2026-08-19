@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
  *     └── UserRepository.findById() 5ms
  * </pre>
  *
- * @author CH
  */
 public final class TraceContext {
 

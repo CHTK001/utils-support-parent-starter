@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>聚合 FileStorage 实例，提供预览、下载、图片滤镜、闪图等功能。
  * 支持热重载（upgrade）更新 fileSetting / filterSetting / imageOperation。</p>
  *
- * @author CH
  * @since 2024/12/28
  */
 @Slf4j

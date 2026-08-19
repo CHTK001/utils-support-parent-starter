@@ -9,7 +9,6 @@ import java.nio.file.Path;
  * 文字高清修复对比：对三张"很不清楚"图，用 text-bsr 整图增强并落盘，
  * 与 G:\images 原图对照查看修复效果。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OcrEnhanceOnlyDiag {

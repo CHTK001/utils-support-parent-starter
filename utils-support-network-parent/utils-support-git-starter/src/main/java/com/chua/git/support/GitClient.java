@@ -402,7 +402,6 @@ public class GitClient implements AutoCloseable {
      *
      * 所有 setter 方法都返回 this 自身，最终调用 build 完成校验并实例化。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class Builder {

@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.langchain4j;
+package com.chua.deeplearning.support.langchain4j;
 
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentMode;

@@ -14,7 +14,6 @@ import com.chua.common.support.ai.feature.FeatureClient;
  *   FeatureClientExample onnx clip-image-feature <图片路径>
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class FeatureClientExample extends ExampleBase {

@@ -22,7 +22,6 @@ import java.lang.annotation.*;
  * Json.fromJson(json, User.class);  // userName = "chua"
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Documented

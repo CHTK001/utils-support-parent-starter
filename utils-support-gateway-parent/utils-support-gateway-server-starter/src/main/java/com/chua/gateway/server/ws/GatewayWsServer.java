@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>端口从 {@code gateway.ws.port} 读取，默认 8182。
  * 与 HTTP server（:8090）解耦，避免 jdk.httpserver 不支持 WebSocket upgrade 的限制。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

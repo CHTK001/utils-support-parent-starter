@@ -479,7 +479,6 @@ public class QqBotClient implements BotClient {
     /**
      * WebSocket 监听器内部类
      *
- * @author CH
      */
     private class WebSocketListener implements WebSocket.Listener {
 

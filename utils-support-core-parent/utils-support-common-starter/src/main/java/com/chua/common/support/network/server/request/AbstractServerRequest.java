@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 内置线程安全的 {@link ConcurrentHashMap} 用于在 Filter 之间传递数据，
  * 子类无需自行维护属性 Map。
  *
- * @author CH
  * @since 2026/07/16
  */
 public abstract class AbstractServerRequest implements ServerRequest {

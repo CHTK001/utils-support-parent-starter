@@ -38,7 +38,6 @@ import java.security.SecureRandom;
  * - 鍐呯疆棰滆壊绌洪棿杞崲绠楁硶
  * - 鏀寔鍔ㄦ€佸浘鍍忓鐞?
  *
- * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
  */

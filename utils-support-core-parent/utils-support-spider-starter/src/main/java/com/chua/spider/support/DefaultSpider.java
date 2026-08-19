@@ -489,7 +489,6 @@ public class DefaultSpider implements Spider {
      * 内置所有组件的默认实现，开箱即用。
      * 所有组件均可通过链式方法替换为自定义实现。
      *
- * @author CH
      */
     public static class DefaultSpiderBuilder implements Spider.Builder {
 

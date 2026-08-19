@@ -14,7 +14,6 @@ import java.nio.file.Path;
  *   ImageCaptioningExample vit-gpt2-captioning photo.jpg
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImageCaptioningExample extends ExampleBase {

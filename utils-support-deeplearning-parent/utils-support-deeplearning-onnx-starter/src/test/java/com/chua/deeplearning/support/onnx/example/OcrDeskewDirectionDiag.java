@@ -15,7 +15,6 @@ import java.util.List;
  * OCR 裁剪块 deskew 方向实验：对每个检测块分别用 +angle / -angle 旋转扶正后送 rec，
  * 对比识别结果判断正确旋转方向，用于修正 OcrPipeline 裁剪块 deskew。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OcrDeskewDirectionDiag {

@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.agentscope;
+package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.agent.Agent;
 import com.chua.common.support.ai.agent.AgentDefinition;

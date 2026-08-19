@@ -56,7 +56,6 @@ import java.lang.annotation.*;
  *   <li>当都不存在时，默认优先级为 0</li>
  * </ul>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025/01/22
  * @see Spi

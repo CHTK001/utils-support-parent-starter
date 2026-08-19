@@ -1,4 +1,4 @@
-﻿package com.chua.starter.datasync.mapping;
+package com.chua.starter.datasync.mapping;
 
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.mapping.DataSyncFieldMapping;

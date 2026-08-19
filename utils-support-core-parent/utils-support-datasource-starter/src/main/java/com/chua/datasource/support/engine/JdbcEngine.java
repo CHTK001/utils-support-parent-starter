@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * JDBC 引擎基类，提供基于 JDBC 的数据库查询实现。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class JdbcEngine extends AbstractEngine {

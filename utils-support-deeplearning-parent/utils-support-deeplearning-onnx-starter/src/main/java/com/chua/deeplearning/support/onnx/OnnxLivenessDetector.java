@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.onnx;
+package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.liveness.LivenessDetector;
 import lombok.extern.slf4j.Slf4j;

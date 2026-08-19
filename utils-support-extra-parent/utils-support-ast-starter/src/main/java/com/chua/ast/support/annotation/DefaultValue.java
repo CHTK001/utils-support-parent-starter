@@ -1,5 +1,6 @@
    package com.chua.ast.support.annotation;
-
+
+
 import java.lang.annotation.*;
 
 /**
@@ -40,7 +41,6 @@ import java.lang.annotation.*;
  *   <li>枚举类型：使用 {@code @DefaultValue("ENUM_CONSTANT")} 语法</li>
  * </ul>
  *
- * @author CH
  * @since 2024
  */
 @Documented

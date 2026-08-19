@@ -40,7 +40,6 @@ import java.lang.annotation.Target;
  * <p>与服务端实现配合：服务端启动后会扫描已注册 Bean 中的 {@code @OnRpcEvent} 注解，
  * 将方法注册到事件路由表中。当收到对应事件路径的请求时，自动匹配并调用注册的方法。</p>
  *
- * @author CH
  * @since 1.0.0
  */
 @Documented

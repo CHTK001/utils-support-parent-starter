@@ -34,7 +34,6 @@ import java.lang.annotation.Target;
  *     .run();
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  * @see SpiderField
  */

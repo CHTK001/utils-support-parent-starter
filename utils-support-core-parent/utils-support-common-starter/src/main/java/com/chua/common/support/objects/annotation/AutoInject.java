@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
  *   }
  * </pre>
  *
- * @author CH
  * @since 2024/12/20
  */
 @Target(ElementType.FIELD)

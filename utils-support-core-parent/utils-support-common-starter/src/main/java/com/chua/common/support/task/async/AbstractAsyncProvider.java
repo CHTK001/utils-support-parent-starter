@@ -11,7 +11,6 @@ import java.util.function.Supplier;
  * <p>提供批量异步执行的默认实现，子类只需实现核心异步方法：
  * {@link #doSupply(Supplier)} 和 {@link #doRun(Runnable)}。
  *
- * @author CH
  * @since 1.0.0
  */
 public abstract class AbstractAsyncProvider implements AsyncProvider {

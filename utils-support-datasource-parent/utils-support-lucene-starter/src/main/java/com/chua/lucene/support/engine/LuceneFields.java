@@ -3,7 +3,6 @@ package com.chua.lucene.support.engine;
 /**
  * Lucene 字段名常量。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class LuceneFields {

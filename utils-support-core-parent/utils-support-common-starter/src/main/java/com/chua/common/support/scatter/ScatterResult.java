@@ -7,7 +7,6 @@ import java.util.Objects;
  * <p>描述单节点查询结果，包含成功/失败、超时、降级等状态。</p>
  *
  * @param <T> 数据类型
- * @author CH
  * @since 4.0.0.42
  */
 public final class ScatterResult<T> {

@@ -34,7 +34,6 @@ import java.util.List;
  *
  * <p>提供 {@link #start()} 和 {@link #stop()} 包装供 GatewayServerApplication main 调用。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 并通过 {@link Flow#addNode(String, FlowNode)} 加入流程，
  * 本注册表仅作为"类型 → 原型"的目录，不再承担节点发现职责。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class FlowNodeRegistry {

@@ -14,7 +14,6 @@ import java.util.Set;
  * 提供 Java 侧对 safetensor 托管模型的统一发现与查询能力。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class SafeTensorModelRegistry {

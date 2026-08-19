@@ -64,7 +64,6 @@ public class JsonFileSystem implements FileSystem {
     /**
      * JSON 文件读取构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class JsonReadBuilder extends ReadBuilder {
@@ -183,7 +182,6 @@ public class JsonFileSystem implements FileSystem {
     /**
      * JSON 文件写入构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class JsonWriteBuilder extends WriteBuilder {

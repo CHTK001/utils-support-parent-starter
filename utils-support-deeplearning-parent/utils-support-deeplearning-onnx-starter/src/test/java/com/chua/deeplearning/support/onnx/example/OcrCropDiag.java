@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * OCR 裁剪块 deskew 诊断：保存每个检测框裁剪前后与 deskew 后的图像，肉眼核对倾斜矫正方向。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OcrCropDiag {

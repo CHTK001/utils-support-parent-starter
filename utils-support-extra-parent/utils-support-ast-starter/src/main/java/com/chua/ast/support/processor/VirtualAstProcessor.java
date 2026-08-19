@@ -16,7 +16,6 @@ import java.util.Set;
  * 将方法体替换为 {@code Thread.startVirtualThread()} 的 Runnable lambda 调用。
  * </p>
  *
- * @author CH
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Virtual")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)

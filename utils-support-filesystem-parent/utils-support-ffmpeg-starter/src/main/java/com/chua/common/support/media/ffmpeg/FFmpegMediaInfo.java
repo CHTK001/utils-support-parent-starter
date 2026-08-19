@@ -50,7 +50,6 @@ public class FFmpegMediaInfo {
     /**
      * 视频流信息。
      *
- * @author CH
      * @since 4.0.0.42
      */
     public static class VideoStream {
@@ -104,7 +103,6 @@ public class FFmpegMediaInfo {
     /**
      * 音频流信息。
      *
- * @author CH
      * @since 4.0.0.42
      */
     public static class AudioStream {

@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>约定：序数（ordinal）与向量列表下标一致，新元素按 {@code vectors.size()} 分配，删除后列表
  * 保持紧凑，因此 {@code ord == listIndex} 恒成立。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractIdOrdinalStorage {

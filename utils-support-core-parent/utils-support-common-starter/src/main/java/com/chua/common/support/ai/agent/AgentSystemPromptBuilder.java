@@ -59,7 +59,6 @@ import java.util.Map;
  *     → Agent 实现类通过 getSystemPrompt() 获取并传给 ChatClient
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class AgentSystemPromptBuilder {

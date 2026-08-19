@@ -12,7 +12,6 @@ import java.util.Locale;
  * 日期时间工具类。
  * <p>提供静态方法封装 {@link LocalDateTime}、{@link ZonedDateTime}、{@link Date} 之间的转换、解析、格式化、计算、比较及时区处理。</p>
  *
- * @author CH
  * @since 2026/07/19
  */
 public final class DateTime {

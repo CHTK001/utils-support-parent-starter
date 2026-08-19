@@ -10,7 +10,6 @@ import java.nio.file.Path;
 /**
  * 打印车牌/识别模型 ONNX 输入输出结构。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OnnxShapeDiag {

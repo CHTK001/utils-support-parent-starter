@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 /**
  * PostConstruct 注解，标记初始化方法。
  *
- * @author CH
  * @since 2024/12/20
  */
 @Target(ElementType.METHOD)

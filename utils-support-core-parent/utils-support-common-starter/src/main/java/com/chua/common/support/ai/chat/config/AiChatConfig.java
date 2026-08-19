@@ -371,7 +371,6 @@ public class AiChatConfig {
     /**
      * 组构建器，用于构建同组内多个客户端配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Getter
@@ -500,7 +499,6 @@ public class AiChatConfig {
     /**
      * 客户端构建器，用于构建单个客户端的配置项。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Getter

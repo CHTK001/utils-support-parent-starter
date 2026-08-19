@@ -11,7 +11,6 @@ import java.util.Objects;
  * <p>提供配置持久化的通用骨架实现，包括 key 规范化、路径拼接、
  * 成功/失败结果构建等基础能力。子类需实现具体的存储后端逻辑。</p>
  *
- * @author CH
  * @since 2024/12/20
  */
 public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {

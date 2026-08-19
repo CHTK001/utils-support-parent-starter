@@ -13,7 +13,6 @@ import java.lang.annotation.*;
  *   <li>树形格式输出：{@code └── UserService.getUser() 15ms}</li>
  * </ul>
  *
- * @author CH
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)

@@ -17,7 +17,6 @@ import java.nio.file.Path;
  *   ImageClientExample onnx small-stable-diffusion-combined "一只柴犬在樱花树下" out.png
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImageClientExample extends ExampleBase {

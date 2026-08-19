@@ -66,7 +66,6 @@ import java.lang.annotation.Target;
  * public class RepoWriteIntercept implements MethodArroundIntercept { ... }
  * }</pre>
  *
- * @author CH
  * @since 2025/11/26
  * @version 1.1.0
  * @see com.chua.common.support.proxy.intercept.MethodArroundIntercept

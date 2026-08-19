@@ -50,7 +50,6 @@ import java.util.*;
  * 追加本次生成的新条目并自动去重（相同行只保留一份），不会覆盖已有配置。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.AutoSpi")

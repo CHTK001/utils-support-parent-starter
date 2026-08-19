@@ -13,7 +13,6 @@ import java.nio.file.Path;
  *   TextBsrExample G:\images\很不清楚的文字图片用于测试文字高清修复模型.png [2|4]
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class TextBsrExample {

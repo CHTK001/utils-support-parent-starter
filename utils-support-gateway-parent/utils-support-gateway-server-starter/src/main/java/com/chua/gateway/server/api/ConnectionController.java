@@ -38,7 +38,6 @@ import java.util.Optional;
  *   </ul>
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -12,7 +12,6 @@ import java.util.function.Consumer;
  *
  * <p>加载的动态库与 native-video-codec 和 native-crypto 使用的相同。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

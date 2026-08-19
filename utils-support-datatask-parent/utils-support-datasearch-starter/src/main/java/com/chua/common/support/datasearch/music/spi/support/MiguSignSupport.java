@@ -9,7 +9,6 @@ import java.util.Map;
  * 咪咕音乐签名支持工具类
  * 为咪咕音乐API请求生成签名（sign）与设备标识（deviceId）等请求参数
  * 
- * @author CH
  * @since 4.0.0.42
 */
 public final class MiguSignSupport {

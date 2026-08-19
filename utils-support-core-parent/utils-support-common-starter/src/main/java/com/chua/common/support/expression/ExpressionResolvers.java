@@ -12,7 +12,6 @@ import java.util.Map;
  * <p>遍历 {@code ExpressionResolver} SPI 实现，首个 {@code isSupport} 返回 true 的解析器负责解析。
  * 解析失败返回 null，由调用方回退到占位符或字面量。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ExpressionResolvers {

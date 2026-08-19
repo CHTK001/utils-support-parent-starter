@@ -1,4 +1,4 @@
-﻿package com.chua.chronicle.support.wal;
+package com.chua.chronicle.support.wal;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.wal.CheckpointMeta;

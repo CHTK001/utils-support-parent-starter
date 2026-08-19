@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
  * 协议服务器抽象基类。
  * <p>提供生命周期骨架：子类只需实现 {@link #doStart()} 和 {@link #doStop()}。</p>
  *
- * @author CH
  * @since 2026/07/26
  */
 @Slf4j

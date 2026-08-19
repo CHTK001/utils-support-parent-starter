@@ -633,7 +633,6 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * HTTP 请求上下文 — 线程局部存储，用于关联请求入口和出口的信息。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private static class HttpRequestContext {
@@ -720,7 +719,6 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 追踪上下文 — 线程局部变量。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static class TraceContext {
@@ -748,7 +746,6 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 追踪 Span。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

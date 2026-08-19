@@ -6,7 +6,6 @@ package com.chua.common.support.lang.process;
  * <p>
  * 支持多种进度变化曲线：慢-快-慢（S 曲线）、先快后慢、先慢后快、线性，默认总进度为 100。
  *
- * @author CH
  * @since 2024-01-01
  * @version 1.0.0
  */

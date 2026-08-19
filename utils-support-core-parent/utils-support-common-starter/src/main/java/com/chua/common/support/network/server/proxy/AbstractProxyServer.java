@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>子类只需实现 {@link #handleConnection(Socket)} 即可。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -191,7 +191,6 @@ public class ImagePipeline {
      *
      * <p>所有步骤默认关闭，仅调用对应 setter 后生效。</p>
      *
-     * @author CH
      * @since 4.0.0.42
      */
     public static final class Builder {

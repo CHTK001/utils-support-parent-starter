@@ -20,7 +20,6 @@ import java.util.Map;
 /**
  * BRIA RMBG-2.0                                  
  *
- * @author CH
  * @since 2026/04/04
  */
 @Slf4j

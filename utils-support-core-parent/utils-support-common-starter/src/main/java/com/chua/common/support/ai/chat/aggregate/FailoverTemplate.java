@@ -17,7 +17,6 @@ import java.util.function.Consumer;
  * <p>所有扁平策略（failover / round_robin / weighted / cost）共享此模板，
  * 无需各自实现 try-catch 循环。
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

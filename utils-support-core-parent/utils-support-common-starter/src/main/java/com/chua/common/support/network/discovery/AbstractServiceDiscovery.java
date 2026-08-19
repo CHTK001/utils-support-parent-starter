@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * 服务发现抽象基类。
  * 提供了服务列表的本地缓存、负载均衡策略的选择以及路径解析等通用功能。
  * 子类需要实现具体的服务注册和发现逻辑（通过 hook 方法）。
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractServiceDiscovery implements ServiceDiscovery {

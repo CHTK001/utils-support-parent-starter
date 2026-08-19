@@ -337,7 +337,6 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
      *
      * @param data     任务或结果
      * @param priority 优先级
-     * @author CH
      * @since 4.0.0.42
      */
     private record QueueEntry(Object data, TaskPriority priority) {

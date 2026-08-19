@@ -19,7 +19,6 @@ import java.util.Set;
 /**
  * {@link Retry} 注解的 AST 处理器
  *
- * @author CH
  * @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Retry")

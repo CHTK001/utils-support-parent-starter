@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
  * 通过指定 value 属性来标识唯一的 IPC 方法名称。
  * </p>
  *
- * @author CH
  * @since 2026/07/18
  * @see com.chua.common.support.network.ipc.IpcServer
  */

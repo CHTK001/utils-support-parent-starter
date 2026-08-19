@@ -14,7 +14,6 @@ import java.util.List;
  *   CardCorrectionExample G:\images\card_test.jpg
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class CardCorrectionExample extends ExampleBase {

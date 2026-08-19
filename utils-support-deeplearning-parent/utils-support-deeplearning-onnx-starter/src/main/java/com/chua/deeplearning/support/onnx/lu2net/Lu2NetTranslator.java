@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.onnx.lu2net;
+package com.chua.deeplearning.support.onnx.lu2net;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;

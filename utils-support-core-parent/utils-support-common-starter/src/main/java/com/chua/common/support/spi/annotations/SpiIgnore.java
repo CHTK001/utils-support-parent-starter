@@ -30,7 +30,6 @@ import java.lang.annotation.*;
  * }</pre>
  * </p>
  *
- * @author CH
  * @since 2024-01-01
  * @version 1.0.0
  * @see Spi

@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * }</pre>
  *
  * @param <T> 条目类型
- * @author CH
  * @since 2024/12/12
  */
 @Slf4j

@@ -1,4 +1,4 @@
-﻿package com.chua.starter.datasync.scheduler;
+package com.chua.starter.datasync.scheduler;
 
 import com.chua.datasync.agent.support.DataSyncAgentSink;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
@@ -117,7 +117,6 @@ class DefaultSyncDataSchedulerManagerTest {
     }
 
     /**
- * @author CH
      * 始终触发的 Trigger，用于测试。
      */
     private static class AlwaysFireTrigger implements Trigger {

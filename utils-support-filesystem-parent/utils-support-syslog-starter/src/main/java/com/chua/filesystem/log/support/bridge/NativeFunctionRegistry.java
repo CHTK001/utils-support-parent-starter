@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 每个平台维护独立的 SymbolLookup 和 MethodHandle 缓存。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class NativeFunctionRegistry {

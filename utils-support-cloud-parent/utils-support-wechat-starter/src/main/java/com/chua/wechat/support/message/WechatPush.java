@@ -1,4 +1,4 @@
-﻿package com.chua.wechat.support.message;
+package com.chua.wechat.support.message;
 
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
@@ -46,7 +46,6 @@ import java.util.concurrent.ConcurrentMap;
  *   wechat.templateId  默认模板 ID（mp/mini 模式，发送时也可通过 request.templateId 指定）
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Spi("wechat")
@@ -116,7 +115,6 @@ public class WechatPush implements MessagePush {
      * access_token 缓存项
      *
      * @param token    访问令牌
- * @author CH
      * @param expireAt 过期时间戳（毫秒）
      */
     private record TokenCache(String token, long expireAt) {

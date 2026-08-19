@@ -379,7 +379,6 @@ public class SyncFlow implements AutoCloseable {
     /**
      * 同步流构建器
      *
-     * @author CH
      * @since 2026/07/28
      */
     public static class Builder {

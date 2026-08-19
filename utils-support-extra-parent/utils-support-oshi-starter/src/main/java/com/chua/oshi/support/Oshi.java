@@ -20,7 +20,6 @@ import java.util.List;
 /**
  * Oshi 系统信息工具类
  *
- * @author CH
  */
 @Slf4j
 public final class Oshi {

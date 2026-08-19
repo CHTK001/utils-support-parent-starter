@@ -23,7 +23,6 @@ import java.util.List;
  * List&lt;ChatMessage&gt; next = c.maybeCompress(history);
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

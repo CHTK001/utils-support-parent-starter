@@ -30,7 +30,6 @@ public class FeishuBotClientFactory implements BotClient.Factory {
     /**
      * 飞书 Builder 内部类
      *
- * @author CH
      */
     static class FeishuBuilder implements BotClient.Builder {
 

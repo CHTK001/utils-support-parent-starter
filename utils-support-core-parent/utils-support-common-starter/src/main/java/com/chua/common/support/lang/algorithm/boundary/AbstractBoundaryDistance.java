@@ -18,7 +18,6 @@ import java.util.List;
  *   <li>{@link #distance(double[], double[])} — 具体的距离度量公式</li>
  * </ul>
  *
- * @author CH
  * @since 1.0.0
  */
 public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgorithm {

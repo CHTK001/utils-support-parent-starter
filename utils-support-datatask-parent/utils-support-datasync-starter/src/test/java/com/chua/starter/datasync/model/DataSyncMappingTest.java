@@ -1,4 +1,4 @@
-﻿package com.chua.starter.datasync.model;
+package com.chua.starter.datasync.model;
 
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.config.FileConfigDefinition;

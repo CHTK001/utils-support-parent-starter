@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
  * public void periodicTask() { }
  * }</pre>
  *
- * @author CH
  * @since 1.0.0
  */
 @Target(ElementType.METHOD)

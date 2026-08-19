@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
  *   feishu.appSecret    飞书应用密钥（API 模式）
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Spi("feishu")

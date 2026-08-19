@@ -69,7 +69,6 @@ public class TxtFileSystem implements FileSystem {
     /**
      * TXT 文件读取构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Slf4j
@@ -192,7 +191,6 @@ public class TxtFileSystem implements FileSystem {
     /**
      * TXT 文件写入构建器。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Slf4j

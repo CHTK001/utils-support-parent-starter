@@ -42,7 +42,6 @@ import java.util.concurrent.CompletableFuture;
  * 子类可以通过 {@link #setting} 字段获取全局客户端配置
  * （超时时间、代理设置、重试策略等），无需自行管理配置参数。</p>
  *
- * @author CH
  * @since 4.0.0.42
  * @see HttpClient
  * @see ClientSetting

@@ -27,7 +27,6 @@ import java.util.function.Supplier;
  * <p>线程安全: 内部使用 synchronized 保证池/单例的原子创建。
  *
  * @param <T> 客户端类型
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

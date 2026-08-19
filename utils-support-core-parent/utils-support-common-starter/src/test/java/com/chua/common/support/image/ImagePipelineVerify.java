@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream;
  * <p>验证默认关闭、灰度化、二值化、降噪、腐蚀、膨胀及全链路处理，
  * 并统计处理前后像素特征。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class ImagePipelineVerify {

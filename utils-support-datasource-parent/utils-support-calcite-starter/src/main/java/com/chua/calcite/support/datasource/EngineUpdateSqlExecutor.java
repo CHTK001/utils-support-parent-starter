@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
  * SET/WHERE 值支持：字符串字面量、数字、NULL、布尔。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

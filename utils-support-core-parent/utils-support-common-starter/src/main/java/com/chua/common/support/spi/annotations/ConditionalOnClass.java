@@ -8,7 +8,6 @@ import java.lang.annotation.*;
  * 用于SPI机制中的条件装配，判断当前运行环境中是否包含特定的依赖类。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.TYPE})

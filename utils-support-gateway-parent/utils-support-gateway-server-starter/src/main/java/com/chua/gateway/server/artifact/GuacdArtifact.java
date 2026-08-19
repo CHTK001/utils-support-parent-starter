@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * <p>前端通过 {@code @guacamole/client} 连 guacd 进行 RDP/VNC/SSH。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

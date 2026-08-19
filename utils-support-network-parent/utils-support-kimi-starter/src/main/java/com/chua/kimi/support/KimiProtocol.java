@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
  * <p>核心调用基于 connect-rpc over HTTP：请求体为 <b>5 字节帧头 + JSON</b>（首字节标志位，
  * 后 4 字节大端长度），响应体为连续的 gRPC 帧流（同样 5 字节帧头，首字节最高位为 1 表示压缩/跳过）。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class KimiProtocol {

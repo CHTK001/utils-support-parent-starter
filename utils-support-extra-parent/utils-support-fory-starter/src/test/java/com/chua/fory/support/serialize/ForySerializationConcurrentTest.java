@@ -1,4 +1,4 @@
-﻿package com.chua.fory.support.serialize;
+package com.chua.fory.support.serialize;
 
 import org.junit.jupiter.api.Test;
 

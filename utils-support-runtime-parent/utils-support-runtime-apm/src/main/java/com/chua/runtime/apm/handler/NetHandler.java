@@ -325,7 +325,6 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
      * 网络记录。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

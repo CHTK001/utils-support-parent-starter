@@ -1,4 +1,4 @@
-﻿package com.chua.deeplearning.support.recognition;
+package com.chua.deeplearning.support.recognition;
 
 import com.chua.deeplearning.support.draw.DrawerPipeline;
 

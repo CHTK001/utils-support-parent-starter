@@ -13,7 +13,6 @@ import java.util.Set;
 /**
  * {@link Trace} 注解的 AST 处理器
  *
- * @author CH
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Trace")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)

@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
  *   sms.templateCode 短信模板代码
  * </pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Spi("alibaba-sms")

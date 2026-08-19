@@ -20,7 +20,6 @@ package com.chua.common.support.lang.algorithm.cipher;
  * byte[] raw = Base64.decode(encodedStr);
  * }</pre>
  *
- * @author CH
  * @since 2026/07/16
  */
 public final class Base64 {

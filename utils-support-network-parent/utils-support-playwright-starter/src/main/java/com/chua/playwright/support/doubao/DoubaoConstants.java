@@ -14,7 +14,6 @@ package com.chua.playwright.support.doubao;
  *   <li>签名：a_bogus + msToken 由浏览器页面 fetch hook 自动注入</li>
  * </ul>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class DoubaoConstants {

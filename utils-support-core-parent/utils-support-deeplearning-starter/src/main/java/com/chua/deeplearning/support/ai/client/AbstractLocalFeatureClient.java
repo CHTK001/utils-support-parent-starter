@@ -17,7 +17,6 @@ import java.util.List;
  * 支持文本特征与图像特征两种输入模态。子类只需指定引擎名称。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractLocalFeatureClient implements FeatureClient {

@@ -1,4 +1,4 @@
-﻿package com.chua.test.impl;
+package com.chua.test.impl;
 
 import com.chua.ast.support.annotation.AutoSpi;
 import com.chua.common.support.spi.annotations.Extension;

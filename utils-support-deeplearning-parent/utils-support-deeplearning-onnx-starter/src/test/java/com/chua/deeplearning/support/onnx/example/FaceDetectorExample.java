@@ -18,7 +18,6 @@ import java.util.List;
  *   FaceDetectorExample scrfd-face-detector face.jpg
  * }</pre>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class FaceDetectorExample extends ExampleBase {

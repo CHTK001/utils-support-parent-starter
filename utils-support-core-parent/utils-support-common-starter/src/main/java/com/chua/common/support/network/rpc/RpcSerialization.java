@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
  * 显式指定名称（{@code fury} / {@code fory} / {@code jackson} / {@code java}），
  * 未指定时按上述优先级自动选择。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class RpcSerialization {
@@ -212,7 +211,6 @@ public final class RpcSerialization {
     /**
      * JDK 原生序列化实现（带反序列化安全过滤）。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private static final class JdkSerialization implements Serialization {

@@ -17,7 +17,6 @@ import com.chua.common.support.lang.datasource.meta.MetaView;
  * 子类必须实现所有抽象方法来提供具体的元数据操作能力。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractMetaData implements MetaData {

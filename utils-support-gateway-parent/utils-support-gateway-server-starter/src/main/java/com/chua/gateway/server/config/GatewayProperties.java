@@ -19,7 +19,6 @@ import java.util.Properties;
  *
  * <p>这些值在服务启动时一次性读取，运行期间不变（CH 规则 11：SPI 在启动期间不变）。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

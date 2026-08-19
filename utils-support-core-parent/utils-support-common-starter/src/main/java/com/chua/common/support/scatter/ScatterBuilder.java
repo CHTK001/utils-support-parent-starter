@@ -15,7 +15,6 @@ import java.util.List;
  * subnet 网段模式（固定相同端口扩散）、servicePath、balance 负载均衡等。</p>
  *
  * @param <B> 构建器子类型
- * @author CH
  * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")
