@@ -1,15 +1,14 @@
 package com.chua.deeplearning.support.onnx.emotion;
 
 import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.ai.result.PredictResult;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 
 /**
@@ -52,15 +51,23 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     @Override
     /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        array = NDImageUtils.resize(array, 224, 224);
-        array = array.toType(DataType.FLOAT32, false).div(255.0f);
-
-        NDArray mean = ctx.getNDManager().create(new float[]{0.485f, 0.456f, 0.406f}, new Shape(1, 1, 3));
-        NDArray std = ctx.getNDManager().create(new float[]{0.229f, 0.224f, 0.225f}, new Shape(1, 1, 3));
-        array = array.sub(mean).div(std);
-
-        array = array.transpose(2, 0, 1).expandDims(0);
+        Object wrapped = input.getWrappedImage();
+        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+            throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
+        }
+        // AWT 缩放（ONNX Runtime 引擎的 NDArray 不支持 resize）
+        java.awt.image.BufferedImage resized = ImageUtils.resize(bufferedImage, 224, 224,
+                org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        int[] pixels = resized.getRGB(0, 0, 224, 224, null, 0, 224);
+        float[] chw = new float[3 * 224 * 224];
+        int total = 224 * 224;
+        for (int i = 0; i < pixels.length; i++) {
+            int p = pixels[i];
+            chw[i] = (((p >> 16) & 0xff) / 255f - 0.485f) / 0.229f;
+            chw[i + total] = (((p >> 8) & 0xff) / 255f - 0.456f) / 0.224f;
+            chw[i + 2 * total] = ((p & 0xff) / 255f - 0.406f) / 0.225f;
+        }
+        NDArray array = ctx.getNDManager().create(chw, new Shape(1, 3, 224, 224));
         return new NDList(array);
     }
 

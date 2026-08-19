@@ -45,7 +45,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
             data[i + INPUT_SIZE * INPUT_SIZE] = ((p >> 8) & 0xff) / 255f;
             data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (p & 0xff) / 255f;
         }
-        NDArray array = ctx.getNDManager().create(data, new Shape(3, INPUT_SIZE, INPUT_SIZE));
+        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
     }
 
@@ -66,6 +66,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+        return null;
     }
 }
