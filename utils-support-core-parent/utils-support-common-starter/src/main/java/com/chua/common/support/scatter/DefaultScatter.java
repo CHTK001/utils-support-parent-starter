@@ -116,7 +116,7 @@ public class DefaultScatter implements Scatter {
                     .serverId(setting.getNodeId())
                     .scatterId(groupId)
                     .protocol(setting.getProtocol())
-                    .host(setting.getHost())
+                    .host(setting.effectiveHost())
                     .port(getPort())
                     .weight(1)
                     .build();
