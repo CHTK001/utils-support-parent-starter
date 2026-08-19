@@ -1,9 +1,11 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -97,10 +99,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                         }
                         Object value = rs.getObject(i);
                         if (value != null) {
-                            // 优先按驼峰字段名映射，兼容下划线列名
-                            MethodCache.setValue(instance, toCamelCase(label), value);
-                            // 兜底按原始列名映射
-                            MethodCache.setValue(instance, label, value);
+                            setFieldValue(instance, label, value);
                         }
                     }
                     result.add(instance);
@@ -203,6 +202,61 @@ public class JdbcSqlExecutor implements SqlExecutor {
             trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
         }
         return trimmed;
+    }
+
+    /**
+     * 反射设置对象字段值，兼容原列名与驼峰化列名。
+     *
+     * <p>字段匹配顺序：精确匹配原列名 → 驼峰化列名（如 {@code user_name} → {@code userName}）。
+     * 类型转换复用 {@link Converter}，支持数值、字符串、枚举等类型的自动转换。</p>
+     *
+     * @param instance   目标对象
+     * @param columnName 列名
+     * @param value      列值
+     */
+    private static void setFieldValue(Object instance, String columnName, Object value) {
+        Class<?> clazz = instance.getClass();
+        // 依次尝试原列名与驼峰化列名
+        String[] candidates = {
+                columnName,
+                toCamelCase(columnName)
+        };
+        for (String candidate : candidates) {
+            try {
+                Field field = findField(clazz, candidate);
+                if (field == null) {
+                    continue;
+                }
+                field.setAccessible(true);
+                // 复用 Converter 完成类型转换
+                Object converted = Converter.convertIfNecessary(value, field.getType());
+                if (converted != null) {
+                    field.set(instance, converted);
+                }
+                return;
+            } catch (IllegalAccessException ignored) {
+                // 忽略访问异常，尝试下一个候选
+            }
+        }
+    }
+
+    /**
+     * 在类及父类中查找字段。
+     *
+     * @param clazz 目标类
+     * @param name  字段名
+     * @return 字段，未找到返回 null
+     */
+    private static Field findField(Class<?> clazz, String name) {
+        Class<?> current = clazz;
+        while (current != null) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
     }
 
     /**

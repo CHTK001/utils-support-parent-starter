@@ -161,9 +161,9 @@ public abstract class JdbcEngine extends AbstractEngine {
     // ==================== 更新 / 删除（真实 JDBC 执行） ====================
 
     /**
-     * 基于 JDBC 执行更新操作，利用方言生成 UPDATE 语句。
+     * 基于 JDBC 执行更新操作，生成 UPDATE 语句。
      *
-     * <p>当默认数据源未配置方言时，回退到父类的内存实现。</p>
+     * <p>表名取实体类简单名的小写形式，与 {@link #executeNewQuery} 保持一致。</p>
      *
      * @param sql 更新 SQL 信息
      * @param <T> 实体类型
@@ -171,16 +171,16 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
-        // 生成表名（驼峰转下划线）
-        String tableName = getTableName(sql.entityClass());
-        Dialect dialect = dialect();
-        String updateSql = dialect != null
-                ? dialect.getUpdateSql(tableName, sql.setClause(), sql.whereClause())
-                : null;
-        if (updateSql == null || updateSql.isEmpty()) {
-            // 无方言，回退内存实现
-            return super.executeUpdate(sql);
+        // 与查询使用相同的表名（实体类简单名小写）
+        String tableName = entityTableName(sql.entityClass());
+        StringBuilder sqlBuilder = new StringBuilder("UPDATE ")
+                .append(tableName)
+                .append(" SET ")
+                .append(sql.setClause());
+        if (sql.hasWhere()) {
+            sqlBuilder.append(" WHERE ").append(sql.whereClause());
         }
+        String updateSql = sqlBuilder.toString();
         try (Connection conn = getJdbcConnection();
              PreparedStatement ps = conn.prepareStatement(updateSql)) {
             bindParams(ps, sql.params());
@@ -191,9 +191,9 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 基于 JDBC 执行删除操作，利用方言生成 DELETE 语句。
+     * 基于 JDBC 执行删除操作，生成 DELETE 语句。
      *
-     * <p>当默认数据源未配置方言时，回退到父类的内存实现。</p>
+     * <p>表名取实体类简单名的小写形式，与 {@link #executeNewQuery} 保持一致。</p>
      *
      * @param sql 删除 SQL 信息
      * @param <T> 实体类型
@@ -201,16 +201,13 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
-        // 生成表名（驼峰转下划线）
-        String tableName = getTableName(sql.entityClass());
-        Dialect dialect = dialect();
-        String deleteSql = dialect != null
-                ? dialect.getDeleteSql(tableName, sql.whereClause())
-                : null;
-        if (deleteSql == null || deleteSql.isEmpty()) {
-            // 无方言，回退内存实现
-            return super.executeDelete(sql);
+        // 与查询使用相同的表名（实体类简单名小写）
+        String tableName = entityTableName(sql.entityClass());
+        StringBuilder sqlBuilder = new StringBuilder("DELETE FROM ").append(tableName);
+        if (sql.hasWhere()) {
+            sqlBuilder.append(" WHERE ").append(sql.whereClause());
         }
+        String deleteSql = sqlBuilder.toString();
         try (Connection conn = getJdbcConnection();
              PreparedStatement ps = conn.prepareStatement(deleteSql)) {
             bindParams(ps, sql.params());
@@ -218,6 +215,17 @@ public abstract class JdbcEngine extends AbstractEngine {
         } catch (Exception e) {
             throw new RuntimeException("执行删除失败: " + deleteSql, e);
         }
+    }
+
+    /**
+     * 将实体类简单名转为小写表名，与 {@link #executeNewQuery} 的表名策略一致。
+     *
+     * @param entityClass 实体类
+     * @param <T>         实体类型
+     * @return 小写表名
+     */
+    private static <T> String entityTableName(Class<T> entityClass) {
+        return entityClass.getSimpleName().toLowerCase();
     }
 
     /**
