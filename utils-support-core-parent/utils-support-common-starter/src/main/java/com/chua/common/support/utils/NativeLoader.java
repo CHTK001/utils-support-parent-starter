@@ -10,8 +10,10 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -259,44 +261,136 @@ public class NativeLoader {
     /** ListClasspathResources */
     private List<ResourceItem> listClasspathResources(String resourceBase) throws Exception {
         List<ResourceItem> result = new ArrayList<>();
-        Enumeration<URL> urls = classLoader.getResources(resourceBase);
-        while (urls.hasMoreElements()) {
-            URL url = urls.nextElement();
-            String protocol = url.getProtocol();
-            if ("file".equals(protocol)) {
-                java.io.File dirFile = new java.io.File(url.toURI());
-                java.io.File[] files = dirFile.listFiles((d, name) -> match(name, glob));
-                if (files != null) {
-                    for (java.io.File f : files) {
-                        result.add(new ResourceItem(f.getName(), f.length(), () -> Files.newInputStream(f.toPath())));
+        // 原生镜像内不存在目录资源条目，getResources(目录) 无法枚举，直接走精确路径探测
+        if (!isNativeImageRuntime()) {
+            Enumeration<URL> urls = classLoader.getResources(resourceBase);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                String protocol = url.getProtocol();
+                if ("file".equals(protocol)) {
+                    java.io.File dirFile = new java.io.File(url.toURI());
+                    java.io.File[] files = dirFile.listFiles((d, name) -> match(name, glob));
+                    if (files != null) {
+                        for (java.io.File f : files) {
+                            result.add(new ResourceItem(f.getName(), f.length(), () -> Files.newInputStream(f.toPath())));
+                        }
                     }
-                }
-            } else if ("jar".equals(protocol)) {
-                JarURLConnection conn = (JarURLConnection) url.openConnection();
-                try (JarFile jarFile = conn.getJarFile()) {
-                    Enumeration<JarEntry> entries = jarFile.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = entries.nextElement();
-                        String name = entry.getName();
-                        if (entry.isDirectory() || !name.startsWith(resourceBase)) {
-                            continue;
+                } else if ("jar".equals(protocol)) {
+                    JarURLConnection conn = (JarURLConnection) url.openConnection();
+                    try (JarFile jarFile = conn.getJarFile()) {
+                        Enumeration<JarEntry> entries = jarFile.entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry entry = entries.nextElement();
+                            String name = entry.getName();
+                            if (entry.isDirectory() || !name.startsWith(resourceBase)) {
+                                continue;
+                            }
+                            String simpleName = name.substring(resourceBase.length());
+                            if (simpleName.contains("/")) {
+                                continue;
+                            }
+                            if (!match(simpleName, glob)) {
+                                continue;
+                            }
+                            long size = entry.getSize();
+                            result.add(new ResourceItem(simpleName, size < 0 ? 0 : size, () -> classLoader.getResourceAsStream(name)));
                         }
-                        String simpleName = name.substring(resourceBase.length());
-                        if (simpleName.contains("/")) {
-                            continue;
-                        }
-                        if (!match(simpleName, glob)) {
-                            continue;
-                        }
-                        long size = entry.getSize();
-                        result.add(new ResourceItem(simpleName, size < 0 ? 0 : size, () -> classLoader.getResourceAsStream(name)));
                     }
+                } else {
+                    // other protocols not supported
                 }
-            } else {
-                // other protocols not supported
             }
         }
+        if (result.isEmpty()) {
+            probeClasspathResources(resourceBase, result);
+        }
         return result;
+    }
+
+    /**
+     * 是否运行在 GraalVM Native Image 可执行文件中。
+     *
+     * @return true 表示当前是原生镜像运行期
+     */
+    private static boolean isNativeImageRuntime() {
+        try {
+            String code = System.getProperty("org.graalvm.nativeimage.imagecode");
+            return "runtime".equals(code) || "buildtime".equals(code);
+        } catch (Throwable ignored) {
+            // 属性不可用视为非原生镜像
+        }
+        return false;
+    }
+
+    /**
+     * 原生镜像/目录枚举为空时的精确资源探测。
+     * <p>原生镜像中目录无条目，无法用 {@code getResources(baseDir)} 枚举，
+     * 因此由 glob 与 taskId 派生候选文件名，按平台目录用精确路径
+     * {@code getResourceAsStream(fullPath)} 探测，命中的资源即可被
+     * {@link #doLoad()} 抽取并加载。</p>
+     *
+     * @param resourceBase 默认 classpath 基础路径（如 native/windows-x86_64/）
+     * @param result       输出集合
+     */
+    private void probeClasspathResources(String resourceBase, List<ResourceItem> result) {
+        List<String> basePaths = new ArrayList<>();
+        if (resourceBase != null && !resourceBase.isEmpty()) {
+            basePaths.add(resourceBase);
+        }
+        for (String dir : NativeUtils.getPlatformDirCandidates()) {
+            basePaths.add("native/" + dir + "/");
+        }
+        basePaths.add("native/");
+
+        for (String name : probeCandidateNames()) {
+            for (String base : basePaths) {
+                String full = base + name;
+                try (InputStream in = classLoader.getResourceAsStream(full)) {
+                    if (in != null) {
+                        String resolved = full;
+                        result.add(new ResourceItem(name, -1, () -> classLoader.getResourceAsStream(resolved)));
+                        return;
+                    }
+                } catch (Exception ignored) {
+                    // continue probing
+                }
+            }
+        }
+    }
+
+    /**
+     * 由 glob 与 taskId 派生候选文件名。
+     *
+     * @return 候选文件名列表
+     */
+    private List<String> probeCandidateNames() {
+        Set<String> bases = new LinkedHashSet<>();
+        if (!glob.contains("*") && !glob.contains("?")) {
+            bases.add(glob);
+        }
+        if (taskId != null && !taskId.isEmpty()) {
+            bases.add(taskId);
+            bases.add(taskId.replace('-', '_'));
+            bases.add(taskId.replace('_', '-'));
+        }
+        int star = glob.indexOf('*');
+        int q = glob.indexOf('?');
+        int cut = star < 0 ? (q < 0 ? -1 : q) : (q < 0 ? star : Math.min(star, q));
+        if (cut > 0) {
+            String prefix = glob.substring(0, cut);
+            while (!prefix.isEmpty() && (prefix.endsWith(".") || prefix.endsWith("*") || prefix.endsWith("?"))) {
+                prefix = prefix.substring(0, prefix.length() - 1);
+            }
+            if (!prefix.isEmpty()) {
+                bases.add(prefix);
+            }
+        }
+        List<String> names = new ArrayList<>();
+        for (String b : bases) {
+            names.add(NativeUtils.getLibraryFileName(b));
+            names.add(NativeUtils.getLibraryFileName(b, false));
+        }
+        return names;
     }
 
     /** Match */
