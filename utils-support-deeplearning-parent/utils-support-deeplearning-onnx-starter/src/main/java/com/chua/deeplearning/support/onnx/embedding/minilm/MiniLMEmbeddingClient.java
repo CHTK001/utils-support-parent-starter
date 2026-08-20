@@ -48,7 +48,9 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     private final EmbeddingClientSetting setting;
     /** 翻译器 */
     /** Translator */
-    private MiniLMEmbeddingTranslator translator;
+    private volatile MiniLMEmbeddingTranslator translator;
+    /** 已解析的模型标识 */
+    private volatile String resolvedModel;
 
     /**
      * 创建 MiniLMEmbeddingClient 实例
@@ -69,6 +71,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     /** Model */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
+        this.resolvedModel = null;
         return this;
     }
 
@@ -80,11 +83,28 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     /** Translator */
-    private synchronized MiniLMEmbeddingTranslator translator() {
-        if (translator == null) {
-            translator = new MiniLMEmbeddingTranslator();
+    private MiniLMEmbeddingTranslator translator() {
+        String model = setting.getModel();
+        String key = model == null || model.isBlank() || "minilm".equalsIgnoreCase(model)
+                || "minilm-int8".equalsIgnoreCase(model) ? "int8" : "fp32";
+        MiniLMEmbeddingTranslator current = translator;
+        if (current != null && key.equals(resolvedModel)) {
+            return current;
         }
-        return translator;
+        synchronized (this) {
+            if (translator != null && key.equals(resolvedModel)) {
+                return translator;
+            }
+            if (translator != null) {
+                translator.close();
+            }
+            translator = "fp32".equals(key)
+                    ? MiniLMEmbeddingTranslator.fp32()
+                    : MiniLMEmbeddingTranslator.int8();
+            resolvedModel = key;
+            log.info("[minilm-embedding] 使用 {} 版本模型: {}", key, translator.getClass().getSimpleName());
+            return translator;
+        }
     }
 
     @Override
