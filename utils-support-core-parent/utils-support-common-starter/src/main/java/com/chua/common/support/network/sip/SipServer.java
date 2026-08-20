@@ -460,16 +460,22 @@ public class SipServer extends AbstractServer implements TcpServer {
         }
         String channelId = parts[1];
         String role = parts[2];
-        String sessionToken = parts[3];
-        String ownerId = sessionTokens.get(sessionToken);
-        if (ownerId == null) {
-            log.warn("SIP 数据平面 token 校验失败: channelId={}", channelId);
+        String signature = parts[3];
+        TunnelChannel channel = tunnelChannels.get(channelId);
+        if (channel == null) {
+            log.warn("SIP 数据平面通道不存在: channelId={}", channelId);
             return;
         }
-        TunnelChannel channel = tunnelChannels.get(channelId);
-        if (channel == null
-                || !(channel.aId().equals(ownerId) || channel.bId().equals(ownerId))) {
-            log.warn("SIP 数据平面无权接入: channelId={}, owner={}", channelId, ownerId);
+        // 签名 = HMAC-SHA256(会话token, channelId + role)，分别用通道两端 token 验签
+        SignalConnection a = registry.get(channel.aId());
+        SignalConnection b = registry.get(channel.bId());
+        String expectedA = a != null
+                ? HMacUtils.hmacSha256Hex(a.token(), channelId + role) : null;
+        String expectedB = b != null
+                ? HMacUtils.hmacSha256Hex(b.token(), channelId + role) : null;
+        boolean verified = signature.equals(expectedA) || signature.equals(expectedB);
+        if (!verified) {
+            log.warn("SIP 数据平面签名校验失败: channelId={}, role={}", channelId, role);
             return;
         }
         DataChannel dataChannel = dataChannels.get(channelId);
