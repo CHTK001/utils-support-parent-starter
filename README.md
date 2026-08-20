@@ -546,6 +546,29 @@ mvn clean install -DskipTests
 
 ---
 
+## GraalVM 支持
+
+本项目面向 GraalVM（JDK 25）提供了基础支持：
+
+- **GraalVM JVM 运行**：各模块为 Java 库，可在 GraalVM for JDK 25 上直接编译运行（含 `org.graalvm.js:js` GraalJS 脚本引擎）；
+- **Native Image 元数据**：各模块随 jar 发布 `META-INF/native-image/**`（reflect / resource / proxy / jni 配置），构建原生镜像时自动合并；
+- **native profile**：`utils-support-core-parent` 提供 `-Pnative` 构建 profile（`native-maven-plugin` 1.1.1），已包含 `--enable-native-access=ALL-UNNAMED`（支持 `java.lang.foreign` FFM）。
+
+### 构建原生镜像
+
+```bash
+# 先安装依赖模块
+mvn clean install -DskipTests
+
+# 在应用模块执行（需已安装 GraalVM for JDK 25 并配置 GRAALVM_HOME）
+mvn -Pnative native:compile
+```
+
+### 注意事项
+
+- `NativeUtils` / `NativeLoader` 通过 classpath `/native/{platform}` 目录枚举加载 Rust cdylib，原生镜像中目录枚举不可用；请改用 `NativeUtils.load(libName, null)` 精确加载，或在应用侧用 tracing agent（`-agentlib:native-image-agent`）生成补充反射元数据；
+- 加载 JNI 动态库的模块（如 `utils-support-native-video-codec`）需要动态库位于运行期 `java.library.path`。
+
 ## 贡献
 
 1. Fork 本项目
