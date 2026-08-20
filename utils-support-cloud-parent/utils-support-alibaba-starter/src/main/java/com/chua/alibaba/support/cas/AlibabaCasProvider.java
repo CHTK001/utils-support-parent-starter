@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>{@code email} → 联系人邮箱</li>
  *   <li>{@code privateKeyPem} → AccessKeyId</li>
  *   <li>{@code eabKid} → AccessKeySecret</li>
- *   <li>{@code eabHmacKey} → productCode（证书产品编码，例如 digicert-free-1y）</li>
+ *   <li>{@code eabHmacKey} → productCode（证书产品编码，例如 digicert-free-1-free）</li>
  * </ul>
  *
  * @author CH
@@ -100,7 +100,7 @@ public class AlibabaCasProvider implements AcmeProvider {
      * @param email 联系邮箱（同时用作联系人 username）
      * @param privateKeyPem 阿里云 AccessKeyId
      * @param eabKid AccessKeySecret
-     * @param eabHmacKey 证书产品编码（productCode），如 digicert-free-1y
+     * @param eabHmacKey 证书产品编码（productCode），如 digicert-free-1-free（默认免费版）
      * @return 连接结果
      */
     @Override
@@ -121,13 +121,14 @@ public class AlibabaCasProvider implements AcmeProvider {
                     .setAccessKeySecret(eabKid)
                     .setType("access_key")
                     .setRegionId(serverUrl)
-                    .setEndpoint("cas." + serverUrl + ".aliyuncs.com");
+                    .setEndpoint(resolveEndpoint(serverUrl));
             client = new Client(config);
             this.email = email;
             this.productCode = (eabHmacKey == null || eabHmacKey.isEmpty())
-                    ? "digicert-free-1y" : eabHmacKey;
-            String accountUrl = "cas." + serverUrl + ".aliyuncs.com#ak=" + privateKeyPem;
-            log.info("阿里云 CAS 连接成功: region={}, productCode={}", serverUrl, this.productCode);
+                    ? "digicert-free-1-free" : eabHmacKey;
+            String accountUrl = resolveEndpoint(serverUrl) + "#ak=" + privateKeyPem;
+            log.info("阿里云 CAS 连接成功: region={}, endpoint={}, productCode={}",
+                    serverUrl, resolveEndpoint(serverUrl), this.productCode);
             return AcmeConnectionResult.success(accountUrl, null);
         } catch (Exception e) {
             log.error("阿里云 CAS 连接失败", e);
@@ -354,6 +355,24 @@ public class AlibabaCasProvider implements AcmeProvider {
         client = null;
         email = null;
         productCode = null;
+    }
+
+    /**
+     * 解析 CAS 服务接入点。
+     * <p>华东1（杭州）公网接入地址为 {@code cas.aliyuncs.com}（无地域前缀），
+     * 其它地域为 {@code cas.&lt;regionId&gt;.aliyuncs.com}。</p>
+     *
+     * @param regionId 地域 ID（如 cn-hangzhou）
+     * @return 服务接入点域名
+     */
+    private String resolveEndpoint(String regionId) {
+        if (regionId == null || regionId.isEmpty()) {
+            return "cas.aliyuncs.com";
+        }
+        if ("cn-hangzhou".equalsIgnoreCase(regionId)) {
+            return "cas.aliyuncs.com";
+        }
+        return "cas." + regionId + ".aliyuncs.com";
     }
 
     /** 创建订单并返回 orderId（缓存避免重复下单） */
