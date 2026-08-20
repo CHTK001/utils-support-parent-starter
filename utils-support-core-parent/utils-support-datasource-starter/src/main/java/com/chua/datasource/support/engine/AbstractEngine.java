@@ -142,8 +142,19 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭引擎，释放所有已注册数据源的底层资源。
+     *
+     * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。</p>
+     */
     public void close() {
+        for (EngineDataSource<?> ds : dataSources.values()) {
+            try {
+                ds.close();
+            } catch (Exception ignored) {
+                // 忽略单个数据源关闭异常，继续关闭其余
+            }
+        }
         dataStores.clear();
         dataSources.clear();
     }
