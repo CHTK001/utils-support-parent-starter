@@ -92,7 +92,7 @@ CAS SDK（332 KB）+ Tea 运行时（合计约 100 KB）属于阿里云 OpenAPI 
 | `email` | 联系人邮箱 | `admin@example.com` |
 | `privateKeyPem` | AccessKeyId | `LTAI5txxxxxxxxxxxx` |
 | `eabKid` | AccessKeySecret | `Kxxxxxxxxxxxxxxxxxxx` |
-| `eabHmacKey` | productCode（证书产品编码） | `digicert-free-1y`（默认） |
+| `eabHmacKey` | productCode（证书产品编码） | `digicert-free-1-free`（默认） |
 
 ### AcmeProvider 方法实现
 
@@ -129,7 +129,7 @@ GetCertificateDetail(certificateId) ← 拿证书链 + certIdentifier(PEM) + not
 
 ### 关于免费证书
 
-阿里云 CAS 提供 **Digicert DV 单域名证书** 1 张免费体验（1 年有效期），productCode 通常为 `digicert-free-1y`。免费证书可走完整流程（申请 → DNS 验证 → 签发 → 下载）。其他品牌（GlobalSign、Wosign、CFCA、Entrust）均为付费套餐，需先在阿里云控制台购买实例（`InstanceId`），下单时通过 `productCode` 指定。
+阿里云 CAS 提供 **Digicert DV 单域名证书** 免费体验（默认 3 个月有效期，可按账号额度申领多张），productCode 为 `digicert-free-1-free`。免费证书可走完整流程（申请 → DNS 验证 → 签发 → 下载）。其他品牌（GlobalSign、Wosign、CFCA、Entrust）均为付费套餐，需先在阿里云控制台购买实例（`InstanceId`），下单时通过 `productCode` 指定。
 
 ### 已知限制
 
