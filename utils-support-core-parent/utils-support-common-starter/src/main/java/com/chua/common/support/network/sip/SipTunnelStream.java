@@ -69,8 +69,9 @@ class SipTunnelStream {
         socket.setTcpNoDelay(true);
         socket.connect(new java.net.InetSocketAddress(host, port), 5000);
         this.out = socket.getOutputStream();
+        String signature = com.chua.common.support.lang.algorithm.hmac.HMacUtils.hmacSha256Hex(token, channelId + role);
         out.write((SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR
-                + channelId + SipProtocol.SEPARATOR + role + SipProtocol.SEPARATOR + token + "\n")
+                + channelId + SipProtocol.SEPARATOR + role + SipProtocol.SEPARATOR + signature + "\n")
                 .getBytes(StandardCharsets.UTF_8));
         out.flush();
     }
