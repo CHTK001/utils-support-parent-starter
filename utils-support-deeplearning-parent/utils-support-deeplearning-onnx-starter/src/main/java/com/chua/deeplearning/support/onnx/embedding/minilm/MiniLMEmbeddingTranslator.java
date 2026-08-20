@@ -128,11 +128,8 @@ public class MiniLMEmbeddingTranslator {
                 .glob("*")
                 .withMd5(true)
                 .extractOnly(true)
+                .cacheable(false)
                 .load();
-
-        if (!Files.isDirectory(modelDir)) {
-            log.warn("[MiniLM] 模型目录未生成，尝试直接 lookup...");
-        }
 
         Path modelPath = modelDir.resolve(modelFile);
         Path vocabPath = modelDir.resolve(VOCAB_FILE);

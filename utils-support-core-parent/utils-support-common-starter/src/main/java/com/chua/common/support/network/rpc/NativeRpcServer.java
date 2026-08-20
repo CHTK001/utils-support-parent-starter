@@ -12,7 +12,6 @@ import com.chua.common.support.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -289,7 +288,7 @@ public class NativeRpcServer implements RpcServer {
         if (tcpServer != null) {
             try {
                 tcpServer.close();
-            } catch (IOException ignored) {
+            } catch (Exception ignored) {
             }
         }
         if (serviceDiscovery != null) {

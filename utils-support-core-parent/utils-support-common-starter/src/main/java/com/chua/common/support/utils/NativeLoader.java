@@ -72,6 +72,8 @@ public class NativeLoader {
     private boolean md5;
     /** Extractonly */
     private boolean extractOnly;
+    /** 是否启用全局 taskId 缓存（默认 true；同一 JVM 内同 taskId 只提取一次） */
+    private boolean useCache;
     /**
      * 自定义 classpath 基础路径，覆盖默认的 native/{platformDir}/。
      * 设置后从指定路径抽取任意资源文件（如模型目录 models/minimind/）。
@@ -88,6 +90,7 @@ public class NativeLoader {
         this.glob = "*.dll";
         this.md5 = true;
         this.extractOnly = false;
+        this.useCache = true;
     }
 
     /**
@@ -147,6 +150,22 @@ public class NativeLoader {
     }
 
     /**
+     * 是否启用全局 taskId 缓存。
+     * <p>
+     * 默认 {@code true}：同一 JVM 内同 taskId 只会提取一次，后续调用直接跳过。
+     * 若每次调用都使用新的空目标目录（如按临时目录加载模型），应设为 {@code false}，
+     * 保证每次执行都重新提取资源。
+     * </p>
+     *
+     * @param useCache {@code true} 启用缓存（默认）；{@code false} 每次执行都重新提取
+     * @return this
+     */
+    public NativeLoader cacheable(boolean useCache) {
+        this.useCache = useCache;
+        return this;
+    }
+
+    /**
      * 设置自定义 classpath 基础路径，覆盖默认的 native/{platformDir}/。
      * <p>
      * 默认从 classpath:/native/{platformDir}/ 抽取原生库；
@@ -168,15 +187,17 @@ public class NativeLoader {
      * 同一 taskId 只会执行一次，后续直接返回。
      */
     public void load() {
-        if (LOADED.containsKey(taskId)) {
+        if (useCache && LOADED.containsKey(taskId)) {
             return;
         }
         synchronized (NativeLoader.class) {
-            if (LOADED.containsKey(taskId)) {
+            if (useCache && LOADED.containsKey(taskId)) {
                 return;
             }
             doLoad();
-            LOADED.put(taskId, Boolean.TRUE);
+            if (useCache) {
+                LOADED.put(taskId, Boolean.TRUE);
+            }
         }
     }
 
