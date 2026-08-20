@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @Slf4j
 @SpiDescribe("高斯模糊滤镜")
@@ -81,7 +81,7 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     /**
      * 执行一维高斯模糊卷积
      *
-     * 对图像的一个颜色通道进行一维高斯卷积运算。通过分离的水平和垂直卷积
+     * 对图像的一个颜色通道进行一维高斯卷积运算。通过分离的水平垂直卷积
      * 来实现二维高斯模糊，这种方法比直接二维卷积更高效。
      *
      * @param inPixels  输入像素数据数组
@@ -138,7 +138,8 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         final int size = width * height;
-        // = 3; // RGB三个颜色通道
+        // RGB三个颜色通道
+        // = 3;
         int dims = 3;
 
         // 生成高斯卷积核
@@ -153,7 +154,6 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
             final int channelIndex = i;
             service.submit(new Callable<Void>() {
                 @Override
-                /** 调用 */
                 public Void call() throws Exception {
                     byte[] inPixels = toColorByte(channelIndex);
                     byte[] tempPixels = new byte[size];
@@ -225,7 +225,8 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
             // 精确计算归一化因子
             sum = kernel[0];
             for (int i = 1; i < kRadius; i++) {
-                // * kernel[i]; // 对称性，每个非零项计算两次
+                // 对称性，每个非零项计算两次
+                // * kernel[i];
                 sum += 2 * kernel[i];
             }
         } else {

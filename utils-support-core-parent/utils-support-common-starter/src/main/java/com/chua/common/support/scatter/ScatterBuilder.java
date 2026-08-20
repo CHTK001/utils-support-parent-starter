@@ -1,280 +1,237 @@
 package com.chua.common.support.scatter;
 
-import com.chua.common.support.network.discovery.Discovery;
-import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.Arrays;
-import java.util.List;
+import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.tcp.TcpClient;
+import com.chua.common.support.network.tcp.TcpServer;
+import com.chua.common.support.scatter.discovery.AbstractScatterDiscovery;
+import com.chua.common.support.scatter.discovery.RouteModeDiscovery;
+import com.chua.common.support.scatter.discovery.SeedModeDiscovery;
+import com.chua.common.support.scatter.node.ScatterNodeHandler;
+import com.chua.common.support.scatter.node.ScatterTcpNodeServer;
+import com.chua.common.support.scatter.node.ScatterNodeServer;
+import com.chua.common.support.scatter.node.ScatterTcpNodeServer;
+import com.chua.common.support.scatter.node.UdpScatterNodeServer;
 
 /**
- * Scatter 链式构建器基类。
- * <p>统一入口仅暴露 {@link #udp()}、{@link #tcp()}、{@link #kcp()} 三个静态方法，
- * 分别返回对应协议的构造对象（协议固定，无需手动选择）。</p>
+ * scatter 构建器（仅 tcp/udp 两协议）。
  *
- * <p>配置项：groupId 业务分组、host/port、seeds 引导节点（host 或 host:port）、
- * subnet 网段模式（固定相同端口扩散）、servicePath、balance 负载均衡等。</p>
+ * <p>SPI 注入（未启动前）：{@code spiName} 指定实现（如 "tcp"/"vertx-tcp"），
+ * 或直接注入 {@code server}/{@code client} 实现对象；都为空则默认 jdk 实现。</p>
  *
- * @param <B> 构建器子类型
+ * @param <B> 构建器自身类型
+ * @author CH
  * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")
 public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
 
-    /**
-     * 配置对象
-     */
     protected final ScatterSetting setting;
 
-    /**
-     * 协议标识
-     */
-    private final String protocol;
-
-    /**
-     * 构造构建器。
-     *
-     * @param protocol 传输协议：udp / tcp / kcp
-     */
     protected ScatterBuilder(String protocol) {
         this(protocol, new ScatterSetting());
     }
 
-    /**
-     * 构造构建器。
-     *
-     * @param protocol 传输协议：udp / tcp / kcp
-     * @param setting  配置对象
-     */
     protected ScatterBuilder(String protocol, ScatterSetting setting) {
-        this.protocol = protocol;
         this.setting = setting == null ? new ScatterSetting() : setting;
         this.setting.setProtocol(protocol);
     }
 
-    /**
-     * 创建 UDP 广播模式构建器（仅支持广播，seed 设置 224 组播地址）。
-     *
-     * @return UDP 构建器
-     */
     public static UdpScatterBuilder udp() {
         return new UdpScatterBuilder();
     }
 
-    /**
-     * 创建 TCP 构建器（seed 引导 / 网段模式）。
-     *
-     * @return TCP 构建器
-     */
     public static TcpScatterBuilder tcp() {
         return new TcpScatterBuilder();
     }
 
-    /**
-     * 创建 KCP 构建器（seed 引导 / 网段模式）。
-     *
-     * @return KCP 构建器
-     */
-    public static KcpScatterBuilder kcp() {
-        return new KcpScatterBuilder();
-    }
-
-    /**
-     * 设置节点ID。
-     *
-     * @param nodeId 节点ID
-     * @return 当前构建器
-     */
     public B nodeId(String nodeId) {
         setting.setNodeId(nodeId);
         return (B) this;
     }
 
-    /**
-     * 设置业务分组（等价 scatterId，仅与同分组节点扩散）。
-     *
-     * @param groupId 分组
-     * @return 当前构建器
-     */
     public B groupId(String groupId) {
         setting.setGroupId(groupId);
         return (B) this;
     }
 
-    /**
-     * 设置主机地址。
-     *
-     * @param host 主机
-     * @return 当前构建器
-     */
     public B host(String host) {
         setting.setHost(host);
         return (B) this;
     }
 
-    /**
-     * 设置端口（数据同步 + 心跳共用）。
-     *
-     * @param port 端口
-     * @return 当前构建器
-     */
     public B port(int port) {
         setting.setPort(port);
         return (B) this;
     }
 
-    /**
-     * 设置 seed 节点地址列表（host 或 host:port，未指定端口用默认端口）。
-     *
-     * @param addresses seed 地址
-     * @return 当前构建器
-     */
-    public B seeds(String... addresses) {
-        setting.setSeeds(Arrays.asList(addresses));
+    public B announceHost(String announceHost) {
+        setting.setAnnounceHost(announceHost);
         return (B) this;
     }
 
-    /**
-     * 设置 seed 节点地址列表。
-     *
-     * @param addresses seed 地址列表
-     * @return 当前构建器
-     */
-    public B seeds(List<String> addresses) {
-        setting.setSeeds(addresses);
-        return (B) this;
-    }
-
-    /**
-     * 设置网段模式（如 192.168.1.0/24，固定相同端口扩散）。
-     *
-     * @param subnet 网段
-     * @return 当前构建器
-     */
-    public B subnet(String subnet) {
-        setting.setSubnet(subnet);
-        return (B) this;
-    }
-
-    /**
-     * 设置默认全局端口（seed 未指定端口时使用）。
-     *
-     * @param defaultPort 默认端口
-     * @return 当前构建器
-     */
-    public B defaultPort(int defaultPort) {
-        setting.setDefaultPort(defaultPort);
-        return (B) this;
-    }
-
-    /**
-     * 设置服务路径。
-     *
-     * @param servicePath 服务路径
-     * @return 当前构建器
-     */
     public B servicePath(String servicePath) {
         setting.setServicePath(servicePath);
         return (B) this;
     }
 
-    /**
-     * 设置负载均衡策略。
-     *
-     * @param balance weight / random / round-robin
-     * @return 当前构建器
-     */
-    public B balance(String balance) {
-        setting.setBalance(balance);
+    /** 路由模式：设置网段（如 "192.168.1.0/24"）。 */
+    public B subnet(String subnet) {
+        setting.setSubnet(subnet);
+        return (B) this;
+    }
+
+    /** seed 引导模式：设置 seed 地址列表。 */
+    public B seeds(String... addresses) {
+        setting.setSeeds(java.util.Arrays.asList(addresses));
+        return (B) this;
+    }
+
+    public B seeds(java.util.List<String> addresses) {
+        setting.setSeeds(addresses);
+        return (B) this;
+    }
+
+    /** SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk。 */
+    public B spiName(String spiName) {
+        setting.setSpiName(spiName);
+        return (B) this;
+    }
+
+    /** 直接注入服务端实现对象（未启动）。 */
+    public B server(TcpServer server) {
+        setting.setServer(server);
+        return (B) this;
+    }
+
+    /** 直接注入客户端实现对象（未启动）。 */
+    public B client(TcpClient client) {
+        setting.setClient(client);
+        return (B) this;
+    }
+
+    public B autoDiscoveryInterval(long millis) {
+        setting.setAutoDiscoveryIntervalMillis(millis);
+        return (B) this;
+    }
+
+    public B heartbeatInterval(long millis) {
+        setting.setHeartbeatIntervalMillis(millis);
+        return (B) this;
+    }
+
+    public B failRemoveCount(int count) {
+        setting.setFailRemoveCount(count);
+        return (B) this;
+    }
+
+    public B timeoutMillis(long millis) {
+        setting.setTimeoutMillis(millis);
+        return (B) this;
+    }
+
+    public B persistenceEnabled(boolean enabled) {
+        setting.setPersistenceEnabled(enabled);
         return (B) this;
     }
 
     /**
-     * 设置超时时间。
+     * 构建节点服务端。
      *
-     * @param timeoutMillis 超时（毫秒）
-     * @return 当前构建器
+     * @param handler 帧处理器（discovery）
+     * @return 节点服务端
      */
-    public B timeout(long timeoutMillis) {
-        setting.setTimeoutMillis(timeoutMillis);
-        return (B) this;
+    public ScatterNodeServer buildNodeServer(ScatterNodeHandler handler) {
+        ServerSetting serverSetting = ServerSetting.defaults();
+        serverSetting.setHost(setting.getHost());
+        serverSetting.setPort(setting.getPort());
+        serverSetting.setProtocol(setting.getProtocol());
+        serverSetting.setBacklog(2048);
+        if ("udp".equalsIgnoreCase(setting.getProtocol())) {
+            return new ScatterNodeServerWrapper(
+                    new UdpScatterNodeServer(serverSetting, handler), setting);
+        }
+        return new ScatterNodeServerWrapper(
+                new ScatterTcpNodeServer(serverSetting, handler), setting);
     }
 
     /**
-     * 设置自动发现间隔。
+     * 构建远程客户端（短连接）。
      *
-     * @param intervalMillis 间隔（毫秒）
-     * @return 当前构建器
+     * @return 远程客户端
      */
-    public B autoDiscoveryInterval(long intervalMillis) {
-        setting.setAutoDiscoveryIntervalMillis(intervalMillis);
-        return (B) this;
+    public ScatterRemoteClient buildRemoteClient() {
+        if (setting.getClient() != null) {
+            return new TcpScatterRemoteClient(setting.getClient());
+        }
+        if (setting.getSpiName() != null && !setting.getSpiName().isBlank()) {
+            return com.chua.common.support.spi.ServiceProvider.of(ScatterRemoteClient.class)
+                    .getNewExtension(setting.getSpiName(), setting);
+        }
+        if ("udp".equalsIgnoreCase(setting.getProtocol())) {
+            return new UdpScatterRemoteClient();
+        }
+        return new TcpScatterRemoteClient();
     }
 
     /**
-     * 设置是否启用动态权重（心跳上报 cpu+内存）。
+     * 构建发现服务（按模式选择路由/seed）。
      *
-     * @param dynamicWeight 是否启用
-     * @return 当前构建器
+     * @return 发现服务
      */
-    public B dynamicWeight(boolean dynamicWeight) {
-        setting.setDynamicWeight(dynamicWeight);
-        return (B) this;
+    public AbstractScatterDiscovery buildDiscovery() {
+        AbstractScatterDiscovery discovery;
+        if (setting.getSubnet() != null && !setting.getSubnet().isBlank()) {
+            discovery = new RouteModeDiscovery(setting);
+        } else {
+            discovery = new SeedModeDiscovery(setting);
+        }
+        discovery.remoteClient(buildRemoteClient());
+        return discovery;
     }
 
     /**
-     * 获取配置对象。
+     * 聚合入口：构建完整 scatter（discovery + nodeServer 组装）。
      *
-     * @return 配置对象
-     */
-    public ScatterSetting setting() {
-        return setting;
-    }
-
-    /**
-     * 获取传输协议。
-     *
-     * @return 协议标识
-     */
-    public String protocol() {
-        return protocol;
-    }
-
-    /**
-     * 构建节点门面（服务发现 + 自身即 TCP 代理）。
-     *
-     * @return Scatter 实例
+     * @return Scatter 聚合实例
      */
     public Scatter build() {
-        return new DefaultScatter(setting);
+        return new DefaultScatter(this);
     }
 
-    /**
-     * 构建服务发现（无中心化 Inmem 发现）。
-     *
-     * @return 服务发现实例
-     */
-    public ScatterServiceDiscovery buildDiscovery() {
-        return new DefaultScatterServiceDiscovery(setting);
-    }
+    /** 节点服务端包装：桥接 ScatterNodeServer 接口。 */
+    private static final class ScatterNodeServerWrapper implements ScatterNodeServer {
+        private final AutoCloseable delegate;
+        private final ScatterSetting setting;
 
-    /**
-     * 构建远程客户端，按当前协议通过 SPI 创建。
-     *
-     * @return 远程客户端，未找到对应协议实现时返回 null
-     */
-    @SuppressWarnings("unchecked")
-    public ScatterRemoteClient<Discovery> buildRemoteClient() {
-        ScatterRemoteClient<?> client = ServiceProvider.of(ScatterRemoteClient.class)
-                .getNewExtension(protocol, setting);
-        return (ScatterRemoteClient<Discovery>) client;
-    }
+        ScatterNodeServerWrapper(AutoCloseable delegate, ScatterSetting setting) {
+            this.delegate = delegate;
+            this.setting = setting;
+        }
 
-    /**
-     * 构建节点服务，按当前协议通过 SPI 创建。
-     *
-     * @return 节点服务，未找到对应协议实现时返回 null
-     */
-    public ScatterNodeServer buildNodeServer() {
-        return ServiceProvider.of(ScatterNodeServer.class).getNewExtension(protocol, setting);
+        @Override
+        public void start() throws Exception {
+            if (delegate instanceof com.chua.common.support.network.server.Server s) {
+                s.start();
+            } else if (delegate instanceof Runnable r) {
+                r.run();
+            }
+        }
+
+        @Override
+        public void stop() throws Exception {
+            if (delegate instanceof com.chua.common.support.network.server.Server s) {
+                s.stop();
+            } else {
+                delegate.close();
+            }
+        }
+
+        @Override
+        public int getPort() {
+            if (delegate instanceof com.chua.common.support.network.server.Server s) {
+                return s.getPort();
+            }
+            return setting.getPort();
+        }
     }
 }

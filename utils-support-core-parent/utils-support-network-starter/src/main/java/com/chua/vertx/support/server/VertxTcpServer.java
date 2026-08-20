@@ -36,7 +36,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Slf4j
 @Spi("vertx-tcp")
-public class VertxTcpServer extends AbstractServer {
+public class VertxTcpServer extends AbstractServer implements com.chua.common.support.network.tcp.TcpServer {
 
     /** Vertx */
     private Vertx vertx;
@@ -46,6 +46,8 @@ public class VertxTcpServer extends AbstractServer {
     private ExecutorService workerPool;
     /** handlers */
     private final Map<String, JdkTcpServer.TcpHandler> handlers = new ConcurrentHashMap<>();
+    /** 帧处理器（TcpServer 接口，短连接一请求一响应） */
+    private com.chua.common.support.network.tcp.callback.TcpServerHandler frameHandler;
 
     /**
      * 创建 VertxTcpServer 实例
@@ -53,6 +55,13 @@ public class VertxTcpServer extends AbstractServer {
      */
     public VertxTcpServer(ServerSetting setting) {
         super(setting);
+    }
+
+    @Override
+    /** 注册帧处理器（TcpServer 接口） */
+    public VertxTcpServer setHandler(com.chua.common.support.network.tcp.callback.TcpServerHandler handler) {
+        this.frameHandler = handler;
+        return this;
     }
 
     @Override
@@ -149,12 +158,80 @@ public class VertxTcpServer extends AbstractServer {
                     socket.close();
                 }
             });
+        } else if (frameHandler != null) {
+            // 帧模式(TcpServer 接口):短连接一请求一响应,读完整帧→处理→写响应→关闭
+            workerPool.submit(() -> {
+                try {
+                    InputStream in = new NetSocketInputStream(socket);
+                    OutputStream out = new NetSocketOutputStream(socket);
+                    byte[] frame = readFrame(in);
+                    if (frame != null) {
+                        byte[] response = frameHandler.handle(frame);
+                        if (response != null) {
+                            out.write(response);
+                            out.flush();
+                        }
+                    }
+                } catch (Exception e) {
+                    log.debug("帧处理异常: {}", e.getMessage());
+                } finally {
+                    socket.close();
+                }
+            });
         } else {
             // 默认回显:事件循环直接写回(非阻塞,高吞吐);
             // 写队列水位放宽到 1MB,避免大报文突发写回时触发背压丢吞吐
             socket.setWriteQueueMaxSize(1024 * 1024);
             socket.handler(socket::write);
         }
+    }
+
+    /**
+     * 读取一帧（ScatterProtocol 布局：magic(1) type(1) requestId(4) pathLen(1) path payloadLen(4) payload）。
+     *
+     * @param in 输入流
+     * @return 完整帧字节，EOF 返回 null
+     */
+    private static byte[] readFrame(InputStream in) throws IOException {
+        byte[] head = new byte[7];
+        int n = readFully(in, head);
+        if (n == -1) {
+            return null;
+        }
+        if (n < 7) {
+            throw new IOException("帧头不完整");
+        }
+        if (head[0] != com.chua.common.support.scatter.protocol.ScatterProtocol.MAGIC) {
+            throw new IOException("帧魔数错误");
+        }
+        int pathLen = head[6] & 0xff;
+        byte[] lenBytes = new byte[4];
+        readFully(in, lenBytes);
+        int payloadLen = ((lenBytes[0] & 0xff) << 24) | ((lenBytes[1] & 0xff) << 16)
+                | ((lenBytes[2] & 0xff) << 8) | (lenBytes[3] & 0xff);
+        byte[] rest = new byte[pathLen + payloadLen];
+        readFully(in, rest);
+        byte[] full = new byte[7 + pathLen + 4 + payloadLen];
+        System.arraycopy(head, 0, full, 0, 7);
+        System.arraycopy(rest, 0, full, 7, pathLen + payloadLen);
+        // 重建 payloadLen 字节（在 path 之后）
+        full[7 + pathLen] = lenBytes[0];
+        full[7 + pathLen + 1] = lenBytes[1];
+        full[7 + pathLen + 2] = lenBytes[2];
+        full[7 + pathLen + 3] = lenBytes[3];
+        return full;
+    }
+
+    private static int readFully(InputStream in, byte[] buf) throws IOException {
+        int total = 0;
+        while (total < buf.length) {
+            int r = in.read(buf, total, buf.length - total);
+            if (r == -1) {
+                return total == 0 ? -1 : total;
+            }
+            total += r;
+        }
+        return total;
     }
 
     /** 查找Handler */

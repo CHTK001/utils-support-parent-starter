@@ -97,8 +97,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("scrfd-face-detector", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/scrfd/2.5g_bnkps.onnx", "https://huggingface.co/RuteNL/SCRFD-face-detection-ONNX/resolve/main/2.5g_bnkps.onnx", false, null);
         // 人脸检测(UltraFace)：超轻量人脸检测，320x240 输入，适合移动端/边缘设备；适用嵌入式人脸检测
         reg("ultra-face", "com.chua.deeplearning.support.onnx.face.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/face_detection_sdk/RFB.onnx", "https://huggingface.co/onnxmodelzoo/version-RFB-320/resolve/main/version-RFB-320.onnx", false, null);
-        // 人脸检测(RetinaFace)：AIAS traced 导出，任意输入尺寸，输出 5 点关键点；适用人脸修复/对齐前置
-        reg("onnx-retinaface", "com.chua.deeplearning.support.onnx.face.OnnxRetinaFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/retinaface/retinaface_v1.onnx");
+        // 人脸检测(RetinaFace R34)：ResNet34 骨干，输出人脸框+5 点关键点；适用人脸检测/对齐
+        reg("retinaface-r34", "com.chua.deeplearning.support.onnx.face.OnnxRetinaFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/retinaface/retinaface_r34.onnx");
         // 人脸分割(ParseNet)：AIAS traced 导出，输出人脸软 mask；适用修复后贴回原图
         reg("onnx-parsenet", "com.chua.deeplearning.support.onnx.face.OnnxFaceSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "face/segmentation/parsenet/parsenet.onnx");
         // CLIP图像特征(CLIP-ViT-B-32)：提取英文 CLIP 图像特征向量（512维），与 CLIP 文本特征比对；适用图文检索、图像零样本分类
@@ -358,6 +358,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("fer-plus", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/expression/FER/FER.onnx");
         // 文本嵌入(MiniLM-L6-v2)：离线版英文句向量（384维），jar 内嵌，用于语义搜索；适用英文语义搜索、向量检索
         reg("minilm-embedding", "com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm/model_quantized.onnx");
+        // 文本嵌入(MiniLM-L6-v2 fp32)：离线版英文句向量（384维），fp32 高精度版，jar 内嵌；适用精度优先的英文语义搜索
+        reg("minilm-fp32-embedding", "com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm/MiniLM.onnx");
         // 卡片矫正检测(Card Correction)：检测卡片类图片（身份证、名片等）四角点；适用文档扫描、证件识别
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
         // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测；适用停车场、出入口车牌识别

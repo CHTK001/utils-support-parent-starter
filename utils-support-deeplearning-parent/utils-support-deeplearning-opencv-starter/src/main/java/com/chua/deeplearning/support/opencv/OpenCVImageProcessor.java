@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * 基于 OpenCV 的图像处理器
@@ -69,6 +70,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
                 case "brightness" -> brightness(mat, params);
                 case "contrast" -> contrast(mat, params);
                 case "border" -> border(mat, params);
+                case "edge" -> edge(mat, params);
+                case "templateMatch" -> templateMatch(mat, params);
                 default -> mat;
             };
             return imencode(result, params);
@@ -236,6 +239,210 @@ public class OpenCVImageProcessor implements ImageProcessor {
         Mat dst = new Mat();
         Core.copyMakeBorder(src, dst, width, width, width, width, Core.BORDER_CONSTANT, color);
         return dst;
+    }
+
+    /**
+     * 边缘检测（Canny / Sobel）
+     *
+     * <p>支持两种算法：
+     * <ul>
+     *   <li>canny（默认）：双阈值边缘检测，效果好</li>
+     *   <li>sobel：Sobel 算子边缘检测</li>
+     * </ul>
+     *
+     * @param src    源图像
+     * @param params 参数：method（canny / sobel，默认 canny），
+     *               threshold1（Canny 低阈值，默认 50），
+     *               threshold2（Canny 高阈值，默认 150），
+     *               direction（sobel 方向：h / v / both，默认 both）
+     * @return 边缘检测后的灰度图像
+     */
+    private Mat edge(Mat src, Map<String, Object> params) {
+        String method = params.get("method") != null ? params.get("method").toString() : "canny";
+        Mat gray = new Mat();
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+
+        Mat result = new Mat();
+        if ("sobel".equalsIgnoreCase(method)) {
+            // Sobel 边缘检测
+            String direction = params.get("direction") != null ? params.get("direction").toString() : "both";
+            Mat gradX = new Mat();
+            Mat gradY = new Mat();
+            Imgproc.Sobel(gray, gradX, CvType.CV_16S, 1, 0);
+            Imgproc.Sobel(gray, gradY, CvType.CV_16S, 0, 1);
+
+            Mat absX = new Mat();
+            Mat absY = new Mat();
+            Core.convertScaleAbs(gradX, absX);
+            Core.convertScaleAbs(gradY, absY);
+
+            if ("h".equalsIgnoreCase(direction)) {
+                result = absX;
+                gradY.release();
+                absY.release();
+            } else if ("v".equalsIgnoreCase(direction)) {
+                result = absY;
+                gradX.release();
+                absX.release();
+            } else {
+                Core.addWeighted(absX, 0.5, absY, 0.5, 0, result);
+                absX.release();
+                absY.release();
+            }
+            gradX.release();
+            gradY.release();
+        } else {
+            // Canny 边缘检测（默认）
+            int threshold1 = toInt(params.get("threshold1"), 50);
+            int threshold2 = toInt(params.get("threshold2"), 150);
+            Imgproc.Canny(gray, result, threshold1, threshold2);
+        }
+        gray.release();
+        return result;
+    }
+
+    /**
+     * 模板匹配
+     *
+     * <p>在源图像中搜索与模板图像最匹配的区域，返回匹配结果。
+     * 支持多种匹配方法，默认使用 TM_CCOEFF_NORMED（归一化相关系数）。</p>
+     *
+     * <p>参数说明：
+     * <ul>
+     *   <li>template：模板图像字节数据（必须提供）</li>
+     *   <li>method：匹配方法（ccoeff_normed / ccorr_normed / sqdiff_normed，默认 ccoeff_normed）</li>
+     *   <li>threshold：匹配阈值（0~1，默认 0.8），仅返回高于此阈值的匹配</li>
+     *   <li>maxCount：最大匹配数量（默认 10）</li>
+     *   <li>drawMatch：是否在结果图像上绘制匹配框（默认 true）</li>
+     * </ul>
+     *
+     * <p>返回值：匹配结果通过 params["matchResult"] 传出（List&lt;Map&gt;），每项包含：
+     * x, y, width, height, score</p>
+     *
+     * @param src    源图像
+     * @param params 参数
+     * @return 绘制了匹配框的源图像（或原始图像）
+     */
+    private Mat templateMatch(Mat src, Map<String, Object> params) {
+        // 获取模板图像
+        Object templateObj = params.get("template");
+        if (templateObj == null) {
+            throw new IllegalArgumentException("模板匹配需要提供 template 参数（模板图像字节数据）");
+        }
+        byte[] templateBytes;
+        if (templateObj instanceof byte[]) {
+            templateBytes = (byte[]) templateObj;
+        } else {
+            throw new IllegalArgumentException("template 参数类型必须为 byte[]（图像字节数据）");
+        }
+
+        Mat template = imdecode(templateBytes);
+        if (template.empty()) {
+            throw new IllegalArgumentException("无法解码模板图像数据");
+        }
+
+        try {
+            // 匹配方法
+            int method = parseMatchMethod(params.get("method") != null ? params.get("method").toString() : "ccoeff_normed");
+
+            // 执行模板匹配
+            Mat result = new Mat();
+            Imgproc.matchTemplate(src, template, result, method);
+
+            // 阈值过滤
+            double threshold = params.get("threshold") != null ? ((Number) params.get("threshold")).doubleValue() : 0.8;
+            int maxCount = toInt(params.get("maxCount"), 10);
+            boolean drawMatch = params.get("drawMatch") == null || Boolean.parseBoolean(params.get("drawMatch").toString());
+
+            // 查找匹配位置（NMS 简化版）
+            List<Map<String, Object>> matches = new ArrayList<>();
+            int tw = template.cols();
+            int th = template.rows();
+
+            // 对于 sqdiff 方法，值越小越好；其他方法值越大越好
+            boolean lowerBetter = method == Imgproc.TM_SQDIFF || method == Imgproc.TM_SQDIFF_NORMED;
+
+            // 遍历结果矩阵寻找匹配点
+            for (int i = 0; i < maxCount; i++) {
+                Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
+                double bestVal = lowerBetter ? mmr.minVal : mmr.maxVal;
+                Point bestLoc = lowerBetter ? mmr.minLoc : mmr.maxLoc;
+
+                // 检查是否满足阈值
+                boolean meetsThreshold = lowerBetter ? (bestVal <= (1.0 - threshold)) : (bestVal >= threshold);
+                if (!meetsThreshold) {
+                    break;
+                }
+
+                int x = (int) bestLoc.x;
+                int y = (int) bestLoc.y;
+                Map<String, Object> match = new HashMap<>();
+                match.put("x", x);
+                match.put("y", y);
+                match.put("width", tw);
+                match.put("height", th);
+                match.put("score", bestVal);
+                matches.add(match);
+
+                // 抑制该匹配区域（避免重复检测）
+                int suppressX1 = Math.max(0, x - tw / 2);
+                int suppressY1 = Math.max(0, y - th / 2);
+                int suppressX2 = Math.min(result.cols(), x + tw);
+                int suppressY2 = Math.min(result.rows(), y + th);
+                if (suppressX2 > suppressX1 && suppressY2 > suppressY1) {
+                    Mat suppressRegion = result.rowRange(suppressY1, suppressY2).colRange(suppressX1, suppressX2);
+                    if (lowerBetter) {
+                        suppressRegion.setTo(new Scalar(1.0));
+                    } else {
+                        suppressRegion.setTo(new Scalar(0.0));
+                    }
+                    suppressRegion.release();
+                }
+            }
+
+            // 将匹配结果放入 params 供调用方获取
+            params.put("matchResult", matches);
+
+            // 绘制匹配框
+            Mat output = new Mat();
+            if (drawMatch && !matches.isEmpty()) {
+                src.copyTo(output);
+                Scalar boxColor = new Scalar(0, 255, 0); // BGR: 绿色
+                Scalar textColor = new Scalar(0, 0, 255); // BGR: 红色
+                for (Map<String, Object> match : matches) {
+                    int mx = (int) match.get("x");
+                    int my = (int) match.get("y");
+                    Imgproc.rectangle(output, new Point(mx, my), new Point(mx + tw, my + th), boxColor, 2);
+                    String label = String.format("%.2f", ((Number) match.get("score")).doubleValue());
+                    Imgproc.putText(output, label, new Point(mx, my - 5), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, textColor, 1);
+                }
+            } else {
+                src.copyTo(output);
+            }
+
+            result.release();
+            return output;
+        } finally {
+            template.release();
+        }
+    }
+
+    /**
+     * 解析模板匹配方法
+     *
+     * @param methodStr 方法名称
+     * @return OpenCV 匹配方法常量
+     */
+    private int parseMatchMethod(String methodStr) {
+        return switch (methodStr.toLowerCase()) {
+            case "sqdiff" -> Imgproc.TM_SQDIFF;
+            case "sqdiff_normed" -> Imgproc.TM_SQDIFF_NORMED;
+            case "ccorr" -> Imgproc.TM_CCORR;
+            case "ccorr_normed" -> Imgproc.TM_CCORR_NORMED;
+            case "ccoeff" -> Imgproc.TM_CCOEFF;
+            case "ccoeff_normed" -> Imgproc.TM_CCOEFF_NORMED;
+            default -> Imgproc.TM_CCOEFF_NORMED;
+        };
     }
 
     /**

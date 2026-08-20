@@ -8,7 +8,6 @@ import ai.djl.modality.cv.output.Point;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
@@ -17,6 +16,7 @@ import ai.djl.translate.TranslatorContext;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RetinaFace 人脸检测 Translator（ONNX 版，AIAS traced 导出）。
@@ -29,40 +29,30 @@ import java.util.List;
  */
 public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjects> {
 
-    /**
-     * TopK。
-     */
     private static final int TOP_K = 200;
-
-    /**
-     * 双眼最小距离（规范化阈值，乘以图宽）。
-     */
     private static final double EYE_DIST_THRESHOLD = 5;
-
-    /**
-     * 置信度阈值。
-     */
-    private static final double CONF_THRESH = 0.85;
-
-    /**
-     * NMS 阈值。
-     */
-    private static final double NMS_THRESH = 0.45;
-
-    /**
-     * 框与关键点回归方差。
-     */
     private static final double[] VARIANCE = {0.1, 0.2};
-
-    /**
-     * 每层 anchor 尺寸。
-     */
     private static final int[][] SCALES = {{16, 32}, {64, 128}, {256, 512}};
-
-    /**
-     * 每层步长。
-     */
     private static final int[] STEPS = {8, 16, 32};
+
+    private double confThresh = 0.85;
+    private double nmsThresh = 0.45;
+
+    public OnnxRetinaFaceTranslator() {
+    }
+
+    public OnnxRetinaFaceTranslator(Map<String, ?> arguments) {
+        if (arguments != null) {
+            Object ct = arguments.get("threshold");
+            if (ct instanceof Number) {
+                confThresh = ((Number) ct).doubleValue();
+            }
+            Object nt = arguments.get("nms");
+            if (nt instanceof Number) {
+                nmsThresh = ((Number) nt).doubleValue();
+            }
+        }
+    }
 
     /**
      * 输入图像宽。
@@ -118,7 +108,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             float[] landms = landmArr[i];
             // 只取人脸类的概率
             float faceProb = conf.length > 1 ? conf[1] : conf[0];
-            if (faceProb < CONF_THRESH) {
+            if (faceProb < confThresh) {
                 continue;
             }
             double scaleXY = VARIANCE[0];
@@ -145,7 +135,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             boolean keep = true;
             for (BoundingBox b : boxes) {
                 Rectangle nb = b.getBounds();
-                if (iouPixels(c, nb) > NMS_THRESH) {
+                if (iouPixels(c, nb) > nmsThresh) {
                     keep = false;
                     break;
                 }
@@ -215,16 +205,23 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-     * NDArray 转二维 float 数组（去掉 batch 维）。
+     * NDArray 转二维 float 数组（处理 batch 维）。
      */
     private static float[][] to2d(NDArray array) {
-        NDArray a = array;
-        if (a.getShape().dimension() == 3 && a.getShape().get(0) == 1) {
-            a = a.squeeze(0);
+        Shape shape = array.getShape();
+        float[] flat = array.toFloatArray();
+        if (shape.dimension() == 3) {
+            long batch = shape.get(0);
+            long rows = shape.get(1);
+            int cols = (int) shape.get(2);
+            float[][] out = new float[(int) rows][cols];
+            for (int i = 0; i < rows; i++) {
+                System.arraycopy(flat, (int) (i * batch * cols), out[i], 0, cols);
+            }
+            return out;
         }
-        float[] flat = a.toFloatArray();
-        long rows = a.getShape().get(0);
-        int cols = (int) a.getShape().get(1);
+        long rows = shape.get(0);
+        int cols = (int) shape.get(1);
         float[][] out = new float[(int) rows][cols];
         for (int i = 0; i < rows; i++) {
             System.arraycopy(flat, i * cols, out[i], 0, cols);
@@ -261,8 +258,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     @Override
-    /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+        return null;
     }
 }

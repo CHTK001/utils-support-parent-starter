@@ -49,6 +49,7 @@ public class JdkImageProcessor implements ImageProcessor {
                 case "denoise" -> denoise(image, params);
                 case "erode" -> erode(image, params);
                 case "dilate" -> dilate(image, params);
+                case "edge" -> edge(image, params);
                 default -> image;
             };
             return encode(result, params);
@@ -419,6 +420,62 @@ public class JdkImageProcessor implements ImageProcessor {
                 }
                 int val = Math.max(0, Math.min(255, best));
                 result.setRGB(x, y, (255 << 24) | (val << 16) | (val << 8) | val);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 边缘检测（Sobel 算子）
+     *
+     * <p>使用 Sobel 算子检测图像边缘，支持水平和垂直方向。
+     * 先将图像转为灰度，然后分别应用水平和垂直 Sobel 算子，
+     * 最后通过梯度幅值合成边缘图像。</p>
+     *
+     * @param image  源图像
+     * @param params 参数：direction（h 水平 / v 垂直 / both 双向，默认 both）
+     * @return 边缘检测后的灰度图像
+     */
+    private BufferedImage edge(BufferedImage image, Map<String, Object> params) {
+        String direction = params.get("direction") != null ? params.get("direction").toString() : "both";
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage gray = grayscale(image);
+
+        // Sobel 算子
+        int[] sobelX = {-1, 0, 1, -2, 0, 2, -1, 0, 1}; // 水平方向（检测垂直边缘）
+        int[] sobelY = {-1, -2, -1, 0, 0, 0, 1, 2, 1}; // 垂直方向（检测水平边缘）
+
+        BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+
+        for (int y = 1; y < h - 1; y++) {
+            for (int x = 1; x < w - 1; x++) {
+                int gx = 0, gy = 0;
+                // 3x3 卷积
+                for (int ky = -1; ky <= 1; ky++) {
+                    for (int kx = -1; kx <= 1; kx++) {
+                        int lum = luminance(gray.getRGB(x + kx, y + ky));
+                        int ki = (ky + 1) * 3 + (kx + 1);
+                        if ("v".equalsIgnoreCase(direction)) {
+                            gy += sobelY[ki] * lum;
+                        } else if ("h".equalsIgnoreCase(direction)) {
+                            gx += sobelX[ki] * lum;
+                        } else {
+                            // both: 双向
+                            gx += sobelX[ki] * lum;
+                            gy += sobelY[ki] * lum;
+                        }
+                    }
+                }
+                int magnitude;
+                if ("v".equalsIgnoreCase(direction)) {
+                    magnitude = Math.min(255, Math.abs(gy));
+                } else if ("h".equalsIgnoreCase(direction)) {
+                    magnitude = Math.min(255, Math.abs(gx));
+                } else {
+                    magnitude = Math.min(255, (int) Math.sqrt(gx * gx + gy * gy));
+                }
+                result.setRGB(x, y, (255 << 24) | (magnitude << 16) | (magnitude << 8) | magnitude);
             }
         }
         return result;
