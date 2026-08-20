@@ -9,6 +9,7 @@ import com.chua.deeplearning.support.llama.translator.Gemma4Translator;
 import com.chua.deeplearning.support.llama.translator.MiniCpm5Translator;
 import com.chua.deeplearning.support.llama.translator.NeuTts2eTranslator;
 import com.chua.deeplearning.support.llama.translator.OtzariaEmbeddingTranslator;
+import com.chua.deeplearning.support.llama.translator.Qwen2ChatTranslator;
 
 /**
  * Llama 模型集中注册器。
@@ -59,6 +60,10 @@ public class LlamaModelRegistrar implements ModelRegistrar {
         reg("bitnet-embedding", BitnetEmbeddingTranslator.class.getName(),
                 String.class, float[].class, FeatureExtractor.class,
                 "../llama/bitnet-embeddings-0.6b-bf16-i2_s.gguf");
+        // qwen2-1.5b: text generation
+        reg("qwen2-1.5b", Qwen2ChatTranslator.class.getName(),
+                String.class, String.class, Object.class,
+                "models/llama/qwen2.5-1.5b-instruct-q4_k_m.gguf");
     }
 
     /**
