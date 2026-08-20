@@ -133,7 +133,7 @@ public class Acme4jProvider implements AcmeProvider {
 
                 for (Challenge challenge : auth.getChallenges()) {
                     AcmeValidationInfo info = buildValidationInfo(domain, challenge);
-                    if (info != null) {
+                    if (info != null && matchesChallengeType(info.getChallengeType(), challengeType)) {
                         result.add(info);
                     }
                 }
@@ -162,9 +162,13 @@ public class Acme4jProvider implements AcmeProvider {
                 currentOrder = order;
             }
 
-            List<AcmeValidationInfo> pending = collectPendingValidations(order, challengeType);
-            if (!pending.isEmpty()) {
-                return AcmeCertificateResult.needValidation(pending);
+            // 轮询等待授权通过（CA 异步验证），文件已部署后通常数秒内完成
+            boolean allValid = waitForValid(order, challengeType);
+            if (!allValid) {
+                List<AcmeValidationInfo> pending = collectPendingValidations(order, challengeType);
+                if (!pending.isEmpty()) {
+                    return AcmeCertificateResult.needValidation(pending);
+                }
             }
 
             // 所有授权已验证通过，提交 CSR 并等待签发
@@ -246,6 +250,36 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
+     * 轮询等待订单所有授权变为 VALID。
+     * <p>验证文件已部署后，CA 会异步发起验证，通常数秒内完成。</p>
+     *
+     * @param order         订单
+     * @param challengeType 挑战类型
+     * @return 是否全部通过验证
+     */
+    private boolean waitForValid(Order order, String challengeType) {
+        int attempts = MAX_ATTEMPTS;
+        while (attempts-- > 0) {
+            try {
+                order.update();
+            } catch (Exception e) {
+                log.warn("订单状态刷新失败: {}", e.getMessage());
+                return false;
+            }
+            if (collectPendingValidations(order, challengeType).isEmpty()) {
+                return true;
+            }
+            try {
+                Thread.sleep(POLL_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 收集订单中尚未通过验证的授权信息。
      *
      * @param order         订单
@@ -259,27 +293,29 @@ public class Acme4jProvider implements AcmeProvider {
                 continue;
             }
             String domain = auth.getIdentifier().getDomain();
-            AcmeValidationInfo matched = null;
             for (Challenge challenge : auth.getChallenges()) {
                 AcmeValidationInfo info = buildValidationInfo(domain, challenge);
-                if (info == null) {
-                    continue;
-                }
-                if (challengeType != null && !challengeType.isEmpty()
-                        && info.getChallengeType().equalsIgnoreCase(challengeType)) {
+                if (info != null && matchesChallengeType(info.getChallengeType(), challengeType)) {
                     pending.add(info);
-                    matched = null;
                     break;
                 }
-                if (matched == null) {
-                    matched = info;
-                }
-            }
-            if (matched != null) {
-                pending.add(matched);
             }
         }
         return pending;
+    }
+
+    /**
+     * 判断验证类型是否匹配请求类型。
+     *
+     * @param infoType      验证信息类型（HTTP-01 / DNS-01）
+     * @param challengeType 请求类型，可空或空串时视为任意类型
+     * @return 是否匹配
+     */
+    private boolean matchesChallengeType(String infoType, String challengeType) {
+        if (challengeType == null || challengeType.isEmpty()) {
+            return true;
+        }
+        return infoType.equalsIgnoreCase(challengeType);
     }
 
     /**
