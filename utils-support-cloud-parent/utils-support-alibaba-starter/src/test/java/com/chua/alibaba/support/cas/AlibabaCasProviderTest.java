@@ -1,4 +1,4 @@
-package com.chua.alibaba.cas.support;
+package com.chua.alibaba.support.cas;
 
 import com.chua.common.support.network.ssl.AcmeCertificateResult;
 import com.chua.common.support.network.ssl.AcmeConnectionResult;

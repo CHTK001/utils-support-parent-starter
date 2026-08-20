@@ -1,4 +1,4 @@
-package com.chua.alibaba.cas.support;
+package com.chua.alibaba.support.cas;
 
 import com.aliyun.cas20200407.Client;
 import com.aliyun.cas20200407.models.CreateCertificateForPackageRequestRequest;
@@ -20,8 +20,8 @@ import com.chua.common.support.network.ssl.AcmeCertificateResult;
 import com.chua.common.support.network.ssl.AcmeConnectionResult;
 import com.chua.common.support.network.ssl.AcmeProvider;
 import com.chua.common.support.network.ssl.AcmeValidationInfo;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -62,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0.0
  */
 @Slf4j
-@Component
+@Spi("cas")
 public class AlibabaCasProvider implements AcmeProvider {
 
     /**
