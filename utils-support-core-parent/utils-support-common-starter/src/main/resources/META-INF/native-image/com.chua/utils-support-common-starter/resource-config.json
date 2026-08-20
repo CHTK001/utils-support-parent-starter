@@ -8,6 +8,9 @@
         "pattern": "META-INF/extensions/.*"
       },
       {
+        "pattern": "native/.*"
+      },
+      {
         "pattern": ".*\\.properties"
       },
       {
