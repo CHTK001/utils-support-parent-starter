@@ -1,0 +1,15 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "META-INF/services/.*"
+      },
+      {
+        "pattern": "META-INF/extensions/.*"
+      },
+      {
+        "pattern": "org/apache/tika/mime/.*"
+      }
+    ]
+  }
+}

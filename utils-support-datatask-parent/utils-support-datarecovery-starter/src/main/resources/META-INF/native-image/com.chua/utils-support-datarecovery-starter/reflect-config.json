@@ -1,0 +1,71 @@
+[
+{
+  "name": "com.chua.datarecovery.support.DataRecovery",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.datarecovery.support.DataRecovery$FileEntry",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.datarecovery.support.DataRecovery$ScanResult",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.datarecovery.support.DataRecovery$DeleteResult",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.datarecovery.support.DataRecovery$RecoverResult",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.datarecovery.support.DataRecovery$FailedItem",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.datarecovery.support.DataRecovery$RecoveryCallback",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+]

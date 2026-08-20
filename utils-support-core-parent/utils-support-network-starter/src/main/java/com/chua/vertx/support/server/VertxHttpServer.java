@@ -99,8 +99,10 @@ public class VertxHttpServer extends AbstractServer {
                 // 收发缓冲放大:与内核窗口对齐,高并发小请求场景减少分片与 ACK 往返
                 .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
                 .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
-                // 吞吐优化:TCP_CORK 合并小包,TCP_QUICKACK 减少 ACK 延迟,KeepAlive 复用
-                .setTcpCork(true)
+                // 吞吐优化:TCP_QUICKACK 减少 ACK 延迟,KeepAlive 复用
+                // 注意:不使用 TCP_CORK——它延迟发送最多 200ms 合并小包,小响应(echo/JSON)每次都要
+                // 等 200ms 才发出,低并发下吞吐暴跌(实测 Linux 2 核 @256 从 ~5k 掉到 ~1k)。
+                // HTTP header/body 合并由 Vert.x 自身缓冲完成,无需内核 cork。
                 .setTcpQuickAck(true)
                 .setTcpKeepAlive(true)
                 // TCP Fast Open 仅 Linux/macOS 支持,Windows 上无效,避免无效配置

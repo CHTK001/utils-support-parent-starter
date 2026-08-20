@@ -1,0 +1,10 @@
+[
+  {"name": "com.chua.captcha.support.CaptchaParser", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.CaptchaRunClient", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.CaptchaRequest", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.CaptchaResponse", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.CaptchaSetting", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.CaptchaType", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.FileTaskPersistence", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.captcha.support.TaskPersistence", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true }
+]

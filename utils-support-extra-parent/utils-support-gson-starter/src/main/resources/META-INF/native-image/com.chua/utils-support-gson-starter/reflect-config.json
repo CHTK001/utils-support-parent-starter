@@ -1,0 +1,20 @@
+[
+  {"name": "com.chua.gson.support.json.GsonJsonProvider", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.gson.support.json.GsonJsonArray", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.gson.support.json.GsonJsonObject", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.gson.support.json.GsonJsonNode", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.gson.support.json.GsonJsonProvider$JsonNameFieldNamingStrategy", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.gson.support.json.GsonJsonProvider$JsonIgnoreExclusionStrategy", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.common.support.lang.json.Json", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.common.support.lang.json.JsonArray", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.common.support.lang.json.JsonObject", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.common.support.lang.json.JsonNode", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.common.support.lang.json.JsonProvider", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.common.support.lang.json.JsonReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.google.gson.Gson", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.google.gson.GsonBuilder", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.google.gson.TypeAdapter", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.google.gson.FieldNamingStrategy", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.google.gson.ExclusionStrategy", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.google.gson.reflect.TypeToken", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true }
+]

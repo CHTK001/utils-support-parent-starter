@@ -1,0 +1,61 @@
+[
+{
+  "name": "com.chua.ssh.support.client.SftpClient",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.ssh.support.client.SftpClient$Builder",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.ssh.support.client.SftpClient$UploadOperation",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.ssh.support.client.SftpClient$MkdirOperation",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.ssh.support.client.SftpClient$StatOperation",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+,
+{
+  "name": "com.chua.ssh.support.client.SftpClient$RmOperation",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+]
