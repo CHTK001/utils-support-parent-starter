@@ -161,4 +161,18 @@ public record Seq2SeqModelDefinition(
             64,
             1L,
             0L);
+
+    /**
+     * 达摩院中文 mT5-base 模型定义（iic/nlp_mt5_dialogue-rewriting_chinese-base，中文微调）。
+     * <p>12 层 12 头 d_model=768，中文对话改写/摘要能力优于原版 mT5。
+     * 由达摩院中文对话改写模型转 fp16 ONNX（optimum 导出 + onnxconverter fp16 转换）；
+     * 首次运行需将 FP16 ONNX 文件放入缓存目录（fp16：encoder 554MB + decoder 995MB + past 967MB）。</p>
+     */
+    public static final Seq2SeqModelDefinition MT5_ZH = new Seq2SeqModelDefinition(
+            "mt5-zh-seq2seq",
+            "nlp/seq2seq/mt5-zh/",
+            null,
+            List.of("encoder_model_fp16.onnx", "decoder_model_fp16.onnx", "decoder_with_past_model_fp16.onnx", "tokenizer.json"),
+            List.of("encoder_model_fp16.onnx", "decoder_model_fp16.onnx", "decoder_with_past_model_fp16.onnx", "tokenizer.json"),
+            12, 12, 64, 1L, 0L);
 }

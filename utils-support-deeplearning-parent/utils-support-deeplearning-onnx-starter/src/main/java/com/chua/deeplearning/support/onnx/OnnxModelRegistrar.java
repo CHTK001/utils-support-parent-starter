@@ -72,7 +72,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 深度估计(MiDaS)：从单张图片估计深度图（灰度图，越亮表示越近）；适用背景虚化、3D 重建、AR 效果
         reg("midas-depth", "com.chua.deeplearning.support.onnx.depth.MidasDepthTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/depth/midas/midas.onnx", "https://huggingface.co/onnx-community/MiDaS/resolve/main/onnx/model.onnx", false, null);
         // 视觉特征提取(DINOv2)：提取图像通用特征向量（384维），无需训练，适合图像相似度比对、检索；适用以图搜图、特征匹配
-        reg("dino-v2", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2/model.onnx", "https://huggingface.co/onnx-community/dinov2-small-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-small-ONNX/resolve/main/onnx/model.onnx"), false, null);
+        reg("dino-v2", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-small/onnx/model.onnx", "https://huggingface.co/onnx-community/dinov2-small-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-small-ONNX/resolve/main/onnx/model.onnx"), false, null);
         // 视觉特征提取(DINOv2-small emb)：DINOv2-small，384维特征；优先 jar 内嵌，缺失时自动下载
         reg("dino-v2-small-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-small/onnx/model.onnx", "https://huggingface.co/onnx-community/dinov2-small-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-small-ONNX/resolve/main/onnx/model.onnx"), false, null);
         // 视觉特征提取(DINOv2-small fp16)：DINOv2 ViT-S/14，384维特征，fp16 半精度，内存减半、推理更快；适用内存受限的以图搜图、特征比对
@@ -270,6 +270,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mt5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-small/encoder_model_fp16.onnx", null, null, false, null);
         // 多语言摘要/生成(mT5-base)：中文多句→一句总结，12 层 12 头；modelscope 下载
         reg("mt5-base-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5BaseSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-base/encoder_model_fp16.onnx", null, null, false, null);
+        // 达摩院中文 mT5-base：中文对话改写/摘要，中文能力优于原版 mT5；fp16 ONNX 需本地放置
+        reg("mt5-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5ZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-zh/encoder_model_fp16.onnx", null, null, false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx");
         // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，嵌入式模型 jar 提供，无需下载；适用英文翻译中文
@@ -378,9 +380,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 卡片矫正检测(Card Correction)：检测卡片类图片（身份证、名片等）四角点；适用文档扫描、证件识别
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
         // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测；适用停车场、出入口车牌识别
-        reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
+        reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectOnnxTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
-        reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
+        reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateRecTranslator", byte[].class, com.chua.deeplearning.support.plate.PlateResult.class, com.chua.deeplearning.support.plate.LicensePlateRecognizer.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR
         reg("paddleocrv6-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/PP-OCRv6/tiny/det_infer/inference.onnx");
         // OCR识别(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字识别；适用移动端 OCR

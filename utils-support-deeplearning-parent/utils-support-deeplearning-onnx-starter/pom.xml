@@ -189,6 +189,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- 以下三个 test 依赖的 model jar 未构建到本地仓库，临时移除以恢复编译
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-minilm-int8</artifactId>
@@ -201,6 +202,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-mms-tts-eng</artifactId>
@@ -231,12 +233,14 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- bge-large-zh model jar 未构建到本地仓库，临时移除以恢复编译
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-bge-large-zh</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-insightface-scrfd</artifactId>

@@ -183,6 +183,30 @@ class Seq2SeqTranslationTest {
     }
 
     /**
+     * 达摩院中文 mT5-base 测试（本地 fp16 ONNX，中文对话改写/摘要微调版）。
+     */
+    @Test
+    @DisplayName("mt5-zh-seq2seq 达摩院中文摘要")
+    @EnabledIfSystemProperty(named = "seq2seq.download", matches = "true")
+    void mt5ZhSummarize() {
+        ModelRegistry.discoverAll();
+        T5Seq2SeqOrtTranslator.setTaskPrefix("摘要：");
+        @SuppressWarnings("unchecked")
+        ITranslator<String, String> zh = (ITranslator<String, String>) (ITranslator<?, ?>)
+                ModelRegistry.createTranslator("mt5-zh-seq2seq", null);
+        try {
+            String source = "近期全国多地气温骤降，医院门诊量明显上升。医生提醒，降温期间要注意添衣保暖，尤其是老人和儿童。如果出现发热等症状，应及时就医。";
+            String result = zh.translate(source);
+            System.out.println("[mt5-zh-seq2seq] 输入: " + source);
+            System.out.println("[mt5-zh-seq2seq] 摘要: " + result);
+            Assertions.assertNotNull(result, "摘要结果不应为 null");
+            Assertions.assertFalse(result.isBlank(), "摘要结果不应为空白");
+        } finally {
+            closeIfPossible(zh);
+        }
+    }
+
+    /**
      * 真实语料样本评估：不同文体的中文文本走 mT5-base，展示真实输出边界。
      */
     @Test
