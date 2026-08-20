@@ -18,6 +18,15 @@
     "allPublicFields": true
   },
   {
+    "name": "com.chua.alibaba.support.cas.AlibabaCasProvider",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
     "name": "com.chua.alibaba.support.image.AlibabaImageClient",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,

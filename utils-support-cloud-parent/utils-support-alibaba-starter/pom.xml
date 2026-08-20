@@ -29,6 +29,37 @@
             <groupId>com.aliyun</groupId>
             <artifactId>dysmsapi20170525</artifactId>
         </dependency>
+        <!-- 阿里云 CAS（数字证书管理服务）AcmeProvider SPI 实现依赖，provided 由用户运行时自行提供 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>cas20200407</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea-openapi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea-util</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>endpoint-util</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>openapiutil</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-network-starter</artifactId>
