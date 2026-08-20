@@ -33,6 +33,12 @@
         
         <aliyun.java.sdk.facebody.version>1.2.16</aliyun.java.sdk.facebody.version>
         <aliyun.java.sdk.ocr.version>1.0.15</aliyun.java.sdk.ocr.version>
+        <aliyun.cas.sdk.version>3.6.0</aliyun.cas.sdk.version>
+        <aliyun.tea.openapi.version>0.3.12</aliyun.tea.openapi.version>
+        <aliyun.tea.util.version>0.2.26</aliyun.tea.util.version>
+        <aliyun.endpoint.util.version>0.0.8</aliyun.endpoint.util.version>
+        <aliyun.tea.version>1.4.1</aliyun.tea.version>
+        <aliyun.openapiutil.version>0.2.2</aliyun.openapiutil.version>
         <opencv.version>4.9.0-0</opencv.version>
         <javacv.version>1.5.12</javacv.version>
         <javacv.ffmpeg.version>7.1.1-1.5.12</javacv.ffmpeg.version>
@@ -1859,6 +1865,36 @@
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-resource-ip2region</artifactId>
                 <version>4.0.0.42</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>cas20200407</artifactId>
+                <version>${aliyun.cas.sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>tea-openapi</artifactId>
+                <version>${aliyun.tea.openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>tea-util</artifactId>
+                <version>${aliyun.tea.util.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>endpoint-util</artifactId>
+                <version>${aliyun.endpoint.util.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>tea</artifactId>
+                <version>${aliyun.tea.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>openapiutil</artifactId>
+                <version>${aliyun.openapiutil.version}</version>
             </dependency>
             </dependencies>
     </dependencyManagement>
