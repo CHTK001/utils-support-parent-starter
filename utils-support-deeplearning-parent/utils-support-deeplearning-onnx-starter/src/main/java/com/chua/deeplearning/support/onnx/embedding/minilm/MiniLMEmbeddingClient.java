@@ -29,8 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * }</pre>
  * </p>
  *
- * <p>资源位于 {@code nlp/embedding/minilm/model_quantized.onnx} + 配套
- * {@code vocab.txt}，由 jar {@code utils-support-models-onnx-minilm-l6v2} 提供。</p>
+ * <p>资源位于 {@code nlp/embedding/minilm/model_quantized.onnx}（int8 量化版）或
+ * {@code nlp/embedding/minilm-fp32/model.onnx}（fp32 未量化版），由 jar
+ * {@code utils-support-models-onnx-minilm-int8} 或 {@code utils-support-models-onnx-minilm-fp32} 提供。</p>
  *
  * @author CH
  * @since 4.0.0.42

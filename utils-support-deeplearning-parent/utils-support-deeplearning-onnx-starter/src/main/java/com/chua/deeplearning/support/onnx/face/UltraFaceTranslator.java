@@ -4,14 +4,14 @@ import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -171,21 +171,26 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        long height = array.getShape().get(0);
-        long width = array.getShape().get(1);
-
-        if (height != inputHeight || width != inputWidth) {
-            array = NDImageUtils.resize(array, inputWidth, inputHeight);
+        Object wrapped = input.getWrappedImage();
+        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+            throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
+        // AWT 缩放（ONNX Runtime 引擎的 NDArray 不支持 resize/transpose/flip）
+        java.awt.image.BufferedImage resized = ImageUtils.resize(
+                bufferedImage, inputWidth, inputHeight, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        int[] rgb = resized.getRGB(0, 0, inputWidth, inputHeight, null, 0, inputWidth);
 
-        array = array.transpose(2, 0, 1).flip(0);
-        if (!DataType.FLOAT32.equals(array.getDataType())) {
-            array = array.toType(DataType.FLOAT32, false);
+        // 模型输入为 BGR 归一化（减 BGR_MEAN），无 ImageNet/255 缩放（原生 onnx 用像素直接减）
+        float[] data = new float[3 * inputWidth * inputHeight];
+        int total = inputWidth * inputHeight;
+        for (int i = 0; i < rgb.length; i++) {
+            int p = rgb[i];
+            // 通道顺序 BGR：b→ch0, g→ch1, r→ch2
+            data[i] = (p & 0xff) - BGR_MEAN[0];
+            data[i + total] = ((p >> 8) & 0xff) - BGR_MEAN[1];
+            data[i + 2 * total] = ((p >> 16) & 0xff) - BGR_MEAN[2];
         }
-
-        NDArray mean = ctx.getNDManager().create(BGR_MEAN).reshape(3, 1, 1);
-        array = array.sub(mean);
+        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, inputHeight, inputWidth));
         return new NDList(array);
     }
 
@@ -196,16 +201,23 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
 
-        NDArray rawBoxes = squeezeBatch(list.get(0));
-        NDArray rawScores = squeezeBatch(list.get(1));
+        // 直读 flat float[]，避免 ORT 引擎不支持的 squeeze（会递归 StackOverflow）
+        NDArray rawBoxes = list.get(0);
+        NDArray rawScores = list.get(1);
+        long[] boxShape = rawBoxes.getShape().getShape();
+        long[] scoreShape = rawScores.getShape().getShape();
+        // 兼容 [1,N,4]/[N,4]/[N,4] 布局，取最大维作候选数
+        int candidateCount = 1;
+        for (long d : scoreShape) {
+            candidateCount = Math.max(candidateCount, (int) d);
+        }
+        float[] boxArray = rawBoxes.toFloatArray();
+        float[] scoreArray = rawScores.toFloatArray();
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
         List<BoundingBox> boxes = new ArrayList<>();
         List<Candidate> candidates = new ArrayList<>();
         double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
-        float[] boxArray = rawBoxes.toFloatArray();
-        float[] scoreArray = rawScores.toFloatArray();
-        int candidateCount = (int) rawBoxes.getShape().get(0);
 
         for (int i = 0; i < candidateCount; i++) {
             double probability = scoreArray[i * 2 + 1];
@@ -306,7 +318,8 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        return Batchifier.STACK;
+        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+        return null;
     }
 
     /** Candidate */

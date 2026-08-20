@@ -16,8 +16,13 @@ import java.util.Map;
 /**
  * all-MiniLM-L6-v2 Sentence Embedding Translator（文本 → 384 维句向量）。
  *
- * <p>底层 ONNX：{@code Xenova/all-MiniLM-L6-v2} 的 {@code model_quantized.onnx}（int8 量化，
- * opset 11，约 23MB）。输入：
+ * <p>底层 ONNX：{@code Xenova/all-MiniLM-L6-v2}，支持两种精度：
+ * <ul>
+ *   <li><b>int8 量化版</b>（默认）：{@code model_quantized.onnx}，约 22MB，速度更快</li>
+ *   <li><b>fp32 未量化版</b>：{@code model.onnx}，约 90MB，精度更高</li>
+ * </ul>
+ *
+ * <p>输入：
  * <ul>
  *   <li>{@code input_ids}    : [batch, seq] int64</li>
  *   <li>{@code attention_mask}: [batch, seq] int64</li>
@@ -30,9 +35,9 @@ import java.util.Map;
  * 取均值）→ L2 归一化 → 384 维 float[]，与 sentence-transformers/all-MiniLM-L6-v2
  * 的默认句向量语义完全一致，可直接用于余弦相似度 / 向量检索。</p>
  *
- * <p>资源在 jar 内路径：{@code nlp/embedding/minilm/} 下，
- * 由 {@link NativeLoader} 解压到 java.io.tmpdir 后加载。
- * 单例模型 + 多线程安全（{@code OrtSession} 本身线程安全，但 batch 维度固定 1）。</p>
+ * <p>资源在 jar 内路径：{@code nlp/embedding/minilm/}（int8）或
+ * {@code nlp/embedding/minilm-fp32/}（fp32），由 {@link NativeLoader} 解压到
+ * java.io.tmpdir 后加载。单例模型 + 多线程安全（{@code OrtSession} 本身线程安全）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -50,24 +55,59 @@ public class MiniLMEmbeddingTranslator {
      */
     public static final int DEFAULT_MAX_LEN = 128;
 
-    /** 资源基础路径 */
-    /** Resource_base */
-    private static final String RESOURCE_BASE = "nlp/embedding/minilm/";
-    /** 模型文件路径 */
-    /** Model_file */
-    private static final String MODEL_FILE = "model_quantized.onnx";
-    /** 词表文件路径 */
-    /** Vocab_file */
+    /** 资源基础路径 - int8 量化版（默认） */
+    private static final String RESOURCE_BASE_INT8 = "nlp/embedding/minilm/";
+    /** 资源基础路径 - fp32 未量化版 */
+    private static final String RESOURCE_BASE_FP32 = "nlp/embedding/minilm-fp32/";
+    /** int8 模型文件路径 */
+    private static final String MODEL_FILE_INT8 = "model_quantized.onnx";
+    /** fp32 模型文件路径 */
+    private static final String MODEL_FILE_FP32 = "model.onnx";
+    /** 词表文件路径（两个版本共用） */
     private static final String VOCAB_FILE = "vocab.txt";
 
     /** 分词器 */
-    /** Tokenizer */
     private MiniLMTokenizer tokenizer;
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;
+    /** 当前使用的资源基础路径 */
+    private final String resourceBase;
+    /** 当前使用的模型文件名 */
+    private final String modelFile;
+
+    /**
+     * 创建 int8 量化版 Translator（默认，速度快，~22MB）
+     */
+    public MiniLMEmbeddingTranslator() {
+        this(RESOURCE_BASE_INT8, MODEL_FILE_INT8);
+    }
+
+    /**
+     * 创建指定精度的 Translator。
+     *
+     * @param resourceBase 资源基础路径（如 {@code nlp/embedding/minilm/}）
+     * @param modelFile    模型文件名（如 {@code model_quantized.onnx}）
+     */
+    public MiniLMEmbeddingTranslator(String resourceBase, String modelFile) {
+        this.resourceBase = resourceBase;
+        this.modelFile = modelFile;
+    }
+
+    /**
+     * 创建 fp32 未量化版 Translator（精度更高，~90MB）
+     */
+    public static MiniLMEmbeddingTranslator fp32() {
+        return new MiniLMEmbeddingTranslator(RESOURCE_BASE_FP32, MODEL_FILE_FP32);
+    }
+
+    /**
+     * 创建 int8 量化版 Translator（默认，速度快，~22MB）
+     */
+    public static MiniLMEmbeddingTranslator int8() {
+        return new MiniLMEmbeddingTranslator(RESOURCE_BASE_INT8, MODEL_FILE_INT8);
+    }
 
     /** Prepare */
     private synchronized void prepare() throws Exception {
@@ -80,9 +120,10 @@ public class MiniLMEmbeddingTranslator {
         Path modelDir = tmpDir.resolve("minilm");
         Files.createDirectories(modelDir);
 
-        NativeLoader.of("minilm")
+        String loaderName = resourceBase.contains("fp32") ? "minilm-fp32" : "minilm-int8";
+        NativeLoader.of(loaderName)
                 .from(MiniLMEmbeddingTranslator.class.getClassLoader())
-                .basePath(RESOURCE_BASE)
+                .basePath(resourceBase)
                 .toTarget(modelDir)
                 .glob("*")
                 .withMd5(true)
@@ -93,7 +134,7 @@ public class MiniLMEmbeddingTranslator {
             log.warn("[MiniLM] 模型目录未生成，尝试直接 lookup...");
         }
 
-        Path modelPath = modelDir.resolve(MODEL_FILE);
+        Path modelPath = modelDir.resolve(modelFile);
         Path vocabPath = modelDir.resolve(VOCAB_FILE);
         if (!Files.isRegularFile(modelPath) || !Files.isRegularFile(vocabPath)) {
             throw new IOException("MiniLM 资源缺失: model=" + modelPath + " vocab=" + vocabPath);
@@ -106,8 +147,9 @@ public class MiniLMEmbeddingTranslator {
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
             opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
             this.session = ortEnv.createSession(modelPath.toString(), opts);
-            log.info("[MiniLM] ONNX loaded: model={} vocab_size={} hidden={}",
-                    modelPath, tokenizer.vocabSize(), HIDDEN_SIZE);
+            log.info("[MiniLM] ONNX loaded: model={} vocab_size={} hidden={} type={}",
+                    modelPath, tokenizer.vocabSize(), HIDDEN_SIZE,
+                    modelFile.contains("quantized") ? "int8" : "fp32");
         } catch (Exception e) {
             throw new IOException("Failed to create ORT session for MiniLM: " + e.getMessage(), e);
         }
