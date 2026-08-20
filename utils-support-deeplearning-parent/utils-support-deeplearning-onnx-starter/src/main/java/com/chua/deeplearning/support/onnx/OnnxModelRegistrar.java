@@ -38,19 +38,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("anime-gan-v3", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_Hayao_36.onnx");
         reg("anime-gan-v3-shinkai", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx");
         reg("anime-gan-v3-ghibli", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx");
-        // 风格迁移(Candy)：将照片转换为糖果风格（色彩鲜艳、弯曲扭曲的效果）；适用艺术特效、创意图片处理
-        reg("style-candy", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/candy-9.onnx");
-        // 风格迁移(Mosaic)：将照片转换为马赛克拼贴风格；适用艺术特效、装饰性图片处理
-        reg("style-mosaic", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/mosaic-9.onnx");
-        // 风格迁移(Rain Princess)：将照片转换为水彩手绘风格（柔和、梦幻）；适用艺术特效、插画风格转换
-        reg("style-rain-princess", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/rain-princess-9.onnx");
-        // 风格迁移(Udnie)：将照片转换为抽象表现主义风格（色彩块面、半抽象效果）；适用艺术创作、特效处理
-        reg("style-udnie", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/udnie-9.onnx");
-        // 风格迁移(Pointilism)：将照片转换为点彩画风格（用小点构成图像）；适用艺术特效、复古风格处理
-                // 水下图像增强(LU2Net)：基于轻量级U-Net的水下图像增强，改善水下颜色失真和对比度，适用于水下摄影、水下监控
+        // 水下图像增强(LU2Net)：基于轻量级U-Net的水下图像增强，改善水下颜色失真和对比度，适用于水下摄影、水下监控
                 reg("lu2net", "com.chua.deeplearning.support.onnx.lu2net.Lu2NetTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/lu2net/lu2net.onnx");
-        reg("style-pointilism", "com.chua.deeplearning.support.onnx.style.FastNeuralStyleTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "models/onnx/style/pointilism-9.onnx");
-        // 动漫风格迁移(AnimeGANv2-Hayao)：将照片转换为宫崎骏风格动画（细腻、明亮）；适用动漫化、图片特效
         reg("anime-gan-v2-hayao", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/hayao.onnx");
         // 动漫风格迁移(AnimeGANv2-Shinkai)：将照片转换为新海诚风格动画（唯美、光影感强）；适用动漫化、风景美化
         reg("anime-gan-v2-shinkai", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/style_transfer/animegan2/shinkai.onnx");
@@ -293,7 +282,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 活体检测(MobileViT)：基于 MobileViT 的轻量级活体检测；适用移动端活体检测
         reg("face-liveness-mobilevit", "com.chua.deeplearning.support.onnx.liveness.FaceAntiSpoofTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/liveness/mobilevitv2_liveness/model.onnx", "https://huggingface.co/nguyenkhoa/mobilevitv2_Liveness_detection_v1.0/resolve/main/model.onnx", false, null);
         // 人脸检测(YOLOv11n-face)：YOLOv11n 超轻量人脸检测，6MB；适用边缘设备人脸检测
-        reg("yolo-face-detector", "com.chua.deeplearning.support.onnx.face.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/yolo11n-face.onnx", "https://huggingface.co/AdamCodd/YOLOv11n-face-detection/resolve/main/model.onnx", false, null);
+        reg("yolo-face-detector", "com.chua.deeplearning.support.onnx.face.YoloFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/yolo11n-face.onnx", "https://huggingface.co/AdamCodd/YOLOv11n-face-detection/resolve/main/model.onnx", false, null);
         // 人脸+人体检测(YOLO-Face-Person)：同时检测人脸和人体；适用安防监控、人群分析
         reg("yolo-face-person", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/yolo-face-person.onnx", "https://huggingface.co/iitolstykh/YOLO-Face-Person-Detector/resolve/main/model.onnx", false, null);
         // 年龄+性别识别(ONNX)：基于 ViT 的人脸年龄+性别联合识别；适用人脸属性分析

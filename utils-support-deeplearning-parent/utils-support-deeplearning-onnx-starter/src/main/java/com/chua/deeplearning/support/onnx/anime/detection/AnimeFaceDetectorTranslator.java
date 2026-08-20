@@ -121,51 +121,102 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.get(0);
         long[] shape = output.getShape().getShape();
-        // 兼容 [1,5,8400] / [5,8400] / [1,8400,5] 多种布局
+        // 直接读 flat float 数组，避免 ORT 引擎不支持的 squeeze/transpose（会递归 StackOverflow）
+        float[] data = output.toFloatArray();
+
+        // 兼容 [1,5,8400] / [5,8400] / [1,8400,5] 布局，统一为 [numDets, numChannels]
+        int dim = shape.length;
+        if (dim == 3) {
+            // [B,C,N]：C 小（类别维 5）；或 [B,N,C]：C 大（检测框维）
+            if (!(shape[1] == 5 || shape[1] == 6 || shape[1] < shape[2])) {
+                // [B,N,C]（C 大）→ 需转置，改用 NCH 步长直接读
+                return processNch(dim, shape, data);
+            }
+            // [B,C,N] → 步长 C * (N stride)
+        }
         int numDets;
         int numChannels;
-        if (shape.length == 3) {
-            if (shape[1] == 5 || shape[1] == 6 || shape[1] < shape[2]) {
-                // [B,C,N]：C 小（类别维）
-                numDets = (int) shape[2];
-                numChannels = (int) shape[1];
-                output = output.squeeze(0);
-            } else {
-                // [B,N,C]：C 大（检测框维）
-                numDets = (int) shape[1];
-                numChannels = (int) shape[2];
-                output = output.transpose(0, 2, 1).squeeze(0);
-            }
-        } else if (shape.length == 2) {
+        if (dim == 3) {
+            // [1,C,N] 或 [B,C,N]，B 可>=1
+            numChannels = (int) shape[1];
+            numDets = (int) shape[2];
+        } else if (dim == 2) {
             // [N,C] 或 [C,N]
             if (shape[1] == 5 || shape[1] == 6 || shape[1] < shape[0]) {
+                // [N,C]
                 numDets = (int) shape[0];
                 numChannels = (int) shape[1];
             } else {
-                numDets = (int) shape[1];
-                numChannels = (int) shape[0];
-                output = output.transpose();
+                // [C,N] → 步长遍历
+                return processNch(dim, shape, data);
             }
         } else {
             throw new IllegalStateException("AnimeFace 输出维度异常: " + java.util.Arrays.toString(shape));
         }
+        return processNcm(data, numDets, numChannels);
+    }
+
+    /**
+     * 处理 [C,N] / [B,N,C] 布局（NCH 步长直读，避免转置）。
+     *
+     * @param dim       维度数
+     * @param shape     形状
+     * @param data      flat 数据
+     * @return 检测结果
+     */
+    private DetectedObjects processNch(int dim, long[] shape, float[] data) {
+        int c = (int) shape[dim - 2];
+        int n = (int) shape[dim - 1];
+        // [C,N]：按列读；若为 [B,N,C] 取 batch0 的 [N,C] 视作 [C,N]？不合理，
+        // 这里按 [C,N] 步长 C 大在前处理
+        float[] boxes = new float[n * c];
+        for (int i = 0; i < n; i++) {
+            for (int ch = 0; ch < c; ch++) {
+                boxes[i * c + ch] = data[ch * n + i];
+            }
+        }
+        return assemble(boxes, n, c);
+    }
+
+    /**
+     * 处理 [N,C] / [B,C,N] 布局（NCM 步长直读）。
+     *
+     * @param data      flat 数据
+     * @param numDets   检测数
+     * @param numChannels 通道数
+     * @return 检测结果
+     */
+    private DetectedObjects processNcm(float[] data, int numDets, int numChannels) {
+        return assemble(data, numDets, numChannels);
+    }
+
+    /**
+     * 从 [numDets, numChannels] 扁平数组组装检测框。
+     *
+     * @param data     扁平数据
+     * @param numDets  检测数
+     * @param numChannels 通道数（须 >=5：cx,cy,w,h,conf...）
+     * @return 检测结果
+     */
+    private DetectedObjects assemble(float[] data, int numDets, int numChannels) {
         if (numChannels < 5) {
             throw new IllegalStateException("AnimeFace 输出通道异常: " + numChannels);
         }
-        float[] data = output.toFloatArray();
-
         // 收集候选框（letterbox 坐标系）
         List<float[]> boxes = new ArrayList<>();
         List<Float> scores = new ArrayList<>();
         for (int i = 0; i < numDets; i++) {
             int offset = i * numChannels;
+            if (offset + 4 >= data.length) {
+                break;
+            }
             float cx = data[offset];
             float cy = data[offset + 1];
             float w = data[offset + 2];
             float h = data[offset + 3];
             float conf = 0f;
-            for (int c = 4; c < numChannels; c++) {
-                conf = Math.max(conf, data[offset + c]);
+            for (int cc = 4; cc < numChannels && offset + cc < data.length; cc++) {
+                conf = Math.max(conf, data[offset + cc]);
             }
             if (conf < CONF_THRESHOLD) {
                 continue;

@@ -64,6 +64,22 @@
             <artifactId>utils-support-models-onnx-ppdoclayoutv3</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 人脸检测模型（SCRFD / UltraFace / YOLOv11n-Face） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-scrfd-face</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-ultra-face</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-yolo-face</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -170,7 +186,13 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-minilm</artifactId>
+            <artifactId>utils-support-models-onnx-minilm-int8</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-minilm-fp32</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -309,36 +331,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-animegan-ghibli</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-style-candy</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-style-mosaic</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-style-rain-princess</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-style-udnie</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-style-pointilism</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
