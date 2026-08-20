@@ -35,19 +35,19 @@ public class AlibabaCasProviderTest {
         Result r = new Result();
 
         run(r, "connect 缺 RegionId 应返回 fail", () -> {
-            AcmeConnectionResult res = provider.connect(null, "user@example.com", "akId", "akSecret", "digicert-free-1y");
+            AcmeConnectionResult res = provider.connect(null, "user@example.com", "akId", "akSecret", "digicert-free-1-free");
             check(!res.isSuccess() && res.getError().contains("RegionId"),
                     "expected fail RegionId, got: " + res.getError());
         });
 
         run(r, "connect 缺 AccessKeyId 应返回 fail", () -> {
-            AcmeConnectionResult res = provider.connect("cn-hangzhou", "user@example.com", null, "akSecret", "digicert-free-1y");
+            AcmeConnectionResult res = provider.connect("cn-hangzhou", "user@example.com", null, "akSecret", "digicert-free-1-free");
             check(!res.isSuccess() && res.getError().contains("AccessKeyId"),
                     "expected fail AccessKeyId, got: " + res.getError());
         });
 
         run(r, "connect 缺 AccessKeySecret 应返回 fail", () -> {
-            AcmeConnectionResult res = provider.connect("cn-hangzhou", "user@example.com", "akId", null, "digicert-free-1y");
+            AcmeConnectionResult res = provider.connect("cn-hangzhou", "user@example.com", "akId", null, "digicert-free-1-free");
             check(!res.isSuccess() && res.getError().contains("AccessKeySecret"),
                     "expected fail AccessKeySecret, got: " + res.getError());
         });

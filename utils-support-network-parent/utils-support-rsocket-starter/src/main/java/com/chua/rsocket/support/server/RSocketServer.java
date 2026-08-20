@@ -81,6 +81,12 @@ public class RSocketServer extends AbstractServer {
     private final Map<String, ServerHandler> messageHandlers = new ConcurrentHashMap<>();
 
     /**
+     * 虚拟线程执行器(异步派发 requestResponse/fireAndForget 业务,避免阻塞连接 event loop)
+     */
+    private final java.util.concurrent.ExecutorService bizExecutor =
+            java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+
+    /**
      * 创建 RSocketServer 实例
      * @param setting setting
      */
@@ -97,69 +103,75 @@ public class RSocketServer extends AbstractServer {
                 @Override
                 /** RequestResponse */
                 public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
-                    String topic = extractTopic(payload);
-                    String data = payload.getDataUtf8();
-                    String responseBody = "{\"status\":\"ok\"}";
-                    if (topic != null) {
-                        ServerHandler handler = messageHandlers.get(topic);
-                        if (handler != null) {
-                            // 优先走主题消息处理器(消息模型)
-                            SimpleServerRequest request = new SimpleServerRequest(topic, data);
-                            SimpleServerResponse response = new SimpleServerResponse();
-                            try {
-                                handler.handle(request, response);
-                                if (response.getBody() != null) {
-                                    responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+                    // 虚拟线程异步派发,避免同步认证(DB/Redis)阻塞连接 event loop,
+                    // 否则同一条长连接的并发 stream 会全部串行排队导致超时
+                    return Mono.fromCallable(() -> {
+                        String topic = extractTopic(payload);
+                        String data = payload.getDataUtf8();
+                        String responseBody = "{\"status\":\"ok\"}";
+                        if (topic != null) {
+                            ServerHandler handler = messageHandlers.get(topic);
+                            if (handler != null) {
+                                // 优先走主题消息处理器(消息模型)
+                                SimpleServerRequest request = new SimpleServerRequest(topic, data);
+                                SimpleServerResponse response = new SimpleServerResponse();
+                                try {
+                                    handler.handle(request, response);
+                                    if (response.getBody() != null) {
+                                        responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+                                    }
+                                } catch (Exception e) {
+                                    log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
                                 }
-                            } catch (Exception e) {
-                                log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
-                            }
-                        } else {
-                            // 无主题处理器时走统一过滤器链路(URL 路由,兼容 OAuth 认证)
-                            SimpleServerRequest request = new SimpleServerRequest(topic, data);
-                            SimpleServerResponse response = new SimpleServerResponse();
-                            try {
-                                handleRequest(request, response);
-                                if (response.getBody() != null) {
-                                    responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+                            } else {
+                                // 无主题处理器时走统一过滤器链路(URL 路由,兼容 OAuth 认证)
+                                SimpleServerRequest request = new SimpleServerRequest(topic, data);
+                                SimpleServerResponse response = new SimpleServerResponse();
+                                try {
+                                    handleRequest(request, response);
+                                    if (response.getBody() != null) {
+                                        responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+                                    }
+                                } catch (Exception e) {
+                                    log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
                                 }
-                            } catch (Exception e) {
-                                log.error("RSocket requestResponse 处理异常: topic={}", topic, e);
                             }
+                            publish(topic, data);
                         }
-                        publish(topic, data);
-                    }
-                    return Mono.just(io.rsocket.util.DefaultPayload.create(responseBody));
+                        return io.rsocket.util.DefaultPayload.create(responseBody);
+                    }).subscribeOn(reactor.core.scheduler.Schedulers.fromExecutor(bizExecutor));
                 }
 
                 @Override
                 /** FireAndForget */
                 public Mono<Void> fireAndForget(io.rsocket.Payload payload) {
-                    String topic = extractTopic(payload);
-                    String data = payload.getDataUtf8();
-                    if (topic != null) {
-                        ServerHandler handler = messageHandlers.get(topic);
-                        if (handler != null) {
-                            SimpleServerRequest request = new SimpleServerRequest(topic, data);
-                            SimpleServerResponse response = new SimpleServerResponse();
-                            try {
-                                handler.handle(request, response);
-                            } catch (Exception e) {
-                                log.error("RSocket fireAndForget 处理异常: topic={}", topic, e);
+                    // 虚拟线程异步执行,业务不阻塞连接 event loop
+                    return Mono.<Void>fromRunnable(() -> {
+                        String topic = extractTopic(payload);
+                        String data = payload.getDataUtf8();
+                        if (topic != null) {
+                            ServerHandler handler = messageHandlers.get(topic);
+                            if (handler != null) {
+                                SimpleServerRequest request = new SimpleServerRequest(topic, data);
+                                SimpleServerResponse response = new SimpleServerResponse();
+                                try {
+                                    handler.handle(request, response);
+                                } catch (Exception e) {
+                                    log.error("RSocket fireAndForget 处理异常: topic={}", topic, e);
+                                }
+                            } else {
+                                // 无主题处理器时走统一过滤器链路
+                                SimpleServerRequest request = new SimpleServerRequest(topic, data);
+                                SimpleServerResponse response = new SimpleServerResponse();
+                                try {
+                                    handleRequest(request, response);
+                                } catch (Exception e) {
+                                    log.error("RSocket fireAndForget 处理异常: topic={}", topic, e);
+                                }
                             }
-                        } else {
-                            // 无主题处理器时走统一过滤器链路
-                            SimpleServerRequest request = new SimpleServerRequest(topic, data);
-                            SimpleServerResponse response = new SimpleServerResponse();
-                            try {
-                                handleRequest(request, response);
-                            } catch (Exception e) {
-                                log.error("RSocket fireAndForget 处理异常: topic={}", topic, e);
-                            }
+                            publish(topic, data);
                         }
-                        publish(topic, data);
-                    }
-                    return Mono.empty();
+                    }).subscribeOn(reactor.core.scheduler.Schedulers.fromExecutor(bizExecutor)).then();
                 }
 
                 @Override

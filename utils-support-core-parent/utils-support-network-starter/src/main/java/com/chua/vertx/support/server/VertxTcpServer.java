@@ -204,21 +204,21 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         if (head[0] != com.chua.common.support.scatter.protocol.ScatterProtocol.MAGIC) {
             throw new IOException("帧魔数错误");
         }
+        // 布局顺序：head(7) → path(pathLen) → payloadLen(4) → payload
         int pathLen = head[6] & 0xff;
+        byte[] path = new byte[pathLen];
+        readFully(in, path);
         byte[] lenBytes = new byte[4];
         readFully(in, lenBytes);
         int payloadLen = ((lenBytes[0] & 0xff) << 24) | ((lenBytes[1] & 0xff) << 16)
                 | ((lenBytes[2] & 0xff) << 8) | (lenBytes[3] & 0xff);
-        byte[] rest = new byte[pathLen + payloadLen];
-        readFully(in, rest);
+        byte[] payload = new byte[payloadLen];
+        readFully(in, payload);
         byte[] full = new byte[7 + pathLen + 4 + payloadLen];
         System.arraycopy(head, 0, full, 0, 7);
-        System.arraycopy(rest, 0, full, 7, pathLen + payloadLen);
-        // 重建 payloadLen 字节（在 path 之后）
-        full[7 + pathLen] = lenBytes[0];
-        full[7 + pathLen + 1] = lenBytes[1];
-        full[7 + pathLen + 2] = lenBytes[2];
-        full[7 + pathLen + 3] = lenBytes[3];
+        System.arraycopy(path, 0, full, 7, pathLen);
+        System.arraycopy(lenBytes, 0, full, 7 + pathLen, 4);
+        System.arraycopy(payload, 0, full, 7 + pathLen + 4, payloadLen);
         return full;
     }
 

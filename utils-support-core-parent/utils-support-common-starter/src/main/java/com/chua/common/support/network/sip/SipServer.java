@@ -11,6 +11,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,6 +45,11 @@ import java.util.function.Consumer;
  */
 @Slf4j
 public class SipServer extends AbstractServer implements TcpServer {
+
+    /**
+     * 握手首行最大长度（字节），超长直接断开，防止恶意连接打爆内存
+     */
+    private static final int MAX_HEAD_LINE = 8192;
 
     /**
      * 客户端注册表（clientId -> 信令连接）
@@ -138,6 +144,10 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     @Override
     protected void doStop() {
+        // 通知所有在线客户端即将停机
+        for (String clientId : registry.keySet()) {
+            send(clientId, SipProtocol.line(SipProtocol.PREFIX_ERROR, "server-shutdown", "服务器停机"));
+        }
         if (tcpServer != null) {
             try {
                 tcpServer.stop();
@@ -242,12 +252,12 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     private void handleConnection(InputStream in, OutputStream out) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String firstLine = reader.readLine();
+            String firstLine = readHeadLine(in);
             if (firstLine == null || firstLine.isBlank()) {
                 return;
             }
             if (firstLine.startsWith(SipProtocol.PREFIX_AUTH + SipProtocol.SEPARATOR)) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
                 handleSignalConnection(reader, out, firstLine);
             } else if (firstLine.startsWith(SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR)) {
                 handleDataConnection(in, out, firstLine);
@@ -255,6 +265,32 @@ public class SipServer extends AbstractServer implements TcpServer {
         } catch (IOException e) {
             log.debug("SIP 连接处理异常: {}", e.getMessage());
         }
+    }
+
+    /**
+     * 逐字节读取首行（遇换行停止），不预读缓冲后续字节，保证数据平面业务字节不被吞掉。
+     * <p>超过 {@link #MAX_HEAD_LINE} 字节直接视为非法连接并断开，防止恶意客户端打爆内存。</p>
+     *
+     * @param in 输入流
+     * @return 首行内容（不含换行符），读不到或超长时返回 null
+     * @throws IOException IO 异常
+     */
+    private static String readHeadLine(InputStream in) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(256);
+        int b;
+        while ((b = in.read()) != -1) {
+            if (b == '\n') {
+                break;
+            }
+            if (b != '\r') {
+                buffer.write(b);
+                if (buffer.size() > MAX_HEAD_LINE) {
+                    log.warn("SIP 首行超长，拒绝连接: {} bytes", buffer.size());
+                    return null;
+                }
+            }
+        }
+        return buffer.size() == 0 ? null : new String(buffer.toByteArray(), StandardCharsets.UTF_8);
     }
 
     /**
@@ -284,7 +320,14 @@ public class SipServer extends AbstractServer implements TcpServer {
         sessionTokens.put(sessionToken, clientId);
         PrintWriter writer = new PrintWriter(out, true, StandardCharsets.UTF_8);
         SignalConnection conn = new SignalConnection(clientId, host, port, sessionToken, writer);
-        registry.put(clientId, conn);
+        SignalConnection previous = registry.put(clientId, conn);
+        if (previous != null) {
+            // 同一 clientId 重复接入：踢掉旧连接，防止注册表互相覆盖导致隧道串线
+            log.warn("SIP 客户端重复接入，踢掉旧连接: clientId={}", clientId);
+            sessionTokens.remove(previous.token());
+            closeQuietly(previous);
+            disconnectTunnelsOf(clientId);
+        }
         writeLine(out, SipProtocol.line(SipProtocol.PREFIX_TOKEN, sessionToken));
         notifyConnectListeners(clientId);
         log.info("SIP 客户端认证接入: {} @ {}:{}", clientId, host, port);
@@ -305,14 +348,33 @@ public class SipServer extends AbstractServer implements TcpServer {
     private void handleSignal(String clientId, String line) {
         try {
             if (line.startsWith(SipProtocol.PREFIX_SERVICE + SipProtocol.SEPARATOR)) {
-                String serviceName = line.substring(SipProtocol.PREFIX_SERVICE.length() + 1).trim();
+                String[] parts = line.split("\\|", 3);
+                if (!matchesToken(clientId, parts, 1)) {
+                    return;
+                }
+                String serviceName = parts.length > 2 ? parts[2].trim() : "";
                 tunnelServices.put(serviceName, clientId);
                 send(clientId, SipProtocol.line(SipProtocol.PREFIX_SERVICE_OK, serviceName));
                 log.info("SIP 隧道服务注册: {} -> {}", serviceName, clientId);
             } else if (line.startsWith(SipProtocol.PREFIX_OPEN + SipProtocol.SEPARATOR)) {
+                String[] parts = line.split("\\|", 4);
+                if (!matchesToken(clientId, parts, 1)) {
+                    return;
+                }
                 handleOpen(clientId, line);
             } else if (line.startsWith(SipProtocol.PREFIX_CLOSE + SipProtocol.SEPARATOR)) {
+                String[] parts = line.split("\\|", 3);
+                if (!matchesToken(clientId, parts, 1)) {
+                    return;
+                }
                 handleClose(clientId, line);
+            } else if (line.startsWith(SipProtocol.PREFIX_PING + SipProtocol.SEPARATOR)) {
+                // 心跳探活：回 PONG 确认连接存活
+                String[] parts = line.split("\\|", 3);
+                String token = parts.length > 1 ? parts[1] : "";
+                if (matchesToken(clientId, parts, 1)) {
+                    send(clientId, SipProtocol.line(SipProtocol.PREFIX_PONG, token));
+                }
             } else {
                 log.debug("忽略未知 SIP 信令: {}", line);
             }
@@ -322,15 +384,38 @@ public class SipServer extends AbstractServer implements TcpServer {
     }
 
     /**
+     * 校验信令行携带的会话令牌与当前连接一致，防止伪造命令。
+     *
+     * @param clientId 客户端标识
+     * @param parts    已按分隔符拆分的信令字段（第 1 位为会话令牌）
+     * @param tokenIdx 会话令牌所在下标
+     * @return true 表示校验通过
+     */
+    private boolean matchesToken(String clientId, String[] parts, int tokenIdx) {
+        SignalConnection conn = registry.get(clientId);
+        if (conn == null) {
+            return false;
+        }
+        String presented = parts.length > tokenIdx ? parts[tokenIdx] : "";
+        if (!conn.token().equals(presented)) {
+            log.warn("SIP 信令令牌校验失败，拒绝: clientId={}, command={}", clientId,
+                    parts[0]);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 处理隧道开启请求。
      *
      * @param clientId 访问方客户端标识
      * @param line     命令行（OPEN|requestId|serviceName）
      */
     private void handleOpen(String clientId, String line) {
-        String[] parts = line.split("\\|", 3);
-        String requestId = parts.length > 1 ? parts[1] : "";
-        String serviceName = parts.length > 2 ? parts[2] : "";
+        String[] parts = line.split("\\|", 4);
+        String token = parts.length > 1 ? parts[1] : "";
+        String requestId = parts.length > 2 ? parts[2] : "";
+        String serviceName = parts.length > 3 ? parts[3] : "";
         String providerId = tunnelServices.get(serviceName);
         if (providerId == null || providerId.equals(clientId)) {
             send(clientId, SipProtocol.line(SipProtocol.PREFIX_ERROR, requestId, "service not found: " + serviceName));
@@ -356,7 +441,8 @@ public class SipServer extends AbstractServer implements TcpServer {
      * @param line     命令行（CLOSE|channelId）
      */
     private void handleClose(String clientId, String line) {
-        String channelId = line.substring(SipProtocol.PREFIX_CLOSE.length() + 1).trim();
+        String[] parts = line.split("\\|", 3);
+        String channelId = parts.length > 2 ? parts[2].trim() : "";
         closeChannel(channelId);
     }
 
@@ -392,6 +478,7 @@ public class SipServer extends AbstractServer implements TcpServer {
         }
         dataChannel.bind(role, in, out);
         log.debug("SIP 数据平面连接绑定: channel={}, role={}", channelId, role);
+        dataChannel.awaitClosed();
     }
 
     /**
@@ -406,6 +493,16 @@ public class SipServer extends AbstractServer implements TcpServer {
         }
         sessionTokens.remove(conn.token());
         notifyDisconnectListeners(clientId);
+        disconnectTunnelsOf(clientId);
+        log.info("SIP 客户端断开: {}", clientId);
+    }
+
+    /**
+     * 清理某客户端名下的隧道服务与参与的通道路由（服务端主动踢连接时复用）。
+     *
+     * @param clientId 客户端标识
+     */
+    private void disconnectTunnelsOf(String clientId) {
         // 移除该客户端提供的服务
         tunnelServices.entrySet().removeIf(entry -> entry.getValue().equals(clientId));
         // 关闭该客户端参与的隧道
@@ -417,7 +514,18 @@ public class SipServer extends AbstractServer implements TcpServer {
             }
         }
         closed.forEach(this::closeChannel);
-        log.info("SIP 客户端断开: {}", clientId);
+    }
+
+    /**
+     * 服务端主动关闭某客户端的信令连接。
+     *
+     * @param conn 信令连接
+     */
+    private void closeQuietly(SignalConnection conn) {
+        try {
+            conn.writer().close();
+        } catch (Exception ignored) {
+        }
     }
 
     /**
@@ -443,15 +551,19 @@ public class SipServer extends AbstractServer implements TcpServer {
     }
 
     /**
-     * 向指定客户端发送信令行。
+     * 向指定客户端发送信令行；写入失败时移除该连接并清理其资源。
      *
      * @param clientId 客户端标识
      * @param line     信令行
      */
     private void send(String clientId, String line) {
         SignalConnection conn = registry.get(clientId);
-        if (conn != null) {
-            conn.send(line);
+        if (conn != null && !conn.send(line)) {
+            log.warn("SIP 信令写入失败，清理僵尸连接: clientId={}", clientId);
+            registry.remove(clientId);
+            sessionTokens.remove(conn.token());
+            disconnectTunnelsOf(clientId);
+            closeQuietly(conn);
         }
     }
 
@@ -528,14 +640,16 @@ public class SipServer extends AbstractServer implements TcpServer {
     private record SignalConnection(String clientId, String host, int port, String token, PrintWriter writer) {
 
         /**
-         * 发送信令行。
+         * 发送信令行；写入失败时返回 false（连接已断）。
          *
          * @param line 信令行
+         * @return true 表示发送成功
          */
-        void send(String line) {
+        boolean send(String line) {
             synchronized (writer) {
                 writer.println(line);
                 writer.flush();
+                return !writer.checkError();
             }
         }
     }
@@ -575,12 +689,28 @@ public class SipServer extends AbstractServer implements TcpServer {
         private volatile boolean closed;
 
         /**
+         * 关闭闩锁：两端 handler 线程在此等待，连接关闭后释放
+         */
+        private final java.util.concurrent.CountDownLatch closedLatch = new java.util.concurrent.CountDownLatch(1);
+
+        /**
          * 创建通道桥接器。
          *
          * @param channelId 通道标识
          */
         private DataChannel(String channelId) {
             this.channelId = channelId;
+        }
+
+        /**
+         * 等待通道关闭（阻塞调用线程，避免连接被上层框架提前关闭）。
+         */
+        void awaitClosed() {
+            try {
+                closedLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
 
         /**
@@ -613,7 +743,7 @@ public class SipServer extends AbstractServer implements TcpServer {
          * @param role   来源角色
          */
         private void bridge(Endpoint source, Endpoint target, String role) {
-            ThreadUtils.newThread(() -> {
+            ThreadUtils.startVirtualThread("sip-data-bridge-" + channelId + "-" + role, () -> {
                 try {
                     byte[] buf = new byte[64 * 1024];
                     int n;
@@ -627,7 +757,7 @@ public class SipServer extends AbstractServer implements TcpServer {
                 } finally {
                     close();
                 }
-            }, "sip-data-bridge-" + channelId + "-" + role).start();
+            });
         }
 
         /**
@@ -644,6 +774,7 @@ public class SipServer extends AbstractServer implements TcpServer {
             if (provider != null) {
                 provider.close();
             }
+            closedLatch.countDown();
         }
 
         /**

@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.opencv;
 
 import com.chua.common.support.image.ImageProcessor;
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiOrder;
 import lombok.extern.slf4j.Slf4j;
@@ -112,8 +113,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 缩放图像
      */
     private Mat resize(Mat src, Map<String, Object> params) {
-        int width = toInt(params.get("width"), 200);
-        int height = toInt(params.get("height"), 200);
+        int width = ImageProcessorUtils.toInt(params.get("width"), 200);
+        int height = ImageProcessorUtils.toInt(params.get("height"), 200);
         Mat dst = new Mat();
         Imgproc.resize(src, dst, new Size(width, height));
         return dst;
@@ -132,7 +133,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 旋转图像
      */
     private Mat rotate(Mat src, Map<String, Object> params) {
-        int angle = toInt(params.get("angle"), 90) % 360;
+        int angle = ImageProcessorUtils.toInt(params.get("angle"), 90) % 360;
         if (angle < 0) {
             angle += 360;
         }
@@ -172,10 +173,10 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 裁剪图像
      */
     private Mat crop(Mat src, Map<String, Object> params) {
-        int x = toInt(params.get("x"), 0);
-        int y = toInt(params.get("y"), 0);
-        int w = toInt(params.get("width"), 100);
-        int h = toInt(params.get("height"), 100);
+        int x = ImageProcessorUtils.toInt(params.get("x"), 0);
+        int y = ImageProcessorUtils.toInt(params.get("y"), 0);
+        int w = ImageProcessorUtils.toInt(params.get("width"), 100);
+        int h = ImageProcessorUtils.toInt(params.get("height"), 100);
         x = Math.max(0, Math.min(x, src.cols()));
         y = Math.max(0, Math.min(y, src.rows()));
         w = Math.min(w, src.cols() - x);
@@ -190,7 +191,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 高斯模糊
      */
     private Mat blur(Mat src, Map<String, Object> params) {
-        int sigma = toInt(params.get("sigma"), 3);
+        int sigma = ImageProcessorUtils.toInt(params.get("sigma"), 3);
         int ksize = Math.max(1, sigma) * 2 + 1;
         Mat dst = new Mat();
         Imgproc.GaussianBlur(src, dst, new Size(ksize, ksize), sigma);
@@ -212,7 +213,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 调整亮度
      */
     private Mat brightness(Mat src, Map<String, Object> params) {
-        int value = toInt(params.get("value"), 10);
+        int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         Mat dst = new Mat();
         src.convertTo(dst, -1, 1.0, value);
         return dst;
@@ -222,7 +223,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 调整对比度
      */
     private Mat contrast(Mat src, Map<String, Object> params) {
-        int value = toInt(params.get("value"), 10);
+        int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         double alpha = (259.0 * (value + 255.0)) / (255.0 * (259.0 - value));
         Mat dst = new Mat();
         src.convertTo(dst, -1, alpha, 0);
@@ -233,9 +234,10 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 绘制边框
      */
     private Mat border(Mat src, Map<String, Object> params) {
-        int width = toInt(params.get("width"), 1);
+        int width = ImageProcessorUtils.toInt(params.get("width"), 1);
         width = Math.max(0, width);
-        Scalar color = parseColor(params.get("color") != null ? params.get("color").toString() : "#000000");
+        int[] rgb = ImageProcessorUtils.parseColor(params.get("color") != null ? params.get("color").toString() : "#000000");
+        Scalar color = new Scalar(rgb[2], rgb[1], rgb[0]); // OpenCV 使用 BGR 顺序
         Mat dst = new Mat();
         Core.copyMakeBorder(src, dst, width, width, width, width, Core.BORDER_CONSTANT, color);
         return dst;
@@ -293,8 +295,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
             gradY.release();
         } else {
             // Canny 边缘检测（默认）
-            int threshold1 = toInt(params.get("threshold1"), 50);
-            int threshold2 = toInt(params.get("threshold2"), 150);
+            int threshold1 = ImageProcessorUtils.toInt(params.get("threshold1"), 50);
+            int threshold2 = ImageProcessorUtils.toInt(params.get("threshold2"), 150);
             Imgproc.Canny(gray, result, threshold1, threshold2);
         }
         gray.release();
@@ -351,7 +353,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
 
             // 阈值过滤
             double threshold = params.get("threshold") != null ? ((Number) params.get("threshold")).doubleValue() : 0.8;
-            int maxCount = toInt(params.get("maxCount"), 10);
+            int maxCount = ImageProcessorUtils.toInt(params.get("maxCount"), 10);
             boolean drawMatch = params.get("drawMatch") == null || Boolean.parseBoolean(params.get("drawMatch").toString());
 
             // 查找匹配位置（NMS 简化版）
@@ -443,50 +445,6 @@ public class OpenCVImageProcessor implements ImageProcessor {
             case "ccoeff_normed" -> Imgproc.TM_CCOEFF_NORMED;
             default -> Imgproc.TM_CCOEFF_NORMED;
         };
-    }
-
-    /**
-     * 解析颜色字符串为 OpenCV Scalar（BGR 顺序）
-     */
-    private Scalar parseColor(String colorStr) {
-        String s = colorStr.trim();
-        int r = 0, g = 0, b = 0;
-        if (s.startsWith("#") && s.length() == 7) {
-            try {
-                r = Integer.parseInt(s.substring(1, 3), 16);
-                g = Integer.parseInt(s.substring(3, 5), 16);
-                b = Integer.parseInt(s.substring(5, 7), 16);
-            } catch (NumberFormatException ignored) {
-            }
-        } else {
-            String[] parts = s.split(",");
-            if (parts.length == 3) {
-                try {
-                    r = Integer.parseInt(parts[0].trim());
-                    g = Integer.parseInt(parts[1].trim());
-                    b = Integer.parseInt(parts[2].trim());
-                } catch (NumberFormatException ignored) {
-                }
-            }
-        }
-        // OpenCV 使用 BGR 顺序
-        return new Scalar(b, g, r);
-    }
-
-    /**
-     * 将参数转为整数
-     */
-    private int toInt(Object value, int defaultVal) {
-        if (value instanceof Number n) {
-            return n.intValue();
-        }
-        if (value instanceof String s) {
-            try {
-                return Integer.parseInt(s);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return defaultVal;
     }
 
     @Override

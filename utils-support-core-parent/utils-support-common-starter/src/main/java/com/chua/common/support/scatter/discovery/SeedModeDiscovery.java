@@ -72,16 +72,14 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 与单个 seed 同步：拉取服务表合并。 */
+    /** 与单个 seed 同步：拉取完整服务表合并（hash 同步）。 */
     private boolean syncWithSeed(ScatterNode seed) {
         ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<Discovery> result = remoteClient.invoke(ctx, seed, setting.getTimeoutMillis());
+        ScatterResult<java.util.List<Discovery>> result =
+                remoteClient.invoke(ctx, seed, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
-            Discovery remote = result.getData();
-            if (getGroupId().equals(remote.getScatterId())) {
-                updateService(setting.getServicePath(), remote);
-            }
+            mergeRemote(result.getData());
             return true;
         }
         return false;
@@ -110,10 +108,14 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** seed 全掉线：标记本地 seed 条目降级。 */
+    /** seed 全掉线：标记本地 seed 引导条目降级（不依赖 announcedSeeds——其会在同步失败时被清空）。 */
     private void markSeedDown() {
         for (Discovery d : getServiceAll(setting.getServicePath())) {
-            if (d.getServerId() != null && announcedSeeds.contains(d.getServerId())) {
+            if (d.getServerId() == null) {
+                continue;
+            }
+            // 仅标记 seed 引导条目（metadata.seed=true）
+            if (d.getMetadata() != null && "true".equals(d.getMetadata().get(METADATA_SEED))) {
                 java.util.Map<String, String> meta = new java.util.HashMap<>(
                         d.getMetadata() == null ? java.util.Map.of() : d.getMetadata());
                 meta.put(METADATA_SEED_DOWN, "true");
@@ -156,15 +158,22 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         electNewSeed(candidates);
     }
 
-    /** 选举：从存活老节点中选最小 nodeId 为新引导（广播 ELEC 帧）。 */
+    /** 选举：seed 全掉线时，最小 nodeId 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。 */
     private void electNewSeed(List<Discovery> candidates) {
         if (candidates.isEmpty()) {
+            // 无其他存活节点：自己是唯一节点，无需广播
             return;
         }
-        Discovery elected = candidates.get(0); // 已按最小 nodeId 排序
-        if (setting.getNodeId().equals(elected.getServerId())) {
-            // 自己是候选最小节点：广播选举通知给其他节点
-            broadcastElection(elected);
+        Discovery minRemote = candidates.get(0); // 已按 nodeId 排序（最小优先）
+        String selfId = setting.getNodeId();
+        // 自己 vs 远端最小 nodeId：自己更小则自己成为新引导并广播
+        if (selfId.compareTo(minRemote.getServerId()) < 0) {
+            Discovery self = getServiceAll(setting.getServicePath()).stream()
+                    .filter(d -> selfId.equals(d.getServerId()))
+                    .findFirst().orElse(null);
+            if (self != null) {
+                broadcastElection(self);
+            }
         }
     }
 
@@ -197,12 +206,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     private void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<Discovery> result = remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+        ScatterResult<java.util.List<Discovery>> result =
+                remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
-            Discovery remote = result.getData();
-            if (getGroupId().equals(remote.getScatterId())) {
-                updateService(setting.getServicePath(), remote);
-            }
+            mergeRemote(result.getData());
         }
     }
 

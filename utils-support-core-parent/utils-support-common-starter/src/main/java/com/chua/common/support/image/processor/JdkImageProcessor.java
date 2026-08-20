@@ -1,6 +1,7 @@
 package com.chua.common.support.image.processor;
 
 import com.chua.common.support.image.ImageProcessor;
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiOrder;
 
@@ -66,8 +67,8 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 缩放后的图像
      */
     private BufferedImage resize(BufferedImage image, Map<String, Object> params) {
-        int width = toInt(params.get("width"), 200);
-        int height = toInt(params.get("height"), 200);
+        int width = ImageProcessorUtils.toInt(params.get("width"), 200);
+        int height = ImageProcessorUtils.toInt(params.get("height"), 200);
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = result.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -98,7 +99,7 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 旋转后的图像
      */
     private BufferedImage rotate(BufferedImage image, Map<String, Object> params) {
-        int angle = toInt(params.get("angle"), 90) % 360;
+        int angle = ImageProcessorUtils.toInt(params.get("angle"), 90) % 360;
         if (angle < 0) {
             angle += 360;
         }
@@ -165,10 +166,10 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 裁剪后的图像
      */
     private BufferedImage crop(BufferedImage image, Map<String, Object> params) {
-        int x = toInt(params.get("x"), 0);
-        int y = toInt(params.get("y"), 0);
-        int w = toInt(params.get("width"), 100);
-        int h = toInt(params.get("height"), 100);
+        int x = ImageProcessorUtils.toInt(params.get("x"), 0);
+        int y = ImageProcessorUtils.toInt(params.get("y"), 0);
+        int w = ImageProcessorUtils.toInt(params.get("width"), 100);
+        int h = ImageProcessorUtils.toInt(params.get("height"), 100);
         int srcW = image.getWidth();
         int srcH = image.getHeight();
         x = Math.max(0, Math.min(x, srcW));
@@ -189,7 +190,7 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 模糊后的图像
      */
     private BufferedImage blur(BufferedImage image, Map<String, Object> params) {
-        int sigma = toInt(params.get("sigma"), 3);
+        int sigma = ImageProcessorUtils.toInt(params.get("sigma"), 3);
         int radius = Math.max(1, sigma);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = result.createGraphics();
@@ -234,15 +235,15 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 调整后的图像
      */
     private BufferedImage brightness(BufferedImage image, Map<String, Object> params) {
-        int value = toInt(params.get("value"), 10);
+        int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int rgb = image.getRGB(x, y);
                 int a = (rgb >> 24) & 0xFF;
-                int r = clamp((((rgb >> 16) & 0xFF) + value));
-                int g = clamp((((rgb >> 8) & 0xFF) + value));
-                int b = clamp((rgb & 0xFF) + value);
+                int r = ImageProcessorUtils.clamp((((rgb >> 16) & 0xFF) + value));
+                int g = ImageProcessorUtils.clamp((((rgb >> 8) & 0xFF) + value));
+                int b = ImageProcessorUtils.clamp((rgb & 0xFF) + value);
                 result.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | b);
             }
         }
@@ -257,16 +258,16 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 调整后的图像
      */
     private BufferedImage contrast(BufferedImage image, Map<String, Object> params) {
-        int value = toInt(params.get("value"), 10);
+        int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         double factor = (259.0 * (value + 255.0)) / (255.0 * (259.0 - value));
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int rgb = image.getRGB(x, y);
                 int a = (rgb >> 24) & 0xFF;
-                int r = clamp((int) (factor * (((rgb >> 16) & 0xFF) - 128) + 128));
-                int g = clamp((int) (factor * (((rgb >> 8) & 0xFF) - 128) + 128));
-                int b = clamp((int) (factor * ((rgb & 0xFF) - 128) + 128));
+                int r = ImageProcessorUtils.clamp((int) (factor * (((rgb >> 16) & 0xFF) - 128) + 128));
+                int g = ImageProcessorUtils.clamp((int) (factor * (((rgb >> 8) & 0xFF) - 128) + 128));
+                int b = ImageProcessorUtils.clamp((int) (factor * ((rgb & 0xFF) - 128) + 128));
                 result.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | b);
             }
         }
@@ -281,9 +282,9 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 带边框的图像
      */
     private BufferedImage border(BufferedImage image, Map<String, Object> params) {
-        int width = toInt(params.get("width"), 1);
+        int width = ImageProcessorUtils.toInt(params.get("width"), 1);
         width = Math.max(0, width);
-        int[] rgb = parseColor(params.get("color") != null ? params.get("color").toString() : "#000000");
+        int[] rgb = ImageProcessorUtils.parseColor(params.get("color") != null ? params.get("color").toString() : "#000000");
         Color color = new Color(rgb[0], rgb[1], rgb[2]);
         int outW = image.getWidth() + width * 2;
         int outH = image.getHeight() + width * 2;
@@ -307,7 +308,7 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 二值化后的灰度图像
      */
     private BufferedImage binarize(BufferedImage image, Map<String, Object> params) {
-        int threshold = toInt(params.get("threshold"), 128);
+        int threshold = ImageProcessorUtils.toInt(params.get("threshold"), 128);
         int w = image.getWidth();
         int h = image.getHeight();
         BufferedImage gray = grayscale(image);
@@ -315,9 +316,7 @@ public class JdkImageProcessor implements ImageProcessor {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int rgb = gray.getRGB(x, y);
-                int lum = (int) (0.299 * ((rgb >> 16) & 0xFF)
-                        + 0.587 * ((rgb >> 8) & 0xFF)
-                        + 0.114 * (rgb & 0xFF));
+                int lum = ImageProcessorUtils.luminance(rgb);
                 int val = lum >= threshold ? 255 : 0;
                 result.setRGB(x, y, (255 << 24) | (val << 16) | (val << 8) | val);
             }
@@ -336,7 +335,7 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 降噪后的图像
      */
     private BufferedImage denoise(BufferedImage image, Map<String, Object> params) {
-        int radius = Math.max(1, toInt(params.get("radius"), 1));
+        int radius = Math.max(1, ImageProcessorUtils.toInt(params.get("radius"), 1));
         int w = image.getWidth();
         int h = image.getHeight();
         BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -394,7 +393,7 @@ public class JdkImageProcessor implements ImageProcessor {
      * @return 处理后的灰度图像
      */
     private BufferedImage morphology(BufferedImage image, Map<String, Object> params, boolean erode) {
-        int kernel = Math.max(3, toInt(params.get("kernel"), 3));
+        int kernel = Math.max(3, ImageProcessorUtils.toInt(params.get("kernel"), 3));
         if (kernel % 2 == 0) {
             kernel++;
         }
@@ -410,7 +409,7 @@ public class JdkImageProcessor implements ImageProcessor {
                     for (int dx = -half; dx <= half; dx++) {
                         int nx = Math.max(0, Math.min(w - 1, x + dx));
                         int ny = Math.max(0, Math.min(h - 1, y + dy));
-                        int lum = luminance(gray.getRGB(nx, ny));
+                        int lum = ImageProcessorUtils.luminance(gray.getRGB(nx, ny));
                         if (erode) {
                             best = Math.min(best, lum);
                         } else {
@@ -442,9 +441,9 @@ public class JdkImageProcessor implements ImageProcessor {
         int h = image.getHeight();
         BufferedImage gray = grayscale(image);
 
-        // Sobel 算子
-        int[] sobelX = {-1, 0, 1, -2, 0, 2, -1, 0, 1}; // 水平方向（检测垂直边缘）
-        int[] sobelY = {-1, -2, -1, 0, 0, 0, 1, 2, 1}; // 垂直方向（检测水平边缘）
+        // Sobel 算子（来自 ImageProcessorUtils 统一定义）
+        int[] sobelX = ImageProcessorUtils.SOBEL_X;
+        int[] sobelY = ImageProcessorUtils.SOBEL_Y;
 
         BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
 
@@ -454,7 +453,7 @@ public class JdkImageProcessor implements ImageProcessor {
                 // 3x3 卷积
                 for (int ky = -1; ky <= 1; ky++) {
                     for (int kx = -1; kx <= 1; kx++) {
-                        int lum = luminance(gray.getRGB(x + kx, y + ky));
+                        int lum = ImageProcessorUtils.luminance(gray.getRGB(x + kx, y + ky));
                         int ki = (ky + 1) * 3 + (kx + 1);
                         if ("v".equalsIgnoreCase(direction)) {
                             gy += sobelY[ki] * lum;
@@ -482,18 +481,6 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-     * 计算像素亮度（灰度值）
-     *
-     * @param rgb ARGB 像素
-     * @return 亮度 0~255
-     */
-    private int luminance(int rgb) {
-        return (int) (0.299 * ((rgb >> 16) & 0xFF)
-                + 0.587 * ((rgb >> 8) & 0xFF)
-                + 0.114 * (rgb & 0xFF));
-    }
-
-    /**
      * 计算数组的中值（就地排序）
      *
      * @param values 数组
@@ -505,51 +492,6 @@ public class JdkImageProcessor implements ImageProcessor {
         System.arraycopy(values, 0, copy, 0, length);
         java.util.Arrays.sort(copy);
         return copy[copy.length / 2];
-    }
-
-    /**
-     * 解析颜色
-     *
-     * @param colorStr 颜色字符串（#RRGGBB 或 r,g,b）
-     * @return RGB 三元组
-     */
-    private int[] parseColor(String colorStr) {
-        String s = colorStr.trim();
-        if (s.startsWith("#") && s.length() == 7) {
-            try {
-                return new int[]{
-                        Integer.parseInt(s.substring(1, 3), 16),
-                        Integer.parseInt(s.substring(3, 5), 16),
-                        Integer.parseInt(s.substring(5, 7), 16)
-                };
-            } catch (NumberFormatException ignored) {
-                // 忽略非法颜色，返回黑色
-            }
-            return new int[]{0, 0, 0};
-        }
-        String[] parts = s.split(",");
-        if (parts.length == 3) {
-            try {
-                return new int[]{
-                        Integer.parseInt(parts[0].trim()),
-                        Integer.parseInt(parts[1].trim()),
-                        Integer.parseInt(parts[2].trim())
-                };
-            } catch (NumberFormatException ignored) {
-                // 忽略非法颜色，返回黑色
-            }
-        }
-        return new int[]{0, 0, 0};
-    }
-
-    /**
-     * 将值钳制到 [0, 255]
-     *
-     * @param v 原始值
-     * @return 钳制后的值
-     */
-    private int clamp(int v) {
-        return Math.max(0, Math.min(255, v));
     }
 
     /**
@@ -574,27 +516,6 @@ public class JdkImageProcessor implements ImageProcessor {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(image, format, out);
         return out.toByteArray();
-    }
-
-    /**
-     * 将参数转为整数
-     *
-     * @param value      参数值
-     * @param defaultVal 默认值
-     * @return 整数值
-     */
-    private int toInt(Object value, int defaultVal) {
-        if (value instanceof Number n) {
-            return n.intValue();
-        }
-        if (value instanceof String s) {
-            try {
-                return Integer.parseInt(s);
-            } catch (NumberFormatException ignored) {
-                // 忽略非法参数
-            }
-        }
-        return defaultVal;
     }
 
     @Override

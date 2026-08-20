@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 
@@ -42,16 +43,6 @@ import javax.annotation.Nullable;
 public class SepiaToneImageFilter extends AbstractImageFilter {
 
     /**
-     * 将颜色值限制在有效范围内
-     *
-     * @param c 颜色值
-     * @return 限制在0-255范围内的颜色值
-     */
-    public static int clamp(int c) {
-        return c > 255 ? 255 : ((c < 0) ? 0 : c);
-    }
-
-    /**
      * 执行棕褐色调滤镜处理
      *
      * 对输入图像应用棕褐色调效果，使用标准的颜色变换矩阵将RGB颜色
@@ -92,7 +83,7 @@ tb = inPixels[index] & 0xff;         // 蓝色通道
                 int fb = (int) colorBlend(noise(), (tr * 0.272) + (tg * 0.534) + (tb * 0.131), tb);
 
                 // 重新组合ARGB值，确保颜色值在有效范围内
-                outPixels[index] = (ta << 24) | (clamp(fr) << 16) | (clamp(fg) << 8) | clamp(fb);
+                outPixels[index] = (ta << 24) | (ImageProcessorUtils.clamp(fr) << 16) | (ImageProcessorUtils.clamp(fg) << 8) | ImageProcessorUtils.clamp(fb);
             }
         }
 

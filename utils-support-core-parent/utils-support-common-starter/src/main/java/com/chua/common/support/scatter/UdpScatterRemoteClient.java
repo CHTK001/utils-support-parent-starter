@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 public class UdpScatterRemoteClient implements ScatterRemoteClient {
 
     @Override
-    public ScatterResult<Discovery> invoke(ScatterContext context, ScatterNode node, long timeoutMillis) {
+    public ScatterResult<java.util.List<Discovery>> invoke(ScatterContext context, ScatterNode node, long timeoutMillis) {
         int requestId = Math.abs(context.getRequestId().hashCode());
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.setSoTimeout((int) Math.min(timeoutMillis, Integer.MAX_VALUE));
@@ -38,7 +38,8 @@ public class UdpScatterRemoteClient implements ScatterRemoteClient {
             ScatterFrame resp = ScatterFrame.decode(respData);
             if (resp.getType() == ScatterProtocol.TYPE_RESP && resp.getPayload().length > 0) {
                 String json = new String(resp.getPayload(), StandardCharsets.UTF_8);
-                Discovery data = com.chua.common.support.lang.json.Json.fromJson(json, Discovery.class);
+                java.util.List<Discovery> data =
+                        com.chua.common.support.lang.json.Json.fromJsonToList(json, Discovery.class);
                 return ScatterResult.success(node.getNodeId(), data);
             }
             return ScatterResult.failure(node.getNodeId(), "响应类型异常: " + resp.getType());

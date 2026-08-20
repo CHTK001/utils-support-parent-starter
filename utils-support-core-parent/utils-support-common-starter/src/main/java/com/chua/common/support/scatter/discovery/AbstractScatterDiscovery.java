@@ -171,14 +171,14 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 帧处理：REQ 拉取 / PUSH 合并。 */
+    /** 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并。 */
     @Override
     public byte[] handle(ScatterFrame frame) {
         try {
             if (frame.getType() == ScatterProtocol.TYPE_REQ) {
                 Set<Discovery> services = getServiceAll(frame.getPath());
-                Discovery picked = services.stream().findFirst().orElse(null);
-                byte[] payload = Json.toJson(picked).getBytes(StandardCharsets.UTF_8);
+                // 返回完整服务表（JSON 数组），对端逐条按 serverId 合并
+                byte[] payload = Json.toJson(new ArrayList<>(services)).getBytes(StandardCharsets.UTF_8);
                 return new ScatterFrame(ScatterProtocol.TYPE_RESP, frame.getRequestId(),
                         frame.getPath(), payload).encode();
             } else if (frame.getType() == ScatterProtocol.TYPE_PUSH) {
@@ -186,6 +186,22 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 Discovery remote = Json.fromJson(json, Discovery.class);
                 if (remote != null && getGroupId().equals(remote.getScatterId())) {
                     updateService(frame.getPath(), remote);
+                }
+                return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
+                        frame.getPath(), new byte[0]).encode();
+            } else if (frame.getType() == ScatterProtocol.TYPE_ELEC) {
+                // 选举通知：对端节点成为新引导，本地把它纳入 seed 列表（后续 seed 掉线时用它同步）
+                String json = new String(frame.getPayload(), StandardCharsets.UTF_8);
+                Discovery elected = Json.fromJson(json, Discovery.class);
+                if (elected != null && elected.getHost() != null) {
+                    String seedAddr = elected.getHost() + ":" + elected.getPort();
+                    List<String> seeds = new ArrayList<>(setting.getSeeds() == null
+                            ? List.of() : setting.getSeeds());
+                    if (!seeds.contains(seedAddr)) {
+                        seeds.add(seedAddr);
+                        setting.setSeeds(seeds);
+                        log.info("收到选举通知，新增 seed 引导: {}", seedAddr);
+                    }
                 }
                 return new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
@@ -226,14 +242,22 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 d.getProtocol(), getGroupId(), setting.getServicePath());
         ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<Discovery> result = remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+        ScatterResult<java.util.List<Discovery>> result =
+                remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
             heartbeatFailCounts.remove(node.getNodeId());
-            if (getGroupId().equals(result.getData().getScatterId())) {
-                updateService(setting.getServicePath(), result.getData());
-            }
+            mergeRemote(result.getData());
         } else {
             onHeartbeatFail(node);
+        }
+    }
+
+    /** 合并对端服务表：逐条按 serverId 幂等合并（同分组）。 */
+    protected void mergeRemote(java.util.List<Discovery> remote) {
+        for (Discovery r : remote) {
+            if (r != null && r.getServerId() != null && getGroupId().equals(r.getScatterId())) {
+                updateService(setting.getServicePath(), r);
+            }
         }
     }
 
@@ -315,12 +339,15 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 return;
             }
             String json = Files.readString(path, StandardCharsets.UTF_8);
-            com.chua.common.support.lang.json.JsonObject root =
-                    Json.parse(json).toValue(com.chua.common.support.lang.json.JsonObject.class);
+            com.chua.common.support.lang.json.JsonNode root = Json.parse(json);
             if (root == null) {
                 return;
             }
-            Object nodesObj = root.get("nodes");
+            com.chua.common.support.lang.json.JsonNode nodesNode = root.get("nodes");
+            if (nodesNode == null) {
+                return;
+            }
+            Object nodesObj = nodesNode.getValue();
             if (nodesObj != null) {
                 List<Discovery> nodes = Json.fromJsonToList(Json.toJson(nodesObj), Discovery.class);
                 for (Discovery d : nodes) {

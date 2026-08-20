@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -241,9 +242,9 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
                 int originalGreen = (originalRgb >> 8) & 0xFF;
                 int originalBlue = originalRgb & 0xFF;
 
-                int newRed = clamp((int) (originalRed * (1 - strength) + redSum));
-                int newGreen = clamp((int) (originalGreen * (1 - strength) + greenSum));
-                int newBlue = clamp((int) (originalBlue * (1 - strength) + blueSum));
+                int newRed = ImageProcessorUtils.clamp((int) (originalRed * (1 - strength) + redSum));
+                int newGreen = ImageProcessorUtils.clamp((int) (originalGreen * (1 - strength) + greenSum));
+                int newBlue = ImageProcessorUtils.clamp((int) (originalBlue * (1 - strength) + blueSum));
 
                 int newRgb = (alpha << 24) | (newRed << 16) | (newGreen << 8) | newBlue;
                 dst.setRGB(x, y, newRgb);
@@ -266,7 +267,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
      */
     private double calculateEdgeStrength(BufferedImage src, int x, int y) {
         int centerRgb = src.getRGB(x, y);
-        int centerGray = rgbToGray(centerRgb);
+        int centerGray = ImageProcessorUtils.luminance(centerRgb);
 
         double maxDiff = 0;
         for (int dy = -1; dy <= 1; dy++) {
@@ -275,23 +276,13 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
                     continue;
                 }
                 int neighborRgb = src.getRGB(x + dx, y + dy);
-                int neighborGray = rgbToGray(neighborRgb);
+                int neighborGray = ImageProcessorUtils.luminance(neighborRgb);
                 double diff = Math.abs(centerGray - neighborGray) / 255.0;
                 maxDiff = Math.max(maxDiff, diff);
             }
         }
 
         return maxDiff;
-    }
-
-    /**
-     * RGB转灰度
-     */
-    private int rgbToGray(int rgb) {
-        int red = (rgb >> 16) & 0xFF;
-        int green = (rgb >> 8) & 0xFF;
-        int blue = rgb & 0xFF;
-        return (int) (red * 0.299 + green * 0.587 + blue * 0.114);
     }
 
     /**
@@ -340,9 +331,9 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
                 green = (int) (Math.round(green / factor) * factor);
                 blue = (int) (Math.round(blue / factor) * factor);
 
-                red = clamp(red);
-                green = clamp(green);
-                blue = clamp(blue);
+                red = ImageProcessorUtils.clamp(red);
+                green = ImageProcessorUtils.clamp(green);
+                blue = ImageProcessorUtils.clamp(blue);
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -437,9 +428,9 @@ if (hsv[1] > 0.1) {
 
                 // 降低对比度
                 double contrastFactor = 1.0 - contrastReduction;
-                red = clamp((int) ((red - 128) * contrastFactor + 128 + brightnessAdjustment));
-                green = clamp((int) ((green - 128) * contrastFactor + 128 + brightnessAdjustment));
-                blue = clamp((int) ((blue - 128) * contrastFactor + 128 + brightnessAdjustment));
+                red = ImageProcessorUtils.clamp((int) ((red - 128) * contrastFactor + 128 + brightnessAdjustment));
+                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastFactor + 128 + brightnessAdjustment));
+                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastFactor + 128 + brightnessAdjustment));
 
                 // 调整饱和度
                 float[] hsv = rgbToHsv(red, green, blue);
@@ -476,9 +467,9 @@ if (hsv[1] > 0.1) {
                 // 添加轻微的随机噪点来模拟黏土质感
                 if (clayTextureStrength > 0) {
                     double noise = (random.nextGaussian() * clayTextureStrength * 10);
-                    red = clamp((int) (red + noise));
-                    green = clamp((int) (green + noise));
-                    blue = clamp((int) (blue + noise));
+                    red = ImageProcessorUtils.clamp((int) (red + noise));
+                    green = ImageProcessorUtils.clamp((int) (green + noise));
+                    blue = ImageProcessorUtils.clamp((int) (blue + noise));
                 }
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
@@ -560,17 +551,11 @@ if (hsv[1] > 0.1) {
         }
 
         return new int[] {
-                clamp(r + m),
-                clamp(g + m),
-                clamp(b + m)
+                ImageProcessorUtils.clamp(r + m),
+                ImageProcessorUtils.clamp(g + m),
+                ImageProcessorUtils.clamp(b + m)
         };
     }
 
-    /**
-     * 限制值在0-255范围内
-     */
-    private int clamp(int value) {
-        return Math.max(0, Math.min(255, value));
-    }
 }
 

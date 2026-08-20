@@ -1,6 +1,7 @@
 package com.chua.image.support.filter;
 
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.utils.BufferedImageUtils;
@@ -52,24 +53,24 @@ import javax.annotation.Nullable;
 public class ImageFindEdgeFilter extends AbstractImageFilter {
 
     /**
-     * 用于边缘检测的水平Sobel算子滤波器
-     * <p>
-     * 这是一个3x3的滤波器:<br>
-     * -1 -2 -1 <br>
-     * 0  0  0 <br>
-     * 1  2  1 <br>
+     * 水平方向 Sobel 算子（检测水平边缘）
+     *
+     * <p>注意：此处「水平方向」对应 {@link ImageProcessorUtils#SOBEL_Y}，
+     * 因为检测水平边缘使用 Y 梯度方向的卷积核。</p>
+     *
+     * @see ImageProcessorUtils#SOBEL_Y
      */
-    public static final int[] SOBEL_X = new int[]{-1, -2, -1, 0, 0, 0, 1, 2, 1};
+    public static final int[] SOBEL_X = ImageProcessorUtils.SOBEL_Y;
     
     /**
-     * 用于边缘检测的垂直Sobel算子滤波器
-     * <p>
-     * 这是一个3x3的滤波器:<br>
-     * -1  0  1 <br>
-     * -2  0  2 <br>
-     * -1  0  1 <br>
+     * 垂直方向 Sobel 算子（检测垂直边缘）
+     *
+     * <p>注意：此处「垂直方向」对应 {@link ImageProcessorUtils#SOBEL_X}，
+     * 因为检测垂直边缘使用 X 梯度方向的卷积核。</p>
+     *
+     * @see ImageProcessorUtils#SOBEL_X
      */
-    public static final int[] SOBEL_Y = new int[]{-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    public static final int[] SOBEL_Y = ImageProcessorUtils.SOBEL_X;
 
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {

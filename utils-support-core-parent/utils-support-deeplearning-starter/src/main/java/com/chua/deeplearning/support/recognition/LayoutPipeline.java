@@ -17,32 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * 版面分析管线。
- *
- * <p>调度已注册的版面分析 / 文档布局模型（如 layout-lmv3、doc-layout-yolo、
- * pp-doc-layout 等），统一返回翻译器原始输出 {@link Object}。
- * 各模型输出类型不同：layout-lmv3 输出 LayoutLMv3Result（文档区域列表），
- * YOLO 版面模型输出检测框列表。</p>
- *
- * <p>支持在识别前接入 {@link ImagePipeline} 图像预处理（灰度化 / 二值化 /
- * 降噪 / 腐蚀 / 膨胀等），提升低质量文档的版面识别准确率。图像预处理
- * <strong>默认关闭</strong>，仅显式配置后生效。</p>
- *
- * <pre>{@code
- * LayoutPipeline pipeline = LayoutPipeline.builder()
- *         .model("layout-lmv3")
- *         .imagePipeline(ImagePipeline.builder()
- *                 .grayscale(true)
- *                 .binarize(true, 128)
- *                 .build())
- *         .build();
- * Object result = pipeline.recognizeSingle(imageBytes);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
- */
 @Slf4j
 public class LayoutPipeline {
 

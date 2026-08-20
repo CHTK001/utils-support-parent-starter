@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -224,9 +225,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
                 green = (int) (Math.round(green / factor) * factor);
                 blue = (int) (Math.round(blue / factor) * factor);
 
-                red = clamp(red);
-                green = clamp(green);
-                blue = clamp(blue);
+                red = ImageProcessorUtils.clamp(red);
+                green = ImageProcessorUtils.clamp(green);
+                blue = ImageProcessorUtils.clamp(blue);
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -254,9 +255,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
                 int blue = rgb & 0xFF;
 
                 // 应用对比度增强
-                red = clamp((int) ((red - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                green = clamp((int) ((green - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                blue = clamp((int) ((blue - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                red = ImageProcessorUtils.clamp((int) ((red - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastEnhancement + 128 + brightnessAdjustment));
 
                 // 转换到HSV进行饱和度调整
                 float[] hsv = rgbToHsv(red, green, blue);
@@ -308,9 +309,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
                     }
                 }
 
-                int newRed = clamp((int) redSum);
-                int newGreen = clamp((int) greenSum);
-                int newBlue = clamp((int) blueSum);
+                int newRed = ImageProcessorUtils.clamp((int) redSum);
+                int newGreen = ImageProcessorUtils.clamp((int) greenSum);
+                int newBlue = ImageProcessorUtils.clamp((int) blueSum);
 
                 int newRgb = (alpha << 24) | (newRed << 16) | (newGreen << 8) | newBlue;
                 result.setRGB(x, y, newRgb);
@@ -393,9 +394,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         int green = (rgb >> 8) & 0xFF;
         int blue = rgb & 0xFF;
 
-        red = clamp((int) (red * (1 - factor)));
-        green = clamp((int) (green * (1 - factor)));
-        blue = clamp((int) (blue * (1 - factor)));
+        red = ImageProcessorUtils.clamp((int) (red * (1 - factor)));
+        green = ImageProcessorUtils.clamp((int) (green * (1 - factor)));
+        blue = ImageProcessorUtils.clamp((int) (blue * (1 - factor)));
 
         return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
@@ -421,13 +422,6 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         }
         
         return outputStream;
-    }
-
-    /**
-     * 限制值在0-255范围内
-     */
-    private int clamp(int value) {
-        return Math.max(0, Math.min(255, value));
     }
 
     /**
@@ -489,9 +483,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         }
 
         return new int[]{
-            clamp(r + m),
-            clamp(g + m),
-            clamp(b + m)
+            ImageProcessorUtils.clamp(r + m),
+            ImageProcessorUtils.clamp(g + m),
+            ImageProcessorUtils.clamp(b + m)
         };
     }
 }

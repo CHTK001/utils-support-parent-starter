@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 
@@ -175,9 +176,9 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
 
                 // HSL 转换回 RGB 空间
                 int[] rgb = hsl2Rgb(hsl);
-                tr = clamp(rgb[0]);
-                tg = clamp(rgb[1]);
-                tb = clamp(rgb[2]);
+                tr = ImageProcessorUtils.clamp(rgb[0]);
+                tg = ImageProcessorUtils.clamp(rgb[1]);
+                tb = ImageProcessorUtils.clamp(rgb[2]);
 
                 // 调整对比度（在 RGB 空间中）
                 double cr = ((tr / 255.0d) - 0.5d) * contrast;
@@ -190,7 +191,7 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
                 tb = (int) ((cb + 0.5f) * 255.0f);
 
                 // 重新组合 ARGB 值
-                outPixels[index] = (ta << 24) | (clamp(tr) << 16) | (clamp(tg) << 8) | clamp(tb);
+                outPixels[index] = (ta << 24) | (ImageProcessorUtils.clamp(tr) << 16) | (ImageProcessorUtils.clamp(tg) << 8) | ImageProcessorUtils.clamp(tb);
             }
         }
 
@@ -210,13 +211,4 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
         saturation = (1.0 + saturation / 100.0);
     }
 
-    /**
-     * 将颜色值限制在有效范围内
-     *
-     * @param value 颜色值
-     * @return 限制在 0-255 范围内的颜色值
-     */
-    public int clamp(int value) {
-        return value > 255 ? 255 : ((value < 0) ? 0 : value);
-    }
 }
