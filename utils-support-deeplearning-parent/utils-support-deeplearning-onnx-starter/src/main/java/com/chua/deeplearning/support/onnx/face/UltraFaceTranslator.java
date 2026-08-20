@@ -218,8 +218,8 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         List<BoundingBox> boxes = new ArrayList<>();
         List<Candidate> candidates = new ArrayList<>();
         double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
-
-        for (int i = 0; i < candidateCount; i++) {
+        int limit = Math.min(candidateCount, priors.length);
+        for (int i = 0; i < limit; i++) {
             double probability = scoreArray[i * 2 + 1];
             if (probability < confThresh) {
                 continue;
