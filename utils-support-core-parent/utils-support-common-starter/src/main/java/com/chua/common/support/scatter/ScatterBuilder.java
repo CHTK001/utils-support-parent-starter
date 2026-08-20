@@ -134,6 +134,12 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return (B) this;
     }
 
+    /** 持久化文件路径。 */
+    public B persistenceFile(String file) {
+        setting.setPersistenceFile(file);
+        return (B) this;
+    }
+
     /**
      * 构建节点服务端。
      *

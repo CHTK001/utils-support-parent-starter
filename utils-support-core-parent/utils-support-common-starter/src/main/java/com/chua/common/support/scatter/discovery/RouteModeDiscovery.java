@@ -54,14 +54,11 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     protected void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<com.chua.common.support.network.discovery.Discovery> result =
+        ScatterResult<java.util.List<com.chua.common.support.network.discovery.Discovery>> result =
                 remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
-            com.chua.common.support.network.discovery.Discovery remote = result.getData();
-            if (getGroupId().equals(remote.getScatterId())) {
-                updateService(setting.getServicePath(), remote);
-                log.debug("gossip 合并: {}:{}", node.getHost(), node.getPort());
-            }
+            mergeRemote(result.getData());
+            log.debug("gossip 合并: {}:{}", node.getHost(), node.getPort());
         }
     }
 

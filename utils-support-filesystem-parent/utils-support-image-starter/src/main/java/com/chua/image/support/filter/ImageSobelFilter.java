@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.utils.BufferedImageUtils;
@@ -65,13 +66,17 @@ public class ImageSobelFilter extends AbstractImageFilter {
 
     /**
      * Sobel Y方向（垂直边缘检测）卷积核
+     *
+     * @see ImageProcessorUtils#SOBEL_Y
      */
-    public static int[] sobelY = new int[]{-1, -2, -1, 0, 0, 0, 1, 2, 1};
+    public static int[] sobelY = ImageProcessorUtils.SOBEL_Y;
 
     /**
      * Sobel X方向（水平边缘检测）卷积核
+     *
+     * @see ImageProcessorUtils#SOBEL_X
      */
-    public static int[] sobelX = new int[]{-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    public static int[] sobelX = ImageProcessorUtils.SOBEL_X;
 
     /**
      * 是否检测X方向边缘，true表示水平边缘检测（垂直方向算子），

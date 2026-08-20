@@ -42,7 +42,6 @@
         <module>utils-support-kcp-starter</module>
         <module>utils-support-webview-starter</module>
         <module>utils-support-webview-jcef-starter</module>
-        <module>utils-support-ionet-starter</module>
         <!-- utils-support-kcp-starter 依赖 io.github.kcp-jvm:kcp-jvm:1.6.0，
              该外部库已从未在任何 Maven 仓库发布，模块无源码，仅引用不可达依赖，暂从聚合移除。 -->
     </modules>

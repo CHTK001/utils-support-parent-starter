@@ -178,7 +178,15 @@ public class NioHttpServer extends AbstractServer {
             });
             for (int i = 0; i < eventLoops; i++) {
                 final int idx = i;
-                acceptorPool.submit(() -> eventLoop(idx));
+                // execute + 最外层兜底:任何异常(含被 FutureTask 吞掉的)都记录完整堆栈,
+                // 避免事件循环线程静默死亡导致该分片全部连接超时(高并发下实测 QPS 从 5k+ 掉到 0)
+                acceptorPool.execute(() -> {
+                    try {
+                        eventLoop(idx);
+                    } catch (Throwable t) {
+                        log.error("nio event-loop[{}] 终止,堆栈: {}", idx, t.getMessage(), t);
+                    }
+                });
             }
 
             log.info("NIO HttpServer started on {}:{} (backlog={}, eventLoops={}, reactive=true)",
@@ -205,39 +213,60 @@ public class NioHttpServer extends AbstractServer {
                 log.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage());
             }
         }
+        // 关键竞态防护:doStart() 里 submit 本任务时 running 可能仍为 false(start() 在 doStart()
+        // 返回后才置 true)。若事件循环线程抢跑先执行 while(running) 判断,将立即退出,
+        // 导致该分片 accept/read/write 全部停摆(单连接随机 20% 失败、高并发必现)。
+        // 等待 running 变 true 再进入主循环(限时兜底,避免 start() 失败时线程永久阻塞)。
+        long spinDeadline = System.nanoTime() + 5_000_000_000L;
+        while (!running) {
+            if (System.nanoTime() > spinDeadline) {
+                break;
+            }
+            Thread.onSpinWait();
+        }
         while (running) {
             try {
                 sel.select(200L);
                 // worker 直写排空后:本分片事件循环统一恢复 OP_READ(与 select 同线程,无跨线程竞态)
                 SelectionKey rk;
                 while ((rk = rearmReadQueues[idx].poll()) != null) {
-                    if (rk.isValid()) {
-                        ConnectionState rst = (ConnectionState) rk.attachment();
-                        if (rst != null && rst.keepAlive && running) {
-                            rk.interestOps(SelectionKey.OP_READ);
-                            rst.inWorker = false;
-                        } else if (rst != null) {
-                            closeConn(rk, rst);
+                    try {
+                        if (rk.isValid()) {
+                            ConnectionState rst = (ConnectionState) rk.attachment();
+                            if (rst != null && rst.keepAlive && running) {
+                                rk.interestOps(SelectionKey.OP_READ);
+                                rst.inWorker = false;
+                            } else if (rst != null) {
+                                closeConn(rk, rst);
+                            }
                         }
+                    } catch (Exception e) {
+                        // 对已取消(客户端断开)的 key 操作会抛 CancelledKeyException,
+                        // 绝不能让它逃出事件循环线程,否则该分片所有连接静默血崩(0 吞吐)
+                        closeQuietly(rk.channel() instanceof SocketChannel sc ? sc : null);
                     }
                 }
                 // 统一在本分片事件循环线程注册 OP_WRITE(worker 只入队 + wakeup,避免跨线程 interestOps 竞态)
                 SelectionKey wk;
                 while ((wk = writeQueue.poll()) != null) {
-                    if (wk.isValid()) {
-                        wk.interestOps(SelectionKey.OP_WRITE);
+                    try {
+                        if (wk.isValid()) {
+                            wk.interestOps(SelectionKey.OP_WRITE);
+                        }
+                    } catch (Exception e) {
+                        closeQuietly(wk.channel() instanceof SocketChannel sc ? sc : null);
                     }
                 }
                 // 注册新连接:由本分片事件循环线程自行 register(与 select 同线程),
                 // 彻底消除跨线程 register 与 select() 的竞态(高并发下可致请求超时)
                 SocketChannel ac;
                 while ((ac = pendingAcceptQueues[idx].poll()) != null) {
-                    if (!ac.isOpen()) {
-                        continue;
-                    }
-                    ConnectionState st = new ConnectionState(ac, setting.getMaxRequestSize(), setting.getCharset());
-                    st.shard = idx;
                     try {
+                        if (!ac.isOpen()) {
+                            continue;
+                        }
+                        ConnectionState st = new ConnectionState(ac, setting.getMaxRequestSize(), setting.getCharset());
+                        st.shard = idx;
                         ac.register(sel, SelectionKey.OP_READ, st);
                     } catch (Exception e) {
                         closeQuietly(ac);
@@ -247,20 +276,35 @@ public class NioHttpServer extends AbstractServer {
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
-                    if (!key.isValid()) {
-                        continue;
-                    }
-                    if (key.isAcceptable()) {
-                        handleAccept(key);
-                    } else if (key.isReadable()) {
-                        handleRead(key);
-                    } else if (key.isWritable()) {
-                        handleWrite(key);
+                    try {
+                        if (!key.isValid()) {
+                            continue;
+                        }
+                        if (key.isAcceptable()) {
+                            handleAccept(key);
+                        } else if (key.isReadable()) {
+                            handleRead(key);
+                        } else if (key.isWritable()) {
+                            handleWrite(key);
+                        }
+                    } catch (Throwable t) {
+                        // 单个连接异常(如并发关闭导致的 CancelledKeyException/RuntimeException)
+                        // 只清理该连接,不允许杀死整个事件循环线程
+                        log.warn("Event loop[{}] key error: {} -> {}, closing conn", idx,
+                                t.getClass().getSimpleName(), t.getMessage());
+                        try {
+                            key.cancel();
+                        } catch (Exception ignored) {
+                        }
+                        ConnectionState st = (ConnectionState) key.attachment();
+                        closeQuietly(st != null ? st.channel : null);
                     }
                 }
-            } catch (IOException e) {
+            } catch (Throwable t) {
+                // 事件循环线程绝不能死:任何未预期异常(含 Runtime/Error)都只记录并继续,
+                // 否则该分片连接的 accept/read/write 全部停摆(高并发压力下实测请求 100% 超时)
                 if (running) {
-                    log.warn("Event loop[{}] error: {}", idx, e.getMessage());
+                    log.warn("Event loop[{}] error: {} -> {}", idx, t.getClass().getSimpleName(), t.getMessage());
                 }
             }
         }

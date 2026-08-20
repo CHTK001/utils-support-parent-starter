@@ -63,6 +63,16 @@ public interface SipProtocol {
     String PREFIX_CLOSE = "CLOSE";
 
     /**
+     * 心跳请求（PING|token）
+     */
+    String PREFIX_PING = "PING";
+
+    /**
+     * 心跳响应（PONG|token）
+     */
+    String PREFIX_PONG = "PONG";
+
+    /**
      * 数据平面连接握手前缀（CONNECT|channelId|role|token）
      */
     String PREFIX_CONNECT = "CONNECT";

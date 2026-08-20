@@ -1,6 +1,5 @@
 package com.chua.common.support.network.sip;
 
-import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,8 +69,9 @@ class SipTunnelStream {
         socket.setTcpNoDelay(true);
         socket.connect(new java.net.InetSocketAddress(host, port), 5000);
         this.out = socket.getOutputStream();
-        String signature = HMacUtils.hmacSha256Hex(token, channelId + role);
-        out.write((channelId + "|" + role + "|" + signature + "\n").getBytes(StandardCharsets.UTF_8));
+        out.write((SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR
+                + channelId + SipProtocol.SEPARATOR + role + SipProtocol.SEPARATOR + token + "\n")
+                .getBytes(StandardCharsets.UTF_8));
         out.flush();
     }
 
@@ -103,7 +103,7 @@ class SipTunnelStream {
      * @param consumer 数据消费者
      */
     void startRead(Consumer<byte[]> consumer) {
-        ThreadUtils.newThread(() -> {
+        ThreadUtils.startVirtualThread("sip-data-stream-" + channelId, () -> {
             try {
                 InputStream in = socket.getInputStream();
                 byte[] buf = new byte[64 * 1024];
@@ -122,7 +122,7 @@ class SipTunnelStream {
             } finally {
                 close();
             }
-        }, "sip-data-stream-" + channelId).start();
+        });
     }
 
     /**

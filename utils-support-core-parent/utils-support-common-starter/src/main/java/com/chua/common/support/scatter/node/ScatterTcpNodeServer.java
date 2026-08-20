@@ -52,6 +52,13 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
                 response = new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
             }
+            // 写 4 字节长度头 + 响应帧（与 JdkTcpClient.exchange 长度帧协议对称）
+            byte[] len = new byte[4];
+            len[0] = (byte) (response.length >>> 24);
+            len[1] = (byte) (response.length >>> 16);
+            len[2] = (byte) (response.length >>> 8);
+            len[3] = (byte) response.length;
+            out.write(len);
             out.write(response);
             out.flush();
         } catch (IOException e) {

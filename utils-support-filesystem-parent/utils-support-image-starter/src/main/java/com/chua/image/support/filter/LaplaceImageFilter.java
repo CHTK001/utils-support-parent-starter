@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 
@@ -158,8 +159,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 r = sr;
                 g = sg;
                 b = sb;
-                outPixels[offset + col] = (0xff << 24) | (clamp(r) << 16)
-                        | (clamp(g) << 8) | clamp(b);
+                outPixels[offset + col] = (0xff << 24) | (ImageProcessorUtils.clamp(r) << 16)
+                        | (ImageProcessorUtils.clamp(g) << 8) | ImageProcessorUtils.clamp(b);
                 sr = 0;
                 sg = 0;
                 sb = 0;
@@ -270,8 +271,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 r += sr;
                 g += sg;
                 b += sb;
-                outPixels[offset + col] = (0xff << 24) | (clamp(r) << 16)
-                        | (clamp(g) << 8) | clamp(b);
+                outPixels[offset + col] = (0xff << 24) | (ImageProcessorUtils.clamp(r) << 16)
+                        | (ImageProcessorUtils.clamp(g) << 8) | ImageProcessorUtils.clamp(b);
 
                 // next pixel
                 r = 0;
@@ -294,9 +295,9 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     /** Sobel处理 */
     public BufferedImage sobelProcess(BufferedImage src) {
 
-        // Sobel算子
-        int[] sobel_y = new int[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
-        int[] sobel_x = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+        // Sobel算子（来自 ImageProcessorUtils 统一定义）
+        int[] sobel_y = ImageProcessorUtils.SOBEL_Y;
+        int[] sobel_x = ImageProcessorUtils.SOBEL_X;
 
         int width = src.getWidth();
         int height = src.getHeight();
@@ -411,8 +412,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 g = (int) Math.sqrt(yg * yg + xg * xg);
                 b = (int) Math.sqrt(yb * yb + xb * xb);
 
-                outPixels[offset + col] = (0xff << 24) | (clamp(r) << 16)
-                        | (clamp(g) << 8) | clamp(b);
+                outPixels[offset + col] = (0xff << 24) | (ImageProcessorUtils.clamp(r) << 16)
+                        | (ImageProcessorUtils.clamp(g) << 8) | ImageProcessorUtils.clamp(b);
             }
         }
 
@@ -480,8 +481,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 g = sum / total;
                 b = sum / total;
 
-                outPixels[row * width + col] = (255 << 24) | (clamp(r) << 16)
-                        | (clamp(g) << 8) | clamp(b);
+                outPixels[row * width + col] = (255 << 24) | (ImageProcessorUtils.clamp(r) << 16)
+                        | (ImageProcessorUtils.clamp(g) << 8) | ImageProcessorUtils.clamp(b);
             }
         }
 
@@ -575,8 +576,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 g = g + og;
                 b = b + ob;
 
-                outPixels[row * width + col] = (255 << 24) | (clamp(r) << 16)
-                        | (clamp(g) << 8) | (clamp(b));
+                outPixels[row * width + col] = (255 << 24) | (ImageProcessorUtils.clamp(r) << 16)
+                        | (ImageProcessorUtils.clamp(g) << 8) | (ImageProcessorUtils.clamp(b));
             }
         }
 
@@ -594,10 +595,6 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
 
-    /** Clamp */
-    private int clamp(int value) {
-        return value > 255 ? 255 : (value < 0 ? 0 : value);
-    }
     /**
      * 伽马变化
      */
@@ -647,8 +644,8 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 og = lut[g];
                 ob = lut[b];
 
-                outPixels[row * width + col] = (255 << 24) | (clamp(or) << 16)
-                        | (clamp(og) << 8) | (clamp(ob));
+                outPixels[row * width + col] = (255 << 24) | (ImageProcessorUtils.clamp(or) << 16)
+                        | (ImageProcessorUtils.clamp(og) << 8) | (ImageProcessorUtils.clamp(ob));
 
             }
         }

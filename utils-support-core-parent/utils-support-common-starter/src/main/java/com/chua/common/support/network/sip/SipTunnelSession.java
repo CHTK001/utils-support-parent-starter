@@ -1,5 +1,7 @@
 package com.chua.common.support.network.sip;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -14,6 +16,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class SipTunnelSession {
 
     /**
@@ -109,6 +112,8 @@ public class SipTunnelSession {
             } catch (Exception e) {
                 close();
             }
+        } else {
+            log.debug("SIP sendBytes skipped: channel={}, streamActive={}", channelId, stream != null && !stream.isClosed());
         }
     }
 

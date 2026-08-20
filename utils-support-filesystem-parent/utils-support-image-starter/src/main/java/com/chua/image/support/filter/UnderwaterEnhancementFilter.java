@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -163,9 +164,9 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
                 int blue = rgb & 0xFF;
 
                 // 应用颜色校正
-                red = clamp((int) (red * redEnhancement));
-                green = clamp((int) (green * greenReduction));
-                blue = clamp((int) (blue * blueReduction));
+                red = ImageProcessorUtils.clamp((int) (red * redEnhancement));
+                green = ImageProcessorUtils.clamp((int) (green * greenReduction));
+                blue = ImageProcessorUtils.clamp((int) (blue * blueReduction));
 
                 // 重新组合RGB
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
@@ -194,9 +195,9 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
                 int blue = rgb & 0xFF;
 
                 // 应用对比度增强
-                red = clamp((int) ((red - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                green = clamp((int) ((green - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                blue = clamp((int) ((blue - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                red = ImageProcessorUtils.clamp((int) ((red - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastEnhancement + 128 + brightnessAdjustment));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -274,9 +275,9 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
                     }
                 }
 
-                int newRed = clamp((int) redSum);
-                int newGreen = clamp((int) greenSum);
-                int newBlue = clamp((int) blueSum);
+                int newRed = ImageProcessorUtils.clamp((int) redSum);
+                int newGreen = ImageProcessorUtils.clamp((int) greenSum);
+                int newBlue = ImageProcessorUtils.clamp((int) blueSum);
 
                 int newRgb = (alpha << 24) | (newRed << 16) | (newGreen << 8) | newBlue;
                 result.setRGB(x, y, newRgb);
@@ -319,13 +320,6 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
         }
         
         return outputStream;
-    }
-
-    /**
-     * 限制值在0-255范围内
-     */
-    private int clamp(int value) {
-        return Math.max(0, Math.min(255, value));
     }
 
     /**
@@ -387,9 +381,9 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
         }
 
         return new int[]{
-            clamp(r + m),
-            clamp(g + m),
-            clamp(b + m)
+            ImageProcessorUtils.clamp(r + m),
+            ImageProcessorUtils.clamp(g + m),
+            ImageProcessorUtils.clamp(b + m)
         };
     }
 }

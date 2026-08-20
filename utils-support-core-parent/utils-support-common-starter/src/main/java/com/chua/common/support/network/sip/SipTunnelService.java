@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
@@ -19,8 +18,8 @@ import java.util.Arrays;
  *
  * <h2>使用方式</h2>
  * <pre>{@code
- * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460");
- * new SipTunnelService(client, "web", "127.0.0.1", 8080).start();
+ * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460").token("xxx");
+ * client.service("web").to("127.0.0.1", 8080);
  * }</pre>
  *
  * @author CH
@@ -81,10 +80,16 @@ public class SipTunnelService {
         started = true;
         client.onTunnelOpen((channelId, name) -> {
             if (serviceName.equals(name)) {
-                bridgeToLocal(client.tunnelSession(channelId));
+                // 异步桥接，避免阻塞信号读取线程
+                ThreadUtils.startVirtualThread("sip-service-bridge-" + serviceName, () -> {
+                    SipTunnelSession session = client.tunnelSession(channelId);
+                    if (session != null) {
+                        bridgeToLocal(session);
+                    }
+                });
             }
         });
-        client.connect().register(localAddress(), 0).registerTunnel(serviceName);
+        client.connect().registerTunnel(serviceName);
         log.info("SIP 隧道服务已暴露: [{}] -> {}:{}", serviceName, localHost, localPort);
         return this;
     }
@@ -101,19 +106,6 @@ public class SipTunnelService {
     }
 
     /**
-     * 获取本机可达地址。
-     *
-     * @return 本机 IP 地址
-     */
-    private String localAddress() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (Exception e) {
-            return "127.0.0.1";
-        }
-    }
-
-    /**
      * 将隧道会话桥接到本地服务。
      *
      * @param session 隧道会话
@@ -122,6 +114,7 @@ public class SipTunnelService {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(localHost, localPort), 5000);
+            log.debug("SIP bridgeToLocal: channel={}, connected to {}:{}", session.getChannelId(), localHost, localPort);
             session.onBytes(data -> writeSocket(socket, data));
             session.onClose(channelId -> closeQuietly(socket));
             readSocket(socket, session);
@@ -138,7 +131,7 @@ public class SipTunnelService {
      * @param session 隧道会话
      */
     private void readSocket(Socket socket, SipTunnelSession session) {
-        ThreadUtils.newThread(() -> {
+        ThreadUtils.startVirtualThread("sip-tunnel-service-" + serviceName, () -> {
             try (InputStream in = socket.getInputStream()) {
                 byte[] buffer = new byte[8192];
                 int read;
@@ -152,7 +145,7 @@ public class SipTunnelService {
             } finally {
                 session.close();
             }
-        }, "sip-tunnel-service-" + serviceName).start();
+        });
     }
 
     /**

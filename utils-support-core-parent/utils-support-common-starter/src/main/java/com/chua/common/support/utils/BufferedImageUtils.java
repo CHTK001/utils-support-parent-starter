@@ -897,6 +897,34 @@ public class BufferedImageUtils {
         return Math.min(255, Math.max(0, (int) value));
     }
 
+    /**
+     * 将整数值钳制到 [0, 255] 范围
+     *
+     * <p>常用于图像像素分量（R/G/B/A）的溢出保护。
+     * 与 {@link #clamp(float)} 互补，本方法接受 int 参数，避免调用处额外的类型转换。</p>
+     *
+     * @param value 原始值，可能超出 [0, 255]
+     * @return 钳制后的值，保证在 [0, 255] 范围内
+     */
+    public static int clamp(int value) {
+        return Math.max(0, Math.min(255, value));
+    }
+
+    /**
+     * 计算 ARGB 像素的亮度（灰度值）
+     *
+     * <p>使用 ITU-R BT.601 标准权重系数：
+     * <pre>Y = 0.299 × R + 0.587 × G + 0.114 × B</pre>
+     *
+     * @param rgb ARGB 像素值（格式：0xAARRGGBB）
+     * @return 亮度值，范围 [0, 255]
+     */
+    public static int luminance(int rgb) {
+        return (int) (0.299 * ((rgb >> 16) & 0xFF)
+                + 0.587 * ((rgb >> 8) & 0xFF)
+                + 0.114 * (rgb & 0xFF));
+    }
+
     /** 获取Rgb */
     public static int[] getRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
         int type = image.getType();

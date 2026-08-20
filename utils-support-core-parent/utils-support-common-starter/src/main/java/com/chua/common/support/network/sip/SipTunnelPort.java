@@ -21,9 +21,9 @@ import java.util.Arrays;
  *
  * <h2>使用方式</h2>
  * <pre>{@code
- * SipClient client = SipClient.kcp("kcp://127.0.0.1:19461");
+ * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460").token("xxx");
  * // 本地 8080 -> 对端 "web" 服务
- * new SipTunnelPort(client, "web", 8080).start();
+ * client.tunnel("web").listen(8080);
  * }</pre>
  *
  * @author CH
@@ -102,15 +102,15 @@ public class SipTunnelPort {
         if (running) {
             return this;
         }
-        client.connect().register(localAddress(), 0);
+        client.connect();
         try {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
             serverSocket.bind(new InetSocketAddress(localHost, localPort), 50);
             running = true;
-            acceptThread = ThreadUtils.newThread(this::acceptLoop, "sip-tunnel-port-" + localPort);
-            acceptThread.setDaemon(true);
-            acceptThread.start();
+            Thread accept = ThreadUtils.newVirtualThread("sip-tunnel-port-" + localPort, this::acceptLoop);
+            this.acceptThread = accept;
+            accept.start();
             log.info("SIP 隧道端口已映射: {}:{} -> [{}]", localHost, localPort, serviceName);
         } catch (IOException e) {
             throw new RuntimeException("SIP 隧道端口监听失败: " + localPort, e);
@@ -155,7 +155,7 @@ public class SipTunnelPort {
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
-                ThreadUtils.newThread(() -> forward(socket), "sip-tunnel-fwd-" + localPort).start();
+                ThreadUtils.startVirtualThread("sip-tunnel-fwd-" + localPort, () -> forward(socket));
             } catch (IOException e) {
                 if (running) {
                     log.debug("SIP 隧道端口接受连接异常: {}", e.getMessage());
@@ -178,6 +178,7 @@ public class SipTunnelPort {
             closeQuietly(socket);
             return;
         }
+        log.debug("SIP forward: channel={}, local socket connected", session.getChannelId());
         session.onBytes(data -> writeSocket(socket, data));
         session.onClose(channelId -> closeQuietly(socket));
         readSocket(socket, session);

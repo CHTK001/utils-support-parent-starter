@@ -88,7 +88,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     /**
      *                      DocLayout-YOLO        1024   
      */
-    private static final int DEFAULT_INPUT_SIZE = 1024;
+    private static final int DEFAULT_INPUT_SIZE = 1280;
 
     /**
      *                      

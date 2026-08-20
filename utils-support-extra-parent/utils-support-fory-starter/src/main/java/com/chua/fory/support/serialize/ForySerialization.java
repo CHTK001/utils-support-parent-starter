@@ -25,6 +25,7 @@ public class ForySerialization implements Serialization {
             .withLanguage(Language.JAVA)
             .withRefTracking(true)
             .requireClassRegistration(false)
+            .registerGuavaTypes(false)
             .build();
 
     /**

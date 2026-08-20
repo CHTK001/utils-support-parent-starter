@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -196,9 +197,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
                 // 添加轻微的色彩偏移来模拟手绘感
                 double offset = colorLayeringStrength * 5;
-                red = clamp((int) (red + (Math.sin(x * 0.1 + y * 0.1) * offset)));
-                green = clamp((int) (green + (Math.cos(x * 0.1 + y * 0.1) * offset)));
-                blue = clamp((int) (blue + (Math.sin(x * 0.15 + y * 0.05) * offset)));
+                red = ImageProcessorUtils.clamp((int) (red + (Math.sin(x * 0.1 + y * 0.1) * offset)));
+                green = ImageProcessorUtils.clamp((int) (green + (Math.cos(x * 0.1 + y * 0.1) * offset)));
+                blue = ImageProcessorUtils.clamp((int) (blue + (Math.sin(x * 0.15 + y * 0.05) * offset)));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -283,9 +284,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
                 lightFactor = Math.max(0.7, Math.min(1.3, lightFactor));
 
                 // 应用光照效果
-                red = clamp((int) (red * lightFactor));
-                green = clamp((int) (green * lightFactor));
-                blue = clamp((int) (blue * lightFactor));
+                red = ImageProcessorUtils.clamp((int) (red * lightFactor));
+                green = ImageProcessorUtils.clamp((int) (green * lightFactor));
+                blue = ImageProcessorUtils.clamp((int) (blue * lightFactor));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -314,9 +315,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
                 // 柔化对比度
                 double contrastFactor = 1.0 - contrastSoftening * 0.5;
-                red = clamp((int) ((red - 128) * contrastFactor + 128));
-                green = clamp((int) ((green - 128) * contrastFactor + 128));
-                blue = clamp((int) ((blue - 128) * contrastFactor + 128));
+                red = ImageProcessorUtils.clamp((int) ((red - 128) * contrastFactor + 128));
+                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastFactor + 128));
+                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastFactor + 128));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -380,7 +381,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
      */
     private double calculateArtisticEdgeStrength(BufferedImage src, int x, int y) {
         int centerRgb = src.getRGB(x, y);
-        int centerGray = rgbToGray(centerRgb);
+        int centerGray = ImageProcessorUtils.luminance(centerRgb);
 
         double totalDiff = 0;
         int count = 0;
@@ -391,7 +392,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
                     continue;
                 }
                 int neighborRgb = src.getRGB(x + dx, y + dy);
-                int neighborGray = rgbToGray(neighborRgb);
+                int neighborGray = ImageProcessorUtils.luminance(neighborRgb);
                 double diff = Math.abs(centerGray - neighborGray) / 255.0;
                 totalDiff += diff;
                 count++;
@@ -425,16 +426,6 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * RGB转灰度
-     */
-    private int rgbToGray(int rgb) {
-        int red = (rgb >> 16) & 0xFF;
-        int green = (rgb >> 8) & 0xFF;
-        int blue = rgb & 0xFF;
-        return (int) (red * 0.299 + green * 0.587 + blue * 0.114);
-    }
-
-    /**
      * 应用手绘质感
      */
     private BufferedImage applyHandDrawnTexture(BufferedImage src) {
@@ -457,9 +448,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
                     double textureY = Math.cos(x * 0.03) * Math.sin(y * 0.02);
                     double texture = (textureX + textureY) * handDrawnTextureStrength * 8;
 
-                    red = clamp((int) (red + texture));
-                    green = clamp((int) (green + texture * 0.8));
-                    blue = clamp((int) (blue + texture * 0.6));
+                    red = ImageProcessorUtils.clamp((int) (red + texture));
+                    green = ImageProcessorUtils.clamp((int) (green + texture * 0.8));
+                    blue = ImageProcessorUtils.clamp((int) (blue + texture * 0.6));
                 }
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
@@ -544,9 +535,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
                     vignette = Math.max(0.6, Math.min(1.2, vignette));
 
                     // 添加轻微的暖色光晕
-                    red = clamp((int) (red * vignette + dreamyAtmosphereStrength * 15));
-                    green = clamp((int) (green * vignette + dreamyAtmosphereStrength * 10));
-                    blue = clamp((int) (blue * vignette + dreamyAtmosphereStrength * 5));
+                    red = ImageProcessorUtils.clamp((int) (red * vignette + dreamyAtmosphereStrength * 15));
+                    green = ImageProcessorUtils.clamp((int) (green * vignette + dreamyAtmosphereStrength * 10));
+                    blue = ImageProcessorUtils.clamp((int) (blue * vignette + dreamyAtmosphereStrength * 5));
                 }
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
@@ -628,17 +619,11 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
         }
 
         return new int[] {
-                clamp(r + m),
-                clamp(g + m),
-                clamp(b + m)
+                ImageProcessorUtils.clamp(r + m),
+                ImageProcessorUtils.clamp(g + m),
+                ImageProcessorUtils.clamp(b + m)
         };
     }
 
-    /**
-     * 限制值在0-255范围内
-     */
-    private int clamp(int value) {
-        return Math.max(0, Math.min(255, value));
-    }
 }
 
