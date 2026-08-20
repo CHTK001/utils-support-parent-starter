@@ -74,6 +74,11 @@ public class LlamaModelProvider implements BulkModelProvider {
                 "https://huggingface.co/microsoft/bitnet-embedding-0.6b/resolve/main/bitnet-embeddings-0.6b-bf16-i2_s.gguf",
                 new BitnetEmbeddingTranslator()));
 
+        list.add(model("qwen2-1.5b", "Qwen2.5-1.5B-Instruct local chat",
+                "models/llama/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+                "https://hf-mirror.com/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+                new Qwen2ChatTranslator()));
+
         log.info("[Llama] registered {} models", list.size());
         return list;
     }
