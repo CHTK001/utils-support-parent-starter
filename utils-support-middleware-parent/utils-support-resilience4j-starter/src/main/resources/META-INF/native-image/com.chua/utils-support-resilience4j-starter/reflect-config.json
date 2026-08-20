@@ -1,0 +1,11 @@
+[
+  {
+    "name": "com.chua.resilience4j.support.circuitbreaker.Resilience4jCircuitBreakerProvider",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  }
+]
