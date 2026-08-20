@@ -1,13 +1,12 @@
 package com.chua.cloudflare.support;
 
-import com.chua.common.support.lang.exception.AuthenticationException;
-import com.chua.common.support.lang.exception.NetworkException;
+import com.chua.common.support.exception.AuthenticationException;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpHeader;
-import com.chua.common.support.network.http.HttpHeaders;
 import com.chua.common.support.network.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +16,8 @@ import java.util.Map;
  * Cloudflare API v4 客户端。
  *
  * <p>封装 Cloudflare REST API 公共入口，承载认证头注入、超时控制与错误解析。
- * D1 SQLite 访问通过 {@code /accounts/{account_id}/d1/database/{db_id}/sql}。</p>
+ * D1 SQLite 访问路径：
+ * {@code POST /accounts/{account_id}/d1/database/{db_id}/query}</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -65,23 +65,24 @@ public class CloudflareClient {
     }
 
     /**
-     * 执行 Cloudflare API 调用，返回响应 Map（已反序列化 JSON）。
+     * 执行 Cloudflare API 调用，返回响应 {@code result} 字段。
      *
      * @param method  HTTP 方法
      * @param path    API 路径（不含 baseUrl），如 {@code "/accounts/{aid}/d1/database/{id}/query"}
      * @param payload 请求体（可空），将被序列化为 JSON
-     * @return Cloudflare 响应 {@code result} 字段的 Map（List/Map/标量由 Gson 解析）
+     * @return Cloudflare 响应 {@code result} 字段
      */
     public Object call(HttpMethod method, String path, Object payload) {
         ClientRequest request = ClientRequest.of(config.getBaseUrl() + path, method);
         request.setHeaders(headers());
         if (payload != null) {
-            request.setBody(payload);
+            request.setBody(Json.toJson(payload));
         }
         ClientResponse response = httpClient.execute(request);
-        if (!response.isSuccess()) {
-            throw new NetworkException("Cloudflare API " + method + " " + path
-                    + " failed: status=" + response.getStatusCode()
+        int status = response.getStatusCode();
+        if (status < 200 || status >= 300) {
+            throw new RuntimeException("Cloudflare API " + method + " " + path
+                    + " failed: status=" + status
                     + ", body=" + response.getBodyString());
         }
         String body = response.getBodyString();
@@ -118,7 +119,7 @@ public class CloudflareClient {
      * @return 头信息
      */
     private HttpHeader headers() {
-        HttpHeader header = HttpHeaders.httpHeader();
+        HttpHeader header = HttpHeader.create();
         header.add("Authorization", "Bearer " + config.getToken());
         header.add("Content-Type", "application/json");
         return header;
@@ -134,13 +135,13 @@ public class CloudflareClient {
      */
     @SuppressWarnings("unchecked")
     private Object parseResult(String body) {
-        Map<String, Object> root = com.chua.common.support.utils.JsonUtils.fromJson(body, Map.class);
+        Map<String, Object> root = Json.fromJson(body, Map.class);
         if (root == null) {
             return null;
         }
         Object success = root.get("success");
         if (Boolean.FALSE.equals(success)) {
-            throw new NetworkException("Cloudflare API returned errors: " + root.get("errors"));
+            throw new RuntimeException("Cloudflare API returned errors: " + root.get("errors"));
         }
         return root.get("result");
     }
