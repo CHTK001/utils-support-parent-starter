@@ -59,6 +59,10 @@ public class MockEnvironment {
      * 生成数据使用的字符集
      */
     private String charset = DEFAULT_CHARSET;
+    /**
+     * 生成关键词（如按主题生成图片时使用的搜索词）
+     */
+    private String keyword;
 
     /**
      * 创建默认 Mock 环境。
@@ -119,6 +123,33 @@ public class MockEnvironment {
     public static MockEnvironment of(Locale locale) {
         MockEnvironment environment = new MockEnvironment();
         environment.setLocale(locale);
+        return environment;
+    }
+
+    /**
+     * 创建带关键词的 Mock 环境（默认长度）。
+     *
+     * @param keyword 生成关键词
+     * @return Mock 环境
+     */
+    @Nonnull
+    public static MockEnvironment ofKeyword(@Nonnull String keyword) {
+        MockEnvironment environment = new MockEnvironment();
+        environment.setKeyword(keyword);
+        return environment;
+    }
+
+    /**
+     * 创建带关键词与指定长度的 Mock 环境。
+     *
+     * @param keyword 生成关键词
+     * @param length  生成长度
+     * @return Mock 环境
+     */
+    @Nonnull
+    public static MockEnvironment ofKeyword(@Nonnull String keyword, int length) {
+        MockEnvironment environment = of(length);
+        environment.setKeyword(keyword);
         return environment;
     }
 
