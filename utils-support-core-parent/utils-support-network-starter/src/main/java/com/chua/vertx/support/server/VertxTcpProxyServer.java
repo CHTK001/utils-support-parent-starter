@@ -88,9 +88,9 @@ public class VertxTcpProxyServer extends AbstractServer {
             netClient = vertx.createNetClient(new NetClientOptions()
                     .setTcpNoDelay(setting.isTcpNoDelay())
                     .setConnectTimeout(setting.getReadTimeout())
-                    // 后端连接 TCP 性能优化:FastOpen 加速握手,Cork 合并小包,QuickAck 减 ACK 延迟
+                    // 后端连接 TCP 性能优化:FastOpen 加速握手,QuickAck 减 ACK 延迟
+                    // 注意:不使用 TCP_CORK——小报文场景下它延迟发送最多 200ms,吞吐暴跌
                     .setTcpFastOpen(true)
-                    .setTcpCork(true)
                     .setTcpQuickAck(true)
                     .setReconnectAttempts(0));
 
@@ -100,10 +100,9 @@ public class VertxTcpProxyServer extends AbstractServer {
                     .setTcpNoDelay(setting.isTcpNoDelay())
                     .setAcceptBacklog(Math.max(setting.getBacklog(), 2048))
                     .setReuseAddress(setting.isSoReuseAddr())
-                    // 吞吐优化:收发缓冲放大 + TCP_CORK/QUICKACK/FastOpen/KeepAlive
+                    // 吞吐优化:收发缓冲放大 + QUICKACK/FastOpen/KeepAlive(不用 TCP_CORK,理由同上)
                     .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
                     .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
-                    .setTcpCork(true)
                     .setTcpQuickAck(true)
                     .setTcpFastOpen(true)
                     .setTcpKeepAlive(true);

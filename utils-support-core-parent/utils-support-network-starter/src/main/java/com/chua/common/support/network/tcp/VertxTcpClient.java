@@ -8,6 +8,7 @@ import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,18 +43,40 @@ public class VertxTcpClient implements TcpClient {
         AtomicBoolean done = new AtomicBoolean(false);
         Future<NetSocket> connectFuture = netClient.connect(port, host);
         connectFuture.onSuccess(socket -> {
-            // 收响应帧（第一段数据即完整响应帧）
+            // 响应帧协议（与 JdkTcpClient.exchange 对称）：4 字节长度头 + body
+            Buffer accumulated = Buffer.buffer();
             socket.handler(buffer -> {
-                if (done.compareAndSet(false, true)) {
-                    future.complete(buffer.getBytes());
-                    socket.close();
+                accumulated.appendBuffer(buffer);
+                // 尝试解析完整帧：长度头(4) + body
+                while (accumulated.length() >= 4) {
+                    int bodyLen = accumulated.getInt(0);
+                    if (bodyLen <= 0 || bodyLen > 64 * 1024 * 1024) {
+                        if (done.compareAndSet(false, true)) {
+                            future.completeExceptionally(new IOException("响应帧长度越界: " + bodyLen));
+                            socket.close();
+                        }
+                        return;
+                    }
+                    if (accumulated.length() < 4 + bodyLen) {
+                        return; // 等待更多数据
+                    }
+                    byte[] body = accumulated.getBytes(4, bodyLen);
+                    if (done.compareAndSet(false, true)) {
+                        future.complete(body);
+                        socket.close();
+                    }
+                    return;
                 }
             }).exceptionHandler(err -> {
                 if (done.compareAndSet(false, true)) {
                     future.completeExceptionally(err);
                 }
             });
-            socket.write(Buffer.buffer(request));
+            // 发送请求帧（4 字节长度头 + body，与 JdkTcpClient 对称）
+            Buffer framed = Buffer.buffer(4 + request.length);
+            framed.appendInt(request.length);
+            framed.appendBytes(request);
+            socket.write(framed);
         }).onFailure(err -> {
             if (done.compareAndSet(false, true)) {
                 future.completeExceptionally(err);

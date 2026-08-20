@@ -86,8 +86,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                     // 收发缓冲放大:与内核窗口对齐,减少小包分片与 ACK 往返,提升高并发吞吐
                     .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
                     .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
-                    // 吞吐优化:TCP_CORK 合并小包,TCP_QUICKACK 减少 ACK 延迟,FastOpen 加速握手
-                    .setTcpCork(true)
+                    // 吞吐优化:TCP_QUICKACK 减少 ACK 延迟,FastOpen 加速握手
+                    // 注意:不使用 TCP_CORK——它延迟发送最多 200ms 合并小包,对 HTTP 合并 header/body 有利,
+                    // 但对小报文 echo/流式协议每个响应都要等 200ms 才发出,吞吐暴跌(实测 QPS 从 4.9 万掉到 1.2 千)
                     .setTcpQuickAck(true)
                     .setTcpFastOpen(true)
                     .setTcpKeepAlive(true);
@@ -168,6 +169,13 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                     if (frame != null) {
                         byte[] response = frameHandler.handle(frame);
                         if (response != null) {
+                            // 响应帧协议（与 JdkTcpClient.exchange 对称）：4 字节长度头 + body
+                            byte[] len = new byte[4];
+                            len[0] = (byte) (response.length >>> 24);
+                            len[1] = (byte) (response.length >>> 16);
+                            len[2] = (byte) (response.length >>> 8);
+                            len[3] = (byte) response.length;
+                            out.write(len);
                             out.write(response);
                             out.flush();
                         }
@@ -187,39 +195,28 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-     * 读取一帧（ScatterProtocol 布局：magic(1) type(1) requestId(4) pathLen(1) path payloadLen(4) payload）。
+     * 读取一帧（与 JdkTcpClient 长度帧协议对称：4 字节长度头 + ScatterFrame body）。
      *
      * @param in 输入流
      * @return 完整帧字节，EOF 返回 null
      */
     private static byte[] readFrame(InputStream in) throws IOException {
-        byte[] head = new byte[7];
-        int n = readFully(in, head);
+        byte[] lenBytes = new byte[4];
+        int n = readFully(in, lenBytes);
         if (n == -1) {
             return null;
         }
-        if (n < 7) {
-            throw new IOException("帧头不完整");
+        if (n < 4) {
+            throw new IOException("帧长度头不完整: " + n);
         }
-        if (head[0] != com.chua.common.support.scatter.protocol.ScatterProtocol.MAGIC) {
-            throw new IOException("帧魔数错误");
-        }
-        // 布局顺序：head(7) → path(pathLen) → payloadLen(4) → payload
-        int pathLen = head[6] & 0xff;
-        byte[] path = new byte[pathLen];
-        readFully(in, path);
-        byte[] lenBytes = new byte[4];
-        readFully(in, lenBytes);
-        int payloadLen = ((lenBytes[0] & 0xff) << 24) | ((lenBytes[1] & 0xff) << 16)
+        int bodyLen = ((lenBytes[0] & 0xff) << 24) | ((lenBytes[1] & 0xff) << 16)
                 | ((lenBytes[2] & 0xff) << 8) | (lenBytes[3] & 0xff);
-        byte[] payload = new byte[payloadLen];
-        readFully(in, payload);
-        byte[] full = new byte[7 + pathLen + 4 + payloadLen];
-        System.arraycopy(head, 0, full, 0, 7);
-        System.arraycopy(path, 0, full, 7, pathLen);
-        System.arraycopy(lenBytes, 0, full, 7 + pathLen, 4);
-        System.arraycopy(payload, 0, full, 7 + pathLen + 4, payloadLen);
-        return full;
+        if (bodyLen <= 0 || bodyLen > 16 * 1024 * 1024) {
+            throw new IOException("帧长度越界: " + bodyLen);
+        }
+        byte[] body = new byte[bodyLen];
+        readFully(in, body);
+        return body;
     }
 
     private static int readFully(InputStream in, byte[] buf) throws IOException {
