@@ -49,7 +49,12 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     /**
      * 读取缓冲大小
      */
-    private static final int READ_BUFFER_SIZE = 8192;
+    private static final int READ_BUFFER_SIZE = 16384;
+
+    /**
+     * IO 缓冲线程本地实例（worker 复用一个，避免每事件 new 导致 GC 压力）
+     */
+    private static final ThreadLocal<ByteBuffer> IO_BUFFER = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(READ_BUFFER_SIZE));
 
     /**
      * 客户端连接表（clientId -> connection）
@@ -67,14 +72,40 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     private ServerSocketChannel serverChannel;
 
     /**
-     * Reactor 选择器
+     * Boss Selector（仅负责 accept）
      */
-    private Selector selector;
+    private Selector bossSelector;
 
     /**
-     * Reactor 事件循环线程
+     * Boss 事件循环线程
      */
-    private Thread reactorThread;
+    private Thread bossThread;
+
+    /**
+     * Worker Selector 数组（每个 worker 一个事件循环，负责 read/write）
+     */
+    private Selector[] workerSelectors;
+
+    /**
+     * Worker 事件循环线程数组
+     */
+    private Thread[] workerThreads;
+
+    /**
+     * Worker 待注册连接队列(accept 后按轮询分发)
+     */
+    private final List<java.util.concurrent.ConcurrentLinkedQueue<SocketChannel>> pendingRegistrations =
+            new CopyOnWriteArrayList<>();
+
+    /**
+     * Worker 数量
+     */
+    private int workerCount = 1;
+
+    /**
+     * Worker 轮询索引
+     */
+    private final java.util.concurrent.atomic.AtomicInteger workerIndex = new java.util.concurrent.atomic.AtomicInteger();
 
     /**
      * 运行状态
@@ -124,12 +155,30 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
             serverChannel.configureBlocking(false);
             serverChannel.setOption(java.net.StandardSocketOptions.SO_REUSEADDR, true);
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), setting.getBacklog());
-            selector = Selector.open();
-            serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+            // 主从多线程 Reactor: boss 仅 accept, workCount 个 worker 各自 Selector 处理 read/write,
+            // 避免单 Selector 单线程在千级并发下成为 IO 事件瓶颈
+            workerCount = Math.max(1, Math.min(
+                Integer.getInteger("chua.tcp.reactor.workers",
+                        Math.min(Runtime.getRuntime().availableProcessors(), 4)), 8));
+            bossSelector = Selector.open();
+            serverChannel.register(bossSelector, SelectionKey.OP_ACCEPT);
+            workerSelectors = new Selector[workerCount];
+            workerThreads = new Thread[workerCount];
+            pendingRegistrations.clear();
             running.set(true);
-            reactorThread = ThreadUtils.newThread(this::reactorLoop, "tcp-sync-reactor-" + setting.getPort());
-            reactorThread.setDaemon(true);
-            reactorThread.start();
+            for (int i = 0; i < workerCount; i++) {
+                Selector worker = Selector.open();
+                workerSelectors[i] = worker;
+                pendingRegistrations.add(new java.util.concurrent.ConcurrentLinkedQueue<>());
+                final int idx = i;
+                Thread wt = ThreadUtils.newThread(() -> workerLoop(idx, worker), "tcp-sync-worker-" + setting.getPort() + "-" + i);
+                wt.setDaemon(true);
+                wt.start();
+                workerThreads[i] = wt;
+            }
+            bossThread = ThreadUtils.newThread(this::bossLoop, "tcp-sync-boss-" + setting.getPort());
+            bossThread.setDaemon(true);
+            bossThread.start();
         } catch (IOException e) {
             throw new RuntimeException("TCP SyncServer 启动失败", e);
         }
@@ -139,29 +188,63 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     /** Do停止 */
     protected void doStop() {
         running.set(false);
-        if (selector != null) {
+        if (bossSelector != null) {
             try {
-                selector.wakeup();
+                bossSelector.wakeup();
             } catch (Exception ignored) {
             }
         }
-        if (reactorThread != null) {
+        if (workerSelectors != null) {
+            for (Selector worker : workerSelectors) {
+                if (worker != null) {
+                    try {
+                        worker.wakeup();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+        if (bossThread != null) {
             try {
-                reactorThread.join(2000);
+                bossThread.join(2000);
             } catch (InterruptedException ignored) {
                 Thread.currentThread().interrupt();
             }
-            reactorThread = null;
+            bossThread = null;
+        }
+        if (workerThreads != null) {
+            for (Thread wt : workerThreads) {
+                if (wt != null) {
+                    try {
+                        wt.join(2000);
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+            workerThreads = null;
         }
         // 关闭 Selector 释放通道与端口资源:否则 stop 后同端口重启 bind 会
         // 残留旧 Selector 状态,新实例 start() 可能阻塞/复用失败(故障测试实测)
-        if (selector != null) {
+        if (bossSelector != null) {
             try {
-                selector.close();
+                bossSelector.close();
             } catch (Exception ignored) {
             }
-            selector = null;
+            bossSelector = null;
         }
+        if (workerSelectors != null) {
+            for (Selector worker : workerSelectors) {
+                if (worker != null) {
+                    try {
+                        worker.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+            workerSelectors = null;
+        }
+        pendingRegistrations.clear();
         if (serverChannel != null) {
             try {
                 serverChannel.close();
@@ -226,16 +309,13 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * Reactor 事件循环：单线程管理 accept/read/write 事件，业务处理交虚拟线程。
+     * Boss 事件循环: 仅处理 accept,新连接轮询分发给 worker(主从 Reactor)。
      */
-    private void reactorLoop() {
-        while (running.get() && selector.isOpen()) {
+    private void bossLoop() {
+        while (running.get() && bossSelector.isOpen()) {
             try {
-                selector.select(500);
-                var selected = selector.selectedKeys();
-                if (selected.isEmpty()) {
-                    continue;
-                }
+                bossSelector.select(500);
+                var selected = bossSelector.selectedKeys();
                 var iterator = selected.iterator();
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
@@ -246,7 +326,51 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                     try {
                         if (key.isAcceptable()) {
                             handleAccept(key);
-                        } else if (key.isReadable()) {
+                        }
+                    } catch (IOException e) {
+                        try {
+                            key.channel().close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                if (running.get()) {
+                    log.error("TCP SyncServer Boss 循环异常", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Worker 事件循环: 处理各自注册连接的 read/write。
+     *
+     * @param idx worker 序号
+     * @param worker 对应 Selector
+     */
+    private void workerLoop(int idx, Selector worker) {
+        var pending = pendingRegistrations.get(idx);
+        while (running.get() && worker.isOpen()) {
+            try {
+                // 先注册 boss 分发的待注册连接(写事件暂时无人设置,只需注册读)
+                SocketChannel newChannel;
+                while ((newChannel = pending.poll()) != null) {
+                    if (newChannel.isOpen()) {
+                        ClientConnection connection = new ClientConnection(newChannel, worker);
+                        newChannel.register(worker, SelectionKey.OP_READ, connection);
+                    }
+                }
+                worker.select(500);
+                var selected = worker.selectedKeys();
+                var iterator = selected.iterator();
+                while (iterator.hasNext()) {
+                    SelectionKey key = iterator.next();
+                    iterator.remove();
+                    if (!key.isValid()) {
+                        continue;
+                    }
+                    try {
+                        if (key.isReadable()) {
                             handleRead(key);
                         } else if (key.isWritable()) {
                             handleWrite(key);
@@ -257,27 +381,30 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                 }
             } catch (IOException e) {
                 if (running.get()) {
-                    log.error("TCP SyncServer Reactor 循环异常", e);
+                    log.error("TCP SyncServer Worker{} 循环异常", idx, e);
                 }
             }
         }
     }
 
     /**
-     * 处理 accept 事件。
+     * 处理 accept 事件: 从 boss accept 后轮询分发到 worker 待注册队列。
      *
      * @param key 选择键
      */
     private void handleAccept(SelectionKey key) throws IOException {
         ServerSocketChannel channel = (ServerSocketChannel) key.channel();
-        SocketChannel socketChannel = channel.accept();
-        if (socketChannel == null) {
-            return;
+        SocketChannel socketChannel;
+        while ((socketChannel = channel.accept()) != null) {
+            socketChannel.configureBlocking(false);
+            socketChannel.setOption(java.net.StandardSocketOptions.TCP_NODELAY, true);
+            int target = workerIndex.getAndIncrement() & 0x7FFFFFFF;
+            pendingRegistrations.get(target % workerCount).offer(socketChannel);
+            Selector worker = workerSelectors[target % workerCount];
+            if (worker != null) {
+                worker.wakeup();
+            }
         }
-        socketChannel.configureBlocking(false);
-        socketChannel.setOption(java.net.StandardSocketOptions.TCP_NODELAY, true);
-        ClientConnection connection = new ClientConnection(socketChannel);
-        socketChannel.register(selector, SelectionKey.OP_READ, connection);
     }
 
     /**
@@ -288,7 +415,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection connection = (ClientConnection) key.attachment();
-        ByteBuffer buffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
+        ByteBuffer buffer = IO_BUFFER.get();
+        buffer.clear();
         int read;
         while ((read = channel.read(buffer)) > 0) {
             buffer.flip();
@@ -361,6 +489,16 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         private final SocketChannel channel;
 
         /**
+         * 所属 Worker Selector(连接固定由该 worker 处理 read/write)
+         */
+        private final Selector worker;
+
+        /**
+         * 待续写的数据(非阻塞 write 一次写不完时保留,随 OP_WRITE 再续)
+         */
+        private ByteBuffer pendingWrite;
+
+        /**
          * 客户端标识
          */
         private volatile String clientId;
@@ -389,9 +527,11 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
          * 创建客户端连接。
          *
          * @param channel 底层通道
+         * @param worker  所属 Worker Selector
          */
-        private ClientConnection(SocketChannel channel) {
+        private ClientConnection(SocketChannel channel, Selector worker) {
             this.channel = channel;
+            this.worker = worker;
             // 初始置为读模式（无数据）：position=0, limit=0，供 appendBuffer 的 compact() 正确腾出空间
             readBuffer.flip();
         }
@@ -419,22 +559,31 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         List<String> drainLines() {
             List<String> lines = new ArrayList<>();
             synchronized (readBuffer) {
-                StringBuilder sb = new StringBuilder();
-                while (readBuffer.hasRemaining()) {
-                    char c = (char) readBuffer.get();
-                    if (c == '\n') {
-                        if (sb.length() > 0) {
-                            lines.add(sb.toString());
-                            sb.setLength(0);
+                // 在字节层面定位换行符，整段解码，避免逐字节 char 转换破坏 UTF-8 多字节字符
+                ByteBuffer src = readBuffer.duplicate();
+                int start = src.position();
+                int limit = src.limit();
+                ByteBuffer binary = src.slice();
+                int from = 0;
+                int len = limit - start;
+                for (int i = 0; i < len; i++) {
+                    if (binary.get(i) == (byte) '\n') {
+                        if (i > from) {
+                            byte[] chunk = new byte[i - from];
+                            binary.get(from, chunk, 0, i - from);
+                            lines.add(new String(chunk, StandardCharsets.UTF_8));
                         }
-                    } else {
-                        sb.append(c);
+                        from = i + 1;
                     }
                 }
                 // 未完成行写回缓冲头部，保持读模式
-                byte[] tail = sb.toString().getBytes(StandardCharsets.UTF_8);
+                int tailLen = len - from;
                 readBuffer.clear();
-                readBuffer.put(tail);
+                if (tailLen > 0) {
+                    byte[] tail = new byte[tailLen];
+                    binary.get(from, tail, 0, tailLen);
+                    readBuffer.put(tail);
+                }
                 readBuffer.flip();
             }
             return lines;
@@ -472,26 +621,42 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         void write(String payload) {
             writeQueue.offer(payload);
             if (writePending.compareAndSet(false, true)) {
-                SelectionKey key = channel.keyFor(selector);
+                SelectionKey key = channel.keyFor(worker);
                 if (key != null) {
                     key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
-                    selector.wakeup();
+                    worker.wakeup();
+                } else {
+                    writePending.set(false);
                 }
             }
         }
 
         /**
          * 冲刷发送队列。
+         * <p>非阻塞写一次可能写不完，剩余数据保留在 {@code pendingWrite}，随 OP_WRITE 再续写，
+         * 避免数据丢失。</p>
          *
          * @param ch  通道
          * @param key 选择键
          */
         void flushQueue(SocketChannel ch, SelectionKey key) throws IOException {
-            String payload;
-            while ((payload = writeQueue.poll()) != null) {
-                ByteBuffer buffer = ByteBuffer.wrap((payload + "\n").getBytes(StandardCharsets.UTF_8));
-                ch.write(buffer);
+            ByteBuffer buffer = pendingWrite;
+            while (true) {
+                if (buffer != null) {
+                    int written = ch.write(buffer);
+                    if (buffer.hasRemaining()) {
+                        // 内核发送缓冲已满，保留剩余,等下一轮 OP_WRITE
+                        return;
+                    }
+                    buffer = null;
+                }
+                String payload = writeQueue.poll();
+                if (payload == null) {
+                    break;
+                }
+                buffer = ByteBuffer.wrap((payload + "\n").getBytes(StandardCharsets.UTF_8));
             }
+            pendingWrite = null;
             key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
             writePending.set(false);
         }
@@ -521,7 +686,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
          */
         void close() {
             try {
-                SelectionKey key = channel.keyFor(selector);
+                SelectionKey key = channel.keyFor(worker);
                 if (key != null) {
                     key.cancel();
                 }
