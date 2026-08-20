@@ -1,35 +1,33 @@
 package com.chua.common.support.scatter;
 
-import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.scatter.node.ScatterNodeHandler;
 
 /**
- * Scatter 服务发现接口。
- * <p>对等式无中心化发现：节点通过 seeds 引导 / 网段扩散 / gossip 互相发现，
- * 内存(Inmem)维护节点表，按 groupId 业务分组隔离，心跳上报动态权重。</p>
+ * scatter 服务发现接口（实现类同时承担帧处理，见 {@link ScatterNodeHandler}）。
  *
  * @author CH
  * @since 4.0.0.42
  */
-public interface ScatterServiceDiscovery extends ServiceDiscovery {
+public interface ScatterServiceDiscovery extends ServiceDiscovery, ScatterNodeHandler {
 
     /**
-     * 设置远程客户端（用于向其他节点拉取服务列表）。
+     * 设置远程客户端（未启动前）。
      *
      * @param remoteClient 远程客户端
      * @return 当前实例
      */
-    ScatterServiceDiscovery remoteClient(ScatterRemoteClient<Discovery> remoteClient);
+    ScatterServiceDiscovery remoteClient(ScatterRemoteClient remoteClient);
 
     /**
-     * 获取业务分组。
+     * 获取分组。
      *
-     * @return 分组标识
+     * @return 分组
      */
     String getGroupId();
 
     /**
-     * 获取节点配置。
+     * 获取配置。
      *
      * @return 配置
      */

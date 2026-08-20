@@ -4,17 +4,12 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerBuilder;
 import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.server.SyncServer;
-import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter;
 import com.chua.common.support.network.server.filter.proxy.ReverseProxyServerFilter;
 import com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver;
 import com.chua.common.support.network.server.proxy.TcpProxyServer;
-import com.chua.common.support.scatter.ScatterContext;
-import com.chua.common.support.scatter.ScatterNodeServer;
+import com.chua.common.support.scatter.node.ScatterNodeServer;
 import com.chua.common.support.scatter.ScatterRemoteClient;
-import com.chua.common.support.scatter.ScatterResult;
-import com.chua.common.support.scatter.ScatterResultWithRequestId;
 import com.chua.common.support.scatter.ScatterServiceDiscovery;
 import com.chua.common.support.scatter.ScatterSetting;
 import com.chua.common.support.scatter.TcpScatterBuilder;
@@ -74,7 +69,7 @@ public class ClusterNode implements AutoCloseable {
         this.discovery = builder.buildDiscovery();
         // 配置远程客户端:autoDiscovery 依赖它向其他节点拉取服务列表(未配置则默认返回 failure,
         // 集群节点间服务注册无法互相传播 → 自动发现不收敛)。
-        ScatterRemoteClient<Discovery> remoteClient = builder.buildRemoteClient();
+        ScatterRemoteClient remoteClient = builder.buildRemoteClient();
         if (remoteClient != null) {
             this.discovery.remoteClient(remoteClient);
         }
@@ -128,47 +123,12 @@ public class ClusterNode implements AutoCloseable {
             log.info("ClusterNode TCP 入口启动: {}:{} (scatterId={})", clusterSetting.getHost(), tcpPort, scatterId);
         }
 
-        // ④ 启动 scatter 节点服务:响应其他节点的远程服务拉取(autoDiscovery 的 sync/request),
-        //    否则远程拉取无响应 → 集群节点间服务注册无法互相传播。
+        // ④ 启动 scatter 节点服务:响应其他节点的远程服务拉取(帧协议 REQ/PUSH,
+        //    discovery 实现 ScatterNodeHandler 内置响应,无需手动注册 listener)。
         //    监听端口 = scatterPort(显式)或 port+2,与 HTTP(port)/TCP 代理(port+1)分离
-        this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting()).buildNodeServer();
+        this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting())
+                .buildNodeServer(discovery);
         if (nodeServer != null) {
-            // 注意:registerHandler 的适配器会丢弃 clientId,无法定向回复;
-            // 需直接用 syncServer.addListener,onMessage 里拿 clientId 回发 ScatterResultWithRequestId
-            // (remoteClient 的 subscribe 回调要求该包装类型,否则 future 永不 complete → invoke 超时)
-            SyncServer syncServer = nodeServer.getSyncServer();
-            if (syncServer != null) {
-                syncServer.addListener(new SyncServerListener() {
-                    @Override
-                    /** OnMessage */
-                    public void onMessage(String clientId, String messageTopic, Object message) {
-                        if (!"sync/request".equals(messageTopic) || message == null) {
-                            return;
-                        }
-                        try {
-                            // sync 协议为文本行(topic:payload),payload 是 ScatterContext.toString() 输出的 JSON
-                            ScatterContext ctx = ScatterContext.fromLine(message.toString());
-                            if (ctx == null) {
-                                log.warn("ClusterNode 远程查询消息无法解析: {}", message);
-                                return;
-                            }
-                            String requestId = ctx.getRequestId();
-                            String path = ctx.getPath();
-                            java.util.Set<Discovery> services = discovery.getServiceAll(path);
-                            Discovery picked = services.stream().findFirst().orElse(null);
-                            ScatterResult<Discovery> result =
-                                    picked != null
-                                            ? ScatterResult.success(clusterSetting.getNodeId(), picked)
-                                            : ScatterResult.failure(clusterSetting.getNodeId(), "无服务");
-                            syncServer.send(clientId, "sync/response",
-                                    new ScatterResultWithRequestId<>(requestId, result));
-                            log.debug("ClusterNode 远程查询已响应: {} 服务={}", path, picked);
-                        } catch (Exception e) {
-                            log.warn("ClusterNode 远程查询处理异常: {}", e.getMessage());
-                        }
-                    }
-                });
-            }
             nodeServer.start();
             log.info("ClusterNode 节点服务启动: {}:{} (scatter 远程查询)",
                     clusterSetting.getHost(), clusterSetting.toScatterSetting().getPort());

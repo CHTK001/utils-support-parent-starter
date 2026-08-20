@@ -103,11 +103,22 @@ public class SipServer extends AbstractServer implements TcpServer {
      * @param config 服务器配置
      */
     public SipServer(SipConfig config) {
-        super(ServerSetting.defaults()
-                .setHost(config.getHost())
-                .setPort(config.getPort())
-                .setProtocol("tcp"));
+        super(serverSetting(config));
         this.token = config.getToken();
+    }
+
+    /**
+     * 构建服务器配置。
+     *
+     * @param config SIP 配置
+     * @return 服务器配置
+     */
+    private static ServerSetting serverSetting(SipConfig config) {
+        ServerSetting setting = ServerSetting.defaults();
+        setting.setHost(config.getHost());
+        setting.setPort(config.getPort());
+        setting.setProtocol("tcp");
+        return setting;
     }
 
     /**
@@ -206,6 +217,21 @@ public class SipServer extends AbstractServer implements TcpServer {
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
+    }
+
+    /**
+     * 以协议处理器方式处理一条被协议嗅探服务器转交的连接。
+     *
+     * <p>复用单端口首行分流逻辑（{@code AUTH} 认证信令 / {@code CONNECT} 数据平面），
+     * 供 {@link com.chua.common.support.network.tcp.ProtocolSniffingTcpServer} 等
+     * 外部监听器嵌入调用。此时本服务器不独立监听端口，由外部监听器负责连接接入与协议识别。</p>
+     *
+     * @param in  输入流（含外部监听器已回推的头部字节）
+     * @param out 输出流
+     */
+    public void handleStream(InputStream in, OutputStream out) {
+        running = true;
+        handleConnection(in, out);
     }
 
     /**

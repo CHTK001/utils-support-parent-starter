@@ -157,7 +157,16 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         if (CollectionUtils.size(list) == 0) {
             return Collections.emptySet();
         }
-        return new HashSet<>(list);
+        // 按 serverId 幂等去重：Discovery 为 @Data 全字段 equals（含动态 weight），
+        // 同 serverId 每次 weight 变化会导致 HashSet 视为不同对象、条目无限累积
+        // （跨机 gossip 实测 5→12+ 膨胀）。用 LinkedHashMap 以 serverId 为键保留最新一条。
+        java.util.Map<String, Discovery> dedup = new java.util.LinkedHashMap<>();
+        for (Discovery d : list) {
+            if (d.getServerId() != null) {
+                dedup.put(d.getServerId(), d);
+            }
+        }
+        return new java.util.LinkedHashSet<>(dedup.values());
     }
 
     // ======================== 子类后端钩子 ========================

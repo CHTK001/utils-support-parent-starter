@@ -1,8 +1,7 @@
 package com.chua.common.support.network.tcp;
 
+import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.tcp.callback.TcpServerHandler;
-
-import java.io.Closeable;
 
 /**
  * TCP 服务端抽象，定义基于长度帧（4 字节头 + 消息体）的 TCP 服务生命周期与帧处理入口。
@@ -13,10 +12,15 @@ import java.io.Closeable;
  * <p>调用顺序约定：先调用 {@link #setHandler} 注册帧处理器，再调用 {@link #start}
  * 启动监听，业务方可通过 {@link #getPort()} 获取实际监听端口。</p>
  *
+ * <p>{@code TcpServer} 是 {@link Server} 的标记子接口：实现类经由
+ * {@link com.chua.common.support.network.server.AbstractServer} 获得
+ * start/stop/isRunning/getProtocolType 等生命周期能力，本接口仅补充
+ * 帧处理器注册（{@link #setHandler}）。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
-public interface TcpServer extends Closeable {
+public interface TcpServer extends Server {
 
     /**
      * 注册帧处理器：服务端每收到一帧完整请求即回调一次，处理器返回响应帧字节。

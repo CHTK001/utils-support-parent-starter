@@ -99,11 +99,7 @@ public class PytorchModelRegistrar implements ModelRegistrar {
                 ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class,
                 ImageClassifier.class, "face/expression_densenet.pt");
 
-        // 图像增强：风格 / 超分 / 上色
-        reg("pytorch-style-transfer",
-                "com.chua.deeplearning.support.pytorch.style.StyleTransferTranslator",
-                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class,
-                ImageEnhancer.class, "style/style_transfer.pt");
+        // 图像增强：超分 / 上色
         reg("pytorch-realesrgan",
                 "com.chua.deeplearning.support.pytorch.resolution.RealEsrganTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class,

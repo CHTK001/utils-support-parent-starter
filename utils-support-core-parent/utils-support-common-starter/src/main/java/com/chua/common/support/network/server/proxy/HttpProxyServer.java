@@ -1,0 +1,213 @@
+package com.chua.common.support.network.server.proxy;
+
+import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+/**
+ * JDK HTTP 反向代理服务器（基于 {@link AbstractProxyServer} 骨架，短连接）。
+ *
+ * <p>复用 AbstractProxyServer 的非阻塞批量 accept + 连接限流 + 虚拟线程池；
+ * {@link #handleConnection(Socket)} 内完成"读 HTTP 请求 → 解析后端 → 转发 → 回传响应 → 关闭"，
+ * 一请求一响应一断。</p>
+ *
+ * <p>与 vertx 版 {@code VertxHttpProxyServer}（事件循环异步）对等，本实现为 JDK 阻塞版。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Slf4j
+@Spi({"http-proxy"})
+public class HttpProxyServer extends AbstractProxyServer {
+
+    protected final ProxyTargetResolver<InetSocketAddress> targetResolver;
+    protected final int connectTimeoutMs;
+    protected final int readTimeoutMs;
+
+    public HttpProxyServer(ServerSetting setting) {
+        super(setting);
+        initProxy();
+        this.targetResolver = remote -> null;
+        this.connectTimeoutMs = setting.getReadTimeout();
+        this.readTimeoutMs = setting.getWriteTimeout();
+    }
+
+    public HttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
+        super(setting);
+        initProxy();
+        this.targetResolver = targetResolver;
+        this.connectTimeoutMs = setting.getReadTimeout();
+        this.readTimeoutMs = setting.getWriteTimeout();
+    }
+
+    public HttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
+        this(setting, remote -> backend);
+    }
+
+    private void initProxy() {
+        this.preferNonBlockingAccept = true;
+    }
+
+    @Override
+    public com.chua.common.support.network.ProtocolType getProtocolType() {
+        return com.chua.common.support.network.ProtocolType.HTTP;
+    }
+
+    @Override
+    protected void handleConnection(Socket clientSocket) {
+        try (clientSocket) {
+            clientSocket.setSoTimeout(readTimeoutMs);
+            InputStream in = clientSocket.getInputStream();
+            OutputStream out = clientSocket.getOutputStream();
+
+            // 读 HTTP 请求头（直到空行）
+            byte[] header = readHeader(in);
+            if (header == null || header.length == 0) {
+                return;
+            }
+            // 解析请求行（method path HTTP/1.1）
+            String headText = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
+            int lineEnd = headText.indexOf("\r\n");
+            if (lineEnd <= 0) {
+                return;
+            }
+            String requestLine = headText.substring(0, lineEnd);
+            String[] parts = requestLine.split(" ");
+            if (parts.length < 2) {
+                return;
+            }
+            String method = parts[0];
+            String path = parts[1];
+
+            InetSocketAddress backend = targetResolver.resolve(null);
+            if (backend == null || backend.getPort() <= 0) {
+                writeSimple(out, 502, "Bad Gateway: backend not resolved");
+                return;
+            }
+
+            try (Socket backendSocket = new Socket()) {
+                backendSocket.connect(backend, connectTimeoutMs);
+                backendSocket.setSoTimeout(readTimeoutMs);
+                OutputStream backOut = backendSocket.getOutputStream();
+                InputStream backIn = backendSocket.getInputStream();
+
+                // 转发请求头（保留 method/path/版本，透传其余头）+ body
+                backOut.write(header);
+                byte[] body = readBody(in, headText);
+                if (body.length > 0) {
+                    backOut.write(body);
+                }
+                backOut.flush();
+
+                // 回传响应
+                byte[] respHeader = readHeader(backIn);
+                if (respHeader != null) {
+                    out.write(respHeader);
+                    out.flush();
+                    if (isChunked(respHeader) || contentLength(respHeader) > 0) {
+                        pipeRaw(backIn, out);
+                    }
+                }
+                out.flush();
+            }
+            log.debug("http-proxy: {} {} -> {}:{}", method, path,
+                    backend.getHostString(), backend.getPort());
+        } catch (IOException e) {
+            log.debug("http-proxy 连接异常: {}", e.getMessage());
+        } finally {
+            activeConnections.decrementAndGet();
+        }
+    }
+
+    /** 读 HTTP 头（直到 \r\n\r\n）。 */
+    private byte[] readHeader(InputStream in) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        int prev = -1;
+        int crlf = 0;
+        int b;
+        while ((b = in.read()) != -1) {
+            bos.write(b);
+            if (prev == '\r' && b == '\n') {
+                crlf++;
+            } else {
+                crlf = 0;
+            }
+            prev = b;
+            if (crlf == 2) {
+                break;
+            }
+            if (bos.size() > 1 << 20) {
+                throw new IOException("HTTP 头过大");
+            }
+        }
+        return bos.size() == 0 ? null : bos.toByteArray();
+    }
+
+    /** 读取请求体（按 Content-Length 或 chunked）。 */
+    private byte[] readBody(InputStream in, String headText) throws IOException {
+        int len = contentLength(headText);
+        if (len > 0) {
+            byte[] body = new byte[len];
+            int read = 0;
+            while (read < len) {
+                int r = in.read(body, read, len - read);
+                if (r == -1) {
+                    break;
+                }
+                read += r;
+            }
+            return body;
+        }
+        return new byte[0];
+    }
+
+    private boolean isChunked(byte[] header) {
+        String text = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
+        return text.toLowerCase().contains("transfer-encoding: chunked");
+    }
+
+    private int contentLength(String headText) {
+        for (String line : headText.split("\r\n")) {
+            if (line.toLowerCase().startsWith("content-length:")) {
+                try {
+                    return Integer.parseInt(line.substring("content-length:".length()).trim());
+                } catch (NumberFormatException ignored) {
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /** 响应头中的 Content-Length（用于判断是否转发 body）。 */
+    private int contentLength(byte[] header) {
+        return contentLength(new String(header, java.nio.charset.StandardCharsets.ISO_8859_1));
+    }
+
+    /** 原样泵送响应体（chunked 或定长）。 */
+    private void pipeRaw(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[8192];
+        int n;
+        while ((n = in.read(buffer)) != -1) {
+            out.write(buffer, 0, n);
+            out.flush();
+        }
+    }
+
+    private void writeSimple(OutputStream out, int code, String msg) throws IOException {
+        String body = msg == null ? "" : msg;
+        String resp = "HTTP/1.1 " + code + " " + (code == 502 ? "Bad Gateway" : "Error") + "\r\n"
+                + "Content-Type: text/plain\r\n"
+                + "Content-Length: " + body.getBytes(java.nio.charset.StandardCharsets.UTF_8).length + "\r\n"
+                + "Connection: close\r\n\r\n" + body;
+        out.write(resp.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        out.flush();
+    }
+}

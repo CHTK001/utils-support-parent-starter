@@ -30,6 +30,7 @@
         <module>utils-support-protobuf-starter</module>
         <module>utils-support-gson-starter</module>
         <module>utils-support-fastjson-starter</module>
+        <module>utils-support-mock-starter</module>
         <module>utils-support-tika-starter</module>
         <module>utils-support-tui-starter</module>
         <module>utils-support-video-processor-starter</module>

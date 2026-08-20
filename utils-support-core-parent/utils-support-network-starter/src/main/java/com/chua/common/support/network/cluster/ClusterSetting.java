@@ -85,7 +85,6 @@ public class ClusterSetting {
         }
         setting.setServicePath(servicePaths.isEmpty() ? "/" : servicePaths.get(0));
         setting.setTimeoutMillis(timeoutMillis);
-        setting.setBalance(balance);
         setting.setAutoDiscoveryIntervalMillis(autoDiscoveryIntervalMillis);
         return setting;
     }

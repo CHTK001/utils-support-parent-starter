@@ -99,7 +99,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
      * @param modelName modelName
      */
     private UltraFaceTranslator(String modelName) {
-        this(0.7d, 0.3d, modelName);
+        this(0.2d, 0.3d, modelName);
     }
 
     /**

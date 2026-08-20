@@ -2096,7 +2096,11 @@ public class ClassUtils {
      * @return                         
      */
     public static boolean setAccessible(Object object) {
-        ModuleLoader.exportAllToAll();
+        try {
+            ModuleLoader.exportAllToAll();
+        } catch (Throwable t) {
+            // GraalVM native-image / 模块化环境下模块导出不可用时静默忽略
+        }
         if(null == object) {
             return false;
         }

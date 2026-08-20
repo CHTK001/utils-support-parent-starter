@@ -153,6 +153,15 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
             }
             reactorThread = null;
         }
+        // 关闭 Selector 释放通道与端口资源:否则 stop 后同端口重启 bind 会
+        // 残留旧 Selector 状态,新实例 start() 可能阻塞/复用失败(故障测试实测)
+        if (selector != null) {
+            try {
+                selector.close();
+            } catch (Exception ignored) {
+            }
+            selector = null;
+        }
         if (serverChannel != null) {
             try {
                 serverChannel.close();

@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
  * - 可选择性计算梯度方向 θ = arctan(Gy/Gx)
  *
  * Sobel 算子：
- * 水平方向（检测垂直边缘）：    垂直方向（检测水平边缘）：
+ * 水平方向（检测垂直边缘）：   垂直方向（检测水平边缘）：
  * [-1 -2 -1]                    [-1  0  1]
  * [ 0  0  0]                    [-2  0  2]
  * [ 1  2  1]                    [-1  0  1]
@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @version 1.0.0
- * @since 2021/6/11
+ * @since 4.0.0.42
  */
 @Spi("FindEdge")
 @SpiDescribe("综合边缘检测滤镜")
@@ -72,7 +72,6 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
     public static final int[] SOBEL_Y = new int[]{-1, 0, 1, -2, 0, 2, -1, 0, 1};
 
     @Override
-    /** 过滤 */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         // 计算图像总像素数
         int total = width * height;
