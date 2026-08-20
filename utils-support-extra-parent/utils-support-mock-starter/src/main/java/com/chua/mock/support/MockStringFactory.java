@@ -43,12 +43,15 @@ public final class MockStringFactory {
     /**
      * 按名称获取 MockString 生成器实例。
      *
+     * <p>名称匹配大小写不敏感；未注册的名称返回 null，
+     * 不会回退到默认实现，便于调用方识别拼写错误。</p>
+     *
      * @param name 生成器名称（如 name、phone、email、uuid 等）
-     * @return 生成器实例；不存在时返回 null
+     * @return 生成器实例；名称未注册时返回 null
      */
     @Nullable
     public static MockString getMockString(@Nullable String name) {
-        if (null == name || name.isEmpty()) {
+        if (!isSupport(name)) {
             return null;
         }
         return PROVIDER.getExtension(name);
@@ -115,6 +118,37 @@ public final class MockStringFactory {
     @Nullable
     public static String generate(@Nullable String name, int length) {
         return generate(name, MockEnvironment.of(length));
+    }
+
+    /**
+     * 按名称与关键词生成字符串数据（如按主题生成图片 URL）。
+     *
+     * @param name    生成器名称
+     * @param keyword 生成关键词
+     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 null
+     */
+    @Nullable
+    public static String generate(@Nullable String name, @Nullable String keyword) {
+        if (null == keyword || keyword.isEmpty()) {
+            return null;
+        }
+        return generate(name, MockEnvironment.ofKeyword(keyword));
+    }
+
+    /**
+     * 按名称、关键词与长度生成字符串数据（如按主题生成指定尺寸的图片 URL）。
+     *
+     * @param name    生成器名称
+     * @param keyword 生成关键词
+     * @param length  生成长度
+     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 null
+     */
+    @Nullable
+    public static String generate(@Nullable String name, @Nullable String keyword, int length) {
+        if (null == keyword || keyword.isEmpty()) {
+            return null;
+        }
+        return generate(name, MockEnvironment.ofKeyword(keyword, length));
     }
 
     /**
