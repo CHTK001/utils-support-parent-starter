@@ -7,6 +7,8 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.spi.ServiceProvider;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -20,6 +22,7 @@ import java.util.List;
 /**
  * JDBC 引擎基类，提供基于 JDBC 的数据库查询实现。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class JdbcEngine extends AbstractEngine {
@@ -158,6 +161,28 @@ public abstract class JdbcEngine extends AbstractEngine {
         return ds != null ? ds.getDialect() : null;
     }
 
+    /**
+     * 获取元数据操作入口，按默认数据源的协议自动加载对应的 MetaData 实现。
+     *
+     * <p>通过 SPI 按 {@link Dialect#protocol()} 协议名查找注册的 MetaData 实现类，
+     * 例如协议为 {@code "mysql"} 时自动加载 {@code MysqlMetaData}。
+     * 未找到对应实现时回退到 {@link com.chua.datasource.support.meta.DefaultMetaData}。</p>
+     *
+     * @return 元数据操作接口
+     */
+    @Override
+    public MetaData meta() {
+        Dialect d = dialect();
+        String protocol = d != null ? d.protocol() : null;
+        if (protocol != null) {
+            MetaData md = ServiceProvider.of(MetaData.class).getNewExtension(protocol, this);
+            if (md != null) {
+                return md;
+            }
+        }
+        return super.meta();
+    }
+
     // ==================== 更新 / 删除（真实 JDBC 执行） ====================
 
     /**
@@ -249,10 +274,14 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 获取当前方言提供的默认数据源方言实例。
      *
-     * @return 方言实例，不可用返回 null
+     * @return 方言实例，数据源未配置或不可用时返回 null
      */
     private Dialect dialect() {
-        EngineDataSource<?> ds = getDataSource(getDefaultDataSourceName());
+        String name = getDefaultDataSourceName();
+        if (name == null) {
+            return null;
+        }
+        EngineDataSource<?> ds = getDataSource(name);
         return ds != null ? ds.getDialect() : null;
     }
 

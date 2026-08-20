@@ -153,7 +153,7 @@ public class DuckDBEngine extends JdbcEngine {
      * @author CH
      * @since 4.0.0.42
      */
-    private static final class DriverDataSource implements DataSource {
+    private static final class DriverDataSource implements DataSource, AutoCloseable {
 
         /**
          * JDBC 连接串
@@ -273,6 +273,23 @@ public class DuckDBEngine extends JdbcEngine {
         @Override
         public boolean isWrapperFor(Class<?> iface) throws SQLException {
             return iface.isInstance(this);
+        }
+
+        /**
+         * 关闭底层共享连接，释放资源。
+         * <p>通过 {@code EngineDataSource.close()} 触发（因 AutoCloseable 自动识别）。</p>
+         */
+        @Override
+        public void close() {
+            Connection conn = sharedConnection;
+            sharedConnection = null;
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ignored) {
+                    // 忽略关闭异常
+                }
+            }
         }
     }
 }

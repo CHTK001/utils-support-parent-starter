@@ -23,11 +23,6 @@ import java.util.Objects;
 public class MathUtils {
 
     /**
-     * 圆周率
-     */
-    private static final double PI = Math.PI;
-
-    /**
      * 2π，常用于高斯分布归一化系数
      */
     private static final double TWO_PI = 2.0 * Math.PI;
@@ -135,7 +130,7 @@ public class MathUtils {
         double step = (end - start) / (sampleSize - 1);
         List<SamplePoint> points = new ArrayList<>(sampleSize);
         for (int i = 0; i < sampleSize; i++) {
-            // 当前 x：end + i·step，等价于 start + i·step（末项恰为 end）
+            // 当前 x：start + i·step（末项恰为 end）
             double x = start + i * step;
             double y = gaussianPdf(x, mean, stdDev);
             points.add(new SamplePoint(x, y));
@@ -253,13 +248,14 @@ public class MathUtils {
         // 最小二乘解
         double slope = sxy / sxx;
         double intercept = meanY - slope * meanX;
-        // 决定系数 R² = (sxy)² / (sxx · syy)
+        // 决定系数 R² 与皮尔逊相关系数 r（y 无波动时均取 0，避免除零产生 NaN）
         double rSquared = 0.0;
+        double pearson = 0.0;
         if (syy > 0.0) {
-            rSquared = (sxy * sxy) / (sxx * syy);
+            double denominator = sxx * syy;
+            rSquared = (sxy * sxy) / denominator;
+            pearson = sxy / Math.sqrt(denominator);
         }
-        // 皮尔逊相关系数 r
-        double pearson = sxy / Math.sqrt(sxx * Math.max(syy, 0.0));
         return new LinearRegression(slope, intercept, clamp(rSquared, 0.0, 1.0), clampAbs(pearson, 1.0));
     }
 
@@ -278,16 +274,13 @@ public class MathUtils {
         if (predictX == null || predictX.length == 0) {
             return new double[0];
         }
-        LinearRegression lr = linearRegression(x, y);
-        // 输入非法时 linearRegression 返回全零值，整体预测即全 0
-        if (lr.slope() == 0.0 && lr.intercept() == 0.0 && lr.rSquared() == 0.0 && lr.pearson() == 0.0) {
-            // 进一步判断：确实是非法输入还是恰好经过原点
-            if (x == null || y == null || x.length != y.length || x.length < 2) {
-                double[] zeros = new double[predictX.length];
-                Arrays.fill(zeros, 0.0);
-                return zeros;
-            }
+        // 输入序列非法时返回与 predictX 等长的全 0 数组
+        if (x == null || y == null || x.length != y.length || x.length < 2) {
+            double[] zeros = new double[predictX.length];
+            Arrays.fill(zeros, 0.0);
+            return zeros;
         }
+        LinearRegression lr = linearRegression(x, y);
         double[] result = new double[predictX.length];
         for (int i = 0; i < predictX.length; i++) {
             result[i] = lr.slope() * predictX[i] + lr.intercept();
@@ -369,7 +362,7 @@ public class MathUtils {
     // ==================== 内部工具方法 ====================
 
     /**
-     * 将 value 限制在 [min, max] 区间内。
+     * 将 value 限制在 [min, max] 区间内，NaN 返回 0。
      *
      * @param value 输入值
      * @param min   下界
@@ -377,6 +370,9 @@ public class MathUtils {
      * @return 截断后的值
      */
     private static double clamp(double value, double min, double max) {
+        if (Double.isNaN(value)) {
+            return 0.0;
+        }
         if (value < min) {
             return min;
         }
@@ -387,13 +383,16 @@ public class MathUtils {
     }
 
     /**
-     * 将 |value| 限制在不超过 maxValue，符号保持不变。
+     * 将 |value| 限制在不超过 maxValue，符号保持不变，NaN 返回 0。
      *
      * @param value    输入值
      * @param maxValue |value| 的最大绝对值
      * @return 限幅后的值
      */
     private static double clampAbs(double value, double maxValue) {
+        if (Double.isNaN(value)) {
+            return 0.0;
+        }
         if (value > maxValue) {
             return maxValue;
         }
