@@ -64,6 +64,11 @@
             <artifactId>utils-support-models-onnx-ppdoclayoutv3</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-doclayout-yolo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- 人脸检测模型（SCRFD / UltraFace / YOLOv11n-Face） -->
         <dependency>
             <groupId>com.chua</groupId>
@@ -229,6 +234,36 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-bge-large-zh</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-insightface-scrfd</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-insightface-landmark</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-insightface-adaface</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-insightface-genderage</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-insightface-3d68</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

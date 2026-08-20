@@ -89,11 +89,21 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("arc-face", "com.chua.deeplearning.support.onnx.face.ArcFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/swap/common/buffalo_l/w600k_r50.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸识别(AdaFace)：高质量人脸特征提取，对低质量/模糊人脸更鲁棒；适用复杂光照条件的人脸识别
         reg("ada-face", "com.chua.deeplearning.support.onnx.face.AdaFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/adaface/adaface_ir101_webface12m.onnx", "https://huggingface.co/miccai/adaface-ir101-webface12m/resolve/main/model.onnx", false, null);
+        // 人脸识别(InsightFace AdaFace)：buffalo_l AdaFace，112 输入 512 维；适用高精度人脸识别/比对
+        reg("insightface-adaface", "com.chua.deeplearning.support.onnx.insightface.InsightFaceAdaFaceTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/recognition/adaface/adaface.onnx");
+        // 人脸关键点(InsightFace 2D106)：buffalo_l 2d106det，192 输入 106 点；适用人脸对齐、美颜、换脸
+        reg("insightface-landmark-2d106", "com.chua.deeplearning.support.onnx.insightface.InsightFaceLandmarkTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/landmark/2d106/2d106det.onnx");
+        // 性别年龄(InsightFace)：buffalo_l genderage，96 输入，输出 [女性,男性,年龄]；适用人脸属性分析
+        reg("insightface-genderage", "com.chua.deeplearning.support.onnx.insightface.InsightFaceGenderAgeTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/attribute/genderage/genderage.onnx");
+        // 3D关键点(InsightFace 1K3D68)：buffalo_l 1k3d68，192 输入 1103 顶点；适用 3D 人脸重建、姿态估计
+        reg("insightface-3d68", "com.chua.deeplearning.support.onnx.insightface.InsightFace3d68Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/landmark/3d68/1k3d68.onnx");
         
         // 人脸特征提取(R50FaceFeature)：ResNet50 架构的人脸特征提取，精度更高；适用高精度人脸识别
         reg("r50-face-feature", "com.chua.deeplearning.support.onnx.face.R50FaceFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature_r50.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸检测(SCRFD)：快速高精度人脸检测，输出人脸框+关键点（5点）；适用人脸检测、face crop 前置
         reg("scrfd-face-detector", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/scrfd/2.5g_bnkps.onnx", "https://huggingface.co/RuteNL/SCRFD-face-detection-ONNX/resolve/main/2.5g_bnkps.onnx", false, null);
+        // 人脸检测(InsightFace SCRFD)：buffalo_l 标准 SCRFD-10g，640 输入，人脸框+5 点关键点；适用检测+对齐+识别前置
+        reg("insightface-scrfd", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "models/onnx/face/detection/scrfd/scrfd.onnx");
         // 人脸检测(UltraFace)：超轻量人脸检测，320x240 输入，适合移动端/边缘设备；适用嵌入式人脸检测
         reg("ultra-face", "com.chua.deeplearning.support.onnx.face.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/face_detection_sdk/RFB.onnx", "https://huggingface.co/onnxmodelzoo/version-RFB-320/resolve/main/version-RFB-320.onnx", false, null);
         // 人脸检测(RetinaFace R34)：ResNet34 骨干，输出人脸框+5 点关键点；适用人脸检测/对齐
@@ -163,6 +173,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("svtr-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.SvtrExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_mobile_rec_infer/PP-OCRv5_mobile_rec_infer.onnx");
         // 版面分析(PP-DocLayoutV3)：PaddleOCR 官方文档版面分析（DETR，25 类区域），模型内嵌 jar（utils-support-models-onnx-ppdoclayoutv3）
         reg("pp-doc-layout", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx");
+        // 版面分析(DocLayout-YOLO)：YOLOv10 文档版面检测（DocStructBench 10 类，含 title），模型内嵌 jar；适用试卷/文档版面分析
+        reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/doclayout-yolo/model.onnx");
         // OCR文字识别(PP-OCRv5 Server)：PaddleOCR 文字识别完整版；适用端到端 OCR
         reg("paddle-ocr-recognition", "com.chua.deeplearning.support.onnx.ocr.paddleocr.PaddleOcrRecognitionTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ppocrv5-server-rec.onnx");
         // 表格结构识别(PP-Structure v2)：识别表格结构，输出表格行列信息；适用表格识别、Excel 还原
