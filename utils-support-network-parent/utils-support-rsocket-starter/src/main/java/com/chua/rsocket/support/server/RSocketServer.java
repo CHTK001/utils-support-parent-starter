@@ -222,6 +222,7 @@ public class RSocketServer extends AbstractServer {
         }
         topicSubscribers.clear();
         messageHandlers.clear();
+        bizExecutor.shutdownNow();
         invokeAnnotatedMethods(OnClose.class);
         log.info("RSocket 服务器停止");
     }
