@@ -66,9 +66,12 @@ public class ServerSetting {
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
         String os = System.getProperty("os.name", "").toLowerCase();
 
-        // 线程模型：Worker 随 CPU 核数伸缩，Boss 保持 1（accept 循环单线程足够）
+        // 线程模型：Worker 随 CPU 核数伸缩，Boss 保持默认（accept 循环按核数扩展现已足够，
+        // 且 KCP 等同时用 bossThreads 作为 IO event loop 数，需随核数扩展）
         this.workerThreads = Math.max(2, cpus * 2);
-        this.bossThreads = 1;
+        if (this.bossThreads < 1) {
+            this.bossThreads = 1;
+        }
 
         // IO Selector 事件循环：Windows 受 WindowsSelectorImpl 稳定性限制收敛到 2，
         // Linux/macOS 可按核数扩展；eventLoops 与 ioThreads 保持一致
@@ -145,7 +148,7 @@ public class ServerSetting {
      */
     @Builder.Default
     /** Bossthreads */
-    private int bossThreads = 1;
+    private int bossThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
 
     /**
      * Worker 线程数

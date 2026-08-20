@@ -654,7 +654,11 @@ public class KcpServer extends AbstractServer {
                 handleRegister(ukcp, payload);
                 return;
             }
-            dispatchMessage(clientId, topic, payload);
+            // 业务消息异步派发到虚拟线程处理，避免 IO 线程同步阻塞(登录等业务含 DB/Redis 查询)
+            String fClientId = clientId;
+            String fTopic = topic;
+            String fPayload = payload;
+            virtualExecutor.execute(() -> dispatchMessage(fClientId, fTopic, fPayload));
         }
 
         /** 处理注册 */
