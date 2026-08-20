@@ -85,6 +85,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
             return null;
         }
         String m = model.toLowerCase();
+        if (m.contains("bge-large-zh") || m.contains("bge_large_zh")) {
+            return "nlp/embedding/bge-large-zh-v1.5/";
+        }
         if (m.contains("bge-small-zh") || m.contains("bge_small_zh")) {
             return "nlp/embedding/bge-small-zh-v1.5/";
         }
