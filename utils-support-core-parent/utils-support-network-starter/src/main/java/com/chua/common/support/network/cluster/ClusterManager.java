@@ -1,27 +1,36 @@
 package com.chua.common.support.network.cluster;
 
+import com.chua.common.support.network.cluster.ServerEntry;
 import com.chua.common.support.network.discovery.Discovery;
-import com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver;
+import com.chua.common.support.scatter.DefaultScatterServiceDiscovery;
 import com.chua.common.support.scatter.ScatterServiceDiscovery;
+import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.scatter.TcpScatterBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * 集群管理器:集群视图 + 路由决策 + 故障退避。
+ * 集群管理器：集群视图 + 路由决策 + 故障退避。
  *
- * <p>基于服务发现(节点 hash 交换后的节点表)提供:</p>
+ * <p>基于 Scatter 无中心化服务发现网格，提供：</p>
  * <ul>
- *   <li><b>集群视图</b>:查询指定服务路径/业务分组的全部节点。</li>
- *   <li><b>路由</b>:按 path + scatterId + 协议 经负载均衡选目标节点。</li>
- *   <li><b>故障退避</b>:目标解析失败/节点失效时,依赖 discovery 的剔除与重试
- *       (getService 不再返回失效节点),并提供失败重试的解析器。</li>
+ *   <li><b>集群视图</b>：按 path 查询全部已知节点。</li>
+ *   <li><b>路由</b>：按 path + scatterId + protocol 经负载均衡选目标节点。</li>
+ *   <li><b>故障退避</b>：失效节点被剔除后自动不再被选中。</li>
+ * </ul>
+ *
+ * <p><b>服务注册规范</b>：</p>
+ * <ul>
+ *   <li>必须通过 {@link #addServer(ServerEntry)} 显式注册要代理的服务（含本节点自身）。</li>
+ *   <li>注册后由 Scatter 自动扩散，无需手动维护节点表。</li>
  * </ul>
  *
  * @author CH
- * @since 2026/08/16
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ClusterManager {
@@ -30,105 +39,68 @@ public class ClusterManager {
     private final ScatterServiceDiscovery discovery;
     /** Balance */
     private final String balance;
-    /** Self服务器ID */
-    private final String selfServerId;
-    /** 分组ID */
+    /** Self 节点 ID */
+    private final String selfNodeId;
+    /** 分组 ID */
     private final String groupId;
+    /** 已注册的 ServerEntry（含本节点与远端目标） */
+    private final List<ServerEntry> entries = new ArrayList<>();
 
-    /**
-     * 创建 ClusterManager 实例
-     * @param discovery discovery
-     * @param String String
-     */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance) {
         this(discovery, balance, null);
     }
 
-    /**
-     * 创建 ClusterManager 实例
-     * @param discovery discovery
-     * @param String String
-     * @param String String
-     */
-    public ClusterManager(ScatterServiceDiscovery discovery, String balance, String selfServerId) {
+    public ClusterManager(ScatterServiceDiscovery discovery, String balance, String selfNodeId) {
         this.discovery = discovery;
         this.balance = balance == null || balance.isBlank() ? "weight" : balance;
-        this.selfServerId = selfServerId;
+        this.selfNodeId = selfNodeId;
         this.groupId = discovery.getGroupId() == null ? "default" : discovery.getGroupId();
     }
 
     /**
-     * 对外入口:将一台服务器注册进集群(按集群 groupId 分组,进入同一负载均衡池)。
-     * <p>clusterId 与 scatterId 一致(groupId),仅对同类服务器使用 scatter 集群能力;
-     * 注册后由 scatter 自动发现/扩散,无需手动维护节点表。</p>
+     * 注册一台服务器进集群。
      *
-     * @param servicePath 服务路径
-     * @param host        服务器主机
-     * @param port        服务器端口
-     * @param protocol    协议(http/tcp/udp/kcp)
-     * @return 当前实例(链式调用)
+     * @param entry 服务元数据
+     * @return 当前实例（链式调用）
      */
-    public ClusterManager addServer(String servicePath, String host, int port, String protocol) {
-        String serverId = host + ":" + port;
-        Discovery server = Discovery.builder()
-                .id(serverId)
-                .serverId(serverId)
-                .scatterId(groupId)
-                .protocol(protocol == null || protocol.isBlank() ? "http" : protocol)
-                .host(host)
-                .port(port)
-                .weight(1D)
-                .build();
-        discovery.registerService(servicePath, server);
-        log.info("addServer: {} -> {}:{} ({}) 加入集群 {}", servicePath, host, port, protocol, groupId);
-        return this;
-    }
-
-    /**
-     * 对外入口:批量注册多台服务器到集群。
-     *
-     * @param servicePath 服务路径
-     * @param protocol    协议
-     * @param servers     服务器地址列表(host 或 host:port)
-     * @return 当前实例(链式调用)
-     */
-    public ClusterManager addServers(String servicePath, String protocol, String... servers) {
-        if (servers == null) {
+    public ClusterManager addServer(ServerEntry entry) {
+        if (entry == null) {
             return this;
         }
-        for (String server : servers) {
-            if (server == null || server.isBlank()) {
-                continue;
-            }
-            String trimmed = server.trim();
-            int colon = trimmed.lastIndexOf(':');
-            if (colon > 0 && trimmed.indexOf(':') == colon) {
-                addServer(servicePath, trimmed.substring(0, colon),
-                        Integer.parseInt(trimmed.substring(colon + 1)), protocol);
-            } else {
-                addServer(servicePath, trimmed, 0, protocol);
-            }
+        entry.validate();
+        entries.add(entry);
+        Discovery disco = toDiscovery(entry);
+        discovery.registerService(entry.getServicePath(), disco);
+        log.info("addServer: {} -> {}:{} ({}) 加入集群 {}", entry.getServicePath(), entry.getHost(),
+                entry.getPort(), entry.normalizedProtocol(), groupId);
+        return this;
+    }
+
+    /**
+     * 批量注册多台服务器。
+     *
+     * @param entries 服务元数据列表
+     * @return 当前实例
+     */
+    public ClusterManager addServers(List<ServerEntry> entries) {
+        if (entries == null) {
+            return this;
+        }
+        for (ServerEntry entry : entries) {
+            addServer(entry);
         }
         return this;
     }
 
     /**
-     * 集群视图:获取指定服务路径下全部节点。
-     *
-     * @param servicePath 服务路径
-     * @return 节点集合
+     * 获取指定服务路径下的全部节点。
      */
     public Set<Discovery> nodes(String servicePath) {
         return discovery.getServiceAll(servicePath);
     }
 
     /**
-     * 按业务分组获取节点视图。
-     *
-     * @param servicePath 服务路径
-     * @param scatterId   业务分组
-     * @param protocol    协议(http/tcp)
-     * @return 同分组节点集合
+     * 按业务分组和协议过滤节点。
      */
     public Set<Discovery> nodes(String servicePath, String scatterId, String protocol) {
         return discovery.getServiceAll(servicePath).stream()
@@ -138,65 +110,50 @@ public class ClusterManager {
     }
 
     /**
-     * 路由:选一个目标节点(负载均衡)。
+     * 路由：选一个目标节点（负载均衡），排除本节点避免死循环。
      *
      * @param servicePath 服务路径
      * @param scatterId   业务分组
-     * @param protocol    协议(http/tcp)
-     * @return 目标节点,无可用节点返回 null
+     * @param protocol    协议（http/tcp）
+     * @return 目标节点，无可用节点返回 null
      */
     public Discovery route(String servicePath, String scatterId, String protocol) {
-        // 路由排除本节点:避免请求被转发回自身代理造成死循环(404/自旋)。
-        // 本节点注册的 serverId 形如 nodeId-http / nodeId-tcp,故用前缀匹配
-        if (selfServerId == null || selfServerId.isBlank()) {
+        if (selfNodeId == null || selfNodeId.isBlank()) {
             return discovery.getService(servicePath, scatterId, balance, protocol);
         }
         Discovery target = null;
-        // 多次尝试,避开本节点
         for (int attempt = 0; attempt < 5; attempt++) {
             Discovery d = discovery.getService(servicePath, scatterId, balance, protocol);
             if (d == null) {
                 return null;
             }
-            if (!d.getServerId().startsWith(selfServerId)) {
+            // 排除以本 nodeId 为前缀的 serverId（形如 nodeId-http / nodeId-tcp）
+            if (!d.getServerId().startsWith(selfNodeId + "-")) {
                 return d;
             }
-            target = d; // 全池只剩自身时,仍返回自身(避免空路由)
+            target = d;
         }
         return target;
     }
 
     /**
-     * 构建故障退避的 TCP 代理目标解析器:每次解析都实时查 discovery,
-     * 失效节点被剔除后自动不再被选中。
-     *
-     * @param servicePath 服务路径
-     * @param scatterId   业务分组
-     * @return 目标解析器
+     * 构建故障退避的 TCP 代理目标解析器。
      */
-    public DiscoveryProxyTargetResolver tcpResolver(String servicePath, String scatterId) {
-        return new DiscoveryProxyTargetResolver(discovery, servicePath, scatterId, balance);
+    public com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver
+            tcpResolver(String servicePath, String scatterId) {
+        return new com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver(
+                discovery, servicePath, scatterId, balance);
     }
 
     /**
-     * 可用节点数(健康度指标)。
-     *
-     * @param servicePath 服务路径
-     * @param scatterId   业务分组
-     * @param protocol    协议
-     * @return 节点数
+     * 可用节点数。
      */
     public int healthyCount(String servicePath, String scatterId, String protocol) {
         return nodes(servicePath, scatterId, protocol).size();
     }
 
     /**
-     * 检查指定节点是否可路由(故障退避辅助)。
-     *
-     * @param servicePath 服务路径
-     * @param scatterId   业务分组
-     * @param target      目标节点
-     * @return true=仍在集群视图中(健康)
+     * 检查节点是否健康（仍在集群视图中）。
      */
     public boolean isHealthy(String servicePath, String scatterId, Discovery target) {
         if (target == null) {
@@ -211,11 +168,32 @@ public class ClusterManager {
     }
 
     /**
-     * 便捷:获取集群节点列表(全部服务路径去重)。
-     *
-     * @return 节点列表
+     * 获取已注册的所有服务元数据。
+     */
+    public List<ServerEntry> getEntries() {
+        return List.copyOf(entries);
+    }
+
+    /**
+     * 便捷：获取集群全部节点列表。
      */
     public List<Discovery> allNodes() {
         return discovery.getServiceAll("/").stream().toList();
+    }
+
+    /** ServerEntry → Discovery 转换。 */
+    private Discovery toDiscovery(ServerEntry entry) {
+        String proto = entry.normalizedProtocol();
+        String serverId = entry.getHost() + ":" + entry.getPort();
+        return Discovery.builder()
+                .id(serverId)
+                .serverId(serverId)
+                .scatterId(entry.getScatterId() != null && !entry.getScatterId().isBlank()
+                        ? entry.getScatterId() : groupId)
+                .protocol(proto)
+                .host(entry.getHost())
+                .port(entry.getPort())
+                .weight(1D)
+                .build();
     }
 }

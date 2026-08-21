@@ -31,6 +31,11 @@ public class HttpProxyServer extends AbstractProxyServer {
     protected final int connectTimeoutMs;
     protected final int readTimeoutMs;
 
+    /** 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈） */
+    private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    /** 连接池容量上限 */
+    private static final int BACKEND_POOL_MAX = 8;
+
     public HttpProxyServer(ServerSetting setting) {
         super(setting);
         initProxy();
@@ -58,6 +63,49 @@ public class HttpProxyServer extends AbstractProxyServer {
     @Override
     public com.chua.common.support.network.ProtocolType getProtocolType() {
         return com.chua.common.support.network.ProtocolType.HTTP;
+    }
+
+    /** 借出后端连接：优先复用池中空闲连接，无则新建。 */
+    private Socket borrowBackend(InetSocketAddress backend) throws IOException {
+        Socket pooled;
+        while ((pooled = backendPool.poll()) != null) {
+            if (pooled.isClosed() || pooled.isInputShutdown() || pooled.isOutputShutdown()) {
+                try {
+                    pooled.close();
+                } catch (IOException ignored) {
+                }
+                continue;
+            }
+            return pooled;
+        }
+        Socket s = new Socket();
+        s.connect(backend, connectTimeoutMs);
+        s.setSoTimeout(readTimeoutMs);
+        return s;
+    }
+
+    /** 归还后端连接：keep-alive 且池未满才复用，否则关闭。 */
+    private void returnBackend(Socket socket, boolean keepAlive) {
+        if (keepAlive && backendPool.size() < BACKEND_POOL_MAX
+                && !socket.isClosed() && !socket.isInputShutdown() && !socket.isOutputShutdown()) {
+            backendPool.offer(socket);
+            return;
+        }
+        try {
+            socket.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    /** 响应头是否 Connection: close（连接不可复用）。 */
+    private boolean connectionClose(byte[] header) {
+        String head = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
+        for (String line : head.split("\r\n")) {
+            if (line.toLowerCase().startsWith("connection:")) {
+                return line.toLowerCase().contains("close");
+            }
+        }
+        return false;
     }
 
     @Override
@@ -92,38 +140,68 @@ public class HttpProxyServer extends AbstractProxyServer {
                 return;
             }
 
-            try (Socket backendSocket = new Socket()) {
-                backendSocket.connect(backend, connectTimeoutMs);
-                backendSocket.setSoTimeout(readTimeoutMs);
-                OutputStream backOut = backendSocket.getOutputStream();
-                InputStream backIn = backendSocket.getInputStream();
+            Socket backendSocket = null;
+            // 复用池连接可能已被后端关闭（半死连接）：IO 失败时剔除并重试一次新连接
+            for (int attempt = 0; attempt < 2; attempt++) {
+                try {
+                    backendSocket = borrowBackend(backend);
+                    OutputStream backOut = backendSocket.getOutputStream();
+                    InputStream backIn = backendSocket.getInputStream();
 
-                // 转发请求头（保留 method/path/版本，透传其余头）+ body
-                backOut.write(header);
-                byte[] body = readBody(in, headText);
-                if (body.length > 0) {
-                    backOut.write(body);
-                }
-                backOut.flush();
+                    // 转发请求头（保留 method/path/版本，透传其余头）+ body
+                    backOut.write(header);
+                    byte[] body = readBody(in, headText);
+                    if (body.length > 0) {
+                        backOut.write(body);
+                    }
+                    backOut.flush();
 
-                // 回传响应
-                byte[] respHeader = readHeader(backIn);
-                if (respHeader != null) {
-                    out.write(respHeader);
-                    out.flush();
-                    if (isChunked(respHeader)) {
-                        pipeChunked(backIn, out);
-                    } else {
-                        int cl = contentLength(respHeader);
-                        if (cl > 0) {
-                            pipeN(backIn, out, cl);
+                    // 回传响应
+                    byte[] respHeader = readHeader(backIn);
+                    boolean keepAlive = false;
+                    if (respHeader != null) {
+                        out.write(respHeader);
+                        out.flush();
+                        if (isChunked(respHeader)) {
+                            pipeChunked(backIn, out);
+                            keepAlive = !connectionClose(respHeader);
                         } else {
-                            // 无长度（如 204/close-delimited）：读到 EOF
-                            pipeRaw(backIn, out);
+                            int cl = contentLength(respHeader);
+                            if (cl > 0) {
+                                pipeN(backIn, out, cl);
+                                keepAlive = !connectionClose(respHeader);
+                            } else {
+                                // 无长度（如 204/close-delimited）：读到 EOF，连接不可复用
+                                pipeRaw(backIn, out);
+                            }
+                        }
+                    }
+                    out.flush();
+                    // 响应体完整读完后归还（keep-alive 复用）或关闭
+                    returnBackend(backendSocket, keepAlive);
+                    backendSocket = null;
+                    break;
+                } catch (IOException e) {
+                    // 复用连接失败（坏连接）：关闭并重试一次（新连接）
+                    if (backendSocket != null) {
+                        try {
+                            backendSocket.close();
+                        } catch (IOException ignored) {
+                        }
+                        backendSocket = null;
+                    }
+                    if (attempt == 0) {
+                        continue;
+                    }
+                    throw e;
+                } finally {
+                    if (backendSocket != null) {
+                        try {
+                            backendSocket.close();
+                        } catch (IOException ignored) {
                         }
                     }
                 }
-                out.flush();
             }
             log.debug("http-proxy: {} {} -> {}:{}", method, path,
                     backend.getHostString(), backend.getPort());

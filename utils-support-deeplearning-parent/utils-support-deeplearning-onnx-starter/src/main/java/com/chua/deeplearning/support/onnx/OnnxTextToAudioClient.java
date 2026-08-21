@@ -11,6 +11,9 @@ import com.chua.deeplearning.support.onnx.audio.tts.PocketTtsTranslator;
 import com.chua.deeplearning.support.onnx.audio.tts.VitsTtsTranslator;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -24,6 +27,22 @@ import java.util.List;
  * <pre>{@code
  *   byte[] wav = TextToAudioClient.create("onnx", "")
  *       .model("mms-tts-eng")
+ *       .synthesize("Hello world");
+ * }</pre>
+ *
+ * <p>VITS 多说话人：
+ * <pre>{@code
+ *   TextToAudioClient.create("onnx", "")
+ *       .model("vits-icefall-zh")
+ *       .voice("SSB0005")     // 说话人名称
+ *       .synthesize("你好世界");
+ * }</pre>
+ *
+ * <p>Pocket-TTS 声音克隆（参考音频路径）：
+ * <pre>{@code
+ *   TextToAudioClient.create("onnx", "")
+ *       .model("pocket-tts")
+ *       .voice("ref_audio.wav") // 引用音频文件路径
  *       .synthesize("Hello world");
  * }</pre>
  *
@@ -65,7 +84,9 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     private VitsTtsTranslator vitsTtsTranslator;
 
     /**
-     * 说话人指定（voice 参数，VITS speaker id）
+     * 说话人指定（voice 参数）。
+     * VITS 模型：说话人名称或 id（如 "SSB0005" 或 "0"）。
+     * Pocket-TTS：参考音频文件路径（用于零样本声音克隆）。
      */
     private String voice;
 
@@ -80,10 +101,30 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
-    /** Voice */
     public TextToAudioClient voice(String voice) {
         this.voice = voice;
         return this;
+    }
+
+    /**
+     * 获取 VITS 说话人名称列表（供前端下拉选项使用）。
+     *
+     * @return 说话人名称列表
+     */
+    public List<String> getVitsSpeakerNames() {
+        ensureVits();
+        return vitsTtsTranslator.speakerNames();
+    }
+
+    /**
+     * 确保 VITS translator 已初始化。
+     */
+    private void ensureVits() {
+        synchronized (this) {
+            if (vitsTtsTranslator == null) {
+                vitsTtsTranslator = new VitsTtsTranslator();
+            }
+        }
     }
 
     /**
@@ -97,7 +138,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
             try {
                 return Integer.parseInt(voice.trim());
             } catch (NumberFormatException ignored) {
-                // 按名字查序（vitsTtsTranslator 内 speakers 列表）
+                ensureVits();
                 List<String> names = vitsTtsTranslator.speakerNames();
                 int idx = names.indexOf(voice.trim());
                 if (idx >= 0) {
@@ -109,8 +150,27 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
         return 0;
     }
 
+    /**
+     * 加载参考音频字节（Pocket-TTS 声音克隆用）。
+     *
+     * @return 参考音频 WAV 字节；voice 为空或非文件路径时返回 null
+     */
+    private byte[] loadRefAudio() {
+        if (voice == null || voice.isBlank()) {
+            return null;
+        }
+        try {
+            Path p = Path.of(voice.trim());
+            if (Files.exists(p) && Files.isRegularFile(p)) {
+                return Files.readAllBytes(p);
+            }
+        } catch (IOException e) {
+            log.warn("[PocketTTS] 读取参考音频失败: {}", e.getMessage());
+        }
+        return null;
+    }
+
     @Override
-    /** Synthesize */
     public byte[] synthesize(String text) {
         if (text != null) {
             this.text = text;
@@ -125,14 +185,15 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
             }
             return mmsTtsTranslator.synthesize(this.text);
         }
-        // Pocket-TTS 走内嵌 ORT 合成器（Kyutai 流匹配 TTS，模型打包在 jar 中）
+        // Pocket-TTS 走内嵌 ORT 合成器（Kyutai 流匹配 TTS，支持声音克隆）
         if (POCKET_TTS_MODEL.equalsIgnoreCase(modelName) || modelName.toLowerCase().contains("pocket-tts")) {
             synchronized (this) {
                 if (pocketTtsTranslator == null) {
                     pocketTtsTranslator = new PocketTtsTranslator();
                 }
             }
-            return pocketTtsTranslator.synthesize(this.text);
+            byte[] refAudio = loadRefAudio();
+            return pocketTtsTranslator.voice(this.text, refAudio);
         }
         // VITS-icefall 中文 TTS 走内嵌 ORT 合成器（AISHELL3 多说话人，模型打包在 jar 中）
         if (VITS_ICEEFALL_ZH_MODEL.equalsIgnoreCase(modelName) || modelName.toLowerCase().contains("vits")) {
@@ -147,7 +208,6 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
-    /** 关闭 */
     public void close() {
         if (mmsTtsTranslator != null) {
             mmsTtsTranslator.close();
@@ -165,7 +225,6 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     @Override
-    /** Models */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, byte[].class);
     }
