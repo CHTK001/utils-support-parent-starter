@@ -66,6 +66,12 @@ public class LlamaModelRegistrar implements ModelRegistrar {
                 String.class, String.class, Object.class,
                 "../llama/qwen2.5-1.5b-instruct-q4_k_m.gguf",
                 qwenUrl, java.util.List.of(qwenUrl), false, "qwen2.5-1.5b-instruct-q4_k_m.gguf");
+        // qwen2-0.5b: text generation
+        String qwen05Url = "https://hf-mirror.com/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf";
+        reg("qwen2-0.5b", Qwen2ChatTranslator.class.getName(),
+                String.class, String.class, Object.class,
+                "../llama/qwen2.5-0.5b-instruct-q4_k_m.gguf",
+                qwen05Url, java.util.List.of(qwen05Url), false, "qwen2.5-0.5b-instruct-q4_k_m.gguf");
     }
 
     /**
