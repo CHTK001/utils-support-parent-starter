@@ -26,7 +26,7 @@ public final class OnnxQwenVerify {
         Object translator = ModelRegistry.createTranslator("qwen2-0.5b-onnx", null);
         try {
             long t0 = System.currentTimeMillis();
-            String reply = (String) ((ITranslator<Object, Object>) translator).translate("hi");
+            String reply = (String) ((ITranslator<Object, Object>) translator).translate("你好，用一句话介绍一下自己");
             long cost = System.currentTimeMillis() - t0;
             System.out.println("[qwen2-onnx] 回复(" + cost + "ms): " + reply);
             boolean ok = reply != null && !reply.isBlank();
