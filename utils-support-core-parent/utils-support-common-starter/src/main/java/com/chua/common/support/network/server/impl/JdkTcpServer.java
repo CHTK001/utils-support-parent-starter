@@ -118,11 +118,6 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     private Thread acceptThread;
 
     /**
-     * 帧式处理 Worker 线程池（帧式协议模式）
-     */
-    private ExecutorService workerPool;
-
-    /**
      * 流式处理虚拟线程池（流式协议模式）
      */
     private ExecutorService virtualPool;
@@ -285,9 +280,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 ioThreads[i].start();
             }
 
-            // Worker 线程池处理帧式业务，虚拟线程池处理流式业务
-            workerPool = ThreadUtils.newFixedThreadExecutor(
-                    Math.max(setting.getWorkerThreads(), 2), "jdk-tcp-worker");
+            // 虚拟线程池处理连接/请求业务（高并发，JDK21+）
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
 
             acceptThread = new Thread(this::acceptLoop, "jdk-tcp-accept");
@@ -328,7 +321,6 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             }
         } catch (IOException ignored) {
         }
-        ThreadUtils.closeQuietly(workerPool);
         ThreadUtils.closeQuietly(virtualPool);
         log.info("JDK TcpServer stopped");
     }

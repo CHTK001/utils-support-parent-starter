@@ -53,6 +53,11 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     protected AbstractScatterDiscovery(ScatterSetting setting) {
         super(new DiscoveryOption());
         this.setting = setting == null ? new ScatterSetting() : setting;
+        // 持久化文件默认名按 nodeId 隔离：避免同目录多实例互相覆盖/加载（显式设置的 persistenceFile 不受影响）
+        if (".scatter-nodes.json".equals(this.setting.getPersistenceFile())
+                && this.setting.getNodeId() != null) {
+            this.setting.setPersistenceFile(".scatter-nodes-" + this.setting.getNodeId() + ".json");
+        }
     }
 
     /** 设置远程客户端（未启动前）。 */
