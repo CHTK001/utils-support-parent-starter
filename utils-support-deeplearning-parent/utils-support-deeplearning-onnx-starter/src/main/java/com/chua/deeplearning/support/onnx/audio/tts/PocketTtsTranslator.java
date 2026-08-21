@@ -705,27 +705,24 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 运行 flow.onnx 单步：返回速度场 v [1, F, latent_dim]。
+     * 运行 flow LM 单步：返回速度场 v [1, F, latent_dim]。
+     * <p>使用 lm_flow.onnx：输入 c(cond), s(step_idx), t(time), x(noise) → flow_dir。</p>
      */
-    private float[] runFlowStep(float[] x, float t, float[] textEmbeddings, int textLen, int frames,
+    private float[] runFlowStep(float[] x, float t, float[] conditioning, int frames,
                                 float[] refLatents) throws Exception {
-        long[] xShape = new long[]{1, frames, latentDim};
-        long[] tShape = new long[]{1};
-        long[] embShape = new long[]{1, textLen, textEmbeddings.length / textLen};
-        long[] maskShape = new long[]{1, textLen};
-        long[] mask = new long[textLen];
-        java.util.Arrays.fill(mask, 1L);
+        int batchSize = 1;
+        long[] xShape = new long[]{batchSize, frames, latentDim};
+        long[] tShape = new long[]{batchSize, 1};
+        long[] cShape = new long[]{batchSize, conditioning.length / batchSize};
 
         Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
         try (ai.onnxruntime.OnnxTensor tX = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(x), xShape);
              ai.onnxruntime.OnnxTensor tT = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{t}), tShape);
-             ai.onnxruntime.OnnxTensor tEmb = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(textEmbeddings), embShape);
-             ai.onnxruntime.OnnxTensor tMask = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(mask), maskShape)) {
+             ai.onnxruntime.OnnxTensor tC = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(conditioning), cShape)) {
             inputs.put(flowXName, tX);
             inputs.put(flowTName, tT);
-            inputs.put(flowEmbName, tEmb);
-            inputs.put(flowMaskName, tMask);
-            // 参考音频潜变量（声音克隆）：shape 沿用 mimi_encoder 输出 [1, C, T]
+            inputs.put(flowEmbName, tC);
+            // 参考音频潜变量（声音克隆）
             try (ai.onnxruntime.OnnxTensor tRef = refLatents != null
                     ? ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(refLatents), refLatentsShape())
                     : null) {
