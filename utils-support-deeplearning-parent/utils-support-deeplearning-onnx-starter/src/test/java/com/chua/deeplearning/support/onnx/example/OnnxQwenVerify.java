@@ -11,19 +11,19 @@ public final class OnnxQwenVerify {
     public static void main(String[] args) throws Exception {
         ModelRegistry.discoverAll();
 
-        var entry = ModelRegistry.get("qwen2-1.5b-onnx");
+        var entry = ModelRegistry.get("qwen2-0.5b-onnx");
         System.out.println("[qwen2-onnx] 注册: " + (entry != null ? "OK " + entry.relativePath() : "FAIL"));
         if (entry == null) {
             System.exit(1);
         }
-        var path = ModelRegistry.resolveModelPath("qwen2-1.5b-onnx");
+        var path = ModelRegistry.resolveModelPath("qwen2-0.5b-onnx");
         System.out.println("[qwen2-onnx] 路径: " + path);
         System.out.println("[qwen2-onnx] 存在: " + (path != null && path.toFile().exists()));
         if (path == null || !path.toFile().exists()) {
             System.exit(1);
         }
 
-        Object translator = ModelRegistry.createTranslator("qwen2-1.5b-onnx", null);
+        Object translator = ModelRegistry.createTranslator("qwen2-0.5b-onnx", null);
         try {
             long t0 = System.currentTimeMillis();
             String reply = (String) ((ITranslator<Object, Object>) translator).translate("你好，用一句话介绍一下自己");

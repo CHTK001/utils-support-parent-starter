@@ -49,27 +49,38 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     /** NMS 阈值 */
     /** Nms_threshold */
     private static final double NMS_THRESHOLD = 0.40d;
+    private int imageWidth;
+    private int imageHeight;
+    private float scaleR = 1f;
+    private int padLeft;
+    private int padTop;
 
     @Override
     /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
-        // 纯 Java 预处理（BufferedImage resize + RGB 归一化），避免 ONNX NDArray 不支持的算术/图像操作
+        imageWidth = input.getWidth();
+        imageHeight = input.getHeight();
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
-
-        int[] rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
+        float r = Math.min(INPUT_SIZE / (float) imageWidth, INPUT_SIZE / (float) imageHeight);
+        int newW = Math.round(imageWidth * r);
+        int newH = Math.round(imageHeight * r);
+        scaleR = r;
+        padLeft = (INPUT_SIZE - newW) / 2;
+        padTop = (INPUT_SIZE - newH) / 2;
+        BufferedImage scaled = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
+        scaled.getGraphics().drawImage(src, 0, 0, newW, newH, null);
+        int[] pixels = scaled.getRGB(0, 0, newW, newH, null, 0, newW);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
-        for (int i = 0; i < rgb.length; i++) {
-            int pixel = rgb[i];
-            int r = (pixel >> 16) & 0xff;
-            int g = (pixel >> 8) & 0xff;
-            int b = pixel & 0xff;
-            // SCRFD: (rgb - 127.5) / 128，CHW
-            data[i] = (r - 127.5f) / 128f;
-            data[i + INPUT_SIZE * INPUT_SIZE] = (g - 127.5f) / 128f;
-            data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (b - 127.5f) / 128f;
+        java.util.Arrays.fill(data, (114f - 127.5f) / 128f);
+        for (int y = 0; y < newH; y++) {
+            for (int x = 0; x < newW; x++) {
+                int p = pixels[y * newW + x];
+                int idx = (y + padTop) * INPUT_SIZE + (x + padLeft);
+                data[idx] = (((p >> 16) & 0xff) - 127.5f) / 128f;
+                data[idx + INPUT_SIZE * INPUT_SIZE] = (((p >> 8) & 0xff) - 127.5f) / 128f;
+                data[idx + 2 * INPUT_SIZE * INPUT_SIZE] = ((p & 0xff) - 127.5f) / 128f;
+            }
         }
-
         NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
     }
@@ -147,18 +158,29 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
                 continue;
             }
 
-            // 5 关键点（kps：每点 dx,dy，相对 anchor 中心，10 维）
+            // 5 关键点（kps：每点 dx,dy，相对 anchor 中心，10 维）— letterbox 逆变换
             List<Point> points = new ArrayList<>();
             if (kps != null && idx < kpsLength) {
                 for (int p = 0; p < 5; p++) {
-                    float px = clamp(centerX + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE;
-                    float py = clamp(centerY + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE;
+                    float lbX = clamp(centerX + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f);
+                    float lbY = clamp(centerY + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f);
+                    float px = (lbX - padLeft) / scaleR / imageWidth;
+                    float py = (lbY - padTop) / scaleR / imageHeight;
+                    px = Math.max(0f, Math.min(1f, px));
+                    py = Math.max(0f, Math.min(1f, py));
                     points.add(new Point(px, py));
                 }
             }
 
-            float nX1 = x1 / INPUT_SIZE, nY1 = y1 / INPUT_SIZE;
-            float nW = (x2 - x1) / INPUT_SIZE, nH = (y2 - y1) / INPUT_SIZE;
+            float lbX1 = (x1 - padLeft) / scaleR, lbY1 = (y1 - padTop) / scaleR;
+            float lbX2 = (x2 - padLeft) / scaleR, lbY2 = (y2 - padTop) / scaleR;
+            lbX1 = clamp(lbX1, 0f, imageWidth); lbY1 = clamp(lbY1, 0f, imageHeight);
+            lbX2 = clamp(lbX2, 0f, imageWidth); lbY2 = clamp(lbY2, 0f, imageHeight);
+            if (lbX2 <= lbX1 || lbY2 <= lbY1) {
+                continue;
+            }
+            float nX1 = lbX1 / imageWidth, nY1 = lbY1 / imageHeight;
+            float nW = (lbX2 - lbX1) / imageWidth, nH = (lbY2 - lbY1) / imageHeight;
             Landmark landmark = new Landmark(nX1, nY1, nW, nH, points);
             candidates.add(new Candidate(landmark, score));
         }

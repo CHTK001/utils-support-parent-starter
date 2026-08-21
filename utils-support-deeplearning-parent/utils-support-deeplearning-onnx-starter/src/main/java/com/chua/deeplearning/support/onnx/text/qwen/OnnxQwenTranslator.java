@@ -30,16 +30,17 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     private final String modelId;
     private final boolean useGpu;
     private static final int MAX_NEW_TOKENS = 128;
-    private static final int N_LAYERS = 28;
 
     private MiniMindTokenizer tokenizer;
     private OrtEnvironment ortEnv;
     private OrtSession session;
     private volatile boolean initialized;
     private int kvDim = 128;
+    /** 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28） */
+    private int nLayers = 24;
 
     public OnnxQwenTranslator() {
-        this("qwen2-1.5b-onnx", false);
+        this("qwen2-0.5b-onnx", false);
     }
 
     public OnnxQwenTranslator(String modelId, boolean useGpu) {
@@ -121,11 +122,11 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         tokenizer = MiniMindTokenizer.load(tokPath);
         log.info("[QwenOnnx] tokenizer loaded, vocab={}", tokenizer.vocabSize());
 
-        // 检查外部权重 .onnx_data：骨架 model.onnx 引用 model_fp16.onnx_data，缺失则从同 repo 下载
-        Path dataFile = dir != null ? dir.resolve("model_fp16.onnx_data") : null;
-        if (dataFile != null && !Files.exists(dataFile)) {
-            String dataUrl = "https://hf-mirror.com/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_fp16.onnx_data";
-            downloadIfMissing(dir, "model_fp16.onnx_data", dataUrl);
+        // 检查外部权重：单文件模型（内嵌权重）无 .data；骨架模型（如 fp16）引用 <model>.data 需一并下载。
+        // 通用策略：若同目录存在 <model名>.data 引用但文件缺失，则提示用户补充（多文件模型不宜自动猜 URL）。
+        Path dataFile = dir != null ? dir.resolve(modelPath.getFileName().toString() + ".data") : null;
+        if (dataFile != null && Files.exists(dataFile)) {
+            log.info("[QwenOnnx] 外部权重已就绪: {}", dataFile);
         }
 
         ortEnv = OrtEnvironment.getEnvironment();
@@ -141,17 +142,31 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         session = ortEnv.createSession(modelPath.toString(), opts);
         initialized = true;
 
-        // 读 KV 维度
+        // 读 KV 维度 + 动态层数
         try {
-            ai.onnxruntime.NodeInfo ni = session.getInputInfo().get("past_key_values.0.key");
-            ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) ni.getInfo();
-            long[] s = ti.getShape();
-            if (s != null && s.length == 4) {
-                kvDim = (int) s[3];
+            int maxLayer = 0;
+            for (ai.onnxruntime.NodeInfo ni : session.getInputInfo().values()) {
+                String nm = ni.getName();
+                if (nm.startsWith("past_key_values.") && nm.endsWith(".key")) {
+                    String mid = nm.substring("past_key_values.".length(), nm.indexOf(".key"));
+                    try {
+                        int layer = Integer.parseInt(mid);
+                        if (layer > maxLayer) {
+                            maxLayer = layer;
+                        }
+                    } catch (NumberFormatException ignore) {
+                    }
+                    ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) ni.getInfo();
+                    long[] s = ti.getShape();
+                    if (s != null && s.length == 4) {
+                        kvDim = (int) s[3];
+                    }
+                }
             }
+            nLayers = maxLayer + 1;
         } catch (Exception ignore) {
         }
-        log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}) model={}", useGpu, kvDim, modelPath);
+        log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}, layers={}) model={}", useGpu, kvDim, nLayers, modelPath);
     }
 
     public String chat(String userPrompt) throws Exception {
@@ -169,6 +184,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         Map<String, OnnxTensor> past = new HashMap<>();
         boolean first = true;
         int generated = 0;
+        long totalSteps = ids.length;
 
         while (generated < MAX_NEW_TOKENS) {
             Map<String, OnnxTensor> inputs = new HashMap<>();
@@ -199,12 +215,13 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 generated++;
 
                 // 收集 present -> 新 past（仅在被裁剪前）
-                int nextPos = inputIds.length;
+                long nextPos = totalSteps + 1;
                 for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
                 past = collectPast(result);
                 inputIds = new long[]{next};
                 attMask = new long[]{1L};
                 posIds = new long[]{nextPos};
+                totalSteps++;
                 first = false;
             }
         }
@@ -214,7 +231,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
     private Map<String, OnnxTensor> emptyPast() throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
-        for (int layer = 0; layer < N_LAYERS; layer++) {
+        for (int layer = 0; layer < nLayers; layer++) {
             long[] shape = new long[]{1, 2, 0, kvDim};
             float[] empty = new float[0];
             m.put("past_key_values." + layer + ".key",
@@ -227,7 +244,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
     private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
-        for (int layer = 0; layer < N_LAYERS; layer++) {
+        for (int layer = 0; layer < nLayers; layer++) {
             float[][][][] k = (float[][][][]) result.get("present." + layer + ".key").orElseThrow().getValue();
             float[][][][] v = (float[][][][]) result.get("present." + layer + ".value").orElseThrow().getValue();
             m.put("past_key_values." + layer + ".key", OnnxTensor.createTensor(ortEnv, k));
