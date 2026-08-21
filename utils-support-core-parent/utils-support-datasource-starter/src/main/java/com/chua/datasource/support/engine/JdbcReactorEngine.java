@@ -575,6 +575,20 @@ public class JdbcReactorEngine implements ReactorEngine {
         return getDataSource(defaultDataSourceName);
     }
 
+    /**
+     * 关闭引擎，释放所有资源。
+     */
+    public void close() {
+        for (ConnectionFactory f : r2dbcFactories.values()) {
+            if (f instanceof AutoCloseable ac) { try { ac.close(); } catch (Exception ignored) {} }
+        }
+        r2dbcFactories.clear();
+        jdbcDataSources.clear();
+        dialects.clear();
+        unifiedDataSource = null;
+        defaultDataSourceName = null;
+    }
+
     // ==================== 内部适配器 ====================
 
     /** R2DBC 引擎适配器，供 Lambda 包装器使用 */

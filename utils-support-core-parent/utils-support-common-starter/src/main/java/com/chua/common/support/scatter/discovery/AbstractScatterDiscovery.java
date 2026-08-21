@@ -399,7 +399,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         if (discoveryExecutor != null) {
             discoveryExecutor.shutdown();
             try {
-                if (!discoveryExecutor.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+                if (!discoveryExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                     discoveryExecutor.shutdownNow();
                 }
             } catch (InterruptedException e) {
