@@ -107,7 +107,12 @@ public class HttpProxyServer extends AbstractProxyServer {
                 backOut.flush();
 
                 // 回传响应
+                System.out.println("[HP] 转发请求后，准备读后端响应 (backend=" + backend + ")");
                 byte[] respHeader = readHeader(backIn);
+                System.out.println("[HP] readHeader(backIn) 结果: "
+                        + (respHeader == null ? "null"
+                        : "len=" + respHeader.length + " head=" + new String(respHeader,
+                                java.nio.charset.StandardCharsets.ISO_8859_1).replace("\r", "\\r").replace("\n", "\\n")));
                 if (respHeader != null) {
                     out.write(respHeader);
                     out.flush();
@@ -137,20 +142,17 @@ public class HttpProxyServer extends AbstractProxyServer {
     /** 读 HTTP 头（直到 \r\n\r\n）。 */
     private byte[] readHeader(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        int prevPrev = -1;
         int prev = -1;
-        int crlf = 0;
         int b;
         while ((b = in.read()) != -1) {
             bos.write(b);
-            if (prev == '\r' && b == '\n') {
-                crlf++;
-            } else {
-                crlf = 0;
-            }
-            prev = b;
-            if (crlf == 2) {
+            // HTTP 头结束 = 空行（\r\n\r\n：检测 \n 前是 \r、\r 前是 \n）
+            if (b == '\n' && prev == '\r' && prevPrev == '\n') {
                 break;
             }
+            prevPrev = prev;
+            prev = b;
             if (bos.size() > 1 << 20) {
                 throw new IOException("HTTP 头过大");
             }

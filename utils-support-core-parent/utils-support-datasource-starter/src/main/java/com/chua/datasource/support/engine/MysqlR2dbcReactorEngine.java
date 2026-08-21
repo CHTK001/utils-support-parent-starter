@@ -89,7 +89,7 @@ public class MysqlR2dbcReactorEngine extends AbstractR2dbcReactorEngine {
                 .option(USER, username)
                 .option(PASSWORD, password)
                 .build();
-        return ConnectionFactories.using(options);
+        return ConnectionFactories.get(options);
     }
 
     /**
