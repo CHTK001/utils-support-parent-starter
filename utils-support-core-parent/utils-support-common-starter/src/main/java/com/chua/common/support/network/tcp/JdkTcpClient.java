@@ -5,22 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 基于 JDK NIO SocketChannel 的 TCP 长度帧客户端实现。
  *
- * <p>维护端点级连接池：借用即独占、归还才可用，同一连接同一时刻只有一个在途请求，
- * 保证服务端异步写响应时不会发生交错；连接失效时关闭并放回建连额度。</p>
+ * <p>每次 {@link #call} 新建连接、交换帧、关闭(虚拟线程并行,不阻塞载体线程),
+ * 无连接池,避免池串行化建连成为高并发瓶颈。</p>
  *
  * <p>安全与健壮性约束：</p>
  * <ul>
@@ -57,11 +49,6 @@ public class JdkTcpClient implements TcpClient {
     private static final int DEFAULT_READ_TIMEOUT = 10000;
 
     /**
-     * 默认每端点连接数
-     */
-    private static final int DEFAULT_POOL_SIZE = 4;
-
-    /**
      * 连接超时（毫秒）
      */
     private final int connectTimeout;
@@ -70,11 +57,6 @@ public class JdkTcpClient implements TcpClient {
      * 读超时（毫秒）
      */
     private final int readTimeout;
-
-    /**
-     * 每个端点复用连接数（连接池大小）
-     */
-    private final int poolSize;
 
     /**
      * 写缓冲区（ThreadLocal 复用，避免每请求分配 ByteBuffer）
@@ -89,19 +71,20 @@ public class JdkTcpClient implements TcpClient {
             ThreadLocal.withInitial(() -> ByteBuffer.allocate(HEADER_SIZE));
 
     /**
-     * 端点地址 → 连接池；复用长连接避免高并发下反复建连导致 Windows 临时端口耗尽
+     * 创建 TCP 长度帧客户端(默认超时)。
      */
-    private final Map<String, PooledConnections> pools = new ConcurrentHashMap<>();
+    public JdkTcpClient() {
+        this(0, 0, 0);
+    }
 
     /**
      * 创建 TCP 长度帧客户端。
      *
-     * @param poolSize       每个端点复用连接数
+     * @param poolSize       保留参数(忽略),兼容旧构造
      * @param connectTimeout 连接超时（毫秒）
      * @param readTimeout    读超时（毫秒）
      */
     public JdkTcpClient(int poolSize, int connectTimeout, int readTimeout) {
-        this.poolSize = poolSize > 0 ? poolSize : DEFAULT_POOL_SIZE;
         this.connectTimeout = connectTimeout > 0 ? connectTimeout : DEFAULT_CONNECT_TIMEOUT;
         this.readTimeout = readTimeout > 0 ? readTimeout : DEFAULT_READ_TIMEOUT;
     }
@@ -109,18 +92,23 @@ public class JdkTcpClient implements TcpClient {
     @Override
     /** 调用 */
     public byte[] call(String host, int port, byte[] request) throws Exception {
-        String addr = host + ":" + port;
-        // 复用长连接避免高并发下反复建连耗尽 Windows 临时端口；先借用再归还
-        PooledConnections pool = pools.computeIfAbsent(addr,
-                a -> new PooledConnections(poolSize, connectTimeout, readTimeout));
-        SocketChannel ch = pool.borrow(host, port);
-        boolean usable = false;
+        // 每次调用新建连接、交换帧、关闭;虚拟线程并行,不阻塞载体线程,无池串行瓶颈
+        SocketChannel ch = null;
         try {
-            byte[] result = exchange(ch, request);
-            usable = true;
-            return result;
+            ch = SocketChannel.open();
+            ch.configureBlocking(true);
+            ch.socket().setReuseAddress(true);
+            ch.socket().setTcpNoDelay(true);
+            ch.socket().connect(new InetSocketAddress(host, port), connectTimeout);
+            ch.socket().setSoTimeout(readTimeout);
+            return exchange(ch, request);
         } finally {
-            pool.recycle(ch, usable);
+            if (ch != null) {
+                try {
+                    ch.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 
@@ -178,180 +166,21 @@ public class JdkTcpClient implements TcpClient {
     @Override
     /** 关闭 */
     public void close() {
-        pools.values().forEach(PooledConnections::closeAll);
-        pools.clear();
+        // 无池,无需清理
     }
 
     /**
-     * 端点级连接池：按 {@code capacity} 上限复用长连接。
+     * \u5b89\u9759\u5173\u95ed\u901a\u9053\uff0c\u5ffd\u7565\u5173\u95ed\u8fc7\u7a0b\u4e2d\u7684\u5f02\u5e38\u3002
      *
-     * <p>设计要点：借用即独占，归还才可用——同一连接同一时刻只有一个在途请求，
-     * 保证服务端异步 worker 写响应时不会发生交错；连接失效时关闭并放回建连额度。</p>
+     * @param ch \u901a\u9053\uff0c\u53ef\u4e3a {@code null}
      */
-    private static final class PooledConnections {
-
-        /**
-         * 空闲连接队列（容量即连接数上限）
-         */
-        private final ArrayBlockingQueue<SocketChannel> idle;
-
-        /**
-         * 已创建连接数（含借用中与空闲中）
-         */
-        private final AtomicInteger created = new AtomicInteger();
-
-        /**
-         * 连接数上限
-         */
-        private final int capacity;
-
-        /**
-         * 连接超时（毫秒），建连与等待空闲连接共用
-         */
-        private final int connectTimeout;
-
-        /**
-         * 读超时（毫秒）
-         */
-        private final int readTimeout;
-
-        /**
-         * 创建端点级连接池。
-         *
-         * @param capacity       连接数上限
-         * @param connectTimeout 连接超时（毫秒）
-         * @param readTimeout    读超时（毫秒）
-         */
-        PooledConnections(int capacity, int connectTimeout, int readTimeout) {
-            this.capacity = Math.max(capacity, 1);
-            this.idle = new ArrayBlockingQueue<>(this.capacity);
-            this.connectTimeout = connectTimeout;
-            this.readTimeout = readTimeout;
+    private static void closeQuietly(SocketChannel ch) {
+        if (ch == null) {
+            return;
         }
-
-        /**
-         * 借用一个可用连接：优先取空闲队列，无空闲且未达上限时新建，否则等待归还。
-         *
-         * @param host 服务端主机
-         * @param port 服务端端口
-         * @return 可用的已连接通道（借用方独占，完成后必须 {@link #recycle}）
-         * @throws IOException 建连失败或等待超时时抛出
-         */
-        SocketChannel borrow(String host, int port) throws IOException {
-            for (;;) {
-                SocketChannel ch = idle.poll();
-                if (ch != null) {
-                    if (ch.isOpen() && ch.isConnected()) {
-                        return ch;
-                    }
-                    closeQuietly(ch);
-                    created.decrementAndGet();
-                    continue;
-                }
-                int cur = created.get();
-                if (cur < capacity && created.compareAndSet(cur, cur + 1)) {
-                    try {
-                        return openChannel(host, port);
-                    } catch (IOException e) {
-                        created.decrementAndGet();
-                        throw e;
-                    }
-                }
-                // 全部连接均被占用，等待有连接被归还
-                try {
-                    SocketChannel waited = idle.poll(connectTimeout, TimeUnit.MILLISECONDS);
-                    if (waited != null) {
-                        if (waited.isOpen() && waited.isConnected()) {
-                            return waited;
-                        }
-                        closeQuietly(waited);
-                        created.decrementAndGet();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException("Interrupted while waiting for pooled connection", e);
-                }
-            }
-        }
-
-        /**
-         * 归还连接：仍可用则放回空闲队列，否则关闭并释放建连额度。
-         *
-         * @param ch     借用的通道
-         * @param usable 连接是否仍可用（本请求是否成功交换）
-         */
-        void recycle(SocketChannel ch, boolean usable) {
-            if (usable && idle.offer(ch)) {
-                return;
-            }
-            closeQuietly(ch);
-            created.decrementAndGet();
-        }
-
-        /**
-         * 关闭池内全部空闲连接（借用中的由调用方自行归还后关闭）。
-         */
-        void closeAll() {
-            SocketChannel ch;
-            while ((ch = idle.poll()) != null) {
-                closeQuietly(ch);
-                created.decrementAndGet();
-            }
-        }
-
-        /**
-         * 新建并连接一个通道：非阻塞探测完成连接（带超时），随后切回阻塞并设置读超时。
-         *
-         * @param host 服务端主机
-         * @param port 服务端端口
-         * @return 已连接通道
-         * @throws IOException 建连失败或超时时抛出
-         */
-        private SocketChannel openChannel(String host, int port) throws IOException {
-            SocketChannel ch = SocketChannel.open();
-            try {
-                ch.configureBlocking(true);
-                Socket socket = ch.socket();
-                socket.setSoTimeout(readTimeout);
-                SocketAddress target = new InetSocketAddress(host, port);
-                // 阻塞模式下无法直接给 SocketChannel.connect 传超时，先切非阻塞探测再切回阻塞
-                ch.configureBlocking(false);
-                boolean connected = ch.connect(target);
-                if (!connected) {
-                    long deadline = System.currentTimeMillis() + connectTimeout;
-                    while (!ch.finishConnect()) {
-                        if (System.currentTimeMillis() > deadline) {
-                            throw new SocketTimeoutException("TCP connect timeout: " + host + ":" + port);
-                        }
-                        Thread.sleep(10);
-                    }
-                }
-                ch.configureBlocking(true);
-                return ch;
-            } catch (IOException | RuntimeException e) {
-                closeQuietly(ch);
-                throw e instanceof IOException ioe ? ioe
-                        : new IOException("Failed to connect " + host + ":" + port, e);
-            } catch (InterruptedException e) {
-                closeQuietly(ch);
-                Thread.currentThread().interrupt();
-                throw new IOException("Interrupted while connecting " + host + ":" + port, e);
-            }
-        }
-
-        /**
-         * 安静关闭通道，忽略关闭过程中的异常。
-         *
-         * @param ch 通道，可为 {@code null}
-         */
-        private static void closeQuietly(SocketChannel ch) {
-            if (ch == null) {
-                return;
-            }
-            try {
-                ch.close();
-            } catch (IOException ignored) {
-            }
+        try {
+            ch.close();
+        } catch (IOException ignored) {
         }
     }
 }
