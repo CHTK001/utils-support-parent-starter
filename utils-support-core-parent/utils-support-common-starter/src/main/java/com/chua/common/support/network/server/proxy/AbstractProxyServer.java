@@ -392,8 +392,27 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * @return 字节数组
      * @throws IOException IO 异常
      */
+    /**
+     * readBytes 复用缓冲：调用点均立即消费返回值（不跨调用持有），
+     * 避免热路径（每连接多次小结构读取）反复分配小数组。
+     */
+    private static final ThreadLocal<byte[]> READ_BUFFER =
+            ThreadLocal.withInitial(() -> new byte[64]);
+
+    /**
+     * 从输入流精确读取 {@code count} 字节。
+     *
+     * @param in    输入流
+     * @param count 字节数
+     * @return 读取的字节（复用缓冲；调用方须在下次调用前消费完）
+     * @throws IOException IO 异常
+     */
     protected static byte[] readBytes(InputStream in, int count) throws IOException {
-        byte[] bytes = new byte[count];
+        byte[] bytes = READ_BUFFER.get();
+        if (bytes.length < count) {
+            bytes = new byte[Math.max(count, 64)];
+            READ_BUFFER.set(bytes);
+        }
         int offset = 0;
         while (offset < count) {
             int n = in.read(bytes, offset, count - offset);
