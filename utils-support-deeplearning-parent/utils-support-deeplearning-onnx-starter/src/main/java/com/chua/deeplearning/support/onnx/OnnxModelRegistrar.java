@@ -416,6 +416,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
         reg("pocket-tts", null, String.class, byte[].class, Object.class, "audio/tts/pocket-tts/config.json");
 
+        // VITS-icefall-zh 中文 TTS（AISHELL3 174 说话人）：中文语音合成，8kHz WAV；
+        // 模型打包在 utils-support-models-onnx-vits-icefall-zh jar 中（audio/tts/vits-icefall-zh/），
+        // 由 OnnxTextToAudioClient 直接加载，支持 .voice("SSB0005") 指定说话人。
+        reg("vits-icefall-zh", null, String.class, byte[].class, Object.class, "audio/tts/vits-icefall-zh/model.onnx");
+
         // ==================== 零样本检测 YOLO-World（嵌入式友好） ====================
         // YOLO-World Small：开放词表检测，文本提示（中/英文）→ 检测框+类别；模型 ~40MB，适合嵌入式/边缘部署
         reg("yolov8s-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",
