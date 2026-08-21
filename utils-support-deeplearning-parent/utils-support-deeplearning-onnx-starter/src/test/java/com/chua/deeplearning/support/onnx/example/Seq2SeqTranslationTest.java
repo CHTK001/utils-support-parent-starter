@@ -207,6 +207,33 @@ class Seq2SeqTranslationTest {
     }
 
     /**
+     * 中文 BART-large 测试（fnlp/bart-large-chinese，纯 ONNX 本地，书面语稳定）。
+     */
+    @Test
+    @DisplayName("bart-zh-seq2seq 中文书面语摘要")
+    @EnabledIfSystemProperty(named = "seq2seq.download", matches = "true")
+    void bartZhSummarize() {
+        ModelRegistry.discoverAll();
+        T5Seq2SeqOrtTranslator.setTaskPrefix("");
+        @SuppressWarnings("unchecked")
+        ITranslator<String, String> zh = (ITranslator<String, String>) (ITranslator<?, ?>)
+                ModelRegistry.createTranslator("bart-zh-seq2seq", null);
+        try {
+            if (zh instanceof T5Seq2SeqOrtTranslator ort) {
+                ort.setMaxNewTokens(64);
+            }
+            String source = "北京大学公布今年本科招生计划，共设置81个专业，计划招收4300人。学校表示，将逐步推行大类招生与通识教育改革，提高学生选课自主性。";
+            String result = zh.translate(source);
+            System.out.println("[bart-zh-seq2seq] 输入: " + source);
+            System.out.println("[bart-zh-seq2seq] 摘要: " + result);
+            Assertions.assertNotNull(result, "摘要结果不应为 null");
+            Assertions.assertFalse(result.isBlank(), "摘要结果不应为空白");
+        } finally {
+            closeIfPossible(zh);
+        }
+    }
+
+    /**
      * 真实语料样本评估：不同文体的中文文本走 mT5-base，展示真实输出边界。
      */
     @Test
