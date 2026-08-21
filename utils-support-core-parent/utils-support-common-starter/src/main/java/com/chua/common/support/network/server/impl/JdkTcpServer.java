@@ -20,6 +20,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -262,10 +263,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             // 必须先置运行标志再启动线程，否则 IO/接收线程读到 false 立即退出
             running = true;
 
-            // IO Selector 线程数：优先 ServerSetting.auto() 生成的最优值，其次显式 setIoThreads，最后兜底 CPU 核数
+            // IO Selector 线程数：优先显式 setIoThreads，其次按 CPU 核数扩展(至少4,充分并行读/拼帧)
             int ioCount = ioThreadsCount > 0 ? ioThreadsCount : setting.getIoThreads();
             if (ioCount <= 0) {
-                ioCount = Math.max(1, Runtime.getRuntime().availableProcessors());
+                ioCount = Math.max(4, Runtime.getRuntime().availableProcessors());
             }
             ioThreadsCount = ioCount;
 
