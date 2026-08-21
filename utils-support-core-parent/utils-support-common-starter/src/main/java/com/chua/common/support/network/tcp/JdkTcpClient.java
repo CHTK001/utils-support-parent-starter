@@ -99,7 +99,7 @@ public class JdkTcpClient implements TcpClient {
             ch.configureBlocking(true);
             ch.socket().setReuseAddress(true);
             ch.socket().setTcpNoDelay(true);
-            ch.socket().connect(new InetSocketAddress(host, port), connectTimeout);
+            ch.connect(new InetSocketAddress(host, port));
             ch.socket().setSoTimeout(readTimeout);
             return exchange(ch, request);
         } finally {
