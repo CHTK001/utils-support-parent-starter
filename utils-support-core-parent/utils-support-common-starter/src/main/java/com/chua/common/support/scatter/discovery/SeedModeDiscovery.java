@@ -5,6 +5,7 @@ import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterResult;
 import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
 import com.chua.common.support.scatter.protocol.ScatterProtocol;
 import com.chua.common.support.lang.json.Json;
@@ -14,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * seed 引导模式发现：仅与 seed 同步 hash + 新节点扩散 + 最小 nodeId 选举 + 全掉线降级。
@@ -40,6 +43,13 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /** 已扩散过的新节点（去重） */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    /** 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool） */
+    private static final ExecutorService DEGRADE_SYNC_EXECUTOR = Executors.newFixedThreadPool(
+            4, r -> {
+                Thread t = new Thread(r, "scatter-degrade-sync");
+                t.setDaemon(true);
+                return t;
+            });
 
     public SeedModeDiscovery(ScatterSetting setting) {
         super(setting);
@@ -74,10 +84,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /** 与单个 seed 同步：拉取完整服务表合并（hash 同步）。 */
     private boolean syncWithSeed(ScatterNode seed) {
-        ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
+        ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<java.util.List<Discovery>> result =
-                remoteClient.invoke(ctx, seed, setting.getTimeoutMillis());
+        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, seed, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
             mergeRemote(result.getData());
             return true;
@@ -96,11 +105,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             }
             byte[] payload = Json.toJson(self).getBytes(StandardCharsets.UTF_8);
             ScatterFrame push = new ScatterFrame(ScatterProtocol.TYPE_PUSH,
-                    Math.abs(UUID.randomUUID().toString().hashCode()),
+                    genRequestId(),
                     setting.getServicePath(), payload);
-            byte[] resp = com.chua.common.support.network.tcp.TcpClientHolder.call(seed, push.encode());
-            if (resp != null) {
-                // seed 收到后向老节点扩散（扩散逻辑在对端 seed 的 PUSH 处理中，见基类 handle PUSH 分支的扩散钩子）
+            boolean ack = ScatterSyncHelper.push(seed, push, setting.getTimeoutMillis());
+            if (ack) {
                 log.debug("已向 seed 推送自身: {}", seed.getNodeId());
             }
         } catch (Exception e) {
@@ -116,8 +124,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             }
             // 仅标记 seed 引导条目（metadata.seed=true）
             if (d.getMetadata() != null && "true".equals(d.getMetadata().get(METADATA_SEED))) {
-                java.util.Map<String, String> meta = new java.util.HashMap<>(
-                        d.getMetadata() == null ? java.util.Map.of() : d.getMetadata());
+                java.util.Map<String, String> meta = new java.util.HashMap<>(d.getMetadata());
                 meta.put(METADATA_SEED_DOWN, "true");
                 Discovery copy = Discovery.builder()
                         .id(d.getId()).serverId(d.getServerId()).scatterId(d.getScatterId())
@@ -148,12 +155,15 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         // 按 nodeId 排序（最小 nodeId 优先），取 gossipTargetCount 台
         candidates.sort(Comparator.comparing(Discovery::getServerId, Comparator.nullsLast(String::compareTo)));
         int limit = Math.min(setting.getGossipTargetCount(), candidates.size());
+        // 并发同步，避免单节点阻塞导致其他候选节点同步延迟
+        CompletableFuture<?>[] futures = new CompletableFuture[limit];
         for (int i = 0; i < limit; i++) {
             Discovery d = candidates.get(i);
             ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
                     d.getProtocol(), getGroupId(), setting.getServicePath());
-            syncWith(node);
+            futures[i] = CompletableFuture.runAsync(() -> syncWith(node), DEGRADE_SYNC_EXECUTOR);
         }
+        CompletableFuture.allOf(futures).join();
         // 降级选举：若 seed 全掉线，选举最小 nodeId 的老节点为新引导并广播
         electNewSeed(candidates);
     }
@@ -181,8 +191,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     private void broadcastElection(Discovery elected) {
         byte[] payload = Json.toJson(elected).getBytes(StandardCharsets.UTF_8);
         ScatterFrame elec = new ScatterFrame(ScatterProtocol.TYPE_ELEC,
-                Math.abs(UUID.randomUUID().toString().hashCode()),
+                genRequestId(),
                 setting.getServicePath(), payload);
+        List<ScatterNode> targets = new ArrayList<>();
         Set<Discovery> services = getServiceAll(setting.getServicePath());
         for (Discovery d : services) {
             if (d.getServerId() == null || setting.getNodeId().equals(d.getServerId())) {
@@ -191,23 +202,18 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             if (isUnroutable(d.getHost())) {
                 continue;
             }
-            try {
-                ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
-                        d.getProtocol(), getGroupId(), setting.getServicePath());
-                com.chua.common.support.network.tcp.TcpClientHolder.call(node, elec.encode());
-            } catch (Exception e) {
-                log.debug("选举广播失败: {} - {}", d.getServerId(), e.getMessage());
-            }
+            targets.add(new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
+                    d.getProtocol(), getGroupId(), setting.getServicePath()));
         }
+        ScatterSyncHelper.broadcast(targets, elec, setting.getTimeoutMillis());
         log.info("seed 全掉线，选举新引导节点: {}", elected.getServerId());
     }
 
     /** 与普通节点同步（复用路由模式的 syncWith）。 */
     private void syncWith(ScatterNode node) {
-        ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
+        ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<java.util.List<Discovery>> result =
-                remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
             mergeRemote(result.getData());
         }

@@ -2,15 +2,18 @@ package com.chua.common.support.scatter.discovery;
 
 import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
-import com.chua.common.support.scatter.ScatterResult;
+import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.ScatterSetting;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 路由模式发现：subnet 网段内 gossip 探测扩散。
@@ -25,8 +28,18 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
     /** 全量兜底周期（轮） */
     private static final int FULL_PROBE_INTERVAL_ROUNDS = 10;
+    /** 并发同步线程池（固定大小，避免节点数过多时线程爆炸） */
+    private static final int SYNC_POOL_SIZE = 8;
+    private static final ExecutorService syncExecutor = Executors.newFixedThreadPool(
+            SYNC_POOL_SIZE, r -> {
+                Thread t = new Thread(r, "scatter-sync");
+                t.setDaemon(true);
+                return t;
+            });
 
     private long probeRound = 0;
+    /** 每轮同步请求 ID 计数器 */
+    private final AtomicInteger roundRequestIdSeq = new AtomicInteger(0);
 
     public RouteModeDiscovery(ScatterSetting setting) {
         super(setting);
@@ -45,17 +58,18 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
         }
         probeRound++;
 
-        for (ScatterNode node : targets) {
-            syncWith(node);
-        }
+        // 并发拉取，等待所有目标完成（任一失败不中断其他）
+        List<CompletableFuture<Void>> futures = targets.stream()
+                .map(node -> CompletableFuture.runAsync(() -> syncWith(node), syncExecutor))
+                .collect(Collectors.toList());
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
     /** 向目标节点拉取服务表并合并（gossip 扩散）。 */
     protected void syncWith(ScatterNode node) {
-        ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
+        ScatterContext ctx = new ScatterContext(String.valueOf(roundRequestIdSeq.incrementAndGet()),
                 setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<java.util.List<com.chua.common.support.network.discovery.Discovery>> result =
-                remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+        var result = ScatterSyncHelper.fetch(ctx, node, setting.getTimeoutMillis());
         if (result != null && result.isSuccess() && result.getData() != null) {
             mergeRemote(result.getData());
             log.debug("gossip 合并: {}:{}", node.getHost(), node.getPort());

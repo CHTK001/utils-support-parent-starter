@@ -223,9 +223,11 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * {@link #handleConnection(Socket)} 子类契约。</p>
      */
     protected void nonBlockingAcceptLoop() {
+        log.info("{} nonBlockingAcceptLoop started", getClass().getSimpleName());
         while (running) {
             try {
-                acceptSelector.select();
+                int n = acceptSelector.select(5000L);
+                if (!running) break;
                 java.util.Iterator<SelectionKey> it = acceptSelector.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
@@ -234,6 +236,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                     try {
                         ch = acceptChannel.accept();
                     } catch (java.nio.channels.ClosedChannelException e2) {
+                        log.info("{} nonBlockingAcceptLoop: ClosedChannelException, exiting", getClass().getSimpleName());
                         return;
                     }
                     if (ch == null) {
@@ -242,7 +245,6 @@ public abstract class AbstractProxyServer extends AbstractServer {
                     try {
                         ch.configureBlocking(true);
                         Socket clientSocket = ch.socket();
-                        // 连接限流：超出上限直接拒绝
                         if (connectionLimiter != null && !connectionLimiter.tryAcquire()) {
                             log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
                                     setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
@@ -263,10 +265,13 @@ public abstract class AbstractProxyServer extends AbstractServer {
                             }
                         });
                     } catch (Exception e) {
+                        log.warn("{} accept handler exception: {} {}", getClass().getSimpleName(),
+                                e.getClass().getSimpleName(), e.getMessage());
                         closeSocket(ch.socket());
                     }
                 }
             } catch (java.nio.channels.ClosedSelectorException e2) {
+                log.info("{} nonBlockingAcceptLoop: ClosedSelectorException, exiting", getClass().getSimpleName());
                 return;
             } catch (IOException e) {
                 if (running) {
@@ -274,6 +279,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 }
             }
         }
+        log.info("{} nonBlockingAcceptLoop ended", getClass().getSimpleName());
     }
 
     /** 静默关闭套接字。 */

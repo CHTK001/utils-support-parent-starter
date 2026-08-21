@@ -167,7 +167,7 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
      */
     public ScatterRemoteClient buildRemoteClient() {
         if (setting.getClient() != null) {
-            return new TcpScatterRemoteClient(setting.getClient());
+            ScatterSyncHelper.setCustomClient(setting.getClient());
         }
         if (setting.getSpiName() != null && !setting.getSpiName().isBlank()) {
             return com.chua.common.support.spi.ServiceProvider.of(ScatterRemoteClient.class)

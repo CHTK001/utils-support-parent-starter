@@ -1,5 +1,10 @@
 package com.chua.common.support.network.cluster;
 
+import com.chua.common.support.scatter.ScatterRemoteClient;
+import com.chua.common.support.scatter.ScatterServiceDiscovery;
+import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.scatter.TcpScatterBuilder;
+import com.chua.common.support.scatter.node.ScatterNodeServer;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerBuilder;
@@ -8,114 +13,110 @@ import com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryS
 import com.chua.common.support.network.server.filter.proxy.ReverseProxyServerFilter;
 import com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver;
 import com.chua.common.support.network.server.proxy.TcpProxyServer;
-import com.chua.common.support.scatter.node.ScatterNodeServer;
-import com.chua.common.support.scatter.ScatterRemoteClient;
-import com.chua.common.support.scatter.ScatterServiceDiscovery;
-import com.chua.common.support.scatter.ScatterSetting;
-import com.chua.common.support.scatter.TcpScatterBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * 集群节点:组合服务发现(无中心化 hash 交换)+ 业务 Server + HTTP/TCP 代理。
+ * 集群节点：组合 Scatter 服务发现 + HTTP/TCP 双入口代理。
  *
- * <p>一个节点同时承载:</p>
+ * <p>启动时自动完成：</p>
  * <ol>
- *   <li><b>服务发现</b>:基于 {@link ScatterServiceDiscovery} 通过 seeds 引导加入对等网格,
- *       自动发现其他节点、交换身份 hash、按 groupId(scatterId) 注册/查询服务。</li>
- *   <li><b>HTTP 入口</b>:过滤器链(ServiceDiscoveryServerFilter 按 scatterId 路由
- *       + ReverseProxyServerFilter 转发)到集群内目标节点。</li>
- *   <li><b>TCP 入口</b>:TcpProxyServer 按 discovery(scatterId+tcp)解析目标节点转发。</li>
+ *   <li>通过 Scatter（seed/gateway 模式）加入对等网格</li>
+ *   <li>启动 HTTP 入口（按 scatterId 路由，转发到集群内目标节点）</li>
+ *   <li>启动 TCP 入口（按 scatterId + tcp 解析目标转发）</li>
+ *   <li>将本节点自身能力（基于注册进来的 ServerEntry 自动推断）注册进集群</li>
+ *   <li>将显式 addServer 的远端目标也注册进集群，由 scatter 扩散</li>
  * </ol>
  *
+ * <p>scatter 内置路由决策：请求到达本节点时，按 path+protocol 查内部 hash 表，
+ * 若本节点有能力则本地处理（由业务 filter 实现），否则转发至集群内其他节点。</p>
+ *
  * @author CH
- * @since 2026/08/16
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ClusterNode implements AutoCloseable {
 
-    /** Cluster设置 */
     private final ClusterSetting clusterSetting;
-    /** Discovery */
     private final ScatterServiceDiscovery discovery;
-    /** ScatterID */
     private final String scatterId;
-    /** HTTP服务器 */
-    private Server httpServer;
-    /** TCPproxy */
-    private TcpProxyServer tcpProxy;
-    /** 节点服务器 */
-    private ScatterNodeServer nodeServer;
-    /** HTTP端口 */
-    private int httpPort;
-    /** TCP端口 */
-    private int tcpPort;
-    /** Registeredpaths */
-    private List<String> registeredPaths = List.of();
+    private final String selfNodeId;
 
-    /**
-     * 创建 ClusterNode 实例
-     * @param clusterSetting clusterSetting
-     */
+    private Server httpServer;
+    private TcpProxyServer tcpProxy;
+    private ScatterNodeServer nodeServer;
+    private int httpPort;
+    private int tcpPort;
+    /** 本节点实际注册的服务路径列表 */
+    private List<String> registeredPaths = List.of();
+    /** 本节点注册的 http/tcp serverId，用于注销 */
+    private final List<String> selfServerIds = new ArrayList<>();
+
     public ClusterNode(ClusterSetting clusterSetting) throws Exception {
         this.clusterSetting = clusterSetting;
         this.scatterId = clusterSetting.getScatterId() == null || clusterSetting.getScatterId().isBlank()
                 ? "default" : clusterSetting.getScatterId();
+        this.selfNodeId = clusterSetting.getNodeId();
 
-        // ① 服务发现:无中心化对等网格(seeds 引导 + hash 交换)
         ScatterSetting scatterSetting = clusterSetting.toScatterSetting();
         TcpScatterBuilder builder = new TcpScatterBuilder(scatterSetting);
         this.discovery = builder.buildDiscovery();
-        // 配置远程客户端:autoDiscovery 依赖它向其他节点拉取服务列表(未配置则默认返回 failure,
-        // 集群节点间服务注册无法互相传播 → 自动发现不收敛)。
         ScatterRemoteClient remoteClient = builder.buildRemoteClient();
         if (remoteClient != null) {
             this.discovery.remoteClient(remoteClient);
         }
-        this.discovery.start();
+        // 先启动 discovery（不启动定时任务），nodeServer 端口确定后再 start
     }
 
     /**
-     * 启动节点(启动业务 Server 与代理,并注册本节点服务到集群)。
+     * 启动节点：绑定端口 → 启动 discovery 定时任务 → 启动 HTTP/TCP 代理 → 注册服务。
      */
     public void start() throws Exception {
-        List<String> paths = clusterSetting.getServicePaths();
-        if (paths == null || paths.isEmpty()) {
-            paths = List.of("/");
-        }
+        // ① 先启动 nodeServer，确定 scatter 通信端口
+        this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting())
+                .buildNodeServer(discovery);
+        nodeServer.start();
+        clusterSetting.setScatterPort(nodeServer.getPort());
+        log.info("ClusterNode scatter 节点服务启动: {}:{} ", clusterSetting.getHost(), nodeServer.getPort());
 
-        // ② 启动 HTTP 入口(按 scatterId 路由 + 反向代理)
+        // ② 更新 discovery 的端口配置后再启动定时任务
+        discovery.getSetting().setPort(nodeServer.getPort());
+        discovery.start();
+
+        // ③ 启动 HTTP 入口
         if (clusterSetting.isHttpEnabled()) {
-            ServerSetting setting = ServerSetting.defaults();
-            setting.setHost(clusterSetting.getHost());
-            setting.setPort(clusterSetting.getPort());
-            httpServer = ServerBuilder.create().type("jdk-http").host(clusterSetting.getHost())
-                    .port(clusterSetting.getPort()).build();
-            ServiceDiscoveryServerFilter discoveryFilter = new ServiceDiscoveryServerFilter(discovery);
-            for (String path : paths) {
-                // 路由前缀必须带 /**:matchServicePath 仅识别 "/**"/"/*" 结尾或精确前缀
-                // (原 path+"**" 拼出 /api** 永不匹配 → 请求被放行 → 本地无路由 404)
-                discoveryFilter.addRoute(path.endsWith("/") ? path + "**" : path + "/**", path);
+            httpServer = ServerBuilder.create().type("jdk-http")
+                    .host(clusterSetting.getHost()).port(clusterSetting.getPort()).build();
+            ServiceDiscoveryServerFilter filter = new ServiceDiscoveryServerFilter(discovery);
+            for (String path : resolveServicePaths()) {
+                String pattern = path.endsWith("/") ? path + "**" : path + "/**";
+                filter.addRoute(pattern, path);
             }
-            discoveryFilter.setScatterId(scatterId);
-            discoveryFilter.setProtocol("http");
-            discoveryFilter.setBalance(clusterSetting.getBalance());
-            // 排除本节点:防止请求被转发回自身代理
-            discoveryFilter.setExcludeServerId(clusterSetting.getNodeId() + "-http");
-            httpServer.addFilter(discoveryFilter);
-            httpServer.addFilter(new ReverseProxyServerFilter((int) clusterSetting.getTimeoutMillis() / 1000));
+            filter.setScatterId(scatterId);
+            filter.setProtocol("http");
+            filter.setBalance(clusterSetting.getBalance());
+            String excludeId = selfNodeId != null ? selfNodeId + "-http" : "";
+            if (!excludeId.isBlank()) {
+                filter.setExcludeServerId(excludeId);
+            }
+            httpServer.addFilter(filter);
+            httpServer.addFilter(new ReverseProxyServerFilter(
+                    (int) Math.min(clusterSetting.getTimeoutMillis() / 1000, Integer.MAX_VALUE)));
             httpServer.start();
             httpPort = httpServer.getPort();
             log.info("ClusterNode HTTP 入口启动: {}:{} (scatterId={})", clusterSetting.getHost(), httpPort, scatterId);
         }
 
-        // ③ 启动 TCP 入口(按 scatterId + tcp 解析目标)
+        // ④ 启动 TCP 入口
         if (clusterSetting.isTcpEnabled()) {
             ServerSetting proxySetting = ServerSetting.defaults();
             proxySetting.setHost(clusterSetting.getHost());
             proxySetting.setPort(clusterSetting.getPort() > 0 ? clusterSetting.getPort() + 1 : 0);
-            String servicePath = paths.get(0);
+            String servicePath = resolveServicePaths().isEmpty() ? "/" : resolveServicePaths().get(0);
             tcpProxy = new TcpProxyServer(proxySetting,
                     new DiscoveryProxyTargetResolver(discovery, servicePath, scatterId, clusterSetting.getBalance()));
             tcpProxy.start();
@@ -123,93 +124,111 @@ public class ClusterNode implements AutoCloseable {
             log.info("ClusterNode TCP 入口启动: {}:{} (scatterId={})", clusterSetting.getHost(), tcpPort, scatterId);
         }
 
-        // ④ 启动 scatter 节点服务:响应其他节点的远程服务拉取(帧协议 REQ/PUSH,
-        //    discovery 实现 ScatterNodeHandler 内置响应,无需手动注册 listener)。
-        //    监听端口 = scatterPort(显式)或 port+2,与 HTTP(port)/TCP 代理(port+1)分离
-        this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting())
-                .buildNodeServer(discovery);
-        if (nodeServer != null) {
-            nodeServer.start();
-            log.info("ClusterNode 节点服务启动: {}:{} (scatter 远程查询)",
-                    clusterSetting.getHost(), clusterSetting.toScatterSetting().getPort());
-        }
+        // ⑤ 注册本节点自身能力（基于 httpEnabled/tcpEnabled 及 servicePaths）
+        registerSelf();
 
-        registerSelf(paths);
-        this.registeredPaths = paths;
+        // ⑥ 注册显式 addServer 声明的远端目标（由 ClusterServer builder 传入）
+        registerExternalServers();
+
+        this.registeredPaths = resolveServicePaths();
+        log.info("ClusterNode 已启动: nodeId={}, scatterId={}, httpPort={}, tcpPort={}",
+                selfNodeId, scatterId, httpPort, tcpPort);
     }
 
-    /** 注册Self */
-    private void registerSelf(List<String> paths) {
+    /** 解析实际使用的服务路径列表。 */
+    private List<String> resolveServicePaths() {
+        List<String> paths = clusterSetting.getServicePaths();
+        if (paths == null || paths.isEmpty()) {
+            return List.of("/");
+        }
+        return paths;
+    }
+
+    /** 将本节点自身注册进集群（按 httpEnabled/tcpEnabled + 服务路径）。 */
+    private void registerSelf() {
+        List<String> paths = resolveServicePaths();
         for (String path : paths) {
             if (clusterSetting.isHttpEnabled() && httpPort > 0) {
+                String serverId = (selfNodeId != null ? selfNodeId : clusterSetting.getHost()) + "-http";
                 discovery.registerService(path, Discovery.builder()
-                        .serverId(clusterSetting.getNodeId() + "-http")
-                        .scatterId(scatterId).protocol("http")
-                        .host(clusterSetting.getHost()).port(httpPort).weight(1).build());
+                        .serverId(serverId).scatterId(scatterId).protocol("http")
+                        .host(clusterSetting.getHost()).port(httpPort).weight(1D).build());
+                selfServerIds.add(serverId);
             }
             if (clusterSetting.isTcpEnabled() && tcpPort > 0) {
+                String serverId = (selfNodeId != null ? selfNodeId : clusterSetting.getHost()) + "-tcp";
                 discovery.registerService(path, Discovery.builder()
-                        .serverId(clusterSetting.getNodeId() + "-tcp")
-                        .scatterId(scatterId).protocol("tcp")
-                        .host(clusterSetting.getHost()).port(tcpPort).weight(1).build());
+                        .serverId(serverId).scatterId(scatterId).protocol("tcp")
+                        .host(clusterSetting.getHost()).port(tcpPort).weight(1D).build());
+                selfServerIds.add(serverId);
             }
         }
-        log.info("ClusterNode 服务已注册: paths={}, scatterId={}, httpPort={}, tcpPort={}",
-                paths, scatterId, httpPort, tcpPort);
+        log.info("ClusterNode 自身已注册: paths={}, serverIds={}", paths, selfServerIds);
     }
 
-    /**
-     * 获取服务发现(集群视图/路由能力)。
-     */
+    /** 将显式 addServer 声明的远端目标注册进集群，供 scatter 扩散。 */
+    private void registerExternalServers() {
+        // ClusterServer builder 会在启动前把 entry 传给 ClusterSetting
+        List<ServerEntry> entries = clusterSetting.getServerEntries();
+        if (entries == null || entries.isEmpty()) {
+            return;
+        }
+        for (ServerEntry entry : entries) {
+            entry.validate();
+            String proto = entry.normalizedProtocol();
+            String path = entry.getServicePath();
+            // 只注册与本节点协议匹配的远端服务（http entry → http 路由，tcp entry → tcp 路由）
+            boolean matchesHttp = "http".equals(proto) && clusterSetting.isHttpEnabled();
+            boolean matchesTcp = "tcp".equals(proto) && clusterSetting.isTcpEnabled();
+            if (!matchesHttp && !matchesTcp) {
+                log.debug("跳过不匹配的 entry: {} -> {}:{} ({}) httpEnabled={} tcpEnabled={}",
+                        path, entry.getHost(), entry.getPort(), proto,
+                        clusterSetting.isHttpEnabled(), clusterSetting.isTcpEnabled());
+                continue;
+            }
+            String serverId = entry.getHost() + ":" + entry.getPort();
+            discovery.registerService(path, Discovery.builder()
+                    .id(serverId).serverId(serverId)
+                    .scatterId(entry.getScatterId() != null && !entry.getScatterId().isBlank()
+                            ? entry.getScatterId() : scatterId)
+                    .protocol(proto)
+                    .host(entry.getHost()).port(entry.getPort()).weight(1D).build());
+            log.info("ClusterNode 注册远端服务: {} -> {}:{} ({})", path, entry.getHost(), entry.getPort(), proto);
+        }
+    }
+
     public ScatterServiceDiscovery discovery() {
         return discovery;
     }
 
-    /** 获取HttpPort */
     public int getHttpPort() {
         return httpPort;
     }
 
-    /** 获取TcpPort */
     public int getTcpPort() {
         return tcpPort;
     }
 
     @Override
-    /** 关闭 */
     public void close() throws Exception {
-        // ① 先注销本节点服务，防止其他节点继续路由到已关闭节点
-        try {
-            for (String path : registeredPaths) {
-                discovery.unregisterService(path, clusterSetting.getNodeId() + "-http");
-                discovery.unregisterService(path, clusterSetting.getNodeId() + "-tcp");
-            }
-        } catch (Exception ignored) {
-        }
-        // ② 按顺序关闭:节点服务 → TCP 代理 → HTTP 服务器 → discovery
         if (nodeServer != null) {
-            try {
-                nodeServer.close();
-            } catch (Exception ignored) {
-            }
+            try { nodeServer.close(); } catch (Exception ignored) {}
         }
         if (tcpProxy != null) {
-            try {
-                tcpProxy.close();
-            } catch (Exception ignored) {
-            }
+            try { tcpProxy.close(); } catch (Exception ignored) {}
         }
         if (httpServer != null) {
-            try {
-                httpServer.close();
-            } catch (Exception ignored) {
-            }
+            try { httpServer.close(); } catch (Exception ignored) {}
         }
-        if (discovery != null) {
-            try {
-                discovery.close();
-            } catch (Exception ignored) {
+        try {
+            for (String path : registeredPaths) {
+                for (String sid : selfServerIds) {
+                    discovery.unregisterService(path, sid);
+                }
             }
+        } catch (Exception ignored) {}
+        if (discovery != null) {
+            try { discovery.close(); } catch (Exception ignored) {}
         }
     }
 }

@@ -10,6 +10,7 @@ import com.chua.common.support.scatter.ScatterRemoteClient;
 import com.chua.common.support.scatter.ScatterResult;
 import com.chua.common.support.scatter.ScatterServiceDiscovery;
 import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.node.ScatterNodeHandler;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
 import com.chua.common.support.scatter.protocol.ScatterProtocol;
@@ -23,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * scatter 发现基类：本地服务 hash 表（按 serverId 幂等去重）+ 自身注册 + 心跳剔除 + 持久化。
@@ -49,6 +50,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     private ScheduledExecutorService discoveryExecutor;
     private volatile boolean started = false;
+    /** 请求 ID 生成器（线程安全单调递增） */
+    private final AtomicInteger requestIdSeq = new AtomicInteger(0);
 
     protected AbstractScatterDiscovery(ScatterSetting setting) {
         super(new DiscoveryOption());
@@ -160,9 +163,16 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 java.lang.management.OperatingSystemMXBean osBean =
                         java.lang.management.ManagementFactory.getOperatingSystemMXBean();
                 if (osBean instanceof com.sun.management.OperatingSystemMXBean sun) {
-                    cpu = Math.max(0.05, Math.min(1.0, sun.getSystemLoadAverage() > 0
-                            ? sun.getSystemLoadAverage() / Math.max(1, Runtime.getRuntime().availableProcessors())
-                            : 0.3));
+                    // getSystemLoadAverage() 在 Windows 上恒返回 -1，改用 getCpuLoad()
+                    double loadAvg = sun.getSystemLoadAverage();
+                    if (loadAvg > 0) {
+                        cpu = Math.max(0.05, Math.min(1.0,
+                                loadAvg / Math.max(1, Runtime.getRuntime().availableProcessors())));
+                    } else {
+                        // Windows 回退：使用 CPU 利用率（-1 表示不可用）
+                        double cpuLoad = sun.getCpuLoad();
+                        cpu = cpuLoad > 0 ? Math.max(0.05, Math.min(1.0, cpuLoad)) : 0.3;
+                    }
                     long total = sun.getTotalMemorySize();
                     long free = sun.getFreeMemorySize();
                     mem = total > 0 ? Math.max(0.05, Math.min(1.0, 1.0 - (double) free / total)) : 0.5;
@@ -241,14 +251,15 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 探活单个节点：复用 remoteClient（同通道即心跳）。 */
+    /** 探活单个节点：轻量 ICMP/TCP 探针（复用 remoteClient 通道），返回同步结果用于合并。 */
     protected void probeHeartbeat(Discovery d) {
         ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
                 d.getProtocol(), getGroupId(), setting.getServicePath());
-        ScatterContext ctx = new ScatterContext(UUID.randomUUID().toString(),
-                setting.getServicePath(), setting.getTimeoutMillis());
-        ScatterResult<java.util.List<Discovery>> result =
-                remoteClient.invoke(ctx, node, setting.getTimeoutMillis());
+        long hbTimeout = setting.getHeartbeatTimeoutMillis() > 0
+                ? setting.getHeartbeatTimeoutMillis() : setting.getTimeoutMillis();
+        ScatterContext ctx = new ScatterContext(String.valueOf(genRequestId()),
+                setting.getServicePath(), hbTimeout);
+        ScatterResult<List<Discovery>> result = ScatterSyncHelper.fetch(ctx, node, hbTimeout);
         if (result != null && result.isSuccess() && result.getData() != null) {
             heartbeatFailCounts.remove(node.getNodeId());
             mergeRemote(result.getData());
@@ -281,6 +292,11 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         return d.getMetadata() != null
                 && (Boolean.parseBoolean(d.getMetadata().get("seed"))
                 || Boolean.parseBoolean(d.getMetadata().get("self")));
+    }
+
+    /** 生成单调递增的请求 ID（避免 UUID hash 碰撞与负数）。 */
+    protected int genRequestId() {
+        return Math.abs(requestIdSeq.incrementAndGet());
     }
 
     /** 不可路由地址（0.0.0.0 等）跳过探活。 */
@@ -371,6 +387,25 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         started = false;
         if (discoveryExecutor != null) {
             discoveryExecutor.shutdownNow();
+        }
+    }
+
+    /**
+     * 优雅关闭：等待当前一轮 discoveryRound 完成后再停止调度器，
+     * 确保正在执行的 healthCheck → removeFromCache 不会被中断。
+     */
+    public void gracefulClose() {
+        started = false;
+        if (discoveryExecutor != null) {
+            discoveryExecutor.shutdown();
+            try {
+                if (!discoveryExecutor.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+                    discoveryExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                discoveryExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

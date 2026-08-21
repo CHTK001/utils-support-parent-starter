@@ -82,7 +82,7 @@ public class PocketTtsTranslator {
     private ai.onnxruntime.OrtSession mimiEncoderSession;
     /** 分词器 */
     /** Tokenizer */
-    private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
+    private PocketTtsTokenizer tokenizer;
 
     /**
      * 各模型解析后的输入/输出张量名（prepare 时解析一次，推理复用）
@@ -177,7 +177,7 @@ public class PocketTtsTranslator {
                     .extractOnly(true)
                     .load();
         }
-        loadTokenizer(modelDir.resolve("tokenizer.json"));
+        loadTokenizer(modelDir.resolve("vocab.json"));
         ortEnv = ai.onnxruntime.OrtEnvironment.getEnvironment();
         ai.onnxruntime.OrtSession.SessionOptions opts = new ai.onnxruntime.OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
@@ -464,30 +464,31 @@ public class PocketTtsTranslator {
      * @param tokenizerPath tokenizerPath
      */
     private void loadTokenizer(Path tokenizerPath) throws Exception {
-        if (tokenizerPath == null || !Files.exists(tokenizerPath)) {
-            throw new IllegalStateException("Pocket-TTS tokenizer.json 缺失: " + tokenizerPath);
+        // 优先尝试 vocab.json（词表格式），兼容 sentencepiece .model
+        Path vocabPath = tokenizerPath.getParent().resolve("vocab.json");
+        if (Files.exists(vocabPath)) {
+            tokenizer = new PocketTtsTokenizer();
+            tokenizer.load(vocabPath);
+            log.info("[Pocket-TTS] Tokenizer loaded from vocab.json: {} tokens", tokenizer.vocabSize());
+        } else if (tokenizerPath.toString().endsWith(".model") && Files.exists(tokenizerPath)) {
+            // sentencepiece .model 文件：使用 vocab.json 作为备选
+            Path fallbackVocab = tokenizerPath.resolveSibling("vocab.json");
+            if (Files.exists(fallbackVocab)) {
+                tokenizer = new PocketTtsTokenizer();
+                tokenizer.load(fallbackVocab);
+            } else {
+                throw new IllegalStateException("Pocket-TTS vocab.json 缺失: " + fallbackVocab);
+            }
+        } else {
+            throw new IllegalStateException("Pocket-TTS tokenizer 文件缺失: " + tokenizerPath);
         }
-        tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
-                .optTokenizerPath(tokenizerPath)
-                .optPadToMaxLength()
-                .build();
     }
 
     /**
      * 文本转 token IDs（BPE）。
      */
     private long[] encode(String text) {
-        ai.djl.huggingface.tokenizers.Encoding encoding = tokenizer.encode(text);
-        long[] ids = encoding.getIds();
-        if (ids.length > MAX_TEXT_LENGTH) {
-            long[] trimmed = new long[MAX_TEXT_LENGTH];
-            System.arraycopy(ids, 0, trimmed, 0, MAX_TEXT_LENGTH);
-            ids = trimmed;
-        }
-        if (ids.length == 0) {
-            throw new IllegalArgumentException("文本分词后为空: " + text);
-        }
-        return ids;
+        return tokenizer.encode(text);
     }
 
     // ==================== 推理 ====================
@@ -500,6 +501,26 @@ public class PocketTtsTranslator {
      */
     public byte[] synthesize(String text) {
         return synthesize(text, null);
+    }
+
+    /**
+     * 文本转 WAV 字节（声音克隆：参考音频字节作为音色源）。
+     *
+     * @param text        输入文本
+     * @param refAudioWav 参考音频 WAV 字节（用于零样本声音克隆）
+     * @return WAV 音频字节
+     */
+    public byte[] voice(String text, byte[] refAudioWav) {
+        return synthesize(text, refAudioWav);
+    }
+
+    /**
+     * 获取当前是否支持声音克隆（mimi_encoder 已加载）。
+     *
+     * @return true 表示可用参考音频进行声音克隆
+     */
+    public boolean supportsVoiceClone() {
+        return mimiEncoderSession != null && flowRefName != null;
     }
 
     /**
@@ -520,10 +541,10 @@ public class PocketTtsTranslator {
             }
             prepare();
             long[] ids = encode(text);
-            float[] textEmbeddings = runTextEncoder(ids);
+            float[] conditioning = runTextConditioner(ids);
             int textLen = ids.length;
             float[] refLatents = encodeRefAudio(refAudioWav);
-            float[] latents = runFlowMatching(textEmbeddings, textLen, refLatents);
+            float[] latents = runFlowMatching(conditioning, textLen, refLatents);
             float[] waveform = runMimiDecoder(latents);
             return toWav(waveform, SAMPLE_RATE);
         } catch (Exception e) {
@@ -532,21 +553,89 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 运行 text_encoder.onnx：tokens → text_embeddings [1, T, D]。
+     * 运行 lm_main（stateful flow LM）获取文本条件向量。
+     * <p>输入空 sequence + token ids → 输出 conditioning [1, 1024] + 更新后的 state。</p>
      */
-    private float[] runTextEncoder(long[] ids) throws Exception {
-        long[] shape = new long[]{1, ids.length};
-        try (ai.onnxruntime.OnnxTensor tIds = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), shape)) {
+    private float[] runTextConditioner(long[] ids) throws Exception {
+        int numStates = 18;
+        long[][] stateShapes = new long[numStates][];
+        float[][] states = new float[numStates][];
+        Map<String, ai.onnxruntime.OnnxTensor> stateTensors = new LinkedHashMap<>();
+
+        // 初始化 state 张量（5D 层状态为零，1D 标量状态为 1.0）
+        for (int i = 0; i < numStates; i++) {
+            String inName = "state_" + i;
+            String outName = "out_state_" + i;
+            ai.onnxruntime.TensorInfo info = getStateTensorInfo(inName, outName);
+            if (info == null) continue;
+            int rank = info.shape.length;
+            stateShapes[i] = info.shape;
+            long total = 1;
+            for (long s : info.shape) total *= s;
+            if (rank == 1 && info.shape[0] == 1) {
+                // 标量状态初始化为 1.0
+                states[i] = new float[]{1.0f};
+            } else {
+                states[i] = new float[(int) total];
+            }
+            stateTensors.put(inName, ai.onnxruntime.OnnxTensor.createTensor(
+                    ortEnv, FloatBuffer.wrap(states[i]), info.shape));
+        }
+
+        // sequence: [1, ids.length, latent_dim]
+        long seqLen = ids.length;
+        long[] seqShape = new long[]{1, seqLen, latentDim};
+        try (ai.onnxruntime.OnnxTensor tSeq = ai.onnxruntime.OnnxTensor.createTensor(
+                        ortEnv, LongBuffer.wrap(ids), new long[]{1, seqLen});
+             ai.onnxruntime.OnnxTensor tEmb = ai.onnxruntime.OnnxTensor.createTensor(
+                        ortEnv, FloatBuffer.wrap(new float[latentDim * 1024]), // dummy empty
+                        new long[]{1, 0, 1024})) {
+
+            // 先用空 embedding 运行一次获取初始 conditioning
             Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
-            inputs.put(textEncoderInputName, tIds);
+            inputs.put("sequence", tSeq);
+            inputs.put("text_embeddings", tEmb);
+            for (int i = 0; i < numStates; i++) {
+                if (states[i] != null) {
+                    inputs.put("state_" + i, ai.onnxruntime.OnnxTensor.createTensor(
+                            ortEnv, FloatBuffer.wrap(states[i]), stateShapes[i]));
+                }
+            }
+
             try (ai.onnxruntime.OrtSession.Result result = textEncoderSession.run(inputs)) {
-                ai.onnxruntime.OnnxTensor emb = (ai.onnxruntime.OnnxTensor) result.get(textEncoderOutputName).get();
-                FloatBuffer fb = emb.getFloatBuffer();
-                float[] out = new float[fb.remaining()];
-                fb.get(out);
-                return out;
+                // 获取 conditioning
+                ai.onnxruntime.OnnxTensor cond = (ai.onnxruntime.OnnxTensor) result.get("conditioning").get();
+                FloatBuffer fb = cond.getFloatBuffer();
+                float[] conditioning = new float[fb.remaining()];
+                fb.get(conditioning);
+
+                // 更新 state
+                for (int i = 0; i < numStates; i++) {
+                    try {
+                        ai.onnxruntime.OnnxTensor outState = (ai.onnxruntime.OnnxTensor) result.get("out_state_" + i).get();
+                        FloatBuffer sb = outState.getFloatBuffer();
+                        states[i] = new float[sb.remaining()];
+                        sb.get(states[i]);
+                    } catch (Exception ignored) {
+                        // state 可能不在输出中
+                    }
+                }
+                return conditioning;
             }
         }
+    }
+
+    private ai.onnxruntime.TensorInfo getStateTensorInfo(String inName, String outName) {
+        try {
+            Map<String, ?> meta = textEncoderSession.getInputInfo();
+            if (meta.containsKey(inName)) {
+                ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) meta.get(inName);
+                return (ai.onnxruntime.TensorInfo) info.getInfo();
+            }
+        } catch (Exception e) {
+            log.warn("[Pocket-TTS] 获取 state 张量信息失败: {}", e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -589,10 +678,9 @@ public class PocketTtsTranslator {
     /**
      * 流匹配一致性采样：x = 高斯噪声 [1, F, latent_dim]，逐步去噪。
      *
-     * <p>Euler 近似：t 从 1/flow_steps 到 1，v = flow(x, t, text_embeddings, mask[, ref])，
-     * x += v / flow_steps。与 Pocket-TTS 蒸馏一致性采样（4 步）一致。</p>
+     * <p>使用 conditioning 向量作为文本条件，通过 flow LM 迭代生成潜变量。</p>
      */
-    private float[] runFlowMatching(float[] textEmbeddings, int textLen, float[] refLatents) throws Exception {
+    private float[] runFlowMatching(float[] conditioning, int textLen, float[] refLatents) throws Exception {
         int frames = (int) Math.max(1, Math.round(textLen * framesPerToken));
         frames = Math.min(frames, maxFrames);
         int size = frames * latentDim;
@@ -601,10 +689,14 @@ public class PocketTtsTranslator {
         for (int i = 0; i < size; i++) {
             x[i] = (float) random.nextGaussian();
         }
+
+        // 运行 flow_lm_main 获取初始 conditioning（如果还没有）
+        float[] textEmb = conditioning;
+
         float dt = 1.0f / flowSteps;
         for (int step = 0; step < flowSteps; step++) {
             float t = (step + 1) * dt;
-            float[] v = runFlowStep(x, t, textEmbeddings, textLen, frames, refLatents);
+            float[] v = runFlowStep(x, t, textEmb, frames, refLatents);
             for (int i = 0; i < size; i++) {
                 x[i] += dt * v[i];
             }
