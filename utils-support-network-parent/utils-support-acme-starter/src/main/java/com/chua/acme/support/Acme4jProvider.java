@@ -153,7 +153,7 @@ public class Acme4jProvider implements AcmeProvider {
                 return AcmeCertificateResult.fail("未连接 ACME 服务器，请先调用 connect");
             }
 
-            // 复用 getValidationInfo 创建的订单；若不存在则新建
+            // 若无可用订单（首次，或上次验证失败被重置），则新建订单
             Order order = currentOrder;
             if (order == null) {
                 order = account.newOrder()
@@ -162,13 +162,14 @@ public class Acme4jProvider implements AcmeProvider {
                 currentOrder = order;
             }
 
-            // 轮询等待授权通过（CA 异步验证），文件已部署后通常数秒内完成
+            // 触发待验证的挑战，等待 CA 异步验证通过
+            triggerPendingChallenges(order, challengeType);
             boolean allValid = waitForValid(order, challengeType);
             if (!allValid) {
+                // 验证未通过，释放订单以便下次（用户部署后重试将创建新订单）
+                currentOrder = null;
                 List<AcmeValidationInfo> pending = collectPendingValidations(order, challengeType);
-                if (!pending.isEmpty()) {
-                    return AcmeCertificateResult.needValidation(pending);
-                }
+                return AcmeCertificateResult.needValidation(pending);
             }
 
             // 所有授权已验证通过，提交 CSR 并等待签发
@@ -250,6 +251,36 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
+     * 触发订单中所有待验证且匹配类型的挑战（HTTP-01 / DNS-01）。
+     * <p>调用后 CA 开始发起验证，需在触发前完成验证文件/DNS 记录部署。</p>
+     *
+     * @param order         订单
+     * @param challengeType 挑战类型
+     */
+    private void triggerPendingChallenges(Order order, String challengeType) {
+        for (Authorization auth : order.getAuthorizations()) {
+            if (auth.getStatus() == Status.VALID) {
+                continue;
+            }
+            for (Challenge challenge : auth.getChallenges()) {
+                AcmeValidationInfo info = buildValidationInfo(auth.getIdentifier().getDomain(), challenge);
+                if (info == null) {
+                    continue;
+                }
+                if (challenge.getStatus() == Status.PENDING && matchesChallengeType(info.getChallengeType(), challengeType)) {
+                    try {
+                        challenge.trigger();
+                        log.info("已触发挑战: domain={}, type={}", auth.getIdentifier().getDomain(), info.getChallengeType());
+                    } catch (Exception e) {
+                        log.warn("挑战触发失败: domain={}, type={}, error={}",
+                                auth.getIdentifier().getDomain(), info.getChallengeType(), e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * 轮询等待订单所有授权变为 VALID。
      * <p>验证文件已部署后，CA 会异步发起验证，通常数秒内完成。</p>
      *
@@ -258,7 +289,7 @@ public class Acme4jProvider implements AcmeProvider {
      * @return 是否全部通过验证
      */
     private boolean waitForValid(Order order, String challengeType) {
-        int attempts = MAX_ATTEMPTS;
+        int attempts = 10;
         while (attempts-- > 0) {
             try {
                 order.update();

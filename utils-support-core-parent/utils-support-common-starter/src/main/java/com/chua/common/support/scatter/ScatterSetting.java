@@ -62,6 +62,8 @@ public class ScatterSetting {
     private int failRemoveCount = 3;
     /** 单次同步超时毫秒 */
     private long timeoutMillis = 2000L;
+    /** 单次心跳超时毫秒（默认与 timeoutMillis 相同，可单独配置以加快剔除速度） */
+    private long heartbeatTimeoutMillis = 0L;
 
     /** 持久化开关 */
     private boolean persistenceEnabled = true;

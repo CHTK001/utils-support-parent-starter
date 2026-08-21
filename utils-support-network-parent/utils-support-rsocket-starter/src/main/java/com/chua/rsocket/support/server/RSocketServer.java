@@ -97,6 +97,9 @@ public class RSocketServer extends AbstractServer {
     @Override
     /** Do开始 */
     protected void doStart() {
+        // 增加 Netty worker 线程数,避免 1000 并发短连接 SETUP 握手溢出默认 4 线程
+        int workers = Math.max(4, Runtime.getRuntime().availableProcessors() * 2);
+        System.setProperty("reactor.netty.ioWorkerCount", String.valueOf(workers));
         serverDisposable = io.rsocket.core.RSocketServer.create((setup, sendingSocket) -> {
             return Mono.just(new io.rsocket.RSocket() {
 

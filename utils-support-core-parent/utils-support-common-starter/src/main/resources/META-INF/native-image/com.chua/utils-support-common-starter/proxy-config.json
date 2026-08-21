@@ -55,5 +55,44 @@
   ],
   [
     "com.chua.common.support.vector.VectorStorageProvider"
+  ],
+  [
+    "com.chua.common.support.ai.splitter.TextSplitterProvider"
+  ],
+  [
+    "com.chua.common.support.lang.benchmark.Benchmark"
+  ],
+  [
+    "com.chua.common.support.lang.directory.PolledDirectory"
+  ],
+  [
+    "com.chua.common.support.lang.view.ViewParser"
+  ],
+  [
+    "com.chua.common.support.network.annotations.ListenerParser"
+  ],
+  [
+    "com.chua.common.support.network.rpc.RpcClient"
+  ],
+  [
+    "com.chua.common.support.network.rpc.RpcServer"
+  ],
+  [
+    "com.chua.common.support.network.server.filter.rate.RateLimitProvider"
+  ],
+  [
+    "com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser"
+  ],
+  [
+    "com.chua.common.support.network.server.resolver.HandlerMethodArgumentResolver"
+  ],
+  [
+    "com.chua.common.support.objects.environment.ConfigValueExpressionResolver"
+  ],
+  [
+    "com.chua.common.support.scatter.ScatterNodeServer"
+  ],
+  [
+    "com.chua.common.support.scatter.ScatterRemoteClient"
   ]
 ]

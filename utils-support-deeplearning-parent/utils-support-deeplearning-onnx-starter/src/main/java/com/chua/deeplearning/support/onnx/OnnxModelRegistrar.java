@@ -104,8 +104,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("scrfd-face-detector", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/scrfd/2.5g_bnkps.onnx", "https://huggingface.co/RuteNL/SCRFD-face-detection-ONNX/resolve/main/2.5g_bnkps.onnx", false, null);
         // 人脸检测(InsightFace SCRFD)：buffalo_l 标准 SCRFD-10g，640 输入，人脸框+5 点关键点；适用检测+对齐+识别前置
         reg("insightface-scrfd", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "models/onnx/face/detection/scrfd/scrfd.onnx");
-        // 人脸检测(UltraFace)：超轻量人脸检测，320x240 输入，适合移动端/边缘设备；适用嵌入式人脸检测
-        reg("ultra-face", "com.chua.deeplearning.support.onnx.face.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/face_detection_sdk/RFB.onnx", "https://huggingface.co/onnxmodelzoo/version-RFB-320/resolve/main/version-RFB-320.onnx", false, null);
         // 人脸检测(RetinaFace R34)：ResNet34 骨干，输出人脸框+5 点关键点；适用人脸检测/对齐
         reg("retinaface-r34", "com.chua.deeplearning.support.onnx.face.OnnxRetinaFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/retinaface/retinaface_r34.onnx");
         // 人脸检测(TinaFace R50)：ResNet50+GN+DCN 骨干，IoU-aware 评分，6 级 FPN+Inception 颈部；适用高精度人脸检测
@@ -279,7 +277,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 动漫人脸检测(YOLOv8n)：检测动漫/二次元图片中的人脸（YOLOv8 v1.4_n）；适用动漫人脸检测、二次元内容分析。模型内嵌 jar（utils-support-models-onnx-anime-face）
         reg("anime-face-detector", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/anime-face/model.onnx");
         // 零样本分割(CLIPSeg)：用文本描述分割图像（如"分割出汽车"），无需训练；适用零样本语义分割、文本引导分割
-        reg("clipseg-zero-shot", "com.chua.deeplearning.support.onnx.seg.CLIPSegZeroShotSegmentationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/seg/clipseg-rd64-refined/model.onnx", "https://modelscope.cn/models/Xenova/clipseg-rd64-refined/resolve/master/onnx/model.onnx", false, null);
+        reg("clipseg-zero-shot", "com.chua.deeplearning.support.onnx.seg.CLIPSegZeroShotSegmentationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageSegmenter.class, "vision/seg/clipseg-rd64-refined/model.onnx", "https://modelscope.cn/models/Xenova/clipseg-rd64-refined/resolve/master/onnx/model.onnx", false, null);
         // 提示分割(EdgeSAM)：SAM 的边缘设备剪枝版（~36MB），用 bbox 或点提示分割物体；适用嵌入式分割、边缘设备
         reg("edgesam", "com.chua.deeplearning.support.onnx.seg.EdgeSamSegmentTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/seg/edge-sam/onnx/edge_sam_encoder.onnx");
         // 提示分割(EfficientSAM)：SAM 的蒸馏高效版（~40MB），用 bbox 或点提示分割物体；适用轻量级分割
@@ -359,6 +357,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
+        // 本地大模型(Qwen2.5-0.5B-Instruct ONNX int8)：轻量中文大模型对话（int8 单文件 ~488MB），downloadUrl 自动下载；适用低内存/快速本地对话
+        String qwen05Url = "https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
+        reg("qwen2-0.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
+                "models/qwen2.5-0.5b-instruct/model.onnx",
+                qwen05Url, java.util.List.of(qwen05Url), false, "model.onnx");
         // 图像分类(MobileNetV4)：MobileNetV4 1000 类 ImageNet 分类，最新版更快更准；适用移动端通用分类
         reg("mobilenetv4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.onnx", false, null);
         // 深度伪造检测(DeepFake Detector)：检测图片/视频是否为深度伪造；适用反欺诈、虚假内容检测
@@ -410,6 +413,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 模型打包在 utils-support-models-onnx-pocket-tts jar 中（audio/tts/pocket-tts/，~225MB int8），
         // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
         reg("pocket-tts", null, String.class, byte[].class, Object.class, "audio/tts/pocket-tts/config.json");
+
+        // VITS-icefall-zh 中文 TTS（AISHELL3 174 说话人）：中文语音合成，8kHz WAV；
+        // 模型打包在 utils-support-models-onnx-vits-icefall-zh jar 中（audio/tts/vits-icefall-zh/），
+        // 由 OnnxTextToAudioClient 直接加载，支持 .voice("SSB0005") 指定说话人。
+        reg("vits-icefall-zh", null, String.class, byte[].class, Object.class, "audio/tts/vits-icefall-zh/model.onnx");
 
         // ==================== 零样本检测 YOLO-World（嵌入式友好） ====================
         // YOLO-World Small：开放词表检测，文本提示（中/英文）→ 检测框+类别；模型 ~40MB，适合嵌入式/边缘部署

@@ -31,6 +31,11 @@ public class HttpProxyServer extends AbstractProxyServer {
     protected final int connectTimeoutMs;
     protected final int readTimeoutMs;
 
+    /** 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈） */
+    private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    /** 连接池容量上限 */
+    private static final int BACKEND_POOL_MAX = 8;
+
     public HttpProxyServer(ServerSetting setting) {
         super(setting);
         initProxy();
@@ -58,6 +63,49 @@ public class HttpProxyServer extends AbstractProxyServer {
     @Override
     public com.chua.common.support.network.ProtocolType getProtocolType() {
         return com.chua.common.support.network.ProtocolType.HTTP;
+    }
+
+    /** 借出后端连接：优先复用池中空闲连接，无则新建。 */
+    private Socket borrowBackend(InetSocketAddress backend) throws IOException {
+        Socket pooled;
+        while ((pooled = backendPool.poll()) != null) {
+            if (pooled.isClosed() || pooled.isInputShutdown() || pooled.isOutputShutdown()) {
+                try {
+                    pooled.close();
+                } catch (IOException ignored) {
+                }
+                continue;
+            }
+            return pooled;
+        }
+        Socket s = new Socket();
+        s.connect(backend, connectTimeoutMs);
+        s.setSoTimeout(readTimeoutMs);
+        return s;
+    }
+
+    /** 归还后端连接：keep-alive 且池未满才复用，否则关闭。 */
+    private void returnBackend(Socket socket, boolean keepAlive) {
+        if (keepAlive && backendPool.size() < BACKEND_POOL_MAX
+                && !socket.isClosed() && !socket.isInputShutdown() && !socket.isOutputShutdown()) {
+            backendPool.offer(socket);
+            return;
+        }
+        try {
+            socket.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    /** 响应头是否 Connection: close（连接不可复用）。 */
+    private boolean connectionClose(byte[] header) {
+        String head = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
+        for (String line : head.split("\r\n")) {
+            if (line.toLowerCase().startsWith("connection:")) {
+                return line.toLowerCase().contains("close");
+            }
+        }
+        return false;
     }
 
     @Override
@@ -92,30 +140,68 @@ public class HttpProxyServer extends AbstractProxyServer {
                 return;
             }
 
-            try (Socket backendSocket = new Socket()) {
-                backendSocket.connect(backend, connectTimeoutMs);
-                backendSocket.setSoTimeout(readTimeoutMs);
-                OutputStream backOut = backendSocket.getOutputStream();
-                InputStream backIn = backendSocket.getInputStream();
+            Socket backendSocket = null;
+            // 复用池连接可能已被后端关闭（半死连接）：IO 失败时剔除并重试一次新连接
+            for (int attempt = 0; attempt < 2; attempt++) {
+                try {
+                    backendSocket = borrowBackend(backend);
+                    OutputStream backOut = backendSocket.getOutputStream();
+                    InputStream backIn = backendSocket.getInputStream();
 
-                // 转发请求头（保留 method/path/版本，透传其余头）+ body
-                backOut.write(header);
-                byte[] body = readBody(in, headText);
-                if (body.length > 0) {
-                    backOut.write(body);
-                }
-                backOut.flush();
+                    // 转发请求头（保留 method/path/版本，透传其余头）+ body
+                    backOut.write(header);
+                    byte[] body = readBody(in, headText);
+                    if (body.length > 0) {
+                        backOut.write(body);
+                    }
+                    backOut.flush();
 
-                // 回传响应
-                byte[] respHeader = readHeader(backIn);
-                if (respHeader != null) {
-                    out.write(respHeader);
+                    // 回传响应
+                    byte[] respHeader = readHeader(backIn);
+                    boolean keepAlive = false;
+                    if (respHeader != null) {
+                        out.write(respHeader);
+                        out.flush();
+                        if (isChunked(respHeader)) {
+                            pipeChunked(backIn, out);
+                            keepAlive = !connectionClose(respHeader);
+                        } else {
+                            int cl = contentLength(respHeader);
+                            if (cl > 0) {
+                                pipeN(backIn, out, cl);
+                                keepAlive = !connectionClose(respHeader);
+                            } else {
+                                // 无长度（如 204/close-delimited）：读到 EOF，连接不可复用
+                                pipeRaw(backIn, out);
+                            }
+                        }
+                    }
                     out.flush();
-                    if (isChunked(respHeader) || contentLength(respHeader) > 0) {
-                        pipeRaw(backIn, out);
+                    // 响应体完整读完后归还（keep-alive 复用）或关闭
+                    returnBackend(backendSocket, keepAlive);
+                    backendSocket = null;
+                    break;
+                } catch (IOException e) {
+                    // 复用连接失败（坏连接）：关闭并重试一次（新连接）
+                    if (backendSocket != null) {
+                        try {
+                            backendSocket.close();
+                        } catch (IOException ignored) {
+                        }
+                        backendSocket = null;
+                    }
+                    if (attempt == 0) {
+                        continue;
+                    }
+                    throw e;
+                } finally {
+                    if (backendSocket != null) {
+                        try {
+                            backendSocket.close();
+                        } catch (IOException ignored) {
+                        }
                     }
                 }
-                out.flush();
             }
             log.debug("http-proxy: {} {} -> {}:{}", method, path,
                     backend.getHostString(), backend.getPort());
@@ -129,20 +215,17 @@ public class HttpProxyServer extends AbstractProxyServer {
     /** 读 HTTP 头（直到 \r\n\r\n）。 */
     private byte[] readHeader(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        int prevPrev = -1;
         int prev = -1;
-        int crlf = 0;
         int b;
         while ((b = in.read()) != -1) {
             bos.write(b);
-            if (prev == '\r' && b == '\n') {
-                crlf++;
-            } else {
-                crlf = 0;
-            }
-            prev = b;
-            if (crlf == 2) {
+            // HTTP 头结束 = 空行（\r\n\r\n：检测 \n 前是 \r、\r 前是 \n）
+            if (b == '\n' && prev == '\r' && prevPrev == '\n') {
                 break;
             }
+            prevPrev = prev;
+            prev = b;
             if (bos.size() > 1 << 20) {
                 throw new IOException("HTTP 头过大");
             }
@@ -197,6 +280,66 @@ public class HttpProxyServer extends AbstractProxyServer {
         int n;
         while ((n = in.read(buffer)) != -1) {
             out.write(buffer, 0, n);
+            out.flush();
+        }
+    }
+
+    /** 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。 */
+    private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
+        byte[] buffer = new byte[8192];
+        int remaining = length;
+        while (remaining > 0) {
+            int n = in.read(buffer, 0, Math.min(buffer.length, remaining));
+            if (n == -1) {
+                return;
+            }
+            out.write(buffer, 0, n);
+            remaining -= n;
+        }
+        out.flush();
+    }
+
+    /** 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。 */
+    private void pipeChunked(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[8192];
+        while (true) {
+            // 读 chunk 大小行（hex + CRLF）
+            int size = 0;
+            boolean sizeParsed = false;
+            while (!sizeParsed) {
+                int b = in.read();
+                if (b == -1) {
+                    return;
+                }
+                if (b == '\r') {
+                    in.read(); // \n
+                    sizeParsed = true;
+                } else if (b >= '0' && b <= '9') {
+                    size = size * 16 + (b - '0');
+                } else if (b >= 'a' && b <= 'f') {
+                    size = size * 16 + (b - 'a' + 10);
+                } else if (b >= 'A' && b <= 'F') {
+                    size = size * 16 + (b - 'A' + 10);
+                }
+            }
+            if (size <= 0) {
+                // 0 长度 chunk：读终止 CRLF
+                in.read();
+                in.read();
+                return;
+            }
+            // 转发 chunk 数据
+            int remaining = size;
+            while (remaining > 0) {
+                int n = in.read(buffer, 0, Math.min(buffer.length, remaining));
+                if (n == -1) {
+                    return;
+                }
+                out.write(buffer, 0, n);
+                remaining -= n;
+            }
+            in.read(); // chunk 后的 CR
+            in.read(); // LF
             out.flush();
         }
     }

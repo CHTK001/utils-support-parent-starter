@@ -3,6 +3,7 @@ package com.chua.common.support.concurrent.queue.persistent;
 import com.chua.common.support.concurrent.queue.LockFreeQueue;
 import com.chua.common.support.concurrent.queue.LockFreeQueueFlow;
 import com.chua.common.support.concurrent.queue.QueueType;
+import com.chua.common.support.wal.WalConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
@@ -162,9 +163,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         this.config = config;
         this.serializer = serializer;
         this.deserializer = deserializer;
-        this.useMmap = config.isMmap();
+        this.useMmap = config.useMemoryMap();
         this.delegate = LockFreeQueueFlow.create(QueueType.UNBOUNDED, 0);
-        this.walPath = Path.of(config.getWalDir(), config.getWalFile());
+        this.walPath = config.walDir().resolve(config.namespace());
         this.metaPath = walPath.resolveSibling(walPath.getFileName() + ".meta");
 
         // 创建 WAL 目录
@@ -181,7 +182,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         openForWrite();
 
         // 启动异步刷盘线程
-        if (!config.isSync() && config.getFlushIntervalMillis() > 0) {
+        if (!config.syncOnWrite() && config.fsyncBatchIntervalMs() > 0) {
             startFlushThread();
         }
     }
@@ -285,7 +286,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         this.writePosition.set(existingSize);
 
         if (useMmap) {
-            this.mappedSize = Math.max(config.getInitialFileSize(), (int) existingSize);
+            this.mappedSize = (int) existingSize;
             this.mmapBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, mappedSize);
         }
     }
@@ -453,7 +454,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
                 long newPos = pos + recordSize;
                 writePosition.set(newPos);
                 writeMetaLength(newPos);
-                if (config.isSync()) {
+                if (config.syncOnWrite()) {
                     mmapBuffer.force();
                 }
             } else {
@@ -467,7 +468,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
                 channel.write(buf);
                 long newPos = writePosition.addAndGet(recordSize);
                 writeMetaLength(newPos);
-                if (config.isSync()) {
+                if (config.syncOnWrite()) {
                     channel.force(false);
                 }
             }
@@ -485,7 +486,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         flushThread = new Thread(() -> {
             while (running) {
                 try {
-                    Thread.sleep(config.getFlushIntervalMillis());
+                    Thread.sleep(config.fsyncBatchIntervalMs());
                     writeLock.lock();
                     try {
                         if (useMmap && mmapBuffer != null) {

@@ -26,15 +26,16 @@ public class DefaultScatter implements Scatter {
     @Override
     public void start() throws Exception {
         discovery = builder.buildDiscovery();
-        discovery.start();
 
-        // 节点服务端：帧处理由 discovery 承担（REQ 拉取/PUSH 合并）
+        // ① 先启动 nodeServer，绑定端口（port=0 时由系统分配）
         nodeServer = builder.buildNodeServer(discovery);
         nodeServer.start();
         setting.setPort(nodeServer.getPort());
 
-        // 注册自身（端口回填后）
+        // ② 先注册自身，再启动 discovery（避免首轮定时任务在端口未确认前触发）
         discovery.registerSelf();
+        discovery.start();
+
         log.info("Scatter 已启动: node={} protocol={} @ {}:{} mode={}",
                 setting.getNodeId(), setting.getProtocol(),
                 setting.effectiveHost(), setting.getPort(),
@@ -47,7 +48,8 @@ public class DefaultScatter implements Scatter {
             nodeServer.stop();
         }
         if (discovery != null) {
-            discovery.close();
+            // 优雅关闭：等待当前一轮完成，确保 removeFromCache 不会因中断而跳过
+            ((AbstractScatterDiscovery) discovery).gracefulClose();
         }
         log.info("Scatter 已停止: node={}", setting.getNodeId());
     }

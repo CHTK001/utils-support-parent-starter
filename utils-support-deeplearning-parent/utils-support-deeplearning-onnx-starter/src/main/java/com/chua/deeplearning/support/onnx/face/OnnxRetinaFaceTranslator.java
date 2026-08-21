@@ -83,7 +83,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             data[i + width * height] = ((p >> 8) & 0xff) - 117f;
             data[i + 2 * width * height] = (p & 0xff) - 123f;
         }
-        NDArray array = ctx.getNDManager().create(data, new Shape(3, height, width));
+        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, height, width));
         return new NDList(array);
     }
 

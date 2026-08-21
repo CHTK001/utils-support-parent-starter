@@ -1,0 +1,4 @@
+[
+  {"name": "com.chua.runtime.starter.RuntimeAgentAutoConfiguration", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+  {"name": "com.chua.runtime.starter.RuntimeProperties", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true }
+]

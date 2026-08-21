@@ -101,9 +101,12 @@ public class ServerSetting {
         // 最大帧/请求体：跟随缓冲区分级，容纳大消息往返（含长度头余量）
         this.maxFrameSize = heapMb >= 4096 ? 1024 * 1024 : 65536;
 
-        // 最大并发请求数：与连接池容量对齐（RPC auto 连接数=cpu*8），
-        // 防止异常场景下在途请求无限堆积击穿内存，同时不限制正常高吞吐
-        this.maxConcurrency = Math.max(cpus * 8, 32);
+        // 最大并发请求数：与连接池容量对齐（RPC auto 连接数=cpu*8）,
+        // 防止异常场景下在途请求无限堆积击穿内存,同时不限制正常高吞吐。
+        // 显式配置过(>0 或 0=不限制)时保留原值,仅未配置时按核数给默认
+        if (!maxConcurrencyExplicit) {
+            this.maxConcurrency = Math.max(cpus * 8, 32);
+        }
 
         // 最大 Keep-Alive 请求数：内存充足时放宽长连接复用次数，
         // 减少高吞吐场景下频繁建连/断连的握手开销
@@ -214,8 +217,22 @@ public class ServerSetting {
      * 最大并发请求数，0 表示不限制
      */
     @Builder.Default
-    /** 最大值concurrency */
     private int maxConcurrency = 0;
+
+    /**
+     * 是否显式设置过 maxConcurrency(autoConfig 跳过覆盖;默认 false,由 autoConfig 按核数给默认)
+     */
+    private boolean maxConcurrencyExplicit = false;
+
+    /**
+     * 设置最大并发请求数,并标记为显式配置。
+     *
+     * @param maxConcurrency 最大并发数,0 表示不限制
+     */
+    public void setMaxConcurrency(int maxConcurrency) {
+        this.maxConcurrency = maxConcurrency;
+        this.maxConcurrencyExplicit = true;
+    }
 
     /**
      * NIO 事件循环(Selector)数量，0 表示自动按 CPU 核数。
@@ -230,10 +247,10 @@ public class ServerSetting {
     /**
      * 是否在事件循环线程内联执行 handler（跳过虚拟线程提交与 Selector 唤醒往返）。
      *
-     * <p>启用后简单非阻塞 handler 直接在事件循环线程执行并同步写出，省去
-     * 虚拟线程提交 + Selector 唤醒往返，显著提升小响应吞吐（QPS 可翻倍）。
-     * 仅适用于不阻塞的 handler（如回显、静态映射）；阻塞型 handler（DB/IO 调用）
-     * 会阻塞事件循环，应保持关闭。</p>
+     * <p>默认关闭：handler 提交到虚拟线程池异步执行，事件循环专注 I/O，
+     * 2 核及以上场景下吞吐显著高于内联模式。
+     * 仅当 handler 是微秒级纯计算（如 echo）且连接数较少时，
+     * 才建议开启 {@code setting.setInlineDispatch(true)} 以省去线程调度开销。</p>
      */
     @Builder.Default
     private boolean inlineDispatch = false;
