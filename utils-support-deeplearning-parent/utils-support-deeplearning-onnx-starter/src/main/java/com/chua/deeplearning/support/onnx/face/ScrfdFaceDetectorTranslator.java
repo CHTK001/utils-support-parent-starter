@@ -51,17 +51,20 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     @Override
     /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
-        var src = (BufferedImage) input.getWrappedImage();
-        var resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
-        var rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
-        var data = new float[3 * INPUT_SIZE * INPUT_SIZE];
-        for (var i = 0; i < rgb.length; i++) {
-            var p = rgb[i];
-            data[i] = ((p >> 16) & 0xff - 127.5f) / 128f;
-            data[i + INPUT_SIZE * INPUT_SIZE] = ((p >> 8) & 0xff - 127.5f) / 128f;
-            data[i + 2 * INPUT_SIZE * INPUT_SIZE] = ((p & 0xff) - 127.5f) / 128f;
+        BufferedImage src = (BufferedImage) input.getWrappedImage();
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        int[] rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
+        float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
+        for (int i = 0; i < rgb.length; i++) {
+            int pixel = rgb[i];
+            int r = (pixel >> 16) & 0xff;
+            int g = (pixel >> 8) & 0xff;
+            int b = pixel & 0xff;
+            data[i] = (r - 127.5f) / 128f;
+            data[i + INPUT_SIZE * INPUT_SIZE] = (g - 127.5f) / 128f;
+            data[i + 2 * INPUT_SIZE * INPUT_SIZE] = (b - 127.5f) / 128f;
         }
-        var array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
+        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
     }
 
@@ -69,17 +72,17 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 9) return empty();
-        var candidates = new ArrayList<Candidate>();
-        for (var i = 0; i < STRIDES.length; i++) {
+        List<Candidate> candidates = new ArrayList<>();
+        for (int i = 0; i < STRIDES.length; i++) {
             decodeStride(candidates, squeezeBatch(list.get(i)), squeezeBatch(list.get(i + STRIDES.length)), squeezeBatch(list.get(i + STRIDES.length * 2)), STRIDES[i]);
         }
         candidates.sort((l, r) -> Double.compare(r.score(), l.score()));
-        var names = new ArrayList<String>();
-        var probs = new ArrayList<Double>();
-        var boxes = new ArrayList<BoundingBox>();
-        for (var c : candidates) {
-            var keep = true;
-            for (var b : boxes) if (b.getIoU(c.rectangle()) > NMS_THRESHOLD) { keep = false; break; }
+        List<String> names = new ArrayList<>();
+        List<Double> probs = new ArrayList<>();
+        List<BoundingBox> boxes = new ArrayList<>();
+        for (Candidate c : candidates) {
+            boolean keep = true;
+            for (BoundingBox b : boxes) if (b.getIoU(c.rectangle()) > NMS_THRESHOLD) { keep = false; break; }
             if (!keep) continue;
             names.add("face"); probs.add(c.score()); boxes.add(c.landmark());
         }
@@ -88,28 +91,28 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
 
     /** 解码Stride */
     private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray, int stride) {
-        var scores = scoreArray.toFloatArray();
-        var boxes = bboxArray.toFloatArray();
-        var kps = kpsArray == null ? null : kpsArray.toFloatArray();
-        var featureSize = INPUT_SIZE / stride;
-        var totalAnchors = featureSize * featureSize * NUM_ANCHORS;
-        var scoreLength = Math.min(totalAnchors, scores.length);
-        var boxLength = Math.min(totalAnchors, boxes.length / 4);
-        var kpsLength = kps == null ? 0 : Math.min(totalAnchors, kps.length / 10);
-        var limit = Math.min(scoreLength, boxLength);
-        for (var idx = 0; idx < limit; idx++) {
-            var score = scores[idx];
+        float[] scores = scoreArray.toFloatArray();
+        float[] boxes = bboxArray.toFloatArray();
+        float[] kps = kpsArray == null ? null : kpsArray.toFloatArray();
+        int featureSize = INPUT_SIZE / stride;
+        int totalAnchors = featureSize * featureSize * NUM_ANCHORS;
+        int scoreLength = Math.min(totalAnchors, scores.length);
+        int boxLength = Math.min(totalAnchors, boxes.length / 4);
+        int kpsLength = kps == null ? 0 : Math.min(totalAnchors, kps.length / 10);
+        int limit = Math.min(scoreLength, boxLength);
+        for (int idx = 0; idx < limit; idx++) {
+            float score = scores[idx];
             if (score < SCORE_THRESHOLD) continue;
-            var location = idx / NUM_ANCHORS;
-            var y = location / featureSize; var x = location % featureSize;
-            var l = boxes[idx * 4] * stride, t = boxes[idx * 4 + 1] * stride, r = boxes[idx * 4 + 2] * stride, b = boxes[idx * 4 + 3] * stride;
-            var cx = x * stride + stride * 0.5f, cy = y * stride + stride * 0.5f;
-            var x1 = clamp(cx - l, 0f, INPUT_SIZE - 1f), y1 = clamp(cy - t, 0f, INPUT_SIZE - 1f);
-            var x2 = clamp(cx + r, 0f, INPUT_SIZE - 1f), y2 = clamp(cy + b, 0f, INPUT_SIZE - 1f);
+            int location = idx / NUM_ANCHORS;
+            int y = location / featureSize; int x = location % featureSize;
+            float l = boxes[idx * 4] * stride, t = boxes[idx * 4 + 1] * stride, r = boxes[idx * 4 + 2] * stride, b = boxes[idx * 4 + 3] * stride;
+            float cx = x * stride + stride * 0.5f, cy = y * stride + stride * 0.5f;
+            float x1 = clamp(cx - l, 0f, INPUT_SIZE - 1f), y1 = clamp(cy - t, 0f, INPUT_SIZE - 1f);
+            float x2 = clamp(cx + r, 0f, INPUT_SIZE - 1f), y2 = clamp(cy + b, 0f, INPUT_SIZE - 1f);
             if (x2 <= x1 || y2 <= y1) continue;
-            var points = new ArrayList<Point>();
-            if (kps != null && idx < kpsLength) for (var p = 0; p < 5; p++) points.add(new Point(clamp(cx + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE, clamp(cy + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE));
-            var nX1 = x1 / INPUT_SIZE; var nY1 = y1 / INPUT_SIZE; var nW = (x2 - x1) / INPUT_SIZE; var nH = (y2 - y1) / INPUT_SIZE;
+            List<Point> points = new ArrayList<>();
+            if (kps != null && idx < kpsLength) for (int p = 0; p < 5; p++) points.add(new Point(clamp(cx + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE, clamp(cy + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE));
+            float nX1 = x1 / INPUT_SIZE; float nY1 = y1 / INPUT_SIZE; float nW = (x2 - x1) / INPUT_SIZE; float nH = (y2 - y1) / INPUT_SIZE;
             candidates.add(new Candidate(new Landmark(nX1, nY1, nW, nH, points), score));
         }
     }
