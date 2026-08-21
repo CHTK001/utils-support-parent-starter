@@ -163,11 +163,11 @@ public record Seq2SeqModelDefinition(
             0L);
 
     /**
-     * 达摩院中文 mT5-base 模型定义（iic/nlp_mt5_dialogue-rewriting_chinese-base，中文微调）。
-     * <p>12 层 12 头 d_model=768，中文对话改写/摘要能力优于原版 mT5。
-     * 由达摩院中文对话改写模型转 fp16 ONNX（optimum 导出 + onnxconverter fp16 转换）；
-     * 首次运行需将 FP16 ONNX 文件放入缓存目录（fp16：encoder 554MB + decoder 995MB + past 967MB）。</p>
-     */
+         * 达摩院中文 mT5-base 模型定义（iic/nlp_mt5_dialogue-rewriting_chinese-base，中文微调）。
+         * <p>12 层 12 头 d_model=768，中文对话改写/摘要能力优于原版 mT5。
+         * 由达摩院中文对话改写模型转 int8 ONNX（optimum 导出 + onnxruntime 量化）；
+         * 首次运行需将 ONNX 文件放入缓存目录（int8：264+475+461MB）。</p>
+         */
     public static final Seq2SeqModelDefinition MT5_ZH = new Seq2SeqModelDefinition(
             "mt5-zh-seq2seq",
             "nlp/seq2seq/mt5-zh/",
@@ -175,4 +175,25 @@ public record Seq2SeqModelDefinition(
             List.of("encoder_model_int8.onnx", "decoder_model_int8.onnx", "decoder_with_past_model_int8.onnx", "tokenizer.json"),
             List.of("encoder_model_int8.onnx", "decoder_model_int8.onnx", "decoder_with_past_model_int8.onnx", "tokenizer.json"),
             12, 12, 64, 1L, 0L);
+
+    /**
+     * 中文 BART-large 模型定义（fnlp/bart-large-chinese，400M，中文 LCSTS 书面语训练）。
+     * <p>12 层 16 头 d_model=1024，int8 量化后体积约 760MB（195+309+283）。
+     * 官方未在 modelscope 发布 ONNX，通过 hf-mirror 下载；写入与 existing 一致的四文件 downloadUrl 模式。</p>
+     */
+    public static final Seq2SeqModelDefinition BART_ZH = new Seq2SeqModelDefinition(
+            "bart-zh-seq2seq",
+            "nlp/seq2seq/bart-zh/",
+            "fnlp/bart-large-chinese",
+            List.of(
+                    "encoder_model_int8.onnx",
+                    "decoder_model_int8.onnx",
+                    "decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            List.of(
+                    "encoder_model_int8.onnx",
+                    "decoder_model_int8.onnx",
+                    "decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            12, 16, 64, 102L, 102L);
 }

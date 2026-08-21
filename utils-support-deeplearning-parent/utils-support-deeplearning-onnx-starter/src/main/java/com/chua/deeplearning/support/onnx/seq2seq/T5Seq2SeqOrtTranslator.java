@@ -405,9 +405,12 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             float value = row[idx];
             row[idx] = value < 0 ? value * REPETITION_PENALTY : value / REPETITION_PENALTY;
         }
-        row[(int) def.decoderStartId()] = Float.NEGATIVE_INFINITY;
-        if (!allowEos) {
-            row[(int) def.eosId()] = Float.NEGATIVE_INFINITY;
+        // BART 等 decoderStart==eos 的模型，禁止一个即同时禁止；仅当 allow 时保留 eos
+        if (!allowEos || def.decoderStartId() != def.eosId()) {
+            row[(int) def.decoderStartId()] = Float.NEGATIVE_INFINITY;
+            if (!allowEos) {
+                row[(int) def.eosId()] = Float.NEGATIVE_INFINITY;
+            }
         }
         int best = 0;
         float bestScore = Float.NEGATIVE_INFINITY;
@@ -639,9 +642,11 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
                 row[idx] = v < 0 ? v * REPETITION_PENALTY : v / REPETITION_PENALTY;
             }
         }
-        row[(int) def.decoderStartId()] = Float.NEGATIVE_INFINITY;
-        if (!allowEos) {
-            row[(int) def.eosId()] = Float.NEGATIVE_INFINITY;
+        if (!allowEos || def.decoderStartId() != def.eosId()) {
+            row[(int) def.decoderStartId()] = Float.NEGATIVE_INFINITY;
+            if (!allowEos) {
+                row[(int) def.eosId()] = Float.NEGATIVE_INFINITY;
+            }
         }
         // 简单选择排序取 Top-K
         int count = Math.min(k, row.length);
