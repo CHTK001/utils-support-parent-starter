@@ -186,7 +186,7 @@ public class PlatePipeline {
                         }
                     }
                     String cleaned = plateText == null ? "" : plateText.replaceAll("[^0-9A-Z\\u4e00-\\u9fa5]", "");
-                    boolean valid = cleaned.length() >= 6 && plateText.matches(".*[\\u4e00-\\u9fa5].*");
+                    boolean valid = !cleaned.isEmpty();
                     if (valid) {
                         pc.addHit(new PlateDetectHit(
                                 pc.currentBox(), pc.currentPlate(), plateText, plateColor));
