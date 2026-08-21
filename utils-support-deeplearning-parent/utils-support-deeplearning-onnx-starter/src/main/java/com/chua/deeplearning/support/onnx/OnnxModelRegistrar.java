@@ -359,11 +359,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
-        // 本地大模型(Qwen2.5-1.5B-Instruct ONNX fp16)：中文大模型对话（fp16, ~1.5GB，含外部权重），downloadUrl 自动下载；适用本地对话、写作、翻译
-        String qwen15Url = "https://hf-mirror.com/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_fp16.onnx";
-        reg("qwen2-1.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
-                "models/qwen2.5-1.5b-instruct/model.onnx",
-                qwen15Url, java.util.List.of(qwen15Url), false, "model.onnx");
+        // 本地大模型(Qwen2.5-0.5B-Instruct ONNX int8)：轻量中文大模型对话（int8 单文件 ~488MB），downloadUrl 自动下载；适用低内存/快速本地对话
+        String qwen05Url = "https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
+        reg("qwen2-0.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
+                "models/qwen2.5-0.5b-instruct/model.onnx",
+                qwen05Url, java.util.List.of(qwen05Url), false, "model.onnx");
         // 图像分类(MobileNetV4)：MobileNetV4 1000 类 ImageNet 分类，最新版更快更准；适用移动端通用分类
         reg("mobilenetv4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.onnx", false, null);
         // 深度伪造检测(DeepFake Detector)：检测图片/视频是否为深度伪造；适用反欺诈、虚假内容检测
