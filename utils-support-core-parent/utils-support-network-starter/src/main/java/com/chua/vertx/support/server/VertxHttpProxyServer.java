@@ -91,17 +91,11 @@ public class VertxHttpProxyServer extends AbstractServer {
             httpClient = vertx.createHttpClient(new HttpClientOptions()
                     .setTcpNoDelay(true)
                     .setConnectTimeout(setting.getReadTimeout())
-                    // 连接池/keep-alive 复用：proxy 高并发转发关键，避免每请求新建后端连接
                     .setKeepAlive(true)
                     .setKeepAliveTimeout(60)
                     .setPipelining(false)
-                    // 后端 HTTP/2 多路复用：单连接多路流承载并发转发，
-                    // http2MultiplexingLimit(128) 仅在 HTTP/2 协议下生效
-                    .setProtocolVersion(io.vertx.core.http.HttpVersion.HTTP_2)
-                    .setHttp2MultiplexingLimit(128)
-                    .setHttp2ConnectionWindowSize(8 * 1024 * 1024)
+                    .setProtocolVersion(io.vertx.core.http.HttpVersion.HTTP_1_1)
                     .setTcpFastOpen(true)
-                    .setTcpCork(true)
                     .setTcpQuickAck(true));
 
             HttpServerOptions options = new HttpServerOptions()
@@ -111,10 +105,9 @@ public class VertxHttpProxyServer extends AbstractServer {
                     .setReuseAddress(setting.isSoReuseAddr())
                     .setMaxHeaderSize(16384)
                     .setTcpNoDelay(setting.isTcpNoDelay())
-                    // 吞吐优化:收发缓冲放大 + TCP_CORK/QUICKACK/FastOpen/KeepAlive
+                    // 吞吐优化:TCP_QUICKACK/FastOpen/KeepAlive(不用 TCP_CORK,理由同前)
                     .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
                     .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
-                    .setTcpCork(true)
                     .setTcpQuickAck(true)
                     .setTcpFastOpen(true)
                     .setTcpKeepAlive(true);

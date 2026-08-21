@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -80,6 +82,11 @@ public abstract class AbstractServer implements ConfigServer {
      * 并发限制信号量。
      */
     private Semaphore concurrencyLimiter;
+
+    /**
+     * 统一虚拟线程调度器：所有请求的过滤器链非阻塞并行执行。
+     */
+    private volatile ExecutorService workerPool;
 
     /**
      * 构造函数，初始化服务器基础组件。
@@ -163,40 +170,43 @@ public abstract class AbstractServer implements ConfigServer {
      *
      * @param request  请求对象
      * @param response 响应对象
-     * @return 请求处理完成信号(阻塞模式下为已完成的 stage)
+     * @return 请求处理完成信号（异步阶段）
      */
     protected CompletionStage<Void> handleRequestAsync(ServerRequest request, ServerResponse response) {
         metrics.incrementRequests();
         request.setAttribute("_server", this);
         if (concurrencyLimiter != null && !concurrencyLimiter.tryAcquire()) {
-            response.setStatus(503);
-            response.setBody("Service Unavailable: too many concurrent requests");
-            if (!response.isEnded()) {
-                response.end();
-            }
+            response.setStatus(503).setBody("Service Unavailable: too many concurrent requests");
+            if (!response.isEnded()) response.end();
             metrics.incrementErrors();
             return CompletableFuture.completedFuture(null);
         }
         metrics.incrementActive();
         long start = System.nanoTime();
-        try {
-            // 响应式链仅执行 ReactiveServerFilter(响应式过滤器);若过滤器链只有普通
-            // ServerFilter(如 ReverseProxyServerFilter 反向代理),走 handleBlocking 才能执行它们,
-            // 否则普通过滤器在响应式模式下从不被调用 → 代理等过滤逻辑静默失效
-            boolean hasReactiveFilters = !filterManager.getMergedReactiveFilters().isEmpty();
-            if (supportsReactor() && setting.isReactor() && hasReactiveFilters) {
-                return handleReactive(request, response);
-            } else {
-                handleBlocking(request, response);
-                return CompletableFuture.completedFuture(null);
-            }
-        } finally {
-            metrics.recordLatency(System.nanoTime() - start);
-            metrics.decrementActive();
-            if (concurrencyLimiter != null) {
-                concurrencyLimiter.release();
+        // 统一调度：过滤器链始终提交至虚拟线程并行执行，不再阻塞调用者
+        return CompletableFuture.runAsync(() -> handleFilterChain(request, response), getWorkerPool())
+                .whenComplete((v, ex) -> {
+                    metrics.recordLatency(System.nanoTime() - start);
+                    metrics.decrementActive();
+                    if (concurrencyLimiter != null) concurrencyLimiter.release();
+                });
+    }
+
+    /**
+     * 虚拟线程执行器：延迟初始化，按需创建，shutd
+     */
+    private ExecutorService getWorkerPool() {
+        var pool = workerPool;
+        if (pool == null || pool.isShutdown()) {
+            synchronized (this) {
+                pool = workerPool;
+                if (pool == null || pool.isShutdown()) {
+                    pool = Executors.newVirtualThreadPerTaskExecutor();
+                    workerPool = pool;
+                }
             }
         }
+        return pool;
     }
 
     /**
@@ -247,20 +257,17 @@ public abstract class AbstractServer implements ConfigServer {
     };
 
     /**
-     * 处理阻塞请求。
-     *
-     * @param request  请求
-     * @param response 响应
+     * 伪响应式：阻塞过滤器链在虚拟线程上并行执行，结果统一转换后 end()。
+     * <p>供所有服务器统一调用，不区分 reactive/blocking。真响应式（handleReactive）仅在
+     * 框架明确需要时保留。</p>
      */
-    private void handleBlocking(ServerRequest request, ServerResponse response) {
+    private void handleFilterChain(ServerRequest request, ServerResponse response) {
         try {
-            List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
-            // getMergedFilters 内部已有 mergedCache(仅 dirty 时重建),此处直接使用缓存引用
-            DefaultServerFilterChain chain = new DefaultServerFilterChain(
+            @SuppressWarnings("unchecked")
+            var listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
+            var chain = new DefaultServerFilterChain(
                     filterManager.getMergedFilters(), DEFAULT_404_HANDLER, listeners);
             chain.doFilter(request, response);
-
-            // 链回卷后统一处理：结果转换 → end()
             if (!response.isEnded()) {
                 convertResult(response);
             }
@@ -268,19 +275,13 @@ public abstract class AbstractServer implements ConfigServer {
             metrics.incrementErrors();
             log.warn("请求处理异常: {}", e.getMessage(), e);
             if (!response.isEnded()) {
-                try {
-                    response.sendError(500, "Internal Server Error");
-                } catch (Exception ex) {
-                    log.warn("发送 500 错误失败: {}", ex.getMessage(), ex);
-                }
+                try { response.sendError(500, "Internal Server Error"); }
+                catch (Exception ex) { log.warn("发送 500 错误失败: {}", ex.getMessage(), ex); }
             }
         } finally {
             if (!response.isEnded()) {
-                try {
-                    response.end();
-                } catch (Exception e) {
-                    log.warn("响应 end() 失败: {}", e.getMessage(), e);
-                }
+                try { response.end(); }
+                catch (Exception e) { log.warn("响应 end() 失败: {}", e.getMessage(), e); }
             }
         }
     }

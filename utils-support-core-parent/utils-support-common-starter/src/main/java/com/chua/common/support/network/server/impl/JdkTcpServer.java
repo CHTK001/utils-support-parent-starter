@@ -423,7 +423,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         SocketChannel sc = (SocketChannel) key.channel();
         Attachment att = (Attachment) key.attachment();
         if (readFrame(sc, att)) {
-            byte[] body = att.bodyBuf.array();
+            // 拷贝 body 数据后 reset:避免同一连接下一帧复用 bodyBuf 底层数组覆盖上一帧数据
+            byte[] body = Arrays.copyOf(att.bodyBuf.array(), att.bodyLen);
             att.reset();
             virtualPool.execute(() -> processRequest(sc, body, att));
         }

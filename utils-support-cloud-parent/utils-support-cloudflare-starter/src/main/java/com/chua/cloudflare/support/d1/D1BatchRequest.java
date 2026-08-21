@@ -1,5 +1,7 @@
 package com.chua.cloudflare.support.d1;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -8,22 +10,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public class D1BatchRequest {
-
-    /**
-     * D1 batch API 必填字段：{@code {"sql": "...", "params": ...}}
-     */
-    private final List<D1Statement> statements;
-
-    /**
-     * 单库场景免填；多库场景可省略，或用 {@code sequential: true} 控制顺序
-     */
-    private final Boolean sequential;
-
-    public D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
-        this.statements = statements;
-        this.sequential = sequential;
-    }
+public record D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
 
     /**
      * 构造批量请求。
@@ -39,18 +26,15 @@ public class D1BatchRequest {
     /**
      * 序列化为 D1 API 请求体。
      *
+     * <p>{@code {"batch": [{"sql":..., "params":...}, ...]}}</p>
+     *
      * @return JSON 节点
      */
     public Object toJson() {
-        java.util.LinkedHashMap<String, Object> map = new java.util.LinkedHashMap<>();
-        java.util.List<Object> list = new java.util.ArrayList<>(statements.size());
-        for (D1Statement s : statements) {
+        var list = new ArrayList<Object>(statements.size());
+        for (var s : statements) {
             list.add(s.toJson());
         }
-        map.put("statements", list);
-        if (sequential != null) {
-            map.put("sequential", sequential);
-        }
-        return map;
+        return java.util.Map.of("batch", list);
     }
 }

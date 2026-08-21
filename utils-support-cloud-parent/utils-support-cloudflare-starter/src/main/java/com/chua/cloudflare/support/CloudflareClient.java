@@ -57,9 +57,6 @@ public class CloudflareClient {
         if (config.getToken() == null || config.getToken().isEmpty()) {
             throw new AuthenticationException("Cloudflare token is missing");
         }
-        if (config.getAccountId() == null || config.getAccountId().isEmpty()) {
-            throw new AuthenticationException("Cloudflare accountId is missing");
-        }
         this.config = config;
         this.httpClient = httpClient;
     }

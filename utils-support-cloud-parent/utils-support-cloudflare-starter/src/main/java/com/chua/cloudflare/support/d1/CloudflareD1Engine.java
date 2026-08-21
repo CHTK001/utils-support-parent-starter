@@ -110,7 +110,7 @@ public class CloudflareD1Engine {
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> query(String sql, Object... params) {
         D1Result result = executeWithParams(sql, D1SqlParameter.ofPositional(params));
-        return (List<Map<String, Object>>) (List<?>) result.getRows();
+        return (List<Map<String, Object>>) (List<?>) result.rows();
     }
 
     /**
@@ -123,7 +123,7 @@ public class CloudflareD1Engine {
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> query(String sql, Map<String, Object> named) {
         D1Result result = executeWithParams(sql, D1SqlParameter.ofNamed(named));
-        return (List<Map<String, Object>>) (List<?>) result.getRows();
+        return (List<Map<String, Object>>) (List<?>) result.rows();
     }
 
     /**
@@ -134,7 +134,7 @@ public class CloudflareD1Engine {
      */
     public List<D1Result> batch(List<D1Statement> statements) {
         D1BatchRequest request = D1BatchRequest.of(resolveDatabaseId(), statements);
-        Object raw = client.post(d1QueryPath(), request);
+        Object raw = client.post(d1QueryPath(), request.toJson());
         return D1Result.parseBatch(raw);
     }
 
@@ -146,8 +146,8 @@ public class CloudflareD1Engine {
      * @return 每条的结果
      */
     public List<D1Result> multi(String sql, List<Object[]> paramsList) {
-        List<D1Statement> statements = new java.util.ArrayList<>();
-        for (Object[] params : paramsList) {
+        var statements = new java.util.ArrayList<D1Statement>();
+        for (var params : paramsList) {
             statements.add(D1Statement.of(sql, D1SqlParameter.ofPositional(params)));
         }
         return batch(statements);
@@ -157,9 +157,12 @@ public class CloudflareD1Engine {
      * 执行 SQL 并返回 D1Result（含元数据 + 行集）。
      */
     private D1Result executeWithParams(String sql, D1SqlParameter params) {
-        D1Statement stmt = D1Statement.of(sql, params);
-        D1QueryRequest request = D1QueryRequest.single(resolveDatabaseId(), stmt);
-        Object raw = client.post(d1QueryPath(), request);
+        var stmt = new D1Statement(sql, params);
+        Object raw = client.post(d1QueryPath(), stmt.toJson());
+        // D1 单条响应 result 是数组，取第一个元素
+        if (raw instanceof List<?> list && !list.isEmpty()) {
+            return D1Result.parse(list.get(0));
+        }
         return D1Result.parse(raw);
     }
 
