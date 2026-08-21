@@ -61,9 +61,11 @@ public class LlamaModelRegistrar implements ModelRegistrar {
                 String.class, float[].class, FeatureExtractor.class,
                 "../llama/bitnet-embeddings-0.6b-bf16-i2_s.gguf");
         // qwen2-1.5b: text generation
+        String qwenUrl = "https://hf-mirror.com/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf";
         reg("qwen2-1.5b", Qwen2ChatTranslator.class.getName(),
                 String.class, String.class, Object.class,
-                "models/llama/qwen2.5-1.5b-instruct-q4_k_m.gguf");
+                "../llama/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+                qwenUrl, java.util.List.of(qwenUrl), false, "qwen2.5-1.5b-instruct-q4_k_m.gguf");
     }
 
     /**
@@ -81,6 +83,20 @@ public class LlamaModelRegistrar implements ModelRegistrar {
                             Class<?> capability, String relativePath) {
         if (ModelRegistry.get(modelId) == null) {
             ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability, relativePath);
+        }
+    }
+
+    /**
+     * 注册单条模型元数据（含下载 URL），已存在则跳过。
+     */
+    private static void reg(String modelId, String translatorClassName,
+                            Class<?> inputType, Class<?> outputType,
+                            Class<?> capability, String relativePath,
+                            String downloadUrl, java.util.List<String> mirrors,
+                            boolean compress, String downloadFileName) {
+        if (ModelRegistry.get(modelId) == null) {
+            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
+                    relativePath, downloadUrl, mirrors, compress, downloadFileName);
         }
     }
 }
