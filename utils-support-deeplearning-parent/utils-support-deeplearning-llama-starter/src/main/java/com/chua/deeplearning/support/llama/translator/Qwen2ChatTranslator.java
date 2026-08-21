@@ -3,7 +3,9 @@ package com.chua.deeplearning.support.llama.translator;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import de.kherud.llama.InferenceParameters;
+import de.kherud.llama.LlamaIterator;
 import de.kherud.llama.LlamaModel;
+import de.kherud.llama.LlamaOutput;
 import de.kherud.llama.ModelParameters;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,6 +15,11 @@ import java.nio.file.Path;
 public class Qwen2ChatTranslator implements ITranslator<String, String>, AutoCloseable {
 
     private static final String DEFAULT_MODEL_ID = "qwen2-1.5b";
+
+    /** 单次回答最大 token 数 */
+    private static final int MAX_TOKENS = 512;
+    /** 结束标记（Qwen chat 模板） */
+    private static final String END_TOKEN = "<|im_end|>";
 
     private volatile LlamaModel model;
     private volatile boolean initialized;
@@ -47,12 +54,41 @@ public class Qwen2ChatTranslator implements ITranslator<String, String>, AutoClo
             InferenceParameters inferParams = new InferenceParameters(input)
                     .setTemperature(0.7f)
                     .setTopK(40)
-                    .setNPredict(512);
-            return model.complete(inferParams);
+                    .setNPredict(MAX_TOKENS);
+            return generateWithLimit(inferParams);
         } catch (Exception e) {
             log.warn("[Qwen2] 推理失败: {}", e.getMessage());
             return "";
         }
+    }
+
+    /**
+     * 逐 token 生成，遇结束符或达到上限提前终止，避免无限输出。
+     */
+    private String generateWithLimit(InferenceParameters parameters) {
+        StringBuilder sb = new StringBuilder();
+        LlamaIterator it = model.generate(parameters).iterator();
+        int tokens = 0;
+        try {
+            while (it.hasNext() && tokens < MAX_TOKENS) {
+                LlamaOutput out = it.next();
+                if (out == null || out.text == null) {
+                    break;
+                }
+                String text = out.text;
+                // 结束标记：去掉并终止
+                int idx = text.indexOf(END_TOKEN);
+                if (idx >= 0) {
+                    sb.append(text, 0, idx);
+                    break;
+                }
+                sb.append(text);
+                tokens++;
+            }
+        } finally {
+            it.cancel();
+        }
+        return sb.toString().trim();
     }
 
     @Override
