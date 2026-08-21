@@ -126,9 +126,31 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     }
 
     @Override
-    /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> column) {
-        return null;
+        try {
+            java.lang.reflect.Method writeReplace = column.getClass().getDeclaredMethod("writeReplace");
+            writeReplace.setAccessible(true);
+            java.lang.invoke.SerializedLambda lambda =
+                    (java.lang.invoke.SerializedLambda) writeReplace.invoke(column);
+            String methodName = lambda.getImplMethodName();
+            String field = methodName.startsWith("is") ? methodName.substring(2)
+                    : methodName.startsWith("get") ? methodName.substring(3) : methodName;
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < field.length(); i++) {
+                char ch = field.charAt(i);
+                if (Character.isUpperCase(ch)) {
+                    if (i > 0) {
+                        sb.append('_');
+                    }
+                    sb.append(Character.toLowerCase(ch));
+                } else {
+                    sb.append(ch);
+                }
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("无法解析 Lambda 列: " + column, e);
+        }
     }
 
     /**
