@@ -17,6 +17,7 @@
         <module>utils-support-amazon-starter</module>
         <module>utils-support-baidu-starter</module>
         <module>utils-support-claude-starter</module>
+        <module>utils-support-cloudflare-starter</module>
         <module>utils-support-dingding-starter</module>
         <module>utils-support-feishu-starter</module>
         <module>utils-support-qq-starter</module>

@@ -82,48 +82,41 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
-        // 纯 Java 预处理（BufferedImage resize + RGB 归一化），避免 ONNX NDArray 不支持的 resize/transpose
-        BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
-
-        int[] rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
-        int total = INPUT_SIZE * INPUT_SIZE;
-        float[] data = new float[3 * total];
-        for (int i = 0; i < rgb.length; i++) {
-            int pixel = rgb[i];
-            int r = (pixel >> 16) & 0xff;
-            int g = (pixel >> 8) & 0xff;
-            int b = pixel & 0xff;
-            // (rgb - mean) / std，std=[1,1,1]，CHW 顺序（mean 对应 RGB）
-            data[i] = (r - RGB_MEAN[0]);
-            data[i + total] = (g - RGB_MEAN[1]);
-            data[i + 2 * total] = (b - RGB_MEAN[2]);
+        var src = (BufferedImage) input.getWrappedImage();
+        var resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        var rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
+        var total = INPUT_SIZE * INPUT_SIZE;
+        var data = new float[3 * total];
+        for (var i = 0; i < rgb.length; i++) {
+            var pixel = rgb[i];
+            var r = (pixel >> 16) & 0xff;
+            var g = (pixel >> 8) & 0xff;
+            var b = pixel & 0xff;
+            data[i] = r - RGB_MEAN[0];
+            data[i + total] = g - RGB_MEAN[1];
+            data[i + 2 * total] = b - RGB_MEAN[2];
         }
-        NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
+        var array = ctx.getNDManager().create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
     }
 
     @Override
-    /** 处理Output */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < STRIDES.length * 3) {
             return empty();
         }
-
-        List<Candidate> candidates = new ArrayList<>();
-        for (int level = 0; level < STRIDES.length; level++) {
+        var candidates = new ArrayList<Candidate>();
+        for (var level = 0; level < STRIDES.length; level++) {
             decodeLevel(candidates, list.get(level * 3), list.get(level * 3 + 1), list.get(level * 3 + 2), STRIDES[level]);
         }
-
         candidates.sort((left, right) -> Double.compare(right.score(), left.score()));
-        List<String> names = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
-        for (Candidate candidate : candidates) {
-            boolean keep = true;
-            for (BoundingBox existing : boxes) {
+        var names = new ArrayList<String>();
+        var probabilities = new ArrayList<Double>();
+        var boxes = new ArrayList<BoundingBox>();
+        for (var candidate : candidates) {
+            var keep = true;
+            for (var existing : boxes) {
                 if (existing.getIoU(candidate.rectangle()) > nmsThresh) {
                     keep = false;
                     break;
@@ -139,65 +132,55 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(names, probabilities, boxes);
     }
 
-    /** 解码Stride */
     private void decodeLevel(List<Candidate> candidates, NDArray clsArray, NDArray regArray, NDArray iouArray, int stride) {
-        float[] cls = clsArray.toFloatArray();
-        float[] reg = regArray.toFloatArray();
-        float[] iou = iouArray.toFloatArray();
-        int featureSize = INPUT_SIZE / stride;
-        int spatial = featureSize * featureSize;
-        int limit = Math.min(spatial, Math.min(Math.min(cls.length, reg.length / 4), iou.length));
-
-        float sqrtRatio = (float) Math.sqrt(RATIO);
-        float[] anchorSizes = {
-                stride,
-                stride * SCALE_PER_OCTAVE,
-                stride * SCALE_PER_OCTAVE * SCALE_PER_OCTAVE
-        };
-
-        for (int y = 0; y < featureSize; y++) {
-            for (int x = 0; x < featureSize; x++) {
-                int baseIdx = y * featureSize + x;
+        var cls = clsArray.toFloatArray();
+        var reg = regArray.toFloatArray();
+        var iou = iouArray.toFloatArray();
+        var featureSize = INPUT_SIZE / stride;
+        var spatial = featureSize * featureSize;
+        var limit = Math.min(spatial, Math.min(Math.min(cls.length, reg.length / 4), iou.length));
+        var sqrtRatio = (float) Math.sqrt(RATIO);
+        var anchorSizes = new float[]{stride, stride * SCALE_PER_OCTAVE, stride * SCALE_PER_OCTAVE * SCALE_PER_OCTAVE};
+        for (var y = 0; y < featureSize; y++) {
+            for (var x = 0; x < featureSize; x++) {
+                var baseIdx = y * featureSize + x;
                 if (baseIdx >= limit) {
                     continue;
                 }
-                float cx = x * stride + stride * 0.5f;
-                float cy = y * stride + stride * 0.5f;
-                for (int anchor = 0; anchor < NUM_ANCHORS; anchor++) {
-                    // IoU 感知得分 = sqrt(sigmoid(cls) * sigmoid(iou))
-                    double clsScore = sigmoid(cls[anchor * spatial + baseIdx]);
-                    double iouScore = sigmoid(iou[anchor * spatial + baseIdx]);
-                    double score = Math.sqrt(clsScore * iouScore);
+                var cx = x * stride + stride * 0.5f;
+                var cy = y * stride + stride * 0.5f;
+                for (var anchor = 0; anchor < NUM_ANCHORS; anchor++) {
+                    var clsScore = sigmoid(cls[anchor * spatial + baseIdx]);
+                    var iouScore = sigmoid(iou[anchor * spatial + baseIdx]);
+                    var score = Math.sqrt(clsScore * iouScore);
                     if (score < confThresh) {
                         continue;
                     }
-                    // DeltaXYWHBBoxCoder 解码（target_means=[0,0,0,0]，target_stds=[0.1,0.1,0.2,0.2]）
-                    float aw = anchorSizes[anchor] * sqrtRatio;
-                    float ah = anchorSizes[anchor] / sqrtRatio;
-                    float dx = reg[anchor * 4 * spatial + baseIdx];
-                    float dy = reg[(anchor * 4 + 1) * spatial + baseIdx];
-                    float dw = reg[(anchor * 4 + 2) * spatial + baseIdx];
-                    float dh = reg[(anchor * 4 + 3) * spatial + baseIdx];
-                    double px = dx * TARGET_STDS[0] * aw + cx;
-                    double py = dy * TARGET_STDS[1] * ah + cy;
-                    double pw = aw * Math.exp(dw * TARGET_STDS[2]);
-                    double ph = ah * Math.exp(dh * TARGET_STDS[3]);
-                    double x1 = px - pw * 0.5d;
-                    double y1 = py - ph * 0.5d;
-                    double x2 = px + pw * 0.5d;
-                    double y2 = py + ph * 0.5d;
+                    var aw = anchorSizes[anchor] * sqrtRatio;
+                    var ah = anchorSizes[anchor] / sqrtRatio;
+                    var dx = reg[anchor * 4 * spatial + baseIdx];
+                    var dy = reg[(anchor * 4 + 1) * spatial + baseIdx];
+                    var dw = reg[(anchor * 4 + 2) * spatial + baseIdx];
+                    var dh = reg[(anchor * 4 + 3) * spatial + baseIdx];
+                    var px = dx * TARGET_STDS[0] * aw + cx;
+                    var py = dy * TARGET_STDS[1] * ah + cy;
+                    var pw = aw * Math.exp(dw * TARGET_STDS[2]);
+                    var ph = ah * Math.exp(dh * TARGET_STDS[3]);
+                    var x1 = px - pw * 0.5d;
+                    var y1 = py - ph * 0.5d;
+                    var x2 = px + pw * 0.5d;
+                    var y2 = py + ph * 0.5d;
                     if (x2 <= x1 || y2 <= y1) {
                         continue;
                     }
-                    // 裁到输入范围并归一化（DetectedObjects 要求 [0,1] 坐标）
-                    double nX1 = clip(x1 / INPUT_SIZE);
-                    double nY1 = clip(y1 / INPUT_SIZE);
-                    double nX2 = clip(x2 / INPUT_SIZE);
-                    double nY2 = clip(y2 / INPUT_SIZE);
+                    var nX1 = clip(x1 / INPUT_SIZE);
+                    var nY1 = clip(y1 / INPUT_SIZE);
+                    var nX2 = clip(x2 / INPUT_SIZE);
+                    var nY2 = clip(y2 / INPUT_SIZE);
                     if (nX2 <= nX1 || nY2 <= nY1) {
                         continue;
                     }
-                    Rectangle rectangle = new Rectangle(nX1, nY1, nX2 - nX1, nY2 - nY1);
+                    var rectangle = new Rectangle(nX1, nY1, nX2 - nX1, nY2 - nY1);
                     candidates.add(new Candidate(rectangle, score));
                 }
             }

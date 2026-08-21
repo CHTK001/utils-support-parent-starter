@@ -1,0 +1,29 @@
+[
+  [
+    "java.sql.Connection"
+  ],
+  [
+    "java.sql.Statement"
+  ],
+  [
+    "java.sql.PreparedStatement"
+  ],
+  [
+    "com.chua.common.support.data.query.datasource.DataSourceResolver"
+  ],
+  [
+    "com.chua.common.support.data.table.Schemable"
+  ],
+  [
+    "com.chua.datasource.support.datasource.DataSourceCreator"
+  ],
+  [
+    "com.chua.datasource.support.engine.DataSourceConversion"
+  ],
+  [
+    "com.chua.datasource.support.schema.AbstractCalciteSchema"
+  ],
+  [
+    "com.chua.datasource.support.table.ModifiableTableFactory"
+  ]
+]

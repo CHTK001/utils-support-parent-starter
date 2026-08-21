@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -131,7 +133,7 @@ public abstract class AbstractServer implements ConfigServer {
     @Override
     /** SupportsReactor */
     public boolean supportsReactor() {
-        return false;
+        return true;
     }
 
     /**
@@ -141,7 +143,9 @@ public abstract class AbstractServer implements ConfigServer {
      * @param response 响应对象
      */
     protected void handleRequest(ServerRequest request, ServerResponse response) {
-        handleRequestAsync(request, response);
+        // 同步便捷方法：统一走响应式链并等待完成，保证调用方(JDK/NIO 等 Server 实现)
+        // 无需各自等待 stage 也能获得"响应完整后再返回"的语义
+        handleRequestAsync(request, response).toCompletableFuture().join();
     }
 
     /**
@@ -163,40 +167,26 @@ public abstract class AbstractServer implements ConfigServer {
      *
      * @param request  请求对象
      * @param response 响应对象
-     * @return 请求处理完成信号(阻塞模式下为已完成的 stage)
+     * @return 请求处理完成信号（异步阶段）
      */
     protected CompletionStage<Void> handleRequestAsync(ServerRequest request, ServerResponse response) {
         metrics.incrementRequests();
         request.setAttribute("_server", this);
         if (concurrencyLimiter != null && !concurrencyLimiter.tryAcquire()) {
-            response.setStatus(503);
-            response.setBody("Service Unavailable: too many concurrent requests");
-            if (!response.isEnded()) {
-                response.end();
-            }
+            response.setStatus(503).setBody("Service Unavailable: too many concurrent requests");
+            if (!response.isEnded()) response.end();
             metrics.incrementErrors();
             return CompletableFuture.completedFuture(null);
         }
         metrics.incrementActive();
         long start = System.nanoTime();
-        try {
-            // 响应式链仅执行 ReactiveServerFilter(响应式过滤器);若过滤器链只有普通
-            // ServerFilter(如 ReverseProxyServerFilter 反向代理),走 handleBlocking 才能执行它们,
-            // 否则普通过滤器在响应式模式下从不被调用 → 代理等过滤逻辑静默失效
-            boolean hasReactiveFilters = !filterManager.getMergedReactiveFilters().isEmpty();
-            if (supportsReactor() && setting.isReactor() && hasReactiveFilters) {
-                return handleReactive(request, response);
-            } else {
-                handleBlocking(request, response);
-                return CompletableFuture.completedFuture(null);
-            }
-        } finally {
-            metrics.recordLatency(System.nanoTime() - start);
-            metrics.decrementActive();
-            if (concurrencyLimiter != null) {
-                concurrencyLimiter.release();
-            }
-        }
+        // 统一响应式：走响应式过滤器链(ReactiveFilterChain)，不再使用阻塞链
+        return handleReactive(request, response)
+                .whenComplete((v, ex) -> {
+                    metrics.recordLatency(System.nanoTime() - start);
+                    metrics.decrementActive();
+                    if (concurrencyLimiter != null) concurrencyLimiter.release();
+                });
     }
 
     /**
@@ -207,7 +197,7 @@ public abstract class AbstractServer implements ConfigServer {
      * @return 异步链完成信号,供调用方等待响应真正写完
      */
     protected CompletionStage<Void> handleReactive(ServerRequest request, ServerResponse response) {
-@SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
 
         DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(
@@ -245,45 +235,6 @@ public abstract class AbstractServer implements ConfigServer {
             res.sendError(404, "Not Found");
         }
     };
-
-    /**
-     * 处理阻塞请求。
-     *
-     * @param request  请求
-     * @param response 响应
-     */
-    private void handleBlocking(ServerRequest request, ServerResponse response) {
-        try {
-            List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
-            // getMergedFilters 内部已有 mergedCache(仅 dirty 时重建),此处直接使用缓存引用
-            DefaultServerFilterChain chain = new DefaultServerFilterChain(
-                    filterManager.getMergedFilters(), DEFAULT_404_HANDLER, listeners);
-            chain.doFilter(request, response);
-
-            // 链回卷后统一处理：结果转换 → end()
-            if (!response.isEnded()) {
-                convertResult(response);
-            }
-        } catch (Exception e) {
-            metrics.incrementErrors();
-            log.warn("请求处理异常: {}", e.getMessage(), e);
-            if (!response.isEnded()) {
-                try {
-                    response.sendError(500, "Internal Server Error");
-                } catch (Exception ex) {
-                    log.warn("发送 500 错误失败: {}", ex.getMessage(), ex);
-                }
-            }
-        } finally {
-            if (!response.isEnded()) {
-                try {
-                    response.end();
-                } catch (Exception e) {
-                    log.warn("响应 end() 失败: {}", e.getMessage(), e);
-                }
-            }
-        }
-    }
 
     /**
      * 将 response.getResult() 转换为响应体并 end()。

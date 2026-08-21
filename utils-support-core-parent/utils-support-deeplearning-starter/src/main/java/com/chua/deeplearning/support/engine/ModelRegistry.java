@@ -448,6 +448,15 @@ public final class ModelRegistry {
             }
         }
 
+        // 带 downloadUrl 的多文件/非标准扩展名模型：优先命中下载缓存目录（download/<modelId>/<file>），
+        // 避免在所有本地 fallback 失败后仍尝试联网下载。
+        if (entry != null && entry.downloadUrl() != null && !entry.downloadUrl().isBlank()) {
+            Path dlTarget = cachedDownloadTarget(modelId, entry);
+            if (dlTarget != null) {
+                return dlTarget;
+            }
+        }
+
         String[] suffixes = MODEL_SUFFIXES;
         for (String suffix : suffixes) {
             Path exact = root.resolve(modelId + suffix);
@@ -510,6 +519,30 @@ public final class ModelRegistry {
         }
 
         return root.resolve(modelId + ".onnx");
+    }
+
+    /**
+     * 从下载缓存目录解析已缓存模型文件（如 GGUF）。
+     *
+     * @param modelId 模型标识
+     * @param entry   注册条目
+     * @return 命中缓存的路径；未命中返回 null
+     */
+    private static Path cachedDownloadTarget(String modelId, Entry entry) {
+        Path downloadDir = extractRoot.resolve(DOWNLOAD_DIR).resolve(modelId);
+        String fileName = entry.downloadFileName() != null && !entry.downloadFileName().isBlank()
+                ? entry.downloadFileName()
+                : entry.downloadUrl().substring(entry.downloadUrl().lastIndexOf('/') + 1);
+        Path target = downloadDir.resolve(fileName);
+        try {
+            if (Files.isRegularFile(target) && Files.size(target) > 0) {
+                log.info("[deeplearning-engine] 命中 GGUF 下载缓存: {} -> {}", modelId, target);
+                return target;
+            }
+        } catch (Exception e) {
+            log.debug("[deeplearning-engine] 缓存检查失败: {} -> {}", modelId, e.getMessage());
+        }
+        return null;
     }
 
     /**
