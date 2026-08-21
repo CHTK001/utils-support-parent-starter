@@ -247,12 +247,13 @@ public class ServerSetting {
     /**
      * 是否在事件循环线程内联执行 handler（跳过虚拟线程提交与 Selector 唤醒往返）。
      *
-     * <p>默认开启：绝大多数 handler（回显、静态映射、JSON 序列化）都是微秒级非阻塞，
-     * 内联路径省去虚拟线程提交 + Selector 唤醒往返，QPS 可比直写路径高 30-100%。
-     * 阻塞型 handler（DB/远程调用）请显式 {@code setting.setInlineDispatch(false)}。</p>
+     * <p>默认关闭：handler 提交到虚拟线程池异步执行，事件循环专注 I/O，
+     * 2 核及以上场景下吞吐显著高于内联模式。
+     * 仅当 handler 是微秒级纯计算（如 echo）且连接数较少时，
+     * 才建议开启 {@code setting.setInlineDispatch(true)} 以省去线程调度开销。</p>
      */
     @Builder.Default
-    private boolean inlineDispatch = true;
+    private boolean inlineDispatch = false;
 
     /**
      * 响应超时时间（毫秒）

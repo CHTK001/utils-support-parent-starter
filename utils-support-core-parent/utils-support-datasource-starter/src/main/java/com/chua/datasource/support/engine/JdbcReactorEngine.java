@@ -109,6 +109,25 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
+     * 添加 R2DBC 数据源（直接传入 R2DBC URL）。
+     *
+     * @param name     数据源名称
+     * @param r2dbcUrl R2DBC URL（如 r2dbc:h2:mem://testdb）
+     * @return this
+     */
+    public JdbcReactorEngine addDataSource(String name, String r2dbcUrl) {
+        r2dbcFactories.put(name, ConnectionFactories.get(r2dbcUrl));
+        dialects.put(name, detectR2dbcDialect(r2dbcUrl));
+        if (defaultDataSourceName == null) {
+            defaultDataSourceName = name;
+        }
+        if (r2dbcFactories.size() > 1) {
+            buildUnifiedDataSource();
+        }
+        return this;
+    }
+
+    /**
      * 添加 R2DBC 连接工厂。
      *
      * @param name     数据源名称

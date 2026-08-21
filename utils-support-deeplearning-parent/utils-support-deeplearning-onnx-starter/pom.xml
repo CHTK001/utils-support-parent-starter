@@ -69,6 +69,17 @@
             <artifactId>utils-support-models-onnx-doclayout-yolo</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 烟火检测 / 个人防护装备（安全帽）检测模型（YOLOv8n） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-fire-smoke</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-ppe</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- 人脸检测模型（SCRFD / UltraFace / YOLOv11n-Face） -->
         <dependency>
             <groupId>com.chua</groupId>
