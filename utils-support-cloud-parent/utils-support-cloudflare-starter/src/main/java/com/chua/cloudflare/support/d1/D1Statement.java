@@ -1,26 +1,18 @@
 package com.chua.cloudflare.support.d1;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * 单条 SQL 语句 + 参数。
  *
  * @author CH
  * @since 4.0.0.42
  */
-public class D1Statement {
+public record D1Statement(String sql, D1SqlParameter params) {
 
-    /**
-     * SQL 语句
-     */
-    private final String sql;
-
-    /**
-     * 参数
-     */
-    private final D1SqlParameter params;
-
-    public D1Statement(String sql, D1SqlParameter params) {
-        this.sql = sql;
-        this.params = params == null ? D1SqlParameter.ofPositional(new Object[0]) : params;
+    public D1Statement {
+        params = params == null ? D1SqlParameter.ofPositional(new Object[0]) : params;
     }
 
     /**
@@ -37,22 +29,17 @@ public class D1Statement {
     /**
      * 序列化为 D1 API 接受的 JSON 节点。
      *
-     * <p>{@code {"sql": "...", "params": [...] | {...}}</p>
+     * <p>{@code {"sql": "...", "params": [...]}}；无参数时省略 params。
+     * 命名参数（{@code :name}）按 SQL 中出现顺序转换为数组。</p>
      *
      * @return JSON 节点（Map 形式）
      */
-    public java.util.Map<String, Object> toJson() {
-        java.util.LinkedHashMap<String, Object> map = new java.util.LinkedHashMap<>();
+    public Map<String, Object> toJson() {
+        var map = new LinkedHashMap<String, Object>();
         map.put("sql", sql);
-        map.put("params", params.toJson());
+        if (params.hasParams()) {
+            map.put("params", params.toJson(sql));
+        }
         return map;
-    }
-
-    public String getSql() {
-        return sql;
-    }
-
-    public D1SqlParameter getParams() {
-        return params;
     }
 }

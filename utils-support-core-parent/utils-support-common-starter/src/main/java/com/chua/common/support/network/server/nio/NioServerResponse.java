@@ -23,6 +23,9 @@ import java.util.TreeMap;
  *       后续使用 chunked transfer encoding 实时写入数据帧。</li>
  * </ul>
  *
+ * <p>性能关键路径：header 构建走零分配快路径（echo 场景复用预拼字节模板，
+ * 避免每次 StringBuilder 分配与 US_ASCII 编码），对纯回显小响应吞吐有显著提升。</p>
+ *
  * @author CH
  * @since 2026/08/12
  */
@@ -34,6 +37,19 @@ public class NioServerResponse implements ServerResponse {
     private static final byte[] COLON_SP = {':', ' '};
     /** Zero_chunk */
     private static final byte[] ZERO_CHUNK = {'0', '\r', '\n', '\r', '\n'};
+
+    // ==================== Header 零分配快路径模板 ====================
+    // echo 场景固定结构:HTTP/1.1 200 OK + Content-Type + Content-Length + Connection,
+    // 预拼前缀+长度数字+后缀,避免每请求 StringBuilder 分配与 US_ASCII 编码拷贝。
+    private static final byte[] STATUS_200_PREFIX =
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: ".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+    private static final byte[] KEEPALIVE_SUFFIX =
+            "\r\nConnection: keep-alive\r\n\r\n".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+    // 单字节数字 ASCII 表
+    private static final byte[] DIGITS = {'0','1','2','3','4','5','6','7','8','9'};
+    // 完整预拼 echo header:状态行 + 固定头 + keepalive + 空行(动态长度后续追加 Content-Length)
+    // 由 buildEchoHeaderFast() 在首次调用时按 content-length 缓存
+    private static final java.util.Map<Integer, byte[]> ECHO_HEADER_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
     /** 通道 */
     private final SocketChannel channel;
@@ -384,11 +400,17 @@ public class NioServerResponse implements ServerResponse {
 
     /**
      * 构建 HTTP 响应头字节（状态行 + 自动头 + 用户头 + 空行）。
+     * <p>零分配快路径：echo 场景（status=200 + 无用户头）直接复用预拼字节模板，
+     * 只在数字部分按 body 长度动态填充。带用户头或非默认状态才走慢路径。</p>
      */
     private byte[] buildHttpHeaders(int bodyLength) {
+        // 快路径:status=200 + 无用户自定义 header + keep-alive,即 echo 场景
+        if (statusCode == 200 && headers.isEmpty()) {
+            return buildEchoHeader(bodyLength);
+        }
+        // 慢路径:自定义 header 或非 200,降级到通用构建
         StringBuilder sb = new StringBuilder(256);
         sb.append("HTTP/1.1 ").append(statusCode).append(' ').append(reasonPhrase(statusCode)).append("\r\n");
-        // Auto headers
         if (!headers.containsKey("Content-Type")) {
             sb.append("Content-Type: text/plain; charset=UTF-8\r\n");
         }
@@ -398,12 +420,36 @@ public class NioServerResponse implements ServerResponse {
         if (!headers.containsKey("Connection")) {
             sb.append("Connection: keep-alive\r\n");
         }
-        // User headers
         for (Map.Entry<String, String> e : headers.entrySet()) {
             sb.append(e.getKey()).append(": ").append(e.getValue()).append("\r\n");
         }
         sb.append("\r\n");
         return sb.toString().getBytes(StandardCharsets.US_ASCII);
+    }
+
+    /**
+     * echo header 零分配构建:状态行 + Content-Type + Content-Length(<len>) + Connection: keep-alive + 空行。
+     * 首次按 body 长度缓存到 {@link #ECHO_HEADER_CACHE},后续同长度直接返回。
+     */
+    private static byte[] buildEchoHeader(int bodyLength) {
+        byte[] cached = ECHO_HEADER_CACHE.get(bodyLength);
+        if (cached != null) {
+            return cached;
+        }
+        // 数字长度字符串(无符号)
+        String lenStr = String.valueOf(bodyLength);
+        byte[] lenBytes = lenStr.getBytes(StandardCharsets.US_ASCII);
+        // 总长度:前缀 + 数字 + 后缀
+        byte[] result = new byte[STATUS_200_PREFIX.length + lenBytes.length + KEEPALIVE_SUFFIX.length];
+        int pos = 0;
+        System.arraycopy(STATUS_200_PREFIX, 0, result, pos, STATUS_200_PREFIX.length);
+        pos += STATUS_200_PREFIX.length;
+        System.arraycopy(lenBytes, 0, result, pos, lenBytes.length);
+        pos += lenBytes.length;
+        System.arraycopy(KEEPALIVE_SUFFIX, 0, result, pos, KEEPALIVE_SUFFIX.length);
+        // putIfAbsent 防竞态;但首次构建后所有相同长度请求都直接拿到 cached
+        byte[] prev = ECHO_HEADER_CACHE.putIfAbsent(bodyLength, result);
+        return prev != null ? prev : result;
     }
 
     /**
