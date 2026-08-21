@@ -172,7 +172,7 @@ public record Seq2SeqModelDefinition(
             "mt5-zh-seq2seq",
             "nlp/seq2seq/mt5-zh/",
             null,
-            List.of("encoder_model_fp16.onnx", "decoder_model_fp16.onnx", "decoder_with_past_model_fp16.onnx", "tokenizer.json"),
-            List.of("encoder_model_fp16.onnx", "decoder_model_fp16.onnx", "decoder_with_past_model_fp16.onnx", "tokenizer.json"),
+            List.of("encoder_model_int8.onnx", "decoder_model_int8.onnx", "decoder_with_past_model_int8.onnx", "tokenizer.json"),
+            List.of("encoder_model_int8.onnx", "decoder_model_int8.onnx", "decoder_with_past_model_int8.onnx", "tokenizer.json"),
             12, 12, 64, 1L, 0L);
 }
