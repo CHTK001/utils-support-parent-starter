@@ -93,6 +93,8 @@ public class ArmeriaHttpServer extends AbstractServer {
 
         sb.http(setting.getPort());
         sb.maxRequestLength(setting.getMaxRequestSize());
+        // 压测场景下认证可能耗时较长,提高请求超时避免被提前断开
+        sb.requestTimeout(java.time.Duration.ofSeconds(60));
 
         sb.serviceUnder("/", (ctx, req) ->
             HttpResponse.from(java.util.concurrent.CompletableFuture.supplyAsync(() -> {

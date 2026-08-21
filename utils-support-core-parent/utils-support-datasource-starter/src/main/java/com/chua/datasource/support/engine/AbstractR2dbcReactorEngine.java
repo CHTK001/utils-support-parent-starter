@@ -234,10 +234,11 @@ public abstract class AbstractR2dbcReactorEngine implements ReactorEngine {
      * @param params 参数
      * @return Result 的发布者
      */
+    @SuppressWarnings("unchecked")
     private static Publisher<Result> executeStatement(Connection conn, String sql, Object[] params) {
         Statement stmt = conn.createStatement(sql);
         bindParams(stmt, params);
-        return stmt.execute();
+        return (Publisher<Result>) (Publisher<?>) stmt.execute();
     }
 
     /**
