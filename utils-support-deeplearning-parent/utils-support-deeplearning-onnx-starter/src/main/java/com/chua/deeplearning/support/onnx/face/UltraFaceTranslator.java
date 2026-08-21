@@ -202,34 +202,38 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         }
 
         // 直读 flat float[]，避免 ORT 引擎不支持的 squeeze（会递归 StackOverflow）
-        NDArray rawBoxes = list.get(0);
-        NDArray rawScores = list.get(1);
-        long[] boxShape = rawBoxes.getShape().getShape();
-        long[] scoreShape = rawScores.getShape().getShape();
-        // 兼容 [1,N,4]/[N,4]/[N,4] 布局，取最大维作候选数
-        int candidateCount = 1;
-        for (long d : scoreShape) {
-            candidateCount = Math.max(candidateCount, (int) d);
-        }
+        NDArray rawScores = list.get(0);   // scores [1,4420,2]
+        NDArray rawBoxes = list.get(1);    // boxes  [1,4420,4]
         float[] boxArray = rawBoxes.toFloatArray();
         float[] scoreArray = rawScores.toFloatArray();
+
+        // 根据实际数组长度推算锚点数（不依赖 shape，防止 DJL reshape）
+        int boxStride = 4;   // 默认 4 (x1,y1,x2,y2)
+        int numAnchors;
+        if (boxArray.length >= scoreArray.length) {
+            numAnchors = scoreArray.length / 2;   // scores 每锚点 2 通道
+            boxStride = boxArray.length / numAnchors;
+        } else {
+            numAnchors = boxArray.length / 4;
+        }
+        double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
+        int iterLimit = Math.min(numAnchors, priors.length);
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
         List<BoundingBox> boxes = new ArrayList<>();
         List<Candidate> candidates = new ArrayList<>();
-        double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
-        int limit = Math.min(candidateCount, priors.length);
-        for (int i = 0; i < limit; i++) {
+
+        for (int i = 0; i < iterLimit; i++) {
             double probability = scoreArray[i * 2 + 1];
             if (probability < confThresh) {
                 continue;
             }
 
             double[] prior = priors[i];
-            double x = boxArray[i * 4];
-            double y = boxArray[i * 4 + 1];
-            double w = boxArray[i * 4 + 2];
-            double h = boxArray[i * 4 + 3];
+            double x = boxArray[i * boxStride];
+            double y = boxArray[i * boxStride + 1];
+            double w = boxArray[i * boxStride + 2];
+            double h = boxArray[i * boxStride + 3];
 
             double decodedW = Math.exp(w * variance[1]) * prior[2];
             double decodedH = Math.exp(h * variance[1]) * prior[3];
