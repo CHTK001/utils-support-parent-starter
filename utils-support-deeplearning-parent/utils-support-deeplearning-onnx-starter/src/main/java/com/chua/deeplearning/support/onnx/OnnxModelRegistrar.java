@@ -239,7 +239,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 目标检测(YOLOv8s)：YOLOv8s 标准 COCO 80 类检测，速度和精度平衡；适用通用物体检测
         reg("yolov8s", "com.chua.deeplearning.support.onnx.yolo.v8.translator.YoloV8sTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v8/yolov8s.onnx", "https://huggingface.co/lquint/yolov8s-onnx/resolve/main/onnx/model.onnx", false, "yolov8s.onnx");
         // 深度估计(DepthAnything v2)：从单张图片估计深度图，v2 版精度更高、细节更丰富；适用背景虚化、3D 场景理解
-        reg("depth-anything", "com.chua.deeplearning.support.onnx.depth.DepthAnythingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/depth/depth-anything-v2/model.onnx", "https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model.onnx", false, null);
+        reg("depth-anything", "com.chua.deeplearning.support.onnx.depth.DepthAnythingOrtTranslator", byte[].class, byte[].class, Object.class, "vision/depth/depth-anything-v2/model.onnx", "https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model.onnx", false, null);
         // 姿态估计(ViTPose)：检测人体 17 个关键点（骨骼点），基于 Vision Transformer；适用人体姿态分析、动作识别
         reg("vit-pose", "com.chua.deeplearning.support.onnx.pose.VitPoseTranslator", ai.djl.modality.cv.Image.class, float[][].class, Object.class, "vision/pose/vitpose-base-simple/model.onnx", "https://huggingface.co/onnx-community/vitpose-base-simple/resolve/main/onnx/model.onnx", false, null);
         // 姿态估计(YOLOv8n-pose)：YOLOv8n 轻量级人体姿态估计，~3.6MB，检测 17 个关键点；适用边缘设备姿态分析、视频逐帧分析
