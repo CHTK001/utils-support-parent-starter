@@ -111,8 +111,16 @@ public class HttpProxyServer extends AbstractProxyServer {
                 if (respHeader != null) {
                     out.write(respHeader);
                     out.flush();
-                    if (isChunked(respHeader) || contentLength(respHeader) > 0) {
-                        pipeRaw(backIn, out);
+                    if (isChunked(respHeader)) {
+                        pipeChunked(backIn, out);
+                    } else {
+                        int cl = contentLength(respHeader);
+                        if (cl > 0) {
+                            pipeN(backIn, out, cl);
+                        } else {
+                            // 无长度（如 204/close-delimited）：读到 EOF
+                            pipeRaw(backIn, out);
+                        }
                     }
                 }
                 out.flush();
@@ -197,6 +205,66 @@ public class HttpProxyServer extends AbstractProxyServer {
         int n;
         while ((n = in.read(buffer)) != -1) {
             out.write(buffer, 0, n);
+            out.flush();
+        }
+    }
+
+    /** 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。 */
+    private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
+        byte[] buffer = new byte[8192];
+        int remaining = length;
+        while (remaining > 0) {
+            int n = in.read(buffer, 0, Math.min(buffer.length, remaining));
+            if (n == -1) {
+                return;
+            }
+            out.write(buffer, 0, n);
+            remaining -= n;
+        }
+        out.flush();
+    }
+
+    /** 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。 */
+    private void pipeChunked(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[8192];
+        while (true) {
+            // 读 chunk 大小行（hex + CRLF）
+            int size = 0;
+            boolean sizeParsed = false;
+            while (!sizeParsed) {
+                int b = in.read();
+                if (b == -1) {
+                    return;
+                }
+                if (b == '\r') {
+                    in.read(); // \n
+                    sizeParsed = true;
+                } else if (b >= '0' && b <= '9') {
+                    size = size * 16 + (b - '0');
+                } else if (b >= 'a' && b <= 'f') {
+                    size = size * 16 + (b - 'a' + 10);
+                } else if (b >= 'A' && b <= 'F') {
+                    size = size * 16 + (b - 'A' + 10);
+                }
+            }
+            if (size <= 0) {
+                // 0 长度 chunk：读终止 CRLF
+                in.read();
+                in.read();
+                return;
+            }
+            // 转发 chunk 数据
+            int remaining = size;
+            while (remaining > 0) {
+                int n = in.read(buffer, 0, Math.min(buffer.length, remaining));
+                if (n == -1) {
+                    return;
+                }
+                out.write(buffer, 0, n);
+                remaining -= n;
+            }
+            in.read(); // chunk 后的 CR
+            in.read(); // LF
             out.flush();
         }
     }
