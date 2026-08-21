@@ -262,6 +262,10 @@ public class Yolo5PlateDetectOnnxTranslator implements ITranslator<byte[], List<
             }
             float w = box[2] - box[0];
             float h = box[3] - box[1];
+            float ar = w / Math.max(1, h);
+            if (ar < 1.5f || ar > 6.5f) {
+                continue;
+            }
             result.add(new PredictRectangle(box[0], box[1], w, h, clsConf, classes.get(i), clsName, keypoints));
         }
         return result;
