@@ -449,13 +449,38 @@ public class QuarkusHttpServer extends AbstractServer {
             if (contentType != null) {
                 resp.putHeader("Content-Type", contentType);
             }
-            if (body != null) {
-                resp.end(Buffer.buffer(body));
+            byte[] resolvedBody = body != null ? body : resolveResult(result);
+            if (resolvedBody != null) {
+                resp.end(Buffer.buffer(resolvedBody));
             } else {
                 resp.end();
             }
         }
     }
+
+        /**
+         * 由 setResult 设置的结果对象派生出响应体字节（对齐 AbstractServer#convertResult 语义）：
+         * String → UTF-8、byte[] → 原样、Path → 文件字节、其他 → toString() 字节。
+         * 仅在 body 未显式设置时生效，避免覆盖 setBody。
+         *
+         * @param r handler 通过 setResult 设置的结果对象
+         * @return 派生的响应体字节；r 为 null 返回 null
+         */
+        private static byte[] resolveResult(Object r) {
+            if (r == null) {
+                return null;
+            }
+            if (r instanceof String s) {
+                return s.getBytes(StandardCharsets.UTF_8);
+            }
+            if (r instanceof byte[] b) {
+                return b;
+            }
+            if (r instanceof java.nio.file.Path p) {
+                try { return java.nio.file.Files.readAllBytes(p); } catch (Exception e) { return null; }
+            }
+            return r.toString().getBytes(StandardCharsets.UTF_8);
+        }
 
     // ======================== Request ========================
 

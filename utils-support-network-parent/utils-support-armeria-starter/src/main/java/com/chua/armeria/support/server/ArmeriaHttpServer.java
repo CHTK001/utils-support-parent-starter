@@ -369,8 +369,33 @@ public class ArmeriaHttpServer extends AbstractServer {
             if (contentType != null) {
                 hdrs.contentType(MediaType.parse(contentType));
             }
-            HttpData data = body != null ? HttpData.wrap(body) : HttpData.empty();
+            byte[] resolvedBody = body != null ? body : resolveResult(result);
+            HttpData data = resolvedBody != null ? HttpData.wrap(resolvedBody) : HttpData.empty();
             return AggregatedHttpResponse.of(hdrs.build(), data);
+        }
+
+        /**
+         * 由 {@code setResult} 设置的结果对象派生出响应体字节（对齐 {@code AbstractServer#convertResult} 语义）：
+         * String → UTF-8 字节、byte[] → 原样、其他 → toString() 字节。
+         * 仅在 {@code body} 未显式设置时生效，避免覆盖 {@code setBody} 结果。
+         *
+         * @param r handler 通过 setResult 设置的结果对象
+         * @return 派生的响应体字节；r 为 null 返回 null
+         */
+        private static byte[] resolveResult(Object r) {
+            if (r == null) {
+                return null;
+            }
+            if (r instanceof String s) {
+                return s.getBytes(StandardCharsets.UTF_8);
+            }
+            if (r instanceof byte[] b) {
+                return b;
+            }
+            if (r instanceof java.nio.file.Path p) {
+                try { return java.nio.file.Files.readAllBytes(p); } catch (Exception e) { return null; }
+            }
+            return r.toString().getBytes(StandardCharsets.UTF_8);
         }
     }
 
