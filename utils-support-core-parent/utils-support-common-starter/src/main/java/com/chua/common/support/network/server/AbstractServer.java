@@ -84,11 +84,6 @@ public abstract class AbstractServer implements ConfigServer {
     private Semaphore concurrencyLimiter;
 
     /**
-     * 统一虚拟线程调度器：所有请求的过滤器链非阻塞并行执行。
-     */
-    private volatile ExecutorService workerPool;
-
-    /**
      * 构造函数，初始化服务器基础组件。
      *
      * @param setting 服务器配置
@@ -138,7 +133,7 @@ public abstract class AbstractServer implements ConfigServer {
     @Override
     /** SupportsReactor */
     public boolean supportsReactor() {
-        return false;
+        return true;
     }
 
     /**
@@ -148,7 +143,9 @@ public abstract class AbstractServer implements ConfigServer {
      * @param response 响应对象
      */
     protected void handleRequest(ServerRequest request, ServerResponse response) {
-        handleRequestAsync(request, response);
+        // 同步便捷方法：统一走响应式链并等待完成，保证调用方(JDK/NIO 等 Server 实现)
+        // 无需各自等待 stage 也能获得"响应完整后再返回"的语义
+        handleRequestAsync(request, response).toCompletableFuture().join();
     }
 
     /**
@@ -183,30 +180,13 @@ public abstract class AbstractServer implements ConfigServer {
         }
         metrics.incrementActive();
         long start = System.nanoTime();
-        // 统一调度：过滤器链始终提交至虚拟线程并行执行，不再阻塞调用者
-        return CompletableFuture.runAsync(() -> handleFilterChain(request, response), getWorkerPool())
+        // 统一响应式：走响应式过滤器链(ReactiveFilterChain)，不再使用阻塞链
+        return handleReactive(request, response)
                 .whenComplete((v, ex) -> {
                     metrics.recordLatency(System.nanoTime() - start);
                     metrics.decrementActive();
                     if (concurrencyLimiter != null) concurrencyLimiter.release();
                 });
-    }
-
-    /**
-     * 虚拟线程执行器：延迟初始化，按需创建，shutd
-     */
-    private ExecutorService getWorkerPool() {
-        var pool = workerPool;
-        if (pool == null || pool.isShutdown()) {
-            synchronized (this) {
-                pool = workerPool;
-                if (pool == null || pool.isShutdown()) {
-                    pool = Executors.newVirtualThreadPerTaskExecutor();
-                    workerPool = pool;
-                }
-            }
-        }
-        return pool;
     }
 
     /**
@@ -217,7 +197,7 @@ public abstract class AbstractServer implements ConfigServer {
      * @return 异步链完成信号,供调用方等待响应真正写完
      */
     protected CompletionStage<Void> handleReactive(ServerRequest request, ServerResponse response) {
-@SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
 
         DefaultReactiveFilterChain reactiveChain = new DefaultReactiveFilterChain(
@@ -255,36 +235,6 @@ public abstract class AbstractServer implements ConfigServer {
             res.sendError(404, "Not Found");
         }
     };
-
-    /**
-     * 伪响应式：阻塞过滤器链在虚拟线程上并行执行，结果统一转换后 end()。
-     * <p>供所有服务器统一调用，不区分 reactive/blocking。真响应式（handleReactive）仅在
-     * 框架明确需要时保留。</p>
-     */
-    private void handleFilterChain(ServerRequest request, ServerResponse response) {
-        try {
-            @SuppressWarnings("unchecked")
-            var listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
-            var chain = new DefaultServerFilterChain(
-                    filterManager.getMergedFilters(), DEFAULT_404_HANDLER, listeners);
-            chain.doFilter(request, response);
-            if (!response.isEnded()) {
-                convertResult(response);
-            }
-        } catch (Exception e) {
-            metrics.incrementErrors();
-            log.warn("请求处理异常: {}", e.getMessage(), e);
-            if (!response.isEnded()) {
-                try { response.sendError(500, "Internal Server Error"); }
-                catch (Exception ex) { log.warn("发送 500 错误失败: {}", ex.getMessage(), ex); }
-            }
-        } finally {
-            if (!response.isEnded()) {
-                try { response.end(); }
-                catch (Exception e) { log.warn("响应 end() 失败: {}", e.getMessage(), e); }
-            }
-        }
-    }
 
     /**
      * 将 response.getResult() 转换为响应体并 end()。
