@@ -107,12 +107,7 @@ public class HttpProxyServer extends AbstractProxyServer {
                 backOut.flush();
 
                 // 回传响应
-                System.out.println("[HP] 转发请求后，准备读后端响应 (backend=" + backend + ")");
                 byte[] respHeader = readHeader(backIn);
-                System.out.println("[HP] readHeader(backIn) 结果: "
-                        + (respHeader == null ? "null"
-                        : "len=" + respHeader.length + " head=" + new String(respHeader,
-                                java.nio.charset.StandardCharsets.ISO_8859_1).replace("\r", "\\r").replace("\n", "\\n")));
                 if (respHeader != null) {
                     out.write(respHeader);
                     out.flush();
