@@ -1,45 +1,61 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
-import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
-import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+import com.chua.datasource.support.dialect.PostgresqlDialect;
+import io.r2dbc.spi.ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 
-import java.util.List;
-import java.util.Map;
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 /**
  * PostgreSQL R2DBC 响应式引擎，对应同步侧 PostgreSQL 数据库访问。
  *
- * <p>使用 R2DBC true 异步驱动，通过 {@code Schedulers#boundedElastic()} 非阻塞调度，
- * 支持 Spring WebFlux 等响应式框架的实际非阻塞数据库访问。</p>
+ * <p>使用 R2DBC PostgreSQL 驱动实现真正的异步非阻塞数据库访问。
+ * 原生 SQL 查询/更新/批量操作均返回 {@link reactor.core.publisher.Flux} / {@link reactor.core.publisher.Mono}
+ * 非阻塞发布者，直接通过 R2DBC {@link ConnectionFactory} 执行，底层不经过
+ * {@code boundedElastic} 调度阻塞。</p>
  *
  * <pre>{@code
- * PostgreSqlR2dbcReactorEngine engine = new PostgreSqlR2dbcReactorEngine();
- * engine.addDataSource("default", "localhost", 5432, "mydb", "root", "password");
- * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
+ * // SPI 创建
+ * ReactEngine engine = ReactEngine.create("postgresql");
+ * engine.addDataSource("default", host, port, database, username, password);
+ *
+ * // Lambda 链式查询
+ * Flux<User> users = engine.query(User.class)
+ *     .eq(User::getName, "张三")
+ *     .gt(User::getAge, 18)
+ *     .list();
+ *
+ * // 原生 SQL — 真正非阻塞
+ * Mono<Integer> affected = engine.execute("insert into user(name) values(?)", "test");
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.43
  */
 @Spi("postgresql")
-public class PostgreSqlR2dbcReactorEngine extends DefaultReactorEngine {
+public class PostgreSqlR2dbcReactorEngine extends AbstractR2dbcReactorEngine {
 
     /**
-     * 创建 PostgreSQL R2DBC 响应式引擎。
-     *
-     * <p>内部将自动根据数据源配置选择合适的 R2DCD {@link io.r2dbc.spi.ConnectionFactory}。</p>
+     * 无参构造（SPI 使用）。
      */
     public PostgreSqlR2dbcReactorEngine() {
-        super(null);
+        super(null, new PostgresqlDialect());
     }
 
     /**
-     * 添加 PostgreSQL 数据源（委托给默认数据源配置）。
+     * 指定 R2DBC 连接工厂构造。
+     *
+     * @param factory 连接工厂
+     */
+    public PostgreSqlR2dbcReactorEngine(ConnectionFactory factory) {
+        super(factory, new PostgresqlDialect());
+    }
+
+    /**
+     * 添加 PostgreSQL 数据源。
      *
      * @param name     数据源名称
      * @param host     主机地址
@@ -47,10 +63,47 @@ public class PostgreSqlR2dbcReactorEngine extends DefaultReactorEngine {
      * @param database 数据库名
      * @param username 用户名
      * @param password 密码
-     * @return 当前引擎实例
+     * @return this
      */
     public PostgreSqlR2dbcReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
-        // R2DBC 数据源配置将在应用层通过 spring.r2dbc.initialization 或 Bean 完成
-        return this;
+        ConnectionFactory factory = createFactory(host, port, database, username, password);
+        return (PostgreSqlR2dbcReactorEngine) super.addDataSource(name, factory);
+    }
+
+    /**
+     * 构建 PostgreSQL R2DBC 连接工厂。
+     *
+     * @param host     主机地址
+     * @param port     端口号
+     * @param database 数据库名
+     * @param username 用户名
+     * @param password 密码
+     * @return 连接工厂
+     */
+    private static ConnectionFactory createFactory(String host, int port, String database, String username, String password) {
+        ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
+                .option(DRIVER, "postgresql")
+                .option(HOST, host)
+                .option(PORT, port)
+                .option(DATABASE, database)
+                .option(USER, username)
+                .option(PASSWORD, password)
+                .build();
+        return ConnectionFactories.using(options);
+    }
+
+    /**
+     * 通过 R2DBC URL 添加 PostgreSQL 数据源。
+     *
+     * @param name      数据源名称
+     * @param url       R2DBC URL（如 r2dbc:postgresql://localhost:5432/mydb）
+     * @param username  用户名
+     * @param password  密码
+     * @param dialect   方言
+     * @return this
+     */
+    public PostgreSqlR2dbcReactorEngine addDataSource(String name, String url, String username, String password, Dialect dialect) {
+        ConnectionFactory factory = ConnectionFactories.get(url + "?user=" + username + "&password=" + password);
+        return (PostgreSqlR2dbcReactorEngine) super.addDataSource(name, factory, dialect);
     }
 }
