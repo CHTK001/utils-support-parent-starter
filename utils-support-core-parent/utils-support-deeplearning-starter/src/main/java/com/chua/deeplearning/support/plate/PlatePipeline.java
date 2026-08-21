@@ -185,8 +185,12 @@ public class PlatePipeline {
                             plateColor = result.plateColor();
                         }
                     }
-                    pc.addHit(new PlateDetectHit(
-                            pc.currentBox(), pc.currentPlate(), plateText, plateColor));
+                    String cleaned = plateText == null ? "" : plateText.replaceAll("[^0-9A-Z\\u4e00-\\u9fa5]", "");
+                    boolean valid = cleaned.length() >= 6 && plateText.matches(".*[\\u4e00-\\u9fa5].*");
+                    if (valid) {
+                        pc.addHit(new PlateDetectHit(
+                                pc.currentBox(), pc.currentPlate(), plateText, plateColor));
+                    }
                     return null;
                 }).taskEnd()
                 .task(NODE_COLLECT, ctx -> null).end().taskEnd()
