@@ -341,6 +341,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     private static final class NetSocketOutputStream extends OutputStream {
         /** Socket */
         private final NetSocket socket;
+        /** 攒批缓冲：write(int)/小块写入先入缓冲，flush 时一次性写 socket（避免逐字节 Vert.x 调用） */
+        private final byte[] buf = new byte[8192];
+        private int pos;
 
         NetSocketOutputStream(NetSocket socket) {
             this.socket = socket;
@@ -349,16 +352,36 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         @Override
         /** 写入 */
         public void write(int b) {
-            socket.write(io.vertx.core.buffer.Buffer.buffer(1).appendByte((byte) b));
+            if (pos >= buf.length) {
+                flush();
+            }
+            buf[pos++] = (byte) b;
         }
 
         @Override
         /** 写入 */
         public void write(byte[] b, int off, int len) {
-            if (off == 0 && len == b.length) {
-                socket.write(io.vertx.core.buffer.Buffer.buffer(b));
-            } else {
-                socket.write(io.vertx.core.buffer.Buffer.buffer(java.util.Arrays.copyOfRange(b, off, off + len)));
+            if (len >= buf.length) {
+                // 大块直接写，避免缓冲中转（Vert.x 无 buffer(byte[],off,len) 重载，需拷贝）
+                flush();
+                socket.write(io.vertx.core.buffer.Buffer.buffer(
+                        java.util.Arrays.copyOfRange(b, off, off + len)));
+                return;
+            }
+            if (pos + len > buf.length) {
+                flush();
+            }
+            System.arraycopy(b, off, buf, pos, len);
+            pos += len;
+        }
+
+        @Override
+        /** 刷写 */
+        public void flush() {
+            if (pos > 0) {
+                // 拷贝后写：避免 Buffer 共享内部攒批数组（后续覆写会影响异步发送）
+                socket.write(io.vertx.core.buffer.Buffer.buffer(java.util.Arrays.copyOf(buf, pos)));
+                pos = 0;
             }
         }
     }
