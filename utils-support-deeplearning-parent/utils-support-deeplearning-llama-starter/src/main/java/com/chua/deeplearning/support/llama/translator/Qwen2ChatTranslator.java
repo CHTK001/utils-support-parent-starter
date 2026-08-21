@@ -44,7 +44,10 @@ public class Qwen2ChatTranslator implements ITranslator<String, String>, AutoClo
             }
         }
         try {
-            InferenceParameters inferParams = new InferenceParameters(input);
+            InferenceParameters inferParams = new InferenceParameters(input)
+                    .setTemperature(0.7f)
+                    .setTopK(40)
+                    .setNPredict(512);
             return model.complete(inferParams);
         } catch (Exception e) {
             log.warn("[Qwen2] 推理失败: {}", e.getMessage());
