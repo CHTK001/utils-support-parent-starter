@@ -359,8 +359,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
-        // 本地大模型(Qwen2.5-1.5B-Instruct ONNX)：中文大模型对话（fp32, ~3GB），downloadUrl 自动下载；适用本地对话、写作、翻译
-        String qwen15Url = "https://hf-mirror.com/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model.onnx";
+        // 本地大模型(Qwen2.5-1.5B-Instruct ONNX fp16)：中文大模型对话（fp16, ~1.5GB，含外部权重），downloadUrl 自动下载；适用本地对话、写作、翻译
+        String qwen15Url = "https://hf-mirror.com/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_fp16.onnx";
         reg("qwen2-1.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
                 "models/qwen2.5-1.5b-instruct/model.onnx",
                 qwen15Url, java.util.List.of(qwen15Url), false, "model.onnx");

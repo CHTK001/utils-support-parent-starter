@@ -1,190 +1,274 @@
 package com.chua.deeplearning.support.onnx.text.qwen;
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDList;
-import ai.djl.training.ParameterStore;
-import ai.djl.translate.Batchifier;
-import ai.djl.translate.Translator;
-import ai.djl.translate.TranslatorContext;
-import com.chua.common.support.utils.NativeLoader;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.OrtSession.SessionOptions;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.onnx.text.minimind.MiniMindTokenizer;
+import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Qwen2.5-Instruct ONNX 因果语言模型 Translator（DJL ONNX 引擎 + 纯 Java BPE）。
+ * Qwen2.5-Instruct ONNX 因果语言模型（onnxruntime 直连 + KV cache 自回归）。
  *
- * <p>处理流程：
- * <ol>
- *   <li>用 Qwen2 tokenizer（{@link MiniMindTokenizer} 兼容 byte-level BPE）分词</li>
- *   <li>按 Qwen chat 模板包装输入：
- *       {@code <|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n}</li>
- *   <li>通过 DJL block.forward 自回归生成，直到 EOS（{@code <|im_end|>}）或达到最大长度</li>
- * </ol>
- *
- * <p>资源：model.onnx（fp32）+ tokenizer.json，均由 ModelRegistry downloadUrl 拉取。</p>
+ * <p>模型为 HF decoder-with-past 导出（59 输入：input_ids / attention_mask / position_ids
+ * + 28 层 past_key_values），首步传空 cache，后续步注入上一步的 present KV。
+ * 支持 CUDA EP（{@code useGpu}）。资源由 ModelRegistry downloadUrl 拉取。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class OnnxQwenTranslator implements Translator<String, String> {
+public class OnnxQwenTranslator implements ITranslator<String, String>, AutoCloseable {
 
-    /** 最大输入长度 */
-    private static final int MAX_INPUT_LENGTH = 512;
-    /** 最大生成 token 数 */
+    private final String modelId;
+    private final boolean useGpu;
     private static final int MAX_NEW_TOKENS = 128;
+    private static final int N_LAYERS = 28;
 
     private MiniMindTokenizer tokenizer;
-    private String currentInput;
-    private int[] cachedIds;
-    private final ParameterStore parameterStore = new ParameterStore();
+    private OrtEnvironment ortEnv;
+    private OrtSession session;
+    private volatile boolean initialized;
+    private int kvDim = 128;
 
-    @Override
-    /** Prepare */
-    public void prepare(TranslatorContext ctx) throws IOException {
-        Path modelPath = ctx.getModel().getModelPath();
-        Path modelRoot = resolveModelRoot(modelPath);
+    public OnnxQwenTranslator() {
+        this("qwen2-1.5b-onnx", false);
+    }
 
-        Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
-        if (tokenizerPath == null || !Files.exists(tokenizerPath)) {
-            NativeLoader.of("qwen2-onnx-resources")
-                    .from(OnnxQwenTranslator.class.getClassLoader())
-                    .basePath("nlp/llm/qwen2.5-1.5b/")
-                    .toTarget(modelRoot)
-                    .glob("tokenizer.json")
-                    .withMd5(true)
-                    .extractOnly(true)
-                    .load();
-            tokenizerPath = findFile(modelRoot, "tokenizer.json");
+    public OnnxQwenTranslator(String modelId, boolean useGpu) {
+        this.modelId = modelId;
+        this.useGpu = useGpu;
+    }
+
+    /**
+     * 从 URL 下载资源到模型目录（若不存在），供外部权重 / tokenizer 补充下载。
+     */
+    private static void downloadIfMissing(Path dir, String fileName, String url) throws Exception {
+        if (dir == null) {
+            return;
         }
-        if (tokenizerPath == null || !Files.exists(tokenizerPath)) {
-            throw new IOException("Qwen2 tokenizer.json not found in: " + modelRoot);
+        Path target = dir.resolve(fileName);
+        if (Files.exists(target) && Files.size(target) > 0) {
+            return;
         }
-        tokenizer = MiniMindTokenizer.load(tokenizerPath);
-        log.info("[QwenOnnx] Tokenizer loaded: {} (vocab_size={})", tokenizerPath, tokenizer.vocabSize());
+        Files.createDirectories(dir);
+        Exception last = null;
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+                conn.setConnectTimeout(30000);
+                conn.setReadTimeout(600000);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                int code = conn.getResponseCode();
+                if (code != 200) {
+                    throw new java.io.IOException("HTTP " + code);
+                }
+                try (java.io.InputStream in = conn.getInputStream()) {
+                    Files.copy(in, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
+                conn.disconnect();
+                log.info("[QwenOnnx] 已下载 {} -> {} ({}}", fileName, target, Files.size(target));
+                return;
+            } catch (Exception e) {
+                last = e;
+                log.warn("[QwenOnnx] 下载 {} 失败(第{}次): {}", fileName, attempt + 1, e.getMessage());
+                try { Files.deleteIfExists(target); } catch (Exception ignore) {}
+                Thread.sleep(3000L * (attempt + 1));
+            }
+        }
+        throw last != null ? last : new java.io.IOException("下载失败: " + url);
     }
 
     @Override
-    /** 处理Input */
-    public NDList processInput(TranslatorContext ctx, String input) {
-        currentInput = input;
-        if (tokenizer == null) {
-            throw new IllegalStateException("Qwen2 translator not initialized");
-        }
-        // 使用 Qwen chat 模板
-        String chat = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
-                + "<|im_start|>user\n" + (input == null ? "" : input) + "<|im_end|>\n"
-                + "<|im_start|>assistant\n";
-        cachedIds = tokenizer.encode(chat);
-        if (cachedIds.length > MAX_INPUT_LENGTH) {
-            int[] trimmed = new int[MAX_INPUT_LENGTH];
-            System.arraycopy(cachedIds, 0, trimmed, 0, MAX_INPUT_LENGTH);
-            cachedIds = trimmed;
-        }
-        long[] ids = new long[cachedIds.length];
-        for (int i = 0; i < cachedIds.length; i++) {
-            ids[i] = cachedIds[i];
-        }
-        long[][] ids2d = new long[1][ids.length];
-        System.arraycopy(ids, 0, ids2d[0], 0, ids.length);
-
-        NDArray idsArray = ctx.getNDManager().create(ids2d);
-        idsArray.setName("input_ids");
-        return new NDList(idsArray);
+    public String name() {
+        return modelId;
     }
 
     @Override
-    /** 处理Output */
-    public String processOutput(TranslatorContext ctx, NDList list) {
-        if (tokenizer == null) {
-            throw new IllegalStateException("Qwen2 translator not initialized");
-        }
-        return generateGreedy(ctx);
-    }
-
-    @Override
-    /** 获取Batchifier */
-    public Batchifier getBatchifier() {
-        return null;
-    }
-
-    /** 贪婪解码自回归生成 */
-    private String generateGreedy(TranslatorContext ctx) {
-        StringBuilder out = new StringBuilder();
+    public String translate(String input) {
         try {
-            List<Long> tokenList = new ArrayList<>();
-            for (int id : cachedIds) {
-                tokenList.add((long) id);
-            }
-
-            int vocabSize = -1;
-            float[] lastLogits = null;
-
-            for (int step = 0; step < MAX_NEW_TOKENS; step++) {
-                long[] ids = new long[tokenList.size()];
-                for (int i = 0; i < tokenList.size(); i++) {
-                    ids[i] = tokenList.get(i);
-                }
-                long[][] ids2d = new long[1][ids.length];
-                System.arraycopy(ids, 0, ids2d[0], 0, ids.length);
-                NDArray idsArray = ctx.getNDManager().create(ids2d);
-                idsArray.setName("input_ids");
-
-                NDList output = ctx.getModel().getBlock().forward(parameterStore, new NDList(idsArray), false);
-                NDArray logits = output.singletonOrThrow();
-
-                if (vocabSize < 0) {
-                    long[] shape = logits.getShape().getShape();
-                    vocabSize = (int) shape[shape.length - 1];
-                    lastLogits = new float[vocabSize];
-                }
-
-                int seqLen = ids.length;
-                int offset = (seqLen - 1) * vocabSize;
-                float[] allLogits = logits.toFloatArray();
-                System.arraycopy(allLogits, offset, lastLogits, 0, vocabSize);
-
-                int nextTokenId = argmax(lastLogits);
-                if (isEos(nextTokenId)) {
-                    break;
-                }
-                String tokenText = tokenizer.decode(new int[]{nextTokenId});
-                if (tokenText.contains("<|im_end|>")) {
-                    break;
-                }
-                out.append(tokenText);
-                tokenList.add((long) nextTokenId);
-                if (tokenList.size() >= MAX_INPUT_LENGTH) {
-                    break;
-                }
-            }
-            return out.toString().trim();
+            return chat(input);
         } catch (Exception e) {
-            log.warn("[QwenOnnx] 生成失败: {}", e.getMessage());
-            return out.toString();
+            throw new RuntimeException("[QwenOnnx] 推理失败: " + e.getMessage(), e);
         }
     }
 
-    /** EOS 判定：Qwen 的 `<|im_end|>` 是 added token，id 由 tokenizer 决定 */
-    private boolean isEos(int tokenId) {
+    private synchronized void prepare() throws Exception {
+        if (initialized) {
+            return;
+        }
+        Path modelPath = ModelRegistry.resolveModelPath(modelId);
+        if (modelPath == null || !Files.exists(modelPath)) {
+            throw new IllegalStateException("模型文件不存在: " + modelPath);
+        }
+        Path dir = modelPath.getParent();
+        Path tokPath = dir != null ? dir.resolve("tokenizer.json") : null;
+        if (tokPath == null || !Files.exists(tokPath)) {
+            downloadIfMissing(dir, "tokenizer.json",
+                    "https://hf-mirror.com/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/tokenizer.json");
+            tokPath = dir != null ? dir.resolve("tokenizer.json") : null;
+        }
+        if (tokPath == null || !Files.exists(tokPath)) {
+            throw new IllegalStateException("tokenizer.json 不存在: " + tokPath);
+        }
+        tokenizer = MiniMindTokenizer.load(tokPath);
+        log.info("[QwenOnnx] tokenizer loaded, vocab={}", tokenizer.vocabSize());
+
+        // 检查外部权重 .onnx_data：骨架 model.onnx 引用 model_fp16.onnx_data，缺失则从同 repo 下载
+        Path dataFile = dir != null ? dir.resolve("model_fp16.onnx_data") : null;
+        if (dataFile != null && !Files.exists(dataFile)) {
+            String dataUrl = "https://hf-mirror.com/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_fp16.onnx_data";
+            downloadIfMissing(dir, "model_fp16.onnx_data", dataUrl);
+        }
+
+        ortEnv = OrtEnvironment.getEnvironment();
+        SessionOptions opts = new SessionOptions();
+        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        // 该模型在 Java ORT 图优化阶段 bad allocation，需禁用优化（NO_OPT）
+        opts.setOptimizationLevel(SessionOptions.OptLevel.NO_OPT);
+        // 关闭 CPU arena：反量化嵌入权重需大块连续内存，默认 BFC arena 无法分配
+        opts.setCPUArenaAllocator(false);
+        if (useGpu) {
+            opts.addCUDA();
+        }
+        session = ortEnv.createSession(modelPath.toString(), opts);
+        initialized = true;
+
+        // 读 KV 维度
+        try {
+            ai.onnxruntime.NodeInfo ni = session.getInputInfo().get("past_key_values.0.key");
+            ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) ni.getInfo();
+            long[] s = ti.getShape();
+            if (s != null && s.length == 4) {
+                kvDim = (int) s[3];
+            }
+        } catch (Exception ignore) {
+        }
+        log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}) model={}", useGpu, kvDim, modelPath);
+    }
+
+    public String chat(String userPrompt) throws Exception {
+        prepare();
+        String chat = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+                + "<|im_start|>user\n" + (userPrompt == null ? "" : userPrompt) + "<|im_end|>\n"
+                + "<|im_start|>assistant\n";
+        int[] ids = tokenizer.encode(chat);
+        StringBuilder out = new StringBuilder();
+
+        long[] inputIds = toLong(ids);
+        long[] attMask = ones(ids.length);
+        long[] posIds = range(ids.length);
+
+        Map<String, OnnxTensor> past = new HashMap<>();
+        boolean first = true;
+        int generated = 0;
+
+        while (generated < MAX_NEW_TOKENS) {
+            Map<String, OnnxTensor> inputs = new HashMap<>();
+            inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(inputIds), new long[]{1, inputIds.length}));
+            inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(attMask), new long[]{1, attMask.length}));
+            inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(posIds), new long[]{1, posIds.length}));
+            if (!first) {
+                inputs.putAll(past);
+            } else {
+                inputs.putAll(emptyPast());
+            }
+
+            try (OrtSession.Result result = session.run(inputs)) {
+                float[][][] logits = (float[][][]) result.get(0).getValue();
+                int last = logits[0].length - 1;
+                int next = argmax(logits[0][last]);
+
+                if (isEos(next)) {
+                    for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+                    break;
+                }
+                String tokText = tokenizer.decode(new int[]{next});
+                if (tokText.contains("<|im_end|>") || tokText.contains("<|endoftext|>")) {
+                    for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+                    break;
+                }
+                out.append(tokText);
+                generated++;
+
+                // 收集 present -> 新 past（仅在被裁剪前）
+                int nextPos = inputIds.length;
+                for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+                past = collectPast(result);
+                inputIds = new long[]{next};
+                attMask = new long[]{1L};
+                posIds = new long[]{nextPos};
+                first = false;
+            }
+        }
+        for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+        return out.toString().trim();
+    }
+
+    private Map<String, OnnxTensor> emptyPast() throws Exception {
+        Map<String, OnnxTensor> m = new HashMap<>();
+        for (int layer = 0; layer < N_LAYERS; layer++) {
+            long[] shape = new long[]{1, 2, 0, kvDim};
+            float[] empty = new float[0];
+            m.put("past_key_values." + layer + ".key",
+                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(empty), shape));
+            m.put("past_key_values." + layer + ".value",
+                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(empty), shape));
+        }
+        return m;
+    }
+
+    private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
+        Map<String, OnnxTensor> m = new HashMap<>();
+        for (int layer = 0; layer < N_LAYERS; layer++) {
+            float[][][][] k = (float[][][][]) result.get("present." + layer + ".key").orElseThrow().getValue();
+            float[][][][] v = (float[][][][]) result.get("present." + layer + ".value").orElseThrow().getValue();
+            m.put("past_key_values." + layer + ".key", OnnxTensor.createTensor(ortEnv, k));
+            m.put("past_key_values." + layer + ".value", OnnxTensor.createTensor(ortEnv, v));
+        }
+        return m;
+    }
+
+    private boolean isEos(int id) {
         Integer imEnd = tokenizer.addedTokenId("<|im_end|>");
-        if (imEnd != null && imEnd >= 0 && tokenId == imEnd) {
+        if (imEnd != null && imEnd >= 0 && id == imEnd) {
             return true;
         }
-        Integer endOfText = tokenizer.addedTokenId("<|endoftext|>");
-        if (endOfText != null && endOfText >= 0 && tokenId == endOfText) {
-            return true;
-        }
-        return false;
+        Integer eot = tokenizer.addedTokenId("<|endoftext|>");
+        return eot != null && eot >= 0 && id == eot;
     }
 
-    /** 取概率最大的 token */
+    private static long[] toLong(int[] arr) {
+        long[] r = new long[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            r[i] = arr[i];
+        }
+        return r;
+    }
+
+    private static long[] ones(int n) {
+        long[] r = new long[n];
+        for (int i = 0; i < n; i++) {
+            r[i] = 1L;
+        }
+        return r;
+    }
+
+    private static long[] range(int n) {
+        long[] r = new long[n];
+        for (int i = 0; i < n; i++) {
+            r[i] = i;
+        }
+        return r;
+    }
+
     private static int argmax(float[] logits) {
         int best = 0;
         float max = Float.NEGATIVE_INFINITY;
@@ -197,29 +281,12 @@ public class OnnxQwenTranslator implements Translator<String, String> {
         return best;
     }
 
-    /** 解析模型根目录（DJL ModelPath 可能是文件或目录） */
-    private static Path resolveModelRoot(Path modelPath) {
-        if (modelPath == null) {
-            return null;
+    @Override
+    public void close() {
+        if (session != null) {
+            try { session.close(); } catch (Exception ignore) {}
         }
-        if (Files.isDirectory(modelPath)) {
-            return modelPath;
-        }
-        return modelPath.getParent();
-    }
-
-    /** 在目录中查找目标文件 */
-    private static Path findFile(Path dir, String name) {
-        if (dir == null || !Files.isDirectory(dir)) {
-            return null;
-        }
-        try {
-            return Files.walk(dir)
-                    .filter(p -> Files.isRegularFile(p) && p.getFileName().toString().equals(name))
-                    .findFirst()
-                    .orElse(null);
-        } catch (IOException e) {
-            return null;
-        }
+        ortEnv = null;
+        initialized = false;
     }
 }

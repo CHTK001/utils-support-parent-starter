@@ -25,25 +25,19 @@
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-spi</artifactId>
-            <version>1.1.0.RELEASE</version>
+            <version>0.9.1.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.r2dbc</groupId>
-            <artifactId>r2dbc-core</artifactId>
-            <version>1.1.0.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.r2dbc</groupId>
+            <groupId>io.asyncer</groupId>
             <artifactId>r2dbc-mysql</artifactId>
-            <version>1.1.0.RELEASE</version>
+            <version>1.4.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.r2dbc</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
-            <version>1.1.0.RELEASE</version>
+            <version>0.9.2.RELEASE</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -2,7 +2,6 @@ package com.chua.deeplearning.support.onnx.example;
 
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
-import com.chua.deeplearning.support.utils.ImageUtils;
 
 public final class OnnxQwenVerify {
 
@@ -11,7 +10,6 @@ public final class OnnxQwenVerify {
 
     public static void main(String[] args) throws Exception {
         ModelRegistry.discoverAll();
-        ImageUtils.load();
 
         var entry = ModelRegistry.get("qwen2-1.5b-onnx");
         System.out.println("[qwen2-onnx] 注册: " + (entry != null ? "OK " + entry.relativePath() : "FAIL"));
