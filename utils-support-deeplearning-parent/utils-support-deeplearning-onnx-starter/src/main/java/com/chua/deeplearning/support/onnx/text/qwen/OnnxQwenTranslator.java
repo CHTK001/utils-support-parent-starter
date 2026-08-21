@@ -215,7 +215,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 generated++;
 
                 // 收集 present -> 新 past（仅在被裁剪前）
-                long nextPos = totalSteps + 1;
+                // position_ids：新 token 的位置 = 当前已处理总长度（0-indexed）
+                long nextPos = totalSteps;
                 for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
                 past = collectPast(result);
                 inputIds = new long[]{next};
