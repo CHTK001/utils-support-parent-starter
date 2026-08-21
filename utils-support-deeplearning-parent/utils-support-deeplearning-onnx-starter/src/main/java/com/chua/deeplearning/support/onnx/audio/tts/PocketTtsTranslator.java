@@ -565,21 +565,19 @@ public class PocketTtsTranslator {
         // 初始化 state 张量（5D 层状态为零，1D 标量状态为 1.0）
         for (int i = 0; i < numStates; i++) {
             String inName = "state_" + i;
-            String outName = "out_state_" + i;
-            ai.onnxruntime.TensorInfo info = getStateTensorInfo(inName, outName);
-            if (info == null) continue;
-            int rank = info.shape.length;
-            stateShapes[i] = info.shape;
+            long[] shape = getStateTensorShape(inName);
+            if (shape == null) continue;
+            stateShapes[i] = shape;
             long total = 1;
-            for (long s : info.shape) total *= s;
-            if (rank == 1 && info.shape[0] == 1) {
+            for (long s : shape) total *= s;
+            if (shape.length == 1 && shape[0] == 1) {
                 // 标量状态初始化为 1.0
                 states[i] = new float[]{1.0f};
             } else {
                 states[i] = new float[(int) total];
             }
             stateTensors.put(inName, ai.onnxruntime.OnnxTensor.createTensor(
-                    ortEnv, FloatBuffer.wrap(states[i]), info.shape));
+                    ortEnv, FloatBuffer.wrap(states[i]), shape));
         }
 
         // sequence: [1, ids.length, latent_dim]
@@ -625,15 +623,15 @@ public class PocketTtsTranslator {
         }
     }
 
-    private ai.onnxruntime.TensorInfo getStateTensorInfo(String inName, String outName) {
+    private long[] getStateTensorShape(String inName) {
         try {
             Map<String, ?> meta = textEncoderSession.getInputInfo();
             if (meta.containsKey(inName)) {
                 ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) meta.get(inName);
-                return (ai.onnxruntime.TensorInfo) info.getInfo();
+                return ((ai.onnxruntime.TensorInfo) info.getInfo()).getShape();
             }
         } catch (Exception e) {
-            log.warn("[Pocket-TTS] 获取 state 张量信息失败: {}", e.getMessage());
+            log.warn("[Pocket-TTS] 获取 state 张量形状失败: {}", e.getMessage());
         }
         return null;
     }
