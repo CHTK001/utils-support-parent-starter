@@ -424,7 +424,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     }
 
     /**
-     * 后处理：剔除 T5/mT5 的占位特殊 token（如 &lt;extra_id_0&gt;）并清理空白。
+     * 后处理：剔除 T5/mT5/BART 的占位特殊 token并清理空白与 BART 字符空格。
      *
      * @param decoded 原始解码文本
      * @return 清洗后的文本
@@ -433,7 +433,14 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
         if (decoded == null || decoded.isEmpty()) {
             return decoded;
         }
-        return decoded.replaceAll("<extra_id_\\d+>", "").trim();
+        String s = decoded.replaceAll("<extra_id_\\d+>", "").trim();
+        if (s.startsWith("[CLS]")) {
+            s = s.substring(5).trim();
+        }
+        if (s.contains(" ") && s.codePoints().anyMatch(c -> c >= 0x4E00 && c <= 0x9FFF)) {
+            s = s.replace(" ", "");
+        }
+        return s;
     }
 
     /**
