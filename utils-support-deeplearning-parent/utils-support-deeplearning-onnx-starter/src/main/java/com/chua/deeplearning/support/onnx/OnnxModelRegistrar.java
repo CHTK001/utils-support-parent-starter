@@ -270,8 +270,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mt5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-small/encoder_model_fp16.onnx", null, null, false, null);
         // 多语言摘要/生成(mT5-base)：中文多句→一句总结，12 层 12 头；modelscope 下载
         reg("mt5-base-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5BaseSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-base/encoder_model_fp16.onnx", null, null, false, null);
-        // 达摩院中文 mT5-base：中文对话改写/摘要，中文能力优于原版 mT5；fp16 ONNX 需本地放置
-        reg("mt5-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5ZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-zh/encoder_model_fp16.onnx", null, null, false, null);
+        // 达摩院中文 mT5-base：中文对话改写/摘要，中文能力优于原版 mT5；int8 ONNX 需本地放置
+        reg("mt5-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5ZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-zh/encoder_model_int8.onnx", null, null, false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx");
         // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，嵌入式模型 jar 提供，无需下载；适用英文翻译中文
