@@ -217,7 +217,6 @@ public class ServerSetting {
      * 最大并发请求数，0 表示不限制
      */
     @Builder.Default
-    /** 最大值concurrency */
     private int maxConcurrency = 0;
 
     /**
