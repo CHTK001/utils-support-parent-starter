@@ -448,10 +448,9 @@ public final class ModelRegistry {
             }
         }
 
-        // GGUF 等非标准扩展名模型：优先命中下载缓存目录（download/<modelId>/<file>），
+        // 带 downloadUrl 的多文件/非标准扩展名模型：优先命中下载缓存目录（download/<modelId>/<file>），
         // 避免在所有本地 fallback 失败后仍尝试联网下载。
-        if (entry != null && entry.downloadUrl() != null && !entry.downloadUrl().isBlank()
-                && entry.relativePath() != null && entry.relativePath().toLowerCase().endsWith(".gguf")) {
+        if (entry != null && entry.downloadUrl() != null && !entry.downloadUrl().isBlank()) {
             Path dlTarget = cachedDownloadTarget(modelId, entry);
             if (dlTarget != null) {
                 return dlTarget;
