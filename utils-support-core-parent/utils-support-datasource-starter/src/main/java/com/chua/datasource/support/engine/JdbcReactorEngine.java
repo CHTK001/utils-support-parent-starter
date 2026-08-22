@@ -612,8 +612,15 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (batchParams == null || batchParams.isEmpty()) {
             return Flux.empty();
         }
-        /* 每批次单独创建 Statement 并执行，通过 safeGetRowsUpdated 兼容各驱动差异 */
-        return Flux.defer(() -> Mono.usingWhen(
+        /* SQL Server 统一走 JDBC 路径（r2dbc-mssql 有已知 bug） */
+        if (jdbcUrls.get(name) != null && jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)) {
+            DataSource ds = jdbcDataSources.get(name);
+            if (ds != null) {
+                return batchViaJdbc(ds, sql, batchParams);
+            }
+        }
+         /* 每批次单独创建 Statement 并执行，通过 safeGetRowsUpdated 兼容各驱动差异 */
+        return Flux.from(Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
                         .flatMap(paramArray -> {
