@@ -227,7 +227,7 @@ public class WhisperTranslator {
         return tokenizer.decode(generated);
     }
 
-    /** Greedy解码 */
+    /** Greedy解码（非自回归模式：每次扩展输入序列重新推理） */
     private int[] greedyDecode(float[] encoderHidden) {
         List<Integer> tokens = new ArrayList<>();
         tokens.add(WhisperTokenizer.SOT);
@@ -235,6 +235,7 @@ public class WhisperTranslator {
 
         int maxNew = 100;
         int eot = WhisperTokenizer.EOT;
+        int vocabSize = tokenizer.vocabSize();
 
         for (int step = 0; step < maxNew; step++) {
             long[] ids = new long[tokens.size()];
@@ -247,22 +248,6 @@ public class WhisperTranslator {
                 feed.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
                         FloatBuffer.wrap(encoderHidden),
                         new long[]{1, ENC_SEQ_OUT, HIDDEN_SIZE}));
-                feed.put("use_cache_branch", OnnxTensor.createTensor(ortEnv, new boolean[]{false}));
-
-                for (int li = 0; li < N_LAYERS; li++) {
-                    feed.put("past_key_values." + li + ".decoder.key",
-                            OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[0]),
-                                    new long[]{1, N_HEADS, 0, HEAD_DIM}));
-                    feed.put("past_key_values." + li + ".decoder.value",
-                            OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[0]),
-                                    new long[]{1, N_HEADS, 0, HEAD_DIM}));
-                    feed.put("past_key_values." + li + ".encoder.key",
-                            OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[N_HEADS * ENC_SEQ_OUT * HEAD_DIM]),
-                                    new long[]{1, N_HEADS, ENC_SEQ_OUT, HEAD_DIM}));
-                    feed.put("past_key_values." + li + ".encoder.value",
-                            OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[N_HEADS * ENC_SEQ_OUT * HEAD_DIM]),
-                                    new long[]{1, N_HEADS, ENC_SEQ_OUT, HEAD_DIM}));
-                }
 
                 try (OrtSession.Result r = decoderSession.run(feed)) {
                     ai.onnxruntime.OnnxValue logitsValue = r.get(0);
@@ -276,7 +261,6 @@ public class WhisperTranslator {
                         log.error("[Whisper] logits is not OnnxTensor: {}", logitsValue.getClass());
                         break;
                     }
-                    int vocabSize = (int) shape[shape.length - 1];
                     int seqLen = (int) shape[1];
                     int offset = (seqLen - 1) * vocabSize;
                     int nextToken = argmax(logits, offset, vocabSize);
