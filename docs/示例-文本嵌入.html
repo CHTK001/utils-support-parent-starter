@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>文本嵌入 Embedding · 示例文档</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.min.css">
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--purple:#bc8cff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:1.1em;color:#f0f6fc}
+.topbar a{color:var(--accent);text-decoration:none;font-size:0.85em;padding:4px 12px;border:1px solid var(--border);border-radius:6px}
+.topbar a:hover{background:rgba(88,166,255,.1)}
+.main{max-width:960px;margin:0 auto;padding:32px 40px}
+h2{font-size:1.2em;color:#f0f6fc;margin:36px 0 12px;padding-left:12px;border-left:3px solid var(--accent)}
+code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:'Cascadia Code',Consolas,monospace;font-size:.88em;color:#79c0ff}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:10px 0;font-size:.85em}
+pre code{background:none;color:#e6edf3;padding:0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin:14px 0}
+.card h4{color:var(--accent);margin-bottom:6px;font-size:.95em}
+.card p{font-size:.88em;color:var(--muted);margin-bottom:8px}
+.tag{display:inline-block;font-size:.72em;padding:2px 8px;border-radius:12px;margin-right:4px;font-weight:600}
+.tag-blue{background:rgba(88,166,255,.15);color:var(--accent)}
+.tag-green{background:rgba(63,185,80,.15);color:var(--green)}
+.tag-orange{background:rgba(210,153,34,.15);color:var(--orange)}
+.note{background:rgba(88,166,255,.08);border-left:3px solid var(--accent);padding:10px 14px;margin:12px 0;border-radius:0 6px 6px 0;font-size:.9em}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:.8em;border-top:1px solid var(--border);margin-top:32px}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <a href="index.html">&#8592; 返回文档中心</a>
+    <h1>文本嵌入 Embedding</h1>
+</div>
+<div class="main">
+<div class="note"><strong>前置依赖：</strong>pom.xml 中添加 <code>utils-support-ai-starter</code> 及对应模型 jar（如 <code>utils-support-models-onnx-bge-small-zh</code>）。</div>
+
+<h2 id="bge">BGE 中文嵌入</h2>
+<div class="card">
+    <h4>BgeEmbeddingExample <span class="tag tag-green">离线</span></h4>
+    <p>完全离线的文本向量化，模型随 jar 自动解压，无需下载。</p>
+<pre><code class="language-java">try (EmbeddingClient client = EmbeddingClient.create(
+        EmbeddingClientSetting.builder().provider("bge").build())) {
+    String[] docs = {"你好世界", "今天天气很好", "人工智能正在改变世界"};
+    float[][] vectors = client.model("bge-small-zh").embeddingBatch(docs);
+
+    // 余弦相似度
+    float sim = cosine(vectors[0], vectors[1]);
+    System.out.println("相似度: " + sim);
+}</code></pre>
+</div>
+<div class="card">
+    <h4>BgeLargeZhEmbeddingExample</h4>
+    <p>BGE-Large-ZH 更大模型，1024 维向量，精度更高但速度稍慢。</p>
+</div>
+
+<h2 id="minilm">MiniLM 嵌入</h2>
+<div class="card">
+    <h4>MiniLmEmbeddingExample <span class="tag tag-blue">轻量</span></h4>
+    <p>MiniLM 轻量级嵌入模型，适合资源受限场景。</p>
+<pre><code class="language-java">try (EmbeddingClient client = EmbeddingClient.create(
+        EmbeddingClientSetting.builder().provider("minilm").build())) {
+    float[] vector = client.model("minilm-l6-v2").embedding("查询文本");
+    System.out.println("向量维度: " + vector.length); // 384 维
+}</code></pre>
+</div>
+
+<h2 id="usage">定价查询</h2>
+<div class="card">
+    <h4>ExampleModelPricingProvider</h4>
+    <p>统一查询各模型计费信息，用于成本估算。</p>
+<pre><code class="language-java">ModelPricingProvider provider = new ExampleModelPricingProvider();
+ModelPrice price = provider.getPrice(AiModel.QWEN_MAX);
+System.out.printf("输入: %.4f/百万token, 输出: %.4f/百万token%n",
+    price.getInputPricePerMillion(), price.getOutputPricePerMillion());</code></pre>
+</div>
+
+<div class="footer">utils-support-parent-starter &copy; 2026 &middot; <a href="index.html" style="color:var(--accent)">返回文档中心</a></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
+</body>
+</html>
