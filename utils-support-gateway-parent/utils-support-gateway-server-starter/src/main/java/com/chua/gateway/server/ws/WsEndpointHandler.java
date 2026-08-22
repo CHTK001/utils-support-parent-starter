@@ -129,6 +129,7 @@ public final class WsEndpointHandler {
             // 2. 解析 tunnelId：优先从 path 读取（/ws/SSH/{tunnelId}），
             //    兼容 guacamole-common-js / 裸 xterm 客户端；无 path 时回退读首帧 bind JSON。
             String tunnelId = parseTunnelIdFromPath(path);
+            System.out.println("[ws] path=" + path + " parsedTunnelId=" + tunnelId);
             if (tunnelId == null) {
                 Frame bindFrame = readFrame(in);
                 tunnelId = parseTunnelId(bindFrame);
