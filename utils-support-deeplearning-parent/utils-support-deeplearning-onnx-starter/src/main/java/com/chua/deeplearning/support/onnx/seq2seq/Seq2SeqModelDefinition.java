@@ -140,19 +140,19 @@ public record Seq2SeqModelDefinition(
     /**
      * mt5-base 模型定义（modelscope: Xenova/mt5-base，多语言 T5，中文摘要效果优于 small）。
      * <p>12 层 12 头（实际解码参数由模型输出维度动态解析）；d_model=768、词表 250112。
-     * fp16 编码器 + int8 解码器（全 fp16 在 2.4GB 内存环境加载失败：decoder fp16 995MB + past 967MB 超出）。</p>
+     * int8 全套（fp16 在 onnxruntime 1.26 的 LayerNorm 优化上会触发 SimplifiedLayerNormFusion 报错）。</p>
      */
     public static final Seq2SeqModelDefinition MT5_BASE = new Seq2SeqModelDefinition(
             "mt5-base-seq2seq",
             "nlp/seq2seq/mt5-base/",
             "Xenova/mt5-base",
             List.of(
-                    "onnx/encoder_model_fp16.onnx",
+                    "onnx/encoder_model_int8.onnx",
                     "onnx/decoder_model_int8.onnx",
                     "onnx/decoder_with_past_model_int8.onnx",
                     "tokenizer.json"),
             List.of(
-                    "encoder_model_fp16.onnx",
+                    "encoder_model_int8.onnx",
                     "decoder_model_int8.onnx",
                     "decoder_with_past_model_int8.onnx",
                     "tokenizer.json"),
@@ -197,23 +197,5 @@ public record Seq2SeqModelDefinition(
                     "tokenizer.json"),
             12, 16, 64, 102L, 102L);
 
-    /**
-     * Randeng-T5-77M 模型定义（IDEA-CCNL/Randeng-T5-77M-Chinese，中文 T5，77M，8 层 6 头 512 维）。
-     * <p>嵌入式优先（80MB int8），通用多句 → 一句中文摘要专用。</p>
-     */
-    public static final Seq2SeqModelDefinition RANDENG_77M = new Seq2SeqModelDefinition(
-            "randeng-t5-77m",
-            "nlp/seq2seq/randeng-t5-77m/",
-            "IDEA-CCNL/Randeng-T5-77M-Chinese",
-            List.of(
-                    "pytorch_model.bin",
-                    "spiece.model",
-                    "tokenizer.json",
-                    "tokenizer_config.json"),
-            List.of(
-                    "encoder_model_int8.onnx",
-                    "decoder_model_int8.onnx",
-                    "decoder_with_past_model_int8.onnx",
-                    "tokenizer.json"),
-            8, 6, 64, 1L, 0L);
+
 }
