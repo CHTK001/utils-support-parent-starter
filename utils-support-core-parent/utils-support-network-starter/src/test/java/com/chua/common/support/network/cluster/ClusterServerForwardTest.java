@@ -87,7 +87,7 @@ public class ClusterServerForwardTest {
      */
     @Test
     void testHttpForwardNodeAToNodeB() throws Exception {
-        // 等待 scatter 同步完成（带重试）
+        // 等待 scatter 同步完成（带重试，最长等待 10 秒）
         for (int i = 0; i < 10; i++) {
             java.util.Set<Discovery> services =
                     nodeA.manager().nodes("/api", "forward-test", "http");
@@ -95,7 +95,7 @@ public class ClusterServerForwardTest {
             if (hasBackend) {
                 break;
             }
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.MILLISECONDS.sleep(1000);
         }
 
         // 验证：node-A 的服务表中包含 backendB
