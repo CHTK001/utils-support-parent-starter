@@ -197,7 +197,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         String query = extractQuery(request.getUri());
         String backendUrl = scheme + "://" + host + ":" + port + path + (query != null ? "?" + query : "");
 
-        log.debug("[network-proxy] HTTP 代理: {} {} -> {}", request.getMethod(), request.getPath(), backendUrl);
+        log.info("[network-proxy] HTTP 代理: {} {} -> {}", request.getMethod(), request.getPath(), backendUrl);
 
         CompletableFuture<Void> done = new CompletableFuture<>();
         HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
