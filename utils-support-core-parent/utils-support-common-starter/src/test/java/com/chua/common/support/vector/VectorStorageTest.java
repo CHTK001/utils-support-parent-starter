@@ -19,7 +19,7 @@ class VectorStorageTest {
     void setUp() {
         storage = VectorStorageBuilder.newBuilder()
                 .dimension(3)
-                .algorithm(VectorCompareAlgorithm.COSINE)
+                .algorithm(VectorCompareAlgorithm.cosine())
                 .build();
     }
 
