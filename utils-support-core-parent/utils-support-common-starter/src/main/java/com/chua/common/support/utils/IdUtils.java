@@ -401,11 +401,12 @@ public class IdUtils {
     /**
      * 获取对象的 partial ID（基于部分字段的 MD5）。
      *
-     * <p>按字段名排序后，取前 {@code ratio * 100}% 的字段值计算 MD5。
-     * 适用于大数据量场景，用部分特征判断数据是否相同，容忍少量字段差异。</p>
+     * <p>使用字段名哈希值做确定性采样：将每个字段名做 hash 后对 {@code Integer.MAX_VALUE} 取模，
+     * 只保留哈希值落在前 {@code ratio * 100}% 范围内的字段。
+     * 采样均匀、无字母序偏置，同一字段集合始终稳定选中。</p>
      *
-     * @param obj  目标对象，可为 {@code null}
-     * @param ratio 采样比例，范围 (0.0, 1.0]，如 0.6 表示取 60% 字段
+     * @param obj   目标对象，可为 {@code null}
+     * @param ratio 采样比例，范围 (0.0, 1.0]，如 0.6 表示取约 60% 字段
      * @return 32 位小写十六进制 MD5 字符串；对象为 {@code null} 时返回 null
      * @throws IllegalArgumentException 如果 ratio 不在 (0, 1] 范围内
      */
@@ -420,10 +421,16 @@ public class IdUtils {
         if (fields.isEmpty()) {
             return Integer.toHexString(obj.hashCode());
         }
-        int count = Math.max(1, (int) Math.ceil(fields.size() * ratio));
+        int threshold = (int) (ratio * Integer.MAX_VALUE);
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            Field field = fields.get(i);
+        for (Field field : fields) {
+            int h = field.getName().hashCode();
+            if (h < 0) {
+                h = -h;
+            }
+            if (h > threshold) {
+                continue;
+            }
             field.setAccessible(true);
             try {
                 Object value = field.get(obj);
