@@ -16,25 +16,28 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JdbcReactorEngineIT {
 
-    /* 远程共享 MySQL（有触发器，使用 INSERT IGNORE） */
     private static final String MYSQL_URL = "jdbc:mysql://172.16.0.40:3306/report?useSSL=false&allowPublicKeyRetrieval=true";
     private static final String MYSQL_USER = "root";
     private static final String MYSQL_PASSWORD = "root@";
 
-    /* Docker PostgreSQL 容器：postgres/postgres@testdb，端口 5433 */
     private static final String PG_URL = "jdbc:postgresql://172.16.0.40:5433/testdb";
     private static final String PG_USER = "postgres";
     private static final String PG_PASSWORD = "postgres";
 
-    /* Docker SQL Server 容器：sa/YourStrong!Passw0rd@master，端口 1434 */
     private static final String MSSQL_URL = "jdbc:sqlserver://172.16.0.40:1434;databaseName=master;encrypt=false;trustServerCertificate=true";
     private static final String MSSQL_USER = "sa";
     private static final String MSSQL_PASSWORD = "YourStrong!Passw0rd";
 
+    // 每个测试用例使用唯一表名前缀，避免并发/重复执行时的表冲突
+    private static int TABLE_COUNTER = 0;
+    private String uniqueTable(String base) {
+        return base + "_" + System.nanoTime();
+    }
+
     // ==================== H2 内存库（纯 R2DBC 非阻塞路径） ====================
 
     @BeforeEach
-    void mysql_cleanup() {
+    void cleanupAll() {
         /* 清理 MySQL 共享库遗留表 */
         try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
                 MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
@@ -72,7 +75,7 @@ class JdbcReactorEngineIT {
     @Test
     void h2_createTable() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_" + TABLE_COUNTER++);
         Mono<Integer> result = engine.execute("CREATE TABLE t1 (id INT PRIMARY KEY, val VARCHAR(50))");
         StepVerifier.create(result).expectNext(0).verifyComplete();
     }
@@ -80,7 +83,7 @@ class JdbcReactorEngineIT {
     @Test
     void h2_insertAndQuery() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_q");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_q_" + TABLE_COUNTER++);
         engine.execute("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(50))").block();
         engine.execute("INSERT INTO users (id, name) VALUES (1, 'Alice'), (2, 'Bob')").block();
         List<Map<String, Object>> rows = engine.query("SELECT * FROM users ORDER BY id")
@@ -91,7 +94,7 @@ class JdbcReactorEngineIT {
     @Test
     void h2_update() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_u");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_u_" + TABLE_COUNTER++);
         engine.execute("CREATE TABLE items (id INT PRIMARY KEY, status VARCHAR(10))").block();
         engine.execute("INSERT INTO items (id, status) VALUES (1, 'pending')").block();
         Mono<Integer> updated = engine.execute("UPDATE items SET status = 'done' WHERE id = 1");
@@ -101,7 +104,7 @@ class JdbcReactorEngineIT {
     @Test
     void h2_delete() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_d");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_d_" + TABLE_COUNTER++);
         engine.execute("CREATE TABLE tags (id INT PRIMARY KEY, label VARCHAR(20))").block();
         engine.execute("INSERT INTO tags (id, label) VALUES (1, 'a'), (2, 'b')").block();
         Mono<Integer> deleted = engine.execute("DELETE FROM tags WHERE id = 1");
@@ -111,7 +114,7 @@ class JdbcReactorEngineIT {
     @Test
     void h2_batchInsert_returnsTotal() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_b");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_b_" + TABLE_COUNTER++);
         engine.execute("CREATE TABLE batch_test (id INT, val VARCHAR(20))").block();
         Flux<Integer> results = engine.batch("INSERT INTO batch_test (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "x"}, new Object[]{2, "y"}, new Object[]{3, "z"}));
@@ -121,7 +124,7 @@ class JdbcReactorEngineIT {
     @Test
     void h2_paramQuery() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_p");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_p_" + TABLE_COUNTER++);
         engine.execute("CREATE TABLE products (id INT PRIMARY KEY, name VARCHAR(50), price DECIMAL(10,2))").block();
         engine.execute("INSERT INTO products (id, name, price) VALUES (1, 'Widget', 9.99)").block();
         Flux<Map<String, Object>> result = engine.query("SELECT * FROM products WHERE id = ?", 1);
@@ -133,8 +136,8 @@ class JdbcReactorEngineIT {
     @Test
     void h2_multiDataSourceFlag() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2a", "r2dbc:h2:mem://multi_a");
-        engine.addDataSource("h2b", "r2dbc:h2:mem://multi_b");
+        engine.addDataSource("h2a", "r2dbc:h2:mem://multi_a_" + TABLE_COUNTER++);
+        engine.addDataSource("h2b", "r2dbc:h2:mem://multi_b_" + TABLE_COUNTER++);
         assertTrue(engine.isMultiDataSource());
         assertNotNull(engine.getR2dbcFactory("h2a"));
         assertNotNull(engine.getR2dbcFactory("h2b"));
@@ -145,7 +148,7 @@ class JdbcReactorEngineIT {
     @Test
     void jdbcUrlConversion_h2Mem_viaTwoParam() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "jdbc:h2:mem://conv_test");
+        engine.addDataSource("h2", "jdbc:h2:mem://conv_test_" + TABLE_COUNTER++);
         assertNotNull(engine.getR2dbcFactory("h2"));
         assertNotNull(engine.getDialect("h2"));
         engine.execute("CREATE TABLE t (id INT)").block();
@@ -194,77 +197,80 @@ class JdbcReactorEngineIT {
     void pg_createInsertSelectAndDrop() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+        String tbl = uniqueTable("jte_pg_test");
 
-        engine.execute("DROP TABLE IF EXISTS jte_pg_test").block();
-        engine.execute("CREATE TABLE jte_pg_test (id INT PRIMARY KEY, name VARCHAR(50), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, name VARCHAR(50), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
                 .block();
-        engine.execute("INSERT INTO jte_pg_test (id, name) VALUES (1, 'postgres_test')").block();
+        engine.execute("INSERT INTO " + tbl + " (id, name) VALUES (1, 'postgres_test')").block();
 
-        List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_pg_test WHERE id = 1")
+        List<Map<String, Object>> rows = engine.query("SELECT * FROM " + tbl + " WHERE id = 1")
                 .collectList().block();
         assertNotNull(rows); assertFalse(rows.isEmpty());
         assertEquals("postgres_test", rows.get(0).get("name"));
 
-        engine.execute("DROP TABLE jte_pg_test").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void pg_updateAndDelete() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+        String tbl = uniqueTable("jte_pg_upd");
 
-        engine.execute("DROP TABLE IF EXISTS jte_pg_upd").block();
-        engine.execute("CREATE TABLE jte_pg_upd (id INT PRIMARY KEY, status VARCHAR(20))").block();
-        engine.execute("INSERT INTO jte_pg_upd (id, status) VALUES (1, 'pending')").block();
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, status VARCHAR(20))").block();
+        engine.execute("INSERT INTO " + tbl + " (id, status) VALUES (1, 'pending')").block();
 
-        Mono<Integer> updated = engine.execute("UPDATE jte_pg_upd SET status = 'done' WHERE id = 1");
+        Mono<Integer> updated = engine.execute("UPDATE " + tbl + " SET status = 'done' WHERE id = 1");
         StepVerifier.create(updated).expectNext(1).verifyComplete();
 
-        Map<String, Object> row = engine.query("SELECT status FROM jte_pg_upd WHERE id = 1")
+        Map<String, Object> row = engine.query("SELECT status FROM " + tbl + " WHERE id = 1")
                 .next().block();
         assertNotNull(row);
 
-        Mono<Integer> deleted = engine.execute("DELETE FROM jte_pg_upd WHERE id = 1");
+        Mono<Integer> deleted = engine.execute("DELETE FROM " + tbl + " WHERE id = 1");
         StepVerifier.create(deleted).expectNext(1).verifyComplete();
 
-        engine.execute("DROP TABLE jte_pg_upd").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void pg_batchInsert_returnsTotalRows() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+        String tbl = uniqueTable("jte_pg_batch");
 
-        engine.execute("DROP TABLE IF EXISTS jte_pg_batch").block();
-        engine.execute("CREATE TABLE jte_pg_batch (id INT PRIMARY KEY, val VARCHAR(20))").block();
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, val VARCHAR(20))").block();
 
-        // PostgreSQL r2dbc 使用 $1, $2 占位符，非 ?
-        Flux<Integer> results = engine.batch("INSERT INTO jte_pg_batch (id, val) VALUES ($1, $2)",
+        Flux<Integer> results = engine.batch("INSERT INTO " + tbl + " (id, val) VALUES ($1, $2)",
                 List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
         StepVerifier.create(results).expectNext(3).verifyComplete();
 
-        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_pg_batch")
+        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
                 .next().block();
         assertNotNull(cntRow);
-        engine.execute("DROP TABLE jte_pg_batch").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void pg_paramQueryWithSpecialChars() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+        String tbl = uniqueTable("jte_pg_params");
 
-        engine.execute("DROP TABLE IF EXISTS jte_pg_params").block();
-        engine.execute("CREATE TABLE jte_pg_params (id INT PRIMARY KEY, content VARCHAR(200))").block();
-        engine.execute("INSERT INTO jte_pg_params (id, content) VALUES ($1, $2)", 1, "hello & < > \"test")
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, content VARCHAR(200))").block();
+        engine.execute("INSERT INTO " + tbl + " (id, content) VALUES ($1, $2)", 1, "hello & < > \"test")
                 .block();
 
-        Flux<Map<String, Object>> result = engine.query("SELECT * FROM jte_pg_params WHERE id = $1", 1);
+        Flux<Map<String, Object>> result = engine.query("SELECT * FROM " + tbl + " WHERE id = $1", 1);
         StepVerifier.create(result)
                 .expectNextMatches(row -> row.get("content") != null && row.get("content").toString().contains("hello"))
                 .verifyComplete();
 
-        engine.execute("DROP TABLE jte_pg_params").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     // ==================== SQL Server 真实容器 ====================
@@ -283,58 +289,66 @@ class JdbcReactorEngineIT {
     void mssql_createInsertSelectAndDrop() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+        String tbl = uniqueTable("jte_mssql_test");
 
-        engine.execute("DROP TABLE IF EXISTS jte_mssql_test").block();
-        engine.execute("CREATE TABLE jte_mssql_test (id INT PRIMARY KEY, name VARCHAR(50), created_at DATETIME2 DEFAULT GETDATE())")
+        engine.execute("IF OBJECT_ID('" + tbl + "', 'U') IS NOT NULL DROP TABLE " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, name VARCHAR(50), created_at DATETIME2 DEFAULT GETDATE())")
                 .block();
-        engine.execute("INSERT INTO jte_mssql_test (id, name) VALUES (1, 'sqlserver_test')").block();
+        // 诊断：检查表创建后是否已有数据
+        List<Map<String, Object>> preCheck = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
+                .collectList().block();
+        System.out.println("[DEBUG] mssql table row count after CREATE: " + preCheck);
+        engine.execute("INSERT INTO " + tbl + " (id, name) VALUES (1, 'sqlserver_test')").block();
 
-        List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_mssql_test WHERE id = 1")
+        List<Map<String, Object>> rows = engine.query("SELECT * FROM " + tbl + " WHERE id = 1")
                 .collectList().block();
         assertNotNull(rows); assertFalse(rows.isEmpty());
         assertEquals("sqlserver_test", rows.get(0).get("name"));
 
-        engine.execute("DROP TABLE jte_mssql_test").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void mssql_updateAndDelete() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+        String tbl = uniqueTable("jte_mssql_upd");
 
-        engine.execute("DROP TABLE IF EXISTS jte_mssql_upd").block();
-        engine.execute("CREATE TABLE jte_mssql_upd (id INT PRIMARY KEY, status VARCHAR(20))").block();
-        engine.execute("INSERT INTO jte_mssql_upd (id, status) VALUES (1, 'pending')").block();
+        engine.execute("IF OBJECT_ID('" + tbl + "', 'U') IS NOT NULL DROP TABLE " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, status VARCHAR(20))").block();
+        engine.execute("INSERT INTO " + tbl + " (id, status) VALUES (1, 'pending')").block();
 
-        Mono<Integer> updated = engine.execute("UPDATE jte_mssql_upd SET status = 'done' WHERE id = 1");
+        Mono<Integer> updated = engine.execute("UPDATE " + tbl + " SET status = 'done' WHERE id = 1");
         StepVerifier.create(updated).expectNext(1).verifyComplete();
 
-        Map<String, Object> row = engine.query("SELECT status FROM jte_mssql_upd WHERE id = 1")
+        Map<String, Object> row = engine.query("SELECT status FROM " + tbl + " WHERE id = 1")
                 .next().block();
         assertNotNull(row);
 
-        Mono<Integer> deleted = engine.execute("DELETE FROM jte_mssql_upd WHERE id = 1");
+        Mono<Integer> deleted = engine.execute("DELETE FROM " + tbl + " WHERE id = 1");
         StepVerifier.create(deleted).expectNext(1).verifyComplete();
 
-        engine.execute("DROP TABLE jte_mssql_upd").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void mssql_batchInsert_returnsTotalRows() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+        String tbl = uniqueTable("jte_mssql_batch");
 
-        engine.execute("DROP TABLE IF EXISTS jte_mssql_batch").block();
-        engine.execute("CREATE TABLE jte_mssql_batch (id INT PRIMARY KEY, val VARCHAR(20))").block();
+        engine.execute("IF OBJECT_ID('" + tbl + "', 'U') IS NOT NULL DROP TABLE " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, val VARCHAR(20))").block();
 
-        Flux<Integer> results = engine.batch("INSERT INTO jte_mssql_batch (id, val) VALUES (?, ?)",
+        // SQL Server r2dbc-mssql 不支持参数绑定，走 JDBC 降级路径
+        Flux<Integer> results = engine.batch("INSERT INTO " + tbl + " (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
         StepVerifier.create(results).expectNext(3).verifyComplete();
 
-        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_mssql_batch")
+        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
                 .next().block();
         assertNotNull(cntRow);
-        engine.execute("DROP TABLE jte_mssql_batch").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     // ==================== MySQL 真实库 ====================
@@ -364,76 +378,80 @@ class JdbcReactorEngineIT {
     void mysql_createInsertSelectAndDrop() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
+        String tbl = uniqueTable("jte_r2dbc_test");
 
-        engine.execute("DROP TABLE IF EXISTS jte_r2dbc_test").block();
-        engine.execute("CREATE TABLE jte_r2dbc_test (id INT PRIMARY KEY, name VARCHAR(50), ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, name VARCHAR(50), ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
                 .block();
-        engine.execute("INSERT IGNORE INTO jte_r2dbc_test (id, name) VALUES (100, 'integration_test')").block();
+        engine.execute("INSERT IGNORE INTO " + tbl + " (id, name) VALUES (100, 'integration_test')").block();
 
-        List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_r2dbc_test WHERE id = 100")
+        List<Map<String, Object>> rows = engine.query("SELECT * FROM " + tbl + " WHERE id = 100")
                 .collectList().block();
         assertNotNull(rows); assertFalse(rows.isEmpty());
         assertEquals("integration_test", rows.get(0).get("name"));
 
-        engine.execute("DROP TABLE jte_r2dbc_test").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void mysql_updateAndDelete() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
+        String tbl = uniqueTable("jte_upd_del");
 
-        engine.execute("DROP TABLE IF EXISTS jte_upd_del").block();
-        engine.execute("CREATE TABLE jte_upd_del (id INT PRIMARY KEY, status VARCHAR(20))").block();
-        engine.execute("INSERT IGNORE INTO jte_upd_del (id, status) VALUES (1, 'pending')").block();
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, status VARCHAR(20))").block();
+        engine.execute("INSERT IGNORE INTO " + tbl + " (id, status) VALUES (1, 'pending')").block();
 
-        Mono<Integer> updated = engine.execute("UPDATE jte_upd_del SET status = 'done' WHERE id = 1");
+        Mono<Integer> updated = engine.execute("UPDATE " + tbl + " SET status = 'done' WHERE id = 1");
         StepVerifier.create(updated).expectNextCount(1).verifyComplete();
 
-        Map<String, Object> row = engine.query("SELECT status FROM jte_upd_del WHERE id = 1")
+        Map<String, Object> row = engine.query("SELECT status FROM " + tbl + " WHERE id = 1")
                 .next().block();
         assertNotNull(row);
 
-        Mono<Integer> deleted = engine.execute("DELETE FROM jte_upd_del WHERE id = 1");
+        Mono<Integer> deleted = engine.execute("DELETE FROM " + tbl + " WHERE id = 1");
         StepVerifier.create(deleted).expectNextCount(1).verifyComplete();
 
-        engine.execute("DROP TABLE jte_upd_del").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void mysql_batchInsert_returnsTotalRows() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
+        String tbl = uniqueTable("jte_batch");
 
-        engine.execute("DROP TABLE IF EXISTS jte_batch").block();
-        engine.execute("CREATE TABLE jte_batch (id INT PRIMARY KEY, val VARCHAR(20))").block();
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, val VARCHAR(20))").block();
 
-        Flux<Integer> results = engine.batch("INSERT IGNORE INTO jte_batch (id, val) VALUES (?, ?)",
+        Flux<Integer> results = engine.batch("INSERT IGNORE INTO " + tbl + " (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
         StepVerifier.create(results).expectNextCount(3).verifyComplete();
 
-        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_batch")
+        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
                 .next().block();
         assertNotNull(cntRow);
-        engine.execute("DROP TABLE jte_batch").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     @Test
     void mysql_paramQueryWithSpecialChars() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
+        String tbl = uniqueTable("jte_params");
 
-        engine.execute("DROP TABLE IF EXISTS jte_params").block();
-        engine.execute("CREATE TABLE jte_params (id INT PRIMARY KEY, content VARCHAR(200))").block();
-        engine.execute("INSERT IGNORE INTO jte_params (id, content) VALUES (1, 'hello & < > \"test')")
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, content VARCHAR(200))").block();
+        engine.execute("INSERT IGNORE INTO " + tbl + " (id, content) VALUES (1, 'hello & < > \\\"test')")
                 .block();
 
-        Flux<Map<String, Object>> result = engine.query("SELECT * FROM jte_params WHERE id = ?", 1);
+        Flux<Map<String, Object>> result = engine.query("SELECT * FROM " + tbl + " WHERE id = ?", 1);
         StepVerifier.create(result)
                 .expectNextMatches(row -> row.get("content") != null && row.get("content").toString().contains("hello"))
                 .verifyComplete();
 
-        engine.execute("DROP TABLE jte_params").block();
+        engine.execute("DROP TABLE " + tbl).block();
     }
 
     // ==================== 错误处理 ====================
@@ -441,7 +459,7 @@ class JdbcReactorEngineIT {
     @Test
     void executeInvalidSql() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_err");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_err_" + TABLE_COUNTER++);
         Mono<Integer> result = engine.execute("INVALID SQL HERE");
         StepVerifier.create(result).expectError().verify();
     }
@@ -456,7 +474,7 @@ class JdbcReactorEngineIT {
     @Test
     void closeReleasesResources() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("h2", "r2dbc:h2:mem://it_close");
+        engine.addDataSource("h2", "r2dbc:h2:mem://it_close_" + TABLE_COUNTER++);
         engine.close();
         assertNull(engine.getDefaultDataSourceName());
     }

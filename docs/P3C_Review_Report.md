@@ -1,96 +1,74 @@
-# P3C Review Report (Final)
+# P3C 审查报告（最终版）
 
-**Scope**: `utils-support-extra-parent/utils-support-example-starter/src/main/java/`
-**Scan Date**: 2026-08-22
-**Files**: 199
-
----
-
-## 1. System Specification Check
-
-| Check Item | Result |
-|---|---|
-| Filename must end with `Example` | All compliant |
-| No `Test/Verify/Diag` suffix files | No violations |
-| Cross-module boundary check | No violations |
-| pom.xml junit/mockito scope | All in test scope, compliant |
-| Independent Example has main method | 2 files missing (pre-existing) |
+**扫描范围**: `utils-support-example-starter/src/main/java/` + 全模块边界扫描
+**扫描时间**: 2026-08-22
+**文件数**: ~160（example-starter）
 
 ---
 
-## 2. [Mandatory] Violations - Fixed
+## 一、[强制] 体系越界违规
 
-### 2.1 Missing main method (pre-existing)
-
-| File | Status |
-|---|---|
-| `RpcExample.java` | Missing main (pre-existing issue) |
-| `SerializationBenchmarkExample.java` | Missing main (pre-existing issue) |
-
-### 2.2 Compilation error - Fixed
-
-| File | Issue | Fix |
+| # | 文件 | 状态 |
 |---|---|---|
-| `ImagePipelineVerifyExample.java` | `ImagePipeline` class not found | Use fully qualified name |
+| 1 | `prometheus-starter/.../example/PrometheusExample.java` | ✅ 已修复 |
+| 2 | `video-processor-starter/.../example/HlsTranscodeExample.java` | ✅ 已修复 |
+| 3 | `video-processor-starter/.../example/VideoProcessorSpiExample.java` | ✅ 已修复 |
+
+## 二、[强制] 命名风格违规
+
+全部 example-starter 文件均已以 `Example` 或 `ExampleSpi` 结尾 ✅ 无违规。
+
+## 三、[强制] 编译错误 — 已全部修复
+
+| # | 文件 | 问题 | 状态 |
+|---|---|---|---|
+| 4 | Pipeline 全部 11 个示例 | 类名含反引号 `` `Class` `` | ✅ 已修复 |
+| 5 | ~100 个 example 文件 | BOM 头 `\ufeff` 导致编译失败 | ✅ 已修复 |
+| 6 | `PipelineBasicExample` | `parseType` 私有 → 其他示例无法调用 | ✅ 已改为 public |
+| 7 | `ImagePipelineVerifyExample` | 未限定名 `ImagePipeline` 找不到 | ✅ 已改用全限定名 |
+| 8 | `CustomImageProcessorExample` | 调用不存在的 `run(Map)` 方法 | ✅ 已移除 |
+
+## 四、[推荐] 缺少 `@author` — 已清零
+
+扫描前 44 个文件缺少 `@author`，现已全部补充。✅ **NO_AUTHOR: 0**
+
+## 五、[推荐] `System.out.println` 替代 SLF4J — 已清零
+
+扫描前 30+ 处 `System.out.println`（非 PASS/FAIL 标记），已全部替换为 `log.info()`。✅ **SYSOUT: 0**
+
+## 六、[推荐] 缺失 `@Slf4j` / import — 已修复
+
+约 80 个 example 文件使用 `log.` 但缺少 `@Slf4j` 注解和 import，已全部添加。
 
 ---
 
-## 3. [Recommended] Violations - Fixed
+## 核心 Scatter Bug 修复（9 处）
 
-### 3.1 Missing class Javadoc
-
-Added Javadoc to **~20 files**:
-
-| Package | Files |
+| 文件 | 修复内容 |
 |---|---|
-| `example/llama/` | 7 |
-| `example/onnx/` | 9 |
-| `example/recognition/` | 2 |
-| `example/image/` | 1 |
-
-**Format**:
-```java
-/**
- * Example: XxxExample
- *
- * @author CH
- * @since 4.0.0.42
- */
-```
-
-### 3.2 File trailing newline
-
-All modified files now have proper trailing newline.
+| `ScatterSyncHelper.java` | 统一 TCP/UDP 调用重试逻辑 |
+| `AbstractScatterDiscovery.java` | `updateSelfWeight()` 使用 scatterPort 而非 HTTP 端口 |
+| `SeedModeDiscovery.java` | seed entry serverId 改为 nodeId |
+| `ScatterBuilder.java` | readTimeout 设为 `min(timeoutMillis, 3000L)` |
+| `MemoryVectorStorage.java` | `removeByIdPrefix()` 返回值由 int 改为 stream count |
+| `MemoryRagClient.java` | `extractText(File, String)` 参数类型修正 |
+| `RagClient.java` | `FILE_NAME_SEPARATOR` 未定义 → 内联 `"_"` |
+| `PipelineTest.java` | lambda 返回 boolean → 改为返回 null |
+| `HttpReverseProxyFilterTest.java` | countDown 移到 start() 之后 |
+| `ServiceDiscovery.java` + `AbstractServiceDiscovery.java` | 新增 `clearCache()` 方法 |
 
 ---
 
-## 4. Remaining [Reference] Level Violations (Optional)
+## 测试验证
 
-| Type | Count | Note |
-|---|---|---|
-| Long lines (>120 chars) | ~121 | Complex method chains, manual fix needed |
-| `System.out.printf` structured output | ~130 | Allowed for [PASS]/[FAIL] markers |
-| Missing `@Override` | ~200 | Mostly lambda anonymous classes |
-
----
-
-## 5. Change Summary
-
-```
-31 files changed, +147 / -39 lines
-```
-
-**Modified files**:
-- 7 Qwen2*Example.java - Added Javadoc
-- 9 onnx/*Example.java - Added Javadoc
-- 2 recognition/*Example.java - Added Javadoc
-- 1 image/ImagePipelineVerifyExample.java - Fixed compilation
-- 11 pipeline/Pipeline*Example.java - Fixed trailing newline
-- Various - Added trailing newline
-
----
-
-## 6. Compilation Status
-
-Pre-existing compilation errors in original code (Pipeline*Example missing SPI interface methods).
-Javadoc additions do not affect compilation status.
+| 测试类 | 结果 |
+|---|---|
+| `ScatterTcpClusterSceneTest` | 2/2 ✅ |
+| `ClusterManagerTest` | 3/3 ✅ |
+| `HttpReverseProxyFilterTest` | 2/2 ✅ |
+| `example-starter` 编译 | BUILD SUCCESS ✅ |
+| `example-starter` install | BUILD SUCCESS ✅ |
+| P3C NO_AUTHOR | 0 ✅ |
+| P3C SYSOUT | 0 ✅ |
+| P3C 体系越界 | 0 ✅ |
+| P3C 编译错误 | 0 ✅ |
