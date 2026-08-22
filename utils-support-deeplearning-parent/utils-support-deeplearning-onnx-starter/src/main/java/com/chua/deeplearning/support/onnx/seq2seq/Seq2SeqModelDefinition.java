@@ -196,4 +196,24 @@ public record Seq2SeqModelDefinition(
                     "decoder_with_past_model_int8.onnx",
                     "tokenizer.json"),
             12, 16, 64, 102L, 102L);
+
+    /**
+     * Randeng-T5-77M 模型定义（IDEA-CCNL/Randeng-T5-77M-Chinese，中文 T5，77M，8 层 6 头 512 维）。
+     * <p>嵌入式优先（80MB int8），通用多句 → 一句中文摘要专用。</p>
+     */
+    public static final Seq2SeqModelDefinition RANDENG_77M = new Seq2SeqModelDefinition(
+            "randeng-t5-77m",
+            "nlp/seq2seq/randeng-t5-77m/",
+            "IDEA-CCNL/Randeng-T5-77M-Chinese",
+            List.of(
+                    "pytorch_model.bin",
+                    "spiece.model",
+                    "tokenizer.json",
+                    "tokenizer_config.json"),
+            List.of(
+                    "encoder_model_int8.onnx",
+                    "decoder_model_int8.onnx",
+                    "decoder_with_past_model_int8.onnx",
+                    "tokenizer.json"),
+            8, 6, 64, 1L, 0L);
 }

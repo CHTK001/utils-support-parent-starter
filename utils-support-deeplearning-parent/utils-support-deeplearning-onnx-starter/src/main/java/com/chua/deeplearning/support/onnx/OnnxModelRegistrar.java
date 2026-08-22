@@ -262,6 +262,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mt5-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5ZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-zh/encoder_model_int8.onnx", null, null, false, null);
         // 中文 BART-large：fnlp/bart-large-chinese，400M 中文书面语，int8 量化，downloadUrl 模式（Z:\temp\onnx-zh-bart-int8）
         reg("bart-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.BartZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/bart-zh/encoder_model_int8.onnx", null, null, false, null);
+        // 中文 Randeng-T5-77M：IDEA-CCNL/Randeng-T5-77M-Chinese，77M/嵌入式优先（80MB int8）
+        reg("randeng-t5-77m", "com.chua.deeplearning.support.onnx.seq2seq.RandengT5OrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/randeng-t5-77m/encoder_model_int8.onnx", null, null, false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx");
         // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，嵌入式模型 jar 提供，无需下载；适用英文翻译中文

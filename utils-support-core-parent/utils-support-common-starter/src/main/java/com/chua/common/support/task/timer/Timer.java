@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 时间轮接口。
+ * 时间轮接口。文件名为 TimeWheel，接口名为 Timer（历史命名）。
+ * 通过 {@code TimeWheel.newTimer()} 创建实例。
  *
  * <p>时间轮（Hashed Wheel Timer）是一种基于环形队列的高效定时任务调度数据结构，
  * 适用于大量延迟任务的高性能调度场景，比 {@link java.util.concurrent.ScheduledThreadPoolExecutor}

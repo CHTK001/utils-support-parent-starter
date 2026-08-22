@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -265,6 +265,12 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-randeng-t5-77m</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-insightface-landmark</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -404,6 +410,18 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-arcface</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+            <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-visdrone</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+            <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-yoloworld-s</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
