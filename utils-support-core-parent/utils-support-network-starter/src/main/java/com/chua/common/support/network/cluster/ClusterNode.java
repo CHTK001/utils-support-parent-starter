@@ -51,6 +51,7 @@ public class ClusterNode implements AutoCloseable {
     private ScatterNodeServer nodeServer;
     private int httpPort;
     private int tcpPort;
+    private int scatterPort;
     /** 本节点实际注册的服务路径列表 */
     private List<String> registeredPaths = List.of();
     /** 本节点注册的 http/tcp serverId，用于注销 */
@@ -81,6 +82,7 @@ public class ClusterNode implements AutoCloseable {
                 .buildNodeServer(discovery);
         nodeServer.start();
         clusterSetting.setScatterPort(nodeServer.getPort());
+        this.scatterPort = nodeServer.getPort();
         log.info("ClusterNode scatter 节点服务启动: {}:{} ", clusterSetting.getHost(), nodeServer.getPort());
 
         // ② 更新 discovery 的端口配置后再启动定时任务
@@ -207,6 +209,10 @@ public class ClusterNode implements AutoCloseable {
 
     public int getTcpPort() {
         return tcpPort;
+    }
+
+    public int getScatterPort() {
+        return scatterPort;
     }
 
     @Override

@@ -25,6 +25,7 @@
         <module>utils-support-milvus-starter</module>
         <module>utils-support-jvector-starter</module>
         <module>utils-support-influxdb-starter</module>
+        <module>utils-support-greptimedb-starter</module>
         <module>utils-support-hbase-starter</module>
         <module>utils-support-elasticsearch-starter</module>
         <module>utils-support-duckdb-starter</module>

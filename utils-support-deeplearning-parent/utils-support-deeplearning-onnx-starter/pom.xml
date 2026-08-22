@@ -17,6 +17,27 @@
 
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>audio/**</exclude>
+                <exclude>nlp/**</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -161,12 +182,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-paddleocrv6-medium</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-whisper</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -406,6 +421,16 @@
             <artifactId>utils-support-models-onnx-arcface</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-whisper</artifactId>
+            <version>4.0.0.42</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-moonshine</artifactId>
+            <version>4.0.0.42</version>
         </dependency>
     </dependencies>
 </project>
