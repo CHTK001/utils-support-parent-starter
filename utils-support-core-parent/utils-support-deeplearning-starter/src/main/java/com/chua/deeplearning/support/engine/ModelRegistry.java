@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.engine;
 
 import ai.djl.translate.Translator;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -950,7 +951,7 @@ public final class ModelRegistry {
     private static Object newTranslatorInstance(String translatorClassName) {
         try {
             Class<?> translatorClass = Class.forName(translatorClassName);
-            return translatorClass.getDeclaredConstructor().newInstance();
+            return ReflectUtils.instantiate(translatorClass);
         } catch (NoSuchMethodException noArgMissing) {
             throw new IllegalStateException(
                     "Translator 缺少无参构造: " + translatorClassName + "，请补充 public XxxTranslator() 或默认参数构造",

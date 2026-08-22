@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 import java.util.logging.Level;
@@ -364,8 +365,7 @@ public final class SoftwareDetector {
      */
     public static Protocol inferProtocolFromSocket(Socket socket) {
         try {
-            InetSocketAddress addr = (InetSocketAddress) socket.getClass()
-                    .getMethod("getRemoteSocketAddress").invoke(socket);
+            InetSocketAddress addr = (InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress", InetSocketAddress.class);
             if (addr != null) {
                 return Protocol.inferByPort(addr.getPort());
             }
@@ -398,8 +398,7 @@ public final class SoftwareDetector {
      */
     public static String extractSocketTarget(Socket socket) {
         try {
-            InetSocketAddress addr = (InetSocketAddress) socket.getClass()
-                    .getMethod("getRemoteSocketAddress").invoke(socket);
+            InetSocketAddress addr = (InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress", InetSocketAddress.class);
             if (addr != null && addr.isUnresolved()) {
                 return addr.getHostName() + ":" + addr.getPort();
             }
@@ -417,7 +416,7 @@ public final class SoftwareDetector {
      */
     public static String extractHttpUrl(Object conn) {
         try {
-            Object url = conn.getClass().getMethod("getURL").invoke(conn);
+            Object url = ReflectUtils.invoke(conn, "getURL", Object.class);
             return url != null ? url.toString() : "?";
         } catch (Exception e) {
             return "?";
@@ -432,7 +431,7 @@ public final class SoftwareDetector {
      */
     public static String extractHttpMethod(Object conn) {
         try {
-            return (String) conn.getClass().getMethod("getRequestMethod").invoke(conn);
+            return (String) ReflectUtils.invoke(conn, "getRequestMethod", String.class);
         } catch (Exception e) {
             return "GET";
         }

@@ -1,13 +1,21 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.file.FileSystem;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.file.builder.ReadBuilder;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.file.builder.WriteBuilder;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -431,7 +439,7 @@ public class FileEngine extends AbstractEngine {
     /** MapToEntity */
     private <T> T mapToEntity(Map<String, Object> map, Class<T> clazz) {
         try {
-            T instance = clazz.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(clazz);
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 setFieldValue(instance, entry.getKey(), entry.getValue());
             }

@@ -1,5 +1,6 @@
 package com.chua.ngrok.support;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.ngrok.Forwarder;
 import com.ngrok.HttpBuilder;
 import com.ngrok.Listener;
@@ -446,7 +447,7 @@ public class NgrokClient implements AutoCloseable {
     /** Safe获取Url */
     private static String safeGetUrl(Object obj) {
         try {
-            return (String) obj.getClass().getMethod("getUrl").invoke(obj);
+            return (String) ReflectUtils.invoke(obj, "getUrl", String.class);
         } catch (Exception e) {
             return null;
         }

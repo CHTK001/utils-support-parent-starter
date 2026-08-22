@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.apm.storage.StorageManager;
 import com.chua.runtime.plugin.Plugin;
@@ -312,8 +313,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 String sourceHost = resolveLocalHost();
                 int sourcePort = 0;
                 try {
-                    java.net.InetSocketAddress local = (java.net.InetSocketAddress) instance.getClass()
-                            .getMethod("getLocalSocketAddress").invoke(instance);
+                    java.net.InetSocketAddress local = (java.net.InetSocketAddress) ReflectUtils.invoke(instance, "getLocalSocketAddress", java.net.InetSocketAddress.class);
                     if (local != null) {
                         sourcePort = local.getPort();
                     }
@@ -427,8 +427,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 String host = "?";
                 int port = 0;
                 try {
-                    java.net.InetSocketAddress remote = (java.net.InetSocketAddress) socket.getClass()
-                            .getMethod("getRemoteSocketAddress").invoke(socket);
+                    java.net.InetSocketAddress remote = (java.net.InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress", java.net.InetSocketAddress.class);
                     if (remote != null) {
                         host = remote.getHostString();
                         port = remote.getPort();

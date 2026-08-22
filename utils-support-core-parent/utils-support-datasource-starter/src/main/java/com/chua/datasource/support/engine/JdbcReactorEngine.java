@@ -1,18 +1,31 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.network.net.NetAddress;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import io.r2dbc.spi.*;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -359,10 +372,10 @@ public class JdbcReactorEngine implements ReactorEngine {
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
         if (isMultiDataSource() && unifiedDataSource != null) {
-            // 多数据源模式：通过统一 DataSource 执行
+            /* 多数据源模式：通过统一 DataSource 执行 */
             return new ReactorLambdaQueryWrapper<>(new UnifiedEngineAdapter(unifiedDataSource), entityClass);
         }
-        // 单数据源模式：通过 R2DBC 执行
+        /* 单数据源模式：通过 R2DBC 执行 */
         return new ReactorLambdaQueryWrapper<>(new R2dbcEngineAdapter(), entityClass);
     }
 
@@ -543,7 +556,15 @@ public class JdbcReactorEngine implements ReactorEngine {
                         })
                         .collectList()
                         .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
-                conn -> Mono.empty()));
+                conn -> Mono.empty()))
+                .onErrorResume(ClassCastException.class, e -> {
+                    /* MySQL 驱动批量操作 ClassCastException，降级到 JDBC 路径 */
+                    DataSource ds = jdbcDataSources.get(name);
+                    if (ds != null) {
+                        return batchViaJdbc(ds, sql, batchParams);
+                    }
+                    return Flux.error(e);
+                });
     }
 
     /* ==================== JDBC 执行路径（多数据源联邦） ==================== */
@@ -584,7 +605,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
-                        T instance = rowType.getDeclaredConstructor().newInstance();
+                        T instance = ReflectUtils.instantiate(rowType);
                         for (int i = 1; i <= colCount; i++) {
                             String label = meta.getColumnLabel(i);
                             Object value = rs.getObject(i);
@@ -665,7 +686,7 @@ public class JdbcReactorEngine implements ReactorEngine {
     @SuppressWarnings("unchecked")
     private <T> T toObject(Row row, Class<T> rowType) {
         try {
-            T instance = rowType.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(rowType);
             row.getMetadata().getColumnMetadatas().forEach(cm -> {
                 String name = cm.getName();
                 if (name != null && !name.isEmpty()) {
@@ -892,20 +913,21 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public int[] batch(String sql, List<Object[]> batchParams) {
             if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
-            List<Integer> results = Mono.usingWhen(Mono.from(factory.create()),
+            Integer total = Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.fromIterable(batchParams)
                             .flatMap(p -> {
                                 Statement s = conn.createStatement(sql);
                                 bindParams(s, p);
-                                return Flux.from(s.execute())
+                                return Mono.from(Flux.from(s.execute())
                                         .flatMap(result -> safeGetRowsUpdated(result))
-                                        .collectList()
+                                        .collectList())
                                         .map(list -> list.isEmpty() ? 0L : list.stream().mapToLong(Long::longValue).sum());
                             })
                             .collectList()
                             .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
-                    conn -> Mono.empty()).block();
-            return results == null ? new int[0] : results.stream().mapToInt(Integer::intValue).toArray();
+                    conn -> Mono.from(conn.close()))
+                    .block();
+            return total == null ? new int[0] : new int[]{total};
         }
         private static String trimSql(String sql) {
             if (sql == null) return "";
@@ -948,7 +970,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
-                        T instance = rowType.getDeclaredConstructor().newInstance();
+                        T instance = ReflectUtils.instantiate(rowType);
                         for (int i = 1; i <= colCount; i++) {
                             String label = meta.getColumnLabel(i);
                             Object value = rs.getObject(i);

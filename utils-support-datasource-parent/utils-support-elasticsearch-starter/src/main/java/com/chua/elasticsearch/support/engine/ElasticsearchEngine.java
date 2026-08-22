@@ -8,23 +8,37 @@ import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.elasticsearch.support.meta.EsMetaData;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -794,7 +808,7 @@ public class ElasticsearchEngine implements Engine {
             return null;
         }
         try {
-            T instance = entityClass.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(entityClass);
             for (Map.Entry<String, Object> entry : source.entrySet()) {
                 String setterName = "set"
                         + Character.toUpperCase(entry.getKey().charAt(0))

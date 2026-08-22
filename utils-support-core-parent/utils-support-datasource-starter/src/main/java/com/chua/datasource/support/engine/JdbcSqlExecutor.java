@@ -1,9 +1,13 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -91,7 +95,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 ResultSetMetaData meta = rs.getMetaData();
                 int columnCount = meta.getColumnCount();
                 while (rs.next()) {
-                    T instance = rowType.getDeclaredConstructor().newInstance();
+                    T instance = ReflectUtils.instantiate(rowType);
                     for (int i = 1; i <= columnCount; i++) {
                         String label = meta.getColumnLabel(i);
                         if (label == null || label.isEmpty()) {

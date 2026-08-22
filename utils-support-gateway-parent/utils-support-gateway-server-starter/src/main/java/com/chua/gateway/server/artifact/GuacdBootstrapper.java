@@ -299,7 +299,12 @@ public final class GuacdBootstrapper {
             return null;
         }
 
-        // 8. 启动 guacd 子进程
+        // 8. 复用或启动 guacd 子进程
+        int port = GatewayProperties.guacdPort();
+        if (isPortListening(port)) {
+            log.info("[guacd-bootstrapper] ? 端口 {} 已有 guacd 在运行，直接复用", port);
+            return new GuacdHandle(null, guacdBin, port, source + "-reuse");
+        }
         try {
             return startGuacd(guacdBin, source);
         } catch (IOException ex) {

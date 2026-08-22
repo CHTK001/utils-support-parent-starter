@@ -1,5 +1,6 @@
 package com.chua.maven.support;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import java.util.List;
 
 /**
@@ -117,22 +118,18 @@ public class SshDeployTarget implements MavenDeployTarget {
     /** 连接 */
     public void connect() {
         try {
-            // 通过 Class.forName 动态加载避免编译时强依赖
-            Class<?> builderClass = Class.forName("com.chua.ssh.support.client.SftpClient$Builder");
-            Class<?> sftpClientClass = Class.forName("com.chua.ssh.support.client.SftpClient");
-
-            // SftpClient.builder()
-            Object builder = sftpClientClass.getMethod("builder").invoke(null);
-
-            // .host().port().username().password().build()
-            builderClass.getMethod("host", String.class).invoke(builder, host);
-            builderClass.getMethod("port", int.class).invoke(builder, port);
-            builderClass.getMethod("username", String.class).invoke(builder, username);
-            builderClass.getMethod("password", String.class).invoke(builder, password);
-            Object client = builderClass.getMethod("build").invoke(builder);
+            // 通过 ReflectUtils 动态加载避免编译时强依赖
+            Class<?> builderClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient$Builder");
+            Class<?> sftpClientClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient");
+            Object builder = ReflectUtils.invokeStatic(sftpClientClass, "builder", Object.class);
+            ReflectUtils.invoke(builder, "host", void.class, String.class, host);
+            ReflectUtils.invoke(builder, "port", void.class, int.class, port);
+            ReflectUtils.invoke(builder, "username", void.class, String.class, username);
+            ReflectUtils.invoke(builder, "password", void.class, String.class, password);
+            Object client = ReflectUtils.invoke(builder, "build", Object.class);
 
             // .connect()
-            sftpClient = sftpClientClass.getMethod("connect").invoke(client);
+            sftpClient = ReflectUtils.invoke(client, "connect", Object.class);
 
             ready = true;
             log.info("[maven] SSH 部署目标连接成功: {}@{}:{} -> {}", username, host, port, remoteRoot);
@@ -151,11 +148,11 @@ public class SshDeployTarget implements MavenDeployTarget {
         ensureReady();
         try {
             // sftpClient.upload().local(localPath).remote(targetPath).exec()
-            Object uploadOp = sftpClient.getClass().getMethod("upload").invoke(sftpClient);
-            uploadOp.getClass().getMethod("local", String.class).invoke(uploadOp, localPath);
+            Object uploadOp = ReflectUtils.invoke(sftpClient, "upload", Object.class);
+            ReflectUtils.invoke(uploadOp, "local", void.class, String.class, localPath);
             String remote = remoteRoot + "/" + targetPath;
-            uploadOp.getClass().getMethod("remote", String.class).invoke(uploadOp, remote);
-            uploadOp.getClass().getMethod("exec").invoke(uploadOp);
+            ReflectUtils.invoke(uploadOp, "remote", void.class, String.class, remote);
+            ReflectUtils.invoke(uploadOp, "exec", void.class);
 
             log.info("[maven] SSH 上传: {} -> {}:{}", localPath, host, remote);
         } catch (Exception e) {
@@ -174,10 +171,10 @@ public class SshDeployTarget implements MavenDeployTarget {
         try {
             String remote = remoteRoot + "/" + path;
             // sftpClient.mkdir().path(remote).exec()
-            Object mkdirOp = sftpClient.getClass().getMethod("mkdir").invoke(sftpClient);
-            mkdirOp.getClass().getMethod("path", String.class).invoke(mkdirOp, remote);
-            mkdirOp.getClass().getMethod("recursive", boolean.class).invoke(mkdirOp, true);
-            mkdirOp.getClass().getMethod("exec").invoke(mkdirOp);
+            Object mkdirOp = ReflectUtils.invoke(sftpClient, "mkdir", Object.class);
+            ReflectUtils.invoke(mkdirOp, "path", void.class, String.class, remote);
+            ReflectUtils.invoke(mkdirOp, "recursive", void.class, boolean.class, true);
+            ReflectUtils.invoke(mkdirOp, "exec", void.class);
         } catch (Exception e) {
             log.debug("[maven] SSH 创建目录异常（可能已存在）: {}", e.getMessage());
         }
@@ -188,9 +185,9 @@ public class SshDeployTarget implements MavenDeployTarget {
     public boolean exists(String path) {
         try {
             String remote = remoteRoot + "/" + path;
-            Object statOp = sftpClient.getClass().getMethod("stat").invoke(sftpClient);
-            statOp.getClass().getMethod("path", String.class).invoke(statOp, remote);
-            statOp.getClass().getMethod("exec").invoke(statOp);
+            Object statOp = ReflectUtils.invoke(sftpClient, "stat", Object.class);
+            ReflectUtils.invoke(statOp, "path", void.class, String.class, remote);
+            ReflectUtils.invoke(statOp, "exec", void.class);
             return true;
         } catch (Exception e) {
             return false;
@@ -204,9 +201,9 @@ public class SshDeployTarget implements MavenDeployTarget {
         try {
             String remote = remoteRoot + "/" + path;
             // sftpClient.rm().path(remote).exec()
-            Object rmOp = sftpClient.getClass().getMethod("rm").invoke(sftpClient);
-            rmOp.getClass().getMethod("path", String.class).invoke(rmOp, remote);
-            rmOp.getClass().getMethod("exec").invoke(rmOp);
+            Object rmOp = ReflectUtils.invoke(sftpClient, "rm", Object.class);
+            ReflectUtils.invoke(rmOp, "path", void.class, String.class, remote);
+            ReflectUtils.invoke(rmOp, "exec", void.class);
             log.info("[maven] SSH 删除: {}", remote);
         } catch (Exception e) {
             throw new MavenDeployException(
@@ -219,7 +216,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     public void disconnect() {
         if (sftpClient != null) {
             try {
-                sftpClient.getClass().getMethod("disconnect").invoke(sftpClient);
+                ReflectUtils.invoke(sftpClient, "disconnect", void.class);
             } catch (Exception e) {
                 log.warn("[maven] SSH 断开异常: {}", e.getMessage());
             }

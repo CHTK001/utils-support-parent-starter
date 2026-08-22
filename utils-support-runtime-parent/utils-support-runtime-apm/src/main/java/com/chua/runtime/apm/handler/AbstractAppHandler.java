@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
@@ -377,19 +378,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
      * @return 字段值，找不到返回 null
      */
     protected static Object findField(Object owner, String fieldName) {
-        Class<?> clazz = owner.getClass();
-        while (clazz != null) {
-            try {
-                Field f = clazz.getDeclaredField(fieldName);
-                f.setAccessible(true);
-                return f.get(owner);
-            } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass();
-            } catch (Exception ignore) {
-                return null;
-            }
-        }
-        return null;
+        return ReflectUtils.getField(owner, fieldName);
     }
 
     /**

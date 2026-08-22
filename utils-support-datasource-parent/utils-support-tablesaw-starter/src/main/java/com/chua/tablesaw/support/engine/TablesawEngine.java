@@ -1,22 +1,34 @@
 package com.chua.tablesaw.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.invoke.SerializedLambda;
@@ -707,7 +719,7 @@ public class TablesawEngine implements Engine {
             Map<String, Method> setters,
             List<String> columnNames) {
         try {
-            T instance = entityClass.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(entityClass);
             for (String col : columnNames) {
                 Method setter = setters.get(col.toLowerCase());
                 if (setter == null) {

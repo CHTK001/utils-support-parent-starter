@@ -1,21 +1,37 @@
 package com.chua.solr.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.engine.AbstractEngine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.solr.support.meta.SolrMetaData;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.solr.support.meta.SolrSearchEngine;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -32,6 +48,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -180,7 +197,7 @@ public class SolrEngine extends AbstractEngine {
             log.warn("[SOLR_DEBUG] numFound={}", docs.getNumFound());
             List<T> result = new ArrayList<>();
             for (SolrDocument doc : docs) {
-                T instance = entityClass.getDeclaredConstructor().newInstance();
+                T instance = ReflectUtils.instantiate(entityClass);
                 for (String field : doc.getFieldNames()) {
                     Object value = doc.getFieldValue(field);
                     if (value instanceof List<?> list && !list.isEmpty()) {
@@ -742,7 +759,7 @@ public class SolrEngine extends AbstractEngine {
             List<T> result = new ArrayList<>();
             for (SolrDocument doc : docs) {
                 log.warn("[SOLR_SEARCH] doc={}", doc);
-                T instance = entityClass.getDeclaredConstructor().newInstance();
+                T instance = ReflectUtils.instantiate(entityClass);
                 for (String field : doc.getFieldNames()) {
                     Object value = doc.getFieldValue(field);
                     if (value instanceof List<?> list && !list.isEmpty()) {

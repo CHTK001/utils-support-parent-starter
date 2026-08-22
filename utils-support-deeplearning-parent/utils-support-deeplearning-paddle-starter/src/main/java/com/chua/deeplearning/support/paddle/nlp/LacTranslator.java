@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.nlp;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
@@ -153,7 +154,7 @@ public class LacTranslator implements Translator<String, String[][]> {
                 long[][] lod = new long[1][2];
                 lod[0][0] = begin;
                 lod[0][1] = end;
-                pp.getMethod("setLoD", long[][].class).invoke(ndArray, (Object) lod);
+                ReflectUtils.invoke(ndArray, "setLoD", void.class, long[][].class, lod);
             }
         } catch (Throwable ignored) {
         }

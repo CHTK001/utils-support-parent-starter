@@ -65,8 +65,13 @@ public final class GatewayServerApplication {
         //    失败时仅警告，不阻塞 gateway（SSH / WS 协议仍可用）
         GuacdBootstrapper.GuacdHandle handle = GuacdBootstrapper.bootstrapAndStart();
         if (handle != null) {
-            log.info("[gateway-server] ✓ guacd 子进程运行中: pid={} port={} source={}",
-                    handle.process().pid(), handle.port(), handle.source());
+            if (handle.process() != null) {
+                log.info("[gateway-server] ? guacd 子进程运行中: pid={} port={} source={}",
+                        handle.process().pid(), handle.port(), handle.source());
+            } else {
+                log.info("[gateway-server] ? 复用已有 guacd: port={} source={}",
+                        handle.port(), handle.source());
+            }
         } else {
             log.warn("[gateway-server] guacd 未启动 —— RDP/VNC 协议不可用，SSH 仍可用");
         }

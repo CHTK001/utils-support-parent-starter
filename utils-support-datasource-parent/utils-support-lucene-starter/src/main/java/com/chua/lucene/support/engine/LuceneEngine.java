@@ -883,13 +883,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * 反射获取实体字段的 Java 类型。
      */
     private Class<?> resolveFieldType(String fieldName, Class<?> entityClass) {
-        for (Class<?> cls = entityClass; cls != null && cls != Object.class; cls = cls.getSuperclass()) {
-            try {
-                return cls.getDeclaredField(fieldName).getType();
-            } catch (NoSuchFieldException ignored) {
-            }
-        }
-        return null;
+        java.lang.reflect.Field f = ReflectUtils.findField(entityClass, fieldName);
+        return f != null ? f.getType() : null;
     }
 
     /**

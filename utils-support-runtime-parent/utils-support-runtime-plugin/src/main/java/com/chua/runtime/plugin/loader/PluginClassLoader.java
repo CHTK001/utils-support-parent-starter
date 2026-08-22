@@ -1,5 +1,6 @@
 package com.chua.runtime.plugin.loader;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
@@ -147,7 +148,7 @@ public class PluginClassLoader extends URLClassLoader {
      */
     public Plugin loadPlugin(String className) throws Exception {
         Class<?> clazz = loadClass(className);
-        return (Plugin) clazz.getDeclaredConstructor().newInstance();
+        return (Plugin) ReflectUtils.instantiate(clazz);
     }
 
     /**

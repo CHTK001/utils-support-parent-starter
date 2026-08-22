@@ -105,7 +105,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     /**
      * 清空所有本地缓存。
      */
-    protected void clearCache() {
+    public void clearCache() {
         localCache.clear();
     }
 

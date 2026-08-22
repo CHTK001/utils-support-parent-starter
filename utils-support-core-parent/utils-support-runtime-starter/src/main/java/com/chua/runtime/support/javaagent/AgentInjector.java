@@ -3,6 +3,7 @@ package com.chua.runtime.support.javaagent;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -253,21 +254,14 @@ public class AgentInjector {
      */
     private CmdResult injectByVirtualMachine(int pid, String agentJarPath) {
         try {
-            Class<?> vmClass = Class.forName(VM_CLASS_NAME);
-            Object vm = vmClass.getMethod("attach", String.class).invoke(null, String.valueOf(pid));
-
-            // 获取 Agent 入口类
+            Class<?> vmClass = ReflectUtils.forName(VM_CLASS_NAME);
+            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, String.class, String.valueOf(pid));
             String agentClass = getAgentClass(agentJarPath);
             if (agentClass == null) {
                 agentClass = "com.chua.runtime.support.javaagent.RuntimeAgent";
             }
-
-            // 调用 loadAgent
-            vmClass.getMethod("loadAgent", String.class, String.class)
-                    .invoke(vm, agentJarPath, options);
-
-            // 分离
-            vmClass.getMethod("detach").invoke(vm);
+            ReflectUtils.invoke(vm, "loadAgent", void.class, String.class, Object.class, agentJarPath, options);
+            ReflectUtils.invoke(vm, "detach", void.class);
 
             if (callback != null) {
                 callback.onLine("[AGENT] 注入成功: " + pid);

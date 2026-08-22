@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
@@ -178,10 +179,8 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private String extractServletPath(Object requestObj) {
         try {
-            String path = (String) requestObj.getClass()
-                    .getMethod("getRequestURI").invoke(requestObj);
-            String method = (String) requestObj.getClass()
-                    .getMethod("getMethod").invoke(requestObj);
+            String path = (String) ReflectUtils.invoke(requestObj, "getRequestURI", String.class);
+            String method = (String) ReflectUtils.invoke(requestObj, "getMethod", String.class);
             return method + " " + (path != null ? path : "/");
         } catch (Exception e) {
             return "?";
@@ -196,8 +195,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private int extractStatus(Object responseObj) {
         try {
-            return (int) responseObj.getClass()
-                    .getMethod("getStatus").invoke(responseObj);
+            return (int) ReflectUtils.invoke(responseObj, "getStatus", int.class);
         } catch (Exception e) {
             return 0;
         }
@@ -211,10 +209,8 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private int extractParamCount(Object requestObj) {
         try {
-            return (int) requestObj.getClass()
-                    .getMethod("getParameterMap").invoke(requestObj).getClass()
-                    .getMethod("size").invoke(requestObj.getClass()
-                            .getMethod("getParameterMap").invoke(requestObj));
+            Object map = ReflectUtils.invoke(requestObj, "getParameterMap", Object.class);
+            return (int) ReflectUtils.invoke(map, "size", int.class);
         } catch (Exception e) {
             return 0;
         }
@@ -228,13 +224,11 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private String extractClientIp(Object requestObj) {
         try {
-            String xff = (String) requestObj.getClass()
-                    .getMethod("getHeader", String.class).invoke(requestObj, "X-Forwarded-For");
+            String xff = (String) ReflectUtils.invoke(requestObj, "getHeader", String.class, "X-Forwarded-For");
             if (StringUtils.isNotEmpty(xff)) {
                 return xff.split(",")[0].trim();
             }
-            return (String) requestObj.getClass()
-                    .getMethod("getRemoteAddr").invoke(requestObj);
+            return (String) ReflectUtils.invoke(requestObj, "getRemoteAddr", String.class);
         } catch (Exception e) {
             return "?";
         }
@@ -248,8 +242,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private String extractAccept(Object requestObj) {
         try {
-            return (String) requestObj.getClass()
-                    .getMethod("getHeader", String.class).invoke(requestObj, "Accept");
+            return (String) ReflectUtils.invoke(requestObj, "getHeader", String.class, "Accept");
         } catch (Exception e) {
             return "?";
         }
