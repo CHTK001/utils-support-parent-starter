@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.draw;
 
 import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import java.util.ArrayList;
@@ -143,6 +144,27 @@ public class DrawerPipeline {
             DetectionInfo box = boxList.get(i);
             String label = labelList != null && i < labelList.size() ? labelList.get(i) : null;
             box(box, label);
+        }
+        return this;
+    }
+
+    /**
+     * 一键注入检测框与标签列表（PredictRectangle 版本）。
+     *
+     * @param boxList 检测框列表
+     * @param labelList 标签列表（与检测框一一对应）
+     * @return this
+     */
+    public DrawerPipeline predictBoxes(List<PredictRectangle> boxList, List<? extends String> labelList) {
+        if (boxList == null) {
+            return this;
+        }
+        for (int i = 0; i < boxList.size(); i++) {
+            PredictRectangle b = boxList.get(i);
+            String label = labelList != null && i < labelList.size() ? labelList.get(i) : null;
+            box(new DetectionInfo(
+                label == null ? "" : label,
+                b.confidence(), b.x(), b.y(), b.width(), b.height(), 0, 0, 0, 0, 0), null);
         }
         return this;
     }

@@ -113,9 +113,11 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
         int imgH = 0;
         if (imageInput && input instanceof byte[] bytes) {
             try {
-                // 用 DJL 自带解码器直接解码字节流（兼容性优于 OpenCV Mat 中转，避免 toBufferedImage 返回 null）
-                ai.djl.modality.cv.Image img = ai.djl.modality.cv.ImageFactory.getInstance()
-                        .fromImage(new java.io.ByteArrayInputStream(bytes));
+                java.awt.image.BufferedImage buffered = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(bytes));
+                if (buffered == null) {
+                    throw new IllegalArgumentException("无法解码图像字节，ImageIO.read 返回 null: " + modelName);
+                }
+                ai.djl.modality.cv.Image img = new ai.djl.modality.cv.BufferedImageFactory().fromImage(buffered);
                 imgW = img.getWidth();
                 imgH = img.getHeight();
                 result = factory.predict(img);
