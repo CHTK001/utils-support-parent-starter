@@ -31,8 +31,10 @@ public class ScatterSetting {
     private String groupId = "default";
     /** 监听地址 */
     private String host = "0.0.0.0";
-    /** 监听端口（0 = 系统分配） */
+    /** 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中 */
     private int port;
+    /** scatter 通信端口（由 NodeServer 启动后自动填充） */
+    private int scatterPort;
     /** 传输协议：tcp / udp */
     private String protocol = "tcp";
     /** 对外宣告地址（announceHost 非空时优先用于注册，便于 NAT 场景） */

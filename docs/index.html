@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>utils-support-parent-starter 文档中心</title>
+    <style>
+        :root {
+            --bg: #0d1117; --card: #161b22; --border: #30363d;
+            --text: #c9d1d9; --muted: #8b949e;
+            --accent: #58a6ff; --green: #3fb950;
+            --orange: #d29922; --red: #f85149; --purple: #bc8cff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+        .header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 40px;
+        }
+        .header h1 { font-size: 1.6em; color: #f0f6fc; margin-bottom: 6px; }
+        .header p { color: var(--muted); font-size: 0.92em; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 32px 40px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.2s, transform 0.15s;
+            display: block;
+        }
+        .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .card-icon { font-size: 1.8em; margin-bottom: 10px; }
+        .card h2 { font-size: 1.15em; color: #f0f6fc; margin-bottom: 8px; }
+        .card p { color: var(--muted); font-size: 0.88em; line-height: 1.5; }
+        .card-tag {
+            display: inline-block;
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .tag-blue   { background: rgba(88,166,255,0.15); color: var(--accent); }
+        .tag-green  { background: rgba(63,185,80,0.15);  color: var(--green); }
+        .tag-orange { background: rgba(210,153,34,0.15); color: var(--orange); }
+        .tag-purple { background: rgba(188,140,255,0.15); color: var(--purple); }
+        .tag-red    { background: rgba(248,81,73,0.15);  color: var(--red); }
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: var(--muted);
+            font-size: 0.82em;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>utils-support-parent-starter 文档中心</h1>
+    <p>模块化 Java 工具包集合 · 基于 SPI 插件化架构</p>
+</div>
+
+<div class="grid">
+    <a class="card" href="集群服务器使用说明.html" target="_blank">
+        <div class="card-icon">&#9881;</div>
+        <h2>集群服务器 ClusterServer</h2>
+        <p>一行代码启动无中心化集群节点。基于 Scatter 对等网格自动发现、路由、故障退避。含架构图与典型场景。</p>
+        <span class="card-tag tag-blue">核心模块</span>
+        <span class="card-tag tag-green">Seed / Gateway 模式</span>
+    </a>
+
+    <a class="card" href="https://gitee.com/achtk/utils-support-parent-starter" target="_blank">
+        <div class="card-icon">&#128218;</div>
+        <h2>项目源码 & 提交记录</h2>
+        <p>Gitee 仓库地址，查看最新代码、Issue 和 Release 历史。</p>
+        <span class="card-tag tag-purple">Gitee</span>
+    </a>
+
+    <a class="card" href="../utils-support-core-parent/utils-support-common-starter/README.md" target="_blank">
+        <div class="card-icon">&#9883;</div>
+        <h2>common-starter 基础工具</h2>
+        <p>类型转换、JSON、日期、加密、HTTP 客户端、SPI 服务发现等日常 Java 开发工具。</p>
+        <span class="card-tag tag-green">必选依赖</span>
+    </a>
+
+    <a class="card" href="../utils-support-cloud-parent/README.md" target="_blank">
+        <div class="card-icon">&#9729;</div>
+        <h2>云服务集成</h2>
+        <p>阿里云、腾讯云、华为云、AWS、OpenAI、DeepSeek、智谱 GLM 等云服务和 AI 大模型 API。</p>
+        <span class="card-tag tag-orange">cloud-parent</span>
+    </a>
+
+    <a class="card" href="../utils-support-datasource-parent/README.md" target="_blank">
+        <div class="card-icon">&#128451;</div>
+        <h2>数据源</h2>
+        <p>MySQL、PostgreSQL、Redis、MongoDB、Milvus、ClickHouse、Elasticsearch 等 30+ 种数据源支持。</p>
+        <span class="card-tag tag-blue">datasource-parent</span>
+    </a>
+
+    <a class="card" href="../utils-support-filesystem-parent/README.md" target="_blank">
+        <div class="card-icon">&#128196;</div>
+        <h2>文件系统</h2>
+        <p>Excel、PDF、Word、图片处理、FFmpeg 音视频、邮件、Markdown 转换等文件处理能力。</p>
+        <span class="card-tag tag-green">filesystem-parent</span>
+    </a>
+
+    <a class="card" href="../utils-support-deeplearning-parent/README.md" target="_blank">
+        <div class="card-icon">&#129302;</div>
+        <h2>深度学习</h2>
+        <p>ONNX、PyTorch、TensorFlow 推理引擎；YOLO 目标检测、OCR、人脸识别、语音识别。</p>
+        <span class="card-tag tag-purple">deeplearning-parent</span>
+    </a>
+
+    <a class="card" href="../utils-support-protocol-parent/README.md" target="_blank">
+        <div class="card-icon">&#128268;</div>
+        <h2>网络协议</h2>
+        <p>Netty、Vert.x、Armeria、RPC（Dubbo/SOFARPC）、SSH、FTP、DHT、KCP 等 50+ 网络协议支持。</p>
+        <span class="card-tag tag-orange">protocol-parent</span>
+    </a>
+
+    <a class="card" href="../utils-support-middleware-parent/README.md" target="_blank">
+        <div class="card-icon">&#9881;</div>
+        <h2>中间件</h2>
+        <p>Kafka、RabbitMQ 消息队列；Nacos、ZooKeeper 注册中心；Etcd、Consul 分布式 KV；SkyWalking 链路追踪。</p>
+        <span class="card-tag tag-red">middleware-parent</span>
+    </a>
+
+    <a class="card" href="../utils-support-task-parent/README.md" target="_blank">
+        <div class="card-icon">&#9201;</div>
+        <h2>任务调度</h2>
+        <p>Quartz 企业级定时任务；Resilience4j 熔断限流重试；Chronicle Queue 高性能持久化队列。</p>
+        <span class="card-tag tag-blue">task-parent</span>
+    </a>
+</div>
+
+<div class="footer">
+    utils-support-parent-starter &copy; 2026 &middot; Apache License 2.0 &middot; JDK 25
+</div>
+
+</body>
+</html>

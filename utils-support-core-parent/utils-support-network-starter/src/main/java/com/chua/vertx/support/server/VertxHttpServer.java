@@ -20,6 +20,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import java.util.concurrent.Executors;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +51,8 @@ public class VertxHttpServer extends AbstractServer {
     private Vertx vertx;
     /** 服务器 */
     private io.vertx.core.http.HttpServer server;
+    /** 虚拟线程池:handler 执行 */
+    private java.util.concurrent.ExecutorService virtualThreadExecutor;
     /** Reactive */
     private boolean reactive;
 
@@ -218,33 +221,31 @@ public class VertxHttpServer extends AbstractServer {
                 // 每请求省去 file upload 解析开销,提升吞吐
                 .setHandleFileUploads(false));
 
+        // 虚拟线程池:handler 提交到虚拟线程并行执行,事件循环专注 I/O 多路复用
+        java.util.concurrent.ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
         rootRoute.handler(ctx -> {
             VertxServerRequest request = new VertxServerRequest(ctx);
             // 暴露底层 RoutingContext，供 WebSocket 反向代理等 Filter 完成升级
             request.setAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT, ctx);
             VertxServerResponse response = new VertxServerResponse(ctx);
-            // 无响应式过滤器(纯同步 ServerFilter 链,如 echo/mapping 压测场景):
-            // 事件循环直接执行,省去 executeBlocking 每请求一次 worker 池 hop,
-            // 吞吐显著提升(实测 10k→20k+ RPS)。
-            // 注意:同步链必须轻量(echo/mapping/非阻塞 filter);若接入耗时/阻塞 filter,
-            // 应改为响应式过滤器(ReactiveServerFilter),由响应式链在 worker 池执行。
-            boolean hasReactiveFilters = !filterManager.getMergedReactiveFilters().isEmpty();
-            if (reactive && hasReactiveFilters) {
-                // 响应式:等待异步过滤器链(含 handler 的 sleep 等耗时操作)完成后再真正写出响应,
-                // 避免响应提前发出导致延迟场景假数据(空 200)
-                handleRequestAsync(request, response).whenComplete((v, ex) -> {
+            // 提交到虚拟线程执行 handler,事件循环专注 I/O
+            virtualThreadExecutor.execute(() -> {
+                try {
+                    handleRequestAsync(request, response).whenComplete((v, ex) -> {
+                        if (!response.isCommitted()) {
+                            response.endVertx();
+                        }
+                    });
+                } catch (Exception e) {
+                    log.warn("[vertx-http] handler execution failed: {}", e.getMessage());
                     if (!response.isCommitted()) {
-                        response.endVertx();
+                        VertxServerResponse vsr = (VertxServerResponse) response;
+                        vsr.setStatus(500);
+                        vsr.endVertx();
                     }
-                });
-            } else {
-                // 同步链(或无响应式过滤器):事件循环直接执行,EventLoop 不参与 worker 池 hop
-                handleRequestAsync(request, response).whenComplete((v, ex) -> {
-                    if (!response.isCommitted()) {
-                        response.endVertx();
-                    }
-                });
-            }
+                }
+            });
         });
 
         server.requestHandler(router);
@@ -278,6 +279,9 @@ public class VertxHttpServer extends AbstractServer {
                 server.close().toCompletionStage().toCompletableFuture().join();
             } catch (Exception ignored) {
             }
+        }
+        if (virtualThreadExecutor != null) {
+            virtualThreadExecutor.shutdownNow();
         }
         if (vertx != null) {
             try {
@@ -534,7 +538,7 @@ public class VertxHttpServer extends AbstractServer {
             ctx.response().end();
         }
 
-        void endVertx() {
+        public void endVertx() {
             if (committed) {
                 return;
             }

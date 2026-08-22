@@ -29,10 +29,12 @@ public class ScatterTcpClusterSceneTest {
                 .build();
         nodeA.start();
 
+        // seed 使用 nodeA 的实际 scatter 通信端口（port+2），不是 HTTP 业务端口
+        int scatterPortA = nodeA.getPort();
         Scatter nodeB = new TcpScatterBuilder()
                 .nodeId("node-b").host("127.0.0.1").port(portB)
                 .groupId("order").servicePath("/scatter")
-                .seeds(List.of("127.0.0.1:" + portA))
+                .seeds(List.of("127.0.0.1:" + scatterPortA))
                 .autoDiscoveryInterval(200).heartbeatInterval(500).failRemoveCount(3)
                 .persistenceEnabled(false)
                 .build();
@@ -65,10 +67,12 @@ public class ScatterTcpClusterSceneTest {
                 .build();
         nodeA.start();
 
+        // seed 使用 nodeA 的实际 scatter 通信端口（port+2），不是 HTTP 业务端口
+        int scatterPortA = nodeA.getPort();
         Scatter nodeB = new TcpScatterBuilder()
                 .nodeId("node-b").host("127.0.0.1").port(portB)
                 .groupId("order").servicePath("/scatter")
-                .seeds(List.of("127.0.0.1:" + portA))
+                .seeds(List.of("127.0.0.1:" + scatterPortA))
                 .autoDiscoveryInterval(200).heartbeatInterval(500).failRemoveCount(2)
                 .persistenceEnabled(false)
                 .build();
@@ -80,9 +84,9 @@ public class ScatterTcpClusterSceneTest {
                     .anyMatch(d -> "node-a".equals(d.getServerId()));
             Assertions.assertTrue(foundBefore, "掉线前应发现 node-a");
 
-            // node-a 掉线：心跳 500ms × 失败 2 次 ≈ 1-2s 剔除
+            // node-a 掉线：心跳 500ms × 失败 2 次 ≈ 1-2s 剔除；额外预留停止耗时
             nodeA.stop();
-            TimeUnit.SECONDS.sleep(4);
+            TimeUnit.SECONDS.sleep(6);
             boolean foundAfter = nodeB.discovery().getServiceAll("/scatter").stream()
                     .anyMatch(d -> "node-a".equals(d.getServerId()));
             Assertions.assertFalse(foundAfter, "node-a 掉线后应从 node-b 剔除");

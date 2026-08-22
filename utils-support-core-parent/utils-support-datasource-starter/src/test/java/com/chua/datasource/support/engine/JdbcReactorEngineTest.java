@@ -60,7 +60,7 @@ class JdbcReactorEngineTest {
 
         Flux<Map<String, Object>> queryResult = engine.query("SELECT * FROM test_user");
         StepVerifier.create(queryResult)
-                .expectNextMatches(row -> row.get("id").equals(1) && "张三".equals(row.get("name")))
+                .expectNextMatches(row -> row.get("ID").equals(1) && "张三".equals(row.get("NAME")))
                 .verifyComplete();
     }
 

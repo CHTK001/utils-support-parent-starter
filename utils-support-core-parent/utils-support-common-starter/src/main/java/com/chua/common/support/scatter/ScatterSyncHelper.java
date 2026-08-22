@@ -37,6 +37,12 @@ public final class ScatterSyncHelper {
         customClient = client;
     }
 
+    /** 测试后清理静态状态，防止跨测试干扰。 */
+    public static void resetForTest() {
+        customClient = null;
+        REQUEST_ID_SEQ.clear();
+    }
+
     /**
      * 拉取目标节点的服务表（带超时 + 重试）。
      *

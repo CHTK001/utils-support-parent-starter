@@ -44,6 +44,14 @@ public class NetAddress implements Serializable {
      * 密码
      */
     private String password;
+    /**
+     * 数据库名（R2DBC 专用，如 h2:mem://dbname 中的 dbname）
+     */
+    private String database;
+    /**
+     * 是否为 R2DBC URL
+     */
+    private boolean r2dbc;
 
     /** 创建 NetAddress 实例 */
     public NetAddress() {}
@@ -61,6 +69,11 @@ public class NetAddress implements Serializable {
         if (StringUtils.isNullOrEmpty(url)) { return; }
         try {
             String s = url.trim();
+            // R2DBC URL: r2dbc:h2:mem://dbname 或 r2dbc:mysql://host:port/db
+            if (s.startsWith("r2dbc:")) {
+                parseR2dbcUrl(s);
+                return;
+            }
             if (!s.contains("://") && s.contains(":")) {
                 String[] parts = s.split(":");
                 this.host = parts[0];
@@ -108,6 +121,59 @@ public class NetAddress implements Serializable {
         }
     }
 
+    /**
+     * 解析 R2DBC URL。
+     * 格式：r2dbc:{driver}:[mem|file|...]://[{host}[:port]][/database]
+     * 例如：r2dbc:h2:mem://testdb、r2dbc:mysql://localhost:3306/mydb
+     */
+    private void parseR2dbcUrl(String url) {
+        this.r2dbc = true;
+        // 去掉 r2dbc: 前缀
+        String afterPrefix = url.substring("r2dbc:".length());
+        // 分割 driver 和 rest
+        int firstColon = afterPrefix.indexOf(':');
+        if (firstColon < 0) { this.address = url; return; }
+        this.protocol = afterPrefix.substring(0, firstColon); // "h2" 或 "mysql"
+        String rest = afterPrefix.substring(firstColon + 1); // ":mem://testdb"
+        if (rest.startsWith(":")) {
+            rest = rest.substring(1); // "mem://testdb"
+        }
+        // 找 ://
+        int schemeEnd = rest.indexOf("://");
+        if (schemeEnd < 0) { this.address = url; return; }
+        String authority = rest.substring(0, schemeEnd); // "mem" 或 "localhost:3306"
+        String pathPart = rest.substring(schemeEnd + 3); // "testdb" 或 "/mydb"
+
+        // 判断是否有 host：有 / 或 : 表示有 host（MySQL 风格）
+        // 无 / 且无 : 表示无 host（H2 mem/file 风格）
+        if (authority.contains("/") || authority.contains(":")) {
+            // 有 host
+            int slashIdx = authority.indexOf('/');
+            this.host = slashIdx >= 0 ? authority.substring(0, slashIdx) : authority;
+            if (this.host != null && this.host.contains(":")) {
+                String[] hp = this.host.split(":");
+                this.host = hp[0];
+                try { this.port = Integer.parseInt(hp[1]); } catch (NumberFormatException ignored) {}
+            }
+            this.path = slashIdx >= 0 ? authority.substring(slashIdx) : "";
+        } else {
+            // 无 host（H2 mem/file 模式），整个 authority 是 sub-protocol
+            // database 从 pathPart 提取
+            this.path = pathPart.isEmpty() ? "" : "/" + pathPart;
+            this.database = pathPart;
+            this.address = "";
+            return;
+        }
+        // 解析 path 中的 database
+        if (!pathPart.isEmpty()) {
+            this.path = pathPart.startsWith("/") ? pathPart : "/" + pathPart;
+            String db = this.path.substring(1);
+            int qIdx = db.indexOf('?');
+            this.database = qIdx > 0 ? db.substring(0, qIdx) : db;
+        }
+        this.address = this.host + (this.port != null && this.port > 0 ? ":" + this.port : "");
+    }
+
     /** Of */
     public static NetAddress of(String url) {
         return new NetAddress(url);
@@ -150,6 +216,11 @@ public class NetAddress implements Serializable {
             case "ftp" -> 21;
             case "ssh" -> 22;
             case "mysql" -> 3306;
+            case "postgresql" -> 5432;
+            case "mariadb" -> 3306;
+            case "mssql" -> 1433;
+            case "oracle" -> 1521;
+            case "h2" -> -1;
             case "redis" -> 6379;
             case "mongodb" -> 27017;
             case "kafka" -> 9092;
