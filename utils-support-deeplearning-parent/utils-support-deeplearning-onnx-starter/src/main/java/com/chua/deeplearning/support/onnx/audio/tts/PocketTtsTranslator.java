@@ -717,19 +717,26 @@ public class PocketTtsTranslator {
                 float[] encOut = new float[fb.remaining()];
                 fb.get(encOut);
                 // mimi_encoder 输出 [batch, frames, 1024]，投影到 [seqLen, 32]
-                // 方法：每32个1024维特征取均值，得到32维
-                int encoderDim = encOut.length / (int) shape[2];
-                int projDim = SEQUENCE_EMBED_DIM;
+                // encoderDim 从模型元数据获取（1024），非 waveform 长度
+                int encoderDim = latentDim * 128; // mimi_encoder 固定输出维度 1024
+                // 更可靠：从 output shape 推断
+                long[] encShape = ((ai.onnxruntime.TensorInfo) ((ai.onnxruntime.NodeInfo)
+                        mimiEncoderSession.getOutputInfo().get(mimiEncoderOutputName)).getInfo()).getShape();
+                if (encShape.length >= 3) {
+                    encoderDim = (int) encShape[2];
+                }
                 int frames = encOut.length / encoderDim;
+                int projDim = SEQUENCE_EMBED_DIM;
                 float[] projected = new float[frames * projDim];
+                int step = encoderDim / projDim;
                 for (int f = 0; f < frames; f++) {
                     int offset = f * encoderDim;
                     for (int d = 0; d < projDim; d++) {
                         float sum = 0;
-                        for (int k = 0; k < encoderDim; k += encoderDim / projDim) {
+                        for (int k = d; k < encoderDim; k += step) {
                             sum += encOut[offset + k];
                         }
-                        projected[f * projDim + d] = sum / (encoderDim / projDim);
+                        projected[f * projDim + d] = sum / step;
                     }
                 }
                 refLatentsLen = projected.length;

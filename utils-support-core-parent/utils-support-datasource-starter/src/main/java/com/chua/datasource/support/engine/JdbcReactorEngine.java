@@ -398,6 +398,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (isMultiDataSource() && unifiedDataSource != null) {
             return queryViaJdbc(unifiedDataSource, sql, params);
         }
+        if (defaultDataSourceName == null) {
+            return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
+        }
         return queryViaR2dbc(defaultDataSourceName, sql, params);
     }
 
@@ -405,6 +408,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
         if (isMultiDataSource() && unifiedDataSource != null) {
             return queryTypedViaJdbc(unifiedDataSource, sql, rowType, params);
+        }
+        if (defaultDataSourceName == null) {
+            return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
         return queryTypedViaR2dbc(defaultDataSourceName, sql, rowType, params);
     }
@@ -414,6 +420,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (isMultiDataSource() && unifiedDataSource != null) {
             return executeViaJdbc(unifiedDataSource, sql, params);
         }
+        if (defaultDataSourceName == null) {
+            return Mono.error(new IllegalStateException("未配置数据源，无法执行语句"));
+        }
         return executeViaR2dbc(defaultDataSourceName, sql, params);
     }
 
@@ -421,6 +430,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     public Flux<Integer> batch(String sql, List<Object[]> batchParams) {
         if (isMultiDataSource() && unifiedDataSource != null) {
             return batchViaJdbc(unifiedDataSource, sql, batchParams);
+        }
+        if (defaultDataSourceName == null) {
+            throw new IllegalStateException("未配置数据源，无法执行批次");
         }
         return batchViaR2dbc(defaultDataSourceName, sql, batchParams);
     }
@@ -456,18 +468,16 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        return Mono.usingWhen(
+        return Mono.from(Mono.usingWhen(
                 Mono.from(factory.create()),
-                conn -> {
-                    Statement stmt = conn.createStatement(sql);
-                    bindParams(stmt, params);
-                    return Flux.from(stmt.execute())
-                            .flatMap(result -> Flux.from(result.getRowsUpdated()))
-                            .reduce(0L, Long::sum)
-                            .map(l -> l.intValue())
-                            .defaultIfEmpty(0);
-                },
-                conn -> Mono.empty());
+                conn -> Flux.from(executeStatement(conn, sql, params))
+                        .flatMap(result -> Flux.from(result.getRowsUpdated())
+                                .map(v -> v instanceof Number n ? n.longValue() : 0L))
+                        .collectList()
+                        .map(list -> list.stream().mapToLong(Long::longValue).sum()),
+                conn -> Mono.empty()))
+                .map(l -> l.intValue())
+                .defaultIfEmpty(0);
     }
 
     private Flux<Integer> batchViaR2dbc(String name, String sql, List<Object[]> batchParams) {
