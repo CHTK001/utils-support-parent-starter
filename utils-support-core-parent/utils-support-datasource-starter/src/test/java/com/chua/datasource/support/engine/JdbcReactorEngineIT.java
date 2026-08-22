@@ -28,6 +28,10 @@ class JdbcReactorEngineIT {
     private static final String MSSQL_USER = "sa";
     private static final String MSSQL_PASSWORD = "YourStrong!Passw0rd";
 
+    private static final String MARIADB_URL = "jdbc:mariadb://172.16.0.40:3308/testdb?useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String MARIADB_USER = "root";
+    private static final String MARIADB_PASSWORD = "root";
+
     // 每个测试用例使用唯一表名前缀，避免并发/重复执行时的表冲突
     private static int TABLE_COUNTER = 0;
     private String uniqueTable(String base) {
@@ -46,6 +50,22 @@ class JdbcReactorEngineIT {
             stmt.execute("DROP TABLE IF EXISTS jte_upd_del");
             stmt.execute("DROP TABLE IF EXISTS jte_batch");
             stmt.execute("DROP TABLE IF EXISTS jte_params");
+            try (java.sql.ResultSet rs = stmt.executeQuery(
+                    "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME LIKE 'jte_batch_%'")) {
+                while (rs.next()) {
+                    try (java.sql.Statement dropStmt = conn.createStatement()) {
+                        dropStmt.execute("DROP TABLE IF EXISTS " + rs.getString(1));
+                    }
+                }
+            }
+            try (java.sql.ResultSet rs = stmt.executeQuery(
+                    "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME LIKE 'jte_r2dbc_%'")) {
+                while (rs.next()) {
+                    try (java.sql.Statement dropStmt = conn.createStatement()) {
+                        dropStmt.execute("DROP TABLE IF EXISTS " + rs.getString(1));
+                    }
+                }
+            }
         } catch (Exception e) {
             System.err.println("[IT] mysql_cleanup FAILED: " + e.getMessage());
         }
@@ -69,6 +89,22 @@ class JdbcReactorEngineIT {
             stmt.execute("IF OBJECT_ID('jte_mssql_batch', 'U') IS NOT NULL DROP TABLE jte_mssql_batch");
         } catch (Exception e) {
             System.err.println("[IT] mssql_cleanup FAILED: " + e.getMessage());
+        }
+        /* 清理 MariaDB/MySQL 共享库遗留表 */
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                MARIADB_URL, MARIADB_USER, MARIADB_PASSWORD);
+             java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS jte_mariadb_test");
+            stmt.execute("DROP TABLE IF EXISTS jte_mariadb_upd");
+            stmt.execute("DROP TABLE IF EXISTS jte_mariadb_batch");
+            try (java.sql.ResultSet rs = stmt.executeQuery(
+                    "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='testdb' AND TABLE_NAME LIKE 'jte_mariadb_%'")) {
+                while (rs.next()) {
+                    stmt.execute("DROP TABLE IF EXISTS " + rs.getString(1));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[IT] mariadb_cleanup FAILED: " + e.getMessage());
         }
     }
 
@@ -294,10 +330,6 @@ class JdbcReactorEngineIT {
         engine.execute("IF OBJECT_ID('" + tbl + "', 'U') IS NOT NULL DROP TABLE " + tbl).block();
         engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, name VARCHAR(50), created_at DATETIME2 DEFAULT GETDATE())")
                 .block();
-        // 诊断：检查表创建后是否已有数据
-        List<Map<String, Object>> preCheck = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
-                .collectList().block();
-        System.out.println("[DEBUG] mssql table row count after CREATE: " + preCheck);
         engine.execute("INSERT INTO " + tbl + " (id, name) VALUES (1, 'sqlserver_test')").block();
 
         List<Map<String, Object>> rows = engine.query("SELECT * FROM " + tbl + " WHERE id = 1")
@@ -425,9 +457,11 @@ class JdbcReactorEngineIT {
         engine.execute("DROP TABLE IF EXISTS " + tbl).block();
         engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, val VARCHAR(20))").block();
 
-        Flux<Integer> results = engine.batch("INSERT IGNORE INTO " + tbl + " (id, val) VALUES (?, ?)",
-                List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
-        StepVerifier.create(results).expectNextCount(3).verifyComplete();
+        // 使用唯一ID避免与历史数据冲突
+        int base = (int) (System.nanoTime() % 100000) * 10;
+        Flux<Integer> results = engine.batch("INSERT INTO " + tbl + " (id, val) VALUES (?, ?)",
+                List.of(new Object[]{base, "a"}, new Object[]{base + 1, "b"}, new Object[]{base + 2, "c"}));
+        StepVerifier.create(results).expectNext(3).verifyComplete();
 
         Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
                 .next().block();
@@ -444,6 +478,96 @@ class JdbcReactorEngineIT {
         engine.execute("DROP TABLE IF EXISTS " + tbl).block();
         engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, content VARCHAR(200))").block();
         engine.execute("INSERT IGNORE INTO " + tbl + " (id, content) VALUES (1, 'hello & < > \\\"test')")
+                .block();
+
+        Flux<Map<String, Object>> result = engine.query("SELECT * FROM " + tbl + " WHERE id = ?", 1);
+        StepVerifier.create(result)
+                .expectNextMatches(row -> row.get("content") != null && row.get("content").toString().contains("hello"))
+                .verifyComplete();
+
+        engine.execute("DROP TABLE " + tbl).block();
+    }
+
+    // ==================== 错误处理 ====================
+
+    // ==================== MariaDB 真实库（共用 mysqldb 容器，port 3308） ====================
+
+    @Test
+    void mariadb_connectAndQuery() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mariadb", MARIADB_URL, MARIADB_USER, MARIADB_PASSWORD);
+        Flux<Map<String, Object>> result = engine.query("SELECT 1 AS one, 2 AS two");
+        StepVerifier.create(result)
+                .expectNextMatches(row -> row.get("one") != null && row.get("two") != null)
+                .verifyComplete();
+    }
+
+    @Test
+    void mariadb_createInsertSelectAndDrop() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mariadb", MARIADB_URL, MARIADB_USER, MARIADB_PASSWORD);
+        String tbl = uniqueTable("jte_mariadb_test");
+
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, name VARCHAR(50), ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+                .block();
+        engine.execute("INSERT INTO " + tbl + " (id, name) VALUES (1, 'mariadb_test')").block();
+
+        List<Map<String, Object>> rows = engine.query("SELECT * FROM " + tbl + " WHERE id = 1")
+                .collectList().block();
+        assertNotNull(rows); assertFalse(rows.isEmpty());
+        assertEquals("mariadb_test", rows.get(0).get("name"));
+
+        engine.execute("DROP TABLE " + tbl).block();
+    }
+
+    @Test
+    void mariadb_updateAndDelete() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mariadb", MARIADB_URL, MARIADB_USER, MARIADB_PASSWORD);
+        String tbl = uniqueTable("jte_mariadb_upd");
+
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, status VARCHAR(20))").block();
+        engine.execute("INSERT INTO " + tbl + " (id, status) VALUES (1, 'pending')").block();
+
+        Mono<Integer> updated = engine.execute("UPDATE " + tbl + " SET status = 'done' WHERE id = 1");
+        StepVerifier.create(updated).expectNext(1).verifyComplete();
+
+        Mono<Integer> deleted = engine.execute("DELETE FROM " + tbl + " WHERE id = 1");
+        StepVerifier.create(deleted).expectNext(1).verifyComplete();
+
+        engine.execute("DROP TABLE " + tbl).block();
+    }
+
+    @Test
+    void mariadb_batchInsert_returnsTotalRows() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mariadb", MARIADB_URL, MARIADB_USER, MARIADB_PASSWORD);
+        String tbl = uniqueTable("jte_mariadb_batch");
+
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, val VARCHAR(20))").block();
+
+        Flux<Integer> results = engine.batch("INSERT INTO " + tbl + " (id, val) VALUES (?, ?)",
+                List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
+        StepVerifier.create(results).expectNext(3).verifyComplete();
+
+        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM " + tbl)
+                .next().block();
+        assertNotNull(cntRow);
+        engine.execute("DROP TABLE " + tbl).block();
+    }
+
+    @Test
+    void mariadb_paramQueryWithSpecialChars() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mariadb", MARIADB_URL, MARIADB_USER, MARIADB_PASSWORD);
+        String tbl = uniqueTable("jte_mariadb_params");
+
+        engine.execute("DROP TABLE IF EXISTS " + tbl).block();
+        engine.execute("CREATE TABLE " + tbl + " (id INT PRIMARY KEY, content VARCHAR(200))").block();
+        engine.execute("INSERT INTO " + tbl + " (id, content) VALUES (1, 'hello & < > \"test')")
                 .block();
 
         Flux<Map<String, Object>> result = engine.query("SELECT * FROM " + tbl + " WHERE id = ?", 1);

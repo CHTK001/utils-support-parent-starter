@@ -53,6 +53,30 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     /** 请求 ID 生成器（线程安全单调递增） */
     private final AtomicInteger requestIdSeq = new AtomicInteger(0);
 
+    /** 所有已注册的实例，用于 resetForTest 清理缓存。 */
+    private static final java.util.Set<AbstractScatterDiscovery> INSTANCES =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /**
+     * 清理所有活跃 scatter 发现实例的本地服务缓存。
+     * 用于测试场景：防止上一轮测试残留的服务条目污染本轮测试。
+     */
+    public static void resetAllCaches() {
+        for (AbstractScatterDiscovery inst : INSTANCES) {
+            try {
+                inst.clearCache();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * 重置所有实例注册表（测试类结束后调用，防止跨测试类污染）。
+     */
+    public static void resetInstances() {
+        INSTANCES.clear();
+    }
+
     protected AbstractScatterDiscovery(ScatterSetting setting) {
         super(new DiscoveryOption());
         this.setting = setting == null ? new ScatterSetting() : setting;
@@ -61,6 +85,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 && this.setting.getNodeId() != null) {
             this.setting.setPersistenceFile(".scatter-nodes-" + this.setting.getNodeId() + ".json");
         }
+        INSTANCES.add(this);
     }
 
     /** 设置远程客户端（未启动前）。 */
@@ -390,6 +415,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     @Override
     public void close() {
         started = false;
+        INSTANCES.remove(this);
         if (discoveryExecutor != null) {
             discoveryExecutor.shutdownNow();
         }

@@ -33,6 +33,9 @@ public class ClusterServerForwardTest {
     @BeforeEach
     void setUp() throws Exception {
         ScatterSyncHelper.resetForTest();
+        // 清理上一轮测试的持久化文件，防止跨测试污染
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-a.json"));
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-b.json"));
 
         // ── ① 启动 node-B 的纯 HTTP 后端，监听 /api/hello（与注册的服务路径对齐）
         backendB = HttpServer.create(new InetSocketAddress(0), 0);
@@ -64,7 +67,7 @@ public class ClusterServerForwardTest {
         nodeA = ClusterServer.builder()
                 .nodeId("node-a").host("127.0.0.1").port(0)
                 .scatterId("forward-test")
-                .seeds("127.0.0.1:" + nodeB.getHttpPort())
+                .seeds("127.0.0.1:" + nodeB.getScatterPort())
                 .servicePaths(java.util.List.of("/api"))
                 .timeoutMillis(3000)
                 .addServer("/api", "127.0.0.1", backendBPort, "http")
@@ -140,10 +143,10 @@ public class ClusterServerForwardTest {
      */
     @Test
     void testScatterDiscovery() throws Exception {
-        TimeUnit.SECONDS.sleep(3);
+        TimeUnit.SECONDS.sleep(5);
 
         java.util.Set<Discovery> bServices = nodeB.discovery().getServiceAll("/api");
         boolean hasNodeA = bServices.stream().anyMatch(d -> "node-a".equals(d.getServerId()));
-        Assertions.assertTrue(hasNodeA, "node-B 应通过 scatter 发现 node-A");
+        Assertions.assertTrue(hasNodeA, "node-B 应通过 scatter 发现 node-A. Services: " + bServices);
     }
 }

@@ -345,6 +345,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
+        // 乌克兰语 TTS 文本规范化(Gemma-3-270M verbalizer)：书面乌克兰语 → 口语发音（数字/日期/时间/金额/单位/缩写/电话/IBAN/域名/邮箱/罗马数字等展开），供 TTS 前处理；嵌入式模型
+        reg("gemma-3-270m-uk-verbalizer", "com.chua.deeplearning.support.onnx.text.gemma3.GemmaVerbalizerTranslator", String.class, String.class, Object.class, "models/gemma-3-270m-uk-verbalizer/model.onnx");
         // 本地大模型(Qwen2.5-0.5B-Instruct ONNX int8)：轻量中文大模型对话（int8 单文件 ~488MB），downloadUrl 自动下载；适用低内存/快速本地对话
         String qwen05Url = "https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
         reg("qwen2-0.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
@@ -374,6 +376,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
         // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测；适用停车场、出入口车牌识别
         reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectOnnxTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
+        // 车牌检测(YOLOv11)：YOLOv11 架构的车牌检测（morsetechlab），更高精度
+        reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "");
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateRecTranslator", byte[].class, com.chua.deeplearning.support.plate.PlateResult.class, com.chua.deeplearning.support.plate.LicensePlateRecognizer.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR
