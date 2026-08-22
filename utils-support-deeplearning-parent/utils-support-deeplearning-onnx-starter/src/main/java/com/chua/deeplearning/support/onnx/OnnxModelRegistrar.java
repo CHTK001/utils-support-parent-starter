@@ -137,11 +137,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("taesd-decoder", "com.chua.deeplearning.support.onnx.generation.TaesdDecoderTranslator", ai.djl.ndarray.NDList.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/taesd/decoder.onnx");
         // 素描转换(ImageToLineDrawing)：将照片转换为线条素描风格；适用艺术创作、素描特效
         reg("image-to-line-drawing", "com.chua.deeplearning.support.onnx.linedrawing.ImageToLineDrawingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/image-to-line-drawing-onnx/image-to-line-drawing-onnx.onnx");
-        // 活体检测(FaceAntiSpoof)：检测人脸是否为真实人脸（防照片/视频攻击）；适用人脸识别防假、活体验证
-        reg("face-anti-spoof", "com.chua.deeplearning.support.onnx.liveness.FaceAntiSpoofTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/antispoof/minifasnet_v2/model.onnx");
-        // 活体检测(MiniVision)：轻量级活体检测模型，80x80 输入，适合移动端；适用移动端人脸活体验证
-        reg("mini-vision-liveness", "com.chua.deeplearning.support.onnx.liveness.MiniVisionLivenessTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/liveness/MiniVision/4_0_0_80x80_MiniFASNetV1SE.onnx");
-        // 活体检测(FLRGB)：ModelScope 官方 RGB 活体模型，112x112 输入，输出活体概率；模型内嵌 jar（utils-support-models-onnx-face-liveness）
+                        // 活体检测(FLRGB)：ModelScope 官方 RGB 活体模型，112x112 输入，输出活体概率；模型内嵌 jar（utils-support-models-onnx-face-liveness）
         reg("face-liveness-flrgb", "com.chua.deeplearning.support.onnx.liveness.FlRgbLivenessTranslator", ai.djl.modality.cv.Image.class, Float.class, com.chua.deeplearning.support.liveness.LivenessDetector.class, "face/liveness/flrgb/model.onnx");
         // 活体检测(FLXC)：ModelScope 官方炫彩活体模型，12通道多帧序列，对3D面具/头模攻击鲁棒；模型内嵌 jar（utils-support-models-onnx-face-liveness-flxc）
         reg("face-liveness-flxc", "com.chua.deeplearning.support.onnx.liveness.FlXcLivenessTranslator", ai.djl.modality.cv.Image.class, Float.class, com.chua.deeplearning.support.liveness.LivenessDetector.class, "face/liveness/flxc/model.onnx");
@@ -286,11 +282,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("image-colorize", "com.chua.deeplearning.support.onnx.colorize.ImageColorizeTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/colorization/deoldify/model.onnx", "https://huggingface.co/bluefoxcreation/DeOldify-ONNX/resolve/main/DeOldify.onnx", false, null);
         // 动漫人脸检测(YOLOv8)：YOLOv8 架构的动漫人脸检测，精度更高；适用动漫人脸检测、二次元内容分析
         reg("anime-face-yolov8", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/anime-face/yolov8_animeface.onnx", "https://huggingface.co/Fuyucchi/yolov8_animeface/resolve/main/best.onnx", false, null);
-        // 活体检测(DINOv2)：基于 DINOv2 的活体检测；适用高精度人脸活体检测
-        reg("face-liveness-dinov2", "com.chua.deeplearning.support.onnx.liveness.FaceAntiSpoofTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/liveness/dinov2_liveness/model.onnx", "https://huggingface.co/nguyenkhoa/dinov2_Liveness_detection_v2.2.3/resolve/main/model.onnx", false, null);
-        // 活体检测(MobileViT)：基于 MobileViT 的轻量级活体检测；适用移动端活体检测
-        reg("face-liveness-mobilevit", "com.chua.deeplearning.support.onnx.liveness.FaceAntiSpoofTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "face/liveness/mobilevitv2_liveness/model.onnx", "https://huggingface.co/nguyenkhoa/mobilevitv2_Liveness_detection_v1.0/resolve/main/model.onnx", false, null);
-        // 人脸检测(YOLOv11n-face)：YOLOv11n 超轻量人脸检测，6MB；适用边缘设备人脸检测
+                        // 人脸检测(YOLOv11n-face)：YOLOv11n 超轻量人脸检测，6MB；适用边缘设备人脸检测
         reg("yolo-face-detector", "com.chua.deeplearning.support.onnx.face.YoloFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/yolo11n-face.onnx", "https://huggingface.co/AdamCodd/YOLOv11n-face-detection/resolve/main/model.onnx", false, null);
         // 人脸+人体检测(YOLO-Face-Person)：同时检测人脸和人体；适用安防监控、人群分析
         reg("yolo-face-person", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/yolo-face-person.onnx", "https://huggingface.co/iitolstykh/YOLO-Face-Person-Detector/resolve/main/model.onnx", false, null);
@@ -422,37 +414,37 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 最后一层 hidden state 经全局平均池化为固定维度向量；适用于音频指纹匹配、
         // 相似音频检索、声纹初筛。输入 16kHz 单声道 PCM/WAV，输出 768 维 float[]。
         // 模型约 950MB，建议下载后放置于本地模型目录或配置 classpath: 资源。
-        reg("wav2vec2-zh-fingerprint",
-                "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
-                byte[].class, float[].class,
-                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
-                "audio/fingerprint/wav2vec2-zh/model.onnx",
-                "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
-                java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
-                false, null);
+        // reg("wav2vec2-zh-fingerprint",
+        //         "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
+        //         byte[].class, float[].class,
+        //         com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+        //         "audio/fingerprint/wav2vec2-zh/model.onnx",
+        //         "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
+        //         java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
+        //         false, null);
         // wav2vec2-base（384维嵌入，更轻量）：适合嵌入式/边缘设备，模型约 350MB。
-        reg("wav2vec2-base-fingerprint",
-                "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
-                byte[].class, float[].class,
-                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
-                "audio/fingerprint/wav2vec2-base/model.onnx",
-                "https://huggingface.co/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx",
-                java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx"),
-                false, null);
+        // reg("wav2vec2-base-fingerprint",
+        //         "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
+        //         byte[].class, float[].class,
+        //         com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+        //         "audio/fingerprint/wav2vec2-base/model.onnx",
+        //         "https://huggingface.co/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx",
+        //         java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx"),
+        //         false, null);
 
         // ==================== 说话人嵌入（Speaker Embedding） ====================
         // wespeaker-resnet34（512维 x-vector）：专用于说话人验证的 ResNet34+LM 架构，
         // 输入 16kHz 单声道 PCM/WAV，输出 512 维 L2 归一化嵌入向量。
         // 配合 DefaultSpeakerDiarizer（VAD 时间切分）完成端到端说话人分离。
         // 模型约 80MB，适合嵌入式部署。
-        reg("wespeaker-resnet34",
-                "com.chua.deeplearning.support.onnx.audio.WespeakerEmbeddingTranslator",
-                byte[].class, float[].class,
-                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
-                "audio/speaker/wespeaker-resnet34/model.onnx",
-                "https://huggingface.co/CV333333/wespeaker-voxceleb-resnet34-LM-onnx/resolve/main/model.onnx",
-                java.util.List.of("https://hf-mirror.com/CV333333/wespeaker-voxceleb-resnet34-LM-onnx/resolve/main/model.onnx"),
-                false, "model.onnx");
+        // reg("wespeaker-resnet34",
+        //         "com.chua.deeplearning.support.onnx.audio.WespeakerEmbeddingTranslator",
+        //         byte[].class, float[].class,
+        //         com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+        //         "audio/speaker/wespeaker-resnet34/model.onnx",
+        //         "https://huggingface.co/CV333333/wespeaker-voxceleb-resnet34-LM-onnx/resolve/main/model.onnx",
+        //         java.util.List.of("https://hf-mirror.com/CV333333/wespeaker-voxceleb-resnet34-LM-onnx/resolve/main/model.onnx"),
+        //         false, "model.onnx");
 
         // ==================== 零样本检测 YOLO-World（嵌入式友好） ====================
         // YOLO-World Small：开放词表检测，文本提示（中/英文）→ 检测框+类别；模型 ~40MB，适合嵌入式/边缘部署

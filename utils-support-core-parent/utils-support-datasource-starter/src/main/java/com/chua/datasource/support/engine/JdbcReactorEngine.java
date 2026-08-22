@@ -468,8 +468,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        // MySQL 驱动（asyncer r2dbc-mysql）getRowsUpdated() 内部 MonoReduce 类型不兼容，
-        // 通过 safeGetRowsUpdated 兜底跳过异常，保证 H2/PostgreSQL 等标准驱动正常工作。
+        // MySQL 驱动（asyncer r2dbc-mysql 1.4.2）的 getRowsUpdated() 内部使用 MonoReduce
+        // 对 Integer emission 做 Long 聚合时产生 ClassCastException，这是驱动层 bug。
+        // 通过 onErrorResume 降级到同步 JDBC 执行，保证生产可用性。
         return Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.from(executeStatement(conn, sql, params))
@@ -478,7 +479,16 @@ public class JdbcReactorEngine implements ReactorEngine {
                         .map(list -> list.stream().mapToLong(Long::longValue).sum()),
                 conn -> Mono.empty())
                 .map(l -> l.intValue())
-                .defaultIfEmpty(0);
+                .defaultIfEmpty(0)
+                .onErrorResume(ClassCastException.class, e -> {
+                    // MySQL 驱动（asyncer r2dbc-mysql）getRowsUpdated() 内部 MonoReduce 类型不兼容，
+                    // 尝试降级到 JDBC 路径（需用户额外引入 mysql-connector-j）
+                    DataSource ds = jdbcDataSources.get(name);
+                    if (ds != null) {
+                        return executeViaJdbc(ds, sql, params);
+                    }
+                    return Mono.error(e);
+                });
     }
 
     /**
