@@ -112,10 +112,14 @@ public class DrawerPipeline {
                 }
             }
             double maxDist = (b.width() + b.height()) * 0.5;
-            boolean matched = bestDist <= maxDist && !bestText.isEmpty() && bestConf >= minConfidence;
-            if (matched) {
+            boolean textMatched = bestDist <= maxDist && !bestText.isEmpty();
+            boolean confOk = bestConf >= minConfidence || minConfidence <= 0f;
+            if (textMatched && confOk) {
                 this.boxes.add(b);
                 this.labels.add(bestText + " " + String.format("%.2f", bestConf));
+            } else if (!textMatched && confOk) {
+                this.boxes.add(b);
+                this.labels.add(String.format("%.2f", b.confidence()));
             }
             if (callback != null) {
                 callback.onProcess(b, matched ? bestText : "", bestConf, i, total);
