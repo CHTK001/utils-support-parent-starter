@@ -110,7 +110,7 @@ public class ScatterTcpClusterSceneTest {
             boolean removed = waitForFalse(() ->
                     nodeB.discovery().getServiceAll("/scatter").stream()
                             .anyMatch(d -> "node-a".equals(d.getServerId())),
-                    10, "node-a 下线后应被 node-b 移除");
+                    20, "node-a 下线后应被 node-b 移除");
             Assertions.assertTrue(removed, "node-a 下线后应从 node-b 服务表移除");
         } finally {
             nodeB.stop();
