@@ -3,6 +3,8 @@ package com.chua.common.support.image.processor;
 import com.chua.common.support.image.ImageProcessor;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiOrder;
+import com.chua.common.support.utils.NativeLoader;
+import com.chua.common.support.utils.NativeUtils;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -11,11 +13,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.io.InputStream;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -83,8 +81,11 @@ public class RustImageProcessor implements ImageProcessor {
 
     static {
         try {
-            String libName = System.mapLibraryName("image_processor");
-            String libPath = extractNativeLib(libName);
+            NativeLoader.of("image-processor")
+                    .toTarget(Path.of(System.getProperty("java.io.tmpdir"), NativeUtils.NATIVE_TMP_ROOT, "image-processor"))
+                    .glob("*image_processor*")
+                    .load();
+            Path libPath = Path.of(System.getProperty("java.io.tmpdir"), NativeUtils.NATIVE_TMP_ROOT, "image-processor", System.mapLibraryName("image_processor"));
             SymbolLookup lookup = SymbolLookup.libraryLookup(libPath, Arena.ofAuto());
             processImage = lookup.find("process_image").orElseThrow(() -> new IllegalStateException("未找到 process_image"));
             freeResult = lookup.find("free_result").orElseThrow(() -> new IllegalStateException("未找到 free_result"));
@@ -105,69 +106,31 @@ public class RustImageProcessor implements ImageProcessor {
     }
 
     /**
-     * 提取并定位原生库路径
+     * 使用 Rust 原生动态库对图像进行处理。
      *
-     * <p>优先从 classpath 的 {@code /native/} 目录解压到临时目录，
-     * 其次尝试直接从 {@code java.library.path} 加载。
+     * <p>将原始图像字节与操作参数序列化为 JSON 后，通过 FFM API 调用原生
+     * {@code process_image}（或共享内存版 {@code process_image_shared}）函数完成处理，
+     * 并将返回的图像字节回传。处理前会校验原生库是否已成功加载，未加载时抛出异常。
      *
-     * @param libName 库文件名（如 image_processor.dll）
-     * @return 库文件的绝对路径
+     * <p>处理协议说明：
+     * <ul>
+     *   <li>若原生库支持共享内存协议（{@code process_image_shared} 存在），则预分配输出缓冲区，
+     *       由原生函数直接写入，避免 malloc/free 开销；当缓冲区容量不足时会自动扩容后重试一次。</li>
+     *   <li>否则回退到 malloc 协议（{@code process_image}），原生函数内部 malloc 内存，
+     *       布局为「前 4 字节小端长度 + 图像数据」，本方法读取后调用 {@code free_result} 释放。</li>
+     * </ul>
+     *
+     * @param imageData 原始图像字节数组（如 PNG/JPEG 编码后的二进制数据），不允许为 {@code null}
+     * @param operation 操作类型标识，会被作为 {@code "op"} 字段写入传给原生库的 JSON，
+     *                  例如 resize、erode、dilate、binarize、rotate 等
+     * @param params    操作所需的参数键值对（如宽高、半径、阈值、角度等）；键名会原样写入 JSON，
+     *                  数值与布尔值直接输出，其它类型以字符串形式输出；允许为 {@code null}
+     * @return 处理后的图像字节数组（与原输入同格式或目标格式编码后的二进制数据）
+     * @throws IllegalStateException 若原生库未加载，或原生函数返回空指针、非法长度、处理失败
+     * @author CH
+     * @since 4.0.0.42
      */
-    private static String extractNativeLib(String libName) {
-        // 1. 优先从 classpath 的平台子目录解压（如 /native/windows-x86_64/image_processor.dll）
-        String osName = System.getProperty("os.name", "").toLowerCase();
-        String osArch = System.getProperty("os.arch", "").toLowerCase();
-        String platformDir = getPlatformDir(osName, osArch);
-        if (platformDir != null) {
-            try (InputStream in = RustImageProcessor.class.getResourceAsStream("/native/" + platformDir + "/" + libName)) {
-                if (in != null) {
-                    Path tmp = Files.createTempFile("native_", "_" + libName);
-                    Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
-                    tmp.toFile().deleteOnExit();
-                    return tmp.toString();
-                }
-            } catch (IOException e) {
-                // 忽略，尝试下一级
-            }
-        }
-        // 2. 其次从 classpath 的 /native/ 根目录解压
-        try (InputStream in = RustImageProcessor.class.getResourceAsStream("/native/" + libName)) {
-            if (in != null) {
-                Path tmp = Files.createTempFile("native_", "_" + libName);
-                Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
-                tmp.toFile().deleteOnExit();
-                return tmp.toString();
-            }
-        } catch (IOException e) {
-            // 忽略，尝试 library path
-        }
-        return libName;
-    }
-
-    /**
-     * 根据 OS 和架构确定平台子目录名
-     *
-     * @param osName 操作系统名称（如 "windows 10"、"linux"）
-     * @param osArch 架构名称（如 "amd64"、"aarch64"）
-     * @return 平台目录名（如 "windows-x86_64"），无法确定时返回 null
-     */
-    private static String getPlatformDir(String osName, String osArch) {
-        String os;
-        if (osName.contains("win")) os = "windows";
-        else if (osName.contains("linux")) os = "linux";
-        else if (osName.contains("mac") || osName.contains("darwin")) os = "macos";
-        else return null;
-
-        String arch;
-        if (osArch.matches("amd64|x86_64")) arch = "x86_64";
-        else if (osArch.matches("aarch64|arm64")) arch = "aarch64";
-        else return null;
-
-        return os + "-" + arch;
-    }
-
     @Override
-    /** 处理 */
     public byte[] process(byte[] imageData, String operation, Map<String, Object> params) {
         if (!LOADED.get()) {
             throw new IllegalStateException("Rust 原生库未加载");
@@ -310,14 +273,33 @@ public class RustImageProcessor implements ImageProcessor {
         return sb.toString();
     }
 
+    /**
+     * 返回该图像处理器的标识名称。
+     *
+     * <p>该名称用于 SPI 场景下区分不同的 {@link ImageProcessor} 实现，
+     * 例如 {@code "rust"} 表示底层由 Rust 原生动态库提供加速能力。
+     *
+     * @return 处理器标识名称，固定为 {@code "rust"}
+     * @author CH
+     * @since 4.0.0.42
+     */
     @Override
-    /** Name */
     public String name() {
         return "rust";
     }
 
+    /**
+     * 判断该图像处理器当前是否可用。
+     *
+     * <p>当且仅当 Rust 原生动态库在类初始化时成功加载（{@code LOADED} 被置为 {@code true}）时返回
+     * {@code true}；若原生库加载失败（例如缺少对应平台的 {@code image_processor} 动态库），
+     * 返回 {@code false}，调用方应回退到 AWT 等纯 Java 实现。
+     *
+     * @return 原生库已加载且可用返回 {@code true}，否则返回 {@code false}
+     * @author CH
+     * @since 4.0.0.42
+     */
     @Override
-    /** Available */
     public boolean available() {
         return LOADED.get();
     }

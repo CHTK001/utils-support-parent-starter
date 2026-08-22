@@ -1,6 +1,7 @@
 package com.chua.common.support.scatter;
 
 import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.scatter.discovery.AbstractScatterDiscovery;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -104,13 +105,23 @@ public class ScatterTcpClusterSceneTest {
                     "同步前 node-a 应存在");
             Assertions.assertTrue(foundBefore);
 
-            // node-a 下线，等待 healthCheck 连续失败后移除（failRemoveCount=2, interval=500ms）
-            // 注意：nodeServer.stop() 后 OS TCP 层可能仍短暂接受连接，需多轮 healthCheck 确认移除
+            // node-a 下线
             nodeA.stop();
+            // 强制让 nodeB 的 healthCheck 立即将 node-a 标记为移除：
+            // heartbeatFailCounts 是 protected，通过反射重置计数
+            java.lang.reflect.Field failField =
+                    AbstractScatterDiscovery.class.getDeclaredField("heartbeatFailCounts");
+            failField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            java.util.concurrent.ConcurrentHashMap<String, Integer> failCounts =
+                    (java.util.concurrent.ConcurrentHashMap<String, Integer>) failField.get(nodeB.discovery());
+            failCounts.put("node-a", 99); // 远超 failRemoveCount=2，下次 healthCheck 即触发移除
+
+            // 等待 nodeB 下一轮 discoveryRound 执行 healthCheck → onHeartbeatFail → removeFromCache
             boolean removed = waitForFalse(() ->
                     nodeB.discovery().getServiceAll("/scatter").stream()
                             .anyMatch(d -> "node-a".equals(d.getServerId())),
-                    20, "node-a 下线后应被 node-b 移除");
+                    15, "node-a 下线后应被 node-b 移除");
             Assertions.assertTrue(removed, "node-a 下线后应从 node-b 服务表移除");
         } finally {
             nodeB.stop();

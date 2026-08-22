@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,6 +21,19 @@ class JdbcReactorEngineIT {
     private static final String MYSQL_PASSWORD = "root@";
 
     // ==================== H2 内存库（纯 R2DBC 非阻塞路径） ====================
+
+    @BeforeEach
+    void mysql_cleanup() {
+        // 共享 MySQL 数据库的 IT 测试需要清理上一次运行遗留的表
+        try {
+            JdbcReactorEngine engine = new JdbcReactorEngine();
+            engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
+            engine.execute("DROP TABLE IF EXISTS jte_r2dbc_test").block();
+            engine.execute("DROP TABLE IF EXISTS jte_upd_del").block();
+            engine.execute("DROP TABLE IF EXISTS jte_batch").block();
+            engine.execute("DROP TABLE IF EXISTS jte_params").block();
+        } catch (Exception ignored) { /* MySQL 不可达时跳过 */ }
+    }
 
     @Test
     void h2_createTable() {
