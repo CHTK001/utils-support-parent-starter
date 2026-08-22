@@ -345,8 +345,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
-        // 乌克兰语 TTS 文本规范化(Gemma-3-270M verbalizer)：书面乌克兰语 → 口语发音（数字/日期/时间/金额/单位/缩写/电话/IBAN/域名/邮箱/罗马数字等展开），供 TTS 前处理；嵌入式模型
-        reg("gemma-3-270m-uk-verbalizer", "com.chua.deeplearning.support.onnx.text.gemma3.GemmaVerbalizerTranslator", String.class, String.class, Object.class, "models/gemma-3-270m-uk-verbalizer/model.onnx");
+        // 中文通用语言模型(Gemma-3-270M)：原版 262144 完整词表（含中文），uint8 ONNX，中文对话/文本生成，完全离线；嵌入式模型
+        reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class, "models/gemma-3-270m/model.onnx");
         // 本地大模型(Qwen2.5-0.5B-Instruct ONNX int8)：轻量中文大模型对话（int8 单文件 ~488MB），downloadUrl 自动下载；适用低内存/快速本地对话
         String qwen05Url = "https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
         reg("qwen2-0.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
@@ -545,6 +545,5 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         }
     }
 }
-
 
 
