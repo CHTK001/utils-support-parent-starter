@@ -2,9 +2,11 @@ package com.chua.common.support.ai.rag;
 
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
+import com.chua.common.support.ai.rag.RagClient.UploadProvider;
 import com.chua.common.support.ai.splitter.TextChunk;
 import com.chua.common.support.ai.splitter.TextSplitter;
 import com.chua.common.support.file.txtractor.TextExtractor;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.vector.Vector;
@@ -108,6 +110,11 @@ public class MemoryRagClient implements RagClient {
     private static final String QUESTION_PREFIX = "\n\n问题: ";
 
     /**
+     * 文档上传 SPI 提供者，默认使用本地文件落盘。
+     */
+    private final UploadProvider uploadProvider;
+
+    /**
      * 客户端配置
      */
     private final RagClientSetting setting;
@@ -164,6 +171,7 @@ public class MemoryRagClient implements RagClient {
         this.vectorService = VectorService.from(setting.getEmbeddingClient());
         this.topK = setting.getTopK();
         this.similarityThreshold = setting.getSimilarityThreshold();
+        this.uploadProvider = ServiceProvider.of(UploadProvider.class).getDefault();
 
         this.uploadDir = Path.of(setting.getUploadDir());
         this.filesDir = this.uploadDir.resolve(UPLOAD_FILES_SUBDIR);
@@ -174,7 +182,7 @@ public class MemoryRagClient implements RagClient {
         }
         this.documents = new CopyOnWriteArrayList<>();
 
-        log.info("[MemoryRagClient] 初始化完成, uploadDir={}", setting.getUploadDir());
+        log.info("[MemoryRagClient] 初始化完成, uploadDir={}, uploadProvider={}", setting.getUploadDir(), uploadProvider.getClass().getSimpleName());
     }
 
     /**
@@ -293,18 +301,20 @@ public class MemoryRagClient implements RagClient {
                 : EMPTY;
         RagDocument doc = RagDocument.processing(docId, fileName, fileType, data.length);
 
-        Path targetFile;
+        // 通过 SPI UploadProvider 上传（默认本地落盘，可切换云存储等实现）
+        String fileId;
         try {
-            targetFile = filesDir.resolve(docId + FILE_NAME_SEPARATOR + fileName);
-            Files.write(targetFile, data);
-        } catch (IOException e) {
-            RagDocument failed = doc.withError("保存文件失败: " + e.getMessage());
+            fileId = uploadProvider.upload(docId, fileName, data);
+        } catch (Exception e) {
+            RagDocument failed = doc.withError("上传失败: " + e.getMessage());
             documents.add(failed);
             return failed;
         }
 
         try {
-            String text = extractText(targetFile.toFile(), fileName);
+            // 从 UploadProvider 读取文件并提取文本
+            byte[] fileData = uploadProvider.read(fileId);
+            String text = extractText(fileData, fileName);
             if (StringUtils.isBlank(text)) {
                 RagDocument failed = doc.withError("提取文本为空");
                 documents.add(failed);
@@ -339,36 +349,56 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 抽取已落盘文件的文本内容。
+     * 抽取已上传文件的文本内容。
      *
      * <p>优先调用 setting 中注入的 TextExtractor（PDF/Word/Excel 等由其解析）；
      * 若未注入或抽取失败，则按 UTF-8 兜底读取文件内容。</p>
      *
-     * @param file     已保存的文件
+     * @param data     文件字节数据
      * @param fileName 原始文件名（用于日志）
      * @return 抽取出的文本
      * @throws IOException 读取失败
      */
-    private String extractText(File file, String fileName) throws IOException {
+    private String extractText(byte[] data, String fileName) throws IOException {
         TextExtractor extractor = setting.getTextExtractor();
         if (extractor != null) {
+            Path tempFile = filesDir.resolve("_temp_" + fileName);
             try {
-                return extractor.extractFullText(file);
+                Files.write(tempFile, data);
+                try {
+                    return extractor.extractFullText(tempFile.toFile());
+                } finally {
+                    Files.deleteIfExists(tempFile);
+                }
             } catch (Exception e) {
                 log.warn("[MemoryRagClient] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage());
             }
         }
-        return Files.readString(file.toPath(), StandardCharsets.UTF_8);
+        return new String(data, StandardCharsets.UTF_8);
     }
 
     /**
-     * 删除指定文档（仅从内存列表中移除，已索引向量不会被自动清理）。
+     * 删除指定文档：同步清理向量存储和落盘文件。
      *
      * @param docId 文档 ID
      * @return 是否成功移除
      */
     @Override
     public boolean deleteDocument(String docId) {
+        // 清理向量存储中该文档的所有分块
+        try {
+            vectorStorage.removeByIdPrefix(docId + FILE_NAME_SEPARATOR);
+        } catch (Exception e) {
+            log.warn("[MemoryRagClient] 清理向量失败: {}", e.getMessage());
+        }
+
+        // 通过 UploadProvider 删除上传文件
+        try {
+            uploadProvider.delete(docId);
+        } catch (Exception e) {
+            log.warn("[MemoryRagClient] 删除上传文件失败: {}", e.getMessage());
+        }
+
         return documents.removeIf(d -> d.id().equals(docId));
     }
 

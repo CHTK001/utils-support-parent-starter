@@ -63,6 +63,13 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
+    /** 按前缀移除 */
+    public int removeByIdPrefix(String idPrefix) {
+        checkNotClosed();
+        return (int) store.keySet().removeIf(key -> key.startsWith(idPrefix));
+    }
+
+    @Override
     /** 更新 */
     public boolean update(String id, float[] vector) {
         checkNotClosed();

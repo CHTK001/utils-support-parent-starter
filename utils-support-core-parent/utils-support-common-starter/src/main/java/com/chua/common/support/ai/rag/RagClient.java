@@ -153,12 +153,27 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
      *
      * @param fileName 文件名
      * @param data     文件字节数据
-     * @return 文档元数据
+     * @return 文档元数据（含 fileId）
      */
     RagDocument uploadDocument(String fileName, byte[] data);
 
     /**
+     * 更新文档（替换原文件并重新索引）。
+     * <p>先删除旧文档的向量和文件，再重新上传。</p>
+     *
+     * @param docId    原文档 ID（即 fileId）
+     * @param fileName 新文件名
+     * @param data     新文件字节数据
+     * @return 更新后的文档元数据
+     */
+    default RagDocument updateDocument(String docId, String fileName, byte[] data) {
+        deleteDocument(docId);
+        return uploadDocument(fileName, data);
+    }
+
+    /**
      * 删除文档。
+     * <p>实现需同步清理向量存储和落盘文件。</p>
      *
      * @param docId 文档 ID
      * @return 是否成功
@@ -195,6 +210,46 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
      * @return 文档内容，不存在则返回 null
      */
     String readDocumentContent(String docId);
+
+    // ==================== 设置注入 ====================
+
+    /**
+     * 文档上传 SPI 接口。
+     * <p>
+     * 通过 {@link com.chua.common.support.spi.ServiceProvider} 注册不同实现，
+     * 支持按场景切换上传策略（本地落盘 / 云存储 / 内存缓冲等）。
+     * </p>
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
+    interface UploadProvider {
+        /**
+         * 上传文档到指定存储，返回文档唯一标识（fileId）。
+         *
+         * @param docId    文档 ID
+         * @param fileName 原始文件名
+         * @param data     文件字节数据
+         * @return fileId（用于后续删除/更新操作）
+         */
+        String upload(String docId, String fileName, byte[] data);
+
+        /**
+         * 读取已上传文档的字节数据。
+         *
+         * @param fileId 文档 ID（upload 返回值）
+         * @return 文件字节数据，不存在则返回 null
+         */
+        byte[] read(String fileId);
+
+        /**
+         * 删除已上传的文档文件。
+         *
+         * @param fileId 文档 ID
+         * @return 是否成功
+         */
+        boolean delete(String fileId);
+    }
 
     // ==================== 设置注入 ====================
 
