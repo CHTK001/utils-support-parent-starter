@@ -951,14 +951,21 @@ public final class ModelRegistry {
     private static Object newTranslatorInstance(String translatorClassName) {
         try {
             Class<?> translatorClass = Class.forName(translatorClassName);
-            return ReflectUtils.instantiate(translatorClass);
+            try {
+                // 优先标准反射：JDK 17+ MethodHandle 受模块访问限制，ReflectUtils.instantiate 可能静默返回 null
+                return translatorClass.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException reflectionEx) {
+                Object fallback = ReflectUtils.instantiate(translatorClass);
+                if (fallback == null) {
+                    throw new IllegalStateException(
+                            "实例化 Translator 失败: " + translatorClassName
+                                    + "（若提示缺少无参构造，请补充 public XxxTranslator() 或默认参数构造）",
+                            reflectionEx);
+                }
+                return fallback;
+            }
         } catch (ClassNotFoundException ex) {
             throw new IllegalStateException("Translator 类不可用: " + translatorClassName, ex);
-        } catch (Exception ex) {
-            throw new IllegalStateException(
-                    "实例化 Translator 失败: " + translatorClassName
-                            + "（若提示缺少无参构造，请补充 public XxxTranslator() 或默认参数构造）",
-                    ex);
         }
     }
 

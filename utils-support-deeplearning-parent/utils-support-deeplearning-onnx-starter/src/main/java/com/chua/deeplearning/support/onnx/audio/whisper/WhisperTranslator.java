@@ -71,8 +71,10 @@ public class WhisperTranslator {
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
     private OrtSession encoderSession;
-    /** 解码器会话 */
+    /** 解码器会话（初始 2-token 解码） */
     private OrtSession decoderSession;
+    /** 解码器会话（自回归单 token 解码，带 KV cache） */
+    private OrtSession decoderPastSession;
 
     /** Prepare */
     public void prepare(Path modelDir) throws Exception {

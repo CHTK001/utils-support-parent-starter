@@ -12,19 +12,30 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * JdbcReactorEngine 完整集成测试
+ * JdbcReactorEngine 完整集成测试（H2 + MySQL 远程 + PostgreSQL/SQL Server Docker 容器）
  */
 class JdbcReactorEngineIT {
 
+    /* 远程共享 MySQL（有触发器，使用 INSERT IGNORE） */
     private static final String MYSQL_URL = "jdbc:mysql://172.16.0.40:3306/report?useSSL=false&allowPublicKeyRetrieval=true";
     private static final String MYSQL_USER = "root";
     private static final String MYSQL_PASSWORD = "root@";
+
+    /* Docker PostgreSQL 容器：postgres/postgres@testdb，端口 5433 */
+    private static final String PG_URL = "jdbc:postgresql://172.16.0.40:5433/testdb";
+    private static final String PG_USER = "postgres";
+    private static final String PG_PASSWORD = "postgres";
+
+    /* Docker SQL Server 容器：sa/YourStrong!Passw0rd@master，端口 1434 */
+    private static final String MSSQL_URL = "jdbc:sqlserver://172.16.0.40:1434;databaseName=master;encrypt=false;trustServerCertificate=true";
+    private static final String MSSQL_USER = "sa";
+    private static final String MSSQL_PASSWORD = "YourStrong!Passw0rd";
 
     // ==================== H2 内存库（纯 R2DBC 非阻塞路径） ====================
 
     @BeforeEach
     void mysql_cleanup() {
-        /* 共享 MySQL 数据库的 IT 测试需要在每个测试前清理遗留表，使用直连 JDBC 避免 R2DBC ClassCastException */
+        /* 清理 MySQL 共享库遗留表 */
         try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
                 MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
              java.sql.Statement stmt = conn.createStatement()) {
@@ -32,9 +43,29 @@ class JdbcReactorEngineIT {
             stmt.execute("DROP TABLE IF EXISTS jte_upd_del");
             stmt.execute("DROP TABLE IF EXISTS jte_batch");
             stmt.execute("DROP TABLE IF EXISTS jte_params");
-            System.out.println("[IT] mysql_cleanup: OK");
         } catch (Exception e) {
             System.err.println("[IT] mysql_cleanup FAILED: " + e.getMessage());
+        }
+        /* 清理 PostgreSQL Docker 容器遗留表 */
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                PG_URL, PG_USER, PG_PASSWORD);
+             java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS jte_pg_test");
+            stmt.execute("DROP TABLE IF EXISTS jte_pg_upd");
+            stmt.execute("DROP TABLE IF EXISTS jte_pg_batch");
+            stmt.execute("DROP TABLE IF EXISTS jte_pg_params");
+        } catch (Exception e) {
+            System.err.println("[IT] pg_cleanup FAILED: " + e.getMessage());
+        }
+        /* 清理 SQL Server Docker 容器遗留表 */
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+             java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute("IF OBJECT_ID('jte_mssql_test', 'U') IS NOT NULL DROP TABLE jte_mssql_test");
+            stmt.execute("IF OBJECT_ID('jte_mssql_upd', 'U') IS NOT NULL DROP TABLE jte_mssql_upd");
+            stmt.execute("IF OBJECT_ID('jte_mssql_batch', 'U') IS NOT NULL DROP TABLE jte_mssql_batch");
+        } catch (Exception e) {
+            System.err.println("[IT] mssql_cleanup FAILED: " + e.getMessage());
         }
     }
 
@@ -130,14 +161,183 @@ class JdbcReactorEngineIT {
     }
 
     @Test
-    void jdbcUrlConversion_postgresqlNotReachable() {
+    void jdbcUrlConversion_postgresql() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        engine.addDataSource("pg", "jdbc:postgresql://localhost:5432/test", "u", "p");
+        engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
         assertNotNull(engine.getR2dbcFactory("pg"));
         assertNotNull(engine.getDialect("pg"));
+        assertEquals("postgresql", engine.getDialect("pg").protocol());
     }
 
-    // ==================== MySQL 真实库（R2DBC 非阻塞路径） ====================
+    @Test
+    void jdbcUrlConversion_sqlserver() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+        assertNotNull(engine.getR2dbcFactory("mssql"));
+        assertNotNull(engine.getDialect("mssql"));
+        assertEquals("sqlserver", engine.getDialect("mssql").protocol());
+    }
+
+    // ==================== PostgreSQL 真实容器 ====================
+
+    @Test
+    void pg_connectAndQuery() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+        Flux<Map<String, Object>> result = engine.query("SELECT 1 AS one, 2 AS two");
+        StepVerifier.create(result)
+                .expectNextMatches(row -> row.get("one") != null && row.get("two") != null)
+                .verifyComplete();
+    }
+
+    @Test
+    void pg_createInsertSelectAndDrop() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_pg_test").block();
+        engine.execute("CREATE TABLE jte_pg_test (id INT PRIMARY KEY, name VARCHAR(50), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+                .block();
+        engine.execute("INSERT INTO jte_pg_test (id, name) VALUES (1, 'postgres_test')").block();
+
+        List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_pg_test WHERE id = 1")
+                .collectList().block();
+        assertNotNull(rows); assertFalse(rows.isEmpty());
+        assertEquals("postgres_test", rows.get(0).get("name"));
+
+        engine.execute("DROP TABLE jte_pg_test").block();
+    }
+
+    @Test
+    void pg_updateAndDelete() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_pg_upd").block();
+        engine.execute("CREATE TABLE jte_pg_upd (id INT PRIMARY KEY, status VARCHAR(20))").block();
+        engine.execute("INSERT INTO jte_pg_upd (id, status) VALUES (1, 'pending')").block();
+
+        Mono<Integer> updated = engine.execute("UPDATE jte_pg_upd SET status = 'done' WHERE id = 1");
+        StepVerifier.create(updated).expectNext(1).verifyComplete();
+
+        Map<String, Object> row = engine.query("SELECT status FROM jte_pg_upd WHERE id = 1")
+                .next().block();
+        assertNotNull(row);
+
+        Mono<Integer> deleted = engine.execute("DELETE FROM jte_pg_upd WHERE id = 1");
+        StepVerifier.create(deleted).expectNext(1).verifyComplete();
+
+        engine.execute("DROP TABLE jte_pg_upd").block();
+    }
+
+    @Test
+    void pg_batchInsert_returnsTotalRows() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_pg_batch").block();
+        engine.execute("CREATE TABLE jte_pg_batch (id INT PRIMARY KEY, val VARCHAR(20))").block();
+
+        // PostgreSQL r2dbc 使用 $1, $2 占位符，非 ?
+        Flux<Integer> results = engine.batch("INSERT INTO jte_pg_batch (id, val) VALUES ($1, $2)",
+                List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
+        StepVerifier.create(results).expectNext(3).verifyComplete();
+
+        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_pg_batch")
+                .next().block();
+        assertNotNull(cntRow);
+        engine.execute("DROP TABLE jte_pg_batch").block();
+    }
+
+    @Test
+    void pg_paramQueryWithSpecialChars() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("pg", PG_URL, PG_USER, PG_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_pg_params").block();
+        engine.execute("CREATE TABLE jte_pg_params (id INT PRIMARY KEY, content VARCHAR(200))").block();
+        engine.execute("INSERT INTO jte_pg_params (id, content) VALUES ($1, $2)", 1, "hello & < > \"test")
+                .block();
+
+        Flux<Map<String, Object>> result = engine.query("SELECT * FROM jte_pg_params WHERE id = $1", 1);
+        StepVerifier.create(result)
+                .expectNextMatches(row -> row.get("content") != null && row.get("content").toString().contains("hello"))
+                .verifyComplete();
+
+        engine.execute("DROP TABLE jte_pg_params").block();
+    }
+
+    // ==================== SQL Server 真实容器 ====================
+
+    @Test
+    void mssql_connectAndQuery() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+        Flux<Map<String, Object>> result = engine.query("SELECT 1 AS one, 2 AS two");
+        StepVerifier.create(result)
+                .expectNextMatches(row -> row.get("one") != null && row.get("two") != null)
+                .verifyComplete();
+    }
+
+    @Test
+    void mssql_createInsertSelectAndDrop() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_mssql_test").block();
+        engine.execute("CREATE TABLE jte_mssql_test (id INT PRIMARY KEY, name VARCHAR(50), created_at DATETIME2 DEFAULT GETDATE())")
+                .block();
+        engine.execute("INSERT INTO jte_mssql_test (id, name) VALUES (1, 'sqlserver_test')").block();
+
+        List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_mssql_test WHERE id = 1")
+                .collectList().block();
+        assertNotNull(rows); assertFalse(rows.isEmpty());
+        assertEquals("sqlserver_test", rows.get(0).get("name"));
+
+        engine.execute("DROP TABLE jte_mssql_test").block();
+    }
+
+    @Test
+    void mssql_updateAndDelete() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_mssql_upd").block();
+        engine.execute("CREATE TABLE jte_mssql_upd (id INT PRIMARY KEY, status VARCHAR(20))").block();
+        engine.execute("INSERT INTO jte_mssql_upd (id, status) VALUES (1, 'pending')").block();
+
+        Mono<Integer> updated = engine.execute("UPDATE jte_mssql_upd SET status = 'done' WHERE id = 1");
+        StepVerifier.create(updated).expectNext(1).verifyComplete();
+
+        Map<String, Object> row = engine.query("SELECT status FROM jte_mssql_upd WHERE id = 1")
+                .next().block();
+        assertNotNull(row);
+
+        Mono<Integer> deleted = engine.execute("DELETE FROM jte_mssql_upd WHERE id = 1");
+        StepVerifier.create(deleted).expectNext(1).verifyComplete();
+
+        engine.execute("DROP TABLE jte_mssql_upd").block();
+    }
+
+    @Test
+    void mssql_batchInsert_returnsTotalRows() {
+        JdbcReactorEngine engine = new JdbcReactorEngine();
+        engine.addDataSource("mssql", MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+
+        engine.execute("DROP TABLE IF EXISTS jte_mssql_batch").block();
+        engine.execute("CREATE TABLE jte_mssql_batch (id INT PRIMARY KEY, val VARCHAR(20))").block();
+
+        Flux<Integer> results = engine.batch("INSERT INTO jte_mssql_batch (id, val) VALUES (?, ?)",
+                List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
+        StepVerifier.create(results).expectNext(3).verifyComplete();
+
+        Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_mssql_batch")
+                .next().block();
+        assertNotNull(cntRow);
+        engine.execute("DROP TABLE jte_mssql_batch").block();
+    }
+
+    // ==================== MySQL 真实库 ====================
 
     @Test
     void mysql_connectAndShowTables() {
@@ -160,8 +360,6 @@ class JdbcReactorEngineIT {
                 .verifyComplete();
     }
 
-    // ==================== MySQL DML（execute/batch，验证 Long/Integer 兼容修复） ====================
-
     @Test
     void mysql_createInsertSelectAndDrop() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
@@ -170,8 +368,6 @@ class JdbcReactorEngineIT {
         engine.execute("DROP TABLE IF EXISTS jte_r2dbc_test").block();
         engine.execute("CREATE TABLE jte_r2dbc_test (id INT PRIMARY KEY, name VARCHAR(50), ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
                 .block();
-        System.out.println("[TEST] After CREATE");
-        // report 库有触发器，使用 INSERT IGNORE 避免重复 key
         engine.execute("INSERT IGNORE INTO jte_r2dbc_test (id, name) VALUES (100, 'integration_test')").block();
 
         List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_r2dbc_test WHERE id = 100")
@@ -192,7 +388,6 @@ class JdbcReactorEngineIT {
         engine.execute("INSERT IGNORE INTO jte_upd_del (id, status) VALUES (1, 'pending')").block();
 
         Mono<Integer> updated = engine.execute("UPDATE jte_upd_del SET status = 'done' WHERE id = 1");
-        // MySQL report 库有触发器，INSERT IGNORE 可能返回 0；trigger 行存在时返回 1
         StepVerifier.create(updated).expectNextCount(1).verifyComplete();
 
         Map<String, Object> row = engine.query("SELECT status FROM jte_upd_del WHERE id = 1")
@@ -215,7 +410,6 @@ class JdbcReactorEngineIT {
 
         Flux<Integer> results = engine.batch("INSERT IGNORE INTO jte_batch (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
-        // MySQL report 库有触发器，INSERT IGNORE 可能返回 0；trigger 行存在时返回 1
         StepVerifier.create(results).expectNextCount(3).verifyComplete();
 
         Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_batch")

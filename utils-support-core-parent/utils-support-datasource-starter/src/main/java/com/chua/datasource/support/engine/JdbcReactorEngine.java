@@ -91,6 +91,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     private final Map<String, ConnectionFactory> r2dbcFactories = new ConcurrentHashMap<>();
     /** 数据源名称 → JDBC DataSource（多数据源联邦时使用） */
     private final Map<String, DataSource> jdbcDataSources = new ConcurrentHashMap<>();
+    /** 数据源名称 → JDBC URL（用于占位符转换等） */
+    private final Map<String, String> jdbcUrls = new ConcurrentHashMap<>();
     /** 数据源名称 → 方言 */
     private final Map<String, Dialect> dialects = new ConcurrentHashMap<>();
     /** 统一的联邦数据源（多数据源模式），无 SPI Conversion 时回退到首个 DataSource */
@@ -117,6 +119,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             String r2dbcUrl = convertJdbcToR2dbc(jdbcUrl);
             r2dbcFactories.put(name, buildConnectionFactory(r2dbcUrl, username, password));
             jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
+            jdbcUrls.put(name, jdbcUrl);
         }
 
         dialects.put(name, detectDialect(jdbcUrl));
@@ -262,6 +265,55 @@ public class JdbcReactorEngine implements ReactorEngine {
                 return "r2dbc:h2:" + protocol + "://" + database;
             }
         }
+        /* SQL Server: jdbc:sqlserver://host:port;databaseName=db;key=val → r2dbc:mssql://host:port/db?key=val */
+        if (r2dbcUrl.startsWith(R2DBC_PREFIX + "sqlserver://") || r2dbcUrl.startsWith(R2DBC_PREFIX + "mssql://")) {
+            /* 提取 host:port 部分（到第一个 ; 为止） */
+            int semiIdx = r2dbcUrl.indexOf(';', r2dbcUrl.indexOf("://") + 3);
+            String hostPort = semiIdx >= 0 ? r2dbcUrl.substring(0, semiIdx) : r2dbcUrl;
+            String properties = semiIdx >= 0 ? r2dbcUrl.substring(semiIdx + 1) : "";
+            /* 解析 databaseName */
+            String database = "master";
+            String paramPart = "";
+            if (!properties.isEmpty()) {
+                /* 分割多个 ; 分隔的 key=value */
+                StringBuilder sb = new StringBuilder();
+                boolean first = true;
+                for (String kv : properties.split(";")) {
+                    String trimmed = kv.trim();
+                    if (trimmed.isEmpty()) {
+                        continue;
+                    }
+                    int eqIdx = trimmed.indexOf('=');
+                    if (eqIdx < 0) {
+                        continue;
+                    }
+                    String key = trimmed.substring(0, eqIdx).trim();
+                    String value = trimmed.substring(eqIdx + 1).trim();
+                    if ("databasename".equalsIgnoreCase(key)) {
+                        database = value;
+                    } else {
+                        if (!first) {
+                            sb.append("&");
+                        }
+                        sb.append(java.net.URLEncoder.encode(key, java.nio.charset.StandardCharsets.UTF_8));
+                        sb.append("=");
+                        sb.append(java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8));
+                        first = false;
+                    }
+                }
+                paramPart = sb.toString();
+            }
+            /* 从 hostPort 提取 host 和 port */
+            String urlWithoutScheme = hostPort.substring(hostPort.indexOf("://") + 3);
+            int portIdx = urlWithoutScheme.indexOf(':');
+            String host = portIdx >= 0 ? urlWithoutScheme.substring(0, portIdx) : urlWithoutScheme;
+            String port = portIdx >= 0 ? urlWithoutScheme.substring(portIdx + 1) : "1433";
+            String result = "r2dbc:mssql://" + host + ":" + port + "/" + database;
+            if (!paramPart.isEmpty()) {
+                result += "?" + paramPart;
+            }
+            return result;
+        }
         return r2dbcUrl;
     }
 
@@ -311,23 +363,17 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     /**
      * 创建 JDBC DataSource（用于多数据源联邦）。
+     * 直接通过 {@code DriverManager.getConnection(url, user, pass)} 传递凭据，
+     * 避免将 user/password 追加到已含 query 参数的 JDBC URL 中导致格式错误。
      */
     private static DataSource createJdbcDataSource(String jdbcUrl, String username, String password) {
-        /* 使用 DriverManager 创建简单 DataSource */
         final String finalUrl = jdbcUrl;
         final String finalUser = username;
         final String finalPass = password;
         return new DataSource() {
             @Override
             public java.sql.Connection getConnection() throws java.sql.SQLException {
-                String url = finalUrl;
-                if (finalUser != null && !finalUser.isEmpty()) {
-                    url += (finalUrl.contains("?") ? "&" : "?") + "user=" + finalUser;
-                }
-                if (finalPass != null && !finalPass.isEmpty()) {
-                    url += "&password=" + finalPass;
-                }
-                return java.sql.DriverManager.getConnection(url);
+                return java.sql.DriverManager.getConnection(finalUrl, finalUser, finalPass);
             }
             @Override
             public java.sql.Connection getConnection(String username, String password) throws java.sql.SQLException {
@@ -460,7 +506,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         /* 使用 R2DBC 连接执行查询，返回 Map 列表 */
         return Flux.usingWhen(
                 Mono.from(factory.create()),
-                conn -> Flux.from(executeStatement(conn, sql, params))
+                conn -> Flux.from(executeStatement(conn, sql, params, jdbcUrls.get(name)))
                         .flatMap(result -> Flux.from(result.map(this::toMap))),
                 conn -> Mono.empty());
     }
@@ -473,7 +519,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         /* 使用 R2DBC 连接执行查询，按 rowType 映射结果 */
         return Flux.usingWhen(
                 Mono.from(factory.create()),
-                conn -> Flux.from(executeStatement(conn, sql, params))
+                conn -> Flux.from(executeStatement(conn, sql, params, jdbcUrls.get(name)))
                         .flatMap(result -> Flux.from(result.map((row, meta) -> toObject(row, rowType)))),
                 conn -> Mono.empty());
     }
@@ -498,7 +544,7 @@ public class JdbcReactorEngine implements ReactorEngine {
          * 通过 onErrorResume 降级到同步 JDBC 执行，保证生产可用性。 */
         return Mono.usingWhen(
                 Mono.from(factory.create()),
-                conn -> Flux.from(executeStatement(conn, sql, params))
+                conn -> Flux.from(executeStatement(conn, sql, params, jdbcUrls.get(name)))
                         .flatMap(result -> safeGetRowsUpdated(result))
                         .collectList()
                         .map(list -> list.stream().mapToLong(Long::longValue).sum()),
@@ -541,8 +587,12 @@ public class JdbcReactorEngine implements ReactorEngine {
             return false;
         }
         String trimmed = sql.trim().toUpperCase();
-        return trimmed.startsWith(DDL_CREATE) || trimmed.startsWith(DDL_DROP)
-                || trimmed.startsWith(DDL_ALTER) || trimmed.startsWith(DDL_TRUNCATE);
+        if (trimmed.startsWith(DDL_CREATE) || trimmed.startsWith(DDL_DROP)
+                || trimmed.startsWith(DDL_ALTER) || trimmed.startsWith(DDL_TRUNCATE)) {
+            return true;
+        }
+        /* SQL Server 兼容：IF OBJECT_ID(...) IS NOT NULL DROP TABLE ... */
+        return trimmed.contains("IF OBJECT_ID") && trimmed.contains("DROP TABLE");
     }
 
     /**
@@ -567,7 +617,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
                         .flatMap(paramArray -> {
-                            Statement stmt = conn.createStatement(sql);
+                             Statement stmt = conn.createStatement(convertPlaceholders(sql, null));
                             bindParams(stmt, paramArray);
                             return Flux.from(stmt.execute())
                                     .flatMap(result -> safeGetRowsUpdated(result))
@@ -579,6 +629,14 @@ public class JdbcReactorEngine implements ReactorEngine {
                 conn -> Mono.empty()))
                 .onErrorResume(ClassCastException.class, e -> {
                     /* MySQL 驱动批量操作 ClassCastException，降级到 JDBC 路径 */
+                    DataSource ds = jdbcDataSources.get(name);
+                    if (ds != null) {
+                        return batchViaJdbc(ds, sql, batchParams);
+                    }
+                    return Flux.error(e);
+                })
+                .onErrorResume(UnsupportedOperationException.class, e -> {
+                    /* SQL Server r2dbc-mssql 不支持 batch 参数绑定，降级到 JDBC */
                     DataSource ds = jdbcDataSources.get(name);
                     if (ds != null) {
                         return batchViaJdbc(ds, sql, batchParams);
@@ -694,18 +752,51 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 执行 R2DBC 语句并返回结果流。
+     * 执行 R2DBC 语句并返回结果流。根据方言转换占位符（PostgreSQL 使用 $1, $2 而非 ?）。
      *
      * @param conn  R2DBC 连接
      * @param sql   SQL 语句
      * @param params 参数
+     * @param jdbcUrl JDBC URL（用于判断方言）
      * @return Result 发布流
      */
     @SuppressWarnings("unchecked")
-    private static Publisher<Result> executeStatement(Connection conn, String sql, Object[] params) {
+    private static Publisher<Result> executeStatement(Connection conn, String sql, Object[] params, String jdbcUrl) {
+        sql = convertPlaceholders(sql, jdbcUrl);
         Statement stmt = conn.createStatement(sql);
         bindParams(stmt, params);
         return (Publisher<Result>) (Publisher<?>) stmt.execute();
+    }
+
+    /**
+     * 将 SQL 中的 ? 占位符转换为当前方言对应的格式。
+     * PostgreSQL r2dbc 驱动使用 $1, $2 风格；其他驱动保持 ?。
+     */
+    private static String convertPlaceholders(String sql, String jdbcUrl) {
+        if (sql == null || !sql.contains("?")) {
+            return sql;
+        }
+        if (jdbcUrl != null && jdbcUrl.toLowerCase().startsWith("jdbc:postgresql:")) {
+            return convertQuestionMarksToDollars(sql);
+        }
+        return sql;
+    }
+
+    /**
+     * 将 SQL 中的 ? 替换为 $1, $2, ...（PostgreSQL R2DBC 参数格式）。
+     */
+    private static String convertQuestionMarksToDollars(String sql) {
+        StringBuilder sb = new StringBuilder(sql.length() + 16);
+        int paramIndex = 1;
+        for (int i = 0; i < sql.length(); i++) {
+            char c = sql.charAt(i);
+            if (c == '?' && (i == 0 || sql.charAt(i - 1) != '\\')) {
+                sb.append('$').append(paramIndex++);
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -957,9 +1048,8 @@ public class JdbcReactorEngine implements ReactorEngine {
                 throw new IllegalStateException("R2DBC 连接工厂未配置");
             }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
-                    conn -> Flux.from(executeStatement(conn, sql, params))
-                            .flatMap(r -> Flux.from(r.map(JdbcReactorEngine.this::toMap)))
-                            .collectList(),
+                    conn -> Flux.from(executeStatement(conn, sql, params, null))
+                            .flatMap(r -> Flux.from(r.map(JdbcReactorEngine.this::toMap)).collectList()),
                     conn -> Mono.empty())).block();
         }
         @Override
@@ -968,9 +1058,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                 throw new IllegalStateException("R2DBC 连接工厂未配置");
             }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
-                    conn -> Flux.from(executeStatement(conn, sql, params))
-                            .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType))))
-                            .collectList(),
+                    conn -> Flux.from(executeStatement(conn, sql, params, null))
+                            .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType)))
+                                    .collectList()),
                     conn -> Mono.empty())).block();
         }
         @Override
@@ -996,7 +1086,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 throw new IllegalStateException("R2DBC 连接工厂未配置");
             }
             return Mono.usingWhen(Mono.from(factory.create()),
-                    conn -> Flux.from(executeStatement(conn, sql, params))
+                    conn -> Flux.from(executeStatement(conn, sql, params, null))
                             .flatMap(r -> safeGetRowsUpdated(r))
                             .collectList()
                             .map(list -> list.stream().mapToLong(Long::longValue).sum()),
