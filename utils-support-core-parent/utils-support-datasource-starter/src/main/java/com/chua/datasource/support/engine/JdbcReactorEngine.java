@@ -478,7 +478,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (batchParams == null || batchParams.isEmpty()) {
             return Flux.empty();
         }
-        return Flux.usingWhen(
+        return Flux.from(Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
                         .flatMap(paramArray -> {
@@ -490,8 +490,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                         })
                         .collectList()
                         .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
-                conn -> Mono.empty())
-                .flatMapMany(Flux::just);
+                conn -> Mono.empty()));
     }
 
     // ==================== JDBC 执行路径（多数据源联邦） ====================
