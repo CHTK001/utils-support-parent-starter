@@ -118,6 +118,10 @@ public class ArmeriaHttpServer extends AbstractServer {
 
         server = sb.build();
         server.start().join();
+        // port=0 时 Armeria 自动分配随机端口，需同步回 setting 供 getPort() 返回正确值
+        if (setting.getPort() == 0) {
+            setting.setPort(server.activePort().localAddress().getPort());
+        }
         log.info("Armeria HttpServer started on port {}", setting.getPort());
     }
 

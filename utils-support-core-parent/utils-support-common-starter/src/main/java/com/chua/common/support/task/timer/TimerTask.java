@@ -51,8 +51,8 @@ public class TimerTask {
     /** 槽位索引（注册后写入） */
     volatile int slotIndex = -1;
 
-    /** 任务节点（双向链表） */
-    volatile TaskNode node;
+    /** 任务节点（双向链表，Object 持有 HashedWheelTimer.TaskNode 以避免循环依赖） */
+    volatile Object node;
 
     /**
      * 创建单次到期任务。

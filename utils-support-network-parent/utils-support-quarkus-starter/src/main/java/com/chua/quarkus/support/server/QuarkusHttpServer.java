@@ -142,6 +142,10 @@ public class QuarkusHttpServer extends AbstractServer {
                 .toCompletionStage()
                 .toCompletableFuture()
                 .join();
+        // port=0 时 Vert.x 自动分配随机端口，需同步回 setting 供 getPort() 返回正确值
+        if (setting.getPort() == 0) {
+            setting.setPort(server.actualPort());
+        }
         log.info("Quarkus HttpServer started on {}:{}", setting.getHost(), setting.getPort());
     }
 
