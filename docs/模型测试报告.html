@@ -1315,15 +1315,15 @@ a { color: var(--accent); }
 <td>face-liveness-flrgb</td>
 <td>嵌入式</td>
 <td>1.3MB</td>
+<td>~767ms</td>
 <td>✅ 通过</td>
-<td>RGB 活体检测（ModelScope iic/cv_manual_face-liveness_flrgb，内嵌 jar <code>utils-support-models-onnx-face-liveness</code>）。112×112 输入，输出活体概率。<strong>实测</strong>：真人 0.997 通过、动漫 0.164 拦截。注：对"打印照片/屏幕翻拍"单帧区分弱（单帧 RGB 本质局限）；需外扩 100% 头部区域喂入（FacePipeline 已修复）</td>
 </tr>
 <tr>
 <td>face-liveness-flxc</td>
 <td>嵌入式</td>
 <td>0.3MB</td>
+<td>~353ms</td>
 <td>✅ 通过</td>
-<td>炫彩活体检测（ModelScope iic/cv_manual_face-liveness_flxc，内嵌 jar <code>utils-support-models-onnx-face-liveness-flxc</code>）。12通道多帧序列输入，对3D面具/头模攻击鲁棒。<strong>实测</strong>：真人 0.991 通过。注：需炫彩光源多帧采流才能发挥 3D 攻击拦截能力，单帧重复填充效果受限</td>
 </tr>
 <tr>
 <td>face-anti-spoof</td>

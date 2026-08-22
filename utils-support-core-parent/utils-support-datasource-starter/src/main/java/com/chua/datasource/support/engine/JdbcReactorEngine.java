@@ -468,23 +468,17 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        return Mono.fromCallable(() -> {
-            io.r2dbc.spi.Connection conn = Mono.from(factory.create()).block();
-            try {
-                io.r2dbc.spi.Statement stmt = conn.createStatement(sql);
-                bindParams(stmt, params);
-                Long total = Flux.from(stmt.execute())
+        // MySQL 驱动（asyncer r2dbc-mysql）getRowsUpdated() 内部 MonoReduce 类型不兼容，
+        // 通过 safeGetRowsUpdated 兜底跳过异常，保证 H2/PostgreSQL 等标准驱动正常工作。
+        return Mono.usingWhen(
+                Mono.from(factory.create()),
+                conn -> Flux.from(executeStatement(conn, sql, params))
                         .flatMap(result -> safeGetRowsUpdated(result))
                         .collectList()
-                        .map(list -> list.stream().mapToLong(Long::longValue).sum())
-                        .block();
-                return total == null ? 0L : total;
-            } finally {
-                if (conn != null) {
-                    try { Mono.from(conn.close()).block(); } catch (Exception ignored) {}
-                }
-            }
-        }).map(Long::intValue).defaultIfEmpty(0);
+                        .map(list -> list.stream().mapToLong(Long::longValue).sum()),
+                conn -> Mono.empty())
+                .map(l -> l.intValue())
+                .defaultIfEmpty(0);
     }
 
     /**
