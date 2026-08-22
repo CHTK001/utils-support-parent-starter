@@ -12,4 +12,11 @@
     <artifactId>utils-support-runtime-plugin</artifactId>
     <name>Utils Support Runtime Plugin</name>
     <description>运行时插件系统：SPI 插件接口、插桩点、插件扫描与加载</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

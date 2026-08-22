@@ -31,7 +31,7 @@ public final class RustSmbServerBridge {
      * lib target dir
      */
     private static final String LIB_TARGET_DIR =
-            System.getProperty("java.io.tmpdir") + "/rust_smb_server";
+            NativeUtils.tempRoot().resolve("rust_smb_server").toString();
 
     /**
      * ARENA

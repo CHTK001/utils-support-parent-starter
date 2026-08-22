@@ -58,7 +58,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
 
     static {
         try {
-            Path target = Paths.get(System.getProperty("java.io.tmpdir"), "metrics-native");
+            Path target = NativeUtils.tempRoot().resolve("metrics-native");
             NativeLoader.of("metrics_native").toTarget(target).load();
             LOADER_LOOKUP = SymbolLookup.loaderLookup();
             START_SAMPLER = LINKER.downcallHandle(
