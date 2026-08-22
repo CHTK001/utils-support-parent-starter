@@ -244,8 +244,163 @@ ClusterServer.builder().scatterId("order").seeds("192.168.1.10:8082").port(8090)
 server.start()            &rarr; 绑定端口 &rarr; 注册自身 &rarr; 启动 scatter &rarr; 启动 HTTP/TCP 代理
 server.close()            &rarr; 等待当前轮次 &rarr; 注销自身 &rarr; 关代理 &rarr; 关 scatter</code></pre>
 
-<!-- 10. 注意事项 -->
-<h2 id="notes">10. 注意事项</h2>
+<!-- 10. 测试用例 -->
+<h2 id="tests">10. 测试用例</h2>
+
+<h3>Scatter 双节点 Seed 发现（JUnit 5）</h3>
+<pre><code>package com.chua.common.support.scatter;
+
+// 每次测试前重置静态状态，防止 test 间互相污染
+@BeforeAll static void setUp() {
+    ScatterSyncHelper.resetForTest();
+}
+@AfterEach void tearDown() { ScatterSyncHelper.resetForTest(); }
+
+@Test
+public void testTcpSeedDiscovery() throws Exception {
+    int portA = freePort(), portB = freePort();
+    // 节点 A：seed 网关，port 动态分配（0），实际 scatter 端口 = port+2
+    Scatter nodeA = new TcpScatterBuilder()
+        .nodeId("node-a").host("127.0.0.1").port(portA)
+        .groupId("order").servicePath("/scatter")
+        .autoDiscoveryInterval(200).heartbeatInterval(500).failRemoveCount(3)
+        .persistenceEnabled(false).build();
+    nodeA.start();
+    Thread.sleep(400); // 等待首轮 discoveryRound 完成
+
+    // 节点 B：通过 A 的 scatter 端口（nodeA.getPort() 返回实际端口）作为 seed 加入
+    Scatter nodeB = new TcpScatterBuilder()
+        .nodeId("node-b").host("127.0.0.1").port(portB)
+        .groupId("order").servicePath("/scatter")
+        .seeds(List.of("127.0.0.1:" + nodeA.getPort()))   // 用 scatter 端口，不是业务端口！
+        .autoDiscoveryInterval(200).heartbeatInterval(500).failRemoveCount(3)
+        .persistenceEnabled(false).build();
+    nodeB.start();
+
+    TimeUnit.SECONDS.sleep(3);
+    // 断言：nodeB 能发现 nodeA
+    Set&lt;Discovery&gt; services = nodeB.discovery().getServiceAll("/scatter");
+    assertTrue(services.stream().anyMatch(d -> "node-a".equals(d.getServerId())),
+               "node-b 应发现 node-a (seed 同步)");
+    assertTrue(services.stream().anyMatch(d -> "node-b".equals(d.getServerId())),
+               "node-b 应知道自己");
+}</code></pre>
+
+<h3>心跳移除故障节点</h3>
+<pre><code>@Test
+public void testTcpHeartbeatRemove() throws Exception {
+    // 同上构建两个节点，等 sync 完成后
+    nodeA.start(); Thread.sleep(400);
+    nodeB = ...; nodeB.start();
+    TimeUnit.SECONDS.sleep(3);
+
+    // 验证同步完成
+    assertTrue(nodeB.discovery().getServiceAll("/scatter")
+        .stream().anyMatch(d -> "node-a".equals(d.getServerId())));
+
+    // 下线 nodeA
+    nodeA.stop();
+    TimeUnit.SECONDS.sleep(3);
+
+    // 验证 nodeA 被移除（healthCheck 连续 2 次失败后自动剔除）
+    assertFalse(nodeB.discovery().getServiceAll("/scatter")
+        .stream().anyMatch(d -> "node-a".equals(d.getServerId())),
+        "node-a 下线后应从 node-b 服务表移除");
+}</code></pre>
+
+<h3>ClusterManager 注册与路由（JUnit 5）</h3>
+<pre><code>@Test
+void addServerShouldRegisterIntoClusterGroup() throws Exception {
+    ScatterSetting setting = new ScatterSetting();
+    setting.setNodeId("node-test"); setting.setGroupId("order");
+    setting.setPort(19001); setting.setPersistenceEnabled(false);
+
+    try (DefaultScatterServiceDiscovery discovery = new DefaultScatterServiceDiscovery(setting)) {
+        discovery.start();
+        ClusterManager manager = new ClusterManager(discovery, "weight", "node-test");
+
+        // 注册一台远端 HTTP 服务
+        manager.addServer(ServerEntry.http("/api", "192.168.1.10", 8080));
+
+        // 查询：应能在集群视图中找到
+        Set&lt;Discovery&gt; nodes = manager.nodes("/api");
+        Discovery added = nodes.stream()
+            .filter(d -> "192.168.1.10:8080".equals(d.getServerId()))
+            .findFirst().orElse(null);
+        assertNotNull(added);
+        assertEquals("order", added.getScatterId());
+        assertEquals("http",  added.getProtocol());
+    }
+}
+
+@Test
+void samePathMixedProtocolShouldAllow() throws Exception {
+    // 同一 /api path 同时注册 http 和 tcp 两种协议（允许混协议）
+    manager.addServer(ServerEntry.http("/api", "192.168.1.10", 8080));
+    manager.addServer(ServerEntry.tcp("/api",  "192.168.1.20", 8080));
+    Set&lt;Discovery&gt; nodes = manager.nodes("/api");
+    assertTrue(nodes.stream().anyMatch(d -> "192.168.1.10:8080".equals(d.getServerId())));
+    assertTrue(nodes.stream().anyMatch(d -> "192.168.1.20:8080".equals(d.getServerId())));
+}</code></pre>
+
+<!-- 11. HTTP 请求处理详解 -->
+<h2 id="http-flow">11. HTTP 请求处理详解</h2>
+<p style="color:var(--muted);font-size:0.88em;">描述：一个 HTTP 请求从进入 ClusterServer 到最终转发给目标服务的完整链路。</p>
+
+<h3>11.1 请求到达入口</h3>
+<pre><code>// 入口绑定在 port（HTTP 端口），scatter 端口自动 = port+2
+ClusterServer.builder()
+    .scatterId("order")
+    .port(8080)          // HTTP 入口
+    .addServer("/api", "192.168.1.10", 8080, "http")
+    .build();</code></pre>
+
+<h3>11.2 内部 Filter 链（每请求）</h3>
+<div class="flow-steps">
+    <div class="flow-step"><div class="num">1</div><h4>HTTP 到达 port</h4><p>客户端请求到达本机 HTTP 端口，进入 FilterChain</p></div>
+    <div class="flow-step"><div class="num">2</div><h4>ServiceDiscoveryServerFilter</h4><p>按 path 前缀匹配 servicePath（如 <code>/api/order</code> → <code>/api</code>）</p></div>
+    <div class="flow-step"><div class="num">3</div><h4>查 scatter 服务表</h4><p><code>discovery.getService("/api", scatterId, balance, "http")</code>，排除本机 serverId</p></div>
+    <div class="flow-step"><div class="num">4</div><h4>权重平衡选目标</h4><p>本机权重固定 1.0（最高），远端按 cpu+mem 动态权重；默认 weight 策略按概率选节点</p></div>
+    <div class="flow-step"><div class="num">5</div><h4>写 RequestAttribute</h4><p>将 BackendDiscovery / BackendAddress / BackendUri 写入请求上下文</p></div>
+    <div class="flow-step"><div class="num">6</div><h4>ReverseProxyServerFilter 转发</h4><p>读取 BackendUri，向目标发起 HTTP 调用，返回响应给客户端</p></div>
+</div>
+
+<h3>11.3 关键类职责</h3>
+<table>
+    <tr><th>类</th><th>职责</th></tr>
+    <tr><td><code>ServiceDiscoveryServerFilter</code></td><td>查服务表 → 负载均衡选目标 → 写 RequestAttribute；excludeServerId 配置为 <code>selfNodeId+"-http"</code>，避免请求绕回自身</td></tr>
+    <tr><td><code>ReverseProxyServerFilter</code></td><td>读取 BackendUri，向目标节点发起 HTTP 代理请求，透传响应</td></tr>
+    <tr><td><code>WeightLoadBalance</code>（SPI，<code>@Spi("weight")</code>）</td><td>按动态权重随机选节点；选中后 weight 衰减一半（weight / 2.0），避免单点过载；SPI 实例跨请求持久化，服务表变化才重建</td></tr>
+</table>
+
+<h3>11.4 请求决策伪代码</h3>
+<pre><code>// ServiceDiscoveryServerFilter.doFilter()
+Discovery discovery = null;
+for (attempt = 0; attempt &lt; 5; attempt++) {
+    d = discovery.getService(servicePath, scatterId, balance, "http");
+    if (d == null) break;
+    // 排除自身（避免请求绕回本节点造成死循环）
+    if (d.getServerId() != excludeServerId) {
+        discovery = d; break;
+    }
+    // 本节点是唯一提供者：创建 fresh 副本，绕过 SPI 实例状态复用
+    discovery = D.newBuilder().from(d).build(); break;
+}
+if (discovery == null) { chain.doFilter(); return; }  // 无提供者
+ServerAttribute.setBackendUri(request, discovery.getProtocol() + "://" + host + ":" + port);
+chain.doFilter();  // → ReverseProxyServerFilter 接管转发</code></pre>
+
+<h3>11.5 端口与 Protocol 映射</h3>
+<table>
+    <tr><th>属性</th><th>说明</th></tr>
+    <tr><td>HTTP 入口端口</td><td><code>setting.port</code>（如 8080），客户端直接访问</td></tr>
+    <tr><td>TCP 入口端口</td><td><code>port+1</code>（如 8081），用于 TCP 长连接代理</td></tr>
+    <tr><td>Scatter 通信端口</td><td><code>port+2</code>（如 8082），节点间帧协议通信（REQ/RESP/PUSH/ELEC）</td></tr>
+    <tr><td>协议字段（protocol）</td><td>服务端注册时指定，决定负载均衡时只匹配同协议节点（http/tcp 互不干扰）</td></tr>
+</table>
+
+<!-- 12. 注意事项 -->
+<h2 id="notes">12. 注意事项</h2>
 <div class="warn">
     <ol>
         <li><strong>seed 至少配置一个</strong>：不配时本节点自动成为网关；新节点加入需知道 seed 地址</li>
@@ -285,16 +440,16 @@ server.close()            &rarr; 等待当前轮次 &rarr; 注销自身 &rarr; �
             links: [
                 { source: '节点 A\n192.168.1.10:8080', target: '节点 B\n192.168.1.11:8080',
                   lineStyle: { color: '#58a6ff', width: 2 },
-                  label: { show: true, formatter: 'scatter 帧协议', color: '#8b949e', fontSize: 10, position: 'middle' } },
+                  label: { show: false } },
                 { source: '节点 A\n192.168.1.10:8080', target: '节点 C\n192.168.1.12:8080',
                   lineStyle: { color: '#58a6ff', width: 2 },
-                  label: { show: true, formatter: 'scatter 帧协议', color: '#8b949e', fontSize: 10, position: 'middle' } },
+                  label: { show: false } },
                 { source: '节点 B\n192.168.1.11:8080', target: '节点 C\n192.168.1.12:8080',
                   lineStyle: { color: '#58a6ff', width: 2 },
-                  label: { show: true, formatter: 'scatter 帧协议', color: '#8b949e', fontSize: 10, position: 'middle' } },
+                  label: { show: false } },
                 { source: '客户端\n浏览器/调用方', target: '节点 A\n192.168.1.10:8080',
                   lineStyle: { color: '#3fb950', width: 2 },
-                  label: { show: true, formatter: 'HTTP/TCP 请求', color: '#3fb950', fontSize: 10, position: 'middle' } },
+                  label: { show: false } },
             ]
         }]
     });

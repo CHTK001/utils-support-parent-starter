@@ -447,7 +447,7 @@ public class MemoryRagClient implements RagClient {
             try {
                 Path file = filesDir.resolve(doc.id() + FILE_NAME_SEPARATOR + doc.fileName());
                 if (Files.exists(file)) {
-                    String text = extractText(file.toFile(), doc.fileName());
+                    String text = extractText(Files.readAllBytes(file), doc.fileName());
                     if (StringUtils.isBlank(text)) {
                         continue;
                     }

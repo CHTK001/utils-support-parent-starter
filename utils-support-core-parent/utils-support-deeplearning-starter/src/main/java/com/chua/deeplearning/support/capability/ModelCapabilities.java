@@ -23,6 +23,8 @@ import com.chua.deeplearning.support.ocr.OcrRecognizer;
 import com.chua.deeplearning.support.plate.LicensePlateRecognizer;
 import com.chua.deeplearning.support.plate.PlateDetector;
 import com.chua.deeplearning.support.pose.PoseEstimator;
+import com.chua.deeplearning.support.audio.AudioFingerprinter;
+import com.chua.deeplearning.support.audio.SpeakerDiarizer;
 import com.chua.deeplearning.support.speech.SpeechRecognizer;
 import com.chua.deeplearning.support.speech.SpeechSynthesizer;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -125,6 +127,12 @@ public final class ModelCapabilities {
     /** 语音合成 TTS */
     /** TTS */
     public static final String TTS = "tts";
+    /** 音频指纹提取（语音特征向量） */
+    /** Audio_fingerprint */
+    public static final String AUDIO_FINGERPRINT = "audio-fingerprint";
+    /** 说话人分离（时间切分） */
+    /** Speaker_diarization */
+    public static final String SPEAKER_DIARIZATION = "speaker-diarization";
 
     // ==================== 云端 AI 客户端能力标签 ====================
 
@@ -185,7 +193,9 @@ public final class ModelCapabilities {
             Map.entry(EmbeddingClient.class, TEXT_EMBEDDING),
             Map.entry(AudioClient.class, ASR),
             Map.entry(TextToAudioClient.class, TTS),
-            Map.entry(FeatureClient.class, FEATURE)
+            Map.entry(FeatureClient.class, FEATURE),
+            Map.entry(AudioFingerprinter.class, AUDIO_FINGERPRINT),
+            Map.entry(SpeakerDiarizer.class, SPEAKER_DIARIZATION)
     );
 
     /** 创建 ModelCapabilities 实例 */

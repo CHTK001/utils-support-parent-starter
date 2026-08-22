@@ -152,6 +152,8 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         serverSetting.setPort(setting.getPort());
         serverSetting.setProtocol(setting.getProtocol());
         serverSetting.setBacklog(2048);
+        // 缩短 readTimeout：与 scatter timeoutMillis 一致，确保健康检查能快速检测到对端下线
+        serverSetting.setReadTimeout((int) Math.min(setting.getTimeoutMillis(), 5000L));
         if ("udp".equalsIgnoreCase(setting.getProtocol())) {
             return new ScatterNodeServerWrapper(
                     new UdpScatterNodeServer(serverSetting, handler), setting);
