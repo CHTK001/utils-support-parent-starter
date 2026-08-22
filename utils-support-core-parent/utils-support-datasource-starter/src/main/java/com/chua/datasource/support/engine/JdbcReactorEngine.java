@@ -468,18 +468,36 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        // 使用 collectList 避免 MonoReduce 对 Integer/Long 混合类型的 ClassCastException
-        // MySQL 驱动（asyncer）返回 Publisher<Integer>，H2 返回 Publisher<Long>
-        return Mono.usingWhen(
-                Mono.from(factory.create()),
-                conn -> Flux.from(executeStatement(conn, sql, params))
-                        .flatMap(result -> Flux.from(result.getRowsUpdated())
-                                .map(v -> v instanceof Number n ? n.longValue() : 0L))
+        return Mono.fromCallable(() -> {
+            io.r2dbc.spi.Connection conn = Mono.from(factory.create()).block();
+            try {
+                io.r2dbc.spi.Statement stmt = conn.createStatement(sql);
+                bindParams(stmt, params);
+                Long total = Flux.from(stmt.execute())
+                        .flatMap(result -> safeGetRowsUpdated(result))
                         .collectList()
-                        .map(list -> list.stream().mapToLong(Long::longValue).sum()),
-                conn -> Mono.empty())
-                .map(l -> l.intValue())
-                .defaultIfEmpty(0);
+                        .map(list -> list.stream().mapToLong(Long::longValue).sum())
+                        .block();
+                return total == null ? 0L : total;
+            } finally {
+                if (conn != null) {
+                    try { Mono.from(conn.close()).block(); } catch (Exception ignored) {}
+                }
+            }
+        }).map(Long::intValue).defaultIfEmpty(0);
+    }
+
+    /**
+     * 安全获取 rowsUpdated：H2 多语句批量执行时非 DML Result 会抛出异常，MySQL 驱动的
+     * getRowsUpdated() 内部 MonoReduce 对 Integer/Long 不兼容，统一 catch 返回 empty。
+     */
+    private static Flux<Long> safeGetRowsUpdated(io.r2dbc.spi.Result result) {
+        try {
+            return Flux.from(result.getRowsUpdated())
+                    .map(v -> v instanceof Number n ? n.longValue() : 0L);
+        } catch (Exception e) {
+            return Flux.empty();
+        }
     }
 
     private Flux<Integer> batchViaR2dbc(String name, String sql, List<Object[]> batchParams) {
@@ -497,8 +515,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                             Statement stmt = conn.createStatement(sql);
                             bindParams(stmt, paramArray);
                             return Flux.from(stmt.execute())
-                                    .flatMap(Result::getRowsUpdated)
-                                    .reduce(0L, Long::sum);
+                                    .flatMap(result -> safeGetRowsUpdated(result))
+                                    .collectList()
+                                    .map(list -> list.isEmpty() ? 0L : list.stream().mapToLong(Long::longValue).sum());
                         })
                         .collectList()
                         .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),

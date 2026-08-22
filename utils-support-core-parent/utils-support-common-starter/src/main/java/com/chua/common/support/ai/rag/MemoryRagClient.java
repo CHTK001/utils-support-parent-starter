@@ -2,11 +2,9 @@ package com.chua.common.support.ai.rag;
 
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
-import com.chua.common.support.ai.rag.RagClient.UploadProvider;
 import com.chua.common.support.ai.splitter.TextChunk;
 import com.chua.common.support.ai.splitter.TextSplitter;
 import com.chua.common.support.file.txtractor.TextExtractor;
-import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.vector.Vector;
@@ -110,7 +108,7 @@ public class MemoryRagClient implements RagClient {
     private static final String QUESTION_PREFIX = "\n\n问题: ";
 
     /**
-     * 文档上传 SPI 提供者，默认使用本地文件落盘。
+     * 文档上传提供者（默认本地文件落盘）。
      */
     private final UploadProvider uploadProvider;
 
@@ -171,7 +169,8 @@ public class MemoryRagClient implements RagClient {
         this.vectorService = VectorService.from(setting.getEmbeddingClient());
         this.topK = setting.getTopK();
         this.similarityThreshold = setting.getSimilarityThreshold();
-        this.uploadProvider = ServiceProvider.of(UploadProvider.class).getDefault();
+        // 默认使用本地文件落盘，可通过设置 textExtractor 切换为其他存储策略
+        this.uploadProvider = new LocalFileUploadProvider(setting.getUploadDir());
 
         this.uploadDir = Path.of(setting.getUploadDir());
         this.filesDir = this.uploadDir.resolve(UPLOAD_FILES_SUBDIR);
@@ -182,7 +181,7 @@ public class MemoryRagClient implements RagClient {
         }
         this.documents = new CopyOnWriteArrayList<>();
 
-        log.info("[MemoryRagClient] 初始化完成, uploadDir={}, uploadProvider={}", setting.getUploadDir(), uploadProvider.getClass().getSimpleName());
+        log.info("[MemoryRagClient] 初始化完成, uploadDir={}", setting.getUploadDir());
     }
 
     /**
@@ -403,6 +402,52 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
+     * 更新文档：保留原 docId，替换文件内容并重新向量化。
+     */
+    @Override
+    public RagDocument updateDocument(String docId, String fileName, byte[] data) {
+        // 清理旧向量和旧文件
+        deleteDocument(docId);
+        // 用原 docId 直接上传（不走UUID生成）
+        String fileType = fileName.contains(".")
+                ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+                : EMPTY;
+        RagDocument doc = RagDocument.processing(docId, fileName, fileType, data.length);
+        try {
+            uploadProvider.upload(docId, fileName, data);
+        } catch (Exception e) {
+            return doc.withError("上传失败: " + e.getMessage());
+        }
+        try {
+            byte[] fileData = uploadProvider.read(docId);
+            String text = extractText(fileData, fileName);
+            if (StringUtils.isBlank(text)) {
+                return doc.withError("提取文本为空");
+            }
+            List<TextChunk> chunks = textSplitter.split(text);
+            if (chunks.isEmpty()) {
+                return doc.withError("分块为空");
+            }
+            for (TextChunk chunk : chunks) {
+                float[] vector = vectorService.embed(chunk.text());
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put(META_CONTENT, chunk.text());
+                metadata.put(META_DOC_ID, docId);
+                metadata.put(META_FILE_NAME, fileName);
+                metadata.put(META_FILE_TYPE, fileType);
+                metadata.put(META_CHUNK_INDEX, chunk.index());
+                vectorStorage.add(new Vector(docId + FILE_NAME_SEPARATOR + chunk.index(), vector, metadata));
+            }
+            doc = doc.withChunkCount(chunks.size());
+        } catch (Exception e) {
+            log.warn("[MemoryRagClient] 索引更新文档失败: {}", e.getMessage(), e);
+            doc = doc.withError("索引失败: " + e.getMessage());
+        }
+        documents.add(doc);
+        return doc;
+    }
+
+    /**
      * 分页列出文档，按创建时间倒序。
      *
      * @param page     页号（从 1 开始）
@@ -484,9 +529,9 @@ public class MemoryRagClient implements RagClient {
             return null;
         }
         try {
-            Path file = filesDir.resolve(docId + FILE_NAME_SEPARATOR + opt.get().fileName());
-            return Files.exists(file) ? Files.readString(file, StandardCharsets.UTF_8) : null;
-        } catch (IOException e) {
+            byte[] data = uploadProvider.read(docId);
+            return data != null ? new String(data, StandardCharsets.UTF_8) : null;
+        } catch (Exception e) {
             return null;
         }
     }
