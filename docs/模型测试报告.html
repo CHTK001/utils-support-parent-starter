@@ -1070,23 +1070,21 @@ a { color: var(--accent); }
 <td>嵌入式</td>
 <td>1.13MB</td>
 <td>~152ms/次</td>
-<td>✅ 通过</td>
+<td>✅ 通过<br><strong>⭐推荐（嵌入式·轻量）</strong> FacePlugin Mb-Tiny-FD slim @ 320x240，嵌入 jar <code>utils-support-models-onnx-faceplugin-detect-slim</code>（PyTorch→ONNX）。<strong>实测</strong>：人脸图 1 张，box (174,315) 376x394，conf=0.93；首次含加载 1654ms，warmup 后纯推理平均 152ms；小目标检测正常</td>
 </tr>
 <tr>
 <td>retinaface-r34</td>
 <td>嵌入式</td>
 <td>88.5MB</td>
 <td>-</td>
-<td>✅ 通过</td>
-<td><strong>⭐推荐（嵌入式·高精度）</strong> <strong>RetinaFace R34 人脸检测（ResNet34 骨干，输出人脸框+5 点关键点，jar <code>utils-support-models-onnx-retinaface-r34</code>，2026-08-20 新增）</strong>；<code>OnnxRetinaFaceTranslator</code> 修 batchifier=null（ONNX 兼容）、to2d 去 squeeze、阈值经 Map 参数可配（默认 0.85 / NMS 0.45）；小目标检测正常（与 faceplugin/yolo-face 同档）</td>
+<td>✅ 通过<br><strong>⭐推荐（嵌入式·高精度）</strong> <strong>RetinaFace R34 人脸检测（ResNet34 骨干，输出人脸框+5 点关键点，jar <code>utils-support-models-onnx-retinaface-r34</code>，2026-08-20 新增）</strong>；<code>OnnxRetinaFaceTranslator</code> 修 batchifier=null（ONNX 兼容）、to2d 去 squeeze、阈值经 Map 参数可配（默认 0.85 / NMS 0.45）；小目标检测正常（与 faceplugin/yolo-face 同档）</td>
 </tr>
 <tr>
 <td>tinaface</td>
 <td>嵌入式</td>
 <td>141MB jar</td>
 <td>-</td>
-<td>✅ 通过</td>
-<td><strong>TinaFace R50（ResNet50+GN+DCN 骨干 + FPN+Inception 颈部 + IoU-aware 评分，6 级 anchor stride 4~128，jar <code>utils-support-models-onnx-tinaface</code>，2026-08-20 新增）</strong>；.pth 权重经 torch dynamo 导出（DCN 分解为标准 ONNX ops），38M 参数全部加载；<code>TinaFaceTranslator</code> AWT 预处理 + anchor 解码 + IoU-aware score=√(sigmoid(cls)·sigmoid(iou)) + NMS；小目标检测正常（注：ORT CPU 不支持 DeformConv 算子，需 GPU/插件加载）</td>
+<td>✅ 通过<br><strong>TinaFace R50（ResNet50+GN+DCN 骨干 + FPN+Inception 颈部 + IoU-aware 评分，6 级 anchor stride 4~128，jar <code>utils-support-models-onnx-tinaface</code>，2026-08-20 新增）</strong>；.pth 权重经 torch dynamo 导出（DCN 分解为标准 ONNX ops），38M 参数全部加载；<code>TinaFaceTranslator</code> AWT 预处理 + anchor 解码 + IoU-aware score=√(sigmoid(cls)·sigmoid(iou)) + NMS；小目标检测正常（注：ORT CPU 不支持 DeformConv 算子，需 GPU/插件加载）</td>
 </tr>
 <tr>
 <td>insightface-scrfd</td>
