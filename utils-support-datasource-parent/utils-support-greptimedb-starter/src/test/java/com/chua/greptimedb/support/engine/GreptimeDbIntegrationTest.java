@@ -44,10 +44,10 @@ class GreptimeDbIntegrationTest {
 
         // 通过 HTTP SQL 接口校验数据已落库
         String sql = "SELECT count(*) AS c FROM metrics_demo";
-        String resp = postSql("http://172.16.0.40:4000/v1/sql", "{\"sql\":\"" + sql + "\"}");
+        String resp = postSql("http://172.16.0.40:4000/v1/sql", "sql=" + java.net.URLEncoder.encode(sql, java.nio.charset.StandardCharsets.UTF_8) + "&db=public");
         System.out.println("SQL 校验返回: " + resp);
         assertNotNull(resp);
-        assertTrue(resp.contains("\"code\":0") || resp.contains("metrics_demo"),
+        assertTrue(resp.contains("\"output\""),
                 "SQL 查询应返回有效结果: " + resp);
     }
 
@@ -58,7 +58,7 @@ class GreptimeDbIntegrationTest {
         java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
-        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         try (java.io.OutputStream os = conn.getOutputStream()) {
             os.write(body.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         }

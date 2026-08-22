@@ -56,6 +56,55 @@ engine.write(table).thenAccept(result -> {
 
 ---
 
+## Docker 部署（172.16.0.40）
+
+```bash
+# 拉取镜像
+docker pull greptime/greptimedb:latest
+
+# 启动 standalone（注意需绑定 0.0.0.0，且需 seccomp=unconfined 以允许 Rust/tokio 创建线程）
+docker run -d --name greptimedb \
+  --security-opt seccomp=unconfined \
+  -p 4000:4000 -p 4001:4001 -p 4002:4002 -p 4003:4003 \
+  greptime/greptimedb:latest standalone start \
+  --http-addr 0.0.0.0:4000 --grpc-bind-addr 0.0.0.0:4001
+```
+
+- HTTP 接口：`http://172.16.0.40:4000`（健康检查 `/health`、SQL `/v1/sql`）
+- gRPC 写入接口（SDK 使用）：`172.16.0.40:4001`
+- 默认库 `public`，无鉴权
+
+> 注意：GreptimeDB 默认命令行参数中 gRPC 绑定参数为 `--grpc-bind-addr`；
+> 默认仅绑定 `127.0.0.1`，容器化部署必须显式指定 `0.0.0.0` 否则宿主机无法访问。
+> Rust 运行时在部分 Docker seccomp 配置下会因 `Operation not permitted` 无法创建线程，
+> 需加 `--security-opt seccomp=unconfined`。
+
+---
+
+## 依赖版本注意（protobuf）
+
+GreptimeDB Java SDK 的 proto（`greptimedb-proto 0.9.0`）由旧版 protoc 生成，依赖
+`protobuf-java 3.x` 运行期。若 classpath 上存在 `protobuf-java 4.x`（如被
+`utils-support-common-starter` 传递引入 4.31.1），写入时会抛出
+`NoSuchMethodError: makeExtensionsImmutable()`。本模块已在 `pom.xml` 中显式固定
+`protobuf-java 3.21.12` 解决该冲突。
+
+---
+
+## 测试
+
+```bash
+# 单元测试（无需服务）
+mvn test -DskipTests=false -Dtest=GreptimeDbEngineTest
+
+# 集成测试（需先部署 172.16.0.40:4001 的 GreptimeDB）
+mvn test -DskipTests=false -Dtest=GreptimeDbIntegrationTest
+```
+
+集成测试会向 `metrics_demo` 表写入 2 行并通过 HTTP SQL 校验落库。
+
+---
+
 ## 配置说明
 
 本模块为零配置模块，引入依赖并通过 `addDataSource` 指定 GreptimeDB 端点即可使用。
