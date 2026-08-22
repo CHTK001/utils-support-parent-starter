@@ -1,38 +1,87 @@
 <!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ONNX 模型测试报告</title><script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script><style>
-        :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
-            --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-        .header { background:var(--card); border-bottom:1px solid var(--border); padding:24px 40px; }
-        .header h1 { font-size:1.7em; color:#f0f6fc; margin-bottom:4px; }
-        .header p { color:var(--muted); font-size:0.9em; }
-        .body-inner { max-width:1100px; margin:0 auto; padding:28px 40px; }
-        h2 { font-size:1.3em; color:#f0f6fc; margin:44px 0 14px; padding-left:12px; border-left:3px solid var(--accent); }
-        h3 { font-size:1.05em; color:#f0f6fc; margin:26px 0 8px; }
-        code { background:#1f2937; padding:1px 5px; border-radius:3px; font-family:'Cascadia Code',Consolas,monospace; font-size:0.88em; color:#79c0ff; }
-        pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 16px; overflow-x:auto; margin:12px 0; }
-        pre code { background:none; color:#e6edf3; padding:0; }
-        table { width:100%; border-collapse:collapse; margin:12px 0; font-size:0.88em; }
-        th, td { border:1px solid var(--border); padding:8px 11px; text-align:left; }
-        th { background:var(--card); color:var(--accent); font-weight:600; }
-        tr:nth-child(even) td { background:rgba(255,255,255,0.02); }
-        .note { background:rgba(88,166,255,0.08); border-left:3px solid var(--accent); padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; }
-        .warn { background:rgba(210,153,34,0.08); border-left:3px solid var(--orange); padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; }
-        ul { padding-left:20px; margin:6px 0; }
-        li { margin-bottom:3px; }
-        .chart-wrap { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin:18px 0; }
-        .chart-title { color:var(--muted); font-size:0.8em; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
-        .chart { width:100%; height:360px; }
-        .flow-steps { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin:14px 0; }
-        .flow-step { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 16px; position:relative; }
-        .flow-step .num { position:absolute; top:-8px; left:-8px; background:var(--accent); color:#000; border-radius:50%; width:22px; height:22px; font-size:0.75em; display:flex; align-items:center; justify-content:center; font-weight:700; }
-        .flow-step h4 { font-size:0.9em; color:#f0f6fc; margin-bottom:4px; }
-        .flow-step p { font-size:0.78em; color:var(--muted); line-height:1.4; }
-        a { color:var(--accent); text-decoration:none; }
-    </style></head><body>
-<div class="header"><h1>ONNX 模型测试报告</h1><p>DJL 0.36.0 | ONNX Runtime 1.21.1 | OpenCV 4.9.0 | 自动生成于 2026-08-22</p></div>
-<div class="body-inner"><h1 id="onnx">ONNX 模型测试报告</h1>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模型测试报告</title>
+<style>
+:root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+#sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; overflow-y: auto; background: var(--card); border-right: 1px solid var(--border); padding: 20px; font-size: 0.85em; z-index: 100; }
+#sidebar ul { list-style: none; padding: 0; }
+#sidebar li { margin: 4px 0; }
+#sidebar a { color: var(--muted); text-decoration: none; display: block; padding: 2px 8px; border-radius: 4px; }
+#sidebar a:hover { color: var(--accent); background: rgba(88,166,255,0.1); }
+#sidebar h3 { color: var(--text); margin-bottom: 12px; font-size: 1em; }
+#content { margin-left: 280px; padding: 32px 48px; max-width: 1000px; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.9em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--card); color: var(--accent); }
+tr:hover { background: rgba(88,166,255,0.05); }
+code { background: var(--card); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre { background: var(--card); padding: 16px; border-radius: 8px; overflow-x: auto; }
+h2 { color: var(--accent); margin-top: 32px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+h3 { color: #f0f6fc; margin-top: 24px; }
+a { color: var(--accent); }
+.footer { text-align: center; padding: 32px; color: var(--muted); font-size: 0.82em; border-top: 1px solid var(--border); margin-top: 32px; }
+</style>
+</head>
+<body>
+<div id="sidebar">
+<h3>📋 目录</h3>
+<ul><li><a href="#onnx">ONNX 模型测试报告</a></li>
+  <li><a href="#_1">目录</a></li>
+  <li><a href="#1">1. 图像分割</a></li>
+  <li><a href="#2">2. 抠图/背景移除</a></li>
+  <li><a href="#3">3. 文本嵌入</a></li>
+  <li><a href="#4">4. 姿态估计</a></li>
+  <li><a href="#5">5. 视觉特征提取</a></li>
+  <li><a href="#6">6. 开放词汇检测</a></li>
+    <li><a href="#61-yolo-world">6.1 YOLO-World 嵌入式零样本检测</a></li>
+  <li><a href="#7">7. 零样本分类</a></li>
+  <li><a href="#8">8. 目标检测</a></li>
+  <li><a href="#9-ocr">9. OCR/文字识别</a></li>
+  <li><a href="#10">10. 人脸全链路</a></li>
+    <li><a href="#_2">人脸检测</a></li>
+    <li><a href="#facedetectdrawexample">人脸检测+裁剪(对齐)+修复+超分 综合实测（FaceDetectDrawExample）</a></li>
+    <li><a href="#_3">人脸识别/特征</a></li>
+    <li><a href="#_4">人脸属性</a></li>
+    <li><a href="#_5">活体检测</a></li>
+    <li><a href="#_6">人脸修复/超分</a></li>
+  <li><a href="#11">11. 图像分类</a></li>
+  <li><a href="#12">12. 图像超分/修复</a></li>
+  <li><a href="#13">13. 图像生成</a></li>
+  <li><a href="#14-nlp">14. NLP/文本处理</a></li>
+    <li><a href="#141-marianmt">14.1 嵌入式机器翻译（MarianMT 中英互译）</a></li>
+    <li><a href="#142-qwen25-gguf-onnx">14.2 本地大模型对话（Qwen2.5 GGUF / ONNX）</a></li>
+    <li><a href="#142a-seq2seq-modelscope">14.2a Seq2Seq 文本生成实现（嵌入优先 + modelscope 下载）</a></li>
+  <li><a href="#15">15. 文档分析</a></li>
+  <li><a href="#16-tts">16. 语音合成 TTS</a></li>
+  <li><a href="#17">17. 图像描述</a></li>
+  <li><a href="#18-mattingservice">18. 图像抠图 MattingService</a></li>
+  <li><a href="#19">19. 其他</a></li>
+  <li><a href="#20">20. 图片清晰度检测门面</a></li>
+    <li><a href="#deeplearning-starter">门面接口（deeplearning-starter）</a></li>
+    <li><a href="#spi">SPI 实现</a></li>
+    <li><a href="#2026-08-20">特征维度覆盖（2026-08-20）</a></li>
+  <li><a href="#_7">测试总结</a></li>
+    <li><a href="#djl-0360">DJL 0.36.0 实测通过（本轮完整重测）</a></li>
+    <li><a href="#_8">本轮实测失败（有模型文件但接口/资源问题）</a></li>
+    <li><a href="#djl">本轮修复记录（DJL 不兼容 / 注册错误）</a></li>
+    <li><a href="#models-jar-jar">资源缺失（注册存在但模型文件未打包，models jar 为占位空 jar）</a></li>
+    <li><a href="#downloadurl">下载受限（downloadUrl 存在但证书/网络导致无法拉取）</a></li>
+    <li><a href="#2026-08-17">2026-08-17 嵌入式 + 自动下载模型补测总结（第二轮）</a></li>
+  <li><a href="#gpu-2026-08-21">附录：本地大模型与 GPU 环境（2026-08-21）</a></li>
+    <li><a href="#ggufllamacpp-jllama">GGUF（llama.cpp / jllama）本地对话</a></li>
+    <li><a href="#onnxonnxruntime">ONNX（onnxruntime）本地对话</a></li>
+    <li><a href="#gpuonnxruntime_gpu">GPU（onnxruntime_gpu）状态</a></li>
+    <li><a href="#2026-08-17_1">2026-08-17 嵌入式模型补测总结（本轮）</a></li>
+    <li><a href="#_9">升级说明</a></li>
+</ul>
+</div>
+<div id="content">
+<h1 id="onnx">ONNX 模型测试报告</h1>
 <blockquote>
 <p><strong>2026-08-22 更新</strong>：更新模型测试报告并生成 HTML；人脸检测 5 模型可用（SCRF​D 直拉伸修复小目标截断，ultra-face 已按要求删除，insightface-scrfd 右下偏移已修复）</p>
 <p><strong>2026-08-20 更新</strong>：新增人脸检测 <code>retinaface-r34</code>（88.5MB）/ <code>tinaface</code>（141MB jar，GN+DCN，DCN 由 torch dynamo 分解为标准 ONNX ops）、中文嵌入 <code>bge-large-zh-embedding</code>（INT8，1024 维，jar 222MB）；删除冗余 <code>face-feature</code> / <code>common-face-rec</code>；<code>OnnxRetinaFaceTranslator</code> 修 batchifier=null + 去 squeeze + 可配阈值；<code>FaceDetectMultiExample</code> 人脸检测列表扩至 6 模型。<strong>新增 InsightFace buffalo_l 人脸全家桶</strong>（scrfd 检测 / AdaFace 识别 / 2d106 关键点 / genderage 属性 / 1k3d68 3D，5 个模型 jar 全部内嵌实测通过）。</p>
@@ -43,7 +92,7 @@
 本轮新增实测：<strong>16 个嵌入式模型全部通过</strong>（目标检测 5 + 布局 1 + 风格 5 + 动漫 4 + 抠图 1）</p>
 <p><strong>本报告基于 DJL 0.36.0 重新测试，旧版本（0.27）数据已重置。本轮（08-17）补齐嵌入式模型实测。</strong></p>
 </blockquote>
-<hr />
+<hr>
 <h2 id="_1">目录</h2>
 <ol>
 <li><a href="#1-图像分割">图像分割</a></li>
@@ -67,7 +116,7 @@
 <li><a href="#19-其他">其他</a></li>
 <li><a href="#20-图片清晰度检测门面">图片清晰度检测门面</a></li>
 </ol>
-<hr />
+<hr>
 <h2 id="1">1. 图像分割</h2>
 <table>
 <thead>
@@ -132,7 +181,7 @@
 <p><strong>测试数据</strong>：512×512 合成图（白底 + 红色圆形 + 蓝色方块），bbox 提示框覆盖红色圆形区域。
 <strong>结果图输出</strong>：<code>D:\ch\output\edgesam_mask.png</code> / <code>efficientsam_mask.png</code> / <code>fastsam_mask.png</code>。
 <strong>评估指标</strong>：bbox 提示分割掩码前景 ~12%（对应圆形面积占比），FastSAM 自动分割整图前景。</p>
-<hr />
+<hr>
 <h2 id="2">2. 抠图/背景移除</h2>
 <table>
 <thead>
@@ -180,7 +229,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="3">3. 文本嵌入</h2>
 <table>
 <thead>
@@ -303,7 +352,7 @@
 - 嵌入式已打包：bge-small-zh（512）、bge-small-en（384）、dino-v2-small（384）、mobileclip-s0（512）、minilm（384）— jar 内含完整 .onnx，注册验证 15/15 通过（FeatureDimensionExample）
 - 需 downloadUrl：bge-base-zh/en（768）、bge-m3（1024）、dino-v2-base（768）、dino-v2-large（1024）、resnet50（2048）— Translator 复用 DINOv2/BGE 相同逻辑，下载后可直接推理
 - 实际向量长度实测可用 <code>FeatureDimensionInferenceExample</code>（合成图 + 文本样本，输出 vec.length == 预期维度）本地验证，嵌入式 5 模型零联网可测</p>
-<hr />
+<hr>
 <h2 id="4">4. 姿态估计</h2>
 <table>
 <thead>
@@ -338,7 +387,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="5">5. 视觉特征提取</h2>
 <table>
 <thead>
@@ -465,7 +514,7 @@
 </table>
 <p><strong>维度覆盖</strong>：图片特征已覆盖 384 / 512 / 768 / 1024 / 2048 五种主流维度。</p>
 <p><strong>特征维度实测状态</strong>：嵌入式 dino-v2-small（384）+ mobileclip-s0（512）已打包实际 .onnx；更多维度通过 downloadUrl（hf-mirror）自动下载，可用 FeatureDimensionInferenceExample 独立验证 vec.length</p>
-<hr />
+<hr>
 <h2 id="6">6. 开放词汇检测</h2>
 <table>
 <thead>
@@ -574,7 +623,7 @@
 - 输出：<code>DetectedObjects</code>（类别名 + 归一化边界框 + 置信度）</p>
 <p><strong>translator 源码</strong>：<code>onnx/yoloworld/YoloWorldDetectorTranslator</code>，letterbox resize（640×640，灰蓝填充）+ normalize，HuggingFaceTokenizer 预编码候选类别（"object: label" prompt），端到端输出解析 pred_boxes + pred_scores，内置 NMS。</p>
 <p><strong>示例</strong>：<code>com.chua.example.ai.vision.YoloWorldExample</code>（对 <code>D:\images</code> 下图片做中英文候选检测）。</p>
-<hr />
+<hr>
 <h2 id="7">7. 零样本分类</h2>
 <table>
 <thead>
@@ -622,7 +671,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="8">8. 目标检测</h2>
 <table>
 <thead>
@@ -869,7 +918,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="9-ocr">9. OCR/文字识别</h2>
 <table>
 <thead>
@@ -915,28 +964,28 @@
 <td>嵌入式</td>
 <td>~40MB</td>
 <td>✅ 通过</td>
-<td>PP-OCRv6 medium 文字检测（精度更高，ORT原生，车票检测效果好）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>paddleocrv6-medium-rec</td>
 <td>嵌入式</td>
 <td>~60MB</td>
 <td>✅ 通过</td>
-<td>PP-OCRv6 medium 文字识别（dict 18709 字符，车票识别准确）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>duguang-ocr-small</td>
 <td>嵌入式</td>
-<td>~5.3MB det + ~7.8MB rec</td>
+<td>~5.3MB</td>
+<td>⭐推荐 det + ~7.8MB rec</td>
 <td>✅ 通过</td>
-<td>读光 OCR small（DBNet 检测 + ConvNeXT 识别，ORT 原生 + OpenCV，已修复 CTC blank decode/unclip/NCHW 布局三处 bug；车票 20 行正确识别，表格 85 行识别准确）</td>
 </tr>
 <tr>
 <td>duguang-ocr-large</td>
 <td>嵌入式</td>
-<td>~46MB det + ~73MB rec</td>
+<td>~46MB</td>
+<td>⭐推荐 det + ~73MB rec</td>
 <td>✅ 通过</td>
-<td>读光 OCR large（同架构更大模型，精度更高；车票 20 行正确识别，表格 91 行识别准确）</td>
 </tr>
 <tr>
 <td>doc-orientation</td>
@@ -968,7 +1017,7 @@
 <li>表格.jpg：126 行（small）/107 行（large）正确识别</li>
 </ul>
 <p><strong>OpenCV 统一工具类</strong>：<code>OpenCvImageUtils</code> 封装 decode/encode/upscale/rotate/invertIfDark/load，各 translator（PpOcrDetTranslator/PpWordExtractorTranslator/PpWordRotateTranslator/TextBsrTranslator/YoloV8nPoseTranslator 等 11 个）统一调用，不再散落 <code>nu.pattern.OpenCV.loadLocally()</code> 与图像操作。</p>
-<hr />
+<hr>
 <h2 id="10">10. 人脸全链路</h2>
 <h3 id="_2">人脸检测</h3>
 <table>
@@ -1321,7 +1370,7 @@
 </tbody>
 </table>
 <p><strong>GFPGAN ONNX 转换突破记录</strong>：AIAS <code>gfpgan_traced_model.pt</code> 因 StyleGAN decoder 内部 float→double→float 计算域（37 个 Cast-to-double），onnxruntime CPU 缺 double Conv 实现，<strong>无法转可运行 ONNX</strong>（尝试删 Cast、恒等替换、graphsurgeon 类型统一等 6 种方案均失败）。改用官方 <code>GFPGANv1.3.pth</code> + 重写 forward（<code>GFPGANReconsitution.py</code>：noise 移出模型、StyleConv 改纯 conv 调制）成功导出：cast-to-double=0、与 torch 参考 MAE=0.0、色偏消失。</p>
-<hr />
+<hr>
 <h2 id="11">11. 图像分类</h2>
 <table>
 <thead>
@@ -1441,7 +1490,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="12">12. 图像超分/修复</h2>
 <table>
 <thead>
@@ -1540,7 +1589,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="13">13. 图像生成</h2>
 <table>
 <thead>
@@ -1662,7 +1711,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="14-nlp">14. NLP/文本处理</h2>
 <table>
 <thead>
@@ -2047,7 +2096,7 @@ String reply = client.chatSync(&quot;你好&quot;);
 </blockquote>
 <p><strong>其余 seq2seq 模型（bart-seq2seq / chinese-t5-base / chinese-bart-<em> / randeng-</em>）</strong>：当前仍为占位的 DJL Translator
 （非自回归、无法正确生成），且对应多文件 ONNX 在 modelscope 无现成导出；需按 <code>T5Seq2SeqOrtTranslator</code> 模式逐个落地。</p>
-<hr />
+<hr>
 <h2 id="15">15. 文档分析</h2>
 <table>
 <thead>
@@ -2103,7 +2152,7 @@ String reply = client.chatSync(&quot;你好&quot;);
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="16-tts">16. 语音合成 TTS</h2>
 <table>
 <thead>
@@ -2142,7 +2191,7 @@ String reply = client.chatSync(&quot;你好&quot;);
 - "Hello world"（短）→ 0.48-0.66 秒 WAV，波形非静音
 - 长文本 → 4.98 秒可听语音（159KB WAV），9/10 段活跃
 - 音频时长随文本增长，验证可听</p>
-<hr />
+<hr>
 <h2 id="17">17. 图像描述</h2>
 <table>
 <thead>
@@ -2171,7 +2220,7 @@ String reply = client.chatSync(&quot;你好&quot;);
 <p><strong>测试</strong>：真实图片验证
 - 人像图(1948x647)：<code>"two men standing in front of a fence"</code>（5.5s）
 - 城市场景(2864x533)：<code>"a close up of a picture of a city"</code>（0.46s）</p>
-<hr />
+<hr>
 <h2 id="18-mattingservice">18. 图像抠图 MattingService</h2>
 <table>
 <thead>
@@ -2197,7 +2246,7 @@ String reply = client.chatSync(&quot;你好&quot;);
 </table>
 <p><strong>入口</strong>：<code>MattingService.create("modnet").matte(imageBytes)</code> → 透明 PNG。</p>
 <p><strong>测试</strong>：真实人像图 → 409KB 透明 PNG，有效 PNG 签名。</p>
-<hr />
+<hr>
 <h2 id="19">19. 其他</h2>
 <table>
 <thead>
@@ -2271,7 +2320,7 @@ String reply = client.chatSync(&quot;你好&quot;);
 </tr>
 </tbody>
 </table>
-<hr />
+<hr>
 <h2 id="20">20. 图片清晰度检测门面</h2>
 <blockquote>
 <p>2026-08-19 新增。定义统一清晰度评估门面（单一职责，仅评估不修复），OpenCV / ONNX 双后端 + SPI 可扩展。</p>
@@ -2358,7 +2407,7 @@ if (!info.sharpnessOk()) {
 <li><strong>图片特征 768/1024/2048</strong>：dino-v2-base（768）、dino-v2-large（1024）、resnet50（2048）— translator 复用同逻辑</li>
 <li><strong>实测方式</strong>：<code>FeatureDimensionExample</code>（注册验证）+ <code>FeatureDimensionInferenceExample</code>（合成图 + 文本样本，验证 vec.length == 预期维度 + L2 范数）</li>
 </ul>
-<hr />
+<hr>
 <h2 id="_7">测试总结</h2>
 <h3 id="djl-0360">DJL 0.36.0 实测通过（本轮完整重测）</h3>
 <table>
@@ -2507,7 +2556,7 @@ if (!info.sharpnessOk()) {
 <td>72.8MB</td>
 <td>~2s</td>
 <td>✅ 10类含title</td>
-<td>真实试卷图：4大题title全部检出(conf0.87-0.92)、20小题plain_text全覆盖（2026-08-20 实测，LayoutPipeline 接入）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>MODNet</td>
@@ -2523,7 +2572,7 @@ if (!info.sharpnessOk()) {
 <td>468MB</td>
 <td>~4-8s</td>
 <td>✅</td>
-<td>llama.cpp/jllama，中文chat正常（2026-08-21 实测）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>Qwen2.5-1.5B(GGUF)</td>
@@ -2531,7 +2580,7 @@ if (!info.sharpnessOk()) {
 <td>1070MB</td>
 <td>~7-15s</td>
 <td>✅</td>
-<td>llama.cpp/jllama，中英/数学/代码全场景（2026-08-21 实测）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>Qwen2.5-0.5B(ONNX)</td>
@@ -2547,7 +2596,7 @@ if (!info.sharpnessOk()) {
 <td>22MB</td>
 <td>~0.6s</td>
 <td>✅ 384维</td>
-<td>ORT 原生（provider=minilm，同 all-MiniLM-L6-v2）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>MiniLM-fp32</td>
@@ -2563,7 +2612,7 @@ if (!info.sharpnessOk()) {
 <td>90MB</td>
 <td>~4.5s</td>
 <td>✅ 512维</td>
-<td>ORT 原生（provider=bge）</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>BGE-small-en</td>
@@ -2667,7 +2716,7 @@ if (!info.sharpnessOk()) {
 <td>-</td>
 <td>~7.5s</td>
 <td>✅</td>
-<td>medium det/rec + pp-word-rotate，车票 21 块正确识别，180° 倒置自动矫正</td>
+<td>⭐推荐</td>
 </tr>
 <tr>
 <td>duguang-ocr-small</td>
@@ -3089,26 +3138,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
   需 <code>onnxruntime_gpu:1.21.1</code> 替换 CPU 版 + <code>Device.gpu()</code>；当前环境用 CPU</li>
 <li><strong>新业务接口</strong>：<code>ImageCaptioning</code>（图像描述）、<code>MattingService</code>（抠图）</li>
 <li>走 DJL 引擎的模型（mobileclip/dinov2/modnet）→ OpenCV 预处理 + <code>create()</code> 喂入 djl-onnx</li>
-</ul></div>
-<div class="body-inner">
-<div class="chart-wrap"><div class="chart-title">人脸检测模型对比 (1people / 3peoplebeauty / largest_selfie 检出数)</div><div id="faceChart" class="chart"></div></div>
-<div class="chart-wrap"><div class="chart-title">模型类型分布</div><div id="typeChart" class="chart"></div></div>
+</ul>
+<div class="footer">utils-support-parent-starter &copy; 2026 &middot; 模型测试报告</div>
 </div>
-<script>
-(function(){
-  var dom1=document.getElementById("typeChart");
-  var dom2=document.getElementById("faceChart");
-  if(!dom1||!dom2) return;
-  var c1=echarts.init(dom1), c2=echarts.init(dom2);
-  c1.setOption({tooltip:{trigger:"item"},series:[{type:"pie",radius:"55%",data:[
-    {value:53,name:"faceplugin 53"},{value:52,name:"scrfd 52"},{value:53,name:"yolo 53"},{value:52,name:"retinaface 52"},{value:5,name:"insightface 5"}
-  ],label:{color:"#c9d1d9"}}]});
-  c2.setOption({grid:{left:60,right:20},tooltip:{trigger:"axis"},legend:{data:["1people","3peoplebeauty","largest_selfie"],textStyle:{color:"#8b949e"}},xAxis:{type:"category",data:["faceplugin","scrfd","yolo","retinaface","insightface-scrfd"],axisLabel:{color:"#8b949e"}},yAxis:{type:"value",axisLabel:{color:"#8b949e"}},series:[
-    {name:"1people",type:"bar",data:[1,1,1,1,1],itemStyle:{color:"#3fb950"}},
-    {name:"3peoplebeauty",type:"bar",data:[3,3,3,3,3],itemStyle:{color:"#58a6ff"}},
-    {name:"largest_selfie",type:"bar",data:[118,209,300,209,1],itemStyle:{color:"#d29922"}}
-  ]});
-  window.addEventListener("resize",function(){c1.resize();c2.resize();});
-})();
-</script>
-</body></html>
+</body>
+</html>
