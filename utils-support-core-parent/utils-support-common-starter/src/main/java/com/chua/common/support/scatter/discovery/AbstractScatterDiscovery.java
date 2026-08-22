@@ -143,13 +143,15 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /** 更新自身动态权重（同步即心跳）。 */
     protected void updateSelfWeight() {
+        // 使用 scatter 通信端口（与 registerSelf 保持一致），确保对端通过该端口可连接
+        int selfPort = setting.getScatterPort() > 0 ? setting.getScatterPort() : setting.getPort();
         Discovery self = Discovery.builder()
                 .id(setting.getNodeId())
                 .serverId(setting.getNodeId())
                 .scatterId(getGroupId())
                 .protocol(setting.getProtocol())
                 .host(setting.effectiveHost())
-                .port(setting.getPort())
+                .port(selfPort)
                 .timeout((int) setting.getTimeoutMillis())
                 .weight(computeDynamicWeight())
                 .uriSpec(setting.getServicePath())

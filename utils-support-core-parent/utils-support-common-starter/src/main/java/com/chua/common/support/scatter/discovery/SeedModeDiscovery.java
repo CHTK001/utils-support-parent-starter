@@ -251,9 +251,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             return;
         }
         for (ScatterNode seed : seeds) {
+            // serverId 使用 nodeId 而非 seed 地址，与 AbstractScatterDiscovery.registerSelf 保持一致
+            // 避免 seed 条目以 "host:port" 为 serverId 导致移除逻辑失效
             Discovery node = Discovery.builder()
                     .id(seed.getNodeId())
-                    .serverId(seed.getNodeId())
+                    .serverId(setting.getNodeId())
                     .scatterId(getGroupId())
                     .protocol(setting.getProtocol())
                     .host(seed.getHost())

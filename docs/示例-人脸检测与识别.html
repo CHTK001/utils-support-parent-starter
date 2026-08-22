@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人脸检测与识别 · 示例文档</title>
+<style>
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --purple:#bc8cff; --red:#f85149; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+.header { background:var(--card); border-bottom:1px solid var(--border); padding:24px 40px; }
+.header h1 { font-size:1.5em; color:#f0f6fc; margin-bottom:4px; }
+.header p { color:var(--muted); font-size:0.9em; }
+.back { display:inline-block; margin-top:12px; color:var(--accent); text-decoration:none; font-size:0.88em; }
+.body-inner { max-width:1100px; margin:0 auto; padding:28px 40px; }
+h2 { font-size:1.25em; color:#f0f6fc; margin:40px 0 14px; padding-left:12px; border-left:3px solid var(--accent); }
+h3 { font-size:1.05em; color:#f0f6fc; margin:26px 0 8px; }
+code { background:#1f2937; padding:1px 5px; border-radius:3px; font-family:'Cascadia Code',Consolas,monospace; font-size:0.88em; color:#79c0ff; }
+pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 16px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#e6edf3; padding:0; }
+.example-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px; margin:16px 0; }
+.example-card h4 { color:var(--accent); margin-bottom:8px; }
+.tag { display:inline-block; font-size:0.75em; padding:2px 8px; border-radius:12px; margin-right:6px; font-weight:600; }
+.tag-blue { background:rgba(88,166,255,0.15); color:var(--accent); }
+.tag-green { background:rgba(63,185,80,0.15); color:var(--green); }
+.tag-orange { background:rgba(210,153,34,0.15); color:var(--orange); }
+.tag-purple { background:rgba(188,140,255,0.15); color:var(--purple); }
+.note { background:rgba(88,166,255,0.08); border-left:3px solid var(--accent); padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; }
+.footer { text-align:center; padding:32px; color:var(--muted); font-size:0.82em; border-top:1px solid var(--border); margin-top:32px; }
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>人脸检测与识别</h1>
+    <p>示例包：<code>com.chua.example.face</code> · 模块：<code>utils-support-face-starter</code></p>
+    <a class="back" href="index.html">&#8592; 返回文档中心</a>
+</div>
+<div class="body-inner">
+<div class="note"><strong>人脸全链路：</strong>检测 → 裁剪/对齐 → 特征提取 → 比对/重识别 → 活体检测，全流程 SPI 插件化。</div>
+
+<h2 id="detect">人脸检测</h2>
+<div class="example-card">
+    <h4>FaceDetectExample <span class="tag tag-blue">基础</span></h4>
+    <p>使用 ScrFD、RetinaFace 等模型进行人脸检测，返回边界框和关键点。</p>
+<pre><code>FaceDetector detector = new FaceDetector("scrfd_2.5g_bnkps.onnx");
+List&lt;FaceDetection&gt; faces = detector.detect("photo.jpg");
+for (FaceDetection f : faces) {
+    System.out.printf("位置: %d,%d,%d,%d  置信度: %.3f%n",
+        f.getX(), f.getY(), f.getW(), f.getH(), f.getConfidence());
+    System.out.println("关键点: " + f.getKeypoints());
+}</code></pre>
+</div>
+<div class="example-card">
+    <h4>FaceDetectDrawExample <span class="tag tag-green">可视化</span></h4>
+    <p>人脸检测 + 绘制可视化，直接在图片上标注框和关键点，适合调试和展示。</p>
+</div>
+<div class="example-card">
+    <h4>FaceDetectMultiExample <span class="tag tag-orange">多模型</span></h4>
+    <p>多模型人脸检测对比：ScrFD + InsightFace + RetinaFace + UltraFace + TinaFace + ArcFace，支持多种检测器并行切换。</p>
+</div>
+
+<h2 id="feature">特征提取与比对</h2>
+<div class="example-card">
+    <h4>InsightFaceExample <span class="tag tag-green">推荐</span></h4>
+    <p>使用 InsightFace ArcFace 模型提取 512 维人脸特征向量，支持相似度比对。</p>
+<pre><code>InsightFaceClient client = new InsightFaceClient("model.onnx");
+
+// 提取特征
+float[] feat1 = client.extract(face1Image);
+float[] feat2 = client.extract(face2Image);
+
+// 余弦相似度
+float sim = cosine(feat1, feat2);
+System.out.printf("相似度: %.4f %s%n", sim, sim > 0.6 ? "同一人" : "不同人");
+
+// 批量比对
+List&lt;FaceRecord&gt; known = loadFaceDatabase();
+String matched = client.recognize(feat1, known, 0.6f);</code></pre>
+</div>
+<div class="example-card">
+    <h4>ArcFaceExample</h4>
+    <p>直接调用 ArcFace 模型进行人脸特征提取，不依赖 InsightFace 包装。</p>
+</div>
+<div class="example-card">
+    <h4>FeatureClientExample / FeatureDimensionExample</h4>
+    <p>特征客户端封装，支持多维度特征向量操作。</p>
+</div>
+
+<h2 id="liveness">活体检测</h2>
+<div class="example-card">
+    <h4>LivenessDiagExample <span class="tag tag-orange">诊断</span></h4>
+    <p>活体检测专项诊断工具，涵盖静默活体、动作活体等多种检测模式。</p>
+<pre><code>LivenessDetector detector = new LivenessDetector();
+
+// 静默活体
+boolean result = detector.checkStill(image);
+
+// 动作活体（眨眼、摇头等）
+boolean flowResult = detector.checkFlow(flowFrames);
+
+System.out.println("活体检测结果: " + result);</code></pre>
+</div>
+<div class="example-card">
+    <h4>LivenessPipelineExample</h4>
+    <p>活体检测流水线，集成多阶段检测策略，提高准确率。</p>
+</div>
+
+<h2 id="restore">人脸修复与超分</h2>
+<div class="example-card">
+    <h4>OnnxFaceRestorationExample</h4>
+    <p>基于 ONNX 的人脸修复与超分辨率，将模糊人脸提升为高清图像。</p>
+</div>
+<div class="example-card">
+    <h4>FaceAllTestExample <span class="tag tag-purple">综合</span></h4>
+    <p>人脸全链路综合测试：检测 → 对齐 → 特征 → 比对 → 活体 → 修复，一站式验证。</p>
+</div>
+
+<h2 id="extra">扩展功能</h2>
+<div class="example-card">
+    <h4>FacePluginExample</h4>
+    <p>人脸插件化示例，演示如何通过 SPI 注册自定义人脸处理节点。</p>
+</div>
+<div class="example-card">
+    <h4>FaceCoreExample / FaceExtraExample</h4>
+    <p>人脸核心能力演示与扩展功能：年龄/性别估计、表情识别等属性分析。</p>
+</div>
+
+<div class="footer">utils-support-parent-starter &copy; 2026 &middot; <a href="index.html" style="color:var(--accent)">返回文档中心</a></div>
+</div>
+</body>
+</html>

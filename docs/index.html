@@ -16,36 +16,45 @@
         .header {
             background: var(--card);
             border-bottom: 1px solid var(--border);
-            padding: 24px 40px;
+            padding: 28px 40px;
         }
-        .header h1 { font-size: 1.6em; color: #f0f6fc; margin-bottom: 6px; }
+        .header h1 { font-size: 1.5em; color: #f0f6fc; margin-bottom: 6px; }
         .header p { color: var(--muted); font-size: 0.92em; }
+        .section-title {
+            padding: 20px 40px 8px;
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            font-weight: 600;
+        }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-            padding: 32px 40px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 12px 40px 32px;
         }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 24px;
+            padding: 20px;
             text-decoration: none;
             color: inherit;
-            transition: border-color 0.2s, transform 0.15s;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
             display: block;
         }
-        .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .card-icon { font-size: 1.8em; margin-bottom: 10px; }
-        .card h2 { font-size: 1.15em; color: #f0f6fc; margin-bottom: 8px; }
-        .card p { color: var(--muted); font-size: 0.88em; line-height: 1.5; }
+        .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .card-icon { font-size: 1.6em; margin-bottom: 10px; }
+        .card h2 { font-size: 1.05em; color: #f0f6fc; margin-bottom: 6px; }
+        .card p { color: var(--muted); font-size: 0.82em; line-height: 1.5; }
         .card-tag {
             display: inline-block;
-            font-size: 0.75em;
+            font-size: 0.72em;
             padding: 2px 8px;
             border-radius: 12px;
             margin-top: 10px;
+            margin-right: 4px;
             font-weight: 600;
         }
         .tag-blue   { background: rgba(88,166,255,0.15); color: var(--accent); }
@@ -55,7 +64,7 @@
         .tag-red    { background: rgba(248,81,73,0.15);  color: var(--red); }
         .footer {
             text-align: center;
-            padding: 32px;
+            padding: 24px;
             color: var(--muted);
             font-size: 0.82em;
             border-top: 1px solid var(--border);
@@ -66,87 +75,205 @@
 
 <div class="header">
     <h1>utils-support-parent-starter 文档中心</h1>
-    <p>模块化 Java 工具包集合 · 基于 SPI 插件化架构</p>
+    <p>模块化 Java 工具包集合 · 基于 SPI 插件化架构 · JDK 25</p>
 </div>
 
+<div class="section-title">📖 使用文档</div>
 <div class="grid">
-    <a class="card" href="集群服务器使用说明.html" target="_blank">
+    <a class="card" href="集群服务器使用说明.html">
         <div class="card-icon">&#9881;</div>
         <h2>集群服务器 ClusterServer</h2>
-        <p>一行代码启动无中心化集群节点。基于 Scatter 对等网格自动发现、路由、故障退避。含架构图与典型场景。</p>
+        <p>一行代码启动无中心化集群节点。基于 Scatter 对等网格自动发现、路由、故障退避。</p>
         <span class="card-tag tag-blue">核心模块</span>
         <span class="card-tag tag-green">Seed / Gateway 模式</span>
     </a>
 
+    <a class="card" href="模型测试报告.html">
+        <div class="card-icon">&#128200;</div>
+        <h2>模型测试报告</h2>
+        <p>188 个 ONNX/GGUF 模型全量测试结果：版面分析、OCR、人脸检测、嵌入、本地大模型（Qwen2.5）等。</p>
+        <span class="card-tag tag-green">188 模型</span>
+        <span class="card-tag tag-purple">ONNX / GGUF</span>
+    </a>
+</div>
+
+<div class="section-title">💡 示例文档（按功能分类）</div>
+<div class="grid">
+    <a class="card" href="示例-AI智能对话与嵌入.html">
+        <div class="card-icon">&#129302;</div>
+        <h2>AI 智能对话与嵌入</h2>
+        <p>通义千问对话、BGE/MiniLM 文本嵌入、RAG 检索增强生成、Whisper 语音识别、YOLO-World 视觉检测。</p>
+        <span class="card-tag tag-purple">ai/</span>
+        <span class="card-tag tag-blue">chat · embedding · rag · tts · stt</span>
+    </a>
+
+    <a class="card" href="示例-人脸检测与识别.html">
+        <div class="card-icon">&#128100;</div>
+        <h2>人脸检测与识别</h2>
+        <p>ScrFD/RetinaFace 检测、InsightFace 特征提取、活体检测、人脸修复超分、完整人脸全链路。</p>
+        <span class="card-tag tag-orange">face/</span>
+        <span class="card-tag tag-green">检测 · 识别 · 活体 · 修复</span>
+    </a>
+
+    <a class="card" href="示例-图像处理.html">
+        <div class="card-icon">&#127912;</div>
+        <h2>图像处理</h2>
+        <p>30+ 滤镜（高斯模糊、边缘检测、艺术风格化）、水印、LaMa 图像修复、清晰度检测、JDK/Rust 双实现。</p>
+        <span class="card-tag tag-blue">image/</span>
+        <span class="card-tag tag-purple">滤镜 · 水印 · inpainting</span>
+    </a>
+
+    <a class="card" href="示例-网络协议与代理.html">
+        <div class="card-icon">&#128268;</div>
+        <h2>网络协议与代理</h2>
+        <p>Netty/Vert.x/NIO HTTP 服务器、SOCKS5/TCP 代理、MQTT 服务器、RPC、Scatter 集群、SIP 信令。</p>
+        <span class="card-tag tag-orange">network/</span>
+        <span class="card-tag tag-red">HTTP · Proxy · RPC · MQTT</span>
+    </a>
+
+    <a class="card" href="示例-Pipeline管道引擎.html">
+        <div class="card-icon">&#128202;</div>
+        <h2>Pipeline 管道引擎</h2>
+        <p>基础管道、并行处理、条件分支、重试机制、WAL 持久化、人脸编排等 10+ 管道模式。</p>
+        <span class="card-tag tag-green">pipeline/</span>
+        <span class="card-tag tag-blue">SPI 插件化</span>
+    </a>
+
+    <a class="card" href="示例-ONNX推理.html">
+        <div class="card-icon">&#9729;</div>
+        <h2>ONNX 推理</h2>
+        <p>Seq2Seq 翻译（mT5/T5/BART）、Plate 车牌识别、VisDrone 小目标检测、深度估计、图像描述。</p>
+        <span class="card-tag tag-purple">onnx/</span>
+        <span class="card-tag tag-green">NLP · CV · Audio</span>
+    </a>
+
+    <a class="card" href="示例-OCR文字识别.html">
+        <div class="card-icon">&#128221;</div>
+        <h2>OCR 文字识别</h2>
+        <p>PaddleOCR v6、PP-OCR 方向角校正、批量识别、质量门控、多角度优化等全套 OCR 解决方案。</p>
+        <span class="card-tag tag-blue">ocr/</span>
+        <span class="card-tag tag-orange">PaddleOCR</span>
+    </a>
+
+    <a class="card" href="示例-版面分析.html">
+        <div class="card-icon">&#128455;</div>
+        <h2>版面分析与文档处理</h2>
+        <p>DocLayout-YOLO 版面分析、PDF/Word/Excel 文件提取、Markdown 转换、文档结构化处理。</p>
+        <span class="card-tag tag-green">layout/</span>
+        <span class="card-tag tag-purple">PDF · DOCX · Excel</span>
+    </a>
+
+    <a class="card" href="示例-图像分割.html">
+        <div class="card-icon">&#128170;</div>
+        <h2>图像分割</h2>
+        <p>SegAny、DepthAnything、SAM 分割模型；结合 YOLO 的开放词汇分割；边缘检测分割。</p>
+        <span class="card-tag tag-orange">segmentation/</span>
+        <span class="card-tag tag-blue">SAM · Depth Anything</span>
+    </a>
+
+    <a class="card" href="示例-音视频处理.html">
+        <div class="card-icon">&#127909;</div>
+        <h2>音视频处理</h2>
+        <p>FFmpeg 视频编解码（H264/H265/H266）、屏幕录制、JavaCV 处理、Rust Bridge 高性能处理。</p>
+        <span class="card-tag tag-red">media/</span>
+        <span class="card-tag tag-green">FFmpeg · JavaCV · Rust</span>
+    </a>
+
+    <a class="card" href="示例-数据湖.html">
+        <div class="card-icon">&#128203;</div>
+        <h2>数据湖 Datalake</h2>
+        <p>分布式数据湖：集成示例、查询引擎、Server 模式、数据 Sink、订阅模式、Pipeline 引擎。</p>
+        <span class="card-tag tag-blue">datalake/</span>
+        <span class="card-tag tag-purple">分布式</span>
+    </a>
+
+    <a class="card" href="示例-流式处理.html">
+        <div class="card-icon">&#128162;</div>
+        <h2>流式处理 Flow</h2>
+        <p>OffsetFlow 流式偏移处理、ThreadFlow 线程流、完整流程示例、Echo 节点调试。</p>
+        <span class="card-tag tag-green">flow/</span>
+        <span class="card-tag tag-orange">流式</span>
+    </a>
+
+    <a class="card" href="示例-文件搜索.html">
+        <div class="card-icon">&#128269;</div>
+        <h2>文件搜索</h2>
+        <p>FastFileSearch 原生 Rust 加速搜索、文件系统资源定位、全文检索示例。</p>
+        <span class="card-tag tag-purple">filesearch/</span>
+        <span class="card-tag tag-blue">Rust 加速</span>
+    </a>
+
+    <a class="card" href="示例-并发工具.html">
+        <div class="card-icon">&#128640;</div>
+        <h2>并发工具</h2>
+        <p>LockFreeQueue 无锁队列、PersistentLockFreeQueue 持久化队列、ShmQueue 共享内存队列、LazyExpiringList。</p>
+        <span class="card-tag tag-orange">concurrent/</span>
+        <span class="card-tag tag-green">高性能</span>
+    </a>
+
+    <a class="card" href="示例-SPI插件化.html">
+        <div class="card-icon">&#129717;</div>
+        <h2>SPI 插件化</h2>
+        <p>@Spi/@SpiDescribe 注解、服务注册发现、多实现切换、DynamicRouting、自定义 Provider。</p>
+        <span class="card-tag tag-blue">spi/</span>
+        <span class="card-tag tag-purple">核心机制</span>
+    </a>
+
+    <a class="card" href="示例-TUI终端界面.html">
+        <div class="card-icon">&#128187;</div>
+        <h2>TUI 终端界面</h2>
+        <p>Terminal UI 仪表盘：CPU/内存/磁盘监控、Htop 风格进程查看、自定义 Widget 开发。</p>
+        <span class="card-tag tag-green">tui/</span>
+        <span class="card-tag tag-orange">终端</span>
+    </a>
+
+    <a class="card" href="示例-任务分发.html">
+        <div class="card-icon">&#128200;</div>
+        <h2>任务分发</h2>
+        <p>分布式任务调度、节点发现、任务路由、负载均衡、故障转移示例。</p>
+        <span class="card-tag tag-purple">taskdistribution/</span>
+        <span class="card-tag tag-blue">分布式</span>
+    </a>
+
+    <a class="card" href="示例-向量存储.html">
+        <div class="card-icon">&#128042;</div>
+        <h2>向量存储</h2>
+        <p>jvector 本地向量库、Milvus 分布式、Faiss 相似度搜索、向量比较算法（余弦/欧氏/IP）。</p>
+        <span class="card-tag tag-blue">vector/</span>
+        <span class="card-tag tag-green">RAG 基础</span>
+    </a>
+
+    <a class="card" href="示例-内网穿透.html">
+        <div class="card-icon">&#127760;</div>
+        <h2>内网穿透 Ngrok</h2>
+        <p>Ngrok 客户端封装、内网服务暴露、隧道管理、动态端口映射示例。</p>
+        <span class="card-tag tag-orange">ngrok/</span>
+        <span class="card-tag tag-red">网络</span>
+    </a>
+
+    <a class="card" href="示例-特征提取与重识别.html">
+        <div class="card-icon">&#128179;</div>
+        <h2>特征提取与重识别</h2>
+        <p>ReID 行人重识别、特征向量比对、DeepSORT 跟踪、PersonReidExample 完整示例。</p>
+        <span class="card-tag tag-purple">recognition/</span>
+        <span class="card-tag tag-blue">ReID</span>
+    </a>
+</div>
+
+<div class="section-title">🔗 外部链接</div>
+<div class="grid">
     <a class="card" href="https://gitee.com/achtk/utils-support-parent-starter" target="_blank">
-        <div class="card-icon">&#128218;</div>
-        <h2>项目源码 & 提交记录</h2>
-        <p>Gitee 仓库地址，查看最新代码、Issue 和 Release 历史。</p>
+        <div class="card-icon">&#128214;</div>
+        <h2>Gitee 仓库</h2>
+        <p>查看源码、提交历史、Issue 和 Release。</p>
         <span class="card-tag tag-purple">Gitee</span>
     </a>
 
-    <a class="card" href="../utils-support-core-parent/utils-support-common-starter/README.md" target="_blank">
-        <div class="card-icon">&#9883;</div>
-        <h2>common-starter 基础工具</h2>
-        <p>类型转换、JSON、日期、加密、HTTP 客户端、SPI 服务发现等日常 Java 开发工具。</p>
-        <span class="card-tag tag-green">必选依赖</span>
-    </a>
-
-    <a class="card" href="../utils-support-cloud-parent/README.md" target="_blank">
-        <div class="card-icon">&#9729;</div>
-        <h2>云服务集成</h2>
-        <p>阿里云、腾讯云、华为云、AWS、OpenAI、DeepSeek、智谱 GLM 等云服务和 AI 大模型 API。</p>
-        <span class="card-tag tag-orange">cloud-parent</span>
-    </a>
-
-    <a class="card" href="../utils-support-datasource-parent/README.md" target="_blank">
-        <div class="card-icon">&#128451;</div>
-        <h2>数据源</h2>
-        <p>MySQL、PostgreSQL、Redis、MongoDB、Milvus、ClickHouse、Elasticsearch 等 30+ 种数据源支持。</p>
-        <span class="card-tag tag-blue">datasource-parent</span>
-    </a>
-
-    <a class="card" href="../utils-support-filesystem-parent/README.md" target="_blank">
-        <div class="card-icon">&#128196;</div>
-        <h2>文件系统</h2>
-        <p>Excel、PDF、Word、图片处理、FFmpeg 音视频、邮件、Markdown 转换等文件处理能力。</p>
-        <span class="card-tag tag-green">filesystem-parent</span>
-    </a>
-
-    <a class="card" href="../utils-support-deeplearning-parent/README.md" target="_blank">
-        <div class="card-icon">&#129302;</div>
-        <h2>深度学习</h2>
-        <p>ONNX、PyTorch、TensorFlow 推理引擎；YOLO 目标检测、OCR、人脸识别、语音识别。</p>
-        <span class="card-tag tag-purple">deeplearning-parent</span>
-    </a>
-
-    <a class="card" href="../utils-support-protocol-parent/README.md" target="_blank">
-        <div class="card-icon">&#128268;</div>
-        <h2>网络协议</h2>
-        <p>Netty、Vert.x、Armeria、RPC（Dubbo/SOFARPC）、SSH、FTP、DHT、KCP 等 50+ 网络协议支持。</p>
-        <span class="card-tag tag-orange">protocol-parent</span>
-    </a>
-
-    <a class="card" href="../utils-support-middleware-parent/README.md" target="_blank">
-        <div class="card-icon">&#9881;</div>
-        <h2>中间件</h2>
-        <p>Kafka、RabbitMQ 消息队列；Nacos、ZooKeeper 注册中心；Etcd、Consul 分布式 KV；SkyWalking 链路追踪。</p>
-        <span class="card-tag tag-red">middleware-parent</span>
-    </a>
-
-<a class="card" href="../utils-support-task-parent/README.md" target="_blank">
-        <div class="card-icon">&#9201;</div>
-        <h2>任务调度</h2>
-        <p>Quartz 企业级定时任务、Resilience4j 熔断限流重试、Chronicle Queue 高性能持久化队列。</p>
-        <span class="card-tag tag-blue">task-parent</span>
-    </a>
-
-    <a class="card" href="模型测试报告.html" target="_blank">
-        <div class="card-icon">&#128200;</div>
-        <h2>模型测试报告</h2>
-        <p>188 个 ONNX/GGUF 模型全量测试结果：版面分析、OCR、人脸检测、嵌入、本地大模型（Qwen2.5）等，含耗时与通过率。</p>
-        <span class="card-tag tag-green">188 模型</span>
-        <span class="card-tag tag-purple">ONNX / GGUF</span>
+    <a class="card" href="https://github.com/CHTK001/utils-support-parent-starter" target="_blank">
+        <div class="card-icon">&#128187;</div>
+        <h2>GitHub 仓库</h2>
+        <p>国际版仓库镜像，Star & Fork 支持。</p>
+        <span class="card-tag tag-blue">GitHub</span>
     </a>
 </div>
 

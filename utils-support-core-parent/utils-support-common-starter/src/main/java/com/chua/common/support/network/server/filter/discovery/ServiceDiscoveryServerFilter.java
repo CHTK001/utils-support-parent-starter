@@ -222,6 +222,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
 
         Discovery discovery = null;
         // 排除自身(通常为本节点):避免请求被转发回自身代理造成死循环/404
+        // 注意：必须每轮新建请求上下文，避免 LoadBalance 内部状态（如 weight 衰减）跨请求耦合
         for (int attempt = 0; attempt < 5; attempt++) {
             Discovery d = serviceDiscovery.getService(servicePath, scatterId, balance, protocol);
             if (d == null) {
@@ -232,7 +233,12 @@ public class ServiceDiscoveryServerFilter implements ServerFilter {
                 discovery = d;
                 break;
             }
-            discovery = d; // 全池只剩自身时兜底返回自身
+            // 本节点是唯一可用节点：构造新对象绕过 SPI 实例状态复用，确保后续操作基于 fresh 副本
+            discovery = Discovery.builder()
+                    .serverId(d.getServerId()).host(d.getHost()).port(d.getPort())
+                    .scatterId(d.getScatterId()).protocol(d.getProtocol())
+                    .weight(d.getWeight()).build();
+            break;
         }
         if (discovery == null) {
             log.warn("服务未找到: {} (balance={}, protocol={})", servicePath, balance, protocol);

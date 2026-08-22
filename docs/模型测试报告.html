@@ -5,80 +5,130 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>模型测试报告</title>
 <style>
-:root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-#sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; overflow-y: auto; background: var(--card); border-right: 1px solid var(--border); padding: 20px; font-size: 0.85em; z-index: 100; }
-#sidebar ul { list-style: none; padding: 0; }
-#sidebar li { margin: 4px 0; }
-#sidebar a { color: var(--muted); text-decoration: none; display: block; padding: 2px 8px; border-radius: 4px; }
-#sidebar a:hover { color: var(--accent); background: rgba(88,166,255,0.1); }
-#sidebar h3 { color: var(--text); margin-bottom: 12px; font-size: 1em; }
-#content { margin-left: 280px; padding: 32px 48px; max-width: 1000px; }
-table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.9em; }
-th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
-th { background: var(--card); color: var(--accent); }
-tr:hover { background: rgba(88,166,255,0.05); }
-code { background: var(--card); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-pre { background: var(--card); padding: 16px; border-radius: 8px; overflow-x: auto; }
-h2 { color: var(--accent); margin-top: 32px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-h3 { color: #f0f6fc; margin-top: 24px; }
-a { color: var(--accent); }
-.footer { text-align: center; padding: 32px; color: var(--muted); font-size: 0.82em; border-top: 1px solid var(--border); margin-top: 32px; }
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --purple:#bc8cff; --red:#f85149; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+#topbar { position:fixed; left:0; top:0; width:260px; height:52px; background:var(--card); border-right:1px solid var(--border); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; z-index:200; }
+#topbar .logo { color:#f0f6fc; font-size:0.92em; font-weight:600; }
+#topbar .back-link { margin-left:auto; color:var(--accent); text-decoration:none; font-size:0.82em; padding:4px 10px; border:1px solid var(--border); border-radius:6px; }
+#topbar .back-link:hover { background:rgba(88,166,255,0.1); }
+#sidebar { position:fixed; left:0; top:52px; width:260px; height:calc(100vh - 52px); overflow-y:auto; background:var(--card); border-right:1px solid var(--border); padding:12px 0; z-index:150; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+#sidebar::-webkit-scrollbar { width:4px; }
+#sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+#sidebar .section-title { padding:8px 16px 4px; font-size:0.7em; text-transform:uppercase; color:var(--muted); letter-spacing:0.08em; font-weight:600; margin-top:6px; }
+#sidebar .section-title:first-child { margin-top:0; }
+#sidebar ul { list-style:none; padding:0; margin:0; }
+#sidebar li { margin:0; }
+#sidebar a { display:block; padding:5px 16px; color:var(--muted); text-decoration:none; font-size:0.83em; border-left:2px solid transparent; transition:all 0.15s; }
+#sidebar a:hover { color:var(--accent); background:rgba(88,166,255,0.06); border-left-color:var(--accent); }
+#sidebar a.active { color:var(--accent); border-left-color:var(--accent); background:rgba(88,166,255,0.1); }
+#sidebar .sub a { padding-left:28px; font-size:0.8em; }
+#content { margin-left:260px; margin-top:52px; padding:32px 48px; max-width:1000px; }
+table { border-collapse:collapse; width:100%; margin:12px 0; font-size:0.88em; }
+th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+th { background:var(--card); color:var(--accent); font-weight:600; }
+tr:hover { background:rgba(88,166,255,0.04); }
+code { background:#1f2937; padding:1px 5px; border-radius:3px; font-family:'Cascadia Code',Consolas,monospace; font-size:0.88em; color:#79c0ff; }
+pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 16px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#e6edf3; padding:0; }
+h2 { color:var(--accent); margin-top:36px; margin-bottom:14px; padding-bottom:6px; border-bottom:1px solid var(--border); font-size:1.2em; }
+h3 { color:#f0f6fc; margin-top:24px; margin-bottom:8px; font-size:1.05em; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.footer { text-align:center; padding:32px; color:var(--muted); font-size:0.82em; border-top:1px solid var(--border); margin-top:32px; }
 </style>
 </head>
 <body>
+
+<div id="topbar">
+    <span class="logo">📊 模型测试报告</span>
+    <a class="back-link" href="index.html">← 返回文档中心</a>
+</div>
+
 <div id="sidebar">
-<h3>📋 目录</h3>
-<ul><li><a href="#onnx-模型测试报告">ONNX 模型测试报告</a></li>
-  <li><a href="#目录">目录</a></li>
-  <li><a href="#1-图像分割">1. 图像分割</a></li>
-  <li><a href="#2-抠图-背景移除">2. 抠图/背景移除</a></li>
-  <li><a href="#3-文本嵌入">3. 文本嵌入</a></li>
-  <li><a href="#4-姿态估计">4. 姿态估计</a></li>
-  <li><a href="#5-视觉特征提取">5. 视觉特征提取</a></li>
-  <li><a href="#6-开放词汇检测">6. 开放词汇检测</a></li>
-    <li><a href="#6-1-yolo-world-嵌入式零样本检测">6.1 YOLO-World 嵌入式零样本检测</a></li>
-  <li><a href="#7-零样本分类">7. 零样本分类</a></li>
-  <li><a href="#8-目标检测">8. 目标检测</a></li>
-  <li><a href="#9-ocr-文字识别">9. OCR/文字识别</a></li>
-  <li><a href="#10-人脸全链路">10. 人脸全链路</a></li>
-    <li><a href="#人脸检测">人脸检测</a></li>
-    <li><a href="#人脸检测-裁剪-对齐-修复-超分-综合实测-facedetectdrawexample">人脸检测+裁剪(对齐)+修复+超分 综合实测（`FaceDetectDrawExample`）</a></li>
-    <li><a href="#人脸识别-特征">人脸识别/特征</a></li>
-    <li><a href="#人脸属性">人脸属性</a></li>
-    <li><a href="#活体检测">活体检测</a></li>
-    <li><a href="#人脸修复-超分">人脸修复/超分</a></li>
-  <li><a href="#11-图像分类">11. 图像分类</a></li>
-  <li><a href="#12-图像超分-修复">12. 图像超分/修复</a></li>
-  <li><a href="#13-图像生成">13. 图像生成</a></li>
-  <li><a href="#14-nlp-文本处理">14. NLP/文本处理</a></li>
-    <li><a href="#14-1-嵌入式机器翻译-marianmt-中英互译">14.1 嵌入式机器翻译（MarianMT 中英互译）</a></li>
-    <li><a href="#14-2-本地大模型对话-qwen2-5-gguf-onnx">14.2 本地大模型对话（Qwen2.5 GGUF / ONNX）</a></li>
-    <li><a href="#14-2a-seq2seq-文本生成实现-嵌入优先-modelscope-下载">14.2a Seq2Seq 文本生成实现（嵌入优先 + modelscope 下载）</a></li>
-  <li><a href="#15-文档分析">15. 文档分析</a></li>
-  <li><a href="#16-语音合成-tts">16. 语音合成 TTS</a></li>
-  <li><a href="#17-图像描述">17. 图像描述</a></li>
-  <li><a href="#18-图像抠图-mattingservice">18. 图像抠图 MattingService</a></li>
-  <li><a href="#19-其他">19. 其他</a></li>
-  <li><a href="#20-图片清晰度检测门面">20. 图片清晰度检测门面</a></li>
-    <li><a href="#门面接口-deeplearning-starter">门面接口（deeplearning-starter）</a></li>
-    <li><a href="#spi-实现">SPI 实现</a></li>
-    <li><a href="#特征维度覆盖-2026-08-20">特征维度覆盖（2026-08-20）</a></li>
-  <li><a href="#测试总结">测试总结</a></li>
-    <li><a href="#djl-0-36-0-实测通过-本轮完整重测">DJL 0.36.0 实测通过（本轮完整重测）</a></li>
-    <li><a href="#本轮实测失败-有模型文件但接口-资源问题">本轮实测失败（有模型文件但接口/资源问题）</a></li>
-    <li><a href="#本轮修复记录-djl-不兼容-注册错误">本轮修复记录（DJL 不兼容 / 注册错误）</a></li>
-    <li><a href="#资源缺失-注册存在但模型文件未打包-models-jar-为占位空-jar">资源缺失（注册存在但模型文件未打包，models jar 为占位空 jar）</a></li>
-    <li><a href="#下载受限-downloadurl-存在但证书-网络导致无法拉取">下载受限（downloadUrl 存在但证书/网络导致无法拉取）</a></li>
-    <li><a href="#2026-08-17-嵌入式-自动下载模型补测总结-第二轮">2026-08-17 嵌入式 + 自动下载模型补测总结（第二轮）</a></li>
-  <li><a href="#附录-本地大模型与-gpu-环境-2026-08-21">附录：本地大模型与 GPU 环境（2026-08-21）</a></li>
-    <li><a href="#gguf-llama-cpp-jllama-本地对话">GGUF（llama.cpp / jllama）本地对话</a></li>
-    <li><a href="#onnx-onnxruntime-本地对话">ONNX（onnxruntime）本地对话</a></li>
-    <li><a href="#gpu-onnxruntime_gpu-状态">GPU（onnxruntime_gpu）状态</a></li>
-    <li><a href="#2026-08-17-嵌入式模型补测总结-本轮">2026-08-17 嵌入式模型补测总结（本轮）</a></li>
-    <li><a href="#升级说明">升级说明</a></li>
-</ul>
+    <div class="section-title">导航</div>
+    <ul>
+        <li><a href="#onnx-模型测试报告">首页概述</a></li>
+        <li><a href="#目录">📋 目录总览</a></li>
+    </ul>
+
+    <div class="section-title">图像</div>
+    <ul>
+        <li><a href="#1-图像分割">1. 图像分割</a></li>
+        <li><a href="#2-抠图-背景移除">2. 抠图/背景移除</a></li>
+        <li><a href="#4-姿态估计">4. 姿态估计</a></li>
+        <li><a href="#5-视觉特征提取">5. 视觉特征提取</a></li>
+        <li><a href="#11-图像分类">11. 图像分类</a></li>
+        <li><a href="#12-图像超分-修复">12. 图像超分/修复</a></li>
+        <li><a href="#13-图像生成">13. 图像生成</a></li>
+        <li><a href="#17-图像描述">17. 图像描述</a></li>
+        <li><a href="#18-图像抠图-mattingservice">18. MattingService</a></li>
+    </ul>
+
+    <div class="section-title">检测</div>
+    <ul>
+        <li><a href="#6-开放词汇检测">6. 开放词汇检测</a></li>
+        <li class="sub"><a href="#6-1-yolo-world-嵌入式零样本检测">6.1 YOLO-World 嵌入</a></li>
+        <li><a href="#7-零样本分类">7. 零样本分类</a></li>
+        <li><a href="#8-目标检测">8. 目标检测</a></li>
+    </ul>
+
+    <div class="section-title">人脸</div>
+    <ul>
+        <li><a href="#10-人脸全链路">10. 人脸全链路</a></li>
+        <li class="sub"><a href="#人脸检测">人脸检测</a></li>
+        <li class="sub"><a href="#人脸检测-裁剪-对齐-修复-超分-综合实测-facedetectdrawexample">综合实测 FaceDetectDraw</a></li>
+        <li class="sub"><a href="#人脸识别-特征">人脸识别/特征</a></li>
+        <li class="sub"><a href="#人脸属性">人脸属性</a></li>
+        <li class="sub"><a href="#活体检测">活体检测</a></li>
+        <li class="sub"><a href="#人脸修复-超分">人脸修复/超分</a></li>
+    </ul>
+
+    <div class="section-title">文本 &amp; NLP</div>
+    <ul>
+        <li><a href="#3-文本嵌入">3. 文本嵌入</a></li>
+        <li><a href="#9-ocr-文字识别">9. OCR 文字识别</a></li>
+        <li><a href="#14-nlp-文本处理">14. NLP 文本处理</a></li>
+        <li class="sub"><a href="#14-1-嵌入式机器翻译-marianmt-中英互译">14.1 MarianMT 翻译</a></li>
+        <li class="sub"><a href="#14-2-本地大模型对话-qwen2-5-gguf-onnx">14.2 Qwen2.5 对话</a></li>
+        <li class="sub"><a href="#14-2a-seq2seq-文本生成实现-嵌入优先-modelscope-下载">14.2a Seq2Seq 文本生成</a></li>
+        <li><a href="#15-文档分析">15. 文档分析</a></li>
+    </ul>
+
+    <div class="section-title">语音</div>
+    <ul>
+        <li><a href="#16-语音合成-tts">16. 语音合成 TTS</a></li>
+    </ul>
+
+    <div class="section-title">其他</div>
+    <ul>
+        <li><a href="#19-其他">19. 其他</a></li>
+        <li><a href="#20-图片清晰度检测门面">20. 图片清晰度检测门面</a></li>
+        <li class="sub"><a href="#门面接口-deeplearning-starter">门面接口（deeplearning-starter）</a></li>
+        <li class="sub"><a href="#spi-实现">SPI 实现</a></li>
+        <li class="sub"><a href="#特征维度覆盖-2026-08-20">特征维度覆盖</a></li>
+    </ul>
+
+    <div class="section-title">总结</div>
+    <ul>
+        <li><a href="#测试总结">测试总结</a></li>
+        <li class="sub"><a href="#djl-0-36-0-实测通过-本轮完整重测">DJL 0.36.0 重测</a></li>
+        <li class="sub"><a href="#本轮实测失败-有模型文件但接口-资源问题">本轮失败项</a></li>
+        <li class="sub"><a href="#本轮修复记录-djl-不兼容-注册错误">修复记录</a></li>
+        <li class="sub"><a href="#资源缺失-注册存在但模型文件未打包-models-jar-为占位空-jar">资源缺失</a></li>
+        <li class="sub"><a href="#下载受限-downloadurl-存在但证书-网络导致无法拉取">下载受限</a></li>
+        <li class="sub"><a href="#2026-08-17-嵌入式-自动下载模型补测总结-第二轮">嵌入式补测总结</a></li>
+    </ul>
+
+    <div class="section-title">附录</div>
+    <ul>
+        <li><a href="#附录-本地大模型与-gpu-环境-2026-08-21">本地大模型与 GPU 环境</a></li>
+        <li class="sub"><a href="#gguf-llama-cpp-jllama-本地对话">GGUF（llama.cpp / jllama）</a></li>
+        <li class="sub"><a href="#onnx-onnxruntime-本地对话">ONNX（onnxruntime）</a></li>
+        <li class="sub"><a href="#gpu-onnxruntime_gpu-状态">GPU 状态</a></li>
+        <li class="sub"><a href="#2026-08-17-嵌入式模型补测总结-本轮">嵌入式模型补测</a></li>
+        <li class="sub"><a href="#升级说明">升级说明</a></li>
+    </ul>
 </div>
 <div id="content">
 <h1 id="onnx">ONNX 模型测试报告</h1>
