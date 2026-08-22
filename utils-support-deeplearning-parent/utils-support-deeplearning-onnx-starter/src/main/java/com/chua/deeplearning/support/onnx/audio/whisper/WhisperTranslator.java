@@ -95,7 +95,7 @@ public class WhisperTranslator {
         }
 
         this.melExtractor = new WhisperMelExtractor();
-        this.tokenizer = WhisperTokenizer.load(vocabPath);
+        this.tokenizer = WhisperTokenizer.load(vocabPath, vocabPath.resolveSibling("tokenizer.json"));
 
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();

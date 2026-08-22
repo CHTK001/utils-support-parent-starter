@@ -952,14 +952,13 @@ public final class ModelRegistry {
         try {
             Class<?> translatorClass = Class.forName(translatorClassName);
             return ReflectUtils.instantiate(translatorClass);
-        } catch (NoSuchMethodException noArgMissing) {
-            throw new IllegalStateException(
-                    "Translator 缺少无参构造: " + translatorClassName + "，请补充 public XxxTranslator() 或默认参数构造",
-                    noArgMissing);
         } catch (ClassNotFoundException ex) {
             throw new IllegalStateException("Translator 类不可用: " + translatorClassName, ex);
         } catch (Exception ex) {
-            throw new RuntimeException("实例化 Translator 失败: " + translatorClassName, ex);
+            throw new IllegalStateException(
+                    "实例化 Translator 失败: " + translatorClassName
+                            + "（若提示缺少无参构造，请补充 public XxxTranslator() 或默认参数构造）",
+                    ex);
         }
     }
 

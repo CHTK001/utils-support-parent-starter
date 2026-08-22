@@ -11,10 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Whisper BPE tokenizer (decoder-only，纯 Java)。
+ * Whisper BPE tokenizer（decoder-only，纯 Java）。
  * <p>
  * Whisper 使用 GPT-2 风格的 BPE（byte-level），vocab 来自 vocab.json
  * （每个 token id 映射到 token 字符串，含 Ġ 表示前导空格）。
+ * 特殊 token（SOT/EOT/NOTIMESTAMP 等）来自 tokenizer.json 的 added_tokens。
  * 本类只实现 decode：token id 序列 → 字符串。
  * </p>
  *
@@ -27,48 +28,94 @@ public class WhisperTokenizer {
     /** Mapper */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** token id → token string (含 Ġ) */
-    /** IDTO令牌 */
+    /** 完整 vocab 大小（51864 = BPE 50257 + 特殊 token 1607） */
+    public static final int VOCAB_SIZE = 51864;
+
+    /** token id → token string（含 Ġ 前导空格标记） */
     private final String[] idToToken;
 
     /** token string → token id，用于特殊 token 查找 */
     private final Map<String, Integer> tokenToId;
 
     /** vocab 大小 */
-    /** Vocab尺寸 */
     private final int vocabSize;
 
     /**
      * 创建 WhisperTokenizer 实例
-     * @param Integer Integer
-     * @param vocab vocab
+     *
+     * @param idToToken token id → token string 数组
+     * @param tokenToId token string → token id 映射
+     * @param vocabSize vocab 大小
      */
-    public WhisperTokenizer(Map<String, Integer> vocab) {
-        this.vocabSize = vocab.size();
-        this.idToToken = new String[vocabSize];
-        this.tokenToId = new HashMap<>(vocabSize);
-        for (Map.Entry<String, Integer> e : vocab.entrySet()) {
-            this.idToToken[e.getValue()] = e.getKey();
-            this.tokenToId.put(e.getKey(), e.getValue());
-        }
+    private WhisperTokenizer(String[] idToToken, Map<String, Integer> tokenToId, int vocabSize) {
+        this.idToToken = idToToken;
+        this.tokenToId = tokenToId;
+        this.vocabSize = vocabSize;
     }
 
-    /** 加载 */
+    /**
+     * 从 vocab.json 加载（兼容旧版，不含特殊 token）。
+     *
+     * @param vocabJson vocab.json 路径
+     * @return tokenizer 实例
+     */
     public static WhisperTokenizer load(Path vocabJson) throws IOException {
+        return load(vocabJson, vocabJson.resolveSibling("tokenizer.json"));
+    }
+
+    /**
+     * 从 vocab.json + tokenizer.json 加载完整 vocab（含特殊 token）。
+     *
+     * @param vocabJson  vocab.json 路径
+     * @param tokJson    tokenizer.json 路径
+     * @return tokenizer 实例
+     */
+    public static WhisperTokenizer load(Path vocabJson, Path tokJson) throws IOException {
+        // 1. 加载 BPE vocab
+        Map<Integer, String> idToTokenMap = new HashMap<>();
         try (InputStream in = Files.newInputStream(vocabJson)) {
-            return loadFromJson(in);
+            JsonNode root = MAPPER.readTree(in);
+            root.fields().forEachRemaining(e -> {
+                try {
+                    int id = Integer.parseInt(e.getKey());
+                    idToTokenMap.put(id, e.getValue().asText());
+                } catch (NumberFormatException ignored) {
+                    // skip non-integer keys
+                }
+            });
         }
+
+        // 2. 合并 tokenizer.json 的 added_tokens（覆盖重复 ID）
+        if (Files.exists(tokJson)) {
+            try (InputStream in = Files.newInputStream(tokJson)) {
+                JsonNode root = MAPPER.readTree(in);
+                JsonNode added = root.path("added_tokens");
+                if (added.isArray()) {
+                    for (JsonNode t : added) {
+                        int id = t.path("id").asInt();
+                        String content = t.path("content").asText();
+                        idToTokenMap.put(id, content);
+                    }
+                }
+            }
+        }
+
+        // 3. 构建定长 idToToken 数组（大小 = VOCAB_SIZE）
+        String[] idToTokenArr = new String[VOCAB_SIZE];
+        Map<String, Integer> tokenToIdMap = new HashMap<>(VOCAB_SIZE);
+        for (Map.Entry<Integer, String> e : idToTokenMap.entrySet()) {
+            int id = e.getKey();
+            String tok = e.getValue();
+            if (id >= 0 && id < VOCAB_SIZE) {
+                idToTokenArr[id] = tok;
+                tokenToIdMap.put(tok, id);
+            }
+        }
+
+        return new WhisperTokenizer(idToTokenArr, tokenToIdMap, VOCAB_SIZE);
     }
 
-    /** 加载FromJson */
-    public static WhisperTokenizer loadFromJson(InputStream in) throws IOException {
-        JsonNode root = MAPPER.readTree(in);
-        Map<String, Integer> vocab = new HashMap<>();
-        root.fields().forEachRemaining(e -> vocab.put(e.getKey(), e.getValue().asInt()));
-        return new WhisperTokenizer(vocab);
-    }
-
-    /** Vocab获取大小 */
+    /** Vocab 获取大小 */
     public int vocabSize() {
         return vocabSize;
     }
@@ -87,9 +134,11 @@ public class WhisperTokenizer {
 
     /**
      * 解码 token id 序列为字符串：
-     * 1. 拼接所有 token（替换 Ġ → " "）
-     * 2. 跳过特殊 token（以 &lt; 开头且以 &gt; 结尾）
-     * 3. 转换 byte fallback（部分非 ascii 字符）
+     * <ol>
+     *   <li>拼接所有 token（替换 Ġ → " "）</li>
+     *   <li>跳过特殊 token（以 &lt; 开头且以 &gt; 结尾）</li>
+     *   <li>转换 byte fallback（部分非 ascii 字符）</li>
+     * </ol>
      *
      * @param ids token id 序列
      * @return 解码后的字符串（已过滤特殊 token）
@@ -99,10 +148,10 @@ public class WhisperTokenizer {
         for (int id : ids) {
             String tok = idToToken(id);
             if (tok == null) continue;
-            // 特殊 token 以 < 开头且 > 结尾
+            // 特殊 token 以 &lt; 开头且 &gt; 结尾
             if (isSpecial(tok)) continue;
             // 替换 Ġ → ' '
-            if (tok.startsWith("Ġ")) {
+            if (tok.startsWith("\u0120")) {
                 sb.append(' ').append(tok.substring(1));
             } else {
                 sb.append(tok);
@@ -111,30 +160,28 @@ public class WhisperTokenizer {
         return sb.toString().trim();
     }
 
-    /** 是否Special */
+    /** 是否 Special */
     private static boolean isSpecial(String token) {
         return token.startsWith("<") && token.endsWith(">");
     }
 
-    /** Whisper 特殊 token 常量 */
-    /** SOT */
-    public static final int SOT = 50258;
-    /** 结束符标识 */
-    /** EOT */
-    public static final int EOT = 50257;
-    /** 是否输出时间戳 */
-    /** Notimestamps */
-    public static final int NOTIMESTAMPS = 50259;
-    /** 是否转写文本 */
+    /**
+     * Whisper 特殊 token 常量（与 HuggingFace whisper tokenizer 一致）。
+     * 来源: config.json bos_token_id=50257, eos_token_id=50256
+     */
+
+    /** Start Of Transcription */
+    public static final int SOT = 50257;
+    /** End Of Transcription */
+    public static final int EOT = 50256;
+    /** No Timestamps */
+    public static final int NOTIMESTAMPS = 50362;
     /** Transcribe */
-    public static final int TRANSCRIBE = 50359;
-    /** 是否翻译文本 */
+    public static final int TRANSCRIBE = 50358;
     /** Translate */
-    public static final int TRANSLATE = 50358;
-    /** 是否不输出语音 */
-    /** No_speech */
+    public static final int TRANSLATE = 50357;
+    /** No Speech */
     public static final int NO_SPEECH = 50362;
-    /** 语言 token 起始 id（zh=50260+）... 实际语言 token id 由 vocab 决定 */
-    /** Lang_base */
+    /** Language token base id */
     public static final int LANG_BASE = 50260;
 }

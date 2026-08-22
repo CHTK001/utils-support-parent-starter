@@ -120,22 +120,22 @@ public class AudioRecognitionPipeline {
         try {
             // Step 1: VAD 时间切分
             List<SpeakerSegment> vadResult = performVad(audioData);
-            ctx.vadSegments(vadResult);
+            ctx.setVadSegments(vadResult);
             log.info("[AudioPipeline] Step1 VAD 切分完成：{} 个语音片段", vadResult.size());
 
             if (vadResult.isEmpty()) {
-                ctx.elapsedMs(System.currentTimeMillis() - t0);
+                ctx.setElapsedMs(System.currentTimeMillis() - t0);
                 return List.of();
             }
 
             // Step 2: 说话人嵌入提取（可选）
             if (speakerEmbeddingModel != null) {
                 float[][] embeddings = extractSpeakerEmbeddings(audioData, vadResult);
-                ctx.speakerEmbeddings(embeddings);
+                ctx.setSpeakerEmbeddings(embeddings);
 
                 // Step 3: K-Means 聚类
                 String[] assignments = kMeansCluster(embeddings, vadResult.size());
-                ctx.speakerAssignments(assignments);
+                ctx.setSpeakerAssignments(assignments);
                 log.info("[AudioPipeline] Step2/3 说话人聚类完成：{} 个说话人",
                         distinctAssignments(assignments).size());
             } else {
@@ -144,23 +144,23 @@ public class AudioRecognitionPipeline {
                 for (int i = 0; i < vadResult.size(); i++) {
                     assignments[i] = "speaker_" + i;
                 }
-                ctx.speakerAssignments(assignments);
+                ctx.setSpeakerAssignments(assignments);
             }
 
             // Step 4: ASR 转写（可选）
             if (asrModel != null) {
                 String[] transcripts = transcribeSegments(audioData, vadResult);
-                ctx.transcripts(transcripts);
+                ctx.setTranscripts(transcripts);
                 log.info("[AudioPipeline] Step4 ASR 转写完成：{} 个片段已转写", transcripts.length);
             }
 
             // Step 5: 合并连续同说话人片段
             List<SpeakerSegment> finalResult = mergeAdjacentSegments(ctx);
-            ctx.finalSegments(finalResult);
+            ctx.setFinalSegments(finalResult);
 
-            ctx.elapsedMs(System.currentTimeMillis() - t0);
+            ctx.setElapsedMs(System.currentTimeMillis() - t0);
             log.info("[AudioPipeline] 管线完成：共 {}ms，输出 {} 个最终片段",
-                    ctx.elapsedMs(), finalResult.size());
+                    ctx.getElapsedMs(), finalResult.size());
             return finalResult;
 
         } catch (Exception e) {
@@ -461,9 +461,9 @@ public class AudioRecognitionPipeline {
      * @return 合并后的最终片段列表
      */
     private List<SpeakerSegment> mergeAdjacentSegments(AudioRecognitionContext ctx) {
-        List<SpeakerSegment> vadSegs = ctx.vadSegments();
-        String[] assignments = ctx.speakerAssignments();
-        String[] transcripts = ctx.transcripts();
+        List<SpeakerSegment> vadSegs = ctx.getVadSegments();
+        String[] assignments = ctx.getSpeakerAssignments();
+        String[] transcripts = ctx.getTranscripts();
 
         if (vadSegs == null || vadSegs.isEmpty()) {
             return List.of();
@@ -529,7 +529,7 @@ public class AudioRecognitionPipeline {
         // fmt 子块
         writeBytes(wav, 12, "fmt ".getBytes());
         writeInt(wav, 16, 16);          // Subchunk1Size
-        writeShort(wav, 20, 1);         // AudioFormat (PCM)
+        writeShort(wav, 20, (short) 1);         // AudioFormat (PCM)
         writeShort(wav, 22, (short) numChannels);
         writeInt(wav, 24, sampleRate);
         writeInt(wav, 28, byteRate);

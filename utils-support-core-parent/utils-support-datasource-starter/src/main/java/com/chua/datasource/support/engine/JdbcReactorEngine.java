@@ -8,6 +8,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.network.net.NetAddress;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
@@ -540,10 +541,19 @@ public class JdbcReactorEngine implements ReactorEngine {
             return false;
         }
         String trimmed = sql.trim().toUpperCase();
-        return trimmed.startsWith("CREATE ") || trimmed.startsWith("DROP ")
-                || trimmed.startsWith("ALTER ") || trimmed.startsWith("TRUNCATE ");
+        return trimmed.startsWith(DDL_CREATE) || trimmed.startsWith(DDL_DROP)
+                || trimmed.startsWith(DDL_ALTER) || trimmed.startsWith(DDL_TRUNCATE);
     }
 
+    /**
+     * 通过 R2DBC 执行批量 SQL，每批次单独创建 Statement 并执行。
+     * MySQL 驱动发生 ClassCastException 时降级到 JDBC 路径。
+     *
+     * @param name         数据源名称
+     * @param sql          SQL 语句（含占位符）
+     * @param batchParams  批量参数列表
+     * @return 受影响行数流
+     */
     private Flux<Integer> batchViaR2dbc(String name, String sql, List<Object[]> batchParams) {
         ConnectionFactory factory = r2dbcFactories.get(name);
         if (factory == null) {
@@ -824,7 +834,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String name) {
         ConnectionFactory factory = r2dbcFactories.get(name);
-        if (factory == null) return null;
+        if (factory == null) {
+            return null;
+        }
         return new EngineDataSource<T>() {
             @Override public String name() { return name; }
             @Override public T getSource() { return null; }
@@ -941,7 +953,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> Flux.from(r.map(JdbcReactorEngine.this::toMap)))
@@ -950,7 +964,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType))))
@@ -976,7 +992,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public int execute(String sql, Object... params) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             return Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> safeGetRowsUpdated(r))
@@ -987,7 +1005,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public int[] batch(String sql, List<Object[]> batchParams) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             Integer total = Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.fromIterable(batchParams)
                             .flatMap(p -> {
@@ -1005,9 +1025,13 @@ public class JdbcReactorEngine implements ReactorEngine {
             return total == null ? new int[0] : new int[]{total};
         }
         private static String trimSql(String sql) {
-            if (sql == null) return "";
+            if (sql == null) {
+                return "";
+            }
             String t = sql.trim();
-            while (t.endsWith(";")) t = t.substring(0, t.length() - 1).trim();
+            while (t.endsWith(";")) {
+                t = t.substring(0, t.length() - 1).trim();
+            }
             return t;
         }
     }
@@ -1095,9 +1119,13 @@ public class JdbcReactorEngine implements ReactorEngine {
             } catch (Exception e) { throw new IllegalStateException("批量执行失败: " + sql, e); }
         }
         private static String trimSql(String sql) {
-            if (sql == null) return "";
+            if (sql == null) {
+                return "";
+            }
             String t = sql.trim();
-            while (t.endsWith(";")) t = t.substring(0, t.length() - 1).trim();
+            while (t.endsWith(";")) {
+                t = t.substring(0, t.length() - 1).trim();
+            }
             return t;
         }
     }
