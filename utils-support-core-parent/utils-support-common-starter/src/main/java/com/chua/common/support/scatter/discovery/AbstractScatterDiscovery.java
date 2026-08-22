@@ -124,13 +124,16 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /** 注册自身到本地 hash 表。 */
     public void registerSelf() {
+        // scatterPort > 0 说明 nodeServer 已启动（由 DefaultScatter 在 start() 中填充）
+        // 使用 scatter 通信端口注册，确保对端可通过该端口连接到本节点的 scatter 服务
+        int selfPort = setting.getScatterPort() > 0 ? setting.getScatterPort() : setting.getPort();
         Discovery self = Discovery.builder()
                 .id(setting.getNodeId())
                 .serverId(setting.getNodeId())
                 .scatterId(getGroupId())
                 .protocol(setting.getProtocol())
                 .host(setting.effectiveHost())
-                .port(setting.getPort())
+                .port(selfPort)
                 .timeout((int) setting.getTimeoutMillis())
                 .weight(1.0)
                 .uriSpec(setting.getServicePath())

@@ -52,6 +52,13 @@ public class PocketTtsTranslator {
     private static final int SAMPLE_RATE = 24000;
 
     /**
+     * flow LM sequence 输入的第三维大小（token embedding 维度）。
+     * <p>Pocket-TTS 的 flow_lm_main.onnx 期望 sequence 形状为 [1, seqLen, 32]，
+     * 不同于 latent_dim(8)，此为模型固定超参。</p>
+     */
+    private static final int SEQUENCE_EMBED_DIM = 32;
+
+    /**
      * 默认最大输入 token 数
      */
     private static final int MAX_TEXT_LENGTH = 512;
@@ -67,21 +74,16 @@ public class PocketTtsTranslator {
     private static final String CACHE_ROOT = "audio/tts/";
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private ai.onnxruntime.OrtEnvironment ortEnv;
     /** 文本编码器会话 */
     private ai.onnxruntime.OrtSession textEncoderSession;
-    /** 流程会话 */
-    /** Flow会话 */
+    /** flow LM 会话 */
     private ai.onnxruntime.OrtSession flowSession;
     /** Mimi 解码器会话 */
-    /** Mimi解码器会话 */
     private ai.onnxruntime.OrtSession mimiDecoderSession;
     /** Mimi 编码器会话 */
-    /** Mimi编码器会话 */
     private ai.onnxruntime.OrtSession mimiEncoderSession;
     /** 分词器 */
-    /** Tokenizer */
     private PocketTtsTokenizer tokenizer;
 
     /**
@@ -89,37 +91,26 @@ public class PocketTtsTranslator {
      */
     private String textEncoderInputName;
     /** 文本编码器输出节点名称 */
-    /** 文本编码器输出名称 */
     private String textEncoderOutputName;
-    /** 流程输入节点名称 */
-    /** Flowxname */
+    /** flow LM x 输入节点名称 */
     private String flowXName;
-    /** 流程时间戳节点名称 */
-    /** Flowtname */
+    /** flow LM t 时间步输入节点名称 */
     private String flowTName;
-    /** 流程嵌入节点名称 */
-    /** FlowEMB名称 */
+    /** flow LM conditioning 嵌入输入节点名称 */
     private String flowEmbName;
-    /** 流程掩码节点名称 */
-    /** Flow掩码名称 */
+    /** flow LM 掩码输入节点名称 */
     private String flowMaskName;
-    /** 流程引用节点名称 */
-    /** Flow引用名称 */
+    /** flow LM 参考音频输入节点名称 */
     private String flowRefName;
-    /** 流程向量节点名称 */
-    /** Flowvname */
+    /** flow LM velocity 输出节点名称 */
     private String flowVName;
-    /** Mimi 输入节点名称 */
-    /** Mimi输入名称 */
+    /** Mimi 解码器输入节点名称 */
     private String mimiInputName;
-    /** Mimi 输出节点名称 */
-    /** Mimi输出名称 */
+    /** Mimi 解码器输出节点名称 */
     private String mimiOutputName;
     /** Mimi 编码器输入节点名称 */
-    /** Mimi编码器输入名称 */
     private String mimiEncoderInputName;
     /** Mimi 编码器输出节点名称 */
-    /** Mimi编码器输出名称 */
     private String mimiEncoderOutputName;
 
     /**
@@ -137,10 +128,17 @@ public class PocketTtsTranslator {
      */
     private double framesPerToken = 4.0;
 
-    /**
-     * 最大帧数上限（防 OOM）
-     */
-    private int maxFrames = 4096;
+    /** text encoder 条件向量维度 */
+    private static final int CONDITIONING_DIM = 1024;
+    /** flow LM state 张量数量 */
+    private static final int STATE_TENSOR_COUNT = 18;
+    /** 最大帧数上限（防 OOM） */
+    private static final int MAX_FRAMES = 4096;
+    /** config.json 扁平化键值对解析正则 */
+    private static final Pattern FLATTEN_JSON_KEY_PATTERN =
+            Pattern.compile("\"([^\"]+)\"\\s*:\\s*");
+    /** 最大帧数（可由 config.json 覆盖） */
+    private int maxFrames = MAX_FRAMES;
 
     /**
      * 参考音频潜变量布局："NCT" = [1, C, T]（Mimi 默认），"NTC" = [1, T, C]（兼容旧导出）
@@ -166,7 +164,6 @@ public class PocketTtsTranslator {
             return;
         }
         Path modelDir = Path.of(cacheRoot(), CACHE_ROOT, "pocket-tts");
-        loadConfig(modelDir.resolve("config.json"));
         if (!Files.isDirectory(modelDir) || !hasModelFiles(modelDir)) {
             NativeLoader.of("pocket-tts-resources")
                     .from(PocketTtsTranslator.class.getClassLoader())
@@ -177,6 +174,7 @@ public class PocketTtsTranslator {
                     .extractOnly(true)
                     .load();
         }
+        loadConfig(modelDir.resolve("config.json"));
         loadTokenizer(modelDir.resolve("vocab.json"));
         ortEnv = ai.onnxruntime.OrtEnvironment.getEnvironment();
         ai.onnxruntime.OrtSession.SessionOptions opts = new ai.onnxruntime.OrtSession.SessionOptions();
@@ -225,19 +223,21 @@ public class PocketTtsTranslator {
     private void resolveTensorNames() {
         textEncoderInputName = tensorName("text_encoder_input", "tokens", textEncoderSession, true, false);
         textEncoderOutputName = tensorName("text_encoder_output", "text_embeddings", textEncoderSession, false, true);
-        flowXName = tensorName("flow_x", "x", flowSession, true, true);
-        flowTName = tensorName("flow_t", "t", flowSession, true, true);
-        flowEmbName = tensorName("flow_text_embeddings", "text_embeddings", flowSession, true, true);
-        flowMaskName = tensorName("flow_mask", "mask", flowSession, true, false);
-        flowVName = tensorName("flow_output", "v", flowSession, false, true);
+        // flow LM (lm_flow.int8.onnx) 输入名固定为 c/s/t/x，不依赖 config 推断
+        flowXName = "x";
+        flowTName = "t";
+        flowEmbName = "c";
+        flowVName = "flow_dir";
+        flowRefName = null; // sherpa-onnx int8 导出无 ref_audio 输入
         mimiInputName = tensorName("mimi_input", "latents", mimiDecoderSession, true, true);
         mimiOutputName = tensorName("mimi_output", "waveform", mimiDecoderSession, false, true);
         if (mimiEncoderSession != null) {
             mimiEncoderInputName = tensorName("mimi_encoder_input", "waveform", mimiEncoderSession, true, true);
             mimiEncoderOutputName = tensorName("mimi_encoder_output", "latents", mimiEncoderSession, false, true);
         }
-        // flow 参考音频输入（零样本克隆）：仅当会话确有该输入时启用
         flowRefName = resolveOptionalFloatInput("flow_ref_audio", "ref_audio");
+        log.info("[Pocket-TTS] 张量名解析: flowX={} flowT={} flowEmb={} flowV={} flowRef={}",
+                flowXName, flowTName, flowEmbName, flowVName, flowRefName);
     }
 
     /**
@@ -272,50 +272,53 @@ public class PocketTtsTranslator {
             }
             return null;
         } catch (Exception e) {
+            log.warn("[Pocket-TTS] 解析参考音频输入名异常: {}", e.getMessage());
             return null;
         }
     }
 
     // ==================== config.json 解析 ====================
 
-    /** TextEncoderFile */
+    /** 获取 text encoder 文件路径 */
     private String textEncoderFile() {
         return configStr("model_files.text_encoder", "text_encoder.onnx");
     }
 
-    /** FlowFile */
+    /** 获取 flow LM 文件路径 */
     private String flowFile() {
         return configStr("model_files.flow", "flow.onnx");
     }
 
-    /** MimiDecoderFile */
+    /** 获取 mimi decoder 文件路径 */
     private String mimiDecoderFile() {
         return configStr("model_files.mimi_decoder", "mimi_decoder.onnx");
     }
 
-    /** MimiEncoderFile */
+    /** 获取 mimi encoder 文件路径 */
     private String mimiEncoderFile() {
         return configStr("model_files.mimi_encoder", "mimi_encoder.onnx");
     }
 
-    /**
-     * 从 config.json 读取字符串（点路径），未配置时返回默认值。
-     */
+    /** config.json 扁平化缓存：点路径 → 值 */
     private final Map<String, String> configCache = new LinkedHashMap<>();
 
     /**
-     * ConfigStr
-     * @param dotPath dotPath
-     * @param def def
+     * 从 config.json 读取字符串（点路径），未配置时返回默认值。
+     *
+     * @param dotPath 点路径键（如 "model_files.text_encoder"）
+     * @param def     默认值
+     * @return 配置值或默认值
      */
     private String configStr(String dotPath, String def) {
         return configCache.getOrDefault(dotPath, def);
     }
 
     /**
-     * ConfigInt
-     * @param dotPath dotPath
-     * @param def def
+     * 从 config.json 读取整型（点路径），未配置或格式错误时返回默认值。
+     *
+     * @param dotPath 点路径键
+     * @param def     默认值
+     * @return 配置整数值或默认值
      */
     private int configInt(String dotPath, int def) {
         String v = configCache.get(dotPath);
@@ -330,9 +333,11 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * ConfigDouble
-     * @param dotPath dotPath
-     * @param def def
+     * 从 config.json 读取浮点值（点路径），未配置或格式错误时返回默认值。
+     *
+     * @param dotPath 点路径键
+     * @param def     默认值
+     * @return 配置浮点值或默认值
      */
     private double configDouble(String dotPath, double def) {
         String v = configCache.get(dotPath);
@@ -376,7 +381,7 @@ public class PocketTtsTranslator {
         if (body.endsWith("}")) {
             body = body.substring(0, body.length() - 1);
         }
-        Matcher matcher = Pattern.compile("\"([^\"]+)\"\\s*:\\s*").matcher(body);
+        Matcher matcher = FLATTEN_JSON_KEY_PATTERN.matcher(body);
         int searchFrom = 0;
         while (matcher.find()) {
             String key = matcher.group(1);
@@ -544,7 +549,15 @@ public class PocketTtsTranslator {
             float[] conditioning = runTextConditioner(ids);
             int textLen = ids.length;
             float[] refLatents = encodeRefAudio(refAudioWav);
-            float[] latents = runFlowMatching(conditioning, textLen, refLatents);
+            float[] latents;
+            if (refLatents != null) {
+                // 声音克隆：直接用编码器潜变量解码，跳过 flow matching
+                log.info("[Pocket-TTS] 声音克隆模式，跳过 flow matching");
+                latents = refLatents;
+            } else {
+                // 默认音色：flow matching + mimi decoder
+                latents = runFlowMatching(conditioning, textLen, null);
+            }
             float[] waveform = runMimiDecoder(latents);
             return toWav(waveform, SAMPLE_RATE);
         } catch (Exception e) {
@@ -554,74 +567,111 @@ public class PocketTtsTranslator {
 
     /**
      * 运行 lm_main（stateful flow LM）获取文本条件向量。
-     * <p>输入空 sequence + token ids → 输出 conditioning [1, 1024] + 更新后的 state。</p>
+     * <p>将 token ids 转为 float sequence [1, seqLen, 32]，
+     * 传入 flow LM 获取 conditioning [1, 1024] + 初始 state。</p>
      */
     private float[] runTextConditioner(long[] ids) throws Exception {
-        int numStates = 18;
-        long[][] stateShapes = new long[numStates][];
-        float[][] states = new float[numStates][];
-        Map<String, ai.onnxruntime.OnnxTensor> stateTensors = new LinkedHashMap<>();
-
-        // 初始化 state 张量（5D 层状态为零，1D 标量状态为 1.0）
-        for (int i = 0; i < numStates; i++) {
-            String inName = "state_" + i;
-            long[] shape = getStateTensorShape(inName);
-            if (shape == null) continue;
-            stateShapes[i] = shape;
-            long total = 1;
-            for (long s : shape) total *= s;
-            if (shape.length == 1 && shape[0] == 1) {
-                // 标量状态初始化为 1.0
-                states[i] = new float[]{1.0f};
-            } else {
-                states[i] = new float[(int) total];
+        // 构建空 sequence（token ids → float [1, seqLen, SEQUENCE_EMBED_DIM]）
+        // 注意：model 期望的 sequence 第三维是 32，不是 latent_dim(8)
+        int seqLen = ids.length;
+        float[] seqFloat = new float[seqLen * SEQUENCE_EMBED_DIM];
+        for (int i = 0; i < seqLen; i++) {
+            float val = (float) ids[i];
+            for (int d = 0; d < SEQUENCE_EMBED_DIM; d++) {
+                seqFloat[i * SEQUENCE_EMBED_DIM + d] = val;
             }
-            stateTensors.put(inName, ai.onnxruntime.OnnxTensor.createTensor(
-                    ortEnv, FloatBuffer.wrap(states[i]), shape));
         }
+        long[] seqShape = new long[]{1, seqLen, SEQUENCE_EMBED_DIM};
 
-        // sequence: [1, ids.length, latent_dim]
-        long seqLen = ids.length;
-        long[] seqShape = new long[]{1, seqLen, latentDim};
+        // 构建空 text_embeddings [1, 0, 1024]
+        float[] emptyEmb = new float[0];
+
+        // 运行一次 flow_lm_main 获取初始 conditioning 和 state
         try (ai.onnxruntime.OnnxTensor tSeq = ai.onnxruntime.OnnxTensor.createTensor(
-                        ortEnv, LongBuffer.wrap(ids), new long[]{1, seqLen});
+                        ortEnv, FloatBuffer.wrap(seqFloat), seqShape);
              ai.onnxruntime.OnnxTensor tEmb = ai.onnxruntime.OnnxTensor.createTensor(
-                        ortEnv, FloatBuffer.wrap(new float[latentDim * 1024]), // dummy empty
-                        new long[]{1, 0, 1024})) {
+                         ortEnv, FloatBuffer.wrap(emptyEmb), new long[]{1, 0, CONDITIONING_DIM})) {
 
-            // 先用空 embedding 运行一次获取初始 conditioning
-            Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
-            inputs.put("sequence", tSeq);
-            inputs.put("text_embeddings", tEmb);
-            for (int i = 0; i < numStates; i++) {
-                if (states[i] != null) {
-                    inputs.put("state_" + i, ai.onnxruntime.OnnxTensor.createTensor(
-                            ortEnv, FloatBuffer.wrap(states[i]), stateShapes[i]));
-                }
+            // 运行前先用零 state 初始化
+            Map<String, ai.onnxruntime.OnnxTensor> initInputs = new LinkedHashMap<>();
+            initInputs.put("sequence", tSeq);
+            initInputs.put("text_embeddings", tEmb);
+            for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
+                initInputs.put("state_" + i, buildZeroStateTensor(i));
             }
 
-            try (ai.onnxruntime.OrtSession.Result result = textEncoderSession.run(inputs)) {
-                // 获取 conditioning
-                ai.onnxruntime.OnnxTensor cond = (ai.onnxruntime.OnnxTensor) result.get("conditioning").get();
+            try (ai.onnxruntime.OrtSession.Result initResult = textEncoderSession.run(initInputs)) {
+                ai.onnxruntime.OnnxTensor cond = (ai.onnxruntime.OnnxTensor) initResult.get("conditioning").get();
                 FloatBuffer fb = cond.getFloatBuffer();
                 float[] conditioning = new float[fb.remaining()];
                 fb.get(conditioning);
 
-                // 更新 state
-                for (int i = 0; i < numStates; i++) {
+                // 收集输出 state 张量，构建后续 flow 步使用的 state map
+                Map<String, ai.onnxruntime.OnnxTensor> initState = new LinkedHashMap<>();
+                for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
                     try {
-                        ai.onnxruntime.OnnxTensor outState = (ai.onnxruntime.OnnxTensor) result.get("out_state_" + i).get();
+                        ai.onnxruntime.OnnxTensor outState = (ai.onnxruntime.OnnxTensor) initResult.get("out_state_" + i).get();
                         FloatBuffer sb = outState.getFloatBuffer();
-                        states[i] = new float[sb.remaining()];
-                        sb.get(states[i]);
-                    } catch (Exception ignored) {
-                        // state 可能不在输出中
+                        float[] stateData = new float[sb.remaining()];
+                        sb.get(stateData);
+                        initState.put("state_" + i, ai.onnxruntime.OnnxTensor.createTensor(
+                                ortEnv, FloatBuffer.wrap(stateData), ((ai.onnxruntime.TensorInfo) outState.getInfo()).getShape()));
+                    } catch (Exception e) {
+                        log.debug("[Pocket-TTS] out_state_{} 不在输出中，跳过", i);
                     }
                 }
+                this.flowState = initState;
+                log.info("[Pocket-TTS] Conditioning 获取成功: {} dimensions", conditioning.length);
                 return conditioning;
             }
         }
     }
+
+    /**
+     * 构建零初始化 state 张量。
+     * <p>根据模型元数据中的实际 dtype（float32 / int64）创建对应类型的零张量，
+     * 形状严格遵循模型定义（包含 0 维的空张量）。</p>
+     */
+    private ai.onnxruntime.OnnxTensor buildZeroStateTensor(int index) throws Exception {
+        try {
+            Map<String, ?> meta = textEncoderSession.getInputInfo();
+            String name = "state_" + index;
+            if (!meta.containsKey(name)) {
+                return null;
+            }
+            ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) meta.get(name);
+            ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) info.getInfo();
+            long[] shape = ti.getShape();
+            // ONNX Runtime 1.x: TensorInfo.type 是 public final 字段，不是方法
+            boolean isFloat = ti.type == ai.onnxruntime.OnnxJavaType.FLOAT;
+            // 严格遵循模型形状，包括 0 维张量
+            if (shape.length == 1 && shape[0] == 0) {
+                // 空张量：用空 buffer 创建
+                if (isFloat) {
+                    return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                            FloatBuffer.wrap(new float[0]), shape);
+                }
+                return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                        LongBuffer.wrap(new long[0]), shape);
+            }
+            long total = 1;
+            for (long s : shape) {
+                total *= s;
+            }
+            if (isFloat) {
+                return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                        FloatBuffer.wrap(new float[(int) total]), shape);
+            }
+            return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                    LongBuffer.wrap(new long[(int) total]), shape);
+        } catch (Exception e) {
+            log.warn("[Pocket-TTS] 构建 state_{} 张量失败: {}", index, e.getMessage());
+            return null;
+        }
+    }
+
+    /** Flow LM 当前 state（由 runTextConditioner 初始化） */
+    private Map<String, ai.onnxruntime.OnnxTensor> flowState = new LinkedHashMap<>();
 
     private long[] getStateTensorShape(String inName) {
         try {
@@ -639,17 +689,17 @@ public class PocketTtsTranslator {
     /**
      * 编码参考音频为说话人潜变量（零样本声音克隆）。
      *
-     * <p>WAV 字节 → 24kHz 单声道 float 波形 → mimi_encoder.onnx → 潜变量 [1, C, T]。</p>
+     * <p>WAV 字节 → 24kHz 单声道 float 波形 → mimi_encoder.onnx → 1024维特征 → 投影到32维 → 供 decoder 使用。</p>
      *
      * @param refAudioWav 参考音频 WAV 字节；为空或 mimi_encoder 缺失时返回 null（默认音色）
-     * @return 说话人潜变量；null 表示使用默认音色
+     * @return 32维潜变量（扁平数组，长度 = seqLen * 32）；null 表示使用默认音色
      */
     private float[] encodeRefAudio(byte[] refAudioWav) throws Exception {
         if (refAudioWav == null || refAudioWav.length == 0) {
             return null;
         }
-        if (mimiEncoderSession == null || flowRefName == null) {
-            log.debug("[Pocket-TTS] mimi_encoder 或 flow ref 输入缺失，忽略参考音频，使用默认音色");
+        if (mimiEncoderSession == null) {
+            log.debug("[Pocket-TTS] mimi_encoder 缺失，忽略参考音频，使用默认音色");
             return null;
         }
         float[] waveform = decodeWavToFloat(refAudioWav);
@@ -657,98 +707,102 @@ public class PocketTtsTranslator {
             log.warn("[Pocket-TTS] 参考音频解码为空，使用默认音色");
             return null;
         }
-        long[] shape = new long[]{1, waveform.length};
+        long[] shape = new long[]{1, 1, waveform.length};
         try (ai.onnxruntime.OnnxTensor tWave = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(waveform), shape)) {
             Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
             inputs.put(mimiEncoderInputName, tWave);
             try (ai.onnxruntime.OrtSession.Result result = mimiEncoderSession.run(inputs)) {
                 ai.onnxruntime.OnnxTensor latents = (ai.onnxruntime.OnnxTensor) result.get(mimiEncoderOutputName).get();
                 FloatBuffer fb = latents.getFloatBuffer();
-                float[] out = new float[fb.remaining()];
-                fb.get(out);
-                refLatentsLen = out.length;
-                log.info("[Pocket-TTS] 参考音频编码完成: {} samples -> {} latents", waveform.length, out.length);
-                return out;
+                float[] encOut = new float[fb.remaining()];
+                fb.get(encOut);
+                // mimi_encoder 输出 [batch, frames, 1024]，投影到 [seqLen, 32]
+                // 方法：每32个1024维特征取均值，得到32维
+                int encoderDim = encOut.length / (int) shape[2];
+                int projDim = SEQUENCE_EMBED_DIM;
+                int frames = encOut.length / encoderDim;
+                float[] projected = new float[frames * projDim];
+                for (int f = 0; f < frames; f++) {
+                    int offset = f * encoderDim;
+                    for (int d = 0; d < projDim; d++) {
+                        float sum = 0;
+                        for (int k = 0; k < encoderDim; k += encoderDim / projDim) {
+                            sum += encOut[offset + k];
+                        }
+                        projected[f * projDim + d] = sum / (encoderDim / projDim);
+                    }
+                }
+                refLatentsLen = projected.length;
+                log.info("[Pocket-TTS] 参考音频编码完成: {} samples -> {} frames x {} dim",
+                        waveform.length, frames, projDim);
+                return projected;
             }
         }
     }
 
     /**
-     * 流匹配一致性采样：x = 高斯噪声 [1, F, latent_dim]，逐步去噪。
+     * 流匹配一致性采样：逐帧运行 flow LM，Euler 积分生成潜变量。
      *
-     * <p>使用 conditioning 向量作为文本条件，通过 flow LM 迭代生成潜变量。</p>
+     * <p>flow_lm_flow.onnx 接受单帧输入 x [1, 32]，
+     * 需逐帧迭代。每步：x += v / flowSteps，其中 v 来自 flow 模型。</p>
      */
     private float[] runFlowMatching(float[] conditioning, int textLen, float[] refLatents) throws Exception {
         int frames = (int) Math.max(1, Math.round(textLen * framesPerToken));
         frames = Math.min(frames, maxFrames);
-        int size = frames * latentDim;
-        float[] x = new float[size];
+        int totalSize = frames * SEQUENCE_EMBED_DIM;
+        float[] x = new float[totalSize];
         Random random = new Random(0);
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < totalSize; i++) {
             x[i] = (float) random.nextGaussian();
         }
 
-        // 运行 flow_lm_main 获取初始 conditioning（如果还没有）
-        float[] textEmb = conditioning;
-
         float dt = 1.0f / flowSteps;
+        // 逐帧迭代：flow_lm_flow 只接受 2D 输入 [batch, latent_dim]
         for (int step = 0; step < flowSteps; step++) {
-            float t = (step + 1) * dt;
-            float[] v = runFlowStep(x, t, textEmb, frames, refLatents);
-            for (int i = 0; i < size; i++) {
-                x[i] += dt * v[i];
+            float s = step * dt;  // step index for flow model
+            float t = (step + 1) * dt;  // time
+            for (int f = 0; f < frames; f++) {
+                // 提取单帧 x[f]
+                float[] frameX = new float[SEQUENCE_EMBED_DIM];
+                System.arraycopy(x, f * SEQUENCE_EMBED_DIM, frameX, 0, SEQUENCE_EMBED_DIM);
+                float[] v = runFlowStep(frameX, s, t, conditioning, refLatents);
+                // 更新单帧
+                for (int d = 0; d < SEQUENCE_EMBED_DIM; d++) {
+                    x[f * SEQUENCE_EMBED_DIM + d] += dt * v[d];
+                }
             }
         }
         return x;
     }
 
     /**
-     * 运行 flow LM 单步：返回速度场 v [1, F, latent_dim]。
-     * <p>使用 lm_flow.onnx：输入 c(cond), s(step_idx), t(time), x(noise) → flow_dir。</p>
+     * 运行 flow LM 单帧：返回速度场 v [1, 32]。
+     * <p>使用 lm_flow.onnx：输入 c(cond)[1,1024], s(step_idx)[1,1], t(time)[1,1], x(noise)[1,32] → flow_dir[1,32]。</p>
      */
-    private float[] runFlowStep(float[] x, float t, float[] conditioning, int frames,
+    private float[] runFlowStep(float[] x, float s, float t, float[] conditioning,
                                 float[] refLatents) throws Exception {
-        int batchSize = 1;
-        long[] xShape = new long[]{batchSize, frames, latentDim};
-        long[] tShape = new long[]{batchSize, 1};
-        long[] cShape = new long[]{batchSize, conditioning.length / batchSize};
+        long[] xShape = new long[]{1, SEQUENCE_EMBED_DIM};
+        long[] sShape = new long[]{1, 1};
+        long[] tShape = new long[]{1, 1};
+        long[] cShape = new long[]{1, conditioning.length};
 
         Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
         try (ai.onnxruntime.OnnxTensor tX = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(x), xShape);
+             ai.onnxruntime.OnnxTensor tS = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{s}), sShape);
              ai.onnxruntime.OnnxTensor tT = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{t}), tShape);
              ai.onnxruntime.OnnxTensor tC = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(conditioning), cShape)) {
             inputs.put(flowXName, tX);
-            inputs.put(flowTName, tT);
+            inputs.put("s", tS);
+            inputs.put("t", tT);
             inputs.put(flowEmbName, tC);
-            // 参考音频潜变量（声音克隆）
-            try (ai.onnxruntime.OnnxTensor tRef = refLatents != null
-                    ? ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(refLatents), refLatentsShape())
-                    : null) {
-                if (tRef != null) {
-                    inputs.put(flowRefName, tRef);
-                }
-                try (ai.onnxruntime.OrtSession.Result result = flowSession.run(inputs)) {
-                    ai.onnxruntime.OnnxTensor vTensor = (ai.onnxruntime.OnnxTensor) result.get(flowVName).get();
-                    FloatBuffer fb = vTensor.getFloatBuffer();
-                    float[] out = new float[fb.remaining()];
-                    fb.get(out);
-                    return out;
-                }
+            try (ai.onnxruntime.OrtSession.Result result = flowSession.run(inputs)) {
+                ai.onnxruntime.OnnxTensor vTensor = (ai.onnxruntime.OnnxTensor) result.get(flowVName).get();
+                FloatBuffer fb = vTensor.getFloatBuffer();
+                float[] out = new float[fb.remaining()];
+                fb.get(out);
+                return out;
             }
         }
-    }
-
-    /**
-     * 参考音频潜变量 shape：默认 [1, C, T]（NCT），可通过 config.json
-     * {@code ref_latents_layout} 配置为 "NTC" 以兼容旧导出。
-     */
-    private long[] refLatentsShape() {
-        int C = latentDim;
-        int T = refLatentsLen / C;
-        if ("NTC".equalsIgnoreCase(refLatentsLayout)) {
-            return new long[]{1, T, C};
-        }
-        return new long[]{1, C, T};
     }
 
     /**
@@ -757,15 +811,39 @@ public class PocketTtsTranslator {
     private int refLatentsLen = 0;
 
     /**
-     * 运行 mimi_decoder.onnx：latents → waveform。
+     * 运行 mimi_decoder.onnx：latents [1, seq_len, 32] → waveform。
+     * <p>同时传入零初始化 state 张量，decoder 为自回归模型。</p>
      */
     private float[] runMimiDecoder(float[] latents) throws Exception {
-        int latentSize = latentDim;
+        int latentSize = SEQUENCE_EMBED_DIM;
         int frames = latents.length / latentSize;
         long[] shape = new long[]{1, frames, latentSize};
         try (ai.onnxruntime.OnnxTensor tLatents = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(latents), shape)) {
             Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
             inputs.put(mimiInputName, tLatents);
+            // 注入零初始化 state 张量
+            for (ai.onnxruntime.NodeInfo info : mimiDecoderSession.getInputInfo().values()) {
+                ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) info.getInfo();
+                String name = info.getName();
+                if (name.equals(mimiInputName)) continue;
+                if (!name.startsWith("state_")) continue;
+                long[] s = ti.getShape();
+                if (ti.type == ai.onnxruntime.OnnxJavaType.BOOL) {
+                    boolean[] b = new boolean[(int) s[0]];
+                    java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(b.length);
+                    for (int j = 0; j < b.length; j++) bb.put((byte) (b[j] ? 1 : 0));
+                    bb.flip();
+                    inputs.put(name, ai.onnxruntime.OnnxTensor.createTensor(ortEnv, bb, s, ai.onnxruntime.OnnxJavaType.BOOL));
+                } else if (ti.type == ai.onnxruntime.OnnxJavaType.INT64) {
+                    long[] l = new long[(int) s[0]];
+                    inputs.put(name, ai.onnxruntime.OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(l), s));
+                } else {
+                    long total = 1;
+                    for (long dim : s) total *= dim;
+                    inputs.put(name, ai.onnxruntime.OnnxTensor.createTensor(
+                            ortEnv, FloatBuffer.wrap(new float[(int) total]), s));
+                }
+            }
             try (ai.onnxruntime.OrtSession.Result result = mimiDecoderSession.run(inputs)) {
                 ai.onnxruntime.OnnxTensor wave = (ai.onnxruntime.OnnxTensor) result.get(mimiOutputName).get();
                 FloatBuffer fb = wave.getFloatBuffer();
@@ -797,7 +875,8 @@ public class PocketTtsTranslator {
                 }
                 log.warn("[Pocket-TTS] 配置张量名 {} 不存在于模型（{}），改为按 dtype/shape 推断；如音质异常请核对 config.json tensor_names",
                         configured, configKey);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[Pocket-TTS] 张量名 {} 元数据读取异常，按 dtype/shape 推断: {}", configKey, e.getMessage());
                 // 忽略元数据异常，走推断
             }
         }

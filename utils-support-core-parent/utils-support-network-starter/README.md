@@ -1,10 +1,29 @@
 # utils-support-network-starter
 
-网络通信模块：Netty HTTP/TCP/UDP、Socket、WebSocket、ServerFilter 集合
+网络通信模块：Netty HTTP/TCP/UDP、Socket、WebSocket、ServerFilter 集合，以及无中心化集群门面 ClusterServer。
 
 ---
 
-## 快速开始
+## ClusterServer 集群门面
+
+ClusterServer 是一行代码启动无中心化集群节点的门面，基于 Scatter 对等网格自动发现、路由、故障退避。
+
+**快速示例：**
+```java
+try (ClusterServer server = ClusterServer.builder()
+        .scatterId("order")
+        .seeds("192.168.1.10:19001")
+        .addServer("/api", "192.168.1.20", 8080, "http")
+        .build()) {
+    server.start();
+}
+```
+
+**完整文档**：[docs/index.html](../../docs/index.html) → 集群服务器使用说明
+
+---
+
+## 功能概览
 
 ### 1. 添加依赖
 

@@ -225,9 +225,14 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
 
         String cacheKey = buildCacheKey(normalizedPath, scatterId, balance, protocol);
         long currentVersion = serviceVersion.get();
+        // 收集当前服务表中的 serverId，用于检测服务是否实际变化
+        Set<String> currentServices = services.stream()
+                .map(Discovery::getServerId)
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toCollection(java.util.HashSet::new));
         CachedLoadBalance cached = loadBalanceCache.get(cacheKey);
-        // 如果缓存存在且版本匹配，直接使用缓存的负载均衡器选择节点
-        if (cached != null && cached.isValid(currentVersion)) {
+        if (cached != null && cached.isValid(currentVersion, currentServices)) {
+            // 服务表未变，复用已有 LoadBalance 实例，保持 weight 衰减等状态
             Node selectNode = cached.loadBalance.selectNode();
             return selectNode == null ? null : selectNode.getValue(Discovery.class);
         }
@@ -256,8 +261,8 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
             node.setWeight(d.getWeight());
             balancer.addNode(node);
         }
-        // 创建新的负载均衡器并缓存，同时记录当前版本号
-        loadBalanceCache.put(cacheKey, new CachedLoadBalance(balancer, currentVersion));
+        // 以当前服务快照存入缓存，下次调用时若无变化则复用该 SPI 实例
+        loadBalanceCache.put(cacheKey, new CachedLoadBalance(balancer, currentVersion, currentServices));
         Node selectNode = balancer.selectNode();
         return selectNode == null ? null : selectNode.getValue(Discovery.class);
     }
@@ -382,25 +387,32 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     }
 
     /**
-     * 内部类：用于缓存负载均衡器及其关联的版本号。
-     * 当服务列表变更导致版本号更新时，旧的缓存将失效。
+     * 内部类：用于缓存负载均衡器及其关联的版本号和服务快照。
+     * 当服务列表发生变更时重建 LoadBalance SPI 实例；
+     * 服务表不变时复用已有实例，保持 weight 衰减等内部状态持久。
      */
     private static class CachedLoadBalance {
         final LoadBalance loadBalance;
         final long version;
+        /** 注册时绑定的服务 serverId 集合（用于检测服务表是否实际变化） */
+        final Set<String> serviceKeys;
 
-        CachedLoadBalance(LoadBalance loadBalance, long version) {
+        CachedLoadBalance(LoadBalance loadBalance, long version, Set<String> serviceKeys) {
             this.loadBalance = loadBalance;
             this.version = version;
+            this.serviceKeys = serviceKeys;
         }
 
         /**
          * 检查缓存是否有效。
+         * 满足以下任一条件即认为有效：版本号匹配，或服务快照相同（服务未增删）。
          * @param currentVersion 当前全局服务版本号
-         * @return true 表示缓存有效，false 表示缓存已过期
+         * @param currentServices 当前服务 serverId 集合
+         * @return true 表示缓存有效，false 表示需要重建负载均衡器
          */
-        boolean isValid(long currentVersion) {
-            return this.version == currentVersion;
+        boolean isValid(long currentVersion, Set<String> currentServices) {
+            return this.version == currentVersion
+                    || java.util.Objects.equals(this.serviceKeys, currentServices);
         }
     }
 }

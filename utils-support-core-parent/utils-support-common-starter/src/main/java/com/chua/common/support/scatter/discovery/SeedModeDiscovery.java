@@ -224,8 +224,34 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     public void registerSelf() {
         super.registerSelf();
         List<ScatterNode> seeds = resolveSeeds();
+        // 未配置 seed：自动将本节点注册为自身 seed（网关模式）
+        // 使用 port+2 作为 scatter 通信端口，确保其他节点可通过该端口连接
+        if (seeds.isEmpty()) {
+            String selfNodeId = setting.getNodeId();
+            // 使用 scatterPort（已由 DefaultScatter 填充为 nodeServer 实际端口）
+            // 若未设置则回退到 port+2
+            int scatterPort = setting.getScatterPort() > 0
+                    ? setting.getScatterPort()
+                    : (setting.getPort() > 0 ? setting.getPort() + 2 : setting.getPort());
+            String selfAddr = setting.effectiveHost() + ":" + scatterPort;
+            Discovery selfSeed = Discovery.builder()
+                    .id(selfNodeId)
+                    .serverId(selfNodeId)
+                    .scatterId(getGroupId())
+                    .protocol(setting.getProtocol())
+                    .host(setting.effectiveHost())
+                    .port(scatterPort)
+                    .timeout((int) setting.getTimeoutMillis())
+                    .weight(1.0)
+                    .uriSpec(setting.getServicePath())
+                    .metadata(java.util.Map.of(METADATA_SEED, "true"))
+                    .build();
+            updateService(setting.getServicePath(), selfSeed);
+            log.info("未配置 seed，本节点 {} 自动成为网关，scatter 端口={}", selfNodeId, scatterPort);
+            return;
+        }
         for (ScatterNode seed : seeds) {
-            Discovery d = Discovery.builder()
+            Discovery node = Discovery.builder()
                     .id(seed.getNodeId())
                     .serverId(seed.getNodeId())
                     .scatterId(getGroupId())
@@ -237,7 +263,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                     .uriSpec(setting.getServicePath())
                     .metadata(java.util.Map.of(METADATA_SEED, "true"))
                     .build();
-            updateService(setting.getServicePath(), d);
+            updateService(setting.getServicePath(), node);
         }
     }
 }

@@ -30,15 +30,19 @@ public class DefaultScatter implements Scatter {
         // ① 先启动 nodeServer，绑定端口（port=0 时由系统分配）
         nodeServer = builder.buildNodeServer(discovery);
         nodeServer.start();
-        setting.setPort(nodeServer.getPort());
+        // 记录 scatter 通信端口，不覆盖原始业务端口（保持 port 为业务端口）
+        setting.setScatterPort(nodeServer.getPort());
 
-        // ② 先注册自身，再启动 discovery（避免首轮定时任务在端口未确认前触发）
+        // ② 注册自身（使用正确的 scatter 通信端口作为 seed 地址）
         discovery.registerSelf();
         discovery.start();
+        // 等待第一轮 discoveryRound 完成，确保本节点信息已写入本地 hash 表，
+        // 其他节点连接时能立即查到本节点的服务条目
+        Thread.sleep(Math.min(setting.getAutoDiscoveryIntervalMillis(), 500L));
 
         log.info("Scatter 已启动: node={} protocol={} @ {}:{} mode={}",
                 setting.getNodeId(), setting.getProtocol(),
-                setting.effectiveHost(), setting.getPort(),
+                setting.effectiveHost(), setting.getScatterPort(),
                 setting.getSubnet() != null && !setting.getSubnet().isBlank() ? "route" : "seed");
     }
 
@@ -61,6 +65,6 @@ public class DefaultScatter implements Scatter {
 
     @Override
     public int getPort() {
-        return nodeServer != null ? nodeServer.getPort() : setting.getPort();
+        return nodeServer != null ? nodeServer.getPort() : setting.getScatterPort();
     }
 }

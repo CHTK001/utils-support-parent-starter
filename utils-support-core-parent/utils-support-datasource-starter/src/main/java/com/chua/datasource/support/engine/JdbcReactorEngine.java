@@ -7,6 +7,7 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.network.net.NetAddress;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
@@ -20,6 +21,8 @@ import reactor.core.publisher.Mono;
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 /**
  * JDBC 统一响应式引擎，根据数据源数量和类型自动选择执行路径。
@@ -86,11 +89,11 @@ public class JdbcReactorEngine implements ReactorEngine {
 
         // 检测是否为 R2DBC URL
         if (jdbcUrl.startsWith("r2dbc:")) {
-            r2dbcFactories.put(name, ConnectionFactories.get(jdbcUrl + buildParams(username, password)));
+            r2dbcFactories.put(name, buildConnectionFactory(jdbcUrl, username, password));
         } else {
-            // JDBC URL → 同时创建 R2DBC 工厂和 JDBC DataSource
-            String r2dbcUrl = jdbcUrl.replaceFirst("^jdbc:", "r2dbc:");
-            r2dbcFactories.put(name, ConnectionFactories.get(r2dbcUrl + buildParams(username, password)));
+            // JDBC URL → R2DBC URL 转换
+            String r2dbcUrl = convertJdbcToR2dbc(jdbcUrl);
+            r2dbcFactories.put(name, buildConnectionFactory(r2dbcUrl, username, password));
             jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
         }
 
@@ -116,8 +119,13 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @return this
      */
     public JdbcReactorEngine addDataSource(String name, String r2dbcUrl) {
-        r2dbcFactories.put(name, ConnectionFactories.get(r2dbcUrl));
-        dialects.put(name, detectR2dbcDialect(r2dbcUrl));
+        // 兼容传入 JDBC URL 的情况，自动转换为 R2DBC URL
+        String url = r2dbcUrl;
+        if (url != null && !url.startsWith("r2dbc:")) {
+            url = convertJdbcToR2dbc(url);
+        }
+        r2dbcFactories.put(name, buildConnectionFactory(url, null, null));
+        dialects.put(name, detectR2dbcDialect(url));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -166,6 +174,74 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
+     * 构建 R2DBC ConnectionFactory，正确处理用户名密码。
+     */
+    @SuppressWarnings("unchecked")
+    private static ConnectionFactory buildConnectionFactory(String url, String username, String password) {
+        ConnectionFactoryOptions parsed = ConnectionFactoryOptions.parse(url);
+        ConnectionFactoryOptions.Builder builder = ConnectionFactoryOptions.builder();
+
+        // 复制所有已解析的选项
+        Object val;
+        if ((val = parsed.getValue(DRIVER)) != null) builder.option(DRIVER, (String) val);
+        if ((val = parsed.getValue(HOST)) != null) builder.option(HOST, (String) val);
+        if ((val = parsed.getValue(PORT)) != null) builder.option(PORT, (Integer) val);
+        if ((val = parsed.getValue(DATABASE)) != null) builder.option(DATABASE, (String) val);
+        if ((val = parsed.getValue(PROTOCOL)) != null) builder.option(PROTOCOL, (String) val);
+        if ((val = parsed.getValue(SSL)) != null) builder.option(SSL, (Boolean) val);
+
+        // 特殊处理：H2 mem/file 模式，URL 解析会把 database 当成 host
+        // 例如 r2dbc:h2:mem://testdb → host=testdb, database=null
+        // 需要修正为 database=testdb, host=null
+        String driver = (String) parsed.getValue(DRIVER);
+        String protocol = (String) parsed.getValue(PROTOCOL);
+        if ("h2".equals(driver) && ("mem".equals(protocol) || "file".equals(protocol))) {
+            String host = (String) parsed.getValue(HOST);
+            String db = (String) parsed.getValue(DATABASE);
+            if (host != null && db == null) {
+                // 这是 H2 mem/file 模式，host 实际是 database 名
+                builder.option(DATABASE, host);
+                // 不设置 HOST（移除默认的 null 值）
+            }
+        }
+
+        if (username != null && !username.isEmpty()) {
+            builder.option(USER, username);
+        }
+        if (password != null && !password.isEmpty()) {
+            builder.option(PASSWORD, password);
+        }
+        return ConnectionFactories.get(builder.build());
+    }
+
+    /**
+     * 将 JDBC URL 转换为 R2DBC URL。
+     * <ul>
+     *   <li>jdbc:h2:mem:testdb → r2dbc:h2:mem://testdb</li>
+     *   <li>jdbc:h2:file:./testdb → r2dbc:h2:file:///./testdb</li>
+     *   <li>jdbc:mysql://host:3306/db → r2dbc:mysql://host:3306/db</li>
+     * </ul>
+     */
+    private static String convertJdbcToR2dbc(String jdbcUrl) {
+        if (jdbcUrl == null) {
+            throw new IllegalArgumentException("JDBC URL cannot be null");
+        }
+        String r2dbcUrl = jdbcUrl.replaceFirst("^jdbc:", "r2dbc:");
+        // H2 内存/文件模式: jdbc:h2:mem:testdb → r2dbc:h2:mem://testdb
+        int h2Idx = r2dbcUrl.indexOf("r2dbc:h2:");
+        if (h2Idx >= 0) {
+            String suffix = r2dbcUrl.substring(h2Idx + "r2dbc:h2:".length());
+            int colonIdx = suffix.indexOf(':');
+            if (colonIdx >= 0) {
+                String protocol = suffix.substring(0, colonIdx); // "mem" or "file"
+                String database = suffix.substring(colonIdx + 1);
+                return "r2dbc:h2:" + protocol + "://" + database;
+            }
+        }
+        return r2dbcUrl;
+    }
+
+    /**
      * 根据 JDBC URL 检测方言。
      */
     private Dialect detectDialect(String jdbcUrl) {
@@ -182,6 +258,28 @@ public class JdbcReactorEngine implements ReactorEngine {
         } else if (lower.startsWith("jdbc:sqlserver:") || lower.startsWith("jdbc:mssql:")) {
             return new com.chua.datasource.support.dialect.SqlServerDialect();
         } else if (lower.startsWith("jdbc:oracle:")) {
+            return new com.chua.datasource.support.dialect.Oracle12cDialect();
+        }
+        return null;
+    }
+
+    /**
+     * 根据 R2DBC URL 检测方言。
+     */
+    private Dialect detectR2dbcDialect(String r2dbcUrl) {
+        if (r2dbcUrl == null) {
+            return null;
+        }
+        String lower = r2dbcUrl.toLowerCase();
+        if (lower.startsWith("r2dbc:mysql:") || lower.startsWith("r2dbc:mariadb:")) {
+            return new com.chua.datasource.support.dialect.MysqlDialect();
+        } else if (lower.startsWith("r2dbc:postgresql:")) {
+            return new com.chua.datasource.support.dialect.PostgresqlDialect();
+        } else if (lower.startsWith("r2dbc:h2:")) {
+            return new com.chua.datasource.support.dialect.H2Dialect();
+        } else if (lower.startsWith("r2dbc:sqlserver:") || lower.startsWith("r2dbc:mssql:")) {
+            return new com.chua.datasource.support.dialect.SqlServerDialect();
+        } else if (lower.startsWith("r2dbc:oracle:")) {
             return new com.chua.datasource.support.dialect.Oracle12cDialect();
         }
         return null;
@@ -364,12 +462,12 @@ public class JdbcReactorEngine implements ReactorEngine {
                     Statement stmt = conn.createStatement(sql);
                     bindParams(stmt, params);
                     return Flux.from(stmt.execute())
-                            .flatMap(Result::getRowsUpdated)
-                            .reduce(0L, Long::sum);
+                            .flatMap(result -> Flux.from(result.getRowsUpdated()))
+                            .reduce(0L, Long::sum)
+                            .map(l -> l.intValue())
+                            .defaultIfEmpty(0);
                 },
-                conn -> Mono.empty())
-                .map(Long::intValue)
-                .switchIfEmpty(Mono.just(0));
+                conn -> Mono.empty());
     }
 
     private Flux<Integer> batchViaR2dbc(String name, String sql, List<Object[]> batchParams) {
@@ -390,9 +488,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                                     .flatMap(Result::getRowsUpdated)
                                     .reduce(0L, Long::sum);
                         })
-                        .map(Long::intValue),
+                        .collectList()
+                        .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
                 conn -> Mono.empty())
-                .next()
                 .flatMapMany(Flux::just);
     }
 

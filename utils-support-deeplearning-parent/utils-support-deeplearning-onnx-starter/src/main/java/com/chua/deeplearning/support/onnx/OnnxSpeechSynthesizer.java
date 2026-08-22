@@ -1,11 +1,12 @@
 package com.chua.deeplearning.support.onnx;
 
+import com.chua.common.support.ai.audio.TextToAudioClient;
 import com.chua.deeplearning.support.speech.SpeechSynthesizer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * ONNX 本地语音合成器实现。
- * <p>调度 {@link OnnxTextToAudioClient} 完成实际合成，
+ * <p>调度 {@link TextToAudioClient} 完成实际合成，
  * 支持 mms-tts-eng / pocket-tts / vits-icefall-zh 三个模型。</p>
  *
  * @author CH
@@ -14,24 +15,29 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
 
-    /** 默认模型 */
+    /** 默认模型名称 */
     private static final String DEFAULT_MODEL = "mms-tts-eng";
 
     /** 模型名称 */
     private String modelName;
-    /** 语言 */
+
+    /** 合成语言 */
     private String lang = "zh";
+
     /** 模型路径 */
     private String modelPath;
-    /** 语速 */
+
+    /** 语速倍率 */
     private float speed = 1.0f;
-    /** 音调 */
+
+    /** 音调倍率 */
     private float pitch = 1.0f;
-    /** 设备类型 */
+
+    /** 运行设备 */
     private String device = "cpu";
 
     /**
-     * 创建 OnnxSpeechSynthesizer 实例
+     * 创建 OnnxSpeechSynthesizer 实例。
      *
      * @param apiKey API 密钥（本地引擎可留空）
      */
@@ -80,8 +86,7 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
 
     @Override
     public byte[] synthesize(String text) {
-        com.chua.common.support.ai.audio.TextToAudioClient client =
-                com.chua.common.support.ai.audio.TextToAudioClient.create("onnx", "");
+        TextToAudioClient client = TextToAudioClient.create("onnx", "");
         try {
             client.model(resolveModel());
             if (!lang.isEmpty()) {
@@ -92,9 +97,6 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
             }
             if (pitch != 1.0f) {
                 client.temperature((double) pitch);
-            }
-            if (modelPath != null && !modelPath.isBlank()) {
-                // modelPath 通过 setting 传入时由 OnnxTextToAudioClient 处理
             }
             return client.synthesize(text);
         } finally {
