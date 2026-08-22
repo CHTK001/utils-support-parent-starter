@@ -23,7 +23,7 @@ class PocketTtsVoiceCloneTest {
 
     private static final String TEST_TEXT = "This is a voice cloning test.";
     private static final String CLONE_TEXT = "Hello, can you hear me?";
-    private static final long MIN_HEAP_FREE_BYTES = 512L * 1024 * 1024;
+    private static final long MIN_HEAP_FREE_BYTES = 256L * 1024 * 1024; // 256MB
     private static final MemoryMXBean MEMORY_BEAN = ManagementFactory.getMemoryMXBean();
 
     private boolean hasEnoughMemory() {

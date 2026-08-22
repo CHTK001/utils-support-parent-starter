@@ -1,8 +1,11 @@
 package com.chua.common.support.bean;
 
 import com.chua.common.support.lang.bean.BeanCopier;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.bean.JdkBeanCopier;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -307,7 +310,7 @@ public class AsmBeanCopier implements BeanCopier {
                 Thread.currentThread().getContextClassLoader());
         Class<?> copierClass = loader.defineClass(
                 generatedName.replace('/', '.'), classBytes);
-        return (BeanCopier) copierClass.getDeclaredConstructor().newInstance();
+        return (BeanCopier) ReflectUtils.instantiate(copierClass);
     }
 
     /**

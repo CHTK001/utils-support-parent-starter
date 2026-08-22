@@ -1,5 +1,6 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
@@ -639,10 +640,7 @@ public class RuntimeSpy {
             return;
         }
         try {
-            Class<?> mdcClass = Class.forName("org.slf4j.MDC");
-            mdcClass.getMethod("put", String.class, String.class).invoke(null, key, value);
-        } catch (ClassNotFoundException e) {
-            // slf4j 不在 classpath，静默跳过
+            ReflectUtils.invokeStatic("org.slf4j.MDC", "put", void.class, key, value);
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("MDC.put 失败 (%s=%s): %s", key, value, e.getMessage()));
         }
@@ -655,13 +653,10 @@ public class RuntimeSpy {
      */
     public static void clearMdc() {
         try {
-            Class<?> mdcClass = Class.forName("org.slf4j.MDC");
-            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_TRACE_ID);
-            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_SPAN_ID);
-            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_CLASS_NAME);
-            mdcClass.getMethod("remove", String.class).invoke(null, MDC_KEY_METHOD_NAME);
-        } catch (ClassNotFoundException e) {
-            // 静默跳过
+            ReflectUtils.invokeStatic("org.slf4j.MDC", "remove", void.class, MDC_KEY_TRACE_ID);
+            ReflectUtils.invokeStatic("org.slf4j.MDC", "remove", void.class, MDC_KEY_SPAN_ID);
+            ReflectUtils.invokeStatic("org.slf4j.MDC", "remove", void.class, MDC_KEY_CLASS_NAME);
+            ReflectUtils.invokeStatic("org.slf4j.MDC", "remove", void.class, MDC_KEY_METHOD_NAME);
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("MDC.remove 失败: %s", e.getMessage()));
         }
@@ -796,12 +791,9 @@ public class RuntimeSpy {
             return null;
         }
         TraceContextSnapshot snapshot = capture();
-        java.lang.reflect.Field targetField;
         try {
-            targetField = Thread.class.getDeclaredField("target");
-            targetField.setAccessible(true);
-            Runnable originalTarget = (Runnable) targetField.get(thread);
-            targetField.set(thread, (Runnable) () -> {
+            Runnable originalTarget = (Runnable) ReflectUtils.getField(thread, "target");
+            ReflectUtils.setField(thread, "target", (Runnable) () -> {
                 restore(snapshot);
                 try {
                     if (originalTarget != null) {

@@ -1,5 +1,6 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -117,10 +118,7 @@ public final class W3CTraceContext {
      */
     private static String readCurrentTraceId() {
         try {
-            Class<?> cls = Class.forName("com.chua.runtime.spy.RuntimeSpy");
-            return (String) cls.getMethod("getCurrentTraceId").invoke(null);
-        } catch (ClassNotFoundException e) {
-            return null;
+            return (String) ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "getCurrentTraceId", String.class);
         } catch (Exception e) {
             return null;
         }
@@ -131,10 +129,7 @@ public final class W3CTraceContext {
      */
     private static String readCurrentSpanId() {
         try {
-            Class<?> cls = Class.forName("com.chua.runtime.spy.RuntimeSpy");
-            return (String) cls.getMethod("getCurrentSpanId").invoke(null);
-        } catch (ClassNotFoundException e) {
-            return null;
+            return (String) ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "getCurrentSpanId", String.class);
         } catch (Exception e) {
             return null;
         }
@@ -145,18 +140,13 @@ public final class W3CTraceContext {
      */
     private static boolean restoreCurrent(String traceId, String spanId) {
         try {
-            Class<?> cls = Class.forName("com.chua.runtime.spy.RuntimeSpy");
-            Class<?> snapshotCls = Class.forName("com.chua.runtime.spy.RuntimeSpy$TraceContextSnapshot");
-            Class<?> frameCls = Class.forName("com.chua.runtime.spy.RuntimeSpy$TraceStackFrame");
-            Object frame = frameCls.getDeclaredConstructor(String.class, String.class)
-                    .newInstance(traceId, spanId);
+            Class<?> snapshotCls = ReflectUtils.forName("com.chua.runtime.spy.RuntimeSpy$TraceContextSnapshot");
+            Class<?> frameCls = ReflectUtils.forName("com.chua.runtime.spy.RuntimeSpy$TraceStackFrame");
+            Object frame = ReflectUtils.instantiate(frameCls, traceId, spanId);
             Object list = java.util.List.of(frame);
-            Object snapshot = snapshotCls.getDeclaredConstructor(String.class, java.util.List.class)
-                    .newInstance(traceId, list);
-            cls.getMethod("restore", snapshotCls).invoke(null, snapshot);
+            Object snapshot = ReflectUtils.instantiate(snapshotCls, traceId, list);
+            ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "restore", void.class, snapshotCls, snapshot);
             return true;
-        } catch (ClassNotFoundException e) {
-            return false;
         } catch (Exception e) {
             return false;
         }

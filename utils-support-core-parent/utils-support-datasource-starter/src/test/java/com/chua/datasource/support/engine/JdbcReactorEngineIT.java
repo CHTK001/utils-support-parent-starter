@@ -24,14 +24,14 @@ class JdbcReactorEngineIT {
 
     @BeforeEach
     void mysql_cleanup() {
-        // 共享 MySQL 数据库的 IT 测试需要清理上一次运行遗留的表
-        try {
-            JdbcReactorEngine engine = new JdbcReactorEngine();
-            engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
-            engine.execute("DROP TABLE IF EXISTS jte_r2dbc_test").block();
-            engine.execute("DROP TABLE IF EXISTS jte_upd_del").block();
-            engine.execute("DROP TABLE IF EXISTS jte_batch").block();
-            engine.execute("DROP TABLE IF EXISTS jte_params").block();
+        /* 共享 MySQL 数据库的 IT 测试需要在每个测试前清理遗留表，使用直连 JDBC 避免 R2DBC ClassCastException */
+        String url = MYSQL_URL + "&user=" + MYSQL_USER + "&password=" + MYSQL_PASSWORD;
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(url);
+             java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS jte_r2dbc_test");
+            stmt.execute("DROP TABLE IF EXISTS jte_upd_del");
+            stmt.execute("DROP TABLE IF EXISTS jte_batch");
+            stmt.execute("DROP TABLE IF EXISTS jte_params");
         } catch (Exception ignored) { /* MySQL 不可达时跳过 */ }
     }
 

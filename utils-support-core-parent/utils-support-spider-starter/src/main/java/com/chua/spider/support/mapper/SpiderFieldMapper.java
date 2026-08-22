@@ -1,12 +1,19 @@
 package com.chua.spider.support.mapper;
 
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.annotation.SpiderAi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.annotation.SpiderField;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.model.SpiderResult;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -70,7 +77,7 @@ public class SpiderFieldMapper {
     @SuppressWarnings("unchecked")
     public <T> T map(SpiderResult result, Class<T> clazz) {
         try {
-            T instance = clazz.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(clazz);
             Map<String, String> aiFields = new LinkedHashMap<>();
 
             for (Field field : clazz.getDeclaredFields()) {

@@ -935,8 +935,8 @@ a { color: var(--accent); }
 <td>pp-word-rotate</td>
 <td>嵌入式</td>
 <td>~0.6MB</td>
+<td>~192ms</td>
 <td>✅ 通过</td>
-<td>文字方向检测（PP-OCR cls，0°/180°，ORT原生+OpenCV，paddle→ONNX 嵌入式）</td>
 </tr>
 <tr>
 <td>pp-doc-layout</td>
@@ -991,8 +991,8 @@ a { color: var(--accent); }
 <td>doc-orientation</td>
 <td>嵌入式</td>
 <td>~6.7MB</td>
+<td>~180ms</td>
 <td>✅ 通过</td>
-<td>文档方向矫正（PP-LCNet_x1_0_doc_ori，4 类：0°/90°/180°/270°；旋转车票 90°/180°/270° 全部正确矫正并识别）</td>
 </tr>
 </tbody>
 </table>
@@ -1077,15 +1077,15 @@ a { color: var(--accent); }
 <td>insightface-scrfd</td>
 <td>嵌入式</td>
 <td>17MB</td>
-<td>-</td>
+<td>~1381ms</td>
 <td>✅ 通过</td>
 </tr>
 <tr>
 <td>anime-face-detector</td>
 <td>嵌入式</td>
 <td>11.5MB</td>
+<td>~374ms</td>
 <td>✅ 通过</td>
-<td>动漫人脸检测（YOLOv8 v1.4_n，deepghs/anime_face_detection，内嵌 jar <code>utils-support-models-onnx-anime-face</code>）。<strong>实测</strong>：动漫图检测 12 张人脸（conf 0.30~0.72）。重写为纯 Java 预处理（onnxruntime 不支持 NDArray letterbox/resize/NMS）</td>
 </tr>
 <tr>
 <td>anime-face-yolov8</td>
@@ -1394,8 +1394,8 @@ a { color: var(--accent); }
 <td>efficient-net-lite4-classification</td>
 <td>嵌入式</td>
 <td>1000</td>
+<td>~584ms</td>
 <td>✅ 通过</td>
-<td>EfficientNet-Lite4（DJL+OpenCV实测）</td>
 </tr>
 <tr>
 <td>efficientnet-b1-classification</td>

@@ -1,6 +1,7 @@
 package com.chua.redis.support.engine;
 
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -218,7 +219,7 @@ public class RedisEngine {
      */
     protected <T> T mapToEntity(Map<String, String> hash, Class<T> entityClass) {
         try {
-            T instance = entityClass.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(entityClass);
             for (Map.Entry<String, String> entry : hash.entrySet()) {
                 String propName = toCamelCase(entry.getKey());
                 String setterName = "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);

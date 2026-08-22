@@ -1,6 +1,9 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.apm.ApmBootstrap;
+
+import java.util.ArrayList;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -13,7 +16,6 @@ import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -311,19 +313,14 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         try {
             // Jedis -> BinaryJedis -> client (Connection)
-            Field clientField = findFieldChain(jedis.getClass(), "client", "connection");
-            if (clientField != null) {
-                clientField.setAccessible(true);
-                Object connection = clientField.get(jedis);
-                if (connection != null) {
-                    Field hostField = findFieldChain(connection.getClass(), "host");
-                    if (hostField != null) {
-                        hostField.setAccessible(true);
-                        Object host = hostField.get(connection);
-                        if (host != null) {
-                            return host.toString();
-                        }
-                    }
+            Object connection = ReflectUtils.getField(jedis, "client");
+            if (connection == null) {
+                connection = ReflectUtils.getField(jedis, "connection");
+            }
+            if (connection != null) {
+                Object host = ReflectUtils.getField(connection, "host");
+                if (host != null) {
+                    return host.toString();
                 }
             }
         } catch (Exception ignore) {
@@ -337,19 +334,14 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
             return 6379;
         }
         try {
-            Field clientField = findFieldChain(jedis.getClass(), "client", "connection");
-            if (clientField != null) {
-                clientField.setAccessible(true);
-                Object connection = clientField.get(jedis);
-                if (connection != null) {
-                    Field portField = findFieldChain(connection.getClass(), "port");
-                    if (portField != null) {
-                        portField.setAccessible(true);
-                        Object port = portField.get(connection);
-                        if (port instanceof Number) {
-                            return ((Number) port).intValue();
-                        }
-                    }
+            Object connection = ReflectUtils.getField(jedis, "client");
+            if (connection == null) {
+                connection = ReflectUtils.getField(jedis, "connection");
+            }
+            if (connection != null) {
+                Object port = ReflectUtils.getField(connection, "port");
+                if (port instanceof Number) {
+                    return ((Number) port).intValue();
                 }
             }
         } catch (Exception ignore) {
@@ -358,19 +350,17 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 在继承链中寻找名为 name 的字段。
+     * 在继承链中寻找名为 name 的字段，返回字段值。
      */
-    private static Field findFieldChain(Class<?> clazz, String... names) {
-        Class<?> c = clazz;
-        while (c != null) {
-            for (String name : names) {
-                try {
-                    return c.getDeclaredField(name);
-                } catch (NoSuchFieldException ignore) {
-                    // 继续在当前类或父类中找下一个 name
-                }
+    private static Object findFieldChainValue(Object target, String... names) {
+        if (target == null || names == null) {
+            return null;
+        }
+        for (String name : names) {
+            Object v = ReflectUtils.getField(target, name);
+            if (v != null) {
+                return v;
             }
-            c = c.getSuperclass();
         }
         return null;
     }

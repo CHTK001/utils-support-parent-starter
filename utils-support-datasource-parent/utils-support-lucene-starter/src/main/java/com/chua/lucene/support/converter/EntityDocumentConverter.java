@@ -1,11 +1,8 @@
 package com.chua.lucene.support.converter;
 
 import com.chua.lucene.support.engine.LuceneFields;
+import com.chua.common.support.reflection.ReflectUtils;
 import org.apache.lucene.document.*;
-import org.apache.lucene.index.IndexableField;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,13 +36,7 @@ public final class EntityDocumentConverter {
         if (entity == null || fieldName == null) {
             return null;
         }
-        try {
-            Field field = entity.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.get(entity);
-        } catch (Exception e) {
-            return null;
-        }
+        return ReflectUtils.getField(entity, fieldName);
     }
 
     /**
@@ -67,18 +58,12 @@ public final class EntityDocumentConverter {
         doc.add(new StringField(LuceneFields.ID, idStr, org.apache.lucene.document.Field.Store.YES));
 
         while (cls != null && cls != Object.class) {
-            for (Field field : cls.getDeclaredFields()) {
-                field.setAccessible(true);
+            for (java.lang.reflect.Field field : cls.getDeclaredFields()) {
                 String fieldName = field.getName();
                 if (LuceneFields.ID.equals(fieldName)) {
                     continue;
                 }
-                Object value = null;
-                try {
-                    value = field.get(entity);
-                } catch (IllegalAccessException e) {
-                    continue;
-                }
+                Object value = ReflectUtils.getField(entity, fieldName);
                 if (value != null) {
                     addField(doc, fieldName, value);
                 }
@@ -102,7 +87,7 @@ public final class EntityDocumentConverter {
             return null;
         }
         try {
-            T entity = entityClass.getDeclaredConstructor().newInstance();
+            T entity = ReflectUtils.instantiate(entityClass);
             for (Field field : entityClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 String fieldName = field.getName();

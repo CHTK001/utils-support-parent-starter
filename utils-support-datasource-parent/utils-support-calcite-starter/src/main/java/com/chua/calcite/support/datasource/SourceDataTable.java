@@ -1,9 +1,13 @@
 package com.chua.calcite.support.datasource;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.datasource.MutableDataTable;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.engine.AbstractEngine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.engine.FileEngine;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -176,7 +180,7 @@ public class SourceDataTable extends MutableDataTable {
     /** MapToEntity */
     private Object mapToEntity(Map<String, Object> row) {
         try {
-            Object instance = entityClass.getDeclaredConstructor().newInstance();
+            Object instance = ReflectUtils.instantiate(entityClass);
             List<String> cols = getColumnNames();
             for (int i = 0; i < cols.size() && i < setters.size(); i++) {
                 Method setter = setters.get(i);

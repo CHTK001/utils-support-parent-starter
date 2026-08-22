@@ -2,6 +2,7 @@ package com.chua.runtime.support.javaagent;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.support.RuntimeManager;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,20 +70,12 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         log.info("[runtime-javaagent] 检查 JVM[{}] 的运行时信息", pid);
 
         try {
-            Class<?> vmClass = Class.forName("com.sun.tools.attach.VirtualMachine");
-            Object vm = vmClass.getMethod("attach", String.class).invoke(null, String.valueOf(pid));
-
-            // 获取类路径
-            String classPath = (String) vmClass.getMethod("getClassPath").invoke(vm);
-
-            // 获取系统属性
-            String systemProps = (String) vmClass.getMethod("getSystemProperties").invoke(vm);
-
-            // 获取主类名
+            Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
+            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, String.class, String.valueOf(pid));
+            String classPath = (String) ReflectUtils.invoke(vm, "getClassPath", String.class);
+            String systemProps = (String) ReflectUtils.invoke(vm, "getSystemProperties", String.class);
             String mainClass = getMainClassName(pid);
-
-            // 分离
-            vmClass.getMethod("detach").invoke(vm);
+            ReflectUtils.invoke(vm, "detach", void.class);
 
             String result = String.format("PID: %d%n主类: %s%n类路径: %s%n系统属性: %s",
                     pid, mainClass, classPath, systemProps);

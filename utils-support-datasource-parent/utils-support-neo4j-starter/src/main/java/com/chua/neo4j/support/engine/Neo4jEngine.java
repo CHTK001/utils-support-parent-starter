@@ -1,16 +1,27 @@
 package com.chua.neo4j.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
@@ -20,6 +31,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -855,7 +867,7 @@ public class Neo4jEngine implements Engine {
     /** MapToEntity */
     private <T> T mapToEntity(Map<String, Object> props, Class<T> entityClass) {
         try {
-            T instance = entityClass.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(entityClass);
             for (Map.Entry<String, Object> entry : props.entrySet()) {
                 String setter = "set"
                         + Character.toUpperCase(entry.getKey().charAt(0))

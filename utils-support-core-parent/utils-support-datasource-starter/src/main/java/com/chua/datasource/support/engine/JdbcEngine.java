@@ -1,14 +1,23 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.TriggerDefinition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -76,7 +85,7 @@ public abstract class JdbcEngine extends AbstractEngine {
                 int columnCount = metaData.getColumnCount();
 
                 while (rs.next()) {
-                    T instance = clazz.getDeclaredConstructor().newInstance();
+                    T instance = ReflectUtils.instantiate(clazz);
                     for (int i = 1; i <= columnCount; i++) {
                         String columnName = metaData.getColumnLabel(i);
                         if (columnName == null || columnName.isEmpty()) {

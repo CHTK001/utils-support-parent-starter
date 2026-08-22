@@ -1,13 +1,21 @@
 package com.chua.common.support.utils;
 
 import com.chua.common.support.annotation.FieldProperty;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.converter.FieldConverter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.converter.FieldMappingContext;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.exception.BeanNotInstantiationException;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.bean.BeanCopier;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -290,7 +298,7 @@ public final class BeanUtils {
             return null;
         }
         try {
-            FieldConverter converter = converterClass.getDeclaredConstructor().newInstance();
+            FieldConverter converter = ReflectUtils.instantiate(converterClass);
             return converter.convert(rawValue, ctx);
         } catch (Exception e) {
             // 转换器失败，回退到默认处理

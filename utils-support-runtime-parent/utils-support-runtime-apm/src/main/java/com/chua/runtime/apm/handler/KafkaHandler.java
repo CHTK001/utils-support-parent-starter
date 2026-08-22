@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
@@ -13,7 +14,6 @@ import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -320,17 +320,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
             return "kafka-broker";
         }
         try {
-            // KafkaProducer 字段：metadata -> metadataResponse
-            // 简化：返回第一个发现的 broker 字段
-            Field[] fields = client.getClass().getDeclaredFields();
-            for (Field f : fields) {
-                if (f.getName().toLowerCase().contains("broker")) {
-                    f.setAccessible(true);
-                    Object v = f.get(client);
-                    if (v != null) {
-                        return v.toString();
-                    }
-                }
+            Object v = ReflectUtils.findFieldBySubstring(client, "broker");
+            if (v != null) {
+                return v.toString();
             }
         } catch (Exception ignore) {
         }

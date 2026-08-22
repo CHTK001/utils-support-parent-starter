@@ -2,6 +2,7 @@ package com.chua.common.support.objects.inject.impl;
 
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.inject.BeanDefinitionMethodInjector;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +127,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
             String name = ann.annotationType().getName();
             if (NAMED_JAVAX.equals(name) || NAMED_JAKARTA.equals(name)) {
                 try {
-                    Object val = ann.annotationType().getMethod("value").invoke(ann);
+                    Object val = ReflectUtils.invoke(ann, "value", Object.class);
                     if (val instanceof String s && !s.isEmpty()) {
                         return s;
                     }

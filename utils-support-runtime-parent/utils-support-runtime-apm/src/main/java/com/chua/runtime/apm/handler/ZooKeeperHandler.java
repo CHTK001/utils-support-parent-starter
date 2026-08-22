@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.plugin.InterceptPoint;
@@ -14,7 +15,6 @@ import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.spy.InterceptContext;
 import com.chua.runtime.spy.RuntimeSpy;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -324,31 +324,14 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
             return "?";
         }
         try {
-            Field f = findField(zk.getClass(), "chrootPath");
-            if (f != null) {
-                f.setAccessible(true);
-                Object v = f.get(zk);
-                if (StringUtils.isNotEmpty(v.toString())) {
-                    return v.toString();
-                }
+            Object v = ReflectUtils.getField(zk, "chrootPath");
+            if (v != null && StringUtils.isNotEmpty(v.toString())) {
+                return v.toString();
             }
         } catch (Exception ignore) {
             // 反射失败
         }
         return "zk-cluster";
-    }
-
-    /** 查找Field */
-    private static Field findField(Class<?> clazz, String name) {
-        Class<?> c = clazz;
-        while (c != null) {
-            try {
-                return c.getDeclaredField(name);
-            } catch (NoSuchFieldException e) {
-                c = c.getSuperclass();
-            }
-        }
-        return null;
     }
 
     /** DeriveOperation */

@@ -1,7 +1,9 @@
 package com.chua.common.support.datasearch.network.jsoup;
 
 import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -90,7 +92,7 @@ public class JsoupResponse {
     private <T> T createResult(Class<T> targetClass, Map<String, Object> item) {
         T result;
         try {
-            result = targetClass.getDeclaredConstructor().newInstance();
+            result = ReflectUtils.instantiate(targetClass);
         } catch (Exception e) {
             throw new RuntimeException("创建实例失败: " + targetClass.getName(), e);
         }

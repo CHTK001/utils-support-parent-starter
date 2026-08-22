@@ -61,11 +61,11 @@ public class MordantHelper {
             if (osName.contains("win")) {
                 Class<?> cls = Class.forName(
                         "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaWindows");
-                return (TerminalInterface) cls.getDeclaredConstructor().newInstance();
+                return (TerminalInterface) ReflectUtils.instantiate(cls);
             }
             Class<?> cls = Class.forName(
                     "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaLinux");
-            return (TerminalInterface) cls.getDeclaredConstructor().newInstance();
+            return (TerminalInterface) ReflectUtils.instantiate(cls);
         } catch (Exception e) {
             return null;
         }

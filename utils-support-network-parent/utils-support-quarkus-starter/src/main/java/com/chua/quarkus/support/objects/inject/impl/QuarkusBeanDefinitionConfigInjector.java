@@ -1,6 +1,7 @@
 package com.chua.quarkus.support.objects.inject.impl;
 
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.environment.Environment;
 import com.chua.common.support.objects.inject.BeanDefinitionConfigInjector;
@@ -115,8 +116,8 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     /** 解析Value */
     private Object resolveValue(Annotation annotation, Class<?> targetType, Environment environment) {
         try {
-            String name = (String) annotation.annotationType().getMethod("name").invoke(annotation);
-            String defaultValue = (String) annotation.annotationType().getMethod("defaultValue").invoke(annotation);
+            String name = (String) ReflectUtils.invoke(annotation, "name", String.class);
+            String defaultValue = (String) ReflectUtils.invoke(annotation, "defaultValue", String.class);
 
             Object value = null;
             if (name != null && !name.isEmpty()) {
