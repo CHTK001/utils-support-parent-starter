@@ -84,6 +84,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     private static final String DDL_TRUNCATE = "TRUNCATE ";
     /** 匹配 jdbc: 前缀的正则（预编译） */
     private static final Pattern JDBC_PREFIX_PATTERN = Pattern.compile("^jdbc:");
+    /** r2dbc-mssql 的 SimpleMssqlStatement 不支持参数绑定，SQL Server 统一走 JDBC 路径 */
+    private static final String JDBC_PREFIX_SQLSERVER = "jdbc:sqlserver:";
 
     /** 默认数据源名称，首次 addDataSource 时自动设置 */
     private String defaultDataSourceName;
@@ -529,10 +531,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        /* DDL（CREATE/DROP/ALTER）：若配置了 JDBC 数据源则走 JDBC 路径，
-         * asyncer r2dbc-mysql 的 getRowsUpdated() 在连接建立阶段可能触发
-         * 内部 MonoReduce ClassCastException，直接走 JDBC 更可靠。 */
-        if (isDdl(sql)) {
+        /* DDL（CREATE/DROP/ALTER）或 SQL Server（r2dbc-mssql 有已知 bug）：若配置了 JDBC 数据源则走 JDBC 路径 */
+        if (isDdl(sql) || jdbcUrls.get(name) != null && jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)) {
             DataSource ds = jdbcDataSources.get(name);
             if (ds != null) {
                 return executeViaJdbc(ds, sql, params);

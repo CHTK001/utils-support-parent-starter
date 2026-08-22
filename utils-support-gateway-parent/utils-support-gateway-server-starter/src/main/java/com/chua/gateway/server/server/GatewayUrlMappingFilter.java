@@ -78,6 +78,7 @@ public final class GatewayUrlMappingFilter extends UrlMappingServerFilter {
     /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         log.info("[gateway-debug] doFilter: path=[{}] method=[{}]", request.getPath(), request.getMethod());
+        log.info("[gateway-debug] doFilter: path=[{}] method=[{}]", request.getPath(), request.getMethod());
         String path = request.getPath();
         HttpMethod method = request.getMethod();
         Map<HttpMethod, java.util.function.BiConsumer<ServerRequest, ServerResponse>> map = routes.get(path);
@@ -94,6 +95,7 @@ public final class GatewayUrlMappingFilter extends UrlMappingServerFilter {
                 }
             }
         }
+        log.info("[gateway-debug] NO MATCH path=[{}] method=[{}]", path, method);
         log.info("[gateway-debug] NO MATCH path=[{}] method=[{}]", path, method);
         // 未匹配 → 调用 chain 走其他 filter（如没有则 404）
         chain.doFilter(request, response);
