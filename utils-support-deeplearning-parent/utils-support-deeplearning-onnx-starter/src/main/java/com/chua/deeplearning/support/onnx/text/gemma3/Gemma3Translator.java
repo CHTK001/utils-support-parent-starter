@@ -262,7 +262,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         // uint8 量化模型：必须保留默认图优化（ALL_OPT）。
         // NO_OPT 下量化 MatMul 走降级内核，需物化 ~671MB 反量化权重（262144×640 fp32）→ bad allocation，
-        // 且输出 token 与优化路径不一致；ALL_OPT 使用优化内核，避免大块内存分配。
+        // 且输出 token 与优化路径不一致；ALL_OPT 使用优化内核。
+        // 同时关闭 BFCArena：lm_head 量化 MatMul 的 ~135MB 临时缓冲在 BFC arena 下分配失败。
+        opts.setCPUArenaAllocator(false);
         if (useGpu) {
             opts.addCUDA();
         }
