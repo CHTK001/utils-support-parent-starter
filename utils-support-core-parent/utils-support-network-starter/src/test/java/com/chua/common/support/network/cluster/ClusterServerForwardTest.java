@@ -34,7 +34,7 @@ public class ClusterServerForwardTest {
     void setUp() throws Exception {
         ScatterSyncHelper.resetForTest();
 
-        // ── ① 启动 node-B 的纯 HTTP 后端 ─────────────────────────────
+        // ── ① 启动 node-B 的纯 HTTP 后端，监听 /api/hello（与注册的服务路径对齐）
         backendB = HttpServer.create(new InetSocketAddress(0), 0);
         backendB.createContext("/api/hello", exchange -> {
             byte[] body = "Hello from node-B".getBytes(StandardCharsets.UTF_8);
@@ -48,7 +48,7 @@ public class ClusterServerForwardTest {
         backendB.start();
         backendBPort = backendB.getAddress().getPort();
 
-        // ── ② 启动 node-B（seed 网关） ───────────────────────────────
+        // ── ② 启动 node-B（seed 网关）—— 只作为 scatter seed，不注册后端服务
         nodeB = ClusterServer.builder()
                 .nodeId("node-b").host("127.0.0.1").port(0)
                 .scatterId("forward-test")
@@ -57,11 +57,14 @@ public class ClusterServerForwardTest {
                 .build();
         nodeB.start();
 
-        // ── ③ 启动 node-A，注册后端服务到集群视图 ───────────────────
+        // ── ③ 启动 node-A：注册后端服务到集群
+        //    addServer("/api", ...) 使 backendB 以 servicePath=/api 注册进 scatter
+        //    请求 /api/hello → ServiceDiscoveryServerFilter 匹配 /api/** → 路由到 /api
+        //    → ReverseProxyServerFilter 转发到 127.0.0.1:backendBPort/api/hello
         nodeA = ClusterServer.builder()
                 .nodeId("node-a").host("127.0.0.1").port(0)
                 .scatterId("forward-test")
-                .seeds("127.0.0.1:" + nodeB.getHttpPort())   // seed = node-B 的 HTTP 端口
+                .seeds("127.0.0.1:" + nodeB.getHttpPort())
                 .servicePaths(java.util.List.of("/api"))
                 .timeoutMillis(3000)
                 .addServer("/api", "127.0.0.1", backendBPort, "http")
@@ -84,14 +87,14 @@ public class ClusterServerForwardTest {
         // 等待 scatter 同步完成
         TimeUnit.SECONDS.sleep(3);
 
-        // 验证：node-A 的服务表中包含 node-B 后端
+        // 验证：node-A 的服务表中包含 backendB
         java.util.Set<Discovery> services =
                 nodeA.manager().nodes("/api", "forward-test", "http");
         boolean hasBackend = services.stream().anyMatch(d -> backendBPort == d.getPort());
         Assertions.assertTrue(hasBackend,
-                "node-A 服务表应包含 node-B 后端（port=" + backendBPort + "）: " + services);
+                "node-A 服务表应包含 backendB（port=" + backendBPort + "）: " + services);
 
-        // 先验证后端本身可达（隔离问题：确认 backendB 本身没问题）
+        // 先验证后端本身可达
         String directUrl = "http://127.0.0.1:" + backendBPort + "/api/hello";
         HttpURLConnection direct = (HttpURLConnection) new URL(directUrl).openConnection();
         direct.setRequestMethod("GET");
@@ -118,13 +121,12 @@ public class ClusterServerForwardTest {
         try (java.io.InputStream is = conn.getInputStream()) {
             body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (java.io.IOException e) {
-            // 获取错误响应内容
             String errBody;
             try (java.io.InputStream is = conn.getErrorStream()) {
                 errBody = is != null ? new String(is.readAllBytes(), StandardCharsets.UTF_8) : "(no body)";
             }
             Assertions.fail("HTTP " + status + " from " + urlStr + ", body: " + errBody);
-            return; // unreachable
+            return;
         }
 
         Assertions.assertEquals(200, status,
