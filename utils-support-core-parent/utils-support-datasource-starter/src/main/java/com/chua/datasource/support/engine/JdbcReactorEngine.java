@@ -636,7 +636,8 @@ public class JdbcReactorEngine implements ReactorEngine {
                     return Flux.error(e);
                 })
                 .onErrorResume(UnsupportedOperationException.class, e -> {
-                    /* SQL Server r2dbc-mssql 不支持 batch 参数绑定，降级到 JDBC */
+                    /* SQL Server r2dbc-mssql 不支持参数绑定，降级到 JDBC */
+                    logger.warn("batchViaR2dbc falling back to JDBC due to: {}", e.getMessage());
                     DataSource ds = jdbcDataSources.get(name);
                     if (ds != null) {
                         return batchViaJdbc(ds, sql, batchParams);
@@ -726,9 +727,13 @@ public class JdbcReactorEngine implements ReactorEngine {
                     ps.addBatch();
                 }
                 int[] updates = ps.executeBatch();
+                logger.debug("batchViaJdbc executed {} batches, returned {} updates", batchParams.size(), updates.length);
                 for (int update : updates) {
                     results.add(update);
                 }
+            } catch (Exception e) {
+                logger.warn("batchViaJdbc failed: {}", e.getMessage(), e);
+                return results;
             }
             return results;
         }).flatMapMany(Flux::fromIterable);

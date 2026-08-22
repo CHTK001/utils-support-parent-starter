@@ -4,11 +4,15 @@ import com.chua.common.support.lang.algorithm.KafkaSequenceGenerator;
 import com.chua.common.support.lang.algorithm.MacSequenceGenerator;
 import com.chua.common.support.lang.algorithm.SnowflakeIdGenerator;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -370,5 +374,196 @@ public class IdUtils {
             hash = (hash * 31 + c) % 10000;
         }
         return String.format("%02d", Math.abs(hash) % 100);
+    }
+
+    // ==================== 对象唯一标识 ====================
+
+    /**
+     * 获取对象的唯一标识（基于全部字段值的 MD5）。
+     *
+     * <p>使用反射提取对象所有非静态字段，按字段名排序后拼接值，计算 MD5 得到稳定标识。
+     * 相同数据内容的对象会产生相同的 ID。</p>
+     *
+     * @param obj 目标对象，可为 {@code null}
+     * @return 32 位小写十六进制 MD5 字符串；对象为 {@code null} 时返回 null
+     */
+    public static String getId(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        String signature = buildSignature(obj);
+        if (signature == null || signature.isEmpty()) {
+            return Integer.toHexString(obj.hashCode());
+        }
+        return DigestUtils.md5(signature);
+    }
+
+    /**
+     * 获取对象的 partial ID（基于部分字段的 MD5）。
+     *
+     * <p>按字段名排序后，取前 {@code ratio * 100}% 的字段值计算 MD5。
+     * 适用于大数据量场景，用部分特征判断数据是否相同，容忍少量字段差异。</p>
+     *
+     * @param obj  目标对象，可为 {@code null}
+     * @param ratio 采样比例，范围 (0.0, 1.0]，如 0.6 表示取 60% 字段
+     * @return 32 位小写十六进制 MD5 字符串；对象为 {@code null} 时返回 null
+     * @throws IllegalArgumentException 如果 ratio 不在 (0, 1] 范围内
+     */
+    public static String getPartialId(Object obj, double ratio) {
+        if (ratio <= 0.0 || ratio > 1.0) {
+            throw new IllegalArgumentException("ratio must be in (0, 1.0], got: " + ratio);
+        }
+        if (obj == null) {
+            return null;
+        }
+        List<Field> fields = getAllFields(obj);
+        if (fields.isEmpty()) {
+            return Integer.toHexString(obj.hashCode());
+        }
+        int count = Math.max(1, (int) Math.ceil(fields.size() * ratio));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            Field field = fields.get(i);
+            field.setAccessible(true);
+            try {
+                Object value = field.get(obj);
+                sb.append(field.getName()).append('=').append(normalizeValue(value)).append('|');
+            } catch (IllegalAccessException e) {
+                sb.append(field.getName()).append("=ACCESS_ERROR|");
+            }
+        }
+        String signature = sb.toString();
+        return DigestUtils.md5(signature);
+    }
+
+    /**
+     * 判断两个对象的数据是否相同（基于全部字段的 MD5 比对）。
+     *
+     * @param a 对象 A
+     * @param b 对象 B
+     * @return 如果两者数据类型相同且 MD5 标识相等返回 {@code true}
+     */
+    public static boolean isSameData(Object a, Object b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        if (!a.getClass().equals(b.getClass())) {
+            return false;
+        }
+        String idA = getId(a);
+        String idB = getId(b);
+        return idA != null && idA.equals(idB);
+    }
+
+    /**
+     * 判断两个对象的部分数据是否相同（基于 60% 字段的 MD5 比对）。
+     *
+     * @param a     对象 A
+     * @param b     对象 B
+     * @param ratio 采样比例，如 0.6 表示取 60% 字段
+     * @return 如果两者类型相同且 partial ID 相等返回 {@code true}
+     */
+    public static boolean isSamePartialData(Object a, Object b, double ratio) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        if (!a.getClass().equals(b.getClass())) {
+            return false;
+        }
+        String idA = getPartialId(a, ratio);
+        String idB = getPartialId(b, ratio);
+        return idA != null && idA.equals(idB);
+    }
+
+    /**
+     * 构建对象的签名字符串（全部字段）。
+     */
+    private static String buildSignature(Object obj) {
+        List<Field> fields = getAllFields(obj);
+        if (fields.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(obj);
+                sb.append(field.getName()).append('=').append(normalizeValue(value)).append('|');
+            } catch (IllegalAccessException e) {
+                sb.append(field.getName()).append("=ERROR|");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 获取类及其所有父类的非静态、非瞬态字段列表，按字段名排序。
+     */
+    private static List<Field> getAllFields(Object obj) {
+        Class<?> clazz = obj.getClass();
+        List<Field> fields = new ArrayList<>();
+        while (clazz != null && clazz != Object.class) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
+                if (java.lang.reflect.Modifier.isTransient(field.getModifiers())) {
+                    continue;
+                }
+                if (field.isSynthetic()) {
+                    continue;
+                }
+                fields.add(field);
+            }
+            clazz = clazz.getSuperclass();
+        }
+        fields.sort(Comparator.comparing(Field::getName));
+        return fields;
+    }
+
+    /**
+     * 规范化字段值：数组/List/Collection 展平，null 转为空字符串。
+     */
+    private static String normalizeValue(Object value) {
+        if (value == null) {
+            return "";
+        }
+        if (value instanceof boolean[]) {
+            return Arrays.toString((boolean[]) value);
+        }
+        if (value instanceof byte[]) {
+            return Arrays.toString((byte[]) value);
+        }
+        if (value instanceof char[]) {
+            return Arrays.toString((char[]) value);
+        }
+        if (value instanceof short[]) {
+            return Arrays.toString((short[]) value);
+        }
+        if (value instanceof int[]) {
+            return Arrays.toString((int[]) value);
+        }
+        if (value instanceof long[]) {
+            return Arrays.toString((long[]) value);
+        }
+        if (value instanceof float[]) {
+            return Arrays.toString((float[]) value);
+        }
+        if (value instanceof double[]) {
+            return Arrays.toString((double[]) value);
+        }
+        if (value instanceof Object[]) {
+            return Arrays.toString((Object[]) value);
+        }
+        if (value instanceof Collection) {
+            return Arrays.toString(((Collection<?>) value).toArray());
+        }
+        return value.toString();
     }
 }

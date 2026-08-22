@@ -181,7 +181,6 @@ public final class GatewayServerBootstrap {
         raw.addFilter(mappingFilter);
         raw.refreshFilters();
         try { java.lang.reflect.Field fmField = com.chua.common.support.network.server.AbstractServer.class.getDeclaredField("filterManager"); fmField.setAccessible(true); com.chua.common.support.network.server.filter.ServerFilterManager fm = (com.chua.common.support.network.server.filter.ServerFilterManager) fmField.get(raw); log.info("[gateway-debug] reactive filters after add: {}", fm.getMergedReactiveFilters().size()); log.info("[gateway-debug] static filters after add: {}", fm.getStaticFilters().size()); } catch (Exception ex) { log.warn("[gateway-debug] failed to log filters: {}", ex.getMessage()); }
-        log.info("[gateway-debug] static filters after add: {}", raw.getFilterManager().getStaticFilters().size());
 
         // 8. 启动独立 WS 桥接服务（:8182，浏览器远控帧透传）
         try {
