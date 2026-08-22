@@ -43,8 +43,7 @@ public class UtilsSpringBootAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public TimeoutAdvisor timeoutAdvisor(TimeoutIntercept intercept) {
+public TimeoutAdvisor timeoutAdvisor(TimeoutIntercept intercept) {
         return new TimeoutAdvisor(intercept);
     }
-}
 }
