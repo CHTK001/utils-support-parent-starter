@@ -2,11 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 对话与嵌入 · 示例文档</title>
+<title>大模型对话 · 示例文档</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.min.css">
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--purple:#bc8cff;--red:#f85149}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--purple:#bc8cff}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
 .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
@@ -15,8 +14,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .topbar a:hover{background:rgba(88,166,255,.1)}
 .main{max-width:960px;margin:0 auto;padding:32px 40px}
 h2{font-size:1.2em;color:#f0f6fc;margin:36px 0 12px;padding-left:12px;border-left:3px solid var(--accent)}
-h3{font-size:1em;color:#f0f6fc;margin:24px 0 8px}
-p{color:var(--text);margin-bottom:10px}
 code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:'Cascadia Code',Consolas,monospace;font-size:.88em;color:#79c0ff}
 pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:10px 0;font-size:.85em}
 pre code{background:none;color:#e6edf3;padding:0}
@@ -35,21 +32,27 @@ pre code{background:none;color:#e6edf3;padding:0}
 <body>
 <div class="topbar">
     <a href="index.html">&#8592; 返回文档中心</a>
-    <h1>AI 对话与嵌入</h1>
+    <h1>大模型对话</h1>
 </div>
 <div class="main">
-<div class="note"><strong>前置依赖：</strong>pom.xml 中添加 <code>utils-support-ai-starter</code>，并确保 classpath 有对应模型 jar。</div>
+<div class="note"><strong>前置依赖：</strong>pom.xml 中添加 <code>utils-support-ai-starter</code>。</div>
 
-<h2 id="qwen">通义千问对话</h2>
+<h2 id="qwen">通义千问 Qwen Proxy</h2>
 <div class="card">
     <h4>QwenProxyExample <span class="tag tag-blue">chat</span> <span class="tag tag-green">零成本</span></h4>
-    <p>通过 Playwright 驱动 Qwen 网页版，免费多轮对话、图像生成与视频生成。</p>
-<pre><code class="language-bash">java QwenProxyExample --cookie="token=eyJ..." --module=all
+    <p>通过 Playwright 驱动 Qwen 网页版，免费多轮对话、图像生成。无需 API Key，仅需 Cookie。</p>
+<pre><code class="language-bash"># 全部能力测试（对话+图像+视频）
+java QwenProxyExample --cookie="token=eyJ..." --module=all
+
+# 仅对话测试
 java QwenProxyExample --cookie="token=xxx" --module=chat
+
+# 仅图像生成测试
 java QwenProxyExample --cookie="token=xxx" --module=image</code></pre>
 </div>
+
 <div class="card">
-    <h4>核心 API（链式）</h4>
+    <h4>核心 API（链式调用）</h4>
 <pre><code class="language-java">ChatClient client = ChatClient.create(
     ChatClientSetting.builder()
         .provider("qwen-proxy")
@@ -60,63 +63,27 @@ java QwenProxyExample --cookie="token=xxx" --module=image</code></pre>
 // 多轮对话（自动维护上下文）
 String reply  = client.chatSync("我叫张三");
 String recall = client.chatSync("我刚才说了什么？");
+// recall 包含"张三"说明上下文有效
 
 // 图像生成
 ImageGenerationResult img = client.generateImage()
     .prompt("一只柯基犬在阳光下微笑")
     .ratio("16:9")
     .generate();
+img.images().forEach(System.out::println);
 
 client.close();</code></pre>
 </div>
 
-<h2 id="embedding">文本嵌入 Embedding</h2>
 <div class="card">
-    <h4>BgeEmbeddingExample / MiniLmEmbeddingExample <span class="tag tag-green">离线</span></h4>
-    <p>完全离线文本向量化，模型随 jar 自动解压。</p>
-<pre><code class="language-java">try (EmbeddingClient client = EmbeddingClient.create(
-        EmbeddingClientSetting.builder().provider("bge").build())) {
-    String[] docs = {"你好世界", "今天天气很好", "人工智能正在改变世界"};
-    float[][] vectors = client.model("bge-small-zh").embeddingBatch(docs);
-
-    float sim = cosine(vectors[0], vectors[1]);
-    System.out.println("相似度: " + sim);
-}</code></pre>
-</div>
-<div class="card">
-    <h4>BgeLargeZhEmbeddingExample</h4>
-    <p>BGE-Large-ZH 更大模型，精度更高但速度稍慢。</p>
-</div>
-
-<h2 id="speech">语音识别与合成</h2>
-<div class="card">
-    <h4>WhisperAudioExample <span class="tag tag-blue">STT</span></h4>
-<pre><code class="language-java">WhisperClient whisper = new WhisperClient(WhisperModel.LARGE_V3);
-AudioTranscript transcript = whisper.transcribe("audio.wav");
-transcript.getSegments().forEach(s ->
-    System.out.printf("[%.2fs-%.2fs] %s%n", s.getStart(), s.getEnd(), s.getText()));</code></pre>
-</div>
-<div class="card">
-    <h4>PocketTtsVoiceCloneExample <span class="tag tag-green">TTS</span> <span class="tag tag-orange">轻量</span></h4>
-<pre><code class="language-java">PocketTts tts = new PocketTts();
-tts.voice("zh-CN-XiaoxiaoNeural").speed(1.0f);
-tts.synthesize("你好，欢迎使用语音合成服务", "output.wav");</code></pre>
-</div>
-
-<h2 id="vision">视觉 AI</h2>
-<div class="card">
-    <h4>YoloWorldExample <span class="tag tag-purple">开放词汇</span></h4>
-    <p>YOLO-World 无需预训练类别即可检测任意物体。</p>
-<pre><code class="language-java">YoloWorldDetector detector = new YoloWorldDetector("damoyolo_visdrone.onnx");
-List&lt;DetectedObject&gt; objects = detector.detect("image.jpg",
-    new String[]{"person", "car", "building"});
-objects.forEach(obj -> System.out.printf("%s: %.2f%n", obj.getLabel(), obj.getConfidence()));</code></pre>
-</div>
-<div class="card">
-    <h4>Rmbg14Example <span class="tag tag-purple">抠图</span></h4>
-<pre><code class="language-java">RmbgClient client = new RmbgClient();
-byte[] result = client.removeBackground(inputImageBytes);
-Files.write(Paths.get("output.png"), result);</code></pre>
+    <h4>支持的 Provider</h4>
+    <table style="width:100%;border-collapse:collapse;font-size:.88em">
+        <tr><th style="border:1px solid var(--border);padding:8px;background:var(--card);color:var(--accent)">Provider</th><th style="border:1px solid var(--border);padding:8px;background:var(--card);color:var(--accent)">说明</th></tr>
+        <tr><td style="border:1px solid var(--border);padding:8px">qwen-proxy</td><td style="border:1px solid var(--border);padding:8px">通义千问网页版（免费，需 Cookie）</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:8px">openai</td><td style="border:1px solid var(--border);padding:8px">OpenAI 兼容接口</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:8px">deepseek</td><td style="border:1px solid var(--border);padding:8px">DeepSeek</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:8px">glm</td><td style="border:1px solid var(--border);padding:8px">智谱 GLM</td></tr>
+    </table>
 </div>
 
 <div class="footer">utils-support-parent-starter &copy; 2026 &middot; <a href="index.html" style="color:var(--accent)">返回文档中心</a></div>

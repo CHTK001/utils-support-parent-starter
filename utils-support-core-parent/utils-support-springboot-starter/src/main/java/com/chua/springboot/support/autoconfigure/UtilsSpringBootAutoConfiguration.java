@@ -1,8 +1,12 @@
 package com.chua.springboot.support.autoconfigure;
 
+import com.chua.spring.support.aop.BulkheadAdvisor;
+import com.chua.spring.support.aop.TimeoutAdvisor;
 import com.chua.spring.support.configuration.ApplicationAwareApplicationContextInitializer;
 import com.chua.spring.support.configuration.SpringBeanUtils;
 import com.chua.spring.support.configuration.UtilsSpringConfiguration;
+import com.chua.spring.support.proxy.intercept.BulkheadIntercept;
+import com.chua.spring.support.proxy.intercept.TimeoutIntercept;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -23,14 +27,6 @@ import org.springframework.context.annotation.Import;
 @Import(UtilsSpringConfiguration.class)
 public class UtilsSpringBootAutoConfiguration {
 
-    /**
-     * 创建并注册 ApplicationAwareApplicationContextInitializer Bean。
-     * <p>
-     * 此方法仅在容器中不存在同类型 Bean 时执行。
-     *
-     * @param applicationContext 当前 Spring 应用上下文
-     * @return 初始化的 ApplicationAwareApplicationContextInitializer 实例
-     */
     @Bean
     @ConditionalOnMissingBean
     public ApplicationAwareApplicationContextInitializer applicationAwareApplicationContextInitializer(
@@ -38,4 +34,17 @@ public class UtilsSpringBootAutoConfiguration {
         SpringBeanUtils.setApplicationContext(applicationContext);
         return new ApplicationAwareApplicationContextInitializer();
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public BulkheadAdvisor bulkheadAdvisor(BulkheadIntercept intercept) {
+        return new BulkheadAdvisor(intercept);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TimeoutAdvisor timeoutAdvisor(TimeoutIntercept intercept) {
+        return new TimeoutAdvisor(intercept);
+    }
+}
 }

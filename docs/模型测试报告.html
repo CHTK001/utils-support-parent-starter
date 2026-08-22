@@ -31,7 +31,7 @@ a { color: var(--accent); }
 <div id="sidebar">
 <h3>📋 目录</h3>
 <ul><li><a href="#onnx">ONNX 模型测试报告</a></li>
-  
+  <li><a href="#_1">目录</a></li>
   <li><a href="#1">1. 图像分割</a></li>
   <li><a href="#2">2. 抠图/背景移除</a></li>
   <li><a href="#3">3. 文本嵌入</a></li>
@@ -976,16 +976,16 @@ a { color: var(--accent); }
 <tr>
 <td>duguang-ocr-small</td>
 <td>嵌入式</td>
-<td>~5.3MB</td>
-<td>⭐推荐 det + ~7.8MB rec</td>
-<td>✅ 通过</td>
+<td>~5.3MB (+ ~7.8MB rec)</td>
+<td>⭐推荐 ✅ 通过</td>
+<td>读光 OCR small（DBNet 检测 + ConvNeXT 识别，ORT 原生 + OpenCV，已修复 CTC blank decode/unclip/NCHW 布局三处 bug；车票 20 行正确识别，表格 85 行识别准确）</td>
 </tr>
 <tr>
 <td>duguang-ocr-large</td>
 <td>嵌入式</td>
-<td>~46MB</td>
-<td>⭐推荐 det + ~73MB rec</td>
-<td>✅ 通过</td>
+<td>~46MB (+ ~73MB rec)</td>
+<td>⭐推荐 ✅ 通过</td>
+<td>读光 OCR large（同架构更大模型，精度更高；车票 20 行正确识别，表格 91 行识别准确）</td>
 </tr>
 <tr>
 <td>doc-orientation</td>
