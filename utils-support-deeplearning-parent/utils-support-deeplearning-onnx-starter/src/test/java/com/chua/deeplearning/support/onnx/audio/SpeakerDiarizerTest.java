@@ -347,7 +347,7 @@ class SpeakerDiarizerTest {
         writeStr(wav, 8, "WAVE");
         writeStr(wav, 12, "fmt ");
         writeInt(wav, 16, 16);
-        writeShort(wav, 20, 1);
+        writeShort(wav, 20, (short) 1);
         writeShort(wav, 22, (short) numChannels);
         writeInt(wav, 24, sampleRate);
         writeInt(wav, 28, byteRate);
@@ -357,7 +357,7 @@ class SpeakerDiarizerTest {
         writeInt(wav, 40, dataSize);
         int off = 44;
         for (float s : samples) {
-            int val = (int) Math.max(-1.0f, Math.min(1.0f, s)) * 32767;
+            int val = (int) (Math.max(-1.0f, Math.min(1.0f, s)) * 32767);
             wav[off++] = (byte) (val & 0xff);
             wav[off++] = (byte) ((val >> 8) & 0xff);
         }
