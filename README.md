@@ -541,6 +541,9 @@ mvn clean install -DskipTests
 | [深度学习模块](utils-support-deeplearning-parent/README.md) | ONNX、PyTorch、TensorFlow 推理 |
 | [协议模块](utils-support-protocol-parent/README.md) | 50+ 网络协议支持 |
 | [核心模块](utils-support-core-parent/utils-support-common-starter/README.md) | 基础工具、SPI 框架 |
+| [文档中心](docs/index.html) | 全部模块文档入口，含架构图、快速开始、典型场景 |
+| [集群服务器详细说明](docs/集群服务器使用说明.html) | ClusterServer scatter seed/gateway 模式（独立页面） |
+| [ONNX 模型测试报告](docs/模型测试报告.html) | ONNX 深度学习模型能力与测试结果明细 |
 | [能力清单](CAPABILITY.MD) | 项目能力总览 |
 | [更新日志](CHANGELOG.md) | 版本更新记录 |
 
