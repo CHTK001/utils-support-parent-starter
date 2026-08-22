@@ -163,6 +163,16 @@ public final class GatewayServerBootstrap {
             Object oldFilter = f.get(raw);
             if (oldFilter != null && oldFilter instanceof ServerFilter) {
                 raw.removeFilter((ServerFilter) oldFilter);
+                if (oldFilter instanceof com.chua.common.support.network.server.filter.ReactiveServerFilter) {
+                    try {
+                        java.lang.reflect.Field fmField = com.chua.common.support.network.server.AbstractServer.class.getDeclaredField("filterManager");
+                        fmField.setAccessible(true);
+                        com.chua.common.support.network.server.filter.ServerFilterManager fm = (com.chua.common.support.network.server.filter.ServerFilterManager) fmField.get(raw);
+                        fm.removeReactiveFilter((com.chua.common.support.network.server.filter.ReactiveServerFilter) oldFilter);
+                    } catch (Exception ex) {
+                        log.warn("[gateway-server] remove reactive filter failed: {}", ex.getMessage());
+                    }
+                }
             }
             f.set(raw, mappingFilter);
         } catch (Exception ex) {
