@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.tts;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.lang.management.ManagementFactory;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 class PocketTtsVoiceCloneTest {
 
     private static final String TEST_TEXT = "This is a voice cloning test sentence.";
@@ -37,9 +39,9 @@ class PocketTtsVoiceCloneTest {
      * 检查是否有足够内存运行推理测试。
      */
     private boolean hasEnoughMemory() {
-        long freeHeap = MEMORY_BEAN.getHeapMemoryUsage().getUsed();
         long committed = MEMORY_BEAN.getHeapMemoryUsage().getCommitted();
-        long available = committed - freeHeap;
+        long used = MEMORY_BEAN.getHeapMemoryUsage().getUsed();
+        long available = committed - used;
         return available >= MIN_HEAP_FREE_BYTES;
     }
 
@@ -54,7 +56,7 @@ class PocketTtsVoiceCloneTest {
             translator.synthesize("Hi");
             assertTrue(translator.supportsVoiceClone(),
                     "mimi_encoder.onnx 未嵌入 JAR，声音克隆不可用。请运行 scripts/fetch-pocket-tts.ps1 并重新构建");
-            System.out.println("[VoiceClone] supportsVoiceClone() = true, mimi_encoder 就绪");
+            log.info("[VoiceClone] supportsVoiceClone() = true, mimi_encoder 就绪");
         } finally {
             translator.close();
         }
@@ -66,7 +68,7 @@ class PocketTtsVoiceCloneTest {
     @Test
     void testDefaultVoiceSynthesis() throws Exception {
         if (!hasEnoughMemory()) {
-            System.out.println("[VoiceClone] 内存不足，跳过默认音色合成测试");
+            log.info("[VoiceClone] 内存不足，跳过默认音色合成测试");
             return;
         }
         PocketTtsTranslator translator = new PocketTtsTranslator();
@@ -76,7 +78,7 @@ class PocketTtsVoiceCloneTest {
             assertTrue(wav.length > 100, "WAV 应大于 100 字节，实际: " + wav.length);
             assertEquals('R', (char) wav[0], "WAV 文件应以 RIFF 头开始");
             assertEquals('W', (char) wav[8], "WAV 格式标识应为 WAVE");
-            System.out.printf("[VoiceClone] Default voice: %d bytes%n", wav.length);
+            log.info("[VoiceClone] Default voice: {} bytes", wav.length);
             Files.write(Path.of(System.getProperty("java.io.tmpdir"), "pocket-tts-default.wav"), wav);
         } finally {
             translator.close();
@@ -91,7 +93,7 @@ class PocketTtsVoiceCloneTest {
     @Test
     void testVoiceClone() throws Exception {
         if (!hasEnoughMemory()) {
-            System.out.println("[VoiceClone] 内存不足，跳过克隆测试");
+            log.info("[VoiceClone] 内存不足，跳过克隆测试");
             return;
         }
         PocketTtsTranslator translator = new PocketTtsTranslator();
@@ -99,14 +101,14 @@ class PocketTtsVoiceCloneTest {
             // Step 1: 生成参考音频
             byte[] refWav = translator.synthesize(TEST_TEXT);
             assertNotNull(refWav, "参考音频合成失败");
-            System.out.printf("[VoiceClone] Reference audio: %d bytes%n", refWav.length);
+            log.info("[VoiceClone] Reference audio: {} bytes", refWav.length);
 
             // Step 2: 克隆合成
             byte[] clonedWav = translator.voice(CLONE_TEXT, refWav);
             assertNotNull(clonedWav, "克隆合成结果不应为 null");
             assertTrue(clonedWav.length > 100, "克隆 WAV 应大于 100 字节，实际: " + clonedWav.length);
             assertEquals('R', (char) clonedWav[0], "克隆 WAV 应以 RIFF 头开始");
-            System.out.printf("[VoiceClone] Cloned audio: %d bytes%n", clonedWav.length);
+            log.info("[VoiceClone] Cloned audio: {} bytes", clonedWav.length);
 
             Path clonePath = Path.of(System.getProperty("java.io.tmpdir"), "pocket-tts-cloned.wav");
             Files.write(clonePath, clonedWav);
@@ -125,7 +127,7 @@ class PocketTtsVoiceCloneTest {
             byte[] result = translator.voice(TEST_TEXT, null);
             assertNotNull(result, "null 参考音频应回退默认音色");
             assertTrue(result.length > 100, "默认音色输出应大于 100 字节");
-            System.out.printf("[VoiceClone] Fallback to default: %d bytes%n", result.length);
+            log.info("[VoiceClone] Fallback to default: {} bytes", result.length);
         } finally {
             translator.close();
         }
