@@ -82,10 +82,10 @@ public class RustImageProcessor implements ImageProcessor {
     static {
         try {
             NativeLoader.of("image-processor")
-                    .toTarget(Path.of(System.getProperty("java.io.tmpdir"), NativeUtils.NATIVE_TMP_ROOT, "image-processor"))
+                    .toTarget(NativeUtils.tempRoot().resolve("image-processor"))
                     .glob("*image_processor*")
                     .load();
-            Path libPath = Path.of(System.getProperty("java.io.tmpdir"), NativeUtils.NATIVE_TMP_ROOT, "image-processor", System.mapLibraryName("image_processor"));
+            Path libPath = NativeUtils.tempRoot().resolve("image-processor").resolve(System.mapLibraryName("image_processor"));
             SymbolLookup lookup = SymbolLookup.libraryLookup(libPath, Arena.ofAuto());
             processImage = lookup.find("process_image").orElseThrow(() -> new IllegalStateException("未找到 process_image"));
             freeResult = lookup.find("free_result").orElseThrow(() -> new IllegalStateException("未找到 free_result"));

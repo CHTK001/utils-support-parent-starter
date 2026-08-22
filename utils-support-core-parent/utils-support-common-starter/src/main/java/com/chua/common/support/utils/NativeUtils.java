@@ -38,6 +38,24 @@ public class NativeUtils {
     /** 创建 NativeUtils 实例 */
     private NativeUtils() {}
 
+    /**
+     * 获取 Native 库抽取统一临时根目录（{@code java.io.tmpdir/chua-native}）。
+     *
+     * @return 统一临时根目录 Path
+     */
+    public static Path tempRoot() {
+        return Path.of(System.getProperty("java.io.tmpdir"), NATIVE_TMP_ROOT);
+    }
+
+    /**
+     * 获取 JVM 临时目录（{@code java.io.tmpdir}）。
+     *
+     * @return 临时目录 Path
+     */
+    public static Path tmpDir() {
+        return Path.of(System.getProperty("java.io.tmpdir"));
+    }
+
     // ==================== 架构归一化 ====================
 
     /** NormalizeArch */

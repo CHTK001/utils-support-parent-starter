@@ -65,7 +65,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     public CmdResult inspectJvm(int pid) {
         try {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
-            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, String.class, String.valueOf(pid));
+            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class}, String.valueOf(pid));
             String classPath = (String) ReflectUtils.invoke(vm, "getClassPath", String.class);
             String sysProps = (String) ReflectUtils.invoke(vm, "getSystemProperties", String.class);
             ReflectUtils.invoke(vm, "detach", void.class);
@@ -82,8 +82,8 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]", pid));
         try {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
-            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, String.class, String.valueOf(pid));
-            ReflectUtils.invoke(vm, "loadAgent", void.class, String.class, Object.class, agentPath.toAbsolutePath().toString(), options);
+            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class}, String.valueOf(pid));
+            ReflectUtils.invoke(vm, "loadAgent", void.class, new Class<?>[]{String.class, Object.class}, agentPath.toAbsolutePath().toString(), options);
             ReflectUtils.invoke(vm, "detach", void.class);
             return CmdResult.builder().exitCode(0).stdout("Agent 注入成功: PID[" + pid + "]").build();
         } catch (Exception e) {

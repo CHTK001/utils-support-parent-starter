@@ -84,10 +84,10 @@ public final class FastFileSearchNativeBridge {
 
             try {
                 NativeLoader.of("fast-file-search")
-                        .toTarget(Path.of(System.getProperty("java.io.tmpdir"), NativeUtils.NATIVE_TMP_ROOT, "fast-file-search"))
+                        .toTarget(NativeUtils.tempRoot().resolve("fast-file-search"))
                         .glob("*fast_file_search*")
                         .load();
-                Path libPath = Path.of(System.getProperty("java.io.tmpdir"), NativeUtils.NATIVE_TMP_ROOT, "fast-file-search", System.mapLibraryName("fast_file_search"));
+                Path libPath = NativeUtils.tempRoot().resolve("fast-file-search").resolve(System.mapLibraryName("fast_file_search"));
                 ARENA = Arena.ofShared();
                 LIBRARY = SymbolLookup.libraryLookup(libPath, ARENA);
                 bindFunctions();

@@ -13,14 +13,13 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
  * ClusterServer 端到端 HTTP 转发测试。
  *
- * <p>验证：curl 请求 Node A 的 HTTP 端口 → ServiceDiscoveryServerFilter 选目标 →
- * ReverseProxyServerFilter 代理转发 → 拿到 Node B 后端响应。</p>
+ * <p>验证：curl 请求 Node A 的 HTTP 入口 → ServiceDiscoveryServerFilter 选目标 →
+ * ReverseProxyServerFilter 代理转发 → 拿到后端响应。</p>
  */
 public class ClusterServerForwardTest {
 
@@ -28,22 +27,15 @@ public class ClusterServerForwardTest {
     private HttpServer backendB;
     private int backendBPort;
 
-    /** node-A 和 node-B 的 ClusterServer */
     private ClusterServer nodeA;
     private ClusterServer nodeB;
 
     @BeforeEach
     void setUp() throws Exception {
-        // 重置 scatter 静态状态，并清除所有服务表缓存（防止跨测试污染）
         ScatterSyncHelper.resetForTest();
-        // 清除已启动节点的服务表（如果有）
-        if (nodeA != null) nodeA.discovery().clearCache();
-        if (nodeB != null) nodeB.discovery().clearCache();
 
         // ── ① 启动 node-B 的纯 HTTP 后端 ─────────────────────────────
-        CountDownLatch backendReady = new CountDownLatch(1);
         backendB = HttpServer.create(new InetSocketAddress(0), 0);
-        // 注册路径与请求路径一致（proxy 不剥离前缀）
         backendB.createContext("/api/hello", exchange -> {
             byte[] body = "Hello from node-B".getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "text/plain");
@@ -51,31 +43,27 @@ public class ClusterServerForwardTest {
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(body);
             }
-            backendReady.countDown();
         });
         backendB.setExecutor(null);
         backendB.start();
         backendBPort = backendB.getAddress().getPort();
-        backendReady.countDown();
 
-        // ── ② 启动 node-B（作为 seed，提供 discovery 服务） ──────────
+        // ── ② 启动 node-B（seed 网关） ───────────────────────────────
         nodeB = ClusterServer.builder()
                 .nodeId("node-b").host("127.0.0.1").port(0)
-                .scatterId("cluster-forward")
+                .scatterId("forward-test")
                 .servicePaths(java.util.List.of("/api"))
                 .timeoutMillis(3000)
                 .build();
         nodeB.start();
 
-        // ── ③ 启动 node-A，seeds 指向 node-B 的 scatter 端口（httpPort+2）──
-        int scatterPortB = nodeB.discovery().getSetting().getPort();
+        // ── ③ 启动 node-A，注册后端服务到集群视图 ───────────────────
         nodeA = ClusterServer.builder()
                 .nodeId("node-a").host("127.0.0.1").port(0)
-                .scatterId("cluster-forward")
-                .seeds("127.0.0.1:" + scatterPortB)
+                .scatterId("forward-test")
+                .seeds("127.0.0.1:" + nodeB.getHttpPort())   // seed = node-B 的 HTTP 端口
                 .servicePaths(java.util.List.of("/api"))
                 .timeoutMillis(3000)
-                // 将 node-B 的纯 HTTP 后端注册为集群服务
                 .addServer("/api", "127.0.0.1", backendBPort, "http")
                 .build();
         nodeA.start();
@@ -89,34 +77,36 @@ public class ClusterServerForwardTest {
     }
 
     /**
-     * 核心测试：curl node-A HTTP 入口 /api/hello → 应转发到 node-B 后端
+     * 核心测试：curl http://nodeA-http-port/api/hello → 转发到 backendB → "Hello from node-B"
      */
     @Test
     void testHttpForwardNodeAToNodeB() throws Exception {
+        // 等待 scatter 同步完成
         TimeUnit.SECONDS.sleep(3);
 
-        // 验证：node-A 的服务表中包含注册的 backend
+        // 验证：node-A 的服务表中包含 node-B 后端
         java.util.Set<Discovery> services =
-                nodeA.manager().nodes("/api", "cluster-forward", "http");
-        System.err.println("[DEBUG] node-A /api services: " +
-                services.stream().map(d -> d.getServerId() + "@" + d.getHost() + ":" + d.getPort()).toList());
-
+                nodeA.manager().nodes("/api", "forward-test", "http");
         boolean hasBackend = services.stream().anyMatch(d -> backendBPort == d.getPort());
         Assertions.assertTrue(hasBackend,
-                "node-A 服务表应包含后端服务（port=" + backendBPort + "），实际: " + services);
+                "node-A 服务表应包含 node-B 后端（port=" + backendBPort + "）: " + services);
 
-        // 先验证后端本身可达（排除后端自身问题）
+        // 先验证后端本身可达（隔离问题：确认 backendB 本身没问题）
         String directUrl = "http://127.0.0.1:" + backendBPort + "/api/hello";
         HttpURLConnection direct = (HttpURLConnection) new URL(directUrl).openConnection();
         direct.setRequestMethod("GET");
         direct.setConnectTimeout(3000);
-        Assertions.assertEquals(200, direct.getResponseCode(), "后端本身应可访问: " + directUrl);
+        int directStatus = direct.getResponseCode();
+        Assertions.assertEquals(200, directStatus,
+                "后端本身应可访问（port=" + backendBPort + "），实际: " + directStatus);
+        String directBody = new String(direct.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        Assertions.assertEquals("Hello from node-B", directBody);
         direct.disconnect();
 
-        // 正式测试：curl node-A HTTP 端口
+        // 正式测试：curl Node A 的 HTTP 端口
         int nodeAHttpPort = nodeA.getHttpPort();
         String urlStr = "http://127.0.0.1:" + nodeAHttpPort + "/api/hello";
-        System.err.println("[DEBUG] curl: " + urlStr + "  (backend=" + backendBPort + ")");
+        System.err.println("[E2E] curl " + urlStr + " → backend " + directUrl);
 
         HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
         conn.setRequestMethod("GET");
@@ -127,11 +117,31 @@ public class ClusterServerForwardTest {
         String body;
         try (java.io.InputStream is = conn.getInputStream()) {
             body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (java.io.IOException e) {
+            // 获取错误响应内容
+            String errBody;
+            try (java.io.InputStream is = conn.getErrorStream()) {
+                errBody = is != null ? new String(is.readAllBytes(), StandardCharsets.UTF_8) : "(no body)";
+            }
+            Assertions.fail("HTTP " + status + " from " + urlStr + ", body: " + errBody);
+            return; // unreachable
         }
 
         Assertions.assertEquals(200, status,
                 "curl " + urlStr + " 应返回 HTTP 200（转发到 node-B 后端）");
         Assertions.assertEquals("Hello from node-B", body,
                 "响应内容应来自 node-B 后端，实际: " + body);
+    }
+
+    /**
+     * 辅助测试：验证 scatter 双向发现正常
+     */
+    @Test
+    void testScatterDiscovery() throws Exception {
+        TimeUnit.SECONDS.sleep(3);
+
+        java.util.Set<Discovery> bServices = nodeB.discovery().getServiceAll("/api");
+        boolean hasNodeA = bServices.stream().anyMatch(d -> "node-a".equals(d.getServerId()));
+        Assertions.assertTrue(hasNodeA, "node-B 应通过 scatter 发现 node-A");
     }
 }

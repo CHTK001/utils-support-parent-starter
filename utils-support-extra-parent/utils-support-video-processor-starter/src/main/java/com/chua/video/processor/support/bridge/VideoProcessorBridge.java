@@ -22,7 +22,7 @@ public class VideoProcessorBridge {
             NativeLoader loader = NativeLoader.of(LIBRARY_NAME)
                     .from(VideoProcessorBridge.class.getClassLoader())
                     .glob(libFile)
-                    .toTarget(Path.of(System.getProperty("java.io.tmpdir"), LIBRARY_NAME));
+                    .toTarget(NativeUtils.tempRoot().resolve(LIBRARY_NAME));
             loader.load();
             loaded = true;
         } catch (Throwable e) {

@@ -1,5 +1,6 @@
 package com.chua.tui.support;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.github.ajalt.mordant.rendering.BorderType;
 import com.github.ajalt.mordant.rendering.OverflowWrap;
 import com.github.ajalt.mordant.rendering.TextAlign;
@@ -61,11 +62,11 @@ public class MordantHelper {
             if (osName.contains("win")) {
                 Class<?> cls = Class.forName(
                         "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaWindows");
-                return (TerminalInterface) ReflectUtils.instantiate(cls);
+                return (TerminalInterface) ReflectUtils.<TerminalInterface>instantiate(cls);
             }
             Class<?> cls = Class.forName(
                     "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaLinux");
-            return (TerminalInterface) ReflectUtils.instantiate(cls);
+            return (TerminalInterface) ReflectUtils.<TerminalInterface>instantiate(cls);
         } catch (Exception e) {
             return null;
         }

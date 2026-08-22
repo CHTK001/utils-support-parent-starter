@@ -1,31 +1,18 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.network.net.NetAddress;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import io.r2dbc.spi.*;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -36,6 +23,7 @@ import reactor.core.publisher.Mono;
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
@@ -75,15 +63,36 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcReactorEngine.class);
 
-    /** 默认数据源名称 */
+    /** R2DBC URL 协议前缀 */
+    private static final String R2DBC_PREFIX = "r2dbc:";
+    /** JDBC URL 协议前缀 */
+    private static final String JDBC_PREFIX = "jdbc:";
+    /** H2 驱动名称 */
+    private static final String H2_DRIVER = "h2";
+    /** H2 内存模式 */
+    private static final String H2_MEM = "mem";
+    /** H2 文件模式 */
+    private static final String H2_FILE = "file";
+    /** DDL 关键字：CREATE */
+    private static final String DDL_CREATE = "CREATE ";
+    /** DDL 关键字：DROP */
+    private static final String DDL_DROP = "DROP ";
+    /** DDL 关键字：ALTER */
+    private static final String DDL_ALTER = "ALTER ";
+    /** DDL 关键字：TRUNCATE */
+    private static final String DDL_TRUNCATE = "TRUNCATE ";
+    /** 匹配 jdbc: 前缀的正则（预编译） */
+    private static final Pattern JDBC_PREFIX_PATTERN = Pattern.compile("^jdbc:");
+
+    /** 默认数据源名称，首次 addDataSource 时自动设置 */
     private String defaultDataSourceName;
     /** 数据源名称 → R2DBC 连接工厂（单数据源模式使用） */
     private final Map<String, ConnectionFactory> r2dbcFactories = new ConcurrentHashMap<>();
-    /** 数据源名称 → JDBC DataSource（多数据源模式使用） */
+    /** 数据源名称 → JDBC DataSource（多数据源联邦时使用） */
     private final Map<String, DataSource> jdbcDataSources = new ConcurrentHashMap<>();
     /** 数据源名称 → 方言 */
     private final Map<String, Dialect> dialects = new ConcurrentHashMap<>();
-    /** 统一的联邦数据源（多数据源模式） */
+    /** 统一的联邦数据源（多数据源模式），无 SPI Conversion 时回退到首个 DataSource */
     private DataSource unifiedDataSource;
 
     /**
@@ -100,7 +109,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             throw new IllegalArgumentException("JDBC URL cannot be null");
         }
         /* 检测是否为 R2DBC URL */
-        if (jdbcUrl.startsWith("r2dbc:")) {
+        if (jdbcUrl.startsWith(R2DBC_PREFIX)) {
             r2dbcFactories.put(name, buildConnectionFactory(jdbcUrl, username, password));
         } else {
             /* JDBC URL → R2DBC URL 转换 */
@@ -133,7 +142,7 @@ public class JdbcReactorEngine implements ReactorEngine {
     public JdbcReactorEngine addDataSource(String name, String r2dbcUrl) {
         /* 兼容传入 JDBC URL 的情况，自动转换为 R2DBC URL */
         String url = r2dbcUrl;
-        if (url != null && !url.startsWith("r2dbc:")) {
+        if (url != null && !url.startsWith(R2DBC_PREFIX)) {
             url = convertJdbcToR2dbc(url);
         }
         r2dbcFactories.put(name, buildConnectionFactory(url, null, null));
@@ -168,14 +177,15 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 构建统一数据源（多数据源联邦）。
+     * 构建统一数据源（多数据源联邦），当 SPI DataSourceConversion 不可用时退回首个数据源。
      */
     private void buildUnifiedDataSource() {
         if (jdbcDataSources.isEmpty()) {
             /* 只有 R2DBC 工厂，无法直接联邦，退回单数据源模式 */
             return;
         }
-        List<DataSource> sources = new ArrayList<>(jdbcDataSources.values());
+        List<DataSource> sources = new ArrayList<>(jdbcDataSources.size());
+        sources.addAll(jdbcDataSources.values());
         DataSourceConversion conversion = ServiceProvider.of(DataSourceConversion.class).getDefault();
         if (conversion != null) {
             unifiedDataSource = conversion.convert(sources, new DataSourceEnvironment("jdbc-reactor", null, null, null));
@@ -208,7 +218,7 @@ public class JdbcReactorEngine implements ReactorEngine {
          */
         String driver = (String) parsed.getValue(DRIVER);
         String protocol = (String) parsed.getValue(PROTOCOL);
-        if ("h2".equals(driver) && ("mem".equals(protocol) || "file".equals(protocol))) {
+        if ("h2".equals(driver) && (H2_MEM.equals(protocol) || H2_FILE.equals(protocol))) {
             String host = (String) parsed.getValue(HOST);
             String db = (String) parsed.getValue(DATABASE);
             if (host != null && db == null) {
@@ -239,11 +249,11 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (jdbcUrl == null) {
             throw new IllegalArgumentException("JDBC URL cannot be null");
         }
-        String r2dbcUrl = jdbcUrl.replaceFirst("^jdbc:", "r2dbc:");
+        String r2dbcUrl = JDBC_PREFIX_PATTERN.matcher(jdbcUrl).replaceFirst(R2DBC_PREFIX);
         /* H2 内存/文件模式: jdbc:h2:mem:testdb → r2dbc:h2:mem://testdb */
-        int h2Idx = r2dbcUrl.indexOf("r2dbc:h2:");
+        int h2Idx = r2dbcUrl.indexOf(R2DBC_PREFIX + H2_DRIVER + ":");
         if (h2Idx >= 0) {
-            String suffix = r2dbcUrl.substring(h2Idx + "r2dbc:h2:".length());
+            String suffix = r2dbcUrl.substring(h2Idx + (R2DBC_PREFIX + H2_DRIVER + ":").length());
             int colonIdx = suffix.indexOf(':');
             if (colonIdx >= 0) {
                 String protocol = suffix.substring(0, colonIdx); /* "mem" or "file" */
@@ -658,13 +668,29 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     /* ==================== 静态辅助方法 ==================== */
 
+    /**
+     * 将 SQL 参数绑定到 R2DBC Statement。
+     *
+     * @param stmt   R2DBC Statement
+     * @param params 参数数组
+     */
     private static void bindParams(Statement stmt, Object... params) {
-        if (params == null) return;
+        if (params == null) {
+            return;
+        }
         for (int i = 0; i < params.length; i++) {
             stmt.bind(i, params[i]);
         }
     }
 
+    /**
+     * 执行 R2DBC 语句并返回结果流。
+     *
+     * @param conn  R2DBC 连接
+     * @param sql   SQL 语句
+     * @param params 参数
+     * @return Result 发布流
+     */
     @SuppressWarnings("unchecked")
     private static Publisher<Result> executeStatement(Connection conn, String sql, Object[] params) {
         Statement stmt = conn.createStatement(sql);
@@ -672,6 +698,13 @@ public class JdbcReactorEngine implements ReactorEngine {
         return (Publisher<Result>) (Publisher<?>) stmt.execute();
     }
 
+    /**
+     * 将 R2DBC Row 转换为 Map（列名 → 值）。
+     *
+     * @param row  R2DBC 行数据
+     * @param meta 列元数据
+     * @return 列名映射的 Map
+     */
     private Map<String, Object> toMap(Row row, RowMetadata meta) {
         Map<String, Object> rowMap = new LinkedHashMap<>();
         for (ColumnMetadata cm : meta.getColumnMetadatas()) {
@@ -683,6 +716,14 @@ public class JdbcReactorEngine implements ReactorEngine {
         return rowMap;
     }
 
+    /**
+     * 将 R2DBC Row 映射为目标 POJO 对象。
+     *
+     * @param row      R2DBC 行数据
+     * @param rowType  目标类型
+     * @param <T>      泛型类型
+     * @return 映射后的实例
+     */
     @SuppressWarnings("unchecked")
     private <T> T toObject(Row row, Class<T> rowType) {
         try {
@@ -691,7 +732,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                 String name = cm.getName();
                 if (name != null && !name.isEmpty()) {
                     Object value = row.get(name);
-                    if (value != null) setFieldValue(instance, name, value);
+                    if (value != null) {
+                        setFieldValue(instance, name, value);
+                    }
                 }
             });
             return instance;
@@ -700,15 +743,26 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
     }
 
+    /**
+     * 通过反射将数据库列值设置到 POJO 字段，支持下划线转驼峰匹配。
+     *
+     * @param instance       POJO 实例
+     * @param columnName     数据库列名
+     * @param value          列值
+     */
     private static void setFieldValue(Object instance, String columnName, Object value) {
         List<String> candidates = List.of(columnName, toCamelCase(columnName));
         for (String candidate : candidates) {
             java.lang.reflect.Field field = findField(instance.getClass(), candidate);
-            if (field == null) continue;
+            if (field == null) {
+                continue;
+            }
             try {
                 field.setAccessible(true);
                 Object converted = com.chua.common.support.converter.Converter.convertIfNecessary(value, field.getType());
-                if (converted != null) field.set(instance, converted);
+                if (converted != null) {
+                    field.set(instance, converted);
+                }
                 return;
             } catch (IllegalAccessException e) {
                 logger.debug("反射设置字段失败: {}", e.getMessage());
@@ -716,11 +770,19 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
     }
 
+    /**
+     * 在类继承链中查找指定名称的字段。
+     *
+     * @param clazz  类
+     * @param name   字段名
+     * @return 找到的 Field，未找到返回 null
+     */
     private static java.lang.reflect.Field findField(Class<?> clazz, String name) {
         Class<?> current = clazz;
         while (current != null) {
-            try { return current.getDeclaredField(name); }
-            catch (NoSuchFieldException e) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException e) {
                 /* 父类继续查找，找不到则返回 null */
                 current = current.getSuperclass();
             }
@@ -728,15 +790,28 @@ public class JdbcReactorEngine implements ReactorEngine {
         return null;
     }
 
+    /**
+     * 将下划线命名的字符串转换为驼峰命名（首字母小写）。
+     *
+     * @param name 原始字符串
+     * @return 驼峰命名结果
+     */
     private static String toCamelCase(String name) {
-        if (name == null || name.isEmpty()) return name;
+        if (name == null || name.isEmpty()) {
+            return name;
+        }
         StringBuilder sb = new StringBuilder(name.length());
         boolean upperNext = false;
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
-            if (c == '_') { upperNext = true; }
-            else if (upperNext) { sb.append(Character.toUpperCase(c)); upperNext = false; }
-            else { sb.append(c); }
+            if (c == '_') {
+                upperNext = true;
+            } else if (upperNext) {
+                sb.append(Character.toUpperCase(c));
+                upperNext = false;
+            } else {
+                sb.append(c);
+            }
         }
         return sb.toString();
     }

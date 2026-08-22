@@ -121,11 +121,11 @@ public class SshDeployTarget implements MavenDeployTarget {
             // 通过 ReflectUtils 动态加载避免编译时强依赖
             Class<?> builderClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient$Builder");
             Class<?> sftpClientClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient");
-            Object builder = ReflectUtils.invokeStatic(sftpClientClass, "builder", Object.class);
-            ReflectUtils.invoke(builder, "host", void.class, String.class, host);
-            ReflectUtils.invoke(builder, "port", void.class, int.class, port);
-            ReflectUtils.invoke(builder, "username", void.class, String.class, username);
-            ReflectUtils.invoke(builder, "password", void.class, String.class, password);
+            Object builder = ReflectUtils.invokeStatic((Class<?>) sftpClientClass, "builder", Object.class, new Class<?>[0]);
+            ReflectUtils.invoke(builder, "host", void.class, new Class<?>[]{String.class}, host);
+            ReflectUtils.invoke(builder, "port", void.class, new Class<?>[]{int.class}, port);
+            ReflectUtils.invoke(builder, "username", void.class, new Class<?>[]{String.class}, username);
+            ReflectUtils.invoke(builder, "password", void.class, new Class<?>[]{String.class}, password);
             Object client = ReflectUtils.invoke(builder, "build", Object.class);
 
             // .connect()
@@ -133,9 +133,6 @@ public class SshDeployTarget implements MavenDeployTarget {
 
             ready = true;
             log.info("[maven] SSH 部署目标连接成功: {}@{}:{} -> {}", username, host, port, remoteRoot);
-        } catch (ClassNotFoundException e) {
-            throw new MavenDeployException(
-                    "SSH 部署需要依赖 utils-support-ssh-starter，请添加该依赖到 classpath", e);
         } catch (Exception e) {
             throw new MavenDeployException(
                     "SSH 连接失败: " + host + ":" + port, e);

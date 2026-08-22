@@ -2,6 +2,7 @@ package com.chua.common.support.objects.scanner;
 
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -156,13 +157,14 @@ public final class ObjectContextScanner {
      */
     private static void loadClass(String className, List<Class<?>> result) {
         try {
-            Class<?> clazz = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            Class<?> clazz = ReflectUtils.forName(className);
+            if (clazz == null) {
+                return;
+            }
             if (!clazz.isInterface() && !clazz.isEnum() && !clazz.isAnnotation() && !clazz.isRecord()) {
-                try {
-                    clazz.getDeclaredConstructor();
-                    result.add(clazz);
-                } catch (NoSuchMethodException ignored) {
-                }
+                // 验证有无参构造（非严格，仅检查实例化可行性）
+                ReflectUtils.instantiate(clazz);
+                result.add(clazz);
             }
         } catch (Exception | LinkageError ignored) {
         }

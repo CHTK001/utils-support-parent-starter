@@ -7,6 +7,7 @@ import com.chua.common.support.function.MethodFilter;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.reflect.MethodInvoker;
 import com.chua.common.support.modules.ModuleLoader;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -971,7 +972,7 @@ public class ClassUtils {
         Class<?>[] parameterTypes = declaredConstructor.getParameterTypes();
         if (parameterTypes.length == 0) {
             setAccessible(declaredConstructor);
-            return (T) declaredConstructor.newInstance();
+            return (T) ReflectUtils.instantiate(declaredConstructor.getDeclaringClass());
         }
 
         Object[] args = getArgs(parameterTypes, params);
@@ -3077,7 +3078,7 @@ public class ClassUtils {
             if(args.length == 0) {
                 return staticBuilderMethod(protoMapClass);
             }
-            return protoMapClass.getDeclaredConstructor().newInstance(args);
+            return ReflectUtils.instantiate(protoMapClass, args);
         } catch (Exception e) {
             //                      
             throw new RuntimeException(e);
