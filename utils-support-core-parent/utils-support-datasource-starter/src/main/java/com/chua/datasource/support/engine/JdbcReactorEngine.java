@@ -468,14 +468,16 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        return Mono.from(Mono.usingWhen(
+        // 使用 collectList 避免 MonoReduce 对 Integer/Long 混合类型的 ClassCastException
+        // MySQL 驱动（asyncer）返回 Publisher<Integer>，H2 返回 Publisher<Long>
+        return Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.from(executeStatement(conn, sql, params))
                         .flatMap(result -> Flux.from(result.getRowsUpdated())
                                 .map(v -> v instanceof Number n ? n.longValue() : 0L))
                         .collectList()
                         .map(list -> list.stream().mapToLong(Long::longValue).sum()),
-                conn -> Mono.empty()))
+                conn -> Mono.empty())
                 .map(l -> l.intValue())
                 .defaultIfEmpty(0);
     }

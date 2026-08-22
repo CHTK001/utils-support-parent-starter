@@ -16,21 +16,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NativeUtils {
 
-    /** Os_name */
+    /** 操作系统名称（小写） */
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
-    /** Raw_arch */
+    /** 原始架构名称（小写） */
     private static final String RAW_ARCH = System.getProperty("os.arch").toLowerCase();
-    /** Os_arch */
+    /** 归一化后的架构名称 */
     private static final String OS_ARCH = normalizeArch(RAW_ARCH);
-    /** Os_prefix */
+    /** 操作系统前缀（windows/linux/darwin 等） */
     private static final String OS_PREFIX = getOsPrefix();
-    /** Fallback_arches */
+    /** 架构回退候选列表 */
     private static final String[] FALLBACK_ARCHES = buildFallbackArches();
 
-    /** LOADED */
+    /** 已加载库的缓存（key: libraryName|baseDir） */
     private static final ConcurrentHashMap<String, Boolean> LOADED = new ConcurrentHashMap<>();
-    /** Loaded_paths */
+    /** 已加载库的临时文件路径集合 */
     private static final Set<String> LOADED_PATHS = new LinkedHashSet<>();
+
+    /** Native 库在临时目录下的统一根目录名 */
+    public static final String NATIVE_TMP_ROOT = "chua-native";
 
     /** 创建 NativeUtils 实例 */
     private NativeUtils() {}

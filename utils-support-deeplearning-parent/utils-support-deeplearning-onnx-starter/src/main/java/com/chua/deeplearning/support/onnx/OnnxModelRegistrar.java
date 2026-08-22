@@ -417,6 +417,43 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 由 OnnxTextToAudioClient 直接加载，支持 .voice("SSB0005") 指定说话人。
         reg("vits-icefall-zh", null, String.class, byte[].class, Object.class, "audio/tts/vits-icefall-zh/model.onnx");
 
+        // ==================== 音频指纹提取（Audio Fingerprint） ====================
+        // wav2vec2-large-xlsr-53 中文（768维嵌入）：Facebook AI 自监督语音预训练模型，
+        // 最后一层 hidden state 经全局平均池化为固定维度向量；适用于音频指纹匹配、
+        // 相似音频检索、声纹初筛。输入 16kHz 单声道 PCM/WAV，输出 768 维 float[]。
+        // 模型约 950MB，建议下载后放置于本地模型目录或配置 classpath: 资源。
+        reg("wav2vec2-zh-fingerprint",
+                "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
+                byte[].class, float[].class,
+                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+                "audio/fingerprint/wav2vec2-zh/model.onnx",
+                "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
+                false, null);
+        // wav2vec2-base（384维嵌入，更轻量）：适合嵌入式/边缘设备，模型约 350MB。
+        reg("wav2vec2-base-fingerprint",
+                "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
+                byte[].class, float[].class,
+                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+                "audio/fingerprint/wav2vec2-base/model.onnx",
+                "https://huggingface.co/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx"),
+                false, null);
+
+        // ==================== 说话人嵌入（Speaker Embedding） ====================
+        // wespeaker-resnet34（512维 x-vector）：专用于说话人验证的 ResNet34+LM 架构，
+        // 输入 16kHz 单声道 PCM/WAV，输出 512 维 L2 归一化嵌入向量。
+        // 配合 DefaultSpeakerDiarizer（VAD 时间切分）完成端到端说话人分离。
+        // 模型约 80MB，适合嵌入式部署。
+        reg("wespeaker-resnet34",
+                "com.chua.deeplearning.support.onnx.audio.WespeakerEmbeddingTranslator",
+                byte[].class, float[].class,
+                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+                "audio/speaker/wespeaker-resnet34/model.onnx",
+                "https://huggingface.co/CV333333/wespeaker-voxceleb-resnet34-LM-onnx/resolve/main/model.onnx",
+                java.util.List.of("https://hf-mirror.com/CV333333/wespeaker-voxceleb-resnet34-LM-onnx/resolve/main/model.onnx"),
+                false, "model.onnx");
+
         // ==================== 零样本检测 YOLO-World（嵌入式友好） ====================
         // YOLO-World Small：开放词表检测，文本提示（中/英文）→ 检测框+类别；模型 ~40MB，适合嵌入式/边缘部署
         reg("yolov8s-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",

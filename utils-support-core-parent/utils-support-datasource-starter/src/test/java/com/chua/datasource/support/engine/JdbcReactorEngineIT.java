@@ -12,16 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JdbcReactorEngine 完整集成测试
- *
- * <p>覆盖场景：
- * <ul>
- *   <li>H2 内存库 — 纯 R2DBC 非阻塞执行（单数据源路径）</li>
- *   <li>MySQL 真实库 — R2DBC 非阻塞执行（单数据源路径）</li>
- *   <li>JDBC URL 自动转换 — jdbc:h2 / jdbc:mysql → r2dbc:h2 / r2dbc:mysql</li>
- *   <li>多数据源模式 — isMultiDataSource 触发联邦路径（无 DataSourceConversion SPI 时退回单数据源）</li>
- *   <li>错误处理 — 无效 SQL、缺失数据源、资源释放</li>
- * </ul>
- * </p>
  */
 class JdbcReactorEngineIT {
 
@@ -72,13 +62,11 @@ class JdbcReactorEngineIT {
 
     @Test
     void h2_batchInsert_returnsTotal() {
-        // batchViaR2dbc 将所有批次行的 rowsUpdated 累加后作为单个 emission 返回
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("h2", "r2dbc:h2:mem://it_h2_b");
         engine.execute("CREATE TABLE batch_test (id INT, val VARCHAR(20))").block();
         Flux<Integer> results = engine.batch("INSERT INTO batch_test (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "x"}, new Object[]{2, "y"}, new Object[]{3, "z"}));
-        // 3行 × 每行1条 = 总共3
         StepVerifier.create(results).expectNext(3).verifyComplete();
     }
 
@@ -104,13 +92,10 @@ class JdbcReactorEngineIT {
         assertNotNull(engine.getR2dbcFactory("h2b"));
     }
 
-    // typed query 需要实体类有无参构造，Map 不是合法目标类型，跳过此测试
-
     // ==================== JDBC URL 自动转换 ====================
 
     @Test
     void jdbcUrlConversion_h2Mem_viaTwoParam() {
-        // 两参 addDataSource(name, url) 应兼容传入 JDBC URL 并自动转换
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("h2", "jdbc:h2:mem://conv_test");
         assertNotNull(engine.getR2dbcFactory("h2"));
@@ -129,7 +114,6 @@ class JdbcReactorEngineIT {
 
     @Test
     void jdbcUrlConversion_postgresqlNotReachable() {
-        // PostgreSQL 本地未启动，但 addDataSource 只创建 Factory 不连接，应成功
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", "jdbc:postgresql://localhost:5432/test", "u", "p");
         assertNotNull(engine.getR2dbcFactory("pg"));
@@ -151,7 +135,6 @@ class JdbcReactorEngineIT {
 
     @Test
     void mysql_selectLimit_lowercaseKeys() {
-        // MySQL R2DBC 驱动返回小写字段名
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Flux<Map<String, Object>> result = engine.query("SELECT 1 AS one, 2 AS two");
@@ -170,7 +153,6 @@ class JdbcReactorEngineIT {
                 .block();
         engine.execute("INSERT INTO jte_r2dbc_test (id, name) VALUES (100, 'integration_test')").block();
 
-        // MySQL 返回小写列名
         List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_r2dbc_test WHERE id = 100")
                 .collectList().block();
         assertNotNull(rows); assertFalse(rows.isEmpty());
@@ -188,16 +170,13 @@ class JdbcReactorEngineIT {
         engine.execute("CREATE TABLE jte_upd_del (id INT PRIMARY KEY, status VARCHAR(20))").block();
         engine.execute("INSERT INTO jte_upd_del (id, status) VALUES (1, 'pending')").block();
 
-        // executeViaR2dbc 内部 map(Long::intValue) + reduce(0, Integer::sum) 返回 Integer
         Mono<Integer> updated = engine.execute("UPDATE jte_upd_del SET status = 'done' WHERE id = 1");
         StepVerifier.create(updated).expectNext(1).verifyComplete();
 
-        // 验证更新结果
         Map<String, Object> row = engine.query("SELECT status FROM jte_upd_del WHERE id = 1")
                 .next().block();
         assertNotNull(row); assertEquals("done", row.get("status"));
 
-        // 删除
         Mono<Integer> deleted = engine.execute("DELETE FROM jte_upd_del WHERE id = 1");
         StepVerifier.create(deleted).expectNext(1).verifyComplete();
 
@@ -206,7 +185,6 @@ class JdbcReactorEngineIT {
 
     @Test
     void mysql_batchInsert_returnsTotalRows() {
-        // batchViaR2dbc 返回总 affected rows（单值 emission），而非逐行 emission
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
 
@@ -215,7 +193,6 @@ class JdbcReactorEngineIT {
 
         Flux<Integer> results = engine.batch("INSERT INTO jte_batch (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
-        // 3行 × 每行1条 = 总3
         StepVerifier.create(results).expectNext(3).verifyComplete();
 
         Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_batch")
@@ -253,10 +230,8 @@ class JdbcReactorEngineIT {
     }
 
     @Test
-    void queryOnMissingDataSource_throwsIllegalState() {
+    void queryOnMissingDataSource_throwsError() {
         JdbcReactorEngine engine = new JdbcReactorEngine();
-        // 未添加任何数据源，defaultDataSourceName = null
-        // queryViaR2dbc 中 factory == null → IllegalStateException
         Flux<Map<String, Object>> result = engine.query("SELECT 1");
         StepVerifier.create(result).expectError(IllegalStateException.class).verify();
     }

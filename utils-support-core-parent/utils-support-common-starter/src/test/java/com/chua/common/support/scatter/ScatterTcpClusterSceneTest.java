@@ -106,13 +106,11 @@ public class ScatterTcpClusterSceneTest {
 
             // node-a 下线，等待 healthCheck 连续失败后移除（failRemoveCount=2, interval=500ms → 约 1-2s）
             nodeA.stop();
-            // 等待 nodeA 的 nodeServer 完全关闭 + healthCheck 检测到失败
             TimeUnit.SECONDS.sleep(3);
-            boolean foundAfter = waitForFalse(() ->
-                    nodeB.discovery().getServiceAll("/scatter").stream()
-                            .anyMatch(d -> "node-a".equals(d.getServerId())),
-                    5, "node-a 下线后应被 node-b 移除");
-            Assertions.assertFalse(foundAfter);
+            // 断言：node-a 下线后 node-b 服务表中不应再有 node-a
+            Assertions.assertFalse(nodeB.discovery().getServiceAll("/scatter").stream()
+                    .anyMatch(d -> "node-a".equals(d.getServerId())),
+                    "node-a 下线后 node-b 服务表中不应再有 node-a");
         } finally {
             nodeB.stop();
             nodeA.stop();

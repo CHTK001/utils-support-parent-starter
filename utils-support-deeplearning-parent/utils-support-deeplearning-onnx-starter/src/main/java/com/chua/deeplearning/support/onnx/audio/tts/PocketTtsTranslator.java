@@ -546,18 +546,19 @@ public class PocketTtsTranslator {
             }
             prepare();
             long[] ids = encode(text);
-            float[] conditioning = runTextConditioner(ids);
-            int textLen = ids.length;
             float[] refLatents = encodeRefAudio(refAudioWav);
-            float[] latents;
+            float[] conditioning;
+            int textLen;
             if (refLatents != null) {
-                // 声音克隆：直接用编码器潜变量解码，跳过 flow matching
-                log.info("[Pocket-TTS] 声音克隆模式，跳过 flow matching");
-                latents = refLatents;
+                // 声音克隆：用参考音频投影特征作为 sequence，获取音色 conditioning
+                conditioning = runTextConditioner(refLatents);
+                textLen = ids.length;
             } else {
-                // 默认音色：flow matching + mimi decoder
-                latents = runFlowMatching(conditioning, textLen, null);
+                // 默认音色：用文本 token ids 作为 sequence
+                conditioning = runTextConditioner(encodeToSequence(ids));
+                textLen = ids.length;
             }
+            float[] latents = runFlowMatching(conditioning, textLen, null);
             float[] waveform = runMimiDecoder(latents);
             return toWav(waveform, SAMPLE_RATE);
         } catch (Exception e) {
@@ -567,32 +568,23 @@ public class PocketTtsTranslator {
 
     /**
      * 运行 lm_main（stateful flow LM）获取文本条件向量。
-     * <p>将 token ids 转为 float sequence [1, seqLen, 32]，
+     * <p>将 token ids（或参考音频投影特征）转为 float sequence [1, seqLen, 32]，
      * 传入 flow LM 获取 conditioning [1, 1024] + 初始 state。</p>
+     *
+     * @param seqFloat 序列输入（token ids 转 float 或参考音频投影特征）
+     * @return conditioning 向量 [1024]
      */
-    private float[] runTextConditioner(long[] ids) throws Exception {
-        // 构建空 sequence（token ids → float [1, seqLen, SEQUENCE_EMBED_DIM]）
-        // 注意：model 期望的 sequence 第三维是 32，不是 latent_dim(8)
-        int seqLen = ids.length;
-        float[] seqFloat = new float[seqLen * SEQUENCE_EMBED_DIM];
-        for (int i = 0; i < seqLen; i++) {
-            float val = (float) ids[i];
-            for (int d = 0; d < SEQUENCE_EMBED_DIM; d++) {
-                seqFloat[i * SEQUENCE_EMBED_DIM + d] = val;
-            }
-        }
+    private float[] runTextConditioner(float[] seqFloat) throws Exception {
+        int seqLen = seqFloat.length / SEQUENCE_EMBED_DIM;
         long[] seqShape = new long[]{1, seqLen, SEQUENCE_EMBED_DIM};
-
-        // 构建空 text_embeddings [1, 0, 1024]
+        // 空 text_embeddings：让 LM 从 sequence 中提取说话人信息
         float[] emptyEmb = new float[0];
 
-        // 运行一次 flow_lm_main 获取初始 conditioning 和 state
         try (ai.onnxruntime.OnnxTensor tSeq = ai.onnxruntime.OnnxTensor.createTensor(
                         ortEnv, FloatBuffer.wrap(seqFloat), seqShape);
              ai.onnxruntime.OnnxTensor tEmb = ai.onnxruntime.OnnxTensor.createTensor(
                          ortEnv, FloatBuffer.wrap(emptyEmb), new long[]{1, 0, CONDITIONING_DIM})) {
 
-            // 运行前先用零 state 初始化
             Map<String, ai.onnxruntime.OnnxTensor> initInputs = new LinkedHashMap<>();
             initInputs.put("sequence", tSeq);
             initInputs.put("text_embeddings", tEmb);
@@ -606,7 +598,7 @@ public class PocketTtsTranslator {
                 float[] conditioning = new float[fb.remaining()];
                 fb.get(conditioning);
 
-                // 收集输出 state 张量，构建后续 flow 步使用的 state map
+                // 收集输出 state 张量（flow LM 的 recurrent state，供后续帧使用）
                 Map<String, ai.onnxruntime.OnnxTensor> initState = new LinkedHashMap<>();
                 for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
                     try {
@@ -625,6 +617,21 @@ public class PocketTtsTranslator {
                 return conditioning;
             }
         }
+    }
+
+    /**
+     * 将 token ids 转为 float sequence [1, seqLen, 32]。
+     */
+    private float[] encodeToSequence(long[] ids) {
+        int seqLen = ids.length;
+        float[] seqFloat = new float[seqLen * SEQUENCE_EMBED_DIM];
+        for (int i = 0; i < seqLen; i++) {
+            float val = (float) ids[i];
+            for (int d = 0; d < SEQUENCE_EMBED_DIM; d++) {
+                seqFloat[i * SEQUENCE_EMBED_DIM + d] = val;
+            }
+        }
+        return seqFloat;
     }
 
     /**
