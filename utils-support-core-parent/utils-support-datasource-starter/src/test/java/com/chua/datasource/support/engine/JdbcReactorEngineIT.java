@@ -167,20 +167,12 @@ class JdbcReactorEngineIT {
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
 
-        System.out.println("[TEST] Before DROP - engine datasource name: " + engine.getDefaultDataSourceName());
-        System.out.println("[TEST] isMulti: " + engine.isMultiDataSource());
         engine.execute("DROP TABLE IF EXISTS jte_r2dbc_test").block();
-        System.out.println("[TEST] After DROP");
         engine.execute("CREATE TABLE jte_r2dbc_test (id INT PRIMARY KEY, name VARCHAR(50), ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
                 .block();
         System.out.println("[TEST] After CREATE");
-        // 检查表创建后行数
-        List<Map<String, Object>> preCheck = engine.query("SELECT COUNT(*) AS cnt FROM jte_r2dbc_test")
-                .collectList().block();
-        System.out.println("[TEST] Table row count after CREATE: " + preCheck);
         // report 库有触发器，使用 INSERT IGNORE 避免重复 key
         engine.execute("INSERT IGNORE INTO jte_r2dbc_test (id, name) VALUES (100, 'integration_test')").block();
-        System.out.println("[TEST] After INSERT");
 
         List<Map<String, Object>> rows = engine.query("SELECT * FROM jte_r2dbc_test WHERE id = 100")
                 .collectList().block();
@@ -200,15 +192,15 @@ class JdbcReactorEngineIT {
         engine.execute("INSERT IGNORE INTO jte_upd_del (id, status) VALUES (1, 'pending')").block();
 
         Mono<Integer> updated = engine.execute("UPDATE jte_upd_del SET status = 'done' WHERE id = 1");
-        // MySQL report 库有触发器，INSERT IGNORE 可能返回 0，只验证完成
-        StepVerifier.create(updated).verifyComplete();
+        // MySQL report 库有触发器，INSERT IGNORE 可能返回 0；trigger 行存在时返回 1
+        StepVerifier.create(updated).expectNextCount(1).verifyComplete();
 
         Map<String, Object> row = engine.query("SELECT status FROM jte_upd_del WHERE id = 1")
                 .next().block();
         assertNotNull(row);
 
         Mono<Integer> deleted = engine.execute("DELETE FROM jte_upd_del WHERE id = 1");
-        StepVerifier.create(deleted).verifyComplete();
+        StepVerifier.create(deleted).expectNextCount(1).verifyComplete();
 
         engine.execute("DROP TABLE jte_upd_del").block();
     }
@@ -223,8 +215,8 @@ class JdbcReactorEngineIT {
 
         Flux<Integer> results = engine.batch("INSERT IGNORE INTO jte_batch (id, val) VALUES (?, ?)",
                 List.of(new Object[]{1, "a"}, new Object[]{2, "b"}, new Object[]{3, "c"}));
-        // MySQL report 库有触发器，INSERT IGNORE 可能返回 0，只验证完成
-        StepVerifier.create(results).verifyComplete();
+        // MySQL report 库有触发器，INSERT IGNORE 可能返回 0；trigger 行存在时返回 1
+        StepVerifier.create(results).expectNextCount(3).verifyComplete();
 
         Map<String, Object> cntRow = engine.query("SELECT COUNT(*) AS cnt FROM jte_batch")
                 .next().block();
