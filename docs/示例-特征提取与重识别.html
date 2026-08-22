@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特征提取与重识别 · 示例文档</title>
+<style>
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --purple:#bc8cff; --red:#f85149; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+.header { background:var(--card); border-bottom:1px solid var(--border); padding:24px 40px; }
+.header h1 { font-size:1.5em; color:#f0f6fc; margin-bottom:4px; }
+.header p { color:var(--muted); font-size:0.9em; }
+.back { display:inline-block; margin-top:12px; color:var(--accent); text-decoration:none; font-size:0.88em; }
+.body-inner { max-width:1100px; margin:0 auto; padding:28px 40px; }
+h2 { font-size:1.25em; color:#f0f6fc; margin:40px 0 14px; padding-left:12px; border-left:3px solid var(--accent); }
+code { background:#1f2937; padding:1px 5px; border-radius:3px; font-family:'Cascadia Code',Consolas,monospace; font-size:0.88em; color:#79c0ff; }
+pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 16px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#e6edf3; padding:0; }
+.example-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px; margin:16px 0; }
+.example-card h4 { color:var(--accent); margin-bottom:8px; }
+.tag { display:inline-block; font-size:0.75em; padding:2px 8px; border-radius:12px; margin-right:6px; font-weight:600; }
+.tag-blue { background:rgba(88,166,255,0.15); color:var(--accent); }
+.tag-green { background:rgba(63,185,80,0.15); color:var(--green); }
+.note { background:rgba(88,166,255,0.08); border-left:3px solid var(--accent); padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; }
+.footer { text-align:center; padding:32px; color:var(--muted); font-size:0.82em; border-top:1px solid var(--border); margin-top:32px; }
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>特征提取与重识别</h1>
+    <p>示例包：<code>com.chua.example.recognition</code> · 模块：<code>utils-support-recognition-starter</code></p>
+    <a class="back" href="index.html">&#8592; 返回文档中心</a>
+</div>
+<div class="body-inner">
+<div class="note"><strong>ReID：</strong>行人重识别，跨摄像头人员追踪，DeepSORT 多目标跟踪。</div>
+
+<h2 id="reid">行人重识别</h2>
+<div class="example-card">
+    <h4>PersonReidExample <span class="tag tag-blue">ReID</span></h4>
+    <p>行人重识别：提取人物外观特征，跨摄像头比对同一人。</p>
+<pre><code>PersonReidModel model = new PersonReidModel("reid_model.onnx");
+
+// 提取特征
+float[] feat1 = model.extract(image1);
+float[] feat2 = model.extract(image2);
+
+// 比对
+float sim = cosine(feat1, feat2);
+System.out.printf("匹配度: %.4f %s%n", sim, sim > 0.7 ? "同一人" : "不同人");</code></pre>
+</div>
+
+<h2 id="deepsort">DeepSORT 跟踪</h2>
+<div class="example-card">
+    <h4>DeepSortExample <span class="tag tag-green">跟踪</span></h4>
+    <p>DeepSORT 多目标跟踪：检测 + 特征提取 + 关联匹配，为每个目标分配唯一 ID。</p>
+</div>
+
+<div class="footer">utils-support-parent-starter &copy; 2026 &middot; <a href="index.html" style="color:var(--accent)">返回文档中心</a></div>
+</div>
+</body>
+</html>
