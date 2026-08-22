@@ -114,22 +114,41 @@ java RagChatExample list
 java RagChatExample delete --id=xxx
 java RagChatExample reindex</code></pre>
 </div>
+<div class="note">
+    <strong>文档管理 API：</strong><br>
+    <code>uploadDocument(fileName, data)</code> → 返回 <code>RagDocument</code>，含 <code>id</code>（即 fileId）<br>
+    <code>updateDocument(docId, fileName, data)</code> → 保留原 docId 更新内容并重新索引<br>
+    <code>deleteDocument(docId)</code> → 同步清理向量和落盘文件<br>
+    <code>readDocumentContent(docId)</code> → 读取原始内容<br>
+    <code>listDocuments(page, pageSize)</code> → 分页列表<br>
+    <code>reindex()</code> → 重新向量化所有 READY 文档
+</div>
 <div class="example-card">
     <h4>编程式调用（链式）</h4>
-<pre><code>RagClient rag = RagClient.create(
-    RagClientSetting.builder()
-        .embeddingClient(embeddingClient)
-        .chatClient(chatClient)
-        .vectorStorage(vectorStorage)
-        .topK(3)
-        .build());
+<pre><code>RagClient rag = RagClient.create("memory", RagClientSetting.builder()
+    .embeddingClient(embeddingClient)
+    .chatClient(chatClient)
+    .vectorStorage(vectorStorage)
+    .topK(3)
+    .build());
 
-RagDocument doc = RagDocument.of("产品手册.pdf");
-rag.upload(doc);
+// 上传 → 返回含 fileId 的 RagDocument
+RagDocument doc = rag.uploadDocument("manual.pdf", pdfBytes);
+String fileId = doc.id();
 
+// 更新文档（保留原 fileId）
+rag.updateDocument(fileId, "manual-v2.pdf", newPdfBytes);
+
+// 删除（同步清理向量+文件）
+rag.deleteDocument(fileId);
+
+// 读取原文
+String content = rag.readDocumentContent(fileId);
+
+// 查询
 RagResponse resp = rag.query("XX 功能怎么用？");
-System.out.println(resp.getAnswer());
-System.out.println("引用: " + resp.getSources());</code></pre>
+System.out.println(resp.answer());
+System.out.println("引用: " + resp.sources());</code></pre>
 </div>
 
 <h2 id="speech">语音识别与合成</h2>
