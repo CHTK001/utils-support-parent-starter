@@ -75,14 +75,26 @@ public interface VectorStorage extends AutoCloseable {
     int size();
 
     /**
+     * 删除指定 id 前缀的所有向量。
+     * <p>
+     * 默认实现抛出 {@link UnsupportedOperationException}，
+     * 子类（如 {@link MemoryVectorStorage}）应覆写以支持批量删除。
+     * </p>
+     *
+     * @param idPrefix id 前缀
+     * @return 删除的向量数量
+     */
+    default int removeByIdPrefix(String idPrefix) {
+        throw new UnsupportedOperationException("当前实现不支持按前缀删除向量");
+    }
+
+    /**
      * 删除指定 id 的向量。
      *
      * @param id 向量标识
      * @return 是否删除成功（id 不存在时返回 false）
      */
-    default boolean remove(String id) {
-        throw new UnsupportedOperationException("当前实现不支持 remove");
-    }
+    boolean remove(String id);
 
     /**
      * 更新指定 id 的向量数据。
