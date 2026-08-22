@@ -104,13 +104,14 @@ public class ScatterTcpClusterSceneTest {
                     "同步前 node-a 应存在");
             Assertions.assertTrue(foundBefore);
 
-            // node-a 下线，等待 healthCheck 连续失败后移除（failRemoveCount=2, interval=500ms → 约 1-2s）
+            // node-a 下线，等待 healthCheck 连续失败后移除（failRemoveCount=2, interval=500ms）
+            // 注意：nodeServer.stop() 后 OS TCP 层可能仍短暂接受连接，需多轮 healthCheck 确认移除
             nodeA.stop();
-            TimeUnit.SECONDS.sleep(3);
-            // 断言：node-a 下线后 node-b 服务表中不应再有 node-a
-            Assertions.assertFalse(nodeB.discovery().getServiceAll("/scatter").stream()
-                    .anyMatch(d -> "node-a".equals(d.getServerId())),
-                    "node-a 下线后 node-b 服务表中不应再有 node-a");
+            boolean removed = waitForFalse(() ->
+                    nodeB.discovery().getServiceAll("/scatter").stream()
+                            .anyMatch(d -> "node-a".equals(d.getServerId())),
+                    10, "node-a 下线后应被 node-b 移除");
+            Assertions.assertTrue(removed, "node-a 下线后应从 node-b 服务表移除");
         } finally {
             nodeB.stop();
             nodeA.stop();

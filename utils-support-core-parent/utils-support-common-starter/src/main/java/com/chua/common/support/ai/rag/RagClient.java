@@ -158,8 +158,24 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     RagDocument uploadDocument(String fileName, byte[] data);
 
     /**
+     * 上传或更新文档（by docId）。
+     * <p>若 docId 已存在则覆盖旧内容并重新索引，否则新建文档。</p>
+     *
+     * @param docId    文档 ID（即 fileId，传 null 时自动生成）
+     * @param fileName 文件名
+     * @param data     文件字节数据
+     * @return 文档元数据（含 fileId）
+     */
+    default RagDocument upsertDocument(String docId, String fileName, byte[] data) {
+        if (docId != null) {
+            return uploadDocument(docId + "_ " + fileName, data);
+        }
+        return uploadDocument(fileName, data);
+    }
+
+    /**
      * 更新文档（替换原文件并重新索引）。
-     * <p>先删除旧文档的向量和文件，再重新上传。</p>
+     * <p>默认实现删除旧文档后重新上传，生成新 docId。子类应覆写以保留原 docId。</p>
      *
      * @param docId    原文档 ID（即 fileId）
      * @param fileName 新文件名

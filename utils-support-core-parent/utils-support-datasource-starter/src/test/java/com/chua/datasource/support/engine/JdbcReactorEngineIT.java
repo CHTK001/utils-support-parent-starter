@@ -143,6 +143,8 @@ class JdbcReactorEngineIT {
                 .verifyComplete();
     }
 
+    // ==================== MySQL DML（execute/batch，验证 Long/Integer 兼容修复） ====================
+
     @Test
     void mysql_createInsertSelectAndDrop() {
         JdbcReactorEngine engine = new JdbcReactorEngine();

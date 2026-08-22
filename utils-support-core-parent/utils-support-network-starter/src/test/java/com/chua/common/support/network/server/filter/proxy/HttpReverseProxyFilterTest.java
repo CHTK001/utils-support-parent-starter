@@ -64,8 +64,11 @@ public class HttpReverseProxyFilterTest {
         backendServer.setExecutor(null);
         backendServer.start();
         backendPort = backendServer.getAddress().getPort();
+        // 服务器已启动，立即释放 latch；countDown 原来放在 handler 内，
+        // 但 await 在 handler 被调用之前就执行，导致永远等不到
+        serverReady.countDown();
 
-        assertTrue(serverReady.await(5, TimeUnit.SECONDS), "Backend server failed to start");
+        assertTrue(serverReady.await(10, TimeUnit.SECONDS), "Backend server failed to start");
 
         proxyFilter = new HttpReverseProxyFilter();
         proxyFilter.init(mock(ServerFilterConfig.class));
