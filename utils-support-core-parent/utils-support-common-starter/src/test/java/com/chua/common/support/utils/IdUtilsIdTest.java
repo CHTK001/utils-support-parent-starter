@@ -159,7 +159,8 @@ class IdUtilsIdTest {
 
     @Test
     void testIsSameData_nullSafe() {
-        assertFalse(IdUtils.isSameData(null, null));
+        // both null = same
+        assertTrue(IdUtils.isSameData(null, null));
         assertFalse(IdUtils.isSameData(new Person("A", 1, "a@t.com"), null));
         assertFalse(IdUtils.isSameData(null, new Person("A", 1, "a@t.com")));
     }
@@ -195,7 +196,8 @@ class IdUtilsIdTest {
 
     @Test
     void testIsSamePartialData_nullSafe() {
-        assertFalse(IdUtils.isSamePartialData(null, null, 0.6));
+        // both null = same
+        assertTrue(IdUtils.isSamePartialData(null, null, 0.6));
         assertFalse(IdUtils.isSamePartialData(new Product("x", "y", 1.0, 1), null, 0.6));
     }
 

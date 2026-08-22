@@ -613,16 +613,16 @@ public class JdbcReactorEngine implements ReactorEngine {
             return Flux.empty();
         }
         /* 每批次单独创建 Statement 并执行，通过 safeGetRowsUpdated 兼容各驱动差异 */
-        return Flux.from(Mono.usingWhen(
+        return Flux.defer(() -> Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
                         .flatMap(paramArray -> {
                              Statement stmt = conn.createStatement(convertPlaceholders(sql, null));
-                            bindParams(stmt, paramArray);
-                            return Flux.from(stmt.execute())
-                                    .flatMap(result -> safeGetRowsUpdated(result))
-                                    .collectList()
-                                    .map(list -> list.isEmpty() ? 0L : list.stream().mapToLong(Long::longValue).sum());
+                             bindParams(stmt, paramArray);
+                             return Flux.from(stmt.execute())
+                                     .flatMap(result -> safeGetRowsUpdated(result))
+                                     .collectList()
+                                     .map(list -> list.isEmpty() ? 0L : list.stream().mapToLong(Long::longValue).sum());
                         })
                         .collectList()
                         .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
