@@ -727,13 +727,13 @@ public class JdbcReactorEngine implements ReactorEngine {
                     ps.addBatch();
                 }
                 int[] updates = ps.executeBatch();
-                logger.debug("batchViaJdbc executed {} batches, returned {} updates", batchParams.size(), updates.length);
+                System.out.println("[DEBUG] batchViaJdbc: sql=" + sql + " batches=" + batchParams.size() + " updates=" + java.util.Arrays.toString(updates));
                 for (int update : updates) {
                     results.add(update);
                 }
             } catch (Exception e) {
-                logger.warn("batchViaJdbc failed: {}", e.getMessage(), e);
-                return results;
+                System.err.println("[DEBUG] batchViaJdbc FAILED: " + e.getMessage());
+                e.printStackTrace();
             }
             return results;
         }).flatMapMany(Flux::fromIterable);
