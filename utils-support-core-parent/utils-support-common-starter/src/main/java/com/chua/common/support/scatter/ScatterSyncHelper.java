@@ -41,6 +41,15 @@ public final class ScatterSyncHelper {
     public static void resetForTest() {
         customClient = null;
         REQUEST_ID_SEQ.clear();
+        com.chua.common.support.scatter.discovery.AbstractScatterDiscovery.resetAllCaches();
+    }
+
+    /** 测试类结束后清理所有实例，防止跨测试类污染。 */
+    public static void resetAll() {
+        customClient = null;
+        REQUEST_ID_SEQ.clear();
+        com.chua.common.support.scatter.discovery.AbstractScatterDiscovery.resetAllCaches();
+        com.chua.common.support.scatter.discovery.AbstractScatterDiscovery.resetInstances();
     }
 
     /**

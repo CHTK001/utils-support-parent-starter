@@ -259,9 +259,7 @@ public class UsagePersistChatClient implements ChatClient {
             if (usage.getProvider() == null) {
                 usage.setProvider("external-sync");
             }
-            if (usage.getRequestId() == null) usage.setRequestId("sync-" + System.nanoTime() {
-                );
-            }
+            if (usage.getRequestId() == null) usage.setRequestId("sync-" + System.nanoTime());
             persistAsync(usage);
         }
         log.info("[UsagePersistChatClient] 从外部同步 {} 条用量到 Engine", externalUsage.size());
