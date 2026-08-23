@@ -285,7 +285,7 @@ public final class ReflectUtils {
                 log.debug("[ReflectUtils] 字段不存在: {}.{}", target.getClass().getSimpleName(), fieldName);
                 return null;
             }
-            return handle.invokeExact(target);
+            return handle.invoke(target);
         } catch (Throwable e) {
             log.debug("[ReflectUtils] 读取字段异常: {}.{}", target.getClass().getSimpleName(), fieldName, e);
             return null;
@@ -310,7 +310,7 @@ public final class ReflectUtils {
                 log.debug("[ReflectUtils] 字段不存在: {}.{}", target.getClass().getSimpleName(), fieldName);
                 return false;
             }
-            handle.invokeExact(target, value);
+            handle.invoke(target, value);
             return true;
         } catch (Throwable e) {
             log.debug("[ReflectUtils] 写入字段异常: {}.{}", target.getClass().getSimpleName(), fieldName, e);
@@ -329,7 +329,9 @@ public final class ReflectUtils {
                 while (c != null) {
                     try {
                         java.lang.reflect.Field f = c.getDeclaredField(fieldName);
-                        return LOOKUP.unreflectGetter(f);
+                        // Java 9+ privateLookupIn：解决内部类/嵌套类 private 字段的 MethodHandle 权限问题
+                        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
+                        return lookup.unreflectGetter(f);
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         c = c.getSuperclass();
                     }
@@ -352,7 +354,9 @@ public final class ReflectUtils {
                 while (c != null) {
                     try {
                         java.lang.reflect.Field f = c.getDeclaredField(fieldName);
-                        return LOOKUP.unreflectSetter(f);
+                        // Java 9+ privateLookupIn：解决内部类/嵌套类 private 字段的 MethodHandle 权限问题
+                        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
+                        return lookup.unreflectSetter(f);
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         c = c.getSuperclass();
                     }
@@ -397,8 +401,9 @@ public final class ReflectUtils {
         try {
             for (java.lang.reflect.Field f : target.getClass().getDeclaredFields()) {
                 if (f.getName().toLowerCase().contains(nameSubstring.toLowerCase())) {
-                    MethodHandle handle = LOOKUP.unreflectGetter(f);
-                    return handle.invokeExact(target);
+                    MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(f.getDeclaringClass(), LOOKUP);
+                    MethodHandle handle = lookup.unreflectGetter(f);
+            return handle.invoke(target);
                 }
             }
         } catch (Throwable e) {
