@@ -27,11 +27,15 @@ public interface BeanPath {
             String trimmed = s.trim();
             if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
                 BeanPath jp = ServiceProvider.of(BeanPath.class).getExtension("json");
-                if (jp != null) return jp;
+                if (jp != null) {
+                    return jp;
+                }
             }
             if (trimmed.startsWith("<")) {
                 BeanPath xp = ServiceProvider.of(BeanPath.class).getExtension("xml");
-                if (xp != null) return xp;
+                if (xp != null) {
+                    return xp;
+                }
             }
         }
         return new ObjectBeanPath();

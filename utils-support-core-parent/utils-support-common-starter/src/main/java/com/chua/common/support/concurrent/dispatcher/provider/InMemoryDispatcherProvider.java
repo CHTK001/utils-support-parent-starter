@@ -49,7 +49,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     @Override
     /** 发布 */
     public void publish(String topic, Object body) {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         var queue = topicQueues.computeIfAbsent(topic, t -> new LinkedBlockingQueue<>(QUEUE_CAPACITY));
         if (!queue.offer(body)) {
             log.warn("内存队列已满，丢弃消息，topic={}", topic);
@@ -98,7 +100,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
             while (!closed) {
                 try {
                     var body = queue.poll(100, TimeUnit.MILLISECONDS);
-                    if (body == null) continue;
+                    if (body == null) {
+                        continue;
+                    }
                     var definitions = definitionMap.get(topic);
                     if (definitions != null) {
                         for (var def : definitions) {

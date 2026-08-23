@@ -83,23 +83,33 @@ public class IpcInvoker implements Invoker {
                 Annotation ann = clazz.getAnnotation(cl.asSubclass(Annotation.class));
                 if (ann != null) {
                     String v = extractAnnotationValue(ann);
-                    if (!StringUtils.isEmpty(v)) return v;
+                    if (!StringUtils.isEmpty(v)) {
+                        return v;
+                    }
                 }
             } catch (Exception ignored) {
             }
         }
         RequestMethod rm = clazz.getAnnotation(RequestMethod.class);
-        if (rm != null && !StringUtils.isEmpty(rm.value())) return rm.value();
+        if (rm != null && !StringUtils.isEmpty(rm.value())) {
+            return rm.value();
+        }
         InvokerService is = clazz.getAnnotation(InvokerService.class);
-        if (is != null && !StringUtils.isEmpty(is.value())) return is.value();
+        if (is != null && !StringUtils.isEmpty(is.value())) {
+            return is.value();
+        }
         RemoteService rs = clazz.getAnnotation(RemoteService.class);
-        if (rs != null && !StringUtils.isEmpty(rs.url())) return rs.url();
+        if (rs != null && !StringUtils.isEmpty(rs.url())) {
+            return rs.url();
+        }
         return "";
     }
 
     private static String resolveNamespace(Class<?> clazz) {
         IpcMethod im = clazz.getAnnotation(IpcMethod.class);
-        if (im != null && !StringUtils.isEmpty(im.value())) return im.value();
+        if (im != null && !StringUtils.isEmpty(im.value())) {
+            return im.value();
+        }
         return "";
     }
 
@@ -118,8 +128,12 @@ public class IpcInvoker implements Invoker {
         try {
             java.lang.reflect.Method m = ann.getClass().getMethod("value");
             Object r = m.invoke(ann);
-            if (r instanceof String s) return s;
-            if (r instanceof String[] a && a.length > 0) return a[0];
+            if (r instanceof String s) {
+                return s;
+            }
+            if (r instanceof String[] a && a.length > 0) {
+                return a[0];
+            }
         } catch (Exception ignored) {
         }
         return "";
@@ -224,14 +238,20 @@ public class IpcInvoker implements Invoker {
          */
         private void processRemoteInject(InvocationContext ctx, Method method, Object[] args) {
             RemoteInject[] injects = method.getAnnotationsByType(RemoteInject.class);
-            if (injects.length == 0) return;
+            if (injects.length == 0) {
+                return;
+            }
 
             BeanPath beanPath = BeanPath.getInstance();
-            if (beanPath == null) return;
+            if (beanPath == null) {
+                return;
+            }
 
             for (RemoteInject ri : injects) {
                 Object sourceValue = resolveSource(ri.source(), ctx, args, beanPath);
-                if (sourceValue == null) continue;
+                if (sourceValue == null) {
+                    continue;
+                }
 
                 String value = sourceValue.toString();
                 if (!StringUtils.isEmpty(ri.format())) {
@@ -249,9 +269,13 @@ public class IpcInvoker implements Invoker {
             if (source.startsWith("args[")) {
                 int end = source.indexOf(']');
                 int idx = Integer.parseInt(source.substring(5, end));
-                if (idx < 0 || idx >= (args != null ? args.length : 0)) return null;
+                if (idx < 0 || idx >= (args != null ? args.length : 0)) {
+                    return null;
+                }
                 String rest = source.substring(end + 1);
-                if (rest.startsWith(".")) rest = rest.substring(1);
+                if (rest.startsWith(".")) {
+                    rest = rest.substring(1);
+                }
                 return rest.isEmpty() ? args[idx] : beanPath.getValue(args[idx], rest);
             }
             if (source.startsWith("attributes.")) {
@@ -279,13 +303,17 @@ public class IpcInvoker implements Invoker {
          * @param text text
          */
         private String resolvePlaceholders(String text) {
-            if (StringUtils.isEmpty(text) || !text.contains("${")) return text;
+            if (StringUtils.isEmpty(text) || !text.contains("${")) {
+                return text;
+            }
             return propertyResolver.resolvePlaceholders(text);
         }
 
         private static String resolveMethodName(Method method) {
             RemoteMethod rm = method.getAnnotation(RemoteMethod.class);
-            if (rm != null && !StringUtils.isEmpty(rm.value())) return rm.value();
+            if (rm != null && !StringUtils.isEmpty(rm.value())) {
+                return rm.value();
+            }
             return method.getName();
         }
 

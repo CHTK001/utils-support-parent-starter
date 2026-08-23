@@ -279,8 +279,12 @@ public final class CliOption {
      * @param o o
      */
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CliOption)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CliOption)) {
+            return false;
+        }
         CliOption cliOption = (CliOption) o;
         return longName.equals(cliOption.longName)
                 && Objects.equals(shortName, cliOption.shortName);

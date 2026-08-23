@@ -241,7 +241,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     @Override
     /** 获取ValidToken */
     public AiToken getValidToken(String tokenValue) {
-        if (tokenValue == null || tokenValue.isBlank()) return null;
+        if (tokenValue == null || tokenValue.isBlank()) {
+            return null;
+        }
         AiToken token = tokenMap.get(tokenValue);
         if (token != null && token.isValid()) {
             return token;
@@ -264,7 +266,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     @Override
     /** Put */
     public synchronized void put(AiToken token) {
-        if (token == null || token.getToken() == null || token.getToken().isBlank()) return;
+        if (token == null || token.getToken() == null || token.getToken().isBlank()) {
+            return;
+        }
         tokenMap.put(token.getToken(), token);
         flushToFile();
         log.debug("[FileAiTokenProvider] 令牌已添加/更新: {}", maskToken(token.getToken()));
@@ -273,7 +277,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     @Override
     /** PutAll */
     public synchronized void putAll(List<AiToken> tokens) {
-        if (tokens == null) return;
+        if (tokens == null) {
+            return;
+        }
         for (AiToken token : tokens) {
             if (token.getToken() != null && !token.getToken().isBlank()) {
                 tokenMap.put(token.getToken(), token);
@@ -286,7 +292,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     @Override
     /** 移除 */
     public synchronized AiToken remove(String tokenValue) {
-        if (tokenValue == null || tokenValue.isBlank()) return null;
+        if (tokenValue == null || tokenValue.isBlank()) {
+            return null;
+        }
         AiToken removed = tokenMap.remove(tokenValue);
         if (removed != null) {
             flushToFile();
@@ -309,8 +317,12 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
      * 脱敏令牌，仅显示前 8 位。
      */
     public static String maskToken(String token) {
-        if (token == null) return null;
-        if (token.length() <= 8) return token;
+        if (token == null) {
+            return null;
+        }
+        if (token.length() <= 8) {
+            return token;
+        }
         return token.substring(0, 8) + "***";
     }
 }

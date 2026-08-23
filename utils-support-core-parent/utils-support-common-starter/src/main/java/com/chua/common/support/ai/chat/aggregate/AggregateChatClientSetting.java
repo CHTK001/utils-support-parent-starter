@@ -142,10 +142,14 @@ public class AggregateChatClientSetting {
      * @return token → AiToken 映射，无 token 配置返回空 Map
      */
     public Map<String, AiToken> toTokenMap() {
-        if (tokens == null || tokens.isEmpty()) return Map.of();
+        if (tokens == null || tokens.isEmpty()) {
+            return Map.of();
+        }
         Map<String, AiToken> map = new LinkedHashMap<>();
         for (TokenConfig tc : tokens) {
-            if (tc.getToken() == null || tc.getToken().isBlank()) continue;
+            if (tc.getToken() == null || tc.getToken().isBlank()) {
+                continue;
+            }
             map.put(tc.getToken(), AiToken.builder()
                     .token(tc.getToken())
                     .group(tc.getGroup() != null ? tc.getGroup() : "default")
@@ -210,8 +214,12 @@ public class AggregateChatClientSetting {
          * @return true 允许访问
          */
         public boolean isTokenGroupAllowed(String tokenGroup) {
-            if (tokenGroups == null || tokenGroups.isEmpty()) return true;
-            if (tokenGroup == null) return false;
+            if (tokenGroups == null || tokenGroups.isEmpty()) {
+                return true;
+            }
+            if (tokenGroup == null) {
+                return false;
+            }
             return tokenGroups.contains(tokenGroup);
         }
     }
@@ -340,7 +348,9 @@ public class AggregateChatClientSetting {
          * @return Date 对象，未设置返回 null
          */
         public Date getExpireTime() {
-            if (expireTime == null || expireTime.isBlank()) return null;
+            if (expireTime == null || expireTime.isBlank()) {
+                return null;
+            }
             try {
                 return new SimpleDateFormat("yyyy-MM-dd").parse(expireTime);
             } catch (Exception e) {

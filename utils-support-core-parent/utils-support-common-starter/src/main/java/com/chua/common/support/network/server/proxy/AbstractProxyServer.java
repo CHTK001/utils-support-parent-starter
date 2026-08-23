@@ -228,7 +228,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
         while (running) {
             try {
                 int n = acceptSelector.select(5000L);
-                if (!running) break;
+                if (!running) {
+                    break;
+                }
                 java.util.Iterator<SelectionKey> it = acceptSelector.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();

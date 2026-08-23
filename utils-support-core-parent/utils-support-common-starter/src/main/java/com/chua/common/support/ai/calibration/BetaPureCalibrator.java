@@ -68,8 +68,12 @@ public class BetaPureCalibrator implements PureCalibrator {
      * @return 累积概率值
      */
     private double regularizedIncompleteBeta(double x, double a, double b) {
-        if (x < 0 || x > 1) return x;
-        if (x == 0 || x == 1) return x;
+        if (x < 0 || x > 1) {
+            return x;
+        }
+        if (x == 0 || x == 1) {
+            return x;
+        }
 
         double bt = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) +
                 a * Math.log(x) + b * Math.log(1 - x));
@@ -89,7 +93,9 @@ public class BetaPureCalibrator implements PureCalibrator {
         double qam = a - 1;
         double c = 1.0;
         double d = 1.0 - qab * x / qap;
-        if (Math.abs(d) < 1e-30) d = 1e-30;
+        if (Math.abs(d) < 1e-30) {
+            d = 1e-30;
+        }
         d = 1.0 / d;
         double h = d;
 
@@ -97,21 +103,31 @@ public class BetaPureCalibrator implements PureCalibrator {
             int m2 = 2 * m;
             double aa = m * (b - m) * x / ((qam + m2) * (a + m2));
             d = 1.0 + aa * d;
-            if (Math.abs(d) < 1e-30) d = 1e-30;
+            if (Math.abs(d) < 1e-30) {
+                d = 1e-30;
+            }
             c = 1.0 + aa / c;
-            if (Math.abs(c) < 1e-30) c = 1e-30;
+            if (Math.abs(c) < 1e-30) {
+                c = 1e-30;
+            }
             d = 1.0 / d;
             h *= d * c;
 
             aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
             d = 1.0 + aa * d;
-            if (Math.abs(d) < 1e-30) d = 1e-30;
+            if (Math.abs(d) < 1e-30) {
+                d = 1e-30;
+            }
             c = 1.0 + aa / c;
-            if (Math.abs(c) < 1e-30) c = 1e-30;
+            if (Math.abs(c) < 1e-30) {
+                c = 1e-30;
+            }
             d = 1.0 / d;
             double del = d * c;
             h *= del;
-            if (Math.abs(del - 1.0) < 1e-10) break;
+            if (Math.abs(del - 1.0) < 1e-10) {
+                break;
+            }
         }
         return h;
     }

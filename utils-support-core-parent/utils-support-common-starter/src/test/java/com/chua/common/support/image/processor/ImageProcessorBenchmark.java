@@ -94,7 +94,9 @@ public class ImageProcessorBenchmark {
         // 预热
         System.out.println("----- 预热 -----");
         for (ImageProcessor impl : impls) {
-            if (!impl.available()) continue;
+            if (!impl.available()) {
+                continue;
+            }
             for (int i = 0; i < 5; i++) {
                 try { impl.process(imageData, "resize", params("width", 200, "height", 150)); } catch (Exception e) { break; }
             }
@@ -126,7 +128,9 @@ public class ImageProcessorBenchmark {
         System.out.printf("%-10s %-8s %-12s %-12s %-12s %-12s %-10s%n",
                 "实现", "线程", "总操作", "总耗时(ms)", "吞吐(op/s)", "avg(ms)", "P99(ms)");
         for (ImageProcessor impl : impls) {
-            if (!impl.available()) continue;
+            if (!impl.available()) {
+                continue;
+            }
             for (int t : new int[]{1, threads}) {
                 StressResult r = runStressInternal(impl, imageData, "resize",
                         params("width", 200, "height", 150), t, Math.min(totalOps, t * 50));
@@ -394,7 +398,9 @@ public class ImageProcessorBenchmark {
 
         System.out.println("===== 性能对比汇总 =====");
         for (ImageProcessor impl : impls) {
-            if (!impl.available()) continue;
+            if (!impl.available()) {
+                continue;
+            }
             long[] times = new long[iterations];
             boolean ok = true;
             for (int i = 0; i < WARMUP_ITERATIONS; i++) {
@@ -417,7 +423,9 @@ public class ImageProcessorBenchmark {
     private static byte[] readImage(String path) {
         try {
             Path p = Paths.get(path);
-            if (!Files.exists(p)) return null;
+            if (!Files.exists(p)) {
+                return null;
+            }
             return Files.readAllBytes(p);
         } catch (IOException e) {
             return null;

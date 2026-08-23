@@ -95,7 +95,9 @@ public class JdkTcpClient implements TcpClient {
     private void readFully(SocketChannel ch, ByteBuffer buf) throws IOException {
         while (buf.hasRemaining()) {
             int read = ch.read(buf);
-            if (read == -1) throw new IOException("TCP connection closed by server");
+            if (read == -1) {
+                throw new IOException("TCP connection closed by server");
+            }
         }
     }
 

@@ -220,7 +220,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
          * @throws IllegalArgumentException 如果 ttlMillis 为负数
          */
         public Builder<E> ttlMillis(long ttlMillis) {
-            if (ttlMillis < 0) throw new IllegalArgumentException("ttlMillis 不能为负数: " + ttlMillis);
+            if (ttlMillis < 0) {
+                throw new IllegalArgumentException("ttlMillis 不能为负数: " + ttlMillis);
+            }
             this.ttlMillis = ttlMillis; return this;
         }
 
@@ -280,7 +282,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
          * @throws IllegalArgumentException 如果 timeoutMillis 为负数
          */
         public Builder<E> loadTimeoutMillis(long timeoutMillis) {
-            if (timeoutMillis < 0) throw new IllegalArgumentException("loadTimeoutMillis 不能为负数: " + timeoutMillis);
+            if (timeoutMillis < 0) {
+                throw new IllegalArgumentException("loadTimeoutMillis 不能为负数: " + timeoutMillis);
+            }
             this.loadTimeoutMillis = timeoutMillis; return this;
         }
 
@@ -381,8 +385,12 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         if (s == ListState.LOADING) {
             awaitLoading();
             s = state;
-            if (s == ListState.CLOSED) throw new IllegalStateException("LazyExpiringList 已关闭，不可访问");
-            if (s == ListState.LOADED) touchAccess();
+            if (s == ListState.CLOSED) {
+                throw new IllegalStateException("LazyExpiringList 已关闭，不可访问");
+            }
+            if (s == ListState.LOADED) {
+                touchAccess();
+            }
             return;
         }
         if (s == ListState.UNLOADED) {
@@ -402,8 +410,12 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
                 loadLock.unlock();
             }
             s = state;
-            if (s == ListState.CLOSED) throw new IllegalStateException("LazyExpiringList 已关闭，不可访问");
-            if (s == ListState.LOADED) touchAccess();
+            if (s == ListState.CLOSED) {
+                throw new IllegalStateException("LazyExpiringList 已关闭，不可访问");
+            }
+            if (s == ListState.LOADED) {
+                touchAccess();
+            }
         }
     }
 
@@ -421,12 +433,16 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
                 spins++;
             }
             latch = this.loadLatch;
-            if (latch == null) throw new IllegalStateException("加载信号初始化超时");
+            if (latch == null) {
+                throw new IllegalStateException("加载信号初始化超时");
+            }
         }
         try {
             if (loadTimeoutMillis > 0) {
                 boolean completed = latch.await(loadTimeoutMillis, TimeUnit.MILLISECONDS);
-                if (!completed) throw new IllegalStateException("等待数据加载超时（" + loadTimeoutMillis + "ms）");
+                if (!completed) {
+                    throw new IllegalStateException("等待数据加载超时（" + loadTimeoutMillis + "ms）");
+                }
             } else {
                 latch.await();
             }
@@ -445,7 +461,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         state = ListState.LOADING;
         try {
             List<E> data = loader.get();
-            if (data == null) data = Collections.emptyList();
+            if (data == null) {
+                data = Collections.emptyList();
+            }
             if (maxCapacity > 0 && data.size() > maxCapacity) {
                 log.warn("加载数据量 {} 超过最大容量 {}，已截断", data.size(), maxCapacity);
                 data = new ArrayList<>(data.subList(0, maxCapacity));
@@ -566,7 +584,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     public boolean contains(Object o) {
         ensureLoaded();
         for (int i = 0, sz = dataStore.size(); i < sz; i++) {
-            if (Objects.equals(dataStore.get(i), o)) return true;
+            if (Objects.equals(dataStore.get(i), o)) {
+                return true;
+            }
         }
         return false;
     }
@@ -580,7 +600,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     public Object[] toArray() {
         ensureLoaded();
         Object[] arr = new Object[dataStore.size()];
-        for (int i = 0; i < arr.length; i++) arr[i] = dataStore.get(i);
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = dataStore.get(i);
+        }
         return arr;
     }
 
@@ -591,8 +613,12 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         ensureLoaded();
         int size = dataStore.size();
         T[] arr = a.length >= size ? a : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
-        for (int i = 0; i < size; i++) arr[i] = (T) dataStore.get(i);
-        if (arr.length > size) arr[size] = null;
+        for (int i = 0; i < size; i++) arr[i] = (T) {
+            dataStore.get(i);
+        }
+        if (arr.length > size) {
+            arr[size] = null;
+        }
         return arr;
     }
 
@@ -605,7 +631,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     @Override
     public boolean add(E e) {
         ensureLoaded();
-        if (dataStore.isOffHeap()) throw new UnsupportedOperationException("堆外内存模式不支持 add 操作");
+        if (dataStore.isOffHeap()) {
+            throw new UnsupportedOperationException("堆外内存模式不支持 add 操作");
+        }
         if (maxCapacity > 0 && dataStore.size() >= maxCapacity) {
             log.warn("add 操作超过最大容量 {}，已拒绝", maxCapacity);
             return false;
@@ -637,12 +665,16 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     @Override
     public boolean addAll(Collection<? extends E> c) {
         ensureLoaded();
-        if (dataStore.isOffHeap()) throw new UnsupportedOperationException("堆外内存模式不支持 addAll 操作");
+        if (dataStore.isOffHeap()) {
+            throw new UnsupportedOperationException("堆外内存模式不支持 addAll 操作");
+        }
         if (maxCapacity > 0) {
             int remaining = maxCapacity - dataStore.size();
             if (remaining <= 0) { log.warn("addAll 超过最大容量 {}，已拒绝", maxCapacity); return false; }
             int toAdd = Math.min(c.size(), remaining);
-            if (toAdd < c.size()) log.warn("addAll 部分截断：请求 {}，允许 {}", c.size(), toAdd);
+            if (toAdd < c.size()) log.warn("addAll 部分截断：请求 {}，允许 {}", c.size() {
+                , toAdd);
+            }
             int count = 0;
             for (E e : c) { if (count >= toAdd) break; dataStore.append(e); count++; }
             return count > 0;
@@ -668,7 +700,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     public void clear() {
         loadLock.lock();
         try {
-            if (state == ListState.CLOSED) throw new IllegalStateException("LazyExpiringList 已关闭");
+            if (state == ListState.CLOSED) {
+                throw new IllegalStateException("LazyExpiringList 已关闭");
+            }
             releaseResources();
             state = ListState.UNLOADED;
         } finally { loadLock.unlock(); }
@@ -710,7 +744,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         if (fromIndex < 0 || toIndex > size || fromIndex > toIndex)
             throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + ", toIndex=" + toIndex + ", size=" + size);
         List<E> result = new ArrayList<>(toIndex - fromIndex);
-        for (int i = fromIndex; i < toIndex; i++) result.add(dataStore.get(i));
+        for (int i = fromIndex; i < toIndex; i++) result.add(dataStore.get(i) {
+            );
+        }
         return result;
     }
 
@@ -727,7 +763,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     public Stream<E> stream() {
         ensureLoaded();
         List<E> snapshot = new ArrayList<>(dataStore.size());
-        for (int i = 0, sz = dataStore.size(); i < sz; i++) snapshot.add(dataStore.get(i));
+        for (int i = 0, sz = dataStore.size(); i < sz; i++) snapshot.add(dataStore.get(i) {
+            );
+        }
         return snapshot.stream();
     }
 
@@ -736,7 +774,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     public Stream<E> parallelStream() {
         ensureLoaded();
         List<E> snapshot = new ArrayList<>(dataStore.size());
-        for (int i = 0, sz = dataStore.size(); i < sz; i++) snapshot.add(dataStore.get(i));
+        for (int i = 0, sz = dataStore.size(); i < sz; i++) snapshot.add(dataStore.get(i) {
+            );
+        }
         return snapshot.parallelStream();
     }
 
@@ -744,7 +784,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
     /** ForEach */
     public void forEach(Consumer<? super E> action) {
         ensureLoaded();
-        for (int i = 0, sz = dataStore.size(); i < sz; i++) action.accept(dataStore.get(i));
+        for (int i = 0, sz = dataStore.size(); i < sz; i++) action.accept(dataStore.get(i) {
+            );
+        }
     }
 
     // ==================== 内部迭代器 ====================
@@ -804,7 +846,9 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         try {
             if (state != ListState.CLOSED) {
                 releaseResources();
-                if (expiryTask != null) expiryTask.cancel(false);
+                if (expiryTask != null) {
+                    expiryTask.cancel(false);
+                }
                 state = ListState.CLOSED;
                 fireEvent(Event.Type.CLOSED, null);
                 log.debug("LazyExpiringList 已关闭");

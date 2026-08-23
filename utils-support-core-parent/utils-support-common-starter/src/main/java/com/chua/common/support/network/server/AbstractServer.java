@@ -175,7 +175,9 @@ public abstract class AbstractServer implements ConfigServer {
         request.setAttribute("_server", this);
         if (concurrencyLimiter != null && !concurrencyLimiter.tryAcquire()) {
             response.setStatus(503).setBody("Service Unavailable: too many concurrent requests");
-            if (!response.isEnded()) response.end();
+            if (!response.isEnded()) {
+                response.end();
+            }
             metrics.incrementErrors();
             return CompletableFuture.completedFuture(null);
         }
@@ -186,7 +188,9 @@ public abstract class AbstractServer implements ConfigServer {
                 .whenComplete((v, ex) -> {
                     metrics.recordLatency(System.nanoTime() - start);
                     metrics.decrementActive();
-                    if (concurrencyLimiter != null) concurrencyLimiter.release();
+                    if (concurrencyLimiter != null) {
+                        concurrencyLimiter.release();
+                    }
                 });
     }
 

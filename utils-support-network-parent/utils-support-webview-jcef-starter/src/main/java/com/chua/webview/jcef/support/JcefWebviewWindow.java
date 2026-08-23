@@ -45,12 +45,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @SuppressWarnings("unused")
+@Slf4j
 public class JcefWebviewWindow implements WebViewWindow {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(JcefWebviewWindow.class);
 
     /**
      * ipc 页面
