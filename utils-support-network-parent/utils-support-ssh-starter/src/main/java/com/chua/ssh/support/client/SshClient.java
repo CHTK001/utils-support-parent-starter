@@ -1,6 +1,7 @@
 package com.chua.ssh.support.client;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.channel.ChannelShell;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.channel.PtyChannelConfiguration;
