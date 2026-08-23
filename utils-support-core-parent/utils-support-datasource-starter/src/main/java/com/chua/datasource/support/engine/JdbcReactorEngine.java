@@ -100,6 +100,24 @@ public class JdbcReactorEngine implements ReactorEngine {
     /** 统一的联邦数据源（多数据源模式），无 SPI Conversion 时回退到首个 DataSource */
     private DataSource unifiedDataSource;
 
+    /** 被包装的同步引擎，供响应式子类（MysqlReactorEngine 等）委托调用 */
+    protected Engine delegate;
+
+    /**
+     * 构造 JDBC 响应式引擎（默认无参，用于独立 R2DBC 模式）。
+     */
+    public JdbcReactorEngine() {
+    }
+
+    /**
+     * 构造 JDBC 响应式引擎并包装同步引擎（用于 MysqlReactorEngine 等子类）。
+     *
+     * @param delegate 同步引擎实例
+     */
+    public JdbcReactorEngine(Engine delegate) {
+        this.delegate = delegate;
+    }
+
     /**
      * 添加 JDBC 数据源。根据数据源数量自动切换执行模式。
      *
