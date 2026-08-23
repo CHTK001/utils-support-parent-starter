@@ -29,6 +29,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     private static void registerAll() {
         // 通用动作识别：识别图片中人物动作（跑步、跳跃等），输出动作类别+置信度；适用安防监控、体育分析
         reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx", "https://huggingface.co/onnx-community/action-recognition/resolve/main/onnx/model.onnx", false, null);
+        // 视频动作检测(C3D)：ResNetC3D 视频动作检测，输入视频输出动作序列（9类：举手/吃喝/吸烟/打电话/玩手机/趴桌睡觉/跌倒/洗手/拍照）；适用安防监控、行为分析
+        reg("c3d-action-detection", "com.chua.deeplearning.support.onnx.action.C3DActionDetectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ActionDetector.class, "vision/action/c3d/model.onnx");
         // 年龄识别(GoogleNet)：根据人脸图像估算年龄，输出年龄区间；适用人脸属性分析、年龄统计
         // 年龄识别(VGG)：VGG 架构的人脸年龄估算，精度更高但计算量更大；适用人脸属性分析
         reg("vgg-age-recognition", "com.chua.deeplearning.support.onnx.age.VggAgeRecognitionTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/enhancement/age/vgg_ilsvrc_16_age_imdb_wiki.onnx");
@@ -52,7 +54,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 动漫/真人分类：判断图片是二次元动漫还是真实照片；适用内容路由、图片分类、预处理过滤
         reg("anime-real-cls", "com.chua.deeplearning.support.onnx.classification.AnimeRealClsTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx");
         // 通用标签分类(CLIP Tagger)：为图片打多个标签（如"猫"、"风景"、"室内"），基于 CLIP 零样本；适用图片归档、标签推荐
-        reg("cl-tagger", "com.chua.deeplearning.support.onnx.classification.ClTaggerTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/enhancement/cl_tagger_1_02/cl_tagger_1_02_optimized.onnx");
+        // 自动标签（WD-v1-4 MoAT Tagger V2）：6k+ tags 动漫/通用图像打标，嵌入 289MB，ImageClassifier；适用自动标注`n        reg("moat-tagger-v2", "com.chua.deeplearning.support.onnx.classification.MoatTaggerTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/tagging/wd-v1-4-moat/model.onnx");`n        reg("cl-tagger", "com.chua.deeplearning.support.onnx.classification.ClTaggerTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/enhancement/cl_tagger_1_02/cl_tagger_1_02_optimized.onnx");
         // 情感分析(DistilBERT)：对文本进行情感二分类（正面/负面），轻量级；适用评论分析、舆情监控、用户反馈
         reg("distil-bert-sentiment", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/distilbert-sst2/model_quantized.onnx");
         // 图像分类(EfficientNet-Lite0)：1000 类 ImageNet 分类，轻量级速度快；适用通用物体识别、图片内容理解
@@ -149,6 +151,18 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("rmbg20", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-2.0/onnx/model.onnx", "https://huggingface.co/briaai/RMBG-2.0/resolve/main/onnx/model.onnx", false, null);
         // 抠图(RMBG-1.4)：BRIA 背景移除 v1.4，42MB 嵌入式，效果接近 2.0；适用离线抠图、嵌入式设备
         reg("rmbg14", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx");
+        // 抠图(U2Net 嵌入)：F:\models/u2net.onnx，通用前景抠图；MattingTranslator 复用
+        reg("matting-u2net", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2net/u2net.onnx");
+        // 抠图(U2Netp 轻量嵌入)：F:\models/u2netp.onnx，4.5MB
+        reg("matting-u2netp", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2netp/u2netp.onnx");
+        // 抠图(ISNet 通用)：F:\models/isnet-general-use.onnx，178MB 高精度
+        reg("matting-isnet", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/isnet/isnet.onnx");
+        // 动漫人像分割：F:\models/anime.onnx，176MB
+        reg("anime-seg", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/anime/anime.onnx");
+        // 衣物分割(U2Net Cloth)：F:\models/cloth.onnx，176MB
+        reg("cloth-seg", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/cloth/cloth.onnx");
+        // 人像全身分割：F:\models/human.onnx，176MB
+        reg("human-seg", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/human/human.onnx");
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
@@ -262,8 +276,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mt5-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5ZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-zh/encoder_model_int8.onnx", null, null, false, null);
         // 中文 BART-large：fnlp/bart-large-chinese，400M 中文书面语，int8 量化，downloadUrl 模式（Z:\temp\onnx-zh-bart-int8）
         reg("bart-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.BartZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/bart-zh/encoder_model_int8.onnx", null, null, false, null);
-        // 中文 Randeng-T5-77M：IDEA-CCNL/Randeng-T5-77M-Chinese，77M/嵌入式优先（80MB int8）
-        reg("randeng-t5-77m", "com.chua.deeplearning.support.onnx.seq2seq.RandengT5OrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/randeng-t5-77m/encoder_model_int8.onnx", null, null, false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx");
         // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，嵌入式模型 jar 提供，无需下载；适用英文翻译中文
@@ -362,6 +374,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("visdrone-small-detector", "com.chua.deeplearning.support.onnx.yolo.VisDroneSmallDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/visdrone/damoyolo_visdrone.onnx");
         // 火灾烟雾检测(CCCCTV fire-smoke)：YOLOv8n 320 检测，cctv-ai-fire-smoke 嵌入式
         reg("fire-smoke", "com.chua.deeplearning.support.onnx.yolo.FireSmokeDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
+        // 安全帽检测(HudatersU Safety_helmet)：YOLOv8 640 检测，2 类 helmet/no-helmet（174MB，全图覆盖）
+        reg("safety-helmet", "com.chua.deeplearning.support.onnx.yolo.SafetyHelmetDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
         // 人脸关键点(FacePlugin-Landmark)：人脸 68 关键点检测；适用人脸对齐、表情识别
         reg("faceplugin-face-landmark", "com.chua.deeplearning.support.onnx.face.FacePluginLandmarkTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/landmark/faceplugin/face_landmark.onnx");
         // 人脸特征(FacePlugin-Feature)：人脸特征向量提取，配合 FacePlugin 检测/关键点使用；适用人脸识别
@@ -398,6 +412,12 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("duguang-det-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/duguang/large/det_512.onnx");
 
         // ==================== 语音合成 TTS ====================
+        // DFSMN 语音降噪（单麦 48k 实时近场，PSM）：输入带噪 48kHz 单声道 wav/pcm，输出降噪后音频。
+        // 模型打包在 utils-support-models-onnx-dfsmn-ans jar 中（audio/denoise/dfsmn_ans/，源自 ModelScope speech_dfsmn_ans_psm_48k_causal）。
+        reg("dfsmn-ans", "com.chua.deeplearning.support.onnx.audio.denoise.DfsmnAnsTranslator", byte[].class, byte[].class, com.chua.deeplearning.support.speech.SpeechEnhancer.class, "audio/denoise/dfsmn_ans/model.onnx");
+        // 印章检测（SDT Seal inspection，YOLO 640）：检测 4 类印章（公章/个人章/审核章/其他）。
+        // 模型打包在 utils-support-models-onnx-seal-inspection jar 中（vision/detection/seal/）。
+        reg("seal-inspection", "com.chua.deeplearning.support.onnx.yolo.SealInspectionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/seal/model.onnx");
         // MMS-TTS-English（VITS）：英文语音合成，输入文本输出 WAV 音频；适用英文朗读、语音播报。
         // 模型打包在 utils-support-models-onnx-mms-tts-eng jar 中（audio/tts/mms-tts-eng/），
         // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
@@ -452,7 +472,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolov8s-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
                 com.chua.deeplearning.support.image.ImageDetector.class,
-                "vision/detection/yoloworld/yolov8s-world.onnx",
+                "vision/detection/yoloworld/yolov8s-worldv2.onnx",
                 "https://huggingface.co/onnx-community/YOLOWorld-s/resolve/main/onnx/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/YOLOWorld-s/resolve/main/onnx/model.onnx"),
                 false, "model.onnx");
