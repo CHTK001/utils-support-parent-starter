@@ -497,4 +497,6 @@
             <artifactId>utils-support-models-onnx-moonshine</artifactId>
             <version>4.0.0.42</version>
         </dependency>
+    </dependencies>
+</project>
 
