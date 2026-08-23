@@ -4,8 +4,7 @@ import com.chua.datasync.agent.support.DataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncSource;
 import com.chua.common.support.lang.json.Json;
 import com.chua.socketio.support.source.SocketIOAgentDataSyncSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -17,12 +16,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent.DefaultDataSyncAgentServer {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(SocketIODataSyncAgentServer.class);
 
     /**
      * 端口号
