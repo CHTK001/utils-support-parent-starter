@@ -206,21 +206,9 @@ import java.util.concurrent.ConcurrentHashMap;
             Document doc = nitriteCollection.getById(nitriteId);
             return doc == null ? null : fromDocument(doc, documentClass);
         }
-        org.dizitart.no2.filters.Filter filter =
-                org.dizitart.no2.filters.FluentFilter.where("id").eq(String.valueOf(id));
-        for (Document doc : nitriteCollection.find(filter)) {
-            if (doc.hasId()) {
-                NitriteId docId = doc.getId();
-                if (docId != null && String.valueOf(docId).equals(String.valueOf(id))) {
-                    return fromDocument(doc, documentClass);
-                }
-            }
-            Object docIdValue = doc.get("id");
-            if (docIdValue != null && docIdValue.toString().equals(id.toString())) {
-                return fromDocument(doc, documentClass);
-            }
-        }
-        return null;
+        // 按业务 id 字段（字符串比较）匹配，规避数值类型与字符串过滤不匹配
+        Document found = findDocByIdField(nitriteCollection, id);
+        return found == null ? null : fromDocument(found, documentClass);
     }
 
     @Override
@@ -262,10 +250,42 @@ import java.util.concurrent.ConcurrentHashMap;
             return false;
         }
         NitriteCollection nitriteCollection = nitrite.getCollection(collection);
-        org.dizitart.no2.filters.Filter filter =
-                org.dizitart.no2.filters.FluentFilter.where("id").eq(String.valueOf(id));
-        nitriteCollection.remove(filter);
+        if (id instanceof NitriteId nitriteId) {
+            Document doc = nitriteCollection.getById(nitriteId);
+            if (doc == null) {
+                return false;
+            }
+            nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("_id").eq(nitriteId));
+            return true;
+        }
+        // 按业务 id 字段匹配后删除
+        Document found = findDocByIdField(nitriteCollection, id);
+        if (found == null) {
+            return false;
+        }
+        if (found.hasId()) {
+            nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("_id").eq(found.getId()));
+        } else {
+            nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("id").eq(found.get("id")));
+        }
         return true;
+    }
+
+    /**
+     * 按业务 id 字段查找文档（字符串比较，兼容数值与字符串类型）。
+     *
+     * @param collection 集合
+     * @param businessId 业务 id
+     * @return 匹配的文档，未找到返回 null
+     */
+    private static Document findDocByIdField(NitriteCollection collection, Object businessId) {
+        for (Document doc : collection.find()) {
+            Object value = doc.get("id");
+            if (value != null && value.toString().equals(businessId.toString())) {
+                return doc;
+            }
+        }
+        return null;
     }
 
     @Override

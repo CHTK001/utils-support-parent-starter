@@ -103,14 +103,16 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-ppe</artifactId>
+            <artifactId>utils-support-models-onnx-safety-helmet</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- 反光衣检测模型（YOLOv8n，2 类：safe/unsafe） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-reflective-clothes</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- 人脸检测模型（SCRFD / UltraFace / YOLOv11n-Face） -->
         <dependency>
