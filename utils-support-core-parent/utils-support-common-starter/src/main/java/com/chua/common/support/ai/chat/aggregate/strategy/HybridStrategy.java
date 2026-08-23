@@ -107,7 +107,9 @@ public class HybridStrategy implements RouterStrategy {
 
         Exception lastError = null;
         for (GroupRouter group : groups) {
-            if (!group.matches(prompt)) continue;
+            if (!group.matches(prompt)) {
+                continue;
+            }
             List<WeightedClient> healthy = filterHealthy(group.clients());
             if (healthy.isEmpty()) {
                 continue;

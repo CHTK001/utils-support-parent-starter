@@ -26,7 +26,9 @@ class VectorStorageTest {
 
     @AfterEach
     void tearDown() {
-        if (storage != null) storage.close();
+        if (storage != null) {
+            storage.close();
+        }
     }
 
     @Test

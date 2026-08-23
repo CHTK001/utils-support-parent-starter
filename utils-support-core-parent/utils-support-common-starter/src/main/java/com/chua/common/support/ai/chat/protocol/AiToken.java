@@ -54,8 +54,12 @@ public class AiToken {
      * @return true 有效，false 已过期或已禁用
      */
     public boolean isValid() {
-        if (!enabled) return false;
-        if (expireTime != null && expireTime.before(new Date())) return false;
+        if (!enabled) {
+            return false;
+        }
+        if (expireTime != null && expireTime.before(new Date())) {
+            return false;
+        }
         return true;
     }
 }

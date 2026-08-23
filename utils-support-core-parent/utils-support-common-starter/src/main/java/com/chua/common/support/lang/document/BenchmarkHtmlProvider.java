@@ -118,11 +118,15 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
         series.put("p99", "p99");
         series.put("rps", "rps");
         for (String impl : impls) {
-            if (jsImpls.length() > 0) jsImpls.append(',');
+            if (jsImpls.length() > 0) {
+                jsImpls.append(',');
+            }
             jsImpls.append('"').append(escapeJs(impl.toUpperCase())).append('"');
         }
         for (int i = 0; i < vus.size(); i++) {
-            if (i > 0) jsVus.append(',');
+            if (i > 0) {
+                jsVus.append(',');
+            }
             jsVus.append(vus.get(i)).append(" 并发");
         }
 
@@ -133,7 +137,9 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
             for (String impl : impls) {
                 dataMap.append(key).append("Data[\"").append(escapeJs(impl)).append("\"] = [");
                 for (int i = 0; i < vus.size(); i++) {
-                    if (i > 0) dataMap.append(',');
+                    if (i > 0) {
+                        dataMap.append(',');
+                    }
                     BenchmarkDocumentData.BenchmarkRow r = find(rows, impl, vus.get(i));
                     if (r == null) {
                         dataMap.append("0");

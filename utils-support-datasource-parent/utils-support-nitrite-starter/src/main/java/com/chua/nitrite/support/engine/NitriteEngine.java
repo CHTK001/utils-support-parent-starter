@@ -258,16 +258,13 @@ import java.util.concurrent.ConcurrentHashMap;
             nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("_id").eq(nitriteId));
             return true;
         }
-        // 按业务 id 字段匹配后删除
+        // 按业务 id 字段匹配后删除（使用原始类型值，规避数值/字符串过滤类型不匹配）
         Document found = findDocByIdField(nitriteCollection, id);
         if (found == null) {
             return false;
         }
-        if (found.hasId()) {
-            nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("_id").eq(found.getId()));
-        } else {
-            nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("id").eq(found.get("id")));
-        }
+        nitriteCollection.remove(
+                org.dizitart.no2.filters.FluentFilter.where("id").eq(found.get("id")));
         return true;
     }
 

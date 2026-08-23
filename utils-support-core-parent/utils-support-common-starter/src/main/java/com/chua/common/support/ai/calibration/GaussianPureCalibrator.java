@@ -86,7 +86,9 @@ public class GaussianPureCalibrator implements PureCalibrator {
         double pPos = gaussianPdf(rawScore, muPos, stdPos) * priorPos;
         double pNeg = gaussianPdf(rawScore, muNeg, stdNeg) * (1 - priorPos);
 
-        if (pPos + pNeg == 0) return 50.0;
+        if (pPos + pNeg == 0) {
+            return 50.0;
+        }
 
         double prob = pPos / (pPos + pNeg);
         return Math.round(prob * 10000.0) / 100.0;

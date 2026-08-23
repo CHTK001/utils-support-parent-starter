@@ -21,9 +21,13 @@ public class XmlPathBeanPath implements BeanPath {
     @Override
     /** 获取Value */
     public <T> T getValue(Object source, String path) {
-        if (!(source instanceof String xml)) return null;
+        if (!(source instanceof String xml)) {
+            return null;
+        }
         XmlPath xmlPath = XmlPath.getInstance();
-        if (xmlPath == null) return null;
+        if (xmlPath == null) {
+            return null;
+        }
         String value = xmlPath.getValue(xml, path);
         return value != null ? (T) value : null;
     }
@@ -36,7 +40,9 @@ public class XmlPathBeanPath implements BeanPath {
     @Override
     /** 是否存在 */
     public boolean exists(Object source, String path) {
-        if (!(source instanceof String xml)) return false;
+        if (!(source instanceof String xml)) {
+            return false;
+        }
         XmlPath xmlPath = XmlPath.getInstance();
         return xmlPath != null && xmlPath.exists(xml, path);
     }

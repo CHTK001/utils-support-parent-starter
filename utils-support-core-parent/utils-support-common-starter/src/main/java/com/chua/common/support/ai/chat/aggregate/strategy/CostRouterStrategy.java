@@ -44,16 +44,24 @@ public class CostRouterStrategy implements RouterStrategy {
 
     /** EvaluateComplexity */
     private int evaluateComplexity(String prompt) {
-        if (prompt == null || prompt.isEmpty()) return 0;
+        if (prompt == null || prompt.isEmpty()) {
+            return 0;
+        }
         int len = prompt.length();
-        if (len < SHORT_THRESHOLD) return 0;
-        if (len < MEDIUM_THRESHOLD) return 1;
+        if (len < SHORT_THRESHOLD) {
+            return 0;
+        }
+        if (len < MEDIUM_THRESHOLD) {
+            return 1;
+        }
         return 2;
     }
 
     /** MapComplexityToIndex */
     private int mapComplexityToIndex(int complexity, int total) {
-        if (total <= 1) return 0;
+        if (total <= 1) {
+            return 0;
+        }
         return Math.min(complexity * (total - 1) / 2, total - 1);
     }
 }

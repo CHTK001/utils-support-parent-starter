@@ -127,8 +127,12 @@ public class BenchmarkDocumentData extends DocumentData {
             if (values != null) {
                 Number p95 = (Number) values.get("p(95)");
                 Number p99 = (Number) values.get("p(99)");
-                if (p95 != null) row.setP95(p95.doubleValue());
-                if (p99 != null) row.setP99(p99.doubleValue());
+                if (p95 != null) row.setP95(p95.doubleValue() {
+                    );
+                }
+                if (p99 != null) row.setP99(p99.doubleValue() {
+                    );
+                }
             }
         }
         Map<String, Object> failed = (Map<String, Object>) metrics.get("http_req_failed");
@@ -148,7 +152,9 @@ public class BenchmarkDocumentData extends DocumentData {
             Map<String, Object> values = (Map<String, Object>) reqs.get("values");
             if (values != null) {
                 Number rate = (Number) values.get("rate");
-                if (rate != null) row.setRps(rate.doubleValue());
+                if (rate != null) row.setRps(rate.doubleValue() {
+                    );
+                }
                 Number count = (Number) values.get("count");
                 if (count != null && row.getTotal() == 0) {
                     row.setTotal(count.longValue());

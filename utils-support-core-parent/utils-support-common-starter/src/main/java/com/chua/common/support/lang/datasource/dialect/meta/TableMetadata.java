@@ -63,14 +63,20 @@ public class TableMetadata {
 
     /** 格式化分区 SQL */
     public String formatPartitionSql(Dialect dialect) {
-        if (!hasPartitions()) return "";
-        if (partitionDefinition != null && !partitionDefinition.isEmpty()) return partitionDefinition;
+        if (!hasPartitions()) {
+            return "";
+        }
+        if (partitionDefinition != null && !partitionDefinition.isEmpty()) {
+            return partitionDefinition;
+        }
         return dialect.formatPartitionSql(this);
     }
 
     /** 主键列 */
     public ColumnMetadata getPrimaryKeyColumn() {
-        if (columns == null) return null;
+        if (columns == null) {
+            return null;
+        }
         return columns.stream().filter(ColumnMetadata::isPrimaryKey).findFirst().orElse(null);
     }
 

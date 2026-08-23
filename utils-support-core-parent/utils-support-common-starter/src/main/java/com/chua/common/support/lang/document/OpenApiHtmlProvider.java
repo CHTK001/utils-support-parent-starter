@@ -118,7 +118,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         for (java.util.Map.Entry<String, List<OpenApiEndpoint>> entry : grouped.entrySet()) {
             String tagName = entry.getKey();
             List<OpenApiEndpoint> endpoints = entry.getValue();
-            if (endpoints.isEmpty()) continue;
+            if (endpoints.isEmpty()) {
+                continue;
+            }
             String nodeId = "node-" + ID_GEN.incrementAndGet();
             sb.append("<li class=\"tree-folder\"><div class=\"folder-row\"><span class=\"caret\">▾</span>");
             sb.append("<a href=\"#").append(nodeId).append("\" class=\"folder-link\">");
@@ -152,7 +154,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         for (java.util.Map.Entry<String, List<OpenApiEndpoint>> entry : grouped.entrySet()) {
             String tagName = entry.getKey();
             List<OpenApiEndpoint> endpoints = new ArrayList<>(entry.getValue());
-            if (endpoints.isEmpty()) continue;
+            if (endpoints.isEmpty()) {
+                continue;
+            }
             endpoints.sort(Comparator.comparing(OpenApiEndpoint::getPath, Comparator.nullsLast(Comparator.naturalOrder()))
                     .thenComparing(OpenApiEndpoint::getMethod, Comparator.nullsLast(Comparator.naturalOrder())));
             String nodeId = "node-" + ID_GEN.incrementAndGet();
@@ -255,7 +259,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
     /** Escape */
     private String escape(String s) {
-        if (s == null) return "";
+        if (s == null) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);

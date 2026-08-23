@@ -230,7 +230,9 @@ public class UsagePersistChatClient implements ChatClient {
      */
     public void flush() {
         List<CompletableFuture<?>> pending = List.copyOf(pendingFutures);
-        if (pending.isEmpty()) return;
+        if (pending.isEmpty()) {
+            return;
+        }
         try {
             CompletableFuture.allOf(pending.toArray(new CompletableFuture[0]))
                     .join();
@@ -247,11 +249,19 @@ public class UsagePersistChatClient implements ChatClient {
      * @param externalUsage 外部来源的用量数据列表
      */
     public void syncUsage(List<AiUsage> externalUsage) {
-        if (externalUsage == null || externalUsage.isEmpty() || engine == null) return;
+        if (externalUsage == null || externalUsage.isEmpty() || engine == null) {
+            return;
+        }
         for (AiUsage usage : externalUsage) {
-            if (usage == null) continue;
-            if (usage.getProvider() == null) usage.setProvider("external-sync");
-            if (usage.getRequestId() == null) usage.setRequestId("sync-" + System.nanoTime());
+            if (usage == null) {
+                continue;
+            }
+            if (usage.getProvider() == null) {
+                usage.setProvider("external-sync");
+            }
+            if (usage.getRequestId() == null) usage.setRequestId("sync-" + System.nanoTime() {
+                );
+            }
             persistAsync(usage);
         }
         log.info("[UsagePersistChatClient] 从外部同步 {} 条用量到 Engine", externalUsage.size());
@@ -268,7 +278,9 @@ public class UsagePersistChatClient implements ChatClient {
 
     /** PersistAsync */
     private void persistAsync(AiUsage usage) {
-        if (usage == null || engine == null) return;
+        if (usage == null || engine == null) {
+            return;
+        }
         CompletableFuture<AiUsageRecord> future = AiUsageRecord.from(usage).asyncSave(engine);
         pendingFutures.add(future);
         future.whenComplete((r, t) -> {

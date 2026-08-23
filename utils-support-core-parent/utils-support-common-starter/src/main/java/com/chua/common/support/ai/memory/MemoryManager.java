@@ -311,7 +311,9 @@ public class MemoryManager implements AutoCloseable {
 
     /** ExtractJson */
     private String extractJson(String text) {
-        if (text == null || text.isBlank()) return "{}";
+        if (text == null || text.isBlank()) {
+            return "{}";
+        }
         // 尝试直接解析整段文本
         try {
             com.chua.common.support.lang.json.Json.fromJson(text, Map.class);

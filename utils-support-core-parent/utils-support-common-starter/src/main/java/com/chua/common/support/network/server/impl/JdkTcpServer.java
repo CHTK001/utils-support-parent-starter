@@ -664,7 +664,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         int offset = 0;
         while (offset < header.length) {
             int read = in.read(header, offset, header.length - offset);
-            if (read == -1) return null;
+            if (read == -1) {
+                return null;
+            }
             offset += read;
         }
 
@@ -682,7 +684,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         offset = 0;
         while (offset < dataLength) {
             int read = in.read(data, offset, dataLength - offset);
-            if (read == -1) return null;
+            if (read == -1) {
+                return null;
+            }
             offset += read;
         }
 

@@ -529,7 +529,9 @@ public final class CommandLine {
     @Nullable
     private CliOption resolveOption(String name) {
         CliOption opt = findOption(name);
-        if (opt != null) return opt;
+        if (opt != null) {
+            return opt;
+        }
         return findOptionByShortName(name);
     }
 
@@ -1304,7 +1306,9 @@ public final class CommandLine {
     private String optionNames() {
         StringBuilder sb = new StringBuilder();
         for (CliOption opt : options) {
-            if (sb.length() > 0) sb.append(", ");
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
             sb.append("--").append(opt.longName());
         }
         return sb.toString();

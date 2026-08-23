@@ -28,8 +28,12 @@ class LocalFileUploadProviderTest {
 
     @AfterEach
     void tearDown() throws IOException {
-        if (provider != null) provider.delete("test-doc");
-        if (tempDir != null) deleteRecursively(tempDir.toFile());
+        if (provider != null) {
+            provider.delete("test-doc");
+        }
+        if (tempDir != null) deleteRecursively(tempDir.toFile() {
+            );
+        }
     }
 
     @Test
@@ -79,7 +83,9 @@ class LocalFileUploadProviderTest {
 
     private void deleteRecursively(java.io.File file) {
         if (file.isDirectory()) {
-            for (java.io.File child : file.listFiles()) deleteRecursively(child);
+            for (java.io.File child : file.listFiles()) {
+                deleteRecursively(child);
+            }
         }
         file.delete();
     }
