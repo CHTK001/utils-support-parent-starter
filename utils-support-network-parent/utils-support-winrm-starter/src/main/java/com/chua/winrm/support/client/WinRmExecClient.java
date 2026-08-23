@@ -4,8 +4,7 @@ import io.cloudsoft.winrm4j.client.ShellCommand;
 import io.cloudsoft.winrm4j.client.WinRmClient;
 import io.cloudsoft.winrm4j.client.WinRmClientBuilder;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -35,12 +34,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Getter
+@Slf4j
 public class WinRmExecClient implements AutoCloseable {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(WinRmExecClient.class);
 
     /**
      * 主机地址
