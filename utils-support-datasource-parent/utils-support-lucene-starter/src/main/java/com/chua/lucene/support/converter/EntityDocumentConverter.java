@@ -90,7 +90,10 @@ public final class EntityDocumentConverter {
             return null;
         }
         try {
-            T entity = ReflectUtils.instantiate(entityClass);
+            // 使用无参构造反射实例化，避免 MethodHandle 对部分类的访问限制
+            java.lang.reflect.Constructor<T> constructor = entityClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            T entity = constructor.newInstance();
             for (Field field : entityClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 String fieldName = field.getName();
